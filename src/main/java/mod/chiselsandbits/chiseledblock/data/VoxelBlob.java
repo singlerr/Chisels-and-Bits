@@ -6,13 +6,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import mod.chiselsandbits.helpers.LocalStrings;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog.EnumAxis;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 
 public class VoxelBlob
@@ -34,10 +43,14 @@ public class VoxelBlob
 			final VoxelBlob second )
 	{
 		for ( int z = 0; z < dim; z++ )
+		{
 			for ( int y = 0; y < dim; y++ )
+			{
 				for ( int x = 0; x < dim; x++ )
 					if ( get( x, y, z ) != 0 && second.get( x, y, z ) != 0 )
 						return false;
+			}
+		}
 
 		return true;
 	}
@@ -48,15 +61,23 @@ public class VoxelBlob
 		final VoxelBlob out = new VoxelBlob();
 
 		for ( int z = 0; z < dim; z++ )
+		{
 			for ( int y = 0; y < dim; y++ )
+			{
 				for ( int x = 0; x < dim; x++ )
 				{
 					final int a = get( x, y, z );
 					if ( a == 0 )
+					{
 						out.set( x, y, z, second.get( x, y, z ) );
+					}
 					else
+					{
 						out.set( x, y, z, a );
+					}
 				}
+			}
+		}
 
 		return out;
 	}
@@ -68,7 +89,9 @@ public class VoxelBlob
 		int max_x = 0, max_y = 0, max_z = 0;
 
 		for ( int z = 0; z < dim; z++ )
+		{
 			for ( int y = 0; y < dim; y++ )
+			{
 				for ( int x = 0; x < dim; x++ )
 					if ( get( x, y, z ) != 0 )
 						if ( found )
@@ -93,6 +116,8 @@ public class VoxelBlob
 							max_y = y;
 							max_z = z;
 						}
+			}
+		}
 
 		return found ? new BlockPos( ( min_x + max_x ) / 2, ( min_y + max_y ) / 2, ( min_z + max_z ) / 2 ) : null;
 	}
@@ -104,7 +129,9 @@ public class VoxelBlob
 		int max_x = 0, max_y = 0, max_z = 0;
 
 		for ( int z = 0; z < dim; z++ )
+		{
 			for ( int y = 0; y < dim; y++ )
+			{
 				for ( int x = 0; x < dim; x++ )
 					if ( get( x, y, z ) != 0 )
 						if ( found )
@@ -129,6 +156,8 @@ public class VoxelBlob
 							max_y = y + 1;
 							max_z = z + 1;
 						}
+			}
+		}
 
 		return found ? new IntegerBox( min_x, min_y, min_z, max_x, max_y, max_z ) : null;
 	}
@@ -139,8 +168,11 @@ public class VoxelBlob
 		final VoxelBlob d = new VoxelBlob();
 
 		for ( int z = 0; z < dim; z++ )
+		{
 			for ( int y = 0; y < dim; y++ )
+			{
 				for ( int x = 0; x < dim; x++ )
+				{
 					switch ( axis )
 					{
 						case X:
@@ -154,6 +186,9 @@ public class VoxelBlob
 						default:
 							throw new NullPointerException();
 					}
+				}
+			}
+		}
 
 		return d;
 	}
@@ -170,8 +205,11 @@ public class VoxelBlob
 		 */
 
 		for ( int z = 0; z < dim; z++ )
+		{
 			for ( int y = 0; y < dim; y++ )
+			{
 				for ( int x = 0; x < dim; x++ )
+				{
 					switch ( axis )
 					{
 						case X:
@@ -186,6 +224,9 @@ public class VoxelBlob
 						default:
 							throw new NullPointerException();
 					}
+				}
+			}
+		}
 
 		return d;
 	}
@@ -194,7 +235,9 @@ public class VoxelBlob
 			final int value )
 	{
 		for ( int x = 0; x < array_size; x++ )
+		{
 			values[x] = value;
+		}
 	}
 
 	public void clear()
@@ -208,7 +251,9 @@ public class VoxelBlob
 
 		for ( int x = 0; x < array_size; x++ )
 			if ( values[x] == 0 )
+			{
 				p++;
+			}
 
 		return p;
 	}
@@ -219,7 +264,9 @@ public class VoxelBlob
 
 		for ( int x = 0; x < array_size; x++ )
 			if ( values[x] != 0 )
+			{
 				p++;
+			}
 
 		return p;
 	}
@@ -391,9 +438,13 @@ public class VoxelBlob
 
 			final IntegerRef tf = count.get( ref );
 			if ( tf == null )
+			{
 				count.put( ref, new IntegerRef( ref, 1 ) );
+			}
 			else
+			{
 				tf.total++;
+			}
 		}
 
 		return count;
@@ -407,7 +458,9 @@ public class VoxelBlob
 
 		for ( final IntegerRef r : count.values() )
 			if ( r.total > out.total && r.ref != 0 )
+			{
 				out = r;
+			}
 
 		final CommonBlock cb = new CommonBlock();
 		cb.ref = out.ref;
@@ -429,11 +482,99 @@ public class VoxelBlob
 		final VoxelBlob out = new VoxelBlob();
 
 		for ( int z = 0; z < dim; z++ )
+		{
 			for ( int y = 0; y < dim; y++ )
+			{
 				for ( int x = 0; x < dim; x++ )
+				{
 					out.set( x, y, z, getSafe( x - xx, y - yy, z - zz ) );
+				}
+			}
+		}
 
 		return out;
+	}
+
+	@SideOnly( Side.CLIENT )
+	public void listContents(
+			final List<String> details )
+	{
+		final HashMap<Integer, Integer> states = new HashMap<Integer, Integer>();
+		final HashMap<String, Integer> contents = new HashMap<String, Integer>();
+
+		for ( int z = 0; z < dim; z++ )
+		{
+			for ( int y = 0; y < dim; y++ )
+			{
+				for ( int x = 0; x < dim; x++ )
+				{
+					final int state = get( x, y, z );
+					if ( state == 0 )
+					{
+						continue;
+					}
+
+					Integer count = states.get( state );
+
+					if ( count == null )
+					{
+						count = 1;
+					}
+					else
+					{
+						count++;
+					}
+
+					states.put( state, count );
+				}
+			}
+		}
+
+		for ( final Entry<Integer, Integer> e : states.entrySet() )
+		{
+			final IBlockState state = Block.getStateById( e.getKey() );
+			if ( state == null )
+			{
+				continue;
+			}
+
+			final Block blk = state.getBlock();
+			if ( blk == null )
+			{
+				continue;
+			}
+
+			final Item what = Item.getItemFromBlock( blk );
+			if ( what == null )
+			{
+				continue;
+			}
+
+			final String name = what.getItemStackDisplayName( new ItemStack( what, 1, blk.getMetaFromState( state ) ) );
+
+			Integer count = contents.get( name );
+
+			if ( count == null )
+			{
+				count = e.getValue();
+			}
+			else
+			{
+				count += e.getValue();
+			}
+
+			contents.put( name, count );
+		}
+
+		if ( contents.isEmpty() )
+		{
+			details.add( LocalStrings.Empty.getLocal() );
+		}
+
+		for ( final Entry<String, Integer> e : contents.entrySet() )
+		{
+			details.add( new StringBuilder().append( e.getValue() ).append( ' ' ).append( e.getKey() ).toString() );
+		}
 	}
 
 }

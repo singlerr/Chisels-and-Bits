@@ -28,7 +28,9 @@ public class NegativePrintSmartModel extends BaseSmartModel implements ISmartIte
 			NegativePrintBaked npb = cache.get( stack );
 
 			if ( npb == null )
+			{
 				cache.put( stack, npb = new NegativePrintBaked( stack ) );
+			}
 
 			return npb;
 		}

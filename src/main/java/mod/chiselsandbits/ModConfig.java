@@ -5,7 +5,7 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import net.minecraft.util.StatCollector;
+import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -35,14 +35,17 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public long availableUsesMultiplier;
 
+	@Configured( category = "Crafting" )
+	boolean enablePositivePrintCrafting;
+
+	@Configured( category = "Crafting" )
+	public boolean enableStackableCrafting;
+
 	@Configured( category = "Items" )
 	boolean enableBitBag;
 
 	@Configured( category = "Items" )
 	boolean enableNegativePrint;
-
-	@Configured( category = "Items" )
-	boolean enablePositivePrintCrafting;
 
 	@Configured( category = "Items" )
 	boolean enablePositivePrint;
@@ -73,9 +76,11 @@ public class ModConfig extends Configuration
 		damageTools = true;
 		availableUsesMultiplier = 32;
 
+		enablePositivePrintCrafting = true;
+		enableStackableCrafting = true;
+
 		enableBitBag = true;
 		enableNegativePrint = true;
-		enablePositivePrintCrafting = true;
 		enablePositivePrint = true;
 		enableChisledBits = true;
 		enableStoneChisel = true;
@@ -103,6 +108,7 @@ public class ModConfig extends Configuration
 		{
 			final Configured c = f.getAnnotation( Configured.class );
 			if ( c != null )
+			{
 				try
 				{
 					if ( f.getType() == long.class || f.getType() == Long.class )
@@ -124,16 +130,17 @@ public class ModConfig extends Configuration
 						f.set( this, value );
 					}
 				}
-				catch ( IllegalArgumentException  e )
+				catch ( final IllegalArgumentException e )
 				{
 					// yar!
 					e.printStackTrace();
 				}
-				catch ( IllegalAccessException e )
+				catch ( final IllegalAccessException e )
 				{
 					// yar!
 					e.printStackTrace();
 				}
+			}
 		}
 	}
 
@@ -152,7 +159,9 @@ public class ModConfig extends Configuration
 	public void save()
 	{
 		if ( hasChanged() )
+		{
 			super.save();
+		}
 	}
 
 	@Override
@@ -166,21 +175,25 @@ public class ModConfig extends Configuration
 		final Property prop = super.get( category, key, defaultValue, comment, type );
 
 		if ( prop != null && !category.equals( "Client Settings" ) )
+		{
 			prop.setRequiresMcRestart( true );
+		}
 
 		return prop;
 	}
 
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	public void helpText(
-			final String string,
+			final LocalStrings string,
 			final List tooltip )
 	{
 		if ( showUsage )
 		{
-			final String[] lines = StatCollector.translateToLocal( string ).split( ";" );
+			final String[] lines = string.getLocal().split( ";" );
 			for ( final String a : lines )
+			{
 				tooltip.add( a );
+			}
 		}
 	}
 

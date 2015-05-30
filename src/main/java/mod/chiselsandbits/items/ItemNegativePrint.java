@@ -8,6 +8,7 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import net.minecraft.block.Block;
@@ -22,6 +23,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
+
+import org.lwjgl.input.Keyboard;
 
 
 public class ItemNegativePrint extends Item
@@ -42,7 +45,7 @@ public class ItemNegativePrint extends Item
 		super.addInformation( stack, playerIn, tooltip, advanced );
 	}
 
-	@SuppressWarnings( { "rawtypes" } )
+	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
@@ -51,7 +54,19 @@ public class ItemNegativePrint extends Item
 			final boolean advanced )
 	{
 		defaultAddInfo( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( "mod.chiselsandbits.help.negativeprint", tooltip );
+		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpNegativePrint, tooltip );
+
+		if ( stack.hasTagCompound() )
+		{
+			if ( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
+			{
+
+			}
+			else
+			{
+				tooltip.add( LocalStrings.ShiftDetails.getLocal() );
+			}
+		}
 	}
 
 	@Override
@@ -119,7 +134,9 @@ public class ItemNegativePrint extends Item
 			VoxelBlob pattern = tmp.getBlob();
 
 			while ( rotations-- > 0 )
+			{
 				pattern = pattern.spin( Axis.Y );
+			}
 
 			applyPrint( world, pos, side, vb, pattern, player );
 
@@ -182,7 +199,9 @@ public class ItemNegativePrint extends Item
 		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
 
 		for ( int z = 0; z < vb.detail && selected.isValid(); z++ )
+		{
 			for ( int y = 0; y < vb.detail && selected.isValid(); y++ )
+			{
 				for ( int x = 0; x < vb.detail && selected.isValid(); x++ )
 					if ( vb.get( x, y, z ) != 0 && pattern.get( x, y, z ) == 0 )
 					{
@@ -190,11 +209,17 @@ public class ItemNegativePrint extends Item
 						selected.damage( player );
 
 						if ( !selected.isValid() )
+						{
 							selected = ModUtil.findChisel( player );
+						}
 					}
+			}
+		}
 
 		for ( final EntityItem ei : spawnlist )
+		{
 			world.spawnEntityInWorld( ei );
+		}
 	}
 
 }

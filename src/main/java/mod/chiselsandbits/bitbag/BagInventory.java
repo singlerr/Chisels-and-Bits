@@ -1,14 +1,24 @@
 
 package mod.chiselsandbits.bitbag;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IChatComponent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 
 public class BagInventory implements IInventory
@@ -41,7 +51,9 @@ public class BagInventory implements IInventory
 			final int id = slots[index + ItemBitBag.offset_state_id];
 
 			if ( qty > 0 && id > 0 )
+			{
 				used++;
+			}
 		}
 
 		return used;
@@ -54,7 +66,9 @@ public class BagInventory implements IInventory
 		NBTTagCompound tag = target.getTagCompound();
 
 		if ( tag == null )
+		{
 			is.setTagCompound( tag = new NBTTagCompound() );
+		}
 
 		final int slotCount = max_size;
 		final int len = slotCount * ItemBitBag.intsPerBitType;
@@ -62,10 +76,14 @@ public class BagInventory implements IInventory
 		stackSlots = new ItemStack[slotCount];
 
 		if ( !tag.hasKey( "contents" ) )
+		{
 			tag.setIntArray( "contents", new int[len] );
+		}
 
 		if ( tag.getIntArray( "contents" ).length != len )
+		{
 			tag.setIntArray( "contents", new int[len] );
+		}
 
 		slots = tag.getIntArray( "contents" );
 	}
@@ -125,12 +143,16 @@ public class BagInventory implements IInventory
 			return null;
 
 		if ( count > qty )
+		{
 			count = qty;
+		}
 
 		slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty] -= count;
 
 		if ( stackSlots[index] != null )
+		{
 			stackSlots[index].stackSize -= count;
+		}
 
 		return ItemChiseledBit.createStack( id, count );
 	}
@@ -248,9 +270,13 @@ public class BagInventory implements IInventory
 				final int overage = total - target.stackSize;
 
 				if ( overage > 0 )
+				{
 					is.stackSize = overage;
+				}
 				else
+				{
 					setInventorySlotContents( x, null );
+				}
 
 				markDirty();
 			}
@@ -310,7 +336,9 @@ public class BagInventory implements IInventory
 				slots[qty_idx] -= total;
 
 				if ( slots[qty_idx] < 0 )
+				{
 					slots[qty_idx] = 0;
+				}
 
 				final int diff = qty - slots[qty_idx];
 				used += diff;
@@ -322,6 +350,63 @@ public class BagInventory implements IInventory
 		}
 
 		return used;
+	}
+
+	@SideOnly( Side.CLIENT )
+	public void listContents(
+			final List<String> details )
+	{
+		final HashMap<String, Integer> contents = new HashMap<String, Integer>();
+
+		for ( int x = 0; x < getSizeInventory(); x++ )
+		{
+			final ItemStack is = getStackInSlot( x );
+
+			if ( is != null )
+			{
+				final IBlockState state = Block.getStateById( ItemChisel.getStackState( is ) );
+				if ( state == null )
+				{
+					continue;
+				}
+
+				final Block blk = state.getBlock();
+				if ( blk == null )
+				{
+					continue;
+				}
+
+				final Item what = Item.getItemFromBlock( blk );
+				if ( what == null )
+				{
+					continue;
+				}
+
+				final String name = what.getItemStackDisplayName( new ItemStack( what, 1, blk.getMetaFromState( state ) ) );
+
+				Integer count = contents.get( name );
+				if ( count == null )
+				{
+					count = is.stackSize;
+				}
+				else
+				{
+					count += is.stackSize;
+				}
+
+				contents.put( name, count );
+			}
+		}
+
+		if ( contents.isEmpty() )
+		{
+			details.add( LocalStrings.Empty.getLocal() );
+		}
+
+		for ( final Entry<String, Integer> e : contents.entrySet() )
+		{
+			details.add( new StringBuilder().append( e.getValue() ).append( ' ' ).append( e.getKey() ).toString() );
+		}
 	}
 
 }

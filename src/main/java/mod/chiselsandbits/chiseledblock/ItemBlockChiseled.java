@@ -1,16 +1,19 @@
 
 package mod.chiselsandbits.chiseledblock;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -21,6 +24,10 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+import org.lwjgl.input.Keyboard;
 
 
 public class ItemBlockChiseled extends ItemBlock
@@ -32,7 +39,11 @@ public class ItemBlockChiseled extends ItemBlock
 		super( block );
 	}
 
-	@SuppressWarnings( { "rawtypes" } )
+	// add info cached info
+	ItemStack cachedInfo;
+	List<String> details = new ArrayList<String>();
+
+	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
@@ -41,7 +52,31 @@ public class ItemBlockChiseled extends ItemBlock
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( "mod.chiselsandbits.help.chiseled_block", tooltip );
+		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpChiseledBlock, tooltip );
+
+		if ( stack.hasTagCompound() )
+		{
+			if ( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
+			{
+				if ( cachedInfo != stack )
+				{
+					cachedInfo = stack;
+					details.clear();
+
+					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+					tmp.readChisleData( stack.getSubCompound( "BlockEntityTag", false ) );
+					final VoxelBlob blob = tmp.getBlob();
+
+					blob.listContents( details );
+				}
+
+				tooltip.addAll( details );
+			}
+			else
+			{
+				tooltip.add( LocalStrings.ShiftDetails.getLocal() );
+			}
+		}
 	}
 
 	public static boolean renderTransparentGhost = false;
@@ -52,12 +87,15 @@ public class ItemBlockChiseled extends ItemBlock
 			final int renderPass )
 	{
 		if ( !renderTransparentGhost )
+		{
 			return super.getColorFromItemStack( stack, renderPass );
+		}
 
 		return 0x888888;
 	}
 
 	@Override
+	@SideOnly( Side.CLIENT )
 	public boolean canPlaceBlockOnSide(
 			final World worldIn,
 			final BlockPos pos,
@@ -65,12 +103,47 @@ public class ItemBlockChiseled extends ItemBlock
 			final EntityPlayer player,
 			final ItemStack stack )
 	{
-		if ( super.canPlaceBlockOnSide( worldIn, pos, side, player, stack ) )
+		return canPlaceBlockHere( worldIn, pos, side, player, stack );
+	}
+
+	public boolean vanillaStylePlacementTest(
+			final World worldIn,
+			BlockPos pos,
+			EnumFacing side,
+			final EntityPlayer player,
+			final ItemStack stack )
+	{
+		final Block block = worldIn.getBlockState( pos ).getBlock();
+
+		if ( block == Blocks.snow_layer )
+		{
+			side = EnumFacing.UP;
+		}
+		else if ( !block.isReplaceable( worldIn, pos ) )
+		{
+			pos = pos.offset( side );
+		}
+
+		return worldIn.canBlockBePlaced( this.block, pos, false, side, ( Entity ) null, stack );
+	}
+
+	public boolean canPlaceBlockHere(
+			final World worldIn,
+			final BlockPos pos,
+			final EnumFacing side,
+			final EntityPlayer player,
+			final ItemStack stack )
+	{
+		if ( vanillaStylePlacementTest( worldIn, pos, side, player, stack ) )
+		{
 			return true;
+		}
 
 		final IBlockState state = worldIn.getBlockState( pos );
 		if ( state.getBlock() instanceof BlockChiseled )
+		{
 			return true;
+		}
 
 		final IBlockState stateb = worldIn.getBlockState( pos.offset( side ) );
 		return stateb.getBlock() instanceof BlockChiseled;
@@ -91,17 +164,27 @@ public class ItemBlockChiseled extends ItemBlock
 		final Block block = iblockstate.getBlock();
 
 		if ( block == Blocks.snow_layer && ( ( Integer ) iblockstate.getValue( BlockSnow.LAYERS ) ).intValue() < 1 )
+		{
 			side = EnumFacing.UP;
+		}
 		else if ( !playerIn.isSneaking() && !block.isReplaceable( worldIn, pos ) )
+		{
 			pos = pos.offset( side );
+		}
 
 		if ( stack.stackSize == 0 )
+		{
 			return false;
+		}
 		else if ( !playerIn.canPlayerEdit( pos, side, stack ) )
+		{
 			return false;
+		}
 		else if ( pos.getY() == 255 && this.block.getMaterial().isSolid() )
+		{
 			return false;
-		else if ( canPlaceBlockOnSide( worldIn, pos, side, playerIn, stack ) )
+		}
+		else if ( canPlaceBlockHere( worldIn, pos, side, playerIn, stack ) )
 		{
 			final int i = this.getMetadata( stack.getMetadata() );
 			final IBlockState iblockstate1 = this.block.onBlockPlaced( worldIn, pos, side, hitX, hitY, hitZ, i, playerIn );
@@ -115,7 +198,9 @@ public class ItemBlockChiseled extends ItemBlock
 			return true;
 		}
 		else
+		{
 			return false;
+		}
 	}
 
 	@Override
@@ -131,7 +216,9 @@ public class ItemBlockChiseled extends ItemBlock
 			final IBlockState newState )
 	{
 		if ( player.isSneaking() )
+		{
 			return tryPlaceBlockAt( block, stack, player, world, pos, side, new BlockPos( VoxelBlob.dim * hitX, VoxelBlob.dim * hitY, VoxelBlob.dim * hitZ ), true );
+		}
 
 		return super.placeBlockAt( stack, player, world, pos, side, hitX, hitY, hitZ, newState );
 	}
@@ -156,7 +243,9 @@ public class ItemBlockChiseled extends ItemBlock
 
 			int rotations = ModUtil.getRotations( player, stack.getTagCompound().getByte( "side" ) );
 			while ( rotations-- > 0 )
+			{
 				source = source.spin( Axis.Y );
+			}
 
 			final IntegerBox modelBounds = source.getBounds();
 			BlockPos offset = ModUtil.getPartialOffset( side, partial, modelBounds );
@@ -181,7 +270,9 @@ public class ItemBlockChiseled extends ItemBlock
 			}
 
 			for ( int x = 0; x < 2; x++ )
+			{
 				for ( int y = 0; y < 2; y++ )
+				{
 					for ( int z = 0; z < 2; z++ )
 					{
 						blobs[x][y][z] = source.offset( offset.getX() - source.detail * x, offset.getY() - source.detail * y, offset.getZ() - source.detail * z );
@@ -191,7 +282,9 @@ public class ItemBlockChiseled extends ItemBlock
 							final BlockPos bp = pos.add( x, y, z );
 
 							if ( world.isAirBlock( bp ) )
+							{
 								continue;
+							}
 
 							final IBlockState state = world.getBlockState( bp );
 							if ( state.getBlock() instanceof BlockChiseled )
@@ -201,7 +294,9 @@ public class ItemBlockChiseled extends ItemBlock
 
 								final VoxelBlob dest = target.getBlob();
 								if ( !dest.canMerge( blobs[x][y][z] ) )
+								{
 									return false;
+								}
 
 								blobs[x][y][z] = blobs[x][y][z].merge( dest );
 								continue;
@@ -210,11 +305,17 @@ public class ItemBlockChiseled extends ItemBlock
 							return false;
 						}
 					}
+				}
+			}
 
 			if ( modulateWorld )
+			{
 				for ( int x = 0; x < 2; x++ )
+				{
 					for ( int y = 0; y < 2; y++ )
+					{
 						for ( int z = 0; z < 2; z++ )
+						{
 							if ( blobs[x][y][z].solid() > 0 )
 							{
 								final BlockPos bp = pos.add( x, y, z );
@@ -243,6 +344,10 @@ public class ItemBlockChiseled extends ItemBlock
 
 								return false;
 							}
+						}
+					}
+				}
+			}
 
 			return true;
 		}
@@ -271,8 +376,9 @@ public class ItemBlockChiseled extends ItemBlock
 				final ItemStack target = new ItemStack( blk, 1, blk.getMetaFromState( state ) );
 
 				if ( target.getItem() != null )
-
+				{
 					return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( target.getDisplayName() ).toString();
+				}
 			}
 		}
 

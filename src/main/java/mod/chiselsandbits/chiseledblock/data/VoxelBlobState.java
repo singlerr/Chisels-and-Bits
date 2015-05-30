@@ -22,7 +22,9 @@ public class VoxelBlobState implements Comparable<VoxelBlobState>
 
 		final WeakReference<VoxelBlobStateRef> original = refs.get( t );
 		if ( original != null )
+		{
 			ref = original.get();
+		}
 
 		if ( ref == null )
 		{

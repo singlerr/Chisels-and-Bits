@@ -1,9 +1,10 @@
 
-package mod.chiselsandbits;
+package mod.chiselsandbits.crafting;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -44,13 +45,19 @@ public class ChiselCrafting implements IRecipe
 				final ItemStack is = inv.getStackInSlot( x );
 
 				if ( is == null )
+				{
 					continue;
+				}
 
 				if ( is.getItem() == ChiselsAndBits.instance.itemBitBag )
+				{
 					bags.add( new BagInventory( copy ? is.copy() : is ) );
+				}
 
 				if ( is.getItem() == ChiselsAndBits.instance.itemBlockBit )
+				{
 					stacks.add( copy ? is.copy() : is );
+				}
 			}
 
 			final TileEntityBlockChiseled tec = new TileEntityBlockChiseled();
@@ -76,11 +83,15 @@ public class ChiselCrafting implements IRecipe
 							final int original = is.stackSize;
 							is.stackSize = Math.max( 0, is.stackSize - ref.total );
 							if ( is.stackSize - ref.total < 0 )
+							{
 								ref.total -= original - is.stackSize;
+							}
 						}
 
 					for ( final BagInventory bag : bags )
+					{
 						ref.total -= bag.extractBit( ref.ref, ref.total );
+					}
 
 					if ( ref.total > 0 )
 					{
@@ -109,14 +120,22 @@ public class ChiselCrafting implements IRecipe
 			final ItemStack is = inv.getStackInSlot( x );
 
 			if ( is == null )
+			{
 				continue;
+			}
 
 			if ( is.getItem() == ChiselsAndBits.instance.itemPositiveprint && pattern == null )
+			{
 				pattern = is;
+			}
 			else if ( is.getItem() == ChiselsAndBits.instance.itemBitBag )
+			{
 				continue;
+			}
 			else if ( is.getItem() == ChiselsAndBits.instance.itemBlockBit )
+			{
 				continue;
+			}
 			else
 				return null;
 		}
@@ -178,7 +197,9 @@ public class ChiselCrafting implements IRecipe
 			out[x] = inv.getStackInSlot( x );
 
 			if ( out[x] != null && out[x].stackSize <= 0 )
+			{
 				out[x] = null;
+			}
 		}
 
 		return out;

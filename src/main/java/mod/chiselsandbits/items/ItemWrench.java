@@ -4,6 +4,7 @@ package mod.chiselsandbits.items;
 import java.util.List;
 
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -34,7 +35,7 @@ public class ItemWrench extends Item
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( "mod.chiselsandbits.help.wrench", tooltip );
+		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpWrench, tooltip );
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import net.minecraft.block.Block;
@@ -22,11 +23,17 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
+import org.lwjgl.input.Keyboard;
+
 
 public class ItemPositivePrint extends ItemNegativePrint
 {
 
-	@SuppressWarnings( { "rawtypes" } )
+	// add info cached info
+	ItemStack cachedInfo;
+	List<String> details = new ArrayList<String>();
+
+	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
@@ -35,7 +42,31 @@ public class ItemPositivePrint extends ItemNegativePrint
 			final boolean advanced )
 	{
 		defaultAddInfo( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( "mod.chiselsandbits.help.positiveprint", tooltip );
+		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpPositivePrint, tooltip );
+
+		if ( stack.hasTagCompound() )
+		{
+			if ( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
+			{
+				if ( cachedInfo != stack )
+				{
+					cachedInfo = stack;
+					details.clear();
+
+					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+					tmp.readChisleData( stack.getTagCompound() );
+					final VoxelBlob blob = tmp.getBlob();
+
+					blob.listContents( details );
+				}
+
+				tooltip.addAll( details );
+			}
+			else
+			{
+				tooltip.add( LocalStrings.ShiftDetails.getLocal() );
+			}
+		}
 	}
 
 	@Override
@@ -82,13 +113,17 @@ public class ItemPositivePrint extends ItemNegativePrint
 		{
 			final ItemStack which = inv.getStackInSlot( zz );
 			if ( which != null && which.getItem() instanceof ItemBitBag )
+			{
 				bags.add( new BagInventory( which ) );
+			}
 		}
 
 		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
 
 		for ( int y = 0; y < vb.detail && selected.isValid(); y++ )
+		{
 			for ( int z = 0; z < vb.detail && selected.isValid(); z++ )
+			{
 				for ( int x = 0; x < vb.detail && selected.isValid(); x++ )
 				{
 					int inPlace = vb.get( x, y, z );
@@ -100,12 +135,16 @@ public class ItemPositivePrint extends ItemNegativePrint
 							spawnedItem = ItemChisel.chiselBlock( player.capabilities.isCreativeMode, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
 
 							if ( spawnedItem != null )
+							{
 								inPlace = 0;
+							}
 
 							selected.damage( player );
 
 							if ( !selected.isValid() )
+							{
 								selected = ModUtil.findChisel( player );
+							}
 						}
 
 						if ( inPlace == 0 && inPattern != 0 )
@@ -115,16 +154,24 @@ public class ItemPositivePrint extends ItemNegativePrint
 							{
 								vb.set( x, y, z, inPattern );
 								if ( !player.capabilities.isCreativeMode )
+								{
 									bit.consume();
+								}
 							}
 							else if ( consumeBagBit( bags, inPattern ) )
+							{
 								vb.set( x, y, z, inPattern );
+							}
 						}
 					}
 				}
+			}
+		}
 
 		for ( final EntityItem ei : spawnlist )
+		{
 			world.spawnEntityInWorld( ei );
+		}
 
 	}
 

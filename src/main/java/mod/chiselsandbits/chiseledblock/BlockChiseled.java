@@ -3,6 +3,7 @@ package mod.chiselsandbits.chiseledblock;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Random;
 
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
@@ -62,7 +63,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		// slippery ice...
 		if ( mat == Material.ice || mat == Material.packedIce )
+		{
 			slipperiness = 0.98F;
+		}
 
 		setLightOpacity( 0 );
 		setHardness( 1 );
@@ -174,7 +177,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 			VoxelBlob blob = bc.getBlob();
 			while ( rotations-- > 0 )
+			{
 				blob = blob.spin( Axis.Y );
+			}
 			bc.setBlob( blob );
 		}
 		catch ( final ExceptionNoTileEntity e )
@@ -317,8 +322,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			for ( int y = 0; y < vb.detail; y++ )
 			{
 				for ( int z = 0; z < vb.detail; z++ )
+				{
 					for ( int x = 0; x < vb.detail; x++ )
+					{
 						if ( vb.get( x, y, z ) != 0 )
+						{
 							if ( started )
 							{
 								minX = Math.min( minX, One16thf * x );
@@ -338,6 +346,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 								maxY = One16thf * ( y + 1.0f );
 								maxZ = One16thf * ( z + 1.0f );
 							}
+						}
+					}
+				}
 
 				// VERY hackey collision extraction to do 2 bounding boxes, one for top and one for the bottom.
 				if ( list != null && started && ( y == 8 || y == VoxelBlob.dim_minus_one ) )
@@ -346,7 +357,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 					setBlockBounds( 0, 0, 0, 1, 1, 1 );
 
 					if ( mask.intersectsWith( bb ) )
+					{
 						list.add( bb );
+					}
 
 					started = false;
 					minX = 0.0f;
@@ -422,8 +435,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		final float One16thf = 1.0f / vb.detail;
 
 		for ( int z = 0; z < vb.detail; z++ )
+		{
 			for ( int y = 0; y < vb.detail; y++ )
+			{
 				for ( int x = 0; x < vb.detail; x++ )
+				{
 					if ( vb.get( x, y, z ) != 0 )
 					{
 						setBlockBounds( One16thf * x, One16thf * y, One16thf * z, One16thf * ( x + 1.0f ), One16thf * ( y + 1.0f ), One16thf * ( z + 1.0f ) );
@@ -444,6 +460,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 						}
 					}
+				}
+			}
+		}
 
 		setBlockBounds( 0, 0, 0, 1, 1, 1 );
 
@@ -459,7 +478,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 			boolean started = false;
 			while ( ci.hasNext() )
+			{
 				if ( vb.get( ci.x(), ci.y(), ci.z() ) != 0 )
+				{
 					if ( started )
 					{
 						minX = Math.min( minX, One16thf * ci.x() );
@@ -479,6 +500,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 						maxY = One16thf * ( ci.y() + 1.0f );
 						maxZ = One16thf * ( ci.z() + 1.0f );
 					}
+				}
+			}
 
 			br = AxisAlignedBB.fromBounds( minX, minY, minZ, maxX, maxY, maxZ );
 			br = br.offset( pos.getX(), pos.getY(), pos.getZ() );
@@ -511,8 +534,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				final float One16thf = 1.0f / vb.detail;
 
 				for ( int z = 0; z < vb.detail; z++ )
+				{
 					for ( int y = 0; y < vb.detail; y++ )
+					{
 						for ( int x = 0; x < vb.detail; x++ )
+						{
 							if ( vb.get( x, y, z ) != 0 )
 							{
 								setBlockBounds( One16thf * x, One16thf * y, One16thf * z, One16thf * ( x + 1.0f ), One16thf * ( y + 1.0f ), One16thf * ( z + 1.0f ) );
@@ -534,6 +560,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 								}
 							}
+						}
+					}
+				}
 			}
 			catch ( final ExceptionNoTileEntity e )
 			{}
@@ -618,17 +647,25 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		{
 			final Class<? extends Block> blkClass = blk.getClass();
 
+			// require basic hardness behavior...
 			final boolean test_a = blkClass.getMethod( "getBlockHardness", World.class, BlockPos.class ).getDeclaringClass() == Block.class;
 			final boolean test_b = blkClass.getMethod( "getPlayerRelativeBlockHardness", EntityPlayer.class, World.class, BlockPos.class ).getDeclaringClass() == Block.class;
 			final boolean test_c = blkClass.getMethod( "getExplosionResistance", World.class, BlockPos.class, Entity.class, Explosion.class ).getDeclaringClass() == Block.class;
+
+			// require default drop behavior...
+			final boolean test_d = blkClass.getMethod( "quantityDropped", Random.class ).getDeclaringClass() == Block.class;
+			final boolean test_e = blkClass.getMethod( "quantityDroppedWithBonus", int.class, Random.class ).getDeclaringClass() == Block.class;
+			final boolean test_f = blkClass.getMethod( "quantityDropped", IBlockState.class, int.class, Random.class ).getDeclaringClass() == Block.class;
+
 			final Field f = Block.class.getDeclaredField( "blockHardness" );
 
+			// require not bedrock...
 			final boolean wasAccessible = f.isAccessible();
 			f.setAccessible( true );
 			final float blockHardness = f.getFloat( blk );
 			f.setAccessible( wasAccessible );
 
-			return test_a && test_b && test_c && blockHardness >= -0.5f && blk.hasTileEntity( state ) == false && blk.isFullCube() && ChiselsAndBits.instance.getConversion( blk.getMaterial() ) != null;
+			return test_a && test_b && test_c && test_d && test_e && test_f && blockHardness >= -0.5f && blk.hasTileEntity( state ) == false && blk.isFullCube() && ChiselsAndBits.instance.getConversion( blk.getMaterial() ) != null;
 		}
 		catch ( final Throwable t )
 		{
@@ -690,9 +727,13 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 				TileEntityBlockChiseled tec = null;
 				if ( !( te instanceof TileEntityBlockChiseled ) )
+				{
 					world.setTileEntity( pos, tec = ( TileEntityBlockChiseled ) blk.createTileEntity( world, blk.getDefaultState() ) );
+				}
 				else
+				{
 					tec = ( TileEntityBlockChiseled ) te;
+				}
 
 				tec.fillWith( originalState );
 				tec.setState( tec.getState().withProperty( BlockChiseled.block_prop, BlockID ) );

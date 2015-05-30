@@ -35,7 +35,9 @@ public class BagContainer extends Container
 
 		final ItemStack is = player.getCurrentEquippedItem();
 		if ( is != null && is.getItem() instanceof ItemBitBag )
+		{
 			inv = bagInv = new BagInventory( is );
+		}
 		else
 		{
 			bagInv = null;
@@ -45,18 +47,30 @@ public class BagContainer extends Container
 		pi = new PassThruInv( inv );
 
 		for ( int j = 0; j < 7; ++j )
+		{
 			for ( int k = 0; k < 9; ++k )
+			{
 				addSlotToContainer( new BitSlot( pi, k + j * 9, 8 + k * 18, 18 + j * 18 ) );
+			}
+		}
 
 		for ( int j = 0; j < 3; ++j )
+		{
 			for ( int k = 0; k < 9; ++k )
+			{
 				addSlotToContainer( new Slot( thePlayer.inventory, k + j * 9 + 9, 8 + k * 18, 104 + j * 18 + i ) );
+			}
+		}
 
 		for ( int j = 0; j < 9; ++j )
 			if ( thePlayer.inventory.currentItem == j )
+			{
 				addSlotToContainer( thatSlot = new ReadonlySlot( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
+			}
 			else
+			{
 				addSlotToContainer( new Slot( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
+			}
 	}
 
 	@Override
@@ -74,7 +88,9 @@ public class BagContainer extends Container
 
 			final ItemStack is = player.getCurrentEquippedItem();
 			if ( is != null && is.getItem() instanceof ItemBitBag )
+			{
 				pi.setInventory( bagInv = new BagInventory( is ) );
+			}
 			else
 			{
 				bagInv = null;
@@ -109,9 +125,13 @@ public class BagContainer extends Container
 				return null;
 
 			if ( itemstack1.stackSize == 0 )
+			{
 				slot.putStack( ( ItemStack ) null );
+			}
 			else
+			{
 				slot.onSlotChanged();
+			}
 		}
 
 		return itemstack;

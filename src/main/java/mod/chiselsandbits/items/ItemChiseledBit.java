@@ -11,6 +11,7 @@ import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -43,7 +44,7 @@ public class ItemChiseledBit extends Item
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( "mod.chiselsandbits.help.bit", tooltip );
+		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpBit, tooltip );
 	}
 
 	@Override
@@ -132,20 +133,26 @@ public class ItemChiseledBit extends Item
 					final int stateID = ItemChisel.getStackState( stack );
 
 					if ( world.isRemote )
+					{
 						ClientSide.placeSound( world, pos, stateID );
+					}
 
 					vb.set( x, y, z, stateID );
 					tec.setBlob( vb );
 
 					if ( !player.capabilities.isCreativeMode )
+					{
 						stack.stackSize--;
+					}
 
 					final IInventory inv = player.inventory;
 					for ( int zz = 0; zz < inv.getSizeInventory(); zz++ )
 					{
 						final ItemStack which = inv.getStackInSlot( zz );
 						if ( which != null && which.getItem() instanceof ItemBitBag )
+						{
 							new BagInventory( which ).restockItem( stack );
+						}
 					}
 
 					return false;
@@ -174,7 +181,9 @@ public class ItemChiseledBit extends Item
 			for ( final Object obj : Item.itemRegistry )
 			{
 				if ( !( obj instanceof ItemBlock ) )
+				{
 					continue;
+				}
 
 				try
 				{
@@ -186,13 +195,17 @@ public class ItemChiseledBit extends Item
 						it = out.getItem();
 
 						if ( !( it instanceof ItemBlock ) )
+						{
 							continue;
+						}
 
 						final ItemBlock ib = ( ItemBlock ) it;
-						final IBlockState state = ib.block.getStateFromMeta( ItemChisel.getStackState( out ) );
+						final IBlockState state = ib.block.getStateFromMeta( out.getMetadata() );
 
 						if ( state != null && BlockChiseled.supportsBlock( state ) )
+						{
 							bits.add( ItemChiseledBit.createStack( Block.getStateId( state ), 1 ) );
+						}
 					}
 
 				}

@@ -6,6 +6,7 @@ import java.util.List;
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.bitbag.BagInventory;
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.BagGuiPacket;
 import net.minecraft.entity.item.EntityItem;
@@ -19,6 +20,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
+
+import org.lwjgl.input.Keyboard;
 
 
 public class ItemBitBag extends Item
@@ -36,7 +39,11 @@ public class ItemBitBag extends Item
 		FMLCommonHandler.instance().bus().register( this );
 	}
 
-	@SuppressWarnings( { "rawtypes" } )
+	// add info cached info
+	ItemStack cachedInfo;
+	List<String> details = new ArrayList<String>();
+
+	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
@@ -45,7 +52,25 @@ public class ItemBitBag extends Item
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( "mod.chiselsandbits.help.bit_bag", tooltip );
+		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpBitBag, tooltip );
+
+		if ( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
+		{
+			if ( cachedInfo != stack )
+			{
+				cachedInfo = stack;
+				details.clear();
+
+				final BagInventory bi = new BagInventory( stack );
+				bi.listContents( details );
+			}
+
+			tooltip.addAll( details );
+		}
+		else
+		{
+			tooltip.add( LocalStrings.ShiftDetails.getLocal() );
+		}
 	}
 
 	@Override
@@ -55,7 +80,9 @@ public class ItemBitBag extends Item
 			final EntityPlayer playerIn )
 	{
 		if ( worldIn.isRemote )
+		{
 			NetworkRouter.instance.sendToServer( new BagGuiPacket() );
+		}
 
 		return itemStackIn;
 	}
@@ -107,7 +134,9 @@ public class ItemBitBag extends Item
 				{
 					final ItemStack which = inv.getStackInSlot( x );
 					if ( which != null && which.getItem() instanceof ItemBitBag )
+					{
 						bags.add( new BagPos( x, new BagInventory( which ) ) );
+					}
 				}
 
 				boolean seen = false;
@@ -118,8 +147,11 @@ public class ItemBitBag extends Item
 
 					if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChisel.getStackState( is ) ) )
 						if ( !seen )
+						{
 							seen = true;
+						}
 						else
+						{
 							for ( final BagPos i : bags )
 							{
 								which = i.inv.insertItem( which );
@@ -129,6 +161,7 @@ public class ItemBitBag extends Item
 									break;
 								}
 							}
+						}
 
 				}
 			}

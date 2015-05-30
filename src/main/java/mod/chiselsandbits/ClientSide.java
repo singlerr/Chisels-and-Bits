@@ -87,40 +87,45 @@ public class ClientSide
 		{
 			ModelBakery.addVariantName( mod.itemPositiveprint, MODID + ":positiveprint", MODID + ":positiveprint_written" );
 			mesher.register( mod.itemPositiveprint, new ItemMeshDefinition(){
-				
+
 				@Override
-				public ModelResourceLocation getModelLocation( ItemStack stack )
+				public ModelResourceLocation getModelLocation(
+						final ItemStack stack )
 				{
 					return new ModelResourceLocation( new ResourceLocation( MODID, stack.hasTagCompound() ? "positiveprint_written_preview" : "positiveprint" ), "inventory" );
 				}
-				
-			});
+
+			} );
 		}
 
 		if ( mod.itemNegativeprint != null )
 		{
 			ModelBakery.addVariantName( mod.itemNegativeprint, MODID + ":negativeprint", MODID + ":negativeprint_written" );
 			mesher.register( mod.itemNegativeprint, new ItemMeshDefinition(){
-				
+
 				@Override
-				public ModelResourceLocation getModelLocation( ItemStack stack )
+				public ModelResourceLocation getModelLocation(
+						final ItemStack stack )
 				{
 					return new ModelResourceLocation( new ResourceLocation( MODID, stack.hasTagCompound() ? "negativeprint_written_preview" : "negativeprint" ), "inventory" );
 				}
-				
-			});
+
+			} );
 		}
 
 		if ( mod.itemBlockBit != null )
+		{
 			mesher.register( mod.itemBlockBit, new ItemMeshDefinition(){
-				
+
 				@Override
-				public ModelResourceLocation getModelLocation( ItemStack stack )
+				public ModelResourceLocation getModelLocation(
+						final ItemStack stack )
 				{
 					return new ModelResourceLocation( new ResourceLocation( MODID, "block_bit" ), "inventory" );
 				}
-				
-			});
+
+			} );
+		}
 
 		for ( final BlockChiseled blk : mod.conversions.values() )
 		{
@@ -138,7 +143,9 @@ public class ClientSide
 			final ModelResourceLocation loctaion )
 	{
 		if ( item != null )
+		{
 			mesher.register( item, i, loctaion );
+		}
 	}
 
 	@SubscribeEvent
@@ -147,7 +154,9 @@ public class ClientSide
 	{
 		// used to prevent hyper chisels.. its actually far worse then you might think...
 		if ( event.side == Side.CLIENT && event.type == Type.CLIENT && event.phase == Phase.START && !Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown() )
+		{
 			ItemChisel.resetDelay();
+		}
 	}
 
 	@SubscribeEvent
@@ -155,15 +164,15 @@ public class ClientSide
 	public void updateConfig(
 			final ActionPerformedEvent.Pre ev )
 	{
-		Minecraft.getMinecraft().addScheduledTask(new Runnable(){
-			
+		Minecraft.getMinecraft().addScheduledTask( new Runnable(){
+
 			@Override
 			public void run()
 			{
 				ChiselsAndBits.instance.config.allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
 			}
-			
-		});
+
+		} );
 	}
 
 	@SubscribeEvent
@@ -184,7 +193,9 @@ public class ClientSide
 		if ( chMode != null )
 		{
 			if ( mop.typeOfHit != MovingObjectType.BLOCK )
+			{
 				return;
+			}
 
 			final BlockPos blockpos = mop.getBlockPos();
 			final IBlockState state = theWorld.getBlockState( blockpos );
@@ -219,18 +230,26 @@ public class ClientSide
 		else if ( ModUtil.isHoldingPattern( event.player ) )
 		{
 			if ( mop.typeOfHit != MovingObjectType.BLOCK )
+			{
 				return;
+			}
 
 			final IBlockState s = theWorld.getBlockState( mop.getBlockPos() );
 			if ( !( s.getBlock() instanceof BlockChiseled ) && !BlockChiseled.supportsBlock( s ) )
+			{
 				return;
+			}
 
 			if ( !event.currentItem.hasTagCompound() )
+			{
 				return;
+			}
 
 			final ItemStack item = ChiselsAndBits.instance.itemNegativeprint.getPatternedItem( event.currentItem );
 			if ( !item.hasTagCompound() )
+			{
 				return;
+			}
 
 			final int rotations = ModUtil.getRotations( player, event.currentItem.getTagCompound().getByte( "side" ) );
 
@@ -244,14 +263,20 @@ public class ClientSide
 		else if ( ModUtil.isHoldingChiseledBlock( event.player ) )
 		{
 			if ( mop.typeOfHit != MovingObjectType.BLOCK )
+			{
 				return;
+			}
 
 			final ItemStack item = event.currentItem;
 			if ( !item.hasTagCompound() )
+			{
 				return;
+			}
 
 			final int rotations = ModUtil.getRotations( player, item.getTagCompound().getByte( "side" ) );
 			final BlockPos offset = mop.getBlockPos();
+
+			final Block cb = theWorld.getBlockState( offset ).getBlock();
 
 			if ( event.player.isSneaking() )
 			{
@@ -259,8 +284,14 @@ public class ClientSide
 				final BlockPos partial = new BlockPos( Math.floor( 16 * ( mop.hitVec.xCoord - blockpos.getX() ) ), Math.floor( 16 * ( mop.hitVec.yCoord - blockpos.getY() ) ), Math.floor( 16 * ( mop.hitVec.zCoord - blockpos.getZ() ) ) );
 				showGhost( event.currentItem, item, offset, event, rotations, x, y, z, mop.sideHit, partial );
 			}
+			else if ( cb.isReplaceable( theWorld, offset ) )
+			{
+				showGhost( event.currentItem, item, offset, event, rotations, x, y, z, mop.sideHit, null );
+			}
 			else if ( theWorld.isAirBlock( offset.offset( mop.sideHit ) ) )
+			{
 				showGhost( event.currentItem, item, offset.offset( mop.sideHit ), event, rotations, x, y, z, mop.sideHit, null );
+			}
 		}
 	}
 
@@ -286,7 +317,9 @@ public class ClientSide
 		IBakedModel baked;
 
 		if ( previousItem == refItem && previousRotations == rotations && previousModel != null && samePartial( lastPartial, partial ) )
+		{
 			baked = ( IBakedModel ) previousModel;
+		}
 		else
 		{
 			previousItem = refItem;
@@ -296,7 +329,9 @@ public class ClientSide
 			bc.readChisleData( item.getSubCompound( "BlockEntityTag", false ) );
 			VoxelBlob blob = bc.getBlob();
 			while ( rotations-- > 0 )
+			{
 				blob = blob.spin( Axis.Y );
+			}
 
 			modelBounds = blob.getBounds();
 
@@ -306,13 +341,19 @@ public class ClientSide
 			previousModel = baked = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( bc.getItemStack( blk, null ) );
 
 			if ( partial != null )
+			{
 				isVisible = ItemBlockChiseled.tryPlaceBlockAt( blk, item, event.player, event.player.getEntityWorld(), blockPos, side, partial, false );
+			}
 			else
+			{
 				isVisible = true;
+			}
 		}
 
 		if ( !isVisible )
+		{
 			return;
+		}
 
 		GlStateManager.pushMatrix();
 		GlStateManager.translate( 0.5 + blockPos.getX() - x, 0.5 + blockPos.getY() - y, 0.5 + blockPos.getZ() - z );
@@ -347,10 +388,14 @@ public class ClientSide
 			final BlockPos partial )
 	{
 		if ( lastPartial2 == partial )
+		{
 			return true;
+		}
 
 		if ( lastPartial2 == null || partial == null )
+		{
 			return false;
+		}
 
 		return partial.equals( lastPartial2 );
 	}
@@ -368,8 +413,10 @@ public class ClientSide
 	{
 		final ItemStack hitWith = getPlayer().getCurrentEquippedItem();
 		if ( hitWith != null && ( hitWith.getItem() instanceof ItemChisel || hitWith.getItem() instanceof ItemChiseledBit ) )
+		{
 			return true; // no
-		// effects!
+			// effects!
+		}
 
 		final BlockPos pos = target.getBlockPos();
 		final Block block = state.getBlock();

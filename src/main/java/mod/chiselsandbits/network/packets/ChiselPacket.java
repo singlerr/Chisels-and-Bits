@@ -105,13 +105,17 @@ public class ChiselPacket extends ModPacket
 						{
 							chisel = ModUtil.findChisel( player );
 							if ( !chisel.isValid() )
+							{
 								break;
+							}
 						}
 					}
 				}
 
 				for ( final EntityItem ei : spawnlist )
+				{
 					world.spawnEntityInWorld( ei );
+				}
 
 				if ( extracted != null )
 				{

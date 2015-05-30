@@ -1,22 +1,25 @@
 
 package mod.chiselsandbits;
 
+import mod.chiselsandbits.helpers.LocalStrings;
+
+
 public enum ChiselMode
 {
-	SINGLE( "mod.chiselsandbits.chiselmode.single" ),
-	LINE( "mod.chiselsandbits.chiselmode.line" ),
-	PLANE( "mod.chiselsandbits.chiselmode.plane" ),
-	CONNECTED_PLANE( "mod.chiselsandbits.chiselmode.connected_plane" ),
-	CUBE_SMALL( "mod.chiselsandbits.chiselmode.cube_small" ),
-	CUBE_LARGE( "mod.chiselsandbits.chiselmode.cube_large" ),
-	CUBE_HUGE( "mod.chiselsandbits.chiselmode.cube_huge" );
+	SINGLE( LocalStrings.ChiselModeSingle ),
+	LINE( LocalStrings.ChiselModeLine ),
+	PLANE( LocalStrings.ChiselModePlane ),
+	CONNECTED_PLANE( LocalStrings.ChiselModeConnectedPlane ),
+	CUBE_SMALL( LocalStrings.ChiselModeCubeSmall ),
+	CUBE_LARGE( LocalStrings.ChiselModeCubeLarge ),
+	CUBE_HUGE( LocalStrings.ChiselModeCubeHuge );
 
-	public final String unlocalized;
+	public final LocalStrings string;
 
 	private ChiselMode(
-			final String unlocalized )
+			final LocalStrings str )
 	{
-		this.unlocalized = unlocalized;
+		string = str;
 	}
 
 }

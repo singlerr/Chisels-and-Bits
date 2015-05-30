@@ -55,7 +55,9 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 		final IBlockState state = Block.getStateById( BlockRef );
 
 		if ( state != null )
+		{
 			originalModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state );
+		}
 
 		if ( originalModel != null && data != null )
 		{
@@ -102,7 +104,9 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 		final VisibleFace visFace = new VisibleFace();
 
 		for ( final EnumFacing myFace : X_Faces )
+		{
 			for ( int x = 0; x < blob.detail; x++ )
+			{
 				for ( int z = 0; z < blob.detail; z++ )
 				{
 					FaceRegion currentFace = null;
@@ -119,7 +123,9 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 
 						if ( currentFace != null )
 							if ( currentFace.extend( region ) )
+							{
 								continue;
+							}
 
 						currentFace = region;
 						rset.put( getBucket( myFace, x, y, z ), region );
@@ -128,9 +134,13 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 					// row complete!
 					currentFace = null;
 				}
+			}
+		}
 
 		for ( final EnumFacing myFace : Y_Faces )
+		{
 			for ( int y = 0; y < blob.detail; y++ )
+			{
 				for ( int z = 0; z < blob.detail; z++ )
 				{
 					FaceRegion currentFace = null;
@@ -147,7 +157,9 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 
 						if ( currentFace != null )
 							if ( currentFace.extend( region ) )
+							{
 								continue;
+							}
 
 						currentFace = region;
 						rset.put( getBucket( myFace, x, y, z ), region );
@@ -156,9 +168,13 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 					// row complete!
 					currentFace = null;
 				}
+			}
+		}
 
 		for ( final EnumFacing myFace : Z_Faces )
+		{
 			for ( int z = 0; z < blob.detail; z++ )
+			{
 				for ( int y = 0; y < blob.detail; y++ )
 				{
 					FaceRegion currentFace = null;
@@ -175,7 +191,9 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 
 						if ( currentFace != null )
 							if ( currentFace.extend( region ) )
+							{
 								continue;
+							}
 
 						currentFace = region;
 						rset.put( getBucket( myFace, x, y, z ), region );
@@ -184,6 +202,8 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 					// row complete!
 					currentFace = null;
 				}
+			}
+		}
 
 		final ArrayList<Integer> keys = new ArrayList<Integer>( rset.keySet() );
 		final float[] defUVs = new float[] { 0, 0, 1, 1 };
@@ -198,6 +218,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 				restart = false;
 
 				restart: for ( final FaceRegion A : src )
+				{
 					for ( final FaceRegion B : src )
 						if ( A != B && A.extend( B ) )
 						{
@@ -205,6 +226,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 							restart = true;
 							break restart;
 						}
+				}
 			}
 			while ( restart );
 
@@ -247,9 +269,13 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 				 */
 
 				if ( region.isEdge )
+				{
 					face[myFace.ordinal()].add( q );
+				}
 				else
+				{
 					generic.add( q );
+				}
 			}
 		}
 	}
@@ -390,7 +416,9 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 			if ( model != null )
 			{
 				if ( model != null && ChiselsAndBits.instance.config.allowBlockAlternatives && model instanceof WeightedBakedModel )
+				{
 					model = ( ( WeightedBakedModel ) model ).getAlternativeModel( weight );
+				}
 
 				if ( model != null )
 				{
@@ -446,7 +474,9 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 								quadUVs[3] = ( Float.intBitsToFloat( vertData[vertNum * p + 5] ) - minV ) / maxVMinusMin;
 							}
 							else
+							{
 								faceVertMap[myFace.getIndex()][vertNum] = 2;
+							}
 					}
 				}
 			}

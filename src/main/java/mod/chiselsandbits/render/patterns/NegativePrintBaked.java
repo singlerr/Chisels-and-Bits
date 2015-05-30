@@ -31,7 +31,9 @@ public class NegativePrintBaked implements IFlexibleBakedModel
 		final IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( blockItem );
 
 		for ( final EnumFacing face : EnumFacing.VALUES )
+		{
 			list.addAll( model.getFaceQuads( face ) );
+		}
 
 		list.addAll( model.getGeneralQuads() );
 	}

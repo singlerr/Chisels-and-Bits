@@ -9,6 +9,7 @@ import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.ChiselPacket;
@@ -54,7 +55,7 @@ public class ItemChisel extends ItemTool
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( "mod.chiselsandbits.help.chisel", tooltip );
+		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpChisel, tooltip );
 	}
 
 	private static Stopwatch timer;
@@ -95,7 +96,9 @@ public class ItemChisel extends ItemTool
 
 			final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, a, b );
 			if ( mop != null && mop.typeOfHit == MovingObjectType.BLOCK )
+			{
 				useChisel( mode, player, player.worldObj, pos, mop.sideHit, ( float ) mop.hitVec.xCoord - pos.getX(), ( float ) mop.hitVec.yCoord - pos.getY(), ( float ) mop.hitVec.zCoord - pos.getZ() );
+			}
 		}
 
 		return true;
@@ -111,10 +114,12 @@ public class ItemChisel extends ItemTool
 		{
 			int offset = clientChiselMode.ordinal() + 1;
 			if ( offset >= ChiselMode.values().length )
+			{
 				offset = 0;
+			}
 			clientChiselMode = ChiselMode.values()[offset];
 
-			playerIn.addChatComponentMessage( new ChatComponentTranslation( clientChiselMode.unlocalized ) );
+			playerIn.addChatComponentMessage( new ChatComponentTranslation( clientChiselMode.string.toString() ) );
 		}
 
 		return super.onItemRightClick( itemStackIn, worldIn, playerIn );
@@ -135,7 +140,9 @@ public class ItemChisel extends ItemTool
 			final float hitZ )
 	{
 		if ( world.isRemote )
+		{
 			onItemRightClick( stack, world, player );
+		}
 
 		return true;
 	}
@@ -226,14 +233,20 @@ public class ItemChisel extends ItemTool
 			{
 				output = ItemChiseledBit.createStack( blk, 1 );// new ItemStack( srcItem, 1, blk );
 				if ( spawnBit )
+				{
 					spawnlist.add( new EntityItem( world, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ, output ) );
+				}
 			}
 			else
+			{
 				output.stackSize++;
+			}
 		}
 		else
+		{
 			// return value...
 			output = ItemChiseledBit.createStack( blk, 1 );
+		}
 
 		vb.clear( x, y, z );
 		return output;

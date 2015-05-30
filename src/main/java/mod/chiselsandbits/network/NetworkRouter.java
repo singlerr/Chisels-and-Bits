@@ -99,7 +99,9 @@ public class NetworkRouter
 		try
 		{
 			if ( serverPacketHandler != null )
+			{
 				serverPacketHandler.onPacketData( ev.packet, ev.handler, srv.playerEntity );
+			}
 		}
 		catch ( final ThreadQuickExitException ext )
 		{
@@ -114,7 +116,9 @@ public class NetworkRouter
 		try
 		{
 			if ( clientPacketHandler != null )
+			{
 				clientPacketHandler.onPacketData( ev.packet, ev.handler );
+			}
 		}
 		catch ( final ThreadQuickExitException ext )
 		{

@@ -7,6 +7,8 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.MaterialType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.crafting.ChiselCrafting;
+import mod.chiselsandbits.crafting.StackableCrafting;
 import mod.chiselsandbits.gui.ModGuiRouter;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
@@ -119,28 +121,48 @@ public class ChiselsAndBits
 
 		// loader must be added here to prevent missing models, the rest of the model/textures must be configured later.
 		if ( event.getSide() == Side.CLIENT )
+		{
 			ClientSide.instance.preinit( this );
+		}
 
 		// register item...
 		if ( config.enableStoneChisel )
+		{
 			registerItem( itemChiselStone = new ItemChisel( ToolMaterial.STONE ), "chisel_stone" );
+		}
 		if ( config.enableIronChisel )
+		{
 			registerItem( itemChiselIron = new ItemChisel( ToolMaterial.IRON ), "chisel_iron" );
+		}
 		if ( config.enableGoldChisel )
+		{
 			registerItem( itemChiselGold = new ItemChisel( ToolMaterial.GOLD ), "chisel_gold" );
+		}
 		if ( config.enableDiamondChisel )
+		{
 			registerItem( itemChiselDiamond = new ItemChisel( ToolMaterial.EMERALD ), "chisel_diamond" );
+		}
 
 		if ( config.enablePositivePrint )
+		{
 			registerItem( itemPositiveprint = new ItemPositivePrint(), "positiveprint" );
+		}
 		if ( config.enableNegativePrint )
+		{
 			registerItem( itemNegativeprint = new ItemNegativePrint(), "negativeprint" );
+		}
 		if ( config.enableChisledBits )
+		{
 			registerItem( itemBlockBit = new ItemChiseledBit(), "block_bit" );
+		}
 		if ( config.enableBitBag )
+		{
 			registerItem( itemBitBag = new ItemBitBag(), "bit_bag" );
+		}
 		if ( config.enableWoodenWrench )
+		{
 			registerItem( itemWrench = new ItemWrench(), "wrench_wood" );
+		}
 
 		// register tile entities.
 		GameRegistry.registerTileEntity( TileEntityBlockChiseled.class, "mod.chiselsandbits.TileEntityChiseled" );
@@ -159,7 +181,9 @@ public class ChiselsAndBits
 			final FMLInitializationEvent event )
 	{
 		if ( event.getSide() == Side.CLIENT )
+		{
 			ClientSide.instance.init( this );
+		}
 
 		MinecraftForge.EVENT_BUS.register( this );
 		net.minecraftforge.fml.common.FMLCommonHandler.instance().bus().register( this );
@@ -183,11 +207,20 @@ public class ChiselsAndBits
 
 		// make a bit bag..
 		if ( itemBlockBit != null )
+		{
 			ShapedOreRecipe( itemBitBag, "WWW", "WbW", "WWW", 'W', new ItemStack( Blocks.wool, 1, OreDictionary.WILDCARD_VALUE ), 'b', new ItemStack( itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
+		}
 
 		// aseemble prints from bits
 		if ( config.enablePositivePrintCrafting )
+		{
 			GameRegistry.addRecipe( new ChiselCrafting() );
+		}
+
+		if ( config.enableStackableCrafting )
+		{
+			GameRegistry.addRecipe( new StackableCrafting() );
+		}
 	}
 
 	private void ShapedOreRecipe(
@@ -213,7 +246,9 @@ public class ChiselsAndBits
 			final FMLPostInitializationEvent event )
 	{
 		if ( event.getSide() == Side.CLIENT )
+		{
 			ClientSide.instance.postinit( this );
+		}
 
 		NetworkRouter.instance = new NetworkRouter();
 		NetworkRegistry.INSTANCE.registerGuiHandler( this, new ModGuiRouter() );
@@ -232,7 +267,9 @@ public class ChiselsAndBits
 		{
 			final ItemStack is = event.entityPlayer.inventory.getCurrentItem();
 			if ( is != null && ( is.getItem() instanceof ItemChisel || is.getItem() instanceof ItemChiseledBit ) )
+			{
 				event.setCanceled( true );
+			}
 		}
 	}
 
@@ -249,7 +286,9 @@ public class ChiselsAndBits
 		{
 			final ItemStack is = event.entityPlayer.inventory.getCurrentItem();
 			if ( is != null && ( is.getItem() instanceof ItemChisel || is.getItem() instanceof ItemChiseledBit ) )
+			{
 				event.newSpeed = 9999;
+			}
 		}
 	}
 

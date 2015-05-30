@@ -32,10 +32,13 @@ mod.chiselsandbits.chiselmode.cube_small=Small Cube
 mod.chiselsandbits.chiselmode.cube_large=Large Cube
 mod.chiselsandbits.chiselmode.cube_huge=Huge Cube
 
+mod.chiselsandbits.help.shiftdetails=<Hold Shift For Details>
+mod.chiselsandbits.help.empty=Empty
+
 mod.chiselsandbits.help.chiseled_block=Left click to place;Sneak to ignore block grid.
 mod.chiselsandbits.help.bit_bag=Automatically re-stock, and store bits.
 mod.chiselsandbits.help.wrench=Right click blocks to rotate.
 mod.chiselsandbits.help.bit=Left click to chisel;Right click to place
-mod.chiselsandbits.help.positiveprint=Left click to write;right click to chisel/place or Craft with bits/bags.;Hold shift to see contents.
-mod.chiselsandbits.help.negativeprint=Left click to write;right click to chisel.;Hold shift to see contents.
+mod.chiselsandbits.help.positiveprint=Left click to write;right click to chisel/place or Craft with bits/bags.
+mod.chiselsandbits.help.negativeprint=Left click to write;right click to chisel.
 mod.chiselsandbits.help.chisel=Left click to chisel;Right click to cycle modes.

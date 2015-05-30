@@ -51,7 +51,9 @@ public class ModUtil
 		final float eyeRayZ = yawRayZ * pitchMultiplier;
 
 		if ( playerIn instanceof EntityPlayerMP )
+		{
 			reachDistance = ( ( EntityPlayerMP ) playerIn ).theItemInWorldManager.getBlockReachDistance();
+		}
 
 		final Vec3 from = new Vec3( x, y, z );
 		final Vec3 to = from.addVector( eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance );
@@ -104,7 +106,9 @@ public class ModUtil
 
 			stack.stackSize--;
 			if ( stack.stackSize <= 0 )
+			{
 				inv.setInventorySlotContents( slot, null );
+			}
 		}
 
 		public ItemStack getStack()
@@ -204,9 +208,13 @@ public class ModUtil
 
 		// work out the rotation math...
 		while ( rotations < 0 )
+		{
 			rotations = 4 + rotations;
+		}
 		while ( rotations > 4 )
+		{
 			rotations = rotations - 4;
+		}
 
 		return 4 - rotations;
 	}

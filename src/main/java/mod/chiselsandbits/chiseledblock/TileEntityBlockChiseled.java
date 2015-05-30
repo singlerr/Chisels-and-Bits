@@ -71,7 +71,9 @@ public class TileEntityBlockChiseled extends TileEntity
 	{
 		this.state = state;
 		if ( pos != null && worldObj != null && !isInvalid() )
+		{
 			worldObj.checkLight( pos );
+		}
 	}
 
 	@Override
@@ -93,7 +95,9 @@ public class TileEntityBlockChiseled extends TileEntity
 	{
 		readChisleData( pkt.getNbtCompound() );
 		if ( worldObj != null )
+		{
 			worldObj.markBlockForUpdate( pos );
+		}
 	}
 
 	public final void writeChisleData(
@@ -149,13 +153,17 @@ public class TileEntityBlockChiseled extends TileEntity
 		int ref = 0;
 		final CommonBlock cb = vb.mostCommonBlock();
 		if ( cb != null )
+		{
 			ref = cb.ref;
+		}
 
 		IExtendedBlockState state = getState().withProperty( BlockChiseled.light_prop, vb.getOpacity() ).withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb, getPositionRandom( pos ) ) );
 
 		// required for placing bits
 		if ( ref != 0 )
+		{
 			state = state.withProperty( BlockChiseled.block_prop, ref );
+		}
 
 		setState( state );
 		markDirty();
@@ -207,7 +215,9 @@ public class TileEntityBlockChiseled extends TileEntity
 		}
 
 		if ( common.isFull )
+		{
 			worldObj.setBlockState( pos, Block.getStateById( common.ref ) );
+		}
 		else if ( common.ref != 0 )
 		{
 			setState( getState().withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) ).withProperty( BlockChiseled.light_prop, opacity ).withProperty( BlockChiseled.block_prop, common.ref ) );
@@ -215,7 +225,9 @@ public class TileEntityBlockChiseled extends TileEntity
 			worldObj.markBlockForUpdate( pos );
 		}
 		else
+		{
 			worldObj.setBlockToAir( pos ); // no physical matter left...
+		}
 	}
 
 	public ItemStack getItemStack(

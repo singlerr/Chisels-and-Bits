@@ -103,7 +103,7 @@ public class SculptureModelGenerator implements ICustomModelLoader
 		{
 			return models.get( modelLocation ).newInstance();
 		}
-		catch ( Exception e )
+		catch ( final Exception e )
 		{
 			throw new RuntimeException( "The Model: " + e.toString() + " was not available was requested." );
 		}

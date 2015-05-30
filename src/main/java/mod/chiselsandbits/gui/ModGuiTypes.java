@@ -2,7 +2,6 @@
 package mod.chiselsandbits.gui;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 
 import mod.chiselsandbits.bitbag.BagContainer;
 import net.minecraft.entity.player.EntityPlayer;
@@ -32,7 +31,7 @@ public enum ModGuiTypes
 			container = c;
 			container_construtor = container.getConstructor( EntityPlayer.class, World.class, int.class, int.class, int.class );
 		}
-		catch ( Exception e )
+		catch ( final Exception e )
 		{
 			throw new RuntimeException( e );
 		}
@@ -47,7 +46,7 @@ public enum ModGuiTypes
 			g = ( Class<?> ) container.getMethod( "getGuiClass" ).invoke( null );
 			g_construtor = g.getConstructor( EntityPlayer.class, World.class, int.class, int.class, int.class );
 		}
-		catch ( Exception e )
+		catch ( final Exception e )
 		{
 			// if and only if we are on the client should this be considered an error...
 			if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )

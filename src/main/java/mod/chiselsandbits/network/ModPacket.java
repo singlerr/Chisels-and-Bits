@@ -50,9 +50,13 @@ public abstract class ModPacket implements Packet
 			final INetHandler handler )
 	{
 		if ( serverEntity == null )
+		{
 			client();
+		}
 		else
+		{
 			server( serverEntity );
+		}
 	}
 
 }

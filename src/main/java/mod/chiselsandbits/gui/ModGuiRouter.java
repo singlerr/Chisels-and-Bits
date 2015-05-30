@@ -25,7 +25,7 @@ public class ModGuiRouter implements IGuiHandler
 			final ModGuiTypes guiType = ModGuiTypes.values()[id];
 			return guiType.container_construtor.newInstance( player, world, x, y, z );
 		}
-		catch ( Exception e )
+		catch ( final Exception e )
 		{
 			throw new RuntimeException( e );
 		}
@@ -47,7 +47,7 @@ public class ModGuiRouter implements IGuiHandler
 			final ModGuiTypes guiType = ModGuiTypes.values()[id];
 			return guiType.gui_construtor.newInstance( player, world, x, y, z );
 		}
-		catch ( Exception e )
+		catch ( final Exception e )
 		{
 			throw new RuntimeException( e );
 		}
