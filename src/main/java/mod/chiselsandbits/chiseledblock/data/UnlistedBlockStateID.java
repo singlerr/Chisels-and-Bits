@@ -4,7 +4,7 @@ package mod.chiselsandbits.chiseledblock.data;
 import net.minecraftforge.common.property.IUnlistedProperty;
 
 
-public final class UnlistedBlockState implements IUnlistedProperty<Integer>
+public final class UnlistedBlockStateID implements IUnlistedProperty<Integer>
 {
 	@Override
 	public String getName()

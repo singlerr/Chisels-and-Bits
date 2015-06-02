@@ -1,14 +1,15 @@
 
 package mod.chiselsandbits.chiseledblock;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Random;
 
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
-import mod.chiselsandbits.chiseledblock.data.UnlistedBlockState;
+import mod.chiselsandbits.chiseledblock.data.UnlistedBlockFlags;
+import mod.chiselsandbits.chiseledblock.data.UnlistedBlockStateID;
 import mod.chiselsandbits.chiseledblock.data.UnlistedLightOpacity;
 import mod.chiselsandbits.chiseledblock.data.UnlistedVoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -50,7 +51,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 {
 
 	public static final IUnlistedProperty<VoxelBlobState> v_prop = new UnlistedVoxelBlob();
-	public static final IUnlistedProperty<Integer> block_prop = new UnlistedBlockState();
+	public static final IUnlistedProperty<Integer> block_prop = new UnlistedBlockStateID();
+	public static final IUnlistedProperty<Integer> side_prop = new UnlistedBlockFlags();
 	public static final IUnlistedProperty<Float> light_prop = new UnlistedLightOpacity();
 
 	public final String name;
@@ -77,7 +79,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final TileEntity te ) throws ExceptionNoTileEntity
 	{
 		if ( te instanceof TileEntityBlockChiseled )
+		{
 			return ( TileEntityBlockChiseled ) te;
+		}
 		throw new ExceptionNoTileEntity();
 	}
 
@@ -170,7 +174,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		try
 		{
 			if ( stack == null || placer == null )
+			{
 				return;
+			}
 
 			final TileEntityBlockChiseled bc = getTileEntity( worldIn, pos );
 			int rotations = ModUtil.getRotations( placer, stack.getTagCompound().getByte( "side" ) );
@@ -207,7 +213,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 				final int itemBlock = vb.get( x, y, z );
 				if ( itemBlock == 0 )
+				{
 					return null;
+				}
 
 				return ItemChiseledBit.createStack( itemBlock, 1 );
 			}
@@ -223,7 +231,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	@Override
 	protected BlockState createBlockState()
 	{
-		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, light_prop } );
+		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, light_prop, side_prop } );
 	}
 
 	@Override
@@ -638,6 +646,30 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		return replaceWithChisled( world, pos, originalState, 0 );
 	}
 
+	@Override
+	public boolean canPlaceTorchOnTop(
+			final IBlockAccess world,
+			final BlockPos pos )
+	{
+		return isSideSolid( world, pos, EnumFacing.UP );
+	}
+
+	@Override
+	public boolean isSideSolid(
+			final IBlockAccess world,
+			final BlockPos pos,
+			final EnumFacing side )
+	{
+		try
+		{
+			return getTileEntity( world, pos ).isSideSolid( side );
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			return false;
+		}
+	}
+
 	public static boolean supportsBlock(
 			final IBlockState state )
 	{
@@ -648,24 +680,31 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final Class<? extends Block> blkClass = blk.getClass();
 
 			// require basic hardness behavior...
-			final boolean test_a = blkClass.getMethod( "getBlockHardness", World.class, BlockPos.class ).getDeclaringClass() == Block.class;
-			final boolean test_b = blkClass.getMethod( "getPlayerRelativeBlockHardness", EntityPlayer.class, World.class, BlockPos.class ).getDeclaringClass() == Block.class;
-			final boolean test_c = blkClass.getMethod( "getExplosionResistance", World.class, BlockPos.class, Entity.class, Explosion.class ).getDeclaringClass() == Block.class;
+			final ProxyBlock pb = new ProxyBlock();
+
+			pb.getBlockHardness( null, null );
+			final Method hardnessMethod = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class );
+			final boolean test_a = hardnessMethod.getDeclaringClass() == Block.class;
+
+			final float blockHardness = ( Float ) hardnessMethod.invoke( blk, null, null );
+
+			pb.getPlayerRelativeBlockHardness( null, null, null );
+			final boolean test_b = blkClass.getMethod( pb.MethodName, EntityPlayer.class, World.class, BlockPos.class ).getDeclaringClass() == Block.class;
+
+			pb.getExplosionResistance( null, null, null, null );
+			final boolean test_c = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, Entity.class, Explosion.class ).getDeclaringClass() == Block.class;
 
 			// require default drop behavior...
-			final boolean test_d = blkClass.getMethod( "quantityDropped", Random.class ).getDeclaringClass() == Block.class;
-			final boolean test_e = blkClass.getMethod( "quantityDroppedWithBonus", int.class, Random.class ).getDeclaringClass() == Block.class;
-			final boolean test_f = blkClass.getMethod( "quantityDropped", IBlockState.class, int.class, Random.class ).getDeclaringClass() == Block.class;
+			pb.quantityDropped( null );
+			final boolean test_d = blkClass.getMethod( pb.MethodName, Random.class ).getDeclaringClass() == Block.class;
 
-			final Field f = Block.class.getDeclaredField( "blockHardness" );
+			pb.quantityDroppedWithBonus( 0, null );
+			final boolean test_e = blkClass.getMethod( pb.MethodName, int.class, Random.class ).getDeclaringClass() == Block.class;
 
-			// require not bedrock...
-			final boolean wasAccessible = f.isAccessible();
-			f.setAccessible( true );
-			final float blockHardness = f.getFloat( blk );
-			f.setAccessible( wasAccessible );
+			pb.quantityDropped( null, 0, null );
+			final boolean test_f = blkClass.getMethod( pb.MethodName, IBlockState.class, int.class, Random.class ).getDeclaringClass() == Block.class;
 
-			return test_a && test_b && test_c && test_d && test_e && test_f && blockHardness >= -0.5f && blk.hasTileEntity( state ) == false && blk.isFullCube() && ChiselsAndBits.instance.getConversion( blk.getMaterial() ) != null;
+			return test_a && test_b && test_c && test_d && test_e && test_f && blockHardness >= -0.01f && blk.getTickRandomly() == false && blk.hasTileEntity( state ) == false && blk.isFullCube() && ChiselsAndBits.instance.getConversion( blk.getMaterial() ) != null;
 		}
 		catch ( final Throwable t )
 		{
@@ -718,7 +757,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 
 			if ( BlockID == 0 )
+			{
 				throw new NullPointerException();
+			}
 
 			if ( blk != null && blk != target )
 			{

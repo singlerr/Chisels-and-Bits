@@ -31,6 +31,7 @@ public class TileEntityBlockChiseled extends TileEntity
 {
 
 	public static final String block_prop = "b";
+	public static final String side_prop = "s";
 	public static final String voxel_prop = "v";
 	public static final String light_prop = "l";
 
@@ -42,7 +43,9 @@ public class TileEntityBlockChiseled extends TileEntity
 	public IExtendedBlockState getState()
 	{
 		if ( state == null )
+		{
 			return ( IExtendedBlockState ) ChiselsAndBits.instance.getChiseledDefaultState();
+		}
 		return state;
 	}
 
@@ -51,7 +54,9 @@ public class TileEntityBlockChiseled extends TileEntity
 	{
 		final IBlockState state = Block.getStateById( getState().getValue( BlockChiseled.block_prop ) );
 		if ( state != null )
+		{
 			return state.getBlock();
+		}
 
 		return alternative;
 	}
@@ -61,7 +66,9 @@ public class TileEntityBlockChiseled extends TileEntity
 	{
 		final IBlockState state = Block.getStateById( getState().getValue( BlockChiseled.block_prop ) );
 		if ( state != null )
+		{
 			return state;
+		}
 
 		return alternative.getDefaultState();
 	}
@@ -72,7 +79,7 @@ public class TileEntityBlockChiseled extends TileEntity
 		this.state = state;
 		if ( pos != null && worldObj != null && !isInvalid() )
 		{
-			worldObj.checkLight( pos );
+			// worldObj.checkLight( pos );
 		}
 	}
 
@@ -83,7 +90,9 @@ public class TileEntityBlockChiseled extends TileEntity
 		writeChisleData( nbttagcompound );
 
 		if ( nbttagcompound.hasNoTags() )
+		{
 			return null;
+		}
 
 		return new S35PacketUpdateTileEntity( pos, 255, nbttagcompound );
 	}
@@ -104,16 +113,20 @@ public class TileEntityBlockChiseled extends TileEntity
 			final NBTTagCompound compound )
 	{
 		final Integer b = getState().getValue( BlockChiseled.block_prop );
+		final Integer s = getState().getValue( BlockChiseled.side_prop );
 		final Float l = getState().getValue( BlockChiseled.light_prop );
 		final VoxelBlobState vbs = getState().getValue( BlockChiseled.v_prop );
 
 		if ( b == null || vbs == null )
+		{
 			return;
+		}
 
 		if ( b != null && vbs != null )
 		{
 			compound.setFloat( light_prop, l == null ? 1.0f : l );
 			compound.setInteger( block_prop, b );
+			compound.setInteger( side_prop, s );
 			compound.setByteArray( voxel_prop, vbs.getByteArray() );
 		}
 	}
@@ -121,11 +134,12 @@ public class TileEntityBlockChiseled extends TileEntity
 	public final void readChisleData(
 			final NBTTagCompound compound )
 	{
+		final int sideFlags = compound.getInteger( side_prop );
 		final int b = compound.getInteger( block_prop );
 		final float l = compound.getFloat( light_prop );
 		final byte[] v = compound.getByteArray( voxel_prop );
 
-		setState( getState().withProperty( BlockChiseled.block_prop, b ).withProperty( BlockChiseled.light_prop, l ).withProperty( BlockChiseled.v_prop, new VoxelBlobState( v, getPositionRandom( pos ) ) ) );
+		setState( getState().withProperty( BlockChiseled.side_prop, sideFlags ).withProperty( BlockChiseled.block_prop, b ).withProperty( BlockChiseled.light_prop, l ).withProperty( BlockChiseled.v_prop, new VoxelBlobState( v, getPositionRandom( pos ) ) ) );
 	}
 
 	@Override
@@ -157,7 +171,7 @@ public class TileEntityBlockChiseled extends TileEntity
 			ref = cb.ref;
 		}
 
-		IExtendedBlockState state = getState().withProperty( BlockChiseled.light_prop, vb.getOpacity() ).withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb, getPositionRandom( pos ) ) );
+		IExtendedBlockState state = getState().withProperty( BlockChiseled.side_prop, 0xFF ).withProperty( BlockChiseled.light_prop, vb.getOpacity() ).withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb, getPositionRandom( pos ) ) );
 
 		// required for placing bits
 		if ( ref != 0 )
@@ -173,7 +187,9 @@ public class TileEntityBlockChiseled extends TileEntity
 			final BlockPos pos )
 	{
 		if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
+		{
 			return MathHelper.getPositionRandom( pos );
+		}
 
 		return 0;
 	}
@@ -208,9 +224,11 @@ public class TileEntityBlockChiseled extends TileEntity
 		final CommonBlock common = vb.mostCommonBlock();
 		final float opacity = vb.getOpacity();
 
+		final int sideFlags = vb.getSideFlags();
+
 		if ( worldObj == null )
 		{
-			setState( getState().withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) ).withProperty( BlockChiseled.light_prop, opacity ).withProperty( BlockChiseled.block_prop, common.ref ) );
+			setState( getState().withProperty( BlockChiseled.side_prop, sideFlags ).withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) ).withProperty( BlockChiseled.light_prop, opacity ).withProperty( BlockChiseled.block_prop, common.ref ) );
 			return;
 		}
 
@@ -220,7 +238,7 @@ public class TileEntityBlockChiseled extends TileEntity
 		}
 		else if ( common.ref != 0 )
 		{
-			setState( getState().withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) ).withProperty( BlockChiseled.light_prop, opacity ).withProperty( BlockChiseled.block_prop, common.ref ) );
+			setState( getState().withProperty( BlockChiseled.side_prop, sideFlags ).withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) ).withProperty( BlockChiseled.light_prop, opacity ).withProperty( BlockChiseled.block_prop, common.ref ) );
 			markDirty();
 			worldObj.markBlockForUpdate( pos );
 		}
@@ -268,4 +286,9 @@ public class TileEntityBlockChiseled extends TileEntity
 		return itemstack;
 	}
 
+	public boolean isSideSolid(
+			final EnumFacing side )
+	{
+		return ( getState().getValue( BlockChiseled.side_prop ) & 1 << side.ordinal() ) != 0;
+	}
 }

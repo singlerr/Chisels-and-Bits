@@ -69,7 +69,9 @@ public class ChiselsAndBits
 	public IBlockState getChiseledDefaultState()
 	{
 		for ( final BlockChiseled bc : conversions.values() )
+		{
 			return bc.getDefaultState();
+		}
 		return null;
 	}
 
@@ -130,14 +132,17 @@ public class ChiselsAndBits
 		{
 			registerItem( itemChiselStone = new ItemChisel( ToolMaterial.STONE ), "chisel_stone" );
 		}
+
 		if ( config.enableIronChisel )
 		{
 			registerItem( itemChiselIron = new ItemChisel( ToolMaterial.IRON ), "chisel_iron" );
 		}
+
 		if ( config.enableGoldChisel )
 		{
 			registerItem( itemChiselGold = new ItemChisel( ToolMaterial.GOLD ), "chisel_gold" );
 		}
+
 		if ( config.enableDiamondChisel )
 		{
 			registerItem( itemChiselDiamond = new ItemChisel( ToolMaterial.EMERALD ), "chisel_diamond" );
@@ -147,21 +152,25 @@ public class ChiselsAndBits
 		{
 			registerItem( itemPositiveprint = new ItemPositivePrint(), "positiveprint" );
 		}
+
 		if ( config.enableNegativePrint )
 		{
 			registerItem( itemNegativeprint = new ItemNegativePrint(), "negativeprint" );
 		}
-		if ( config.enableChisledBits )
-		{
-			registerItem( itemBlockBit = new ItemChiseledBit(), "block_bit" );
-		}
+
 		if ( config.enableBitBag )
 		{
 			registerItem( itemBitBag = new ItemBitBag(), "bit_bag" );
 		}
+
 		if ( config.enableWoodenWrench )
 		{
 			registerItem( itemWrench = new ItemWrench(), "wrench_wood" );
+		}
+
+		if ( config.enableChisledBits )
+		{
+			registerItem( itemBlockBit = new ItemChiseledBit(), "block_bit" );
 		}
 
 		// register tile entities.
@@ -228,7 +237,9 @@ public class ChiselsAndBits
 			final Object... recipe )
 	{
 		if ( result == null )
+		{
 			return;
+		}
 		GameRegistry.addRecipe( new ShapedOreRecipe( result, recipe ) );
 	}
 
@@ -237,7 +248,9 @@ public class ChiselsAndBits
 			final Object... recipe )
 	{
 		if ( result == null )
+		{
 			return;
+		}
 		GameRegistry.addRecipe( new ShapelessOreRecipe( result, recipe ) );
 	}
 

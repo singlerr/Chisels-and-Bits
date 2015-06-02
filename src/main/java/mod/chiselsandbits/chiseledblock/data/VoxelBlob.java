@@ -20,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -47,8 +48,12 @@ public class VoxelBlob
 			for ( int y = 0; y < dim; y++ )
 			{
 				for ( int x = 0; x < dim; x++ )
+				{
 					if ( get( x, y, z ) != 0 && second.get( x, y, z ) != 0 )
+					{
 						return false;
+					}
+				}
 			}
 		}
 
@@ -93,7 +98,9 @@ public class VoxelBlob
 			for ( int y = 0; y < dim; y++ )
 			{
 				for ( int x = 0; x < dim; x++ )
+				{
 					if ( get( x, y, z ) != 0 )
+					{
 						if ( found )
 						{
 							min_x = Math.min( min_x, x );
@@ -116,6 +123,8 @@ public class VoxelBlob
 							max_y = y;
 							max_z = z;
 						}
+					}
+				}
 			}
 		}
 
@@ -133,7 +142,9 @@ public class VoxelBlob
 			for ( int y = 0; y < dim; y++ )
 			{
 				for ( int x = 0; x < dim; x++ )
+				{
 					if ( get( x, y, z ) != 0 )
+					{
 						if ( found )
 						{
 							min_x = Math.min( min_x, x );
@@ -156,6 +167,8 @@ public class VoxelBlob
 							max_y = y + 1;
 							max_z = z + 1;
 						}
+					}
+				}
 			}
 		}
 
@@ -250,10 +263,12 @@ public class VoxelBlob
 		int p = 0;
 
 		for ( int x = 0; x < array_size; x++ )
+		{
 			if ( values[x] == 0 )
 			{
 				p++;
 			}
+		}
 
 		return p;
 	}
@@ -263,10 +278,12 @@ public class VoxelBlob
 		int p = 0;
 
 		for ( int x = 0; x < array_size; x++ )
+		{
 			if ( values[x] != 0 )
 			{
 				p++;
 			}
+		}
 
 		return p;
 	}
@@ -370,7 +387,9 @@ public class VoxelBlob
 			final int z )
 	{
 		if ( x >= 0 && x < dim && y >= 0 && y < dim && z >= 0 && z < dim )
+		{
 			return get( x, y, z );
+		}
 
 		return 0;
 	}
@@ -457,10 +476,12 @@ public class VoxelBlob
 		IntegerRef out = new IntegerRef( 0, 0 );
 
 		for ( final IntegerRef r : count.values() )
+		{
 			if ( r.total > out.total && r.ref != 0 )
 			{
 				out = r;
 			}
+		}
 
 		final CommonBlock cb = new CommonBlock();
 		cb.ref = out.ref;
@@ -577,4 +598,65 @@ public class VoxelBlob
 		}
 	}
 
+	public int getSideFlags()
+	{
+		int output = 0x00;
+		final int min_range = 5;
+		final int max_range = 11;
+
+		for ( final EnumFacing face : EnumFacing.VALUES )
+		{
+			int required = 4 * 4;
+			final int edge = face.getAxisDirection() == AxisDirection.POSITIVE ? 15 : 0;
+
+			switch ( face.getAxis() )
+			{
+				case X:
+					for ( int z = min_range; z <= max_range; z++ )
+					{
+						for ( int y = min_range; y <= max_range; y++ )
+						{
+							if ( get( edge, y, z ) != 0 )
+							{
+								required--;
+							}
+						}
+					}
+					break;
+				case Y:
+					for ( int z = min_range; z <= max_range; z++ )
+					{
+						for ( int x = min_range; x <= max_range; x++ )
+						{
+							if ( get( x, edge, z ) != 0 )
+							{
+								required--;
+							}
+						}
+					}
+					break;
+				case Z:
+					for ( int y = min_range; y <= max_range; y++ )
+					{
+						for ( int x = min_range; x <= max_range; x++ )
+						{
+							if ( get( x, y, edge ) != 0 )
+							{
+								required--;
+							}
+						}
+					}
+					break;
+				default:
+					throw new NullPointerException();
+			}
+
+			if ( required <= 0 )
+			{
+				output |= 1 << face.ordinal();
+			}
+		}
+
+		return output;
+	}
 }
