@@ -1,2 +1,2 @@
-# Chisels-and-Bits-Localization
-Chisels and Bits Localization
+# Localization for Chisels & Bits
+Localization for Chisels and Bits, feel free to provide pull requests for new languages, or updates to previous languages. All Files must be utf-8 and in the correct format.
