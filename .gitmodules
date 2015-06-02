@@ -1,0 +1,3 @@
+[submodule "src/main/resources/assets/chiselsandbits/lang"]
+	path = src/main/resources/assets/chiselsandbits/lang
+	url = https://github.com/AlgorithmX2/Chisels-and-Bits-Localization.git
