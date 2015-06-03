@@ -180,8 +180,12 @@ public class ItemPositivePrint extends ItemNegativePrint
 			final int inPattern )
 	{
 		for ( final BagInventory inv : bags )
+		{
 			if ( inv.extractBit( inPattern, 1 ) == 1 )
+			{
 				return true;
+			}
+		}
 
 		return false;
 	}

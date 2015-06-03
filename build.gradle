@@ -22,7 +22,7 @@ group= "mod.chiselsandbits" // http://maven.apache.org/guides/mini/guide-naming-
 archivesBaseName = "chiselsandbits"
 
 minecraft {
-    version = "1.8-11.14.1.1419"
+    version = "1.8-11.14.2.1423"
     runDir = "eclipse"
     mappings = "snapshot_20141130"
 }

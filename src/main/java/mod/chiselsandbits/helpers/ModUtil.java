@@ -31,8 +31,8 @@ public class ModUtil
 	}
 
 	static public Pair<Vec3, Vec3> getPlayerRay(
-			final EntityPlayer playerIn )
-	{
+		final EntityPlayer playerIn )
+		{
 		double reachDistance = 5.0d;
 
 		final double x = playerIn.prevPosX + ( playerIn.posX - playerIn.prevPosX );
@@ -59,7 +59,7 @@ public class ModUtil
 		final Vec3 to = from.addVector( eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance );
 
 		return Pair.of( from, to );
-	}
+		}
 
 	static public class ItemStackSlot
 	{
@@ -89,7 +89,9 @@ public class ModUtil
 				final EntityPlayer who )
 		{
 			if ( isCreative )
+			{
 				return;
+			}
 
 			stack.damageItem( 1, who );
 			if ( stack.stackSize <= 0 )
@@ -102,7 +104,9 @@ public class ModUtil
 		public void consume()
 		{
 			if ( isCreative )
+			{
 				return;
+			}
 
 			stack.stackSize--;
 			if ( stack.stackSize <= 0 )
@@ -122,13 +126,17 @@ public class ModUtil
 	{
 		final ItemStack inHand = who.getCurrentEquippedItem();
 		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChisel )
+		{
 			return new ItemStackSlot( who.inventory, who.inventory.currentItem, inHand, who.capabilities.isCreativeMode );
+		}
 
 		for ( int x = 0; x < who.inventory.getSizeInventory(); x++ )
 		{
 			final ItemStack is = who.inventory.getStackInSlot( x );
 			if ( is != null && is.stackSize > 0 && is.getItem() instanceof ItemChisel )
+			{
 				return new ItemStackSlot( who.inventory, x, is, who.capabilities.isCreativeMode );
+			}
 		}
 
 		return new ItemStackSlot( null, -1, null, who.capabilities.isCreativeMode );
@@ -140,13 +148,17 @@ public class ModUtil
 	{
 		final ItemStack inHand = who.getCurrentEquippedItem();
 		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChisel.getStackState( inHand ) == StateID )
+		{
 			return new ItemStackSlot( who.inventory, who.inventory.currentItem, inHand, who.capabilities.isCreativeMode );
+		}
 
 		for ( int x = 0; x < who.inventory.getSizeInventory(); x++ )
 		{
 			final ItemStack is = who.inventory.getStackInSlot( x );
-			if ( is != null && is.stackSize > 0 && is.getItem() instanceof ItemChiseledBit && is.getMetadata() == StateID )
+			if ( is != null && is.stackSize > 0 && is.getItem() instanceof ItemChiseledBit && ItemChiseledBit.sameBit( is, StateID ) )
+			{
 				return new ItemStackSlot( who.inventory, x, is, who.capabilities.isCreativeMode );
+			}
 		}
 
 		return new ItemStackSlot( null, -1, null, who.capabilities.isCreativeMode );
@@ -158,10 +170,14 @@ public class ModUtil
 		final ItemStack inHand = player.getCurrentEquippedItem();
 
 		if ( inHand != null && inHand.getItem() instanceof ItemChiseledBit )
+		{
 			return ChiselMode.SINGLE;
+		}
 
 		if ( inHand != null && inHand.getItem() instanceof ItemChisel )
+		{
 			return ItemChisel.getChiselMode();
+		}
 
 		return null;
 	}
@@ -172,10 +188,14 @@ public class ModUtil
 		final ItemStack inHand = player.getCurrentEquippedItem();
 
 		if ( inHand != null && inHand.getItem() instanceof ItemPositivePrint )
+		{
 			return true;
+		}
 
 		if ( inHand != null && inHand.getItem() instanceof ItemNegativePrint )
+		{
 			return true;
+		}
 
 		return false;
 	}
@@ -186,7 +206,9 @@ public class ModUtil
 		final ItemStack inHand = player.getCurrentEquippedItem();
 
 		if ( inHand != null && inHand.getItem() instanceof ItemBlockChiseled )
+		{
 			return true;
+		}
 
 		return false;
 	}
