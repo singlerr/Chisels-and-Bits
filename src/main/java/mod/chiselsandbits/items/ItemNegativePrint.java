@@ -8,6 +8,7 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
@@ -74,7 +75,9 @@ public class ItemNegativePrint extends Item
 			final ItemStack stack )
 	{
 		if ( stack.hasTagCompound() )
+		{
 			return super.getUnlocalizedName( stack ) + "_written";
+		}
 		return super.getUnlocalizedName( stack );
 	}
 
@@ -93,7 +96,9 @@ public class ItemNegativePrint extends Item
 		final Block blkObj = blkstate.getBlock();
 
 		if ( !player.canPlayerEdit( pos, side, stack ) )
+		{
 			return true;
+		}
 
 		if ( !stack.hasTagCompound() )
 		{
@@ -112,7 +117,9 @@ public class ItemNegativePrint extends Item
 			// we can do this!
 		}
 		else if ( !BlockChiseled.replaceWithChisled( world, pos, blkstate ) )
+		{
 			return true;
+		}
 
 		final TileEntity te = world.getTileEntity( pos );
 
@@ -173,9 +180,22 @@ public class ItemNegativePrint extends Item
 			final ItemStack stack )
 	{
 		if ( !stack.hasTagCompound() )
+		{
 			return null;
+		}
 
 		final NBTTagCompound tag = stack.getTagCompound();
+
+		// Detect and provide full blocks if pattern solid full and solid.
+		final TileEntityBlockChiseled tebc = new TileEntityBlockChiseled();
+		tebc.readChisleData( tag );
+
+		final CommonBlock common = tebc.getBlob().mostCommonBlock();
+		if ( common.isFull )
+		{
+			final IBlockState state = Block.getStateById( common.ref );
+			return new ItemStack( state.getBlock(), 1, state.getBlock().getMetaFromState( state ) );
+		}
 
 		final IBlockState blk = Block.getStateById( tag.getInteger( TileEntityBlockChiseled.block_prop ) );
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.instance.getConversion( blk.getBlock().getMaterial() ), 1 );
@@ -203,6 +223,7 @@ public class ItemNegativePrint extends Item
 			for ( int y = 0; y < vb.detail && selected.isValid(); y++ )
 			{
 				for ( int x = 0; x < vb.detail && selected.isValid(); x++ )
+				{
 					if ( vb.get( x, y, z ) != 0 && pattern.get( x, y, z ) == 0 )
 					{
 						spawnedItem = ItemChisel.chiselBlock( player.capabilities.isCreativeMode, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
@@ -213,6 +234,7 @@ public class ItemNegativePrint extends Item
 							selected = ModUtil.findChisel( player );
 						}
 					}
+				}
 			}
 		}
 

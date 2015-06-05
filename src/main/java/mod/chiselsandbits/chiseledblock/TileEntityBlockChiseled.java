@@ -1,6 +1,7 @@
 
 package mod.chiselsandbits.chiseledblock;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 import mod.chiselsandbits.ChiselsAndBits;
@@ -11,6 +12,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
@@ -135,9 +137,14 @@ public class TileEntityBlockChiseled extends TileEntity
 			final NBTTagCompound compound )
 	{
 		final int sideFlags = compound.getInteger( side_prop );
-		final int b = compound.getInteger( block_prop );
+		int b = compound.getInteger( block_prop );
 		final float l = compound.getFloat( light_prop );
 		final byte[] v = compound.getByteArray( voxel_prop );
+
+		if ( b == 0 )
+		{
+			b = Block.getStateId( Blocks.cobblestone.getDefaultState() ); // if load fails default to cobble stone...
+		}
 
 		setState( getState().withProperty( BlockChiseled.side_prop, sideFlags ).withProperty( BlockChiseled.block_prop, b ).withProperty( BlockChiseled.light_prop, l ).withProperty( BlockChiseled.v_prop, new VoxelBlobState( v, getPositionRandom( pos ) ) ) );
 	}
@@ -206,9 +213,17 @@ public class TileEntityBlockChiseled extends TileEntity
 			vb = new VoxelBlob();
 
 			if ( vbs != null ) // if no data exists, just make an empty one and return it, and pray that real data is
-				// coming...
+			// coming...
 			{
-				vb.fromByteArray( vbs.getByteArray() );
+				try
+				{
+					vb.fromByteArray( vbs.getByteArray() );
+				}
+				catch ( final IOException e )
+				{
+					vb.fill( Block.getStateId( Blocks.cobblestone.getDefaultState() ) );
+				}
+
 				blob = new WeakReference<VoxelBlob>( vb );
 			}
 		}
@@ -226,6 +241,8 @@ public class TileEntityBlockChiseled extends TileEntity
 
 		final int sideFlags = vb.getSideFlags();
 
+		final Integer oldSideFlags = getState().getValue( BlockChiseled.side_prop );
+
 		if ( worldObj == null )
 		{
 			setState( getState().withProperty( BlockChiseled.side_prop, sideFlags ).withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) ).withProperty( BlockChiseled.light_prop, opacity ).withProperty( BlockChiseled.block_prop, common.ref ) );
@@ -241,6 +258,11 @@ public class TileEntityBlockChiseled extends TileEntity
 			setState( getState().withProperty( BlockChiseled.side_prop, sideFlags ).withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) ).withProperty( BlockChiseled.light_prop, opacity ).withProperty( BlockChiseled.block_prop, common.ref ) );
 			markDirty();
 			worldObj.markBlockForUpdate( pos );
+
+			if ( oldSideFlags == null || oldSideFlags != sideFlags )
+			{
+				worldObj.notifyNeighborsOfStateChange( pos, worldObj.getBlockState( pos ).getBlock() );
+			}
 		}
 		else
 		{
@@ -289,6 +311,13 @@ public class TileEntityBlockChiseled extends TileEntity
 	public boolean isSideSolid(
 			final EnumFacing side )
 	{
-		return ( getState().getValue( BlockChiseled.side_prop ) & 1 << side.ordinal() ) != 0;
+		final Integer sideFlags = getState().getValue( BlockChiseled.side_prop );
+
+		if ( sideFlags == null )
+		{
+			return true; // if torches or other blocks are on the block this prevents a conversion from crashing.
+		}
+
+		return ( sideFlags & 1 << side.ordinal() ) != 0;
 	}
 }

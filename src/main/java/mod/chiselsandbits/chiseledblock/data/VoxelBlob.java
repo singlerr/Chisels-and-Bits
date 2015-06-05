@@ -327,23 +327,16 @@ public class VoxelBlob
 	}
 
 	public void read(
-			final ByteArrayInputStream o )
+			final ByteArrayInputStream o ) throws IOException
 	{
-		try
+		final GZIPInputStream w = new GZIPInputStream( o );
+		final ByteBuffer buffer = ByteBuffer.allocate( Short.BYTES );
+		for ( int x = 0; x < array_size; x++ )
 		{
-			final GZIPInputStream w = new GZIPInputStream( o );
-			final ByteBuffer buffer = ByteBuffer.allocate( Short.BYTES );
-			for ( int x = 0; x < array_size; x++ )
-			{
-				w.read( buffer.array() );
-				values[x] = buffer.getShort( 0 );
-			}
-			w.close();
+			w.read( buffer.array() );
+			values[x] = buffer.getShort( 0 );
 		}
-		catch ( final IOException e )
-		{
-			throw new RuntimeException( e );
-		}
+		w.close();
 	}
 
 	public void write(
@@ -375,7 +368,7 @@ public class VoxelBlob
 	}
 
 	public void fromByteArray(
-			final byte[] i )
+			final byte[] i ) throws IOException
 	{
 		final ByteArrayInputStream out = new ByteArrayInputStream( i );
 		read( out );

@@ -1,6 +1,7 @@
 
 package mod.chiselsandbits.render.BlockChisled;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -71,8 +72,15 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 			generic = new ArrayList<BakedQuad>();
 
 			final VoxelBlob vb = new VoxelBlob();
-			vb.fromByteArray( data.getByteArray() );
-			generateFaces( vb, data.weight );
+			try
+			{
+				vb.fromByteArray( data.getByteArray() );
+				generateFaces( vb, data.weight );
+			}
+			catch ( final IOException e )
+			{
+				// failure to render...
+			}
 		}
 		else
 		{
@@ -122,10 +130,12 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 						}
 
 						if ( currentFace != null )
+						{
 							if ( currentFace.extend( region ) )
 							{
 								continue;
 							}
+						}
 
 						currentFace = region;
 						rset.put( getBucket( myFace, x, y, z ), region );
@@ -156,10 +166,12 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 						}
 
 						if ( currentFace != null )
+						{
 							if ( currentFace.extend( region ) )
 							{
 								continue;
 							}
+						}
 
 						currentFace = region;
 						rset.put( getBucket( myFace, x, y, z ), region );
@@ -190,10 +202,12 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 						}
 
 						if ( currentFace != null )
+						{
 							if ( currentFace.extend( region ) )
 							{
 								continue;
 							}
+						}
 
 						currentFace = region;
 						rset.put( getBucket( myFace, x, y, z ), region );
@@ -220,12 +234,14 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 				restart: for ( final FaceRegion A : src )
 				{
 					for ( final FaceRegion B : src )
+					{
 						if ( A != B && A.extend( B ) )
 						{
 							src.remove( B );
 							restart = true;
 							break restart;
 						}
+					}
 				}
 			}
 			while ( restart );
@@ -455,6 +471,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 
 						final int p = vertData.length / 4;
 						for ( int vertNum = 0; vertNum < 4; vertNum++ )
+						{
 							if ( isZero( Float.intBitsToFloat( vertData[vertNum * p + a] ) ) && isZero( Float.intBitsToFloat( vertData[vertNum * p + b] ) ) )
 							{
 								faceVertMap[myFace.getIndex()][vertNum] = 0;
@@ -477,6 +494,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 							{
 								faceVertMap[myFace.getIndex()][vertNum] = 2;
 							}
+						}
 					}
 				}
 			}
