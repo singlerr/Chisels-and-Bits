@@ -29,6 +29,7 @@ import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.client.resources.model.WeightedBakedModel;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3i;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
@@ -40,7 +41,6 @@ import com.google.common.collect.Multimap;
 @SuppressWarnings( "deprecation" )
 public class ChisledBlockBaked implements IFlexibleBakedModel
 {
-
 	IBakedModel originalModel;
 
 	@SuppressWarnings( "unchecked" )
@@ -51,6 +51,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 
 	public ChisledBlockBaked(
 			final int BlockRef,
+			final EnumWorldBlockLayer layer,
 			final VoxelBlobState data )
 	{
 		final IBlockState state = Block.getStateById( BlockRef );
@@ -62,20 +63,27 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 
 		if ( originalModel != null && data != null )
 		{
-			// create lists...
-			face[0] = new ArrayList<BakedQuad>();
-			face[1] = new ArrayList<BakedQuad>();
-			face[2] = new ArrayList<BakedQuad>();
-			face[3] = new ArrayList<BakedQuad>();
-			face[4] = new ArrayList<BakedQuad>();
-			face[5] = new ArrayList<BakedQuad>();
-			generic = new ArrayList<BakedQuad>();
-
 			final VoxelBlob vb = new VoxelBlob();
 			try
 			{
 				vb.fromByteArray( data.getByteArray() );
-				generateFaces( vb, data.weight );
+				if ( vb.filter( layer ) )
+				{
+					// create lists...
+					face[0] = new ArrayList<BakedQuad>();
+					face[1] = new ArrayList<BakedQuad>();
+					face[2] = new ArrayList<BakedQuad>();
+					face[3] = new ArrayList<BakedQuad>();
+					face[4] = new ArrayList<BakedQuad>();
+					face[5] = new ArrayList<BakedQuad>();
+					generic = new ArrayList<BakedQuad>();
+
+					generateFaces( vb, data.weight );
+				}
+				else
+				{
+					empty();
+				}
 			}
 			catch ( final IOException e )
 			{
@@ -84,14 +92,19 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 		}
 		else
 		{
-			face[0] = Collections.emptyList();
-			face[1] = Collections.emptyList();
-			face[2] = Collections.emptyList();
-			face[3] = Collections.emptyList();
-			face[4] = Collections.emptyList();
-			face[5] = Collections.emptyList();
-			generic = Collections.emptyList();
+			empty();
 		}
+	}
+
+	private void empty()
+	{
+		face[0] = Collections.emptyList();
+		face[1] = Collections.emptyList();
+		face[2] = Collections.emptyList();
+		face[3] = Collections.emptyList();
+		face[4] = Collections.emptyList();
+		face[5] = Collections.emptyList();
+		generic = Collections.emptyList();
 	}
 
 	private final static EnumFacing[] X_Faces = new EnumFacing[] { EnumFacing.EAST, EnumFacing.WEST };

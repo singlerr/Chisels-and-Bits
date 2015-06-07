@@ -4,10 +4,6 @@ package mod.chiselsandbits.chiseledblock.data;
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
-import mod.chiselsandbits.ChiselsAndBits;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-
 
 public class VoxelBlobState implements Comparable<VoxelBlobState>
 {
@@ -51,14 +47,6 @@ public class VoxelBlobState implements Comparable<VoxelBlobState>
 	}
 
 	public VoxelBlobState(
-			final VoxelBlobState blob,
-			final long weight )
-	{
-		data = blob.data;
-		this.weight = ChiselsAndBits.instance.config.allowBlockAlternatives || FMLCommonHandler.instance().getSide() == Side.SERVER ? 0L : weight;
-	}
-
-	public VoxelBlobState(
 			final byte[] v,
 			final long weight )
 	{
@@ -71,7 +59,9 @@ public class VoxelBlobState implements Comparable<VoxelBlobState>
 			final Object obj )
 	{
 		if ( !( obj instanceof VoxelBlobState ) )
+		{
 			return false;
+		}
 
 		final VoxelBlobState second = ( VoxelBlobState ) obj;
 		return data.equals( second.data ) && second.weight == weight;
@@ -80,7 +70,7 @@ public class VoxelBlobState implements Comparable<VoxelBlobState>
 	@Override
 	public int hashCode()
 	{
-		return data.hash ^ Long.hashCode( weight );
+		return data.hash ^ ( int ) ( weight ^ weight >>> 32 );
 	}
 
 	@Override
@@ -89,7 +79,14 @@ public class VoxelBlobState implements Comparable<VoxelBlobState>
 	{
 		final int comp = data.compareTo( o.data );
 		if ( comp == 0 )
-			return Long.compare( weight, o.weight );
+		{
+			if ( weight == o.weight )
+			{
+				return 0;
+			}
+
+			return weight < o.weight ? -1 : 1;
+		}
 		return comp;
 	}
 }

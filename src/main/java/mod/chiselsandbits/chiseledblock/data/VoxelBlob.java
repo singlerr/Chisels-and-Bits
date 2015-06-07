@@ -21,6 +21,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -326,11 +327,13 @@ public class VoxelBlob
 		putBit( x | y << 4 | z << 8, 0 );
 	}
 
+	static final int SHORT_BYTES = Short.SIZE / 8;
+
 	public void read(
 			final ByteArrayInputStream o ) throws IOException
 	{
 		final GZIPInputStream w = new GZIPInputStream( o );
-		final ByteBuffer buffer = ByteBuffer.allocate( Short.BYTES );
+		final ByteBuffer buffer = ByteBuffer.allocate( SHORT_BYTES );
 		for ( int x = 0; x < array_size; x++ )
 		{
 			w.read( buffer.array() );
@@ -345,7 +348,7 @@ public class VoxelBlob
 		try
 		{
 			final GZIPOutputStream w = new GZIPOutputStream( o );
-			final ByteBuffer buffer = ByteBuffer.allocate( Short.BYTES );
+			final ByteBuffer buffer = ByteBuffer.allocate( SHORT_BYTES );
 			for ( int x = 0; x < array_size; x++ )
 			{
 				buffer.putShort( 0, ( short ) values[x] );
@@ -651,5 +654,39 @@ public class VoxelBlob
 		}
 
 		return output;
+	}
+
+	public boolean filter(
+			final EnumWorldBlockLayer layer )
+	{
+		final HashMap<Integer, Boolean> filterState = new HashMap<Integer, Boolean>();
+		boolean hasValues = false;
+
+		for ( int x = 0; x < array_size; x++ )
+		{
+			final int ref = values[x];
+
+			Boolean state = filterState.get( ref );
+			if ( state == null )
+			{
+				filterState.put( ref, state = inLayer( layer, ref ) );
+				hasValues = hasValues || state;
+			}
+
+			if ( state == false )
+			{
+				values[x] = 0;
+			}
+		}
+
+		return hasValues;
+	}
+
+	private Boolean inLayer(
+			final EnumWorldBlockLayer layer,
+			final int ref )
+	{
+		final IBlockState state = Block.getStateById( ref );
+		return state.getBlock().canRenderInLayer( layer );
 	}
 }

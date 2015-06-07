@@ -62,7 +62,7 @@ public class ChiselsAndBits
 	public static CreativeTab creativeTab = new CreativeTab();
 	public static ChiselsAndBits instance;
 
-	public static final MaterialType[] validMaterials = new MaterialType[] { new MaterialType( "wood", Material.wood ), new MaterialType( "rock", Material.rock ), new MaterialType( "iron", Material.iron ), new MaterialType( "cloth", Material.cloth ), new MaterialType( "ice", Material.ice ), new MaterialType( "packedIce", Material.packedIce ), new MaterialType( "clay", Material.clay ) };
+	public static final MaterialType[] validMaterials = new MaterialType[] { new MaterialType( "wood", Material.wood ), new MaterialType( "rock", Material.rock ), new MaterialType( "iron", Material.iron ), new MaterialType( "cloth", Material.cloth ), new MaterialType( "ice", Material.ice ), new MaterialType( "packedIce", Material.packedIce ), new MaterialType( "clay", Material.clay ), new MaterialType( "glass", Material.glass ) };
 
 	final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();
 

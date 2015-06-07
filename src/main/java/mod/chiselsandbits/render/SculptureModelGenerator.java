@@ -36,6 +36,7 @@ public class SculptureModelGenerator implements ICustomModelLoader
 		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_ice" ), ChisledBlockSmartModel.class );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_wood" ), ChisledBlockSmartModel.class );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_rock" ), ChisledBlockSmartModel.class );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_glass" ), ChisledBlockSmartModel.class );
 
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_chiseled" ), ChisledBlockSmartModel.class );
 

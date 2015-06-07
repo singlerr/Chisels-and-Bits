@@ -18,6 +18,8 @@ import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockGlass;
+import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -34,6 +36,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
@@ -73,6 +76,13 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		setHardness( 1 );
 		setHarvestLevel( "pickaxe", 0 );
 		name = BlockName;
+	}
+
+	@Override
+	public boolean canRenderInLayer(
+			final EnumWorldBlockLayer layer )
+	{
+		return true;
 	}
 
 	public TileEntityBlockChiseled getTileEntity(
@@ -696,7 +706,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 			// require default drop behavior...
 			pb.quantityDropped( null );
-			final boolean test_d = blkClass.getMethod( pb.MethodName, Random.class ).getDeclaringClass() == Block.class;
+			final Class wc = blkClass.getMethod( pb.MethodName, Random.class ).getDeclaringClass();
+			final boolean test_d = wc == Block.class || wc == BlockStainedGlass.class || wc == BlockGlass.class;
 
 			pb.quantityDroppedWithBonus( 0, null );
 			final boolean test_e = blkClass.getMethod( pb.MethodName, int.class, Random.class ).getDeclaringClass() == Block.class;
@@ -704,7 +715,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			pb.quantityDropped( null, 0, null );
 			final boolean test_f = blkClass.getMethod( pb.MethodName, IBlockState.class, int.class, Random.class ).getDeclaringClass() == Block.class;
 
-			return test_a && test_b && test_c && test_d && test_e && test_f && blockHardness >= -0.01f && blk.getTickRandomly() == false && blk.hasTileEntity( state ) == false && blk.isFullCube() && ChiselsAndBits.instance.getConversion( blk.getMaterial() ) != null;
+			final boolean isFullCube = blk.isFullCube() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class;
+
+			return test_a && test_b && test_c && test_d && test_e && test_f && blockHardness >= -0.01f && isFullCube && blk.getTickRandomly() == false && blk.hasTileEntity( state ) == false && ChiselsAndBits.instance.getConversion( blk.getMaterial() ) != null;
 		}
 		catch ( final Throwable t )
 		{

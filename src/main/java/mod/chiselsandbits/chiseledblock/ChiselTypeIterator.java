@@ -264,4 +264,10 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 		return this;
 	}
 
+	@Override
+	public void remove()
+	{
+
+	}
+
 }
