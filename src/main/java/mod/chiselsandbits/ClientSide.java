@@ -37,6 +37,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
+import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -458,6 +459,26 @@ public class ClientSide
 		effectRenderer.spawnEffectParticle( EnumParticleTypes.BLOCK_DUST.getParticleID(), x, y, z, 0.0D, 0.0D, 0.0D, new int[] { Block.getStateId( state ) } ).multiplyVelocity( 0.2F ).multipleParticleScaleBy( 0.6F );
 
 		return true;
+	}
+
+	@SubscribeEvent
+	public void wheelEvent(
+			final MouseEvent me )
+	{
+		if ( me.isCanceled() || me.dwheel == 0 )
+		{
+			return;
+		}
+
+		final Minecraft mc = Minecraft.getMinecraft();
+		final EntityPlayer player = mc.thePlayer;
+		final ItemStack is = player.getHeldItem();
+
+		if ( is != null && is.getItem() instanceof ItemChisel && player.isSneaking() )
+		{
+			ItemChisel.scrollOption( ItemChisel.getChiselMode(), me.dwheel );
+			me.setCanceled( true );
+		}
 	}
 
 	public static void placeSound(

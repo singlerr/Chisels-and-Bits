@@ -16,6 +16,8 @@ public enum ChiselMode
 
 	public final LocalStrings string;
 
+	public boolean isDisabled = false;
+
 	private ChiselMode(
 			final LocalStrings str )
 	{

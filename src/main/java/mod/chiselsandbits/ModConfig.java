@@ -29,6 +29,24 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Settings" )
 	public boolean invertBitBagFullness;
 
+	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_Plane;
+
+	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_ConnectedPlane;
+
+	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_Line;
+
+	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_SmallCube;
+
+	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_LargeCube;
+
+	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_HugeCube;
+
 	@Configured( category = "Balance Settings" )
 	public boolean damageTools;
 
@@ -70,6 +88,13 @@ public class ModConfig extends Configuration
 
 	private void setDefaults()
 	{
+		enableChiselMode_ConnectedPlane = !ChiselMode.CONNECTED_PLANE.isDisabled;
+		enableChiselMode_HugeCube = !ChiselMode.CUBE_HUGE.isDisabled;
+		enableChiselMode_LargeCube = !ChiselMode.CUBE_LARGE.isDisabled;
+		enableChiselMode_SmallCube = !ChiselMode.CUBE_SMALL.isDisabled;
+		enableChiselMode_Line = !ChiselMode.LINE.isDisabled;
+		enableChiselMode_Plane = !ChiselMode.PLANE.isDisabled;
+
 		showUsage = true;
 		invertBitBagFullness = false;
 
@@ -142,6 +167,18 @@ public class ModConfig extends Configuration
 				}
 			}
 		}
+
+		sync();
+	}
+
+	private void sync()
+	{
+		ChiselMode.CONNECTED_PLANE.isDisabled = !enableChiselMode_ConnectedPlane;
+		ChiselMode.CUBE_HUGE.isDisabled = !enableChiselMode_HugeCube;
+		ChiselMode.CUBE_LARGE.isDisabled = !enableChiselMode_LargeCube;
+		ChiselMode.CUBE_SMALL.isDisabled = !enableChiselMode_SmallCube;
+		ChiselMode.LINE.isDisabled = !enableChiselMode_Line;
+		ChiselMode.PLANE.isDisabled = !enableChiselMode_Plane;
 	}
 
 	@SubscribeEvent

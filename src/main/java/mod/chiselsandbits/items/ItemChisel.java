@@ -13,6 +13,7 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.ChiselPacket;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -88,7 +89,9 @@ public class ItemChisel extends ItemTool
 			timer = Stopwatch.createStarted();
 
 			if ( !player.worldObj.isRemote )
+			{
 				return true;
+			}
 
 			final Pair<Vec3, Vec3> PlayerRay = ModUtil.getPlayerRay( player );
 			final Vec3 a = PlayerRay.getLeft();
@@ -104,6 +107,34 @@ public class ItemChisel extends ItemTool
 		return true;
 	}
 
+	public static void scrollOption(
+			final ChiselMode originalMode,
+			final int dwheel )
+	{
+		int offset = clientChiselMode.ordinal() + ( dwheel < 0 ? -1 : 1 );
+
+		if ( offset >= ChiselMode.values().length )
+		{
+			offset = 0;
+		}
+
+		if ( offset < 0 )
+		{
+			offset = ChiselMode.values().length - 1;
+		}
+
+		clientChiselMode = ChiselMode.values()[offset];
+
+		if ( clientChiselMode.isDisabled )
+		{
+			scrollOption( originalMode, dwheel );
+		}
+		else if ( originalMode != clientChiselMode )
+		{
+			Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new ChatComponentTranslation( clientChiselMode.string.toString() ) );
+		}
+	}
+
 	@Override
 	public ItemStack onItemRightClick(
 			final ItemStack itemStackIn,
@@ -112,14 +143,7 @@ public class ItemChisel extends ItemTool
 	{
 		if ( worldIn.isRemote )
 		{
-			int offset = clientChiselMode.ordinal() + 1;
-			if ( offset >= ChiselMode.values().length )
-			{
-				offset = 0;
-			}
-			clientChiselMode = ChiselMode.values()[offset];
-
-			playerIn.addChatComponentMessage( new ChatComponentTranslation( clientChiselMode.string.toString() ) );
+			scrollOption( getChiselMode(), playerIn.isSneaking() ? -1 : 1 );
 		}
 
 		return super.onItemRightClick( itemStackIn, worldIn, playerIn );
@@ -215,7 +239,9 @@ public class ItemChisel extends ItemTool
 	{
 		final int blk = vb.get( x, y, z );
 		if ( blk == 0 )
+		{
 			return output;
+		}
 
 		final boolean spawnBit = ChiselsAndBits.instance.itemBlockBit != null;
 		if ( !world.isRemote && !isCreative )
