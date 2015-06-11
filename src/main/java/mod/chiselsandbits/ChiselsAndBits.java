@@ -26,6 +26,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -33,6 +34,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -40,6 +42,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.RecipeSorter.Category;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -49,7 +52,8 @@ public class ChiselsAndBits
 {
 	public static final String MODNAME = "Chisels & Bits";
 	public static final String MODID = "chiselsandbits";
-	public static final String VERSION = "1.0";
+	public static final String VERSION = "1.2";
+
 	public static final String DEPENDENCIES = "required-after:Forge@[" // require forge.
 			+ net.minecraftforge.common.ForgeVersion.majorVersion + '.' // majorVersion
 			+ net.minecraftforge.common.ForgeVersion.minorVersion + '.' // minorVersion
@@ -121,6 +125,8 @@ public class ChiselsAndBits
 		// load config...
 		config = new ModConfig( event.getSuggestedConfigurationFile() );
 
+		initVersionChecker();
+
 		// loader must be added here to prevent missing models, the rest of the model/textures must be configured later.
 		if ( event.getSide() == Side.CLIENT )
 		{
@@ -185,6 +191,14 @@ public class ChiselsAndBits
 		}
 	}
 
+	private void initVersionChecker()
+	{
+		final NBTTagCompound compound = new NBTTagCompound();
+		compound.setString( "curseProjectName", "231095-chisels-bits" );
+		compound.setString( "curseFilenameParser", "chiselsandbits-[].jar" );
+		FMLInterModComms.sendRuntimeMessage( MODID, "VersionChecker", "addCurseCheck", compound );
+	}
+
 	@EventHandler
 	public void init(
 			final FMLInitializationEvent event )
@@ -224,11 +238,13 @@ public class ChiselsAndBits
 		if ( config.enablePositivePrintCrafting )
 		{
 			GameRegistry.addRecipe( new ChiselCrafting() );
+			net.minecraftforge.oredict.RecipeSorter.register( MODID + ":chiselcrafting", ChiselCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
 		}
 
 		if ( config.enableStackableCrafting )
 		{
 			GameRegistry.addRecipe( new StackableCrafting() );
+			net.minecraftforge.oredict.RecipeSorter.register( MODID + ":stackablecrafting", StackableCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
 		}
 	}
 
