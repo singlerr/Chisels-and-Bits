@@ -87,7 +87,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 			}
 			catch ( final IOException e )
 			{
-				// failure to render...
+				empty();
 			}
 		}
 		else
