@@ -21,7 +21,7 @@ item.mod.chiselsandbits.negativeprint_written.name=Negative Chisel Design - Writ
 
 item.mod.chiselsandbits.chisel_stone.name=Stone Chisel
 item.mod.chiselsandbits.chisel_iron.name=Iron Chisel
-item.mod.chiselsandbits.chisel_gold.name=Gold Chisel
+item.mod.chiselsandbits.chisel_gold.name=Golden Chisel
 item.mod.chiselsandbits.chisel_diamond.name=Diamond Chisel
 
 mod.chiselsandbits.chiselmode.single=Single Bit
