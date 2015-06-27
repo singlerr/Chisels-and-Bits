@@ -52,7 +52,7 @@ public class ChiselsAndBits
 {
 	public static final String MODNAME = "Chisels & Bits";
 	public static final String MODID = "chiselsandbits";
-	public static final String VERSION = "1.2";
+	public static final String VERSION = "1.3";
 
 	public static final String DEPENDENCIES = "required-after:Forge@[" // require forge.
 			+ net.minecraftforge.common.ForgeVersion.majorVersion + '.' // majorVersion

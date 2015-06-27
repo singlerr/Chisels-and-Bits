@@ -44,7 +44,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 	IBakedModel originalModel;
 
 	@SuppressWarnings( "unchecked" )
-	List<BakedQuad>[] face = new List[6];
+	final List<BakedQuad>[] face = new List[6];
 	List<BakedQuad> generic;
 
 	public static final float pixelsPerBlock = 16.0f;
@@ -55,6 +55,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 			final VoxelBlobState data )
 	{
 		final IBlockState state = Block.getStateById( BlockRef );
+		initEmpty();
 
 		if ( state != null )
 		{
@@ -80,23 +81,15 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 
 					generateFaces( vb, data.weight );
 				}
-				else
-				{
-					empty();
-				}
 			}
 			catch ( final IOException e )
 			{
-				empty();
+
 			}
-		}
-		else
-		{
-			empty();
 		}
 	}
 
-	private void empty()
+	private void initEmpty()
 	{
 		face[0] = Collections.emptyList();
 		face[1] = Collections.emptyList();
