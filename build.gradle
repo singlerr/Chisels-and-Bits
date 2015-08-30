@@ -11,20 +11,18 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.0-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
-plugins {
-    id "net.minecraftforge.gradle.forge" version "2.0.1"
-}
+apply plugin: 'forge'
 
 version = "1.4"
 group= "mod.chiselsandbits" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "chiselsandbits"
 
 minecraft {
-    version = "1.8-11.14.3.1506"
+    version = "1.8-11.14.2.1423"
     runDir = "eclipse"
     mappings = "snapshot_20141130"
 }
