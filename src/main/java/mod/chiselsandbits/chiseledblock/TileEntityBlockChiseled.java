@@ -24,6 +24,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.MathHelper;
+import net.minecraft.world.World;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -83,6 +84,16 @@ public class TileEntityBlockChiseled extends TileEntity
 		{
 			// worldObj.checkLight( pos );
 		}
+	}
+
+	@Override
+	public boolean shouldRefresh(
+			final World world,
+			final BlockPos pos,
+			final IBlockState oldState,
+			final IBlockState newState)
+	{
+		return oldState.getBlock() != newState.getBlock();
 	}
 
 	@Override
