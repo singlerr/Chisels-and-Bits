@@ -63,12 +63,18 @@ public class ItemChiseledBit extends Item
 	public String getItemStackDisplayName(
 			final ItemStack stack )
 	{
-		final IBlockState state = Block.getStateById( ItemChisel.getStackState( stack ) );
-		final Block blk = state.getBlock();
-
-		final ItemStack target = new ItemStack( blk, 1, blk.getMetaFromState( state ) );
-
-		if ( target.getItem() == null )
+		ItemStack target = null;
+		
+		try
+		{
+			// for an unknown reason its possible to generate mod blocks without proper state here...
+			final IBlockState state = Block.getStateById( ItemChisel.getStackState( stack ) );
+			final Block blk = state.getBlock();	
+			target = new ItemStack( blk, 1, blk.getMetaFromState( state ) );
+		}
+		catch( IllegalArgumentException e ){}
+		
+		if ( target == null || target.getItem() == null )
 			return super.getItemStackDisplayName( stack );
 
 		return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( target.getDisplayName() ).toString();

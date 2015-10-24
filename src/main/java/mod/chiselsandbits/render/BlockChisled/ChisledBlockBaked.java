@@ -270,15 +270,17 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 				final BakedQuad q = faceBakery.makeBakedQuad( to, from, bpf, texture, myFace, mr, bpr, true, true );
 
 				final int[] vertData = q.getVertexData();
+				int wrapAt = vertData.length / 4;
+				
 				vertData[0 + 3] = getShadeColor( vertData, 0, region, blob );
-				vertData[7 + 3] = getShadeColor( vertData, 7, region, blob );
-				vertData[14 + 3] = getShadeColor( vertData, 14, region, blob );
-				vertData[21 + 3] = getShadeColor( vertData, 21, region, blob );
+				vertData[wrapAt*1 + 3] = getShadeColor( vertData, wrapAt*1, region, blob );
+				vertData[wrapAt*2 + 3] = getShadeColor( vertData, wrapAt*2, region, blob );
+				vertData[wrapAt*3 + 3] = getShadeColor( vertData, wrapAt*3, region, blob );
 
 				for ( int vertNum = 0; vertNum < 4; vertNum++ )
 				{
-					vertData[vertNum * 7 + 4] = Float.floatToRawIntBits( texture.getInterpolatedU( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 0] ) );
-					vertData[vertNum * 7 + 5] = Float.floatToRawIntBits( texture.getInterpolatedV( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1] ) );
+					vertData[vertNum * wrapAt+ 4] = Float.floatToRawIntBits( texture.getInterpolatedU( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 0] ) );
+					vertData[vertNum * wrapAt + 5] = Float.floatToRawIntBits( texture.getInterpolatedV( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1] ) );
 				}
 
 				/*
