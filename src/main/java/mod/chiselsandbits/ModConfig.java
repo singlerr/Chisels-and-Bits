@@ -85,7 +85,18 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Items" )
 	boolean enableWoodenWrench;
-
+	
+	public boolean isEnabled( String className )
+	{
+		Property p = get( "Enabled Blocks", className, true );		
+		boolean out = p.getBoolean( true );
+		
+		if ( hasChanged() )
+			save();
+		
+		return out;
+	}
+	
 	private void setDefaults()
 	{
 		enableChiselMode_ConnectedPlane = !ChiselMode.CONNECTED_PLANE.isDisabled;

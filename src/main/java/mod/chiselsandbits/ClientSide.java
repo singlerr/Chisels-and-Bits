@@ -1,7 +1,14 @@
 
 package mod.chiselsandbits;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+
+import org.lwjgl.opengl.GL11;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
@@ -17,10 +24,14 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -38,16 +49,16 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Type;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import org.lwjgl.opengl.GL11;
 
 
 @SuppressWarnings( "deprecation" )
@@ -455,8 +466,11 @@ public class ClientSide
 				break;
 
 		}
-
-		effectRenderer.spawnEffectParticle( EnumParticleTypes.BLOCK_DUST.getParticleID(), x, y, z, 0.0D, 0.0D, 0.0D, new int[] { Block.getStateId( state ) } ).multiplyVelocity( 0.2F ).multipleParticleScaleBy( 0.6F );
+		
+		EntityFX fx = effectRenderer.spawnEffectParticle( EnumParticleTypes.BLOCK_DUST.getParticleID(), x, y, z, 0.0D, 0.0D, 0.0D, new int[] { Block.getStateId( state ) } );
+		
+		if ( fx != null )
+			fx.multiplyVelocity( 0.2F ).multipleParticleScaleBy( 0.6F );
 
 		return true;
 	}
@@ -499,6 +513,114 @@ public class ClientSide
 		final IBlockState state = Block.getStateById( extractedState );
 		final Block block = state.getBlock();
 		world.playSound( pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, block.stepSound.getBreakSound(), ( block.stepSound.getVolume() + 1.0F ) / 16.0F, block.stepSound.getFrequency() * 0.9F, false );
+	}
+
+	public static HashMap<Integer,String> blockToTexture = new HashMap<Integer,String>();
+	private static Field mapRegSprites = null;
+
+	private static TextureAtlasSprite findTexture(TextureAtlasSprite texture, List<BakedQuad> faceQuads) throws IllegalArgumentException, IllegalAccessException, NullPointerException
+	{
+		if ( texture == null )
+		{
+			TextureMap map = Minecraft.getMinecraft().getTextureMapBlocks();
+			
+			if ( mapRegSprites == null )
+			{
+				mapRegSprites = ReflectionHelper.findField( map.getClass(), "mapRegisteredSprites", "field_110574_e");
+				if( mapRegSprites == null )
+					throw new RuntimeException("Unable to get sprite list.");
+			}
+			
+			Map mapRegisteredSprites = (Map) mapRegSprites.get(map);			
+			if( mapRegisteredSprites == null )
+				throw new RuntimeException("Unable to lookup textures.");
+			
+			for (BakedQuad q : faceQuads )
+			{
+				int offsetSize = q.getVertexData().length / 4;
+				
+				int[] data = q.getVertexData();
+				float UA = Float.intBitsToFloat(data[4]);
+				float VA = Float.intBitsToFloat(data[5]);
+				float UB = Float.intBitsToFloat(data[offsetSize+4]);
+				float VB = Float.intBitsToFloat(data[offsetSize+5]);
+				float UC = Float.intBitsToFloat(data[offsetSize*2+4]);
+				float VC = Float.intBitsToFloat(data[offsetSize*2+5]);
+
+				// use middle of a triangle instead of corners..
+				float U = ( UA + UB + UC ) / 3.0f;
+				float V = ( VA + VB + VC ) / 3.0f;
+				
+				Iterator iterator1 = mapRegisteredSprites.values().iterator();
+				while ( iterator1.hasNext())
+				{
+				    final TextureAtlasSprite sprite = (TextureAtlasSprite)iterator1.next();
+				    if ( sprite.getMinU() <= U && U <= sprite.getMaxU() && sprite.getMinV() <= V && V <= sprite.getMaxV()  )
+				    {
+				    	texture = sprite;						
+				    	return texture;
+				    }				    
+				}
+			}
+		}
+		
+		return texture;
+	}
+	
+	public static TextureAtlasSprite findTexture(int BlockRef,IBakedModel originalModel)
+	{
+		TextureAtlasSprite texture = null;
+		
+		if ( originalModel != null )
+		{
+			// first try to get the real model...
+			try
+			{
+				if ( originalModel instanceof ISmartBlockModel )
+				{
+					IBakedModel newModel = ( (ISmartBlockModel) originalModel ).handleBlockState(Block.getStateById(BlockRef));
+					if ( newModel != null ) originalModel = newModel;
+				}
+			}
+			catch(Exception err) {}
+			
+			// who knows if that worked.. now lets try to get a texture...
+			try
+			{
+				texture = originalModel.getTexture();
+			}
+			catch( Exception err )
+			{
+				// didn't work? ok lets try scanning for the texture in the atlas...
+				if ( blockToTexture.containsKey(BlockRef) )
+				{
+					String textureName = blockToTexture.get(BlockRef);
+					if ( textureName != null )
+						texture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( textureName );
+				}
+				else
+				{
+					try
+					{
+						for ( EnumFacing side : EnumFacing.VALUES)
+							texture = findTexture( texture, (List<BakedQuad>)originalModel.getFaceQuads(side));
+						texture = findTexture( texture, (List<BakedQuad>)originalModel.getGeneralQuads());
+						
+						blockToTexture.put(BlockRef, texture == null ? null : texture.getIconName() );
+					}
+					catch( Exception errr ) 
+					{
+						blockToTexture.put(BlockRef, null);
+					}
+				}
+			}
+		}
+		
+		// still no good? then just default to missing texture..
+		if ( texture == null )
+			texture = Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
+		
+		return texture;
 	}
 
 }

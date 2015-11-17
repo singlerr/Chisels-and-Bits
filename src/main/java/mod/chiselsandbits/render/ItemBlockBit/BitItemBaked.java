@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.vecmath.Vector3f;
 
+import mod.chiselsandbits.ClientSide;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -33,7 +34,7 @@ public class BitItemBaked implements IFlexibleBakedModel
 	List<BakedQuad> generic;
 
 	public static final float pixelsPerBlock = 16.0f;
-
+	
 	public BitItemBaked(
 			final int BlockRef )
 	{
@@ -44,10 +45,10 @@ public class BitItemBaked implements IFlexibleBakedModel
 		{
 			originalModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state );
 		}
-
+		
 		generic = new ArrayList<BakedQuad>();
-		final TextureAtlasSprite texture = originalModel == null ? null : originalModel.getTexture();
-
+		TextureAtlasSprite texture = ClientSide.findTexture(BlockRef,originalModel);
+		
 		final Vector3f to = new Vector3f( 6.0f, 6.0f, 6.0f );
 		final Vector3f from = new Vector3f( 10.0f, 10.0f, 10.0f );
 

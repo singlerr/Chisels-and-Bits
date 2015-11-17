@@ -2,8 +2,11 @@
 package mod.chiselsandbits.chiseledblock;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
@@ -19,6 +22,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockGlass;
+import net.minecraft.block.BlockSlime;
 import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -46,8 +50,6 @@ import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 
 public class BlockChiseled extends Block implements ITileEntityProvider
@@ -680,15 +682,20 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 	}
 
+	private static HashMap<Block,Boolean> supportedBlocks = new HashMap<Block,Boolean>();
+	
 	public static boolean supportsBlock(
 			final IBlockState state )
 	{
 		final Block blk = state.getBlock();
 
+		if ( supportedBlocks.containsKey(blk))
+			return supportedBlocks.get(blk);
+		
 		try
 		{
 			final Class<? extends Block> blkClass = blk.getClass();
-
+			
 			// require basic hardness behavior...
 			final ProxyBlock pb = new ProxyBlock();
 
@@ -715,13 +722,28 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			pb.quantityDropped( null, 0, null );
 			final boolean test_f = blkClass.getMethod( pb.MethodName, IBlockState.class, int.class, Random.class ).getDeclaringClass() == Block.class;
 
+			pb.onEntityCollidedWithBlock( null, null, null );
+			final boolean test_g = (blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, Entity.class ).getDeclaringClass() == Block.class) || blkClass == BlockSlime.class;
+
+			pb.onEntityCollidedWithBlock( null, null, null, null );
+			final boolean test_h = (blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ).getDeclaringClass() == Block.class) || blkClass == BlockSlime.class;
+
 			final boolean isFullCube = blk.isFullCube() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class;
 
-			return test_a && test_b && test_c && test_d && test_e && test_f && blockHardness >= -0.01f && isFullCube && blk.getTickRandomly() == false && blk.hasTileEntity( state ) == false && ChiselsAndBits.instance.getConversion( blk.getMaterial() ) != null;
+			if ( test_a && test_b && test_c && test_d && test_e && test_f && test_g && test_h && blockHardness >= -0.01f && isFullCube && blk.getTickRandomly() == false && blk.hasTileEntity( state ) == false && ChiselsAndBits.instance.getConversion( blk.getMaterial() ) != null )
+			{
+				boolean result = ChiselsAndBits.instance.config.isEnabled( blkClass.getName() );
+				supportedBlocks.put( blk, result );
+				return result;
+			}
+			
+			supportedBlocks.put( blk, false );
+			return false;
 		}
 		catch ( final Throwable t )
 		{
 			// if the above test fails for any reason, then the block cannot be supported.
+			supportedBlocks.put( blk, false );
 			return false;
 		}
 	}
@@ -771,7 +793,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 			if ( BlockID == 0 )
 			{
-				throw new NullPointerException();
+				return false;
 			}
 
 			if ( blk != null && blk != target )

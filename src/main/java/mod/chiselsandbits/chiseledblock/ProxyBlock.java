@@ -100,4 +100,14 @@ class ProxyBlock extends Block
 		return 0;
 	}
 
+	@Override
+	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, Entity entityIn) {
+		markMethod();
+	}
+	
+	@Override
+	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
+
+		markMethod();
+	}
 }
