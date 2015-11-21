@@ -18,6 +18,8 @@ public enum ChiselMode
 
 	public boolean isDisabled = false;
 
+	public Object binding;
+
 	private ChiselMode(
 			final LocalStrings str )
 	{

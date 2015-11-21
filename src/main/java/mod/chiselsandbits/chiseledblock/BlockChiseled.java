@@ -1,6 +1,7 @@
 
 package mod.chiselsandbits.chiseledblock;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,7 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.ExtendedBlockState;
+import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -819,6 +821,79 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 
 		return false;
+	}
+	
+	
+	public static IBlockState actingAs = null;
+	
+	public IBlockState getCommonState( IExtendedBlockState myState )
+	{
+		final VoxelBlobState data = myState.getValue( BlockChiseled.v_prop );		
+		
+		if ( data != null )
+		{
+			final VoxelBlob vb = new VoxelBlob();
+			
+			try
+			{
+				vb.fromByteArray( data.getByteArray() );
+				return Block.getStateById( vb.mostCommonBlock().ref );
+			}
+			catch ( final IOException e )
+			{
+				// :(
+			}			
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
+		
+		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels )
+		{
+			try {
+				if ( state instanceof IExtendedBlockState && worldIn instanceof World)
+				{
+					TileEntityBlockChiseled tebc = getTileEntity(worldIn, pos);
+					return tebc.getState();
+				}
+			} catch (ExceptionNoTileEntity e) {}
+		}
+		
+		return super.getActualState(state, worldIn, pos);			
+	}
+	
+	public String getHarvestTool(IBlockState state)
+	{
+		if ( actingAs != null && actingAs.getBlock() != this )
+			return actingAs.getBlock().getHarvestTool(actingAs);
+		
+		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels && state instanceof IExtendedBlockState )
+		{
+			IBlockState blockRef = getCommonState( ( IExtendedBlockState ) state );			
+			if ( blockRef != null )
+				return blockRef.getBlock().getHarvestTool( blockRef );
+		}
+		
+		return super.getHarvestTool(state);
+	}
+	
+	@Override
+	public int getHarvestLevel(IBlockState state)
+	{
+		if ( actingAs != null && actingAs.getBlock() != this )
+			return actingAs.getBlock().getHarvestLevel(actingAs);
+
+		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels && state instanceof IExtendedBlockState )
+		{
+			IBlockState blockRef = getCommonState( ( IExtendedBlockState ) state );			
+			if ( blockRef != null )
+				return blockRef.getBlock().getHarvestLevel( blockRef );
+		}
+		
+		return super.getHarvestLevel(state);
 	}
 
 }

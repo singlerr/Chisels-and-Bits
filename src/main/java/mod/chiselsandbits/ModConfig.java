@@ -85,6 +85,15 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Items" )
 	boolean enableWoodenWrench;
+
+	@Configured( category = "Balance Settings" )
+	public boolean enableChiselToolHarvestCheck;
+
+	@Configured( category = "Balance Settings" )
+	public String enableChiselToolHarvestCheckTools;
+	
+	@Configured( category = "Balance Settings" )
+	public boolean enableToolHarvestLevels;
 	
 	public boolean isEnabled( String className )
 	{
@@ -114,7 +123,11 @@ public class ModConfig extends Configuration
 
 		enablePositivePrintCrafting = true;
 		enableStackableCrafting = true;
-
+		
+		enableChiselToolHarvestCheck = true;
+		enableToolHarvestLevels = true;
+		enableChiselToolHarvestCheckTools = "pickaxe,axe,shovel";
+		
 		enableBitBag = true;
 		enableNegativePrint = true;
 		enablePositivePrint = true;
@@ -151,6 +164,12 @@ public class ModConfig extends Configuration
 					{
 						final long defaultValue = f.getLong( this );
 						final long value = get( c.category(), f.getName(), ( int ) defaultValue ).getInt();
+						f.set( this, value );
+					}
+					else if ( f.getType() == String.class )
+					{
+						final String defaultValue = (String)f.get( this );
+						final String value = get( c.category(), f.getName(), ( String ) defaultValue ).getString();
 						f.set( this, value );
 					}
 					else if ( f.getType() == int.class || f.getType() == Integer.class )

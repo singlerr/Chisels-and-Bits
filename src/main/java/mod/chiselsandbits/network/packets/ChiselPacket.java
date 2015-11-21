@@ -69,7 +69,10 @@ public class ChiselPacket extends ModPacket
 
 		IBlockState blkstate = world.getBlockState( pos );
 		Block blkObj = blkstate.getBlock();
-
+		
+		if ( blkObj == null || blkstate == null || ! ItemChisel.canMine( chisel.getStack(), blkstate, player, world, pos ) )
+			return 0;
+		
 		if ( BlockChiseled.replaceWithChisled( world, pos, blkstate ) )
 		{
 			blkstate = world.getBlockState( pos );
@@ -96,7 +99,7 @@ public class ChiselPacket extends ModPacket
 				final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, x, y, z, vb, mode, side );
 				while ( i.hasNext() )
 				{
-					extracted = ItemChisel.chiselBlock( player.capabilities.isCreativeMode, vb, world, pos, i.side, i.x(), i.y(), i.z(), extracted, spawnlist );
+					extracted = ItemChisel.chiselBlock( player, vb, world, pos, i.side, i.x(), i.y(), i.z(), extracted, spawnlist );
 
 					if ( extracted != null )
 					{

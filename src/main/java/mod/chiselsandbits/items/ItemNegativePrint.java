@@ -226,7 +226,7 @@ public class ItemNegativePrint extends Item
 				{
 					if ( vb.get( x, y, z ) != 0 && pattern.get( x, y, z ) == 0 )
 					{
-						spawnedItem = ItemChisel.chiselBlock( player.capabilities.isCreativeMode, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
+						spawnedItem = ItemChisel.chiselBlock( player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
 						selected.damage( player );
 
 						if ( !selected.isValid() )

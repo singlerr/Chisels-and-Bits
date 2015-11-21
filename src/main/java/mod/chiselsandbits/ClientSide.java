@@ -35,6 +35,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -52,6 +53,7 @@ import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -77,6 +79,13 @@ public class ClientSide
 	public void init(
 			final ChiselsAndBits chiselsandbits )
 	{
+		for ( ChiselMode mode : ChiselMode.values() )
+		{
+			KeyBinding binding = new KeyBinding( mode.string.toString(), 0, "itemGroup.chiselsandbits" );
+			ClientRegistry.registerKeyBinding(binding);
+			mode.binding  = binding;
+		}
+		
 		MinecraftForge.EVENT_BUS.register( instance );
 		net.minecraftforge.fml.common.FMLCommonHandler.instance().bus().register( instance );
 	}
@@ -168,6 +177,15 @@ public class ClientSide
 		if ( event.side == Side.CLIENT && event.type == Type.CLIENT && event.phase == Phase.START && !Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown() )
 		{
 			ItemChisel.resetDelay();
+		}
+		
+		for ( ChiselMode mode : ChiselMode.values() )
+		{
+			KeyBinding kb = (KeyBinding) mode.binding;
+			if ( kb.isKeyDown() )
+			{
+				ItemChisel.changeChiselMode( ItemChisel.getChiselMode(), mode );
+			}
 		}
 	}
 
@@ -531,7 +549,7 @@ public class ClientSide
 					throw new RuntimeException("Unable to get sprite list.");
 			}
 			
-			Map mapRegisteredSprites = (Map) mapRegSprites.get(map);			
+			Map<?, ?> mapRegisteredSprites = (Map<?, ?>) mapRegSprites.get(map);			
 			if( mapRegisteredSprites == null )
 				throw new RuntimeException("Unable to lookup textures.");
 			
@@ -551,7 +569,7 @@ public class ClientSide
 				float U = ( UA + UB + UC ) / 3.0f;
 				float V = ( VA + VB + VC ) / 3.0f;
 				
-				Iterator iterator1 = mapRegisteredSprites.values().iterator();
+				Iterator<?> iterator1 = mapRegisteredSprites.values().iterator();
 				while ( iterator1.hasNext())
 				{
 				    final TextureAtlasSprite sprite = (TextureAtlasSprite)iterator1.next();

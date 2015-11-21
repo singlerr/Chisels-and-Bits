@@ -278,24 +278,6 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 				vertData[wrapAt*1 + 3] = getShadeColor( vertData, wrapAt*1, region, blob );
 				vertData[wrapAt*2 + 3] = getShadeColor( vertData, wrapAt*2, region, blob );
 				vertData[wrapAt*3 + 3] = getShadeColor( vertData, wrapAt*3, region, blob );
-
-				int a = 0;
-				int b = 2;
-
-				switch ( myFace )
-				{
-					case NORTH:
-					case SOUTH:
-						a = 0;
-						b = 1;
-						break;
-					case EAST:
-					case WEST:
-						a = 1;
-						b = 2;
-						break;
-					default:
-				}
 				
 				calcVertFaceMap();
 

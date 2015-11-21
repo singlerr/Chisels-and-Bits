@@ -52,8 +52,8 @@ public class ChiselsAndBits
 {
 	public static final String MODNAME = "Chisels & Bits";
 	public static final String MODID = "chiselsandbits";
-	public static final String VERSION = "1.4.3";
-
+	public static final String VERSION = "1.5";
+	
 	public static final String DEPENDENCIES = "required-after:Forge@[" // require forge.
 			+ net.minecraftforge.common.ForgeVersion.majorVersion + '.' // majorVersion
 			+ net.minecraftforge.common.ForgeVersion.minorVersion + '.' // minorVersion
@@ -65,7 +65,7 @@ public class ChiselsAndBits
 	// create creative tab...
 	public static CreativeTab creativeTab = new CreativeTab();
 	public static ChiselsAndBits instance;
-
+	
 	public static final MaterialType[] validMaterials = new MaterialType[] { new MaterialType( "wood", Material.wood ), new MaterialType( "rock", Material.rock ), new MaterialType( "iron", Material.iron ), new MaterialType( "cloth", Material.cloth ), new MaterialType( "ice", Material.ice ), new MaterialType( "packedIce", Material.packedIce ), new MaterialType( "clay", Material.clay ), new MaterialType( "glass", Material.glass ) };
 
 	final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();

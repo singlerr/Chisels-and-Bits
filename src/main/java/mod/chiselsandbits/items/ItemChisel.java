@@ -4,15 +4,20 @@ package mod.chiselsandbits.items;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.ChiselPacket;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -129,7 +134,23 @@ public class ItemChisel extends ItemTool
 		{
 			scrollOption( originalMode, dwheel );
 		}
-		else if ( originalMode != clientChiselMode )
+		else
+		{
+			changeChiselMode( originalMode, clientChiselMode );
+		}
+		
+	}
+
+	public static ChiselMode getChiselMode()
+	{
+		return clientChiselMode;
+	}
+	
+	public static void changeChiselMode(ChiselMode originalMode, ChiselMode newClientChiselMode )
+	{
+		clientChiselMode = newClientChiselMode;
+		
+		if ( originalMode != clientChiselMode )
 		{
 			Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new ChatComponentTranslation( clientChiselMode.string.toString() ) );
 		}
@@ -214,7 +235,7 @@ public class ItemChisel extends ItemTool
 	/**
 	 * Modifies VoxelData of TileEntityChiseled
 	 *
-	 * @param isCreative
+	 * @param player
 	 * @param vb
 	 * @param world
 	 * @param pos
@@ -226,7 +247,7 @@ public class ItemChisel extends ItemTool
 	 * @return
 	 */
 	static public ItemStack chiselBlock(
-			final boolean isCreative,
+			final EntityPlayer player,
 			final VoxelBlob vb,
 			final World world,
 			final BlockPos pos,
@@ -237,12 +258,17 @@ public class ItemChisel extends ItemTool
 			ItemStack output,
 			final List<EntityItem> spawnlist )
 	{
+		boolean isCreative = player.capabilities.isCreativeMode;
+		
 		final int blk = vb.get( x, y, z );
 		if ( blk == 0 )
 		{
 			return output;
 		}
-
+		
+		if ( ! canMine( player.getCurrentEquippedItem(), Block.getStateById(blk), player, world, pos) )
+			return output;
+		
 		final boolean spawnBit = ChiselsAndBits.instance.itemBlockBit != null;
 		if ( !world.isRemote && !isCreative )
 		{
@@ -278,15 +304,51 @@ public class ItemChisel extends ItemTool
 		return output;
 	}
 
-	public static ChiselMode getChiselMode()
-	{
-		return clientChiselMode;
-	}
-
 	public static int getStackState(
 			final ItemStack inHand )
 	{
 		return inHand != null && inHand.hasTagCompound() ? inHand.getTagCompound().getInteger( "id" ) : 0;
 	}
 
+	private static boolean testingChisel = false;
+	
+	public static boolean canMine(ItemStack tool, IBlockState state, EntityPlayer player, World world, BlockPos pos )
+	{
+		if ( tool == null || !( tool.getItem() instanceof ItemChisel ) )
+			return false;
+		
+		if ( ChiselsAndBits.instance.config.enableChiselToolHarvestCheck && ! player.capabilities.isCreativeMode)
+		{
+			Block blk = world.getBlockState(pos).getBlock();
+			BlockChiseled.actingAs = state;
+			testingChisel = true;
+			boolean canHarvest = blk.canHarvestBlock( world, pos, player);
+			testingChisel = false;
+			BlockChiseled.actingAs = null;
+			return canHarvest;
+		}
+		
+		return true;
+	}
+
+	@Override
+	public int getHarvestLevel(ItemStack stack, String toolClass)
+	{
+		if ( testingChisel && stack.getItem() instanceof ItemChisel )
+		{
+			String pattern = "(^|,)" + Pattern.quote( toolClass ) + "(,|$)";
+			
+			Pattern p = Pattern.compile(pattern);
+			Matcher m = p.matcher( ChiselsAndBits.instance.config.enableChiselToolHarvestCheckTools );
+			
+			if (m.find())
+			{
+				ItemChisel ic = (ItemChisel)stack.getItem();
+				return ic.toolMaterial.getHarvestLevel();
+			}
+		}
+		
+		return super.getHarvestLevel(stack, toolClass);
+	}
+		
 }

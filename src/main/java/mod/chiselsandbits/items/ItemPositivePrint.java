@@ -132,7 +132,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 					{
 						if ( inPlace != 0 )
 						{
-							spawnedItem = ItemChisel.chiselBlock( player.capabilities.isCreativeMode, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
+							spawnedItem = ItemChisel.chiselBlock( player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
 
 							if ( spawnedItem != null )
 							{
