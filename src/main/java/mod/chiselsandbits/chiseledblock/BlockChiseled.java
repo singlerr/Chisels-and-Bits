@@ -872,13 +872,28 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	@Override
 	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
 		
+		// only if this feature is enable should this code ever run.
 		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels )
 		{
 			try {
-				if ( state instanceof IExtendedBlockState && worldIn instanceof World)
+				// require a real world, and extended bloack state..
+				if ( state instanceof IExtendedBlockState && worldIn instanceof World )
 				{
-					TileEntityBlockChiseled tebc = getTileEntity(worldIn, pos);
-					return tebc.getState();
+					// this is pure insanity, but there is no other solution without core modding.
+					Exception e = new Exception();
+					StackTraceElement[] elements = e.getStackTrace();
+					
+					if (elements != null && elements.length > 2 )
+					{
+						String cname = elements[1].getClassName();
+						
+						// test to see if the hook is asking for this.
+						if ( cname.contains("minecraftforge"))
+						{
+							TileEntityBlockChiseled tebc = getTileEntity(worldIn, pos);
+							return tebc.getState();
+						}
+					}
 				}
 			} catch (ExceptionNoTileEntity e) {}
 		}
