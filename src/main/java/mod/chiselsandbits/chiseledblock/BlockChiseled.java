@@ -231,7 +231,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 					return null;
 				}
 
-				return ItemChiseledBit.createStack( itemBlock, 1 );
+				return ItemChiseledBit.createStack( itemBlock, 1, false );
 			}
 
 			return getTileEntity( world, pos ).getItemStack( this, player );
@@ -496,7 +496,28 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final int y = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, ( int ) ( VoxelBlob.dim * ( selectedR.hitVec.yCoord - pos.getY() - One32ndf * selectedR.sideHit.getFrontOffsetY() ) ) ) );
 			final int z = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, ( int ) ( VoxelBlob.dim * ( selectedR.hitVec.zCoord - pos.getZ() - One32ndf * selectedR.sideHit.getFrontOffsetZ() ) ) ) );
 
-			final ChiselTypeIterator ci = new ChiselTypeIterator( VoxelBlob.dim, x, y, z, vb, chMode, selectedR.sideHit );
+			ChiselTypeIterator ci = null;
+			BlockPos drawStart = ClientSide.instance.getStartPos();
+			
+			if ( chMode == ChiselMode.DRAWN_REGION && drawStart != null )
+			{
+				if ( ClientSide.instance.sameDrawBlock( pos, x,y,z ) )				
+				{
+					int lowX = Math.max(0,Math.min(x,drawStart.getX()));
+					int lowY = Math.max(0,Math.min(y,drawStart.getY()));
+					int lowZ = Math.max(0,Math.min(z,drawStart.getZ()));
+					
+					int highX = Math.min( VoxelBlob.dim,Math.max(x,drawStart.getX()));
+					int highY = Math.min( VoxelBlob.dim,Math.max(y,drawStart.getY()));
+					int highZ = Math.min( VoxelBlob.dim,Math.max(z,drawStart.getZ()));
+
+					ci = new ChiselTypeIterator( VoxelBlob.dim, lowX, lowY, lowZ, 1+highX - lowX, 1+highY - lowY, 1+highZ - lowZ, selectedR.sideHit );
+				}
+				else
+					ci = new ChiselTypeIterator( VoxelBlob.dim, 0, 0, 0, 0, 0, 0, selectedR.sideHit );
+			}
+			else
+				ci = new ChiselTypeIterator( VoxelBlob.dim, x, y, z, vb, chMode, selectedR.sideHit );
 
 			boolean started = false;
 			while ( ci.hasNext() )

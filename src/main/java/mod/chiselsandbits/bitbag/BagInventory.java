@@ -128,7 +128,7 @@ public class BagInventory implements IInventory
 		if ( qty == 0 || id == 0 )
 			return null;
 
-		return stackSlots[index] = ItemChiseledBit.createStack( id, qty );
+		return stackSlots[index] = ItemChiseledBit.createStack( id, qty, false );
 	}
 
 	@Override
@@ -154,7 +154,7 @@ public class BagInventory implements IInventory
 			stackSlots[index].stackSize -= count;
 		}
 
-		return ItemChiseledBit.createStack( id, count );
+		return ItemChiseledBit.createStack( id, count, false );
 	}
 
 	@Override

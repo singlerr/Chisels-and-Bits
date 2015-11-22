@@ -29,6 +29,29 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 	private final int parts;
 	private int offset = -1;
 
+
+	public ChiselTypeIterator(
+			final int dim,
+			int x,
+			int y,
+			int z, int x_size, int y_size, int z_size,
+			final EnumFacing side )
+	{
+		full_size = dim;
+		max_dim = dim - 1;
+		this.mode = ChiselMode.DRAWN_REGION;
+		this.side = side;
+		
+		x_range = x_size;
+		y_range = y_size;
+		z_range = z_size;
+		parts = x_range * y_range * z_range;
+		
+		original_x = x;
+		original_y = y;
+		original_z = z;
+	}
+	
 	public ChiselTypeIterator(
 			final int dim,
 			int x,
@@ -203,6 +226,7 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 				parts = x_range * y_range * z_range;
 				break;
 
+			case DRAWN_REGION:
 			case SINGLE:
 				parts = 1;
 				break;

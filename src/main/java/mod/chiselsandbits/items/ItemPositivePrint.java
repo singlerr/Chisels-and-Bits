@@ -9,6 +9,7 @@ import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.helpers.ChiselInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
@@ -104,7 +105,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 			final EntityPlayer player )
 	{
 		// snag a tool...
-		ItemStackSlot selected = ModUtil.findChisel( player );
+		ChiselInventory selected = new ChiselInventory( player, pos, side );
 		ItemStack spawnedItem = null;
 
 		final ArrayList<BagInventory> bags = new ArrayList<BagInventory>();
@@ -132,18 +133,11 @@ public class ItemPositivePrint extends ItemNegativePrint
 					{
 						if ( inPlace != 0 )
 						{
-							spawnedItem = ItemChisel.chiselBlock( player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
+							spawnedItem = ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
 
 							if ( spawnedItem != null )
 							{
 								inPlace = 0;
-							}
-
-							selected.damage( player );
-
-							if ( !selected.isValid() )
-							{
-								selected = ModUtil.findChisel( player );
 							}
 						}
 

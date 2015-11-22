@@ -22,7 +22,6 @@ public class ModConfig extends Configuration
 	final private File myPath;
 
 	// mod settings...
-
 	@Configured( category = "Client Settings" )
 	private boolean showUsage;
 
@@ -47,6 +46,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Settings" )
 	public boolean enableChiselMode_HugeCube;
 
+	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_DrawnRegion;
+	
 	@Configured( category = "Balance Settings" )
 	public boolean damageTools;
 
@@ -114,7 +116,8 @@ public class ModConfig extends Configuration
 		enableChiselMode_SmallCube = !ChiselMode.CUBE_SMALL.isDisabled;
 		enableChiselMode_Line = !ChiselMode.LINE.isDisabled;
 		enableChiselMode_Plane = !ChiselMode.PLANE.isDisabled;
-
+		enableChiselMode_DrawnRegion = !ChiselMode.DRAWN_REGION.isDisabled;
+		
 		showUsage = true;
 		invertBitBagFullness = false;
 
@@ -209,6 +212,7 @@ public class ModConfig extends Configuration
 		ChiselMode.CUBE_SMALL.isDisabled = !enableChiselMode_SmallCube;
 		ChiselMode.LINE.isDisabled = !enableChiselMode_Line;
 		ChiselMode.PLANE.isDisabled = !enableChiselMode_Plane;
+		ChiselMode.DRAWN_REGION.isDisabled = !enableChiselMode_DrawnRegion;
 	}
 
 	@SubscribeEvent

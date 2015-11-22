@@ -18,6 +18,8 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.network.NetworkRouter;
+import mod.chiselsandbits.network.packets.ChiselPacket;
 import mod.chiselsandbits.render.SculptureModelGenerator;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -178,6 +180,19 @@ public class ClientSide
 		{
 			ItemChisel.resetDelay();
 		}
+		
+		if ( ! Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown() )
+		{
+			if ( loopDeath )
+			{
+				drawBlock = null;
+				drawStart = null;
+			}
+			else
+				loopDeath = true;
+		}
+		else
+			loopDeath = false;
 		
 		for ( ChiselMode mode : ChiselMode.values() )
 		{
@@ -641,4 +656,47 @@ public class ClientSide
 		return texture;
 	}
 
+	private BlockPos drawBlock;
+	private BlockPos drawStart;
+	private boolean loopDeath = false;
+	
+	public BlockPos getStartPos()
+	{
+		return drawStart;
+	}
+	
+	public void pointAt(BlockPos pos, int x, int y, int z)
+	{
+		if ( drawBlock == null || drawBlock.equals(pos) )
+		{
+			drawBlock = pos;
+			if ( drawStart == null )
+				drawStart = new BlockPos( x, y, z );
+		}
+	}
+	
+	public boolean sameDrawBlock(BlockPos pos, int x, int y, int z)
+	{
+		if ( Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown() )
+			return drawBlock != null && drawBlock.equals(pos);
+		else
+		{
+			if ( drawBlock != null && drawBlock.equals(pos) )
+			{
+				final ChiselPacket pc = new ChiselPacket( pos, drawStart.getX(), drawStart.getY(), drawStart.getZ(), x, y, z, EnumFacing.UP, ChiselMode.DRAWN_REGION );
+				final int extractedState = pc.doAction( Minecraft.getMinecraft().thePlayer );
+				
+				if ( extractedState != 0 )
+				{
+					ClientSide.breakSound( Minecraft.getMinecraft().theWorld, pos, extractedState );
+					NetworkRouter.instance.sendToServer( pc );
+				}
+			}
+			
+			drawBlock = null;
+			drawStart = null;
+			return false;
+		}
+	}
+	
 }

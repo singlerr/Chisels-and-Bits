@@ -14,6 +14,7 @@ public enum LocalStrings
 	ChiselModeCubeSmall( "chiselmode.cube_small" ),
 	ChiselModeCubeLarge( "chiselmode.cube_large" ),
 	ChiselModeCubeHuge( "chiselmode.cube_huge" ),
+	ChiselModeDrawnRegion( "chiselmode.drawn_region" ),
 
 	ShiftDetails( "help.shiftdetails" ),
 	Empty( "help.empty" ),

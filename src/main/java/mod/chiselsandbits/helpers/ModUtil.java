@@ -12,6 +12,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -67,17 +68,19 @@ public class ModUtil
 		private final int slot;
 		private final ItemStack stack;
 		private final boolean isCreative;
+		private final int toolSlot;
 
-		private ItemStackSlot(
+		ItemStackSlot(
 				final IInventory i,
 				final int s,
 				final ItemStack st,
-				final boolean creative )
+				final EntityPlayer player )
 		{
 			inv = i;
 			slot = s;
 			stack = st;
-			isCreative = creative;
+			toolSlot = player.inventory.currentItem;
+			isCreative = player.capabilities.isCreativeMode;
 		}
 
 		public boolean isValid()
@@ -119,28 +122,14 @@ public class ModUtil
 		{
 			return stack;
 		}
+
+		public void swapWithWeapon()
+		{
+			ItemStack it = inv.getStackInSlot( toolSlot );
+			inv.setInventorySlotContents( toolSlot, inv.getStackInSlot( slot ) );
+			inv.setInventorySlotContents( slot, it );
+		}
 	};
-
-	static public ItemStackSlot findChisel(
-			final EntityPlayer who )
-	{
-		final ItemStack inHand = who.getCurrentEquippedItem();
-		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChisel )
-		{
-			return new ItemStackSlot( who.inventory, who.inventory.currentItem, inHand, who.capabilities.isCreativeMode );
-		}
-
-		for ( int x = 0; x < who.inventory.getSizeInventory(); x++ )
-		{
-			final ItemStack is = who.inventory.getStackInSlot( x );
-			if ( is != null && is.stackSize > 0 && is.getItem() instanceof ItemChisel )
-			{
-				return new ItemStackSlot( who.inventory, x, is, who.capabilities.isCreativeMode );
-			}
-		}
-
-		return new ItemStackSlot( null, -1, null, who.capabilities.isCreativeMode );
-	}
 
 	static public ItemStackSlot findBit(
 			final EntityPlayer who,
@@ -149,7 +138,7 @@ public class ModUtil
 		final ItemStack inHand = who.getCurrentEquippedItem();
 		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChisel.getStackState( inHand ) == StateID )
 		{
-			return new ItemStackSlot( who.inventory, who.inventory.currentItem, inHand, who.capabilities.isCreativeMode );
+			return new ItemStackSlot( who.inventory, who.inventory.currentItem, inHand, who );
 		}
 
 		for ( int x = 0; x < who.inventory.getSizeInventory(); x++ )
@@ -157,11 +146,11 @@ public class ModUtil
 			final ItemStack is = who.inventory.getStackInSlot( x );
 			if ( is != null && is.stackSize > 0 && is.getItem() instanceof ItemChiseledBit && ItemChiseledBit.sameBit( is, StateID ) )
 			{
-				return new ItemStackSlot( who.inventory, x, is, who.capabilities.isCreativeMode );
+				return new ItemStackSlot( who.inventory, x, is, who );
 			}
 		}
 
-		return new ItemStackSlot( null, -1, null, who.capabilities.isCreativeMode );
+		return new ItemStackSlot( null, -1, null, who );
 	}
 
 	public static ChiselMode isHoldingChiselTool(

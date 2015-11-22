@@ -9,6 +9,7 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
+import mod.chiselsandbits.helpers.ChiselInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
@@ -213,7 +214,7 @@ public class ItemNegativePrint extends Item
 			final EntityPlayer player )
 	{
 		// snag a tool...
-		ItemStackSlot selected = ModUtil.findChisel( player );
+		ChiselInventory selected = new ChiselInventory( player, pos, side );
 		ItemStack spawnedItem = null;
 
 		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
@@ -224,15 +225,10 @@ public class ItemNegativePrint extends Item
 			{
 				for ( int x = 0; x < vb.detail && selected.isValid(); x++ )
 				{
-					if ( vb.get( x, y, z ) != 0 && pattern.get( x, y, z ) == 0 )
+					int blkID = vb.get( x, y, z );
+					if ( blkID != 0 && pattern.get( x, y, z ) == 0 )
 					{
-						spawnedItem = ItemChisel.chiselBlock( player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
-						selected.damage( player );
-
-						if ( !selected.isValid() )
-						{
-							selected = ModUtil.findChisel( player );
-						}
+						spawnedItem = ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
 					}
 				}
 			}

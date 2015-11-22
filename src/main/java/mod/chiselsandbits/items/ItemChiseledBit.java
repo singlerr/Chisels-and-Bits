@@ -16,6 +16,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -210,7 +211,7 @@ public class ItemChiseledBit extends Item
 
 						if ( state != null && BlockChiseled.supportsBlock( state ) )
 						{
-							bits.add( ItemChiseledBit.createStack( Block.getStateId( state ), 1 ) );
+							bits.add( ItemChiseledBit.createStack( Block.getStateId( state ), 1, false ) );
 						}
 					}
 
@@ -236,8 +237,13 @@ public class ItemChiseledBit extends Item
 
 	public static ItemStack createStack(
 			final int id,
-			final int count )
+			final int count, boolean RequireStack )
 	{
+		if ( ChiselsAndBits.instance.itemBlockBit == null )
+		{
+			if ( !RequireStack ) return null;
+		}
+		
 		final ItemStack out = new ItemStack( ChiselsAndBits.instance.itemBlockBit, count );
 		out.setTagInfo( "id", new NBTTagInt( id ) );
 		return out;
