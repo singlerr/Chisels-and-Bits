@@ -89,7 +89,7 @@ public class BagInventory implements IInventory
 	}
 
 	@Override
-	public String getName()
+	public String getCommandSenderName()
 	{
 		return null;
 	}

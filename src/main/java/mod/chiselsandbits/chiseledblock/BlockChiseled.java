@@ -265,7 +265,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		try
 		{
 			final IBlockState state = getTileEntity( world, pos ).getParticleBlockState( this );
-			effectRenderer.func_180533_a( pos, state );
+			effectRenderer.addBlockDestroyEffects( pos, state );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{

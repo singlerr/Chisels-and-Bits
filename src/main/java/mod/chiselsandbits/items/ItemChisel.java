@@ -1,7 +1,7 @@
 
 package mod.chiselsandbits.items;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -46,7 +46,7 @@ public class ItemChisel extends ItemTool
 	public ItemChisel(
 			final ToolMaterial material )
 	{
-		super( 0.1F, material, Collections.emptySet() );
+		super( 0.1F, material, new HashSet<Block>() );
 		setCreativeTab( ChiselsAndBits.creativeTab );
 
 		// chisels are scaled up so that 1 stone chisel can mine one block.
