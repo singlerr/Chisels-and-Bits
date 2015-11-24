@@ -369,6 +369,10 @@ public class ItemChisel extends ItemTool
 		
 		if ( ChiselsAndBits.instance.config.enableChiselToolHarvestCheck )
 		{
+			// this is the earily check.
+			if ( state.getBlock() instanceof BlockChiseled )
+				return true;
+			
 			do
 			{
 				
@@ -396,6 +400,12 @@ public class ItemChisel extends ItemTool
 		}
 		
 		return true;
+	}
+
+	@Override
+	public boolean canHarvestBlock(Block blk)
+	{
+		return blk instanceof BlockChiseled;
 	}
 
 	@Override
