@@ -1,0 +1,36 @@
+package mod.chiselsandbits.integration;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import mezz.jei.api.IItemBlacklist;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.oredict.OreDictionary;
+
+public class IntegerationJEI {
+
+	List<ItemStack> items = new ArrayList<ItemStack>();
+	
+	public void blackListItem( Item b )
+	{
+		items.add( new ItemStack( b, 1, OreDictionary.WILDCARD_VALUE ) );
+	}
+	
+	public void init()
+	{
+		if ( Loader.isModLoaded("JEI") )
+			sendtoJEI();			
+		
+		items = null;
+	}
+
+	private void sendtoJEI()
+	{
+		IItemBlacklist blacklist = mezz.jei.api.JEIManager.itemBlacklist;
+		for ( ItemStack is : items )
+			blacklist.addItemToBlacklist(is);
+	}
+	
+}

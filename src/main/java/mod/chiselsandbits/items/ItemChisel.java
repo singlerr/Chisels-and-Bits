@@ -23,6 +23,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTool;
 import net.minecraft.util.BlockPos;
@@ -405,7 +407,29 @@ public class ItemChisel extends ItemTool
 	@Override
 	public boolean canHarvestBlock(Block blk)
 	{
-		return blk instanceof BlockChiseled;
+		Item it;
+		
+		switch(this.getToolMaterial())
+		{
+		case EMERALD:
+			it = Items.diamond_pickaxe;
+			break;
+		case GOLD:
+			it = Items.golden_pickaxe;
+			break;
+		case IRON:
+			it = Items.iron_pickaxe;
+			break;
+		default:
+		case STONE:
+			it = Items.stone_pickaxe;
+			break;
+		case WOOD:
+			it = Items.wooden_pickaxe;
+			break;
+		}
+		
+		return blk instanceof BlockChiseled || it.canHarvestBlock(blk);
 	}
 
 	@Override

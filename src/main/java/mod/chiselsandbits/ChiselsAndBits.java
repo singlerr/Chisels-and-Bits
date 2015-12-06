@@ -10,6 +10,7 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.crafting.ChiselCrafting;
 import mod.chiselsandbits.crafting.StackableCrafting;
 import mod.chiselsandbits.gui.ModGuiRouter;
+import mod.chiselsandbits.integration.IntegerationJEI;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -52,7 +53,7 @@ public class ChiselsAndBits
 {
 	public static final String MODNAME = "Chisels & Bits";
 	public static final String MODID = "chiselsandbits";
-	public static final String VERSION = "1.5";
+	public static final String VERSION = "1.5.1";
 	
 	public static final String DEPENDENCIES = "required-after:Forge@[" // require forge.
 			+ net.minecraftforge.common.ForgeVersion.majorVersion + '.' // majorVersion
@@ -97,6 +98,7 @@ public class ChiselsAndBits
 	public ItemWrench itemWrench;
 
 	public ModConfig config;
+	private IntegerationJEI jei = new IntegerationJEI();
 
 	public ChiselsAndBits()
 	{
@@ -177,6 +179,7 @@ public class ChiselsAndBits
 		if ( config.enableChisledBits )
 		{
 			registerItem( itemBlockBit = new ItemChiseledBit(), "block_bit" );
+			jei.blackListItem(itemBlockBit);
 		}
 
 		// register tile entities.
@@ -208,6 +211,8 @@ public class ChiselsAndBits
 			ClientSide.instance.init( this );
 		}
 
+		jei.init();
+		
 		MinecraftForge.EVENT_BUS.register( this );
 		net.minecraftforge.fml.common.FMLCommonHandler.instance().bus().register( this );
 

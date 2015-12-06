@@ -2,6 +2,7 @@
 package mod.chiselsandbits.items;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import mod.chiselsandbits.ChiselMode;
@@ -80,7 +81,14 @@ public class ItemChiseledBit extends Item
 
 		return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( target.getDisplayName() ).toString();
 	}
-
+	
+	@Override
+	public int getColorFromItemStack(ItemStack stack, int renderPass)
+	{
+		final IBlockState state = Block.getStateById( ItemChisel.getStackState( stack ) );
+		return BitColors.getColorFor(state,renderPass);
+	}
+	
 	final private static float HALF_16th = 0.5f / 16.0f;
 
 	@Override

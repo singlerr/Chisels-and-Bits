@@ -265,7 +265,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		try
 		{
 			final IBlockState state = getTileEntity( world, pos ).getParticleBlockState( this );
-			effectRenderer.addBlockDestroyEffects( pos, state );
+			return ClientSide.instance.addBlockDestroyEffects( world, pos, state, effectRenderer );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
@@ -909,8 +909,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels && state instanceof IExtendedBlockState )
 		{
 			IBlockState blockRef = getCommonState( ( IExtendedBlockState ) state );			
-			if ( blockRef != null )
-				return blockRef.getBlock().getHarvestTool( blockRef );
+			if ( blockRef != null ){
+				String tool = blockRef.getBlock().getHarvestTool( blockRef );
+				if ( tool == null ) tool = "pickaxe";
+				return tool;
+			}
 		}
 		
 		return super.getHarvestTool(state);

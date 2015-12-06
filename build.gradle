@@ -12,9 +12,12 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.5"
+version = "1.5.1"
 group= "mod.chiselsandbits" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "chiselsandbits"
+
+repositories { maven { url "http://dvs1.progwml6.com/files/maven" } }
+dependencies { deobfCompile "mezz.jei:jei_1.8.8:2.2.0.15" }
 
 minecraft {
     version = "1.8.8-11.14.4.1576-1.8.8"

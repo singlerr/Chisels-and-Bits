@@ -17,6 +17,7 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
+import mod.chiselsandbits.items.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobState;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -36,6 +37,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3i;
+import net.minecraftforge.client.model.IColoredBakedQuad;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.ISmartBlockModel;
 
@@ -48,7 +50,8 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 	@SuppressWarnings( "unchecked" )
 	final List<BakedQuad>[] face = new List[6];
 	List<BakedQuad> generic;
-
+	EnumWorldBlockLayer myLayer;
+	
 	public static final float pixelsPerBlock = 16.0f;
 
 	public ChisledBlockBaked(
@@ -56,6 +59,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 			final EnumWorldBlockLayer layer,
 			final VoxelBlobState data )
 	{
+		myLayer = layer;
 		final IBlockState state = Block.getStateById( BlockRef );
 		initEmpty();
 
@@ -262,22 +266,25 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 				final Vector3f to = offsetVec( region.max, myFace, 1 );
 				final Vector3f from = offsetVec( region.min, myFace, -1 );
 
-				final IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( Block.getStateById( region.blockStateID ) );
+				IBlockState state = Block.getStateById( region.blockStateID );
+				final IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state );
 				final TextureAtlasSprite texture = ClientSide.findTexture( region.blockStateID, model );
 
 				final BlockFaceUV uv = new BlockFaceUV( defUVs, 0 );
-				final BlockPartFace bpf = new BlockPartFace( myFace, 0, "", uv );
+				final BlockPartFace bpf = new BlockPartFace( myFace, -1, "", uv );
 
 				final float[] uvs = getFaceUvs( myFace, from, to, getSourceUVs( sourceUVCache, region.blockStateID, weight, texture, myFace ) );
-				final BakedQuad q = faceBakery.makeBakedQuad( to, from, bpf, texture, myFace, mr, bpr, true, true );
-
+				final BakedQuad g = faceBakery.makeBakedQuad( to, from, bpf, texture, myFace, mr, bpr, true, true );
+				IColoredBakedQuad.ColoredBakedQuad q = new IColoredBakedQuad.ColoredBakedQuad(g.getVertexData(),g.getTintIndex(),g.getFace());
+				
 				final int[] vertData = q.getVertexData();
 				int wrapAt = vertData.length / 4;
 				
-				vertData[0 + 3] = getShadeColor( vertData, 0, region, blob );
-				vertData[wrapAt*1 + 3] = getShadeColor( vertData, wrapAt*1, region, blob );
-				vertData[wrapAt*2 + 3] = getShadeColor( vertData, wrapAt*2, region, blob );
-				vertData[wrapAt*3 + 3] = getShadeColor( vertData, wrapAt*3, region, blob );
+				int color = BitColors.getColorFor(state, myLayer.ordinal());
+				vertData[0 + 3] = getShadeColor( vertData, 0, region, blob, color );
+				vertData[wrapAt*1 + 3] = getShadeColor( vertData, wrapAt*1, region, blob, color );
+				vertData[wrapAt*2 + 3] = getShadeColor( vertData, wrapAt*2, region, blob, color );
+				vertData[wrapAt*3 + 3] = getShadeColor( vertData, wrapAt*3, region, blob, color );
 				
 				calcVertFaceMap();
 
@@ -312,7 +319,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 			final int[] vertData,
 			final int offset,
 			final FaceRegion region,
-			final VoxelBlob blob )
+			final VoxelBlob blob, int color )
 	{
 		/*
 		 * int x = ( int ) ( pixelsPerBlock * Float.intBitsToFloat( vertData[offset] ) );
@@ -347,7 +354,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 		 * final float multiplier = sides <= 1 ? 1.0f : 0.90f - ( 6 - sides ) * 0.026f;
 		 */
 
-		return getShadeColor( region.face, 1.0f );
+		return getShadeColor( region.face, 1.0f, color );
 	}
 
 	private FaceRegion getRegion(
@@ -417,11 +424,16 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 	// merge face brightness with custom multiplier
 	private int getShadeColor(
 			final EnumFacing face,
-			float f )
+			float f, int color )
 	{
 		f *= getFaceBrightness( face );
 		final int i = MathHelper.clamp_int( ( int ) ( f * 255.0F ), 0, 255 );
-		return -16777216 | i << 16 | i << 8 | i;
+		
+		int r = ( ( ( color >> 16 ) & 0xff ) * i ) / 255;
+		int g = ( ( ( color >> 8 ) & 0xff ) * i ) / 255;
+		int b = ( ( color & 0xff ) * i ) / 255;
+		
+		return -16777216 | (b << 16) | (g << 8) | r;
 	}
 
 	static boolean hasFaceMap = false;

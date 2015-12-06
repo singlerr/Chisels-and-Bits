@@ -65,7 +65,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 
-@SuppressWarnings( "deprecation" )
 public class ClientSide
 {
 
@@ -697,6 +696,33 @@ public class ClientSide
 			drawStart = null;
 			return false;
 		}
+	}
+
+	public boolean addBlockDestroyEffects(World world, BlockPos pos, IBlockState state, EffectRenderer effectRenderer)
+	{
+        if (!state.getBlock().isAir(world, pos))
+        {
+            state = state.getBlock().getActualState(state, world, pos);
+            int StateID = Block.getStateId(state);
+            
+            int i = 4;
+
+            for (int j = 0; j < i; ++j)
+            {
+                for (int k = 0; k < i; ++k)
+                {
+                    for (int l = 0; l < i; ++l)
+                    {
+                        double d0 = (double)pos.getX() + ((double)j + 0.5D) / (double)i;
+                        double d1 = (double)pos.getY() + ((double)k + 0.5D) / (double)i;
+                        double d2 = (double)pos.getZ() + ((double)l + 0.5D) / (double)i;
+                        effectRenderer.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, d0 - (double)pos.getX() - 0.5D, d1 - (double)pos.getY() - 0.5D, d2 - (double)pos.getZ() - 0.5D, StateID);
+                    }
+                }
+            }
+        }
+        
+        return true;
 	}
 	
 }

@@ -20,7 +20,10 @@ public class ModConfig extends Configuration
 
 	// file path...
 	final private File myPath;
-
+	
+	@Configured( category = "Integration Settings" )
+	private boolean ShowBitsInJEI;
+	
 	// mod settings...
 	@Configured( category = "Client Settings" )
 	private boolean showUsage;
@@ -140,6 +143,7 @@ public class ModConfig extends Configuration
 		enableGoldChisel = true;
 		enableDiamondChisel = true;
 		enableWoodenWrench = true;
+		ShowBitsInJEI = false;
 	}
 
 	public ModConfig(
