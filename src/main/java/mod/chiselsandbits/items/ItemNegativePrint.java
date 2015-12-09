@@ -4,6 +4,8 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.input.Keyboard;
+
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -12,7 +14,6 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
 import mod.chiselsandbits.helpers.ChiselInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
@@ -25,8 +26,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
-
-import org.lwjgl.input.Keyboard;
 
 
 public class ItemNegativePrint extends Item

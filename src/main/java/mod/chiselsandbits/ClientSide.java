@@ -635,8 +635,8 @@ public class ClientSide
 					try
 					{
 						for ( EnumFacing side : EnumFacing.VALUES)
-							texture = findTexture( texture, (List<BakedQuad>)originalModel.getFaceQuads(side));
-						texture = findTexture( texture, (List<BakedQuad>)originalModel.getGeneralQuads());
+							texture = findTexture( texture, originalModel.getFaceQuads(side));
+						texture = findTexture( texture, originalModel.getGeneralQuads());
 						
 						blockToTexture.put(BlockRef, texture == null ? null : texture.getIconName() );
 					}
@@ -713,10 +713,10 @@ public class ClientSide
                 {
                     for (int l = 0; l < i; ++l)
                     {
-                        double d0 = (double)pos.getX() + ((double)j + 0.5D) / (double)i;
-                        double d1 = (double)pos.getY() + ((double)k + 0.5D) / (double)i;
-                        double d2 = (double)pos.getZ() + ((double)l + 0.5D) / (double)i;
-                        effectRenderer.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, d0 - (double)pos.getX() - 0.5D, d1 - (double)pos.getY() - 0.5D, d2 - (double)pos.getZ() - 0.5D, StateID);
+                        double d0 = pos.getX() + (j + 0.5D) / i;
+                        double d1 = pos.getY() + (k + 0.5D) / i;
+                        double d2 = pos.getZ() + (l + 0.5D) / i;
+                        effectRenderer.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, StateID);
                     }
                 }
             }

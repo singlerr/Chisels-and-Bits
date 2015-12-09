@@ -6,10 +6,16 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 
 public final class UnlistedBlockFlags implements IUnlistedProperty<Integer>
 {
+	final String name;
+	
+	public UnlistedBlockFlags(String s) {
+		name = s;
+	}
+	
 	@Override
 	public String getName()
 	{
-		return "f";
+		return name;
 	}
 
 	@Override

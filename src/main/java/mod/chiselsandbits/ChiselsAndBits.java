@@ -197,7 +197,7 @@ public class ChiselsAndBits
 	private void initVersionChecker()
 	{
 		final NBTTagCompound compound = new NBTTagCompound();
-		compound.setString( "curseProjectName", "231095-chisels-bits" );
+		compound.setString( "curseProjectName", "chisels-bits" );
 		compound.setString( "curseFilenameParser", "chiselsandbits-[].jar" );
 		FMLInterModComms.sendRuntimeMessage( MODID, "VersionChecker", "addCurseCheck", compound );
 	}

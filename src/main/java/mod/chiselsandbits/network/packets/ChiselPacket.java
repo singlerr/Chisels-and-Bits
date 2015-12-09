@@ -10,8 +10,6 @@ import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ChiselInventory;
-import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.block.Block;

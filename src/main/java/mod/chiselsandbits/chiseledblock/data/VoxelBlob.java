@@ -41,6 +41,14 @@ public class VoxelBlob
 
 	public int detail = dim;
 
+	public VoxelBlob() {
+	}
+	
+	public VoxelBlob(VoxelBlob vb) {
+		for ( int x = 0; x < values.length; ++x )
+			values[x] = vb.values[x];
+	}
+
 	public boolean canMerge(
 			final VoxelBlob second )
 	{
@@ -594,11 +602,9 @@ public class VoxelBlob
 		}
 	}
 
-	public int getSideFlags()
+	public int getSideFlags(final int min_range,final int max_range )
 	{
 		int output = 0x00;
-		final int min_range = 5;
-		final int max_range = 11;
 
 		for ( final EnumFacing face : EnumFacing.VALUES )
 		{

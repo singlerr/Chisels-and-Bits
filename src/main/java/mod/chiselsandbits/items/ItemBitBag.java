@@ -4,6 +4,8 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.input.Keyboard;
+
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -20,8 +22,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
-
-import org.lwjgl.input.Keyboard;
 
 
 public class ItemBitBag extends Item

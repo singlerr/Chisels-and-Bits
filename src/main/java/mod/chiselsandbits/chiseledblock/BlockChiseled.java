@@ -1,7 +1,6 @@
 
 package mod.chiselsandbits.chiseledblock;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
@@ -59,11 +58,22 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	public static final IUnlistedProperty<VoxelBlobState> v_prop = new UnlistedVoxelBlob();
 	public static final IUnlistedProperty<Integer> block_prop = new UnlistedBlockStateID();
-	public static final IUnlistedProperty<Integer> side_prop = new UnlistedBlockFlags();
+	public static final IUnlistedProperty<Integer> side_prop = new UnlistedBlockFlags("f");
+	public static final IUnlistedProperty<Integer> face_opaque = new UnlistedBlockFlags("of");
 	public static final IUnlistedProperty<Float> light_prop = new UnlistedLightOpacity();
 
 	public final String name;
-
+	
+	@Override
+	public boolean doesSideBlockRendering(IBlockAccess world, BlockPos pos, EnumFacing face)
+	{
+	    try {
+			return getTileEntity( world, pos ).isSideOpaque(face);
+		} catch (ExceptionNoTileEntity e) {
+			return false;
+		}
+	}
+	
 	public BlockChiseled(
 			final Material mat,
 			final String BlockName )
@@ -245,7 +255,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	@Override
 	protected BlockState createBlockState()
 	{
-		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, light_prop, side_prop } );
+		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, light_prop, side_prop, face_opaque } );
 	}
 
 	@Override
@@ -341,11 +351,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 			final float One16thf = 1.0f / vb.detail;
 
-			for ( int y = 0; y < vb.detail; y++ )
+			for ( int y = 0; y < vb.detail; ++y )
 			{
-				for ( int z = 0; z < vb.detail; z++ )
+				for ( int z = 0; z < vb.detail; ++z )
 				{
-					for ( int x = 0; x < vb.detail; x++ )
+					for ( int x = 0; x < vb.detail; ++x )
 					{
 						if ( vb.get( x, y, z ) != 0 )
 						{
@@ -456,17 +466,25 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		final float One16thf = 1.0f / vb.detail;
 
-		for ( int z = 0; z < vb.detail; z++ )
+		for ( int z = 0; z < vb.detail; ++z )
 		{
-			for ( int y = 0; y < vb.detail; y++ )
+			float z_One16thf = One16thf * z;
+			float z_One16thf_p1 = z_One16thf + One16thf;
+			
+			for ( int y = 0; y < vb.detail; ++y )
 			{
-				for ( int x = 0; x < vb.detail; x++ )
+				float y_One16thf = One16thf * y;
+				float y_One16thf_p1 = y_One16thf + One16thf;
+				
+				for ( int x = 0; x < vb.detail; ++x )
 				{
 					if ( vb.get( x, y, z ) != 0 )
 					{
-						setBlockBounds( One16thf * x, One16thf * y, One16thf * z, One16thf * ( x + 1.0f ), One16thf * ( y + 1.0f ), One16thf * ( z + 1.0f ) );
+						float x_One16thf = One16thf * x;
+						
+						setBlockBounds( x_One16thf, y_One16thf, z_One16thf, x_One16thf + One16thf, y_One16thf_p1, z_One16thf_p1 );
 						final MovingObjectPosition r = super.collisionRayTrace( playerIn.worldObj, pos, a, b );
-
+						
 						if ( r != null )
 						{
 							final double xLen = a.xCoord - r.hitVec.xCoord;
@@ -573,19 +591,25 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			{
 				final TileEntityBlockChiseled tec = getTileEntity( worldIn, pos );
 				final VoxelBlob vb = tec.getBlob();
-
 				final float One16thf = 1.0f / vb.detail;
 
-				for ( int z = 0; z < vb.detail; z++ )
+				for ( int z = 0; z < vb.detail; ++z )
 				{
-					for ( int y = 0; y < vb.detail; y++ )
+					float z_One16thf = z * One16thf;
+					float z_One16thf_p1 = z_One16thf + One16thf;
+					
+					for ( int y = 0; y < vb.detail; ++y )
 					{
-						for ( int x = 0; x < vb.detail; x++ )
+						float y_One16thf = y * One16thf;
+						float y_One16thf_p1 = y_One16thf + One16thf;
+						
+						for ( int x = 0; x < vb.detail; ++x )
 						{
+							float x_One16thf = x * One16thf;
+							
 							if ( vb.get( x, y, z ) != 0 )
 							{
-								setBlockBounds( One16thf * x, One16thf * y, One16thf * z, One16thf * ( x + 1.0f ), One16thf * ( y + 1.0f ), One16thf * ( z + 1.0f ) );
-
+								setBlockBounds( x_One16thf, y_One16thf, z_One16thf, x_One16thf + One16thf, y_One16thf_p1, z_One16thf_p1 );
 								final MovingObjectPosition r = super.collisionRayTrace( worldIn, pos, a, b );
 
 								if ( r != null )
@@ -593,7 +617,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 									final double xLen = a.xCoord - r.hitVec.xCoord;
 									final double yLen = a.yCoord - r.hitVec.yCoord;
 									final double zLen = a.zCoord - r.hitVec.zCoord;
-
+									
 									final double thisDist = xLen * xLen + yLen * yLen + zLen * zLen;
 									if ( br == null || lastDist > thisDist )
 									{
@@ -853,17 +877,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		
 		if ( data != null )
 		{
-			final VoxelBlob vb = new VoxelBlob();
-			
-			try
-			{
-				vb.fromByteArray( data.getByteArray() );
+			final VoxelBlob vb = data.getVoxelBlob();
+			if ( vb != null )
 				return Block.getStateById( vb.mostCommonBlock().ref );
-			}
-			catch ( final IOException e )
-			{
-				// :(
-			}			
 		}
 		
 		return null;
@@ -901,6 +917,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		return super.getActualState(state, worldIn, pos);			
 	}
 	
+	@Override
 	public String getHarvestTool(IBlockState state)
 	{
 		if ( actingAs != null && actingAs.getBlock() != this )

@@ -176,7 +176,7 @@ public class ModConfig extends Configuration
 					else if ( f.getType() == String.class )
 					{
 						final String defaultValue = (String)f.get( this );
-						final String value = get( c.category(), f.getName(), ( String ) defaultValue ).getString();
+						final String value = get( c.category(), f.getName(), defaultValue ).getString();
 						f.set( this, value );
 					}
 					else if ( f.getType() == int.class || f.getType() == Integer.class )

@@ -18,7 +18,6 @@ import net.minecraftforge.client.model.ISmartItemModel;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
 
-@SuppressWarnings( "deprecation" )
 public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel
 {
 
@@ -44,9 +43,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 		final EnumWorldBlockLayer layer = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
 
 		if ( data == null )
-		{
 			return new ChisledBlockBaked( blockP, layer, data );
-		}
 
 		ChisledBlockBaked out = modelCache[layer.ordinal()].get( data );
 

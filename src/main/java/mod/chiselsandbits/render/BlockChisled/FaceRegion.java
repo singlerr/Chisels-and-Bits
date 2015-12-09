@@ -45,9 +45,7 @@ class FaceRegion
 				if ( a || b || c || d )
 				{
 					min = new Vec3i( Math.min( currentFace.min.getX(), min.getX() ), Math.min( currentFace.min.getY(), min.getY() ), Math.min( currentFace.min.getZ(), min.getZ() ) );
-
 					max = new Vec3i( Math.max( currentFace.max.getX(), max.getX() ), Math.max( currentFace.max.getY(), max.getY() ), Math.max( currentFace.max.getZ(), max.getZ() ) );
-
 					return true;
 				}
 
@@ -83,9 +81,7 @@ class FaceRegion
 				if ( a || b || c || d )
 				{
 					min = new Vec3i( Math.min( currentFace.min.getX(), min.getX() ), Math.min( currentFace.min.getY(), min.getY() ), Math.min( currentFace.min.getZ(), min.getZ() ) );
-
 					max = new Vec3i( Math.max( currentFace.max.getX(), max.getX() ), Math.max( currentFace.max.getY(), max.getY() ), Math.max( currentFace.max.getZ(), max.getZ() ) );
-
 					return true;
 				}
 

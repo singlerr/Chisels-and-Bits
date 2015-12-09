@@ -1,6 +1,8 @@
 
 package mod.chiselsandbits.helpers;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
@@ -12,14 +14,11 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 
 public class ModUtil

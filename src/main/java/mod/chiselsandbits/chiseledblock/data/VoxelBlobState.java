@@ -1,15 +1,15 @@
 
 package mod.chiselsandbits.chiseledblock.data;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
-
 
 public class VoxelBlobState implements Comparable<VoxelBlobState>
 {
 
 	private static WeakHashMap<VoxelBlobStateRef, WeakReference<VoxelBlobStateRef>> refs = new WeakHashMap<VoxelBlobStateRef, WeakReference<VoxelBlobStateRef>>();
-
+	
 	private static VoxelBlobStateRef FindRef(
 			final byte[] v )
 	{
@@ -88,5 +88,27 @@ public class VoxelBlobState implements Comparable<VoxelBlobState>
 			return weight < o.weight ? -1 : 1;
 		}
 		return comp;
+	}
+
+	WeakReference<VoxelBlob> blob;
+	public VoxelBlob getVoxelBlob()
+	{
+		try
+		{
+			VoxelBlob vb = blob == null ? null : blob.get();
+			
+			if ( vb == null )
+			{
+				vb = new VoxelBlob();
+				vb.fromByteArray(getByteArray());
+				blob = new WeakReference<VoxelBlob>( vb );
+			}
+			
+			return new VoxelBlob( vb );
+		}
+		catch ( final IOException e )
+		{
+			return null;
+		}
 	}
 }

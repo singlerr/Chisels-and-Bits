@@ -6,16 +6,14 @@ import java.util.List;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.items.ItemChisel;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.item.Item.ToolMaterial;
 
 public class ChiselInventory
 {

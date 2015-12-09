@@ -4,6 +4,8 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.input.Keyboard;
+
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -26,8 +28,6 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import org.lwjgl.input.Keyboard;
 
 
 public class ItemBlockChiseled extends ItemBlock
@@ -163,7 +163,7 @@ public class ItemBlockChiseled extends ItemBlock
 		final IBlockState iblockstate = worldIn.getBlockState( pos );
 		final Block block = iblockstate.getBlock();
 
-		if ( block == Blocks.snow_layer && ( ( Integer ) iblockstate.getValue( BlockSnow.LAYERS ) ).intValue() < 1 )
+		if ( block == Blocks.snow_layer && iblockstate.getValue( BlockSnow.LAYERS ).intValue() < 1 )
 		{
 			side = EnumFacing.UP;
 		}

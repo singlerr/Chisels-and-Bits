@@ -3,14 +3,14 @@ package mod.chiselsandbits.render.patterns;
 
 import java.util.WeakHashMap;
 
+import org.lwjgl.input.Keyboard;
+
 import mod.chiselsandbits.render.BaseSmartModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.model.ISmartItemModel;
-
-import org.lwjgl.input.Keyboard;
 
 
 @SuppressWarnings( "deprecation" )
