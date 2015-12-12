@@ -8,7 +8,7 @@ import net.minecraft.network.INetHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 
-
+@SuppressWarnings( "rawtypes" )
 public abstract class ModPacket implements Packet
 {
 

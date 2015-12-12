@@ -13,7 +13,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-
 public class ItemWrench extends Item
 {
 
@@ -23,15 +22,14 @@ public class ItemWrench extends Item
 		setCreativeTab( ChiselsAndBits.creativeTab );
 
 		final long uses = ToolMaterial.WOOD.getMaxUses() * ChiselsAndBits.instance.config.availableUsesMultiplier;
-		setMaxDamage( ChiselsAndBits.instance.config.damageTools ? ( int ) Math.max( 0, Math.min( Short.MAX_VALUE, uses ) ) : 0 );
+		setMaxDamage( ChiselsAndBits.instance.config.damageTools ? (int) Math.max( 0, Math.min( Short.MAX_VALUE, uses ) ) : 0 );
 	}
 
-	@SuppressWarnings( { "rawtypes" } )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
-			final List tooltip,
+			final List<String> tooltip,
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
@@ -51,6 +49,7 @@ public class ItemWrench extends Item
 	{
 		final IBlockState b = world.getBlockState( pos );
 		if ( b != null && !player.isSneaking() )
+		{
 			if ( b.getBlock().rotateBlock( world, pos, side ) )
 			{
 				stack.damageItem( 1, player );
@@ -58,6 +57,7 @@ public class ItemWrench extends Item
 				player.swingItem();
 				return !world.isRemote;
 			}
+		}
 		return false;
 	}
 

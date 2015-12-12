@@ -16,14 +16,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 
-
 @SuppressWarnings( "deprecation" )
 public class PositivePrintBaked implements IFlexibleBakedModel
 {
 
 	ArrayList<BakedQuad> list = new ArrayList<BakedQuad>();
 
-	@SuppressWarnings( { "unchecked" } )
 	public PositivePrintBaked(
 			final ItemStack stack )
 	{

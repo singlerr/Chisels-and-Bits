@@ -3,7 +3,6 @@ package mod.chiselsandbits.chiseledblock;
 
 import net.minecraft.block.material.Material;
 
-
 public class MaterialType
 {
 

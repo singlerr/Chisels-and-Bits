@@ -4,7 +4,6 @@ package mod.chiselsandbits.render.BlockChisled;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3i;
 
-
 class FaceRegion
 {
 	public FaceRegion(
@@ -30,7 +29,9 @@ class FaceRegion
 			final FaceRegion currentFace )
 	{
 		if ( currentFace.blockStateID != blockStateID )
+		{
 			return false;
+		}
 
 		switch ( face )
 		{

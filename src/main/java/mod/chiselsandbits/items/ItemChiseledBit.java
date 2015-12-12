@@ -26,7 +26,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-
 public class ItemChiseledBit extends Item
 {
 	public ItemChiseledBit()
@@ -35,12 +34,11 @@ public class ItemChiseledBit extends Item
 		setHasSubtypes( true );
 	}
 
-	@SuppressWarnings( { "rawtypes" } )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
-			final List tooltip,
+			final List<String> tooltip,
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
@@ -49,7 +47,8 @@ public class ItemChiseledBit extends Item
 
 	@Override
 	/**
-	 *  alter digging behavior to chisel, uses packets to enable server to stay in-sync.
+	 * alter digging behavior to chisel, uses packets to enable server to stay
+	 * in-sync.
 	 */
 	public boolean onBlockStartBreak(
 			final ItemStack itemstack,
@@ -64,29 +63,36 @@ public class ItemChiseledBit extends Item
 			final ItemStack stack )
 	{
 		ItemStack target = null;
-		
+
 		try
 		{
-			// for an unknown reason its possible to generate mod blocks without proper state here...
+			// for an unknown reason its possible to generate mod blocks without
+			// proper state here...
 			final IBlockState state = Block.getStateById( ItemChisel.getStackState( stack ) );
-			final Block blk = state.getBlock();	
+			final Block blk = state.getBlock();
 			target = new ItemStack( blk, 1, blk.getMetaFromState( state ) );
 		}
-		catch( IllegalArgumentException e ){}
-		
+		catch ( final IllegalArgumentException e )
+		{
+		}
+
 		if ( target == null || target.getItem() == null )
+		{
 			return super.getItemStackDisplayName( stack );
+		}
 
 		return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( target.getDisplayName() ).toString();
 	}
-	
+
 	@Override
-	public int getColorFromItemStack(ItemStack stack, int renderPass)
+	public int getColorFromItemStack(
+			final ItemStack stack,
+			final int renderPass )
 	{
 		final IBlockState state = Block.getStateById( ItemChisel.getStackState( stack ) );
-		return BitColors.getColorFor(state,renderPass);
+		return BitColors.getColorFor( state, renderPass );
 	}
-	
+
 	final private static float HALF_16th = 0.5f / 16.0f;
 
 	@Override
@@ -101,7 +107,9 @@ public class ItemChiseledBit extends Item
 			float hitZ )
 	{
 		if ( !player.canPlayerEdit( pos, side, stack ) )
+		{
 			return false;
+		}
 
 		IBlockState blkstate = world.getBlockState( pos );
 		Block blkObj = blkstate.getBlock();
@@ -132,14 +140,14 @@ public class ItemChiseledBit extends Item
 			final TileEntity te = world.getTileEntity( pos );
 			if ( te instanceof TileEntityBlockChiseled )
 			{
-				final TileEntityBlockChiseled tec = ( TileEntityBlockChiseled ) te;
+				final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
 
 				// adjust voxel state...
 				final VoxelBlob vb = tec.getBlob();
 
-				final int x = Math.min( 15, Math.max( 0, ( int ) ( vb.detail * hitX ) ) );
-				final int y = Math.min( 15, Math.max( 0, ( int ) ( vb.detail * hitY ) ) );
-				final int z = Math.min( 15, Math.max( 0, ( int ) ( vb.detail * hitZ ) ) );
+				final int x = Math.min( 15, Math.max( 0, (int) ( vb.detail * hitX ) ) );
+				final int y = Math.min( 15, Math.max( 0, (int) ( vb.detail * hitY ) ) );
+				final int z = Math.min( 15, Math.max( 0, (int) ( vb.detail * hitZ ) ) );
 
 				if ( vb.get( x, y, z ) == 0 )
 				{
@@ -200,7 +208,7 @@ public class ItemChiseledBit extends Item
 
 				try
 				{
-					Item it = ( Item ) obj;
+					Item it = (Item) obj;
 					it.getSubItems( it, it.getCreativeTab(), List );
 
 					for ( final ItemStack out : List )
@@ -212,7 +220,7 @@ public class ItemChiseledBit extends Item
 							continue;
 						}
 
-						final ItemBlock ib = ( ItemBlock ) it;
+						final ItemBlock ib = (ItemBlock) it;
 						final IBlockState state = ib.block.getStateFromMeta( out.getMetadata() );
 
 						if ( state != null && BlockChiseled.supportsBlock( state ) )
@@ -224,7 +232,8 @@ public class ItemChiseledBit extends Item
 				}
 				catch ( final Throwable t )
 				{
-					// a mod did something that isn't acceptable, let them crash in their own code...
+					// a mod did something that isn't acceptable, let them crash
+					// in their own code...
 				}
 
 				List.clear();
@@ -243,13 +252,17 @@ public class ItemChiseledBit extends Item
 
 	public static ItemStack createStack(
 			final int id,
-			final int count, boolean RequireStack )
+			final int count,
+			final boolean RequireStack )
 	{
 		if ( ChiselsAndBits.instance.itemBlockBit == null )
 		{
-			if ( !RequireStack ) return null;
+			if ( !RequireStack )
+			{
+				return null;
+			}
 		}
-		
+
 		final ItemStack out = new ItemStack( ChiselsAndBits.instance.itemBlockBit, count );
 		out.setTagInfo( "id", new NBTTagInt( id ) );
 		return out;

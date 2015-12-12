@@ -11,14 +11,14 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 
-
 @SuppressWarnings( "deprecation" )
 public class MergedBakedModel implements IFlexibleBakedModel
 {
 
 	IFlexibleBakedModel[] merged;
 
-	List<BakedQuad>[] face = new List[6];
+	@SuppressWarnings( "unchecked" )
+	List<BakedQuad>[] face = new ArrayList[6];
 	List<BakedQuad> generic;
 
 	public MergedBakedModel(
@@ -102,10 +102,10 @@ public class MergedBakedModel implements IFlexibleBakedModel
 
 	@Override
 	public List<BakedQuad> getFaceQuads(
-		final EnumFacing side )
-		{
+			final EnumFacing side )
+	{
 		return face[side.ordinal()];
-		}
+	}
 
 	@Override
 	public List<BakedQuad> getGeneralQuads()

@@ -15,7 +15,6 @@ import net.minecraftforge.client.model.IModelPart;
 import net.minecraftforge.client.model.IModelState;
 import net.minecraftforge.client.model.TRSRTransformation;
 
-
 public class SmartModel implements IModel
 {
 	IFlexibleBakedModel smartModel;

@@ -3,7 +3,6 @@ package mod.chiselsandbits;
 
 import mod.chiselsandbits.helpers.LocalStrings;
 
-
 public enum ChiselMode
 {
 	SINGLE( LocalStrings.ChiselModeSingle ),

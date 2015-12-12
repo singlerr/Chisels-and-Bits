@@ -11,7 +11,6 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 
-
 public class StackableCrafting implements IRecipe
 {
 
@@ -103,7 +102,7 @@ public class StackableCrafting implements IRecipe
 		}
 
 		tmp.setBlob( bestBlob );
-		return tmp.getItemStack( ( ( ItemBlock ) stack.getItem() ).block, null );
+		return tmp.getItemStack( ( (ItemBlock) stack.getItem() ).block, null );
 	}
 
 	private boolean arrayCompare(

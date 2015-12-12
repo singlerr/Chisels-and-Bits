@@ -54,7 +54,6 @@ import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -63,7 +62,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Type;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
 
 public class ClientSide
 {
@@ -80,15 +78,14 @@ public class ClientSide
 	public void init(
 			final ChiselsAndBits chiselsandbits )
 	{
-		for ( ChiselMode mode : ChiselMode.values() )
+		for ( final ChiselMode mode : ChiselMode.values() )
 		{
-			KeyBinding binding = new KeyBinding( mode.string.toString(), 0, "itemGroup.chiselsandbits" );
-			ClientRegistry.registerKeyBinding(binding);
-			mode.binding  = binding;
+			final KeyBinding binding = new KeyBinding( mode.string.toString(), 0, "itemGroup.chiselsandbits" );
+			ClientRegistry.registerKeyBinding( binding );
+			mode.binding = binding;
 		}
-		
-		MinecraftForge.EVENT_BUS.register( instance );
-		net.minecraftforge.fml.common.FMLCommonHandler.instance().bus().register( instance );
+
+		ChiselsAndBits.registerWithBus( instance, ForgeBus.BOTH );
 	}
 
 	public void postinit(
@@ -108,7 +105,7 @@ public class ClientSide
 		if ( mod.itemPositiveprint != null )
 		{
 			ModelBakery.addVariantName( mod.itemPositiveprint, MODID + ":positiveprint", MODID + ":positiveprint_written" );
-			mesher.register( mod.itemPositiveprint, new ItemMeshDefinition(){
+			mesher.register( mod.itemPositiveprint, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
@@ -123,7 +120,7 @@ public class ClientSide
 		if ( mod.itemNegativeprint != null )
 		{
 			ModelBakery.addVariantName( mod.itemNegativeprint, MODID + ":negativeprint", MODID + ":negativeprint_written" );
-			mesher.register( mod.itemNegativeprint, new ItemMeshDefinition(){
+			mesher.register( mod.itemNegativeprint, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
@@ -137,7 +134,7 @@ public class ClientSide
 
 		if ( mod.itemBlockBit != null )
 		{
-			mesher.register( mod.itemBlockBit, new ItemMeshDefinition(){
+			mesher.register( mod.itemBlockBit, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
@@ -174,13 +171,14 @@ public class ClientSide
 	public void interaction(
 			final TickEvent.ClientTickEvent event )
 	{
-		// used to prevent hyper chisels.. its actually far worse then you might think...
+		// used to prevent hyper chisels.. its actually far worse then you might
+		// think...
 		if ( event.side == Side.CLIENT && event.type == Type.CLIENT && event.phase == Phase.START && !Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown() )
 		{
 			ItemChisel.resetDelay();
 		}
-		
-		if ( ! Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown() )
+
+		if ( !Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown() )
 		{
 			if ( loopDeath )
 			{
@@ -188,14 +186,18 @@ public class ClientSide
 				drawStart = null;
 			}
 			else
+			{
 				loopDeath = true;
+			}
 		}
 		else
-			loopDeath = false;
-		
-		for ( ChiselMode mode : ChiselMode.values() )
 		{
-			KeyBinding kb = (KeyBinding) mode.binding;
+			loopDeath = false;
+		}
+
+		for ( final ChiselMode mode : ChiselMode.values() )
+		{
+			final KeyBinding kb = (KeyBinding) mode.binding;
 			if ( kb.isKeyDown() )
 			{
 				ItemChisel.changeChiselMode( ItemChisel.getChiselMode(), mode );
@@ -208,7 +210,7 @@ public class ClientSide
 	public void updateConfig(
 			final ActionPerformedEvent.Pre ev )
 	{
-		Minecraft.getMinecraft().addScheduledTask( new Runnable(){
+		Minecraft.getMinecraft().addScheduledTask( new Runnable() {
 
 			@Override
 			public void run()
@@ -362,7 +364,7 @@ public class ClientSide
 
 		if ( previousItem == refItem && previousRotations == rotations && previousModel != null && samePartial( lastPartial, partial ) )
 		{
-			baked = ( IBakedModel ) previousModel;
+			baked = (IBakedModel) previousModel;
 		}
 		else
 		{
@@ -498,11 +500,13 @@ public class ClientSide
 				break;
 
 		}
-		
-		EntityFX fx = effectRenderer.spawnEffectParticle( EnumParticleTypes.BLOCK_DUST.getParticleID(), x, y, z, 0.0D, 0.0D, 0.0D, new int[] { Block.getStateId( state ) } );
-		
+
+		final EntityFX fx = effectRenderer.spawnEffectParticle( EnumParticleTypes.BLOCK_DUST.getParticleID(), x, y, z, 0.0D, 0.0D, 0.0D, new int[] { Block.getStateId( state ) } );
+
 		if ( fx != null )
+		{
 			fx.multiplyVelocity( 0.2F ).multipleParticleScaleBy( 0.6F );
+		}
 
 		return true;
 	}
@@ -547,62 +551,70 @@ public class ClientSide
 		world.playSound( pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, block.stepSound.getBreakSound(), ( block.stepSound.getVolume() + 1.0F ) / 16.0F, block.stepSound.getFrequency() * 0.9F, false );
 	}
 
-	public static HashMap<Integer,String> blockToTexture = new HashMap<Integer,String>();
+	public static HashMap<Integer, String> blockToTexture = new HashMap<Integer, String>();
 	private static Field mapRegSprites = null;
 
-	private static TextureAtlasSprite findTexture(TextureAtlasSprite texture, List<BakedQuad> faceQuads) throws IllegalArgumentException, IllegalAccessException, NullPointerException
+	private static TextureAtlasSprite findTexture(
+			TextureAtlasSprite texture,
+			final List<BakedQuad> faceQuads ) throws IllegalArgumentException, IllegalAccessException, NullPointerException
 	{
 		if ( texture == null )
 		{
-			TextureMap map = Minecraft.getMinecraft().getTextureMapBlocks();
-			
+			final TextureMap map = Minecraft.getMinecraft().getTextureMapBlocks();
+
 			if ( mapRegSprites == null )
 			{
-				mapRegSprites = ReflectionHelper.findField( map.getClass(), "mapRegisteredSprites", "field_110574_e");
-				if( mapRegSprites == null )
-					throw new RuntimeException("Unable to get sprite list.");
+				mapRegSprites = ReflectionHelper.findField( map.getClass(), "mapRegisteredSprites", "field_110574_e" );
+				if ( mapRegSprites == null )
+				{
+					throw new RuntimeException( "Unable to get sprite list." );
+				}
 			}
-			
-			Map<?, ?> mapRegisteredSprites = (Map<?, ?>) mapRegSprites.get(map);			
-			if( mapRegisteredSprites == null )
-				throw new RuntimeException("Unable to lookup textures.");
-			
-			for (BakedQuad q : faceQuads )
+
+			final Map<?, ?> mapRegisteredSprites = (Map<?, ?>) mapRegSprites.get( map );
+			if ( mapRegisteredSprites == null )
 			{
-				int offsetSize = q.getVertexData().length / 4;
-				
-				int[] data = q.getVertexData();
-				float UA = Float.intBitsToFloat(data[4]);
-				float VA = Float.intBitsToFloat(data[5]);
-				float UB = Float.intBitsToFloat(data[offsetSize+4]);
-				float VB = Float.intBitsToFloat(data[offsetSize+5]);
-				float UC = Float.intBitsToFloat(data[offsetSize*2+4]);
-				float VC = Float.intBitsToFloat(data[offsetSize*2+5]);
+				throw new RuntimeException( "Unable to lookup textures." );
+			}
+
+			for ( final BakedQuad q : faceQuads )
+			{
+				final int offsetSize = q.getVertexData().length / 4;
+
+				final int[] data = q.getVertexData();
+				final float UA = Float.intBitsToFloat( data[4] );
+				final float VA = Float.intBitsToFloat( data[5] );
+				final float UB = Float.intBitsToFloat( data[offsetSize + 4] );
+				final float VB = Float.intBitsToFloat( data[offsetSize + 5] );
+				final float UC = Float.intBitsToFloat( data[offsetSize * 2 + 4] );
+				final float VC = Float.intBitsToFloat( data[offsetSize * 2 + 5] );
 
 				// use middle of a triangle instead of corners..
-				float U = ( UA + UB + UC ) / 3.0f;
-				float V = ( VA + VB + VC ) / 3.0f;
-				
-				Iterator<?> iterator1 = mapRegisteredSprites.values().iterator();
-				while ( iterator1.hasNext())
+				final float U = ( UA + UB + UC ) / 3.0f;
+				final float V = ( VA + VB + VC ) / 3.0f;
+
+				final Iterator<?> iterator1 = mapRegisteredSprites.values().iterator();
+				while ( iterator1.hasNext() )
 				{
-				    final TextureAtlasSprite sprite = (TextureAtlasSprite)iterator1.next();
-				    if ( sprite.getMinU() <= U && U <= sprite.getMaxU() && sprite.getMinV() <= V && V <= sprite.getMaxV()  )
-				    {
-				    	texture = sprite;						
-				    	return texture;
-				    }				    
+					final TextureAtlasSprite sprite = (TextureAtlasSprite) iterator1.next();
+					if ( sprite.getMinU() <= U && U <= sprite.getMaxU() && sprite.getMinV() <= V && V <= sprite.getMaxV() )
+					{
+						texture = sprite;
+						return texture;
+					}
 				}
 			}
 		}
-		
+
 		return texture;
 	}
-	
-	public static TextureAtlasSprite findTexture(int BlockRef,IBakedModel originalModel)
+
+	public static TextureAtlasSprite findTexture(
+			final int BlockRef,
+			IBakedModel originalModel )
 	{
 		TextureAtlasSprite texture = null;
-		
+
 		if ( originalModel != null )
 		{
 			// first try to get the real model...
@@ -610,119 +622,147 @@ public class ClientSide
 			{
 				if ( originalModel instanceof ISmartBlockModel )
 				{
-					IBakedModel newModel = ( (ISmartBlockModel) originalModel ).handleBlockState(Block.getStateById(BlockRef));
-					if ( newModel != null ) originalModel = newModel;
+					final IBakedModel newModel = ( (ISmartBlockModel) originalModel ).handleBlockState( Block.getStateById( BlockRef ) );
+					if ( newModel != null )
+					{
+						originalModel = newModel;
+					}
 				}
 			}
-			catch(Exception err) {}
-			
+			catch ( final Exception err )
+			{
+			}
+
 			// who knows if that worked.. now lets try to get a texture...
 			try
 			{
 				texture = originalModel.getTexture();
 			}
-			catch( Exception err )
+			catch ( final Exception err )
 			{
-				// didn't work? ok lets try scanning for the texture in the atlas...
-				if ( blockToTexture.containsKey(BlockRef) )
+				// didn't work? ok lets try scanning for the texture in the
+				// atlas...
+				if ( blockToTexture.containsKey( BlockRef ) )
 				{
-					String textureName = blockToTexture.get(BlockRef);
+					final String textureName = blockToTexture.get( BlockRef );
 					if ( textureName != null )
+					{
 						texture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( textureName );
+					}
 				}
 				else
 				{
 					try
 					{
-						for ( EnumFacing side : EnumFacing.VALUES)
-							texture = findTexture( texture, originalModel.getFaceQuads(side));
-						texture = findTexture( texture, originalModel.getGeneralQuads());
-						
-						blockToTexture.put(BlockRef, texture == null ? null : texture.getIconName() );
+						for ( final EnumFacing side : EnumFacing.VALUES )
+						{
+							texture = findTexture( texture, originalModel.getFaceQuads( side ) );
+						}
+						texture = findTexture( texture, originalModel.getGeneralQuads() );
+
+						blockToTexture.put( BlockRef, texture == null ? null : texture.getIconName() );
 					}
-					catch( Exception errr ) 
+					catch ( final Exception errr )
 					{
-						blockToTexture.put(BlockRef, null);
+						blockToTexture.put( BlockRef, null );
 					}
 				}
 			}
 		}
-		
+
 		// still no good? then just default to missing texture..
 		if ( texture == null )
+		{
 			texture = Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
-		
+		}
+
 		return texture;
 	}
 
 	private BlockPos drawBlock;
 	private BlockPos drawStart;
 	private boolean loopDeath = false;
-	
+
 	public BlockPos getStartPos()
 	{
 		return drawStart;
 	}
-	
-	public void pointAt(BlockPos pos, int x, int y, int z)
+
+	public void pointAt(
+			final BlockPos pos,
+			final int x,
+			final int y,
+			final int z )
 	{
-		if ( drawBlock == null || drawBlock.equals(pos) )
+		if ( drawBlock == null || drawBlock.equals( pos ) )
 		{
 			drawBlock = pos;
 			if ( drawStart == null )
+			{
 				drawStart = new BlockPos( x, y, z );
+			}
 		}
 	}
-	
-	public boolean sameDrawBlock(BlockPos pos, int x, int y, int z)
+
+	public boolean sameDrawBlock(
+			final BlockPos pos,
+			final int x,
+			final int y,
+			final int z )
 	{
 		if ( Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown() )
-			return drawBlock != null && drawBlock.equals(pos);
+		{
+			return drawBlock != null && drawBlock.equals( pos );
+		}
 		else
 		{
-			if ( drawBlock != null && drawBlock.equals(pos) )
+			if ( drawBlock != null && drawBlock.equals( pos ) )
 			{
 				final ChiselPacket pc = new ChiselPacket( pos, drawStart.getX(), drawStart.getY(), drawStart.getZ(), x, y, z, EnumFacing.UP, ChiselMode.DRAWN_REGION );
 				final int extractedState = pc.doAction( Minecraft.getMinecraft().thePlayer );
-				
+
 				if ( extractedState != 0 )
 				{
 					ClientSide.breakSound( Minecraft.getMinecraft().theWorld, pos, extractedState );
 					NetworkRouter.instance.sendToServer( pc );
 				}
 			}
-			
+
 			drawBlock = null;
 			drawStart = null;
 			return false;
 		}
 	}
 
-	public boolean addBlockDestroyEffects(World world, BlockPos pos, IBlockState state, EffectRenderer effectRenderer)
+	public boolean addBlockDestroyEffects(
+			final World world,
+			final BlockPos pos,
+			IBlockState state,
+			final EffectRenderer effectRenderer )
 	{
-        if (!state.getBlock().isAir(world, pos))
-        {
-            state = state.getBlock().getActualState(state, world, pos);
-            int StateID = Block.getStateId(state);
-            
-            int i = 4;
+		if ( !state.getBlock().isAir( world, pos ) )
+		{
+			state = state.getBlock().getActualState( state, world, pos );
+			final int StateID = Block.getStateId( state );
 
-            for (int j = 0; j < i; ++j)
-            {
-                for (int k = 0; k < i; ++k)
-                {
-                    for (int l = 0; l < i; ++l)
-                    {
-                        double d0 = pos.getX() + (j + 0.5D) / i;
-                        double d1 = pos.getY() + (k + 0.5D) / i;
-                        double d2 = pos.getZ() + (l + 0.5D) / i;
-                        effectRenderer.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, StateID);
-                    }
-                }
-            }
-        }
-        
-        return true;
+			final int i = 4;
+
+			for ( int j = 0; j < i; ++j )
+			{
+				for ( int k = 0; k < i; ++k )
+				{
+					for ( int l = 0; l < i; ++l )
+					{
+						final double d0 = pos.getX() + ( j + 0.5D ) / i;
+						final double d1 = pos.getY() + ( k + 0.5D ) / i;
+						final double d2 = pos.getZ() + ( l + 0.5D ) / i;
+						effectRenderer.spawnEffectParticle( EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, StateID );
+					}
+				}
+			}
+		}
+
+		return true;
 	}
-	
+
 }

@@ -24,7 +24,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-
 public class ChiselPacket extends ModPacket
 {
 
@@ -32,12 +31,13 @@ public class ChiselPacket extends ModPacket
 
 	int x, y, z;
 	int from_x, from_y, from_z;
-	
+
 	EnumFacing side;
 	ChiselMode mode;
 
 	public ChiselPacket()
-	{}
+	{
+	}
 
 	public ChiselPacket(
 			final BlockPos pos,
@@ -54,9 +54,9 @@ public class ChiselPacket extends ModPacket
 		this.x = x;
 		this.y = y;
 		this.z = z;
-		this.from_x = fx;
-		this.from_y = fy;
-		this.from_z = fz;
+		from_x = fx;
+		from_y = fy;
+		from_z = fz;
 		this.side = side;
 		this.mode = mode;
 	}
@@ -88,14 +88,16 @@ public class ChiselPacket extends ModPacket
 			final EntityPlayer player )
 	{
 		final World world = player.worldObj;
-		ChiselInventory chisel = new ChiselInventory( player, pos, side  );
+		final ChiselInventory chisel = new ChiselInventory( player, pos, side );
 
 		IBlockState blkstate = world.getBlockState( pos );
 		Block blkObj = blkstate.getBlock();
-		
-		if ( !chisel.isValid() || blkObj == null || blkstate == null || ! ItemChisel.canMine( chisel, blkstate, player, world, pos ) )
+
+		if ( !chisel.isValid() || blkObj == null || blkstate == null || !ItemChisel.canMine( chisel, blkstate, player, world, pos ) )
+		{
 			return 0;
-		
+		}
+
 		if ( BlockChiseled.replaceWithChisled( world, pos, blkstate ) )
 		{
 			blkstate = world.getBlockState( pos );
@@ -107,7 +109,7 @@ public class ChiselPacket extends ModPacket
 			final TileEntity te = world.getTileEntity( pos );
 			if ( te instanceof TileEntityBlockChiseled && chisel.isValid() )
 			{
-				final TileEntityBlockChiseled tec = ( TileEntityBlockChiseled ) te;
+				final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
 
 				// adjust voxel state...
 				final VoxelBlob vb = tec.getBlob();
@@ -121,7 +123,7 @@ public class ChiselPacket extends ModPacket
 				{
 					extracted = ItemChisel.chiselBlock( chisel, player, vb, world, pos, i.side, i.x(), i.y(), i.z(), extracted, spawnlist );
 				}
-				
+
 				for ( final EntityItem ei : spawnlist )
 				{
 					world.spawnEntityInWorld( ei );
@@ -138,21 +140,22 @@ public class ChiselPacket extends ModPacket
 		return 0;
 	}
 
-	private ChiselTypeIterator getIterator( final VoxelBlob vb )
+	private ChiselTypeIterator getIterator(
+			final VoxelBlob vb )
 	{
 		if ( mode == ChiselMode.DRAWN_REGION )
 		{
-			int lowX = Math.max(0,Math.min(x,from_x));
-			int lowY = Math.max(0,Math.min(y,from_y));
-			int lowZ = Math.max(0,Math.min(z,from_z));
-			
-			int highX = Math.min( VoxelBlob.dim,Math.max(x,from_x));
-			int highY = Math.min( VoxelBlob.dim,Math.max(y,from_y));
-			int highZ = Math.min( VoxelBlob.dim,Math.max(z,from_z));
+			final int lowX = Math.max( 0, Math.min( x, from_x ) );
+			final int lowY = Math.max( 0, Math.min( y, from_y ) );
+			final int lowZ = Math.max( 0, Math.min( z, from_z ) );
 
-			return new ChiselTypeIterator( VoxelBlob.dim, lowX, lowY, lowZ, 1+highX - lowX, 1+highY - lowY, 1+highZ - lowZ, side );
+			final int highX = Math.min( VoxelBlob.dim, Math.max( x, from_x ) );
+			final int highY = Math.min( VoxelBlob.dim, Math.max( y, from_y ) );
+			final int highZ = Math.min( VoxelBlob.dim, Math.max( z, from_z ) );
+
+			return new ChiselTypeIterator( VoxelBlob.dim, lowX, lowY, lowZ, 1 + highX - lowX, 1 + highY - lowY, 1 + highZ - lowZ, side );
 		}
-		
+
 		return new ChiselTypeIterator( VoxelBlob.dim, x, y, z, vb, mode, side );
 	}
 
@@ -210,7 +213,7 @@ public class ChiselPacket extends ModPacket
 
 		value = value | x;
 		buffer.writeInt( value );
-		
+
 		int value2 = 0;
 		value2 = value2 | from_z;
 		value2 = value2 << 4;

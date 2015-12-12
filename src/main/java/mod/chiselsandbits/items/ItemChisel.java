@@ -39,7 +39,6 @@ import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-
 public class ItemChisel extends ItemTool
 {
 	final private static float one_16th = 1.0f / 16.0f;
@@ -53,20 +52,19 @@ public class ItemChisel extends ItemTool
 
 		// chisels are scaled up so that 1 stone chisel can mine one block.
 		final long uses = material.getMaxUses() * ChiselsAndBits.instance.config.availableUsesMultiplier;
-		setMaxDamage( ChiselsAndBits.instance.config.damageTools ? ( int ) Math.max( 0, Math.min( Short.MAX_VALUE, uses ) ) : 0 );
+		setMaxDamage( ChiselsAndBits.instance.config.damageTools ? (int) Math.max( 0, Math.min( Short.MAX_VALUE, uses ) ) : 0 );
 	}
 
 	public ToolMaterial whatMaterial()
 	{
 		return toolMaterial;
 	}
-	
-	@SuppressWarnings( { "rawtypes" } )
+
 	@Override
 	public void addInformation(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
-			final List tooltip,
+			final List<String> tooltip,
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
@@ -82,7 +80,8 @@ public class ItemChisel extends ItemTool
 
 	@Override
 	/**
-	 *  alter digging behavior to chisel, uses packets to enable server to stay in-sync.
+	 * alter digging behavior to chisel, uses packets to enable server to stay
+	 * in-sync.
 	 */
 	public boolean onBlockStartBreak(
 			final ItemStack itemstack,
@@ -106,21 +105,21 @@ public class ItemChisel extends ItemTool
 				final Pair<Vec3, Vec3> PlayerRay = ModUtil.getPlayerRay( player );
 				final Vec3 a = PlayerRay.getLeft();
 				final Vec3 b = PlayerRay.getRight();
-				
+
 				final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, a, b );
 				if ( mop != null && mop.typeOfHit == MovingObjectType.BLOCK )
 				{
-					final int x = getX( ( float ) mop.hitVec.xCoord - pos.getX(), mop.sideHit );
-					final int y = getY( ( float ) mop.hitVec.yCoord - pos.getY(), mop.sideHit );
-					final int z = getZ( ( float ) mop.hitVec.zCoord - pos.getZ(), mop.sideHit );
-					
+					final int x = getX( (float) mop.hitVec.xCoord - pos.getX(), mop.sideHit );
+					final int y = getY( (float) mop.hitVec.yCoord - pos.getY(), mop.sideHit );
+					final int z = getZ( (float) mop.hitVec.zCoord - pos.getZ(), mop.sideHit );
+
 					ClientSide.instance.pointAt( pos, x, y, z );
 					return true;
 				}
-				
+
 				return true;
 			}
-			
+
 			if ( !player.worldObj.isRemote )
 			{
 				return true;
@@ -133,7 +132,7 @@ public class ItemChisel extends ItemTool
 			final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, a, b );
 			if ( mop != null && mop.typeOfHit == MovingObjectType.BLOCK )
 			{
-				useChisel( mode, player, player.worldObj, pos, mop.sideHit, ( float ) mop.hitVec.xCoord - pos.getX(), ( float ) mop.hitVec.yCoord - pos.getY(), ( float ) mop.hitVec.zCoord - pos.getZ() );
+				useChisel( mode, player, player.worldObj, pos, mop.sideHit, (float) mop.hitVec.xCoord - pos.getX(), (float) mop.hitVec.yCoord - pos.getY(), (float) mop.hitVec.zCoord - pos.getZ() );
 			}
 		}
 
@@ -166,18 +165,20 @@ public class ItemChisel extends ItemTool
 		{
 			changeChiselMode( originalMode, clientChiselMode );
 		}
-		
+
 	}
 
 	public static ChiselMode getChiselMode()
 	{
 		return clientChiselMode;
 	}
-	
-	public static void changeChiselMode(ChiselMode originalMode, ChiselMode newClientChiselMode )
+
+	public static void changeChiselMode(
+			final ChiselMode originalMode,
+			final ChiselMode newClientChiselMode )
 	{
 		clientChiselMode = newClientChiselMode;
-		
+
 		if ( originalMode != clientChiselMode )
 		{
 			Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new ChatComponentTranslation( clientChiselMode.string.toString() ) );
@@ -221,24 +222,31 @@ public class ItemChisel extends ItemTool
 	}
 
 	private final static float One32ndf = 0.5f / VoxelBlob.dim;
-	private static int getX( float hitX, EnumFacing side )
+
+	private static int getX(
+			final float hitX,
+			final EnumFacing side )
 	{
-		return Math.min( 15, Math.max( 0, ( int ) ( VoxelBlob.dim * ( hitX - One32ndf * side.getFrontOffsetX() ) ) ) );
+		return Math.min( 15, Math.max( 0, (int) ( VoxelBlob.dim * ( hitX - One32ndf * side.getFrontOffsetX() ) ) ) );
 	}
 
-	private static int getY( float hitY, EnumFacing side )
+	private static int getY(
+			final float hitY,
+			final EnumFacing side )
 	{
-		return Math.min( 15, Math.max( 0, ( int ) ( VoxelBlob.dim * ( hitY - One32ndf * side.getFrontOffsetY() ) ) ) );
+		return Math.min( 15, Math.max( 0, (int) ( VoxelBlob.dim * ( hitY - One32ndf * side.getFrontOffsetY() ) ) ) );
 	}
 
-	private static int getZ( float hitZ, EnumFacing side )
+	private static int getZ(
+			final float hitZ,
+			final EnumFacing side )
 	{
-		return Math.min( 15, Math.max( 0, ( int ) ( VoxelBlob.dim * ( hitZ - One32ndf * side.getFrontOffsetZ() ) ) ) );
+		return Math.min( 15, Math.max( 0, (int) ( VoxelBlob.dim * ( hitZ - One32ndf * side.getFrontOffsetZ() ) ) ) );
 	}
-	
+
 	/**
-	 * uses a chisel, this is called from onBlockStartBreak converts block, and handles everything short of modifying
-	 * the voxel data.
+	 * uses a chisel, this is called from onBlockStartBreak converts block, and
+	 * handles everything short of modifying the voxel data.
 	 *
 	 * @param stack
 	 * @param player
@@ -276,7 +284,8 @@ public class ItemChisel extends ItemTool
 
 	/**
 	 * Modifies VoxelData of TileEntityChiseled
-	 * @param selected 
+	 *
+	 * @param selected
 	 *
 	 * @param player
 	 * @param vb
@@ -290,7 +299,7 @@ public class ItemChisel extends ItemTool
 	 * @return
 	 */
 	static public ItemStack chiselBlock(
-			ChiselInventory selected,
+			final ChiselInventory selected,
 			final EntityPlayer player,
 			final VoxelBlob vb,
 			final World world,
@@ -302,17 +311,21 @@ public class ItemChisel extends ItemTool
 			ItemStack output,
 			final List<EntityItem> spawnlist )
 	{
-		boolean isCreative = player.capabilities.isCreativeMode;
-		
+		final boolean isCreative = player.capabilities.isCreativeMode;
+
 		final int blk = vb.get( x, y, z );
 		if ( blk == 0 )
+		{
 			return output;
-		
-		if ( ! canMine( selected, Block.getStateById(blk), player, world, pos) )
+		}
+
+		if ( !canMine( selected, Block.getStateById( blk ), player, world, pos ) )
+		{
 			return output;
-		
+		}
+
 		selected.damage( blk );
-		
+
 		final boolean spawnBit = ChiselsAndBits.instance.itemBlockBit != null;
 		if ( !world.isRemote && !isCreative )
 		{
@@ -327,8 +340,13 @@ public class ItemChisel extends ItemTool
 
 			if ( output == null || !ItemChiseledBit.sameBit( output, blk ) || output.stackSize == 64 )
 			{
-				output = ItemChiseledBit.createStack( blk, 1, true );// new ItemStack( srcItem, 1, blk );
-				
+				output = ItemChiseledBit.createStack( blk, 1, true );// new
+																		// ItemStack(
+																		// srcItem,
+																		// 1,
+																		// blk
+																		// );
+
 				if ( spawnBit )
 				{
 					spawnlist.add( new EntityItem( world, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ, output ) );
@@ -356,100 +374,115 @@ public class ItemChisel extends ItemTool
 	}
 
 	private static boolean testingChisel = false;
-	
-	public static boolean canMine(ChiselInventory chiselInv, IBlockState state, EntityPlayer player, World world, BlockPos pos )
+
+	public static boolean canMine(
+			final ChiselInventory chiselInv,
+			final IBlockState state,
+			final EntityPlayer player,
+			final World world,
+			final BlockPos pos )
 	{
-		int targetState = Block.getStateId( state );
+		final int targetState = Block.getStateId( state );
 		ItemStackSlot chiselSlot = chiselInv.getTool( targetState );
 		ItemStack chisel = chiselSlot.getStack();
-		
+
 		if ( player.capabilities.isCreativeMode )
+		{
 			return true;
-		
+		}
+
 		if ( chisel == null )
+		{
 			return false;
-		
+		}
+
 		if ( ChiselsAndBits.instance.config.enableChiselToolHarvestCheck )
 		{
 			// this is the earily check.
 			if ( state.getBlock() instanceof BlockChiseled )
+			{
 				return true;
-			
+			}
+
 			do
 			{
-				
-				Block blk = world.getBlockState(pos).getBlock();
+
+				final Block blk = world.getBlockState( pos ).getBlock();
 				BlockChiseled.actingAs = state;
 				testingChisel = true;
 				chiselSlot.swapWithWeapon();
-				boolean canHarvest = blk.canHarvestBlock( world, pos, player);
+				final boolean canHarvest = blk.canHarvestBlock( world, pos, player );
 				chiselSlot.swapWithWeapon();
 				testingChisel = false;
 				BlockChiseled.actingAs = null;
 
-				
 				if ( canHarvest )
+				{
 					return true;
-				
+				}
+
 				chiselInv.fail( targetState );
-				
+
 				chiselSlot = chiselInv.getTool( targetState );
 				chisel = chiselSlot.getStack();
 			}
 			while ( chisel != null );
-			
-			return false;			
+
+			return false;
 		}
-		
+
 		return true;
 	}
 
 	@Override
-	public boolean canHarvestBlock(Block blk)
+	public boolean canHarvestBlock(
+			final Block blk )
 	{
 		Item it;
-		
-		switch(this.getToolMaterial())
+
+		switch ( getToolMaterial() )
 		{
-		case EMERALD:
-			it = Items.diamond_pickaxe;
-			break;
-		case GOLD:
-			it = Items.golden_pickaxe;
-			break;
-		case IRON:
-			it = Items.iron_pickaxe;
-			break;
-		default:
-		case STONE:
-			it = Items.stone_pickaxe;
-			break;
-		case WOOD:
-			it = Items.wooden_pickaxe;
-			break;
+			case EMERALD:
+				it = Items.diamond_pickaxe;
+				break;
+			case GOLD:
+				it = Items.golden_pickaxe;
+				break;
+			case IRON:
+				it = Items.iron_pickaxe;
+				break;
+			default:
+			case STONE:
+				it = Items.stone_pickaxe;
+				break;
+			case WOOD:
+				it = Items.wooden_pickaxe;
+				break;
 		}
-		
-		return blk instanceof BlockChiseled || it.canHarvestBlock(blk);
+
+		return blk instanceof BlockChiseled || it.canHarvestBlock( blk );
 	}
 
 	@Override
-	public int getHarvestLevel(ItemStack stack, String toolClass)
+	public int getHarvestLevel(
+			final ItemStack stack,
+			final String toolClass )
 	{
 		if ( testingChisel && stack.getItem() instanceof ItemChisel )
 		{
-			String pattern = "(^|,)" + Pattern.quote( toolClass ) + "(,|$)";
-			
-			Pattern p = Pattern.compile(pattern);
-			Matcher m = p.matcher( ChiselsAndBits.instance.config.enableChiselToolHarvestCheckTools );
-			
-			if (m.find())
+			final String pattern = "(^|,)" + Pattern.quote( toolClass ) + "(,|$)";
+
+			final Pattern p = Pattern.compile( pattern );
+			final Matcher m = p.matcher( ChiselsAndBits.instance.config.enableChiselToolHarvestCheckTools );
+
+			if ( m.find() )
 			{
-				ItemChisel ic = (ItemChisel)stack.getItem();
+				final ItemChisel ic = (ItemChisel) stack.getItem();
 				return ic.toolMaterial.getHarvestLevel();
 			}
 		}
-		
-		return super.getHarvestLevel(stack, toolClass);
+
+		return super.getHarvestLevel( stack, toolClass );
 	}
-		
+
 }

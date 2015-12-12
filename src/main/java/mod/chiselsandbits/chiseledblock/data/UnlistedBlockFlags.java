@@ -3,15 +3,16 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import net.minecraftforge.common.property.IUnlistedProperty;
 
-
 public final class UnlistedBlockFlags implements IUnlistedProperty<Integer>
 {
 	final String name;
-	
-	public UnlistedBlockFlags(String s) {
+
+	public UnlistedBlockFlags(
+			final String s )
+	{
 		name = s;
 	}
-	
+
 	@Override
 	public String getName()
 	{

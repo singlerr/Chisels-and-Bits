@@ -3,7 +3,6 @@ package mod.chiselsandbits.helpers;
 
 import net.minecraft.util.StatCollector;
 
-
 public enum LocalStrings
 {
 

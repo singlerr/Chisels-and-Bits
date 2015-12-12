@@ -52,28 +52,33 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-
 public class BlockChiseled extends Block implements ITileEntityProvider
 {
 
 	public static final IUnlistedProperty<VoxelBlobState> v_prop = new UnlistedVoxelBlob();
 	public static final IUnlistedProperty<Integer> block_prop = new UnlistedBlockStateID();
-	public static final IUnlistedProperty<Integer> side_prop = new UnlistedBlockFlags("f");
-	public static final IUnlistedProperty<Integer> face_opaque = new UnlistedBlockFlags("of");
+	public static final IUnlistedProperty<Integer> side_prop = new UnlistedBlockFlags( "f" );
+	public static final IUnlistedProperty<Integer> face_opaque = new UnlistedBlockFlags( "of" );
 	public static final IUnlistedProperty<Float> light_prop = new UnlistedLightOpacity();
 
 	public final String name;
-	
+
 	@Override
-	public boolean doesSideBlockRendering(IBlockAccess world, BlockPos pos, EnumFacing face)
+	public boolean doesSideBlockRendering(
+			final IBlockAccess world,
+			final BlockPos pos,
+			final EnumFacing face )
 	{
-	    try {
-			return getTileEntity( world, pos ).isSideOpaque(face);
-		} catch (ExceptionNoTileEntity e) {
+		try
+		{
+			return getTileEntity( world, pos ).isSideOpaque( face );
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
 			return false;
 		}
 	}
-	
+
 	public BlockChiseled(
 			final Material mat,
 			final String BlockName )
@@ -104,7 +109,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		if ( te instanceof TileEntityBlockChiseled )
 		{
-			return ( TileEntityBlockChiseled ) te;
+			return (TileEntityBlockChiseled) te;
 		}
 		throw new ExceptionNoTileEntity();
 	}
@@ -183,7 +188,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity exp )
 		{
-			super.harvestBlock( worldIn, player, pos, state, ( TileEntity ) null );
+			super.harvestBlock( worldIn, player, pos, state, (TileEntity) null );
 		}
 	}
 
@@ -231,9 +236,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			{
 				final VoxelBlob vb = getTileEntity( world, pos ).getBlob();
 
-				final int x = Math.min( 15, Math.max( 0, ( int ) ( vb.detail * ( target.hitVec.xCoord - pos.getX() ) - target.sideHit.getFrontOffsetX() * 0.5 ) ) );
-				final int y = Math.min( 15, Math.max( 0, ( int ) ( vb.detail * ( target.hitVec.yCoord - pos.getY() ) - target.sideHit.getFrontOffsetY() * 0.5 ) ) );
-				final int z = Math.min( 15, Math.max( 0, ( int ) ( vb.detail * ( target.hitVec.zCoord - pos.getZ() ) - target.sideHit.getFrontOffsetZ() * 0.5 ) ) );
+				final int x = Math.min( 15, Math.max( 0, (int) ( vb.detail * ( target.hitVec.xCoord - pos.getX() ) - target.sideHit.getFrontOffsetX() * 0.5 ) ) );
+				final int y = Math.min( 15, Math.max( 0, (int) ( vb.detail * ( target.hitVec.yCoord - pos.getY() ) - target.sideHit.getFrontOffsetY() * 0.5 ) ) );
+				final int z = Math.min( 15, Math.max( 0, (int) ( vb.detail * ( target.hitVec.zCoord - pos.getZ() ) - target.sideHit.getFrontOffsetZ() * 0.5 ) ) );
 
 				final int itemBlock = vb.get( x, y, z );
 				if ( itemBlock == 0 )
@@ -324,7 +329,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	 * @param worldIn
 	 * @param pos
 	 *
-	 * mask and list should be null if not looking for collisions
+	 *            mask and list should be null if not looking for collisions
 	 *
 	 * @return if the method results in a non-full cube box.
 	 */
@@ -382,7 +387,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 					}
 				}
 
-				// VERY hackey collision extraction to do 2 bounding boxes, one for top and one for the bottom.
+				// VERY hackey collision extraction to do 2 bounding boxes, one
+				// for top and one for the bottom.
 				if ( list != null && started && ( y == 8 || y == VoxelBlob.dim_minus_one ) )
 				{
 					final AxisAlignedBB bb = AxisAlignedBB.fromBounds( minX + pos.getX(), minY + pos.getY(), minZ + pos.getZ(), maxX + pos.getX(), maxY + pos.getY(), maxZ + pos.getZ() );
@@ -404,7 +410,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 		}
 		catch ( final ExceptionNoTileEntity e )
-		{}
+		{
+		}
 
 		setBlockBounds( minX, minY, minZ, maxX, maxY, maxZ );
 		return started;
@@ -439,7 +446,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				return getSelectedBoundingBox( playerIn, pos, vb, chMode );
 			}
 			catch ( final ExceptionNoTileEntity e )
-			{}
+			{
+			}
 		}
 
 		setBounds( worldIn, pos, null, null );
@@ -468,23 +476,23 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		for ( int z = 0; z < vb.detail; ++z )
 		{
-			float z_One16thf = One16thf * z;
-			float z_One16thf_p1 = z_One16thf + One16thf;
-			
+			final float z_One16thf = One16thf * z;
+			final float z_One16thf_p1 = z_One16thf + One16thf;
+
 			for ( int y = 0; y < vb.detail; ++y )
 			{
-				float y_One16thf = One16thf * y;
-				float y_One16thf_p1 = y_One16thf + One16thf;
-				
+				final float y_One16thf = One16thf * y;
+				final float y_One16thf_p1 = y_One16thf + One16thf;
+
 				for ( int x = 0; x < vb.detail; ++x )
 				{
 					if ( vb.get( x, y, z ) != 0 )
 					{
-						float x_One16thf = One16thf * x;
-						
+						final float x_One16thf = One16thf * x;
+
 						setBlockBounds( x_One16thf, y_One16thf, z_One16thf, x_One16thf + One16thf, y_One16thf_p1, z_One16thf_p1 );
 						final MovingObjectPosition r = super.collisionRayTrace( playerIn.worldObj, pos, a, b );
-						
+
 						if ( r != null )
 						{
 							final double xLen = a.xCoord - r.hitVec.xCoord;
@@ -510,32 +518,36 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		{
 			final float One32ndf = 0.5f / VoxelBlob.dim;
 
-			final int x = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, ( int ) ( VoxelBlob.dim * ( selectedR.hitVec.xCoord - pos.getX() - One32ndf * selectedR.sideHit.getFrontOffsetX() ) ) ) );
-			final int y = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, ( int ) ( VoxelBlob.dim * ( selectedR.hitVec.yCoord - pos.getY() - One32ndf * selectedR.sideHit.getFrontOffsetY() ) ) ) );
-			final int z = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, ( int ) ( VoxelBlob.dim * ( selectedR.hitVec.zCoord - pos.getZ() - One32ndf * selectedR.sideHit.getFrontOffsetZ() ) ) ) );
+			final int x = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * ( selectedR.hitVec.xCoord - pos.getX() - One32ndf * selectedR.sideHit.getFrontOffsetX() ) ) ) );
+			final int y = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * ( selectedR.hitVec.yCoord - pos.getY() - One32ndf * selectedR.sideHit.getFrontOffsetY() ) ) ) );
+			final int z = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * ( selectedR.hitVec.zCoord - pos.getZ() - One32ndf * selectedR.sideHit.getFrontOffsetZ() ) ) ) );
 
 			ChiselTypeIterator ci = null;
-			BlockPos drawStart = ClientSide.instance.getStartPos();
-			
+			final BlockPos drawStart = ClientSide.instance.getStartPos();
+
 			if ( chMode == ChiselMode.DRAWN_REGION && drawStart != null )
 			{
-				if ( ClientSide.instance.sameDrawBlock( pos, x,y,z ) )				
+				if ( ClientSide.instance.sameDrawBlock( pos, x, y, z ) )
 				{
-					int lowX = Math.max(0,Math.min(x,drawStart.getX()));
-					int lowY = Math.max(0,Math.min(y,drawStart.getY()));
-					int lowZ = Math.max(0,Math.min(z,drawStart.getZ()));
-					
-					int highX = Math.min( VoxelBlob.dim,Math.max(x,drawStart.getX()));
-					int highY = Math.min( VoxelBlob.dim,Math.max(y,drawStart.getY()));
-					int highZ = Math.min( VoxelBlob.dim,Math.max(z,drawStart.getZ()));
+					final int lowX = Math.max( 0, Math.min( x, drawStart.getX() ) );
+					final int lowY = Math.max( 0, Math.min( y, drawStart.getY() ) );
+					final int lowZ = Math.max( 0, Math.min( z, drawStart.getZ() ) );
 
-					ci = new ChiselTypeIterator( VoxelBlob.dim, lowX, lowY, lowZ, 1+highX - lowX, 1+highY - lowY, 1+highZ - lowZ, selectedR.sideHit );
+					final int highX = Math.min( VoxelBlob.dim, Math.max( x, drawStart.getX() ) );
+					final int highY = Math.min( VoxelBlob.dim, Math.max( y, drawStart.getY() ) );
+					final int highZ = Math.min( VoxelBlob.dim, Math.max( z, drawStart.getZ() ) );
+
+					ci = new ChiselTypeIterator( VoxelBlob.dim, lowX, lowY, lowZ, 1 + highX - lowX, 1 + highY - lowY, 1 + highZ - lowZ, selectedR.sideHit );
 				}
 				else
+				{
 					ci = new ChiselTypeIterator( VoxelBlob.dim, 0, 0, 0, 0, 0, 0, selectedR.sideHit );
+				}
 			}
 			else
+			{
 				ci = new ChiselTypeIterator( VoxelBlob.dim, x, y, z, vb, chMode, selectedR.sideHit );
+			}
 
 			boolean started = false;
 			while ( ci.hasNext() )
@@ -595,18 +607,18 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 				for ( int z = 0; z < vb.detail; ++z )
 				{
-					float z_One16thf = z * One16thf;
-					float z_One16thf_p1 = z_One16thf + One16thf;
-					
+					final float z_One16thf = z * One16thf;
+					final float z_One16thf_p1 = z_One16thf + One16thf;
+
 					for ( int y = 0; y < vb.detail; ++y )
 					{
-						float y_One16thf = y * One16thf;
-						float y_One16thf_p1 = y_One16thf + One16thf;
-						
+						final float y_One16thf = y * One16thf;
+						final float y_One16thf_p1 = y_One16thf + One16thf;
+
 						for ( int x = 0; x < vb.detail; ++x )
 						{
-							float x_One16thf = x * One16thf;
-							
+							final float x_One16thf = x * One16thf;
+
 							if ( vb.get( x, y, z ) != 0 )
 							{
 								setBlockBounds( x_One16thf, y_One16thf, z_One16thf, x_One16thf + One16thf, y_One16thf_p1, z_One16thf_p1 );
@@ -617,7 +629,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 									final double xLen = a.xCoord - r.hitVec.xCoord;
 									final double yLen = a.yCoord - r.hitVec.yCoord;
 									final double zLen = a.zCoord - r.hitVec.zCoord;
-									
+
 									final double thisDist = xLen * xLen + yLen * yLen + zLen * zLen;
 									if ( br == null || lastDist > thisDist )
 									{
@@ -632,7 +644,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				}
 			}
 			catch ( final ExceptionNoTileEntity e )
-			{}
+			{
+			}
 
 			setBlockBounds( 0, 0, 0, 1, 1, 1 );
 
@@ -657,7 +670,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final Throwable err )
 		{
-			// if for some reason the block has an override that causes issues...
+			// if for some reason the block has an override that causes
+			// issues...
 			return super.getBlockHardness( worldIn, pos );
 		}
 	}
@@ -674,7 +688,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final Throwable err )
 		{
-			// if for some reason the block has an override that causes issues...
+			// if for some reason the block has an override that causes
+			// issues...
 			return super.getPlayerRelativeBlockHardness( playerIn, worldIn, pos );
 		}
 	}
@@ -692,7 +707,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final Throwable err )
 		{
-			// if for some reason the block has an override that causes issues...
+			// if for some reason the block has an override that causes
+			// issues...
 			return super.getExplosionResistance( world, pos, exploder, explosion );
 		}
 	}
@@ -729,20 +745,22 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 	}
 
-	private static HashMap<Block,Boolean> supportedBlocks = new HashMap<Block,Boolean>();
-	
+	private static HashMap<Block, Boolean> supportedBlocks = new HashMap<Block, Boolean>();
+
 	public static boolean supportsBlock(
 			final IBlockState state )
 	{
 		final Block blk = state.getBlock();
 
-		if ( supportedBlocks.containsKey(blk))
-			return supportedBlocks.get(blk);
-		
+		if ( supportedBlocks.containsKey( blk ) )
+		{
+			return supportedBlocks.get( blk );
+		}
+
 		try
 		{
 			final Class<? extends Block> blkClass = blk.getClass();
-			
+
 			// require basic hardness behavior...
 			final ProxyBlock pb = new ProxyBlock();
 
@@ -750,7 +768,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final Method hardnessMethod = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class );
 			final boolean test_a = hardnessMethod.getDeclaringClass() == Block.class;
 
-			final float blockHardness = ( Float ) hardnessMethod.invoke( blk, null, null );
+			final float blockHardness = (Float) hardnessMethod.invoke( blk, null, null );
 
 			pb.getPlayerRelativeBlockHardness( null, null, null );
 			final boolean test_b = blkClass.getMethod( pb.MethodName, EntityPlayer.class, World.class, BlockPos.class ).getDeclaringClass() == Block.class;
@@ -760,7 +778,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 			// require default drop behavior...
 			pb.quantityDropped( null );
-			final Class wc = blkClass.getMethod( pb.MethodName, Random.class ).getDeclaringClass();
+			final Class<?> wc = blkClass.getMethod( pb.MethodName, Random.class ).getDeclaringClass();
 			final boolean test_d = wc == Block.class || wc == BlockStainedGlass.class || wc == BlockGlass.class;
 
 			pb.quantityDroppedWithBonus( 0, null );
@@ -770,26 +788,28 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final boolean test_f = blkClass.getMethod( pb.MethodName, IBlockState.class, int.class, Random.class ).getDeclaringClass() == Block.class;
 
 			pb.onEntityCollidedWithBlock( null, null, null );
-			final boolean test_g = (blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, Entity.class ).getDeclaringClass() == Block.class) || blkClass == BlockSlime.class;
+			final boolean test_g = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
 
 			pb.onEntityCollidedWithBlock( null, null, null, null );
-			final boolean test_h = (blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ).getDeclaringClass() == Block.class) || blkClass == BlockSlime.class;
+			final boolean test_h = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
 
 			final boolean isFullCube = blk.isFullCube() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class;
 
-			if ( test_a && test_b && test_c && test_d && test_e && test_f && test_g && test_h && blockHardness >= -0.01f && isFullCube && blk.getTickRandomly() == false && blk.hasTileEntity( state ) == false && ChiselsAndBits.instance.getConversion( blk.getMaterial() ) != null )
+			if ( test_a && test_b && test_c && test_d && test_e && test_f && test_g && test_h && blockHardness >= -0.01f && isFullCube && blk.getTickRandomly() == false && blk.hasTileEntity( state ) == false
+					&& ChiselsAndBits.instance.getConversion( blk.getMaterial() ) != null )
 			{
-				boolean result = ChiselsAndBits.instance.config.isEnabled( blkClass.getName() );
+				final boolean result = ChiselsAndBits.instance.config.isEnabled( blkClass.getName() );
 				supportedBlocks.put( blk, result );
 				return result;
 			}
-			
+
 			supportedBlocks.put( blk, false );
 			return false;
 		}
 		catch ( final Throwable t )
 		{
-			// if the above test fails for any reason, then the block cannot be supported.
+			// if the above test fails for any reason, then the block cannot be
+			// supported.
 			supportedBlocks.put( blk, false );
 			return false;
 		}
@@ -851,11 +871,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				TileEntityBlockChiseled tec = null;
 				if ( !( te instanceof TileEntityBlockChiseled ) )
 				{
-					world.setTileEntity( pos, tec = ( TileEntityBlockChiseled ) blk.createTileEntity( world, blk.getDefaultState() ) );
+					world.setTileEntity( pos, tec = (TileEntityBlockChiseled) blk.createTileEntity( world, blk.getDefaultState() ) );
 				}
 				else
 				{
-					tec = ( TileEntityBlockChiseled ) te;
+					tec = (TileEntityBlockChiseled) te;
 				}
 
 				tec.fillWith( originalState );
@@ -867,89 +887,112 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		return false;
 	}
-	
-	
+
 	public static IBlockState actingAs = null;
-	
-	public IBlockState getCommonState( IExtendedBlockState myState )
+
+	public IBlockState getCommonState(
+			final IExtendedBlockState myState )
 	{
-		final VoxelBlobState data = myState.getValue( BlockChiseled.v_prop );		
-		
+		final VoxelBlobState data = myState.getValue( BlockChiseled.v_prop );
+
 		if ( data != null )
 		{
 			final VoxelBlob vb = data.getVoxelBlob();
 			if ( vb != null )
+			{
 				return Block.getStateById( vb.mostCommonBlock().ref );
+			}
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
-	public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos) {
-		
+	public IBlockState getActualState(
+			final IBlockState state,
+			final IBlockAccess worldIn,
+			final BlockPos pos )
+	{
+
 		// only if this feature is enable should this code ever run.
 		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels )
 		{
-			try {
+			try
+			{
 				// require a real world, and extended bloack state..
 				if ( state instanceof IExtendedBlockState && worldIn instanceof World )
 				{
-					// this is pure insanity, but there is no other solution without core modding.
-					Exception e = new Exception();
-					StackTraceElement[] elements = e.getStackTrace();
-					
-					if (elements != null && elements.length > 2 )
+					// this is pure insanity, but there is no other solution
+					// without core modding.
+					final Exception e = new Exception();
+					final StackTraceElement[] elements = e.getStackTrace();
+
+					if ( elements != null && elements.length > 2 )
 					{
-						String cname = elements[1].getClassName();
-						
+						final String cname = elements[1].getClassName();
+
 						// test to see if the hook is asking for this.
-						if ( cname.contains("minecraftforge"))
+						if ( cname.contains( "minecraftforge" ) )
 						{
-							TileEntityBlockChiseled tebc = getTileEntity(worldIn, pos);
+							final TileEntityBlockChiseled tebc = getTileEntity( worldIn, pos );
 							return tebc.getState();
 						}
 					}
 				}
-			} catch (ExceptionNoTileEntity e) {}
-		}
-		
-		return super.getActualState(state, worldIn, pos);			
-	}
-	
-	@Override
-	public String getHarvestTool(IBlockState state)
-	{
-		if ( actingAs != null && actingAs.getBlock() != this )
-			return actingAs.getBlock().getHarvestTool(actingAs);
-		
-		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels && state instanceof IExtendedBlockState )
-		{
-			IBlockState blockRef = getCommonState( ( IExtendedBlockState ) state );			
-			if ( blockRef != null ){
-				String tool = blockRef.getBlock().getHarvestTool( blockRef );
-				if ( tool == null ) tool = "pickaxe";
-				return tool;
+			}
+			catch ( final ExceptionNoTileEntity e )
+			{
 			}
 		}
-		
-		return super.getHarvestTool(state);
+
+		return super.getActualState( state, worldIn, pos );
 	}
-	
+
 	@Override
-	public int getHarvestLevel(IBlockState state)
+	public String getHarvestTool(
+			final IBlockState state )
 	{
 		if ( actingAs != null && actingAs.getBlock() != this )
-			return actingAs.getBlock().getHarvestLevel(actingAs);
+		{
+			return actingAs.getBlock().getHarvestTool( actingAs );
+		}
 
 		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels && state instanceof IExtendedBlockState )
 		{
-			IBlockState blockRef = getCommonState( ( IExtendedBlockState ) state );			
+			final IBlockState blockRef = getCommonState( (IExtendedBlockState) state );
 			if ( blockRef != null )
-				return blockRef.getBlock().getHarvestLevel( blockRef );
+			{
+				String tool = blockRef.getBlock().getHarvestTool( blockRef );
+				if ( tool == null )
+				{
+					tool = "pickaxe";
+				}
+				return tool;
+			}
 		}
-		
-		return super.getHarvestLevel(state);
+
+		return super.getHarvestTool( state );
+	}
+
+	@Override
+	public int getHarvestLevel(
+			final IBlockState state )
+	{
+		if ( actingAs != null && actingAs.getBlock() != this )
+		{
+			return actingAs.getBlock().getHarvestLevel( actingAs );
+		}
+
+		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels && state instanceof IExtendedBlockState )
+		{
+			final IBlockState blockRef = getCommonState( (IExtendedBlockState) state );
+			if ( blockRef != null )
+			{
+				return blockRef.getBlock().getHarvestLevel( blockRef );
+			}
+		}
+
+		return super.getHarvestLevel( state );
 	}
 
 }

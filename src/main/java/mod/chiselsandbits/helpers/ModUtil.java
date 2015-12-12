@@ -20,7 +20,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 
-
 public class ModUtil
 {
 
@@ -31,8 +30,8 @@ public class ModUtil
 	}
 
 	static public Pair<Vec3, Vec3> getPlayerRay(
-		final EntityPlayer playerIn )
-		{
+			final EntityPlayer playerIn )
+	{
 		double reachDistance = 5.0d;
 
 		final double x = playerIn.prevPosX + ( playerIn.posX - playerIn.prevPosX );
@@ -42,8 +41,8 @@ public class ModUtil
 		final float playerPitch = playerIn.prevRotationPitch + ( playerIn.rotationPitch - playerIn.prevRotationPitch );
 		final float playerYaw = playerIn.prevRotationYaw + ( playerIn.rotationYaw - playerIn.prevRotationYaw );
 
-		final float yawRayX = MathHelper.sin( -playerYaw * 0.017453292f - ( float ) Math.PI );
-		final float yawRayZ = MathHelper.cos( -playerYaw * 0.017453292f - ( float ) Math.PI );
+		final float yawRayX = MathHelper.sin( -playerYaw * 0.017453292f - (float) Math.PI );
+		final float yawRayZ = MathHelper.cos( -playerYaw * 0.017453292f - (float) Math.PI );
 
 		final float pitchMultiplier = -MathHelper.cos( -playerPitch * 0.017453292F );
 		final float eyeRayY = MathHelper.sin( -playerPitch * 0.017453292F );
@@ -52,14 +51,14 @@ public class ModUtil
 
 		if ( playerIn instanceof EntityPlayerMP )
 		{
-			reachDistance = ( ( EntityPlayerMP ) playerIn ).theItemInWorldManager.getBlockReachDistance();
+			reachDistance = ( (EntityPlayerMP) playerIn ).theItemInWorldManager.getBlockReachDistance();
 		}
 
 		final Vec3 from = new Vec3( x, y, z );
 		final Vec3 to = from.addVector( eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance );
 
 		return Pair.of( from, to );
-		}
+	}
 
 	static public class ItemStackSlot
 	{
@@ -124,7 +123,7 @@ public class ModUtil
 
 		public void swapWithWeapon()
 		{
-			ItemStack it = inv.getStackInSlot( toolSlot );
+			final ItemStack it = inv.getStackInSlot( toolSlot );
 			inv.setInventorySlotContents( toolSlot, inv.getStackInSlot( slot ) );
 			inv.setInventorySlotContents( slot, it );
 		}

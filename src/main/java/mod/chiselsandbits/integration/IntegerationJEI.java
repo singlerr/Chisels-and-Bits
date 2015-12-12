@@ -9,28 +9,34 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class IntegerationJEI {
+public class IntegerationJEI
+{
 
 	List<ItemStack> items = new ArrayList<ItemStack>();
-	
-	public void blackListItem( Item b )
+
+	public void blackListItem(
+			final Item b )
 	{
 		items.add( new ItemStack( b, 1, OreDictionary.WILDCARD_VALUE ) );
 	}
-	
+
 	public void init()
 	{
-		if ( Loader.isModLoaded("JEI") )
-			sendtoJEI();			
-		
+		if ( Loader.isModLoaded( "JEI" ) )
+		{
+			sendtoJEI();
+		}
+
 		items = null;
 	}
 
 	private void sendtoJEI()
 	{
-		IItemBlacklist blacklist = mezz.jei.api.JEIManager.itemBlacklist;
-		for ( ItemStack is : items )
-			blacklist.addItemToBlacklist(is);
+		final IItemBlacklist blacklist = mezz.jei.api.JEIManager.itemBlacklist;
+		for ( final ItemStack is : items )
+		{
+			blacklist.addItemToBlacklist( is );
+		}
 	}
-	
+
 }

@@ -3,7 +3,6 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import net.minecraftforge.common.property.IUnlistedProperty;
 
-
 public final class UnlistedLightOpacity implements IUnlistedProperty<Float>
 {
 	@Override

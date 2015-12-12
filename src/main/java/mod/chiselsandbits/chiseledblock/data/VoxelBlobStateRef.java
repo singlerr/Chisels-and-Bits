@@ -3,7 +3,6 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import java.util.Arrays;
 
-
 public class VoxelBlobStateRef implements Comparable<VoxelBlobStateRef>
 {
 
@@ -21,7 +20,7 @@ public class VoxelBlobStateRef implements Comparable<VoxelBlobStateRef>
 	public boolean equals(
 			final Object obj )
 	{
-		return compareTo( ( VoxelBlobStateRef ) obj ) == 0;
+		return compareTo( (VoxelBlobStateRef) obj ) == 0;
 	}
 
 	@Override
@@ -35,7 +34,9 @@ public class VoxelBlobStateRef implements Comparable<VoxelBlobStateRef>
 			final VoxelBlobStateRef o )
 	{
 		if ( o == null )
+		{
 			return -1;
+		}
 
 		int r = Integer.compare( hash, o.hash );
 

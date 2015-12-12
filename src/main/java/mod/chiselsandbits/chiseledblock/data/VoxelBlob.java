@@ -25,7 +25,6 @@ import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-
 public class VoxelBlob
 {
 
@@ -41,12 +40,17 @@ public class VoxelBlob
 
 	public int detail = dim;
 
-	public VoxelBlob() {
+	public VoxelBlob()
+	{
 	}
-	
-	public VoxelBlob(VoxelBlob vb) {
+
+	public VoxelBlob(
+			final VoxelBlob vb )
+	{
 		for ( int x = 0; x < values.length; ++x )
+		{
 			values[x] = vb.values[x];
+		}
 	}
 
 	public boolean canMerge(
@@ -221,9 +225,7 @@ public class VoxelBlob
 		final VoxelBlob d = new VoxelBlob();
 
 		/*
-		 * Rotate by -90 Degrees:
-		 * x' = y
-		 * y' = - x
+		 * Rotate by -90 Degrees: x' = y y' = - x
 		 */
 
 		for ( int z = 0; z < dim; z++ )
@@ -359,7 +361,7 @@ public class VoxelBlob
 			final ByteBuffer buffer = ByteBuffer.allocate( SHORT_BYTES );
 			for ( int x = 0; x < array_size; x++ )
 			{
-				buffer.putShort( 0, ( short ) values[x] );
+				buffer.putShort( 0, (short) values[x] );
 				w.write( buffer.array() );
 			}
 			w.finish();
@@ -495,7 +497,7 @@ public class VoxelBlob
 
 	public float getOpacity()
 	{
-		final float o = ( float ) solid() / ( float ) array_size;
+		final float o = (float) solid() / (float) array_size;
 		return o;
 	}
 
@@ -602,7 +604,9 @@ public class VoxelBlob
 		}
 	}
 
-	public int getSideFlags(final int min_range,final int max_range )
+	public int getSideFlags(
+			final int min_range,
+			final int max_range )
 	{
 		int output = 0x00;
 

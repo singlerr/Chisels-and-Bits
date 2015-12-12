@@ -7,6 +7,7 @@ import java.util.List;
 import org.lwjgl.input.Keyboard;
 
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.ForgeBus;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.network.NetworkRouter;
@@ -19,10 +20,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
-
 
 public class ItemBitBag extends Item
 {
@@ -36,7 +35,7 @@ public class ItemBitBag extends Item
 		setCreativeTab( ChiselsAndBits.creativeTab );
 		setHasSubtypes( true );
 		setMaxStackSize( 1 );
-		FMLCommonHandler.instance().bus().register( this );
+		ChiselsAndBits.registerWithBus( this, ForgeBus.FML );
 	}
 
 	// add info cached info
@@ -146,6 +145,7 @@ public class ItemBitBag extends Item
 					ItemStack which = inv.getStackInSlot( x );
 
 					if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChisel.getStackState( is ) ) )
+					{
 						if ( !seen )
 						{
 							seen = true;
@@ -162,6 +162,7 @@ public class ItemBitBag extends Item
 								}
 							}
 						}
+					}
 
 				}
 			}
@@ -187,7 +188,7 @@ public class ItemBitBag extends Item
 	{
 		final int qty = BagInventory.getSlotsUsed( stack );
 
-		final double value = qty / ( float ) BagInventory.max_size;
+		final double value = qty / (float) BagInventory.max_size;
 		return Math.min( 1.0d, Math.max( 0.0d, ChiselsAndBits.instance.config.invertBitBagFullness ? value : 1.0 - value ) );
 	}
 }

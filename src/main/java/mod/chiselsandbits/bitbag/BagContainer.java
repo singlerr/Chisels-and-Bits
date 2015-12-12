@@ -12,7 +12,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-
 public class BagContainer extends Container
 {
 	final EntityPlayer thePlayer;
@@ -63,6 +62,7 @@ public class BagContainer extends Container
 		}
 
 		for ( int j = 0; j < 9; ++j )
+		{
 			if ( thePlayer.inventory.currentItem == j )
 			{
 				addSlotToContainer( thatSlot = new ReadonlySlot( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
@@ -71,6 +71,7 @@ public class BagContainer extends Container
 			{
 				addSlotToContainer( new Slot( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
 			}
+		}
 	}
 
 	@Override
@@ -119,14 +120,18 @@ public class BagContainer extends Container
 			if ( index < 7 * 9 )
 			{
 				if ( !mergeItemStack( itemstack1, 7 * 9, inventorySlots.size(), true ) )
+				{
 					return null;
+				}
 			}
 			else if ( !mergeItemStack( itemstack1, 0, 7 * 9, false ) )
+			{
 				return null;
+			}
 
 			if ( itemstack1.stackSize == 0 )
 			{
-				slot.putStack( ( ItemStack ) null );
+				slot.putStack( (ItemStack) null );
 			}
 			else
 			{

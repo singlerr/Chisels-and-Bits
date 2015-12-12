@@ -13,7 +13,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 
-
 @SuppressWarnings( "deprecation" )
 public abstract class BaseSmartModel implements IFlexibleBakedModel
 {

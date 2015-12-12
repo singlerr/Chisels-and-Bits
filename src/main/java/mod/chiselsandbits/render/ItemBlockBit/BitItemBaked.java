@@ -24,7 +24,6 @@ import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 
-
 @SuppressWarnings( "deprecation" )
 public class BitItemBaked implements IFlexibleBakedModel
 {
@@ -34,7 +33,7 @@ public class BitItemBaked implements IFlexibleBakedModel
 	List<BakedQuad> generic;
 
 	public static final float pixelsPerBlock = 16.0f;
-	
+
 	public BitItemBaked(
 			final int BlockRef )
 	{
@@ -45,10 +44,10 @@ public class BitItemBaked implements IFlexibleBakedModel
 		{
 			originalModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state );
 		}
-		
+
 		generic = new ArrayList<BakedQuad>();
-		TextureAtlasSprite texture = ClientSide.findTexture(BlockRef,originalModel);
-		
+		final TextureAtlasSprite texture = ClientSide.findTexture( BlockRef, originalModel );
+
 		final Vector3f to = new Vector3f( 6.0f, 6.0f, 6.0f );
 		final Vector3f from = new Vector3f( 10.0f, 10.0f, 10.0f );
 

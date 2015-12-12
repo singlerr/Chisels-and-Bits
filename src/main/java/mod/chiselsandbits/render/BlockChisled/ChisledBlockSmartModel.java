@@ -17,7 +17,6 @@ import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.client.model.ISmartItemModel;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
-
 public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel
 {
 
@@ -43,7 +42,9 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 		final EnumWorldBlockLayer layer = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
 
 		if ( data == null )
+		{
 			return new ChisledBlockBaked( blockP, layer, data );
+		}
 
 		ChisledBlockBaked out = modelCache[layer.ordinal()].get( data );
 
@@ -60,7 +61,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 	public IBakedModel handleBlockState(
 			final IBlockState state )
 	{
-		final IExtendedBlockState myState = ( IExtendedBlockState ) state;
+		final IExtendedBlockState myState = (IExtendedBlockState) state;
 
 		final VoxelBlobState data = myState.getValue( BlockChiseled.v_prop );
 		Integer blockP = myState.getValue( BlockChiseled.block_prop );
@@ -101,7 +102,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 		for ( final EnumWorldBlockLayer l : EnumWorldBlockLayer.values() )
 		{
 			net.minecraftforge.client.ForgeHooksClient.setRenderLayer( l );
-			models[l.ordinal()] = ( IFlexibleBakedModel ) getCachedModel( blockP, new VoxelBlobState( data, 0L ) );
+			models[l.ordinal()] = (IFlexibleBakedModel) getCachedModel( blockP, new VoxelBlobState( data, 0L ) );
 		}
 
 		net.minecraftforge.client.ForgeHooksClient.setRenderLayer( EnumWorldBlockLayer.SOLID );

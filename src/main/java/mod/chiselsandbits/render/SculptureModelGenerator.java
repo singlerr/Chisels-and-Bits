@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.ForgeBus;
 import mod.chiselsandbits.render.BlockChisled.ChisledBlockSmartModel;
 import mod.chiselsandbits.render.ItemBlockBit.BitItemSmartModel;
 import mod.chiselsandbits.render.patterns.NegativePrintSmartModel;
@@ -16,9 +17,7 @@ import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
 
 public class SculptureModelGenerator implements ICustomModelLoader
 {
@@ -44,7 +43,7 @@ public class SculptureModelGenerator implements ICustomModelLoader
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/positiveprint_written_preview" ), PositivePrintSmartModel.class );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/negativeprint_written_preview" ), NegativePrintSmartModel.class );
 
-		MinecraftForge.EVENT_BUS.register( this );
+		ChiselsAndBits.registerWithBus( this, ForgeBus.FORGE );
 	}
 
 	private void add(

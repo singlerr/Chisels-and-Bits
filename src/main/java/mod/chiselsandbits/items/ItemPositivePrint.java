@@ -26,7 +26,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-
 public class ItemPositivePrint extends ItemNegativePrint
 {
 
@@ -88,7 +87,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 			final NBTTagCompound comp = new NBTTagCompound();
 			tmp.writeChisleData( comp );
 
-			comp.setByte( "side", ( byte ) ModUtil.getPlaceFace( player ).ordinal() );
+			comp.setByte( "side", (byte) ModUtil.getPlaceFace( player ).ordinal() );
 			return comp;
 		}
 
@@ -105,7 +104,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 			final EntityPlayer player )
 	{
 		// snag a tool...
-		ChiselInventory selected = new ChiselInventory( player, pos, side );
+		final ChiselInventory selected = new ChiselInventory( player, pos, side );
 		ItemStack spawnedItem = null;
 
 		final ArrayList<BagInventory> bags = new ArrayList<BagInventory>();

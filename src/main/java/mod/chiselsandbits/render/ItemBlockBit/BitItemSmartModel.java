@@ -9,8 +9,6 @@ import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.model.ISmartItemModel;
 
-
-@SuppressWarnings( "deprecation" )
 public class BitItemSmartModel extends BaseSmartModel implements ISmartItemModel
 {
 	private final HashMap<Integer, BitItemBaked> modelCache = new HashMap<Integer, BitItemBaked>();

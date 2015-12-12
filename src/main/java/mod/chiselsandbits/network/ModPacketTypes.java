@@ -6,19 +6,17 @@ import java.util.HashMap;
 import mod.chiselsandbits.network.packets.BagGuiPacket;
 import mod.chiselsandbits.network.packets.ChiselPacket;
 
-
 public enum ModPacketTypes
 {
-	CHISEL( ChiselPacket.class ),
-	OPEN_BAG_GUI( BagGuiPacket.class );
+	CHISEL( ChiselPacket.class ), OPEN_BAG_GUI( BagGuiPacket.class );
 
 	private final Class<? extends ModPacket> packetClass;
 
 	ModPacketTypes(
-		final Class<? extends ModPacket> clz )
-		{
+			final Class<? extends ModPacket> clz )
+	{
 		packetClass = clz;
-		}
+	}
 
 	private static HashMap<Class<? extends ModPacket>, Integer> fromClassToId = new HashMap<Class<? extends ModPacket>, Integer>();
 	private static HashMap<Integer, Class<? extends ModPacket>> fromIdToClass = new HashMap<Integer, Class<? extends ModPacket>>();

@@ -14,7 +14,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
-
 class ProxyBlock extends Block
 {
 	public String MethodName;
@@ -101,12 +100,21 @@ class ProxyBlock extends Block
 	}
 
 	@Override
-	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, Entity entityIn) {
+	public void onEntityCollidedWithBlock(
+			final World worldIn,
+			final BlockPos pos,
+			final Entity entityIn )
+	{
 		markMethod();
 	}
-	
+
 	@Override
-	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
+	public void onEntityCollidedWithBlock(
+			final World worldIn,
+			final BlockPos pos,
+			final IBlockState state,
+			final Entity entityIn )
+	{
 
 		markMethod();
 	}

@@ -9,7 +9,7 @@ public class VoxelBlobState implements Comparable<VoxelBlobState>
 {
 
 	private static WeakHashMap<VoxelBlobStateRef, WeakReference<VoxelBlobStateRef>> refs = new WeakHashMap<VoxelBlobStateRef, WeakReference<VoxelBlobStateRef>>();
-	
+
 	private static VoxelBlobStateRef FindRef(
 			final byte[] v )
 	{
@@ -63,14 +63,14 @@ public class VoxelBlobState implements Comparable<VoxelBlobState>
 			return false;
 		}
 
-		final VoxelBlobState second = ( VoxelBlobState ) obj;
+		final VoxelBlobState second = (VoxelBlobState) obj;
 		return data.equals( second.data ) && second.weight == weight;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return data.hash ^ ( int ) ( weight ^ weight >>> 32 );
+		return data.hash ^ (int) ( weight ^ weight >>> 32 );
 	}
 
 	@Override
@@ -91,19 +91,20 @@ public class VoxelBlobState implements Comparable<VoxelBlobState>
 	}
 
 	WeakReference<VoxelBlob> blob;
+
 	public VoxelBlob getVoxelBlob()
 	{
 		try
 		{
 			VoxelBlob vb = blob == null ? null : blob.get();
-			
+
 			if ( vb == null )
 			{
 				vb = new VoxelBlob();
-				vb.fromByteArray(getByteArray());
+				vb.fromByteArray( getByteArray() );
 				blob = new WeakReference<VoxelBlob>( vb );
 			}
-			
+
 			return new VoxelBlob( vb );
 		}
 		catch ( final IOException e )

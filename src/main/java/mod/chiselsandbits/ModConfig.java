@@ -9,9 +9,7 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
 
 public class ModConfig extends Configuration
 {
@@ -20,10 +18,10 @@ public class ModConfig extends Configuration
 
 	// file path...
 	final private File myPath;
-	
+
 	@Configured( category = "Integration Settings" )
 	private boolean ShowBitsInJEI;
-	
+
 	// mod settings...
 	@Configured( category = "Client Settings" )
 	private boolean showUsage;
@@ -51,7 +49,7 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Client Settings" )
 	public boolean enableChiselMode_DrawnRegion;
-	
+
 	@Configured( category = "Balance Settings" )
 	public boolean damageTools;
 
@@ -96,21 +94,24 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Balance Settings" )
 	public String enableChiselToolHarvestCheckTools;
-	
+
 	@Configured( category = "Balance Settings" )
 	public boolean enableToolHarvestLevels;
-	
-	public boolean isEnabled( String className )
+
+	public boolean isEnabled(
+			final String className )
 	{
-		Property p = get( "Enabled Blocks", className, true );		
-		boolean out = p.getBoolean( true );
-		
+		final Property p = get( "Enabled Blocks", className, true );
+		final boolean out = p.getBoolean( true );
+
 		if ( hasChanged() )
+		{
 			save();
-		
+		}
+
 		return out;
 	}
-	
+
 	private void setDefaults()
 	{
 		enableChiselMode_ConnectedPlane = !ChiselMode.CONNECTED_PLANE.isDisabled;
@@ -120,7 +121,7 @@ public class ModConfig extends Configuration
 		enableChiselMode_Line = !ChiselMode.LINE.isDisabled;
 		enableChiselMode_Plane = !ChiselMode.PLANE.isDisabled;
 		enableChiselMode_DrawnRegion = !ChiselMode.DRAWN_REGION.isDisabled;
-		
+
 		showUsage = true;
 		invertBitBagFullness = false;
 
@@ -129,11 +130,11 @@ public class ModConfig extends Configuration
 
 		enablePositivePrintCrafting = true;
 		enableStackableCrafting = true;
-		
+
 		enableChiselToolHarvestCheck = true;
 		enableToolHarvestLevels = true;
 		enableChiselToolHarvestCheckTools = "pickaxe,axe,shovel";
-		
+
 		enableBitBag = true;
 		enableNegativePrint = true;
 		enablePositivePrint = true;
@@ -151,7 +152,7 @@ public class ModConfig extends Configuration
 	{
 		super( path );
 		myPath = path;
-		FMLCommonHandler.instance().bus().register( this );
+		ChiselsAndBits.registerWithBus( this, ForgeBus.FML );
 		setDefaults();
 		populateSettings();
 		save();
@@ -170,12 +171,12 @@ public class ModConfig extends Configuration
 					if ( f.getType() == long.class || f.getType() == Long.class )
 					{
 						final long defaultValue = f.getLong( this );
-						final long value = get( c.category(), f.getName(), ( int ) defaultValue ).getInt();
+						final long value = get( c.category(), f.getName(), (int) defaultValue ).getInt();
 						f.set( this, value );
 					}
 					else if ( f.getType() == String.class )
 					{
-						final String defaultValue = (String)f.get( this );
+						final String defaultValue = (String) f.get( this );
 						final String value = get( c.category(), f.getName(), defaultValue ).getString();
 						f.set( this, value );
 					}

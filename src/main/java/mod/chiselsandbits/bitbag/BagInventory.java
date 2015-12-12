@@ -20,7 +20,6 @@ import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-
 public class BagInventory implements IInventory
 {
 
@@ -37,10 +36,14 @@ public class BagInventory implements IInventory
 		final NBTTagCompound tag = target.getTagCompound();
 
 		if ( tag == null )
+		{
 			return 0;
+		}
 
 		if ( !tag.hasKey( "contents" ) )
+		{
 			return 0;
+		}
 
 		final int slots[] = tag.getIntArray( "contents" );
 
@@ -126,7 +129,9 @@ public class BagInventory implements IInventory
 		}
 
 		if ( qty == 0 || id == 0 )
+		{
 			return null;
+		}
 
 		return stackSlots[index] = ItemChiseledBit.createStack( id, qty, false );
 	}
@@ -140,7 +145,9 @@ public class BagInventory implements IInventory
 		final int id = slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id];
 
 		if ( qty == 0 || id == 0 )
+		{
 			return null;
+		}
 
 		if ( count > qty )
 		{
@@ -193,11 +200,13 @@ public class BagInventory implements IInventory
 	public void markDirty()
 	{
 		for ( int x = 0; x < getSizeInventory(); x++ )
+		{
 			if ( stackSlots[x] != null )
 			{
 				slots[ItemBitBag.intsPerBitType * x + ItemBitBag.offset_qty] = stackSlots[x].stackSize;
 				stackSlots[x] = null;
 			}
+		}
 	}
 
 	@Override
@@ -210,12 +219,14 @@ public class BagInventory implements IInventory
 	@Override
 	public void openInventory(
 			final EntityPlayer player )
-	{}
+	{
+	}
 
 	@Override
 	public void closeInventory(
 			final EntityPlayer player )
-	{}
+	{
+	}
 
 	@Override
 	public boolean isItemValidForSlot(
@@ -345,7 +356,9 @@ public class BagInventory implements IInventory
 				total -= diff;
 
 				if ( 0 == total )
+				{
 					return used;
+				}
 			}
 		}
 

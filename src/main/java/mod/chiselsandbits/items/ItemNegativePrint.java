@@ -27,7 +27,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 
-
 public class ItemNegativePrint extends Item
 {
 
@@ -36,11 +35,10 @@ public class ItemNegativePrint extends Item
 		setCreativeTab( ChiselsAndBits.creativeTab );
 	}
 
-	@SuppressWarnings( { "rawtypes" } )
 	protected void defaultAddInfo(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
-			final List tooltip,
+			final List<String> tooltip,
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
@@ -125,7 +123,7 @@ public class ItemNegativePrint extends Item
 
 		if ( te != null && te instanceof TileEntityBlockChiseled )
 		{
-			final TileEntityBlockChiseled tec = ( TileEntityBlockChiseled ) te;
+			final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
 
 			final NBTTagCompound blueprintTag = stack.getTagCompound();
 
@@ -167,9 +165,9 @@ public class ItemNegativePrint extends Item
 			if ( te instanceof TileEntityBlockChiseled )
 			{
 				final NBTTagCompound comp = new NBTTagCompound();
-				( ( TileEntityBlockChiseled ) te ).writeChisleData( comp );
+				( (TileEntityBlockChiseled) te ).writeChisleData( comp );
 
-				comp.setByte( "side", ( byte ) ModUtil.getPlaceFace( player ).ordinal() );
+				comp.setByte( "side", (byte) ModUtil.getPlaceFace( player ).ordinal() );
 				return comp;
 			}
 		}
@@ -213,7 +211,7 @@ public class ItemNegativePrint extends Item
 			final EntityPlayer player )
 	{
 		// snag a tool...
-		ChiselInventory selected = new ChiselInventory( player, pos, side );
+		final ChiselInventory selected = new ChiselInventory( player, pos, side );
 		ItemStack spawnedItem = null;
 
 		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
@@ -224,7 +222,7 @@ public class ItemNegativePrint extends Item
 			{
 				for ( int x = 0; x < vb.detail && selected.isValid(); x++ )
 				{
-					int blkID = vb.get( x, y, z );
+					final int blkID = vb.get( x, y, z );
 					if ( blkID != 0 && pattern.get( x, y, z ) == 0 )
 					{
 						spawnedItem = ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );

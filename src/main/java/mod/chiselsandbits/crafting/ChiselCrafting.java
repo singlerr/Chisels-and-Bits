@@ -17,7 +17,6 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
-
 public class ChiselCrafting implements IRecipe
 {
 
@@ -68,16 +67,20 @@ public class ChiselCrafting implements IRecipe
 		public boolean isValid()
 		{
 			if ( isValid != null )
+			{
 				return isValid;
+			}
 
 			final HashMap<Integer, IntegerRef> count = voxelBlob.getBlockCounts();
 
 			isValid = true;
 			for ( final IntegerRef ref : count.values() )
+			{
 				if ( ref.ref != 0 )
 				{
 
 					for ( final ItemStack is : stacks )
+					{
 						if ( ItemChisel.getStackState( is ) == ref.ref && is.stackSize > 0 )
 						{
 							final int original = is.stackSize;
@@ -87,6 +90,7 @@ public class ChiselCrafting implements IRecipe
 								ref.total -= original - is.stackSize;
 							}
 						}
+					}
 
 					for ( final BagInventory bag : bags )
 					{
@@ -99,6 +103,7 @@ public class ChiselCrafting implements IRecipe
 						break;
 					}
 				}
+			}
 			return isValid;
 		}
 	};
@@ -137,15 +142,21 @@ public class ChiselCrafting implements IRecipe
 				continue;
 			}
 			else
+			{
 				return null;
+			}
 		}
 
 		if ( pattern == null || pattern.hasTagCompound() == false )
+		{
 			return null;
+		}
 
 		final CCReq r = new CCReq( inv, pattern, copy );
 		if ( r.isValid() )
+		{
 			return r;
+		}
 
 		return null;
 	}
@@ -165,7 +176,9 @@ public class ChiselCrafting implements IRecipe
 		final CCReq req = getCraftingReqs( inv, true );
 
 		if ( req != null )
+		{
 			return ChiselsAndBits.instance.itemPositiveprint.getPatternedItem( req.pattern );
+		}
 
 		return null;
 	}

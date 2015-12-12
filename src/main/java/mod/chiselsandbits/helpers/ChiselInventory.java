@@ -17,82 +17,108 @@ import net.minecraft.util.EnumFacing;
 
 public class ChiselInventory
 {
-	
-	private EntityPlayer who;
-	private List<ItemStackSlot> options = new ArrayList<ItemStackSlot>();
-	private HashMap<Integer,List<ItemStackSlot>> actionCache = new HashMap<Integer, List<ItemStackSlot>>(); 
-	
-	public ChiselInventory( EntityPlayer who, BlockPos pos, EnumFacing side )
+
+	private final EntityPlayer who;
+	private final List<ItemStackSlot> options = new ArrayList<ItemStackSlot>();
+	private final HashMap<Integer, List<ItemStackSlot>> actionCache = new HashMap<Integer, List<ItemStackSlot>>();
+
+	public ChiselInventory(
+			final EntityPlayer who,
+			final BlockPos pos,
+			final EnumFacing side )
 	{
 		this.who = who;
 		final ItemStack inHand = who.getCurrentEquippedItem();
-		
+
 		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChisel )
 		{
-			if ( who.canPlayerEdit(pos, side, inHand) )
+			if ( who.canPlayerEdit( pos, side, inHand ) )
+			{
 				options.add( new ItemStackSlot( who.inventory, who.inventory.currentItem, inHand, who ) );
+			}
 		}
 		else
 		{
-			ArrayListMultimap<Integer,ItemStackSlot> discovered = ArrayListMultimap.create();
-			
+			final ArrayListMultimap<Integer, ItemStackSlot> discovered = ArrayListMultimap.create();
+
 			for ( int x = 0; x < who.inventory.getSizeInventory(); x++ )
 			{
 				final ItemStack is = who.inventory.getStackInSlot( x );
-				
+
 				if ( is == inHand )
+				{
 					continue;
-				
-				if ( ! who.canPlayerEdit(pos, side, is) )
+				}
+
+				if ( !who.canPlayerEdit( pos, side, is ) )
+				{
 					continue;
-				
+				}
+
 				if ( is != null && is.stackSize > 0 && is.getItem() instanceof ItemChisel )
 				{
-					ToolMaterial newMat = ( (ItemChisel)is.getItem() ).whatMaterial();				
-					discovered.put( newMat.getHarvestLevel(),new ItemStackSlot( who.inventory, x, is, who ) );
+					final ToolMaterial newMat = ( (ItemChisel) is.getItem() ).whatMaterial();
+					discovered.put( newMat.getHarvestLevel(), new ItemStackSlot( who.inventory, x, is, who ) );
 				}
 			}
-			
-			final List<ItemStackSlot> allValues = Lists.newArrayList(discovered.values());		
-			for ( ItemStackSlot f : Lists.reverse( allValues ) )
-				options.add(f);
+
+			final List<ItemStackSlot> allValues = Lists.newArrayList( discovered.values() );
+			for ( final ItemStackSlot f : Lists.reverse( allValues ) )
+			{
+				options.add( f );
+			}
 		}
 	}
-	
-	public ItemStackSlot getTool( int BlockID )
+
+	public ItemStackSlot getTool(
+			final int BlockID )
 	{
-		if ( !actionCache.containsKey(BlockID ) )
-			actionCache.put( BlockID,  new ArrayList<ItemStackSlot>(options) );
-		
-		List<ItemStackSlot> choices = actionCache.get(BlockID);
-		
+		if ( !actionCache.containsKey( BlockID ) )
+		{
+			actionCache.put( BlockID, new ArrayList<ItemStackSlot>( options ) );
+		}
+
+		final List<ItemStackSlot> choices = actionCache.get( BlockID );
+
 		if ( choices.isEmpty() )
+		{
 			return new ItemStackSlot( null, -1, null, who );
-		
-		ItemStackSlot slot = choices.get(choices.size()-1);
-		
+		}
+
+		final ItemStackSlot slot = choices.get( choices.size() - 1 );
+
 		if ( slot.isValid() )
+		{
 			return slot;
+		}
 		else
+		{
 			fail( BlockID );
-		
-		return getTool(BlockID);
+		}
+
+		return getTool( BlockID );
 	}
-	
-	public void fail( int BlockID )
+
+	public void fail(
+			final int BlockID )
 	{
-		List<ItemStackSlot> choices = actionCache.get(BlockID);
-		
+		final List<ItemStackSlot> choices = actionCache.get( BlockID );
+
 		if ( !choices.isEmpty() )
-			choices.remove(choices.size()-1);
+		{
+			choices.remove( choices.size() - 1 );
+		}
 	}
 
-	public boolean isValid() {
-		return ! options.isEmpty() || who.capabilities.isCreativeMode;
+	public boolean isValid()
+	{
+		return !options.isEmpty() || who.capabilities.isCreativeMode;
 	}
 
-	public void damage(int blk) {
+	public void damage(
+			final int blk )
+	{
 		getTool( blk ).damage( who );
 	}
-	
+
 }

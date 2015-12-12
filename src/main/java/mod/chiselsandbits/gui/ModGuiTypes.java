@@ -10,7 +10,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
-
 @SuppressWarnings( "unused" )
 public enum ModGuiTypes
 {
@@ -43,14 +42,17 @@ public enum ModGuiTypes
 		// attempt to get gui class/constructor...
 		try
 		{
-			g = ( Class<?> ) container.getMethod( "getGuiClass" ).invoke( null );
+			g = (Class<?>) container.getMethod( "getGuiClass" ).invoke( null );
 			g_construtor = g.getConstructor( EntityPlayer.class, World.class, int.class, int.class, int.class );
 		}
 		catch ( final Exception e )
 		{
-			// if and only if we are on the client should this be considered an error...
+			// if and only if we are on the client should this be considered an
+			// error...
 			if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
+			{
 				throw new RuntimeException( e );
+			}
 
 		}
 

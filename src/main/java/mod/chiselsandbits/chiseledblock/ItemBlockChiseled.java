@@ -29,7 +29,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-
 public class ItemBlockChiseled extends ItemBlock
 {
 
@@ -124,7 +123,7 @@ public class ItemBlockChiseled extends ItemBlock
 			pos = pos.offset( side );
 		}
 
-		return worldIn.canBlockBePlaced( this.block, pos, false, side, ( Entity ) null, stack );
+		return worldIn.canBlockBePlaced( this.block, pos, false, side, (Entity) null, stack );
 	}
 
 	public boolean canPlaceBlockHere(
@@ -249,7 +248,7 @@ public class ItemBlockChiseled extends ItemBlock
 
 			final IntegerBox modelBounds = source.getBounds();
 			BlockPos offset = ModUtil.getPartialOffset( side, partial, modelBounds );
-			final BlockChiseled myBlock = ( BlockChiseled ) block;
+			final BlockChiseled myBlock = (BlockChiseled) block;
 
 			if ( offset.getX() < 0 )
 			{
@@ -289,7 +288,7 @@ public class ItemBlockChiseled extends ItemBlock
 							final IBlockState state = world.getBlockState( bp );
 							if ( state.getBlock() instanceof BlockChiseled )
 							{
-								final BlockChiseled blk = ( BlockChiseled ) state.getBlock();
+								final BlockChiseled blk = (BlockChiseled) state.getBlock();
 								final TileEntityBlockChiseled target = blk.getTileEntity( world, bp );
 
 								final VoxelBlob dest = target.getBlob();
@@ -334,7 +333,7 @@ public class ItemBlockChiseled extends ItemBlock
 
 								if ( state.getBlock() instanceof BlockChiseled )
 								{
-									final BlockChiseled blk = ( BlockChiseled ) state.getBlock();
+									final BlockChiseled blk = (BlockChiseled) state.getBlock();
 									final TileEntityBlockChiseled target = blk.getTileEntity( world, bp );
 
 									target.setBlob( blobs[x][y][z] );

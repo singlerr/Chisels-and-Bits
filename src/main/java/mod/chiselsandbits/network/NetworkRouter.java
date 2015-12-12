@@ -2,6 +2,8 @@
 package mod.chiselsandbits.network;
 
 import io.netty.buffer.Unpooled;
+import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.ForgeBus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.INetHandler;
@@ -9,7 +11,6 @@ import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.PacketThreadUtil;
 import net.minecraft.network.ThreadQuickExitException;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
@@ -18,13 +19,13 @@ import net.minecraftforge.fml.common.network.FMLNetworkEvent.ServerCustomPacketE
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 
-
 public class NetworkRouter
 {
 
 	private class ClientPacketHandler
 	{
 
+		@SuppressWarnings( "unchecked" )
 		public void onPacketData(
 				final FMLProxyPacket packet,
 				final INetHandler handler )
@@ -41,13 +42,16 @@ public class NetworkRouter
 	private class ServerPacketHandler
 	{
 
+		@SuppressWarnings( "unchecked" )
 		public void onPacketData(
 				final FMLProxyPacket packet,
 				final INetHandler handler,
 				final EntityPlayerMP playerEntity )
 		{
 			if ( playerEntity == null )
+			{
 				return;
+			}
 
 			final PacketBuffer buffer = new PacketBuffer( packet.payload() );
 			final ModPacket innerPacket = parsePacket( buffer );
@@ -73,7 +77,7 @@ public class NetworkRouter
 		ec = NetworkRegistry.INSTANCE.newEventDrivenChannel( channelName );
 		ec.register( this );
 
-		FMLCommonHandler.instance().bus().register( this );
+		ChiselsAndBits.registerWithBus( this, ForgeBus.FML );
 
 		clientPacketHandler = new ClientPacketHandler();
 		serverPacketHandler = new ServerPacketHandler();
@@ -94,7 +98,7 @@ public class NetworkRouter
 			final ServerCustomPacketEvent ev )
 	{
 		// find player
-		final NetHandlerPlayServer srv = ( NetHandlerPlayServer ) ev.packet.handler();
+		final NetHandlerPlayServer srv = (NetHandlerPlayServer) ev.packet.handler();
 
 		try
 		{

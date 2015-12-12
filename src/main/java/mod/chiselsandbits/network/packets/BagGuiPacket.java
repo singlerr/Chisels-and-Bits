@@ -7,14 +7,13 @@ import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.PacketBuffer;
 
-
 public class BagGuiPacket extends ModPacket
 {
 	@Override
 	public void server(
 			final EntityPlayerMP player )
 	{
-		player.openGui( ChiselsAndBits.instance, ModGuiTypes.BitBag.ordinal(), player.worldObj, ( int ) player.posX, ( int ) player.posY, ( int ) player.posZ );
+		player.openGui( ChiselsAndBits.instance, ModGuiTypes.BitBag.ordinal(), player.worldObj, (int) player.posX, (int) player.posY, (int) player.posZ );
 	}
 
 	@Override

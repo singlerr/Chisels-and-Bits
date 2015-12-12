@@ -47,15 +47,20 @@ import net.minecraftforge.oredict.RecipeSorter.Category;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
-
-@Mod( name = ChiselsAndBits.MODNAME, modid = ChiselsAndBits.MODID, version = ChiselsAndBits.VERSION, dependencies = ChiselsAndBits.DEPENDENCIES, guiFactory = "mod.chiselsandbits.gui.ModConfigGuiFactory" )
+@Mod(
+		name = ChiselsAndBits.MODNAME,
+		modid = ChiselsAndBits.MODID,
+		version = ChiselsAndBits.VERSION,
+		acceptedMinecraftVersions = "[1.8.8,1.8.9]",
+		dependencies = ChiselsAndBits.DEPENDENCIES,
+		guiFactory = "mod.chiselsandbits.gui.ModConfigGuiFactory" )
 public class ChiselsAndBits
 {
 	public static final String MODNAME = "Chisels & Bits";
 	public static final String MODID = "chiselsandbits";
 	public static final String VERSION = "1.5.1";
-	
-	public static final String DEPENDENCIES = "required-after:Forge@[" // require forge.
+
+	public static final String DEPENDENCIES = "required-after:Forge@[" // forge.
 			+ net.minecraftforge.common.ForgeVersion.majorVersion + '.' // majorVersion
 			+ net.minecraftforge.common.ForgeVersion.minorVersion + '.' // minorVersion
 			+ net.minecraftforge.common.ForgeVersion.revisionVersion + '.' // revisionVersion
@@ -66,8 +71,17 @@ public class ChiselsAndBits
 	// create creative tab...
 	public static CreativeTab creativeTab = new CreativeTab();
 	public static ChiselsAndBits instance;
-	
-	public static final MaterialType[] validMaterials = new MaterialType[] { new MaterialType( "wood", Material.wood ), new MaterialType( "rock", Material.rock ), new MaterialType( "iron", Material.iron ), new MaterialType( "cloth", Material.cloth ), new MaterialType( "ice", Material.ice ), new MaterialType( "packedIce", Material.packedIce ), new MaterialType( "clay", Material.clay ), new MaterialType( "glass", Material.glass ) };
+
+	public static final MaterialType[] validMaterials = new MaterialType[] {
+			new MaterialType( "wood", Material.wood ),
+			new MaterialType( "rock", Material.rock ),
+			new MaterialType( "iron", Material.iron ),
+			new MaterialType( "cloth", Material.cloth ),
+			new MaterialType( "ice", Material.ice ),
+			new MaterialType( "packedIce", Material.packedIce ),
+			new MaterialType( "clay", Material.clay ),
+			new MaterialType( "glass", Material.glass )
+	};
 
 	final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();
 
@@ -94,11 +108,12 @@ public class ChiselsAndBits
 	public ItemChiseledBit itemBlockBit;
 	public ItemPositivePrint itemPositiveprint;
 	public ItemNegativePrint itemNegativeprint;
+
 	public ItemBitBag itemBitBag;
 	public ItemWrench itemWrench;
 
 	public ModConfig config;
-	private IntegerationJEI jei = new IntegerationJEI();
+	private final IntegerationJEI jei = new IntegerationJEI();
 
 	public ChiselsAndBits()
 	{
@@ -129,7 +144,8 @@ public class ChiselsAndBits
 
 		initVersionChecker();
 
-		// loader must be added here to prevent missing models, the rest of the model/textures must be configured later.
+		// loader must be added here to prevent missing models, the rest of the
+		// model/textures must be configured later.
 		if ( event.getSide() == Side.CLIENT )
 		{
 			ClientSide.instance.preinit( this );
@@ -179,7 +195,7 @@ public class ChiselsAndBits
 		if ( config.enableChisledBits )
 		{
 			registerItem( itemBlockBit = new ItemChiseledBit(), "block_bit" );
-			jei.blackListItem(itemBlockBit);
+			jei.blackListItem( itemBlockBit );
 		}
 
 		// register tile entities.
@@ -212,9 +228,8 @@ public class ChiselsAndBits
 		}
 
 		jei.init();
-		
-		MinecraftForge.EVENT_BUS.register( this );
-		net.minecraftforge.fml.common.FMLCommonHandler.instance().bus().register( this );
+
+		registerWithBus( this, ForgeBus.BOTH );
 
 		// add recipes to game...
 
@@ -309,7 +324,8 @@ public class ChiselsAndBits
 
 	@SubscribeEvent
 	/**
-	 * this makes the chisel into an instant "miner", this makes the breaks as fast as creative, which are converted into microbreaks.
+	 * this makes the chisel into an instant "miner", this makes the breaks as
+	 * fast as creative, which are converted into microbreaks.
 	 *
 	 * @param event
 	 */
@@ -323,6 +339,17 @@ public class ChiselsAndBits
 			{
 				event.newSpeed = 9999;
 			}
+		}
+	}
+
+	public static void registerWithBus(
+			final Object obj,
+			final ForgeBus bus )
+	{
+		switch ( bus )
+		{
+			default:
+				MinecraftForge.EVENT_BUS.register( obj );
 		}
 	}
 
