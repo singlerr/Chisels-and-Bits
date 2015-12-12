@@ -63,7 +63,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	public final String name;
 
-	@Override
 	public boolean doesSideBlockRendering(
 			final IBlockAccess world,
 			final BlockPos pos,

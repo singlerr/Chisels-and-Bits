@@ -25,7 +25,6 @@ public class NetworkRouter
 	private class ClientPacketHandler
 	{
 
-		@SuppressWarnings( "unchecked" )
 		public void onPacketData(
 				final FMLProxyPacket packet,
 				final INetHandler handler )
@@ -42,7 +41,6 @@ public class NetworkRouter
 	private class ServerPacketHandler
 	{
 
-		@SuppressWarnings( "unchecked" )
 		public void onPacketData(
 				final FMLProxyPacket packet,
 				final INetHandler handler,

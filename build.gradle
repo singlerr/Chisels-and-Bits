@@ -1,28 +1,30 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
         maven {
             name = "forge"
             url = "http://files.minecraftforge.net/maven"
         }
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "1.5.1"
-group= "mod.chiselsandbits"
+apply plugin: 'forge'
+
+version = "1.5"
+group= "mod.chiselsandbits" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "chiselsandbits"
 
-repositories { maven { url "http://dvs1.progwml6.com/files/maven" } }
-dependencies { deobfCompile "mezz.jei:jei_1.8.8:2.2.0.15" }
-
 minecraft {
-    version = "1.8.8-11.15.0.1619-1.8.8"
+    version = "1.8-11.14.2.1423"
     runDir = "eclipse"
-    mappings = "snapshot_20151211"
+    mappings = "snapshot_20141130"
 }
 
 dependencies {

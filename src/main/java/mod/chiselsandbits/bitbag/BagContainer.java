@@ -110,7 +110,7 @@ public class BagContainer extends Container
 			final int index )
 	{
 		ItemStack itemstack = null;
-		final Slot slot = inventorySlots.get( index );
+		final Slot slot = (Slot) inventorySlots.get( index );
 
 		if ( slot != null && slot.getHasStack() )
 		{

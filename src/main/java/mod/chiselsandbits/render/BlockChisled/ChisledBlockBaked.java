@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.lwjgl.util.vector.Vector3f;
+import javax.vecmath.Vector3f;
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
@@ -537,6 +537,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 		}
 	}
 
+	@SuppressWarnings( "unchecked" )
 	private float[] getSourceUVs(
 			final HashMap<Integer, float[]> sourceUVCache,
 			final int id,

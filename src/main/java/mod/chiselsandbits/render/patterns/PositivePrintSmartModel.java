@@ -12,6 +12,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.model.ISmartItemModel;
 
+@SuppressWarnings( "deprecation" )
 public class PositivePrintSmartModel extends BaseSmartModel implements ISmartItemModel
 {
 

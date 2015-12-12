@@ -34,11 +34,12 @@ public class ItemChiseledBit extends Item
 		setHasSubtypes( true );
 	}
 
+	@SuppressWarnings( "rawtypes" )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
-			final List<String> tooltip,
+			final List tooltip,
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );

@@ -25,11 +25,12 @@ public class ItemWrench extends Item
 		setMaxDamage( ChiselsAndBits.instance.config.damageTools ? (int) Math.max( 0, Math.min( Short.MAX_VALUE, uses ) ) : 0 );
 	}
 
+	@SuppressWarnings( "rawtypes" )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
-			final List<String> tooltip,
+			final List tooltip,
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );

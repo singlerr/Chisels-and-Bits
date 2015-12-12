@@ -63,6 +63,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SuppressWarnings( "deprecation" )
 public class ClientSide
 {
 
@@ -263,7 +264,7 @@ public class ClientSide
 					vb.fill( 1 ); // fill with.. something soild...
 
 					final BlockChiseled chiselBlock = ChiselsAndBits.instance.getConversion( block.getMaterial() );
-					RenderGlobal.func_181561_a( chiselBlock.getSelectedBoundingBox( player, blockpos, vb, chMode ).expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x, -y, -z ) );
+					RenderGlobal.drawOutlinedBoundingBox( chiselBlock.getSelectedBoundingBox( player, blockpos, vb, chMode ).expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x, -y, -z ), -1 );
 				}
 
 				GlStateManager.depthMask( true );
@@ -609,6 +610,7 @@ public class ClientSide
 		return texture;
 	}
 
+	@SuppressWarnings( "unchecked" )
 	public static TextureAtlasSprite findTexture(
 			final int BlockRef,
 			IBakedModel originalModel )

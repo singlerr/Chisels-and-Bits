@@ -24,9 +24,9 @@ public class PassThruInv implements IInventory
 	}
 
 	@Override
-	public String getCommandSenderName()
+	public String getName()
 	{
-		return src.getCommandSenderName();
+		return src.getName();
 	}
 
 	@Override

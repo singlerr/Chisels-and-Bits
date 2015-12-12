@@ -22,6 +22,7 @@ public class PositivePrintBaked implements IFlexibleBakedModel
 
 	ArrayList<BakedQuad> list = new ArrayList<BakedQuad>();
 
+	@SuppressWarnings( "unchecked" )
 	public PositivePrintBaked(
 			final ItemStack stack )
 	{

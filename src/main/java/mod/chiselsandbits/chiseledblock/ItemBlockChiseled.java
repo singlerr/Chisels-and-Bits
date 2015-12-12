@@ -162,7 +162,7 @@ public class ItemBlockChiseled extends ItemBlock
 		final IBlockState iblockstate = worldIn.getBlockState( pos );
 		final Block block = iblockstate.getBlock();
 
-		if ( block == Blocks.snow_layer && iblockstate.getValue( BlockSnow.LAYERS ).intValue() < 1 )
+		if ( block == Blocks.snow_layer && (Integer) iblockstate.getValue( BlockSnow.LAYERS ) < 1 )
 		{
 			side = EnumFacing.UP;
 		}

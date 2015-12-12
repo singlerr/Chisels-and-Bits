@@ -32,6 +32,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.Action;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -51,7 +52,7 @@ import net.minecraftforge.oredict.ShapelessOreRecipe;
 		name = ChiselsAndBits.MODNAME,
 		modid = ChiselsAndBits.MODID,
 		version = ChiselsAndBits.VERSION,
-		acceptedMinecraftVersions = "[1.8.8,1.8.9]",
+		acceptedMinecraftVersions = "[1.8]",
 		dependencies = ChiselsAndBits.DEPENDENCIES,
 		guiFactory = "mod.chiselsandbits.gui.ModConfigGuiFactory" )
 public class ChiselsAndBits
@@ -348,8 +349,15 @@ public class ChiselsAndBits
 	{
 		switch ( bus )
 		{
+			case FML:
+				FMLCommonHandler.instance().bus().register( obj );
+				break;
+			case FORGE:
+				MinecraftForge.EVENT_BUS.register( obj );
+				break;
 			default:
 				MinecraftForge.EVENT_BUS.register( obj );
+				FMLCommonHandler.instance().bus().register( obj );
 		}
 	}
 

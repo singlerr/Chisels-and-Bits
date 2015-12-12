@@ -97,7 +97,6 @@ public class TileEntityBlockChiseled extends TileEntity
 		return oldState.getBlock() != newState.getBlock();
 	}
 
-	@SuppressWarnings( "rawtypes" )
 	@Override
 	public Packet getDescriptionPacket()
 	{

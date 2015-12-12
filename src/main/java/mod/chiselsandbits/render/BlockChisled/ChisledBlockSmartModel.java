@@ -17,6 +17,7 @@ import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.client.model.ISmartItemModel;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
+@SuppressWarnings( "deprecation" )
 public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel
 {
 
