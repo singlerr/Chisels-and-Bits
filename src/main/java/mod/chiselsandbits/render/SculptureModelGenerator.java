@@ -1,6 +1,7 @@
 
 package mod.chiselsandbits.render;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -22,7 +23,20 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class SculptureModelGenerator implements ICustomModelLoader
 {
 
-	HashMap<ResourceLocation, Class<? extends IFlexibleBakedModel>> models = new HashMap<ResourceLocation, Class<? extends IFlexibleBakedModel>>();
+	static class ModelGenerator
+	{
+
+		final IFlexibleBakedModel model;
+
+		public ModelGenerator(
+				final Class<? extends IFlexibleBakedModel> clz ) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException
+		{
+			model = clz.newInstance();
+		}
+
+	};
+
+	HashMap<ResourceLocation, ModelGenerator> models = new HashMap<ResourceLocation, ModelGenerator>();
 
 	ArrayList<ModelResourceLocation> res = new ArrayList<ModelResourceLocation>();
 
@@ -57,12 +71,22 @@ public class SculptureModelGenerator implements ICustomModelLoader
 		res.add( new ModelResourceLocation( modelLocation, "inventory" ) );
 		res.add( new ModelResourceLocation( second, "inventory" ) );
 
-		models.put( modelLocation, clz );
-		models.put( second, clz );
-		models.put( new ModelResourceLocation( modelLocation, null ), clz );
-		models.put( new ModelResourceLocation( second, null ), clz );
-		models.put( new ModelResourceLocation( modelLocation, "inventory" ), clz );
-		models.put( new ModelResourceLocation( second, "inventory" ), clz );
+		ModelGenerator mg;
+		try
+		{
+			mg = new ModelGenerator( clz );
+		}
+		catch ( final Throwable e )
+		{
+			throw new RuntimeException( e );
+		}
+
+		models.put( modelLocation, mg );
+		models.put( second, mg );
+		models.put( new ModelResourceLocation( modelLocation, null ), mg );
+		models.put( new ModelResourceLocation( second, null ), mg );
+		models.put( new ModelResourceLocation( modelLocation, "inventory" ), mg );
+		models.put( new ModelResourceLocation( second, "inventory" ), mg );
 	}
 
 	@SubscribeEvent
@@ -101,7 +125,7 @@ public class SculptureModelGenerator implements ICustomModelLoader
 	{
 		try
 		{
-			return models.get( modelLocation ).newInstance();
+			return models.get( modelLocation ).model;
 		}
 		catch ( final Exception e )
 		{

@@ -8,6 +8,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobState;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.render.BlockChisled.ChisledBlockSmartModel;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -22,19 +23,18 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class TileEntityBlockChiseled extends TileEntity
 {
 
 	public static final String block_prop = "b";
 	public static final String side_prop = "s";
-	public static final String opaque_prop = "os";
 	public static final String voxel_prop = "v";
 	public static final String light_prop = "l";
 
@@ -128,7 +128,6 @@ public class TileEntityBlockChiseled extends TileEntity
 	{
 		final Integer b = getState().getValue( BlockChiseled.block_prop );
 		final Integer s = getState().getValue( BlockChiseled.side_prop );
-		final Integer os = getState().getValue( BlockChiseled.face_opaque );
 		final Float l = getState().getValue( BlockChiseled.light_prop );
 		final VoxelBlobState vbs = getState().getValue( BlockChiseled.v_prop );
 
@@ -142,7 +141,6 @@ public class TileEntityBlockChiseled extends TileEntity
 			compound.setFloat( light_prop, l == null ? 1.0f : l );
 			compound.setInteger( block_prop, b );
 			compound.setInteger( side_prop, s );
-			compound.setInteger( opaque_prop, os );
 			compound.setByteArray( voxel_prop, vbs.getByteArray() );
 		}
 	}
@@ -150,7 +148,6 @@ public class TileEntityBlockChiseled extends TileEntity
 	public final void readChisleData(
 			final NBTTagCompound compound )
 	{
-		final int opaqueFlags = compound.getInteger( opaque_prop );
 		final int sideFlags = compound.getInteger( side_prop );
 		int b = compound.getInteger( block_prop );
 		final float l = compound.getFloat( light_prop );
@@ -167,7 +164,7 @@ public class TileEntityBlockChiseled extends TileEntity
 																			// stone...
 		}
 
-		setState( getState().withProperty( BlockChiseled.side_prop, sideFlags ).withProperty( BlockChiseled.face_opaque, opaqueFlags ).withProperty( BlockChiseled.block_prop, b ).withProperty( BlockChiseled.light_prop, l )
+		setState( getState().withProperty( BlockChiseled.side_prop, sideFlags ).withProperty( BlockChiseled.block_prop, b ).withProperty( BlockChiseled.light_prop, l )
 				.withProperty( BlockChiseled.v_prop, new VoxelBlobState( v, getPositionRandom( pos ) ) ) );
 	}
 
@@ -262,20 +259,15 @@ public class TileEntityBlockChiseled extends TileEntity
 		final CommonBlock common = vb.mostCommonBlock();
 		final float opacity = vb.getOpacity();
 
-		final int sideFlags = vb.getSideFlags( 5, 11 );
+		// are most of the bits in the center solid?
+		final int sideFlags = vb.getSideFlags( 5, 11, 4 * 4 );
 
-		final VoxelBlob vbX = new VoxelBlob( vb );
-		vbX.filter( EnumWorldBlockLayer.SOLID );
-
-		final int opaqueFlags = vbX.getSideFlags( 5, 11 );
-
-		final Integer oldOpaqueFlags = getState().getValue( BlockChiseled.face_opaque );
 		final Integer oldSideFlags = getState().getValue( BlockChiseled.side_prop );
 
 		if ( worldObj == null )
 		{
-			setState( getState().withProperty( BlockChiseled.side_prop, sideFlags ).withProperty( BlockChiseled.face_opaque, opaqueFlags )
-					.withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) ).withProperty( BlockChiseled.light_prop, opacity ).withProperty( BlockChiseled.block_prop, common.ref ) );
+			setState( getState().withProperty( BlockChiseled.side_prop, sideFlags ).withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) ).withProperty( BlockChiseled.light_prop, opacity )
+					.withProperty( BlockChiseled.block_prop, common.ref ) );
 			return;
 		}
 
@@ -285,12 +277,12 @@ public class TileEntityBlockChiseled extends TileEntity
 		}
 		else if ( common.ref != 0 )
 		{
-			setState( getState().withProperty( BlockChiseled.side_prop, sideFlags ).withProperty( BlockChiseled.face_opaque, opaqueFlags )
+			setState( getState().withProperty( BlockChiseled.side_prop, sideFlags )
 					.withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) ).withProperty( BlockChiseled.light_prop, opacity ).withProperty( BlockChiseled.block_prop, common.ref ) );
 			markDirty();
 			worldObj.markBlockForUpdate( pos );
 
-			if ( oldSideFlags == null || oldOpaqueFlags == null || oldSideFlags != sideFlags || oldOpaqueFlags != opaqueFlags )
+			if ( oldSideFlags == null || oldSideFlags != sideFlags )
 			{
 				worldObj.notifyNeighborsOfStateChange( pos, worldObj.getBlockState( pos ).getBlock() );
 			}
@@ -353,17 +345,11 @@ public class TileEntityBlockChiseled extends TileEntity
 		return ( sideFlags & 1 << side.ordinal() ) != 0;
 	}
 
+	@SideOnly( Side.CLIENT )
 	public boolean isSideOpaque(
 			final EnumFacing side )
 	{
-		final Integer sideFlags = getState().getValue( BlockChiseled.face_opaque );
-
-		if ( sideFlags == null )
-		{
-			return false; // if torches or other blocks are on the block this
-							// prevents a conversion from crashing.
-		}
-
+		final Integer sideFlags = ChisledBlockSmartModel.getSides( this );
 		return ( sideFlags & 1 << side.ordinal() ) != 0;
 	}
 }

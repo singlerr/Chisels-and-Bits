@@ -638,7 +638,7 @@ public class ClientSide
 			// who knows if that worked.. now lets try to get a texture...
 			try
 			{
-				texture = originalModel.getTexture();
+				texture = originalModel.getParticleTexture();
 			}
 			catch ( final Exception err )
 			{

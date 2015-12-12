@@ -56,7 +56,7 @@ public class PositivePrintBaked implements IFlexibleBakedModel
 	}
 
 	@Override
-	public TextureAtlasSprite getTexture()
+	public TextureAtlasSprite getParticleTexture()
 	{
 		return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( ChiselsAndBits.MODID + ":item/positiveprint" );
 	}

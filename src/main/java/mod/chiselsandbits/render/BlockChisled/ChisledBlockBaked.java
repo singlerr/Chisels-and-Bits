@@ -46,6 +46,8 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 	List<BakedQuad> generic;
 	EnumWorldBlockLayer myLayer;
 
+	public int sides = 0;
+
 	public static final float pixelsPerBlock = 16.0f;
 
 	public ChisledBlockBaked(
@@ -114,6 +116,7 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 		processZFaces( blob, visFace, rset );
 
 		final float[] defUVs = new float[] { 0, 0, 1, 1 };
+		sides = blob.getSideFlags( 0, VoxelBlob.dim_minus_one, VoxelBlob.dim2 );
 
 		for ( final HashMap<Integer, ArrayList<FaceRegion>> srcX : rset.values() )
 		{
@@ -855,9 +858,9 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 	}
 
 	@Override
-	public TextureAtlasSprite getTexture()
+	public TextureAtlasSprite getParticleTexture()
 	{
-		return originalModel == null ? null : originalModel.getTexture();
+		return originalModel == null ? null : originalModel.getParticleTexture();
 	}
 
 	@Override
