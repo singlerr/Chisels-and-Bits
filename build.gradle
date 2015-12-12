@@ -21,6 +21,9 @@ version = "1.5"
 group= "mod.chiselsandbits" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "chiselsandbits"
 
+repositories { maven { url "http://dvs1.progwml6.com/files/maven" } }
+dependencies { compile "mezz.jei:jei_1.8:1.4.0.62" }
+
 minecraft {
     version = "1.8-11.14.2.1423"
     runDir = "eclipse"
