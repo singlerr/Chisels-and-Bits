@@ -58,7 +58,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	public static final IUnlistedProperty<VoxelBlobState> v_prop = new UnlistedVoxelBlob();
 	public static final IUnlistedProperty<Integer> block_prop = new UnlistedBlockStateID();
 	public static final IUnlistedProperty<Integer> side_prop = new UnlistedBlockFlags( "f" );
-	public static final IUnlistedProperty<Integer> face_opaque = new UnlistedBlockFlags( "of" );
 	public static final IUnlistedProperty<Float> light_prop = new UnlistedLightOpacity();
 
 	public final String name;
@@ -71,7 +70,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			return getTileEntity( world, pos ).isSideOpaque( face );
+			return getTileEntity( world, pos ).isSideOpaque( face.getOpposite() );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
@@ -260,7 +259,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	@Override
 	protected BlockState createBlockState()
 	{
-		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, light_prop, side_prop, face_opaque } );
+		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, light_prop, side_prop } );
 	}
 
 	@Override

@@ -144,13 +144,6 @@ public class ChiselsAndBits
 
 		initVersionChecker();
 
-		// loader must be added here to prevent missing models, the rest of the
-		// model/textures must be configured later.
-		if ( event.getSide() == Side.CLIENT )
-		{
-			ClientSide.instance.preinit( this );
-		}
-
 		// register item...
 		if ( config.enableStoneChisel )
 		{
@@ -207,6 +200,13 @@ public class ChiselsAndBits
 			final BlockChiseled blk = new BlockChiseled( mat.type, "chiseled_" + mat.name );
 			conversions.put( mat.type, blk );
 			registerBlock( blk, ItemBlockChiseled.class, blk.name );
+		}
+
+		// loader must be added here to prevent missing models, the rest of the
+		// model/textures must be configured later.
+		if ( event.getSide() == Side.CLIENT )
+		{
+			ClientSide.instance.preinit( this );
 		}
 	}
 

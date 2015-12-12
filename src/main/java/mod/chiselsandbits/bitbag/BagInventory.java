@@ -92,7 +92,7 @@ public class BagInventory implements IInventory
 	}
 
 	@Override
-	public String getCommandSenderName()
+	public String getName()
 	{
 		return null;
 	}
@@ -165,7 +165,7 @@ public class BagInventory implements IInventory
 	}
 
 	@Override
-	public ItemStack getStackInSlotOnClosing(
+	public ItemStack removeStackFromSlot(
 			final int index )
 	{
 		return null;

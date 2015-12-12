@@ -605,22 +605,23 @@ public class VoxelBlob
 	}
 
 	public int getSideFlags(
-			final int min_range,
-			final int max_range )
+			final int minRange,
+			final int maxRange,
+			final int totalRequired )
 	{
 		int output = 0x00;
 
 		for ( final EnumFacing face : EnumFacing.VALUES )
 		{
-			int required = 4 * 4;
 			final int edge = face.getAxisDirection() == AxisDirection.POSITIVE ? 15 : 0;
+			int required = totalRequired;
 
 			switch ( face.getAxis() )
 			{
 				case X:
-					for ( int z = min_range; z <= max_range; z++ )
+					for ( int z = minRange; z <= maxRange; z++ )
 					{
-						for ( int y = min_range; y <= max_range; y++ )
+						for ( int y = minRange; y <= maxRange; y++ )
 						{
 							if ( get( edge, y, z ) != 0 )
 							{
@@ -630,9 +631,9 @@ public class VoxelBlob
 					}
 					break;
 				case Y:
-					for ( int z = min_range; z <= max_range; z++ )
+					for ( int z = minRange; z <= maxRange; z++ )
 					{
-						for ( int x = min_range; x <= max_range; x++ )
+						for ( int x = minRange; x <= maxRange; x++ )
 						{
 							if ( get( x, edge, z ) != 0 )
 							{
@@ -642,9 +643,9 @@ public class VoxelBlob
 					}
 					break;
 				case Z:
-					for ( int y = min_range; y <= max_range; y++ )
+					for ( int y = minRange; y <= maxRange; y++ )
 					{
-						for ( int x = min_range; x <= max_range; x++ )
+						for ( int x = minRange; x <= maxRange; x++ )
 						{
 							if ( get( x, y, edge ) != 0 )
 							{

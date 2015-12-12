@@ -162,9 +162,9 @@ public class BitItemBaked implements IFlexibleBakedModel
 	}
 
 	@Override
-	public TextureAtlasSprite getTexture()
+	public TextureAtlasSprite getParticleTexture()
 	{
-		return originalModel == null ? null : originalModel.getTexture();
+		return originalModel == null ? null : originalModel.getParticleTexture();
 	}
 
 	@Override

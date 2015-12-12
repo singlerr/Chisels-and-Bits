@@ -4,6 +4,7 @@ package mod.chiselsandbits.render.BlockChisled;
 import java.util.WeakHashMap;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobState;
 import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.MergedBakedModel;
@@ -19,28 +20,52 @@ import net.minecraftforge.common.property.IExtendedBlockState;
 
 public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel
 {
-
-	private final WeakHashMap<VoxelBlobState, ChisledBlockBaked>[] modelCache;
-	private final WeakHashMap<ItemStack, IBakedModel> itemToModel = new WeakHashMap<ItemStack, IBakedModel>();
-
 	@SuppressWarnings( "unchecked" )
-	public ChisledBlockSmartModel()
+	static private final WeakHashMap<VoxelBlobState, ChisledBlockBaked>[] modelCache = new WeakHashMap[4];
+	static private final WeakHashMap<ItemStack, IBakedModel> itemToModel = new WeakHashMap<ItemStack, IBakedModel>();
+
+	static
 	{
 		final int count = EnumWorldBlockLayer.values().length;
 
-		modelCache = new WeakHashMap[count];
+		if ( modelCache.length != count )
+		{
+			throw new RuntimeException( "Invalid Number of EnumWorldBlockLayer" );
+		}
+
+		// setup layers.
 		for ( final EnumWorldBlockLayer l : EnumWorldBlockLayer.values() )
 		{
 			modelCache[l.ordinal()] = new WeakHashMap<VoxelBlobState, ChisledBlockBaked>();
 		}
 	}
 
-	private IBakedModel getCachedModel(
-			final Integer blockP,
-			final VoxelBlobState data )
+	public static int getSides(
+			final TileEntityBlockChiseled te )
 	{
-		final EnumWorldBlockLayer layer = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
+		final ChisledBlockBaked model = getCachedModel( te, EnumWorldBlockLayer.SOLID );
+		return model.sides;
+	}
 
+	public static ChisledBlockBaked getCachedModel(
+			final TileEntityBlockChiseled te,
+			final EnumWorldBlockLayer layer )
+	{
+		final IExtendedBlockState myState = te.getState();
+
+		final VoxelBlobState data = myState.getValue( BlockChiseled.v_prop );
+		Integer blockP = myState.getValue( BlockChiseled.block_prop );
+
+		blockP = blockP == null ? 0 : blockP;
+
+		return getCachedModel( blockP, data, layer );
+	}
+
+	private static ChisledBlockBaked getCachedModel(
+			final Integer blockP,
+			final VoxelBlobState data,
+			final EnumWorldBlockLayer layer )
+	{
 		if ( data == null )
 		{
 			return new ChisledBlockBaked( blockP, layer, data );
@@ -68,7 +93,8 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 
 		blockP = blockP == null ? 0 : blockP;
 
-		return getCachedModel( blockP, data );
+		final EnumWorldBlockLayer layer = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
+		return getCachedModel( blockP, data, layer );
 	}
 
 	@Override
@@ -102,7 +128,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 		for ( final EnumWorldBlockLayer l : EnumWorldBlockLayer.values() )
 		{
 			net.minecraftforge.client.ForgeHooksClient.setRenderLayer( l );
-			models[l.ordinal()] = (IFlexibleBakedModel) getCachedModel( blockP, new VoxelBlobState( data, 0L ) );
+			models[l.ordinal()] = getCachedModel( blockP, new VoxelBlobState( data, 0L ), l );
 		}
 
 		net.minecraftforge.client.ForgeHooksClient.setRenderLayer( EnumWorldBlockLayer.SOLID );

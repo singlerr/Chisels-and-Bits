@@ -28,6 +28,7 @@ public class ChiselCrafting implements IRecipe
 
 		private Boolean isValid = null;
 
+		private final ItemStack[] pile;
 		private final ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
 		private final ArrayList<BagInventory> bags = new ArrayList<BagInventory>();
 
@@ -36,12 +37,20 @@ public class ChiselCrafting implements IRecipe
 				final ItemStack pattern,
 				final boolean copy )
 		{
+			pile = new ItemStack[inv.getSizeInventory()];
 			this.pattern = pattern;
 			patternTag = pattern.getTagCompound();
 
 			for ( int x = 0; x < inv.getSizeInventory(); x++ )
 			{
 				final ItemStack is = inv.getStackInSlot( x );
+				pile[x] = is;
+
+				if ( !copy )
+				{
+					// if we are not copying.. then we remove it...
+					inv.setInventorySlotContents( x, null );
+				}
 
 				if ( is == null )
 				{
@@ -85,10 +94,7 @@ public class ChiselCrafting implements IRecipe
 						{
 							final int original = is.stackSize;
 							is.stackSize = Math.max( 0, is.stackSize - ref.total );
-							if ( is.stackSize - ref.total < 0 )
-							{
-								ref.total -= original - is.stackSize;
-							}
+							ref.total -= original - is.stackSize;
 						}
 					}
 
@@ -203,11 +209,16 @@ public class ChiselCrafting implements IRecipe
 		final ItemStack[] out = new ItemStack[inv.getSizeInventory()];
 
 		// just getting this will alter the stacks..
-		getCraftingReqs( inv, false );
+		final CCReq r = getCraftingReqs( inv, false );
 
-		for ( int x = 0; x < inv.getSizeInventory(); x++ )
+		if ( inv.getSizeInventory() != r.pile.length )
 		{
-			out[x] = inv.getStackInSlot( x );
+			throw new RuntimeException( "Inventory Changed Size!" );
+		}
+
+		for ( int x = 0; x < r.pile.length; x++ )
+		{
+			out[x] = r.pile[x];
 
 			if ( out[x] != null && out[x].stackSize <= 0 )
 			{
