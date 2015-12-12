@@ -36,7 +36,7 @@ public abstract class BaseSmartModel implements IFlexibleBakedModel
 	}
 
 	@Override
-	public TextureAtlasSprite getParticleTexture()
+	public TextureAtlasSprite getTexture()
 	{
 		return Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture( Blocks.stone.getDefaultState() );
 	}

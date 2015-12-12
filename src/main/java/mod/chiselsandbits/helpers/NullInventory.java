@@ -57,7 +57,7 @@ public class NullInventory implements IInventory
 	}
 
 	@Override
-	public ItemStack removeStackFromSlot(
+	public ItemStack getStackInSlotOnClosing(
 			final int index )
 	{
 		return null;

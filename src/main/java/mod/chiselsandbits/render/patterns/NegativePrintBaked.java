@@ -56,7 +56,7 @@ public class NegativePrintBaked implements IFlexibleBakedModel
 	}
 
 	@Override
-	public TextureAtlasSprite getParticleTexture()
+	public TextureAtlasSprite getTexture()
 	{
 		return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( ChiselsAndBits.MODID + ":item/negativeprint" );
 	}

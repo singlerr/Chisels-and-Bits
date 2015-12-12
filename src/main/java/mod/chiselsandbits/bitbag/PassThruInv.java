@@ -63,10 +63,10 @@ public class PassThruInv implements IInventory
 	}
 
 	@Override
-	public ItemStack removeStackFromSlot(
+	public ItemStack getStackInSlotOnClosing(
 			final int index )
 	{
-		return src.removeStackFromSlot( index );
+		return src.getStackInSlotOnClosing( index );
 	}
 
 	@Override

@@ -79,11 +79,11 @@ public class MergedBakedModel implements IFlexibleBakedModel
 	}
 
 	@Override
-	public TextureAtlasSprite getParticleTexture()
+	public TextureAtlasSprite getTexture()
 	{
 		for ( final IFlexibleBakedModel a : merged )
 		{
-			return a.getParticleTexture();
+			return a.getTexture();
 		}
 
 		return null;

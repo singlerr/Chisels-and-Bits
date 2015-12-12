@@ -858,9 +858,9 @@ public class ChisledBlockBaked implements IFlexibleBakedModel
 	}
 
 	@Override
-	public TextureAtlasSprite getParticleTexture()
+	public TextureAtlasSprite getTexture()
 	{
-		return originalModel == null ? null : originalModel.getParticleTexture();
+		return originalModel == null ? null : originalModel.getTexture();
 	}
 
 	@Override
