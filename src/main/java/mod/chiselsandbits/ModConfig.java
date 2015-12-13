@@ -107,6 +107,12 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public boolean enableToolHarvestLevels;
 
+	@Configured( category = "Balance Settings" )
+	public boolean enableBitLightSource;
+
+	@Configured( category = "Balance Settings" )
+	public float bitLightPercentage;
+
 	public boolean isEnabled(
 			final String className )
 	{
@@ -147,6 +153,8 @@ public class ModConfig extends Configuration
 		enableToolHarvestLevels = true;
 		enableChiselToolHarvestCheckTools = "pickaxe,axe,shovel";
 
+		enableBitLightSource = true;
+		bitLightPercentage = 6.25f;
 		enableBitBag = true;
 		enableNegativePrint = true;
 		enablePositivePrint = true;
@@ -196,6 +204,12 @@ public class ModConfig extends Configuration
 					{
 						final int defaultValue = f.getInt( this );
 						final int value = get( c.category(), f.getName(), defaultValue ).getInt();
+						f.set( this, value );
+					}
+					else if ( f.getType() == float.class || f.getType() == Float.class )
+					{
+						final float defaultValue = f.getFloat( this );
+						final float value = (float) get( c.category(), f.getName(), defaultValue ).getDouble();
 						f.set( this, value );
 					}
 					else if ( f.getType() == boolean.class || f.getType() == Boolean.class )

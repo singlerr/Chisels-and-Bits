@@ -8,6 +8,7 @@ import java.util.List;
 import org.lwjgl.util.vector.Vector3f;
 
 import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.render.BaseBakedModel;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -22,10 +23,9 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.client.model.IFlexibleBakedModel;
 
 @SuppressWarnings( "deprecation" )
-public class BitItemBaked implements IFlexibleBakedModel
+public class BitItemBaked extends BaseBakedModel
 {
 	VertexFormat frm;
 	IBakedModel originalModel;
