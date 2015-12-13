@@ -23,9 +23,9 @@ public abstract class BaseBakedModel implements IFlexibleBakedModel, IPerspectiv
 	static
 	{/*
 		 * "rotation": [ 10, -45, 170 ],
-		 * 
+		 *
 		 * "translation": [ 0, 1.5, -2.75 ]
-		 * 
+		 *
 		 * "scale": [ 0.375, 0.375, 0.375 ] } }
 		 */
 		final Vector3f translation = new Vector3f( 0, 1.5f / 16.0f, -2.75f / 16.0f );

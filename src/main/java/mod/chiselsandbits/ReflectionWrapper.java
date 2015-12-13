@@ -55,9 +55,9 @@ public class ReflectionWrapper
 
 	/**
 	 * CLASS: net.minecraft.client.gui.GuiIngame
-	 * 
+	 *
 	 * SRG: field_92016_l
-	 * 
+	 *
 	 * NAME: highlightingItemStack
 	 */
 	@SideOnly( Side.CLIENT )
@@ -97,9 +97,9 @@ public class ReflectionWrapper
 
 	/**
 	 * CLASS: net.minecraft.client.renderer.texture.TextureMap
-	 * 
+	 *
 	 * SRG: field_110574_e
-	 * 
+	 *
 	 * NAME: mapRegisteredSprites
 	 */
 	@SuppressWarnings( "unchecked" )
