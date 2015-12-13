@@ -42,12 +42,14 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
@@ -271,6 +273,26 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final int meta )
 	{
 		return new TileEntityBlockChiseled();
+	}
+
+	@Override
+	public boolean addLandingEffects(
+			final WorldServer worldObj,
+			final BlockPos blockPosition,
+			final IBlockState iblockstate,
+			final EntityLivingBase entity,
+			final int numberOfParticles )
+	{
+		try
+		{
+			final IBlockState texture = getTileEntity( worldObj, blockPosition ).getParticleBlockState( Blocks.stone );
+			worldObj.spawnParticle( EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getStateId( texture ) } );
+			return true;
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			return false;
+		}
 	}
 
 	@Override

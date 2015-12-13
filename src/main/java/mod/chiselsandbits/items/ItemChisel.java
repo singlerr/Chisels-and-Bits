@@ -185,22 +185,24 @@ public class ItemChisel extends ItemTool
 	}
 
 	@Override
-	public String getItemStackDisplayName(
-			final ItemStack stack )
+	// 1.8.8 only hook.
+	public String getHighlightTip(
+			final ItemStack item,
+			final String displayName )
 	{
 		if ( ChiselsAndBits.instance.config.itemNameModeDisplay )
 		{
 			if ( ChiselsAndBits.instance.config.perChiselMode )
 			{
-				return super.getItemStackDisplayName( stack ) + " - " + ChiselMode.getMode( stack ).string.getLocal();
+				return displayName + " - " + ChiselMode.getMode( item ).string.getLocal();
 			}
 			else
 			{
-				return super.getItemStackDisplayName( stack ) + " - " + getChiselMode().string.getLocal();
+				return displayName + " - " + getChiselMode().string.getLocal();
 			}
 		}
 
-		return super.getItemStackDisplayName( stack );
+		return displayName;
 	}
 
 	public static void changeChiselMode(
