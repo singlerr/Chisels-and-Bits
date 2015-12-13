@@ -50,6 +50,15 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Settings" )
 	public boolean enableChiselMode_DrawnRegion;
 
+	@Configured( category = "Client Settings" )
+	public boolean perChiselMode;
+
+	@Configured( category = "Client Settings" )
+	public boolean chatModeNotification;
+
+	@Configured( category = "Client Settings" )
+	public boolean itemNameModeDisplay;
+
 	@Configured( category = "Balance Settings" )
 	public boolean damageTools;
 
@@ -121,6 +130,9 @@ public class ModConfig extends Configuration
 		enableChiselMode_Line = !ChiselMode.LINE.isDisabled;
 		enableChiselMode_Plane = !ChiselMode.PLANE.isDisabled;
 		enableChiselMode_DrawnRegion = !ChiselMode.DRAWN_REGION.isDisabled;
+		perChiselMode = true;
+		chatModeNotification = false;
+		itemNameModeDisplay = true;
 
 		showUsage = true;
 		invertBitBagFullness = false;

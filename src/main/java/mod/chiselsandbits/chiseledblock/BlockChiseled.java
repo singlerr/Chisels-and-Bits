@@ -308,6 +308,15 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 	}
 
+	@Override
+	public AxisAlignedBB getCollisionBoundingBox(
+			final World worldIn,
+			final BlockPos pos,
+			final IBlockState state )
+	{
+		return null;
+	}
+
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	@Override
 	public void addCollisionBoxesToList(
