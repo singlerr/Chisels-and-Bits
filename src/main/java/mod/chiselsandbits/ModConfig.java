@@ -74,6 +74,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Crafting" )
 	public boolean enableStackableCrafting;
 
+	@Configured( category = "Crafting" )
+	public boolean enableNegativePrintInversionCrafting;
+
 	@Configured( category = "Items" )
 	boolean enableBitBag;
 
@@ -152,6 +155,7 @@ public class ModConfig extends Configuration
 
 		enablePositivePrintCrafting = true;
 		enableStackableCrafting = true;
+		enableNegativePrintInversionCrafting = true;
 
 		enableChiselToolHarvestCheck = true;
 		enableToolHarvestLevels = true;

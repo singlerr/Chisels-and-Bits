@@ -285,6 +285,16 @@ public class VoxelBlob
 		return p;
 	}
 
+	public void binaryReplacement(
+			final int airReplacement,
+			final int solidReplacement )
+	{
+		for ( int x = 0; x < array_size; x++ )
+		{
+			values[x] = values[x] == 0 ? airReplacement : solidReplacement;
+		}
+	}
+
 	public int light()
 	{
 		int p = 0;

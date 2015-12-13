@@ -95,6 +95,12 @@ public class ItemPositivePrint extends ItemNegativePrint
 	}
 
 	@Override
+	protected boolean convertToStone()
+	{
+		return false;
+	}
+
+	@Override
 	protected void applyPrint(
 			final World world,
 			final BlockPos pos,
