@@ -24,6 +24,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.GlStateManager;
@@ -51,6 +52,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -162,6 +166,49 @@ public class ClientSide
 		if ( item != null )
 		{
 			mesher.register( item, i, loctaion );
+		}
+	}
+
+	HashMap<ChiselMode, TextureAtlasSprite> jo = new HashMap<ChiselMode, TextureAtlasSprite>();
+
+	@SubscribeEvent
+	void registerIconTextures(
+			final TextureStitchEvent.Pre ev )
+	{
+		for ( final ChiselMode mode : ChiselMode.values() )
+		{
+			jo.put( mode, ev.map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() ) ) );
+		}
+	}
+
+	@SubscribeEvent
+	public void onRenderGUI(
+			final RenderGameOverlayEvent.Post event )
+	{
+		if ( event.type == ElementType.HOTBAR && ChiselsAndBits.instance.config.enableToolbarIcons )
+		{
+			final Minecraft mc = Minecraft.getMinecraft();
+			final GuiIngame sc = mc.ingameGUI;
+
+			for ( int slot = 0; slot < 9; ++slot )
+			{
+				final ItemStack stack = mc.thePlayer.inventory.mainInventory[slot];
+				if ( stack != null && stack.getItem() instanceof ItemChisel )
+				{
+					final ChiselMode mode = ChiselMode.getMode( stack );
+
+					final int x = event.resolution.getScaledWidth() / 2 - 90 + slot * 20 + 2;
+					final int y = event.resolution.getScaledHeight() - 16 - 3;
+
+					GlStateManager.color( 1, 1, 1, 1.0f );
+					Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.locationBlocksTexture );
+					final TextureAtlasSprite sprite = jo.get( mode );
+
+					GlStateManager.enableBlend();
+					sc.drawTexturedModalRect( x + 1, y + 1, sprite, 8, 8 );
+					GlStateManager.disableBlend();
+				}
+			}
 		}
 	}
 

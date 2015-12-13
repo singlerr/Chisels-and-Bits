@@ -51,6 +51,9 @@ public class ModConfig extends Configuration
 	public boolean enableChiselMode_DrawnRegion;
 
 	@Configured( category = "Client Settings" )
+	public boolean enableToolbarIcons;
+
+	@Configured( category = "Client Settings" )
 	public boolean perChiselMode;
 
 	@Configured( category = "Client Settings" )
@@ -139,6 +142,7 @@ public class ModConfig extends Configuration
 		perChiselMode = true;
 		chatModeNotification = false;
 		itemNameModeDisplay = true;
+		enableToolbarIcons = true;
 
 		showUsage = true;
 		invertBitBagFullness = false;
