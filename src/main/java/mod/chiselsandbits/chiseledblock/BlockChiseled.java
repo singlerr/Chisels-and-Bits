@@ -14,6 +14,7 @@ import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.chiseledblock.data.UnlistedBlockFlags;
 import mod.chiselsandbits.chiseledblock.data.UnlistedBlockStateID;
 import mod.chiselsandbits.chiseledblock.data.UnlistedLightOpacity;
+import mod.chiselsandbits.chiseledblock.data.UnlistedLightValue;
 import mod.chiselsandbits.chiseledblock.data.UnlistedVoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobState;
@@ -22,6 +23,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockGlass;
+import net.minecraft.block.BlockGlowstone;
 import net.minecraft.block.BlockSlime;
 import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.block.ITileEntityProvider;
@@ -40,12 +42,14 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
@@ -58,7 +62,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	public static final IUnlistedProperty<VoxelBlobState> v_prop = new UnlistedVoxelBlob();
 	public static final IUnlistedProperty<Integer> block_prop = new UnlistedBlockStateID();
 	public static final IUnlistedProperty<Integer> side_prop = new UnlistedBlockFlags( "f" );
-	public static final IUnlistedProperty<Float> light_prop = new UnlistedLightOpacity();
+	public static final IUnlistedProperty<Float> opacity_prop = new UnlistedLightOpacity();
+	public static final IUnlistedProperty<Integer> light_prop = new UnlistedLightValue();
 
 	public final String name;
 
@@ -258,7 +263,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	@Override
 	protected BlockState createBlockState()
 	{
-		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, light_prop, side_prop } );
+		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, opacity_prop, side_prop, light_prop } );
 	}
 
 	@Override
@@ -267,6 +272,26 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final int meta )
 	{
 		return new TileEntityBlockChiseled();
+	}
+
+	// noop
+	public boolean addLandingEffects(
+			final WorldServer worldObj,
+			final BlockPos blockPosition,
+			final IBlockState iblockstate,
+			final EntityLivingBase entity,
+			final int numberOfParticles )
+	{
+		try
+		{
+			final IBlockState texture = getTileEntity( worldObj, blockPosition ).getParticleBlockState( Blocks.stone );
+			worldObj.spawnParticle( EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getStateId( texture ) } );
+			return true;
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			return false;
+		}
 	}
 
 	@Override
@@ -305,6 +330,15 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			// well not much we can do, so just don't render anything...
 			return true;
 		}
+	}
+
+	@Override
+	public AxisAlignedBB getCollisionBoundingBox(
+			final World worldIn,
+			final BlockPos pos,
+			final IBlockState state )
+	{
+		return null;
 	}
 
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
@@ -777,10 +811,10 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			// require default drop behavior...
 			pb.quantityDropped( null );
 			final Class<?> wc = blkClass.getMethod( pb.MethodName, Random.class ).getDeclaringClass();
-			final boolean test_d = wc == Block.class || wc == BlockStainedGlass.class || wc == BlockGlass.class;
+			final boolean test_d = wc == Block.class || wc == BlockGlowstone.class || wc == BlockStainedGlass.class || wc == BlockGlass.class;
 
 			pb.quantityDroppedWithBonus( 0, null );
-			final boolean test_e = blkClass.getMethod( pb.MethodName, int.class, Random.class ).getDeclaringClass() == Block.class;
+			final boolean test_e = blkClass.getMethod( pb.MethodName, int.class, Random.class ).getDeclaringClass() == Block.class || wc == BlockGlowstone.class;
 
 			pb.quantityDropped( null, 0, null );
 			final boolean test_f = blkClass.getMethod( pb.MethodName, IBlockState.class, int.class, Random.class ).getDeclaringClass() == Block.class;
@@ -831,6 +865,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 	}
 
+	static ThreadLocal<Integer> replacementLightValue = new ThreadLocal<Integer>();
+
 	public static boolean replaceWithChisled(
 			final World world,
 			final BlockPos pos,
@@ -863,6 +899,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 			if ( blk != null && blk != target )
 			{
+				replacementLightValue.set( originalState.getBlock().getLightValue() );
+
 				world.setBlockState( pos, blk.getDefaultState() );
 				final TileEntity te = world.getTileEntity( pos );
 
@@ -878,6 +916,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 				tec.fillWith( originalState );
 				tec.setState( tec.getState().withProperty( BlockChiseled.block_prop, BlockID ) );
+
+				replacementLightValue.remove();
 
 				return true;
 			}
@@ -906,12 +946,46 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
+	public int getLightValue(
+			final IBlockAccess world,
+			final BlockPos pos )
+	{
+		// is this the right block?
+		final Block block = world.getBlockState( pos ).getBlock();
+		if ( block != this )
+		{
+			return block.getLightValue( world, pos );
+		}
+
+		// enabled?
+		if ( ChiselsAndBits.instance.config.enableBitLightSource )
+		{
+			try
+			{
+				final Integer rlv = replacementLightValue.get();
+				if ( rlv != null )
+				{
+					return rlv;
+				}
+
+				final Integer lv = getTileEntity( world, pos ).getState().getValue( BlockChiseled.light_prop );
+				return lv == null ? 0 : lv;
+			}
+			catch ( final ExceptionNoTileEntity e )
+			{
+				// nope..
+			}
+		}
+
+		return 0;
+	}
+
+	@Override
 	public IBlockState getActualState(
 			final IBlockState state,
 			final IBlockAccess worldIn,
 			final BlockPos pos )
 	{
-
 		// only if this feature is enable should this code ever run.
 		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels )
 		{

@@ -50,6 +50,18 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Settings" )
 	public boolean enableChiselMode_DrawnRegion;
 
+	@Configured( category = "Client Settings" )
+	public boolean enableToolbarIcons;
+
+	@Configured( category = "Client Settings" )
+	public boolean perChiselMode;
+
+	@Configured( category = "Client Settings" )
+	public boolean chatModeNotification;
+
+	@Configured( category = "Client Settings" )
+	public boolean itemNameModeDisplay;
+
 	@Configured( category = "Balance Settings" )
 	public boolean damageTools;
 
@@ -61,6 +73,9 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Crafting" )
 	public boolean enableStackableCrafting;
+
+	@Configured( category = "Crafting" )
+	public boolean enableNegativePrintInversionCrafting;
 
 	@Configured( category = "Items" )
 	boolean enableBitBag;
@@ -98,6 +113,12 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public boolean enableToolHarvestLevels;
 
+	@Configured( category = "Balance Settings" )
+	public boolean enableBitLightSource;
+
+	@Configured( category = "Balance Settings" )
+	public float bitLightPercentage;
+
 	public boolean isEnabled(
 			final String className )
 	{
@@ -121,6 +142,10 @@ public class ModConfig extends Configuration
 		enableChiselMode_Line = !ChiselMode.LINE.isDisabled;
 		enableChiselMode_Plane = !ChiselMode.PLANE.isDisabled;
 		enableChiselMode_DrawnRegion = !ChiselMode.DRAWN_REGION.isDisabled;
+		perChiselMode = true;
+		chatModeNotification = false;
+		itemNameModeDisplay = true;
+		enableToolbarIcons = true;
 
 		showUsage = true;
 		invertBitBagFullness = false;
@@ -130,11 +155,14 @@ public class ModConfig extends Configuration
 
 		enablePositivePrintCrafting = true;
 		enableStackableCrafting = true;
+		enableNegativePrintInversionCrafting = true;
 
 		enableChiselToolHarvestCheck = true;
 		enableToolHarvestLevels = true;
 		enableChiselToolHarvestCheckTools = "pickaxe,axe,shovel";
 
+		enableBitLightSource = true;
+		bitLightPercentage = 6.25f;
 		enableBitBag = true;
 		enableNegativePrint = true;
 		enablePositivePrint = true;
@@ -184,6 +212,12 @@ public class ModConfig extends Configuration
 					{
 						final int defaultValue = f.getInt( this );
 						final int value = get( c.category(), f.getName(), defaultValue ).getInt();
+						f.set( this, value );
+					}
+					else if ( f.getType() == float.class || f.getType() == Float.class )
+					{
+						final float defaultValue = f.getFloat( this );
+						final float value = (float) get( c.category(), f.getName(), defaultValue ).getDouble();
 						f.set( this, value );
 					}
 					else if ( f.getType() == boolean.class || f.getType() == Boolean.class )

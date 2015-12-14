@@ -1,7 +1,6 @@
 
 package mod.chiselsandbits;
 
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -25,6 +24,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.GlStateManager;
@@ -52,6 +52,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.MouseEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -59,7 +62,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Type;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -165,6 +167,49 @@ public class ClientSide
 		if ( item != null )
 		{
 			mesher.register( item, i, loctaion );
+		}
+	}
+
+	HashMap<ChiselMode, TextureAtlasSprite> jo = new HashMap<ChiselMode, TextureAtlasSprite>();
+
+	@SubscribeEvent
+	void registerIconTextures(
+			final TextureStitchEvent.Pre ev )
+	{
+		for ( final ChiselMode mode : ChiselMode.values() )
+		{
+			jo.put( mode, ev.map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() ) ) );
+		}
+	}
+
+	@SubscribeEvent
+	public void onRenderGUI(
+			final RenderGameOverlayEvent.Post event )
+	{
+		if ( event.type == ElementType.HOTBAR && ChiselsAndBits.instance.config.enableToolbarIcons )
+		{
+			final Minecraft mc = Minecraft.getMinecraft();
+			final GuiIngame sc = mc.ingameGUI;
+
+			for ( int slot = 0; slot < 9; ++slot )
+			{
+				final ItemStack stack = mc.thePlayer.inventory.mainInventory[slot];
+				if ( stack != null && stack.getItem() instanceof ItemChisel )
+				{
+					final ChiselMode mode = ChiselMode.getMode( stack );
+
+					final int x = event.resolution.getScaledWidth() / 2 - 90 + slot * 20 + 2;
+					final int y = event.resolution.getScaledHeight() - 16 - 3;
+
+					GlStateManager.color( 1, 1, 1, 1.0f );
+					Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.locationBlocksTexture );
+					final TextureAtlasSprite sprite = jo.get( mode );
+
+					GlStateManager.enableBlend();
+					sc.drawTexturedModalRect( x + 1, y + 1, sprite, 8, 8 );
+					GlStateManager.disableBlend();
+				}
+			}
 		}
 	}
 
@@ -527,7 +572,8 @@ public class ClientSide
 
 		if ( is != null && is.getItem() instanceof ItemChisel && player.isSneaking() )
 		{
-			ItemChisel.scrollOption( ItemChisel.getChiselMode(), me.dwheel );
+			final ChiselMode mode = ItemChisel.getChiselMode();
+			ItemChisel.scrollOption( mode, mode, me.dwheel );
 			me.setCanceled( true );
 		}
 	}
@@ -553,7 +599,6 @@ public class ClientSide
 	}
 
 	public static HashMap<Integer, String> blockToTexture = new HashMap<Integer, String>();
-	private static Field mapRegSprites = null;
 
 	private static TextureAtlasSprite findTexture(
 			TextureAtlasSprite texture,
@@ -562,17 +607,8 @@ public class ClientSide
 		if ( texture == null )
 		{
 			final TextureMap map = Minecraft.getMinecraft().getTextureMapBlocks();
+			final Map<String, TextureAtlasSprite> mapRegisteredSprites = ReflectionWrapper.instance.getRegSprite( map );
 
-			if ( mapRegSprites == null )
-			{
-				mapRegSprites = ReflectionHelper.findField( map.getClass(), "mapRegisteredSprites", "field_110574_e" );
-				if ( mapRegSprites == null )
-				{
-					throw new RuntimeException( "Unable to get sprite list." );
-				}
-			}
-
-			final Map<?, ?> mapRegisteredSprites = (Map<?, ?>) mapRegSprites.get( map );
 			if ( mapRegisteredSprites == null )
 			{
 				throw new RuntimeException( "Unable to lookup textures." );

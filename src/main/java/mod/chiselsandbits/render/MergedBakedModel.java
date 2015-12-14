@@ -12,7 +12,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 
 @SuppressWarnings( "deprecation" )
-public class MergedBakedModel implements IFlexibleBakedModel
+public class MergedBakedModel extends BaseBakedModel
 {
 
 	IFlexibleBakedModel[] merged;

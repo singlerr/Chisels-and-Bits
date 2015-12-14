@@ -18,6 +18,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -152,6 +153,11 @@ public class ItemNegativePrint extends Item
 		return true;
 	}
 
+	protected boolean convertToStone()
+	{
+		return true;
+	}
+
 	protected NBTTagCompound getCompoundFromBlock(
 			final World world,
 			final BlockPos pos,
@@ -166,6 +172,18 @@ public class ItemNegativePrint extends Item
 			{
 				final NBTTagCompound comp = new NBTTagCompound();
 				( (TileEntityBlockChiseled) te ).writeChisleData( comp );
+
+				if ( convertToStone() )
+				{
+					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+					tmp.readChisleData( comp );
+
+					final VoxelBlob bestBlob = tmp.getBlob();
+					bestBlob.binaryReplacement( 0, Block.getStateId( Blocks.stone.getDefaultState() ) );
+
+					tmp.setBlob( bestBlob );
+					tmp.writeChisleData( comp );
+				}
 
 				comp.setByte( "side", (byte) ModUtil.getPlaceFace( player ).ordinal() );
 				return comp;

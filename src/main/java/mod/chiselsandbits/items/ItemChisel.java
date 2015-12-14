@@ -14,6 +14,7 @@ import com.google.common.base.Stopwatch;
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.ReflectionWrapper;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ChiselInventory;
@@ -22,6 +23,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.ChiselPacket;
+import mod.chiselsandbits.network.packets.SetChiselMode;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -89,7 +91,7 @@ public class ItemChisel extends ItemTool
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		return ItemChisel.fromBreakToChisel( clientChiselMode, itemstack, pos, player );
+		return ItemChisel.fromBreakToChisel( getChiselMode(), itemstack, pos, player );
 	}
 
 	static public boolean fromBreakToChisel(
@@ -142,9 +144,10 @@ public class ItemChisel extends ItemTool
 
 	public static void scrollOption(
 			final ChiselMode originalMode,
+			ChiselMode currentMode,
 			final int dwheel )
 	{
-		int offset = clientChiselMode.ordinal() + ( dwheel < 0 ? -1 : 1 );
+		int offset = currentMode.ordinal() + ( dwheel < 0 ? -1 : 1 );
 
 		if ( offset >= ChiselMode.values().length )
 		{
@@ -156,34 +159,96 @@ public class ItemChisel extends ItemTool
 			offset = ChiselMode.values().length - 1;
 		}
 
-		clientChiselMode = ChiselMode.values()[offset];
+		currentMode = ChiselMode.values()[offset];
 
-		if ( clientChiselMode.isDisabled )
+		if ( currentMode.isDisabled )
 		{
-			scrollOption( originalMode, dwheel );
+			scrollOption( originalMode, currentMode, dwheel );
 		}
 		else
 		{
-			changeChiselMode( originalMode, clientChiselMode );
+			changeChiselMode( originalMode, currentMode );
 		}
-
 	}
 
 	public static ChiselMode getChiselMode()
 	{
+		if ( ChiselsAndBits.instance.config.perChiselMode )
+		{
+			final ItemStack ei = Minecraft.getMinecraft().thePlayer.getCurrentEquippedItem();
+			if ( ei != null && ei.getItem() instanceof ItemChisel )
+			{
+				return ChiselMode.getMode( ei );
+			}
+		}
+
 		return clientChiselMode;
+	}
+
+	@Override
+	public String getItemStackDisplayName(
+			final ItemStack stack )
+	{
+		return getHighlightTip( stack, super.getItemStackDisplayName( stack ) );
+	}
+
+	// 1.8.8 only hook.
+	public String getHighlightTip(
+			final ItemStack item,
+			final String displayName )
+	{
+		if ( ChiselsAndBits.instance.config.itemNameModeDisplay )
+		{
+			if ( ChiselsAndBits.instance.config.perChiselMode )
+			{
+				return displayName + " - " + ChiselMode.getMode( item ).string.getLocal();
+			}
+			else
+			{
+				return displayName + " - " + getChiselMode().string.getLocal();
+			}
+		}
+
+		return displayName;
 	}
 
 	public static void changeChiselMode(
 			final ChiselMode originalMode,
 			final ChiselMode newClientChiselMode )
 	{
-		clientChiselMode = newClientChiselMode;
+		final boolean chatNotification = ChiselsAndBits.instance.config.chatModeNotification;
+		final boolean itemNameModeDisplay = ChiselsAndBits.instance.config.itemNameModeDisplay;
 
-		if ( originalMode != clientChiselMode )
+		if ( ChiselsAndBits.instance.config.perChiselMode )
 		{
-			Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new ChatComponentTranslation( clientChiselMode.string.toString() ) );
+			final SetChiselMode packet = new SetChiselMode();
+			packet.mode = newClientChiselMode;
+			packet.chatNotification = chatNotification;
+
+			if ( !itemNameModeDisplay )
+			{
+				newClientChiselMode.setMode( Minecraft.getMinecraft().thePlayer.getCurrentEquippedItem() );
+			}
+
+			NetworkRouter.instance.sendToServer( packet );
 		}
+		else
+		{
+			clientChiselMode = newClientChiselMode;
+
+			if ( originalMode != clientChiselMode && chatNotification )
+			{
+				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new ChatComponentTranslation( clientChiselMode.string.toString() ) );
+			}
+
+			ReflectionWrapper.instance.clearHighlightedStack();
+		}
+
+		if ( !itemNameModeDisplay )
+		{
+			ReflectionWrapper.instance.endHighlightedStack();
+		}
+
 	}
 
 	@Override
@@ -194,7 +259,8 @@ public class ItemChisel extends ItemTool
 	{
 		if ( worldIn.isRemote )
 		{
-			scrollOption( getChiselMode(), playerIn.isSneaking() ? -1 : 1 );
+			final ChiselMode mode = getChiselMode();
+			scrollOption( mode, mode, playerIn.isSneaking() ? -1 : 1 );
 		}
 
 		return super.onItemRightClick( itemStackIn, worldIn, playerIn );

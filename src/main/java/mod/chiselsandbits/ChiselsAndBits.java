@@ -8,6 +8,7 @@ import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.MaterialType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.crafting.ChiselCrafting;
+import mod.chiselsandbits.crafting.NegativeInversionCrafting;
 import mod.chiselsandbits.crafting.StackableCrafting;
 import mod.chiselsandbits.gui.ModGuiRouter;
 import mod.chiselsandbits.integration.IntegerationJEI;
@@ -266,6 +267,12 @@ public class ChiselsAndBits
 		{
 			GameRegistry.addRecipe( new StackableCrafting() );
 			net.minecraftforge.oredict.RecipeSorter.register( MODID + ":stackablecrafting", StackableCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
+		}
+
+		if ( config.enableNegativePrintInversionCrafting )
+		{
+			GameRegistry.addRecipe( new NegativeInversionCrafting() );
+			net.minecraftforge.oredict.RecipeSorter.register( MODID + ":negativepatterncrafting", NegativeInversionCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
 		}
 	}
 

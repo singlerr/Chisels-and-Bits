@@ -5,10 +5,13 @@ import java.util.HashMap;
 
 import mod.chiselsandbits.network.packets.BagGuiPacket;
 import mod.chiselsandbits.network.packets.ChiselPacket;
+import mod.chiselsandbits.network.packets.SetChiselMode;
 
 public enum ModPacketTypes
 {
-	CHISEL( ChiselPacket.class ), OPEN_BAG_GUI( BagGuiPacket.class );
+	CHISEL( ChiselPacket.class ),
+	OPEN_BAG_GUI( BagGuiPacket.class ),
+	SET_CHISEL_MODE( SetChiselMode.class );
 
 	private final Class<? extends ModPacket> packetClass;
 

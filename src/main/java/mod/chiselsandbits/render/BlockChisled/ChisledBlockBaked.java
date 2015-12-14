@@ -14,6 +14,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobState;
 import mod.chiselsandbits.items.BitColors;
+import mod.chiselsandbits.render.BaseBakedModel;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -33,11 +34,10 @@ import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3i;
 import net.minecraftforge.client.model.IColoredBakedQuad;
-import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.ISmartBlockModel;
 
 @SuppressWarnings( "deprecation" )
-public class ChisledBlockBaked implements IFlexibleBakedModel
+public class ChisledBlockBaked extends BaseBakedModel
 {
 	IBakedModel originalModel;
 

@@ -20,3 +20,5 @@
 /servers.dat
 /usercache.json
 /whitelist.json
+/eclipse
+/*.launch

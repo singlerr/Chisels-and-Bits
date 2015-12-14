@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog.EnumAxis;
@@ -284,6 +285,46 @@ public class VoxelBlob
 		return p;
 	}
 
+	public void binaryReplacement(
+			final int airReplacement,
+			final int solidReplacement )
+	{
+		for ( int x = 0; x < array_size; x++ )
+		{
+			values[x] = values[x] == 0 ? airReplacement : solidReplacement;
+		}
+	}
+
+	public int light()
+	{
+		int p = 0;
+
+		final HashMap<Integer, IntegerRef> count = new HashMap<Integer, IntegerRef>();
+
+		for ( int x = 0; x < array_size; x++ )
+		{
+			final int ref = values[x];
+			IntegerRef tf = count.get( ref );
+
+			if ( tf == null )
+			{
+				final IBlockState state = Block.getStateById( ref );
+				int l = 0;
+
+				if ( state != null )
+				{
+					l = state.getBlock().getLightValue();
+				}
+
+				count.put( ref, tf = new IntegerRef( ref, l ) );
+			}
+
+			p += tf.total;
+		}
+
+		return p;
+	}
+
 	public int solid()
 	{
 		int p = 0;
@@ -493,6 +534,14 @@ public class VoxelBlob
 		cb.ref = out.ref;
 		cb.isFull = out.total == array_size;
 		return cb;
+	}
+
+	public float getLight()
+	{
+		// 15 is the getLightValue range, 100 is to convert the percentage.
+		final float light_size = ChiselsAndBits.instance.config.bitLightPercentage * array_size * 15.0f / 100.0f;
+		final float o = light() / light_size;
+		return o;
 	}
 
 	public float getOpacity()
