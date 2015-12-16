@@ -322,7 +322,7 @@ public class ItemBlockChiseled extends ItemBlock
 
 								if ( world.isAirBlock( bp ) )
 								{
-									if ( BlockChiseled.replaceWithChisled( world, bp, state, tebc.getState().getValue( BlockChiseled.block_prop ) ) )
+									if ( BlockChiseled.replaceWithChisled( world, bp, state, tebc.getBasicState().getValue( BlockChiseled.block_prop ) ) )
 									{
 										final TileEntityBlockChiseled target = myBlock.getTileEntity( world, bp );
 										target.setBlob( blobs[x][y][z] );

@@ -1,6 +1,8 @@
 
 package mod.chiselsandbits.chiseledblock.data;
 
+import java.io.IOException;
+import java.lang.ref.SoftReference;
 import java.util.Arrays;
 
 public class VoxelBlobStateRef implements Comparable<VoxelBlobStateRef>
@@ -8,6 +10,7 @@ public class VoxelBlobStateRef implements Comparable<VoxelBlobStateRef>
 
 	public final int hash;
 	public final byte[] v;
+	SoftReference<VoxelBlob> blob;
 
 	public VoxelBlobStateRef(
 			final byte[] data )
@@ -56,5 +59,26 @@ public class VoxelBlobStateRef implements Comparable<VoxelBlobStateRef>
 		}
 
 		return r;
+	}
+
+	public VoxelBlob getBlob()
+	{
+		try
+		{
+			VoxelBlob vb = blob == null ? null : blob.get();
+
+			if ( vb == null )
+			{
+				vb = new VoxelBlob();
+				vb.fromByteArray( v );
+				blob = new SoftReference<VoxelBlob>( vb );
+			}
+
+			return new VoxelBlob( vb );
+		}
+		catch ( final IOException e )
+		{
+			return null;
+		}
 	}
 }

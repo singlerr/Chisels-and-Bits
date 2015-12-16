@@ -453,7 +453,8 @@ public class VoxelBlob
 			int x,
 			int y,
 			int z,
-			final VisibleFace dest )
+			final VisibleFace dest,
+			final VoxelBlob secondBlob )
 	{
 		final int solid = get( x, y, z );
 		dest.state = solid;
@@ -466,6 +467,12 @@ public class VoxelBlob
 		{
 			dest.isEdge = false;
 			dest.visibleFace = solid != 0 && get( x, y, z ) == 0;
+		}
+		else if ( secondBlob != null )
+		{
+			dest.isEdge = true;
+			dest.visibleFace = solid != 0 && secondBlob.get( x - face.getFrontOffsetX() * dim, y - face.getFrontOffsetY() * dim, z - face.getFrontOffsetZ() * dim ) == 0;
+			;
 		}
 		else
 		{

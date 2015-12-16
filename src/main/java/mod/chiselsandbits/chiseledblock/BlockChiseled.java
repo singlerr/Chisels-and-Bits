@@ -16,8 +16,10 @@ import mod.chiselsandbits.chiseledblock.data.UnlistedBlockStateID;
 import mod.chiselsandbits.chiseledblock.data.UnlistedLightOpacity;
 import mod.chiselsandbits.chiseledblock.data.UnlistedLightValue;
 import mod.chiselsandbits.chiseledblock.data.UnlistedVoxelBlob;
+import mod.chiselsandbits.chiseledblock.data.UnlistedVoxelNeighborState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobState;
+import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -59,6 +61,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class BlockChiseled extends Block implements ITileEntityProvider
 {
 
+	public static final IUnlistedProperty<VoxelNeighborRenderTracker> n_prop = new UnlistedVoxelNeighborState();
 	public static final IUnlistedProperty<VoxelBlobState> v_prop = new UnlistedVoxelBlob();
 	public static final IUnlistedProperty<Integer> block_prop = new UnlistedBlockStateID();
 	public static final IUnlistedProperty<Integer> side_prop = new UnlistedBlockFlags( "f" );
@@ -89,6 +92,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		super( new SubMaterial( mat ) );
 
+		configureSound( mat );
+
 		// slippery ice...
 		if ( mat == Material.ice || mat == Material.packedIce )
 		{
@@ -99,6 +104,43 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		setHardness( 1 );
 		setHarvestLevel( "pickaxe", 0 );
 		name = BlockName;
+	}
+
+	private void configureSound(
+			final Material mat )
+	{
+		if ( mat == Material.wood )
+		{
+			setStepSound( soundTypeWood );
+		}
+		else if ( mat == Material.rock )
+		{
+			setStepSound( soundTypeStone );
+		}
+		else if ( mat == Material.iron )
+		{
+			setStepSound( soundTypeMetal );
+		}
+		else if ( mat == Material.cloth )
+		{
+			setStepSound( soundTypeMetal );
+		}
+		else if ( mat == Material.ice )
+		{
+			setStepSound( soundTypeGlass );
+		}
+		else if ( mat == Material.packedIce )
+		{
+			setStepSound( soundTypeGlass );
+		}
+		else if ( mat == Material.clay )
+		{
+			setStepSound( soundTypeGravel );
+		}
+		else if ( mat == Material.glass )
+		{
+			setStepSound( soundTypeGlass );
+		}
 	}
 
 	@Override
@@ -151,7 +193,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			return getTileEntity( world, pos ).getState();
+			return getTileEntity( world, pos ).getRenderState();
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
@@ -264,7 +306,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	@Override
 	protected BlockState createBlockState()
 	{
-		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, opacity_prop, side_prop, light_prop } );
+		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, opacity_prop, side_prop, light_prop, n_prop } );
 	}
 
 	@Override
@@ -826,9 +868,13 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			pb.onEntityCollidedWithBlock( null, null, null, null );
 			final boolean test_h = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
 
-			final boolean isFullCube = blk.isFullCube() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class;
+			// full cube specifically is tied to lighting... so for glass
+			// Compatibility use isFullBlock which can be true for glass.
 
-			if ( test_a && test_b && test_c && test_d && test_e && test_f && test_g && test_h && blockHardness >= -0.01f && isFullCube && blk.getTickRandomly() == false && blk.hasTileEntity( state ) == false
+			// final boolean isFullCube = blk.isFullCube()
+			final boolean isFullBlock = blk.isFullBlock() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class;
+
+			if ( test_a && test_b && test_c && test_d && test_e && test_f && test_g && test_h && blockHardness >= -0.01f && isFullBlock && blk.getTickRandomly() == false && blk.hasTileEntity( state ) == false
 					&& ChiselsAndBits.instance.getConversion( blk.getMaterial() ) != null )
 			{
 				final boolean result = ChiselsAndBits.instance.config.isEnabled( blkClass.getName() );
@@ -916,7 +962,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				}
 
 				tec.fillWith( originalState );
-				tec.setState( tec.getState().withProperty( BlockChiseled.block_prop, BlockID ) );
+				tec.setState( tec.getBasicState().withProperty( BlockChiseled.block_prop, BlockID ) );
 
 				replacementLightValue.remove();
 
@@ -969,7 +1015,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 					return rlv;
 				}
 
-				final Integer lv = getTileEntity( world, pos ).getState().getValue( BlockChiseled.light_prop );
+				final Integer lv = getTileEntity( world, pos ).getBasicState().getValue( BlockChiseled.light_prop );
 				return lv == null ? 0 : lv;
 			}
 			catch ( final ExceptionNoTileEntity e )
@@ -1008,7 +1054,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 						if ( cname.contains( "minecraftforge" ) )
 						{
 							final TileEntityBlockChiseled tebc = getTileEntity( worldIn, pos );
-							return tebc.getState();
+							return tebc.getBasicState();
 						}
 					}
 				}
