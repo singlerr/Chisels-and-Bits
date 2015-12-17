@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.IModelPart;
 import net.minecraftforge.client.model.IModelState;
 import net.minecraftforge.client.model.TRSRTransformation;
 
@@ -24,18 +23,6 @@ public class SmartModel implements IModel
 	{
 		this.smartModel = smartModel;
 	}
-
-	private class DefState implements IModelState
-	{
-
-		@Override
-		public TRSRTransformation apply(
-				final IModelPart part )
-		{
-			return TRSRTransformation.identity();
-		}
-
-	};
 
 	@Override
 	public Collection<ResourceLocation> getDependencies()
@@ -61,7 +48,7 @@ public class SmartModel implements IModel
 	@Override
 	public IModelState getDefaultState()
 	{
-		return new DefState();
+		return TRSRTransformation.identity();
 	}
 
 }

@@ -131,9 +131,8 @@ public class ChisledBlockBaked extends BaseBakedModel
 		CNB.addElement( DefaultVertexFormats.POSITION_3F );
 		CNB.addElement( DefaultVertexFormats.COLOR_4UB );
 		CNB.addElement( DefaultVertexFormats.TEX_2F );
-		CNB.addElement( DefaultVertexFormats.NORMAL_3B );
-		CNB.addElement( DefaultVertexFormats.PADDING_1B );
 		CNB.addElement( DefaultVertexFormats.TEX_2S );
+		CNB.addElement( DefaultVertexFormats.NORMAL_3B );
 	}
 
 	private final static EnumFacing[] X_Faces = new EnumFacing[] { EnumFacing.EAST, EnumFacing.WEST };
@@ -198,6 +197,8 @@ public class ChisledBlockBaked extends BaseBakedModel
 					final int color = BitColors.getColorFor( state, myLayer.ordinal() );
 					calcVertFaceMap();
 
+					final float maxLightmap = 32.0f / 0xffff;
+
 					// build un
 					final VertexFormat format = b.getVertexFormat();
 					for ( int vertNum = 0; vertNum < 4; vertNum++ )
@@ -223,7 +224,11 @@ public class ChisledBlockBaked extends BaseBakedModel
 								case UV:
 									if ( element.getIndex() == 1 )
 									{
-										b.put( elementIndex, 0, 0 );
+										final float v = maxLightmap *
+												Math.max( 0,
+														Math.min( 15,
+																state.getBlock().getLightValue() ) );
+										b.put( elementIndex, v, v );
 									}
 									else
 									{
@@ -504,10 +509,14 @@ public class ChisledBlockBaked extends BaseBakedModel
 	// merge face brightness with custom multiplier
 	private int getShadeColor(
 			final EnumFacing face,
-			final float f,
+			float f,
 			final int color )
 	{
-		// f *= getFaceBrightness( face );
+		if ( format == CNB )
+		{
+			f *= getFaceBrightness( face );
+		}
+
 		final int i = MathHelper.clamp_int( (int) ( f * 255.0F ), 0, 255 );
 
 		final int r = ( color >> 16 & 0xff ) * i / 255;
@@ -515,6 +524,27 @@ public class ChisledBlockBaked extends BaseBakedModel
 		final int b = ( color & 0xff ) * i / 255;
 
 		return -16777216 | b << 16 | g << 8 | r;
+	}
+
+	// based on MC's FaceBakery...
+	private float getFaceBrightness(
+			final EnumFacing face )
+	{
+		switch ( face )
+		{
+			case DOWN:
+				return 0.5F;
+			case UP:
+				return 1.0F;
+			case NORTH:
+			case SOUTH:
+				return 0.8F;
+			case WEST:
+			case EAST:
+				return 0.6F;
+			default:
+				return 1.0F;
+		}
 	}
 
 	static boolean hasFaceMap = false;

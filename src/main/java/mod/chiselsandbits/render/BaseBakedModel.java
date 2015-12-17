@@ -8,7 +8,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.TRSRTransformation;
@@ -41,15 +40,15 @@ public abstract class BaseBakedModel implements IFlexibleBakedModel, IPerspectiv
 	}
 
 	@Override
-	public Pair<IBakedModel, Matrix4f> handlePerspective(
+	public Pair<? extends IFlexibleBakedModel, Matrix4f> handlePerspective(
 			final TransformType cameraTransformType )
 	{
 		switch ( cameraTransformType )
 		{
 			case THIRD_PERSON:
-				return new ImmutablePair<IBakedModel, Matrix4f>( this, thirdPerson );
+				return new ImmutablePair<IFlexibleBakedModel, Matrix4f>( this, thirdPerson );
 			default:
-				return new ImmutablePair<IBakedModel, Matrix4f>( this, identity );
+				return new ImmutablePair<IFlexibleBakedModel, Matrix4f>( this, identity );
 		}
 
 	}
