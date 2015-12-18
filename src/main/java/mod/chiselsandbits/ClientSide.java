@@ -34,6 +34,10 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -57,6 +61,8 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.client.model.pipeline.IVertexConsumer;
+import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -597,7 +603,82 @@ public class ClientSide
 		world.playSound( pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, block.stepSound.getBreakSound(), ( block.stepSound.getVolume() + 1.0F ) / 16.0F, block.stepSound.getFrequency() * 0.9F, false );
 	}
 
-	public static HashMap<Integer, String> blockToTexture = new HashMap<Integer, String>();
+	private static HashMap<Integer, String> blockToTexture = new HashMap<Integer, String>();
+	private static HashMap<Integer, Integer> blockToLight = new HashMap<Integer, Integer>();
+
+	private static class lvReader implements IVertexConsumer
+	{
+		public int lv = 0;
+
+		public lvReader(
+				final int lightValue )
+		{
+			lv = lightValue;
+		}
+
+		@Override
+		public VertexFormat getVertexFormat()
+		{
+			return DefaultVertexFormats.BLOCK;
+		}
+
+		@Override
+		public void setQuadTint(
+				final int tint )
+		{
+
+		}
+
+		@Override
+		public void setQuadOrientation(
+				final EnumFacing orientation )
+		{
+
+		}
+
+		@Override
+		public void setQuadColored()
+		{
+
+		}
+
+		@Override
+		public void put(
+				final int element,
+				final float... data )
+		{
+			final VertexFormatElement e = getVertexFormat().getElement( element );
+			final float maxLightmap = 32.0f / 0xffff;
+
+			if ( e.getUsage() == EnumUsage.UV && e.getIndex() == 1 && data.length > 1 )
+			{
+				final int lvFromData_sky = (int) ( data[0] / maxLightmap );
+				final int lvFromData_block = (int) ( data[1] / maxLightmap );
+
+				lv = Math.max( lvFromData_sky, lv );
+				lv = Math.max( lvFromData_block, lv );
+			}
+		}
+
+	};
+
+	private static int findLightValue(
+			final int lightValue,
+			final List<BakedQuad> faceQuads )
+	{
+		final lvReader lv = new lvReader( lightValue );
+
+		for ( final BakedQuad q : faceQuads )
+		{
+			if ( q instanceof UnpackedBakedQuad )
+			{
+				final UnpackedBakedQuad ubq = (UnpackedBakedQuad) q;
+				ubq.pipe( lv );
+			}
+		}
+
+		return lv.lv;
+	}
 
 	private static TextureAtlasSprite findTexture(
 			TextureAtlasSprite texture,
@@ -643,6 +724,29 @@ public class ClientSide
 		}
 
 		return texture;
+	}
+
+	public static int findLightValue(
+			final int BlockRef,
+			final IBakedModel originalModel )
+	{
+		final Integer lvP = blockToLight.get( BlockRef );
+
+		if ( lvP != null )
+		{
+			return lvP;
+		}
+
+		int lv = 0;
+
+		for ( final EnumFacing side : EnumFacing.VALUES )
+		{
+			lv = findLightValue( lv, originalModel.getFaceQuads( side ) );
+		}
+
+		findLightValue( lv, originalModel.getGeneralQuads() );
+		blockToLight.put( BlockRef, lv );
+		return lv;
 	}
 
 	public static TextureAtlasSprite findTexture(

@@ -180,6 +180,8 @@ public class ChisledBlockBaked extends BaseBakedModel
 					final IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state );
 					final TextureAtlasSprite texture = ClientSide.findTexture( region.blockStateID, model );
 
+					final int lightValue = Math.max( state.getBlock().getLightValue(), ClientSide.findLightValue( region.blockStateID, model ) );
+
 					final BlockFaceUV uv = new BlockFaceUV( defUVs, 0 );
 					final BlockPartFace bpf = new BlockPartFace( myFace, -1, "", uv );
 
@@ -224,10 +226,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 								case UV:
 									if ( element.getIndex() == 1 )
 									{
-										final float v = maxLightmap *
-												Math.max( 0,
-														Math.min( 15,
-																state.getBlock().getLightValue() ) );
+										final float v = maxLightmap * Math.max( 0, Math.min( 15, lightValue ) );
 										b.put( elementIndex, v, v );
 									}
 									else
