@@ -1,6 +1,7 @@
 
 package mod.chiselsandbits.chiseledblock;
 
+
 import java.util.List;
 import java.util.Random;
 
@@ -13,6 +14,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
+
 
 class ProxyBlock extends Block
 {
@@ -55,6 +57,13 @@ class ProxyBlock extends Block
 			final EntityPlayer playerIn,
 			final World worldIn,
 			final BlockPos pos )
+	{
+		markMethod();
+		return 0;
+	}
+
+	@Override
+	public float getExplosionResistance( Entity exploder )
 	{
 		markMethod();
 		return 0;

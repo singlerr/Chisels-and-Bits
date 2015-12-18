@@ -1,6 +1,7 @@
 
 package mod.chiselsandbits;
 
+
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.List;
@@ -10,6 +11,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
 
 public class ModConfig extends Configuration
 {
@@ -119,6 +121,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public float bitLightPercentage;
 
+	@Configured( category = "Balance Settings" )
+	public boolean compatabilityMode = true;
+
 	public boolean isEnabled(
 			final String className )
 	{
@@ -199,12 +204,12 @@ public class ModConfig extends Configuration
 					if ( f.getType() == long.class || f.getType() == Long.class )
 					{
 						final long defaultValue = f.getLong( this );
-						final long value = get( c.category(), f.getName(), (int) defaultValue ).getInt();
+						final long value = get( c.category(), f.getName(), ( int ) defaultValue ).getInt();
 						f.set( this, value );
 					}
 					else if ( f.getType() == String.class )
 					{
-						final String defaultValue = (String) f.get( this );
+						final String defaultValue = ( String ) f.get( this );
 						final String value = get( c.category(), f.getName(), defaultValue ).getString();
 						f.set( this, value );
 					}
@@ -217,7 +222,7 @@ public class ModConfig extends Configuration
 					else if ( f.getType() == float.class || f.getType() == Float.class )
 					{
 						final float defaultValue = f.getFloat( this );
-						final float value = (float) get( c.category(), f.getName(), defaultValue ).getDouble();
+						final float value = ( float ) get( c.category(), f.getName(), defaultValue ).getDouble();
 						f.set( this, value );
 					}
 					else if ( f.getType() == boolean.class || f.getType() == Boolean.class )

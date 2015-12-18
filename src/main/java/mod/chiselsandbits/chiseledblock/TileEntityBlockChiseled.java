@@ -1,6 +1,7 @@
 
 package mod.chiselsandbits.chiseledblock;
 
+
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
@@ -29,6 +30,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+
 public class TileEntityBlockChiseled extends TileEntity
 {
 
@@ -41,8 +43,7 @@ public class TileEntityBlockChiseled extends TileEntity
 	private IExtendedBlockState state;
 
 	public TileEntityBlockChiseled()
-	{
-	}
+	{}
 
 	public IExtendedBlockState getBasicState()
 	{
@@ -59,7 +60,7 @@ public class TileEntityBlockChiseled extends TileEntity
 	{
 		if ( state == null )
 		{
-			return (IExtendedBlockState) ChiselsAndBits.instance.getChiseledDefaultState();
+			return ( IExtendedBlockState ) ChiselsAndBits.instance.getChiseledDefaultState();
 		}
 
 		if ( updateNeightbors )
@@ -71,7 +72,7 @@ public class TileEntityBlockChiseled extends TileEntity
 		return state;
 	}
 
-	public Block getBlock(
+	public IBlockState getBlockState(
 			final Block alternative )
 	{
 		final Integer stateID = getBasicState().getValue( BlockChiseled.block_prop );
@@ -81,11 +82,11 @@ public class TileEntityBlockChiseled extends TileEntity
 			final IBlockState state = Block.getStateById( stateID );
 			if ( state != null )
 			{
-				return state.getBlock();
+				return state;
 			}
 		}
 
-		return alternative;
+		return alternative.getDefaultState();
 	}
 
 	public IBlockState getParticleBlockState(
@@ -291,7 +292,7 @@ public class TileEntityBlockChiseled extends TileEntity
 		final CommonBlock common = vb.mostCommonBlock();
 		final float opacity = vb.getOpacity();
 		final float light = vb.getLight();
-		final int lv = Math.max( 0, Math.min( 15, (int) ( light * 15 ) ) );
+		final int lv = Math.max( 0, Math.min( 15, ( int ) ( light * 15 ) ) );
 
 		// are most of the bits in the center solid?
 		final int sideFlags = vb.getSideFlags( 5, 11, 4 * 4 );
@@ -371,7 +372,7 @@ public class TileEntityBlockChiseled extends TileEntity
 			test.writeChisleData( nbttagcompound );
 			itemstack.setTagInfo( "BlockEntityTag", nbttagcompound );
 
-			itemstack.setTagInfo( "side", new NBTTagByte( (byte) enumfacing.ordinal() ) );
+			itemstack.setTagInfo( "side", new NBTTagByte( ( byte ) enumfacing.ordinal() ) );
 		}
 		else
 		{
