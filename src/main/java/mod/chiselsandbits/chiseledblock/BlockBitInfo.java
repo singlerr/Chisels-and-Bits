@@ -1,7 +1,6 @@
 
 package mod.chiselsandbits.chiseledblock;
 
-
 import java.lang.reflect.Method;
 
 import mod.chiselsandbits.ChiselsAndBits;
@@ -14,7 +13,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
-
 public class BlockBitInfo
 {
 
@@ -23,7 +21,7 @@ public class BlockBitInfo
 	public final float explosionResistance;
 
 	private BlockBitInfo(
-			boolean isCompatiable,
+			final boolean isCompatiable,
 			final float hardness,
 			final float explosionResistance )
 	{
@@ -32,14 +30,15 @@ public class BlockBitInfo
 		this.explosionResistance = explosionResistance;
 	}
 
-	public static BlockBitInfo createFromState( IBlockState state )
+	public static BlockBitInfo createFromState(
+			final IBlockState state )
 	{
 		try
 		{
 			// require basic hardness behavior...
 			final ProxyBlock pb = new ProxyBlock();
 			final Block blk = state.getBlock();
-			Class<? extends Block> blkClass = blk.getClass();
+			final Class<? extends Block> blkClass = blk.getClass();
 
 			pb.getBlockHardness( null, null );
 			final Method hardnessMethod = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class );
@@ -58,20 +57,21 @@ public class BlockBitInfo
 			// is it perfect?
 			if ( test_a && test_b && test_c && test_d )
 			{
-				final float blockHardness = ( Float ) hardnessMethod.invoke( blk, null, null );
-				float resistance = ( Float ) exploResistance.invoke( null );
+				final float blockHardness = blk.getBlockHardness( null, null );
+				final float resistance = blk.getExplosionResistance( null );
 
 				return new BlockBitInfo( true, blockHardness, resistance );
 			}
 			else
 			{
-				// okay.. so maybe its a bit fancy.. but it still might work.. just fill in the gaps.
+				// okay.. so maybe its a bit fancy.. but it still might work..
+				// just fill in the gaps.
 
-				Block stone = Blocks.stone;
+				final Block stone = Blocks.stone;
 				return new BlockBitInfo( ChiselsAndBits.instance.config.compatabilityMode, stone.getBlockHardness( null, null ), stone.getExplosionResistance( null ) );
 			}
 		}
-		catch ( Exception err )
+		catch ( final Exception err )
 		{
 			return new BlockBitInfo( false, -1, -1 );
 		}

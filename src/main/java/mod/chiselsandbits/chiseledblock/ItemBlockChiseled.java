@@ -138,14 +138,19 @@ public class ItemBlockChiseled extends ItemBlock
 			return true;
 		}
 
-		final IBlockState state = worldIn.getBlockState( pos );
-		if ( state.getBlock() instanceof BlockChiseled )
+		if ( player.isSneaking() )
 		{
-			return true;
+			final IBlockState state = worldIn.getBlockState( pos );
+			if ( state.getBlock() instanceof BlockChiseled )
+			{
+				return true;
+			}
+
+			final IBlockState stateb = worldIn.getBlockState( pos.offset( side ) );
+			return stateb.getBlock() instanceof BlockChiseled;
 		}
 
-		final IBlockState stateb = worldIn.getBlockState( pos.offset( side ) );
-		return stateb.getBlock() instanceof BlockChiseled;
+		return false;
 	}
 
 	@Override

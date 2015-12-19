@@ -2,6 +2,7 @@
 package mod.chiselsandbits.render.BlockChisled;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +29,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.client.resources.model.WeightedBakedModel;
@@ -36,6 +38,7 @@ import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3i;
 import net.minecraftforge.client.model.ISmartBlockModel;
+import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad.Builder;
 
@@ -549,6 +552,18 @@ public class ChisledBlockBaked extends BaseBakedModel
 	static boolean hasFaceMap = false;
 	static int faceVertMap[][] = new int[6][4];
 
+	static private boolean isOne(
+			final float v )
+	{
+		return Math.abs( v ) < 0.01;
+	}
+
+	static private boolean isZero(
+			final float v )
+	{
+		return Math.abs( v - 1.0f ) < 0.01;
+	}
+
 	static void calcVertFaceMap()
 	{
 		if ( hasFaceMap )
@@ -617,6 +632,109 @@ public class ChisledBlockBaked extends BaseBakedModel
 		}
 	}
 
+	private static class UVReader implements IVertexConsumer
+	{
+
+		final float minU;
+		final float maxUMinusMin;
+
+		final float minV;
+		final float maxVMinusMin;
+
+		final float[] quadUVs = new float[] { 0, 0, 0, 1, 1, 0, 1, 1 };
+
+		int uCoord, vCoord;
+
+		public UVReader(
+				final TextureAtlasSprite texture,
+				final int uFaceCoord,
+				final int vFaceCoord )
+		{
+			minU = texture.getMinU();
+			maxUMinusMin = texture.getMaxU() - minU;
+
+			minV = texture.getMinV();
+			maxVMinusMin = texture.getMaxV() - minV;
+
+			uCoord = uFaceCoord;
+			vCoord = vFaceCoord;
+		}
+
+		@Override
+		public VertexFormat getVertexFormat()
+		{
+			return DefaultVertexFormats.ITEM;
+		}
+
+		@Override
+		public void setQuadTint(
+				final int tint )
+		{
+		}
+
+		@Override
+		public void setQuadOrientation(
+				final EnumFacing orientation )
+		{
+		}
+
+		@Override
+		public void setQuadColored()
+		{
+		}
+
+		private float pos[];
+		private float uv[];
+		public int corners;
+
+		@Override
+		public void put(
+				final int element,
+				final float... data )
+		{
+			final VertexFormat format = getVertexFormat();
+			final VertexFormatElement ele = format.getElement( element );
+
+			if ( ele.getUsage() == EnumUsage.UV && ele.getIndex() != 1 )
+			{
+				uv = Arrays.copyOf( data, data.length );
+			}
+
+			else if ( ele.getUsage() == EnumUsage.POSITION )
+			{
+				pos = Arrays.copyOf( data, data.length );
+			}
+
+			if ( element == format.getElementCount() - 1 )
+			{
+				if ( isZero( pos[uCoord] ) && isZero( pos[vCoord] ) )
+				{
+					corners = corners | 0x1;
+					quadUVs[0] = ( uv[0] - minU ) / maxUMinusMin;
+					quadUVs[1] = ( uv[1] - minV ) / maxVMinusMin;
+				}
+				else if ( isZero( pos[uCoord] ) && isOne( pos[vCoord] ) )
+				{
+					corners = corners | 0x2;
+					quadUVs[4] = ( uv[0] - minU ) / maxUMinusMin;
+					quadUVs[5] = ( uv[1] - minV ) / maxVMinusMin;
+				}
+				else if ( isOne( pos[uCoord] ) && isZero( pos[vCoord] ) )
+				{
+					corners = corners | 0x4;
+					quadUVs[2] = ( uv[0] - minU ) / maxUMinusMin;
+					quadUVs[3] = ( uv[1] - minV ) / maxVMinusMin;
+				}
+				else
+				{
+					corners = corners | 0x8;
+					quadUVs[6] = ( uv[0] - minU ) / maxUMinusMin;
+					quadUVs[7] = ( uv[1] - minV ) / maxVMinusMin;
+				}
+			}
+		}
+	}
+
 	private float[] getSourceUVs(
 			final HashMap<Integer, float[]> sourceUVCache,
 			final int id,
@@ -628,8 +746,6 @@ public class ChisledBlockBaked extends BaseBakedModel
 
 		if ( quadUVs == null )
 		{
-			quadUVs = new float[] { 0, 0, 0, 1, 1, 0, 1, 1 };
-
 			IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( Block.getStateById( id ) );
 			if ( model != null )
 			{
@@ -657,83 +773,51 @@ public class ChisledBlockBaked extends BaseBakedModel
 				{
 					final List<BakedQuad> quads = model.getFaceQuads( myFace );
 
-					if ( quads.size() == 1 )
+					// top/bottom
+					int uCoord = 0;
+					int vCoord = 2;
+
+					switch ( myFace )
 					{
-						final BakedQuad src = quads.get( 0 );
-						final int[] vertData = src.getVertexData();
+						case NORTH:
+						case SOUTH:
+							uCoord = 0;
+							vCoord = 1;
+							break;
+						case EAST:
+						case WEST:
+							uCoord = 1;
+							vCoord = 2;
+							break;
+						default:
+					}
 
-						final float minU = texture.getMinU();
-						final float maxUMinusMin = texture.getMaxU() - minU;
+					final UVReader uvr = new UVReader( texture, uCoord, vCoord );
 
-						final float minV = texture.getMinV();
-						final float maxVMinusMin = texture.getMaxV() - minV;
+					// process all the quads on the face.
+					for ( final BakedQuad src : quads )
+					{
+						src.pipe( uvr );
+					}
 
-						int a = 0;
-						int b = 2;
-
-						switch ( myFace )
-						{
-							case NORTH:
-							case SOUTH:
-								a = 0;
-								b = 1;
-								break;
-							case EAST:
-							case WEST:
-								a = 1;
-								b = 2;
-								break;
-							default:
-						}
-
-						final int p = vertData.length / 4;
-						for ( int vertNum = 0; vertNum < 4; vertNum++ )
-						{
-							if ( isZero( Float.intBitsToFloat( vertData[vertNum * p + a] ) ) && isZero( Float.intBitsToFloat( vertData[vertNum * p + b] ) ) )
-							{
-								// faceVertMap[myFace.getIndex()][vertNum] = 0;
-								quadUVs[0] = ( Float.intBitsToFloat( vertData[vertNum * p + 4] ) - minU ) / maxUMinusMin;
-								quadUVs[1] = ( Float.intBitsToFloat( vertData[vertNum * p + 5] ) - minV ) / maxVMinusMin;
-							}
-							else if ( isZero( Float.intBitsToFloat( vertData[vertNum * p + a] ) ) && isOne( Float.intBitsToFloat( vertData[vertNum * p + b] ) ) )
-							{
-								// faceVertMap[myFace.getIndex()][vertNum] = 3;
-								quadUVs[4] = ( Float.intBitsToFloat( vertData[vertNum * p + 4] ) - minU ) / maxUMinusMin;
-								quadUVs[5] = ( Float.intBitsToFloat( vertData[vertNum * p + 5] ) - minV ) / maxVMinusMin;
-							}
-							else if ( isOne( Float.intBitsToFloat( vertData[vertNum * p + a] ) ) && isZero( Float.intBitsToFloat( vertData[vertNum * p + b] ) ) )
-							{
-								// faceVertMap[myFace.getIndex()][vertNum] = 1;
-								quadUVs[2] = ( Float.intBitsToFloat( vertData[vertNum * p + 4] ) - minU ) / maxUMinusMin;
-								quadUVs[3] = ( Float.intBitsToFloat( vertData[vertNum * p + 5] ) - minV ) / maxVMinusMin;
-							}
-							else
-							{
-								// faceVertMap[myFace.getIndex()][vertNum] = 2;
-								quadUVs[6] = ( Float.intBitsToFloat( vertData[vertNum * p + 4] ) - minU ) / maxUMinusMin;
-								quadUVs[7] = ( Float.intBitsToFloat( vertData[vertNum * p + 5] ) - minV ) / maxVMinusMin;
-							}
-						}
+					// was the auto-discover fully successful?
+					if ( uvr.corners == 0xf )
+					{
+						quadUVs = uvr.quadUVs;
 					}
 				}
+			}
+
+			// default.
+			if ( quadUVs == null )
+			{
+				quadUVs = new float[] { 0, 0, 0, 1, 1, 0, 1, 1 };
 			}
 
 			sourceUVCache.put( id << 4 | myFace.getIndex(), quadUVs );
 		}
 
 		return quadUVs;
-	}
-
-	static private boolean isOne(
-			final float v )
-	{
-		return Math.abs( v ) < 0.01;
-	}
-
-	static private boolean isZero(
-			final float v )
-	{
-		return Math.abs( v - 1.0f ) < 0.01;
 	}
 
 	private float[] getFaceUvs(
