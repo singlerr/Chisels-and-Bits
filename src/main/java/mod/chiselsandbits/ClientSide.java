@@ -319,7 +319,24 @@ public class ClientSide
 				event.setCanceled( true );
 			}
 		}
-		else if ( ModUtil.isHoldingPattern( event.player ) )
+	}
+
+	@SubscribeEvent
+	@SideOnly( Side.CLIENT )
+	public void drawLast(
+			final RenderWorldLastEvent event )
+	{
+		final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
+		final float partialTicks = event.partialTicks;
+		final MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+		final World theWorld = player.worldObj;
+		final ItemStack currentItem = player.getCurrentEquippedItem();
+
+		final double x = player.lastTickPosX + ( player.posX - player.lastTickPosX ) * partialTicks;
+		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
+		final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
+
+		if ( ModUtil.isHoldingPattern( player ) )
 		{
 			if ( mop.typeOfHit != MovingObjectType.BLOCK )
 			{
@@ -332,34 +349,34 @@ public class ClientSide
 				return;
 			}
 
-			if ( !event.currentItem.hasTagCompound() )
+			if ( !currentItem.hasTagCompound() )
 			{
 				return;
 			}
 
-			final ItemStack item = ChiselsAndBits.instance.itemNegativeprint.getPatternedItem( event.currentItem );
+			final ItemStack item = ChiselsAndBits.instance.itemNegativeprint.getPatternedItem( currentItem );
 			if ( !item.hasTagCompound() )
 			{
 				return;
 			}
 
-			final int rotations = ModUtil.getRotations( player, event.currentItem.getTagCompound().getByte( "side" ) );
+			final int rotations = ModUtil.getRotations( player, currentItem.getTagCompound().getByte( "side" ) );
 
 			if ( item != null )
 			{
 				GlStateManager.depthFunc( GL11.GL_ALWAYS );
-				showGhost( event.currentItem, item, mop.getBlockPos(), event, rotations, x, y, z, mop.sideHit, null );
+				showGhost( currentItem, item, mop.getBlockPos(), player, rotations, x, y, z, mop.sideHit, null );
 				GlStateManager.depthFunc( GL11.GL_LEQUAL );
 			}
 		}
-		else if ( ModUtil.isHoldingChiseledBlock( event.player ) )
+		else if ( ModUtil.isHoldingChiseledBlock( player ) )
 		{
 			if ( mop.typeOfHit != MovingObjectType.BLOCK )
 			{
 				return;
 			}
 
-			final ItemStack item = event.currentItem;
+			final ItemStack item = currentItem;
 			if ( !item.hasTagCompound() )
 			{
 				return;
@@ -370,19 +387,19 @@ public class ClientSide
 
 			final Block cb = theWorld.getBlockState( offset ).getBlock();
 
-			if ( event.player.isSneaking() )
+			if ( player.isSneaking() )
 			{
 				final BlockPos blockpos = mop.getBlockPos();
 				final BlockPos partial = new BlockPos( Math.floor( 16 * ( mop.hitVec.xCoord - blockpos.getX() ) ), Math.floor( 16 * ( mop.hitVec.yCoord - blockpos.getY() ) ), Math.floor( 16 * ( mop.hitVec.zCoord - blockpos.getZ() ) ) );
-				showGhost( event.currentItem, item, offset, event, rotations, x, y, z, mop.sideHit, partial );
+				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, partial );
 			}
 			else if ( cb.isReplaceable( theWorld, offset ) )
 			{
-				showGhost( event.currentItem, item, offset, event, rotations, x, y, z, mop.sideHit, null );
+				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, null );
 			}
 			else if ( theWorld.isAirBlock( offset.offset( mop.sideHit ) ) )
 			{
-				showGhost( event.currentItem, item, offset.offset( mop.sideHit ), event, rotations, x, y, z, mop.sideHit, null );
+				showGhost( currentItem, item, offset.offset( mop.sideHit ), player, rotations, x, y, z, mop.sideHit, null );
 			}
 		}
 	}
@@ -398,7 +415,7 @@ public class ClientSide
 			final ItemStack refItem,
 			final ItemStack item,
 			final BlockPos blockPos,
-			final DrawBlockHighlightEvent event,
+			final EntityPlayer player,
 			int rotations,
 			final double x,
 			final double y,
@@ -434,7 +451,7 @@ public class ClientSide
 
 			if ( partial != null )
 			{
-				isVisible = ItemBlockChiseled.tryPlaceBlockAt( blk, item, event.player, event.player.getEntityWorld(), blockPos, side, partial, false );
+				isVisible = ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, partial, false );
 			}
 			else
 			{
