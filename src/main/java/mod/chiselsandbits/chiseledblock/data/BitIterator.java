@@ -35,12 +35,11 @@ public class BitIterator
 
 		++z;
 		zOffset += zInc;
-
 	}
 
 	public boolean hasNext()
 	{
-		bit = combined | ++x;
+		++x;
 
 		if ( x >= VoxelBlob.dim )
 		{
@@ -59,6 +58,7 @@ public class BitIterator
 			combined = zOffset | yOffset;
 		}
 
+		bit = combined | x;
 		return true;
 	}
 
