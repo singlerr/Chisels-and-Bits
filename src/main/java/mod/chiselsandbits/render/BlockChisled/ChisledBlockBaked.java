@@ -149,7 +149,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 		final BlockPartRotation bpr = null;
 		final ModelRotation mr = ModelRotation.X0_Y0;
 
-		final HashMap<Integer, HashMap<Integer, ArrayList<FaceRegion>>> rset = new HashMap<Integer, HashMap<Integer, ArrayList<FaceRegion>>>();
+		final HashMap<Integer, ArrayList<FaceRegion>> rset = new HashMap<Integer, ArrayList<FaceRegion>>();
 		final HashMap<Integer, float[]> sourceUVCache = new HashMap<Integer, float[]>();
 		final VisibleFace visFace = new VisibleFace();
 
@@ -160,96 +160,93 @@ public class ChisledBlockBaked extends BaseBakedModel
 		final float[] defUVs = new float[] { 0, 0, 1, 1 };
 		sides = blob.getSideFlags( 0, VoxelBlob.dim_minus_one, VoxelBlob.dim2 );
 
-		for ( final HashMap<Integer, ArrayList<FaceRegion>> srcX : rset.values() )
+		for ( final ArrayList<FaceRegion> src : rset.values() )
 		{
-			for ( final ArrayList<FaceRegion> src : srcX.values() )
+			mergeFaces( src );
+
+			for ( final FaceRegion region : src )
 			{
-				mergeFaces( src );
+				final EnumFacing myFace = region.face;
 
-				for ( final FaceRegion region : src )
+				// keep integers up until the last moment... ( note I tested
+				// snapping the floats after this stage, it made no
+				// difference. )
+				final Vector3f to = offsetVec( region.max, myFace, 1 );
+				final Vector3f from = offsetVec( region.min, myFace, -1 );
+
+				final IBlockState state = Block.getStateById( region.blockStateID );
+				final IBakedModel model = ClientSide.instance.solveModel( region.blockStateID, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
+				final TextureAtlasSprite texture = ClientSide.findTexture( region.blockStateID, model, myFace, myLayer );
+
+				final int lightValue = Math.max( state.getBlock().getLightValue(), ClientSide.findLightValue( region.blockStateID, model ) );
+
+				final BlockFaceUV uv = new BlockFaceUV( defUVs, 0 );
+				final BlockPartFace bpf = new BlockPartFace( myFace, -1, "", uv );
+
+				final float[] uvs = getFaceUvs( myFace, from, to, getSourceUVs( sourceUVCache, region.blockStateID, weight, texture, myFace ) );
+				final BakedQuad g = faceBakery.makeBakedQuad( to, from, bpf, texture, myFace, mr, bpr, true, true );
+
+				final UnpackedBakedQuad.Builder b = new Builder( format );
+				b.setQuadColored();
+				b.setQuadOrientation( myFace );
+				b.setQuadTint( 0 );
+
+				final int[] vertData = g.getVertexData();
+				final int wrapAt = vertData.length / 4;
+
+				final int color = BitColors.getColorFor( state, myLayer.ordinal() );
+				calcVertFaceMap();
+
+				final float maxLightmap = 32.0f / 0xffff;
+
+				// build un
+				final VertexFormat format = b.getVertexFormat();
+				for ( int vertNum = 0; vertNum < 4; vertNum++ )
 				{
-					final EnumFacing myFace = region.face;
-
-					// keep integers up until the last moment... ( note I tested
-					// snapping the floats after this stage, it made no
-					// difference. )
-					final Vector3f to = offsetVec( region.max, myFace, 1 );
-					final Vector3f from = offsetVec( region.min, myFace, -1 );
-
-					final IBlockState state = Block.getStateById( region.blockStateID );
-					final IBakedModel model = ClientSide.instance.solveModel( region.blockStateID, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
-					final TextureAtlasSprite texture = ClientSide.findTexture( region.blockStateID, model, myFace, myLayer );
-
-					final int lightValue = Math.max( state.getBlock().getLightValue(), ClientSide.findLightValue( region.blockStateID, model ) );
-
-					final BlockFaceUV uv = new BlockFaceUV( defUVs, 0 );
-					final BlockPartFace bpf = new BlockPartFace( myFace, -1, "", uv );
-
-					final float[] uvs = getFaceUvs( myFace, from, to, getSourceUVs( sourceUVCache, region.blockStateID, weight, texture, myFace ) );
-					final BakedQuad g = faceBakery.makeBakedQuad( to, from, bpf, texture, myFace, mr, bpr, true, true );
-
-					final UnpackedBakedQuad.Builder b = new Builder( format );
-					b.setQuadColored();
-					b.setQuadOrientation( myFace );
-					b.setQuadTint( 0 );
-
-					final int[] vertData = g.getVertexData();
-					final int wrapAt = vertData.length / 4;
-
-					final int color = BitColors.getColorFor( state, myLayer.ordinal() );
-					calcVertFaceMap();
-
-					final float maxLightmap = 32.0f / 0xffff;
-
-					// build un
-					final VertexFormat format = b.getVertexFormat();
-					for ( int vertNum = 0; vertNum < 4; vertNum++ )
+					for ( int elementIndex = 0; elementIndex < format.getElementCount(); elementIndex++ )
 					{
-						for ( int elementIndex = 0; elementIndex < format.getElementCount(); elementIndex++ )
+						final VertexFormatElement element = format.getElement( elementIndex );
+						switch ( element.getUsage() )
 						{
-							final VertexFormatElement element = format.getElement( elementIndex );
-							switch ( element.getUsage() )
-							{
-								case POSITION:
-									b.put( elementIndex, Float.intBitsToFloat( vertData[0 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[1 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[2 + wrapAt * vertNum] ) );
-									break;
+							case POSITION:
+								b.put( elementIndex, Float.intBitsToFloat( vertData[0 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[1 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[2 + wrapAt * vertNum] ) );
+								break;
 
-								case COLOR:
-									final int cb = getShadeColor( vertData, wrapAt * vertNum, region, blob, color );
-									b.put( elementIndex, byteToFloat( cb ), byteToFloat( cb >> 8 ), byteToFloat( cb >> 16 ), byteToFloat( cb >> 24 ) );
-									break;
+							case COLOR:
+								final int cb = getShadeColor( vertData, wrapAt * vertNum, region, blob, color );
+								b.put( elementIndex, byteToFloat( cb ), byteToFloat( cb >> 8 ), byteToFloat( cb >> 16 ), byteToFloat( cb >> 24 ) );
+								break;
 
-								case NORMAL:
-									b.put( elementIndex, myFace.getFrontOffsetX(), myFace.getFrontOffsetY(), myFace.getFrontOffsetZ() );
-									break;
+							case NORMAL:
+								b.put( elementIndex, myFace.getFrontOffsetX(), myFace.getFrontOffsetY(), myFace.getFrontOffsetZ() );
+								break;
 
-								case UV:
-									if ( element.getIndex() == 1 )
-									{
-										final float v = maxLightmap * Math.max( 0, Math.min( 15, lightValue ) );
-										b.put( elementIndex, v, v );
-									}
-									else
-									{
-										b.put( elementIndex, texture.getInterpolatedU( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 0] ), texture.getInterpolatedV( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1] ) );
-									}
-									break;
+							case UV:
+								if ( element.getIndex() == 1 )
+								{
+									final float v = maxLightmap * Math.max( 0, Math.min( 15, lightValue ) );
+									b.put( elementIndex, v, v );
+								}
+								else
+								{
+									b.put( elementIndex, texture.getInterpolatedU( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 0] ), texture.getInterpolatedV( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1] ) );
+								}
+								break;
 
-								default:
-									b.put( elementIndex );
-									break;
-							}
+							default:
+								b.put( elementIndex );
+								break;
 						}
 					}
+				}
 
-					if ( region.isEdge )
-					{
-						face[myFace.ordinal()].add( b.build() );
-					}
-					else
-					{
-						generic.add( b.build() );
-					}
+				if ( region.isEdge )
+				{
+					face[myFace.ordinal()].add( b.build() );
+				}
+				else
+				{
+					generic.add( b.build() );
 				}
 			}
 		}
@@ -298,7 +295,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 			final VoxelBlob blob,
 			final VisibleFace visFace,
 			final ModelRenderState mrs,
-			final HashMap<Integer, HashMap<Integer, ArrayList<FaceRegion>>> rset )
+			final HashMap<Integer, ArrayList<FaceRegion>> rset )
 	{
 		for ( final EnumFacing myFace : X_Faces )
 		{
@@ -331,7 +328,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 						}
 
 						currentFace = region;
-						addBucketedFace( rset, getBucket( myFace, x, y, z ), region );
+						addBucketedFace( rset, bucket, region );
 					}
 
 					// row complete!
@@ -345,7 +342,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 			final VoxelBlob blob,
 			final VisibleFace visFace,
 			final ModelRenderState mrs,
-			final HashMap<Integer, HashMap<Integer, ArrayList<FaceRegion>>> rset )
+			final HashMap<Integer, ArrayList<FaceRegion>> rset )
 	{
 		for ( final EnumFacing myFace : Y_Faces )
 		{
@@ -392,7 +389,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 			final VoxelBlob blob,
 			final VisibleFace visFace,
 			final ModelRenderState mrs,
-			final HashMap<Integer, HashMap<Integer, ArrayList<FaceRegion>>> rset )
+			final HashMap<Integer, ArrayList<FaceRegion>> rset )
 	{
 		for ( final EnumFacing myFace : Z_Faces )
 		{
@@ -436,22 +433,15 @@ public class ChisledBlockBaked extends BaseBakedModel
 	}
 
 	private void addBucketedFace(
-			final HashMap<Integer, HashMap<Integer, ArrayList<FaceRegion>>> rset,
+			final HashMap<Integer, ArrayList<FaceRegion>> rset,
 			final int bucket,
 			final FaceRegion region )
 	{
-		HashMap<Integer, ArrayList<FaceRegion>> h = rset.get( bucket );
-
-		if ( h == null )
-		{
-			rset.put( bucket, h = new HashMap<Integer, ArrayList<FaceRegion>>() );
-		}
-
-		ArrayList<FaceRegion> X = h.get( bucket );
+		ArrayList<FaceRegion> X = rset.get( bucket );
 
 		if ( X == null )
 		{
-			h.put( bucket, X = new ArrayList<FaceRegion>() );
+			rset.put( bucket, X = new ArrayList<FaceRegion>() );
 		}
 
 		X.add( region );
