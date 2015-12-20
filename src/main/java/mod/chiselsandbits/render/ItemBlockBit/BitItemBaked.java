@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumWorldBlockLayer;
 
 @SuppressWarnings( "deprecation" )
 public class BitItemBaked extends BaseBakedModel
@@ -42,11 +43,18 @@ public class BitItemBaked extends BaseBakedModel
 
 		if ( state != null )
 		{
-			originalModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state );
+			originalModel = ClientSide.instance.solveModel( BlockRef, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
 		}
 
 		generic = new ArrayList<BakedQuad>();
-		final TextureAtlasSprite texture = ClientSide.findTexture( BlockRef, originalModel );
+		TextureAtlasSprite texture = null;
+		for ( final EnumWorldBlockLayer layer : EnumWorldBlockLayer.values() )
+		{
+			if ( texture == null )
+			{
+				texture = ClientSide.findTexture( BlockRef, originalModel, EnumFacing.UP, layer );
+			}
+		}
 
 		final Vector3f to = new Vector3f( 6.0f, 6.0f, 6.0f );
 		final Vector3f from = new Vector3f( 10.0f, 10.0f, 10.0f );

@@ -9,8 +9,8 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.SimpleQuadReaderBase;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobState;
@@ -32,13 +32,10 @@ import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelRotation;
-import net.minecraft.client.resources.model.WeightedBakedModel;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3i;
-import net.minecraftforge.client.model.ISmartBlockModel;
-import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad.Builder;
 
@@ -180,8 +177,8 @@ public class ChisledBlockBaked extends BaseBakedModel
 					final Vector3f from = offsetVec( region.min, myFace, -1 );
 
 					final IBlockState state = Block.getStateById( region.blockStateID );
-					final IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state );
-					final TextureAtlasSprite texture = ClientSide.findTexture( region.blockStateID, model );
+					final IBakedModel model = ClientSide.instance.solveModel( region.blockStateID, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
+					final TextureAtlasSprite texture = ClientSide.findTexture( region.blockStateID, model, myFace, myLayer );
 
 					final int lightValue = Math.max( state.getBlock().getLightValue(), ClientSide.findLightValue( region.blockStateID, model ) );
 
@@ -309,6 +306,8 @@ public class ChisledBlockBaked extends BaseBakedModel
 			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 			for ( int x = 0; x < blob.detail; x++ )
 			{
+				final int bucket = getBucket( myFace, x, -1, -1 );
+
 				for ( int z = 0; z < blob.detail; z++ )
 				{
 					FaceRegion currentFace = null;
@@ -354,6 +353,8 @@ public class ChisledBlockBaked extends BaseBakedModel
 			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 			for ( int y = 0; y < blob.detail; y++ )
 			{
+				final int bucket = getBucket( myFace, -1, y, -1 );
+
 				for ( int z = 0; z < blob.detail; z++ )
 				{
 					FaceRegion currentFace = null;
@@ -377,7 +378,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 						}
 
 						currentFace = region;
-						addBucketedFace( rset, getBucket( myFace, x, y, z ), region );
+						addBucketedFace( rset, bucket, region );
 					}
 
 					// row complete!
@@ -399,6 +400,8 @@ public class ChisledBlockBaked extends BaseBakedModel
 			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 			for ( int z = 0; z < blob.detail; z++ )
 			{
+				final int bucket = getBucket( myFace, -1, -1, z );
+
 				for ( int y = 0; y < blob.detail; y++ )
 				{
 					FaceRegion currentFace = null;
@@ -422,7 +425,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 						}
 
 						currentFace = region;
-						addBucketedFace( rset, getBucket( myFace, x, y, z ), region );
+						addBucketedFace( rset, bucket, region );
 					}
 
 					// row complete!
@@ -496,13 +499,34 @@ public class ChisledBlockBaked extends BaseBakedModel
 		{
 			case DOWN:
 			case UP:
+
+				if ( y == -1 )
+				{
+					throw new RuntimeException( "Invalid Y" );
+				}
+
 				return y << 5 | face.ordinal();
+
 			case EAST:
 			case WEST:
+
+				if ( x == -1 )
+				{
+					throw new RuntimeException( "Invalid X" );
+				}
+
 				return x << 5 | face.ordinal();
+
 			case SOUTH:
 			case NORTH:
+
+				if ( z == -1 )
+				{
+					throw new RuntimeException( "Invalid Z" );
+				}
+
 				return z << 5 | face.ordinal();
+
 			default:
 				return 0;
 		}
@@ -632,7 +656,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 		}
 	}
 
-	private static class UVReader implements IVertexConsumer
+	private static class UVReader extends SimpleQuadReaderBase
 	{
 
 		final float minU;
@@ -658,29 +682,6 @@ public class ChisledBlockBaked extends BaseBakedModel
 
 			uCoord = uFaceCoord;
 			vCoord = vFaceCoord;
-		}
-
-		@Override
-		public VertexFormat getVertexFormat()
-		{
-			return DefaultVertexFormats.ITEM;
-		}
-
-		@Override
-		public void setQuadTint(
-				final int tint )
-		{
-		}
-
-		@Override
-		public void setQuadOrientation(
-				final EnumFacing orientation )
-		{
-		}
-
-		@Override
-		public void setQuadColored()
-		{
 		}
 
 		private float pos[];
@@ -746,29 +747,9 @@ public class ChisledBlockBaked extends BaseBakedModel
 
 		if ( quadUVs == null )
 		{
-			IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( Block.getStateById( id ) );
+			final IBakedModel model = ClientSide.instance.solveModel( id, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( Block.getStateById( id ) ) );
 			if ( model != null )
 			{
-				if ( model != null && ChiselsAndBits.instance.config.allowBlockAlternatives && model instanceof WeightedBakedModel )
-				{
-					model = ( (WeightedBakedModel) model ).getAlternativeModel( weight );
-				}
-
-				try
-				{
-					if ( model instanceof ISmartBlockModel )
-					{
-						final IBakedModel newModel = ( (ISmartBlockModel) model ).handleBlockState( Block.getStateById( id ) );
-						if ( newModel != null )
-						{
-							model = newModel;
-						}
-					}
-				}
-				catch ( final Exception err )
-				{
-				}
-
 				if ( model != null )
 				{
 					final List<BakedQuad> quads = model.getFaceQuads( myFace );
@@ -797,7 +778,10 @@ public class ChisledBlockBaked extends BaseBakedModel
 					// process all the quads on the face.
 					for ( final BakedQuad src : quads )
 					{
-						src.pipe( uvr );
+						if ( src.getFace() == myFace )
+						{
+							src.pipe( uvr );
+						}
 					}
 
 					// was the auto-discover fully successful?

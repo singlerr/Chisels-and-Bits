@@ -41,6 +41,7 @@ import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.WeightedBakedModel;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -49,6 +50,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.ResourceLocation;
@@ -61,9 +63,11 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ISmartBlockModel;
+import net.minecraftforge.client.model.ISmartItemModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
+import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -72,11 +76,32 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Type;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+@SuppressWarnings( "unchecked" )
 public class ClientSide
 {
 
+	protected static java.util.Random RANDOM = new java.util.Random(); // Useful
+																		// for
+																		// random
+																		// things
+																		// without
+																		// a
+																		// seed.
 	public final static ClientSide instance = new ClientSide();
 	private final Random rand = new Random();
+
+	private static HashMap<Integer, String> blockToTexture[];
+	private static HashMap<Integer, Integer> blockToLight = new HashMap<Integer, Integer>();
+
+	static
+	{
+		blockToTexture = new HashMap[EnumFacing.VALUES.length * EnumWorldBlockLayer.values().length];
+
+		for ( int x = 0; x < blockToTexture.length; x++ )
+		{
+			blockToTexture[x] = new HashMap<Integer, String>();
+		}
+	}
 
 	public void preinit(
 			final ChiselsAndBits mod )
@@ -155,13 +180,17 @@ public class ClientSide
 			} );
 		}
 
-		for ( final BlockChiseled blk : mod.conversions.values() )
+		for (
+
+		final BlockChiseled blk : mod.conversions.values() )
+
 		{
 			final Item item = Item.getItemFromBlock( blk );
 			mesher.register( item, 0, new ModelResourceLocation( new ResourceLocation( MODID, "block_chiseled" ), "inventory" ) );
 		}
 
 		ChiselsAndBits.instance.config.allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
+
 	}
 
 	private void registerMesh(
@@ -621,14 +650,11 @@ public class ClientSide
 		world.playSound( pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, block.stepSound.getBreakSound(), ( block.stepSound.getVolume() + 1.0F ) / 16.0F, block.stepSound.getFrequency() * 0.9F, false );
 	}
 
-	private static HashMap<Integer, String> blockToTexture = new HashMap<Integer, String>();
-	private static HashMap<Integer, Integer> blockToLight = new HashMap<Integer, Integer>();
-
-	private static class lvReader implements IVertexConsumer
+	private static class LVReader extends SimpleQuadReaderBase
 	{
 		public int lv = 0;
 
-		public lvReader(
+		public LVReader(
 				final int lightValue )
 		{
 			lv = lightValue;
@@ -638,26 +664,6 @@ public class ClientSide
 		public VertexFormat getVertexFormat()
 		{
 			return DefaultVertexFormats.BLOCK;
-		}
-
-		@Override
-		public void setQuadTint(
-				final int tint )
-		{
-
-		}
-
-		@Override
-		public void setQuadOrientation(
-				final EnumFacing orientation )
-		{
-
-		}
-
-		@Override
-		public void setQuadColored()
-		{
-
 		}
 
 		@Override
@@ -684,7 +690,7 @@ public class ClientSide
 			final int lightValue,
 			final List<BakedQuad> faceQuads )
 	{
-		final lvReader lv = new lvReader( lightValue );
+		final LVReader lv = new LVReader( lightValue );
 
 		for ( final BakedQuad q : faceQuads )
 		{
@@ -698,9 +704,42 @@ public class ClientSide
 		return lv.lv;
 	}
 
+	private static class UVAverageer extends SimpleQuadReaderBase
+	{
+		private int vertCount = 0;
+		private float sumU;
+		private float sumV;
+
+		public float getU()
+		{
+			return sumU / vertCount;
+		}
+
+		public float getV()
+		{
+			return sumV / vertCount;
+		}
+
+		@Override
+		public void put(
+				final int element,
+				final float... data )
+		{
+			final VertexFormatElement e = getVertexFormat().getElement( element );
+			if ( e.getUsage() == EnumUsage.UV && e.getIndex() != 1 )
+			{
+				sumU += data[0];
+				sumV += data[1];
+				++vertCount;
+			}
+		}
+
+	};
+
 	private static TextureAtlasSprite findTexture(
 			TextureAtlasSprite texture,
-			final List<BakedQuad> faceQuads ) throws IllegalArgumentException, IllegalAccessException, NullPointerException
+			final List<BakedQuad> faceQuads,
+			final EnumFacing side ) throws IllegalArgumentException, IllegalAccessException, NullPointerException
 	{
 		if ( texture == null )
 		{
@@ -714,19 +753,16 @@ public class ClientSide
 
 			for ( final BakedQuad q : faceQuads )
 			{
-				final int offsetSize = q.getVertexData().length / 4;
+				if ( side != null && q.getFace() != side )
+				{
+					continue;
+				}
 
-				final int[] data = q.getVertexData();
-				final float UA = Float.intBitsToFloat( data[4] );
-				final float VA = Float.intBitsToFloat( data[5] );
-				final float UB = Float.intBitsToFloat( data[offsetSize + 4] );
-				final float VB = Float.intBitsToFloat( data[offsetSize + 5] );
-				final float UC = Float.intBitsToFloat( data[offsetSize * 2 + 4] );
-				final float VC = Float.intBitsToFloat( data[offsetSize * 2 + 5] );
+				final UVAverageer av = new UVAverageer();
+				q.pipe( av );
 
-				// use middle of a triangle instead of corners..
-				final float U = ( UA + UB + UC ) / 3.0f;
-				final float V = ( VA + VB + VC ) / 3.0f;
+				final float U = av.getU();
+				final float V = av.getV();
 
 				final Iterator<?> iterator1 = mapRegisteredSprites.values().iterator();
 				while ( iterator1.hasNext() )
@@ -767,73 +803,145 @@ public class ClientSide
 		return lv;
 	}
 
-	public static TextureAtlasSprite findTexture(
+	@SuppressWarnings( "rawtypes" )
+	public IBakedModel solveModel(
 			final int BlockRef,
-			IBakedModel originalModel )
+			final long weight,
+			final IBakedModel originalModel )
 	{
-		TextureAtlasSprite texture = null;
+		IBakedModel actingModel = originalModel;
+		final IBlockState state = Block.getStateById( BlockRef );
 
-		if ( originalModel != null )
+		try
 		{
-			// first try to get the real model...
-			try
+			if ( actingModel != null && ChiselsAndBits.instance.config.allowBlockAlternatives && actingModel instanceof WeightedBakedModel )
 			{
-				if ( originalModel instanceof ISmartBlockModel )
+				actingModel = ( (WeightedBakedModel) actingModel ).getAlternativeModel( weight );
+			}
+		}
+		catch ( final Exception err )
+		{
+		}
+
+		// first try to get the real model...
+		try
+		{
+			if ( actingModel instanceof ISmartBlockModel )
+			{
+				if ( state instanceof IExtendedBlockState )
 				{
-					final IBakedModel newModel = ( (ISmartBlockModel) originalModel ).handleBlockState( Block.getStateById( BlockRef ) );
+					if ( actingModel instanceof ISmartItemModel )
+					{
+						final Item it = state.getBlock().getItemDropped( state, RANDOM, 0 );
+						final ItemStack stack = new ItemStack( it, 1, state.getBlock().damageDropped( state ) );
+
+						final IBakedModel newModel = ( (ISmartItemModel) actingModel ).handleItemState( stack );
+						if ( newModel != null )
+						{
+							return newModel;
+						}
+					}
+
+					IExtendedBlockState extendedState = (IExtendedBlockState) state;
+
+					for ( final IUnlistedProperty p : extendedState.getUnlistedNames() )
+					{
+						extendedState = extendedState.withProperty( p, p.getType().newInstance() );
+					}
+
+					final IBakedModel newModel = ( (ISmartBlockModel) actingModel ).handleBlockState( extendedState );
 					if ( newModel != null )
 					{
-						originalModel = newModel;
-					}
-				}
-			}
-			catch ( final Exception err )
-			{
-			}
-
-			// who knows if that worked.. now lets try to get a texture...
-			try
-			{
-				texture = originalModel.getParticleTexture();
-			}
-			catch ( final Exception err )
-			{
-				// didn't work? ok lets try scanning for the texture in the
-				// atlas...
-				if ( blockToTexture.containsKey( BlockRef ) )
-				{
-					final String textureName = blockToTexture.get( BlockRef );
-					if ( textureName != null )
-					{
-						texture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( textureName );
+						return newModel;
 					}
 				}
 				else
 				{
-					try
+					final IBakedModel newModel = ( (ISmartBlockModel) actingModel ).handleBlockState( state );
+					if ( newModel != null )
 					{
-						for ( final EnumFacing side : EnumFacing.VALUES )
-						{
-							texture = findTexture( texture, originalModel.getFaceQuads( side ) );
-						}
-						texture = findTexture( texture, originalModel.getGeneralQuads() );
-
-						blockToTexture.put( BlockRef, texture == null ? null : texture.getIconName() );
-					}
-					catch ( final Exception errr )
-					{
-						blockToTexture.put( BlockRef, null );
+						return newModel;
 					}
 				}
 			}
 		}
+		catch ( final Exception err )
+		{
+			if ( actingModel instanceof ISmartItemModel )
+			{
+				final Item it = state.getBlock().getItemDropped( state, RANDOM, 0 );
+				final ItemStack stack = new ItemStack( it, 1, state.getBlock().damageDropped( state ) );
 
-		// still no good? then just default to missing texture..
+				final IBakedModel newModel = ( (ISmartItemModel) actingModel ).handleItemState( stack );
+				if ( newModel != null )
+				{
+					return newModel;
+				}
+			}
+		}
+
+		return actingModel;
+	}
+
+	public static TextureAtlasSprite findTexture(
+			final int BlockRef,
+			final IBakedModel model,
+			final EnumFacing myFace,
+			final EnumWorldBlockLayer layer )
+	{
+		final int blockToWork = layer.ordinal() * EnumFacing.VALUES.length + myFace.ordinal();
+
+		// didn't work? ok lets try scanning for the texture in the
+		if ( blockToTexture[blockToWork].containsKey( BlockRef ) )
+		{
+			final String textureName = blockToTexture[blockToWork].get( BlockRef );
+			return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( textureName );
+		}
+
+		TextureAtlasSprite texture = null;
+
+		if ( model != null )
+		{
+			try
+			{
+				texture = findTexture( texture, model.getFaceQuads( myFace ), myFace );
+
+				if ( texture == null )
+				{
+					for ( final EnumFacing side : EnumFacing.VALUES )
+					{
+						texture = findTexture( texture, model.getFaceQuads( side ), side );
+					}
+
+					texture = findTexture( texture, model.getGeneralQuads(), null );
+				}
+			}
+			catch ( final Exception errr )
+			{
+			}
+		}
+
+		// who knows if that worked.. now lets try to get a texture...
+		if ( texture == null )
+		{
+			try
+			{
+				if ( texture == null )
+				{
+					texture = model.getParticleTexture();
+				}
+			}
+			catch ( final Exception err )
+			{
+			}
+		}
+
 		if ( texture == null )
 		{
 			texture = Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
 		}
 
+		blockToTexture[blockToWork].put( BlockRef, texture.getIconName() );
 		return texture;
 	}
 
