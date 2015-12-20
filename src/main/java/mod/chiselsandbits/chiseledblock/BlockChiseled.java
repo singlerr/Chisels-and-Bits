@@ -10,6 +10,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.UnlistedBlockFlags;
 import mod.chiselsandbits.chiseledblock.data.UnlistedBlockStateID;
 import mod.chiselsandbits.chiseledblock.data.UnlistedLightOpacity;
@@ -433,42 +434,35 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final TileEntityBlockChiseled tec = getTileEntity( worldIn, pos );
 			final VoxelBlob vb = tec.getBlob();
 
-			final float One16thf = 1.0f / vb.detail;
-
-			for ( int y = 0; y < vb.detail; ++y )
+			final BitCollisionIterator bi = new BitCollisionIterator();
+			while ( bi.hasNext() )
 			{
-				for ( int z = 0; z < vb.detail; ++z )
+				if ( bi.getNext( vb ) != 0 )
 				{
-					for ( int x = 0; x < vb.detail; ++x )
+					if ( started )
 					{
-						if ( vb.get( x, y, z ) != 0 )
-						{
-							if ( started )
-							{
-								minX = Math.min( minX, One16thf * x );
-								minY = Math.min( minY, One16thf * y );
-								minZ = Math.min( minZ, One16thf * z );
-								maxX = Math.max( maxX, One16thf * ( x + 1.0f ) );
-								maxY = Math.max( maxY, One16thf * ( y + 1.0f ) );
-								maxZ = Math.max( maxZ, One16thf * ( z + 1.0f ) );
-							}
-							else
-							{
-								started = true;
-								minX = One16thf * x;
-								minY = One16thf * y;
-								minZ = One16thf * z;
-								maxX = One16thf * ( x + 1.0f );
-								maxY = One16thf * ( y + 1.0f );
-								maxZ = One16thf * ( z + 1.0f );
-							}
-						}
+						minX = Math.min( minX, bi.physicalX );
+						minY = Math.min( minY, bi.physicalY );
+						minZ = Math.min( minZ, bi.physicalZ );
+						maxX = Math.max( maxX, bi.physicalX + BitCollisionIterator.One16thf );
+						maxY = Math.max( maxY, bi.physicalYp1 );
+						maxZ = Math.max( maxZ, bi.physicalZp1 );
+					}
+					else
+					{
+						started = true;
+						minX = bi.physicalX;
+						minY = bi.physicalY;
+						minZ = bi.physicalZ;
+						maxX = bi.physicalX + BitCollisionIterator.One16thf;
+						maxY = bi.physicalYp1;
+						maxZ = bi.physicalZp1;
 					}
 				}
 
 				// VERY hackey collision extraction to do 2 bounding boxes, one
 				// for top and one for the bottom.
-				if ( list != null && started && ( y == 8 || y == VoxelBlob.dim_minus_one ) )
+				if ( list != null && started && ( bi.y == 8 || bi.y == VoxelBlob.dim_minus_one ) )
 				{
 					final AxisAlignedBB bb = AxisAlignedBB.fromBounds( minX + pos.getX(), minY + pos.getY(), minZ + pos.getZ(), maxX + pos.getX(), maxY + pos.getY(), maxZ + pos.getZ() );
 					setBlockBounds( 0, 0, 0, 1, 1, 1 );
@@ -488,7 +482,10 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				}
 			}
 		}
-		catch ( final ExceptionNoTileEntity e )
+		catch (
+
+		final ExceptionNoTileEntity e )
+
 		{
 		}
 
@@ -682,42 +679,28 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			{
 				final TileEntityBlockChiseled tec = getTileEntity( worldIn, pos );
 				final VoxelBlob vb = tec.getBlob();
-				final float One16thf = 1.0f / vb.detail;
 
-				for ( int z = 0; z < vb.detail; ++z )
+				final BitCollisionIterator bi = new BitCollisionIterator();
+				while ( bi.hasNext() )
 				{
-					final float z_One16thf = z * One16thf;
-					final float z_One16thf_p1 = z_One16thf + One16thf;
-
-					for ( int y = 0; y < vb.detail; ++y )
+					if ( bi.getNext( vb ) != 0 )
 					{
-						final float y_One16thf = y * One16thf;
-						final float y_One16thf_p1 = y_One16thf + One16thf;
+						setBlockBounds( bi.physicalX, bi.physicalY, bi.physicalZ, bi.physicalX + BitCollisionIterator.One16thf, bi.physicalYp1, bi.physicalZp1 );
+						final MovingObjectPosition r = super.collisionRayTrace( worldIn, pos, a, b );
 
-						for ( int x = 0; x < vb.detail; ++x )
+						if ( r != null )
 						{
-							final float x_One16thf = x * One16thf;
+							final double xLen = a.xCoord - r.hitVec.xCoord;
+							final double yLen = a.yCoord - r.hitVec.yCoord;
+							final double zLen = a.zCoord - r.hitVec.zCoord;
 
-							if ( vb.get( x, y, z ) != 0 )
+							final double thisDist = xLen * xLen + yLen * yLen + zLen * zLen;
+							if ( br == null || lastDist > thisDist )
 							{
-								setBlockBounds( x_One16thf, y_One16thf, z_One16thf, x_One16thf + One16thf, y_One16thf_p1, z_One16thf_p1 );
-								final MovingObjectPosition r = super.collisionRayTrace( worldIn, pos, a, b );
-
-								if ( r != null )
-								{
-									final double xLen = a.xCoord - r.hitVec.xCoord;
-									final double yLen = a.yCoord - r.hitVec.yCoord;
-									final double zLen = a.zCoord - r.hitVec.zCoord;
-
-									final double thisDist = xLen * xLen + yLen * yLen + zLen * zLen;
-									if ( br == null || lastDist > thisDist )
-									{
-										lastDist = thisDist;
-										br = r;
-									}
-
-								}
+								lastDist = thisDist;
+								br = r;
 							}
+
 						}
 					}
 				}

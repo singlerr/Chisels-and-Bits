@@ -57,17 +57,13 @@ public class VoxelBlob
 	public boolean canMerge(
 			final VoxelBlob second )
 	{
-		for ( int z = 0; z < dim; z++ )
+		final int sv[] = second.values;
+
+		for ( int x = 0; x < values.length; ++x )
 		{
-			for ( int y = 0; y < dim; y++ )
+			if ( values[x] != 0 && sv[x] != 0 )
 			{
-				for ( int x = 0; x < dim; x++ )
-				{
-					if ( get( x, y, z ) != 0 && second.get( x, y, z ) != 0 )
-					{
-						return false;
-					}
-				}
+				return false;
 			}
 		}
 
@@ -79,23 +75,13 @@ public class VoxelBlob
 	{
 		final VoxelBlob out = new VoxelBlob();
 
-		for ( int z = 0; z < dim; z++ )
+		final int secondValues[] = second.values;
+		final int ov[] = out.values;
+
+		for ( int x = 0; x < values.length; ++x )
 		{
-			for ( int y = 0; y < dim; y++ )
-			{
-				for ( int x = 0; x < dim; x++ )
-				{
-					final int a = get( x, y, z );
-					if ( a == 0 )
-					{
-						out.set( x, y, z, second.get( x, y, z ) );
-					}
-					else
-					{
-						out.set( x, y, z, a );
-					}
-				}
-			}
+			final int firstValue = values[x];
+			ov[x] = firstValue == 0 ? secondValues[x] : firstValue;
 		}
 
 		return out;
@@ -107,37 +93,32 @@ public class VoxelBlob
 		int min_x = 0, min_y = 0, min_z = 0;
 		int max_x = 0, max_y = 0, max_z = 0;
 
-		for ( int z = 0; z < dim; z++ )
+		final BitIterator bi = new BitIterator();
+		while ( bi.hasNext() )
 		{
-			for ( int y = 0; y < dim; y++ )
+			if ( bi.getNext( this ) != 0 )
 			{
-				for ( int x = 0; x < dim; x++ )
+				if ( found )
 				{
-					if ( get( x, y, z ) != 0 )
-					{
-						if ( found )
-						{
-							min_x = Math.min( min_x, x );
-							min_y = Math.min( min_y, y );
-							min_z = Math.min( min_z, z );
+					min_x = Math.min( min_x, bi.x );
+					min_y = Math.min( min_y, bi.y );
+					min_z = Math.min( min_z, bi.z );
 
-							max_x = Math.max( max_x, x );
-							max_y = Math.max( max_y, y );
-							max_z = Math.max( max_z, z );
-						}
-						else
-						{
-							found = true;
+					max_x = Math.max( max_x, bi.x );
+					max_y = Math.max( max_y, bi.y );
+					max_z = Math.max( max_z, bi.z );
+				}
+				else
+				{
+					found = true;
 
-							min_x = x;
-							min_y = y;
-							min_z = z;
+					min_x = bi.x;
+					min_y = bi.y;
+					min_z = bi.z;
 
-							max_x = x;
-							max_y = y;
-							max_z = z;
-						}
-					}
+					max_x = bi.x;
+					max_y = bi.y;
+					max_z = bi.z;
 				}
 			}
 		}
@@ -151,37 +132,32 @@ public class VoxelBlob
 		int min_x = 0, min_y = 0, min_z = 0;
 		int max_x = 0, max_y = 0, max_z = 0;
 
-		for ( int z = 0; z < dim; z++ )
+		final BitIterator bi = new BitIterator();
+		while ( bi.hasNext() )
 		{
-			for ( int y = 0; y < dim; y++ )
+			if ( bi.getNext( this ) != 0 )
 			{
-				for ( int x = 0; x < dim; x++ )
+				if ( found )
 				{
-					if ( get( x, y, z ) != 0 )
-					{
-						if ( found )
-						{
-							min_x = Math.min( min_x, x );
-							min_y = Math.min( min_y, y );
-							min_z = Math.min( min_z, z );
+					min_x = Math.min( min_x, bi.x );
+					min_y = Math.min( min_y, bi.y );
+					min_z = Math.min( min_z, bi.z );
 
-							max_x = Math.max( max_x, x + 1 );
-							max_y = Math.max( max_y, y + 1 );
-							max_z = Math.max( max_z, z + 1 );
-						}
-						else
-						{
-							found = true;
+					max_x = Math.max( max_x, bi.x + 1 );
+					max_y = Math.max( max_y, bi.y + 1 );
+					max_z = Math.max( max_z, bi.z + 1 );
+				}
+				else
+				{
+					found = true;
 
-							min_x = x;
-							min_y = y;
-							min_z = z;
+					min_x = bi.x;
+					min_y = bi.y;
+					min_z = bi.z;
 
-							max_x = x + 1;
-							max_y = y + 1;
-							max_z = z + 1;
-						}
-					}
+					max_x = bi.x + 1;
+					max_y = bi.y + 1;
+					max_z = bi.z + 1;
 				}
 			}
 		}
@@ -194,26 +170,21 @@ public class VoxelBlob
 	{
 		final VoxelBlob d = new VoxelBlob();
 
-		for ( int z = 0; z < dim; z++ )
+		final BitIterator bi = new BitIterator();
+		while ( bi.hasNext() )
 		{
-			for ( int y = 0; y < dim; y++ )
+			switch ( axis )
 			{
-				for ( int x = 0; x < dim; x++ )
-				{
-					switch ( axis )
-					{
-						case X:
-							d.set( dim_minus_one - x, y, z, get( x, y, z ) );
-							break;
-						case Y:
-							d.set( x, dim_minus_one - y, z, get( x, y, z ) );
-							break;
-						case Z:
-							d.set( x, y, dim_minus_one - z, get( x, y, z ) );
-						default:
-							throw new NullPointerException();
-					}
-				}
+				case X:
+					d.set( dim_minus_one - bi.x, bi.y, bi.z, bi.getNext( this ) );
+					break;
+				case Y:
+					d.set( bi.x, dim_minus_one - bi.y, bi.z, bi.getNext( this ) );
+					break;
+				case Z:
+					d.set( bi.x, bi.y, dim_minus_one - bi.z, bi.getNext( this ) );
+				default:
+					throw new NullPointerException();
 			}
 		}
 
@@ -229,27 +200,22 @@ public class VoxelBlob
 		 * Rotate by -90 Degrees: x' = y y' = - x
 		 */
 
-		for ( int z = 0; z < dim; z++ )
+		final BitIterator bi = new BitIterator();
+		while ( bi.hasNext() )
 		{
-			for ( int y = 0; y < dim; y++ )
+			switch ( axis )
 			{
-				for ( int x = 0; x < dim; x++ )
-				{
-					switch ( axis )
-					{
-						case X:
-							d.set( x, dim_minus_one - z, y, get( x, y, z ) );
-							break;
-						case Y:
-							d.set( z, y, dim_minus_one - x, get( x, y, z ) );
-							break;
-						case Z:
-							d.set( dim_minus_one - y, x, z, get( x, y, z ) );
-							break;
-						default:
-							throw new NullPointerException();
-					}
-				}
+				case X:
+					d.set( bi.x, dim_minus_one - bi.z, bi.y, bi.getNext( this ) );
+					break;
+				case Y:
+					d.set( bi.z, bi.y, dim_minus_one - bi.x, bi.getNext( this ) );
+					break;
+				case Z:
+					d.set( dim_minus_one - bi.y, bi.x, bi.z, bi.getNext( this ) );
+					break;
+				default:
+					throw new NullPointerException();
 			}
 		}
 
@@ -340,7 +306,7 @@ public class VoxelBlob
 		return p;
 	}
 
-	private int getBit(
+	protected int getBit(
 			final int offset )
 	{
 		return values[offset];
@@ -472,7 +438,6 @@ public class VoxelBlob
 		{
 			dest.isEdge = true;
 			dest.visibleFace = solid != 0 && secondBlob.get( x - face.getFrontOffsetX() * dim, y - face.getFrontOffsetY() * dim, z - face.getFrontOffsetZ() * dim ) == 0;
-			;
 		}
 		else
 		{
@@ -585,32 +550,27 @@ public class VoxelBlob
 		final HashMap<Integer, Integer> states = new HashMap<Integer, Integer>();
 		final HashMap<String, Integer> contents = new HashMap<String, Integer>();
 
-		for ( int z = 0; z < dim; z++ )
+		final BitIterator bi = new BitIterator();
+		while ( bi.hasNext() )
 		{
-			for ( int y = 0; y < dim; y++ )
+			final int state = bi.getNext( this );
+			if ( state == 0 )
 			{
-				for ( int x = 0; x < dim; x++ )
-				{
-					final int state = get( x, y, z );
-					if ( state == 0 )
-					{
-						continue;
-					}
-
-					Integer count = states.get( state );
-
-					if ( count == null )
-					{
-						count = 1;
-					}
-					else
-					{
-						count++;
-					}
-
-					states.put( state, count );
-				}
+				continue;
 			}
+
+			Integer count = states.get( state );
+
+			if ( count == null )
+			{
+				count = 1;
+			}
+			else
+			{
+				count++;
+			}
+
+			states.put( state, count );
 		}
 
 		for ( final Entry<Integer, Integer> e : states.entrySet() )
