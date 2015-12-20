@@ -79,6 +79,36 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 				parts = x_range * y_range * z_range;
 				break;
 
+			case SNAP2:
+				x -= x % 2;
+				y -= y % 2;
+				z -= z % 2;
+				x_range = 2;
+				y_range = 2;
+				z_range = 2;
+				parts = x_range * y_range * z_range;
+				break;
+
+			case SNAP4:
+				x -= x % 4;
+				y -= y % 4;
+				z -= z % 4;
+				x_range = 4;
+				y_range = 4;
+				z_range = 4;
+				parts = x_range * y_range * z_range;
+				break;
+
+			case SNAP8:
+				x -= x % 8;
+				y -= y % 8;
+				z -= z % 8;
+				x_range = 8;
+				y_range = 8;
+				z_range = 8;
+				parts = x_range * y_range * z_range;
+				break;
+
 			case LINE:
 				parts = full_size;
 				switch ( side )

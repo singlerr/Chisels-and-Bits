@@ -9,6 +9,9 @@ import net.minecraft.nbt.NBTTagString;
 public enum ChiselMode
 {
 	SINGLE( LocalStrings.ChiselModeSingle ),
+	SNAP2( LocalStrings.ChiselModeSnap2 ),
+	SNAP4( LocalStrings.ChiselModeSnap4 ),
+	SNAP8( LocalStrings.ChiselModeSnap8 ),
 	LINE( LocalStrings.ChiselModeLine ),
 	PLANE( LocalStrings.ChiselModePlane ),
 	CONNECTED_PLANE( LocalStrings.ChiselModeConnectedPlane ),
