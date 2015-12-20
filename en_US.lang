@@ -25,6 +25,9 @@ item.mod.chiselsandbits.chisel_gold.name=Golden Chisel
 item.mod.chiselsandbits.chisel_diamond.name=Diamond Chisel
 
 mod.chiselsandbits.chiselmode.single=Single Bit
+mod.chiselsandbits.chiselmode.snap2=Grid Snapped 1/8 Size Cube
+mod.chiselsandbits.chiselmode.snap4=Grid Snapped 1/4 Size Cube
+mod.chiselsandbits.chiselmode.snap8=Grid Snapped 1/2 Size Cube
 mod.chiselsandbits.chiselmode.line=Line
 mod.chiselsandbits.chiselmode.plane=Plane
 mod.chiselsandbits.chiselmode.connected_plane=Connected Plane
