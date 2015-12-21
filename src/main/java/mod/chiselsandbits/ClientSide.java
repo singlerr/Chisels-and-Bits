@@ -337,6 +337,11 @@ public class ClientSide
 		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
 		final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
 
+		if ( mop == null )
+		{
+			return;
+		}
+
 		if ( ModUtil.isHoldingPattern( player ) )
 		{
 			if ( mop.typeOfHit != MovingObjectType.BLOCK )
