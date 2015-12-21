@@ -21,6 +21,7 @@ import mod.chiselsandbits.helpers.ChiselInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
+import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.ChiselPacket;
 import mod.chiselsandbits.network.packets.SetChiselMode;
@@ -41,7 +42,7 @@ import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-public class ItemChisel extends ItemTool
+public class ItemChisel extends ItemTool implements IItemScrollWheel
 {
 	final private static float one_16th = 1.0f / 16.0f;
 	private static ChiselMode clientChiselMode = ChiselMode.SINGLE;
@@ -543,6 +544,16 @@ public class ItemChisel extends ItemTool
 		}
 
 		return super.getHarvestLevel( stack, toolClass );
+	}
+
+	@Override
+	public void scroll(
+			final EntityPlayer player,
+			final ItemStack stack,
+			final int dwheel )
+	{
+		final ChiselMode mode = ItemChisel.getChiselMode();
+		ItemChisel.scrollOption( mode, mode, dwheel );
 	}
 
 }

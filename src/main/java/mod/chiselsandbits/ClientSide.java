@@ -6,8 +6,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.lwjgl.opengl.GL11;
+
+import com.google.common.base.Stopwatch;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
@@ -15,10 +18,12 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.ChiselPacket;
+import mod.chiselsandbits.network.packets.RotateVoxelBlob;
 import mod.chiselsandbits.render.SculptureModelGenerator;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -109,6 +114,9 @@ public class ClientSide
 		ModelLoaderRegistry.registerLoader( new SculptureModelGenerator() );
 	}
 
+	KeyBinding rotateCCW;
+	KeyBinding rotateCW;
+
 	public void init(
 			final ChiselsAndBits chiselsandbits )
 	{
@@ -118,6 +126,12 @@ public class ClientSide
 			ClientRegistry.registerKeyBinding( binding );
 			mode.binding = binding;
 		}
+
+		rotateCCW = new KeyBinding( "mod.chiselsandbits.other.rotate.ccw", 0, "itemGroup.chiselsandbits" );
+		ClientRegistry.registerKeyBinding( rotateCCW );
+
+		rotateCW = new KeyBinding( "mod.chiselsandbits.other.rotate.cw", 0, "itemGroup.chiselsandbits" );
+		ClientRegistry.registerKeyBinding( rotateCW );
 
 		ChiselsAndBits.registerWithBus( instance, ForgeBus.BOTH );
 	}
@@ -190,7 +204,6 @@ public class ClientSide
 		}
 
 		ChiselsAndBits.instance.config.allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
-
 	}
 
 	private void registerMesh(
@@ -248,6 +261,8 @@ public class ClientSide
 		}
 	}
 
+	Stopwatch rotateTimer;
+
 	@SubscribeEvent
 	public void interaction(
 			final TickEvent.ClientTickEvent event )
@@ -274,6 +289,28 @@ public class ClientSide
 		else
 		{
 			loopDeath = false;
+		}
+
+		if ( rotateCCW.isKeyDown() )
+		{
+			if ( rotateTimer == null || rotateTimer.elapsed( TimeUnit.MILLISECONDS ) > 200 )
+			{
+				rotateTimer = Stopwatch.createStarted();
+				final RotateVoxelBlob p = new RotateVoxelBlob();
+				p.wheel = 1;
+				NetworkRouter.instance.sendToServer( p );
+			}
+		}
+
+		if ( rotateCW.isKeyDown() )
+		{
+			if ( rotateTimer == null || rotateTimer.elapsed( TimeUnit.MILLISECONDS ) > 200 )
+			{
+				rotateTimer = Stopwatch.createStarted();
+				final RotateVoxelBlob p = new RotateVoxelBlob();
+				p.wheel = -1;
+				NetworkRouter.instance.sendToServer( p );
+			}
 		}
 
 		for ( final ChiselMode mode : ChiselMode.values() )
@@ -627,10 +664,9 @@ public class ClientSide
 		final EntityPlayer player = mc.thePlayer;
 		final ItemStack is = player.getHeldItem();
 
-		if ( is != null && is.getItem() instanceof ItemChisel && player.isSneaking() )
+		if ( me.dwheel != 0 && is != null && is.getItem() instanceof IItemScrollWheel && player.isSneaking() )
 		{
-			final ChiselMode mode = ItemChisel.getChiselMode();
-			ItemChisel.scrollOption( mode, mode, me.dwheel );
+			( (IItemScrollWheel) is.getItem() ).scroll( player, is, me.dwheel );
 			me.setCanceled( true );
 		}
 	}

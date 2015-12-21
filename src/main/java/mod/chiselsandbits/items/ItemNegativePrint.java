@@ -14,6 +14,10 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
 import mod.chiselsandbits.helpers.ChiselInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.interfaces.IItemScrollWheel;
+import mod.chiselsandbits.interfaces.IVoxelBlobItem;
+import mod.chiselsandbits.network.NetworkRouter;
+import mod.chiselsandbits.network.packets.RotateVoxelBlob;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
@@ -28,7 +32,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 
-public class ItemNegativePrint extends Item
+public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScrollWheel
 {
 
 	public ItemNegativePrint()
@@ -253,6 +257,28 @@ public class ItemNegativePrint extends Item
 		{
 			world.spawnEntityInWorld( ei );
 		}
+	}
+
+	@Override
+	public void scroll(
+			final EntityPlayer player,
+			final ItemStack stack,
+			final int dwheel )
+	{
+		final RotateVoxelBlob p = new RotateVoxelBlob();
+		p.wheel = dwheel;
+		NetworkRouter.instance.sendToServer( p );
+	}
+
+	@Override
+	public void rotate(
+			final ItemStack stack,
+			final int wheel )
+	{
+		final NBTTagCompound blueprintTag = stack.getTagCompound();
+		EnumFacing side = EnumFacing.VALUES[blueprintTag.getByte( "side" )];
+		side = wheel > 0 ? side.rotateY() : side.rotateYCCW();
+		blueprintTag.setInteger( "side", +side.ordinal() );
 	}
 
 }
