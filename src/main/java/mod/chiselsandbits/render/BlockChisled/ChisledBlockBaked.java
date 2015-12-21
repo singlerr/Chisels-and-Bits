@@ -297,13 +297,18 @@ public class ChisledBlockBaked extends BaseBakedModel
 			final ModelRenderState mrs,
 			final HashMap<Integer, ArrayList<FaceRegion>> rset )
 	{
+		ArrayList<FaceRegion> regions = null;
+
 		for ( final EnumFacing myFace : X_Faces )
 		{
 			final VoxelBlobState nextToState = mrs != null && myLayer == EnumWorldBlockLayer.TRANSLUCENT ? mrs.sides[myFace.ordinal()] : null;
 			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 			for ( int x = 0; x < blob.detail; x++ )
 			{
-				final int bucket = getBucket( myFace, x, -1, -1 );
+				if ( regions == null )
+				{
+					regions = new ArrayList<FaceRegion>();
+				}
 
 				for ( int z = 0; z < blob.detail; z++ )
 				{
@@ -328,11 +333,18 @@ public class ChisledBlockBaked extends BaseBakedModel
 						}
 
 						currentFace = region;
-						addBucketedFace( rset, bucket, region );
+						regions.add( region );
 					}
 
 					// row complete!
 					currentFace = null;
+				}
+
+				if ( !regions.isEmpty() )
+				{
+					final int bucket = getBucket( myFace, x, -1, -1 );
+					rset.put( bucket, regions );
+					regions = null;
 				}
 			}
 		}
@@ -344,13 +356,18 @@ public class ChisledBlockBaked extends BaseBakedModel
 			final ModelRenderState mrs,
 			final HashMap<Integer, ArrayList<FaceRegion>> rset )
 	{
+		ArrayList<FaceRegion> regions = null;
+
 		for ( final EnumFacing myFace : Y_Faces )
 		{
 			final VoxelBlobState nextToState = mrs != null && myLayer == EnumWorldBlockLayer.TRANSLUCENT ? mrs.sides[myFace.ordinal()] : null;
 			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 			for ( int y = 0; y < blob.detail; y++ )
 			{
-				final int bucket = getBucket( myFace, -1, y, -1 );
+				if ( regions == null )
+				{
+					regions = new ArrayList<FaceRegion>();
+				}
 
 				for ( int z = 0; z < blob.detail; z++ )
 				{
@@ -375,11 +392,18 @@ public class ChisledBlockBaked extends BaseBakedModel
 						}
 
 						currentFace = region;
-						addBucketedFace( rset, bucket, region );
+						regions.add( region );
 					}
 
 					// row complete!
 					currentFace = null;
+				}
+
+				if ( !regions.isEmpty() )
+				{
+					final int bucket = getBucket( myFace, -1, y, -1 );
+					rset.put( bucket, regions );
+					regions = null;
 				}
 			}
 		}
@@ -391,13 +415,18 @@ public class ChisledBlockBaked extends BaseBakedModel
 			final ModelRenderState mrs,
 			final HashMap<Integer, ArrayList<FaceRegion>> rset )
 	{
+		ArrayList<FaceRegion> regions = null;
+
 		for ( final EnumFacing myFace : Z_Faces )
 		{
 			final VoxelBlobState nextToState = mrs != null && myLayer == EnumWorldBlockLayer.TRANSLUCENT ? mrs.sides[myFace.ordinal()] : null;
 			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 			for ( int z = 0; z < blob.detail; z++ )
 			{
-				final int bucket = getBucket( myFace, -1, -1, z );
+				if ( regions == null )
+				{
+					regions = new ArrayList<FaceRegion>();
+				}
 
 				for ( int y = 0; y < blob.detail; y++ )
 				{
@@ -422,29 +451,21 @@ public class ChisledBlockBaked extends BaseBakedModel
 						}
 
 						currentFace = region;
-						addBucketedFace( rset, bucket, region );
+						regions.add( region );
 					}
 
 					// row complete!
 					currentFace = null;
 				}
+
+				if ( !regions.isEmpty() )
+				{
+					final int bucket = getBucket( myFace, -1, -1, z );
+					rset.put( bucket, regions );
+					regions = null;
+				}
 			}
 		}
-	}
-
-	private void addBucketedFace(
-			final HashMap<Integer, ArrayList<FaceRegion>> rset,
-			final int bucket,
-			final FaceRegion region )
-	{
-		ArrayList<FaceRegion> X = rset.get( bucket );
-
-		if ( X == null )
-		{
-			rset.put( bucket, X = new ArrayList<FaceRegion>() );
-		}
-
-		X.add( region );
 	}
 
 	private int getShadeColor(
