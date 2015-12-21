@@ -149,7 +149,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 		final BlockPartRotation bpr = null;
 		final ModelRotation mr = ModelRotation.X0_Y0;
 
-		final HashMap<Integer, ArrayList<FaceRegion>> rset = new HashMap<Integer, ArrayList<FaceRegion>>();
+		final ArrayList<ArrayList<FaceRegion>> rset = new ArrayList<ArrayList<FaceRegion>>();
 		final HashMap<Integer, float[]> sourceUVCache = new HashMap<Integer, float[]>();
 		final VisibleFace visFace = new VisibleFace();
 
@@ -160,7 +160,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 		final float[] defUVs = new float[] { 0, 0, 1, 1 };
 		sides = blob.getSideFlags( 0, VoxelBlob.dim_minus_one, VoxelBlob.dim2 );
 
-		for ( final ArrayList<FaceRegion> src : rset.values() )
+		for ( final ArrayList<FaceRegion> src : rset )
 		{
 			mergeFaces( src );
 
@@ -295,7 +295,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 			final VoxelBlob blob,
 			final VisibleFace visFace,
 			final ModelRenderState mrs,
-			final HashMap<Integer, ArrayList<FaceRegion>> rset )
+			final ArrayList<ArrayList<FaceRegion>> rset )
 	{
 		ArrayList<FaceRegion> regions = null;
 
@@ -307,7 +307,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 			{
 				if ( regions == null )
 				{
-					regions = new ArrayList<FaceRegion>();
+					regions = new ArrayList<FaceRegion>( 64 );
 				}
 
 				for ( int z = 0; z < blob.detail; z++ )
@@ -342,8 +342,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 
 				if ( !regions.isEmpty() )
 				{
-					final int bucket = getBucket( myFace, x, -1, -1 );
-					rset.put( bucket, regions );
+					rset.add( regions );
 					regions = null;
 				}
 			}
@@ -354,7 +353,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 			final VoxelBlob blob,
 			final VisibleFace visFace,
 			final ModelRenderState mrs,
-			final HashMap<Integer, ArrayList<FaceRegion>> rset )
+			final ArrayList<ArrayList<FaceRegion>> rset )
 	{
 		ArrayList<FaceRegion> regions = null;
 
@@ -366,7 +365,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 			{
 				if ( regions == null )
 				{
-					regions = new ArrayList<FaceRegion>();
+					regions = new ArrayList<FaceRegion>( 64 );
 				}
 
 				for ( int z = 0; z < blob.detail; z++ )
@@ -401,8 +400,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 
 				if ( !regions.isEmpty() )
 				{
-					final int bucket = getBucket( myFace, -1, y, -1 );
-					rset.put( bucket, regions );
+					rset.add( regions );
 					regions = null;
 				}
 			}
@@ -413,7 +411,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 			final VoxelBlob blob,
 			final VisibleFace visFace,
 			final ModelRenderState mrs,
-			final HashMap<Integer, ArrayList<FaceRegion>> rset )
+			final ArrayList<ArrayList<FaceRegion>> rset )
 	{
 		ArrayList<FaceRegion> regions = null;
 
@@ -425,7 +423,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 			{
 				if ( regions == null )
 				{
-					regions = new ArrayList<FaceRegion>();
+					regions = new ArrayList<FaceRegion>( 64 );
 				}
 
 				for ( int y = 0; y < blob.detail; y++ )
@@ -460,8 +458,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 
 				if ( !regions.isEmpty() )
 				{
-					final int bucket = getBucket( myFace, -1, -1, z );
-					rset.put( bucket, regions );
+					rset.add( regions );
 					regions = null;
 				}
 			}
@@ -498,49 +495,6 @@ public class ChisledBlockBaked extends BaseBakedModel
 		}
 
 		return null;
-	}
-
-	private int getBucket(
-			final EnumFacing face,
-			final int x,
-			final int y,
-			final int z )
-	{
-		switch ( face )
-		{
-			case DOWN:
-			case UP:
-
-				if ( y == -1 )
-				{
-					throw new RuntimeException( "Invalid Y" );
-				}
-
-				return y << 5 | face.ordinal();
-
-			case EAST:
-			case WEST:
-
-				if ( x == -1 )
-				{
-					throw new RuntimeException( "Invalid X" );
-				}
-
-				return x << 5 | face.ordinal();
-
-			case SOUTH:
-			case NORTH:
-
-				if ( z == -1 )
-				{
-					throw new RuntimeException( "Invalid Z" );
-				}
-
-				return z << 5 | face.ordinal();
-
-			default:
-				return 0;
-		}
 	}
 
 	// merge face brightness with custom multiplier
