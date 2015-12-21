@@ -21,7 +21,16 @@ public class BitColors
 		{
 			final Block blk = state.getBlock();
 			final ItemStack target = new ItemStack( blk, 1, blk.getMetaFromState( state ) );
-			out = target.getItem().getColorFromItemStack( target, renderPass );
+
+			if ( target.getItem() == null )
+			{
+				out = 0xffffff;
+			}
+			else
+			{
+				out = target.getItem().getColorFromItemStack( target, renderPass );
+			}
+
 			bitColor.put( state, out );
 		}
 
