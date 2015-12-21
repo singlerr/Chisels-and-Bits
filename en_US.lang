@@ -36,6 +36,9 @@ mod.chiselsandbits.chiselmode.cube_large=Large Cube
 mod.chiselsandbits.chiselmode.cube_huge=Huge Cube
 mod.chiselsandbits.chiselmode.drawn_region=Drawn Region
 
+mod.chiselsandbits.other.rotate.ccw=Rotate Held Counter Clockwise
+mod.chiselsandbits.other.rotate.cw=Rotate Held Clockwise
+
 mod.chiselsandbits.help.shiftdetails=<Hold Shift For Details>
 mod.chiselsandbits.help.empty=Empty
 
