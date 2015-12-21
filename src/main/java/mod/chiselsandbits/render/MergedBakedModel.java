@@ -4,6 +4,7 @@ package mod.chiselsandbits.render;
 import java.util.ArrayList;
 import java.util.List;
 
+import mod.chiselsandbits.ClientSide;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -86,7 +87,7 @@ public class MergedBakedModel extends BaseBakedModel
 			return a.getParticleTexture();
 		}
 
-		return null;
+		return ClientSide.instance.getMissingIcon();
 	}
 
 	@Override

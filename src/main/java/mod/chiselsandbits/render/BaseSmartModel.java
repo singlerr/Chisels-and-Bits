@@ -4,6 +4,7 @@ package mod.chiselsandbits.render;
 import java.util.Collections;
 import java.util.List;
 
+import mod.chiselsandbits.ClientSide;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -38,7 +39,14 @@ public abstract class BaseSmartModel implements IFlexibleBakedModel
 	@Override
 	public TextureAtlasSprite getParticleTexture()
 	{
-		return Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture( Blocks.stone.getDefaultState() );
+		final TextureAtlasSprite sprite = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture( Blocks.stone.getDefaultState() );
+
+		if ( sprite == null )
+		{
+			return ClientSide.instance.getMissingIcon();
+		}
+
+		return sprite;
 	}
 
 	@Override

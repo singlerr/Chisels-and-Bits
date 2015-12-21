@@ -172,7 +172,7 @@ public class BitItemBaked extends BaseBakedModel
 	@Override
 	public TextureAtlasSprite getParticleTexture()
 	{
-		return originalModel == null ? null : originalModel.getParticleTexture();
+		return originalModel == null ? ClientSide.instance.getMissingIcon() : originalModel.getParticleTexture();
 	}
 
 	@Override

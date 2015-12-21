@@ -1072,4 +1072,9 @@ public class ClientSide
 		return true;
 	}
 
+	public TextureAtlasSprite getMissingIcon()
+	{
+		return Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
+	}
+
 }
