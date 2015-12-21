@@ -4,7 +4,7 @@ import java.lang.ref.WeakReference;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
-import mod.chiselsandbits.render.BlockChisled.ModelRenderState;
+import mod.chiselsandbits.render.chiseledblock.ModelRenderState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -12,10 +12,10 @@ import net.minecraft.world.World;
 
 public class VoxelNeighborRenderTracker
 {
-	private WeakReference<VoxelBlobState> lastCenter;
+	private WeakReference<VoxelBlobStateReference> lastCenter;
 	private ModelRenderState lrs = null;
 
-	private final VoxelBlobState[] sides = new VoxelBlobState[6];
+	private final VoxelBlobStateReference[] sides = new VoxelBlobStateReference[6];
 
 	public void update(
 			final World worldObj,
@@ -37,7 +37,7 @@ public class VoxelNeighborRenderTracker
 
 	private void update(
 			final EnumFacing f,
-			final VoxelBlobState value )
+			final VoxelBlobStateReference value )
 	{
 		if ( sides[f.ordinal()] == value )
 		{
@@ -52,7 +52,7 @@ public class VoxelNeighborRenderTracker
 	}
 
 	public ModelRenderState getRenderState(
-			final VoxelBlobState data )
+			final VoxelBlobStateReference data )
 	{
 		if ( lrs == null || lastCenter == null )
 		{
@@ -69,9 +69,9 @@ public class VoxelNeighborRenderTracker
 	}
 
 	private void updateCenter(
-			final VoxelBlobState data )
+			final VoxelBlobStateReference data )
 	{
-		lastCenter = new WeakReference<VoxelBlobState>( data );
+		lastCenter = new WeakReference<VoxelBlobStateReference>( data );
 	}
 
 }

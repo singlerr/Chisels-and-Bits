@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits;
 
 import java.util.HashMap;
@@ -7,10 +6,12 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.MaterialType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.crafting.ChiselCrafting;
 import mod.chiselsandbits.crafting.NegativeInversionCrafting;
 import mod.chiselsandbits.crafting.StackableCrafting;
 import mod.chiselsandbits.gui.ModGuiRouter;
+import mod.chiselsandbits.helpers.ForgeBus;
 import mod.chiselsandbits.integration.IntegerationJEI;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
@@ -44,6 +45,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
+import net.minecraftforge.oredict.RecipeSorter;
 import net.minecraftforge.oredict.RecipeSorter.Category;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
@@ -74,14 +76,14 @@ public class ChiselsAndBits
 	public static ChiselsAndBits instance;
 
 	public static final MaterialType[] validMaterials = new MaterialType[] {
-			new MaterialType( "wood", Material.wood ),
-			new MaterialType( "rock", Material.rock ),
-			new MaterialType( "iron", Material.iron ),
-			new MaterialType( "cloth", Material.cloth ),
-			new MaterialType( "ice", Material.ice ),
-			new MaterialType( "packedIce", Material.packedIce ),
-			new MaterialType( "clay", Material.clay ),
-			new MaterialType( "glass", Material.glass )
+		new MaterialType( "wood", Material.wood ),
+		new MaterialType( "rock", Material.rock ),
+		new MaterialType( "iron", Material.iron ),
+		new MaterialType( "cloth", Material.cloth ),
+		new MaterialType( "ice", Material.ice ),
+		new MaterialType( "packedIce", Material.packedIce ),
+		new MaterialType( "clay", Material.clay ),
+		new MaterialType( "glass", Material.glass )
 	};
 
 	final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();
@@ -121,11 +123,18 @@ public class ChiselsAndBits
 		instance = this;
 	}
 
-	private void registerItem(
-			final Item item,
+	private <T extends Item> T registerItem(
+			final boolean enabled,
+			final T item,
 			final String name )
 	{
-		GameRegistry.registerItem( item.setUnlocalizedName( unlocalizedPrefix + name ), name );
+		if ( enabled )
+		{
+			GameRegistry.registerItem( item.setUnlocalizedName( unlocalizedPrefix + name ), name );
+			return item;
+		}
+
+		return null;
 	}
 
 	private void registerBlock(
@@ -145,52 +154,19 @@ public class ChiselsAndBits
 
 		initVersionChecker();
 
-		// register item...
-		if ( config.enableStoneChisel )
-		{
-			registerItem( itemChiselStone = new ItemChisel( ToolMaterial.STONE ), "chisel_stone" );
-		}
+		// register items...
+		itemChiselStone = registerItem( config.enableStoneChisel, new ItemChisel( ToolMaterial.STONE ), "chisel_stone" );
+		itemChiselIron = registerItem( config.enableIronChisel, new ItemChisel( ToolMaterial.IRON ), "chisel_iron" );
+		itemChiselGold = registerItem( config.enableGoldChisel, new ItemChisel( ToolMaterial.GOLD ), "chisel_gold" );
+		itemChiselDiamond = registerItem( config.enableDiamondChisel, new ItemChisel( ToolMaterial.EMERALD ), "chisel_diamond" );
+		itemPositiveprint = registerItem( config.enablePositivePrint, new ItemPositivePrint(), "positiveprint" );
+		itemNegativeprint = registerItem( config.enableNegativePrint, new ItemNegativePrint(), "negativeprint" );
+		itemBitBag = registerItem( config.enableBitBag, new ItemBitBag(), "bit_bag" );
+		itemWrench = registerItem( config.enableWoodenWrench, new ItemWrench(), "wrench_wood" );
+		itemBlockBit = registerItem( config.enableChisledBits, new ItemChiseledBit(), "block_bit" );
 
-		if ( config.enableIronChisel )
-		{
-			registerItem( itemChiselIron = new ItemChisel( ToolMaterial.IRON ), "chisel_iron" );
-		}
-
-		if ( config.enableGoldChisel )
-		{
-			registerItem( itemChiselGold = new ItemChisel( ToolMaterial.GOLD ), "chisel_gold" );
-		}
-
-		if ( config.enableDiamondChisel )
-		{
-			registerItem( itemChiselDiamond = new ItemChisel( ToolMaterial.EMERALD ), "chisel_diamond" );
-		}
-
-		if ( config.enablePositivePrint )
-		{
-			registerItem( itemPositiveprint = new ItemPositivePrint(), "positiveprint" );
-		}
-
-		if ( config.enableNegativePrint )
-		{
-			registerItem( itemNegativeprint = new ItemNegativePrint(), "negativeprint" );
-		}
-
-		if ( config.enableBitBag )
-		{
-			registerItem( itemBitBag = new ItemBitBag(), "bit_bag" );
-		}
-
-		if ( config.enableWoodenWrench )
-		{
-			registerItem( itemWrench = new ItemWrench(), "wrench_wood" );
-		}
-
-		if ( config.enableChisledBits )
-		{
-			registerItem( itemBlockBit = new ItemChiseledBit(), "block_bit" );
-			jei.blackListItem( itemBlockBit );
-		}
+		// black list items..
+		jei.blackListItem( itemBlockBit );
 
 		// register tile entities.
 		GameRegistry.registerTileEntity( TileEntityBlockChiseled.class, "mod.chiselsandbits.TileEntityChiseled" );
@@ -250,28 +226,25 @@ public class ChiselsAndBits
 		ShapelessOreRecipe( itemNegativeprint, new ItemStack( itemNegativeprint, 1, OreDictionary.WILDCARD_VALUE ) );
 
 		// make a bit bag..
-		if ( itemBlockBit != null )
-		{
-			ShapedOreRecipe( itemBitBag, "WWW", "WbW", "WWW", 'W', new ItemStack( Blocks.wool, 1, OreDictionary.WILDCARD_VALUE ), 'b', new ItemStack( itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
-		}
+		ShapedOreRecipe( itemBitBag, "WWW", "WbW", "WWW", 'W', new ItemStack( Blocks.wool, 1, OreDictionary.WILDCARD_VALUE ), 'b', new ItemStack( itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
 
-		// aseemble prints from bits
+		// Assemble prints from bits
 		if ( config.enablePositivePrintCrafting )
 		{
 			GameRegistry.addRecipe( new ChiselCrafting() );
-			net.minecraftforge.oredict.RecipeSorter.register( MODID + ":chiselcrafting", ChiselCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
+			RecipeSorter.register( MODID + ":chiselcrafting", ChiselCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
 		}
 
 		if ( config.enableStackableCrafting )
 		{
 			GameRegistry.addRecipe( new StackableCrafting() );
-			net.minecraftforge.oredict.RecipeSorter.register( MODID + ":stackablecrafting", StackableCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
+			RecipeSorter.register( MODID + ":stackablecrafting", StackableCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
 		}
 
 		if ( config.enableNegativePrintInversionCrafting )
 		{
 			GameRegistry.addRecipe( new NegativeInversionCrafting() );
-			net.minecraftforge.oredict.RecipeSorter.register( MODID + ":negativepatterncrafting", NegativeInversionCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
+			RecipeSorter.register( MODID + ":negativepatterncrafting", NegativeInversionCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
 		}
 	}
 
@@ -279,22 +252,20 @@ public class ChiselsAndBits
 			final Item result,
 			final Object... recipe )
 	{
-		if ( result == null )
+		if ( result != null )
 		{
-			return;
+			GameRegistry.addRecipe( new ShapedOreRecipe( result, recipe ) );
 		}
-		GameRegistry.addRecipe( new ShapedOreRecipe( result, recipe ) );
 	}
 
 	private void ShapelessOreRecipe(
 			final Item result,
 			final Object... recipe )
 	{
-		if ( result == null )
+		if ( result != null )
 		{
-			return;
+			GameRegistry.addRecipe( new ShapelessOreRecipe( result, recipe ) );
 		}
-		GameRegistry.addRecipe( new ShapelessOreRecipe( result, recipe ) );
 	}
 
 	@EventHandler

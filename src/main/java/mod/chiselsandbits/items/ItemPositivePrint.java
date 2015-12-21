@@ -1,10 +1,7 @@
-
 package mod.chiselsandbits.items;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.lwjgl.input.Keyboard;
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.bitbag.BagInventory;
@@ -25,6 +22,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+
+import org.lwjgl.input.Keyboard;
 
 public class ItemPositivePrint extends ItemNegativePrint
 {

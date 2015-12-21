@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mezz.jei.api.IItemBlacklist;
+import mod.chiselsandbits.ChiselsAndBits;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Loader;
@@ -17,12 +18,15 @@ public class IntegerationJEI
 	public void blackListItem(
 			final Item b )
 	{
-		items.add( new ItemStack( b, 1, OreDictionary.WILDCARD_VALUE ) );
+		if ( b != null )
+		{
+			items.add( new ItemStack( b, 1, OreDictionary.WILDCARD_VALUE ) );
+		}
 	}
 
 	public void init()
 	{
-		if ( Loader.isModLoaded( "JEI" ) )
+		if ( Loader.isModLoaded( "JEI" ) && !ChiselsAndBits.instance.config.ShowBitsInJEI )
 		{
 			sendtoJEI();
 		}

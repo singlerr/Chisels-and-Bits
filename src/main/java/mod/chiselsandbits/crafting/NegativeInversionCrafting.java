@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.crafting;
 
 import mod.chiselsandbits.ChiselsAndBits;

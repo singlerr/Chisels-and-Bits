@@ -1,25 +1,22 @@
-
 package mod.chiselsandbits.chiseledblock;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
-import mod.chiselsandbits.chiseledblock.data.UnlistedBlockFlags;
-import mod.chiselsandbits.chiseledblock.data.UnlistedBlockStateID;
-import mod.chiselsandbits.chiseledblock.data.UnlistedLightOpacity;
-import mod.chiselsandbits.chiseledblock.data.UnlistedLightValue;
-import mod.chiselsandbits.chiseledblock.data.UnlistedVoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.UnlistedVoxelNeighborState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlobState;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
+import mod.chiselsandbits.chiseledblock.properties.UnlistedBlockFlags;
+import mod.chiselsandbits.chiseledblock.properties.UnlistedBlockStateID;
+import mod.chiselsandbits.chiseledblock.properties.UnlistedLightOpacity;
+import mod.chiselsandbits.chiseledblock.properties.UnlistedLightValue;
+import mod.chiselsandbits.chiseledblock.properties.UnlistedVoxelBlob;
+import mod.chiselsandbits.chiseledblock.properties.UnlistedVoxelNeighborState;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -58,6 +55,8 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 public class BlockChiseled extends Block implements ITileEntityProvider
 {
 
@@ -67,7 +66,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	public static IBlockState actingAs = null;
 
 	public static final IUnlistedProperty<VoxelNeighborRenderTracker> n_prop = new UnlistedVoxelNeighborState();
-	public static final IUnlistedProperty<VoxelBlobState> v_prop = new UnlistedVoxelBlob();
+	public static final IUnlistedProperty<VoxelBlobStateReference> v_prop = new UnlistedVoxelBlob();
 	public static final IUnlistedProperty<Integer> block_prop = new UnlistedBlockStateID();
 	public static final IUnlistedProperty<Integer> side_prop = new UnlistedBlockFlags( "f" );
 	public static final IUnlistedProperty<Float> opacity_prop = new UnlistedLightOpacity();
@@ -484,7 +483,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch (
 
-		final ExceptionNoTileEntity e )
+				final ExceptionNoTileEntity e )
 
 		{
 		}
@@ -968,7 +967,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	public IBlockState getCommonState(
 			final IExtendedBlockState myState )
 	{
-		final VoxelBlobState data = myState.getValue( BlockChiseled.v_prop );
+		final VoxelBlobStateReference data = myState.getValue( BlockChiseled.v_prop );
 
 		if ( data != null )
 		{

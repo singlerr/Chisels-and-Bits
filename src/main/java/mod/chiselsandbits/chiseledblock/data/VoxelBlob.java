@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.chiseledblock.data;
 
 import java.io.ByteArrayInputStream;

@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.bitbag;
 
 import mod.chiselsandbits.ChiselsAndBits;

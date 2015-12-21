@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits;
 
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -33,13 +32,13 @@ public enum ChiselMode
 	}
 
 	public static ChiselMode getMode(
-			final ItemStack is )
+			final ItemStack stack )
 	{
-		if ( is != null )
+		if ( stack != null )
 		{
 			try
 			{
-				final NBTTagCompound nbt = is.getTagCompound();
+				final NBTTagCompound nbt = stack.getTagCompound();
 				if ( nbt != null && nbt.hasKey( "mode" ) )
 				{
 					return valueOf( nbt.getString( "mode" ) );
@@ -55,11 +54,11 @@ public enum ChiselMode
 	}
 
 	public void setMode(
-			final ItemStack is )
+			final ItemStack stack )
 	{
-		if ( is != null )
+		if ( stack != null )
 		{
-			is.setTagInfo( "mode", new NBTTagString( name() ) );
+			stack.setTagInfo( "mode", new NBTTagString( name() ) );
 		}
 	}
 

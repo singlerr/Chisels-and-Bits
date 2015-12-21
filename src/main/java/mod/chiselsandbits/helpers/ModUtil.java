@@ -1,7 +1,4 @@
-
 package mod.chiselsandbits.helpers;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
@@ -20,6 +17,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 public class ModUtil
 {
 
@@ -31,7 +30,7 @@ public class ModUtil
 
 	static public Pair<Vec3, Vec3> getPlayerRay(
 			final EntityPlayer playerIn )
-	{
+			{
 		double reachDistance = 5.0d;
 
 		final double x = playerIn.prevPosX + ( playerIn.posX - playerIn.prevPosX );
@@ -58,7 +57,7 @@ public class ModUtil
 		final Vec3 to = from.addVector( eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance );
 
 		return Pair.of( from, to );
-	}
+			}
 
 	static public class ItemStackSlot
 	{
@@ -73,13 +72,13 @@ public class ModUtil
 				final int s,
 				final ItemStack st,
 				final EntityPlayer player )
-		{
+				{
 			inv = i;
 			slot = s;
 			stack = st;
 			toolSlot = player.inventory.currentItem;
 			isCreative = player.capabilities.isCreativeMode;
-		}
+				}
 
 		public boolean isValid()
 		{
@@ -280,6 +279,20 @@ public class ModUtil
 		final int t_z = -offset_z + middle_z + partial_z;
 
 		return new BlockPos( t_x, t_y, t_z );
+	}
+
+	static public <T> T firstNonNull(
+			final T... options )
+	{
+		for ( final T i : options )
+		{
+			if ( i != null )
+			{
+				return i;
+			}
+		}
+
+		throw new NullPointerException( "Unable to find a non null item." );
 	}
 
 }

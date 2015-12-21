@@ -1,11 +1,10 @@
-
 package mod.chiselsandbits.gui;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.ModConfig;
+import mod.chiselsandbits.config.ModConfig;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.ConfigElement;

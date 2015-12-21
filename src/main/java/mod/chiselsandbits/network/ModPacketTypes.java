@@ -1,27 +1,26 @@
-
 package mod.chiselsandbits.network;
 
 import java.util.HashMap;
 
-import mod.chiselsandbits.network.packets.BagGuiPacket;
-import mod.chiselsandbits.network.packets.ChiselPacket;
-import mod.chiselsandbits.network.packets.RotateVoxelBlob;
-import mod.chiselsandbits.network.packets.SetChiselMode;
+import mod.chiselsandbits.network.packets.PacketBagGuiPacket;
+import mod.chiselsandbits.network.packets.PacketChisel;
+import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
+import mod.chiselsandbits.network.packets.PacketSetChiselMode;
 
 public enum ModPacketTypes
 {
-	CHISEL( ChiselPacket.class ),
-	OPEN_BAG_GUI( BagGuiPacket.class ),
-	SET_CHISEL_MODE( SetChiselMode.class ),
-	ROTATE_VOXEL_BLOB( RotateVoxelBlob.class );
+	CHISEL( PacketChisel.class ),
+	OPEN_BAG_GUI( PacketBagGuiPacket.class ),
+	SET_CHISEL_MODE( PacketSetChiselMode.class ),
+	ROTATE_VOXEL_BLOB( PacketRotateVoxelBlob.class );
 
 	private final Class<? extends ModPacket> packetClass;
 
 	ModPacketTypes(
 			final Class<? extends ModPacket> clz )
-	{
+			{
 		packetClass = clz;
-	}
+			}
 
 	private static HashMap<Class<? extends ModPacket>, Integer> fromClassToId = new HashMap<Class<? extends ModPacket>, Integer>();
 	private static HashMap<Integer, Class<? extends ModPacket>> fromIdToClass = new HashMap<Integer, Class<? extends ModPacket>>();

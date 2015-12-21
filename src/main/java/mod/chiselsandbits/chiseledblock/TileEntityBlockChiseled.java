@@ -1,14 +1,12 @@
-
 package mod.chiselsandbits.chiseledblock;
-
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlobState;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.render.BlockChisled.ChisledBlockSmartModel;
+import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,7 +28,6 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-
 public class TileEntityBlockChiseled extends TileEntity
 {
 
@@ -43,7 +40,8 @@ public class TileEntityBlockChiseled extends TileEntity
 	private IExtendedBlockState state;
 
 	public TileEntityBlockChiseled()
-	{}
+	{
+	}
 
 	public IExtendedBlockState getBasicState()
 	{
@@ -60,7 +58,7 @@ public class TileEntityBlockChiseled extends TileEntity
 	{
 		if ( state == null )
 		{
-			return ( IExtendedBlockState ) ChiselsAndBits.instance.getChiseledDefaultState();
+			return (IExtendedBlockState) ChiselsAndBits.instance.getChiseledDefaultState();
 		}
 
 		if ( updateNeightbors )
@@ -151,7 +149,7 @@ public class TileEntityBlockChiseled extends TileEntity
 		final Integer s = getBasicState().getValue( BlockChiseled.side_prop );
 		final Float l = getBasicState().getValue( BlockChiseled.opacity_prop );
 		final Integer lv = getBasicState().getValue( BlockChiseled.light_prop );
-		final VoxelBlobState vbs = getBasicState().getValue( BlockChiseled.v_prop );
+		final VoxelBlobStateReference vbs = getBasicState().getValue( BlockChiseled.v_prop );
 
 		if ( b == null || vbs == null )
 		{
@@ -191,7 +189,7 @@ public class TileEntityBlockChiseled extends TileEntity
 				.withProperty( BlockChiseled.light_prop, lv )
 				.withProperty( BlockChiseled.opacity_prop, l )
 				.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() )
-				.withProperty( BlockChiseled.v_prop, new VoxelBlobState( v, getPositionRandom( pos ) ) ) );
+				.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( v, getPositionRandom( pos ) ) ) );
 
 		if ( oldLV == null || oldLV != lv )
 		{
@@ -236,7 +234,7 @@ public class TileEntityBlockChiseled extends TileEntity
 				.withProperty( BlockChiseled.opacity_prop, vb.getOpacity() )
 				.withProperty( BlockChiseled.light_prop, blockType.getBlock().getLightValue() )
 				.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() )
-				.withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb, getPositionRandom( pos ) ) );
+				.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb, getPositionRandom( pos ) ) );
 
 		// required for placing bits
 		if ( ref != 0 )
@@ -262,7 +260,7 @@ public class TileEntityBlockChiseled extends TileEntity
 	public VoxelBlob getBlob()
 	{
 		VoxelBlob vb = null;
-		final VoxelBlobState vbs = getBasicState().getValue( BlockChiseled.v_prop );
+		final VoxelBlobStateReference vbs = getBasicState().getValue( BlockChiseled.v_prop );
 
 		if ( vbs != null )
 		{
@@ -292,7 +290,7 @@ public class TileEntityBlockChiseled extends TileEntity
 		final CommonBlock common = vb.mostCommonBlock();
 		final float opacity = vb.getOpacity();
 		final float light = vb.getLight();
-		final int lv = Math.max( 0, Math.min( 15, ( int ) ( light * 15 ) ) );
+		final int lv = Math.max( 0, Math.min( 15, (int) ( light * 15 ) ) );
 
 		// are most of the bits in the center solid?
 		final int sideFlags = vb.getSideFlags( 5, 11, 4 * 4 );
@@ -303,7 +301,7 @@ public class TileEntityBlockChiseled extends TileEntity
 		{
 			setState( getBasicState()
 					.withProperty( BlockChiseled.side_prop, sideFlags )
-					.withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) )
+					.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb.toByteArray(), getPositionRandom( pos ) ) )
 					.withProperty( BlockChiseled.light_prop, lv )
 					.withProperty( BlockChiseled.opacity_prop, opacity )
 					.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() )
@@ -320,7 +318,7 @@ public class TileEntityBlockChiseled extends TileEntity
 		{
 			setState( getBasicState()
 					.withProperty( BlockChiseled.side_prop, sideFlags )
-					.withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) )
+					.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb.toByteArray(), getPositionRandom( pos ) ) )
 					.withProperty( BlockChiseled.light_prop, lv )
 					.withProperty( BlockChiseled.opacity_prop, opacity )
 					.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() )
@@ -372,7 +370,7 @@ public class TileEntityBlockChiseled extends TileEntity
 			test.writeChisleData( nbttagcompound );
 			itemstack.setTagInfo( "BlockEntityTag", nbttagcompound );
 
-			itemstack.setTagInfo( "side", new NBTTagByte( ( byte ) enumfacing.ordinal() ) );
+			itemstack.setTagInfo( "side", new NBTTagByte( (byte) enumfacing.ordinal() ) );
 		}
 		else
 		{
@@ -391,7 +389,7 @@ public class TileEntityBlockChiseled extends TileEntity
 		if ( sideFlags == null )
 		{
 			return true; // if torches or other blocks are on the block this
-							// prevents a conversion from crashing.
+			// prevents a conversion from crashing.
 		}
 
 		return ( sideFlags & 1 << side.ordinal() ) != 0;

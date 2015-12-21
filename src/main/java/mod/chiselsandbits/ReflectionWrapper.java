@@ -106,7 +106,7 @@ public class ReflectionWrapper
 	@SideOnly( Side.CLIENT )
 	public Map<String, TextureAtlasSprite> getRegSprite(
 			final TextureMap map )
-	{
+			{
 		try
 		{
 			if ( mapRegSprites == null )
@@ -124,7 +124,7 @@ public class ReflectionWrapper
 		}
 
 		return null;
-	}
+			}
 
 	private void notifyDeveloper(
 			final Throwable t )

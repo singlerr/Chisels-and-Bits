@@ -1,10 +1,7 @@
-
 package mod.chiselsandbits.chiseledblock;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.lwjgl.input.Keyboard;
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
@@ -15,7 +12,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.NetworkRouter;
-import mod.chiselsandbits.network.packets.RotateVoxelBlob;
+import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
 import net.minecraft.block.state.IBlockState;
@@ -32,6 +29,8 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import org.lwjgl.input.Keyboard;
 
 public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IItemScrollWheel
 {
@@ -399,7 +398,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final RotateVoxelBlob p = new RotateVoxelBlob();
+		final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
 		p.wheel = dwheel;
 		NetworkRouter.instance.sendToServer( p );
 	}

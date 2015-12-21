@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.items;
 
 import java.util.HashSet;
@@ -6,10 +5,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.tuple.Pair;
-
-import com.google.common.base.Stopwatch;
 
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
@@ -23,8 +18,8 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.network.NetworkRouter;
-import mod.chiselsandbits.network.packets.ChiselPacket;
-import mod.chiselsandbits.network.packets.SetChiselMode;
+import mod.chiselsandbits.network.packets.PacketChisel;
+import mod.chiselsandbits.network.packets.PacketSetChiselMode;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -41,6 +36,10 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.google.common.base.Stopwatch;
 
 public class ItemChisel extends ItemTool implements IItemScrollWheel
 {
@@ -215,7 +214,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 
 		if ( ChiselsAndBits.instance.config.perChiselMode )
 		{
-			final SetChiselMode packet = new SetChiselMode();
+			final PacketSetChiselMode packet = new PacketSetChiselMode();
 			packet.mode = newClientChiselMode;
 			packet.chatNotification = chatNotification;
 
@@ -332,7 +331,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 		final int y = getY( hitY, side );
 		final int z = getZ( hitZ, side );
 
-		final ChiselPacket pc = new ChiselPacket( pos, x, y, z, side, mode );
+		final PacketChisel pc = new PacketChisel( pos, x, y, z, side, mode );
 
 		final int extractedState = pc.doAction( player );
 		if ( extractedState != 0 )
@@ -402,11 +401,11 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 			if ( output == null || !ItemChiseledBit.sameBit( output, blk ) || output.stackSize == 64 )
 			{
 				output = ItemChiseledBit.createStack( blk, 1, true );// new
-																		// ItemStack(
-																		// srcItem,
-																		// 1,
-																		// blk
-																		// );
+				// ItemStack(
+				// srcItem,
+				// 1,
+				// blk
+				// );
 
 				if ( spawnBit )
 				{

@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.crafting;
 
 import java.util.ArrayList;

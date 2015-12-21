@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.bitbag;
 
 import mod.chiselsandbits.helpers.NullInventory;
@@ -18,7 +17,7 @@ public class BagContainer extends Container
 	final PassThruInv pi;
 
 	BagInventory bagInv;
-	ReadonlySlot thatSlot;
+	SlotReadonly thatSlot;
 
 	public BagContainer(
 			final EntityPlayer player,
@@ -49,7 +48,7 @@ public class BagContainer extends Container
 		{
 			for ( int k = 0; k < 9; ++k )
 			{
-				addSlotToContainer( new BitSlot( pi, k + j * 9, 8 + k * 18, 18 + j * 18 ) );
+				addSlotToContainer( new SlotBit( pi, k + j * 9, 8 + k * 18, 18 + j * 18 ) );
 			}
 		}
 
@@ -65,7 +64,7 @@ public class BagContainer extends Container
 		{
 			if ( thePlayer.inventory.currentItem == j )
 			{
-				addSlotToContainer( thatSlot = new ReadonlySlot( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
+				addSlotToContainer( thatSlot = new SlotReadonly( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
 			}
 			else
 			{

@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.items;
 
 import java.util.List;

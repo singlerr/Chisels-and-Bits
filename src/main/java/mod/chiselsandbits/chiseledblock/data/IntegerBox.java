@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.chiseledblock.data;
 
 public class IntegerBox

@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.helpers;
 
 public class ExceptionNoTileEntity extends Exception

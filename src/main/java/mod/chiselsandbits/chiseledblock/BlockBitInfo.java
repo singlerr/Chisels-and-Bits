@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.chiseledblock;
 
 import java.lang.reflect.Method;

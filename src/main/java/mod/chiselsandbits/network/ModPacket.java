@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.network;
 
 import java.io.IOException;

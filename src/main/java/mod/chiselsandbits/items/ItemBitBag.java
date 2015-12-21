@@ -1,17 +1,14 @@
-
 package mod.chiselsandbits.items;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.input.Keyboard;
-
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.ForgeBus;
 import mod.chiselsandbits.bitbag.BagInventory;
+import mod.chiselsandbits.helpers.ForgeBus;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.network.NetworkRouter;
-import mod.chiselsandbits.network.packets.BagGuiPacket;
+import mod.chiselsandbits.network.packets.PacketBagGuiPacket;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -22,6 +19,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
+
+import org.lwjgl.input.Keyboard;
 
 public class ItemBitBag extends Item
 {
@@ -80,7 +79,7 @@ public class ItemBitBag extends Item
 	{
 		if ( worldIn.isRemote )
 		{
-			NetworkRouter.instance.sendToServer( new BagGuiPacket() );
+			NetworkRouter.instance.sendToServer( new PacketBagGuiPacket() );
 		}
 
 		return itemStackIn;

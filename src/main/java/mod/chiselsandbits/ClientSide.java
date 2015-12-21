@@ -1,30 +1,23 @@
-
 package mod.chiselsandbits;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-
-import org.lwjgl.opengl.GL11;
-
-import com.google.common.base.Stopwatch;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.helpers.ForgeBus;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.NetworkRouter;
-import mod.chiselsandbits.network.packets.ChiselPacket;
-import mod.chiselsandbits.network.packets.RotateVoxelBlob;
-import mod.chiselsandbits.render.SculptureModelGenerator;
+import mod.chiselsandbits.network.packets.PacketChisel;
+import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
+import mod.chiselsandbits.render.GeneratedModelLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -36,17 +29,11 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.client.resources.model.WeightedBakedModel;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -55,7 +42,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.ResourceLocation;
@@ -67,12 +53,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.client.model.ISmartBlockModel;
-import net.minecraftforge.client.model.ISmartItemModel;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -81,41 +62,24 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Type;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@SuppressWarnings( "unchecked" )
+import org.lwjgl.opengl.GL11;
+
+import com.google.common.base.Stopwatch;
+
 public class ClientSide
 {
 
-	protected static java.util.Random RANDOM = new java.util.Random(); // Useful
-																		// for
-																		// random
-																		// things
-																		// without
-																		// a
-																		// seed.
+	private final static Random RANDOM = new Random();
 	public final static ClientSide instance = new ClientSide();
-	private final Random rand = new Random();
 
-	private static HashMap<Integer, String> blockToTexture[];
-	private static HashMap<Integer, Integer> blockToLight = new HashMap<Integer, Integer>();
-
-	static
-	{
-		blockToTexture = new HashMap[EnumFacing.VALUES.length * EnumWorldBlockLayer.values().length];
-
-		for ( int x = 0; x < blockToTexture.length; x++ )
-		{
-			blockToTexture[x] = new HashMap<Integer, String>();
-		}
-	}
+	private KeyBinding rotateCCW;
+	private KeyBinding rotateCW;
 
 	public void preinit(
 			final ChiselsAndBits mod )
 	{
-		ModelLoaderRegistry.registerLoader( new SculptureModelGenerator() );
+		ModelLoaderRegistry.registerLoader( new GeneratedModelLoader() );
 	}
-
-	KeyBinding rotateCCW;
-	KeyBinding rotateCW;
 
 	public void init(
 			final ChiselsAndBits chiselsandbits )
@@ -196,7 +160,7 @@ public class ClientSide
 
 		for (
 
-		final BlockChiseled blk : mod.conversions.values() )
+				final BlockChiseled blk : mod.conversions.values() )
 
 		{
 			final Item item = Item.getItemFromBlock( blk );
@@ -296,7 +260,7 @@ public class ClientSide
 			if ( rotateTimer == null || rotateTimer.elapsed( TimeUnit.MILLISECONDS ) > 200 )
 			{
 				rotateTimer = Stopwatch.createStarted();
-				final RotateVoxelBlob p = new RotateVoxelBlob();
+				final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
 				p.wheel = 1;
 				NetworkRouter.instance.sendToServer( p );
 			}
@@ -307,7 +271,7 @@ public class ClientSide
 			if ( rotateTimer == null || rotateTimer.elapsed( TimeUnit.MILLISECONDS ) > 200 )
 			{
 				rotateTimer = Stopwatch.createStarted();
-				final RotateVoxelBlob p = new RotateVoxelBlob();
+				final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
 				p.wheel = -1;
 				NetworkRouter.instance.sendToServer( p );
 			}
@@ -612,9 +576,9 @@ public class ClientSide
 		final int posZ = pos.getZ();
 		final float boxOffset = 0.1F;
 
-		double x = posX + rand.nextDouble() * ( block.getBlockBoundsMaxX() - block.getBlockBoundsMinX() - boxOffset * 2.0F ) + boxOffset + block.getBlockBoundsMinX();
-		double y = posY + rand.nextDouble() * ( block.getBlockBoundsMaxY() - block.getBlockBoundsMinY() - boxOffset * 2.0F ) + boxOffset + block.getBlockBoundsMinY();
-		double z = posZ + rand.nextDouble() * ( block.getBlockBoundsMaxZ() - block.getBlockBoundsMinZ() - boxOffset * 2.0F ) + boxOffset + block.getBlockBoundsMinZ();
+		double x = posX + RANDOM.nextDouble() * ( block.getBlockBoundsMaxX() - block.getBlockBoundsMinX() - boxOffset * 2.0F ) + boxOffset + block.getBlockBoundsMinX();
+		double y = posY + RANDOM.nextDouble() * ( block.getBlockBoundsMaxY() - block.getBlockBoundsMinY() - boxOffset * 2.0F ) + boxOffset + block.getBlockBoundsMinY();
+		double z = posZ + RANDOM.nextDouble() * ( block.getBlockBoundsMaxZ() - block.getBlockBoundsMinZ() - boxOffset * 2.0F ) + boxOffset + block.getBlockBoundsMinZ();
 
 		switch ( target.sideHit )
 		{
@@ -660,8 +624,7 @@ public class ClientSide
 			return;
 		}
 
-		final Minecraft mc = Minecraft.getMinecraft();
-		final EntityPlayer player = mc.thePlayer;
+		final EntityPlayer player = ClientSide.instance.getPlayer();
 		final ItemStack is = player.getHeldItem();
 
 		if ( me.dwheel != 0 && is != null && is.getItem() instanceof IItemScrollWheel && player.isSneaking() )
@@ -689,301 +652,6 @@ public class ClientSide
 		final IBlockState state = Block.getStateById( extractedState );
 		final Block block = state.getBlock();
 		world.playSound( pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, block.stepSound.getBreakSound(), ( block.stepSound.getVolume() + 1.0F ) / 16.0F, block.stepSound.getFrequency() * 0.9F, false );
-	}
-
-	private static class LVReader extends SimpleQuadReaderBase
-	{
-		public int lv = 0;
-
-		public LVReader(
-				final int lightValue )
-		{
-			lv = lightValue;
-		}
-
-		@Override
-		public VertexFormat getVertexFormat()
-		{
-			return DefaultVertexFormats.BLOCK;
-		}
-
-		@Override
-		public void put(
-				final int element,
-				final float... data )
-		{
-			final VertexFormatElement e = getVertexFormat().getElement( element );
-			final float maxLightmap = 32.0f / 0xffff;
-
-			if ( e.getUsage() == EnumUsage.UV && e.getIndex() == 1 && data.length > 1 )
-			{
-				final int lvFromData_sky = (int) ( data[0] / maxLightmap );
-				final int lvFromData_block = (int) ( data[1] / maxLightmap );
-
-				lv = Math.max( lvFromData_sky, lv );
-				lv = Math.max( lvFromData_block, lv );
-			}
-		}
-
-	};
-
-	private static int findLightValue(
-			final int lightValue,
-			final List<BakedQuad> faceQuads )
-	{
-		final LVReader lv = new LVReader( lightValue );
-
-		for ( final BakedQuad q : faceQuads )
-		{
-			if ( q instanceof UnpackedBakedQuad )
-			{
-				final UnpackedBakedQuad ubq = (UnpackedBakedQuad) q;
-				ubq.pipe( lv );
-			}
-		}
-
-		return lv.lv;
-	}
-
-	private static class UVAverageer extends SimpleQuadReaderBase
-	{
-		private int vertCount = 0;
-		private float sumU;
-		private float sumV;
-
-		public float getU()
-		{
-			return sumU / vertCount;
-		}
-
-		public float getV()
-		{
-			return sumV / vertCount;
-		}
-
-		@Override
-		public void put(
-				final int element,
-				final float... data )
-		{
-			final VertexFormatElement e = getVertexFormat().getElement( element );
-			if ( e.getUsage() == EnumUsage.UV && e.getIndex() != 1 )
-			{
-				sumU += data[0];
-				sumV += data[1];
-				++vertCount;
-			}
-		}
-
-	};
-
-	private static TextureAtlasSprite findTexture(
-			TextureAtlasSprite texture,
-			final List<BakedQuad> faceQuads,
-			final EnumFacing side ) throws IllegalArgumentException, IllegalAccessException, NullPointerException
-	{
-		if ( texture == null )
-		{
-			final TextureMap map = Minecraft.getMinecraft().getTextureMapBlocks();
-			final Map<String, TextureAtlasSprite> mapRegisteredSprites = ReflectionWrapper.instance.getRegSprite( map );
-
-			if ( mapRegisteredSprites == null )
-			{
-				throw new RuntimeException( "Unable to lookup textures." );
-			}
-
-			for ( final BakedQuad q : faceQuads )
-			{
-				if ( side != null && q.getFace() != side )
-				{
-					continue;
-				}
-
-				final UVAverageer av = new UVAverageer();
-				q.pipe( av );
-
-				final float U = av.getU();
-				final float V = av.getV();
-
-				final Iterator<?> iterator1 = mapRegisteredSprites.values().iterator();
-				while ( iterator1.hasNext() )
-				{
-					final TextureAtlasSprite sprite = (TextureAtlasSprite) iterator1.next();
-					if ( sprite.getMinU() <= U && U <= sprite.getMaxU() && sprite.getMinV() <= V && V <= sprite.getMaxV() )
-					{
-						texture = sprite;
-						return texture;
-					}
-				}
-			}
-		}
-
-		return texture;
-	}
-
-	public static int findLightValue(
-			final int BlockRef,
-			final IBakedModel originalModel )
-	{
-		final Integer lvP = blockToLight.get( BlockRef );
-
-		if ( lvP != null )
-		{
-			return lvP;
-		}
-
-		int lv = 0;
-
-		for ( final EnumFacing side : EnumFacing.VALUES )
-		{
-			lv = findLightValue( lv, originalModel.getFaceQuads( side ) );
-		}
-
-		findLightValue( lv, originalModel.getGeneralQuads() );
-		blockToLight.put( BlockRef, lv );
-		return lv;
-	}
-
-	@SuppressWarnings( "rawtypes" )
-	public IBakedModel solveModel(
-			final int BlockRef,
-			final long weight,
-			final IBakedModel originalModel )
-	{
-		IBakedModel actingModel = originalModel;
-		final IBlockState state = Block.getStateById( BlockRef );
-
-		try
-		{
-			if ( actingModel != null && ChiselsAndBits.instance.config.allowBlockAlternatives && actingModel instanceof WeightedBakedModel )
-			{
-				actingModel = ( (WeightedBakedModel) actingModel ).getAlternativeModel( weight );
-			}
-		}
-		catch ( final Exception err )
-		{
-		}
-
-		// first try to get the real model...
-		try
-		{
-			if ( actingModel instanceof ISmartBlockModel )
-			{
-				if ( state instanceof IExtendedBlockState )
-				{
-					if ( actingModel instanceof ISmartItemModel )
-					{
-						final Item it = state.getBlock().getItemDropped( state, RANDOM, 0 );
-						final ItemStack stack = new ItemStack( it, 1, state.getBlock().damageDropped( state ) );
-
-						final IBakedModel newModel = ( (ISmartItemModel) actingModel ).handleItemState( stack );
-						if ( newModel != null )
-						{
-							return newModel;
-						}
-					}
-
-					IExtendedBlockState extendedState = (IExtendedBlockState) state;
-
-					for ( final IUnlistedProperty p : extendedState.getUnlistedNames() )
-					{
-						extendedState = extendedState.withProperty( p, p.getType().newInstance() );
-					}
-
-					final IBakedModel newModel = ( (ISmartBlockModel) actingModel ).handleBlockState( extendedState );
-					if ( newModel != null )
-					{
-						return newModel;
-					}
-				}
-				else
-				{
-					final IBakedModel newModel = ( (ISmartBlockModel) actingModel ).handleBlockState( state );
-					if ( newModel != null )
-					{
-						return newModel;
-					}
-				}
-			}
-		}
-		catch ( final Exception err )
-		{
-			if ( actingModel instanceof ISmartItemModel )
-			{
-				final Item it = state.getBlock().getItemDropped( state, RANDOM, 0 );
-				final ItemStack stack = new ItemStack( it, 1, state.getBlock().damageDropped( state ) );
-
-				final IBakedModel newModel = ( (ISmartItemModel) actingModel ).handleItemState( stack );
-				if ( newModel != null )
-				{
-					return newModel;
-				}
-			}
-		}
-
-		return actingModel;
-	}
-
-	public static TextureAtlasSprite findTexture(
-			final int BlockRef,
-			final IBakedModel model,
-			final EnumFacing myFace,
-			final EnumWorldBlockLayer layer )
-	{
-		final int blockToWork = layer.ordinal() * EnumFacing.VALUES.length + myFace.ordinal();
-
-		// didn't work? ok lets try scanning for the texture in the
-		if ( blockToTexture[blockToWork].containsKey( BlockRef ) )
-		{
-			final String textureName = blockToTexture[blockToWork].get( BlockRef );
-			return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( textureName );
-		}
-
-		TextureAtlasSprite texture = null;
-
-		if ( model != null )
-		{
-			try
-			{
-				texture = findTexture( texture, model.getFaceQuads( myFace ), myFace );
-
-				if ( texture == null )
-				{
-					for ( final EnumFacing side : EnumFacing.VALUES )
-					{
-						texture = findTexture( texture, model.getFaceQuads( side ), side );
-					}
-
-					texture = findTexture( texture, model.getGeneralQuads(), null );
-				}
-			}
-			catch ( final Exception errr )
-			{
-			}
-		}
-
-		// who knows if that worked.. now lets try to get a texture...
-		if ( texture == null )
-		{
-			try
-			{
-				if ( texture == null )
-				{
-					texture = model.getParticleTexture();
-				}
-			}
-			catch ( final Exception err )
-			{
-			}
-		}
-
-		if ( texture == null )
-		{
-			texture = Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
-		}
-
-		blockToTexture[blockToWork].put( BlockRef, texture.getIconName() );
-		return texture;
 	}
 
 	private BlockPos drawBlock;
@@ -1025,7 +693,7 @@ public class ClientSide
 		{
 			if ( drawBlock != null && drawBlock.equals( pos ) )
 			{
-				final ChiselPacket pc = new ChiselPacket( pos, drawStart.getX(), drawStart.getY(), drawStart.getZ(), x, y, z, EnumFacing.UP, ChiselMode.DRAWN_REGION );
+				final PacketChisel pc = new PacketChisel( pos, drawStart.getX(), drawStart.getY(), drawStart.getZ(), x, y, z, EnumFacing.UP, ChiselMode.DRAWN_REGION );
 				final int extractedState = pc.doAction( Minecraft.getMinecraft().thePlayer );
 
 				if ( extractedState != 0 )

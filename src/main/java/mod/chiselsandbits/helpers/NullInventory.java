@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.helpers;
 
 import net.minecraft.entity.player.EntityPlayer;

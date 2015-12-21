@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits.render;
 
 import java.util.Collections;
@@ -58,9 +57,9 @@ public abstract class BaseSmartModel implements IFlexibleBakedModel
 	@Override
 	public List<BakedQuad> getFaceQuads(
 			final EnumFacing side )
-	{
+			{
 		return Collections.emptyList();
-	}
+			}
 
 	@Override
 	public List<BakedQuad> getGeneralQuads()
