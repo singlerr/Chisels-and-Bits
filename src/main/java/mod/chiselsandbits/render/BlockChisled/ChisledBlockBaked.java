@@ -307,7 +307,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 			{
 				if ( regions == null )
 				{
-					regions = new ArrayList<FaceRegion>( 64 );
+					regions = new ArrayList<FaceRegion>( 16 );
 				}
 
 				for ( int z = 0; z < blob.detail; z++ )
@@ -365,7 +365,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 			{
 				if ( regions == null )
 				{
-					regions = new ArrayList<FaceRegion>( 64 );
+					regions = new ArrayList<FaceRegion>( 16 );
 				}
 
 				for ( int z = 0; z < blob.detail; z++ )
@@ -423,7 +423,7 @@ public class ChisledBlockBaked extends BaseBakedModel
 			{
 				if ( regions == null )
 				{
-					regions = new ArrayList<FaceRegion>( 64 );
+					regions = new ArrayList<FaceRegion>( 16 );
 				}
 
 				for ( int y = 0; y < blob.detail; y++ )
