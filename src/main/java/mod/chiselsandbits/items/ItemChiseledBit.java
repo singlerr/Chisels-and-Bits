@@ -9,6 +9,7 @@ import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.block.Block;
@@ -29,7 +30,6 @@ public class ItemChiseledBit extends Item
 {
 	public ItemChiseledBit()
 	{
-		setCreativeTab( ChiselsAndBits.creativeTab );
 		setHasSubtypes( true );
 	}
 
@@ -254,7 +254,7 @@ public class ItemChiseledBit extends Item
 			final int count,
 			final boolean RequireStack )
 	{
-		if ( ChiselsAndBits.instance.itemBlockBit == null )
+		if ( ChiselsAndBits.instance.items.itemBlockBit == null )
 		{
 			if ( !RequireStack )
 			{
@@ -262,7 +262,7 @@ public class ItemChiseledBit extends Item
 			}
 		}
 
-		final ItemStack out = new ItemStack( ChiselsAndBits.instance.itemBlockBit, count );
+		final ItemStack out = new ItemStack( ChiselsAndBits.instance.items.itemBlockBit, count );
 		out.setTagInfo( "id", new NBTTagInt( id ) );
 		return out;
 	}

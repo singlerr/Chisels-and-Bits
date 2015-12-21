@@ -6,7 +6,6 @@ import java.util.List;
 
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.helpers.ForgeBus;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -186,7 +185,7 @@ public class ModConfig extends Configuration
 	{
 		super( path );
 		myPath = path;
-		ChiselsAndBits.registerWithBus( this, ForgeBus.FML );
+		ChiselsAndBits.registerWithBus( this );
 		setDefaults();
 		populateSettings();
 		save();

@@ -1,4 +1,4 @@
-package mod.chiselsandbits.items;
+package mod.chiselsandbits.chiseledblock.data;
 
 import java.util.HashMap;
 

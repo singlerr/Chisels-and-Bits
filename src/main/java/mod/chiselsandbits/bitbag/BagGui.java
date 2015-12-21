@@ -31,7 +31,7 @@ public class BagGui extends GuiContainer
 			final int mouseX,
 			final int mouseY )
 	{
-		fontRendererObj.drawString( ChiselsAndBits.instance.itemBitBag.getItemStackDisplayName( null ), 8, 6, 4210752 );
+		fontRendererObj.drawString( ChiselsAndBits.instance.items.itemBitBag.getItemStackDisplayName( null ), 8, 6, 4210752 );
 		fontRendererObj.drawString( I18n.format( "container.inventory", new Object[0] ), 8, ySize - 93, 4210752 );
 	}
 

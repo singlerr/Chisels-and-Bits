@@ -14,7 +14,7 @@ public class NegativePrintBaked extends BaseBakedItemModel
 	public NegativePrintBaked(
 			final ItemStack stack )
 	{
-		final ItemStack blockItem = ChiselsAndBits.instance.itemNegativeprint.getPatternedItem( stack );
+		final ItemStack blockItem = ChiselsAndBits.instance.items.itemNegativeprint.getPatternedItem( stack );
 		final IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( blockItem );
 
 		for ( final EnumFacing face : EnumFacing.VALUES )

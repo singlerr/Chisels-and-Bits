@@ -9,7 +9,6 @@ import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.helpers.ForgeBus;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.items.ItemChisel;
@@ -17,6 +16,7 @@ import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
+import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.GeneratedModelLoader;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -97,7 +97,7 @@ public class ClientSide
 		rotateCW = new KeyBinding( "mod.chiselsandbits.other.rotate.cw", 0, "itemGroup.chiselsandbits" );
 		ClientRegistry.registerKeyBinding( rotateCW );
 
-		ChiselsAndBits.registerWithBus( instance, ForgeBus.BOTH );
+		ChiselsAndBits.registerWithBus( instance );
 	}
 
 	public void postinit(
@@ -107,17 +107,19 @@ public class ClientSide
 
 		final String MODID = ChiselsAndBits.MODID;
 
-		registerMesh( mesher, mod.itemChiselStone, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_stone" ), "inventory" ) );
-		registerMesh( mesher, mod.itemChiselIron, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_iron" ), "inventory" ) );
-		registerMesh( mesher, mod.itemChiselGold, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_gold" ), "inventory" ) );
-		registerMesh( mesher, mod.itemChiselDiamond, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_diamond" ), "inventory" ) );
-		registerMesh( mesher, mod.itemBitBag, 0, new ModelResourceLocation( new ResourceLocation( MODID, "bit_bag" ), "inventory" ) );
-		registerMesh( mesher, mod.itemWrench, 0, new ModelResourceLocation( new ResourceLocation( MODID, "wrench_wood" ), "inventory" ) );
+		ModItems modItems = mod.items;
 
-		if ( mod.itemPositiveprint != null )
+		registerMesh( mesher, modItems.itemChiselStone, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_stone" ), "inventory" ) );
+		registerMesh( mesher, modItems.itemChiselIron, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_iron" ), "inventory" ) );
+		registerMesh( mesher, modItems.itemChiselGold, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_gold" ), "inventory" ) );
+		registerMesh( mesher, modItems.itemChiselDiamond, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_diamond" ), "inventory" ) );
+		registerMesh( mesher, modItems.itemBitBag, 0, new ModelResourceLocation( new ResourceLocation( MODID, "bit_bag" ), "inventory" ) );
+		registerMesh( mesher, modItems.itemWrench, 0, new ModelResourceLocation( new ResourceLocation( MODID, "wrench_wood" ), "inventory" ) );
+
+		if ( modItems.itemPositiveprint != null )
 		{
-			ModelBakery.addVariantName( mod.itemPositiveprint, MODID + ":positiveprint", MODID + ":positiveprint_written" );
-			mesher.register( mod.itemPositiveprint, new ItemMeshDefinition() {
+			ModelBakery.addVariantName( modItems.itemPositiveprint, MODID + ":positiveprint", MODID + ":positiveprint_written" );
+			mesher.register( modItems.itemPositiveprint, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
@@ -129,10 +131,10 @@ public class ClientSide
 			} );
 		}
 
-		if ( mod.itemNegativeprint != null )
+		if ( modItems.itemNegativeprint != null )
 		{
-			ModelBakery.addVariantName( mod.itemNegativeprint, MODID + ":negativeprint", MODID + ":negativeprint_written" );
-			mesher.register( mod.itemNegativeprint, new ItemMeshDefinition() {
+			ModelBakery.addVariantName( modItems.itemNegativeprint, MODID + ":negativeprint", MODID + ":negativeprint_written" );
+			mesher.register( modItems.itemNegativeprint, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
@@ -144,9 +146,9 @@ public class ClientSide
 			} );
 		}
 
-		if ( mod.itemBlockBit != null )
+		if ( modItems.itemBlockBit != null )
 		{
-			mesher.register( mod.itemBlockBit, new ItemMeshDefinition() {
+			mesher.register( modItems.itemBlockBit, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
@@ -160,7 +162,7 @@ public class ClientSide
 
 		for (
 
-				final BlockChiseled blk : mod.conversions.values() )
+		final BlockChiseled blk : mod.blocks.getConversions().values() )
 
 		{
 			final Item item = Item.getItemFromBlock( blk );
@@ -344,7 +346,7 @@ public class ClientSide
 					final VoxelBlob vb = new VoxelBlob();
 					vb.fill( 1 ); // fill with.. something soild...
 
-					final BlockChiseled chiselBlock = ChiselsAndBits.instance.getConversion( block.getMaterial() );
+					final BlockChiseled chiselBlock = ChiselsAndBits.instance.blocks.getConversion( block.getMaterial() );
 					RenderGlobal.func_181561_a( chiselBlock.getSelectedBoundingBox( player, blockpos, vb, chMode ).expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x, -y, -z ) );
 				}
 
@@ -395,7 +397,7 @@ public class ClientSide
 				return;
 			}
 
-			final ItemStack item = ChiselsAndBits.instance.itemNegativeprint.getPatternedItem( currentItem );
+			final ItemStack item = ChiselsAndBits.instance.items.itemNegativeprint.getPatternedItem( currentItem );
 			if ( !item.hasTagCompound() )
 			{
 				return;

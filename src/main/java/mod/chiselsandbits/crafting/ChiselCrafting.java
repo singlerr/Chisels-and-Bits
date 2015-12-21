@@ -8,7 +8,9 @@ import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.IntegerRef;
+import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
+import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -56,12 +58,12 @@ public class ChiselCrafting implements IRecipe
 					continue;
 				}
 
-				if ( is.getItem() == ChiselsAndBits.instance.itemBitBag )
+				if ( is.getItem() instanceof ItemBitBag )
 				{
 					bags.add( new BagInventory( copy ? is.copy() : is ) );
 				}
 
-				if ( is.getItem() == ChiselsAndBits.instance.itemBlockBit )
+				if ( is.getItem() instanceof ItemChiseledBit )
 				{
 					stacks.add( copy ? is.copy() : is );
 				}
@@ -134,15 +136,15 @@ public class ChiselCrafting implements IRecipe
 				continue;
 			}
 
-			if ( is.getItem() == ChiselsAndBits.instance.itemPositiveprint && pattern == null )
+			if ( is.getItem() == ChiselsAndBits.instance.items.itemPositiveprint && pattern == null )
 			{
 				pattern = is;
 			}
-			else if ( is.getItem() == ChiselsAndBits.instance.itemBitBag )
+			else if ( is.getItem() instanceof ItemBitBag )
 			{
 				continue;
 			}
-			else if ( is.getItem() == ChiselsAndBits.instance.itemBlockBit )
+			else if ( is.getItem() instanceof ItemChiseledBit )
 			{
 				continue;
 			}
@@ -182,7 +184,7 @@ public class ChiselCrafting implements IRecipe
 
 		if ( req != null )
 		{
-			return ChiselsAndBits.instance.itemPositiveprint.getPatternedItem( req.pattern );
+			return ChiselsAndBits.instance.items.itemPositiveprint.getPatternedItem( req.pattern );
 		}
 
 		return null;

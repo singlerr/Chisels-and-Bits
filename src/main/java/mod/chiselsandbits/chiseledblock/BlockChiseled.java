@@ -483,7 +483,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch (
 
-				final ExceptionNoTileEntity e )
+		final ExceptionNoTileEntity e )
 
 		{
 		}
@@ -858,7 +858,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final boolean requiredImplementation = quantityDroppedTest && quantityDroppedWithBonusTest && quantityDropped2Test && entityCollisionTest && entityCollision2Test;
 			final boolean hasBehavior = blk.hasTileEntity( state ) || blk.getTickRandomly();
 
-			final boolean supportedMaterial = ChiselsAndBits.instance.getConversion( blk.getMaterial() ) != null;
+			final boolean supportedMaterial = ChiselsAndBits.instance.blocks.getConversion( blk.getMaterial() ) != null;
 
 			if ( info.isCompatiable && requiredImplementation && info.hardness >= -0.01f && isFullBlock && supportedMaterial && !hasBehavior )
 			{
@@ -915,7 +915,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		if ( supportsBlock( actingState ) || isAir )
 		{
-			BlockChiseled blk = ChiselsAndBits.instance.getConversion( target.getMaterial() );
+			BlockChiseled blk = ChiselsAndBits.instance.blocks.getConversion( target.getMaterial() );
 
 			int BlockID = Block.getStateId( actingState );
 
@@ -924,7 +924,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				actingState = Block.getStateById( fragmentBlockStateID );
 				target = actingState.getBlock();
 				BlockID = Block.getStateId( actingState );
-				blk = ChiselsAndBits.instance.getConversion( target.getMaterial() );
+				blk = ChiselsAndBits.instance.blocks.getConversion( target.getMaterial() );
 				// its still air tho..
 				actingState = Blocks.air.getDefaultState();
 			}

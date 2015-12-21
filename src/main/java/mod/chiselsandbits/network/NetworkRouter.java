@@ -2,7 +2,6 @@ package mod.chiselsandbits.network;
 
 import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.helpers.ForgeBus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.INetHandler;
@@ -76,7 +75,7 @@ public class NetworkRouter
 		ec = NetworkRegistry.INSTANCE.newEventDrivenChannel( channelName );
 		ec.register( this );
 
-		ChiselsAndBits.registerWithBus( this, ForgeBus.FML );
+		ChiselsAndBits.registerWithBus( this );
 
 		clientPacketHandler = new ClientPacketHandler();
 		serverPacketHandler = new ServerPacketHandler();

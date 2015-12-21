@@ -14,7 +14,7 @@ public class PositivePrintBaked extends BaseBakedItemModel
 	public PositivePrintBaked(
 			final ItemStack stack )
 	{
-		final ItemStack blockItem = ChiselsAndBits.instance.itemPositiveprint.getPatternedItem( stack );
+		final ItemStack blockItem = ChiselsAndBits.instance.items.itemPositiveprint.getPatternedItem( stack );
 		final IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( blockItem );
 
 		for ( final EnumFacing face : EnumFacing.VALUES )

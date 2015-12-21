@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.helpers.ForgeBus;
 import mod.chiselsandbits.render.bit.BitItemSmartModel;
 import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
 import mod.chiselsandbits.render.patterns.NegativePrintSmartModel;
@@ -56,7 +55,7 @@ public class GeneratedModelLoader implements ICustomModelLoader
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/positiveprint_written_preview" ), PositivePrintSmartModel.class );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/negativeprint_written_preview" ), NegativePrintSmartModel.class );
 
-		ChiselsAndBits.registerWithBus( this, ForgeBus.FORGE );
+		ChiselsAndBits.registerWithBus( this );
 	}
 
 	private void add(

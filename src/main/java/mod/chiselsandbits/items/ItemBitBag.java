@@ -5,7 +5,6 @@ import java.util.List;
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.bitbag.BagInventory;
-import mod.chiselsandbits.helpers.ForgeBus;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketBagGuiPacket;
@@ -31,10 +30,9 @@ public class ItemBitBag extends Item
 
 	public ItemBitBag()
 	{
-		setCreativeTab( ChiselsAndBits.creativeTab );
 		setHasSubtypes( true );
 		setMaxStackSize( 1 );
-		ChiselsAndBits.registerWithBus( this, ForgeBus.FML );
+		ChiselsAndBits.registerWithBus( this );
 	}
 
 	// add info cached info

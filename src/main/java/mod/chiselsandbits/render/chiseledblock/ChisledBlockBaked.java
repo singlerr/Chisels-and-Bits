@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
-import mod.chiselsandbits.items.BitColors;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
 import mod.chiselsandbits.render.helpers.ModelUVReader;
 import mod.chiselsandbits.render.helpers.ModelUtil;

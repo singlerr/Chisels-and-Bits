@@ -50,7 +50,6 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 			final ToolMaterial material )
 	{
 		super( 0.1F, material, new HashSet<Block>() );
-		setCreativeTab( ChiselsAndBits.creativeTab );
 
 		// chisels are scaled up so that 1 stone chisel can mine one block.
 		final long uses = material.getMaxUses() * ChiselsAndBits.instance.config.availableUsesMultiplier;
@@ -386,7 +385,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 
 		selected.damage( blk );
 
-		final boolean spawnBit = ChiselsAndBits.instance.itemBlockBit != null;
+		final boolean spawnBit = ChiselsAndBits.instance.items.itemBlockBit != null;
 		if ( !world.isRemote && !isCreative )
 		{
 			double hitX = x * one_16th;
