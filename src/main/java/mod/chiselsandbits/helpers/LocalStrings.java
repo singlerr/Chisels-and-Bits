@@ -7,6 +7,9 @@ public enum LocalStrings
 {
 
 	ChiselModeSingle( "chiselmode.single" ),
+	ChiselModeSnap2( "chiselmode.snap2" ),
+	ChiselModeSnap4( "chiselmode.snap4" ),
+	ChiselModeSnap8( "chiselmode.snap8" ),
 	ChiselModeLine( "chiselmode.line" ),
 	ChiselModePlane( "chiselmode.plane" ),
 	ChiselModeConnectedPlane( "chiselmode.connected_plane" ),
