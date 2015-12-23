@@ -4,9 +4,14 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.lwjgl.opengl.GL11;
+
+import com.google.common.base.Stopwatch;
+
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -18,6 +23,7 @@ import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.GeneratedModelLoader;
+import mod.chiselsandbits.render.chiseledblock.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -62,10 +68,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Type;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import org.lwjgl.opengl.GL11;
-
-import com.google.common.base.Stopwatch;
-
 public class ClientSide
 {
 
@@ -84,6 +86,8 @@ public class ClientSide
 	public void init(
 			final ChiselsAndBits chiselsandbits )
 	{
+		ClientRegistry.bindTileEntitySpecialRenderer( TileEntityBlockChiseledTESR.class, new ChisledBlockRenderChunkTESR() );
+
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
 			final KeyBinding binding = new KeyBinding( mode.string.toString(), 0, "itemGroup.chiselsandbits" );
@@ -107,7 +111,7 @@ public class ClientSide
 
 		final String MODID = ChiselsAndBits.MODID;
 
-		ModItems modItems = mod.items;
+		final ModItems modItems = mod.items;
 
 		registerMesh( mesher, modItems.itemChiselStone, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_stone" ), "inventory" ) );
 		registerMesh( mesher, modItems.itemChiselIron, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_iron" ), "inventory" ) );
@@ -364,6 +368,10 @@ public class ClientSide
 	public void drawLast(
 			final RenderWorldLastEvent event )
 	{
+		// important and used for tesr / block rendering.
+		++lastRenderedFrame;
+
+		// now render the ghosts...
 		final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		final float partialTicks = event.partialTicks;
 		final MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
@@ -659,6 +667,7 @@ public class ClientSide
 	private BlockPos drawBlock;
 	private BlockPos drawStart;
 	private boolean loopDeath = false;
+	public int lastRenderedFrame = Integer.MIN_VALUE;
 
 	public BlockPos getStartPos()
 	{

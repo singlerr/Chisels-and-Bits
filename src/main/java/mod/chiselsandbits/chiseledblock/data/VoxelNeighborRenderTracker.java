@@ -15,28 +15,39 @@ public class VoxelNeighborRenderTracker
 	private WeakReference<VoxelBlobStateReference> lastCenter;
 	private ModelRenderState lrs = null;
 
+	private boolean isDynamic;
 	private final VoxelBlobStateReference[] sides = new VoxelBlobStateReference[6];
 
+	public boolean isDynamic()
+	{
+		return isDynamic;
+	}
+
 	public void update(
+			final boolean isDynamic,
 			final World worldObj,
 			final BlockPos pos )
 	{
+		this.isDynamic = isDynamic;
+
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
 			final TileEntity te = worldObj.getTileEntity( pos.offset( f ) );
 			if ( te instanceof TileEntityBlockChiseled )
 			{
-				update( f, ( (TileEntityBlockChiseled) te ).getBasicState().getValue( BlockChiseled.v_prop ) );
+				final TileEntityBlockChiseled tebc = (TileEntityBlockChiseled) te;
+				update( f, tebc.isDynamicRender(), tebc.getBasicState().getValue( BlockChiseled.v_prop ) );
 			}
 			else
 			{
-				update( f, null );
+				update( f, false, null );
 			}
 		}
 	}
 
 	private void update(
 			final EnumFacing f,
+			final boolean isDynamic,
 			final VoxelBlobStateReference value )
 	{
 		if ( sides[f.ordinal()] == value )

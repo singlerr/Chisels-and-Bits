@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.lwjgl.util.vector.Vector3f;
+
 import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -34,8 +36,6 @@ import net.minecraft.util.Vec3i;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad.Builder;
 
-import org.lwjgl.util.vector.Vector3f;
-
 public class ChisledBlockBaked extends BaseBakedBlockModel
 {
 	IBakedModel originalModel;
@@ -50,6 +50,11 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 
 	public static final float pixelsPerBlock = 16.0f;
 	private static final ChisledBlockBaked emptyPlaceHolder = new ChisledBlockBaked();
+
+	public static IBakedModel emptyModel()
+	{
+		return emptyPlaceHolder;
+	}
 
 	public boolean isEmpty()
 	{
@@ -266,23 +271,23 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 			final int size = src.size();
 			final int size_minus_one = size - 1;
 			restart: for ( int x = 0; x < size_minus_one; ++x )
+			{
+				final FaceRegion A = src.get( x );
+
+				for ( int y = x + 1; y < size; ++y )
 				{
-					final FaceRegion A = src.get( x );
+					final FaceRegion B = src.get( y );
 
-					for ( int y = x + 1; y < size; ++y )
+					if ( A.extend( B ) )
 					{
-						final FaceRegion B = src.get( y );
+						src.set( y, src.get( size_minus_one ) );
+						src.remove( size_minus_one );
 
-						if ( A.extend( B ) )
-						{
-							src.set( y, src.get( size_minus_one ) );
-							src.remove( size_minus_one );
-
-							restart = true;
-							break restart;
-						}
+						restart = true;
+						break restart;
 					}
 				}
+			}
 		}
 		while ( restart );
 	}
@@ -817,9 +822,9 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	@Override
 	public List<BakedQuad> getFaceQuads(
 			final EnumFacing p_177551_1_ )
-			{
+	{
 		return face[p_177551_1_.ordinal()];
-			}
+	}
 
 	@Override
 	public List<BakedQuad> getGeneralQuads()

@@ -37,7 +37,20 @@ public class TileEntityBlockChiseled extends TileEntity
 	public static final String light_opacity_prop = "l";
 	public static final String light_prop = "lv";
 
+	private TileRenderChunk renderChunk;
 	private IExtendedBlockState state;
+
+	public TileRenderChunk getRenderChunk()
+	{
+		return renderChunk;
+	}
+
+	public void copyFrom(
+			final TileEntityBlockChiseled src )
+	{
+		renderChunk = src.renderChunk;
+		state = src.state;
+	}
 
 	public TileEntityBlockChiseled()
 	{
@@ -45,16 +58,17 @@ public class TileEntityBlockChiseled extends TileEntity
 
 	public IExtendedBlockState getBasicState()
 	{
-		return getState( false );
+		return getState( false, 0 );
 	}
 
 	public IExtendedBlockState getRenderState()
 	{
-		return getState( true );
+		return getState( true, 1 );
 	}
 
-	private IExtendedBlockState getState(
-			final boolean updateNeightbors )
+	protected IExtendedBlockState getState(
+			final boolean updateNeightbors,
+			final int updateCost )
 	{
 		if ( state == null )
 		{
@@ -63,11 +77,66 @@ public class TileEntityBlockChiseled extends TileEntity
 
 		if ( updateNeightbors )
 		{
+			if ( renderChunk == null )
+			{
+				renderChunk = findRenderChunk();
+				renderChunk.register( this );
+			}
+
+			renderChunk.update( null, updateCost );
+
+			if ( isInvalid() )
+			{
+				return state;
+			}
+
 			final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.n_prop );
-			vns.update( worldObj, pos );
+			vns.update( renderChunk.isDyanmic, worldObj, pos );
 		}
 
 		return state;
+	}
+
+	@Override
+	public void invalidate()
+	{
+		if ( renderChunk != null )
+		{
+			renderChunk.unregister( this );
+		}
+	}
+
+	private TileRenderChunk findRenderChunk()
+	{
+		int cp_x = getPos().getX();
+		int cp_y = getPos().getY();
+		int cp_z = getPos().getZ();
+
+		final int mask = ~0xf;
+		cp_x = cp_x & mask;
+		cp_y = cp_y & mask;
+		cp_z = cp_z & mask;
+
+		for ( int x = 0; x < 16; ++x )
+		{
+			for ( int y = 0; y < 16; ++y )
+			{
+				for ( int z = 0; z < 16; ++z )
+				{
+					final TileEntity te = worldObj.getTileEntity( new BlockPos( cp_x + x, cp_y + y, cp_z + z ) );
+					if ( te instanceof TileEntityBlockChiseled )
+					{
+						final TileRenderChunk trc = ( (TileEntityBlockChiseled) te ).renderChunk;
+						if ( trc != null )
+						{
+							return trc;
+						}
+					}
+				}
+			}
+		}
+
+		return new TileRenderChunk();
 	}
 
 	public IBlockState getBlockState(
@@ -401,5 +470,10 @@ public class TileEntityBlockChiseled extends TileEntity
 	{
 		final Integer sideFlags = ChisledBlockSmartModel.getSides( this );
 		return ( sideFlags & 1 << side.ordinal() ) != 0;
+	}
+
+	public boolean isDynamicRender()
+	{
+		return renderChunk == null ? false : renderChunk.isDyanmic;
 	}
 }

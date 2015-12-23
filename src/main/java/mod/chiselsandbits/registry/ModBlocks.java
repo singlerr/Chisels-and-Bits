@@ -31,7 +31,7 @@ public class ModBlocks extends ModRegistry
 	private final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();
 
 	public ModBlocks(
-			ModConfig config )
+			final ModConfig config )
 	{
 		// register tile entities.
 		GameRegistry.registerTileEntity( TileEntityBlockChiseled.class, "mod.chiselsandbits.TileEntityChiseled" );

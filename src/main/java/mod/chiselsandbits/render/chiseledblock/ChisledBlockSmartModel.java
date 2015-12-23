@@ -114,7 +114,6 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 		}
 
 		return out;
-
 	}
 
 	@Override
@@ -130,6 +129,12 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 		blockP = blockP == null ? 0 : blockP;
 
 		final EnumWorldBlockLayer layer = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
+
+		if ( rTracker != null && rTracker.isDynamic() )
+		{
+			return ChisledBlockBaked.emptyModel();
+		}
+
 		return getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, ChisledBlockBaked.CNB );
 	}
 
