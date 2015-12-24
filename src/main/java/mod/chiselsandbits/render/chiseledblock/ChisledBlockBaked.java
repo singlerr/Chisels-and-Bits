@@ -302,7 +302,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : X_Faces )
 		{
-			final VoxelBlobStateReference nextToState = mrs != null && myLayer == EnumWorldBlockLayer.TRANSLUCENT ? mrs.sides[myFace.ordinal()] : null;
+			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.sides[myFace.ordinal()] : null;
 			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 			for ( int x = 0; x < blob.detail; x++ )
 			{
@@ -360,7 +360,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : Y_Faces )
 		{
-			final VoxelBlobStateReference nextToState = mrs != null && myLayer == EnumWorldBlockLayer.TRANSLUCENT ? mrs.sides[myFace.ordinal()] : null;
+			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.sides[myFace.ordinal()] : null;
 			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 			for ( int y = 0; y < blob.detail; y++ )
 			{
@@ -418,7 +418,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : Z_Faces )
 		{
-			final VoxelBlobStateReference nextToState = mrs != null && myLayer == EnumWorldBlockLayer.TRANSLUCENT ? mrs.sides[myFace.ordinal()] : null;
+			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.sides[myFace.ordinal()] : null;
 			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 			for ( int z = 0; z < blob.detail; z++ )
 			{

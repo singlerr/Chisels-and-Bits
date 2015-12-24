@@ -1,5 +1,7 @@
 package mod.chiselsandbits.render.chiseledblock;
 
+import java.util.EnumSet;
+
 import org.lwjgl.opengl.GL11;
 
 import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
@@ -49,7 +51,19 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
-		GlStateManager.enableBlend();
+		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+
+		if ( layer == EnumWorldBlockLayer.TRANSLUCENT )
+		{
+			GlStateManager.enableBlend();
+			GlStateManager.disableAlpha();
+		}
+		else
+		{
+			GlStateManager.disableBlend();
+			GlStateManager.enableAlpha();
+		}
+
 		GlStateManager.enableCull();
 		GL11.glPushMatrix();
 
@@ -66,8 +80,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 				-TileEntityRendererDispatcher.staticPlayerY,
 				-TileEntityRendererDispatcher.staticPlayerZ );
 
-		// trc.rebuild = true;
-		if ( state == EnumTESRRenderState.GENERATE || trc.displayList[layer.ordinal()] == 0 || trc.rebuild )
+		if ( state == EnumTESRRenderState.GENERATE || trc.displayList[layer.ordinal()] == 0 || trc.rebuild[layer.ordinal()] )
 		{
 			if ( trc.displayList[layer.ordinal()] == 0 )
 			{
@@ -75,21 +88,26 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			}
 
 			GL11.glNewList( trc.displayList[layer.ordinal()], GL11.GL_COMPILE_AND_EXECUTE );
-			trc.rebuild = false;
+			trc.rebuild[layer.ordinal()] = false;
 
 			worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
 			worldrenderer.setTranslation( 0, 0, 0 );
 
+			final EnumSet<EnumWorldBlockLayer> layers = layer == EnumWorldBlockLayer.TRANSLUCENT ? EnumSet.of( layer ) : EnumSet.complementOf( EnumSet.of( EnumWorldBlockLayer.TRANSLUCENT ) );
 			for ( final TileEntityBlockChiseled tx : trc.getTiles() )
 			{
 				if ( tx instanceof TileEntityBlockChiseledTESR )
 				{
 					final IExtendedBlockState estate = ( (TileEntityBlockChiseledTESR) tx ).getTileRenderState();
-					final ChisledBlockBaked model = ChisledBlockSmartModel.getCachedModel( tx, layer );
 
-					if ( !model.isEmpty() )
+					for ( final EnumWorldBlockLayer lx : layers )
 					{
-						blockRenderer.getBlockModelRenderer().renderModel( tx.getWorld(), model, estate, tx.getPos(), worldrenderer, false );
+						final ChisledBlockBaked model = ChisledBlockSmartModel.getCachedModel( tx, lx );
+
+						if ( !model.isEmpty() )
+						{
+							blockRenderer.getBlockModelRenderer().renderModel( tx.getWorld(), model, estate, tx.getPos(), worldrenderer, false );
+						}
 					}
 				}
 			}

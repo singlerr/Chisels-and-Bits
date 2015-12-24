@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Stopwatch;
 
 import mod.chiselsandbits.ClientSide;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
@@ -15,10 +16,11 @@ import net.minecraft.world.World;
 public class TileRenderChunk
 {
 
-	public boolean rebuild = false;
-	public int lastRenderedFrame;
+	public boolean rebuild[];
 	public int lastRenderedFrames[];
 	public int displayList[];
+
+	public int lastRenderedFrame;
 
 	private Stopwatch lastUpdated;
 	private int updates = 0;
@@ -28,6 +30,7 @@ public class TileRenderChunk
 
 	public TileRenderChunk()
 	{
+		rebuild = new boolean[EnumWorldBlockLayer.values().length];
 		displayList = new int[EnumWorldBlockLayer.values().length];
 		lastRenderedFrames = new int[EnumWorldBlockLayer.values().length];
 	}
@@ -53,7 +56,10 @@ public class TileRenderChunk
 			throw new NullPointerException();
 		}
 
-		rebuild = true;
+		for ( int x = 0; x < rebuild.length; ++x )
+		{
+			rebuild[x] = true;
+		}
 
 		if ( which instanceof TileEntityBlockChiseledTESR && !isDyanmic )
 		{
@@ -121,41 +127,55 @@ public class TileRenderChunk
 
 				if ( updates > 20 && !isDyanmic )
 				{
-					final List<TileEntityBlockChiseled> oldTiles = tiles;
-					setTiles( new ArrayList<TileEntityBlockChiseled>() );
+					Minecraft.getMinecraft().addScheduledTask( new Runnable() {
 
-					for ( final TileEntityBlockChiseled te : oldTiles )
-					{
-						final TileEntityBlockChiseledTESR tesr = new TileEntityBlockChiseledTESR();
-						tesr.copyFrom( te );
+						@Override
+						public void run()
+						{
+							final List<TileEntityBlockChiseled> oldTiles = tiles;
+							setTiles( new ArrayList<TileEntityBlockChiseled>() );
 
-						final World w = te.getWorld();
-						w.setTileEntity( te.getPos(), tesr );
-						w.markBlockForUpdate( tesr.getPos() );
+							for ( final TileEntityBlockChiseled te : oldTiles )
+							{
+								final TileEntityBlockChiseledTESR tesr = new TileEntityBlockChiseledTESR();
+								tesr.copyFrom( te );
 
-						tiles.add( tesr );
-					}
+								final World w = te.getWorld();
+								w.setTileEntity( te.getPos(), tesr );
+								w.markBlockForUpdate( tesr.getPos() );
 
-					isDyanmic = true;
+								tiles.add( tesr );
+							}
+
+							isDyanmic = true;
+						}
+					} );
 				}
 				else if ( updates < 1 && isDyanmic )
 				{
-					final List<TileEntityBlockChiseled> oldTiles = tiles;
-					setTiles( new ArrayList<TileEntityBlockChiseled>() );
+					Minecraft.getMinecraft().addScheduledTask( new Runnable() {
 
-					for ( final TileEntityBlockChiseled te : oldTiles )
-					{
-						final TileEntityBlockChiseled notTesr = new TileEntityBlockChiseled();
-						notTesr.copyFrom( te );
+						@Override
+						public void run()
+						{
+							final List<TileEntityBlockChiseled> oldTiles = tiles;
+							setTiles( new ArrayList<TileEntityBlockChiseled>() );
 
-						final World w = te.getWorld();
-						w.setTileEntity( te.getPos(), notTesr );
-						w.markBlockForUpdate( notTesr.getPos() );
+							for ( final TileEntityBlockChiseled te : oldTiles )
+							{
+								final TileEntityBlockChiseled notTesr = new TileEntityBlockChiseled();
+								notTesr.copyFrom( te );
 
-						tiles.add( notTesr );
-					}
+								final World w = te.getWorld();
+								w.setTileEntity( te.getPos(), notTesr );
+								w.markBlockForUpdate( notTesr.getPos() );
 
-					isDyanmic = false;
+								tiles.add( notTesr );
+							}
+
+							isDyanmic = false;
+						}
+					} );
 				}
 			}
 			else
@@ -183,7 +203,12 @@ public class TileRenderChunk
 			final List<TileEntityBlockChiseled> tiles )
 	{
 		this.tiles = tiles;
-		rebuild = true;
+
+		for ( int x = 0; x < rebuild.length; ++x )
+		{
+			rebuild[x] = true;
+		}
+
 	}
 
 }
