@@ -135,7 +135,7 @@ public class ItemChisel extends ItemTool
 			final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, a, b );
 			if ( mop != null && mop.typeOfHit == MovingObjectType.BLOCK )
 			{
-				useChisel( mode, player, player.worldObj, pos, mop.sideHit, (float) mop.hitVec.xCoord - pos.getX(), (float) mop.hitVec.yCoord - pos.getY(), (float) mop.hitVec.zCoord - pos.getZ() );
+				useChisel( mode, player, player.worldObj, pos, mop.sideHit, (float) ( mop.hitVec.xCoord - pos.getX() ), (float) ( mop.hitVec.yCoord - pos.getY() ), (float) ( mop.hitVec.zCoord - pos.getZ() ) );
 			}
 		}
 

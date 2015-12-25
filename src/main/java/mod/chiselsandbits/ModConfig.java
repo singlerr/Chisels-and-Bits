@@ -51,6 +51,15 @@ public class ModConfig extends Configuration
 	public boolean enableChiselMode_DrawnRegion;
 
 	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_Snap2;
+
+	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_Snap4;
+
+	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_Snap8;
+
+	@Configured( category = "Client Settings" )
 	public boolean enableToolbarIcons;
 
 	@Configured( category = "Client Settings" )
@@ -142,6 +151,9 @@ public class ModConfig extends Configuration
 		enableChiselMode_Line = !ChiselMode.LINE.isDisabled;
 		enableChiselMode_Plane = !ChiselMode.PLANE.isDisabled;
 		enableChiselMode_DrawnRegion = !ChiselMode.DRAWN_REGION.isDisabled;
+		enableChiselMode_Snap2 = !ChiselMode.SNAP2.isDisabled;
+		enableChiselMode_Snap4 = !ChiselMode.SNAP4.isDisabled;
+		enableChiselMode_Snap8 = !ChiselMode.SNAP8.isDisabled;
 		perChiselMode = true;
 		chatModeNotification = false;
 		itemNameModeDisplay = true;
@@ -252,6 +264,9 @@ public class ModConfig extends Configuration
 		ChiselMode.LINE.isDisabled = !enableChiselMode_Line;
 		ChiselMode.PLANE.isDisabled = !enableChiselMode_Plane;
 		ChiselMode.DRAWN_REGION.isDisabled = !enableChiselMode_DrawnRegion;
+		ChiselMode.SNAP2.isDisabled = !enableChiselMode_Snap2;
+		ChiselMode.SNAP4.isDisabled = !enableChiselMode_Snap4;
+		ChiselMode.SNAP8.isDisabled = !enableChiselMode_Snap8;
 	}
 
 	@SubscribeEvent
