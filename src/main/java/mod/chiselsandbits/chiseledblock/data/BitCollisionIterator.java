@@ -9,8 +9,8 @@ public class BitCollisionIterator extends BitIterator
 	public float physicalY;
 	public float physicalZ;
 
-	public float physicalYp1;
-	public float physicalZp1;
+	public float physicalYp1 = One16thf;
+	public float physicalZp1 = One16thf;
 
 	@Override
 	public boolean hasNext()

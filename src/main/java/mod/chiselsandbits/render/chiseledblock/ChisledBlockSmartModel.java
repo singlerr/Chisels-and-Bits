@@ -1,5 +1,7 @@
 package mod.chiselsandbits.render.chiseledblock;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.WeakHashMap;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
@@ -23,9 +25,9 @@ import net.minecraftforge.common.property.IExtendedBlockState;
 public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel
 {
 	@SuppressWarnings( "unchecked" )
-	static private final WeakHashMap<ModelRenderState, ChisledBlockBaked>[] modelCache = new WeakHashMap[4];
-	static private final WeakHashMap<VoxelBlobStateReference, ChisledBlockBaked> solidCache = new WeakHashMap<VoxelBlobStateReference, ChisledBlockBaked>();
-	static private final WeakHashMap<ItemStack, IBakedModel> itemToModel = new WeakHashMap<ItemStack, IBakedModel>();
+	static private final Map<ModelRenderState, ChisledBlockBaked>[] modelCache = new Map[4];
+	static private final Map<VoxelBlobStateReference, ChisledBlockBaked> solidCache = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateReference, ChisledBlockBaked>() );
+	static private final Map<ItemStack, IBakedModel> itemToModel = Collections.synchronizedMap( new WeakHashMap<ItemStack, IBakedModel>() );
 
 	static
 	{
@@ -39,7 +41,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 		// setup layers.
 		for ( final EnumWorldBlockLayer l : EnumWorldBlockLayer.values() )
 		{
-			modelCache[l.ordinal()] = new WeakHashMap<ModelRenderState, ChisledBlockBaked>();
+			modelCache[l.ordinal()] = Collections.synchronizedMap( new WeakHashMap<ModelRenderState, ChisledBlockBaked>() );
 		}
 	}
 
@@ -135,7 +137,14 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 			return ChisledBlockBaked.emptyModel();
 		}
 
-		return getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, ChisledBlockBaked.CNB );
+		final ChisledBlockBaked baked = getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, ChisledBlockBaked.CNB );
+
+		if ( rTracker != null )
+		{
+			rTracker.setAbovelimit( layer, baked.faceCount() );
+		}
+
+		return baked;
 	}
 
 	private static ModelRenderState getRenderState(

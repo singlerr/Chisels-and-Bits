@@ -5,7 +5,7 @@ import mod.chiselsandbits.ChiselsAndBits;
 public class ModRegistry
 {
 
-	protected static final String unlocalizedPrefix = "mod." + ChiselsAndBits.MODID + ".";
+	public static final String unlocalizedPrefix = "mod." + ChiselsAndBits.MODID + ".";
 	protected static ModCreativeTab creativeTab = new ModCreativeTab();
 
 }

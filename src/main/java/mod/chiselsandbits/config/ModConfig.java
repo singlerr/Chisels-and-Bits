@@ -7,6 +7,7 @@ import java.util.List;
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.registry.ModRegistry;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -52,6 +53,15 @@ public class ModConfig extends Configuration
 	public boolean enableChiselMode_DrawnRegion;
 
 	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_Snap2;
+
+	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_Snap4;
+
+	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_Snap8;
+
+	@Configured( category = "Client Settings" )
 	public boolean enableToolbarIcons;
 
 	@Configured( category = "Client Settings" )
@@ -62,6 +72,18 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Client Settings" )
 	public boolean itemNameModeDisplay;
+
+	@Configured( category = "Client Preformance Settings" )
+	public int dynamicModelFaceCount;
+
+	@Configured( category = "Client Preformance Settings" )
+	public int dynamicModelRange;
+
+	@Configured( category = "Client Preformance Settings" )
+	public boolean dynamicModelMinimizeLatancy;
+
+	@Configured( category = "Client Preformance Settings" )
+	public int dynamicMaxConcurrentTessalators;
 
 	@Configured( category = "Balance Settings" )
 	public boolean damageTools;
@@ -146,11 +168,20 @@ public class ModConfig extends Configuration
 		enableChiselMode_Line = !ChiselMode.LINE.isDisabled;
 		enableChiselMode_Plane = !ChiselMode.PLANE.isDisabled;
 		enableChiselMode_DrawnRegion = !ChiselMode.DRAWN_REGION.isDisabled;
+		enableChiselMode_Snap2 = !ChiselMode.SNAP2.isDisabled;
+		enableChiselMode_Snap4 = !ChiselMode.SNAP4.isDisabled;
+		enableChiselMode_Snap8 = !ChiselMode.SNAP8.isDisabled;
 		perChiselMode = true;
 		chatModeNotification = false;
 		itemNameModeDisplay = true;
 		enableToolbarIcons = true;
 		compatabilityMode = true;
+
+		// Dynamic models..
+		dynamicModelFaceCount = 40;
+		dynamicModelRange = 128;
+		dynamicModelMinimizeLatancy = true;
+		dynamicMaxConcurrentTessalators = 64;
 
 		showUsage = true;
 		invertBitBagFullness = false;
@@ -201,35 +232,47 @@ public class ModConfig extends Configuration
 			{
 				try
 				{
+					Property p = null;
+
 					if ( f.getType() == long.class || f.getType() == Long.class )
 					{
 						final long defaultValue = f.getLong( this );
-						final long value = get( c.category(), f.getName(), (int) defaultValue ).getInt();
+						p = get( c.category(), f.getName(), (int) defaultValue );
+						final long value = p.getInt();
 						f.set( this, value );
 					}
 					else if ( f.getType() == String.class )
 					{
 						final String defaultValue = (String) f.get( this );
-						final String value = get( c.category(), f.getName(), defaultValue ).getString();
+						p = get( c.category(), f.getName(), defaultValue );
+						final String value = p.getString();
 						f.set( this, value );
 					}
 					else if ( f.getType() == int.class || f.getType() == Integer.class )
 					{
 						final int defaultValue = f.getInt( this );
-						final int value = get( c.category(), f.getName(), defaultValue ).getInt();
+						p = get( c.category(), f.getName(), defaultValue );
+						final int value = p.getInt();
 						f.set( this, value );
 					}
 					else if ( f.getType() == float.class || f.getType() == Float.class )
 					{
 						final float defaultValue = f.getFloat( this );
-						final float value = (float) get( c.category(), f.getName(), defaultValue ).getDouble();
+						p = get( c.category(), f.getName(), defaultValue );
+						final float value = (float) p.getDouble();
 						f.set( this, value );
 					}
 					else if ( f.getType() == boolean.class || f.getType() == Boolean.class )
 					{
 						final boolean defaultValue = f.getBoolean( this );
-						final boolean value = get( c.category(), f.getName(), defaultValue ).getBoolean();
+						p = get( c.category(), f.getName(), defaultValue );
+						final boolean value = p.getBoolean();
 						f.set( this, value );
+					}
+
+					if ( p != null )
+					{
+						p.setLanguageKey( ModRegistry.unlocalizedPrefix + "config." + f.getName() );
 					}
 				}
 				catch ( final IllegalArgumentException e )
@@ -257,6 +300,9 @@ public class ModConfig extends Configuration
 		ChiselMode.LINE.isDisabled = !enableChiselMode_Line;
 		ChiselMode.PLANE.isDisabled = !enableChiselMode_Plane;
 		ChiselMode.DRAWN_REGION.isDisabled = !enableChiselMode_DrawnRegion;
+		ChiselMode.SNAP2.isDisabled = !enableChiselMode_Snap2;
+		ChiselMode.SNAP4.isDisabled = !enableChiselMode_Snap4;
+		ChiselMode.SNAP8.isDisabled = !enableChiselMode_Snap8;
 	}
 
 	@SubscribeEvent
@@ -289,7 +335,7 @@ public class ModConfig extends Configuration
 	{
 		final Property prop = super.get( category, key, defaultValue, comment, type );
 
-		if ( prop != null && !category.equals( "Client Settings" ) )
+		if ( prop != null && !category.equals( "Client Settings" ) && category.equals( "Client Preformance" ) )
 		{
 			prop.setRequiresMcRestart( true );
 		}

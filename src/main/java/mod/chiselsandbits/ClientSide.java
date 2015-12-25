@@ -23,7 +23,7 @@ import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.GeneratedModelLoader;
-import mod.chiselsandbits.render.chiseledblock.ChisledBlockRenderChunkTESR;
+import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;

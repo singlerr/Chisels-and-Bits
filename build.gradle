@@ -12,12 +12,12 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "mc1.8.8-v1.7.1"
+version = "mc1.8.8-v1.7.2"
 group= "mod.chiselsandbits"
 archivesBaseName = "chiselsandbits"
 
 repositories { maven { url "http://dvs1.progwml6.com/files/maven" } }
-dependencies { deobfCompile "mezz.jei:jei_1.8.8:2.2.0.15" }
+dependencies { deobfCompile "mezz.jei:jei_1.8.8:2.12.0.49" }
 
 minecraft {
     version = "1.8.8-11.15.0.1634-1.8.8"

@@ -130,7 +130,7 @@ public class PacketChisel extends ModPacket
 
 				if ( extracted != null )
 				{
-					tec.setBlob( vb );
+					tec.postChisel( vb );
 					return ItemChisel.getStackState( extracted );
 				}
 			}

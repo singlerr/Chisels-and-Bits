@@ -17,20 +17,20 @@ public class ModelCombined implements IFlexibleBakedModel
 
 	IFlexibleBakedModel[] merged;
 
-	@SuppressWarnings( "unchecked" )
-	List<BakedQuad>[] face = new ArrayList[6];
+	List<BakedQuad>[] face;
 	List<BakedQuad> generic;
 
+	@SuppressWarnings( "unchecked" )
 	public ModelCombined(
 			final IFlexibleBakedModel... args )
 	{
-		face[0] = new ArrayList<BakedQuad>();
-		face[1] = new ArrayList<BakedQuad>();
-		face[2] = new ArrayList<BakedQuad>();
-		face[3] = new ArrayList<BakedQuad>();
-		face[4] = new ArrayList<BakedQuad>();
-		face[5] = new ArrayList<BakedQuad>();
+		face = new ArrayList[EnumFacing.VALUES.length];
+
 		generic = new ArrayList<BakedQuad>();
+		for ( final EnumFacing f : EnumFacing.VALUES )
+		{
+			face[f.ordinal()] = new ArrayList<BakedQuad>();
+		}
 
 		merged = args;
 
@@ -103,9 +103,9 @@ public class ModelCombined implements IFlexibleBakedModel
 	@Override
 	public List<BakedQuad> getFaceQuads(
 			final EnumFacing side )
-			{
+	{
 		return face[side.ordinal()];
-			}
+	}
 
 	@Override
 	public List<BakedQuad> getGeneralQuads()

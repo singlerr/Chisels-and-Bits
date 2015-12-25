@@ -1,12 +1,33 @@
 package mod.chiselsandbits.chiseledblock.data;
 
 import java.lang.ref.WeakReference;
+import java.util.Collections;
+import java.util.Map;
 import java.util.WeakHashMap;
 
 public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReference>
 {
 
-	private static WeakHashMap<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> refs = new WeakHashMap<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>>();
+	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> innerRefs = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>>() );
+
+	private static VoxelBlobStateInstance lookupRef(
+			final VoxelBlobStateInstance inst )
+	{
+		final WeakReference<VoxelBlobStateInstance> o = innerRefs.get( inst );
+
+		if ( o != null )
+		{
+			return o.get();
+		}
+
+		return null;
+	}
+
+	private static void addRef(
+			final VoxelBlobStateInstance inst )
+	{
+		innerRefs.put( inst, new WeakReference<VoxelBlobStateInstance>( inst ) );
+	}
 
 	private static VoxelBlobStateInstance FindRef(
 			final byte[] v )
@@ -14,16 +35,12 @@ public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReferen
 		final VoxelBlobStateInstance t = new VoxelBlobStateInstance( v );
 		VoxelBlobStateInstance ref = null;
 
-		final WeakReference<VoxelBlobStateInstance> original = refs.get( t );
-		if ( original != null )
-		{
-			ref = original.get();
-		}
+		ref = lookupRef( t );
 
 		if ( ref == null )
 		{
 			ref = t;
-			refs.put( t, new WeakReference<VoxelBlobStateInstance>( t ) );
+			addRef( t );
 		}
 
 		return ref;

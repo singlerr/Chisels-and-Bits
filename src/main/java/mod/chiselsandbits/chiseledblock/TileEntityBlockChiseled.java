@@ -7,6 +7,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
+import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -37,23 +38,17 @@ public class TileEntityBlockChiseled extends TileEntity
 	public static final String light_opacity_prop = "l";
 	public static final String light_prop = "lv";
 
-	private TileRenderChunk renderChunk;
 	private IExtendedBlockState state;
 
-	public TileRenderChunk getRenderChunk()
+	public TileEntityBlockChiseled()
 	{
-		return renderChunk;
+
 	}
 
 	public void copyFrom(
 			final TileEntityBlockChiseled src )
 	{
-		renderChunk = src.renderChunk;
 		state = src.state;
-	}
-
-	public TileEntityBlockChiseled()
-	{
 	}
 
 	public IExtendedBlockState getBasicState()
@@ -77,66 +72,59 @@ public class TileEntityBlockChiseled extends TileEntity
 
 		if ( updateNeightbors )
 		{
-			if ( renderChunk == null )
-			{
-				renderChunk = findRenderChunk();
-				renderChunk.register( this );
-			}
-
-			renderChunk.update( null, updateCost );
-
-			if ( isInvalid() )
-			{
-				return state;
-			}
+			final boolean isDyanmic = this instanceof TileEntityBlockChiseledTESR;
 
 			final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.n_prop );
-			vns.update( renderChunk.isDyanmic, worldObj, pos );
+			vns.update( isDyanmic, worldObj, pos );
+
+			tesrUpdate( vns );
+
+			final TileEntityBlockChiseled self = this;
+			if ( vns.isAboveLimit() && !isDyanmic )
+			{
+				ChisledBlockRenderChunkTESR.addTask( new Runnable() {
+
+					@Override
+					public void run()
+					{
+						if ( self.worldObj.getTileEntity( self.pos ) == self )
+						{
+							final TileEntityBlockChiseledTESR TESR = new TileEntityBlockChiseledTESR();
+							TESR.copyFrom( self );
+							self.worldObj.setTileEntity( self.pos, TESR );
+							self.worldObj.markBlockForUpdate( self.pos );
+						}
+					}
+
+				} );
+			}
+			else if ( !vns.isAboveLimit() && isDyanmic )
+			{
+				ChisledBlockRenderChunkTESR.addTask( new Runnable() {
+
+					@Override
+					public void run()
+					{
+						if ( self.worldObj.getTileEntity( self.pos ) == self )
+						{
+							final TileEntityBlockChiseled nonTesr = new TileEntityBlockChiseled();
+							nonTesr.copyFrom( self );
+							self.worldObj.setTileEntity( self.pos, nonTesr );
+							self.worldObj.markBlockForUpdate( self.pos );
+						}
+					}
+
+				} );
+			}
 		}
 
 		return state;
 	}
 
-	@Override
-	public void invalidate()
+	protected void tesrUpdate(
+			final VoxelNeighborRenderTracker vns )
 	{
-		if ( renderChunk != null )
-		{
-			renderChunk.unregister( this );
-		}
-	}
 
-	private TileRenderChunk findRenderChunk()
-	{
-		int cp_x = getPos().getX();
-		int cp_y = getPos().getY();
-		int cp_z = getPos().getZ();
-
-		final int mask = ~0xf;
-		cp_x = cp_x & mask;
-		cp_y = cp_y & mask;
-		cp_z = cp_z & mask;
-
-		for ( int x = 0; x < 16; ++x )
-		{
-			for ( int y = 0; y < 16; ++y )
-			{
-				for ( int z = 0; z < 16; ++z )
-				{
-					final TileEntity te = worldObj.getTileEntity( new BlockPos( cp_x + x, cp_y + y, cp_z + z ) );
-					if ( te instanceof TileEntityBlockChiseled )
-					{
-						final TileRenderChunk trc = ( (TileEntityBlockChiseled) te ).renderChunk;
-						if ( trc != null )
-						{
-							return trc;
-						}
-					}
-				}
-			}
-		}
-
-		return new TileRenderChunk();
 	}
 
 	public IBlockState getBlockState(
@@ -252,13 +240,25 @@ public class TileEntityBlockChiseled extends TileEntity
 			b = Block.getStateId( Blocks.cobblestone.getDefaultState() );
 		}
 
-		setState( getBasicState()
+		IExtendedBlockState newstate = getBasicState()
 				.withProperty( BlockChiseled.side_prop, sideFlags )
 				.withProperty( BlockChiseled.block_prop, b )
 				.withProperty( BlockChiseled.light_prop, lv )
 				.withProperty( BlockChiseled.opacity_prop, l )
-				.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() )
-				.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( v, getPositionRandom( pos ) ) ) );
+				.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( v, getPositionRandom( pos ) ) );
+
+		final VoxelNeighborRenderTracker tracker = newstate.getValue( BlockChiseled.n_prop );
+
+		if ( tracker == null )
+		{
+			newstate = newstate.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() );
+		}
+		else
+		{
+			tracker.isDynamic();
+		}
+
+		setState( newstate );
 
 		if ( oldLV == null || oldLV != lv )
 		{
@@ -302,8 +302,18 @@ public class TileEntityBlockChiseled extends TileEntity
 				.withProperty( BlockChiseled.side_prop, 0xFF )
 				.withProperty( BlockChiseled.opacity_prop, vb.getOpacity() )
 				.withProperty( BlockChiseled.light_prop, blockType.getBlock().getLightValue() )
-				.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() )
 				.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb, getPositionRandom( pos ) ) );
+
+		final VoxelNeighborRenderTracker tracker = state.getValue( BlockChiseled.n_prop );
+
+		if ( tracker == null )
+		{
+			state = state.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() );
+		}
+		else
+		{
+			tracker.isDynamic();
+		}
 
 		// required for placing bits
 		if ( ref != 0 )
@@ -352,8 +362,6 @@ public class TileEntityBlockChiseled extends TileEntity
 	public void setBlob(
 			final VoxelBlob vb )
 	{
-		// blob = new WeakReference<VoxelBlob>( vb );
-
 		final Integer olv = getBasicState().getValue( BlockChiseled.light_prop );
 
 		final CommonBlock common = vb.mostCommonBlock();
@@ -368,14 +376,26 @@ public class TileEntityBlockChiseled extends TileEntity
 
 		if ( worldObj == null )
 		{
-			setState( getBasicState()
+			IExtendedBlockState newState = getBasicState()
 					.withProperty( BlockChiseled.side_prop, sideFlags )
 					.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb.toByteArray(), getPositionRandom( pos ) ) )
 					.withProperty( BlockChiseled.light_prop, lv )
 					.withProperty( BlockChiseled.opacity_prop, opacity )
 					.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() )
-					.withProperty( BlockChiseled.block_prop, common.ref ) );
+					.withProperty( BlockChiseled.block_prop, common.ref );
 
+			final VoxelNeighborRenderTracker tracker = newState.getValue( BlockChiseled.n_prop );
+
+			if ( tracker == null )
+			{
+				newState = newState.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() );
+			}
+			else
+			{
+				tracker.isDynamic();
+			}
+
+			setState( newState );
 			return;
 		}
 
@@ -390,10 +410,14 @@ public class TileEntityBlockChiseled extends TileEntity
 					.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb.toByteArray(), getPositionRandom( pos ) ) )
 					.withProperty( BlockChiseled.light_prop, lv )
 					.withProperty( BlockChiseled.opacity_prop, opacity )
-					.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() )
 					.withProperty( BlockChiseled.block_prop, common.ref ) );
 
 			markDirty();
+
+			// NetworkRouter.instance.sendToAllAround( getDescriptionPacket(),
+			// new TargetPoint( worldObj.provider.getDimensionId(), pos.getX(),
+			// pos.getY(), pos.getZ(), 64 ) );
+
 			worldObj.markBlockForUpdate( pos );
 
 			if ( oldSideFlags == null || oldSideFlags != sideFlags )
@@ -472,8 +496,10 @@ public class TileEntityBlockChiseled extends TileEntity
 		return ( sideFlags & 1 << side.ordinal() ) != 0;
 	}
 
-	public boolean isDynamicRender()
+	public void postChisel(
+			final VoxelBlob vb )
 	{
-		return renderChunk == null ? false : renderChunk.isDyanmic;
+		setBlob( vb );
 	}
+
 }

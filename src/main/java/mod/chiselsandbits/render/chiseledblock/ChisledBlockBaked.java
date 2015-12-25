@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -842,6 +843,23 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	public VertexFormat getFormat()
 	{
 		return format;
+	}
+
+	public int faceCount()
+	{
+		int count = generic.size();
+
+		for ( final EnumFacing f : EnumFacing.VALUES )
+		{
+			count += getFaceQuads( f ).size();
+		}
+
+		return count;
+	}
+
+	public boolean isAboveLimit()
+	{
+		return faceCount() >= ChiselsAndBits.instance.config.dynamicModelFaceCount;
 	}
 
 }
