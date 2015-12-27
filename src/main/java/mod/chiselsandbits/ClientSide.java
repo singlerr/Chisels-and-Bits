@@ -351,7 +351,7 @@ public class ClientSide
 					vb.fill( 1 ); // fill with.. something soild...
 
 					final BlockChiseled chiselBlock = ChiselsAndBits.instance.blocks.getConversion( block.getMaterial() );
-					RenderGlobal.func_181561_a( chiselBlock.getSelectedBoundingBox( player, blockpos, vb, chMode ).expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x, -y, -z ) );
+					RenderGlobal.drawSelectionBoundingBox( chiselBlock.getSelectedBoundingBox( player, blockpos, vb, chMode ).expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x, -y, -z ) );
 				}
 
 				GlStateManager.depthMask( true );
