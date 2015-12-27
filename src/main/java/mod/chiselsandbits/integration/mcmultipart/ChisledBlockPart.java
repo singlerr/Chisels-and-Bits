@@ -2,7 +2,6 @@ package mod.chiselsandbits.integration.mcmultipart;
 
 import java.io.IOException;
 
-import io.netty.buffer.ByteBuf;
 import mcmultipart.multipart.Multipart;
 import mcmultipart.raytrace.PartMOP;
 import mod.chiselsandbits.ChiselsAndBits;
@@ -25,17 +24,22 @@ public class ChisledBlockPart extends Multipart
 
 	public TileEntityBlockChiseled getTile()
 	{
+		if ( inner == null )
+		{
+			inner = new TileEntityBlockChiseled();
+		}
+
 		return inner;
 	}
 
 	public BlockChiseled getBlock()
 	{
-		if ( bc != null )
+		if ( bc == null )
 		{
-			return bc;
+			bc = (BlockChiseled) ChiselsAndBits.instance.blocks.getChiseledDefaultState().getBlock();
 		}
 
-		return (BlockChiseled) ChiselsAndBits.instance.blocks.getChiseledDefaultState().getBlock();
+		return bc;
 	}
 
 	@Override
@@ -108,22 +112,20 @@ public class ChisledBlockPart extends Multipart
 
 	@Override
 	public void writeUpdatePacket(
-			final ByteBuf buf )
+			final PacketBuffer buf )
 	{
-		final PacketBuffer pb = new PacketBuffer( buf );
 		final NBTTagCompound tag = new NBTTagCompound();
 		getTile().writeChisleData( tag );
-		pb.writeNBTTagCompoundToBuffer( tag );
+		buf.writeNBTTagCompoundToBuffer( tag );
 	}
 
 	@Override
 	public void readUpdatePacket(
-			final ByteBuf buf )
+			final PacketBuffer buf )
 	{
-		final PacketBuffer pb = new PacketBuffer( buf );
 		try
 		{
-			final NBTTagCompound tag = pb.readNBTTagCompoundFromBuffer();
+			final NBTTagCompound tag = buf.readNBTTagCompoundFromBuffer();
 			getTile().readChisleData( tag );
 		}
 		catch ( final IOException e )

@@ -471,7 +471,14 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				// for top and one for the bottom.
 				if ( list != null && started && ( bi.y == 8 || bi.y == VoxelBlob.dim_minus_one ) )
 				{
-					final AxisAlignedBB bb = AxisAlignedBB.fromBounds( minX + pos.getX(), minY + pos.getY(), minZ + pos.getZ(), maxX + pos.getX(), maxY + pos.getY(), maxZ + pos.getZ() );
+					final AxisAlignedBB bb = AxisAlignedBB.fromBounds(
+							(double) minX + pos.getX(),
+							(double) minY + pos.getY(),
+							(double) minZ + pos.getZ(),
+							(double) maxX + pos.getX(),
+							(double) maxY + pos.getY(),
+							(double) maxZ + pos.getZ() );
+
 					setBlockBounds( 0, 0, 0, 1, 1, 1 );
 
 					if ( mask.intersectsWith( bb ) )
@@ -859,7 +866,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			// Compatibility use isFullBlock which can be true for glass.
 
 			// final boolean isFullCube = blk.isFullCube()
-			final boolean isFullBlock = blk.isFullBlock() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class;
+			final boolean isFullBlock = blk.isFullBlock() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.slime_block;
 
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
@@ -1112,8 +1119,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	public String getModel()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return ChiselsAndBits.MODID + ":" + name;
 	}
 
 }

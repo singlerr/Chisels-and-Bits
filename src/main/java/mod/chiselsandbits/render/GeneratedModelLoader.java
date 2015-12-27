@@ -66,8 +66,12 @@ public class GeneratedModelLoader implements ICustomModelLoader
 
 		res.add( new ModelResourceLocation( modelLocation, null ) );
 		res.add( new ModelResourceLocation( second, null ) );
+
 		res.add( new ModelResourceLocation( modelLocation, "inventory" ) );
 		res.add( new ModelResourceLocation( second, "inventory" ) );
+
+		res.add( new ModelResourceLocation( modelLocation, "multipart" ) );
+		res.add( new ModelResourceLocation( second, "multipart" ) );
 
 		ModelGenerator mg;
 		try
@@ -81,10 +85,15 @@ public class GeneratedModelLoader implements ICustomModelLoader
 
 		models.put( modelLocation, mg );
 		models.put( second, mg );
+
 		models.put( new ModelResourceLocation( modelLocation, null ), mg );
 		models.put( new ModelResourceLocation( second, null ), mg );
+
 		models.put( new ModelResourceLocation( modelLocation, "inventory" ), mg );
 		models.put( new ModelResourceLocation( second, "inventory" ), mg );
+
+		models.put( new ModelResourceLocation( modelLocation, "multipart" ), mg );
+		models.put( new ModelResourceLocation( second, "multipart" ), mg );
 	}
 
 	@SubscribeEvent
@@ -127,7 +136,7 @@ public class GeneratedModelLoader implements ICustomModelLoader
 		}
 		catch ( final Exception e )
 		{
-			throw new RuntimeException( "The Model: " + e.toString() + " was not available was requested." );
+			throw new RuntimeException( "The Model: " + modelLocation.toString() + " was not available was requested." );
 		}
 	}
 
