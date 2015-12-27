@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL11;
 import com.google.common.base.Stopwatch;
 
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.Log;
 import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import net.minecraft.client.Minecraft;
@@ -88,15 +89,20 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			try
 			{
 				activeTess.decrementAndGet();
-				ChisledBlockBackgroundRender.submitTessellator( ft.get() );
+
+				// mark it as finished, but don't draw it.
+				final Tessellator t = ft.get();
+				t.getWorldRenderer().finishDrawing();
+
+				ChisledBlockBackgroundRender.submitTessellator( t );
 			}
 			catch ( final InterruptedException e1 )
 			{
-				// derr..
+				Log.logError( "Failed to get TESR Future - E", e1 );
 			}
 			catch ( final ExecutionException e1 )
 			{
-				// derr..
+				Log.logError( "Failed to get TESR Future - F", e1 );
 			}
 		}
 
@@ -275,11 +281,11 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			}
 			catch ( final InterruptedException e )
 			{
-
+				Log.logError( "Failed to get TESR Future - A", e );
 			}
 			catch ( final ExecutionException e )
 			{
-
+				Log.logError( "Failed to get TESR Future - B", e );
 			}
 			finally
 			{
@@ -299,11 +305,11 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			}
 			catch ( final InterruptedException e )
 			{
-				// derp.
+				Log.logError( "Failed to get TESR Future - C", e );
 			}
 			catch ( final ExecutionException e )
 			{
-				// derp.
+				Log.logError( "Failed to get TESR Future - D", e );
 			}
 			finally
 			{

@@ -48,6 +48,8 @@ public class TileRenderChunk extends TileRenderCache
 			final TileEntityBlockChiseledTESR which )
 	{
 		tiles.remove( which );
+
+		super.rebuild( true );
 	}
 
 	public BlockPos chunkOffset()
