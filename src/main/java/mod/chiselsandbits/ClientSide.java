@@ -371,6 +371,11 @@ public class ClientSide
 		// important and used for tesr / block rendering.
 		++lastRenderedFrame;
 
+		if ( Minecraft.getMinecraft().gameSettings.hideGUI )
+		{
+			return;
+		}
+
 		// now render the ghosts...
 		final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		final float partialTicks = event.partialTicks;
@@ -528,13 +533,11 @@ public class ClientSide
 		GlStateManager.color( 1.0f, 1.0f, 1.0f, 0.5f );
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
-		// GlStateManager.disableTexture2D();
 		ItemBlockChiseled.renderTransparentGhost = true;
 		Minecraft.getMinecraft().getRenderItem().renderItem( item, baked );
 		GlStateManager.depthFunc( GL11.GL_LEQUAL );
 		Minecraft.getMinecraft().getRenderItem().renderItem( item, baked );
 		ItemBlockChiseled.renderTransparentGhost = false;
-		// GlStateManager.enableTexture2D();
 
 		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
 		GlStateManager.disableBlend();

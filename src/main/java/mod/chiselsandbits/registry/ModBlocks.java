@@ -7,12 +7,14 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.MaterialType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.config.ModConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemBlock;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class ModBlocks extends ModRegistry
 {
@@ -31,10 +33,14 @@ public class ModBlocks extends ModRegistry
 	private final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();
 
 	public ModBlocks(
-			final ModConfig config )
+			final ModConfig config,
+			final Side side )
 	{
 		// register tile entities.
 		GameRegistry.registerTileEntity( TileEntityBlockChiseled.class, "mod.chiselsandbits.TileEntityChiseled" );
+
+		// register TESR differently on the server..
+		GameRegistry.registerTileEntity( side == Side.CLIENT ? TileEntityBlockChiseledTESR.class : TileEntityBlockChiseled.class, "mod.chiselsandbits.TileEntityChiseled.tesr" );
 
 		// register blocks...
 		for ( final MaterialType mat : validMaterials )

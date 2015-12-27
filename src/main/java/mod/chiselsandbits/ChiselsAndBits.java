@@ -61,7 +61,7 @@ public class ChiselsAndBits
 		// load config...
 		config = new ModConfig( event.getSuggestedConfigurationFile() );
 		items = new ModItems( config );
-		blocks = new ModBlocks( config );
+		blocks = new ModBlocks( config, event.getSide() );
 
 		Integration.instance.preinit();
 

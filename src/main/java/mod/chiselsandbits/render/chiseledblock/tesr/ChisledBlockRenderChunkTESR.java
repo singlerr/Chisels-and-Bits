@@ -192,7 +192,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		}
 
 		final EnumTESRRenderState state = renderCache.update( layer, 0 );
-		if ( renderCache == null || state == EnumTESRRenderState.SKIP || true )
+		if ( renderCache == null || state == EnumTESRRenderState.SKIP )
 		{
 			return;
 		}
@@ -215,6 +215,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		}
 
 		GlStateManager.enableCull();
+		GlStateManager.enableTexture2D();
 		GL11.glPushMatrix();
 
 		if ( Minecraft.isAmbientOcclusionEnabled() )
@@ -318,6 +319,12 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		}
 
 		GL11.glPopMatrix();
+
+		GlStateManager.disableCull();
+		GlStateManager.disableBlend();
+		GlStateManager.enableAlpha();
+		GlStateManager.shadeModel( 7424 );
+		GlStateManager.alphaFunc( 516, 0.1F );
 		RenderHelper.enableStandardItemLighting();
 	}
 
