@@ -1,35 +1,53 @@
 package mod.chiselsandbits.integration;
 
-import mod.chiselsandbits.ChiselsAndBits;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.event.FMLInterModComms;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Integration
+import mod.chiselsandbits.integration.JEI.IntegerationJEI;
+import mod.chiselsandbits.integration.mcmultipart.IntegrationMCMP;
+
+public class Integration extends IntegrationBase
 {
 
+	public List<IntegrationBase> integrations = new ArrayList<IntegrationBase>();
+
 	public static final IntegerationJEI jei = new IntegerationJEI();
+	public static final IntegrationMCMP mcmp = new IntegrationMCMP();
+
+	// last.
+	public static final Integration instance = new Integration();
 
 	private Integration()
 	{
-
+		integrations.add( new IntegrationVersionChecker() );
+		integrations.add( jei );
+		integrations.add( mcmp );
 	}
 
-	private static void initVersionChecker()
+	@Override
+	public void preinit()
 	{
-		final NBTTagCompound compound = new NBTTagCompound();
-		compound.setString( "curseProjectName", "chisels-bits" );
-		compound.setString( "curseFilenameParser", "chiselsandbits-[].jar" );
-		FMLInterModComms.sendRuntimeMessage( ChiselsAndBits.MODID, "VersionChecker", "addCurseCheck", compound );
+		for ( final IntegrationBase i : integrations )
+		{
+			i.preinit();
+		}
 	}
 
-	public static void preinit()
+	@Override
+	public void init()
 	{
-		initVersionChecker();
+		for ( final IntegrationBase i : integrations )
+		{
+			i.init();
+		}
 	}
 
-	public static void init()
+	@Override
+	public void postinit()
 	{
-		jei.init();
+		for ( final IntegrationBase i : integrations )
+		{
+			i.postinit();
+		}
 	}
-
 }

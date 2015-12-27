@@ -525,18 +525,16 @@ public class ClientSide
 		}
 		GlStateManager.scale( 2.0F, 2.0F, 2.0F );
 
-		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+		GlStateManager.color( 1.0f, 1.0f, 1.0f, 0.5f );
 		GlStateManager.enableBlend();
-		GlStateManager.blendFunc( GL11.GL_SRC_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR );
-		GlStateManager.disableTexture2D();
+		GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
+		// GlStateManager.disableTexture2D();
 		ItemBlockChiseled.renderTransparentGhost = true;
-		GlStateManager.colorMask( false, false, false, false );
 		Minecraft.getMinecraft().getRenderItem().renderItem( item, baked );
-		GlStateManager.colorMask( true, true, true, true );
 		GlStateManager.depthFunc( GL11.GL_LEQUAL );
 		Minecraft.getMinecraft().getRenderItem().renderItem( item, baked );
 		ItemBlockChiseled.renderTransparentGhost = false;
-		GlStateManager.enableTexture2D();
+		// GlStateManager.enableTexture2D();
 
 		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
 		GlStateManager.disableBlend();

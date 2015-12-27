@@ -63,7 +63,7 @@ public class ChiselsAndBits
 		items = new ModItems( config );
 		blocks = new ModBlocks( config );
 
-		Integration.preinit();
+		Integration.instance.preinit();
 
 		// loader must be added here to prevent missing models, the rest of the
 		// model/textures must be configured later.
@@ -82,7 +82,7 @@ public class ChiselsAndBits
 			ClientSide.instance.init( this );
 		}
 
-		Integration.init();
+		Integration.instance.init();
 
 		registerWithBus( new EventBreakSpeed() );
 		registerWithBus( new EventPlayerInteract() );
@@ -118,6 +118,8 @@ public class ChiselsAndBits
 		{
 			ClientSide.instance.postinit( this );
 		}
+
+		Integration.instance.postinit();
 
 		NetworkRouter.instance = new NetworkRouter();
 		NetworkRegistry.INSTANCE.registerGuiHandler( this, new ModGuiRouter() );

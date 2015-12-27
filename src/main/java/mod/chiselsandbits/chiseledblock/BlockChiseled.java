@@ -281,30 +281,38 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			final EntityPlayer player = ClientSide.instance.getPlayer();
-			if ( player != null && ModUtil.isHoldingChiselTool( player ) != null )
-			{
-				final VoxelBlob vb = getTileEntity( world, pos ).getBlob();
-
-				final int x = Math.min( 15, Math.max( 0, (int) ( vb.detail * ( target.hitVec.xCoord - pos.getX() ) - target.sideHit.getFrontOffsetX() * 0.5 ) ) );
-				final int y = Math.min( 15, Math.max( 0, (int) ( vb.detail * ( target.hitVec.yCoord - pos.getY() ) - target.sideHit.getFrontOffsetY() * 0.5 ) ) );
-				final int z = Math.min( 15, Math.max( 0, (int) ( vb.detail * ( target.hitVec.zCoord - pos.getZ() ) - target.sideHit.getFrontOffsetZ() * 0.5 ) ) );
-
-				final int itemBlock = vb.get( x, y, z );
-				if ( itemBlock == 0 )
-				{
-					return null;
-				}
-
-				return ItemChiseledBit.createStack( itemBlock, 1, false );
-			}
-
-			return getTileEntity( world, pos ).getItemStack( this, player );
+			return getPickBlock( target, pos, getTileEntity( world, pos ) );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
 			return null;
 		}
+	}
+
+	public ItemStack getPickBlock(
+			final MovingObjectPosition target,
+			final BlockPos pos,
+			final TileEntityBlockChiseled te )
+	{
+		final EntityPlayer player = ClientSide.instance.getPlayer();
+		if ( player != null && ModUtil.isHoldingChiselTool( player ) != null )
+		{
+			final VoxelBlob vb = te.getBlob();
+
+			final int x = Math.min( 15, Math.max( 0, (int) ( vb.detail * ( target.hitVec.xCoord - pos.getX() ) - target.sideHit.getFrontOffsetX() * 0.5 ) ) );
+			final int y = Math.min( 15, Math.max( 0, (int) ( vb.detail * ( target.hitVec.yCoord - pos.getY() ) - target.sideHit.getFrontOffsetY() * 0.5 ) ) );
+			final int z = Math.min( 15, Math.max( 0, (int) ( vb.detail * ( target.hitVec.zCoord - pos.getZ() ) - target.sideHit.getFrontOffsetZ() * 0.5 ) ) );
+
+			final int itemBlock = vb.get( x, y, z );
+			if ( itemBlock == 0 )
+			{
+				return null;
+			}
+
+			return ItemChiseledBit.createStack( itemBlock, 1, false );
+		}
+
+		return te.getItemStack( this, player );
 	}
 
 	@Override
@@ -893,8 +901,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			final TileEntityBlockChiseled cte = getTileEntity( world, pos );
-			cte.setBlob( cte.getBlob().spin( axis.getAxis() ) );
+			getTileEntity( world, pos ).rotateBlock( axis );
 			return true;
 		}
 		catch ( final ExceptionNoTileEntity e )
@@ -1101,6 +1108,12 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 
 		return super.getHarvestLevel( state );
+	}
+
+	public String getModel()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

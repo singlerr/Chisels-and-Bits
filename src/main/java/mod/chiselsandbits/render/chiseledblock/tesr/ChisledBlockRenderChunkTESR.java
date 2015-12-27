@@ -192,7 +192,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		}
 
 		final EnumTESRRenderState state = renderCache.update( layer, 0 );
-		if ( renderCache == null || state == EnumTESRRenderState.SKIP )
+		if ( renderCache == null || state == EnumTESRRenderState.SKIP || true )
 		{
 			return;
 		}

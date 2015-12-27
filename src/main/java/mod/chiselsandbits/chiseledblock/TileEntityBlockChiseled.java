@@ -502,4 +502,10 @@ public class TileEntityBlockChiseled extends TileEntity
 		setBlob( vb );
 	}
 
+	public void rotateBlock(
+			final EnumFacing axis )
+	{
+		setBlob( getBlob().spin( axis.getAxis() ) );
+	}
+
 }
