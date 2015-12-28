@@ -1,4 +1,3 @@
-
 package mod.chiselsandbits;
 
 import java.util.HashMap;
@@ -14,6 +13,7 @@ import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlobState;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -327,6 +327,12 @@ public class ClientSide
 	public void drawLast(
 			final RenderWorldLastEvent event )
 	{
+		if ( Minecraft.getMinecraft().gameSettings.hideGUI )
+		{
+			return;
+		}
+
+		// now render the ghosts...
 		final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		final float partialTicks = event.partialTicks;
 		final MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
@@ -370,8 +376,14 @@ public class ClientSide
 
 			if ( item != null )
 			{
+				Object cacheRef = s.getBlock() instanceof BlockChiseled ? theWorld.getTileEntity( mop.getBlockPos() ) : s;
+				if ( cacheRef instanceof TileEntityBlockChiseled )
+				{
+					cacheRef = ( (TileEntityBlockChiseled) cacheRef ).getBlobRef();
+				}
+
 				GlStateManager.depthFunc( GL11.GL_ALWAYS );
-				showGhost( currentItem, item, mop.getBlockPos(), player, rotations, x, y, z, mop.sideHit, null );
+				showGhost( currentItem, item, mop.getBlockPos(), player, rotations, x, y, z, mop.sideHit, null, cacheRef );
 				GlStateManager.depthFunc( GL11.GL_LEQUAL );
 			}
 		}
@@ -397,15 +409,15 @@ public class ClientSide
 			{
 				final BlockPos blockpos = mop.getBlockPos();
 				final BlockPos partial = new BlockPos( Math.floor( 16 * ( mop.hitVec.xCoord - blockpos.getX() ) ), Math.floor( 16 * ( mop.hitVec.yCoord - blockpos.getY() ) ), Math.floor( 16 * ( mop.hitVec.zCoord - blockpos.getZ() ) ) );
-				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, partial );
+				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, partial, null );
 			}
 			else if ( cb.isReplaceable( theWorld, offset ) )
 			{
-				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, null );
+				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, null, null );
 			}
 			else if ( theWorld.isAirBlock( offset.offset( mop.sideHit ) ) )
 			{
-				showGhost( currentItem, item, offset.offset( mop.sideHit ), player, rotations, x, y, z, mop.sideHit, null );
+				showGhost( currentItem, item, offset.offset( mop.sideHit ), player, rotations, x, y, z, mop.sideHit, null, null );
 			}
 		}
 	}
@@ -413,6 +425,7 @@ public class ClientSide
 	private ItemStack previousItem;
 	private int previousRotations;
 	private Object previousModel;
+	private Object previousCacheRef;
 	private IntegerBox modelBounds;
 	private boolean isVisible = true;
 	private BlockPos lastPartial;
@@ -427,11 +440,12 @@ public class ClientSide
 			final double y,
 			final double z,
 			final EnumFacing side,
-			final BlockPos partial )
+			final BlockPos partial,
+			final Object cacheRef )
 	{
 		IBakedModel baked;
 
-		if ( previousItem == refItem && previousRotations == rotations && previousModel != null && samePartial( lastPartial, partial ) )
+		if ( previousCacheRef == cacheRef && previousItem == refItem && previousRotations == rotations && previousModel != null && samePartial( lastPartial, partial ) )
 		{
 			baked = (IBakedModel) previousModel;
 		}
@@ -439,6 +453,7 @@ public class ClientSide
 		{
 			previousItem = refItem;
 			previousRotations = rotations;
+			previousCacheRef = cacheRef;
 
 			final TileEntityBlockChiseled bc = new TileEntityBlockChiseled();
 			bc.readChisleData( item.getSubCompound( "BlockEntityTag", false ) );
@@ -449,6 +464,39 @@ public class ClientSide
 			}
 
 			modelBounds = blob.getBounds();
+
+			fail: if ( refItem.getItem() == ChiselsAndBits.instance.itemNegativeprint )
+			{
+				final VoxelBlob pattern = blob;
+
+				if ( cacheRef instanceof VoxelBlobState )
+				{
+					blob = ( (VoxelBlobState) cacheRef ).getVoxelBlob();
+				}
+				else if ( cacheRef instanceof IBlockState )
+				{
+					blob = new VoxelBlob();
+					blob.fill( Block.getStateId( (IBlockState) cacheRef ) );
+				}
+				else
+				{
+					break fail;
+				}
+
+				for ( int zz = 0; zz < pattern.detail; zz++ )
+				{
+					for ( int yy = 0; yy < pattern.detail; yy++ )
+					{
+						for ( int xx = 0; xx < pattern.detail; xx++ )
+						{
+							if ( pattern.get( xx, yy, zz ) == 0 )
+							{
+								blob.set( xx, yy, zz, 0 );
+							}
+						}
+					}
+				}
+			}
 
 			bc.setBlob( blob );
 
@@ -480,18 +528,14 @@ public class ClientSide
 		}
 		GlStateManager.scale( 2.0F, 2.0F, 2.0F );
 
-		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+		GlStateManager.color( 1.0f, 1.0f, 1.0f, 0.5f );
 		GlStateManager.enableBlend();
-		GlStateManager.blendFunc( GL11.GL_SRC_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR );
-		GlStateManager.disableTexture2D();
+		GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
 		ItemBlockChiseled.renderTransparentGhost = true;
-		GlStateManager.colorMask( false, false, false, false );
 		Minecraft.getMinecraft().getRenderItem().renderItem( item, baked );
-		GlStateManager.colorMask( true, true, true, true );
 		GlStateManager.depthFunc( GL11.GL_LEQUAL );
 		Minecraft.getMinecraft().getRenderItem().renderItem( item, baked );
 		ItemBlockChiseled.renderTransparentGhost = false;
-		GlStateManager.enableTexture2D();
 
 		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
 		GlStateManager.disableBlend();
