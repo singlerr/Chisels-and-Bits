@@ -336,10 +336,15 @@ public class TileEntityBlockChiseled extends TileEntity
 		return 0;
 	}
 
+	public VoxelBlobStateReference getBlobStateReference()
+	{
+		return getBasicState().getValue( BlockChiseled.v_prop );
+	}
+
 	public VoxelBlob getBlob()
 	{
 		VoxelBlob vb = null;
-		final VoxelBlobStateReference vbs = getBasicState().getValue( BlockChiseled.v_prop );
+		final VoxelBlobStateReference vbs = getBlobStateReference();
 
 		if ( vbs != null )
 		{
@@ -373,6 +378,11 @@ public class TileEntityBlockChiseled extends TileEntity
 		final int sideFlags = vb.getSideFlags( 5, 11, 4 * 4 );
 
 		final Integer oldSideFlags = getBasicState().getValue( BlockChiseled.side_prop );
+
+		if ( common.ref == 0 )
+		{
+			common.ref = getBasicState().getValue( BlockChiseled.block_prop );
+		}
 
 		if ( worldObj == null )
 		{

@@ -14,6 +14,7 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.items.ItemChisel;
@@ -420,8 +421,14 @@ public class ClientSide
 
 			if ( item != null )
 			{
+				Object cacheRef = s.getBlock() instanceof BlockChiseled ? theWorld.getTileEntity( mop.getBlockPos() ) : s;
+				if ( cacheRef instanceof TileEntityBlockChiseled )
+				{
+					cacheRef = ( (TileEntityBlockChiseled) cacheRef ).getBlobStateReference();
+				}
+
 				GlStateManager.depthFunc( GL11.GL_ALWAYS );
-				showGhost( currentItem, item, mop.getBlockPos(), player, rotations, x, y, z, mop.sideHit, null );
+				showGhost( currentItem, item, mop.getBlockPos(), player, rotations, x, y, z, mop.sideHit, null, cacheRef );
 				GlStateManager.depthFunc( GL11.GL_LEQUAL );
 			}
 		}
@@ -447,15 +454,15 @@ public class ClientSide
 			{
 				final BlockPos blockpos = mop.getBlockPos();
 				final BlockPos partial = new BlockPos( Math.floor( 16 * ( mop.hitVec.xCoord - blockpos.getX() ) ), Math.floor( 16 * ( mop.hitVec.yCoord - blockpos.getY() ) ), Math.floor( 16 * ( mop.hitVec.zCoord - blockpos.getZ() ) ) );
-				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, partial );
+				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, partial, null );
 			}
 			else if ( cb.isReplaceable( theWorld, offset ) )
 			{
-				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, null );
+				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, null, null );
 			}
 			else if ( theWorld.isAirBlock( offset.offset( mop.sideHit ) ) )
 			{
-				showGhost( currentItem, item, offset.offset( mop.sideHit ), player, rotations, x, y, z, mop.sideHit, null );
+				showGhost( currentItem, item, offset.offset( mop.sideHit ), player, rotations, x, y, z, mop.sideHit, null, null );
 			}
 		}
 	}
@@ -463,6 +470,7 @@ public class ClientSide
 	private ItemStack previousItem;
 	private int previousRotations;
 	private Object previousModel;
+	private Object previousCacheRef;
 	private IntegerBox modelBounds;
 	private boolean isVisible = true;
 	private BlockPos lastPartial;
@@ -477,11 +485,12 @@ public class ClientSide
 			final double y,
 			final double z,
 			final EnumFacing side,
-			final BlockPos partial )
+			final BlockPos partial,
+			final Object cacheRef )
 	{
 		IBakedModel baked;
 
-		if ( previousItem == refItem && previousRotations == rotations && previousModel != null && samePartial( lastPartial, partial ) )
+		if ( previousCacheRef == cacheRef && previousItem == refItem && previousRotations == rotations && previousModel != null && samePartial( lastPartial, partial ) )
 		{
 			baked = (IBakedModel) previousModel;
 		}
@@ -489,6 +498,7 @@ public class ClientSide
 		{
 			previousItem = refItem;
 			previousRotations = rotations;
+			previousCacheRef = cacheRef;
 
 			final TileEntityBlockChiseled bc = new TileEntityBlockChiseled();
 			bc.readChisleData( item.getSubCompound( "BlockEntityTag", false ) );
@@ -499,6 +509,39 @@ public class ClientSide
 			}
 
 			modelBounds = blob.getBounds();
+
+			fail: if ( refItem.getItem() == ChiselsAndBits.instance.items.itemNegativeprint )
+			{
+				final VoxelBlob pattern = blob;
+
+				if ( cacheRef instanceof VoxelBlobStateReference )
+				{
+					blob = ( (VoxelBlobStateReference) cacheRef ).getVoxelBlob();
+				}
+				else if ( cacheRef instanceof IBlockState )
+				{
+					blob = new VoxelBlob();
+					blob.fill( Block.getStateId( (IBlockState) cacheRef ) );
+				}
+				else
+				{
+					break fail;
+				}
+
+				for ( int zz = 0; zz < pattern.detail; zz++ )
+				{
+					for ( int yy = 0; yy < pattern.detail; yy++ )
+					{
+						for ( int xx = 0; xx < pattern.detail; xx++ )
+						{
+							if ( pattern.get( xx, yy, zz ) == 0 )
+							{
+								blob.set( xx, yy, zz, 0 );
+							}
+						}
+					}
+				}
+			}
 
 			bc.setBlob( blob );
 
