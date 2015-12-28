@@ -88,6 +88,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		super( new SubMaterial( mat ) );
 
+		configureSound( mat );
+
 		// slippery ice...
 		if ( mat == Material.ice || mat == Material.packedIce )
 		{
@@ -98,6 +100,43 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		setHardness( 1 );
 		setHarvestLevel( "pickaxe", 0 );
 		name = BlockName;
+	}
+
+	private void configureSound(
+			final Material mat )
+	{
+		if ( mat == Material.wood )
+		{
+			setStepSound( soundTypeWood );
+		}
+		else if ( mat == Material.rock )
+		{
+			setStepSound( soundTypeStone );
+		}
+		else if ( mat == Material.iron )
+		{
+			setStepSound( soundTypeMetal );
+		}
+		else if ( mat == Material.cloth )
+		{
+			setStepSound( soundTypeMetal );
+		}
+		else if ( mat == Material.ice )
+		{
+			setStepSound( soundTypeGlass );
+		}
+		else if ( mat == Material.packedIce )
+		{
+			setStepSound( soundTypeGlass );
+		}
+		else if ( mat == Material.clay )
+		{
+			setStepSound( soundTypeGravel );
+		}
+		else if ( mat == Material.glass )
+		{
+			setStepSound( soundTypeGlass );
+		}
 	}
 
 	@Override
@@ -423,7 +462,14 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				// for top and one for the bottom.
 				if ( list != null && started && ( y == 8 || y == VoxelBlob.dim_minus_one ) )
 				{
-					final AxisAlignedBB bb = AxisAlignedBB.fromBounds( minX + pos.getX(), minY + pos.getY(), minZ + pos.getZ(), maxX + pos.getX(), maxY + pos.getY(), maxZ + pos.getZ() );
+					final AxisAlignedBB bb = AxisAlignedBB.fromBounds(
+							(double) minX + pos.getX(),
+							(double) minY + pos.getY(),
+							(double) minZ + pos.getZ(),
+							(double) maxX + pos.getX(),
+							(double) maxY + pos.getY(),
+							(double) maxZ + pos.getZ() );
+
 					setBlockBounds( 0, 0, 0, 1, 1, 1 );
 
 					if ( mask.intersectsWith( bb ) )
