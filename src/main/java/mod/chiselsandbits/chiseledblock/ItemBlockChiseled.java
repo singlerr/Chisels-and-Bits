@@ -3,6 +3,8 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.input.Keyboard;
+
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -29,8 +31,6 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-
-import org.lwjgl.input.Keyboard;
 
 public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IItemScrollWheel
 {
@@ -81,19 +81,12 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		}
 	}
 
-	public static boolean renderTransparentGhost = false;
-
 	@Override
 	public int getColorFromItemStack(
 			final ItemStack stack,
 			final int renderPass )
 	{
-		if ( !renderTransparentGhost )
-		{
-			return super.getColorFromItemStack( stack, renderPass );
-		}
-
-		return 0x888888;
+		return super.getColorFromItemStack( stack, renderPass );
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package mod.chiselsandbits;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -36,8 +37,12 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -564,27 +569,55 @@ public class ClientSide
 		}
 
 		GlStateManager.pushMatrix();
-		GlStateManager.translate( 0.5 + blockPos.getX() - x, 0.5 + blockPos.getY() - y, 0.5 + blockPos.getZ() - z );
+		GlStateManager.translate( blockPos.getX() - x, blockPos.getY() - y, blockPos.getZ() - z );
 		if ( partial != null )
 		{
 			final BlockPos t = ModUtil.getPartialOffset( side, partial, modelBounds );
 			final double fullScale = 1.0 / VoxelBlob.dim;
 			GlStateManager.translate( t.getX() * fullScale, t.getY() * fullScale, t.getZ() * fullScale );
 		}
-		GlStateManager.scale( 2.0F, 2.0F, 2.0F );
 
-		GlStateManager.color( 1.0f, 1.0f, 1.0f, 0.5f );
+		GlStateManager.color( 1.0f, 1.0f, 1.0f, 0.1f );
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
-		ItemBlockChiseled.renderTransparentGhost = true;
-		Minecraft.getMinecraft().getRenderItem().renderItem( item, baked );
+		GlStateManager.colorMask( false, false, false, false );
+		renderModel( baked );
+		GlStateManager.colorMask( true, true, true, true );
 		GlStateManager.depthFunc( GL11.GL_LEQUAL );
-		Minecraft.getMinecraft().getRenderItem().renderItem( item, baked );
-		ItemBlockChiseled.renderTransparentGhost = false;
+		renderModel( baked );
 
 		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
 		GlStateManager.disableBlend();
 		GlStateManager.popMatrix();
+	}
+
+	private void renderQuads(
+			final WorldRenderer renderer,
+			final List<BakedQuad> quads )
+	{
+		int i = 0;
+		for ( final int j = quads.size(); i < j; ++i )
+		{
+			final BakedQuad bakedquad = quads.get( i );
+			final int color = 0xaaffffff;
+			net.minecraftforge.client.model.pipeline.LightUtil.renderQuadColor( renderer, bakedquad, color );
+		}
+	}
+
+	private void renderModel(
+			final IBakedModel model )
+	{
+		final Tessellator tessellator = Tessellator.getInstance();
+		final WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+		worldrenderer.begin( 7, DefaultVertexFormats.ITEM );
+
+		for ( final EnumFacing enumfacing : EnumFacing.values() )
+		{
+			renderQuads( worldrenderer, model.getFaceQuads( enumfacing ) );
+		}
+
+		renderQuads( worldrenderer, model.getGeneralQuads() );
+		tessellator.draw();
 	}
 
 	private boolean samePartial(
