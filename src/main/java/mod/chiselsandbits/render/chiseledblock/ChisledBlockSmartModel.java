@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import mcmultipart.client.multipart.ISmartMultipartModel;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
@@ -21,8 +22,11 @@ import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.client.model.ISmartItemModel;
 import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.fml.common.Optional;
+import net.minecraftforge.fml.common.Optional.Interface;
 
-public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel
+@Optional.InterfaceList( { @Interface( iface = "mcmultipart.client.multipart.ISmartMultipartModel", modid = "mcmultipart" ) })
+public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel, ISmartMultipartModel
 {
 	@SuppressWarnings( "unchecked" )
 	static private final Map<ModelRenderState, ChisledBlockBaked>[] modelCache = new Map[4];
@@ -116,6 +120,13 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 		}
 
 		return out;
+	}
+
+	@Override
+	public IBakedModel handlePartState(
+			final IBlockState state )
+	{
+		return handleBlockState( state );
 	}
 
 	@Override

@@ -3,6 +3,8 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.input.Keyboard;
+
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -28,8 +30,6 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
-
-import org.lwjgl.input.Keyboard;
 
 public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScrollWheel
 {
@@ -95,7 +95,6 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final float hitZ )
 	{
 		final IBlockState blkstate = world.getBlockState( pos );
-		final Block blkObj = blkstate.getBlock();
 
 		if ( !player.canPlayerEdit( pos, side, stack ) )
 		{
@@ -114,7 +113,8 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			return true;
 		}
 
-		if ( blkObj instanceof BlockChiseled )
+		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos );
+		if ( te != null )
 		{
 			// we can do this!
 		}
@@ -123,12 +123,9 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			return true;
 		}
 
-		final TileEntity te = world.getTileEntity( pos );
-
-		if ( te != null && te instanceof TileEntityBlockChiseled )
+		final TileEntityBlockChiseled tec = ModUtil.getChiseledTileEntity( world, pos );
+		if ( tec != null )
 		{
-			final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
-
 			final NBTTagCompound blueprintTag = stack.getTagCompound();
 
 			// float newPitch = player.rotationPitch;

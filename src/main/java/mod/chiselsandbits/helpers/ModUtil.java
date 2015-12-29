@@ -1,8 +1,12 @@
 package mod.chiselsandbits.helpers;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
+import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.items.ItemNegativePrint;
@@ -12,12 +16,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
-
-import org.apache.commons.lang3.tuple.Pair;
+import net.minecraft.world.World;
 
 public class ModUtil
 {
@@ -30,7 +34,7 @@ public class ModUtil
 
 	static public Pair<Vec3, Vec3> getPlayerRay(
 			final EntityPlayer playerIn )
-			{
+	{
 		double reachDistance = 5.0d;
 
 		final double x = playerIn.prevPosX + ( playerIn.posX - playerIn.prevPosX );
@@ -57,7 +61,7 @@ public class ModUtil
 		final Vec3 to = from.addVector( eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance );
 
 		return Pair.of( from, to );
-			}
+	}
 
 	static public class ItemStackSlot
 	{
@@ -72,13 +76,13 @@ public class ModUtil
 				final int s,
 				final ItemStack st,
 				final EntityPlayer player )
-				{
+		{
 			inv = i;
 			slot = s;
 			stack = st;
 			toolSlot = player.inventory.currentItem;
 			isCreative = player.capabilities.isCreativeMode;
-				}
+		}
 
 		public boolean isValid()
 		{
@@ -293,6 +297,35 @@ public class ModUtil
 		}
 
 		throw new NullPointerException( "Unable to find a non null item." );
+	}
+
+	public static TileEntityBlockChiseled getChiseledTileEntity(
+			final World world,
+			final BlockPos pos )
+	{
+		final TileEntity te = world.getTileEntity( pos );
+
+		if ( te instanceof TileEntityBlockChiseled )
+		{
+			return (TileEntityBlockChiseled) te;
+		}
+
+		return Integration.mcmp.getChiseledTileEntity( te );
+	}
+
+	public static void removeChisledBlock(
+			final World world,
+			final BlockPos pos )
+	{
+		final TileEntity te = world.getTileEntity( pos );
+
+		if ( te instanceof TileEntityBlockChiseled )
+		{
+			world.setBlockToAir( pos ); // no physical matter left...
+			return;
+		}
+
+		Integration.mcmp.removeChisledBlock( te );
 	}
 
 }

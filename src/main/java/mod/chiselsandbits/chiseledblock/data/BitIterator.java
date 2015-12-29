@@ -51,6 +51,7 @@ public class BitIterator
 
 				if ( zOffset >= zMax )
 				{
+					done();
 					return false;
 				}
 			}
@@ -60,6 +61,11 @@ public class BitIterator
 
 		bit = combined | x;
 		return true;
+	}
+
+	protected void done()
+	{
+
 	}
 
 	public int getNext(

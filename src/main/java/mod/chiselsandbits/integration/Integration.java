@@ -3,7 +3,8 @@ package mod.chiselsandbits.integration;
 import java.util.ArrayList;
 import java.util.List;
 
-import mod.chiselsandbits.integration.JEI.IntegerationJEI;
+import mod.chiselsandbits.integration.jei.IntegerationJEI;
+import mod.chiselsandbits.integration.mcmultipart.IntegrationMCMP;
 
 public class Integration extends IntegrationBase
 {
@@ -11,6 +12,7 @@ public class Integration extends IntegrationBase
 	public List<IntegrationBase> integrations = new ArrayList<IntegrationBase>();
 
 	public static final IntegerationJEI jei = new IntegerationJEI();
+	public static final IntegrationMCMP mcmp = new IntegrationMCMP();
 
 	// last.
 	public static final Integration instance = new Integration();
@@ -19,6 +21,7 @@ public class Integration extends IntegrationBase
 	{
 		integrations.add( new IntegrationVersionChecker() );
 		integrations.add( jei );
+		integrations.add( mcmp );
 	}
 
 	@Override

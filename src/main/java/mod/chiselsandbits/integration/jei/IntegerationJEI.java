@@ -1,4 +1,4 @@
-package mod.chiselsandbits.integration.JEI;
+package mod.chiselsandbits.integration.jei;
 
 import java.util.ArrayList;
 import java.util.Collections;

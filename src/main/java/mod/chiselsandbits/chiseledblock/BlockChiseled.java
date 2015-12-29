@@ -422,8 +422,27 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final List list,
 			final Entity collidingEntity )
 	{
-		setBounds( worldIn, pos, mask, list );
-		setBlockBounds( 0, 0, 0, 1, 1, 1 );
+		try
+		{
+			addCollisionBoxesToList( getTileEntity( worldIn, pos ), pos, mask, list, collidingEntity );
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			Log.logError( "Unable to generate collisions", e );
+		}
+		finally
+		{
+		}
+	}
+
+	public void addCollisionBoxesToList(
+			final TileEntityBlockChiseled te,
+			final BlockPos pos,
+			final AxisAlignedBB mask,
+			final List<AxisAlignedBB> list,
+			final Entity collidingEntity )
+	{
+		setBounds( te, pos, mask, list );
 	}
 
 	/**
@@ -436,8 +455,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	 *
 	 * @return if the method results in a non-full cube box.
 	 */
-	private boolean setBounds(
-			final World worldIn,
+	private Block setBounds(
+			final TileEntityBlockChiseled tec,
 			final BlockPos pos,
 			final AxisAlignedBB mask,
 			final List<AxisAlignedBB> list )
@@ -452,84 +471,104 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		float maxY = 1.0f;
 		float maxZ = 1.0f;
 
-		try
+		final Block b = getTestBlock();
+
+		final VoxelBlob vb = tec.getBlob();
+
+		final BitCollisionIterator bi = new BitCollisionIterator();
+		while ( bi.hasNext() )
 		{
-			final TileEntityBlockChiseled tec = getTileEntity( worldIn, pos );
-			final VoxelBlob vb = tec.getBlob();
-
-			final BitCollisionIterator bi = new BitCollisionIterator();
-			while ( bi.hasNext() )
+			if ( bi.getNext( vb ) != 0 )
 			{
-				if ( bi.getNext( vb ) != 0 )
+				if ( started )
 				{
-					if ( started )
-					{
-						minX = Math.min( minX, bi.physicalX );
-						minY = Math.min( minY, bi.physicalY );
-						minZ = Math.min( minZ, bi.physicalZ );
-						maxX = Math.max( maxX, bi.physicalX + BitCollisionIterator.One16thf );
-						maxY = Math.max( maxY, bi.physicalYp1 );
-						maxZ = Math.max( maxZ, bi.physicalZp1 );
-					}
-					else
-					{
-						started = true;
-						minX = bi.physicalX;
-						minY = bi.physicalY;
-						minZ = bi.physicalZ;
-						maxX = bi.physicalX + BitCollisionIterator.One16thf;
-						maxY = bi.physicalYp1;
-						maxZ = bi.physicalZp1;
-					}
+					minX = Math.min( minX, bi.physicalX );
+					minY = Math.min( minY, bi.physicalY );
+					minZ = Math.min( minZ, bi.physicalZ );
+					maxX = Math.max( maxX, bi.physicalX + BitCollisionIterator.One16thf );
+					maxY = Math.max( maxY, bi.physicalYp1 );
+					maxZ = Math.max( maxZ, bi.physicalZp1 );
 				}
-
-				// VERY hackey collision extraction to do 2 bounding boxes, one
-				// for top and one for the bottom.
-				if ( list != null && started && ( bi.y == 8 || bi.y == VoxelBlob.dim_minus_one ) )
+				else
 				{
-					final AxisAlignedBB bb = AxisAlignedBB.fromBounds(
-							(double) minX + pos.getX(),
-							(double) minY + pos.getY(),
-							(double) minZ + pos.getZ(),
-							(double) maxX + pos.getX(),
-							(double) maxY + pos.getY(),
-							(double) maxZ + pos.getZ() );
-
-					setBlockBounds( 0, 0, 0, 1, 1, 1 );
-
-					if ( mask.intersectsWith( bb ) )
-					{
-						list.add( bb );
-					}
-
-					started = false;
-					minX = 0.0f;
-					minY = 0.0f;
-					minZ = 0.0f;
-					maxX = 1.0f;
-					maxY = 1.0f;
-					maxZ = 1.0f;
+					started = true;
+					minX = bi.physicalX;
+					minY = bi.physicalY;
+					minZ = bi.physicalZ;
+					maxX = bi.physicalX + BitCollisionIterator.One16thf;
+					maxY = bi.physicalYp1;
+					maxZ = bi.physicalZp1;
 				}
 			}
+
+			// VERY hackey collision extraction to do 2 bounding boxes, one
+			// for top and one for the bottom.
+			if ( list != null && started && ( bi.y == 8 || bi.y == VoxelBlob.dim_minus_one ) )
+			{
+				final AxisAlignedBB bb = AxisAlignedBB.fromBounds(
+						(double) minX + pos.getX(),
+						(double) minY + pos.getY(),
+						(double) minZ + pos.getZ(),
+						(double) maxX + pos.getX(),
+						(double) maxY + pos.getY(),
+						(double) maxZ + pos.getZ() );
+
+				if ( mask.intersectsWith( bb ) )
+				{
+					list.add( bb );
+				}
+
+				started = false;
+				minX = 0.0f;
+				minY = 0.0f;
+				minZ = 0.0f;
+				maxX = 1.0f;
+				maxY = 1.0f;
+				maxZ = 1.0f;
+			}
 		}
-		catch (
 
-		final ExceptionNoTileEntity e )
+		b.setBlockBounds( minX, minY, minZ, maxX, maxY, maxZ );
+		return b; // started ;
+	}
 
+	private final ThreadLocal<Block> testBlock = new ThreadLocal<Block>();
+
+	private Block getTestBlock()
+	{
+		Block b = testBlock.get();
+
+		if ( b == null )
 		{
+			b = new Block( Material.rock );
+			testBlock.set( b );
 		}
 
-		setBlockBounds( minX, minY, minZ, maxX, maxY, maxZ );
-		return started;
+		return b;
 	}
 
 	@Override
-	@SideOnly( Side.CLIENT )
 	public AxisAlignedBB getSelectedBoundingBox(
 			final World worldIn,
 			final BlockPos pos )
 	{
-		if ( worldIn.isRemote )
+		try
+		{
+			return getSelectedBoundingBox( getTileEntity( worldIn, pos ), pos );
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			Log.logError( "Unable to getSelectedBoundingBox", e );
+		}
+
+		return super.getSelectedBoundingBox( worldIn, pos );
+	}
+
+	public AxisAlignedBB getSelectedBoundingBox(
+			final TileEntityBlockChiseled tec,
+			final BlockPos pos )
+	{
+		if ( tec.getWorld().isRemote )
 		{
 			final EntityPlayer playerIn = ClientSide.instance.getPlayer();
 			final ItemStack equiped = playerIn.getCurrentEquippedItem();
@@ -537,28 +576,18 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final ChiselMode chMode = ModUtil.isHoldingChiselTool( playerIn );
 			if ( equiped == null || null == chMode )
 			{
-				setBounds( worldIn, pos, null, null );
-				final AxisAlignedBB r = super.getSelectedBoundingBox( worldIn, pos );
-				setBlockBounds( 0, 0, 0, 1, 1, 1 );
+				final Block boundsToTest = setBounds( tec, pos, null, null );
+				final AxisAlignedBB r = boundsToTest.getSelectedBoundingBox( null, pos );
 
 				return r;
 			}
 
-			try
-			{
-				final TileEntityBlockChiseled tec = getTileEntity( worldIn, pos );
-				final VoxelBlob vb = tec.getBlob();
-
-				return getSelectedBoundingBox( playerIn, pos, vb, chMode );
-			}
-			catch ( final ExceptionNoTileEntity e )
-			{
-			}
+			final VoxelBlob vb = tec.getBlob();
+			return getSelectedBoundingBox( playerIn, pos, vb, chMode );
 		}
 
-		setBounds( worldIn, pos, null, null );
-		final AxisAlignedBB r = super.getSelectedBoundingBox( worldIn, pos );
-		setBlockBounds( 0, 0, 0, 1, 1, 1 );
+		final Block boundsToTest = setBounds( tec, pos, null, null );
+		final AxisAlignedBB r = boundsToTest.getSelectedBoundingBox( null, pos );
 
 		return r;
 	}
@@ -700,43 +729,57 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final Vec3 a,
 			final Vec3 b )
 	{
-		if ( worldIn.isRemote )
+		try
+		{
+			return collisionRayTrace( getTileEntity( worldIn, pos ), pos, a, b, worldIn.isRemote );
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			Log.logError( "Unable to collisionRayTrace", e );
+		}
+
+		return super.collisionRayTrace( worldIn, pos, a, b );
+	}
+
+	public MovingObjectPosition collisionRayTrace(
+			final TileEntityBlockChiseled tec,
+			final BlockPos pos,
+			final Vec3 a,
+			final Vec3 b,
+			final boolean realTest )
+	{
+		Block boundsToTest = getTestBlock();
+
+		if ( realTest )
 		{
 			MovingObjectPosition br = null;
 			double lastDist = 0;
 
-			try
+			final VoxelBlob vb = tec.getBlob();
+
+			final BitCollisionIterator bi = new BitCollisionIterator();
+			while ( bi.hasNext() )
 			{
-				final TileEntityBlockChiseled tec = getTileEntity( worldIn, pos );
-				final VoxelBlob vb = tec.getBlob();
-
-				final BitCollisionIterator bi = new BitCollisionIterator();
-				while ( bi.hasNext() )
+				if ( bi.getNext( vb ) != 0 )
 				{
-					if ( bi.getNext( vb ) != 0 )
+					boundsToTest.setBlockBounds( bi.physicalX, bi.physicalY, bi.physicalZ, bi.physicalX + BitCollisionIterator.One16thf, bi.physicalYp1, bi.physicalZp1 );
+					final MovingObjectPosition r = boundsToTest.collisionRayTrace( null, pos, a, b );
+
+					if ( r != null )
 					{
-						setBlockBounds( bi.physicalX, bi.physicalY, bi.physicalZ, bi.physicalX + BitCollisionIterator.One16thf, bi.physicalYp1, bi.physicalZp1 );
-						final MovingObjectPosition r = super.collisionRayTrace( worldIn, pos, a, b );
+						final double xLen = a.xCoord - r.hitVec.xCoord;
+						final double yLen = a.yCoord - r.hitVec.yCoord;
+						final double zLen = a.zCoord - r.hitVec.zCoord;
 
-						if ( r != null )
+						final double thisDist = xLen * xLen + yLen * yLen + zLen * zLen;
+						if ( br == null || lastDist > thisDist && r != null )
 						{
-							final double xLen = a.xCoord - r.hitVec.xCoord;
-							final double yLen = a.yCoord - r.hitVec.yCoord;
-							final double zLen = a.zCoord - r.hitVec.zCoord;
-
-							final double thisDist = xLen * xLen + yLen * yLen + zLen * zLen;
-							if ( br == null || lastDist > thisDist )
-							{
-								lastDist = thisDist;
-								br = r;
-							}
-
+							lastDist = thisDist;
+							br = r;
 						}
+
 					}
 				}
-			}
-			catch ( final ExceptionNoTileEntity e )
-			{
 			}
 
 			setBlockBounds( 0, 0, 0, 1, 1, 1 );
@@ -744,9 +787,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			return br;
 		}
 
-		setBounds( worldIn, pos, null, null );
-		final MovingObjectPosition r = super.collisionRayTrace( worldIn, pos, a, b );
-		setBlockBounds( 0, 0, 0, 1, 1, 1 );
+		boundsToTest = setBounds( tec, pos, null, null );
+		final MovingObjectPosition r = boundsToTest.collisionRayTrace( null, pos, a, b );
 
 		return r;
 	}

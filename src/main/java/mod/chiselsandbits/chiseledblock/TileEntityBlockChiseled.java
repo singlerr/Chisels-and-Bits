@@ -437,7 +437,7 @@ public class TileEntityBlockChiseled extends TileEntity
 		}
 		else
 		{
-			worldObj.setBlockToAir( pos ); // no physical matter left...
+			ModUtil.removeChisledBlock( worldObj, pos );
 		}
 
 		if ( olv == null || olv != lv )

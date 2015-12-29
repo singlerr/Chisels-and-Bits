@@ -5,8 +5,8 @@ import java.lang.ref.WeakReference;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.ModelRenderState;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
@@ -70,14 +70,18 @@ public class VoxelNeighborRenderTracker
 			final World worldObj,
 			final BlockPos pos )
 	{
+		if ( worldObj == null || pos == null )
+		{
+			return;
+		}
+
 		this.isDynamic = isDynamic;
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
-			final TileEntity te = worldObj.getTileEntity( pos.offset( f ) );
-			if ( te instanceof TileEntityBlockChiseled )
+			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( worldObj, pos.offset( f ) );
+			if ( tebc != null )
 			{
-				final TileEntityBlockChiseled tebc = (TileEntityBlockChiseled) te;
 				update( f, tebc.getBasicState().getValue( BlockChiseled.v_prop ) );
 			}
 			else

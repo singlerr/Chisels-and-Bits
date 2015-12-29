@@ -9,6 +9,7 @@ import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ChiselInventory;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.block.Block;
@@ -103,36 +104,33 @@ public class PacketChisel extends ModPacket
 			blkObj = blkstate.getBlock();
 		}
 
-		if ( blkObj instanceof BlockChiseled )
+		final TileEntity te = ModUtil.getChiseledTileEntity( world, pos );
+		if ( te instanceof TileEntityBlockChiseled && chisel.isValid() )
 		{
-			final TileEntity te = world.getTileEntity( pos );
-			if ( te instanceof TileEntityBlockChiseled && chisel.isValid() )
+			final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
+
+			// adjust voxel state...
+			final VoxelBlob vb = tec.getBlob();
+
+			ItemStack extracted = null;
+
+			final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
+
+			final ChiselTypeIterator i = getIterator( vb );
+			while ( i.hasNext() && chisel.isValid() )
 			{
-				final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
+				extracted = ItemChisel.chiselBlock( chisel, player, vb, world, pos, i.side, i.x(), i.y(), i.z(), extracted, spawnlist );
+			}
 
-				// adjust voxel state...
-				final VoxelBlob vb = tec.getBlob();
+			for ( final EntityItem ei : spawnlist )
+			{
+				world.spawnEntityInWorld( ei );
+			}
 
-				ItemStack extracted = null;
-
-				final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
-
-				final ChiselTypeIterator i = getIterator( vb );
-				while ( i.hasNext() && chisel.isValid() )
-				{
-					extracted = ItemChisel.chiselBlock( chisel, player, vb, world, pos, i.side, i.x(), i.y(), i.z(), extracted, spawnlist );
-				}
-
-				for ( final EntityItem ei : spawnlist )
-				{
-					world.spawnEntityInWorld( ei );
-				}
-
-				if ( extracted != null )
-				{
-					tec.postChisel( vb );
-					return ItemChisel.getStackState( extracted );
-				}
+			if ( extracted != null )
+			{
+				tec.postChisel( vb );
+				return ItemChisel.getStackState( extracted );
 			}
 		}
 

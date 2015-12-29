@@ -1,4 +1,4 @@
-package mod.chiselsandbits.integration.JEI;
+package mod.chiselsandbits.integration.jei;
 
 import mezz.jei.api.IItemBlacklist;
 import mezz.jei.api.IItemRegistry;
