@@ -67,6 +67,21 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	public final String name;
 
+	@Override
+	public boolean isReplaceable(
+			final World worldIn,
+			final BlockPos pos )
+	{
+		try
+		{
+			return getTileEntity( worldIn, pos ).getBlob().solid() == 0;
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			return super.isReplaceable( worldIn, pos );
+		}
+	}
+
 	public boolean doesSideBlockRendering(
 			final IBlockAccess world,
 			final BlockPos pos,

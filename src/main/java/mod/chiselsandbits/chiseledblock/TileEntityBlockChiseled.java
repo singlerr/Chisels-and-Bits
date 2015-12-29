@@ -291,13 +291,13 @@ public class TileEntityBlockChiseled extends TileEntity
 
 		final Integer oldSideFlags = getState().getValue( BlockChiseled.side_prop );
 
-		if ( common.ref == 0 )
-		{
-			common.ref = getState().getValue( BlockChiseled.block_prop );
-		}
-
 		if ( worldObj == null )
 		{
+			if ( common.ref == 0 )
+			{
+				common.ref = getState().getValue( BlockChiseled.block_prop );
+			}
+
 			setState( getState()
 					.withProperty( BlockChiseled.side_prop, sideFlags )
 					.withProperty( BlockChiseled.v_prop, new VoxelBlobState( vb.toByteArray(), getPositionRandom( pos ) ) )
