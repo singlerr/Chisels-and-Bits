@@ -87,7 +87,7 @@ public class TileEntityBlockChiseled extends TileEntity
 					@Override
 					public void run()
 					{
-						if ( self.worldObj.getTileEntity( self.pos ) == self )
+						if ( self.worldObj != null && self.pos != null && self.worldObj.getTileEntity( self.pos ) == self )
 						{
 							final TileEntityBlockChiseledTESR TESR = new TileEntityBlockChiseledTESR();
 							TESR.copyFrom( self );
@@ -105,7 +105,7 @@ public class TileEntityBlockChiseled extends TileEntity
 					@Override
 					public void run()
 					{
-						if ( self.worldObj.getTileEntity( self.pos ) == self )
+						if ( self.worldObj != null && self.pos != null && self.worldObj.getTileEntity( self.pos ) == self )
 						{
 							final TileEntityBlockChiseled nonTesr = new TileEntityBlockChiseled();
 							nonTesr.copyFrom( self );
@@ -328,7 +328,7 @@ public class TileEntityBlockChiseled extends TileEntity
 	private long getPositionRandom(
 			final BlockPos pos )
 	{
-		if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
+		if ( pos != null && FMLCommonHandler.instance().getSide() == Side.CLIENT )
 		{
 			return MathHelper.getPositionRandom( pos );
 		}
@@ -379,13 +379,13 @@ public class TileEntityBlockChiseled extends TileEntity
 
 		final Integer oldSideFlags = getBasicState().getValue( BlockChiseled.side_prop );
 
-		if ( common.ref == 0 )
-		{
-			common.ref = getBasicState().getValue( BlockChiseled.block_prop );
-		}
-
 		if ( worldObj == null )
 		{
+			if ( common.ref == 0 )
+			{
+				common.ref = getBasicState().getValue( BlockChiseled.block_prop );
+			}
+
 			IExtendedBlockState newState = getBasicState()
 					.withProperty( BlockChiseled.side_prop, sideFlags )
 					.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb.toByteArray(), getPositionRandom( pos ) ) )

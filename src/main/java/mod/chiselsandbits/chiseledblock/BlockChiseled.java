@@ -9,6 +9,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.Log;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
@@ -73,6 +74,21 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	public static final IUnlistedProperty<Integer> light_prop = new UnlistedLightValue();
 
 	public final String name;
+
+	@Override
+	public boolean isReplaceable(
+			final World worldIn,
+			final BlockPos pos )
+	{
+		try
+		{
+			return getTileEntity( worldIn, pos ).getBlob().solid() == 0;
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			return super.isReplaceable( worldIn, pos );
+		}
+	}
 
 	@Override
 	public boolean doesSideBlockRendering(
