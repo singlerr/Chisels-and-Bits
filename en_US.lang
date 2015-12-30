@@ -43,14 +43,25 @@ mod.chiselsandbits.other.rotate.cw=Rotate Held Clockwise
 
 mod.chiselsandbits.help.shiftdetails=<Hold Shift For Details>
 mod.chiselsandbits.help.empty=Empty
+mod.chiselsandbits.help.solid=Solid
 
 mod.chiselsandbits.help.chiseled_block=Left click to place;Sneak to ignore block grid;Mouse Wheel to cycle placement rotation.
 mod.chiselsandbits.help.bit_bag=Automatically re-stock, and store bits.
 mod.chiselsandbits.help.wrench=Right click blocks to rotate.
 mod.chiselsandbits.help.bit=Left click to chisel;Right click to place
-mod.chiselsandbits.help.positiveprint=Right click to write;right click to chisel/place or Craft with bits/bags.;Mouse Wheel to cycle rotation.
-mod.chiselsandbits.help.negativeprint=Right click to write;right click to chisel.;Mouse Wheel to cycle rotation.
-mod.chiselsandbits.help.chisel=Left click to chisel;Right click to cycle modes.;Mouse Wheel to cycle rotation.
+mod.chiselsandbits.help.positiveprint=Right click to write;Right click to chisel/place or Craft with bits/bags.;Mouse Wheel to cycle rotation.
+mod.chiselsandbits.help.negativeprint=Right click to write;Right click to chisel.;Mouse Wheel to cycle rotation.
+mod.chiselsandbits.help.mirrorprint=Right click the face on wish to mirror from;Craft with positive/negative design to transfer.
+mod.chiselsandbits.help.chisel=Left click to chisel;Right click to cycle modes.;Mouse Wheel to cycle modes.
+
+mod.chiselsandbits.help.chiseled_block.long=Left click to place the block. Sneak while placing to ignore block grid. Shift + Mouse Wheel to cycle placement rotation.
+mod.chiselsandbits.help.bit_bag.long=Automatically re-stocks, and store bits when you exceed or go under a stack in your inventory.
+mod.chiselsandbits.help.wrench.long=Right click blocks to rotate them around the axis of the face you click.
+mod.chiselsandbits.help.bit.long=Left click to chisel the highlighted bit. Right click to place a single bit at the designated location.
+mod.chiselsandbits.help.positiveprint.long=Right click on a chiseled block to write the design. Right click on a block to chisel it adding and removing any bits that do not match the design. You can also place the design in a crafting table and Craft with bits/bags. Shift + Mouse Wheel can be used to cycle rotations without moving.
+mod.chiselsandbits.help.negativeprint.long=Right click on a chiseled block to write the design. Right click on a block to chisel it removing any bits that are not in the negative design. Shift + Mouse Wheel can be used to cycle rotations without moving.
+mod.chiselsandbits.help.mirrorprint.long=Right click on a chiseled block face on wish to mirror from, clicking an east facing face will mirror it along the east->west axis. Craft written design with a positive or negative design to transfer the mirror image to the type of design you want.
+mod.chiselsandbits.help.chisel.long=Left click any compatible block to chisel. Right click to cycle thought chisel modes, you can also use Shift + Mouse Wheel to cycle modes.
 
 mod.chiselsandbits.config.ShowBitsInJEI=Show Bits in JEI
 mod.chiselsandbits.config.showUsage=Add help text to item descriptions
@@ -87,8 +98,9 @@ mod.chiselsandbits.config.enableStackableCrafting.tooltip=You can use this featu
 mod.chiselsandbits.config.enableNegativePrintInversionCrafting=Invert Negative Chisel Designs
 mod.chiselsandbits.config.enableNegativePrintInversionCrafting.tooltip=Craft a filled negative design with a blank negative design.
 mod.chiselsandbits.config.enableBitBag=Enable Chiseled Bit Bag
-mod.chiselsandbits.config.enableNegativePrint=Enable Chisel Design
-mod.chiselsandbits.config.enablePositivePrint=Enable Chisel Design
+mod.chiselsandbits.config.enableNegativePrint=Enable Negative Chisel Design
+mod.chiselsandbits.config.enablePositivePrint=Enable Positive Chisel Design
+mod.chiselsandbits.config.enableMirrorPrint=Enable Mirror Chisel Design
 mod.chiselsandbits.config.enableChisledBits=Enable Chiseled Bits
 mod.chiselsandbits.config.enableStoneChisel=Enable Stone Chisel
 mod.chiselsandbits.config.enableIronChisel=Enable Iron Chisel
