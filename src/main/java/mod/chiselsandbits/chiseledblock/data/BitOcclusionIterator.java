@@ -21,30 +21,38 @@ public class BitOcclusionIterator extends BitCollisionIterator
 	@Override
 	protected void yPlus()
 	{
-		done();
+		addCurrentBox( One16thf );
 		super.yPlus();
 	}
 
 	@Override
 	protected void zPlus()
 	{
-		done();
+		addCurrentBox( One16thf );
 		super.zPlus();
 	}
 
 	@Override
 	protected void done()
 	{
+		addCurrentBox( One16thf );
+	}
+
+	protected void addCurrentBox(
+			final double addition )
+	{
 		if ( lastSetting == true )
 		{
-			addBox();
+			addBox( addition );
 			lastSetting = false;
 		}
 	}
 
-	private void addBox()
+	private void addBox(
+			final double addition )
 	{
-		o.add( AxisAlignedBB.fromBounds( physicalStartX, physicalY, physicalZ, physicalX + One16thf, physicalYp1, physicalZp1 ) );
+		final double epsilon = 0.00001;
+		o.add( AxisAlignedBB.fromBounds( physicalStartX + epsilon, physicalY + epsilon, physicalZ + epsilon, physicalX + addition - epsilon, physicalYp1 - epsilon, physicalZp1 - epsilon ) );
 	}
 
 	public void add()
@@ -58,7 +66,7 @@ public class BitOcclusionIterator extends BitCollisionIterator
 
 	public void drop()
 	{
-		done();
+		addCurrentBox( 0 );
 	}
 
 }
