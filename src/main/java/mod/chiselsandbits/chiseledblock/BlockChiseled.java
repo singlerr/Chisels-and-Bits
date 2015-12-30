@@ -9,6 +9,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.Log;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
