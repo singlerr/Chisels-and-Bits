@@ -301,7 +301,8 @@ public class ModUtil
 
 	public static TileEntityBlockChiseled getChiseledTileEntity(
 			final World world,
-			final BlockPos pos )
+			final BlockPos pos,
+			final boolean create )
 	{
 		final TileEntity te = world.getTileEntity( pos );
 
@@ -310,7 +311,7 @@ public class ModUtil
 			return (TileEntityBlockChiseled) te;
 		}
 
-		return Integration.mcmp.getChiseledTileEntity( te );
+		return Integration.mcmp.getChiseledTileEntity( te, create );
 	}
 
 	public static void removeChisledBlock(

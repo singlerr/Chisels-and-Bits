@@ -113,7 +113,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			return true;
 		}
 
-		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos );
+		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, false );
 		if ( te != null )
 		{
 			// we can do this!
@@ -123,7 +123,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			return true;
 		}
 
-		final TileEntityBlockChiseled tec = ModUtil.getChiseledTileEntity( world, pos );
+		final TileEntityBlockChiseled tec = ModUtil.getChiseledTileEntity( world, pos, false );
 		if ( tec != null )
 		{
 			final NBTTagCompound blueprintTag = stack.getTagCompound();

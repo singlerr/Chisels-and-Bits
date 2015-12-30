@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 
-@SuppressWarnings( "deprecation" )
 public class ModelCombined extends BaseBakedBlockModel
 {
 

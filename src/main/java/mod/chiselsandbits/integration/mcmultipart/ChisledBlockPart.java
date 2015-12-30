@@ -7,7 +7,7 @@ import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IOccludingPart;
 import mcmultipart.multipart.Multipart;
 import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResult;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -49,7 +49,7 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart
 	}
 
 	@Override
-	public RayTraceResult collisionRayTrace(
+	public RayTraceResultPart collisionRayTrace(
 			final Vec3 start,
 			final Vec3 end )
 	{
@@ -61,7 +61,7 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart
 		}
 
 		final AxisAlignedBB bb = getBlock().getSelectedBoundingBox( getTile(), getPos() );
-		return new RayTraceResult( new PartMOP( mop, this ), bb == null ? null : bb.offset( -getPos().getX(), -getPos().getY(), -getPos().getZ() ) );
+		return new RayTraceResultPart( new PartMOP( mop, this ), bb == null ? null : bb.offset( -getPos().getX(), -getPos().getY(), -getPos().getZ() ) );
 	}
 
 	@Override

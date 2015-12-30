@@ -377,8 +377,6 @@ public class TileEntityBlockChiseled extends TileEntity
 		// are most of the bits in the center solid?
 		final int sideFlags = vb.getSideFlags( 5, 11, 4 * 4 );
 
-		final Integer oldSideFlags = getBasicState().getValue( BlockChiseled.side_prop );
-
 		if ( worldObj == null )
 		{
 			if ( common.ref == 0 )
@@ -423,17 +421,10 @@ public class TileEntityBlockChiseled extends TileEntity
 					.withProperty( BlockChiseled.block_prop, common.ref ) );
 
 			markDirty();
-
-			// NetworkRouter.instance.sendToAllAround( getDescriptionPacket(),
-			// new TargetPoint( worldObj.provider.getDimensionId(), pos.getX(),
-			// pos.getY(), pos.getZ(), 64 ) );
-
 			worldObj.markBlockForUpdate( pos );
 
-			if ( oldSideFlags == null || oldSideFlags != sideFlags )
-			{
-				worldObj.notifyNeighborsOfStateChange( pos, worldObj.getBlockState( pos ).getBlock() );
-			}
+			// since its possible for bits to occlude parts.. update every time.
+			worldObj.notifyNeighborsOfStateChange( pos, worldObj.getBlockState( pos ).getBlock() );
 		}
 		else
 		{

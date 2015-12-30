@@ -12,6 +12,7 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -21,7 +22,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
@@ -111,13 +111,13 @@ public class ItemChiseledBit extends Item
 		}
 
 		IBlockState blkstate = world.getBlockState( pos );
-		Block blkObj = blkstate.getBlock();
 
 		hitX += side.getFrontOffsetX() * HALF_16th;
 		hitY += side.getFrontOffsetY() * HALF_16th;
 		hitZ += side.getFrontOffsetZ() * HALF_16th;
 
-		if ( !( blkObj instanceof BlockChiseled ) || hitX < -0.001 || hitY < -0.001 || hitZ < -0.001 || hitX > 1.001 || hitY > 1.001 || hitZ > 1.001 )
+		TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, pos, true );
+		if ( tebc == null || hitX < -0.001 || hitY < -0.001 || hitZ < -0.001 || hitX > 1.001 || hitY > 1.001 || hitZ > 1.001 )
 		{
 			pos = pos.offset( side );
 			hitX -= side.getFrontOffsetX();
@@ -125,58 +125,52 @@ public class ItemChiseledBit extends Item
 			hitZ -= side.getFrontOffsetZ();
 
 			blkstate = world.getBlockState( pos );
-			blkObj = blkstate.getBlock();
+			tebc = ModUtil.getChiseledTileEntity( world, pos, true );
 		}
 
-		if ( BlockChiseled.replaceWithChisled( world, pos, blkstate, ItemChisel.getStackState( stack ) ) )
+		if ( tebc == null && BlockChiseled.replaceWithChisled( world, pos, blkstate, ItemChisel.getStackState( stack ) ) )
 		{
 			blkstate = world.getBlockState( pos );
-			blkObj = blkstate.getBlock();
+			tebc = ModUtil.getChiseledTileEntity( world, pos, true );
 		}
 
-		if ( blkObj instanceof BlockChiseled )
+		if ( tebc != null )
 		{
-			final TileEntity te = world.getTileEntity( pos );
-			if ( te instanceof TileEntityBlockChiseled )
+			// adjust voxel state...
+			final VoxelBlob vb = tebc.getBlob();
+
+			final int x = Math.min( 15, Math.max( 0, (int) ( vb.detail * hitX ) ) );
+			final int y = Math.min( 15, Math.max( 0, (int) ( vb.detail * hitY ) ) );
+			final int z = Math.min( 15, Math.max( 0, (int) ( vb.detail * hitZ ) ) );
+
+			if ( vb.get( x, y, z ) == 0 )
 			{
-				final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
+				final int stateID = ItemChisel.getStackState( stack );
 
-				// adjust voxel state...
-				final VoxelBlob vb = tec.getBlob();
-
-				final int x = Math.min( 15, Math.max( 0, (int) ( vb.detail * hitX ) ) );
-				final int y = Math.min( 15, Math.max( 0, (int) ( vb.detail * hitY ) ) );
-				final int z = Math.min( 15, Math.max( 0, (int) ( vb.detail * hitZ ) ) );
-
-				if ( vb.get( x, y, z ) == 0 )
+				if ( world.isRemote )
 				{
-					final int stateID = ItemChisel.getStackState( stack );
-
-					if ( world.isRemote )
-					{
-						ClientSide.placeSound( world, pos, stateID );
-					}
-
-					vb.set( x, y, z, stateID );
-					tec.setBlob( vb );
-
-					if ( !player.capabilities.isCreativeMode )
-					{
-						stack.stackSize--;
-					}
-
-					final IInventory inv = player.inventory;
-					for ( int zz = 0; zz < inv.getSizeInventory(); zz++ )
-					{
-						final ItemStack which = inv.getStackInSlot( zz );
-						if ( which != null && which.getItem() instanceof ItemBitBag )
-						{
-							new BagInventory( which ).restockItem( stack );
-						}
-					}
-
-					return false;
+					ClientSide.placeSound( world, pos, stateID );
 				}
+
+				vb.set( x, y, z, stateID );
+				tebc.setBlob( vb );
+
+				if ( !player.capabilities.isCreativeMode )
+				{
+					stack.stackSize--;
+				}
+
+				final IInventory inv = player.inventory;
+				for ( int zz = 0; zz < inv.getSizeInventory(); zz++ )
+				{
+					final ItemStack which = inv.getStackInSlot( zz );
+					if ( which != null && which.getItem() instanceof ItemBitBag )
+					{
+						new BagInventory( which ).restockItem( stack );
+					}
+				}
+
+				return false;
 			}
 		}
 

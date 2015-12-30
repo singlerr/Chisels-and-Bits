@@ -79,7 +79,7 @@ public class VoxelNeighborRenderTracker
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
-			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( worldObj, pos.offset( f ) );
+			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( worldObj, pos.offset( f ), false );
 			if ( tebc != null )
 			{
 				update( f, tebc.getBasicState().getValue( BlockChiseled.v_prop ) );

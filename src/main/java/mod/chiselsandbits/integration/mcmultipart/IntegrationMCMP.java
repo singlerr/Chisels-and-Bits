@@ -42,7 +42,8 @@ public class IntegrationMCMP extends IntegrationBase
 	}
 
 	private TileEntityBlockChiseled getPartIfPossible(
-			final TileEntity te )
+			final TileEntity te,
+			final boolean create )
 	{
 		if ( te instanceof IMultipartContainer )
 		{
@@ -53,6 +54,17 @@ public class IntegrationMCMP extends IntegrationBase
 				{
 					return ( (ChisledBlockPart) part ).getTile();
 				}
+			}
+
+			if ( create && !te.getWorld().isRemote )
+			{
+				final ChisledBlockPart part = new ChisledBlockPart();
+				container.addPart( part );
+				return part.getTile();
+			}
+			else if ( create )
+			{
+				return new TileEntityBlockChiseled();
 			}
 		}
 
@@ -81,11 +93,12 @@ public class IntegrationMCMP extends IntegrationBase
 	}
 
 	public TileEntityBlockChiseled getChiseledTileEntity(
-			final TileEntity te )
+			final TileEntity te,
+			final boolean create )
 	{
 		if ( canUseMCMP )
 		{
-			return getPartIfPossible( te );
+			return getPartIfPossible( te, create );
 		}
 
 		return null;

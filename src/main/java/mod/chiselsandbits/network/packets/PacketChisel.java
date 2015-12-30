@@ -104,7 +104,7 @@ public class PacketChisel extends ModPacket
 			blkObj = blkstate.getBlock();
 		}
 
-		final TileEntity te = ModUtil.getChiseledTileEntity( world, pos );
+		final TileEntity te = ModUtil.getChiseledTileEntity( world, pos, false );
 		if ( te instanceof TileEntityBlockChiseled && chisel.isValid() )
 		{
 			final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
