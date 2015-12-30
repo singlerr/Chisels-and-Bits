@@ -10,31 +10,23 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
-import mod.chiselsandbits.helpers.ChiselInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.interfaces.IItemScrollWheel;
-import mod.chiselsandbits.interfaces.IVoxelBlobItem;
-import mod.chiselsandbits.network.NetworkRouter;
-import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 
-public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScrollWheel
+public class ItemMirrorPrint extends Item
 {
 
-	public ItemNegativePrint()
+	public ItemMirrorPrint()
 	{
 
 	}
@@ -61,7 +53,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final boolean advanced )
 	{
 		defaultAddInfo( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpNegativePrint, tooltip );
+		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpMirrorPrint, tooltip );
 
 		if ( stack.hasTagCompound() )
 		{
@@ -76,18 +68,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 					tmp.readChisleData( stack.getTagCompound() );
 					final VoxelBlob blob = tmp.getBlob();
 
-					final int solid = blob.solid();
-					final int air = blob.air();
-
-					if ( solid > 0 )
-					{
-						details.add( solid + " " + LocalStrings.Empty.getLocal() );
-					}
-
-					if ( air > 0 )
-					{
-						details.add( air + " " + LocalStrings.Solid.getLocal() );
-					}
+					blob.listContents( details );
 				}
 
 				tooltip.addAll( details );
@@ -121,8 +102,6 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final float hitY,
 			final float hitZ )
 	{
-		final IBlockState blkstate = world.getBlockState( pos );
-
 		if ( !player.canPlayerEdit( pos, side, stack ) )
 		{
 			return true;
@@ -130,7 +109,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 		if ( !stack.hasTagCompound() )
 		{
-			final NBTTagCompound comp = getCompoundFromBlock( world, pos, player );
+			final NBTTagCompound comp = getCompoundFromBlock( world, pos, player, side );
 			if ( comp != null )
 			{
 				stack.setTagCompound( comp );
@@ -140,55 +119,14 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			return true;
 		}
 
-		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, false );
-		if ( te != null )
-		{
-			// we can do this!
-		}
-		else if ( !BlockChiseled.replaceWithChisled( world, pos, blkstate ) )
-		{
-			return true;
-		}
-
-		final TileEntityBlockChiseled tec = ModUtil.getChiseledTileEntity( world, pos, false );
-		if ( tec != null )
-		{
-			final NBTTagCompound blueprintTag = stack.getTagCompound();
-
-			// float newPitch = player.rotationPitch;
-			// float oldPitch = blueprintTag.getFloat("rotationPitch" );
-
-			int rotations = ModUtil.getRotations( player, blueprintTag.getByte( "side" ) );
-
-			final VoxelBlob vb = tec.getBlob();
-
-			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-			tmp.readChisleData( blueprintTag );
-			VoxelBlob pattern = tmp.getBlob();
-
-			while ( rotations-- > 0 )
-			{
-				pattern = pattern.spin( Axis.Y );
-			}
-
-			applyPrint( world, pos, side, vb, pattern, player );
-
-			tec.setBlob( vb );
-			return false;
-		}
-
-		return true;
-	}
-
-	protected boolean convertToStone()
-	{
 		return true;
 	}
 
 	protected NBTTagCompound getCompoundFromBlock(
 			final World world,
 			final BlockPos pos,
-			final EntityPlayer player )
+			final EntityPlayer player,
+			final EnumFacing face )
 	{
 
 		final Block blkObj = world.getBlockState( pos ).getBlock();
@@ -200,17 +138,12 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 				final NBTTagCompound comp = new NBTTagCompound();
 				( (TileEntityBlockChiseled) te ).writeChisleData( comp );
 
-				if ( convertToStone() )
-				{
-					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-					tmp.readChisleData( comp );
+				final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+				tmp.readChisleData( comp );
 
-					final VoxelBlob bestBlob = tmp.getBlob();
-					bestBlob.binaryReplacement( 0, Block.getStateId( Blocks.stone.getDefaultState() ) );
-
-					tmp.setBlob( bestBlob );
-					tmp.writeChisleData( comp );
-				}
+				final VoxelBlob bestBlob = tmp.getBlob();
+				tmp.setBlob( bestBlob.mirror( face.getAxis() ) );
+				tmp.writeChisleData( comp );
 
 				comp.setByte( "side", (byte) ModUtil.getPlaceFace( player ).ordinal() );
 				return comp;
@@ -245,69 +178,6 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 		itemstack.setTagInfo( "BlockEntityTag", tag );
 		return itemstack;
-	}
-
-	protected void applyPrint(
-			final World world,
-			final BlockPos pos,
-			final EnumFacing side,
-			final VoxelBlob vb,
-			final VoxelBlob pattern,
-			final EntityPlayer player )
-	{
-		// snag a tool...
-		final ChiselInventory selected = new ChiselInventory( player, pos, side );
-		ItemStack spawnedItem = null;
-
-		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
-
-		for ( int z = 0; z < vb.detail && selected.isValid(); z++ )
-		{
-			for ( int y = 0; y < vb.detail && selected.isValid(); y++ )
-			{
-				for ( int x = 0; x < vb.detail && selected.isValid(); x++ )
-				{
-					final int blkID = vb.get( x, y, z );
-					if ( blkID != 0 && pattern.get( x, y, z ) == 0 )
-					{
-						spawnedItem = ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
-					}
-				}
-			}
-		}
-
-		for ( final EntityItem ei : spawnlist )
-		{
-			world.spawnEntityInWorld( ei );
-		}
-	}
-
-	@Override
-	public void scroll(
-			final EntityPlayer player,
-			final ItemStack stack,
-			final int dwheel )
-	{
-		final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-		p.wheel = dwheel;
-		NetworkRouter.instance.sendToServer( p );
-	}
-
-	@Override
-	public void rotate(
-			final ItemStack stack,
-			final int wheel )
-	{
-		final NBTTagCompound blueprintTag = stack.getTagCompound();
-		EnumFacing side = EnumFacing.VALUES[blueprintTag.getByte( "side" )];
-
-		if ( side.getAxis() == Axis.Y )
-		{
-			side = EnumFacing.NORTH;
-		}
-
-		side = wheel > 0 ? side.rotateY() : side.rotateYCCW();
-		blueprintTag.setInteger( "side", +side.ordinal() );
 	}
 
 }

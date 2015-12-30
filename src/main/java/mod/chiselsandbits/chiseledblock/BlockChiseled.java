@@ -9,7 +9,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
-import mod.chiselsandbits.Log;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
@@ -34,10 +33,12 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
@@ -268,7 +269,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			if ( stack == null || placer == null )
+			if ( stack == null || placer == null || !stack.hasTagCompound() )
 			{
 				return;
 			}
@@ -1178,6 +1179,15 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	public String getModel()
 	{
 		return ChiselsAndBits.MODID + ":" + name;
+	}
+
+	@Override
+	public void getSubBlocks(
+			final Item itemIn,
+			final CreativeTabs tab,
+			final List<ItemStack> list )
+	{
+		// no items.
 	}
 
 }

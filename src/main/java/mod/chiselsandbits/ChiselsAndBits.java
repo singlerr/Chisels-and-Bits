@@ -2,6 +2,7 @@ package mod.chiselsandbits;
 
 import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.crafting.ChiselCrafting;
+import mod.chiselsandbits.crafting.MirrorTransferCrafting;
 import mod.chiselsandbits.crafting.NegativeInversionCrafting;
 import mod.chiselsandbits.crafting.StackableCrafting;
 import mod.chiselsandbits.events.EventBreakSpeed;
@@ -34,7 +35,7 @@ public class ChiselsAndBits
 {
 	public static final String MODNAME = "Chisels & Bits";
 	public static final String MODID = "chiselsandbits";
-	public static final String VERSION = "mc1.8.8-v1.7.4";
+	public static final String VERSION = "mc1.8.9-v1.7.5";
 
 	public static final String DEPENDENCIES = "required-after:Forge@[" // forge.
 			+ net.minecraftforge.common.ForgeVersion.majorVersion + '.' // majorVersion
@@ -107,6 +108,12 @@ public class ChiselsAndBits
 		{
 			GameRegistry.addRecipe( new NegativeInversionCrafting() );
 			RecipeSorter.register( MODID + ":negativepatterncrafting", NegativeInversionCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
+		}
+
+		if ( config.enableMirrorPrint )
+		{
+			GameRegistry.addRecipe( new MirrorTransferCrafting() );
+			RecipeSorter.register( MODID + ":mirrorpatterncrafting", MirrorTransferCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
 		}
 	}
 

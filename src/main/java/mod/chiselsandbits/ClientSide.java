@@ -156,6 +156,21 @@ public class ClientSide
 			} );
 		}
 
+		if ( modItems.itemMirrorprint != null )
+		{
+			ModelBakery.addVariantName( modItems.itemMirrorprint, MODID + ":mirrorprint", MODID + ":mirrorprint_written" );
+			mesher.register( modItems.itemMirrorprint, new ItemMeshDefinition() {
+
+				@Override
+				public ModelResourceLocation getModelLocation(
+						final ItemStack stack )
+				{
+					return new ModelResourceLocation( new ResourceLocation( MODID, stack.hasTagCompound() ? "mirrorprint_written_preview" : "mirrorprint" ), "inventory" );
+				}
+
+			} );
+		}
+
 		if ( modItems.itemBlockBit != null )
 		{
 			mesher.register( modItems.itemBlockBit, new ItemMeshDefinition() {

@@ -5,6 +5,7 @@ import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.items.ItemMirrorPrint;
 import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.items.ItemPositivePrint;
 import mod.chiselsandbits.items.ItemWrench;
@@ -27,6 +28,7 @@ public class ModItems extends ModRegistry
 	public ItemChisel itemChiselDiamond;
 
 	public ItemChiseledBit itemBlockBit;
+	public ItemMirrorPrint itemMirrorprint;
 	public ItemPositivePrint itemPositiveprint;
 	public ItemNegativePrint itemNegativeprint;
 
@@ -49,7 +51,7 @@ public class ModItems extends ModRegistry
 	}
 
 	public ModItems(
-			ModConfig config )
+			final ModConfig config )
 	{
 		// register items...
 		itemChiselStone = registerItem( config.enableStoneChisel, new ItemChisel( ToolMaterial.STONE ), "chisel_stone" );
@@ -58,6 +60,7 @@ public class ModItems extends ModRegistry
 		itemChiselDiamond = registerItem( config.enableDiamondChisel, new ItemChisel( ToolMaterial.EMERALD ), "chisel_diamond" );
 		itemPositiveprint = registerItem( config.enablePositivePrint, new ItemPositivePrint(), "positiveprint" );
 		itemNegativeprint = registerItem( config.enableNegativePrint, new ItemNegativePrint(), "negativeprint" );
+		itemMirrorprint = registerItem( config.enableMirrorPrint, new ItemMirrorPrint(), "mirrorprint" );
 		itemBitBag = registerItem( config.enableBitBag, new ItemBitBag(), "bit_bag" );
 		itemWrench = registerItem( config.enableWoodenWrench, new ItemWrench(), "wrench_wood" );
 		itemBlockBit = registerItem( config.enableChisledBits, new ItemChiseledBit(), "block_bit" );
@@ -78,10 +81,12 @@ public class ModItems extends ModRegistry
 		// create prints...
 		ShapelessOreRecipe( itemPositiveprint, Items.water_bucket, Items.paper, "gemLapis" );
 		ShapelessOreRecipe( itemNegativeprint, Items.water_bucket, Items.paper, "dustRedstone" );
+		ShapelessOreRecipe( itemMirrorprint, Items.water_bucket, Items.paper, "dustGlowstone" );
 
 		// clean patterns...
 		ShapelessOreRecipe( itemPositiveprint, new ItemStack( itemPositiveprint, 1, OreDictionary.WILDCARD_VALUE ) );
 		ShapelessOreRecipe( itemNegativeprint, new ItemStack( itemNegativeprint, 1, OreDictionary.WILDCARD_VALUE ) );
+		ShapelessOreRecipe( itemMirrorprint, new ItemStack( itemMirrorprint, 1, OreDictionary.WILDCARD_VALUE ) );
 
 		// make a bit bag..
 		ShapedOreRecipe( itemBitBag, "WWW", "WbW", "WWW", 'W', new ItemStack( Blocks.wool, 1, OreDictionary.WILDCARD_VALUE ), 'b', new ItemStack( itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );

@@ -87,6 +87,36 @@ public class VoxelBlob
 		return out;
 	}
 
+	public VoxelBlob mirror(
+			final Axis axis )
+	{
+		final VoxelBlob out = new VoxelBlob();
+
+		final BitIterator bi = new BitIterator();
+		while ( bi.hasNext() )
+		{
+			if ( bi.getNext( this ) != 0 )
+			{
+				switch ( axis )
+				{
+					case X:
+						out.set( dim_minus_one - bi.x, bi.y, bi.z, bi.getNext( this ) );
+						break;
+					case Y:
+						out.set( bi.x, dim_minus_one - bi.y, bi.z, bi.getNext( this ) );
+						break;
+					case Z:
+						out.set( bi.x, bi.y, dim_minus_one - bi.z, bi.getNext( this ) );
+						break;
+					default:
+						throw new NullPointerException();
+				}
+			}
+		}
+
+		return out;
+	}
+
 	public BlockPos getCenter()
 	{
 		boolean found = false;
@@ -722,4 +752,5 @@ public class VoxelBlob
 		final IBlockState state = Block.getStateById( ref );
 		return state.getBlock().canRenderInLayer( layer );
 	}
+
 }

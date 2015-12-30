@@ -19,14 +19,31 @@ public enum LocalStrings
 
 	ShiftDetails( "help.shiftdetails" ),
 	Empty( "help.empty" ),
+	Solid( "help.solid" ),
 
 	HelpChiseledBlock( "help.chiseled_block" ),
+	LongHelpChiseledBlock( "help.chiseled_block.long" ),
+
 	HelpBitBag( "help.bit_bag" ),
+	LongHelpBitBag( "help.bit_bag.long" ),
+
 	HelpWrench( "help.wrench" ),
+	LongHelpWrench( "help.wrench.long" ),
+
 	HelpBit( "help.bit" ),
+	LongHelpBit( "help.bit.long" ),
+
 	HelpPositivePrint( "help.positiveprint" ),
+	LongHelpPositivePrint( "help.positiveprint.long" ),
+
 	HelpNegativePrint( "help.negativeprint" ),
-	HelpChisel( "help.chisel" );
+	LongHelpNegativePrint( "help.negativeprint.long" ),
+
+	HelpMirrorPrint( "help.mirrorprint" ),
+	LongHelpMirrorPrint( "help.mirrorprint.long" ),
+
+	HelpChisel( "help.chisel" ),
+	LongHelpChisel( "help.chisel.long" );
 
 	private final String string;
 
