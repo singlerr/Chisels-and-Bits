@@ -18,6 +18,8 @@ item.mod.chiselsandbits.positiveprint.name=Positive Chisel Design
 item.mod.chiselsandbits.positiveprint_written.name=Positive Chisel Design - Written
 item.mod.chiselsandbits.negativeprint.name=Negative Chisel Design
 item.mod.chiselsandbits.negativeprint_written.name=Negative Chisel Design - Written
+item.mod.chiselsandbits.mirrorprint.name=Mirror Chisel Design
+item.mod.chiselsandbits.mirrorprint_written.name=Mirror Chisel Design - Written
 
 item.mod.chiselsandbits.chisel_stone.name=Stone Chisel
 item.mod.chiselsandbits.chisel_iron.name=Iron Chisel
