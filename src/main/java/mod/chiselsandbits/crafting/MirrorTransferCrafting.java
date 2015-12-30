@@ -11,7 +11,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
-public class NegativeInversionCrafting implements IRecipe
+public class MirrorTransferCrafting implements IRecipe
 {
 
 	@Override
@@ -29,6 +29,8 @@ public class NegativeInversionCrafting implements IRecipe
 		ItemStack targetA = null;
 		ItemStack targetB = null;
 
+		boolean isNegative = false;
+
 		for ( int x = 0; x < craftingInv.getSizeInventory(); x++ )
 		{
 			final ItemStack f = craftingInv.getStackInSlot( x );
@@ -37,7 +39,7 @@ public class NegativeInversionCrafting implements IRecipe
 				continue;
 			}
 
-			if ( f.getItem() == ChiselsAndBits.instance.items.itemNegativeprint )
+			if ( f.getItem() == ChiselsAndBits.instance.items.itemMirrorprint )
 			{
 				if ( f.hasTagCompound() )
 				{
@@ -50,12 +52,42 @@ public class NegativeInversionCrafting implements IRecipe
 				}
 				else
 				{
+					return null;
+				}
+			}
+
+			else if ( f.getItem() == ChiselsAndBits.instance.items.itemNegativeprint )
+			{
+				if ( !f.hasTagCompound() )
+				{
 					if ( targetB != null )
 					{
 						return null;
 					}
 
+					isNegative = true;
 					targetB = f;
+				}
+				else
+				{
+					return null;
+				}
+			}
+			else if ( f.getItem() == ChiselsAndBits.instance.items.itemPositiveprint )
+			{
+				if ( !f.hasTagCompound() )
+				{
+					if ( targetB != null )
+					{
+						return null;
+					}
+
+					isNegative = false;
+					targetB = f;
+				}
+				else
+				{
+					return null;
 				}
 			}
 			else
@@ -75,14 +107,18 @@ public class NegativeInversionCrafting implements IRecipe
 			tmp.readChisleData( targetA.getTagCompound() );
 
 			final VoxelBlob bestBlob = tmp.getBlob();
-			bestBlob.binaryReplacement( Block.getStateId( Blocks.stone.getDefaultState() ), 0 );
+
+			if ( isNegative )
+			{
+				bestBlob.binaryReplacement( 0, Block.getStateId( Blocks.stone.getDefaultState() ) );
+			}
 
 			tmp.setBlob( bestBlob );
 
 			final NBTTagCompound comp = (NBTTagCompound) targetA.getTagCompound().copy();
 			tmp.writeChisleData( comp );
 
-			final ItemStack outputPattern = new ItemStack( targetA.getItem() );
+			final ItemStack outputPattern = new ItemStack( targetB.getItem() );
 			outputPattern.setTagCompound( comp );
 
 			return outputPattern;
@@ -119,7 +155,7 @@ public class NegativeInversionCrafting implements IRecipe
 		for ( int i = 0; i < aitemstack.length; ++i )
 		{
 			final ItemStack itemstack = p_179532_1_.getStackInSlot( i );
-			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.instance.items.itemNegativeprint && itemstack.hasTagCompound() )
+			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.instance.items.itemMirrorprint && itemstack.hasTagCompound() )
 			{
 				itemstack.stackSize++;
 			}

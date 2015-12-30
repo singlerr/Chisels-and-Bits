@@ -107,6 +107,9 @@ public class ModConfig extends Configuration
 	public boolean enableNegativePrint;
 
 	@Configured( category = "Items" )
+	public boolean enableMirrorPrint;
+
+	@Configured( category = "Items" )
 	public boolean enablePositivePrint;
 
 	@Configured( category = "Items" )
@@ -202,6 +205,7 @@ public class ModConfig extends Configuration
 		enableBitBag = true;
 		enableNegativePrint = true;
 		enablePositivePrint = true;
+		enableMirrorPrint = true;
 		enableChisledBits = true;
 		enableStoneChisel = true;
 		enableIronChisel = true;

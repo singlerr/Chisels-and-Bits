@@ -7,6 +7,7 @@ import java.util.HashMap;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.render.bit.BitItemSmartModel;
 import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
+import mod.chiselsandbits.render.patterns.MirrorPrintSmartModel;
 import mod.chiselsandbits.render.patterns.NegativePrintSmartModel;
 import mod.chiselsandbits.render.patterns.PositivePrintSmartModel;
 import net.minecraft.client.resources.IResourceManager;
@@ -54,6 +55,7 @@ public class GeneratedModelLoader implements ICustomModelLoader
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_bit" ), BitItemSmartModel.class );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/positiveprint_written_preview" ), PositivePrintSmartModel.class );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/negativeprint_written_preview" ), NegativePrintSmartModel.class );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/mirrorprint_written_preview" ), MirrorPrintSmartModel.class );
 
 		ChiselsAndBits.registerWithBus( this );
 	}
