@@ -547,7 +547,7 @@ public class VoxelBlob
 	public float getLight()
 	{
 		// 15 is the getLightValue range, 100 is to convert the percentage.
-		final float light_size = ChiselsAndBits.instance.config.bitLightPercentage * array_size * 15.0f / 100.0f;
+		final float light_size = ChiselsAndBits.getConfig().bitLightPercentage * array_size * 15.0f / 100.0f;
 		final float o = light() / light_size;
 		return o;
 	}

@@ -899,7 +899,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		if ( BlockBitInfo.supportsBlock( actingState ) || isAir )
 		{
-			BlockChiseled blk = ChiselsAndBits.instance.blocks.getConversion( target.getMaterial() );
+			BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( target.getMaterial() );
 
 			int BlockID = Block.getStateId( actingState );
 
@@ -908,7 +908,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				actingState = Block.getStateById( fragmentBlockStateID );
 				target = actingState.getBlock();
 				BlockID = Block.getStateId( actingState );
-				blk = ChiselsAndBits.instance.blocks.getConversion( target.getMaterial() );
+				blk = ChiselsAndBits.getBlocks().getConversion( target.getMaterial() );
 				// its still air tho..
 				actingState = Blocks.air.getDefaultState();
 			}
@@ -978,7 +978,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 
 		// enabled?
-		if ( ChiselsAndBits.instance.config.enableBitLightSource )
+		if ( ChiselsAndBits.getConfig().enableBitLightSource )
 		{
 			try
 			{
@@ -1007,7 +1007,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final BlockPos pos )
 	{
 		// only if this feature is enable should this code ever run.
-		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels )
+		if ( ChiselsAndBits.getConfig().enableToolHarvestLevels )
 		{
 			try
 			{
@@ -1049,7 +1049,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			return actingAs.getBlock().getHarvestTool( actingAs );
 		}
 
-		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels && state instanceof IExtendedBlockState )
+		if ( ChiselsAndBits.getConfig().enableToolHarvestLevels && state instanceof IExtendedBlockState )
 		{
 			final IBlockState blockRef = getCommonState( (IExtendedBlockState) state );
 			if ( blockRef != null )
@@ -1075,7 +1075,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			return actingAs.getBlock().getHarvestLevel( actingAs );
 		}
 
-		if ( ChiselsAndBits.instance.config.enableToolHarvestLevels && state instanceof IExtendedBlockState )
+		if ( ChiselsAndBits.getConfig().enableToolHarvestLevels && state instanceof IExtendedBlockState )
 		{
 			final IBlockState blockRef = getCommonState( (IExtendedBlockState) state );
 			if ( blockRef != null )

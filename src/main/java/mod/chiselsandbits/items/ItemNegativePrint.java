@@ -62,7 +62,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final boolean advanced )
 	{
 		defaultAddInfo( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpNegativePrint, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpNegativePrint, tooltip );
 
 		if ( stack.hasTagCompound() )
 		{
@@ -243,7 +243,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		}
 
 		final IBlockState blk = Block.getStateById( tag.getInteger( TileEntityBlockChiseled.block_prop ) );
-		final ItemStack itemstack = new ItemStack( ChiselsAndBits.instance.blocks.getConversion( blk.getBlock().getMaterial() ), 1 );
+		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversion( blk.getBlock().getMaterial() ), 1 );
 
 		itemstack.setTagInfo( "BlockEntityTag", tag );
 		return itemstack;

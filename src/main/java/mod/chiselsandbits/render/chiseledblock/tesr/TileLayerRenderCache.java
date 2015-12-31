@@ -28,7 +28,7 @@ public class TileLayerRenderCache
 	{
 		final boolean wasConversion = conversion;
 		conversion = false;
-		return wasConversion && ChiselsAndBits.instance.config.dynamicModelMinimizeLatancy;
+		return wasConversion && ChiselsAndBits.getConfig().dynamicModelMinimizeLatancy;
 	}
 
 }

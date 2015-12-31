@@ -12,7 +12,7 @@ public class PacketBagGuiPacket extends ModPacket
 	public void server(
 			final EntityPlayerMP player )
 	{
-		player.openGui( ChiselsAndBits.instance, ModGuiTypes.BitBag.ordinal(), player.worldObj, (int) player.posX, (int) player.posY, (int) player.posZ );
+		player.openGui( ChiselsAndBits.getInstance(), ModGuiTypes.BitBag.ordinal(), player.worldObj, (int) player.posX, (int) player.posY, (int) player.posZ );
 	}
 
 	@Override

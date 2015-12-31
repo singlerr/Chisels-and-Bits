@@ -82,11 +82,11 @@ public class BlockBitInfo
 			final boolean requiredImplementation = quantityDroppedTest && quantityDroppedWithBonusTest && quantityDropped2Test && entityCollisionTest && entityCollision2Test;
 			final boolean hasBehavior = blk.hasTileEntity( state ) || blk.getTickRandomly();
 
-			final boolean supportedMaterial = ChiselsAndBits.instance.blocks.getConversion( blk.getMaterial() ) != null;
+			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( blk.getMaterial() ) != null;
 
 			if ( info.isCompatiable && requiredImplementation && info.hardness >= -0.01f && isFullBlock && supportedMaterial && !hasBehavior )
 			{
-				final boolean result = ChiselsAndBits.instance.config.isEnabled( blkClass.getName() );
+				final boolean result = ChiselsAndBits.getConfig().isEnabled( blkClass.getName() );
 				supportedBlocks.put( blk, result );
 
 				if ( result )
@@ -161,7 +161,7 @@ public class BlockBitInfo
 				// just fill in the gaps.
 
 				final Block stone = Blocks.stone;
-				return new BlockBitInfo( ChiselsAndBits.instance.config.compatabilityMode, stone.getBlockHardness( null, null ), stone.getExplosionResistance( null ) );
+				return new BlockBitInfo( ChiselsAndBits.getConfig().compatabilityMode, stone.getBlockHardness( null, null ), stone.getExplosionResistance( null ) );
 			}
 		}
 		catch ( final Exception err )

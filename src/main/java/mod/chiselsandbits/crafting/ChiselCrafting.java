@@ -136,7 +136,7 @@ public class ChiselCrafting implements IRecipe
 				continue;
 			}
 
-			if ( is.getItem() == ChiselsAndBits.instance.items.itemPositiveprint && pattern == null )
+			if ( is.getItem() == ChiselsAndBits.getItems().itemPositiveprint && pattern == null )
 			{
 				pattern = is;
 			}
@@ -184,7 +184,7 @@ public class ChiselCrafting implements IRecipe
 
 		if ( req != null )
 		{
-			return ChiselsAndBits.instance.items.itemPositiveprint.getPatternedItem( req.pattern );
+			return ChiselsAndBits.getItems().itemPositiveprint.getPatternedItem( req.pattern );
 		}
 
 		return null;

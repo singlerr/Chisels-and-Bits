@@ -274,7 +274,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 		if ( tlrc.displayList == 0 || tlrc.rebuild )
 		{
-			if ( activeTess.get() < ChiselsAndBits.instance.config.dynamicMaxConcurrentTessalators && tlrc.future == null && !tlrc.waiting || isNew )
+			if ( activeTess.get() < ChiselsAndBits.getConfig().dynamicMaxConcurrentTessalators && tlrc.future == null && !tlrc.waiting || isNew )
 			{
 				// copy the tiles for the thread..
 				final FutureTask<Tessellator> newFuture = new FutureTask<Tessellator>( new ChisledBlockBackgroundRender( chunkOffset, renderCache.getTiles(), layer ) );

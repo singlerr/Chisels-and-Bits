@@ -19,8 +19,8 @@ public class ItemWrench extends Item
 	{
 		setMaxStackSize( 1 );
 
-		final long uses = ToolMaterial.WOOD.getMaxUses() * ChiselsAndBits.instance.config.availableUsesMultiplier;
-		setMaxDamage( ChiselsAndBits.instance.config.damageTools ? (int) Math.max( 0, Math.min( Short.MAX_VALUE, uses ) ) : 0 );
+		final long uses = ToolMaterial.WOOD.getMaxUses() * ChiselsAndBits.getConfig().availableUsesMultiplier;
+		setMaxDamage( ChiselsAndBits.getConfig().damageTools ? (int) Math.max( 0, Math.min( Short.MAX_VALUE, uses ) ) : 0 );
 	}
 
 	@Override
@@ -31,7 +31,7 @@ public class ItemWrench extends Item
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpWrench, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpWrench, tooltip );
 	}
 
 	@Override

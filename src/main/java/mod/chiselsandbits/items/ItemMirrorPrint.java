@@ -54,7 +54,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			final boolean advanced )
 	{
 		defaultAddInfo( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpMirrorPrint, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpMirrorPrint, tooltip );
 
 		if ( stack.hasTagCompound() )
 		{
@@ -176,7 +176,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 		}
 
 		final IBlockState blk = Block.getStateById( tag.getInteger( TileEntityBlockChiseled.block_prop ) );
-		final ItemStack itemstack = new ItemStack( ChiselsAndBits.instance.blocks.getConversion( blk.getBlock().getMaterial() ), 1 );
+		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversion( blk.getBlock().getMaterial() ), 1 );
 
 		itemstack.setTagInfo( "BlockEntityTag", tag );
 		return itemstack;

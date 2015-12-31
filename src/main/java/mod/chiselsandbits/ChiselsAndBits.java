@@ -44,15 +44,34 @@ public class ChiselsAndBits
 			+ net.minecraftforge.common.ForgeVersion.buildVersion + ",)"; // buildVersion
 
 	// create creative tab...
-	public static ChiselsAndBits instance;
-
-	public ModConfig config;
-	public ModItems items;
-	public ModBlocks blocks;
+	private static ChiselsAndBits instance;
+	private ModConfig config;
+	private ModItems items;
+	private ModBlocks blocks;
 
 	public ChiselsAndBits()
 	{
 		instance = this;
+	}
+
+	public static ChiselsAndBits getInstance()
+	{
+		return instance;
+	}
+
+	public static ModBlocks getBlocks()
+	{
+		return instance.blocks;
+	}
+
+	public static ModItems getItems()
+	{
+		return instance.items;
+	}
+
+	public static ModConfig getConfig()
+	{
+		return instance.config;
 	}
 
 	@EventHandler
@@ -61,8 +80,8 @@ public class ChiselsAndBits
 	{
 		// load config...
 		config = new ModConfig( event.getSuggestedConfigurationFile() );
-		items = new ModItems( config );
-		blocks = new ModBlocks( config, event.getSide() );
+		items = new ModItems( getConfig() );
+		blocks = new ModBlocks( getConfig(), event.getSide() );
 
 		Integration.instance.preinit();
 
@@ -89,30 +108,30 @@ public class ChiselsAndBits
 		registerWithBus( new EventPlayerInteract() );
 
 		// add recipes to game...
-		items.addRecipes();
+		getItems().addRecipes();
 
 		final String craftingOrder = "after:minecraft:shapeless";
 
 		// add special recipes...
-		if ( config.enablePositivePrintCrafting )
+		if ( getConfig().enablePositivePrintCrafting )
 		{
 			GameRegistry.addRecipe( new ChiselCrafting() );
 			RecipeSorter.register( MODID + ":chiselcrafting", ChiselCrafting.class, Category.UNKNOWN, craftingOrder );
 		}
 
-		if ( config.enableStackableCrafting )
+		if ( getConfig().enableStackableCrafting )
 		{
 			GameRegistry.addRecipe( new StackableCrafting() );
 			RecipeSorter.register( MODID + ":stackablecrafting", StackableCrafting.class, Category.UNKNOWN, craftingOrder );
 		}
 
-		if ( config.enableNegativePrintInversionCrafting )
+		if ( getConfig().enableNegativePrintInversionCrafting )
 		{
 			GameRegistry.addRecipe( new NegativeInversionCrafting() );
 			RecipeSorter.register( MODID + ":negativepatterncrafting", NegativeInversionCrafting.class, Category.UNKNOWN, craftingOrder );
 		}
 
-		if ( config.enableMirrorPrint )
+		if ( getConfig().enableMirrorPrint )
 		{
 			GameRegistry.addRecipe( new MirrorTransferCrafting() );
 			RecipeSorter.register( MODID + ":mirrorpatterncrafting", MirrorTransferCrafting.class, Category.UNKNOWN, craftingOrder );

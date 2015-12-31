@@ -115,7 +115,7 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart, ISoli
 	{
 		if ( bc == null )
 		{
-			bc = (BlockChiseled) ChiselsAndBits.instance.blocks.getChiseledDefaultState().getBlock();
+			bc = (BlockChiseled) ChiselsAndBits.getBlocks().getChiseledDefaultState().getBlock();
 		}
 
 		return bc;

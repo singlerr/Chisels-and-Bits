@@ -130,7 +130,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	@Override
 	public double getMaxRenderDistanceSquared()
 	{
-		return ChiselsAndBits.instance.config.dynamicModelRange * ChiselsAndBits.instance.config.dynamicModelRange;
+		return ChiselsAndBits.getConfig().dynamicModelRange * ChiselsAndBits.getConfig().dynamicModelRange;
 	}
 
 	@Override

@@ -48,7 +48,7 @@ public class ItemBitBag extends Item
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpBitBag, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBitBag, tooltip );
 
 		if ( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
 		{
@@ -186,6 +186,6 @@ public class ItemBitBag extends Item
 		final int qty = BagInventory.getSlotsUsed( stack );
 
 		final double value = qty / (float) BagInventory.max_size;
-		return Math.min( 1.0d, Math.max( 0.0d, ChiselsAndBits.instance.config.invertBitBagFullness ? value : 1.0 - value ) );
+		return Math.min( 1.0d, Math.max( 0.0d, ChiselsAndBits.getConfig().invertBitBagFullness ? value : 1.0 - value ) );
 	}
 }

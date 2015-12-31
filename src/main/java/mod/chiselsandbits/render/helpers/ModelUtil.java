@@ -144,7 +144,7 @@ public class ModelUtil
 
 		try
 		{
-			if ( actingModel != null && ChiselsAndBits.instance.config.allowBlockAlternatives && actingModel instanceof WeightedBakedModel )
+			if ( actingModel != null && ChiselsAndBits.getConfig().allowBlockAlternatives && actingModel instanceof WeightedBakedModel )
 			{
 				actingModel = ( (WeightedBakedModel) actingModel ).getAlternativeModel( weight );
 			}

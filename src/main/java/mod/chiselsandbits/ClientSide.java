@@ -124,7 +124,7 @@ public class ClientSide
 
 		final String modId = ChiselsAndBits.MODID;
 
-		final ModItems modItems = mod.items;
+		final ModItems modItems = mod.getItems();
 
 		registerMesh( mesher, modItems.itemChiselStone, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_stone" ), "inventory" ) );
 		registerMesh( mesher, modItems.itemChiselIron, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_iron" ), "inventory" ) );
@@ -195,14 +195,14 @@ public class ClientSide
 
 		for (
 
-		final BlockChiseled blk : mod.blocks.getConversions().values() )
+		final BlockChiseled blk : mod.getBlocks().getConversions().values() )
 
 		{
 			final Item item = Item.getItemFromBlock( blk );
 			mesher.register( item, 0, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "inventory" ) );
 		}
 
-		ChiselsAndBits.instance.config.allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
+		ChiselsAndBits.getConfig().allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
 
 	}
 
@@ -232,7 +232,7 @@ public class ClientSide
 	public void onRenderGUI(
 			final RenderGameOverlayEvent.Post event )
 	{
-		if ( event.type == ElementType.HOTBAR && ChiselsAndBits.instance.config.enableToolbarIcons )
+		if ( event.type == ElementType.HOTBAR && ChiselsAndBits.getConfig().enableToolbarIcons )
 		{
 			final Minecraft mc = Minecraft.getMinecraft();
 			final GuiIngame sc = mc.ingameGUI;
@@ -329,7 +329,7 @@ public class ClientSide
 			@Override
 			public void run()
 			{
-				ChiselsAndBits.instance.config.allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
+				ChiselsAndBits.getConfig().allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
 			}
 
 		} );
@@ -376,7 +376,7 @@ public class ClientSide
 					final VoxelBlob vb = new VoxelBlob();
 					vb.fill( 1 ); // fill with.. something soild...
 
-					final BlockChiseled chiselBlock = ChiselsAndBits.instance.blocks.getConversion( block.getMaterial() );
+					final BlockChiseled chiselBlock = ChiselsAndBits.getBlocks().getConversion( block.getMaterial() );
 					RenderGlobal.drawSelectionBoundingBox( chiselBlock.getSelectedBoundingBox( player, blockpos, vb, chMode ).expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x, -y, -z ) );
 				}
 
@@ -436,7 +436,7 @@ public class ClientSide
 				return;
 			}
 
-			final ItemStack item = ChiselsAndBits.instance.items.itemNegativeprint.getPatternedItem( currentItem );
+			final ItemStack item = ChiselsAndBits.getItems().itemNegativeprint.getPatternedItem( currentItem );
 			if ( !item.hasTagCompound() )
 			{
 				return;
@@ -568,7 +568,7 @@ public class ClientSide
 
 			modelBounds = blob.getBounds();
 
-			fail: if ( refItem.getItem() == ChiselsAndBits.instance.items.itemNegativeprint )
+			fail: if ( refItem.getItem() == ChiselsAndBits.getItems().itemNegativeprint )
 			{
 				final VoxelBlob pattern = blob;
 

@@ -42,7 +42,7 @@ public class VoxelNeighborRenderTracker
 			faces += faceCount[x];
 		}
 
-		return faces >= ChiselsAndBits.instance.config.dynamicModelFaceCount;
+		return faces >= ChiselsAndBits.getConfig().dynamicModelFaceCount;
 	}
 
 	public void setAbovelimit(

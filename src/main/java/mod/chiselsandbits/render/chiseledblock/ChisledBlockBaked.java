@@ -40,13 +40,13 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	public static final float PIXELS_PER_BLOCK = 16.0f;
 	private static final ChisledBlockBaked emptyPlaceHolder = new ChisledBlockBaked();
 	static boolean hasFaceMap = false;
-	static int faceVertMap[][] = new int[6][4];
+	static int[][] faceVertMap = new int[6][4];
 
 	private static final EnumFacing[] X_Faces = new EnumFacing[] { EnumFacing.EAST, EnumFacing.WEST };
 	private static final EnumFacing[] Y_Faces = new EnumFacing[] { EnumFacing.UP, EnumFacing.DOWN };
 	private static final EnumFacing[] Z_Faces = new EnumFacing[] { EnumFacing.SOUTH, EnumFacing.NORTH };
 
-	private static final VertexFormat CNB = new VertexFormat();
+	public static final VertexFormat CNB = new VertexFormat();
 
 	static
 	{
@@ -847,7 +847,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 
 	public boolean isAboveLimit()
 	{
-		return faceCount() >= ChiselsAndBits.instance.config.dynamicModelFaceCount;
+		return faceCount() >= ChiselsAndBits.getConfig().dynamicModelFaceCount;
 	}
 
 }

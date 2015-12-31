@@ -37,7 +37,7 @@ public class NegativeInversionCrafting implements IRecipe
 				continue;
 			}
 
-			if ( f.getItem() == ChiselsAndBits.instance.items.itemNegativeprint )
+			if ( f.getItem() == ChiselsAndBits.getItems().itemNegativeprint )
 			{
 				if ( f.hasTagCompound() )
 				{
@@ -119,7 +119,7 @@ public class NegativeInversionCrafting implements IRecipe
 		for ( int i = 0; i < aitemstack.length; ++i )
 		{
 			final ItemStack itemstack = p_179532_1_.getStackInSlot( i );
-			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.instance.items.itemNegativeprint && itemstack.hasTagCompound() )
+			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.getItems().itemNegativeprint && itemstack.hasTagCompound() )
 			{
 				itemstack.stackSize++;
 			}

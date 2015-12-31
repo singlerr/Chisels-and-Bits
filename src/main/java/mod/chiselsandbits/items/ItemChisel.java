@@ -52,8 +52,8 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 		super( 0.1F, material, new HashSet<Block>() );
 
 		// chisels are scaled up so that 1 stone chisel can mine one block.
-		final long uses = material.getMaxUses() * ChiselsAndBits.instance.config.availableUsesMultiplier;
-		setMaxDamage( ChiselsAndBits.instance.config.damageTools ? (int) Math.max( 0, Math.min( Short.MAX_VALUE, uses ) ) : 0 );
+		final long uses = material.getMaxUses() * ChiselsAndBits.getConfig().availableUsesMultiplier;
+		setMaxDamage( ChiselsAndBits.getConfig().damageTools ? (int) Math.max( 0, Math.min( Short.MAX_VALUE, uses ) ) : 0 );
 	}
 
 	public ToolMaterial whatMaterial()
@@ -69,7 +69,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpChisel, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChisel, tooltip );
 	}
 
 	private static Stopwatch timer;
@@ -171,7 +171,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 
 	public static ChiselMode getChiselMode()
 	{
-		if ( ChiselsAndBits.instance.config.perChiselMode )
+		if ( ChiselsAndBits.getConfig().perChiselMode )
 		{
 			final ItemStack ei = Minecraft.getMinecraft().thePlayer.getCurrentEquippedItem();
 			if ( ei != null && ei.getItem() instanceof ItemChisel )
@@ -189,9 +189,9 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 			final ItemStack item,
 			final String displayName )
 	{
-		if ( ChiselsAndBits.instance.config.itemNameModeDisplay )
+		if ( ChiselsAndBits.getConfig().itemNameModeDisplay )
 		{
-			if ( ChiselsAndBits.instance.config.perChiselMode )
+			if ( ChiselsAndBits.getConfig().perChiselMode )
 			{
 				return displayName + " - " + ChiselMode.getMode( item ).string.getLocal();
 			}
@@ -208,10 +208,10 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 			final ChiselMode originalMode,
 			final ChiselMode newClientChiselMode )
 	{
-		final boolean chatNotification = ChiselsAndBits.instance.config.chatModeNotification;
-		final boolean itemNameModeDisplay = ChiselsAndBits.instance.config.itemNameModeDisplay;
+		final boolean chatNotification = ChiselsAndBits.getConfig().chatModeNotification;
+		final boolean itemNameModeDisplay = ChiselsAndBits.getConfig().itemNameModeDisplay;
 
-		if ( ChiselsAndBits.instance.config.perChiselMode )
+		if ( ChiselsAndBits.getConfig().perChiselMode )
 		{
 			final PacketSetChiselMode packet = new PacketSetChiselMode();
 			packet.mode = newClientChiselMode;
@@ -385,7 +385,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 
 		selected.damage( blk );
 
-		final boolean spawnBit = ChiselsAndBits.instance.items.itemBlockBit != null;
+		final boolean spawnBit = ChiselsAndBits.getItems().itemBlockBit != null;
 		if ( !world.isRemote && !isCreative )
 		{
 			double hitX = x * one_16th;
@@ -455,7 +455,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 			return false;
 		}
 
-		if ( ChiselsAndBits.instance.config.enableChiselToolHarvestCheck )
+		if ( ChiselsAndBits.getConfig().enableChiselToolHarvestCheck )
 		{
 			// this is the earily check.
 			if ( state.getBlock() instanceof BlockChiseled )
@@ -532,7 +532,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel
 			final String pattern = "(^|,)" + Pattern.quote( toolClass ) + "(,|$)";
 
 			final Pattern p = Pattern.compile( pattern );
-			final Matcher m = p.matcher( ChiselsAndBits.instance.config.enableChiselToolHarvestCheckTools );
+			final Matcher m = p.matcher( ChiselsAndBits.getConfig().enableChiselToolHarvestCheckTools );
 
 			if ( m.find() )
 			{

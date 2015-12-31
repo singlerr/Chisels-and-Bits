@@ -39,7 +39,7 @@ public class MirrorTransferCrafting implements IRecipe
 				continue;
 			}
 
-			if ( f.getItem() == ChiselsAndBits.instance.items.itemMirrorprint )
+			if ( f.getItem() == ChiselsAndBits.getItems().itemMirrorprint )
 			{
 				if ( f.hasTagCompound() )
 				{
@@ -56,7 +56,7 @@ public class MirrorTransferCrafting implements IRecipe
 				}
 			}
 
-			else if ( f.getItem() == ChiselsAndBits.instance.items.itemNegativeprint )
+			else if ( f.getItem() == ChiselsAndBits.getItems().itemNegativeprint )
 			{
 				if ( !f.hasTagCompound() )
 				{
@@ -73,7 +73,7 @@ public class MirrorTransferCrafting implements IRecipe
 					return null;
 				}
 			}
-			else if ( f.getItem() == ChiselsAndBits.instance.items.itemPositiveprint )
+			else if ( f.getItem() == ChiselsAndBits.getItems().itemPositiveprint )
 			{
 				if ( !f.hasTagCompound() )
 				{
@@ -155,7 +155,7 @@ public class MirrorTransferCrafting implements IRecipe
 		for ( int i = 0; i < aitemstack.length; ++i )
 		{
 			final ItemStack itemstack = p_179532_1_.getStackInSlot( i );
-			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.instance.items.itemMirrorprint && itemstack.hasTagCompound() )
+			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.getItems().itemMirrorprint && itemstack.hasTagCompound() )
 			{
 				itemstack.stackSize++;
 			}

@@ -42,7 +42,7 @@ public class ItemChiseledBit extends Item
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpBit, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBit, tooltip );
 	}
 
 	@Override
@@ -249,7 +249,7 @@ public class ItemChiseledBit extends Item
 			final int count,
 			final boolean RequireStack )
 	{
-		if ( ChiselsAndBits.instance.items.itemBlockBit == null )
+		if ( ChiselsAndBits.getItems().itemBlockBit == null )
 		{
 			if ( !RequireStack )
 			{
@@ -257,7 +257,7 @@ public class ItemChiseledBit extends Item
 			}
 		}
 
-		final ItemStack out = new ItemStack( ChiselsAndBits.instance.items.itemBlockBit, count );
+		final ItemStack out = new ItemStack( ChiselsAndBits.getItems().itemBlockBit, count );
 		out.setTagInfo( "id", new NBTTagInt( id ) );
 		return out;
 	}

@@ -52,13 +52,13 @@ public class JEIPlugin implements IModPlugin
 			final IModRegistry registry )
 	{
 		final ArrayList<ItemStack> chiseles = new ArrayList<ItemStack>();
-		addList( chiseles, itemToItemstack( ChiselsAndBits.instance.items.itemChiselDiamond ) );
-		addList( chiseles, itemToItemstack( ChiselsAndBits.instance.items.itemChiselGold ) );
-		addList( chiseles, itemToItemstack( ChiselsAndBits.instance.items.itemChiselIron ) );
-		addList( chiseles, itemToItemstack( ChiselsAndBits.instance.items.itemChiselStone ) );
+		addList( chiseles, itemToItemstack( ChiselsAndBits.getItems().itemChiselDiamond ) );
+		addList( chiseles, itemToItemstack( ChiselsAndBits.getItems().itemChiselGold ) );
+		addList( chiseles, itemToItemstack( ChiselsAndBits.getItems().itemChiselIron ) );
+		addList( chiseles, itemToItemstack( ChiselsAndBits.getItems().itemChiselStone ) );
 
 		final ArrayList<ItemStack> blocks = new ArrayList<ItemStack>();
-		for ( final Block blk : ChiselsAndBits.instance.blocks.getConversions().values() )
+		for ( final Block blk : ChiselsAndBits.getBlocks().getConversions().values() )
 		{
 			addList( blocks, blockToItemstack( blk ) );
 		}
@@ -66,12 +66,12 @@ public class JEIPlugin implements IModPlugin
 		addDescription( registry, chiseles, LocalStrings.LongHelpChisel );
 		addDescription( registry, blocks, LocalStrings.LongHelpChiseledBlock );
 
-		addDescription( registry, stackCollection( ChiselsAndBits.instance.items.itemBitBag ), LocalStrings.LongHelpBitBag );
-		addDescription( registry, stackCollection( ChiselsAndBits.instance.items.itemBlockBit ), LocalStrings.LongHelpBit );
-		addDescription( registry, stackCollection( ChiselsAndBits.instance.items.itemMirrorprint ), LocalStrings.LongHelpMirrorPrint );
-		addDescription( registry, stackCollection( ChiselsAndBits.instance.items.itemNegativeprint ), LocalStrings.LongHelpNegativePrint );
-		addDescription( registry, stackCollection( ChiselsAndBits.instance.items.itemPositiveprint ), LocalStrings.LongHelpPositivePrint );
-		addDescription( registry, stackCollection( ChiselsAndBits.instance.items.itemWrench ), LocalStrings.LongHelpWrench );
+		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemBitBag ), LocalStrings.LongHelpBitBag );
+		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemBlockBit ), LocalStrings.LongHelpBit );
+		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemMirrorprint ), LocalStrings.LongHelpMirrorPrint );
+		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemNegativeprint ), LocalStrings.LongHelpNegativePrint );
+		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemPositiveprint ), LocalStrings.LongHelpPositivePrint );
+		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemWrench ), LocalStrings.LongHelpWrench );
 	}
 
 	private void addDescription(

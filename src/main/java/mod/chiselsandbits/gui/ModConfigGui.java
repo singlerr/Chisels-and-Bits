@@ -17,14 +17,14 @@ public class ModConfigGui extends GuiConfig
 	public ModConfigGui(
 			final GuiScreen parent )
 	{
-		super( parent, getConfigElements(), ChiselsAndBits.MODID, false, false, GuiConfig.getAbridgedConfigPath( ChiselsAndBits.instance.config.getFilePath() ) );
+		super( parent, getConfigElements(), ChiselsAndBits.MODID, false, false, GuiConfig.getAbridgedConfigPath( ChiselsAndBits.getConfig().getFilePath() ) );
 	}
 
 	private static List<IConfigElement> getConfigElements()
 	{
 		final List<IConfigElement> list = new ArrayList<IConfigElement>();
 
-		final ModConfig config = ChiselsAndBits.instance.config;
+		final ModConfig config = ChiselsAndBits.getConfig();
 
 		for ( final String cat : config.getCategoryNames() )
 		{

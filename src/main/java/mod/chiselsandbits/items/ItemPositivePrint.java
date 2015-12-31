@@ -38,7 +38,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 			final boolean advanced )
 	{
 		defaultAddInfo( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpPositivePrint, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpPositivePrint, tooltip );
 
 		if ( stack.hasTagCompound() )
 		{

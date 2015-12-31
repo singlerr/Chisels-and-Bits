@@ -80,7 +80,7 @@ public class TileEntityBlockChiseled extends TileEntity
 	{
 		if ( state == null )
 		{
-			return (IExtendedBlockState) ChiselsAndBits.instance.blocks.getChiseledDefaultState();
+			return (IExtendedBlockState) ChiselsAndBits.getBlocks().getChiseledDefaultState();
 		}
 
 		if ( updateNeightbors )

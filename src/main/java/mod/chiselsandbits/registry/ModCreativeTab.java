@@ -16,7 +16,7 @@ class ModCreativeTab extends CreativeTabs
 	@Override
 	public Item getTabIconItem()
 	{
-		final ModItems cbitems = ChiselsAndBits.instance.items;
+		final ModItems cbitems = ChiselsAndBits.getItems();
 		return ModUtil.firstNonNull(
 				cbitems.itemChiselDiamond,
 				cbitems.itemChiselGold,

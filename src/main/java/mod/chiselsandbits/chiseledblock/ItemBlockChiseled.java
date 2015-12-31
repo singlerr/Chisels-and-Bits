@@ -54,7 +54,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.instance.config.helpText( LocalStrings.HelpChiseledBlock, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChiseledBlock, tooltip );
 
 		if ( stack.hasTagCompound() )
 		{

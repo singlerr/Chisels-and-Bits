@@ -20,7 +20,7 @@ public class ChisledBlockConverter implements IPartConverter
 	@Override
 	public Collection<Block> getConvertableBlocks()
 	{
-		return (Collection) ChiselsAndBits.instance.blocks.getConversions().values();
+		return (Collection) ChiselsAndBits.getBlocks().getConversions().values();
 	}
 
 	@Override
