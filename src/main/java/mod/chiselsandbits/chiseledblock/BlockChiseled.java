@@ -1,8 +1,7 @@
 package mod.chiselsandbits.chiseledblock;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -24,10 +23,6 @@ import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockGlass;
-import net.minecraft.block.BlockGlowstone;
-import net.minecraft.block.BlockSlime;
-import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
@@ -63,8 +58,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class BlockChiseled extends Block implements ITileEntityProvider
 {
 
-	private static HashMap<IBlockState, BlockBitInfo> stateBitInfo = new HashMap<IBlockState, BlockBitInfo>();
-	private static HashMap<Block, Boolean> supportedBlocks = new HashMap<Block, Boolean>();
 	private static ThreadLocal<Integer> replacementLightValue = new ThreadLocal<Integer>();
 	public static IBlockState actingAs = null;
 
@@ -257,6 +250,24 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		catch ( final ExceptionNoTileEntity exp )
 		{
 			super.harvestBlock( worldIn, player, pos, state, (TileEntity) null );
+		}
+	}
+
+	@Override
+	public List<ItemStack> getDrops(
+			final IBlockAccess world,
+			final BlockPos pos,
+			final IBlockState state,
+			final int fortune )
+	{
+		try
+		{
+			return Collections.singletonList( getTileEntity( world, pos ).getItemStack( this, null ) );
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			Log.logError( "Unable to get drops", e );
+			return Collections.emptyList();
 		}
 	}
 
@@ -795,20 +806,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		return r;
 	}
 
-	private BlockBitInfo getBlockInfo(
-			final IBlockState state )
-	{
-		BlockBitInfo bit = stateBitInfo.get( state );
-
-		if ( bit == null )
-		{
-			bit = BlockBitInfo.createFromState( state );
-			stateBitInfo.put( state, bit );
-		}
-
-		return bit;
-	}
-
 	@Override
 	public float getBlockHardness(
 			final World worldIn,
@@ -816,27 +813,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			return getBlockInfo( getTileEntity( worldIn, pos ).getBlockState( this ) ).hardness;
+			return getTileEntity( worldIn, pos ).getBlockInfo( this ).hardness;
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
 			return super.getBlockHardness( worldIn, pos );
-		}
-	}
-
-	@Override
-	public float getPlayerRelativeBlockHardness(
-			final EntityPlayer playerIn,
-			final World worldIn,
-			final BlockPos pos )
-	{
-		try
-		{
-			return getBlockInfo( getTileEntity( worldIn, pos ).getBlockState( this ) ).hardness;
-		}
-		catch ( final ExceptionNoTileEntity err )
-		{
-			return super.getPlayerRelativeBlockHardness( playerIn, worldIn, pos );
 		}
 	}
 
@@ -849,7 +830,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			return getBlockInfo( getTileEntity( world, pos ).getBlockState( this ) ).explosionResistance;
+			return getTileEntity( world, pos ).getBlockInfo( this ).explosionResistance;
 		}
 		catch ( final ExceptionNoTileEntity err )
 		{
@@ -889,77 +870,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 	}
 
-	public static boolean supportsBlock(
-			final IBlockState state )
-	{
-		final Block blk = state.getBlock();
-
-		if ( supportedBlocks.containsKey( blk ) )
-		{
-			return supportedBlocks.get( blk );
-		}
-
-		try
-		{
-			// require basic hardness behavior...
-			final ProxyBlock pb = new ProxyBlock();
-			final Class<? extends Block> blkClass = blk.getClass();
-
-			// require default drop behavior...
-			pb.quantityDropped( null );
-			final Class<?> wc = blkClass.getMethod( pb.MethodName, Random.class ).getDeclaringClass();
-			final boolean quantityDroppedTest = wc == Block.class || wc == BlockGlowstone.class || wc == BlockStainedGlass.class || wc == BlockGlass.class;
-
-			pb.quantityDroppedWithBonus( 0, null );
-			final boolean quantityDroppedWithBonusTest = blkClass.getMethod( pb.MethodName, int.class, Random.class ).getDeclaringClass() == Block.class || wc == BlockGlowstone.class;
-
-			pb.quantityDropped( null, 0, null );
-			final boolean quantityDropped2Test = blkClass.getMethod( pb.MethodName, IBlockState.class, int.class, Random.class ).getDeclaringClass() == Block.class;
-
-			pb.onEntityCollidedWithBlock( null, null, null );
-			final boolean entityCollisionTest = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
-
-			pb.onEntityCollidedWithBlock( null, null, null, null );
-			final boolean entityCollision2Test = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
-
-			// full cube specifically is tied to lighting... so for glass
-			// Compatibility use isFullBlock which can be true for glass.
-
-			// final boolean isFullCube = blk.isFullCube()
-			final boolean isFullBlock = blk.isFullBlock() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.slime_block;
-
-			final BlockBitInfo info = BlockBitInfo.createFromState( state );
-
-			final boolean requiredImplementation = quantityDroppedTest && quantityDroppedWithBonusTest && quantityDropped2Test && entityCollisionTest && entityCollision2Test;
-			final boolean hasBehavior = blk.hasTileEntity( state ) || blk.getTickRandomly();
-
-			final boolean supportedMaterial = ChiselsAndBits.instance.blocks.getConversion( blk.getMaterial() ) != null;
-
-			if ( info.isCompatiable && requiredImplementation && info.hardness >= -0.01f && isFullBlock && supportedMaterial && !hasBehavior )
-			{
-				final boolean result = ChiselsAndBits.instance.config.isEnabled( blkClass.getName() );
-				supportedBlocks.put( blk, result );
-
-				if ( result )
-				{
-					stateBitInfo.put( state, info );
-				}
-
-				return result;
-			}
-
-			supportedBlocks.put( blk, false );
-			return false;
-		}
-		catch ( final Throwable t )
-		{
-			// if the above test fails for any reason, then the block cannot be
-			// supported.
-			supportedBlocks.put( blk, false );
-			return false;
-		}
-	}
-
 	@Override
 	public boolean rotateBlock(
 			final World world,
@@ -987,7 +897,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		Block target = originalState.getBlock();
 		final boolean isAir = world.isAirBlock( pos );
 
-		if ( supportsBlock( actingState ) || isAir )
+		if ( BlockBitInfo.supportsBlock( actingState ) || isAir )
 		{
 			BlockChiseled blk = ChiselsAndBits.instance.blocks.getConversion( target.getMaterial() );
 

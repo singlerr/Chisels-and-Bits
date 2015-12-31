@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Stopwatch;
 
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -17,6 +18,7 @@ import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -50,6 +52,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -172,6 +175,7 @@ public class ClientSide
 		}
 
 		if ( modItems.itemBlockBit != null )
+
 		{
 			mesher.register( modItems.itemBlockBit, new ItemMeshDefinition() {
 
@@ -195,6 +199,7 @@ public class ClientSide
 		}
 
 		ChiselsAndBits.instance.config.allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
+
 	}
 
 	private void registerMesh(
@@ -357,7 +362,7 @@ public class ClientSide
 			final Block block = state.getBlock();
 
 			// this logic originated in the vanilla bounding box...
-			if ( BlockChiseled.supportsBlock( state ) && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
+			if ( BlockBitInfo.supportsBlock( state ) && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
 			{
 				GlStateManager.enableBlend();
 				GlStateManager.tryBlendFuncSeparate( 770, 771, 1, 0 );
@@ -421,7 +426,7 @@ public class ClientSide
 			}
 
 			final IBlockState s = theWorld.getBlockState( mop.getBlockPos() );
-			if ( !( s.getBlock() instanceof BlockChiseled ) && !BlockChiseled.supportsBlock( s ) )
+			if ( !( s.getBlock() instanceof BlockChiseled ) && !BlockBitInfo.supportsBlock( s ) )
 			{
 				return;
 			}
@@ -469,6 +474,7 @@ public class ClientSide
 			final BlockPos offset = mop.getBlockPos();
 
 			final Block cb = theWorld.getBlockState( offset ).getBlock();
+			final TileEntity target = theWorld.getTileEntity( offset );
 
 			if ( player.isSneaking() )
 			{
@@ -476,13 +482,42 @@ public class ClientSide
 				final BlockPos partial = new BlockPos( Math.floor( 16 * ( mop.hitVec.xCoord - blockpos.getX() ) ), Math.floor( 16 * ( mop.hitVec.yCoord - blockpos.getY() ) ), Math.floor( 16 * ( mop.hitVec.zCoord - blockpos.getZ() ) ) );
 				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, partial, null );
 			}
-			else if ( cb.isReplaceable( theWorld, offset ) )
+			else
 			{
-				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, null, null );
-			}
-			else if ( theWorld.isAirBlock( offset.offset( mop.sideHit ) ) )
-			{
-				showGhost( currentItem, item, offset.offset( mop.sideHit ), player, rotations, x, y, z, mop.sideHit, null, null );
+				boolean canMerge = false;
+				if ( currentItem.hasTagCompound() )
+				{
+					final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( theWorld, offset, true );
+
+					if ( tebc != null )
+					{
+						final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+						tmp.readChisleData( currentItem.getSubCompound( "BlockEntityTag", false ) );
+						VoxelBlob blob = tmp.getBlob();
+
+						int xrotations = ModUtil.getRotations( player, currentItem.getTagCompound().getByte( "side" ) );
+						while ( xrotations-- > 0 )
+						{
+							blob = blob.spin( Axis.Y );
+						}
+
+						canMerge = tebc.canMerge( blob );
+					}
+				}
+
+				BlockPos newOffset = offset;
+				final Block block = theWorld.getBlockState( newOffset ).getBlock();
+				if ( !canMerge && !player.isSneaking() && !block.isReplaceable( theWorld, newOffset ) )
+				{
+					newOffset = offset.offset( mop.sideHit );
+				}
+
+				final TileEntity newTarget = theWorld.getTileEntity( newOffset );
+
+				if ( theWorld.isAirBlock( newOffset ) || newTarget instanceof TileEntityBlockChiseled || Integration.mcmp.isMultiPartTileEntity( newTarget ) )
+				{
+					showGhost( currentItem, item, newOffset, player, rotations, x, y, z, mop.sideHit, null, null );
+				}
 			}
 		}
 	}
@@ -494,6 +529,7 @@ public class ClientSide
 	private IntegerBox modelBounds;
 	private boolean isVisible = true;
 	private BlockPos lastPartial;
+	private BlockPos lastPos;
 
 	private void showGhost(
 			final ItemStack refItem,
@@ -510,7 +546,7 @@ public class ClientSide
 	{
 		IBakedModel baked;
 
-		if ( previousCacheRef == cacheRef && previousItem == refItem && previousRotations == rotations && previousModel != null && samePartial( lastPartial, partial ) )
+		if ( previousCacheRef == cacheRef && samePos( lastPos, blockPos ) && previousItem == refItem && previousRotations == rotations && previousModel != null && samePos( lastPartial, partial ) )
 		{
 			baked = (IBakedModel) previousModel;
 		}
@@ -519,6 +555,7 @@ public class ClientSide
 			previousItem = refItem;
 			previousRotations = rotations;
 			previousCacheRef = cacheRef;
+			lastPos = blockPos;
 
 			final TileEntityBlockChiseled bc = new TileEntityBlockChiseled();
 			bc.readChisleData( item.getSubCompound( "BlockEntityTag", false ) );
@@ -568,14 +605,7 @@ public class ClientSide
 			final Block blk = Block.getBlockFromItem( item.getItem() );
 			previousModel = baked = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( bc.getItemStack( blk, null ) );
 
-			if ( partial != null )
-			{
-				isVisible = ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, partial, false );
-			}
-			else
-			{
-				isVisible = true;
-			}
+			isVisible = ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, partial, false );
 		}
 
 		if ( !isVisible )
@@ -635,7 +665,7 @@ public class ClientSide
 		tessellator.draw();
 	}
 
-	private boolean samePartial(
+	private boolean samePos(
 			final BlockPos lastPartial2,
 			final BlockPos partial )
 	{

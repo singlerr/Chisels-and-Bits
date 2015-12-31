@@ -7,6 +7,7 @@ import org.lwjgl.input.Keyboard;
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.bitbag.BagInventory;
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -73,7 +74,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 		final IBlockState state = world.getBlockState( pos );
 		final Block blkObj = state.getBlock();
 
-		if ( !( blkObj instanceof BlockChiseled ) && BlockChiseled.supportsBlock( state ) )
+		if ( !( blkObj instanceof BlockChiseled ) && BlockBitInfo.supportsBlock( state ) )
 		{
 			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
 

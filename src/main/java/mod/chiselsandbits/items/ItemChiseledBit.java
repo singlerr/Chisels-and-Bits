@@ -7,6 +7,7 @@ import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.bitbag.BagInventory;
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitColors;
@@ -216,7 +217,7 @@ public class ItemChiseledBit extends Item
 						final ItemBlock ib = (ItemBlock) it;
 						final IBlockState state = ib.block.getStateFromMeta( out.getMetadata() );
 
-						if ( state != null && BlockChiseled.supportsBlock( state ) )
+						if ( state != null && BlockBitInfo.supportsBlock( state ) )
 						{
 							bits.add( ItemChiseledBit.createStack( Block.getStateId( state ), 1, false ) );
 						}
