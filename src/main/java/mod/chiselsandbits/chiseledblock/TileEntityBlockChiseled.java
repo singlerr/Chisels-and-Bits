@@ -1,11 +1,13 @@
 package mod.chiselsandbits.chiseledblock;
 
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.chiseledblock.data.NullOcclusion;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.interfaces.IBlobOcclusion;
 import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
@@ -39,10 +41,21 @@ public class TileEntityBlockChiseled extends TileEntity
 	public static final String light_prop = "lv";
 
 	private IExtendedBlockState state;
+	public IBlobOcclusion occlusionState;
 
 	public TileEntityBlockChiseled()
 	{
 
+	}
+
+	public IBlobOcclusion getOcclusion()
+	{
+		if ( occlusionState != null )
+		{
+			return occlusionState;
+		}
+
+		return new NullOcclusion();
 	}
 
 	public void copyFrom(
@@ -75,6 +88,11 @@ public class TileEntityBlockChiseled extends TileEntity
 			final boolean isDyanmic = this instanceof TileEntityBlockChiseledTESR;
 
 			final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.n_prop );
+			if ( vns == null )
+			{
+				return state;
+			}
+
 			vns.update( isDyanmic, worldObj, pos );
 
 			tesrUpdate( vns );
@@ -125,6 +143,12 @@ public class TileEntityBlockChiseled extends TileEntity
 			final VoxelNeighborRenderTracker vns )
 	{
 
+	}
+
+	public BlockBitInfo getBlockInfo(
+			final Block alternative )
+	{
+		return BlockBitInfo.getBlockInfo( getBlockState( alternative ) );
 	}
 
 	public IBlockState getBlockState(
@@ -424,7 +448,9 @@ public class TileEntityBlockChiseled extends TileEntity
 			worldObj.markBlockForUpdate( pos );
 
 			// since its possible for bits to occlude parts.. update every time.
-			worldObj.notifyNeighborsOfStateChange( pos, worldObj.getBlockState( pos ).getBlock() );
+			final Block blk = worldObj.getBlockState( pos ).getBlock();
+			worldObj.notifyBlockOfStateChange( pos, blk );
+			worldObj.notifyNeighborsOfStateChange( pos, blk );
 		}
 		else
 		{
@@ -507,6 +533,20 @@ public class TileEntityBlockChiseled extends TileEntity
 			final EnumFacing axis )
 	{
 		setBlob( getBlob().spin( axis.getAxis() ) );
+	}
+
+	public boolean canMerge(
+			final VoxelBlob voxelBlob )
+	{
+		final VoxelBlob vb = getBlob();
+		final IBlobOcclusion occ = getOcclusion();
+
+		if ( vb.canMerge( voxelBlob ) && !occ.isBlobOccluded( voxelBlob ) )
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 }

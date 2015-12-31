@@ -1,10 +1,12 @@
 package mod.chiselsandbits.integration.mcmultipart;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IOccludingPart;
+import mcmultipart.multipart.ISolidPart;
 import mcmultipart.multipart.Multipart;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
@@ -16,6 +18,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,8 +29,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.World;
 
-public class ChisledBlockPart extends Multipart implements IOccludingPart
+public class ChisledBlockPart extends Multipart implements IOccludingPart, ISolidPart
 {
 	TileEntityBlockChiseled inner;
 	BlockChiseled bc;
@@ -37,6 +41,13 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart
 			final IMultipart part )
 	{
 		return super.occlusionTest( part ) && !( part instanceof ChisledBlockPart );
+	}
+
+	@Override
+	public float getHardness(
+			final PartMOP hit )
+	{
+		return getTile().getBlockInfo( getBlock() ).hardness;
 	}
 
 	@Override
@@ -60,8 +71,9 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart
 			return null;
 		}
 
-		final AxisAlignedBB bb = getBlock().getSelectedBoundingBox( getTile(), getPos() );
-		return new RayTraceResultPart( new PartMOP( mop, this ), bb == null ? null : bb.offset( -getPos().getX(), -getPos().getY(), -getPos().getZ() ) );
+		final BlockPos myPos = getPos() == null ? BlockPos.ORIGIN : getPos();
+		final AxisAlignedBB bb = getBlock().getSelectedBoundingBox( getTile(), myPos );
+		return new RayTraceResultPart( new PartMOP( mop, this ), bb == null ? null : bb.offset( -myPos.getX(), -myPos.getY(), -myPos.getZ() ) );
 	}
 
 	@Override
@@ -89,6 +101,7 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart
 		if ( inner == null )
 		{
 			inner = new TileEntityBlockChiseled();
+			inner.occlusionState = new MultipartBlobOcclusion( this );
 		}
 
 		// update tile stats..
@@ -140,6 +153,35 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart
 			final IBlockState state )
 	{
 		return getTile().getRenderState();
+	}
+
+	@Override
+	public List<ItemStack> getDrops()
+	{
+		return Collections.singletonList( getTile().getItemStack( getBlock(), null ) );
+	}
+
+	@Override
+	public void harvest(
+			final EntityPlayer player,
+			final PartMOP hit )
+	{
+
+		final World world = getWorld();
+		final BlockPos pos = getPos();
+		final double x = pos.getX() + 0.5, y = pos.getY() + 0.5, z = pos.getZ() + 0.5;
+
+		if ( ( player == null || !player.capabilities.isCreativeMode ) && !world.isRemote && world.getGameRules().getBoolean( "doTileDrops" )
+				&& !world.restoringBlockSnapshots )
+		{
+
+			final ItemStack stack = getTile().getItemStack( getBlock(), player );
+			final EntityItem item = new EntityItem( world, x, y, z, stack );
+			item.setDefaultPickupDelay();
+			world.spawnEntityInWorld( item );
+		}
+
+		getContainer().removePart( this );
 	}
 
 	@Override
@@ -198,5 +240,12 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart
 		{
 			// crap update.
 		}
+	}
+
+	@Override
+	public boolean isSideSolid(
+			final EnumFacing side )
+	{
+		return getTile().isSideSolid( side );
 	}
 }

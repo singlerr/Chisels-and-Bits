@@ -64,11 +64,19 @@ public class IntegrationMCMP extends IntegrationBase
 			}
 			else if ( create )
 			{
-				return new TileEntityBlockChiseled();
+				final ChisledBlockPart part = new ChisledBlockPart();
+				part.setContainer( container );
+				return part.getTile();
 			}
 		}
 
 		return null;
+	}
+
+	private boolean isMultiPart(
+			final TileEntity te )
+	{
+		return te instanceof IMultipartContainer;
 	}
 
 	@Override
@@ -111,6 +119,17 @@ public class IntegrationMCMP extends IntegrationBase
 		{
 			removePartIfPossible( te );
 		}
+	}
+
+	public boolean isMultiPartTileEntity(
+			final TileEntity target )
+	{
+		if ( canUseMCMP )
+		{
+			return isMultiPart( target );
+		}
+
+		return false;
 	}
 
 }

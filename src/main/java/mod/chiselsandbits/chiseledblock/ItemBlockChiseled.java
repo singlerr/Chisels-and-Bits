@@ -11,6 +11,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.NetworkRouter;
@@ -134,19 +135,14 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			return true;
 		}
 
-		if ( player.isSneaking() )
+		final IBlockState state = worldIn.getBlockState( pos );
+		if ( state.getBlock() instanceof BlockChiseled )
 		{
-			final IBlockState state = worldIn.getBlockState( pos );
-			if ( state.getBlock() instanceof BlockChiseled )
-			{
-				return true;
-			}
-
-			final IBlockState stateb = worldIn.getBlockState( pos.offset( side ) );
-			return stateb.getBlock() instanceof BlockChiseled;
+			return true;
 		}
 
-		return false;
+		final IBlockState stateb = worldIn.getBlockState( pos.offset( side ) );
+		return stateb.getBlock() instanceof BlockChiseled || Integration.mcmp.isMultiPartTileEntity( worldIn.getTileEntity( pos ) );
 	}
 
 	@Override
@@ -167,9 +163,33 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		{
 			side = EnumFacing.UP;
 		}
-		else if ( !playerIn.isSneaking() && !block.isReplaceable( worldIn, pos ) )
+		else
 		{
-			pos = pos.offset( side );
+			boolean canMerge = false;
+			if ( stack.hasTagCompound() )
+			{
+				final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( worldIn, pos, true );
+
+				if ( tebc != null )
+				{
+					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+					tmp.readChisleData( stack.getSubCompound( "BlockEntityTag", false ) );
+					VoxelBlob blob = tmp.getBlob();
+
+					int rotations = ModUtil.getRotations( playerIn, stack.getTagCompound().getByte( "side" ) );
+					while ( rotations-- > 0 )
+					{
+						blob = blob.spin( Axis.Y );
+					}
+
+					canMerge = tebc.canMerge( blob );
+				}
+			}
+
+			if ( !canMerge && !playerIn.isSneaking() && !block.isReplaceable( worldIn, pos ) )
+			{
+				pos = pos.offset( side );
+			}
 		}
 
 		if ( stack.stackSize == 0 )
@@ -219,8 +239,10 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		{
 			return tryPlaceBlockAt( block, stack, player, world, pos, side, new BlockPos( VoxelBlob.dim * hitX, VoxelBlob.dim * hitY, VoxelBlob.dim * hitZ ), true );
 		}
-
-		return super.placeBlockAt( stack, player, world, pos, side, hitX, hitY, hitZ, newState );
+		else
+		{
+			return tryPlaceBlockAt( block, stack, player, world, pos, side, null, true );
+		}
 	}
 
 	static public boolean tryPlaceBlockAt(
@@ -248,7 +270,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			}
 
 			final IntegerBox modelBounds = source.getBounds();
-			BlockPos offset = ModUtil.getPartialOffset( side, partial, modelBounds );
+			BlockPos offset = partial == null ? new BlockPos( 0, 0, 0 ) : ModUtil.getPartialOffset( side, partial, modelBounds );
 			final BlockChiseled myBlock = (BlockChiseled) block;
 
 			if ( offset.getX() < 0 )
@@ -286,19 +308,15 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 								continue;
 							}
 
-							final IBlockState state = world.getBlockState( bp );
-							if ( state.getBlock() instanceof BlockChiseled )
+							final TileEntityBlockChiseled target = ModUtil.getChiseledTileEntity( world, bp, true );
+							if ( target != null )
 							{
-								final BlockChiseled blk = (BlockChiseled) state.getBlock();
-								final TileEntityBlockChiseled target = blk.getTileEntity( world, bp );
-
-								final VoxelBlob dest = target.getBlob();
-								if ( !dest.canMerge( blobs[x][y][z] ) )
+								if ( !target.canMerge( blobs[x][y][z] ) )
 								{
 									return false;
 								}
 
-								blobs[x][y][z] = blobs[x][y][z].merge( dest );
+								blobs[x][y][z] = blobs[x][y][z].merge( target.getBlob() );
 								continue;
 							}
 
@@ -332,11 +350,9 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 									continue;
 								}
 
-								if ( state.getBlock() instanceof BlockChiseled )
+								final TileEntityBlockChiseled target = ModUtil.getChiseledTileEntity( world, bp, true );
+								if ( target != null )
 								{
-									final BlockChiseled blk = (BlockChiseled) state.getBlock();
-									final TileEntityBlockChiseled target = blk.getTileEntity( world, bp );
-
 									target.setBlob( blobs[x][y][z] );
 
 									continue;
