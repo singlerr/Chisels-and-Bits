@@ -14,6 +14,7 @@ import mod.chiselsandbits.helpers.ChiselInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
+import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
@@ -31,7 +32,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 
-public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScrollWheel
+public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScrollWheel, IPatternItem
 {
 
 	public ItemNegativePrint()
@@ -219,6 +220,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		return null;
 	}
 
+	@Override
 	public ItemStack getPatternedItem(
 			final ItemStack stack )
 	{

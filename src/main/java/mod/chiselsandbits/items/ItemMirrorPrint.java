@@ -12,6 +12,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.interfaces.IPatternItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,7 +24,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-public class ItemMirrorPrint extends Item
+public class ItemMirrorPrint extends Item implements IPatternItem
 {
 
 	public ItemMirrorPrint()
@@ -152,6 +153,7 @@ public class ItemMirrorPrint extends Item
 		return null;
 	}
 
+	@Override
 	public ItemStack getPatternedItem(
 			final ItemStack stack )
 	{
