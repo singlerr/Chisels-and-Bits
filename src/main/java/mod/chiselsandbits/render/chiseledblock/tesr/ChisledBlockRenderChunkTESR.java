@@ -1,5 +1,6 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
+import java.util.EnumSet;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -19,18 +20,27 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.Log;
 import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
+import mod.chiselsandbits.render.chiseledblock.ChisledBlockBaked;
+import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.model.IBakedModel;
+import net.minecraft.client.resources.model.SimpleBakedModel;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileEntityBlockChiseledTESR>
@@ -187,9 +197,58 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			final float partialTicks,
 			final int destroyStage )
 	{
-		final EnumWorldBlockLayer layer = MinecraftForgeClient.getRenderPass() == 0 ? MinecraftForgeClient.getRenderLayer() : EnumWorldBlockLayer.TRANSLUCENT;
+		final EnumWorldBlockLayer layer = MinecraftForgeClient.getRenderPass() == 0 ? EnumWorldBlockLayer.SOLID : EnumWorldBlockLayer.TRANSLUCENT;
 		final TileRenderChunk renderChunk = te.getRenderChunk();
 		TileRenderCache renderCache = renderChunk;
+
+		if ( destroyStage >= 0 )
+		{
+			if ( layer == EnumWorldBlockLayer.TRANSLUCENT )
+			{
+				return;
+			}
+
+			bindTexture( TextureMap.locationBlocksTexture );
+			final String file = DESTROY_STAGES[destroyStage].toString().replace( "textures/", "" ).replace( ".png", "" );
+			final TextureAtlasSprite damageTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( file );
+
+			GlStateManager.pushMatrix();
+			GlStateManager.depthFunc( GL11.GL_LEQUAL );
+			final BlockPos cp = te.getPos();
+			GlStateManager.translate( x - cp.getX(), y - cp.getY(), z - cp.getZ() );
+
+			final Tessellator tessellator = Tessellator.getInstance();
+			final WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+
+			worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
+			worldrenderer.setTranslation( 0, 0, 0 );
+
+			final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
+			final EnumSet<EnumWorldBlockLayer> layers = EnumSet.allOf( EnumWorldBlockLayer.class );
+
+			if ( te instanceof TileEntityBlockChiseledTESR )
+			{
+				final IExtendedBlockState estate = te.getTileRenderState();
+
+				for ( final EnumWorldBlockLayer lx : layers )
+				{
+					final ChisledBlockBaked model = ChisledBlockSmartModel.getCachedModel( te, lx );
+
+					if ( !model.isEmpty() )
+					{
+						final IBakedModel damageModel = new SimpleBakedModel.Builder( model, damageTexture ).makeBakedModel();
+						blockRenderer.getBlockModelRenderer().renderModel( te.getWorld(), damageModel, estate, te.getPos(), worldrenderer, false );
+					}
+				}
+			}
+
+			tessellator.draw();
+			worldrenderer.setTranslation( 0.0D, 0.0D, 0.0D );
+
+			GlStateManager.depthFunc( GL11.GL_LESS );
+			GlStateManager.popMatrix();
+			return;
+		}
 
 		// cache at the tile level rather than the chunk level.
 		if ( renderChunk.singleInstanceMode )
@@ -203,40 +262,12 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			return;
 		}
 
-		bindTexture( TextureMap.locationBlocksTexture );
-
-		RenderHelper.disableStandardItemLighting();
-		GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
-		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
-
-		if ( layer == EnumWorldBlockLayer.TRANSLUCENT )
-		{
-			GlStateManager.enableBlend();
-			GlStateManager.disableAlpha();
-		}
-		else
-		{
-			GlStateManager.disableBlend();
-			GlStateManager.enableAlpha();
-		}
-
-		GlStateManager.enableCull();
-		GlStateManager.enableTexture2D();
 		GL11.glPushMatrix();
 
-		if ( Minecraft.isAmbientOcclusionEnabled() )
-		{
-			GlStateManager.shadeModel( GL11.GL_SMOOTH );
-		}
-		else
-		{
-			GlStateManager.shadeModel( GL11.GL_FLAT );
-		}
-
-		final BlockPos cp = renderChunk.chunkOffset();
-		GL11.glTranslated( -TileEntityRendererDispatcher.staticPlayerX + cp.getX(),
-				-TileEntityRendererDispatcher.staticPlayerY + cp.getY(),
-				-TileEntityRendererDispatcher.staticPlayerZ + cp.getZ() );
+		final BlockPos chunkOffset = renderChunk.chunkOffset();
+		GL11.glTranslated( -TileEntityRendererDispatcher.staticPlayerX + chunkOffset.getX(),
+				-TileEntityRendererDispatcher.staticPlayerY + chunkOffset.getY(),
+				-TileEntityRendererDispatcher.staticPlayerZ + chunkOffset.getZ() );
 
 		final TileLayerRenderCache tlrc = renderCache.getLayer( layer );
 		final boolean isNew = tlrc.isNew();
@@ -246,7 +277,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			if ( activeTess.get() < ChiselsAndBits.instance.config.dynamicMaxConcurrentTessalators && tlrc.future == null && !tlrc.waiting || isNew )
 			{
 				// copy the tiles for the thread..
-				final FutureTask<Tessellator> newFuture = new FutureTask<Tessellator>( new ChisledBlockBackgroundRender( cp, renderCache.getTiles(), layer ) );
+				final FutureTask<Tessellator> newFuture = new FutureTask<Tessellator>( new ChisledBlockBackgroundRender( chunkOffset, renderCache.getTiles(), layer ) );
 
 				try
 				{
@@ -321,16 +352,57 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		final int dl = tlrc.displayList;
 		if ( dl != 0 )
 		{
+			configureGLState( layer );
 			GL11.glCallList( dl );
+			unconfigureGLState();
 		}
 
 		GL11.glPopMatrix();
+	}
 
-		GlStateManager.disableCull();
+	private void configureGLState(
+			final EnumWorldBlockLayer layer )
+	{
+		bindTexture( TextureMap.locationBlocksTexture );
+
+		RenderHelper.disableStandardItemLighting();
+		GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
+		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+
+		if ( layer == EnumWorldBlockLayer.TRANSLUCENT )
+		{
+			GlStateManager.enableBlend();
+			GlStateManager.disableAlpha();
+		}
+		else
+		{
+			GlStateManager.disableBlend();
+			GlStateManager.enableAlpha();
+		}
+
+		GlStateManager.enableCull();
+		GlStateManager.enableTexture2D();
+
+		if ( Minecraft.isAmbientOcclusionEnabled() )
+		{
+			GlStateManager.shadeModel( GL11.GL_SMOOTH );
+		}
+		else
+		{
+			GlStateManager.shadeModel( GL11.GL_FLAT );
+		}
+	}
+
+	private void unconfigureGLState()
+	{
+		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+		GlStateManager.resetColor(); // required to be called after drawing the
+										// display list cause the post render
+										// method usually calls it.
+
 		GlStateManager.disableBlend();
-		GlStateManager.enableAlpha();
-		GlStateManager.shadeModel( 7424 );
-		GlStateManager.alphaFunc( 516, 0.1F );
+		GlStateManager.disableAlpha();
+
 		RenderHelper.enableStandardItemLighting();
 	}
 

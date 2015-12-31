@@ -34,8 +34,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3i;
-import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
-import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad.Builder;
 
 public class ChisledBlockBaked extends BaseBakedBlockModel
 {
@@ -130,11 +128,13 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 
 	static
 	{
-		CNB.addElement( DefaultVertexFormats.POSITION_3F );
-		CNB.addElement( DefaultVertexFormats.COLOR_4UB );
-		CNB.addElement( DefaultVertexFormats.TEX_2F );
+		for ( final VertexFormatElement element : DefaultVertexFormats.ITEM.getElements() )
+		{
+			CNB.addElement( element );
+		}
+
+		// add lightmap ;)
 		CNB.addElement( DefaultVertexFormats.TEX_2S );
-		CNB.addElement( DefaultVertexFormats.NORMAL_3B );
 	}
 
 	private final static EnumFacing[] X_Faces = new EnumFacing[] { EnumFacing.EAST, EnumFacing.WEST };
@@ -188,7 +188,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 				final float[] uvs = getFaceUvs( myFace, from, to, getSourceUVs( sourceUVCache, region.blockStateID, weight, texture, myFace ) );
 				final BakedQuad g = faceBakery.makeBakedQuad( to, from, bpf, texture, myFace, mr, bpr, true, true );
 
-				final UnpackedBakedQuad.Builder b = new Builder( format );
+				final HackedUnpackedBakedQuad.Builder b = new HackedUnpackedBakedQuad.Builder( format );
 				b.setQuadColored();
 				b.setQuadOrientation( myFace );
 				b.setQuadTint( 0 );

@@ -514,9 +514,11 @@ public class ClientSide
 
 				final TileEntity newTarget = theWorld.getTileEntity( newOffset );
 
-				if ( theWorld.isAirBlock( newOffset ) || newTarget instanceof TileEntityBlockChiseled || Integration.mcmp.isMultiPartTileEntity( newTarget ) )
+				if ( theWorld.isAirBlock( newOffset ) || theWorld.getBlockState( newOffset ).getBlock().isReplaceable( theWorld, newOffset ) || newTarget instanceof TileEntityBlockChiseled
+						|| Integration.mcmp.isMultiPartTileEntity( newTarget ) )
 				{
-					showGhost( currentItem, item, newOffset, player, rotations, x, y, z, mop.sideHit, null, null );
+					final TileEntityBlockChiseled test = ModUtil.getChiseledTileEntity( newTarget, false );
+					showGhost( currentItem, item, newOffset, player, rotations, x, y, z, mop.sideHit, null, test == null ? null : test.getBlobStateReference() );
 				}
 			}
 		}

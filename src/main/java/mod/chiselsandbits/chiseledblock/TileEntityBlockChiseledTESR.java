@@ -18,6 +18,12 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	private TileRenderChunk renderChunk;
 	private TileRenderCache singleCache;
 
+	@Override
+	public boolean canRenderBreaking()
+	{
+		return true;
+	}
+
 	public TileRenderChunk getRenderChunk()
 	{
 		return renderChunk;

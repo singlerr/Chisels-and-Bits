@@ -304,8 +304,13 @@ public class ModUtil
 			final BlockPos pos,
 			final boolean create )
 	{
-		final TileEntity te = world.getTileEntity( pos );
+		return getChiseledTileEntity( world.getTileEntity( pos ), create );
+	}
 
+	public static TileEntityBlockChiseled getChiseledTileEntity(
+			final TileEntity te,
+			final boolean create )
+	{
 		if ( te instanceof TileEntityBlockChiseled )
 		{
 			return (TileEntityBlockChiseled) te;

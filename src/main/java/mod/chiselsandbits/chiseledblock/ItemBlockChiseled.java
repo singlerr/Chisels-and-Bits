@@ -11,7 +11,6 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.NetworkRouter;
@@ -135,14 +134,17 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			return true;
 		}
 
-		final IBlockState state = worldIn.getBlockState( pos );
-		if ( state.getBlock() instanceof BlockChiseled )
+		if ( player.isSneaking() )
 		{
 			return true;
 		}
 
-		final IBlockState stateb = worldIn.getBlockState( pos.offset( side ) );
-		return stateb.getBlock() instanceof BlockChiseled || Integration.mcmp.isMultiPartTileEntity( worldIn.getTileEntity( pos ) );
+		if ( tryPlaceBlockAt( block, stack, player, worldIn, pos, side, null, false ) )
+		{
+			return true;
+		}
+
+		return tryPlaceBlockAt( block, stack, player, worldIn, pos.offset( side ), side, null, false );
 	}
 
 	@Override
@@ -303,7 +305,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 						{
 							final BlockPos bp = pos.add( x, y, z );
 
-							if ( world.isAirBlock( bp ) )
+							if ( world.isAirBlock( bp ) || world.getBlockState( bp ).getBlock().isReplaceable( world, bp ) )
 							{
 								continue;
 							}
@@ -338,6 +340,12 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 							{
 								final BlockPos bp = pos.add( x, y, z );
 								final IBlockState state = world.getBlockState( bp );
+
+								if ( world.getBlockState( bp ).getBlock().isReplaceable( world, bp ) )
+								{
+									// clear it...
+									world.setBlockToAir( bp );
+								}
 
 								if ( world.isAirBlock( bp ) )
 								{
