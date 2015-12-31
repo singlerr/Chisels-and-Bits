@@ -342,7 +342,7 @@ public class VoxelBlob
 		return values[offset];
 	}
 
-	private void putBit(
+	protected void putBit(
 			final int offset,
 			final int newValue )
 	{

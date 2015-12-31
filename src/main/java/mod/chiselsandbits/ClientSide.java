@@ -14,12 +14,14 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
+import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
+import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.NetworkRouter;
@@ -80,11 +82,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ClientSide
 {
 
-	private final static Random RANDOM = new Random();
-	public final static ClientSide instance = new ClientSide();
+	private static final Random RANDOM = new Random();
+	public static final ClientSide instance = new ClientSide();
 
+	private final HashMap<ChiselMode, TextureAtlasSprite> chiselModeIcons = new HashMap<ChiselMode, TextureAtlasSprite>();
 	private KeyBinding rotateCCW;
 	private KeyBinding rotateCW;
+	private Stopwatch rotateTimer;
 
 	public void preinit(
 			final ChiselsAndBits mod )
@@ -118,27 +122,27 @@ public class ClientSide
 	{
 		final ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
 
-		final String MODID = ChiselsAndBits.MODID;
+		final String modId = ChiselsAndBits.MODID;
 
 		final ModItems modItems = mod.items;
 
-		registerMesh( mesher, modItems.itemChiselStone, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_stone" ), "inventory" ) );
-		registerMesh( mesher, modItems.itemChiselIron, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_iron" ), "inventory" ) );
-		registerMesh( mesher, modItems.itemChiselGold, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_gold" ), "inventory" ) );
-		registerMesh( mesher, modItems.itemChiselDiamond, 0, new ModelResourceLocation( new ResourceLocation( MODID, "chisel_diamond" ), "inventory" ) );
-		registerMesh( mesher, modItems.itemBitBag, 0, new ModelResourceLocation( new ResourceLocation( MODID, "bit_bag" ), "inventory" ) );
-		registerMesh( mesher, modItems.itemWrench, 0, new ModelResourceLocation( new ResourceLocation( MODID, "wrench_wood" ), "inventory" ) );
+		registerMesh( mesher, modItems.itemChiselStone, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_stone" ), "inventory" ) );
+		registerMesh( mesher, modItems.itemChiselIron, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_iron" ), "inventory" ) );
+		registerMesh( mesher, modItems.itemChiselGold, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_gold" ), "inventory" ) );
+		registerMesh( mesher, modItems.itemChiselDiamond, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_diamond" ), "inventory" ) );
+		registerMesh( mesher, modItems.itemBitBag, 0, new ModelResourceLocation( new ResourceLocation( modId, "bit_bag" ), "inventory" ) );
+		registerMesh( mesher, modItems.itemWrench, 0, new ModelResourceLocation( new ResourceLocation( modId, "wrench_wood" ), "inventory" ) );
 
 		if ( modItems.itemPositiveprint != null )
 		{
-			ModelBakery.addVariantName( modItems.itemPositiveprint, MODID + ":positiveprint", MODID + ":positiveprint_written" );
+			ModelBakery.addVariantName( modItems.itemPositiveprint, modId + ":positiveprint", modId + ":positiveprint_written" );
 			mesher.register( modItems.itemPositiveprint, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
 						final ItemStack stack )
 				{
-					return new ModelResourceLocation( new ResourceLocation( MODID, stack.hasTagCompound() ? "positiveprint_written_preview" : "positiveprint" ), "inventory" );
+					return new ModelResourceLocation( new ResourceLocation( modId, stack.hasTagCompound() ? "positiveprint_written_preview" : "positiveprint" ), "inventory" );
 				}
 
 			} );
@@ -146,14 +150,14 @@ public class ClientSide
 
 		if ( modItems.itemNegativeprint != null )
 		{
-			ModelBakery.addVariantName( modItems.itemNegativeprint, MODID + ":negativeprint", MODID + ":negativeprint_written" );
+			ModelBakery.addVariantName( modItems.itemNegativeprint, modId + ":negativeprint", modId + ":negativeprint_written" );
 			mesher.register( modItems.itemNegativeprint, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
 						final ItemStack stack )
 				{
-					return new ModelResourceLocation( new ResourceLocation( MODID, stack.hasTagCompound() ? "negativeprint_written_preview" : "negativeprint" ), "inventory" );
+					return new ModelResourceLocation( new ResourceLocation( modId, stack.hasTagCompound() ? "negativeprint_written_preview" : "negativeprint" ), "inventory" );
 				}
 
 			} );
@@ -161,14 +165,14 @@ public class ClientSide
 
 		if ( modItems.itemMirrorprint != null )
 		{
-			ModelBakery.addVariantName( modItems.itemMirrorprint, MODID + ":mirrorprint", MODID + ":mirrorprint_written" );
+			ModelBakery.addVariantName( modItems.itemMirrorprint, modId + ":mirrorprint", modId + ":mirrorprint_written" );
 			mesher.register( modItems.itemMirrorprint, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
 						final ItemStack stack )
 				{
-					return new ModelResourceLocation( new ResourceLocation( MODID, stack.hasTagCompound() ? "mirrorprint_written_preview" : "mirrorprint" ), "inventory" );
+					return new ModelResourceLocation( new ResourceLocation( modId, stack.hasTagCompound() ? "mirrorprint_written_preview" : "mirrorprint" ), "inventory" );
 				}
 
 			} );
@@ -183,7 +187,7 @@ public class ClientSide
 				public ModelResourceLocation getModelLocation(
 						final ItemStack stack )
 				{
-					return new ModelResourceLocation( new ResourceLocation( MODID, "block_bit" ), "inventory" );
+					return new ModelResourceLocation( new ResourceLocation( modId, "block_bit" ), "inventory" );
 				}
 
 			} );
@@ -195,7 +199,7 @@ public class ClientSide
 
 		{
 			final Item item = Item.getItemFromBlock( blk );
-			mesher.register( item, 0, new ModelResourceLocation( new ResourceLocation( MODID, "block_chiseled" ), "inventory" ) );
+			mesher.register( item, 0, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "inventory" ) );
 		}
 
 		ChiselsAndBits.instance.config.allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
@@ -214,15 +218,13 @@ public class ClientSide
 		}
 	}
 
-	HashMap<ChiselMode, TextureAtlasSprite> jo = new HashMap<ChiselMode, TextureAtlasSprite>();
-
 	@SubscribeEvent
 	void registerIconTextures(
 			final TextureStitchEvent.Pre ev )
 	{
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
-			jo.put( mode, ev.map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() ) ) );
+			chiselModeIcons.put( mode, ev.map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() ) ) );
 		}
 	}
 
@@ -247,7 +249,7 @@ public class ClientSide
 
 					GlStateManager.color( 1, 1, 1, 1.0f );
 					Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.locationBlocksTexture );
-					final TextureAtlasSprite sprite = jo.get( mode );
+					final TextureAtlasSprite sprite = chiselModeIcons.get( mode );
 
 					GlStateManager.enableBlend();
 					sc.drawTexturedModalRect( x + 1, y + 1, sprite, 8, 8 );
@@ -256,8 +258,6 @@ public class ClientSide
 			}
 		}
 	}
-
-	Stopwatch rotateTimer;
 
 	@SubscribeEvent
 	public void interaction(
@@ -473,9 +473,6 @@ public class ClientSide
 			final int rotations = ModUtil.getRotations( player, item.getTagCompound().getByte( "side" ) );
 			final BlockPos offset = mop.getBlockPos();
 
-			final Block cb = theWorld.getBlockState( offset ).getBlock();
-			final TileEntity target = theWorld.getTileEntity( offset );
-
 			if ( player.isSneaking() )
 			{
 				final BlockPos blockpos = mop.getBlockPos();
@@ -538,7 +535,7 @@ public class ClientSide
 			final ItemStack item,
 			final BlockPos blockPos,
 			final EntityPlayer player,
-			int rotations,
+			final int rotationCount,
 			final double x,
 			final double y,
 			final double z,
@@ -548,12 +545,14 @@ public class ClientSide
 	{
 		IBakedModel baked;
 
-		if ( previousCacheRef == cacheRef && samePos( lastPos, blockPos ) && previousItem == refItem && previousRotations == rotations && previousModel != null && samePos( lastPartial, partial ) )
+		if ( previousCacheRef == cacheRef && samePos( lastPos, blockPos ) && previousItem == refItem && previousRotations == rotationCount && previousModel != null && samePos( lastPartial, partial ) )
 		{
 			baked = (IBakedModel) previousModel;
 		}
 		else
 		{
+			int rotations = rotationCount;
+
 			previousItem = refItem;
 			previousRotations = rotations;
 			previousCacheRef = cacheRef;
@@ -587,17 +586,12 @@ public class ClientSide
 					break fail;
 				}
 
-				for ( int zz = 0; zz < pattern.detail; zz++ )
+				final BitIterator it = new BitIterator();
+				while ( it.hasNext() )
 				{
-					for ( int yy = 0; yy < pattern.detail; yy++ )
+					if ( it.getNext( pattern ) == 0 )
 					{
-						for ( int xx = 0; xx < pattern.detail; xx++ )
-						{
-							if ( pattern.get( xx, yy, zz ) == 0 )
-							{
-								blob.set( xx, yy, zz, 0 );
-							}
-						}
+						it.setNext( blob, 0 );
 					}
 				}
 			}
@@ -607,10 +601,18 @@ public class ClientSide
 			final Block blk = Block.getBlockFromItem( item.getItem() );
 			previousModel = baked = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( bc.getItemStack( blk, null ) );
 
-			isVisible = ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, partial, false );
+			if ( refItem.getItem() instanceof IPatternItem )
+			{
+				isVisible = true;
+			}
+			else
+			{
+				isVisible = ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, partial, false );
+			}
 		}
 
 		if ( !isVisible )
+
 		{
 			return;
 		}
@@ -618,6 +620,7 @@ public class ClientSide
 		GlStateManager.pushMatrix();
 		GlStateManager.translate( blockPos.getX() - x, blockPos.getY() - y, blockPos.getZ() - z );
 		if ( partial != null )
+
 		{
 			final BlockPos t = ModUtil.getPartialOffset( side, partial, modelBounds );
 			final double fullScale = 1.0 / VoxelBlob.dim;
@@ -628,6 +631,7 @@ public class ClientSide
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
 		GlStateManager.colorMask( false, false, false, false );
+
 		renderModel( baked );
 		GlStateManager.colorMask( true, true, true, true );
 		GlStateManager.depthFunc( GL11.GL_LEQUAL );
@@ -791,7 +795,12 @@ public class ClientSide
 	private BlockPos drawBlock;
 	private BlockPos drawStart;
 	private boolean loopDeath = false;
-	public int lastRenderedFrame = Integer.MIN_VALUE;
+	private int lastRenderedFrame = Integer.MIN_VALUE;
+
+	public int getLastRenderedFrame()
+	{
+		return lastRenderedFrame;
+	}
 
 	public BlockPos getStartPos()
 	{

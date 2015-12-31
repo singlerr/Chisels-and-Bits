@@ -53,7 +53,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 			final TileEntityBlockChiseled te )
 	{
 		final ChisledBlockBaked model = getCachedModel( te, EnumWorldBlockLayer.SOLID );
-		return model.sides;
+		return model.getSides();
 	}
 
 	public static ChisledBlockBaked getCachedModel(

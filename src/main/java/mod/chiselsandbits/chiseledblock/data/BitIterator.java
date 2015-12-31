@@ -74,4 +74,11 @@ public class BitIterator
 		return blob.getBit( bit );
 	}
 
+	public void setNext(
+			final VoxelBlob blob,
+			final int value )
+	{
+		blob.putBit( bit, value );
+	}
+
 }

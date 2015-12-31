@@ -41,7 +41,7 @@ public class ChiselsAndBits
 			+ net.minecraftforge.common.ForgeVersion.majorVersion + '.' // majorVersion
 			+ net.minecraftforge.common.ForgeVersion.minorVersion + '.' // minorVersion
 			+ net.minecraftforge.common.ForgeVersion.revisionVersion + '.' // revisionVersion
-			+ net.minecraftforge.common.ForgeVersion.buildVersion + ",)"; // buildVersion";
+			+ net.minecraftforge.common.ForgeVersion.buildVersion + ",)"; // buildVersion
 
 	// create creative tab...
 	public static ChiselsAndBits instance;
@@ -91,29 +91,31 @@ public class ChiselsAndBits
 		// add recipes to game...
 		items.addRecipes();
 
+		final String craftingOrder = "after:minecraft:shapeless";
+
 		// add special recipes...
 		if ( config.enablePositivePrintCrafting )
 		{
 			GameRegistry.addRecipe( new ChiselCrafting() );
-			RecipeSorter.register( MODID + ":chiselcrafting", ChiselCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
+			RecipeSorter.register( MODID + ":chiselcrafting", ChiselCrafting.class, Category.UNKNOWN, craftingOrder );
 		}
 
 		if ( config.enableStackableCrafting )
 		{
 			GameRegistry.addRecipe( new StackableCrafting() );
-			RecipeSorter.register( MODID + ":stackablecrafting", StackableCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
+			RecipeSorter.register( MODID + ":stackablecrafting", StackableCrafting.class, Category.UNKNOWN, craftingOrder );
 		}
 
 		if ( config.enableNegativePrintInversionCrafting )
 		{
 			GameRegistry.addRecipe( new NegativeInversionCrafting() );
-			RecipeSorter.register( MODID + ":negativepatterncrafting", NegativeInversionCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
+			RecipeSorter.register( MODID + ":negativepatterncrafting", NegativeInversionCrafting.class, Category.UNKNOWN, craftingOrder );
 		}
 
 		if ( config.enableMirrorPrint )
 		{
 			GameRegistry.addRecipe( new MirrorTransferCrafting() );
-			RecipeSorter.register( MODID + ":mirrorpatterncrafting", MirrorTransferCrafting.class, Category.UNKNOWN, "after:minecraft:shapeless" );
+			RecipeSorter.register( MODID + ":mirrorpatterncrafting", MirrorTransferCrafting.class, Category.UNKNOWN, craftingOrder );
 		}
 	}
 

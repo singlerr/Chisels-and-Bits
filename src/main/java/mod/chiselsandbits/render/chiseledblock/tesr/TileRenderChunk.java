@@ -56,7 +56,7 @@ public class TileRenderChunk extends TileRenderCache
 	{
 		if ( getTiles().isEmpty() )
 		{
-			return new BlockPos( 0, 0, 0 );
+			return BlockPos.ORIGIN;
 		}
 
 		final int bitMask = ~0xf;

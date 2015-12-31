@@ -37,7 +37,27 @@ import net.minecraft.util.Vec3i;
 
 public class ChisledBlockBaked extends BaseBakedBlockModel
 {
-	IBakedModel originalModel;
+	public static final float PIXELS_PER_BLOCK = 16.0f;
+	private static final ChisledBlockBaked emptyPlaceHolder = new ChisledBlockBaked();
+	static boolean hasFaceMap = false;
+	static int faceVertMap[][] = new int[6][4];
+
+	private static final EnumFacing[] X_Faces = new EnumFacing[] { EnumFacing.EAST, EnumFacing.WEST };
+	private static final EnumFacing[] Y_Faces = new EnumFacing[] { EnumFacing.UP, EnumFacing.DOWN };
+	private static final EnumFacing[] Z_Faces = new EnumFacing[] { EnumFacing.SOUTH, EnumFacing.NORTH };
+
+	private static final VertexFormat CNB = new VertexFormat();
+
+	static
+	{
+		for ( final VertexFormatElement element : DefaultVertexFormats.ITEM.getElements() )
+		{
+			CNB.addElement( element );
+		}
+
+		// add lightmap ;)
+		CNB.addElement( DefaultVertexFormats.TEX_2S );
+	}
 
 	@SuppressWarnings( "unchecked" )
 	final List<BakedQuad>[] face = new List[6];
@@ -45,32 +65,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	EnumWorldBlockLayer myLayer;
 	VertexFormat format;
 
-	public int sides = 0;
-
-	public static final float pixelsPerBlock = 16.0f;
-	private static final ChisledBlockBaked emptyPlaceHolder = new ChisledBlockBaked();
-
-	public static IBakedModel emptyModel()
-	{
-		return emptyPlaceHolder;
-	}
-
-	public boolean isEmpty()
-	{
-		boolean trulyEmpty = generic.isEmpty();
-
-		for ( final List<BakedQuad> l : face )
-		{
-			trulyEmpty = trulyEmpty && l.isEmpty();
-		}
-
-		return trulyEmpty;
-	}
-
-	public ChisledBlockBaked getEmptyModel()
-	{
-		return emptyPlaceHolder;
-	}
+	private int sides = 0;
 
 	private ChisledBlockBaked()
 	{
@@ -78,7 +73,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	}
 
 	public ChisledBlockBaked(
-			final int BlockRef,
+			final int blockReference,
 			final EnumWorldBlockLayer layer,
 			final VoxelBlobStateReference data,
 			final ModelRenderState mrs,
@@ -86,8 +81,10 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	{
 		myLayer = layer;
 		this.format = format;
-		final IBlockState state = Block.getStateById( BlockRef );
+		final IBlockState state = Block.getStateById( blockReference );
 		initEmpty();
+
+		IBakedModel originalModel = null;
 
 		if ( state != null )
 		{
@@ -113,6 +110,33 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 		}
 	}
 
+	public static IBakedModel emptyModel()
+	{
+		return emptyPlaceHolder;
+	}
+
+	public int getSides()
+	{
+		return sides;
+	}
+
+	public boolean isEmpty()
+	{
+		boolean trulyEmpty = generic.isEmpty();
+
+		for ( final List<BakedQuad> l : face )
+		{
+			trulyEmpty = trulyEmpty && l.isEmpty();
+		}
+
+		return trulyEmpty;
+	}
+
+	public ChisledBlockBaked getEmptyModel()
+	{
+		return emptyPlaceHolder;
+	}
+
 	private void initEmpty()
 	{
 		face[0] = Collections.emptyList();
@@ -124,23 +148,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 		generic = Collections.emptyList();
 	}
 
-	final static VertexFormat CNB = new VertexFormat();
-
-	static
-	{
-		for ( final VertexFormatElement element : DefaultVertexFormats.ITEM.getElements() )
-		{
-			CNB.addElement( element );
-		}
-
-		// add lightmap ;)
-		CNB.addElement( DefaultVertexFormats.TEX_2S );
-	}
-
-	private final static EnumFacing[] X_Faces = new EnumFacing[] { EnumFacing.EAST, EnumFacing.WEST };
-	private final static EnumFacing[] Y_Faces = new EnumFacing[] { EnumFacing.UP, EnumFacing.DOWN };
-	private final static EnumFacing[] Z_Faces = new EnumFacing[] { EnumFacing.SOUTH, EnumFacing.NORTH };
-
+	@SuppressWarnings( "deprecation" )
 	private void generateFaces(
 			final VoxelBlob blob,
 			final ModelRenderState mrs,
@@ -201,8 +209,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 
 				final float maxLightmap = 32.0f / 0xffff;
 
-				// build un
-				final VertexFormat format = b.getVertexFormat();
+				// build it.
 				for ( int vertNum = 0; vertNum < 4; vertNum++ )
 				{
 					for ( int elementIndex = 0; elementIndex < format.getElementCount(); elementIndex++ )
@@ -263,26 +270,27 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	private void mergeFaces(
 			final ArrayList<FaceRegion> src )
 	{
-		boolean restart = false;
+		boolean restart;
 
 		do
 		{
 			restart = false;
 
 			final int size = src.size();
-			final int size_minus_one = size - 1;
-			restart: for ( int x = 0; x < size_minus_one; ++x )
+			final int sizeMinusOne = size - 1;
+
+			restart: for ( int x = 0; x < sizeMinusOne; ++x )
 			{
-				final FaceRegion A = src.get( x );
+				final FaceRegion faceA = src.get( x );
 
 				for ( int y = x + 1; y < size; ++y )
 				{
-					final FaceRegion B = src.get( y );
+					final FaceRegion faceB = src.get( y );
 
-					if ( A.extend( B ) )
+					if ( faceA.extend( faceB ) )
 					{
-						src.set( y, src.get( size_minus_one ) );
-						src.remove( size_minus_one );
+						src.set( y, src.get( sizeMinusOne ) );
+						src.remove( sizeMinusOne );
 
 						restart = true;
 						break restart;
@@ -337,9 +345,6 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 						currentFace = region;
 						regions.add( region );
 					}
-
-					// row complete!
-					currentFace = null;
 				}
 
 				if ( !regions.isEmpty() )
@@ -395,9 +400,6 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 						currentFace = region;
 						regions.add( region );
 					}
-
-					// row complete!
-					currentFace = null;
 				}
 
 				if ( !regions.isEmpty() )
@@ -453,9 +455,6 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 						currentFace = region;
 						regions.add( region );
 					}
-
-					// row complete!
-					currentFace = null;
 				}
 
 				if ( !regions.isEmpty() )
@@ -502,15 +501,10 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	// merge face brightness with custom multiplier
 	private int getShadeColor(
 			final EnumFacing face,
-			float f,
+			final float f,
 			final int color )
 	{
-		if ( format == CNB )
-		{
-			f *= getFaceBrightness( face );
-		}
-
-		final int i = MathHelper.clamp_int( (int) ( f * 255.0F ), 0, 255 );
+		final int i = MathHelper.clamp_int( (int) ( ( format == CNB ? getFaceBrightness( face ) * f : f ) * 255.0F ), 0, 255 );
 
 		final int r = ( color >> 16 & 0xff ) * i / 255;
 		final int g = ( color >> 8 & 0xff ) * i / 255;
@@ -539,9 +533,6 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 				return 1.0F;
 		}
 	}
-
-	static boolean hasFaceMap = false;
-	static int faceVertMap[][] = new int[6][4];
 
 	static void calcVertFaceMap()
 	{
@@ -681,92 +672,89 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 
 	private float[] getFaceUvs(
 			final EnumFacing face,
-			final Vector3f to_16,
-			final Vector3f from_16,
-			final float quadsUV[] )
+			final Vector3f to16,
+			final Vector3f from16,
+			final float[] quadsUV )
 	{
-		float from_a = 0;
-		float from_b = 0;
-		float to_a = 0;
-		float to_b = 0;
+		float fromA = 0;
+		float fromB = 0;
+		float toA = 0;
+		float toB = 0;
 
 		switch ( face )
 		{
 			case UP:
-				from_a = from_16.x / 16.0f;
-				from_b = from_16.z / 16.0f;
-				to_a = to_16.x / 16.0f;
-				to_b = to_16.z / 16.0f;
+				fromA = from16.x / 16.0f;
+				fromB = from16.z / 16.0f;
+				toA = to16.x / 16.0f;
+				toB = to16.z / 16.0f;
 				break;
 			case DOWN:
-				from_a = from_16.x / 16.0f;
-				from_b = from_16.z / 16.0f;
-				to_a = to_16.x / 16.0f;
-				to_b = to_16.z / 16.0f;
+				fromA = from16.x / 16.0f;
+				fromB = from16.z / 16.0f;
+				toA = to16.x / 16.0f;
+				toB = to16.z / 16.0f;
 				break;
 			case SOUTH:
-				from_a = from_16.x / 16.0f;
-				from_b = from_16.y / 16.0f;
-				to_a = to_16.x / 16.0f;
-				to_b = to_16.y / 16.0f;
+				fromA = from16.x / 16.0f;
+				fromB = from16.y / 16.0f;
+				toA = to16.x / 16.0f;
+				toB = to16.y / 16.0f;
 				break;
 			case NORTH:
-				from_a = from_16.x / 16.0f;
-				from_b = from_16.y / 16.0f;
-				to_a = to_16.x / 16.0f;
-				to_b = to_16.y / 16.0f;
+				fromA = from16.x / 16.0f;
+				fromB = from16.y / 16.0f;
+				toA = to16.x / 16.0f;
+				toB = to16.y / 16.0f;
 				break;
 			case EAST:
-				from_a = from_16.y / 16.0f;
-				from_b = from_16.z / 16.0f;
-				to_a = to_16.y / 16.0f;
-				to_b = to_16.z / 16.0f;
+				fromA = from16.y / 16.0f;
+				fromB = from16.z / 16.0f;
+				toA = to16.y / 16.0f;
+				toB = to16.z / 16.0f;
 				break;
 			case WEST:
-				from_a = from_16.y / 16.0f;
-				from_b = from_16.z / 16.0f;
-				to_a = to_16.y / 16.0f;
-				to_b = to_16.z / 16.0f;
+				fromA = from16.y / 16.0f;
+				fromB = from16.z / 16.0f;
+				toA = to16.y / 16.0f;
+				toB = to16.z / 16.0f;
 				break;
 			default:
 		}
 
-		final float[] afloat = new float[] { // :P
-				16.0f * u( quadsUV, from_a, from_b ), // 0
-				16.0f * v( quadsUV, from_a, from_b ), // 1
+		return new float[] {
+				16.0f * u( quadsUV, fromA, fromB ), // 0
+				16.0f * v( quadsUV, fromA, fromB ), // 1
 
-				16.0f * u( quadsUV, to_a, from_b ), // 2
-				16.0f * v( quadsUV, to_a, from_b ), // 3
+				16.0f * u( quadsUV, toA, fromB ), // 2
+				16.0f * v( quadsUV, toA, fromB ), // 3
 
-				16.0f * u( quadsUV, to_a, to_b ), // 2
-				16.0f * v( quadsUV, to_a, to_b ), // 3
+				16.0f * u( quadsUV, toA, toB ), // 2
+				16.0f * v( quadsUV, toA, toB ), // 3
 
-				16.0f * u( quadsUV, from_a, to_b ), // 0
-				16.0f * v( quadsUV, from_a, to_b ), // 1
+				16.0f * u( quadsUV, fromA, toB ), // 0
+				16.0f * v( quadsUV, fromA, toB ), // 1
 		};
-
-		return afloat;
-
 	}
 
 	float u(
 			final float[] src,
-			final float U,
-			final float V )
+			final float inU,
+			final float inV )
 	{
-		final float u1 = src[0] * U + ( 1.0f - U ) * src[2];
-		final float u2 = src[4] * U + ( 1.0f - U ) * src[6];
-		return u1 * V + ( 1.0f - V ) * u2;
+		final float u1 = src[0] * inU + ( 1.0f - inU ) * src[2];
+		final float u2 = src[4] * inU + ( 1.0f - inU ) * src[6];
+		return u1 * inV + ( 1.0f - inV ) * u2;
 	}
 
 	float v(
 			final float[] src,
-			final float U,
-			final float V )
+			final float inU,
+			final float inV )
 	{
-		final float v1 = src[1] * U + ( 1.0f - U ) * src[3];
-		final float v2 = src[5] * U + ( 1.0f - U ) * src[7];
-		return v1 * V + ( 1.0f - V ) * v2;
+		final float v1 = src[1] * inU + ( 1.0f - inU ) * src[3];
+		final float v2 = src[5] * inU + ( 1.0f - inU ) * src[7];
+		return v1 * inV + ( 1.0f - inV ) * v2;
 	}
 
 	static private Vector3f offsetVec(
@@ -775,56 +763,56 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 			final int d )
 	{
 
-		int left_x = 0;
-		final int left_y = 0;
-		int left_z = 0;
+		int leftX = 0;
+		final int leftY = 0;
+		int leftZ = 0;
 
-		final int up_x = 0;
-		int up_y = 0;
-		int up_z = 0;
+		final int upX = 0;
+		int upY = 0;
+		int upZ = 0;
 
 		switch ( f )
 		{
 			case DOWN:
-				left_x = 1;
-				up_z = 1;
+				leftX = 1;
+				upZ = 1;
 				break;
 			case EAST:
-				left_z = 1;
-				up_y = 1;
+				leftZ = 1;
+				upY = 1;
 				break;
 			case NORTH:
-				left_x = 1;
-				up_y = 1;
+				leftX = 1;
+				upY = 1;
 				break;
 			case SOUTH:
-				left_x = 1;
-				up_y = 1;
+				leftX = 1;
+				upY = 1;
 				break;
 			case UP:
-				left_x = 1;
-				up_z = 1;
+				leftX = 1;
+				upZ = 1;
 				break;
 			case WEST:
-				left_z = 1;
-				up_y = 1;
+				leftZ = 1;
+				upY = 1;
 				break;
 			default:
 				break;
 		}
 
-		final int x = to.getX() + left_x * d + up_x * d;
-		final int y = to.getY() + left_y * d + up_y * d;
-		final int z = to.getZ() + left_z * d + up_z * d;
+		final int x = to.getX() + leftX * d + upX * d;
+		final int y = to.getY() + leftY * d + upY * d;
+		final int z = to.getZ() + leftZ * d + upZ * d;
 
 		return new Vector3f( x * 0.5f, y * 0.5f, z * 0.5f );
 	}
 
 	@Override
 	public List<BakedQuad> getFaceQuads(
-			final EnumFacing p_177551_1_ )
+			final EnumFacing requestedFace )
 	{
-		return face[p_177551_1_.ordinal()];
+		return face[requestedFace.ordinal()];
 	}
 
 	@Override
@@ -836,7 +824,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	@Override
 	public TextureAtlasSprite getParticleTexture()
 	{
-		return originalModel == null ? ClientSide.instance.getMissingIcon() : originalModel.getParticleTexture();
+		return ClientSide.instance.getMissingIcon();
 	}
 
 	@Override

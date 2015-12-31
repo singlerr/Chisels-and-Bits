@@ -30,7 +30,7 @@ public abstract class TileRenderCache
 			final EnumWorldBlockLayer layer,
 			final int updateCost )
 	{
-		final int lastRF = ClientSide.instance.lastRenderedFrame;
+		final int lastRF = ClientSide.instance.getLastRenderedFrame();
 		final TileLayerRenderCache tlrc = getLayer( layer );
 
 		// render?
