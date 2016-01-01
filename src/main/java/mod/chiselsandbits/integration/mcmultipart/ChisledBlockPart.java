@@ -37,6 +37,38 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart, ISoli
 	BlockChiseled bc;
 
 	@Override
+	public void onAdded()
+	{
+		if ( inner != null )
+		{
+			inner.validate();
+		}
+	}
+
+	@Override
+	public void onRemoved()
+	{
+		if ( inner != null )
+		{
+			inner.invalidate();
+		}
+	}
+
+	public void saveChanges()
+	{
+		super.markDirty();
+	}
+
+	public void swapTile(
+			final TileEntityBlockChiseled newTileEntity )
+	{
+		newTileEntity.copyFrom( getTile() );
+		inner.invalidate();
+		inner = newTileEntity;
+		markRenderUpdate();
+	}
+
+	@Override
 	public boolean occlusionTest(
 			final IMultipart part )
 	{
@@ -101,12 +133,16 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart, ISoli
 		if ( inner == null )
 		{
 			inner = new TileEntityBlockChiseled();
-			inner.occlusionState = new MultipartBlobOcclusion( this );
 		}
 
 		// update tile stats..
 		inner.setWorldObj( getWorld() );
 		inner.setPos( getPos() );
+
+		if ( !( inner.occlusionState instanceof MultipartContainerWrapper ) )
+		{
+			inner.occlusionState = new MultipartContainerWrapper( this );
+		}
 
 		return inner;
 	}
@@ -249,4 +285,5 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart, ISoli
 	{
 		return getTile().isSideSolid( side );
 	}
+
 }

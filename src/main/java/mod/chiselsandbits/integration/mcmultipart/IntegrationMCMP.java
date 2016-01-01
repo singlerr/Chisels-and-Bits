@@ -1,10 +1,5 @@
 package mod.chiselsandbits.integration.mcmultipart;
 
-import mcmultipart.client.multipart.MultipartRegistryClient;
-import mcmultipart.multipart.IMultipart;
-import mcmultipart.multipart.IMultipartContainer;
-import mcmultipart.multipart.MultipartRegistry;
-import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.integration.IntegrationBase;
 import net.minecraft.tileentity.TileEntity;
@@ -13,78 +8,16 @@ import net.minecraftforge.fml.common.Loader;
 public class IntegrationMCMP extends IntegrationBase
 {
 
-	public final static String block_name = ChiselsAndBits.MODID + ":chisledblock";
 	public boolean canUseMCMP = Loader.isModLoaded( "mcmultipart" );
-
-	private void initModIfPossible()
-	{
-		MultipartRegistry.registerPart( ChisledBlockPart.class, block_name );
-		MultipartRegistry.registerPartConverter( new ChisledBlockConverter() );
-		MultipartRegistryClient.bindMultipartSpecialRenderer( ChisledBlockPart.class, new ChisledBlockRenderChunkMPSR() );
-	}
-
-	private void removePartIfPossible(
-			final TileEntity te )
-	{
-		if ( te instanceof IMultipartContainer && !te.getWorld().isRemote )
-		{
-			final IMultipartContainer container = (IMultipartContainer) te;
-			for ( final IMultipart part : container.getParts() )
-			{
-				if ( part instanceof ChisledBlockPart )
-				{
-					container.removePart( part );
-					return;
-				}
-			}
-		}
-
-	}
-
-	private TileEntityBlockChiseled getPartIfPossible(
-			final TileEntity te,
-			final boolean create )
-	{
-		if ( te instanceof IMultipartContainer )
-		{
-			final IMultipartContainer container = (IMultipartContainer) te;
-			for ( final IMultipart part : container.getParts() )
-			{
-				if ( part instanceof ChisledBlockPart )
-				{
-					return ( (ChisledBlockPart) part ).getTile();
-				}
-			}
-
-			if ( create && !te.getWorld().isRemote )
-			{
-				final ChisledBlockPart part = new ChisledBlockPart();
-				container.addPart( part );
-				return part.getTile();
-			}
-			else if ( create )
-			{
-				final ChisledBlockPart part = new ChisledBlockPart();
-				part.setContainer( container );
-				return part.getTile();
-			}
-		}
-
-		return null;
-	}
-
-	private boolean isMultiPart(
-			final TileEntity te )
-	{
-		return te instanceof IMultipartContainer;
-	}
+	public Object relay;
 
 	@Override
 	public void preinit()
 	{
 		if ( canUseMCMP )
 		{
-			initModIfPossible();
+			relay = new MCMPRelay();
+			( (MCMPRelay) relay ).initModIfPossible();
 		}
 	}
 
@@ -106,7 +39,7 @@ public class IntegrationMCMP extends IntegrationBase
 	{
 		if ( canUseMCMP )
 		{
-			return getPartIfPossible( te, create );
+			return ( (MCMPRelay) relay ).getPartIfPossible( te, create );
 		}
 
 		return null;
@@ -117,7 +50,7 @@ public class IntegrationMCMP extends IntegrationBase
 	{
 		if ( canUseMCMP )
 		{
-			removePartIfPossible( te );
+			( (MCMPRelay) relay ).removePartIfPossible( te );
 		}
 	}
 
@@ -126,10 +59,19 @@ public class IntegrationMCMP extends IntegrationBase
 	{
 		if ( canUseMCMP )
 		{
-			return isMultiPart( target );
+			return ( (MCMPRelay) relay ).isMultiPart( target );
 		}
 
 		return false;
 	}
 
+	public void convertTo(
+			final TileEntity current,
+			final TileEntityBlockChiseled newTileEntity )
+	{
+		if ( canUseMCMP )
+		{
+			( (MCMPRelay) relay ).convertIfPossible( current, newTileEntity );
+		}
+	}
 }

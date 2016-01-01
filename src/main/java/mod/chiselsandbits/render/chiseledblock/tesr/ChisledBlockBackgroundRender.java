@@ -78,7 +78,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 		final EnumSet<EnumWorldBlockLayer> layers = layer == EnumWorldBlockLayer.TRANSLUCENT ? EnumSet.of( layer ) : EnumSet.complementOf( EnumSet.of( EnumWorldBlockLayer.TRANSLUCENT ) );
 		for ( final TileEntityBlockChiseled tx : myPrivateList )
 		{
-			if ( tx instanceof TileEntityBlockChiseledTESR )
+			if ( tx instanceof TileEntityBlockChiseledTESR && !tx.isInvalid() )
 			{
 				final IExtendedBlockState estate = ( (TileEntityBlockChiseledTESR) tx ).getTileRenderState();
 

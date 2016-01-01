@@ -6,9 +6,9 @@ import java.util.List;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderCache;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderChunk;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.property.IExtendedBlockState;
@@ -64,7 +64,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			{
 				for ( int z = 0; z < 16; ++z )
 				{
-					final TileEntity te = worldObj.getTileEntity( new BlockPos( cp_x + x, cp_y + y, cp_z + z ) );
+					final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( worldObj, new BlockPos( cp_x + x, cp_y + y, cp_z + z ), false );
 					if ( te instanceof TileEntityBlockChiseledTESR )
 					{
 						final TileRenderChunk trc = ( (TileEntityBlockChiseledTESR) te ).renderChunk;

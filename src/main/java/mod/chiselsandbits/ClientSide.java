@@ -124,7 +124,7 @@ public class ClientSide
 
 		final String modId = ChiselsAndBits.MODID;
 
-		final ModItems modItems = mod.getItems();
+		final ModItems modItems = ChiselsAndBits.getItems();
 
 		registerMesh( mesher, modItems.itemChiselStone, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_stone" ), "inventory" ) );
 		registerMesh( mesher, modItems.itemChiselIron, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_iron" ), "inventory" ) );
@@ -195,7 +195,7 @@ public class ClientSide
 
 		for (
 
-		final BlockChiseled blk : mod.getBlocks().getConversions().values() )
+		final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
 
 		{
 			final Item item = Item.getItemFromBlock( blk );

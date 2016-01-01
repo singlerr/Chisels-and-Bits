@@ -19,6 +19,7 @@ import com.google.common.base.Stopwatch;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.Log;
 import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.render.chiseledblock.ChisledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
@@ -47,6 +48,12 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 {
 	public final static AtomicInteger activeTess = new AtomicInteger( 0 );
 	private final static ThreadPoolExecutor pool;
+	private static ChisledBlockRenderChunkTESR instance;
+
+	public static ChisledBlockRenderChunkTESR getInstance()
+	{
+		return instance;
+	}
 
 	private static class UploadTracker
 	{
@@ -167,6 +174,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 	public ChisledBlockRenderChunkTESR()
 	{
+		instance = this;
 		ChiselsAndBits.registerWithBus( this );
 	}
 
@@ -188,6 +196,53 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		pool.allowCoreThreadTimeOut( false );
 	}
 
+	public void renderBreakingEffects(
+			final TileEntityBlockChiseled te,
+			final double x,
+			final double y,
+			final double z,
+			final float partialTicks,
+			final int destroyStage )
+	{
+		bindTexture( TextureMap.locationBlocksTexture );
+		final String file = DESTROY_STAGES[destroyStage].toString().replace( "textures/", "" ).replace( ".png", "" );
+		final TextureAtlasSprite damageTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( file );
+
+		GlStateManager.pushMatrix();
+		GlStateManager.depthFunc( GL11.GL_LEQUAL );
+		final BlockPos cp = te.getPos();
+		GlStateManager.translate( x - cp.getX(), y - cp.getY(), z - cp.getZ() );
+
+		final Tessellator tessellator = Tessellator.getInstance();
+		final WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+
+		worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
+		worldrenderer.setTranslation( 0, 0, 0 );
+
+		final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
+		final EnumSet<EnumWorldBlockLayer> layers = EnumSet.allOf( EnumWorldBlockLayer.class );
+
+		final IExtendedBlockState estate = te.getRenderState();
+
+		for ( final EnumWorldBlockLayer lx : layers )
+		{
+			final ChisledBlockBaked model = ChisledBlockSmartModel.getCachedModel( te, lx );
+
+			if ( !model.isEmpty() )
+			{
+				final IBakedModel damageModel = new SimpleBakedModel.Builder( model, damageTexture ).makeBakedModel();
+				blockRenderer.getBlockModelRenderer().renderModel( te.getWorld(), damageModel, estate, te.getPos(), worldrenderer, false );
+			}
+		}
+
+		tessellator.draw();
+		worldrenderer.setTranslation( 0.0D, 0.0D, 0.0D );
+
+		GlStateManager.resetColor();
+		GlStateManager.popMatrix();
+		return;
+	}
+
 	@Override
 	public void renderTileEntityAt(
 			final TileEntityBlockChiseledTESR te,
@@ -203,50 +258,12 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 		if ( destroyStage >= 0 )
 		{
-			if ( layer == EnumWorldBlockLayer.TRANSLUCENT )
+			if ( layer == EnumWorldBlockLayer.SOLID )
 			{
 				return;
 			}
 
-			bindTexture( TextureMap.locationBlocksTexture );
-			final String file = DESTROY_STAGES[destroyStage].toString().replace( "textures/", "" ).replace( ".png", "" );
-			final TextureAtlasSprite damageTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( file );
-
-			GlStateManager.pushMatrix();
-			GlStateManager.depthFunc( GL11.GL_LEQUAL );
-			final BlockPos cp = te.getPos();
-			GlStateManager.translate( x - cp.getX(), y - cp.getY(), z - cp.getZ() );
-
-			final Tessellator tessellator = Tessellator.getInstance();
-			final WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-
-			worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
-			worldrenderer.setTranslation( 0, 0, 0 );
-
-			final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
-			final EnumSet<EnumWorldBlockLayer> layers = EnumSet.allOf( EnumWorldBlockLayer.class );
-
-			if ( te instanceof TileEntityBlockChiseledTESR )
-			{
-				final IExtendedBlockState estate = te.getTileRenderState();
-
-				for ( final EnumWorldBlockLayer lx : layers )
-				{
-					final ChisledBlockBaked model = ChisledBlockSmartModel.getCachedModel( te, lx );
-
-					if ( !model.isEmpty() )
-					{
-						final IBakedModel damageModel = new SimpleBakedModel.Builder( model, damageTexture ).makeBakedModel();
-						blockRenderer.getBlockModelRenderer().renderModel( te.getWorld(), damageModel, estate, te.getPos(), worldrenderer, false );
-					}
-				}
-			}
-
-			tessellator.draw();
-			worldrenderer.setTranslation( 0.0D, 0.0D, 0.0D );
-
-			GlStateManager.depthFunc( GL11.GL_LESS );
-			GlStateManager.popMatrix();
+			renderBreakingEffects( te, x, y, z, partialTicks, destroyStage );
 			return;
 		}
 

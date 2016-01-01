@@ -723,6 +723,8 @@ public class VoxelBlob
 			final EnumWorldBlockLayer layer )
 	{
 		final HashMap<Integer, Boolean> filterState = new HashMap<Integer, Boolean>();
+		filterState.put( 0, false );
+
 		boolean hasValues = false;
 
 		for ( int x = 0; x < array_size; x++ )

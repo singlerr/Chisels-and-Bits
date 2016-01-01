@@ -38,7 +38,6 @@ import net.minecraft.util.Vec3i;
 public class ChisledBlockBaked extends BaseBakedBlockModel
 {
 	public static final float PIXELS_PER_BLOCK = 16.0f;
-	private static final ChisledBlockBaked emptyPlaceHolder = new ChisledBlockBaked();
 	static boolean hasFaceMap = false;
 	static int[][] faceVertMap = new int[6][4];
 
@@ -64,6 +63,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	List<BakedQuad> generic;
 	EnumWorldBlockLayer myLayer;
 	VertexFormat format;
+	TextureAtlasSprite sprite;
 
 	private int sides = 0;
 
@@ -110,9 +110,20 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 		}
 	}
 
-	public static IBakedModel emptyModel()
+	public static ChisledBlockBaked breakingParticleModel(
+			final EnumWorldBlockLayer layer,
+			final Integer blockStateID )
 	{
-		return emptyPlaceHolder;
+		final ChisledBlockBaked out = new ChisledBlockBaked();
+
+		final IBakedModel model = ModelUtil.solveModel( blockStateID, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( Block.getStateById( blockStateID ) ) );
+		if ( model != null )
+		{
+			out.sprite = ModelUtil.findTexture( blockStateID, model, EnumFacing.UP, layer );
+			out.myLayer = layer;
+		}
+
+		return out;
 	}
 
 	public int getSides()
@@ -130,11 +141,6 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 		}
 
 		return trulyEmpty;
-	}
-
-	public ChisledBlockBaked getEmptyModel()
-	{
-		return emptyPlaceHolder;
 	}
 
 	private void initEmpty()
@@ -187,6 +193,8 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 				final IBlockState state = Block.getStateById( region.blockStateID );
 				final IBakedModel model = ModelUtil.solveModel( region.blockStateID, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
 				final TextureAtlasSprite texture = ModelUtil.findTexture( region.blockStateID, model, myFace, myLayer );
+
+				sprite = texture;
 
 				final int lightValue = Math.max( state.getBlock().getLightValue(), ModelUtil.findLightValue( region.blockStateID, model ) );
 
@@ -824,7 +832,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	@Override
 	public TextureAtlasSprite getParticleTexture()
 	{
-		return ClientSide.instance.getMissingIcon();
+		return sprite != null ? sprite : ClientSide.instance.getMissingIcon();
 	}
 
 	@Override

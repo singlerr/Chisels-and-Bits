@@ -4,16 +4,19 @@ import java.util.Collection;
 import java.util.Collections;
 
 import mcmultipart.multipart.IMultipart;
+import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.IPartConverter;
+import mcmultipart.multipart.IPartConverter.IReversePartConverter;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-public class ChisledBlockConverter implements IPartConverter
+public class ChisledBlockConverter implements IPartConverter, IReversePartConverter
 {
 
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -42,6 +45,40 @@ public class ChisledBlockConverter implements IPartConverter
 		}
 
 		return Collections.emptyList();
+	}
+
+	@Override
+	public boolean convertToBlock(
+			final IMultipartContainer container )
+	{
+		TileEntityBlockChiseled tile = null;
+
+		for ( final IMultipart part : container.getParts() )
+		{
+			if ( part instanceof ChisledBlockPart )
+			{
+				tile = ( (ChisledBlockPart) part ).getTile();
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		if ( tile != null )
+		{
+			tile.getWorld().setBlockState( tile.getPos(), tile.getPreferedBlock() );
+			final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( tile.getWorld(), tile.getPos(), true );
+
+			if ( te != null )
+			{
+				te.copyFrom( tile );
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 }

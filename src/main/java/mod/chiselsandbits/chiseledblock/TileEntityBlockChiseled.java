@@ -1,13 +1,13 @@
 package mod.chiselsandbits.chiseledblock;
 
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.chiseledblock.data.NullOcclusion;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.interfaces.IBlobOcclusion;
+import mod.chiselsandbits.integration.Integration;
+import mod.chiselsandbits.interfaces.IChiseledTileContainer;
 import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
@@ -31,7 +31,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TileEntityBlockChiseled extends TileEntity
+public class TileEntityBlockChiseled extends TileEntity implements IChiseledTileContainer
 {
 
 	public static final String block_prop = "b";
@@ -41,21 +41,40 @@ public class TileEntityBlockChiseled extends TileEntity
 	public static final String light_prop = "lv";
 
 	private IExtendedBlockState state;
-	public IBlobOcclusion occlusionState;
+	public IChiseledTileContainer occlusionState;
 
 	public TileEntityBlockChiseled()
 	{
 
 	}
 
-	public IBlobOcclusion getOcclusion()
+	public IChiseledTileContainer getTileContainer()
 	{
 		if ( occlusionState != null )
 		{
 			return occlusionState;
 		}
 
-		return new NullOcclusion();
+		return this;
+	}
+
+	@Override
+	public boolean isBlobOccluded(
+			final VoxelBlob blob )
+	{
+		return false;
+	}
+
+	@Override
+	public void saveData()
+	{
+		super.markDirty();
+	}
+
+	@Override
+	public void sendUpdate()
+	{
+		worldObj.markBlockForUpdate( pos );
 	}
 
 	public void copyFrom(
@@ -105,12 +124,20 @@ public class TileEntityBlockChiseled extends TileEntity
 					@Override
 					public void run()
 					{
-						if ( self.worldObj != null && self.pos != null && self.worldObj.getTileEntity( self.pos ) == self )
+						if ( self.worldObj != null && self.pos != null )
 						{
-							final TileEntityBlockChiseledTESR TESR = new TileEntityBlockChiseledTESR();
-							TESR.copyFrom( self );
-							self.worldObj.setTileEntity( self.pos, TESR );
-							self.worldObj.markBlockForUpdate( self.pos );
+							final TileEntity current = self.worldObj.getTileEntity( self.pos );
+							if ( current == self )
+							{
+								final TileEntityBlockChiseledTESR TESR = new TileEntityBlockChiseledTESR();
+								TESR.copyFrom( self );
+								self.worldObj.setTileEntity( self.pos, TESR );
+								self.worldObj.markBlockForUpdate( self.pos );
+							}
+							else
+							{
+								Integration.mcmp.convertTo( current, new TileEntityBlockChiseledTESR() );
+							}
 						}
 					}
 
@@ -123,12 +150,20 @@ public class TileEntityBlockChiseled extends TileEntity
 					@Override
 					public void run()
 					{
-						if ( self.worldObj != null && self.pos != null && self.worldObj.getTileEntity( self.pos ) == self )
+						if ( self.worldObj != null && self.pos != null )
 						{
-							final TileEntityBlockChiseled nonTesr = new TileEntityBlockChiseled();
-							nonTesr.copyFrom( self );
-							self.worldObj.setTileEntity( self.pos, nonTesr );
-							self.worldObj.markBlockForUpdate( self.pos );
+							final TileEntity current = self.worldObj.getTileEntity( self.pos );
+							if ( current == self )
+							{
+								final TileEntityBlockChiseled nonTesr = new TileEntityBlockChiseled();
+								nonTesr.copyFrom( self );
+								self.worldObj.setTileEntity( self.pos, nonTesr );
+								self.worldObj.markBlockForUpdate( self.pos );
+							}
+							else
+							{
+								Integration.mcmp.convertTo( current, new TileEntityBlockChiseled() );
+							}
 						}
 					}
 
@@ -346,7 +381,8 @@ public class TileEntityBlockChiseled extends TileEntity
 		}
 
 		setState( state );
-		markDirty();
+
+		getTileContainer().saveData();
 	}
 
 	private long getPositionRandom(
@@ -386,6 +422,11 @@ public class TileEntityBlockChiseled extends TileEntity
 		}
 
 		return vb;
+	}
+
+	public IBlockState getPreferedBlock()
+	{
+		return ChiselsAndBits.getBlocks().getConversion( getBlockState( Blocks.stone ).getBlock().getMaterial() ).getDefaultState();
 	}
 
 	public void setBlob(
@@ -444,8 +485,8 @@ public class TileEntityBlockChiseled extends TileEntity
 					.withProperty( BlockChiseled.opacity_prop, opacity )
 					.withProperty( BlockChiseled.block_prop, common.ref ) );
 
-			markDirty();
-			worldObj.markBlockForUpdate( pos );
+			getTileContainer().saveData();
+			getTileContainer().sendUpdate();
 
 			// since its possible for bits to occlude parts.. update every time.
 			final Block blk = worldObj.getBlockState( pos ).getBlock();
@@ -539,7 +580,7 @@ public class TileEntityBlockChiseled extends TileEntity
 			final VoxelBlob voxelBlob )
 	{
 		final VoxelBlob vb = getBlob();
-		final IBlobOcclusion occ = getOcclusion();
+		final IChiseledTileContainer occ = getTileContainer();
 
 		if ( vb.canMerge( voxelBlob ) && !occ.isBlobOccluded( voxelBlob ) )
 		{

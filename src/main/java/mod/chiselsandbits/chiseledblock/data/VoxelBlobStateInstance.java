@@ -77,7 +77,7 @@ public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance
 		}
 		catch ( final IOException e )
 		{
-			return null;
+			return new VoxelBlob();
 		}
 	}
 }

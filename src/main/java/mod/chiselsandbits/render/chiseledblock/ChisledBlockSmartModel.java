@@ -103,7 +103,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 
 			if ( out.isEmpty() )
 			{
-				out = out.getEmptyModel();
+				out = ChisledBlockBaked.breakingParticleModel( layer, blockP );
 			}
 
 			if ( format == ChisledBlockBaked.CNB )
@@ -145,7 +145,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 
 		if ( rTracker != null && rTracker.isDynamic() )
 		{
-			return ChisledBlockBaked.emptyModel();
+			return ChisledBlockBaked.breakingParticleModel( layer, blockP );
 		}
 
 		final ChisledBlockBaked baked = getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, ChisledBlockBaked.CNB );
@@ -200,11 +200,8 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 		final IFlexibleBakedModel[] models = new IFlexibleBakedModel[EnumWorldBlockLayer.values().length];
 		for ( final EnumWorldBlockLayer l : EnumWorldBlockLayer.values() )
 		{
-			net.minecraftforge.client.ForgeHooksClient.setRenderLayer( l );
 			models[l.ordinal()] = getCachedModel( blockP, new VoxelBlobStateReference( data, 0L ), null, l, DefaultVertexFormats.ITEM );
 		}
-
-		net.minecraftforge.client.ForgeHooksClient.setRenderLayer( EnumWorldBlockLayer.SOLID );
 
 		mdl = new ModelCombined( models );
 

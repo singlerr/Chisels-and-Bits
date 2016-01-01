@@ -6,18 +6,30 @@ import java.util.List;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IOccludingPart;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.interfaces.IBlobOcclusion;
+import mod.chiselsandbits.interfaces.IChiseledTileContainer;
 import net.minecraft.util.AxisAlignedBB;
 
-public class MultipartBlobOcclusion implements IBlobOcclusion
+public class MultipartContainerWrapper implements IChiseledTileContainer
 {
 
 	final ChisledBlockPart container;
 
-	public MultipartBlobOcclusion(
+	public MultipartContainerWrapper(
 			final ChisledBlockPart chisledBlockPart )
 	{
 		container = chisledBlockPart;
+	}
+
+	@Override
+	public void sendUpdate()
+	{
+		container.sendUpdatePacket( true );
+	}
+
+	@Override
+	public void saveData()
+	{
+		container.saveChanges();
 	}
 
 	@Override
