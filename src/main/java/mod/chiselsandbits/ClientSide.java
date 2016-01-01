@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Stopwatch;
@@ -18,6 +19,8 @@ import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.gui.ChiselsAndBitsMenu;
+import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
@@ -88,6 +91,7 @@ public class ClientSide
 	private final HashMap<ChiselMode, TextureAtlasSprite> chiselModeIcons = new HashMap<ChiselMode, TextureAtlasSprite>();
 	private KeyBinding rotateCCW;
 	private KeyBinding rotateCW;
+	private KeyBinding modeMenu;
 	private Stopwatch rotateTimer;
 
 	public void preinit(
@@ -107,6 +111,9 @@ public class ClientSide
 			ClientRegistry.registerKeyBinding( binding );
 			mode.binding = binding;
 		}
+
+		modeMenu = new KeyBinding( "mod.chiselsandbits.other.mode", 56, "itemGroup.chiselsandbits" );
+		ClientRegistry.registerKeyBinding( modeMenu );
 
 		rotateCCW = new KeyBinding( "mod.chiselsandbits.other.rotate.ccw", 0, "itemGroup.chiselsandbits" );
 		ClientRegistry.registerKeyBinding( rotateCCW );
@@ -228,10 +235,63 @@ public class ClientSide
 		}
 	}
 
+	public TextureAtlasSprite getIconForMode(
+			final ChiselMode mode )
+	{
+		return chiselModeIcons.get( mode );
+	}
+
 	@SubscribeEvent
 	public void onRenderGUI(
 			final RenderGameOverlayEvent.Post event )
 	{
+		if ( event.type == ElementType.ALL && isChiselModeEditable() )
+		{
+			final boolean wasVisible = ChiselsAndBitsMenu.instance.isVisible();
+
+			if ( modeMenu.isKeyDown() )
+			{
+				ChiselsAndBitsMenu.instance.raiseVisibility();
+			}
+			else
+			{
+				if ( ChiselsAndBitsMenu.instance.switchTo != null )
+				{
+					ChiselModeManager.changeChiselMode( ChiselModeManager.getChiselMode(), ChiselsAndBitsMenu.instance.switchTo );
+				}
+
+				ChiselsAndBitsMenu.instance.decreaseVisibility();
+			}
+
+			if ( ChiselsAndBitsMenu.instance.isVisible() )
+			{
+				ChiselsAndBitsMenu.instance.configure( event.resolution.getScaledWidth(), event.resolution.getScaledHeight() );
+
+				if ( wasVisible == false )
+				{
+					ChiselsAndBitsMenu.instance.mc.inGameHasFocus = false;
+					ChiselsAndBitsMenu.instance.mc.mouseHelper.ungrabMouseCursor();
+				}
+
+				if ( ChiselsAndBitsMenu.instance.mc.inGameHasFocus )
+				{
+					KeyBinding.unPressAllKeys();
+				}
+
+				final int k1 = Mouse.getX() * event.resolution.getScaledWidth() / ChiselsAndBitsMenu.instance.mc.displayWidth;
+				final int l1 = event.resolution.getScaledHeight() - Mouse.getY() * event.resolution.getScaledHeight() / ChiselsAndBitsMenu.instance.mc.displayHeight - 1;
+
+				net.minecraftforge.client.ForgeHooksClient.drawScreen( ChiselsAndBitsMenu.instance, k1, l1, event.partialTicks );
+			}
+			else
+			{
+				if ( wasVisible )
+				{
+					ChiselsAndBitsMenu.instance.mc.setIngameFocus();
+				}
+			}
+		}
+
 		if ( event.type == ElementType.HOTBAR && ChiselsAndBits.getConfig().enableToolbarIcons )
 		{
 			final Minecraft mc = Minecraft.getMinecraft();
@@ -257,6 +317,28 @@ public class ClientSide
 				}
 			}
 		}
+	}
+
+	private boolean isChiselModeEditable()
+	{
+		if ( ChiselsAndBits.getConfig().perChiselMode )
+		{
+			final ItemStack is = getPlayer().getCurrentEquippedItem();
+
+			if ( is != null && is.getItem() instanceof ItemChisel )
+			{
+				return true;
+			}
+
+			if ( is != null && is.getItem() instanceof ItemChiseledBit )
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+		return true;
 	}
 
 	@SubscribeEvent
@@ -314,7 +396,7 @@ public class ClientSide
 			final KeyBinding kb = (KeyBinding) mode.binding;
 			if ( kb.isKeyDown() )
 			{
-				ItemChisel.changeChiselMode( ItemChisel.getChiselMode(), mode );
+				ChiselModeManager.changeChiselMode( ChiselModeManager.getChiselMode(), mode );
 			}
 		}
 	}

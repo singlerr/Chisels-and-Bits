@@ -12,8 +12,11 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.interfaces.IChiselModeItem;
+import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -27,7 +30,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-public class ItemChiseledBit extends Item
+public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselModeItem
 {
 	public ItemChiseledBit()
 	{
@@ -43,6 +46,27 @@ public class ItemChiseledBit extends Item
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBit, tooltip );
+	}
+
+	@Override
+	// 1.8.8 only hook.
+	public String getHighlightTip(
+			final ItemStack item,
+			final String displayName )
+	{
+		if ( ChiselsAndBits.getConfig().itemNameModeDisplay )
+		{
+			if ( ChiselsAndBits.getConfig().perChiselMode )
+			{
+				return displayName + " - " + ChiselMode.getMode( item ).string.getLocal();
+			}
+			else
+			{
+				return displayName + " - " + ChiselModeManager.getChiselMode().string.getLocal();
+			}
+		}
+
+		return displayName;
 	}
 
 	@Override
@@ -260,5 +284,15 @@ public class ItemChiseledBit extends Item
 		final ItemStack out = new ItemStack( ChiselsAndBits.getItems().itemBlockBit, count );
 		out.setTagInfo( "id", new NBTTagInt( id ) );
 		return out;
+	}
+
+	@Override
+	public void scroll(
+			final EntityPlayer player,
+			final ItemStack stack,
+			final int dwheel )
+	{
+		final ChiselMode mode = ChiselModeManager.getChiselMode();
+		ChiselModeManager.scrollOption( mode, mode, dwheel );
 	}
 }

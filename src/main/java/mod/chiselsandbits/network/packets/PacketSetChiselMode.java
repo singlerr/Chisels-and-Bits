@@ -1,7 +1,7 @@
 package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.ChiselMode;
-import mod.chiselsandbits.items.ItemChisel;
+import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -20,7 +20,7 @@ public class PacketSetChiselMode extends ModPacket
 			final EntityPlayerMP player )
 	{
 		final ItemStack ei = player.getCurrentEquippedItem();
-		if ( ei != null && ei.getItem() instanceof ItemChisel )
+		if ( ei != null && ei.getItem() instanceof IChiselModeItem )
 		{
 			final ChiselMode originalMode = ChiselMode.getMode( ei );
 			mode.setMode( ei );

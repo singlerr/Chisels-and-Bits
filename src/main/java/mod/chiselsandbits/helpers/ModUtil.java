@@ -166,7 +166,7 @@ public class ModUtil
 
 		if ( inHand != null && inHand.getItem() instanceof ItemChisel )
 		{
-			return ItemChisel.getChiselMode();
+			return ChiselModeManager.getChiselMode();
 		}
 
 		return null;
