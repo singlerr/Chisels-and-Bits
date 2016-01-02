@@ -13,6 +13,7 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ChiselModeManager;
+import mod.chiselsandbits.helpers.ChiselModeSetting;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
@@ -62,7 +63,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			}
 			else
 			{
-				return displayName + " - " + ChiselModeManager.getChiselMode().string.getLocal();
+				return displayName + " - " + ChiselModeManager.getChiselMode( ChiselModeSetting.BIT ).string.getLocal();
 			}
 		}
 
@@ -79,7 +80,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		return ItemChisel.fromBreakToChisel( ChiselMode.SINGLE, itemstack, pos, player );
+		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( ChiselModeSetting.BIT ), itemstack, pos, player );
 	}
 
 	@Override
@@ -292,7 +293,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final ChiselMode mode = ChiselModeManager.getChiselMode();
-		ChiselModeManager.scrollOption( mode, mode, dwheel );
+		final ChiselMode mode = ChiselModeManager.getChiselMode( ChiselModeSetting.BIT );
+		ChiselModeManager.scrollOption( ChiselModeSetting.BIT, mode, mode, dwheel );
 	}
 }

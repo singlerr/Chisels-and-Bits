@@ -15,8 +15,8 @@ public enum ChiselMode
 	PLANE( LocalStrings.ChiselModePlane ),
 	CONNECTED_PLANE( LocalStrings.ChiselModeConnectedPlane ),
 	CUBE_SMALL( LocalStrings.ChiselModeCubeSmall ),
+	CUBE_MEDIUM( LocalStrings.ChiselModeCubeMedium ),
 	CUBE_LARGE( LocalStrings.ChiselModeCubeLarge ),
-	CUBE_HUGE( LocalStrings.ChiselModeCubeHuge ),
 	DRAWN_REGION( LocalStrings.ChiselModeDrawnRegion );
 
 	public final LocalStrings string;

@@ -108,7 +108,12 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		double radians = Math.atan2( vecY, vecX );
 		final double length = Math.sqrt( vecX * vecX + vecY * vecY );
 
-		if ( radians < 0 )
+		final double m1 = 20;
+		final double m2 = 50;
+		final double m3 = 65;
+		final double quarterCircle = Math.PI / 2.0;
+
+		if ( radians < -quarterCircle )
 		{
 			radians = radians + Math.PI * 2;
 		}
@@ -116,7 +121,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		final ArrayList<MenuRegion> modes = new ArrayList<MenuRegion>();
 
 		final EnumSet<ChiselMode> used = EnumSet.noneOf( ChiselMode.class );
-		final ChiselMode[] orderedModes = { ChiselMode.DRAWN_REGION, ChiselMode.CONNECTED_PLANE, ChiselMode.PLANE, ChiselMode.LINE, ChiselMode.SINGLE };
+		final ChiselMode[] orderedModes = { ChiselMode.SINGLE, ChiselMode.LINE, ChiselMode.PLANE, ChiselMode.CONNECTED_PLANE, ChiselMode.DRAWN_REGION };
 
 		for ( final ChiselMode mode : orderedModes )
 		{
@@ -135,10 +140,6 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			}
 		}
 
-		final double m1 = 20;
-		final double m2 = 50;
-		final double m3 = 65;
-
 		final double middle_x = width / 2;
 		final double middle_y = height / 2;
 		switchTo = null;
@@ -147,22 +148,29 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		{
 			final int totalModes = modes.size();
 			int currentMode = 0;
-			final double fragment = Math.PI * 0.01;
-			double perObject = 2.0 * Math.PI / totalModes;
-			perObject -= fragment;
+			final double fragment = Math.PI * 0.005;
+			final double fragment2 = Math.PI * 0.0025;
+			final double perObject = 2.0 * Math.PI / totalModes;
 
-			int fragmentOffset = 0;
 			for ( final MenuRegion mr : modes )
 			{
-				fragmentOffset++;
-				final double begin_rad = currentMode * perObject + fragment * fragmentOffset;
-				final double end_rad = ( currentMode + 1 ) * perObject + fragment * fragmentOffset;
+				final double begin_rad = currentMode * perObject - quarterCircle;
+				final double end_rad = ( currentMode + 1 ) * perObject - quarterCircle;
 
-				final double x1 = mr.x1 = Math.cos( begin_rad );
-				final double x2 = mr.x2 = Math.cos( end_rad );
+				mr.x1 = Math.cos( begin_rad );
+				mr.x2 = Math.cos( end_rad );
+				mr.y1 = Math.sin( begin_rad );
+				mr.y2 = Math.sin( end_rad );
 
-				final double y1 = mr.y1 = Math.sin( begin_rad );
-				final double y2 = mr.y2 = Math.sin( end_rad );
+				final double x1m1 = Math.cos( begin_rad + fragment ) * m1;
+				final double x2m1 = Math.cos( end_rad - fragment ) * m1;
+				final double y1m1 = Math.sin( begin_rad + fragment ) * m1;
+				final double y2m1 = Math.sin( end_rad - fragment ) * m1;
+
+				final double x1m2 = Math.cos( begin_rad + fragment2 ) * m2;
+				final double x2m2 = Math.cos( end_rad - fragment2 ) * m2;
+				final double y1m2 = Math.sin( begin_rad + fragment2 ) * m2;
+				final double y2m2 = Math.sin( end_rad - fragment2 ) * m2;
 
 				final float a = 0.5f;
 				float f = 0f;
@@ -174,13 +182,13 @@ public class ChiselsAndBitsMenu extends GuiScreen
 					switchTo = mr.mode;
 				}
 
-				worldrenderer.pos( middle_x + x1 * m1, middle_y + y1 * m1,
+				worldrenderer.pos( middle_x + x1m1, middle_y + y1m1,
 						zLevel ).color( f, f, f, a ).endVertex();
-				worldrenderer.pos( middle_x + x2 * m1, middle_y + y2 * m1,
+				worldrenderer.pos( middle_x + x2m1, middle_y + y2m1,
 						zLevel ).color( f, f, f, a ).endVertex();
-				worldrenderer.pos( middle_x + x2 * m2, middle_y + y2 * m2,
+				worldrenderer.pos( middle_x + x2m2, middle_y + y2m2,
 						zLevel ).color( f, f, f, a ).endVertex();
-				worldrenderer.pos( middle_x + x1 * m2, middle_y + y1 * m2,
+				worldrenderer.pos( middle_x + x1m2, middle_y + y1m2,
 						zLevel ).color( f, f, f, a ).endVertex();
 
 				currentMode++;
@@ -201,23 +209,32 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR );
 		for ( final MenuRegion mr : modes )
 		{
-			final double x = ( mr.x1 + mr.x2 ) * 0.5 * ( m2 + m1 ) * 0.5;
-			final double y = ( mr.y1 + mr.y2 ) * 0.5 * ( m2 + m1 ) * 0.5;
+			final double x = ( mr.x1 + mr.x2 ) * 0.5 * ( m2 * 0.6 + 0.4 * m1 );
+			final double y = ( mr.y1 + mr.y2 ) * 0.5 * ( m2 * 0.6 + 0.4 * m1 );
 
-			final double x1 = x - 8;
-			final double x2 = x + 8;
-			final double y1 = y - 8;
-			final double y2 = y + 8;
+			final SpriteIconPositioning sip = ClientSide.instance.getIconForMode( mr.mode );
 
-			final TextureAtlasSprite sprite = ClientSide.instance.getIconForMode( mr.mode );
+			final double scalex = 15 * sip.width * 0.5;
+			final double scaley = 15 * sip.height * 0.5;
+			final double x1 = x - scalex;
+			final double x2 = x + scalex;
+			final double y1 = y - scaley;
+			final double y2 = y + scaley;
+
+			final TextureAtlasSprite sprite = sip.sprite;
 
 			final float f = 1.0f;
 			final float a = 1.0f;
 
-			worldrenderer.pos( middle_x + x1, middle_y + y1, zLevel ).tex( sprite.getMinU(), sprite.getMinV() ).color( f, f, f, a ).endVertex();
-			worldrenderer.pos( middle_x + x1, middle_y + y2, zLevel ).tex( sprite.getMinU(), sprite.getMaxV() ).color( f, f, f, a ).endVertex();
-			worldrenderer.pos( middle_x + x2, middle_y + y2, zLevel ).tex( sprite.getMaxU(), sprite.getMaxV() ).color( f, f, f, a ).endVertex();
-			worldrenderer.pos( middle_x + x2, middle_y + y1, zLevel ).tex( sprite.getMaxU(), sprite.getMinV() ).color( f, f, f, a ).endVertex();
+			final double u1 = sip.left * 16.0;
+			final double u2 = ( sip.left + sip.width ) * 16.0;
+			final double v1 = sip.top * 16.0;
+			final double v2 = ( sip.top + sip.height ) * 16.0;
+
+			worldrenderer.pos( middle_x + x1, middle_y + y1, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
+			worldrenderer.pos( middle_x + x1, middle_y + y2, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
+			worldrenderer.pos( middle_x + x2, middle_y + y2, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
+			worldrenderer.pos( middle_x + x2, middle_y + y1, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
 		}
 
 		tessellator.draw();

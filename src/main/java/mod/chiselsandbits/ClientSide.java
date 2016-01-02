@@ -1,5 +1,7 @@
 package mod.chiselsandbits;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -20,7 +22,9 @@ import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.gui.ChiselsAndBitsMenu;
+import mod.chiselsandbits.gui.SpriteIconPositioning;
 import mod.chiselsandbits.helpers.ChiselModeManager;
+import mod.chiselsandbits.helpers.ChiselModeSetting;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
@@ -49,7 +53,9 @@ import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -88,7 +94,7 @@ public class ClientSide
 	private static final Random RANDOM = new Random();
 	public static final ClientSide instance = new ClientSide();
 
-	private final HashMap<ChiselMode, TextureAtlasSprite> chiselModeIcons = new HashMap<ChiselMode, TextureAtlasSprite>();
+	private final HashMap<ChiselMode, SpriteIconPositioning> chiselModeIcons = new HashMap<ChiselMode, SpriteIconPositioning>();
 	private KeyBinding rotateCCW;
 	private KeyBinding rotateCW;
 	private KeyBinding modeMenu;
@@ -231,11 +237,61 @@ public class ClientSide
 	{
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
-			chiselModeIcons.put( mode, ev.map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() ) ) );
+			final SpriteIconPositioning sip = new SpriteIconPositioning();
+
+			final ResourceLocation sprite = new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() );
+			final ResourceLocation png = new ResourceLocation( "chiselsandbits", "textures/icons/" + mode.name().toLowerCase() + ".png" );
+
+			sip.sprite = ev.map.registerSprite( sprite );
+
+			try
+			{
+				final IResource iresource = Minecraft.getMinecraft().getResourceManager().getResource( png );
+				final BufferedImage bi = TextureUtil.readBufferedImage( iresource.getInputStream() );
+
+				int bottom = 0;
+				int right = 0;
+				sip.left = bi.getWidth();
+				sip.top = bi.getHeight();
+
+				for ( int x = 0; x < bi.getWidth(); x++ )
+				{
+					for ( int y = 0; y < bi.getHeight(); y++ )
+					{
+						final int color = bi.getRGB( x, y );
+						final int a = color >> 24 & 0xff;
+						if ( a > 0 )
+						{
+							sip.left = Math.min( sip.left, x );
+							right = Math.max( right, x );
+
+							sip.top = Math.min( sip.top, y );
+							bottom = Math.max( bottom, y );
+						}
+					}
+				}
+
+				sip.height = bottom - sip.top + 1;
+				sip.width = right - sip.left + 1;
+
+				sip.left /= bi.getWidth();
+				sip.width /= bi.getWidth();
+				sip.top /= bi.getHeight();
+				sip.height /= bi.getHeight();
+			}
+			catch ( final IOException e )
+			{
+				sip.height = 1;
+				sip.width = 1;
+				sip.left = 0;
+				sip.top = 0;
+			}
+
+			chiselModeIcons.put( mode, sip );
 		}
 	}
 
-	public TextureAtlasSprite getIconForMode(
+	public SpriteIconPositioning getIconForMode(
 			final ChiselMode mode )
 	{
 		return chiselModeIcons.get( mode );
@@ -245,7 +301,8 @@ public class ClientSide
 	public void onRenderGUI(
 			final RenderGameOverlayEvent.Post event )
 	{
-		if ( event.type == ElementType.ALL && isChiselModeEditable() )
+		final ChiselModeSetting setting = isChiselModeEditable();
+		if ( event.type == ElementType.ALL && setting != null )
 		{
 			final boolean wasVisible = ChiselsAndBitsMenu.instance.isVisible();
 
@@ -257,7 +314,8 @@ public class ClientSide
 			{
 				if ( ChiselsAndBitsMenu.instance.switchTo != null )
 				{
-					ChiselModeManager.changeChiselMode( ChiselModeManager.getChiselMode(), ChiselsAndBitsMenu.instance.switchTo );
+					ChiselModeManager.changeChiselMode( setting, ChiselModeManager.getChiselMode( setting ), ChiselsAndBitsMenu.instance.switchTo );
+					ChiselsAndBitsMenu.instance.switchTo = null;
 				}
 
 				ChiselsAndBitsMenu.instance.decreaseVisibility();
@@ -309,7 +367,7 @@ public class ClientSide
 
 					GlStateManager.color( 1, 1, 1, 1.0f );
 					Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.locationBlocksTexture );
-					final TextureAtlasSprite sprite = chiselModeIcons.get( mode );
+					final TextureAtlasSprite sprite = chiselModeIcons.get( mode ).sprite;
 
 					GlStateManager.enableBlend();
 					sc.drawTexturedModalRect( x + 1, y + 1, sprite, 8, 8 );
@@ -319,26 +377,21 @@ public class ClientSide
 		}
 	}
 
-	private boolean isChiselModeEditable()
+	private ChiselModeSetting isChiselModeEditable()
 	{
-		if ( ChiselsAndBits.getConfig().perChiselMode )
+		final ItemStack is = getPlayer().getCurrentEquippedItem();
+
+		if ( is != null && is.getItem() instanceof ItemChisel )
 		{
-			final ItemStack is = getPlayer().getCurrentEquippedItem();
-
-			if ( is != null && is.getItem() instanceof ItemChisel )
-			{
-				return true;
-			}
-
-			if ( is != null && is.getItem() instanceof ItemChiseledBit )
-			{
-				return true;
-			}
-
-			return false;
+			return ChiselModeSetting.CHISEL;
 		}
 
-		return true;
+		if ( is != null && is.getItem() instanceof ItemChiseledBit )
+		{
+			return ChiselModeSetting.BIT;
+		}
+
+		return null;
 	}
 
 	@SubscribeEvent
@@ -396,7 +449,8 @@ public class ClientSide
 			final KeyBinding kb = (KeyBinding) mode.binding;
 			if ( kb.isKeyDown() )
 			{
-				ChiselModeManager.changeChiselMode( ChiselModeManager.getChiselMode(), mode );
+				final ChiselModeSetting setting = isChiselModeEditable();
+				ChiselModeManager.changeChiselMode( setting, ChiselModeManager.getChiselMode( setting ), mode );
 			}
 		}
 	}

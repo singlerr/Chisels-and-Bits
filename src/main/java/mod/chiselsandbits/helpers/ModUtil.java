@@ -161,12 +161,12 @@ public class ModUtil
 
 		if ( inHand != null && inHand.getItem() instanceof ItemChiseledBit )
 		{
-			return ChiselMode.SINGLE;
+			return ChiselModeManager.getChiselMode( ChiselModeSetting.BIT );
 		}
 
 		if ( inHand != null && inHand.getItem() instanceof ItemChisel )
 		{
-			return ChiselModeManager.getChiselMode();
+			return ChiselModeManager.getChiselMode( ChiselModeSetting.CHISEL );
 		}
 
 		return null;

@@ -165,8 +165,8 @@ public class ModConfig extends Configuration
 	private void setDefaults()
 	{
 		enableChiselMode_ConnectedPlane = !ChiselMode.CONNECTED_PLANE.isDisabled;
-		enableChiselMode_HugeCube = !ChiselMode.CUBE_HUGE.isDisabled;
-		enableChiselMode_LargeCube = !ChiselMode.CUBE_LARGE.isDisabled;
+		enableChiselMode_HugeCube = !ChiselMode.CUBE_LARGE.isDisabled;
+		enableChiselMode_LargeCube = !ChiselMode.CUBE_MEDIUM.isDisabled;
 		enableChiselMode_SmallCube = !ChiselMode.CUBE_SMALL.isDisabled;
 		enableChiselMode_Line = !ChiselMode.LINE.isDisabled;
 		enableChiselMode_Plane = !ChiselMode.PLANE.isDisabled;
@@ -298,8 +298,8 @@ public class ModConfig extends Configuration
 	private void sync()
 	{
 		ChiselMode.CONNECTED_PLANE.isDisabled = !enableChiselMode_ConnectedPlane;
-		ChiselMode.CUBE_HUGE.isDisabled = !enableChiselMode_HugeCube;
-		ChiselMode.CUBE_LARGE.isDisabled = !enableChiselMode_LargeCube;
+		ChiselMode.CUBE_LARGE.isDisabled = !enableChiselMode_HugeCube;
+		ChiselMode.CUBE_MEDIUM.isDisabled = !enableChiselMode_LargeCube;
 		ChiselMode.CUBE_SMALL.isDisabled = !enableChiselMode_SmallCube;
 		ChiselMode.LINE.isDisabled = !enableChiselMode_Line;
 		ChiselMode.PLANE.isDisabled = !enableChiselMode_Plane;

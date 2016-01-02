@@ -13,15 +13,17 @@ import net.minecraft.util.ChatComponentTranslation;
 public class ChiselModeManager
 {
 	private static ChiselMode clientChiselMode = ChiselMode.SINGLE;
+	private static ChiselMode clientBitMode = ChiselMode.SINGLE;
 
 	public static void changeChiselMode(
+			final ChiselModeSetting setting,
 			final ChiselMode originalMode,
 			final ChiselMode newClientChiselMode )
 	{
 		final boolean chatNotification = ChiselsAndBits.getConfig().chatModeNotification;
 		final boolean itemNameModeDisplay = ChiselsAndBits.getConfig().itemNameModeDisplay;
 
-		if ( ChiselsAndBits.getConfig().perChiselMode )
+		if ( ChiselsAndBits.getConfig().perChiselMode && setting == ChiselModeSetting.CHISEL )
 		{
 			final PacketSetChiselMode packet = new PacketSetChiselMode();
 			packet.mode = newClientChiselMode;
@@ -36,11 +38,18 @@ public class ChiselModeManager
 		}
 		else
 		{
-			clientChiselMode = newClientChiselMode;
-
-			if ( originalMode != clientChiselMode && chatNotification )
+			if ( setting == ChiselModeSetting.CHISEL )
 			{
-				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new ChatComponentTranslation( clientChiselMode.string.toString() ) );
+				clientChiselMode = newClientChiselMode;
+			}
+			else
+			{
+				clientBitMode = newClientChiselMode;
+			}
+
+			if ( originalMode != newClientChiselMode && chatNotification )
+			{
+				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new ChatComponentTranslation( newClientChiselMode.string.toString() ) );
 			}
 
 			ReflectionWrapper.instance.clearHighlightedStack();
@@ -54,6 +63,7 @@ public class ChiselModeManager
 	}
 
 	public static void scrollOption(
+			final ChiselModeSetting setting,
 			final ChiselMode originalMode,
 			ChiselMode currentMode,
 			final int dwheel )
@@ -74,26 +84,32 @@ public class ChiselModeManager
 
 		if ( currentMode.isDisabled )
 		{
-			scrollOption( originalMode, currentMode, dwheel );
+			scrollOption( setting, originalMode, currentMode, dwheel );
 		}
 		else
 		{
-			changeChiselMode( originalMode, currentMode );
+			changeChiselMode( setting, originalMode, currentMode );
 		}
 	}
 
-	public static ChiselMode getChiselMode()
+	public static ChiselMode getChiselMode(
+			final ChiselModeSetting setting )
 	{
-		if ( ChiselsAndBits.getConfig().perChiselMode )
+		if ( setting == ChiselModeSetting.CHISEL )
 		{
-			final ItemStack ei = Minecraft.getMinecraft().thePlayer.getCurrentEquippedItem();
-			if ( ei != null && ei.getItem() instanceof IChiselModeItem )
+			if ( ChiselsAndBits.getConfig().perChiselMode )
 			{
-				return ChiselMode.getMode( ei );
+				final ItemStack ei = Minecraft.getMinecraft().thePlayer.getCurrentEquippedItem();
+				if ( ei != null && ei.getItem() instanceof IChiselModeItem )
+				{
+					return ChiselMode.getMode( ei );
+				}
 			}
+
+			return clientChiselMode;
 		}
 
-		return clientChiselMode;
+		return clientBitMode;
 	}
 
 }

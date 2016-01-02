@@ -17,6 +17,7 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ChiselInventory;
 import mod.chiselsandbits.helpers.ChiselModeManager;
+import mod.chiselsandbits.helpers.ChiselModeSetting;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
@@ -86,7 +87,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode(), itemstack, pos, player );
+		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( ChiselModeSetting.CHISEL ), itemstack, pos, player );
 	}
 
 	static public boolean fromBreakToChisel(
@@ -151,7 +152,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			}
 			else
 			{
-				return displayName + " - " + ChiselModeManager.getChiselMode().string.getLocal();
+				return displayName + " - " + ChiselModeManager.getChiselMode( ChiselModeSetting.CHISEL ).string.getLocal();
 			}
 		}
 
@@ -166,8 +167,8 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	{
 		if ( worldIn.isRemote )
 		{
-			final ChiselMode mode = ChiselModeManager.getChiselMode();
-			ChiselModeManager.scrollOption( mode, mode, playerIn.isSneaking() ? -1 : 1 );
+			final ChiselMode mode = ChiselModeManager.getChiselMode( ChiselModeSetting.CHISEL );
+			ChiselModeManager.scrollOption( ChiselModeSetting.CHISEL, mode, mode, playerIn.isSneaking() ? -1 : 1 );
 		}
 
 		return super.onItemRightClick( itemStackIn, worldIn, playerIn );
@@ -465,8 +466,8 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final ChiselMode mode = ChiselModeManager.getChiselMode();
-		ChiselModeManager.scrollOption( mode, mode, dwheel );
+		final ChiselMode mode = ChiselModeManager.getChiselMode( ChiselModeSetting.CHISEL );
+		ChiselModeManager.scrollOption( ChiselModeSetting.CHISEL, mode, mode, dwheel );
 	}
 
 }

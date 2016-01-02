@@ -13,8 +13,8 @@ public enum LocalStrings
 	ChiselModePlane( "chiselmode.plane" ),
 	ChiselModeConnectedPlane( "chiselmode.connected_plane" ),
 	ChiselModeCubeSmall( "chiselmode.cube_small" ),
+	ChiselModeCubeMedium( "chiselmode.cube_medium" ),
 	ChiselModeCubeLarge( "chiselmode.cube_large" ),
-	ChiselModeCubeHuge( "chiselmode.cube_huge" ),
 	ChiselModeDrawnRegion( "chiselmode.drawn_region" ),
 
 	ShiftDetails( "help.shiftdetails" ),

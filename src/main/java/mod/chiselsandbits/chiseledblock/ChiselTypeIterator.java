@@ -240,7 +240,7 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 				parts = Math.min( full_size, x_range ) * Math.min( full_size, y_range ) * Math.min( full_size, z_range );
 				break;
 
-			case CUBE_LARGE:
+			case CUBE_MEDIUM:
 				x_range = 5;
 				y_range = 5;
 				z_range = 5;
@@ -248,7 +248,7 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 				parts = x_range * y_range * z_range;
 				break;
 
-			case CUBE_HUGE:
+			case CUBE_LARGE:
 				x_range = 7;
 				y_range = 7;
 				z_range = 7;
