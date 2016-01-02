@@ -8,9 +8,12 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.helpers.BitInventory;
 import mod.chiselsandbits.helpers.ChiselInventory;
+import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChisel;
+import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -32,14 +35,17 @@ public class PacketChisel extends ModPacket
 	int x, y, z;
 	int from_x, from_y, from_z;
 
+	boolean place;
 	EnumFacing side;
 	ChiselMode mode;
 
+	@Deprecated // never call this...
 	public PacketChisel()
 	{
 	}
 
 	public PacketChisel(
+			final boolean place,
 			final BlockPos pos,
 			final int x,
 			final int y,
@@ -50,6 +56,7 @@ public class PacketChisel extends ModPacket
 			final EnumFacing side,
 			final ChiselMode mode )
 	{
+		this.place = place;
 		this.pos = pos;
 		this.x = x;
 		this.y = y;
@@ -62,6 +69,7 @@ public class PacketChisel extends ModPacket
 	}
 
 	public PacketChisel(
+			final boolean place,
 			final BlockPos pos,
 			final int x,
 			final int y,
@@ -69,6 +77,7 @@ public class PacketChisel extends ModPacket
 			final EnumFacing side,
 			final ChiselMode mode )
 	{
+		this.place = place;
 		this.pos = pos;
 		this.x = x;
 		this.y = y;
@@ -88,17 +97,19 @@ public class PacketChisel extends ModPacket
 			final EntityPlayer player )
 	{
 		final World world = player.worldObj;
-		final ChiselInventory chisel = new ChiselInventory( player, pos, side );
+
+		final int placeStateID = place ? ItemChisel.getStackState( player.getCurrentEquippedItem() ) : 0;
+		final IContinuousInventory chisel = place ? new BitInventory( player, placeStateID ) : new ChiselInventory( player, pos, side );
 
 		IBlockState blkstate = world.getBlockState( pos );
 		Block blkObj = blkstate.getBlock();
 
-		if ( !chisel.isValid() || blkObj == null || blkstate == null || !ItemChisel.canMine( chisel, blkstate, player, world, pos ) )
+		if ( !chisel.isValid() || blkObj == null || blkstate == null || !place && !ItemChisel.canMine( chisel, blkstate, player, world, pos ) )
 		{
 			return 0;
 		}
 
-		if ( BlockChiseled.replaceWithChisled( world, pos, blkstate ) )
+		if ( BlockChiseled.replaceWithChisled( world, pos, blkstate, placeStateID ) )
 		{
 			blkstate = world.getBlockState( pos );
 			blkObj = blkstate.getBlock();
@@ -112,6 +123,7 @@ public class PacketChisel extends ModPacket
 			// adjust voxel state...
 			final VoxelBlob vb = tec.getBlob();
 
+			boolean update = false;
 			ItemStack extracted = null;
 
 			final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
@@ -119,7 +131,14 @@ public class PacketChisel extends ModPacket
 			final ChiselTypeIterator i = getIterator( vb );
 			while ( i.hasNext() && chisel.isValid() )
 			{
-				extracted = ItemChisel.chiselBlock( chisel, player, vb, world, pos, i.side, i.x(), i.y(), i.z(), extracted, spawnlist );
+				if ( place )
+				{
+					update = ItemChiseledBit.placeBit( chisel, player, vb, i.x(), i.y(), i.z() ) || update;
+				}
+				else
+				{
+					extracted = ItemChisel.chiselBlock( chisel, player, vb, world, pos, i.side, i.x(), i.y(), i.z(), extracted, spawnlist );
+				}
 			}
 
 			for ( final EntityItem ei : spawnlist )
@@ -127,7 +146,12 @@ public class PacketChisel extends ModPacket
 				world.spawnEntityInWorld( ei );
 			}
 
-			if ( extracted != null )
+			if ( update )
+			{
+				tec.postChisel( vb );
+				return update ? 1 : 0;
+			}
+			else if ( extracted != null )
 			{
 				tec.postChisel( vb );
 				return ItemChisel.getStackState( extracted );
@@ -173,7 +197,15 @@ public class PacketChisel extends ModPacket
 		z = value & 0xF;
 		value = value >>> 4;
 
+		side = EnumFacing.values()[value & 0x7];
+		value = value >>> 3;
+
+		mode = ChiselMode.values()[value];
+
 		int value2 = buffer.readInt();
+
+		place = ( value2 & 0x1 ) != 0;
+		value2 = value2 >>> 1;
 
 		from_x = value2 & 0xF;
 		value2 = value2 >>> 4;
@@ -183,11 +215,6 @@ public class PacketChisel extends ModPacket
 
 		from_z = value2 & 0xF;
 		value2 = value2 >>> 4;
-
-		side = EnumFacing.values()[value & 0x7];
-		value = value >>> 3;
-
-		mode = ChiselMode.values()[value];
 	}
 
 	@Override
@@ -219,6 +246,10 @@ public class PacketChisel extends ModPacket
 		value2 = value2 << 4;
 
 		value2 = value2 | from_x;
+		value2 = value2 << 1;
+
+		value2 = value2 | ( place ? 1 : 0 );
+
 		buffer.writeInt( value2 );
 	}
 

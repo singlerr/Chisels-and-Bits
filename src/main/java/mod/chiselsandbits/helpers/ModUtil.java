@@ -2,7 +2,6 @@ package mod.chiselsandbits.helpers;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
@@ -152,24 +151,6 @@ public class ModUtil
 		}
 
 		return new ItemStackSlot( null, -1, null, who );
-	}
-
-	public static ChiselMode isHoldingChiselTool(
-			final EntityPlayer player )
-	{
-		final ItemStack inHand = player.getCurrentEquippedItem();
-
-		if ( inHand != null && inHand.getItem() instanceof ItemChiseledBit )
-		{
-			return ChiselModeManager.getChiselMode( ChiselModeSetting.BIT );
-		}
-
-		if ( inHand != null && inHand.getItem() instanceof ItemChisel )
-		{
-			return ChiselModeManager.getChiselMode( ChiselModeSetting.CHISEL );
-		}
-
-		return null;
 	}
 
 	public static boolean isHoldingPattern(

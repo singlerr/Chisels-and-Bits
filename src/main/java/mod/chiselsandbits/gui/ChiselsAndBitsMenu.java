@@ -16,7 +16,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
 public class ChiselsAndBitsMenu extends GuiScreen
@@ -204,7 +203,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		GlStateManager.color( 1, 1, 1, 1.0f );
 		GlStateManager.disableBlend();
 		GlStateManager.enableAlpha();
-		Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.locationBlocksTexture );
+		GlStateManager.bindTexture( Minecraft.getMinecraft().getTextureMapBlocks().getGlTextureId() );
 
 		worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR );
 		for ( final MenuRegion mr : modes )

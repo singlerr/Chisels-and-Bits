@@ -108,8 +108,12 @@ public class ChiselModeManager
 
 			return clientChiselMode;
 		}
+		else if ( setting == ChiselModeSetting.BIT )
+		{
+			return clientBitMode;
+		}
 
-		return clientBitMode;
+		return ChiselMode.SINGLE;
 	}
 
 }

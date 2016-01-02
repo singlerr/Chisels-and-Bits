@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
+
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.items.ItemChisel;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,10 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-
-public class ChiselInventory
+public class ChiselInventory implements IContinuousInventory
 {
 
 	private final EntityPlayer who;
@@ -70,6 +70,7 @@ public class ChiselInventory
 		}
 	}
 
+	@Override
 	public ItemStackSlot getTool(
 			final int BlockID )
 	{
@@ -99,6 +100,7 @@ public class ChiselInventory
 		return getTool( BlockID );
 	}
 
+	@Override
 	public void fail(
 			final int BlockID )
 	{
@@ -110,11 +112,13 @@ public class ChiselInventory
 		}
 	}
 
+	@Override
 	public boolean isValid()
 	{
 		return !options.isEmpty() || who.capabilities.isCreativeMode;
 	}
 
+	@Override
 	public void damage(
 			final int blk )
 	{

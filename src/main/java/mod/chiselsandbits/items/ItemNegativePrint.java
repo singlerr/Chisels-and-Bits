@@ -11,6 +11,7 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
 import mod.chiselsandbits.helpers.ChiselInventory;
+import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
@@ -258,7 +259,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final EntityPlayer player )
 	{
 		// snag a tool...
-		final ChiselInventory selected = new ChiselInventory( player, pos, side );
+		final IContinuousInventory selected = new ChiselInventory( player, pos, side );
 		ItemStack spawnedItem = null;
 
 		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();

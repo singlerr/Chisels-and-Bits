@@ -19,6 +19,8 @@ import mod.chiselsandbits.chiseledblock.properties.UnlistedLightOpacity;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedLightValue;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedVoxelBlob;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedVoxelNeighborState;
+import mod.chiselsandbits.helpers.ChiselModeManager;
+import mod.chiselsandbits.helpers.ChiselModeSetting;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -323,8 +325,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final BlockPos pos,
 			final TileEntityBlockChiseled te )
 	{
-		final EntityPlayer player = ClientSide.instance.getPlayer();
-		if ( player != null && ModUtil.isHoldingChiselTool( player ) != null )
+		if ( ClientSide.instance.isChiselModeEditable() != null )
 		{
 			final VoxelBlob vb = te.getBlob();
 
@@ -341,7 +342,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			return ItemChiseledBit.createStack( itemBlock, 1, false );
 		}
 
-		return te.getItemStack( this, player );
+		return te.getItemStack( this, ClientSide.instance.getPlayer() );
 	}
 
 	@Override
@@ -586,8 +587,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final EntityPlayer playerIn = ClientSide.instance.getPlayer();
 			final ItemStack equiped = playerIn.getCurrentEquippedItem();
 
-			final ChiselMode chMode = ModUtil.isHoldingChiselTool( playerIn );
-			if ( equiped == null || null == chMode )
+			final ChiselModeSetting setting = ClientSide.instance.isChiselModeEditable();
+			final ChiselMode chMode = ChiselModeManager.getChiselMode( setting );
+			if ( setting == null || equiped == null || null == chMode )
 			{
 				final Block boundsToTest = setBounds( tec, pos, null, null );
 				final AxisAlignedBB r = boundsToTest.getSelectedBoundingBox( null, pos );
@@ -617,8 +619,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		final Vec3 b = PlayerRay.getRight();
 
 		MovingObjectPosition selectedR = null;
-		AxisAlignedBB br;
 		double lastDist = 0;
+		final ChiselModeSetting setting = ClientSide.instance.isChiselModeEditable();
 
 		final float One16thf = 1.0f / vb.detail;
 
@@ -675,7 +677,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 			if ( chMode == ChiselMode.DRAWN_REGION && drawStart != null )
 			{
-				if ( ClientSide.instance.sameDrawBlock( pos, x, y, z ) )
+				if ( ClientSide.instance.sameDrawBlock( setting, pos, x, y, z ) )
 				{
 					final int lowX = Math.max( 0, Math.min( x, drawStart.getX() ) );
 					final int lowY = Math.max( 0, Math.min( y, drawStart.getY() ) );
@@ -697,37 +699,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				ci = new ChiselTypeIterator( VoxelBlob.dim, x, y, z, vb, chMode, selectedR.sideHit );
 			}
 
-			boolean started = false;
-			while ( ci.hasNext() )
-			{
-				if ( vb.get( ci.x(), ci.y(), ci.z() ) != 0 )
-				{
-					if ( started )
-					{
-						minX = Math.min( minX, One16thf * ci.x() );
-						minY = Math.min( minY, One16thf * ci.y() );
-						minZ = Math.min( minZ, One16thf * ci.z() );
-						maxX = Math.max( maxX, One16thf * ( ci.x() + 1.0f ) );
-						maxY = Math.max( maxY, One16thf * ( ci.y() + 1.0f ) );
-						maxZ = Math.max( maxZ, One16thf * ( ci.z() + 1.0f ) );
-					}
-					else
-					{
-						started = true;
-						minX = One16thf * ci.x();
-						minY = One16thf * ci.y();
-						minZ = One16thf * ci.z();
-						maxX = One16thf * ( ci.x() + 1.0f );
-						maxY = One16thf * ( ci.y() + 1.0f );
-						maxZ = One16thf * ( ci.z() + 1.0f );
-					}
-				}
-			}
-
-			br = AxisAlignedBB.fromBounds( minX, minY, minZ, maxX, maxY, maxZ );
+			AxisAlignedBB br = ci.getBoundingBox( vb );
 			br = br.offset( pos.getX(), pos.getY(), pos.getZ() );
-
-			setBlockBounds( 0, 0, 0, 1, 1, 1 );
 
 			return br;
 		}

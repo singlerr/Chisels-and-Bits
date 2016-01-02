@@ -377,9 +377,16 @@ public class ClientSide
 		}
 	}
 
-	private ChiselModeSetting isChiselModeEditable()
+	public ChiselModeSetting isChiselModeEditable()
 	{
-		final ItemStack is = getPlayer().getCurrentEquippedItem();
+		final EntityPlayer player = getPlayer();
+
+		if ( player == null )
+		{
+			return null;
+		}
+
+		final ItemStack is = player.getCurrentEquippedItem();
 
 		if ( is != null && is.getItem() instanceof ItemChisel )
 		{
@@ -485,8 +492,10 @@ public class ClientSide
 		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
 		final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
 
-		final ChiselMode chMode = ModUtil.isHoldingChiselTool( event.player );
-		if ( chMode != null )
+		final ChiselModeSetting setting = isChiselModeEditable();
+		final ChiselMode chMode = ChiselModeManager.getChiselMode( setting );
+
+		if ( setting != null && chMode != null )
 		{
 			if ( mop.typeOfHit != MovingObjectType.BLOCK )
 			{
@@ -763,8 +772,10 @@ public class ClientSide
 			GlStateManager.translate( t.getX() * fullScale, t.getY() * fullScale, t.getZ() * fullScale );
 		}
 
+		GlStateManager.bindTexture( Minecraft.getMinecraft().getTextureMapBlocks().getGlTextureId() );
 		GlStateManager.color( 1.0f, 1.0f, 1.0f, 0.1f );
 		GlStateManager.enableBlend();
+		GlStateManager.enableTexture2D();
 		GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
 		GlStateManager.colorMask( false, false, false, false );
 
@@ -960,6 +971,7 @@ public class ClientSide
 	}
 
 	public boolean sameDrawBlock(
+			final ChiselModeSetting setting,
 			final BlockPos pos,
 			final int x,
 			final int y,
@@ -973,7 +985,7 @@ public class ClientSide
 		{
 			if ( drawBlock != null && drawBlock.equals( pos ) )
 			{
-				final PacketChisel pc = new PacketChisel( pos, drawStart.getX(), drawStart.getY(), drawStart.getZ(), x, y, z, EnumFacing.UP, ChiselMode.DRAWN_REGION );
+				final PacketChisel pc = new PacketChisel( Minecraft.getMinecraft().gameSettings.keyBindUseItem.isKeyDown(), pos, drawStart.getX(), drawStart.getY(), drawStart.getZ(), x, y, z, EnumFacing.UP, ChiselMode.DRAWN_REGION );
 				final int extractedState = pc.doAction( Minecraft.getMinecraft().thePlayer );
 
 				if ( extractedState != 0 )

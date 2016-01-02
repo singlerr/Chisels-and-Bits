@@ -12,6 +12,7 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ChiselInventory;
+import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
@@ -106,7 +107,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 			final EntityPlayer player )
 	{
 		// snag a tool...
-		final ChiselInventory selected = new ChiselInventory( player, pos, side );
+		final IContinuousInventory selected = new ChiselInventory( player, pos, side );
 		ItemStack spawnedItem = null;
 
 		final ArrayList<BagInventory> bags = new ArrayList<BagInventory>();
@@ -122,17 +123,17 @@ public class ItemPositivePrint extends ItemNegativePrint
 
 		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
 
-		for ( int y = 0; y < vb.detail && selected.isValid(); y++ )
+		for ( int y = 0; y < vb.detail; y++ )
 		{
-			for ( int z = 0; z < vb.detail && selected.isValid(); z++ )
+			for ( int z = 0; z < vb.detail; z++ )
 			{
-				for ( int x = 0; x < vb.detail && selected.isValid(); x++ )
+				for ( int x = 0; x < vb.detail; x++ )
 				{
 					int inPlace = vb.get( x, y, z );
 					final int inPattern = pattern.get( x, y, z );
 					if ( inPlace != inPattern )
 					{
-						if ( inPlace != 0 )
+						if ( inPlace != 0 && selected.isValid() )
 						{
 							spawnedItem = ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
 

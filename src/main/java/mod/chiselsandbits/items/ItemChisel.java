@@ -15,9 +15,9 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.helpers.ChiselInventory;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselModeSetting;
+import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
@@ -198,21 +198,21 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 
 	private final static float One32ndf = 0.5f / VoxelBlob.dim;
 
-	private static int getX(
+	public static int getX(
 			final float hitX,
 			final EnumFacing side )
 	{
 		return Math.min( 15, Math.max( 0, (int) ( VoxelBlob.dim * ( hitX - One32ndf * side.getFrontOffsetX() ) ) ) );
 	}
 
-	private static int getY(
+	public static int getY(
 			final float hitY,
 			final EnumFacing side )
 	{
 		return Math.min( 15, Math.max( 0, (int) ( VoxelBlob.dim * ( hitY - One32ndf * side.getFrontOffsetY() ) ) ) );
 	}
 
-	private static int getZ(
+	public static int getZ(
 			final float hitZ,
 			final EnumFacing side )
 	{
@@ -246,7 +246,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 		final int y = getY( hitY, side );
 		final int z = getZ( hitZ, side );
 
-		final PacketChisel pc = new PacketChisel( pos, x, y, z, side, mode );
+		final PacketChisel pc = new PacketChisel( false, pos, x, y, z, side, mode );
 
 		final int extractedState = pc.doAction( player );
 		if ( extractedState != 0 )
@@ -274,7 +274,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	 * @return
 	 */
 	static public ItemStack chiselBlock(
-			final ChiselInventory selected,
+			final IContinuousInventory selected,
 			final EntityPlayer player,
 			final VoxelBlob vb,
 			final World world,
@@ -351,7 +351,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	private static boolean testingChisel = false;
 
 	public static boolean canMine(
-			final ChiselInventory chiselInv,
+			final IContinuousInventory chiselInv,
 			final IBlockState state,
 			final EntityPlayer player,
 			final World world,
