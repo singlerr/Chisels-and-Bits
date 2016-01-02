@@ -67,7 +67,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChisel, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChisel, tooltip, ClientSide.instance.getModeKey() );
 	}
 
 	private static Stopwatch timer;

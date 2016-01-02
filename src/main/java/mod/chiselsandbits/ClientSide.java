@@ -59,6 +59,7 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -1035,6 +1036,11 @@ public class ClientSide
 	public TextureAtlasSprite getMissingIcon()
 	{
 		return Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
+	}
+
+	public String getModeKey()
+	{
+		return GameSettings.getKeyDisplayString( modeMenu.getKeyCode() );
 	}
 
 }

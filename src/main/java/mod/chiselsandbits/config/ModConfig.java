@@ -350,13 +350,21 @@ public class ModConfig extends Configuration
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	public void helpText(
 			final LocalStrings string,
-			final List tooltip )
+			final List tooltip,
+			final String... variables )
 	{
 		if ( showUsage )
 		{
+			int varOffset = 0;
+
 			final String[] lines = string.getLocal().split( ";" );
-			for ( final String a : lines )
+			for ( String a : lines )
 			{
+				while ( a.contains( "{}" ) && variables.length > varOffset )
+				{
+					a = a.replaceFirst( "\\{\\}", variables[varOffset++] );
+				}
+
 				tooltip.add( a );
 			}
 		}

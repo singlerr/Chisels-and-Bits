@@ -50,7 +50,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBit, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBit, tooltip, ClientSide.instance.getModeKey() );
 	}
 
 	@Override
