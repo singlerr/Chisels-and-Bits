@@ -34,8 +34,8 @@ mod.chiselsandbits.chiselmode.line=Line
 mod.chiselsandbits.chiselmode.plane=Plane
 mod.chiselsandbits.chiselmode.connected_plane=Connected Plane
 mod.chiselsandbits.chiselmode.cube_small=Small Cube
+mod.chiselsandbits.chiselmode.cube_medium=Medium Cube
 mod.chiselsandbits.chiselmode.cube_large=Large Cube
-mod.chiselsandbits.chiselmode.cube_huge=Huge Cube
 mod.chiselsandbits.chiselmode.drawn_region=Drawn Region
 
 mod.chiselsandbits.other.rotate.ccw=Rotate Held Counter Clockwise
