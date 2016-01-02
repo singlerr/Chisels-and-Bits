@@ -14,7 +14,7 @@ import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ChiselModeManager;
-import mod.chiselsandbits.helpers.ChiselModeSetting;
+import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -61,7 +61,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	{
 		if ( ChiselsAndBits.getConfig().itemNameModeDisplay )
 		{
-			return displayName + " - " + ChiselModeManager.getChiselMode( ChiselModeSetting.BIT ).string.getLocal();
+			return displayName + " - " + ChiselModeManager.getChiselMode( ChiselToolType.BIT ).string.getLocal();
 		}
 
 		return displayName;
@@ -77,7 +77,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( ChiselModeSetting.BIT ), itemstack, pos, player );
+		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( ChiselToolType.BIT ), itemstack, pos, player );
 	}
 
 	@Override
@@ -135,7 +135,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 		IBlockState blkstate = world.getBlockState( pos );
 
-		final ChiselMode mode = ChiselModeManager.getChiselMode( ClientSide.instance.isChiselModeEditable() );
+		final ChiselMode mode = ChiselModeManager.getChiselMode( ClientSide.instance.getHeldToolType() );
 
 		TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, pos, true );
 		ChiselTypeIterator connectedPlaneIterator = null;
@@ -331,8 +331,8 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final ChiselMode mode = ChiselModeManager.getChiselMode( ChiselModeSetting.BIT );
-		ChiselModeManager.scrollOption( ChiselModeSetting.BIT, mode, mode, dwheel );
+		final ChiselMode mode = ChiselModeManager.getChiselMode( ChiselToolType.BIT );
+		ChiselModeManager.scrollOption( ChiselToolType.BIT, mode, mode, dwheel );
 	}
 
 	public static boolean placeBit(
@@ -345,14 +345,14 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	{
 		if ( vb.get( x, y, z ) == 0 )
 		{
-			final ItemStackSlot slot = bits.getTool( 0 );
+			final ItemStackSlot slot = bits.getItem( 0 );
 			final int stateID = ItemChisel.getStackState( slot.getStack() );
 
 			vb.set( x, y, z, stateID );
 
 			if ( !player.capabilities.isCreativeMode )
 			{
-				bits.damage( stateID );
+				bits.useItem( stateID );
 			}
 
 			return true;

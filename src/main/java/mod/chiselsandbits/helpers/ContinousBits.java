@@ -12,14 +12,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
-public class BitInventory implements IContinuousInventory
+public class ContinousBits implements IContinuousInventory
 {
 	final int stateID;
 	private final EntityPlayer who;
 	private final List<ItemStackSlot> options = new ArrayList<ItemStackSlot>();
 	private final List<BagInventory> bags = new ArrayList<BagInventory>();
 
-	public BitInventory(
+	public ContinousBits(
 			final EntityPlayer src,
 			final int stateID )
 	{
@@ -60,14 +60,14 @@ public class BitInventory implements IContinuousInventory
 	}
 
 	@Override
-	public ItemStackSlot getTool(
+	public ItemStackSlot getItem(
 			final int BlockID )
 	{
 		return options.get( 0 );
 	}
 
 	@Override
-	public void damage(
+	public void useItem(
 			final int blk )
 	{
 		final ItemStackSlot slot = options.get( 0 );

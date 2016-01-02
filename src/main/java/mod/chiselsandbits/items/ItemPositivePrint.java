@@ -11,7 +11,7 @@ import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.helpers.ChiselInventory;
+import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -107,7 +107,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 			final EntityPlayer player )
 	{
 		// snag a tool...
-		final IContinuousInventory selected = new ChiselInventory( player, pos, side );
+		final IContinuousInventory selected = new ContinousChisels( player, pos, side );
 		ItemStack spawnedItem = null;
 
 		final ArrayList<BagInventory> bags = new ArrayList<BagInventory>();

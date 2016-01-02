@@ -16,7 +16,7 @@ import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ChiselModeManager;
-import mod.chiselsandbits.helpers.ChiselModeSetting;
+import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -87,7 +87,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( ChiselModeSetting.CHISEL ), itemstack, pos, player );
+		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( ChiselToolType.CHISEL ), itemstack, pos, player );
 	}
 
 	static public boolean fromBreakToChisel(
@@ -152,7 +152,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			}
 			else
 			{
-				return displayName + " - " + ChiselModeManager.getChiselMode( ChiselModeSetting.CHISEL ).string.getLocal();
+				return displayName + " - " + ChiselModeManager.getChiselMode( ChiselToolType.CHISEL ).string.getLocal();
 			}
 		}
 
@@ -167,8 +167,8 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	{
 		if ( worldIn.isRemote )
 		{
-			final ChiselMode mode = ChiselModeManager.getChiselMode( ChiselModeSetting.CHISEL );
-			ChiselModeManager.scrollOption( ChiselModeSetting.CHISEL, mode, mode, playerIn.isSneaking() ? -1 : 1 );
+			final ChiselMode mode = ChiselModeManager.getChiselMode( ChiselToolType.CHISEL );
+			ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, playerIn.isSneaking() ? -1 : 1 );
 		}
 
 		return super.onItemRightClick( itemStackIn, worldIn, playerIn );
@@ -299,7 +299,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			return output;
 		}
 
-		selected.damage( blk );
+		selected.useItem( blk );
 
 		final boolean spawnBit = ChiselsAndBits.getItems().itemBlockBit != null;
 		if ( !world.isRemote && !isCreative )
@@ -358,7 +358,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final BlockPos pos )
 	{
 		final int targetState = Block.getStateId( state );
-		ItemStackSlot chiselSlot = chiselInv.getTool( targetState );
+		ItemStackSlot chiselSlot = chiselInv.getItem( targetState );
 		ItemStack chisel = chiselSlot.getStack();
 
 		if ( player.capabilities.isCreativeMode )
@@ -398,7 +398,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 
 				chiselInv.fail( targetState );
 
-				chiselSlot = chiselInv.getTool( targetState );
+				chiselSlot = chiselInv.getItem( targetState );
 				chisel = chiselSlot.getStack();
 			}
 			while ( chisel != null );
@@ -466,8 +466,8 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final ChiselMode mode = ChiselModeManager.getChiselMode( ChiselModeSetting.CHISEL );
-		ChiselModeManager.scrollOption( ChiselModeSetting.CHISEL, mode, mode, dwheel );
+		final ChiselMode mode = ChiselModeManager.getChiselMode( ChiselToolType.CHISEL );
+		ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, dwheel );
 	}
 
 }

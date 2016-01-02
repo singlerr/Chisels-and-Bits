@@ -8,8 +8,8 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.helpers.BitInventory;
-import mod.chiselsandbits.helpers.ChiselInventory;
+import mod.chiselsandbits.helpers.ContinousBits;
+import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChisel;
@@ -99,7 +99,7 @@ public class PacketChisel extends ModPacket
 		final World world = player.worldObj;
 
 		final int placeStateID = place ? ItemChisel.getStackState( player.getCurrentEquippedItem() ) : 0;
-		final IContinuousInventory chisel = place ? new BitInventory( player, placeStateID ) : new ChiselInventory( player, pos, side );
+		final IContinuousInventory chisel = place ? new ContinousBits( player, placeStateID ) : new ContinousChisels( player, pos, side );
 
 		IBlockState blkstate = world.getBlockState( pos );
 		Block blkObj = blkstate.getBlock();

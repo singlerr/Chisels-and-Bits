@@ -20,7 +20,7 @@ import mod.chiselsandbits.chiseledblock.properties.UnlistedLightValue;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedVoxelBlob;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedVoxelNeighborState;
 import mod.chiselsandbits.helpers.ChiselModeManager;
-import mod.chiselsandbits.helpers.ChiselModeSetting;
+import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -325,7 +325,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final BlockPos pos,
 			final TileEntityBlockChiseled te )
 	{
-		if ( ClientSide.instance.isChiselModeEditable() != null )
+		if ( ClientSide.instance.getHeldToolType() != null )
 		{
 			final VoxelBlob vb = te.getBlob();
 
@@ -587,9 +587,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final EntityPlayer playerIn = ClientSide.instance.getPlayer();
 			final ItemStack equiped = playerIn.getCurrentEquippedItem();
 
-			final ChiselModeSetting setting = ClientSide.instance.isChiselModeEditable();
-			final ChiselMode chMode = ChiselModeManager.getChiselMode( setting );
-			if ( setting == null || equiped == null || null == chMode )
+			final ChiselToolType tool = ClientSide.instance.getHeldToolType();
+			final ChiselMode chMode = ChiselModeManager.getChiselMode( tool );
+			if ( tool == null || equiped == null || null == chMode )
 			{
 				final Block boundsToTest = setBounds( tec, pos, null, null );
 				final AxisAlignedBB r = boundsToTest.getSelectedBoundingBox( null, pos );
@@ -620,7 +620,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		MovingObjectPosition selectedR = null;
 		double lastDist = 0;
-		final ChiselModeSetting setting = ClientSide.instance.isChiselModeEditable();
+		final ChiselToolType tool = ClientSide.instance.getHeldToolType();
 
 		final float One16thf = 1.0f / vb.detail;
 
@@ -677,7 +677,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 			if ( chMode == ChiselMode.DRAWN_REGION && drawStart != null )
 			{
-				if ( ClientSide.instance.sameDrawBlock( setting, pos, x, y, z ) )
+				if ( ClientSide.instance.sameDrawBlock( tool, pos, x, y, z ) )
 				{
 					final int lowX = Math.max( 0, Math.min( x, drawStart.getX() ) );
 					final int lowY = Math.max( 0, Math.min( y, drawStart.getY() ) );

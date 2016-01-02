@@ -24,7 +24,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.gui.ChiselsAndBitsMenu;
 import mod.chiselsandbits.gui.SpriteIconPositioning;
 import mod.chiselsandbits.helpers.ChiselModeManager;
-import mod.chiselsandbits.helpers.ChiselModeSetting;
+import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
@@ -301,8 +301,8 @@ public class ClientSide
 	public void onRenderGUI(
 			final RenderGameOverlayEvent.Post event )
 	{
-		final ChiselModeSetting setting = isChiselModeEditable();
-		if ( event.type == ElementType.ALL && setting != null )
+		final ChiselToolType tool = getHeldToolType();
+		if ( event.type == ElementType.ALL && tool != null )
 		{
 			final boolean wasVisible = ChiselsAndBitsMenu.instance.isVisible();
 
@@ -314,7 +314,7 @@ public class ClientSide
 			{
 				if ( ChiselsAndBitsMenu.instance.switchTo != null )
 				{
-					ChiselModeManager.changeChiselMode( setting, ChiselModeManager.getChiselMode( setting ), ChiselsAndBitsMenu.instance.switchTo );
+					ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( tool ), ChiselsAndBitsMenu.instance.switchTo );
 					ChiselsAndBitsMenu.instance.switchTo = null;
 				}
 
@@ -377,7 +377,7 @@ public class ClientSide
 		}
 	}
 
-	public ChiselModeSetting isChiselModeEditable()
+	public ChiselToolType getHeldToolType()
 	{
 		final EntityPlayer player = getPlayer();
 
@@ -390,12 +390,12 @@ public class ClientSide
 
 		if ( is != null && is.getItem() instanceof ItemChisel )
 		{
-			return ChiselModeSetting.CHISEL;
+			return ChiselToolType.CHISEL;
 		}
 
 		if ( is != null && is.getItem() instanceof ItemChiseledBit )
 		{
-			return ChiselModeSetting.BIT;
+			return ChiselToolType.BIT;
 		}
 
 		return null;
@@ -456,8 +456,8 @@ public class ClientSide
 			final KeyBinding kb = (KeyBinding) mode.binding;
 			if ( kb.isKeyDown() )
 			{
-				final ChiselModeSetting setting = isChiselModeEditable();
-				ChiselModeManager.changeChiselMode( setting, ChiselModeManager.getChiselMode( setting ), mode );
+				final ChiselToolType tool = getHeldToolType();
+				ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( tool ), mode );
 			}
 		}
 	}
@@ -492,10 +492,10 @@ public class ClientSide
 		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
 		final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
 
-		final ChiselModeSetting setting = isChiselModeEditable();
-		final ChiselMode chMode = ChiselModeManager.getChiselMode( setting );
+		final ChiselToolType tool = getHeldToolType();
+		final ChiselMode chMode = ChiselModeManager.getChiselMode( tool );
 
-		if ( setting != null && chMode != null )
+		if ( tool != null && chMode != null )
 		{
 			if ( mop.typeOfHit != MovingObjectType.BLOCK )
 			{
@@ -971,7 +971,7 @@ public class ClientSide
 	}
 
 	public boolean sameDrawBlock(
-			final ChiselModeSetting setting,
+			final ChiselToolType tool,
 			final BlockPos pos,
 			final int x,
 			final int y,

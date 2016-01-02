@@ -16,14 +16,14 @@ public class ChiselModeManager
 	private static ChiselMode clientBitMode = ChiselMode.SINGLE;
 
 	public static void changeChiselMode(
-			final ChiselModeSetting setting,
+			final ChiselToolType tool,
 			final ChiselMode originalMode,
 			final ChiselMode newClientChiselMode )
 	{
 		final boolean chatNotification = ChiselsAndBits.getConfig().chatModeNotification;
 		final boolean itemNameModeDisplay = ChiselsAndBits.getConfig().itemNameModeDisplay;
 
-		if ( ChiselsAndBits.getConfig().perChiselMode && setting == ChiselModeSetting.CHISEL )
+		if ( ChiselsAndBits.getConfig().perChiselMode && tool == ChiselToolType.CHISEL )
 		{
 			final PacketSetChiselMode packet = new PacketSetChiselMode();
 			packet.mode = newClientChiselMode;
@@ -38,7 +38,7 @@ public class ChiselModeManager
 		}
 		else
 		{
-			if ( setting == ChiselModeSetting.CHISEL )
+			if ( tool == ChiselToolType.CHISEL )
 			{
 				clientChiselMode = newClientChiselMode;
 			}
@@ -63,7 +63,7 @@ public class ChiselModeManager
 	}
 
 	public static void scrollOption(
-			final ChiselModeSetting setting,
+			final ChiselToolType tool,
 			final ChiselMode originalMode,
 			ChiselMode currentMode,
 			final int dwheel )
@@ -84,18 +84,18 @@ public class ChiselModeManager
 
 		if ( currentMode.isDisabled )
 		{
-			scrollOption( setting, originalMode, currentMode, dwheel );
+			scrollOption( tool, originalMode, currentMode, dwheel );
 		}
 		else
 		{
-			changeChiselMode( setting, originalMode, currentMode );
+			changeChiselMode( tool, originalMode, currentMode );
 		}
 	}
 
 	public static ChiselMode getChiselMode(
-			final ChiselModeSetting setting )
+			final ChiselToolType setting )
 	{
-		if ( setting == ChiselModeSetting.CHISEL )
+		if ( setting == ChiselToolType.CHISEL )
 		{
 			if ( ChiselsAndBits.getConfig().perChiselMode )
 			{
@@ -108,7 +108,7 @@ public class ChiselModeManager
 
 			return clientChiselMode;
 		}
-		else if ( setting == ChiselModeSetting.BIT )
+		else if ( setting == ChiselToolType.BIT )
 		{
 			return clientBitMode;
 		}

@@ -5,15 +5,15 @@ import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 public interface IContinuousInventory
 {
 
-	void damage(
-			int blk );
+	void useItem(
+			int blockId );
 
 	void fail(
-			int BlockID );
+			int blockId );
 
 	boolean isValid();
 
-	ItemStackSlot getTool(
-			int BlockID );
+	ItemStackSlot getItem(
+			int blockId );
 
 }

@@ -15,14 +15,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 
-public class ChiselInventory implements IContinuousInventory
+public class ContinousChisels implements IContinuousInventory
 {
 
 	private final EntityPlayer who;
 	private final List<ItemStackSlot> options = new ArrayList<ItemStackSlot>();
 	private final HashMap<Integer, List<ItemStackSlot>> actionCache = new HashMap<Integer, List<ItemStackSlot>>();
 
-	public ChiselInventory(
+	public ContinousChisels(
 			final EntityPlayer who,
 			final BlockPos pos,
 			final EnumFacing side )
@@ -71,7 +71,7 @@ public class ChiselInventory implements IContinuousInventory
 	}
 
 	@Override
-	public ItemStackSlot getTool(
+	public ItemStackSlot getItem(
 			final int BlockID )
 	{
 		if ( !actionCache.containsKey( BlockID ) )
@@ -97,7 +97,7 @@ public class ChiselInventory implements IContinuousInventory
 			fail( BlockID );
 		}
 
-		return getTool( BlockID );
+		return getItem( BlockID );
 	}
 
 	@Override
@@ -119,10 +119,10 @@ public class ChiselInventory implements IContinuousInventory
 	}
 
 	@Override
-	public void damage(
+	public void useItem(
 			final int blk )
 	{
-		getTool( blk ).damage( who );
+		getItem( blk ).damage( who );
 	}
 
 }

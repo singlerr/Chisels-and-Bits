@@ -1,6 +1,6 @@
 package mod.chiselsandbits.helpers;
 
-public enum ChiselModeSetting
+public enum ChiselToolType
 {
 	CHISEL, BIT
 }
