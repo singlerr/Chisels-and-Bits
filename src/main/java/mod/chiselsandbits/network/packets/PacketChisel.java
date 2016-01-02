@@ -109,6 +109,11 @@ public class PacketChisel extends ModPacket
 			return 0;
 		}
 
+		if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) && place )
+		{
+			world.setBlockToAir( pos );
+		}
+
 		if ( BlockChiseled.replaceWithChisled( world, pos, blkstate, placeStateID ) )
 		{
 			blkstate = world.getBlockState( pos );

@@ -169,7 +169,11 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		hitY += side.getFrontOffsetY() * HALF_16th;
 		hitZ += side.getFrontOffsetZ() * HALF_16th;
 
-		if ( tebc == null || hitX < -0.001 || hitY < -0.001 || hitZ < -0.001 || hitX > 1.001 || hitY > 1.001 || hitZ > 1.001 )
+		if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) )
+		{
+			world.setBlockToAir( pos );
+		}
+		else if ( tebc == null || hitX < -0.001 || hitY < -0.001 || hitZ < -0.001 || hitX > 1.001 || hitY > 1.001 || hitZ > 1.001 )
 		{
 			pos = pos.offset( side );
 			hitX -= side.getFrontOffsetX();
@@ -188,6 +192,11 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 			blkstate = world.getBlockState( pos );
 			tebc = ModUtil.getChiseledTileEntity( world, pos, true );
+		}
+
+		if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) )
+		{
+			world.setBlockToAir( pos );
 		}
 
 		if ( tebc == null && BlockChiseled.replaceWithChisled( world, pos, blkstate, ItemChisel.getStackState( stack ) ) )

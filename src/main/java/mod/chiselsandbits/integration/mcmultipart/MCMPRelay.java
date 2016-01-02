@@ -7,6 +7,8 @@ import mcmultipart.multipart.MultipartRegistry;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class MCMPRelay
 {
@@ -19,7 +21,11 @@ public class MCMPRelay
 		final ChisledBlockConverter converter = new ChisledBlockConverter();
 		MultipartRegistry.registerPartConverter( converter );
 		MultipartRegistry.registerReversePartConverter( converter );
-		MultipartRegistryClient.bindMultipartSpecialRenderer( ChisledBlockPart.class, new ChisledBlockRenderChunkMPSR() );
+
+		if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
+		{
+			MultipartRegistryClient.bindMultipartSpecialRenderer( ChisledBlockPart.class, new ChisledBlockRenderChunkMPSR() );
+		}
 	}
 
 	protected void removePartIfPossible(
