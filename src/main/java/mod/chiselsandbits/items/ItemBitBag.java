@@ -8,6 +8,7 @@ import org.lwjgl.input.Keyboard;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketBagGuiPacket;
 import net.minecraft.entity.item.EntityItem;
@@ -124,22 +125,10 @@ public class ItemBitBag extends Item
 			{
 				final int originalSize = is.stackSize;
 				final IInventory inv = event.entityPlayer.inventory;
-				final ArrayList<BagPos> bags = getBags( inv );
+				final List<BagPos> bags = getBags( inv );
 
 				// has the stack?
-				boolean seen = false;
-				for ( int x = 0; x < inv.getSizeInventory(); x++ )
-				{
-					final ItemStack which = inv.getStackInSlot( x );
-
-					if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChisel.getStackState( is ) ) )
-					{
-						if ( !seen )
-						{
-							seen = true;
-						}
-					}
-				}
+				final boolean seen = ModUtil.containsAtLeastOneOf( inv, is );
 
 				if ( seen )
 				{
@@ -240,7 +229,7 @@ public class ItemBitBag extends Item
 		{
 			// time to clean up your inventory...
 			final IInventory inv = player.inventory;
-			final ArrayList<BagPos> bags = getBags( inv );
+			final List<BagPos> bags = getBags( inv );
 
 			boolean seen = false;
 			for ( int x = 0; x < inv.getSizeInventory(); x++ )
@@ -271,7 +260,7 @@ public class ItemBitBag extends Item
 		}
 	}
 
-	public static ArrayList<BagPos> getBags(
+	public static List<BagPos> getBags(
 			final IInventory inv )
 	{
 		final ArrayList<BagPos> bags = new ArrayList<BagPos>();

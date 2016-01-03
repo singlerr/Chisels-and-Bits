@@ -1,6 +1,6 @@
 package mod.chiselsandbits.helpers;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -330,7 +330,21 @@ public class ModUtil
 	{
 		ItemStack is = ei.getEntityItem();
 
-		final ArrayList<BagPos> bags = ItemBitBag.getBags( player.inventory );
+		final List<BagPos> bags = ItemBitBag.getBags( player.inventory );
+
+		if ( !containsAtLeastOneOf( player.inventory, is ) )
+		{
+			final ItemStack minSize = is.copy();
+
+			if ( minSize.stackSize > minSize.getMaxStackSize() )
+			{
+				minSize.stackSize = minSize.getMaxStackSize();
+			}
+
+			is.stackSize -= minSize.stackSize;
+			player.inventory.addItemStackToInventory( minSize );
+			is.stackSize += minSize.stackSize;
+		}
 
 		for ( final BagPos bp : bags )
 		{
@@ -349,6 +363,26 @@ public class ModUtil
 				ei.worldObj.playSoundAtEntity( ei, "random.pop", 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
 			}
 		}
+	}
+
+	public static boolean containsAtLeastOneOf(
+			final IInventory inv,
+			final ItemStack is )
+	{
+		boolean seen = false;
+		for ( int x = 0; x < inv.getSizeInventory(); x++ )
+		{
+			final ItemStack which = inv.getStackInSlot( x );
+
+			if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChisel.getStackState( is ) ) )
+			{
+				if ( !seen )
+				{
+					seen = true;
+				}
+			}
+		}
+		return seen;
 	}
 
 }

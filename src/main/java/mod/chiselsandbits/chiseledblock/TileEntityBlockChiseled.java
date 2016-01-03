@@ -203,18 +203,6 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return alternative.getDefaultState();
 	}
 
-	public IBlockState getParticleBlockState(
-			final Block alternative )
-	{
-		final IBlockState state = Block.getStateById( getBasicState().getValue( BlockChiseled.block_prop ) );
-		if ( state != null )
-		{
-			return state;
-		}
-
-		return alternative.getDefaultState();
-	}
-
 	public void setState(
 			final IExtendedBlockState state )
 	{

@@ -369,7 +369,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			final IBlockState texture = getTileEntity( worldObj, blockPosition ).getParticleBlockState( Blocks.stone );
+			final IBlockState texture = getTileEntity( worldObj, blockPosition ).getBlockState( Blocks.stone );
 			worldObj.spawnParticle( EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getStateId( texture ) } );
 			return true;
 		}
@@ -387,7 +387,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			final IBlockState state = getTileEntity( world, pos ).getParticleBlockState( this );
+			final IBlockState state = getTileEntity( world, pos ).getBlockState( this );
 			return ClientSide.instance.addBlockDestroyEffects( world, pos, state, effectRenderer );
 		}
 		catch ( final ExceptionNoTileEntity e )
@@ -407,7 +407,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		try
 		{
 			final BlockPos pos = target.getBlockPos();
-			final IBlockState state = getTileEntity( world, pos ).getParticleBlockState( this );
+			final IBlockState state = getTileEntity( world, pos ).getBlockState( this );
 			return ClientSide.instance.addHitEffects( world, target, state, effectRenderer );
 		}
 		catch ( final ExceptionNoTileEntity exp )
