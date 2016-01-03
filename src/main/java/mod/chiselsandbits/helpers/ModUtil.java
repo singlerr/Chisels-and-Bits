@@ -1,16 +1,22 @@
 package mod.chiselsandbits.helpers;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.integration.Integration;
+import mod.chiselsandbits.items.ItemBitBag;
+import mod.chiselsandbits.items.ItemBitBag.BagPos;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.items.ItemPositivePrint;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -313,6 +319,36 @@ public class ModUtil
 		}
 
 		Integration.mcmp.removeChisledBlock( te );
+	}
+
+	private final static Random itemRand = new Random();
+
+	public static void feedPlayer(
+			final World world,
+			final EntityPlayer player,
+			final EntityItem ei )
+	{
+		ItemStack is = ei.getEntityItem();
+
+		final ArrayList<BagPos> bags = ItemBitBag.getBags( player.inventory );
+
+		for ( final BagPos bp : bags )
+		{
+			is = bp.inv.insertItem( is );
+		}
+
+		if ( is != null && !player.inventory.addItemStackToInventory( is ) )
+		{
+			ei.setEntityItemStack( is );
+			world.spawnEntityInWorld( ei );
+		}
+		else
+		{
+			if ( !ei.isSilent() )
+			{
+				ei.worldObj.playSoundAtEntity( ei, "random.pop", 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
+			}
+		}
 	}
 
 }

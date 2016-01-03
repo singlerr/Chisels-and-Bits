@@ -99,18 +99,15 @@ public class ItemBitBag extends Item
 		return true;
 	}
 
-	class BagPos
+	public static class BagPos
 	{
 		public BagPos(
-				final int x,
 				final BagInventory bagInventory )
 		{
 			inv = bagInventory;
-			index = x;
 		}
 
 		final public BagInventory inv;
-		final public int index;
 	};
 
 	@SubscribeEvent
@@ -183,6 +180,8 @@ public class ItemBitBag extends Item
 					}
 				}
 			}
+
+			cleanupInventory( event.entityPlayer, is );
 		}
 
 		if ( modified )
@@ -229,44 +228,50 @@ public class ItemBitBag extends Item
 		final EntityItem ei = event.pickedUp;
 		if ( ei != null )
 		{
-			final ItemStack is = ei.getEntityItem();
-			if ( is != null && is.getItem() instanceof ItemChiseledBit )
+			cleanupInventory( event.player, ei.getEntityItem() );
+		}
+	}
+
+	private void cleanupInventory(
+			final EntityPlayer player,
+			final ItemStack is )
+	{
+		if ( is != null && is.getItem() instanceof ItemChiseledBit )
+		{
+			// time to clean up your inventory...
+			final IInventory inv = player.inventory;
+			final ArrayList<BagPos> bags = getBags( inv );
+
+			boolean seen = false;
+			for ( int x = 0; x < inv.getSizeInventory(); x++ )
 			{
-				// time to clean up your inventory...
-				final IInventory inv = event.player.inventory;
-				final ArrayList<BagPos> bags = getBags( inv );
+				ItemStack which = inv.getStackInSlot( x );
 
-				boolean seen = false;
-				for ( int x = 0; x < inv.getSizeInventory(); x++ )
+				if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChisel.getStackState( is ) ) )
 				{
-					ItemStack which = inv.getStackInSlot( x );
-
-					if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChisel.getStackState( is ) ) )
+					if ( !seen )
 					{
-						if ( !seen )
+						seen = true;
+					}
+					else
+					{
+						for ( final BagPos i : bags )
 						{
-							seen = true;
-						}
-						else
-						{
-							for ( final BagPos i : bags )
+							which = i.inv.insertItem( which );
+							if ( which == null )
 							{
-								which = i.inv.insertItem( which );
-								if ( which == null )
-								{
-									inv.setInventorySlotContents( x, which );
-									break;
-								}
+								inv.setInventorySlotContents( x, which );
+								break;
 							}
 						}
 					}
-
 				}
+
 			}
 		}
 	}
 
-	private ArrayList<BagPos> getBags(
+	public static ArrayList<BagPos> getBags(
 			final IInventory inv )
 	{
 		final ArrayList<BagPos> bags = new ArrayList<BagPos>();
@@ -275,7 +280,7 @@ public class ItemBitBag extends Item
 			final ItemStack which = inv.getStackInSlot( x );
 			if ( which != null && which.getItem() instanceof ItemBitBag )
 			{
-				bags.add( new BagPos( x, new BagInventory( which ) ) );
+				bags.add( new BagPos( new BagInventory( which ) ) );
 			}
 		}
 		return bags;

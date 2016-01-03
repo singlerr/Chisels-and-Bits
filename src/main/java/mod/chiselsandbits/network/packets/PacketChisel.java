@@ -148,7 +148,7 @@ public class PacketChisel extends ModPacket
 
 			for ( final EntityItem ei : spawnlist )
 			{
-				world.spawnEntityInWorld( ei );
+				ModUtil.feedPlayer( world, player, ei );
 			}
 
 			if ( update )

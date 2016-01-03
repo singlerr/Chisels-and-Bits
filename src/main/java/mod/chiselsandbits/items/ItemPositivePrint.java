@@ -166,7 +166,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 
 		for ( final EntityItem ei : spawnlist )
 		{
-			world.spawnEntityInWorld( ei );
+			ModUtil.feedPlayer( world, player, ei );
 		}
 
 	}

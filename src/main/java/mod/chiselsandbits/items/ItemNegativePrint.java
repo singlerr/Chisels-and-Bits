@@ -281,7 +281,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 		for ( final EntityItem ei : spawnlist )
 		{
-			world.spawnEntityInWorld( ei );
+			ModUtil.feedPlayer( world, player, ei );
 		}
 	}
 
