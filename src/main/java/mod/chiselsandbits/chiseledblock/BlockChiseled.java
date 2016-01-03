@@ -61,7 +61,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 {
 
 	private static ThreadLocal<Integer> replacementLightValue = new ThreadLocal<Integer>();
-	public static IBlockState actingAs = null;
+	private static ThreadLocal<IBlockState> actingAs = new ThreadLocal<IBlockState>();
 
 	public static final IUnlistedProperty<VoxelNeighborRenderTracker> n_prop = new UnlistedVoxelNeighborState();
 	public static final IUnlistedProperty<VoxelBlobStateReference> v_prop = new UnlistedVoxelBlob();
@@ -1013,13 +1013,21 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		return super.getActualState( state, worldIn, pos );
 	}
 
+	public static void setActingAs(
+			final IBlockState state )
+	{
+		actingAs.set( state );
+	}
+
 	@Override
 	public String getHarvestTool(
 			final IBlockState state )
 	{
-		if ( actingAs != null && actingAs.getBlock() != this )
+		final IBlockState actingAsState = actingAs.get();
+
+		if ( actingAsState != null && actingAsState.getBlock() != this )
 		{
-			return actingAs.getBlock().getHarvestTool( actingAs );
+			return actingAsState.getBlock().getHarvestTool( actingAsState );
 		}
 
 		if ( ChiselsAndBits.getConfig().enableToolHarvestLevels && state instanceof IExtendedBlockState )
@@ -1043,9 +1051,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	public int getHarvestLevel(
 			final IBlockState state )
 	{
-		if ( actingAs != null && actingAs.getBlock() != this )
+		final IBlockState actingAsState = actingAs.get();
+
+		if ( actingAsState != null && actingAsState.getBlock() != this )
 		{
-			return actingAs.getBlock().getHarvestLevel( actingAs );
+			return actingAsState.getBlock().getHarvestLevel( actingAsState );
 		}
 
 		if ( ChiselsAndBits.getConfig().enableToolHarvestLevels && state instanceof IExtendedBlockState )

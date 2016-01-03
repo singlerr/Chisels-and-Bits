@@ -33,6 +33,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTool;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
@@ -51,7 +52,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 
 		// chisels are scaled up so that 1 stone chisel can mine one block.
 		final long uses = material.getMaxUses() * ChiselsAndBits.getConfig().availableUsesMultiplier;
-		setMaxDamage( ChiselsAndBits.getConfig().damageTools ? (int) Math.max( 0, Math.min( Short.MAX_VALUE, uses ) ) : 0 );
+		setMaxDamage( ChiselsAndBits.getConfig().damageTools ? (int) Math.max( 0, uses ) : 0 );
 	}
 
 	public ToolMaterial whatMaterial()
@@ -383,13 +384,13 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			{
 
 				final Block blk = world.getBlockState( pos ).getBlock();
-				BlockChiseled.actingAs = state;
+				BlockChiseled.setActingAs( state );
 				testingChisel = true;
 				chiselSlot.swapWithWeapon();
 				final boolean canHarvest = blk.canHarvestBlock( world, pos, player );
 				chiselSlot.swapWithWeapon();
 				testingChisel = false;
-				BlockChiseled.actingAs = null;
+				BlockChiseled.setActingAs( null );
 
 				if ( canHarvest )
 				{
@@ -407,6 +408,46 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 		}
 
 		return true;
+	}
+
+	private static final String DAMAGE_KEY = "damage";
+
+	@Override
+	public int getDamage(
+			final ItemStack stack )
+	{
+		return Math.max( getMetadata( stack ), getNBT( stack ).getInteger( DAMAGE_KEY ) );
+	}
+
+	@Override
+	public boolean isDamaged(
+			final ItemStack stack )
+	{
+		return getDamage( stack ) > 0;
+	}
+
+	@Override
+	public void setDamage(
+			final ItemStack stack,
+			int damage )
+	{
+		if ( damage < 0 )
+		{
+			damage = 0;
+		}
+
+		getNBT( stack ).setInteger( DAMAGE_KEY, damage );
+	}
+
+	private NBTTagCompound getNBT(
+			final ItemStack stack )
+	{
+		if ( !stack.hasTagCompound() )
+		{
+			stack.setTagCompound( new NBTTagCompound() );
+		}
+
+		return stack.getTagCompound();
 	}
 
 	@Override

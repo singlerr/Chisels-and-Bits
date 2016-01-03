@@ -18,6 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
 
@@ -114,6 +115,115 @@ public class ItemBitBag extends Item
 
 	@SubscribeEvent
 	public void pickupItems(
+			final EntityItemPickupEvent event )
+	{
+		boolean modified = false;
+
+		final EntityItem ei = event.item;
+		if ( ei != null )
+		{
+			final ItemStack is = ei.getEntityItem();
+			if ( is != null && is.getItem() instanceof ItemChiseledBit )
+			{
+				final int originalSize = is.stackSize;
+				final IInventory inv = event.entityPlayer.inventory;
+				final ArrayList<BagPos> bags = getBags( inv );
+
+				// has the stack?
+				boolean seen = false;
+				for ( int x = 0; x < inv.getSizeInventory(); x++ )
+				{
+					final ItemStack which = inv.getStackInSlot( x );
+
+					if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChisel.getStackState( is ) ) )
+					{
+						if ( !seen )
+						{
+							seen = true;
+						}
+					}
+				}
+
+				if ( seen )
+				{
+					for ( final BagPos i : bags )
+					{
+						if ( !ei.isDead )
+						{
+							modified = updateEntity( event.entityPlayer, ei, i.inv.insertItem( ei.getEntityItem() ), originalSize ) || modified;
+						}
+					}
+				}
+				else
+				{
+					if ( is.stackSize > is.getMaxStackSize() && !ei.isDead )
+					{
+						final ItemStack singleStack = is.copy();
+						singleStack.stackSize = singleStack.getMaxStackSize();
+
+						if ( event.entityPlayer.inventory.addItemStackToInventory( singleStack ) == false )
+						{
+							is.stackSize -= singleStack.getMaxStackSize() - is.stackSize;
+						}
+
+						modified = updateEntity( event.entityPlayer, ei, is, originalSize ) || modified;
+					}
+					else
+					{
+						return;
+					}
+
+					for ( final BagPos i : bags )
+					{
+
+						if ( !ei.isDead )
+						{
+							modified = updateEntity( event.entityPlayer, ei, i.inv.insertItem( ei.getEntityItem() ), originalSize ) || modified;
+						}
+					}
+				}
+			}
+		}
+
+		if ( modified )
+		{
+			event.setCanceled( true );
+		}
+	}
+
+	private boolean updateEntity(
+			final EntityPlayer player,
+			final EntityItem ei,
+			ItemStack is,
+			final int originalSize )
+	{
+		if ( is == null )
+		{
+			is = new ItemStack( ei.getEntityItem().getItem(), 0 );
+			ei.setEntityItemStack( is );
+			ei.setDead();
+
+			net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerItemPickupEvent( player, ei );
+
+			if ( !ei.isSilent() )
+			{
+				ei.worldObj.playSoundAtEntity( ei, "random.pop", 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
+			}
+
+			player.onItemPickup( ei, originalSize );
+
+			return true;
+		}
+		else
+		{
+			final int changed = is.stackSize - ei.getEntityItem().stackSize;
+			ei.setEntityItemStack( is );
+			return changed != 0;
+		}
+	}
+
+	@SubscribeEvent
+	public void pickupItems(
 			final ItemPickupEvent event )
 	{
 		final EntityItem ei = event.pickedUp;
@@ -123,22 +233,12 @@ public class ItemBitBag extends Item
 			if ( is != null && is.getItem() instanceof ItemChiseledBit )
 			{
 				// time to clean up your inventory...
-
-				final ArrayList<BagPos> bags = new ArrayList<BagPos>();
 				final IInventory inv = event.player.inventory;
-				for ( int x = 0; x < inv.getSizeInventory(); x++ )
-				{
-					final ItemStack which = inv.getStackInSlot( x );
-					if ( which != null && which.getItem() instanceof ItemBitBag )
-					{
-						bags.add( new BagPos( x, new BagInventory( which ) ) );
-					}
-				}
+				final ArrayList<BagPos> bags = getBags( inv );
 
 				boolean seen = false;
 				for ( int x = 0; x < inv.getSizeInventory(); x++ )
 				{
-
 					ItemStack which = inv.getStackInSlot( x );
 
 					if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChisel.getStackState( is ) ) )
@@ -164,6 +264,21 @@ public class ItemBitBag extends Item
 				}
 			}
 		}
+	}
+
+	private ArrayList<BagPos> getBags(
+			final IInventory inv )
+	{
+		final ArrayList<BagPos> bags = new ArrayList<BagPos>();
+		for ( int x = 0; x < inv.getSizeInventory(); x++ )
+		{
+			final ItemStack which = inv.getStackInSlot( x );
+			if ( which != null && which.getItem() instanceof ItemBitBag )
+			{
+				bags.add( new BagPos( x, new BagInventory( which ) ) );
+			}
+		}
+		return bags;
 	}
 
 	@Override
