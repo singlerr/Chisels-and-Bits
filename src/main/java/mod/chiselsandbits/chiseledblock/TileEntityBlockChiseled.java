@@ -492,23 +492,53 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		}
 	}
 
+	static private class ItemStackGeneratedCache
+	{
+		public ItemStackGeneratedCache(
+				final ItemStack itemstack,
+				final VoxelBlobStateReference blobStateReference,
+				final int rotations2 )
+		{
+			out = itemstack.copy();
+			ref = blobStateReference;
+			rotations = rotations2;
+		}
+
+		final ItemStack out;
+		final VoxelBlobStateReference ref;
+		final int rotations;
+	};
+
+	/**
+	 * prevent mods that constantly ask for pick block from killing the
+	 * client... ( looking at you waila )
+	 **/
+	private ItemStackGeneratedCache pickcache = null;
+
 	public ItemStack getItemStack(
 			final Block what,
 			final EntityPlayer player )
 	{
 		final ItemStack itemstack = new ItemStack( what, 1 );
+		final ItemStackGeneratedCache cache = pickcache;
 
 		if ( player != null )
 		{
 			EnumFacing enumfacing = ModUtil.getPlaceFace( player );
+			final int rotations = ModUtil.getRotationIndex( enumfacing );
+
+			if ( cache != null && cache.rotations == rotations && cache.ref == getBlobStateReference() )
+			{
+				return cache.out.copy();
+			}
 
 			final TileEntityBlockChiseled test = new TileEntityBlockChiseled();
 			VoxelBlob vb = getBlob();
 
-			int rotations = ModUtil.getRotationIndex( enumfacing );
-			while ( rotations > 0 )
+			int countDown = rotations;
+			while ( countDown > 0 )
 			{
-				rotations--;
+				countDown--;
 				enumfacing = enumfacing.rotateYCCW();
 				vb = vb.spin( Axis.Y );
 			}
@@ -520,13 +550,22 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			itemstack.setTagInfo( "BlockEntityTag", nbttagcompound );
 
 			itemstack.setTagInfo( "side", new NBTTagByte( (byte) enumfacing.ordinal() ) );
+			pickcache = new ItemStackGeneratedCache( itemstack, getBlobStateReference(), rotations );
 		}
 		else
 		{
+			if ( cache != null && cache.rotations == 0 && cache.ref == getBlobStateReference() )
+			{
+				return cache.out.copy();
+			}
+
 			final NBTTagCompound nbttagcompound = new NBTTagCompound();
 			writeChisleData( nbttagcompound );
 			itemstack.setTagInfo( "BlockEntityTag", nbttagcompound );
+
+			pickcache = new ItemStackGeneratedCache( itemstack, getBlobStateReference(), 0 );
 		}
+
 		return itemstack;
 	}
 
