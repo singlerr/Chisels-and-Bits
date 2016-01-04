@@ -16,12 +16,15 @@ version = "mc1.8.9-v1.8-beta1"
 group= "mod.chiselsandbits"
 archivesBaseName = "chiselsandbits"
 
-repositories { maven { url "http://dvs1.progwml6.com/files/maven" } 
-   flatDir {
-       dirs 'libs'
-   }}
-dependencies { deobfCompile "mezz.jei:jei_1.8.8:2.12.0.49" 
-   compile name: 'MCMultiPart-1.0'}
+repositories {
+	maven { url "http://dvs1.progwml6.com/files/maven" }
+	maven { url "http://maven.amadornes.com/" }
+}
+
+dependencies {
+	deobfCompile "mezz.jei:jei_1.8.8:2.12.0.49"
+	deobfCompile "MCMultiPart:MCMultiPart:1.0.0:universal"
+}
 
 minecraft {
     version = "1.8.8-11.15.0.1634-1.8.8"
