@@ -417,6 +417,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 										// display list cause the post render
 										// method usually calls it.
 
+		// TODO: Check Original TESR state.
 		GlStateManager.disableBlend();
 		GlStateManager.disableAlpha();
 

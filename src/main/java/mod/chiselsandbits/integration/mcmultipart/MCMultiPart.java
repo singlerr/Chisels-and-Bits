@@ -1,6 +1,7 @@
 package mod.chiselsandbits.integration.mcmultipart;
 
 import mcmultipart.client.multipart.MultipartRegistryClient;
+import mcmultipart.microblock.MicroblockRegistry;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
@@ -24,6 +25,7 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 		MCMultipartProxy.proxyMCMultiPart.setRelay( this );
 
 		MultipartRegistry.registerPart( ChisledBlockPart.class, block_name );
+		MicroblockRegistry.registerMicroClass( ChisledMicroblock.instance );
 
 		final ChisledBlockConverter converter = new ChisledBlockConverter();
 		MultipartRegistry.registerPartConverter( converter );

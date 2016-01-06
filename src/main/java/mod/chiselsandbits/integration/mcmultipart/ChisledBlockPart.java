@@ -2,12 +2,18 @@ package mod.chiselsandbits.integration.mcmultipart;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 
+import mcmultipart.microblock.IMicroMaterial;
+import mcmultipart.microblock.IMicroblock;
+import mcmultipart.microblock.MicroblockClass;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IOccludingPart;
 import mcmultipart.multipart.ISolidPart;
 import mcmultipart.multipart.Multipart;
+import mcmultipart.multipart.OcclusionHelper;
+import mcmultipart.multipart.PartSlot;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import mod.chiselsandbits.ChiselsAndBits;
@@ -31,7 +37,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-public class ChisledBlockPart extends Multipart implements IOccludingPart, ISolidPart
+public class ChisledBlockPart extends Multipart implements IOccludingPart, ISolidPart, IMicroblock
 {
 	protected TileEntityBlockChiseled inner; // never use directly..
 	protected BlockChiseled bc; // never use directly..
@@ -72,7 +78,7 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart, ISoli
 	public boolean occlusionTest(
 			final IMultipart part )
 	{
-		return super.occlusionTest( part ) && !( part instanceof ChisledBlockPart );
+		return OcclusionHelper.defaultOcclusionTest( this, part ) && !( part instanceof ChisledBlockPart );
 	}
 
 	@Override
@@ -284,6 +290,54 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart, ISoli
 			final EnumFacing side )
 	{
 		return getTile().isSideSolid( side );
+	}
+
+	@Override
+	public EnumSet<PartSlot> getSlotMask()
+	{
+		return EnumSet.noneOf( PartSlot.class );
+	}
+
+	@Override
+	public AxisAlignedBB getBounds()
+	{
+		return getBlock().getSelectedBoundingBox( getTile(), getPos() );
+	}
+
+	@Override
+	public MicroblockClass getMicroClass()
+	{
+		return ChisledMicroblock.instance;
+	}
+
+	@Override
+	public IMicroMaterial getMicroMaterial()
+	{
+		return (IMicroMaterial) this;
+	}
+
+	@Override
+	public int getSize()
+	{
+		return 0;
+	}
+
+	@Override
+	public PartSlot getSlot()
+	{
+		return null;
+	}
+
+	@Override
+	public void setSize(
+			int arg0 )
+	{
+	}
+
+	@Override
+	public void setSlot(
+			PartSlot arg0 )
+	{
 	}
 
 }
