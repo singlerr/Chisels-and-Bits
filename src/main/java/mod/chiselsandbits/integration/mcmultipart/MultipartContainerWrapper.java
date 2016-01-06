@@ -9,7 +9,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.interfaces.IChiseledTileContainer;
 import net.minecraft.util.AxisAlignedBB;
 
-public class MultipartContainerWrapper implements IChiseledTileContainer
+class MultipartContainerWrapper implements IChiseledTileContainer
 {
 
 	final ChisledBlockPart container;

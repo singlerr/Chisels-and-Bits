@@ -6,7 +6,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.integration.Integration;
+import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IChiseledTileContainer;
 import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
@@ -136,7 +136,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 							}
 							else
 							{
-								Integration.mcmp.convertTo( current, new TileEntityBlockChiseledTESR() );
+								MCMultipartProxy.proxyMCMultiPart.convertTo( current, new TileEntityBlockChiseledTESR() );
 							}
 						}
 					}
@@ -162,7 +162,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 							}
 							else
 							{
-								Integration.mcmp.convertTo( current, new TileEntityBlockChiseled() );
+								MCMultipartProxy.proxyMCMultiPart.convertTo( current, new TileEntityBlockChiseled() );
 							}
 						}
 					}

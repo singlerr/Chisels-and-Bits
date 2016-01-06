@@ -8,7 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
-import mod.chiselsandbits.integration.Integration;
+import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemBitBag.BagPos;
 import mod.chiselsandbits.items.ItemChisel;
@@ -303,7 +303,7 @@ public class ModUtil
 			return (TileEntityBlockChiseled) te;
 		}
 
-		return Integration.mcmp.getChiseledTileEntity( te, create );
+		return MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( te, create );
 	}
 
 	public static void removeChisledBlock(
@@ -318,7 +318,7 @@ public class ModUtil
 			return;
 		}
 
-		Integration.mcmp.removeChisledBlock( te );
+		MCMultipartProxy.proxyMCMultiPart.removeChisledBlock( te );
 	}
 
 	private final static Random itemRand = new Random();

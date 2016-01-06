@@ -16,7 +16,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-public class ChisledBlockConverter implements IPartConverter, IReversePartConverter
+class ChisledBlockConverter implements IPartConverter, IReversePartConverter
 {
 
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
