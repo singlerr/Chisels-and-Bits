@@ -33,8 +33,8 @@ import net.minecraft.world.World;
 
 public class ChisledBlockPart extends Multipart implements IOccludingPart, ISolidPart
 {
-	TileEntityBlockChiseled inner;
-	BlockChiseled bc;
+	protected TileEntityBlockChiseled inner; // never use directly..
+	protected BlockChiseled bc; // never use directly..
 
 	@Override
 	public void onAdded()

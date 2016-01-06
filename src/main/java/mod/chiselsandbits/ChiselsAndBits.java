@@ -48,6 +48,7 @@ public class ChiselsAndBits
 	private ModConfig config;
 	private ModItems items;
 	private ModBlocks blocks;
+	private final Integration integration = new Integration();
 
 	public ChiselsAndBits()
 	{
@@ -83,7 +84,7 @@ public class ChiselsAndBits
 		items = new ModItems( getConfig() );
 		blocks = new ModBlocks( getConfig(), event.getSide() );
 
-		Integration.instance.preinit();
+		integration.preinit( event );
 
 		// loader must be added here to prevent missing models, the rest of the
 		// model/textures must be configured later.
@@ -102,7 +103,7 @@ public class ChiselsAndBits
 			ClientSide.instance.init( this );
 		}
 
-		Integration.instance.init();
+		integration.init();
 
 		registerWithBus( new EventBreakSpeed() );
 		registerWithBus( new EventPlayerInteract() );
@@ -147,7 +148,7 @@ public class ChiselsAndBits
 			ClientSide.instance.postinit( this );
 		}
 
-		Integration.instance.postinit();
+		integration.postinit();
 
 		NetworkRouter.instance = new NetworkRouter();
 		NetworkRegistry.INSTANCE.registerGuiHandler( this, new ModGuiRouter() );

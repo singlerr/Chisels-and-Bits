@@ -26,7 +26,7 @@ import mod.chiselsandbits.gui.SpriteIconPositioning;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.integration.Integration;
+import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.items.ItemChisel;
@@ -658,7 +658,7 @@ public class ClientSide
 				final TileEntity newTarget = theWorld.getTileEntity( newOffset );
 
 				if ( theWorld.isAirBlock( newOffset ) || theWorld.getBlockState( newOffset ).getBlock().isReplaceable( theWorld, newOffset ) || newTarget instanceof TileEntityBlockChiseled
-						|| Integration.mcmp.isMultiPartTileEntity( newTarget ) )
+						|| MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( newTarget ) )
 				{
 					final TileEntityBlockChiseled test = ModUtil.getChiseledTileEntity( newTarget, false );
 					showGhost( currentItem, item, newOffset, player, rotations, x, y, z, mop.sideHit, null, test == null ? null : test.getBlobStateReference() );

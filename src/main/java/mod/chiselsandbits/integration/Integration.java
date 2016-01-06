@@ -3,37 +3,44 @@ package mod.chiselsandbits.integration;
 import java.util.ArrayList;
 import java.util.List;
 
-import mod.chiselsandbits.integration.jei.IntegerationJEI;
-import mod.chiselsandbits.integration.mcmultipart.IntegrationMCMP;
+import mod.chiselsandbits.Log;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-public class Integration extends IntegrationBase
+public class Integration
 {
 
-	public List<IntegrationBase> integrations = new ArrayList<IntegrationBase>();
+	private final List<IntegrationBase> integrations = new ArrayList<IntegrationBase>();
 
-	public static final IntegerationJEI jei = new IntegerationJEI();
-	public static final IntegrationMCMP mcmp = new IntegrationMCMP();
-
-	// last.
-	public static final Integration instance = new Integration();
-
-	private Integration()
+	public void preinit(
+			final FMLPreInitializationEvent event )
 	{
-		integrations.add( new IntegrationVersionChecker() );
-		integrations.add( jei );
-		integrations.add( mcmp );
-	}
+		for ( final ASMData asmData : event.getAsmData().getAll( ChiselsAndBitsIntegration.class.getName() ) )
+		{
+			final Object modID = asmData.getAnnotationInfo().get( "value" );
+			if ( modID instanceof String && Loader.isModLoaded( (String) modID ) )
+			{
+				try
+				{
+					final Class<?> asmClass = Class.forName( asmData.getClassName() );
+					final Class<? extends IntegrationBase> asmInstanceClass = asmClass.asSubclass( IntegrationBase.class );
+					final IntegrationBase instance = asmInstanceClass.newInstance();
+					integrations.add( instance );
+				}
+				catch ( final Exception e )
+				{
+					Log.logError( "Failed to load: " + asmData.getClassName(), e );
+				}
+			}
+		}
 
-	@Override
-	public void preinit()
-	{
 		for ( final IntegrationBase i : integrations )
 		{
 			i.preinit();
 		}
 	}
 
-	@Override
 	public void init()
 	{
 		for ( final IntegrationBase i : integrations )
@@ -42,7 +49,6 @@ public class Integration extends IntegrationBase
 		}
 	}
 
-	@Override
 	public void postinit()
 	{
 		for ( final IntegrationBase i : integrations )

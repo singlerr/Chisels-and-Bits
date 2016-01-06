@@ -4,7 +4,7 @@ import mcmultipart.multipart.IMultipartContainer;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.interfaces.IChiseledTileContainer;
 
-public class MultipartContainerBuilder implements IChiseledTileContainer
+class MultipartContainerBuilder implements IChiseledTileContainer
 {
 
 	IMultipartContainer targetContainer;

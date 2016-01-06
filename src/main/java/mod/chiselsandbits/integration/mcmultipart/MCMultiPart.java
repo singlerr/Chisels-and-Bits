@@ -6,18 +6,25 @@ import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.integration.ChiselsAndBitsIntegration;
+import mod.chiselsandbits.integration.IntegrationBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
-public class MCMPRelay
+@ChiselsAndBitsIntegration( "mcmultipart" )
+public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 {
 
 	public final static String block_name = ChiselsAndBits.MODID + ":chisledblock";
 
-	protected void initModIfPossible()
+	@Override
+	public void preinit()
 	{
+		MCMultipartProxy.proxyMCMultiPart.setRelay( this );
+
 		MultipartRegistry.registerPart( ChisledBlockPart.class, block_name );
+
 		final ChisledBlockConverter converter = new ChisledBlockConverter();
 		MultipartRegistry.registerPartConverter( converter );
 		MultipartRegistry.registerReversePartConverter( converter );
@@ -28,7 +35,8 @@ public class MCMPRelay
 		}
 	}
 
-	protected void removePartIfPossible(
+	@Override
+	public void removePartIfPossible(
 			final TileEntity te )
 	{
 		if ( te instanceof IMultipartContainer && !te.getWorld().isRemote )
@@ -46,7 +54,8 @@ public class MCMPRelay
 
 	}
 
-	protected void convertIfPossible(
+	@Override
+	public void convertIfPossible(
 			final TileEntity current,
 			final TileEntityBlockChiseled newTileEntity )
 	{
@@ -64,7 +73,8 @@ public class MCMPRelay
 		}
 	}
 
-	protected TileEntityBlockChiseled getPartIfPossible(
+	@Override
+	public TileEntityBlockChiseled getPartIfPossible(
 			final TileEntity te,
 			final boolean create )
 	{
@@ -99,9 +109,11 @@ public class MCMPRelay
 		return null;
 	}
 
-	protected boolean isMultiPart(
+	@Override
+	public boolean isMultiPart(
 			final TileEntity te )
 	{
 		return te instanceof IMultipartContainer;
 	}
+
 }

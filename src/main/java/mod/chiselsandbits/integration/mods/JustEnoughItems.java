@@ -1,10 +1,9 @@
-package mod.chiselsandbits.integration.jei;
+package mod.chiselsandbits.integration.mods;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import mezz.jei.api.IItemBlacklist;
 import mezz.jei.api.IItemRegistry;
 import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IModPlugin;
@@ -12,14 +11,13 @@ import mezz.jei.api.IModRegistry;
 import mezz.jei.api.IRecipeRegistry;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
-import mod.chiselsandbits.integration.Integration;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 @mezz.jei.api.JEIPlugin
-public class JEIPlugin implements IModPlugin
+public class JustEnoughItems implements IModPlugin
 {
 
 	@Override
@@ -32,12 +30,7 @@ public class JEIPlugin implements IModPlugin
 	public void onJeiHelpersAvailable(
 			final IJeiHelpers jeiHelpers )
 	{
-		final IItemBlacklist bl = jeiHelpers.getItemBlacklist();
-
-		for ( final ItemStack is : Integration.jei.getBlacklisted() )
-		{
-			bl.addItemToBlacklist( is );
-		}
+		jeiHelpers.getItemBlacklist().addItemToBlacklist( new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
 	}
 
 	@Override

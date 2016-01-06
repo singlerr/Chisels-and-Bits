@@ -1,11 +1,15 @@
-package mod.chiselsandbits.integration;
+package mod.chiselsandbits.integration.mods;
 
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.integration.ChiselsAndBitsIntegration;
+import mod.chiselsandbits.integration.IntegrationBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 
-public class IntegrationVersionChecker extends IntegrationBase
+@ChiselsAndBitsIntegration( "VersionChecker" )
+public class VersionChecker extends IntegrationBase
 {
+
 	@Override
 	public void init()
 	{
@@ -14,4 +18,5 @@ public class IntegrationVersionChecker extends IntegrationBase
 		compound.setString( "curseFilenameParser", "chiselsandbits-[].jar" );
 		FMLInterModComms.sendRuntimeMessage( ChiselsAndBits.MODID, "VersionChecker", "addCurseCheck", compound );
 	}
+
 }
