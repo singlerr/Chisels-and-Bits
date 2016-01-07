@@ -3,6 +3,8 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
@@ -33,6 +35,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselModeItem
@@ -139,6 +144,38 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 			final ChiselMode mode = ChiselModeManager.getChiselMode( ClientSide.instance.getHeldToolType() );
 
+			if ( mode == ChiselMode.DRAWN_REGION )
+			{
+				final Pair<Vec3, Vec3> PlayerRay = ModUtil.getPlayerRay( player );
+				final Vec3 a = PlayerRay.getLeft();
+				final Vec3 b = PlayerRay.getRight();
+
+				final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, a, b );
+				if ( mop != null && mop.typeOfHit == MovingObjectType.BLOCK )
+				{
+					double whereX = mop.hitVec.xCoord + side.getFrontOffsetX() * HALF_16th - pos.getX();
+					double whereY = mop.hitVec.yCoord + side.getFrontOffsetY() * HALF_16th - pos.getY();
+					double whereZ = mop.hitVec.zCoord + side.getFrontOffsetZ() * HALF_16th - pos.getZ();
+
+					if ( whereX < -0.001 || whereY < -0.001 || whereZ < -0.001 || whereX > 1.001 || whereY > 1.001 || whereZ > 1.001 )
+					{
+						pos = pos.offset( side );
+						whereX -= side.getFrontOffsetX();
+						whereY -= side.getFrontOffsetY();
+						whereZ -= side.getFrontOffsetZ();
+					}
+
+					final int x = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * whereX ) ) );
+					final int y = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * whereY ) ) );
+					final int z = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * whereZ ) ) );
+
+					ClientSide.instance.pointAt( ChiselToolType.BIT, pos, x, y, z );
+					return true;
+				}
+
+				return true;
+			}
+
 			TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, pos, true );
 			ChiselTypeIterator connectedPlaneIterator = null;
 			IntegerBox connectedBox = null;
@@ -152,7 +189,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				final int z = ItemChisel.getZ( hitZ, side );
 
 				connectedPlaneIterator = new ChiselTypeIterator( VoxelBlob.dim, x, y, z, vx, mode, side );
-				connectedBox = connectedPlaneIterator.getVoxelBox( vx );
+				connectedBox = connectedPlaneIterator.getVoxelBox( vx, true );
 			}
 			else
 			{
@@ -164,7 +201,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				final int z = ItemChisel.getZ( hitZ, side );
 
 				connectedPlaneIterator = new ChiselTypeIterator( VoxelBlob.dim, x, y, z, vx, mode, side );
-				connectedBox = connectedPlaneIterator.getVoxelBox( vx );
+				connectedBox = connectedPlaneIterator.getVoxelBox( vx, true );
 			}
 
 			hitX += side.getFrontOffsetX() * HALF_16th;

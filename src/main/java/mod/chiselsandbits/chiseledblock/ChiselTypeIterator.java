@@ -327,14 +327,15 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 	}
 
 	public IntegerBox getVoxelBox(
-			final VoxelBlob vb )
+			final VoxelBlob vb,
+			final boolean boundSolids )
 	{
 		final IntegerBox box = new IntegerBox( 0, 0, 0, 0, 0, 0 );
 
 		boolean started = false;
 		while ( hasNext() )
 		{
-			if ( vb.get( x(), y(), z() ) != 0 )
+			if ( vb.get( x(), y(), z() ) != 0 == boundSolids )
 			{
 				if ( started )
 				{
@@ -362,10 +363,11 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 	}
 
 	public AxisAlignedBB getBoundingBox(
-			final VoxelBlob vb )
+			final VoxelBlob vb,
+			final boolean boundSolids )
 	{
 		final float One16thf = 1.0f / vb.detail;
-		final IntegerBox box = getVoxelBox( vb );
+		final IntegerBox box = getVoxelBox( vb, boundSolids );
 
 		return AxisAlignedBB.fromBounds( box.minX * One16thf, box.minY * One16thf, box.minZ * One16thf, ( box.maxX + 1 ) * One16thf, ( box.maxY + 1 ) * One16thf, ( box.maxZ + 1 ) * One16thf );
 	}

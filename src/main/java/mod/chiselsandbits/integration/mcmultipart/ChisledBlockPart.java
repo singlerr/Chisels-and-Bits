@@ -286,11 +286,19 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart, ISoli
 	}
 
 	@Override
+	public void notifyPartUpdate()
+	{
+		super.notifyPartUpdate();
+	}
+
+	@Override
 	public boolean isSideSolid(
 			final EnumFacing side )
 	{
 		return getTile().isSideSolid( side );
 	}
+
+	// IF ANY ONE ASKS, Amadornes told me too... :D
 
 	@Override
 	public EnumSet<PartSlot> getSlotMask()
@@ -330,13 +338,13 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart, ISoli
 
 	@Override
 	public void setSize(
-			int arg0 )
+			final int arg0 )
 	{
 	}
 
 	@Override
 	public void setSlot(
-			PartSlot arg0 )
+			final PartSlot arg0 )
 	{
 	}
 

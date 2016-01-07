@@ -39,6 +39,12 @@ public class MCMultipartProxy extends IntegrationBase
 			return null;
 		}
 
+		@Override
+		public void triggerPartChange(
+				final TileEntity te )
+		{
+		}
+
 	};
 
 	public static final MCMultipartProxy proxyMCMultiPart = new MCMultipartProxy();
@@ -74,6 +80,12 @@ public class MCMultipartProxy extends IntegrationBase
 			final TileEntityBlockChiseled newTileEntity )
 	{
 		relay.convertIfPossible( current, newTileEntity );
+	}
+
+	public void triggerPartChange(
+			final TileEntity te )
+	{
+		relay.triggerPartChange( te );
 	}
 
 }

@@ -65,6 +65,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -413,12 +414,13 @@ public class ClientSide
 			ItemChisel.resetDelay();
 		}
 
-		if ( !Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown() )
+		if ( !getToolKey().isKeyDown() )
 		{
 			if ( loopDeath )
 			{
 				drawBlock = null;
 				drawStart = null;
+				lastTool = ChiselToolType.CHISEL;
 			}
 			else
 			{
@@ -493,8 +495,12 @@ public class ClientSide
 		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
 		final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
 
-		final ChiselToolType tool = getHeldToolType();
+		ChiselToolType tool = getHeldToolType();
 		final ChiselMode chMode = ChiselModeManager.getChiselMode( tool );
+		if ( chMode == ChiselMode.DRAWN_REGION )
+		{
+			tool = lastTool;
+		}
 
 		if ( tool != null && chMode != null )
 		{
@@ -506,9 +512,14 @@ public class ClientSide
 			final BlockPos blockpos = mop.getBlockPos();
 			final IBlockState state = theWorld.getBlockState( blockpos );
 			final Block block = state.getBlock();
+			final TileEntity te = theWorld.getTileEntity( blockpos );
 
 			// this logic originated in the vanilla bounding box...
-			if ( BlockBitInfo.supportsBlock( state ) && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
+			final boolean isMultipart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( te );
+			final boolean isChisel = getDrawnTool() == ChiselToolType.CHISEL;
+			final TileEntityBlockChiseled data = MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( te, false );
+
+			if ( BlockBitInfo.supportsBlock( state ) && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK || isMultipart )
 			{
 				GlStateManager.enableBlend();
 				GlStateManager.tryBlendFuncSeparate( 770, 771, 1, 0 );
@@ -519,11 +530,24 @@ public class ClientSide
 
 				if ( block.getMaterial() != Material.air && theWorld.getWorldBorder().contains( blockpos ) )
 				{
-					final VoxelBlob vb = new VoxelBlob();
-					vb.fill( 1 ); // fill with.. something soild...
+					VoxelBlob vb = new VoxelBlob();
 
-					final BlockChiseled chiselBlock = ChiselsAndBits.getBlocks().getConversion( block.getMaterial() );
-					RenderGlobal.drawSelectionBoundingBox( chiselBlock.getSelectedBoundingBox( player, blockpos, vb, chMode ).expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x, -y, -z ) );
+					if ( isChisel && data != null )
+					{
+						vb = data.getBlob();
+					}
+					else
+					{
+						vb.fill( isMultipart && !isChisel ? 0 : 1 );
+					}
+
+					final BlockChiseled chiselBlock = (BlockChiseled) ChiselsAndBits.getBlocks().getChiseledDefaultState().getBlock();
+					final AxisAlignedBB bounds = chiselBlock.getSelectedBoundingBox( player, blockpos, vb, chMode );
+
+					if ( bounds != null )
+					{
+						RenderGlobal.drawSelectionBoundingBox( bounds.expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x, -y, -z ) );
+					}
 				}
 
 				GlStateManager.depthMask( true );
@@ -956,6 +980,7 @@ public class ClientSide
 	}
 
 	public void pointAt(
+			final ChiselToolType type,
 			final BlockPos pos,
 			final int x,
 			final int y,
@@ -967,7 +992,22 @@ public class ClientSide
 			if ( drawStart == null )
 			{
 				drawStart = new BlockPos( x, y, z );
+				lastTool = type;
 			}
+		}
+	}
+
+	ChiselToolType lastTool = ChiselToolType.CHISEL;
+
+	KeyBinding getToolKey()
+	{
+		if ( lastTool == ChiselToolType.CHISEL )
+		{
+			return Minecraft.getMinecraft().gameSettings.keyBindAttack;
+		}
+		else
+		{
+			return Minecraft.getMinecraft().gameSettings.keyBindUseItem;
 		}
 	}
 
@@ -978,7 +1018,7 @@ public class ClientSide
 			final int y,
 			final int z )
 	{
-		if ( Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown() )
+		if ( getToolKey().isKeyDown() )
 		{
 			return drawBlock != null && drawBlock.equals( pos );
 		}
@@ -986,7 +1026,7 @@ public class ClientSide
 		{
 			if ( drawBlock != null && drawBlock.equals( pos ) )
 			{
-				final PacketChisel pc = new PacketChisel( Minecraft.getMinecraft().gameSettings.keyBindUseItem.isKeyDown(), pos, drawStart.getX(), drawStart.getY(), drawStart.getZ(), x, y, z, EnumFacing.UP, ChiselMode.DRAWN_REGION );
+				final PacketChisel pc = new PacketChisel( lastTool == ChiselToolType.BIT, pos, drawStart.getX(), drawStart.getY(), drawStart.getZ(), x, y, z, EnumFacing.UP, ChiselMode.DRAWN_REGION );
 				final int extractedState = pc.doAction( Minecraft.getMinecraft().thePlayer );
 
 				if ( extractedState != 0 )
@@ -994,8 +1034,10 @@ public class ClientSide
 					ClientSide.breakSound( Minecraft.getMinecraft().theWorld, pos, extractedState );
 					NetworkRouter.instance.sendToServer( pc );
 				}
+
 			}
 
+			lastTool = ChiselToolType.CHISEL;
 			drawBlock = null;
 			drawStart = null;
 			return false;
@@ -1041,6 +1083,11 @@ public class ClientSide
 	public String getModeKey()
 	{
 		return GameSettings.getKeyDisplayString( modeMenu.getKeyCode() );
+	}
+
+	public ChiselToolType getDrawnTool()
+	{
+		return lastTool;
 	}
 
 }

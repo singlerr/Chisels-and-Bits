@@ -41,7 +41,7 @@ public class ChiselsAndBits
 			+ net.minecraftforge.common.ForgeVersion.majorVersion + '.' // majorVersion
 			+ net.minecraftforge.common.ForgeVersion.minorVersion + '.' // minorVersion
 			+ net.minecraftforge.common.ForgeVersion.revisionVersion + '.' // revisionVersion
-			+ net.minecraftforge.common.ForgeVersion.buildVersion + ",)"; // buildVersion
+			+ net.minecraftforge.common.ForgeVersion.buildVersion + ",);after:mcmultipart@[1.0.4,)"; // buildVersion
 
 	// create creative tab...
 	private static ChiselsAndBits instance;

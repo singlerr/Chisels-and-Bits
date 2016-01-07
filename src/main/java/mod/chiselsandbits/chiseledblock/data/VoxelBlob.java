@@ -37,6 +37,8 @@ public class VoxelBlob
 
 	private final static int array_size = full_size;
 
+	public static VoxelBlob NULL_BLOB = new VoxelBlob();
+
 	private final int[] values = new int[array_size];
 
 	public int detail = dim;

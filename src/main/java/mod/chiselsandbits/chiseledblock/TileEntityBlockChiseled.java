@@ -478,6 +478,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 			// since its possible for bits to occlude parts.. update every time.
 			final Block blk = worldObj.getBlockState( pos ).getBlock();
+			MCMultipartProxy.proxyMCMultiPart.triggerPartChange( worldObj.getTileEntity( pos ) );
 			worldObj.notifyBlockOfStateChange( pos, blk );
 			worldObj.notifyNeighborsOfStateChange( pos, blk );
 		}

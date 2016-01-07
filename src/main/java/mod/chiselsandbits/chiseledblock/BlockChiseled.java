@@ -598,7 +598,13 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 
 			final VoxelBlob vb = tec.getBlob();
-			return getSelectedBoundingBox( playerIn, pos, vb, chMode );
+
+			final AxisAlignedBB bb = getSelectedBoundingBox( playerIn, pos, vb, chMode );
+
+			if ( bb != null )
+			{
+				return bb;
+			}
 		}
 
 		final Block boundsToTest = setBounds( tec, pos, null, null );
@@ -610,13 +616,14 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	@SideOnly( Side.CLIENT )
 	public AxisAlignedBB getSelectedBoundingBox(
 			final EntityPlayer playerIn,
-			final BlockPos pos,
+			final BlockPos ipos,
 			final VoxelBlob vb,
 			final ChiselMode chMode )
 	{
 		final Pair<Vec3, Vec3> PlayerRay = ModUtil.getPlayerRay( playerIn );
 		final Vec3 a = PlayerRay.getLeft();
 		final Vec3 b = PlayerRay.getRight();
+		BlockPos pos = ipos;
 
 		MovingObjectPosition selectedR = null;
 		double lastDist = 0;
@@ -640,8 +647,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 					{
 						final float x_One16thf = One16thf * x;
 
-						setBlockBounds( x_One16thf, y_One16thf, z_One16thf, x_One16thf + One16thf, y_One16thf_p1, z_One16thf_p1 );
-						final MovingObjectPosition r = super.collisionRayTrace( playerIn.worldObj, pos, a, b );
+						getTestBlock().setBlockBounds( x_One16thf, y_One16thf, z_One16thf, x_One16thf + One16thf, y_One16thf_p1, z_One16thf_p1 );
+						final MovingObjectPosition r = getTestBlock().collisionRayTrace( null, pos, a, b );
 
 						if ( r != null )
 						{
@@ -662,15 +669,60 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 		}
 
-		setBlockBounds( 0, 0, 0, 1, 1, 1 );
+		foundMop: if ( selectedR == null && chMode == ChiselMode.DRAWN_REGION && ClientSide.instance.getDrawnTool() == ChiselToolType.BIT )
+		{
+			final World w = playerIn.getEntityWorld();
+			final Block blk = w.getBlockState( pos ).getBlock();
+			selectedR = blk.collisionRayTrace( w, pos, a, b );
+
+			if ( selectedR != null )
+			{
+				break foundMop;
+			}
+
+			for ( final EnumFacing face : EnumFacing.VALUES )
+			{
+				final BlockPos p = pos.offset( face );
+				final Block blkX = w.getBlockState( p ).getBlock();
+
+				selectedR = blkX.collisionRayTrace( w, pos, a, b );
+				if ( selectedR != null )
+				{
+					break foundMop;
+				}
+			}
+		}
 
 		if ( selectedR != null )
 		{
 			final float One32ndf = 0.5f / VoxelBlob.dim;
 
-			final int x = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * ( selectedR.hitVec.xCoord - pos.getX() - One32ndf * selectedR.sideHit.getFrontOffsetX() ) ) ) );
-			final int y = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * ( selectedR.hitVec.yCoord - pos.getY() - One32ndf * selectedR.sideHit.getFrontOffsetY() ) ) ) );
-			final int z = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * ( selectedR.hitVec.zCoord - pos.getZ() - One32ndf * selectedR.sideHit.getFrontOffsetZ() ) ) ) );
+			int x, y, z;
+			if ( chMode == ChiselMode.DRAWN_REGION && ClientSide.instance.getDrawnTool() == ChiselToolType.BIT )
+			{
+				double whereX = selectedR.hitVec.xCoord + selectedR.sideHit.getFrontOffsetX() * One32ndf - pos.getX();
+				double whereY = selectedR.hitVec.yCoord + selectedR.sideHit.getFrontOffsetY() * One32ndf - pos.getY();
+				double whereZ = selectedR.hitVec.zCoord + selectedR.sideHit.getFrontOffsetZ() * One32ndf - pos.getZ();
+
+				if ( whereX < -0.001 || whereY < -0.001 || whereZ < -0.001 || whereX > 1.001 || whereY > 1.001 || whereZ > 1.001 )
+				{
+					pos = pos.offset( selectedR.sideHit );
+
+					whereX -= selectedR.sideHit.getFrontOffsetX();
+					whereY -= selectedR.sideHit.getFrontOffsetY();
+					whereZ -= selectedR.sideHit.getFrontOffsetZ();
+				}
+
+				x = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * whereX ) ) );
+				y = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * whereY ) ) );
+				z = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * whereZ ) ) );
+			}
+			else
+			{
+				x = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * ( selectedR.hitVec.xCoord - pos.getX() - One32ndf * selectedR.sideHit.getFrontOffsetX() ) ) ) );
+				y = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * ( selectedR.hitVec.yCoord - pos.getY() - One32ndf * selectedR.sideHit.getFrontOffsetY() ) ) ) );
+				z = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * ( selectedR.hitVec.zCoord - pos.getZ() - One32ndf * selectedR.sideHit.getFrontOffsetZ() ) ) ) );
+			}
 
 			ChiselTypeIterator ci;
 			final BlockPos drawStart = ClientSide.instance.getStartPos();
@@ -691,7 +743,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				}
 				else
 				{
-					ci = new ChiselTypeIterator( VoxelBlob.dim, 0, 0, 0, 0, 0, 0, selectedR.sideHit );
+					return null;
 				}
 			}
 			else
@@ -699,13 +751,13 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				ci = new ChiselTypeIterator( VoxelBlob.dim, x, y, z, vb, chMode, selectedR.sideHit );
 			}
 
-			AxisAlignedBB br = ci.getBoundingBox( vb );
+			AxisAlignedBB br = ci.getBoundingBox( VoxelBlob.NULL_BLOB, false );
 			br = br.offset( pos.getX(), pos.getY(), pos.getZ() );
 
 			return br;
 		}
 
-		return AxisAlignedBB.fromBounds( 0, 0, 0, 1, 1, 1 ).offset( pos.getX(), pos.getY(), pos.getZ() );
+		return null;
 	}
 
 	@Override

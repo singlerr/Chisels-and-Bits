@@ -113,7 +113,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 					final int y = getY( (float) mop.hitVec.yCoord - pos.getY(), mop.sideHit );
 					final int z = getZ( (float) mop.hitVec.zCoord - pos.getZ(), mop.sideHit );
 
-					ClientSide.instance.pointAt( pos, x, y, z );
+					ClientSide.instance.pointAt( ChiselToolType.CHISEL, pos, x, y, z );
 					return true;
 				}
 

@@ -57,6 +57,22 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 	}
 
 	@Override
+	public void triggerPartChange(
+			final TileEntity te )
+	{
+		if ( te instanceof IMultipartContainer && !te.getWorld().isRemote )
+		{
+			for ( final IMultipart part : ( (IMultipartContainer) te ).getParts() )
+			{
+				if ( part instanceof ChisledBlockPart )
+				{
+					( (ChisledBlockPart) part ).notifyPartUpdate();
+				}
+			}
+		}
+	}
+
+	@Override
 	public void convertIfPossible(
 			final TileEntity current,
 			final TileEntityBlockChiseled newTileEntity )

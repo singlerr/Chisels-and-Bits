@@ -20,4 +20,7 @@ public interface IMCMultiPart
 			TileEntity te,
 			boolean create );
 
+	void triggerPartChange(
+			TileEntity te );
+
 }
