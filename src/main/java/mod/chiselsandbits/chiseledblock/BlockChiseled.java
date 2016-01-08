@@ -54,8 +54,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class BlockChiseled extends Block implements ITileEntityProvider
 {
@@ -582,7 +581,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final TileEntityBlockChiseled tec,
 			final BlockPos pos )
 	{
-		if ( tec.getWorld().isRemote )
+		if ( FMLCommonHandler.instance().getSide().isClient() )
 		{
 			final EntityPlayer playerIn = ClientSide.instance.getPlayer();
 			final ItemStack equiped = playerIn.getCurrentEquippedItem();
@@ -591,10 +590,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final ChiselMode chMode = ChiselModeManager.getChiselMode( tool );
 			if ( tool == null || equiped == null || null == chMode )
 			{
-				final Block boundsToTest = setBounds( tec, pos, null, null );
-				final AxisAlignedBB r = boundsToTest.getSelectedBoundingBox( null, pos );
-
-				return r;
+				return getBoundingBox( setBounds( tec, pos, null, null ), pos );
 			}
 
 			final VoxelBlob vb = tec.getBlob();
@@ -607,13 +603,22 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 		}
 
-		final Block boundsToTest = setBounds( tec, pos, null, null );
-		final AxisAlignedBB r = boundsToTest.getSelectedBoundingBox( null, pos );
-
-		return r;
+		return getBoundingBox( setBounds( tec, pos, null, null ), pos );
 	}
 
-	@SideOnly( Side.CLIENT )
+	private AxisAlignedBB getBoundingBox(
+			final Block target,
+			final BlockPos pos )
+	{
+		return new AxisAlignedBB(
+				pos.getX() + target.getBlockBoundsMinX(),
+				pos.getY() + target.getBlockBoundsMinY(),
+				pos.getZ() + target.getBlockBoundsMinZ(),
+				pos.getX() + target.getBlockBoundsMaxX(),
+				pos.getY() + target.getBlockBoundsMaxY(),
+				pos.getZ() + target.getBlockBoundsMaxZ() );
+	}
+
 	public AxisAlignedBB getSelectedBoundingBox(
 			final EntityPlayer playerIn,
 			final BlockPos ipos,

@@ -519,7 +519,7 @@ public class ClientSide
 			final boolean isChisel = getDrawnTool() == ChiselToolType.CHISEL;
 			final TileEntityBlockChiseled data = MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( te, false );
 
-			if ( BlockBitInfo.supportsBlock( state ) && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK || isMultipart )
+			if ( BlockBitInfo.supportsBlock( state ) && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK || isMultipart || !isChisel )
 			{
 				GlStateManager.enableBlend();
 				GlStateManager.tryBlendFuncSeparate( 770, 771, 1, 0 );
