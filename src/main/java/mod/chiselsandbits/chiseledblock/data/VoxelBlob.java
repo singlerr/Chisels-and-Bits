@@ -2,9 +2,9 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -382,11 +382,14 @@ public class VoxelBlob
 			final ByteArrayInputStream o ) throws IOException
 	{
 		final GZIPInputStream w = new GZIPInputStream( o );
-		final DataInputStream dio = new DataInputStream( w );
+		final ByteBuffer bb = ByteBuffer.allocate( values.length * Short.BYTES );
+
+		w.read( bb.array() );
+		final ShortBuffer src = bb.asShortBuffer();
 
 		for ( int x = 0; x < array_size; x++ )
 		{
-			values[x] = dio.readShort();
+			values[x] = src.get();
 		}
 
 		w.close();
@@ -398,14 +401,16 @@ public class VoxelBlob
 		try
 		{
 			final GZIPOutputStream w = new GZIPOutputStream( o );
-			final DataOutputStream dio = new DataOutputStream( w );
+
+			final ByteBuffer bb = ByteBuffer.allocate( values.length * Short.BYTES );
+			final ShortBuffer sb = bb.asShortBuffer();
 
 			for ( int x = 0; x < array_size; x++ )
 			{
-				dio.writeShort( values[x] );
+				sb.put( (short) values[x] );
 			}
 
-			dio.close();
+			w.write( bb.array() );
 
 			w.finish();
 			w.close();

@@ -1,5 +1,8 @@
 package mod.chiselsandbits.chiseledblock;
 
+import java.util.Collections;
+import java.util.List;
+
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
@@ -21,6 +24,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -616,6 +620,20 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		}
 
 		return false;
+	}
+
+	public List<AxisAlignedBB> getOcclusionBoxes()
+	{
+		final VoxelBlobStateReference ref = getBlobStateReference();
+
+		if ( ref != null )
+		{
+			return ref.getOcclusionBoxes();
+		}
+		else
+		{
+			return Collections.emptyList();
+		}
 	}
 
 }

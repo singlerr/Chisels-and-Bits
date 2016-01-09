@@ -2,8 +2,11 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import java.lang.ref.WeakReference;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+
+import net.minecraft.util.AxisAlignedBB;
 
 public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReference>
 {
@@ -108,6 +111,11 @@ public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReferen
 			return weight < o.weight ? -1 : 1;
 		}
 		return comp;
+	}
+
+	public List<AxisAlignedBB> getOcclusionBoxes()
+	{
+		return data.getOcclusionBoxes();
 	}
 
 }

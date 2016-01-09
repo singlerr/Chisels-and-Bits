@@ -7,11 +7,13 @@ import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ContinousBits;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.ModPacket;
@@ -29,11 +31,8 @@ import net.minecraft.world.World;
 
 public class PacketChisel extends ModPacket
 {
-
-	BlockPos pos;
-
-	int x, y, z;
-	int from_x, from_y, from_z;
+	BitLocation from;
+	BitLocation to;
 
 	boolean place;
 	EnumFacing side;
@@ -46,42 +45,26 @@ public class PacketChisel extends ModPacket
 
 	public PacketChisel(
 			final boolean place,
-			final BlockPos pos,
-			final int x,
-			final int y,
-			final int z,
-			final int fx,
-			final int fy,
-			final int fz,
+			final BitLocation from,
+			final BitLocation to,
 			final EnumFacing side,
 			final ChiselMode mode )
 	{
 		this.place = place;
-		this.pos = pos;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		from_x = fx;
-		from_y = fy;
-		from_z = fz;
+		this.from = BitLocation.min( from, to );
+		this.to = BitLocation.max( from, to );
 		this.side = side;
 		this.mode = mode;
 	}
 
 	public PacketChisel(
 			final boolean place,
-			final BlockPos pos,
-			final int x,
-			final int y,
-			final int z,
+			final BitLocation location,
 			final EnumFacing side,
 			final ChiselMode mode )
 	{
 		this.place = place;
-		this.pos = pos;
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		from = to = location;
 		this.side = side;
 		this.mode = mode;
 	}
@@ -98,164 +81,161 @@ public class PacketChisel extends ModPacket
 	{
 		final World world = player.worldObj;
 
-		final int placeStateID = place ? ItemChisel.getStackState( player.getCurrentEquippedItem() ) : 0;
-		final IContinuousInventory chisel = place ? new ContinousBits( player, placeStateID ) : new ContinousChisels( player, pos, side );
+		final int minX = Math.min( from.blockPos.getX(), to.blockPos.getX() );
+		final int maxX = Math.max( from.blockPos.getX(), to.blockPos.getX() );
+		final int minY = Math.min( from.blockPos.getY(), to.blockPos.getY() );
+		final int maxY = Math.max( from.blockPos.getY(), to.blockPos.getY() );
+		final int minZ = Math.min( from.blockPos.getZ(), to.blockPos.getZ() );
+		final int maxZ = Math.max( from.blockPos.getZ(), to.blockPos.getZ() );
+		// final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
-		IBlockState blkstate = world.getBlockState( pos );
-		Block blkObj = blkstate.getBlock();
+		int returnVal = 0;
 
-		if ( !chisel.isValid() || blkObj == null || blkstate == null || !place && !ItemChisel.canMine( chisel, blkstate, player, world, pos ) )
+		boolean update = false;
+		ItemStack extracted = null;
+
+		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
+
+		for ( int xOff = minX; xOff <= maxX; ++xOff )
 		{
-			return 0;
-		}
-
-		if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) && place )
-		{
-			world.setBlockToAir( pos );
-		}
-
-		if ( BlockChiseled.replaceWithChisled( world, pos, blkstate, placeStateID ) )
-		{
-			blkstate = world.getBlockState( pos );
-			blkObj = blkstate.getBlock();
-		}
-
-		final TileEntity te = ModUtil.getChiseledTileEntity( world, pos, place );
-		if ( te instanceof TileEntityBlockChiseled && chisel.isValid() )
-		{
-			final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
-
-			// adjust voxel state...
-			final VoxelBlob vb = tec.getBlob();
-
-			boolean update = false;
-			ItemStack extracted = null;
-
-			final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
-
-			final ChiselTypeIterator i = getIterator( vb );
-			while ( i.hasNext() && chisel.isValid() )
+			for ( int yOff = minY; yOff <= maxY; ++yOff )
 			{
-				if ( place )
+				for ( int zOff = minZ; zOff <= maxZ; ++zOff )
 				{
-					update = ItemChiseledBit.placeBit( chisel, player, vb, i.x(), i.y(), i.z() ) || update;
-				}
-				else
-				{
-					extracted = ItemChisel.chiselBlock( chisel, player, vb, world, pos, i.side, i.x(), i.y(), i.z(), extracted, spawnlist );
-				}
-			}
+					final BlockPos pos = new BlockPos( xOff, yOff, zOff );
 
-			for ( final EntityItem ei : spawnlist )
-			{
-				ModUtil.feedPlayer( world, player, ei );
-			}
+					final int placeStateID = place ? ItemChisel.getStackState( player.getCurrentEquippedItem() ) : 0;
+					final IContinuousInventory chisel = place ? new ContinousBits( player, placeStateID ) : new ContinousChisels( player, pos, side );
 
-			if ( update )
-			{
-				tec.postChisel( vb );
-				return update ? 1 : 0;
-			}
-			else if ( extracted != null )
-			{
-				tec.postChisel( vb );
-				return ItemChisel.getStackState( extracted );
+					IBlockState blkstate = world.getBlockState( pos );
+					Block blkObj = blkstate.getBlock();
+
+					if ( !chisel.isValid() || blkObj == null || blkstate == null || !place && !ItemChisel.canMine( chisel, blkstate, player, world, pos ) )
+					{
+						continue;
+					}
+
+					if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) && place )
+					{
+						world.setBlockToAir( pos );
+					}
+
+					if ( BlockChiseled.replaceWithChisled( world, pos, blkstate, placeStateID ) )
+					{
+						blkstate = world.getBlockState( pos );
+						blkObj = blkstate.getBlock();
+					}
+
+					final TileEntity te = ModUtil.getChiseledTileEntity( world, pos, place );
+					if ( te instanceof TileEntityBlockChiseled && chisel.isValid() )
+					{
+						final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
+
+						final VoxelBlob mask = new VoxelBlob();
+						MCMultipartProxy.proxyMCMultiPart.addFiller( world.getTileEntity( pos ), mask );
+
+						// adjust voxel state...
+						final VoxelBlob vb = tec.getBlob();
+
+						final ChiselTypeIterator i = getIterator( vb, pos );
+						while ( i.hasNext() && chisel.isValid() )
+						{
+							if ( place )
+							{
+								if ( mask.get( i.x(), i.y(), i.z() ) == 0 )
+								{
+									update = ItemChiseledBit.placeBit( chisel, player, vb, i.x(), i.y(), i.z() ) || update;
+								}
+							}
+							else
+							{
+								extracted = ItemChisel.chiselBlock( chisel, player, vb, world, pos, i.side, i.x(), i.y(), i.z(), extracted, spawnlist );
+							}
+						}
+
+						if ( update )
+						{
+							tec.postChisel( vb );
+							returnVal += update ? 1 : 0;
+						}
+						else if ( extracted != null )
+						{
+							tec.postChisel( vb );
+							returnVal += ItemChisel.getStackState( extracted );
+						}
+
+					}
+
+				}
 			}
 		}
 
-		return 0;
+		for ( final EntityItem ei : spawnlist )
+		{
+			ModUtil.feedPlayer( world, player, ei );
+		}
+
+		return returnVal;
 	}
 
 	private ChiselTypeIterator getIterator(
-			final VoxelBlob vb )
+			final VoxelBlob vb,
+			final BlockPos pos )
 	{
 		if ( mode == ChiselMode.DRAWN_REGION )
 		{
-			final int lowX = Math.max( 0, Math.min( x, from_x ) );
-			final int lowY = Math.max( 0, Math.min( y, from_y ) );
-			final int lowZ = Math.max( 0, Math.min( z, from_z ) );
+			final int bitX = pos.getX() == from.blockPos.getX() ? from.bitX : 0;
+			final int bitY = pos.getY() == from.blockPos.getY() ? from.bitY : 0;
+			final int bitZ = pos.getZ() == from.blockPos.getZ() ? from.bitZ : 0;
 
-			final int highX = Math.min( VoxelBlob.dim, Math.max( x, from_x ) );
-			final int highY = Math.min( VoxelBlob.dim, Math.max( y, from_y ) );
-			final int highZ = Math.min( VoxelBlob.dim, Math.max( z, from_z ) );
+			final int scaleX = ( pos.getX() == to.blockPos.getX() ? to.bitX : 15 ) - bitX + 1;
+			final int scaleY = ( pos.getY() == to.blockPos.getY() ? to.bitY : 15 ) - bitY + 1;
+			final int scaleZ = ( pos.getZ() == to.blockPos.getZ() ? to.bitZ : 15 ) - bitZ + 1;
 
-			return new ChiselTypeIterator( VoxelBlob.dim, lowX, lowY, lowZ, 1 + highX - lowX, 1 + highY - lowY, 1 + highZ - lowZ, side );
+			return new ChiselTypeIterator( VoxelBlob.dim, bitX, bitY, bitZ, scaleX, scaleY, scaleZ, side );
 		}
 
-		return new ChiselTypeIterator( VoxelBlob.dim, x, y, z, vb, mode, side );
+		return new ChiselTypeIterator( VoxelBlob.dim, from.bitX, from.bitY, from.bitZ, vb, mode, side );
 	}
 
 	@Override
 	public void readPayload(
 			final PacketBuffer buffer )
 	{
-		pos = buffer.readBlockPos();
+		from = readBitLoc( buffer );
+		to = readBitLoc( buffer );
 
-		int value = buffer.readInt();
-
-		x = value & 0xF;
-		value = value >>> 4;
-
-		y = value & 0xF;
-		value = value >>> 4;
-
-		z = value & 0xF;
-		value = value >>> 4;
-
-		side = EnumFacing.values()[value & 0x7];
-		value = value >>> 3;
-
-		mode = ChiselMode.values()[value];
-
-		int value2 = buffer.readInt();
-
-		place = ( value2 & 0x1 ) != 0;
-		value2 = value2 >>> 1;
-
-		from_x = value2 & 0xF;
-		value2 = value2 >>> 4;
-
-		from_y = value2 & 0xF;
-		value2 = value2 >>> 4;
-
-		from_z = value2 & 0xF;
-		value2 = value2 >>> 4;
+		place = buffer.readBoolean();
+		side = EnumFacing.VALUES[buffer.readVarIntFromBuffer()];
+		mode = ChiselMode.values()[buffer.readVarIntFromBuffer()];
 	}
 
 	@Override
 	public void getPayload(
 			final PacketBuffer buffer )
 	{
-		buffer.writeBlockPos( pos );
+		writeBitLoc( from, buffer );
+		writeBitLoc( to, buffer );
 
-		int value = mode.ordinal();
-		value = value << 3;
+		buffer.writeVarIntToBuffer( place ? 1 : 0 );
+		buffer.writeVarIntToBuffer( side.ordinal() );
+		buffer.writeVarIntToBuffer( mode.ordinal() );
+	}
 
-		value = value | side.ordinal();
-		value = value << 4;
+	private BitLocation readBitLoc(
+			final PacketBuffer buffer )
+	{
+		return new BitLocation( buffer.readBlockPos(), buffer.readByte(), buffer.readByte(), buffer.readByte() );
+	}
 
-		value = value | z;
-		value = value << 4;
-
-		value = value | y;
-		value = value << 4;
-
-		value = value | x;
-		buffer.writeInt( value );
-
-		int value2 = 0;
-		value2 = value2 | from_z;
-		value2 = value2 << 4;
-
-		value2 = value2 | from_y;
-		value2 = value2 << 4;
-
-		value2 = value2 | from_x;
-		value2 = value2 << 1;
-
-		value2 = value2 | ( place ? 1 : 0 );
-
-		buffer.writeInt( value2 );
+	private void writeBitLoc(
+			final BitLocation from2,
+			final PacketBuffer buffer )
+	{
+		buffer.writeBlockPos( from2.blockPos );
+		buffer.writeByte( from2.bitX );
+		buffer.writeByte( from2.bitY );
+		buffer.writeByte( from2.bitZ );
 	}
 
 }

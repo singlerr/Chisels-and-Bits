@@ -2,13 +2,19 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import net.minecraft.util.AxisAlignedBB;
 
 public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance>
 {
 
 	public final int hash;
 	public final byte[] v;
+
+	SoftReference<List<AxisAlignedBB>> occlusion;
 	SoftReference<VoxelBlob> blob;
 
 	public VoxelBlobStateInstance(
@@ -79,5 +85,32 @@ public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance
 		{
 			return new VoxelBlob();
 		}
+	}
+
+	public List<AxisAlignedBB> getOcclusionBoxes()
+	{
+		List<AxisAlignedBB> cache = occlusion == null ? null : occlusion.get();
+
+		if ( cache == null )
+		{
+			occlusion = new SoftReference<List<AxisAlignedBB>>( cache = new ArrayList<AxisAlignedBB>() );
+
+			final VoxelBlob blob = getBlob();
+			final BitOcclusionIterator boi = new BitOcclusionIterator( cache );
+
+			while ( boi.hasNext() )
+			{
+				if ( boi.getNext( blob ) != 0 )
+				{
+					boi.add();
+				}
+				else
+				{
+					boi.drop();
+				}
+			}
+		}
+
+		return cache;
 	}
 }

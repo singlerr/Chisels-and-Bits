@@ -3,8 +3,6 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
@@ -13,6 +11,7 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitColors;
+import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ChiselModeManager;
@@ -120,156 +119,88 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		return BitColors.getColorFor( state, renderPass );
 	}
 
-	final private static float HALF_16th = 0.5f / 16.0f;
-
 	@Override
 	public boolean onItemUse(
 			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
-			BlockPos pos,
+			final BlockPos usedBlock,
 			final EnumFacing side,
-			float hitX,
-			float hitY,
-			float hitZ )
+			final float hitX,
+			final float hitY,
+			final float hitZ )
 	{
-		if ( !player.canPlayerEdit( pos, side, stack ) )
+		if ( !player.canPlayerEdit( usedBlock, side, stack ) )
 		{
 			return false;
 		}
 
 		if ( world.isRemote )
 		{
-			IBlockState blkstate = world.getBlockState( pos );
-
 			final ChiselMode mode = ChiselModeManager.getChiselMode( ClientSide.instance.getHeldToolType() );
+			final BitLocation bitLocation = new BitLocation( new MovingObjectPosition( MovingObjectType.BLOCK, new Vec3( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.BIT );
+			final BitLocation chiselLocation = new BitLocation( new MovingObjectPosition( MovingObjectType.BLOCK, new Vec3( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.CHISEL );
 
-			if ( mode == ChiselMode.DRAWN_REGION )
+			IBlockState blkstate = world.getBlockState( bitLocation.blockPos );
+			TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );
+			if ( tebc == null && BlockChiseled.replaceWithChisled( world, bitLocation.blockPos, blkstate, ItemChisel.getStackState( stack ) ) )
 			{
-				final Pair<Vec3, Vec3> PlayerRay = ModUtil.getPlayerRay( player );
-				final Vec3 a = PlayerRay.getLeft();
-				final Vec3 b = PlayerRay.getRight();
-
-				final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, a, b );
-				if ( mop != null && mop.typeOfHit == MovingObjectType.BLOCK )
-				{
-					double whereX = mop.hitVec.xCoord + side.getFrontOffsetX() * HALF_16th - pos.getX();
-					double whereY = mop.hitVec.yCoord + side.getFrontOffsetY() * HALF_16th - pos.getY();
-					double whereZ = mop.hitVec.zCoord + side.getFrontOffsetZ() * HALF_16th - pos.getZ();
-
-					if ( whereX < -0.001 || whereY < -0.001 || whereZ < -0.001 || whereX > 1.001 || whereY > 1.001 || whereZ > 1.001 )
-					{
-						pos = pos.offset( side );
-						whereX -= side.getFrontOffsetX();
-						whereY -= side.getFrontOffsetY();
-						whereZ -= side.getFrontOffsetZ();
-					}
-
-					final int x = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * whereX ) ) );
-					final int y = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * whereY ) ) );
-					final int z = Math.min( VoxelBlob.dim_minus_one, Math.max( 0, (int) ( VoxelBlob.dim * whereZ ) ) );
-
-					ClientSide.instance.pointAt( ChiselToolType.BIT, pos, x, y, z );
-					return true;
-				}
-
-				return true;
-			}
-
-			TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, pos, true );
-			ChiselTypeIterator connectedPlaneIterator = null;
-			IntegerBox connectedBox = null;
-
-			if ( tebc != null )
-			{
-				final VoxelBlob vx = tebc.getBlob();
-
-				final int x = ItemChisel.getX( hitX, side );
-				final int y = ItemChisel.getY( hitY, side );
-				final int z = ItemChisel.getZ( hitZ, side );
-
-				connectedPlaneIterator = new ChiselTypeIterator( VoxelBlob.dim, x, y, z, vx, mode, side );
-				connectedBox = connectedPlaneIterator.getVoxelBox( vx, true );
-			}
-			else
-			{
-				final VoxelBlob vx = new VoxelBlob();
-				vx.fill( Block.getStateId( blkstate ) );
-
-				final int x = ItemChisel.getX( hitX, side );
-				final int y = ItemChisel.getY( hitY, side );
-				final int z = ItemChisel.getZ( hitZ, side );
-
-				connectedPlaneIterator = new ChiselTypeIterator( VoxelBlob.dim, x, y, z, vx, mode, side );
-				connectedBox = connectedPlaneIterator.getVoxelBox( vx, true );
-			}
-
-			hitX += side.getFrontOffsetX() * HALF_16th;
-			hitY += side.getFrontOffsetY() * HALF_16th;
-			hitZ += side.getFrontOffsetZ() * HALF_16th;
-
-			if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) )
-			{
-				world.setBlockToAir( pos );
-			}
-			else if ( tebc == null || hitX < -0.001 || hitY < -0.001 || hitZ < -0.001 || hitX > 1.001 || hitY > 1.001 || hitZ > 1.001 )
-			{
-				pos = pos.offset( side );
-				hitX -= side.getFrontOffsetX();
-				hitY -= side.getFrontOffsetY();
-				hitZ -= side.getFrontOffsetZ();
-
-				if ( connectedBox != null )
-				{
-					connectedBox.minX -= side.getFrontOffsetX() * 16;
-					connectedBox.maxX -= side.getFrontOffsetX() * 16;
-					connectedBox.minY -= side.getFrontOffsetY() * 16;
-					connectedBox.maxY -= side.getFrontOffsetY() * 16;
-					connectedBox.minZ -= side.getFrontOffsetZ() * 16;
-					connectedBox.maxZ -= side.getFrontOffsetZ() * 16;
-				}
-
-				blkstate = world.getBlockState( pos );
-				tebc = ModUtil.getChiseledTileEntity( world, pos, true );
-			}
-
-			if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) )
-			{
-				world.setBlockToAir( pos );
-			}
-
-			if ( tebc == null && BlockChiseled.replaceWithChisled( world, pos, blkstate, ItemChisel.getStackState( stack ) ) )
-			{
-				blkstate = world.getBlockState( pos );
-				tebc = ModUtil.getChiseledTileEntity( world, pos, true );
+				blkstate = world.getBlockState( bitLocation.blockPos );
+				tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );
 			}
 
 			if ( tebc != null )
 			{
-				final int stateID = ItemChisel.getStackState( stack );
-
-				// adjust voxel state...
-				final VoxelBlob vb = tebc.getBlob();
-
-				final int x = Math.min( 15, Math.max( 0, (int) ( vb.detail * hitX ) ) );
-				final int y = Math.min( 15, Math.max( 0, (int) ( vb.detail * hitY ) ) );
-				final int z = Math.min( 15, Math.max( 0, (int) ( vb.detail * hitZ ) ) );
-
 				PacketChisel pc = null;
 
 				switch ( mode )
 				{
+					case DRAWN_REGION:
+						if ( world.isRemote )
+						{
+							ClientSide.instance.pointAt( ChiselToolType.BIT, bitLocation );
+						}
+						return false;
+
 					case CONNECTED_PLANE:
-						connectedBox.minX += side.getFrontOffsetX();
-						connectedBox.maxX += side.getFrontOffsetX();
-						connectedBox.minY += side.getFrontOffsetY();
-						connectedBox.maxY += side.getFrontOffsetY();
-						connectedBox.minZ += side.getFrontOffsetZ();
-						connectedBox.maxZ += side.getFrontOffsetZ();
-						pc = new PacketChisel( true, pos, connectedBox.minX, connectedBox.minY, connectedBox.minZ, connectedBox.maxX, connectedBox.maxY, connectedBox.maxZ, side, ChiselMode.DRAWN_REGION );
+
+						final TileEntityBlockChiseled vsTile = ModUtil.getChiseledTileEntity( world, chiselLocation.blockPos, true );
+						VoxelBlob vsBlob = null;
+
+						if ( vsTile == null )
+						{
+							vsBlob = new VoxelBlob();
+							vsBlob.fill( 1 );
+						}
+						else
+						{
+							vsBlob = vsTile.getBlob();
+						}
+
+						final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, chiselLocation.bitX, chiselLocation.bitY, chiselLocation.bitZ, vsBlob, ChiselMode.CONNECTED_PLANE, side );
+						final IntegerBox connectedBox = i.getVoxelBox( vsBlob, true );
+
+						if ( connectedBox == null )
+						{
+							return false;
+						}
+
+						BlockPos targetBlock = bitLocation.blockPos;
+
+						connectedBox.move( side, 1 );
+						if ( connectedBox.isBadBitPositions() )
+						{
+							final EnumFacing reverse = side.getOpposite();
+							connectedBox.move( reverse, 16 );
+							targetBlock = targetBlock.offset( side );
+						}
+
+						final BitLocation from = new BitLocation( bitLocation.blockPos, connectedBox.minX, connectedBox.minY, connectedBox.minZ );
+						final BitLocation to = new BitLocation( bitLocation.blockPos, connectedBox.maxX, connectedBox.maxY, connectedBox.maxZ );
+						pc = new PacketChisel( true, from, to, side, ChiselMode.DRAWN_REGION );
 						break;
 					default:
-						pc = new PacketChisel( true, pos, x, y, z, side, mode );
+						pc = new PacketChisel( true, bitLocation, side, mode );
 						break;
 				}
 
@@ -278,7 +209,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				if ( result > 0 )
 				{
 					NetworkRouter.instance.sendToServer( pc );
-					ClientSide.placeSound( world, pos, stateID );
+					// ClientSide.placeSound( world, usedBlock, );
 				}
 			}
 		}

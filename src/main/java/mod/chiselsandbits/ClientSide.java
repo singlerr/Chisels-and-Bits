@@ -14,10 +14,12 @@ import com.google.common.base.Stopwatch;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
+import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
@@ -38,7 +40,6 @@ import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.GeneratedModelLoader;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
@@ -418,7 +419,6 @@ public class ClientSide
 		{
 			if ( loopDeath )
 			{
-				drawBlock = null;
 				drawStart = null;
 				lastTool = ChiselToolType.CHISEL;
 			}
@@ -491,10 +491,6 @@ public class ClientSide
 		final MovingObjectPosition mop = event.target;
 		final World theWorld = player.worldObj;
 
-		final double x = player.lastTickPosX + ( player.posX - player.lastTickPosX ) * partialTicks;
-		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
-		final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
-
 		ChiselToolType tool = getHeldToolType();
 		final ChiselMode chMode = ChiselModeManager.getChiselMode( tool );
 		if ( chMode == ChiselMode.DRAWN_REGION )
@@ -509,18 +505,10 @@ public class ClientSide
 				return;
 			}
 
-			final BlockPos blockpos = mop.getBlockPos();
-			final IBlockState state = theWorld.getBlockState( blockpos );
-			final Block block = state.getBlock();
-			final TileEntity te = theWorld.getTileEntity( blockpos );
-
-			// this logic originated in the vanilla bounding box...
-			final boolean isMultipart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( te );
-			final boolean isChisel = getDrawnTool() == ChiselToolType.CHISEL;
-			final TileEntityBlockChiseled data = MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( te, false );
-
-			if ( BlockBitInfo.supportsBlock( state ) && mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK || isMultipart || !isChisel )
+			if ( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
 			{
+				final BitLocation location = new BitLocation( mop, true, getDrawnTool() );
+
 				GlStateManager.enableBlend();
 				GlStateManager.tryBlendFuncSeparate( 770, 771, 1, 0 );
 				GlStateManager.color( 0.0F, 0.0F, 0.0F, 0.4F );
@@ -528,25 +516,62 @@ public class ClientSide
 				GlStateManager.disableTexture2D();
 				GlStateManager.depthMask( false );
 
-				if ( block.getMaterial() != Material.air && theWorld.getWorldBorder().contains( blockpos ) )
+				if ( theWorld.getWorldBorder().contains( location.blockPos ) )
 				{
-					VoxelBlob vb = new VoxelBlob();
+					// this logic originated in the vanilla bounding box...
+					final IBlockState state = theWorld.getBlockState( location.blockPos );
 
-					if ( isChisel && data != null )
+					final TileEntity te = theWorld.getTileEntity( location.blockPos );
+					final boolean isMultipart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( te );
+					final boolean isChisel = getDrawnTool() == ChiselToolType.CHISEL;
+					final TileEntityBlockChiseled data = ModUtil.getChiseledTileEntity( te, false );
+
+					final VoxelBlob vb = data != null ? data.getBlob() : new VoxelBlob();
+
+					if ( isChisel && data == null )
 					{
-						vb = data.getBlob();
+						vb.fill( 1 );
+					}
+
+					final BitLocation other = getStartPos();
+					if ( chMode == ChiselMode.DRAWN_REGION && other != null )
+					{
+						final ChiselTypeIterator oneEnd = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, VoxelBlob.NULL_BLOB, ChiselMode.SINGLE, EnumFacing.UP );
+						final ChiselTypeIterator otherEnd = new ChiselTypeIterator( VoxelBlob.dim, other.bitX, other.bitY, other.bitZ, VoxelBlob.NULL_BLOB, ChiselMode.SINGLE, EnumFacing.UP );
+
+						final AxisAlignedBB a = oneEnd.getBoundingBox( VoxelBlob.NULL_BLOB, false ).offset( location.blockPos.getX(), location.blockPos.getY(), location.blockPos.getZ() );
+						final AxisAlignedBB b = otherEnd.getBoundingBox( VoxelBlob.NULL_BLOB, false ).offset( other.blockPos.getX(), other.blockPos.getY(), other.blockPos.getZ() );
+
+						final AxisAlignedBB bb = a.union( b );
+
+						final double maxChiseSize = ChiselsAndBits.getConfig().maxDrawnRegionSize + 0.001;
+						if ( bb.maxX - bb.minX <= maxChiseSize && bb.maxY - bb.minY <= maxChiseSize && bb.maxZ - bb.minZ <= maxChiseSize )
+						{
+							drawSelectionBoundingBoxIfExists( bb, BlockPos.ORIGIN, player, partialTicks );
+
+							if ( !getToolKey().isKeyDown() )
+							{
+								final PacketChisel pc = new PacketChisel( lastTool == ChiselToolType.BIT, location, other, EnumFacing.UP, chMode );
+
+								if ( pc.doAction( getPlayer() ) > 0 )
+								{
+									NetworkRouter.instance.sendToServer( pc );
+									ClientSide.placeSound( theWorld, location.blockPos, 0 );
+								}
+
+								drawStart = null;
+								lastTool = ChiselToolType.CHISEL;
+							}
+						}
 					}
 					else
 					{
-						vb.fill( isMultipart && !isChisel ? 0 : 1 );
-					}
-
-					final BlockChiseled chiselBlock = (BlockChiseled) ChiselsAndBits.getBlocks().getChiseledDefaultState().getBlock();
-					final AxisAlignedBB bounds = chiselBlock.getSelectedBoundingBox( player, blockpos, vb, chMode );
-
-					if ( bounds != null )
-					{
-						RenderGlobal.drawSelectionBoundingBox( bounds.expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x, -y, -z ) );
+						if ( theWorld.isAirBlock( location.blockPos ) || te instanceof TileEntityBlockChiseled || BlockBitInfo.supportsBlock( state ) || isMultipart )
+						{
+							final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, vb, chMode, mop.sideHit );
+							final AxisAlignedBB bb = i.getBoundingBox( vb, isChisel );
+							drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks );
+						}
 					}
 				}
 
@@ -556,6 +581,22 @@ public class ClientSide
 
 				event.setCanceled( true );
 			}
+		}
+	}
+
+	private void drawSelectionBoundingBoxIfExists(
+			final AxisAlignedBB bb,
+			final BlockPos blockPos,
+			final EntityPlayer player,
+			final float partialTicks )
+	{
+		if ( bb != null )
+		{
+			final double x = player.lastTickPosX + ( player.posX - player.lastTickPosX ) * partialTicks;
+			final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
+			final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
+
+			RenderGlobal.drawSelectionBoundingBox( bb.expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ() ) );
 		}
 	}
 
@@ -947,9 +988,9 @@ public class ClientSide
 	public static void placeSound(
 			final World world,
 			final BlockPos pos,
-			final int metadata )
+			final int stateID )
 	{
-		final IBlockState state = Block.getStateById( metadata );
+		final IBlockState state = Block.getStateById( stateID );
 		final Block block = state.getBlock();
 		world.playSound( pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, block.stepSound.getPlaceSound(), ( block.stepSound.getVolume() + 1.0F ) / 16.0F, block.stepSound.getFrequency() * 0.9F, false );
 	}
@@ -964,8 +1005,7 @@ public class ClientSide
 		world.playSound( pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, block.stepSound.getBreakSound(), ( block.stepSound.getVolume() + 1.0F ) / 16.0F, block.stepSound.getFrequency() * 0.9F, false );
 	}
 
-	private BlockPos drawBlock;
-	private BlockPos drawStart;
+	private BitLocation drawStart;
 	private boolean loopDeath = false;
 	private int lastRenderedFrame = Integer.MIN_VALUE;
 
@@ -974,26 +1014,19 @@ public class ClientSide
 		return lastRenderedFrame;
 	}
 
-	public BlockPos getStartPos()
+	public BitLocation getStartPos()
 	{
 		return drawStart;
 	}
 
 	public void pointAt(
 			final ChiselToolType type,
-			final BlockPos pos,
-			final int x,
-			final int y,
-			final int z )
+			final BitLocation pos )
 	{
-		if ( drawBlock == null || drawBlock.equals( pos ) )
+		if ( drawStart == null )
 		{
-			drawBlock = pos;
-			if ( drawStart == null )
-			{
-				drawStart = new BlockPos( x, y, z );
-				lastTool = type;
-			}
+			drawStart = pos;
+			lastTool = type;
 		}
 	}
 
@@ -1008,39 +1041,6 @@ public class ClientSide
 		else
 		{
 			return Minecraft.getMinecraft().gameSettings.keyBindUseItem;
-		}
-	}
-
-	public boolean sameDrawBlock(
-			final ChiselToolType tool,
-			final BlockPos pos,
-			final int x,
-			final int y,
-			final int z )
-	{
-		if ( getToolKey().isKeyDown() )
-		{
-			return drawBlock != null && drawBlock.equals( pos );
-		}
-		else
-		{
-			if ( drawBlock != null && drawBlock.equals( pos ) )
-			{
-				final PacketChisel pc = new PacketChisel( lastTool == ChiselToolType.BIT, pos, drawStart.getX(), drawStart.getY(), drawStart.getZ(), x, y, z, EnumFacing.UP, ChiselMode.DRAWN_REGION );
-				final int extractedState = pc.doAction( Minecraft.getMinecraft().thePlayer );
-
-				if ( extractedState != 0 )
-				{
-					ClientSide.breakSound( Minecraft.getMinecraft().theWorld, pos, extractedState );
-					NetworkRouter.instance.sendToServer( pc );
-				}
-
-			}
-
-			lastTool = ChiselToolType.CHISEL;
-			drawBlock = null;
-			drawStart = null;
-			return false;
 		}
 	}
 

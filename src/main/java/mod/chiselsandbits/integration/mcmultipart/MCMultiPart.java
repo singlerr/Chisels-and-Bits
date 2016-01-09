@@ -5,11 +5,15 @@ import mcmultipart.microblock.MicroblockRegistry;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartRegistry;
+import mcmultipart.multipart.OcclusionHelper;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.integration.ChiselsAndBitsIntegration;
 import mod.chiselsandbits.integration.IntegrationBase;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -132,6 +136,28 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 			final TileEntity te )
 	{
 		return te instanceof IMultipartContainer;
+	}
+
+	@Override
+	public void addFiler(
+			final TileEntity te,
+			final VoxelBlob vb )
+	{
+		if ( isMultiPart( te ) )
+		{
+			final IMultipartContainer mc = (IMultipartContainer) te;
+
+			final BitCollisionIterator bci = new BitCollisionIterator();
+			while ( bci.hasNext() )
+			{
+				final AxisAlignedBB aabb = new AxisAlignedBB( bci.physicalX, bci.physicalY, bci.physicalZ, bci.physicalX + BitCollisionIterator.One16thf, bci.physicalYp1, bci.physicalZp1 );
+
+				if ( !OcclusionHelper.occlusionTest( mc.getParts(), aabb ) )
+				{
+					bci.setNext( vb, 1 );
+				}
+			}
+		}
 	}
 
 }

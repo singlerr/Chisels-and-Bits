@@ -1,6 +1,7 @@
 package mod.chiselsandbits.integration.mcmultipart;
 
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.integration.IntegrationBase;
 import net.minecraft.tileentity.TileEntity;
 
@@ -45,6 +46,13 @@ public class MCMultipartProxy extends IntegrationBase
 		{
 		}
 
+		@Override
+		public void addFiler(
+				final TileEntity te,
+				final VoxelBlob vb )
+		{
+		}
+
 	};
 
 	public static final MCMultipartProxy proxyMCMultiPart = new MCMultipartProxy();
@@ -86,6 +94,13 @@ public class MCMultipartProxy extends IntegrationBase
 			final TileEntity te )
 	{
 		relay.triggerPartChange( te );
+	}
+
+	public void addFiller(
+			final TileEntity te,
+			final VoxelBlob vb )
+	{
+		relay.addFiler( te, vb );
 	}
 
 }

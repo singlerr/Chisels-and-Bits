@@ -359,7 +359,10 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 			}
 		}
 
+		if ( started )
 		return box;
+		else
+			return null;
 	}
 
 	public AxisAlignedBB getBoundingBox(
@@ -369,7 +372,14 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 		final float One16thf = 1.0f / vb.detail;
 		final IntegerBox box = getVoxelBox( vb, boundSolids );
 
-		return AxisAlignedBB.fromBounds( box.minX * One16thf, box.minY * One16thf, box.minZ * One16thf, ( box.maxX + 1 ) * One16thf, ( box.maxY + 1 ) * One16thf, ( box.maxZ + 1 ) * One16thf );
+		if ( box != null )
+		{
+			return AxisAlignedBB.fromBounds( box.minX * One16thf, box.minY * One16thf, box.minZ * One16thf, ( box.maxX + 1 ) * One16thf, ( box.maxY + 1 ) * One16thf, ( box.maxZ + 1 ) * One16thf );
+		}
+		else
+		{
+			return null;
+		}
 	}
 
 }

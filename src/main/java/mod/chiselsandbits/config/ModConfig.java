@@ -148,6 +148,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public boolean compatabilityMode;
 
+	@Configured( category = "Balance Settings" )
+	public double maxDrawnRegionSize;
+
 	public boolean isEnabled(
 			final String className )
 	{
@@ -179,6 +182,7 @@ public class ModConfig extends Configuration
 		itemNameModeDisplay = true;
 		enableToolbarIcons = true;
 		compatabilityMode = true;
+		maxDrawnRegionSize = 4;
 
 		// Dynamic models..
 		dynamicModelFaceCount = 40;

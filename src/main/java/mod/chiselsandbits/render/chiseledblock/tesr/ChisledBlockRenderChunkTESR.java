@@ -256,6 +256,12 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		final TileRenderChunk renderChunk = te.getRenderChunk();
 		TileRenderCache renderCache = renderChunk;
 
+		/// how????
+		if ( renderChunk == null )
+		{
+			return;
+		}
+
 		if ( destroyStage >= 0 )
 		{
 			if ( layer == EnumWorldBlockLayer.SOLID )

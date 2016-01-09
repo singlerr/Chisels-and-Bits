@@ -12,13 +12,14 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "mc1.8.9-v1.8-beta2"
+version = "mc1.8.9-v1.8-beta4"
 group= "mod.chiselsandbits"
 archivesBaseName = "chiselsandbits"
 
 repositories {
 	maven { url "http://dvs1.progwml6.com/files/maven" }
 	maven { url "http://maven.amadornes.com/" }
+	flatDir { dirs 'libs' }
 }
 
 dependencies {

@@ -1,5 +1,7 @@
 package mod.chiselsandbits.chiseledblock.data;
 
+import net.minecraft.util.EnumFacing;
+
 public class IntegerBox
 {
 	public IntegerBox(
@@ -27,4 +29,20 @@ public class IntegerBox
 	public int maxY;
 	public int maxZ;
 
+	public void move(
+			final EnumFacing side,
+			final int scale )
+	{
+		minX += side.getFrontOffsetX() * scale;
+		maxX += side.getFrontOffsetX() * scale;
+		minY += side.getFrontOffsetY() * scale;
+		maxY += side.getFrontOffsetY() * scale;
+		minZ += side.getFrontOffsetZ() * scale;
+		maxZ += side.getFrontOffsetZ() * scale;
+	}
+
+	public boolean isBadBitPositions()
+	{
+		return minX < 0 || minY < 0 || minZ < 0 || maxX >= 16 || maxY >= 16 || maxZ >= 16;
+	}
 }

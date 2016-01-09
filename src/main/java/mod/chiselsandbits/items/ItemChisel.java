@@ -14,6 +14,7 @@ import mod.chiselsandbits.ChiselMode;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
@@ -109,11 +110,8 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 				final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, a, b );
 				if ( mop != null && mop.typeOfHit == MovingObjectType.BLOCK )
 				{
-					final int x = getX( (float) mop.hitVec.xCoord - pos.getX(), mop.sideHit );
-					final int y = getY( (float) mop.hitVec.yCoord - pos.getY(), mop.sideHit );
-					final int z = getZ( (float) mop.hitVec.zCoord - pos.getZ(), mop.sideHit );
-
-					ClientSide.instance.pointAt( ChiselToolType.CHISEL, pos, x, y, z );
+					final BitLocation loc = new BitLocation( mop, true, ChiselToolType.CHISEL );
+					ClientSide.instance.pointAt( ChiselToolType.CHISEL, loc );
 					return true;
 				}
 
@@ -197,29 +195,6 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 		return true;
 	}
 
-	private final static float One32ndf = 0.5f / VoxelBlob.dim;
-
-	public static int getX(
-			final float hitX,
-			final EnumFacing side )
-	{
-		return Math.min( 15, Math.max( 0, (int) ( VoxelBlob.dim * ( hitX - One32ndf * side.getFrontOffsetX() ) ) ) );
-	}
-
-	public static int getY(
-			final float hitY,
-			final EnumFacing side )
-	{
-		return Math.min( 15, Math.max( 0, (int) ( VoxelBlob.dim * ( hitY - One32ndf * side.getFrontOffsetY() ) ) ) );
-	}
-
-	public static int getZ(
-			final float hitZ,
-			final EnumFacing side )
-	{
-		return Math.min( 15, Math.max( 0, (int) ( VoxelBlob.dim * ( hitZ - One32ndf * side.getFrontOffsetZ() ) ) ) );
-	}
-
 	/**
 	 * uses a chisel, this is called from onBlockStartBreak converts block, and
 	 * handles everything short of modifying the voxel data.
@@ -243,11 +218,9 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final float hitY,
 			final float hitZ )
 	{
-		final int x = getX( hitX, side );
-		final int y = getY( hitY, side );
-		final int z = getZ( hitZ, side );
+		final BitLocation location = new BitLocation( new MovingObjectPosition( MovingObjectType.BLOCK, new Vec3( hitX, hitY, hitZ ), side, pos ), false, ChiselToolType.CHISEL );
 
-		final PacketChisel pc = new PacketChisel( false, pos, x, y, z, side, mode );
+		final PacketChisel pc = new PacketChisel( false, location, side, mode );
 
 		final int extractedState = pc.doAction( player );
 		if ( extractedState != 0 )

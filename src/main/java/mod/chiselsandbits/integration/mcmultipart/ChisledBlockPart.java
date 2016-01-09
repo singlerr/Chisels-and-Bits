@@ -19,8 +19,6 @@ import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
-import mod.chiselsandbits.chiseledblock.data.BitOcclusionIterator;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -118,20 +116,7 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart, ISoli
 	public void addOcclusionBoxes(
 			final List<AxisAlignedBB> list )
 	{
-		final VoxelBlob blob = getTile().getBlob();
-		final BitOcclusionIterator boi = new BitOcclusionIterator( list );
-
-		while ( boi.hasNext() )
-		{
-			if ( boi.getNext( blob ) != 0 )
-			{
-				boi.add();
-			}
-			else
-			{
-				boi.drop();
-			}
-		}
+		list.addAll( getTile().getOcclusionBoxes() );
 	}
 
 	public TileEntityBlockChiseled getTile()
