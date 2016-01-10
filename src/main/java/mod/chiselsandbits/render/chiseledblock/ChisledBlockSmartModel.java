@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import mcmultipart.client.multipart.ISmartMultipartModel;
-import mod.chiselsandbits.Log;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
@@ -149,22 +148,14 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 			return ChisledBlockBaked.breakingParticleModel( layer, blockP );
 		}
 
-		try
-		{
-			final ChisledBlockBaked baked = getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, ChisledBlockBaked.CNB );
+		final ChisledBlockBaked baked = getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, ChisledBlockBaked.CNB );
 
-			if ( rTracker != null )
-			{
-				rTracker.setAbovelimit( layer, baked.faceCount() );
-			}
-
-			return baked;
-		}
-		catch ( final Throwable err )
+		if ( rTracker != null )
 		{
-			Log.logError( "Unable to get model...", err );
-			return ChisledBlockBaked.breakingParticleModel( layer, blockP );
+			rTracker.setAbovelimit( layer, baked.faceCount() );
 		}
+
+		return baked;
 	}
 
 	private static ModelRenderState getRenderState(
