@@ -1,9 +1,13 @@
 package mod.chiselsandbits.bitbag;
 
+import java.io.IOException;
+
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.network.NetworkRouter;
+import mod.chiselsandbits.network.packets.PacketBagGui;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,13 +33,9 @@ public class BagGui extends GuiContainer
 		ySize = 239;
 	}
 
-	@Override
-	protected void drawGuiContainerForegroundLayer(
-			final int mouseX,
-			final int mouseY )
+	BagContainer getBagContainer()
 	{
-		fontRendererObj.drawString( ChiselsAndBits.getItems().itemBitBag.getItemStackDisplayName( null ), 8, 6, 4210752 );
-		fontRendererObj.drawString( I18n.format( "container.inventory", new Object[0] ), 8, ySize - 93, 4210752 );
+		return (BagContainer) inventorySlots;
 	}
 
 	@Override
@@ -51,41 +51,70 @@ public class BagGui extends GuiContainer
 		this.drawTexturedModalRect( k, l, 0, 0, xSize, ySize );
 	}
 
+	private Slot getSlotAtPosition(
+			final int x,
+			final int y )
+	{
+		for ( int i = 0; i < getBagContainer().customSlots.size(); ++i )
+		{
+			final Slot slot = getBagContainer().customSlots.get( i );
+
+			if ( isMouseOverSlot( slot, x, y ) )
+			{
+				return slot;
+			}
+		}
+
+		return null;
+	}
+
 	@Override
-	public void drawScreen(
+	protected void mouseClicked(
 			final int mouseX,
 			final int mouseY,
-			final float partialTicks )
+			final int mouseButton ) throws IOException
 	{
-		super.drawScreen( mouseX, mouseY, partialTicks );
+		super.mouseClicked( mouseX, mouseY, mouseButton );
+		final boolean duplicateButton = mouseButton == mc.gameSettings.keyBindPickBlock.getKeyCode() + 100;
 
-		drawDefaultBackground();
-		final int i = guiLeft;
-		final int j = guiTop;
-		drawGuiContainerBackgroundLayer( partialTicks, mouseX, mouseY );
-		GlStateManager.disableRescaleNormal();
-		RenderHelper.disableStandardItemLighting();
-		GlStateManager.disableLighting();
-		GlStateManager.disableDepth();
-		super.drawScreen( mouseX, mouseY, partialTicks );
-		RenderHelper.enableGUIStandardItemLighting();
-		GlStateManager.pushMatrix();
-		GlStateManager.translate( i, j, 0.0F );
-		GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
-		GlStateManager.enableRescaleNormal();
+		final Slot slot = getSlotAtPosition( mouseX, mouseY );
 
-		final int k = 240;
-		final int l = 240;
-		OpenGlHelper.setLightmapTextureCoords( OpenGlHelper.lightmapTexUnit, k / 1.0F, l / 1.0F );
-		GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
-
-		for ( int i1 = 0; i1 < ( (BagContainer) inventorySlots ).customSlots.size(); ++i1 )
+		if ( slot != null )
 		{
-			final Slot slot = ( (BagContainer) inventorySlots ).customSlots.get( i1 );
+			final PacketBagGui bgp = new PacketBagGui();
+
+			bgp.slotNumber = slot.slotNumber;
+			bgp.mouseButton = mouseButton;
+			bgp.duplicateButton = duplicateButton;
+
+			bgp.doAction( ClientSide.instance.getPlayer() );
+			NetworkRouter.instance.sendToServer( bgp );
+
+			return;
+		}
+
+		mouseClicked( mouseX, mouseY, mouseButton );
+	}
+
+	@Override
+	protected void drawGuiContainerForegroundLayer(
+			final int mouseX,
+			final int mouseY )
+	{
+		fontRendererObj.drawString( ChiselsAndBits.getItems().itemBitBag.getItemStackDisplayName( null ), 8, 6, 4210752 );
+		fontRendererObj.drawString( I18n.format( "container.inventory", new Object[0] ), 8, ySize - 93, 4210752 );
+
+		RenderHelper.enableGUIStandardItemLighting();
+
+		for ( int i1 = 0; i1 < getBagContainer().customSlots.size(); ++i1 )
+		{
+			final Slot slot = getBagContainer().customSlots.get( i1 );
 			drawSlot( slot );
 
 			if ( isMouseOverSlot( slot, mouseX, mouseY ) && slot.canBeHovered() )
 			{
+				theSlot = slot;
+
 				GlStateManager.disableLighting();
 				GlStateManager.disableDepth();
 				final int j1 = slot.xDisplayPosition;
@@ -98,11 +127,6 @@ public class BagGui extends GuiContainer
 			}
 		}
 
-		RenderHelper.disableStandardItemLighting();
-		drawGuiContainerForegroundLayer( mouseX, mouseY );
-		RenderHelper.enableGUIStandardItemLighting();
-
-		GlStateManager.popMatrix();
 	}
 
 }

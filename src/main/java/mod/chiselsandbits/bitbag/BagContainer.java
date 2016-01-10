@@ -25,9 +25,10 @@ public class BagContainer extends Container
 	final public List<Slot> customSlots = new ArrayList<Slot>();
 
 	private void addCustomSlot(
-			final SlotBit slotBit )
+			final SlotBit newSlot )
 	{
-		customSlots.add( slotBit );
+		newSlot.slotNumber = customSlots.size();
+		customSlots.add( newSlot );
 	}
 
 	public BagContainer(
@@ -156,6 +157,17 @@ public class BagContainer extends Container
 	public static Object getGuiClass()
 	{
 		return BagGui.class;
+	}
+
+	public void handleCustomSlotAction(
+			final int slotNumber,
+			final int mouseButton,
+			final boolean duplicateButton )
+	{
+		if ( duplicateButton )
+		{
+
+		}
 	}
 
 }
