@@ -116,7 +116,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final int renderPass )
 	{
 		final IBlockState state = Block.getStateById( ItemChisel.getStackState( stack ) );
-		return BitColors.getColorFor( state, renderPass );
+		return state == null ? 0xffffff : BitColors.getColorFor( state, renderPass );
 	}
 
 	@Override
