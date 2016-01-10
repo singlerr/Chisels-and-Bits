@@ -211,6 +211,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		{
 			return state;
 		}
+		catch ( final Throwable err )
+		{
+			Log.logError( "Unable to get extended state...", err );
+			return state;
+		}
 	}
 
 	@Override
