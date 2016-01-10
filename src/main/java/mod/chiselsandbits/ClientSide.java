@@ -686,9 +686,8 @@ public class ClientSide
 
 			if ( player.isSneaking() )
 			{
-				final BlockPos blockpos = mop.getBlockPos();
-				final BlockPos partial = new BlockPos( Math.floor( 16 * ( mop.hitVec.xCoord - blockpos.getX() ) ), Math.floor( 16 * ( mop.hitVec.yCoord - blockpos.getY() ) ), Math.floor( 16 * ( mop.hitVec.zCoord - blockpos.getZ() ) ) );
-				showGhost( currentItem, item, offset, player, rotations, x, y, z, mop.sideHit, partial, null );
+				final BitLocation bl = new BitLocation( mop, true, ChiselToolType.BIT );
+				showGhost( currentItem, item, bl.blockPos, player, rotations, x, y, z, mop.sideHit, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), null );
 			}
 			else
 			{
@@ -831,7 +830,6 @@ public class ClientSide
 		GlStateManager.pushMatrix();
 		GlStateManager.translate( blockPos.getX() - x, blockPos.getY() - y, blockPos.getZ() - z );
 		if ( partial != null )
-
 		{
 			final BlockPos t = ModUtil.getPartialOffset( side, partial, modelBounds );
 			final double fullScale = 1.0 / VoxelBlob.dim;

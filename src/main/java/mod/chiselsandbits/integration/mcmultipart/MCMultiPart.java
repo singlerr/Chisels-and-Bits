@@ -4,6 +4,7 @@ import mcmultipart.client.multipart.MultipartRegistryClient;
 import mcmultipart.microblock.MicroblockRegistry;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
+import mcmultipart.multipart.MultipartHelper;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.OcclusionHelper;
 import mod.chiselsandbits.ChiselsAndBits;
@@ -111,20 +112,22 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 				}
 			}
 
-			if ( create && !te.getWorld().isRemote )
+			final ChisledBlockPart part = new ChisledBlockPart();
+			if ( MultipartHelper.canAddPart( te.getWorld(), ( (IMultipartContainer) te ).getPosIn(), part ) )
 			{
-				final ChisledBlockPart part = new ChisledBlockPart();
-				final TileEntityBlockChiseled tx = part.getTile();
-				tx.occlusionState = new MultipartContainerBuilder( part, container );
-				tx.setWorldObj( te.getWorld() );
-				tx.setPos( te.getPos() );
-				return tx;
-			}
-			else if ( create )
-			{
-				final ChisledBlockPart part = new ChisledBlockPart();
-				part.setContainer( container );
-				return part.getTile();
+				if ( create && !te.getWorld().isRemote )
+				{
+					final TileEntityBlockChiseled tx = part.getTile();
+					tx.occlusionState = new MultipartContainerBuilder( te, part, container );
+					tx.setWorldObj( te.getWorld() );
+					tx.setPos( te.getPos() );
+					return tx;
+				}
+				else if ( create )
+				{
+					part.setContainer( container );
+					return part.getTile();
+				}
 			}
 		}
 

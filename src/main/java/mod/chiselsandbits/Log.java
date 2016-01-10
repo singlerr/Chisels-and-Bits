@@ -18,7 +18,7 @@ public class Log
 
 	public static void logError(
 			final String message,
-			final Exception e )
+			final Throwable e )
 	{
 		getLogger().error( message, e );
 	}

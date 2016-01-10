@@ -6,8 +6,10 @@ import java.util.List;
 import org.lwjgl.input.Keyboard;
 
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -28,6 +30,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -239,7 +244,8 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	{
 		if ( player.isSneaking() )
 		{
-			return tryPlaceBlockAt( block, stack, player, world, pos, side, new BlockPos( VoxelBlob.dim * hitX, VoxelBlob.dim * hitY, VoxelBlob.dim * hitZ ), true );
+			final BitLocation bl = new BitLocation( new MovingObjectPosition( MovingObjectType.BLOCK, new Vec3( hitX, hitY, hitZ ), side, pos ), false, ChiselToolType.BIT );
+			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );
 		}
 		else
 		{
@@ -427,6 +433,12 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	{
 		final NBTTagCompound blueprintTag = stack.getTagCompound();
 		EnumFacing side = EnumFacing.VALUES[blueprintTag.getByte( "side" )];
+
+		if ( side == EnumFacing.DOWN || side == EnumFacing.UP )
+		{
+			side = EnumFacing.NORTH;
+		}
+
 		side = wheel > 0 ? side.rotateY() : side.rotateYCCW();
 		blueprintTag.setInteger( "side", +side.ordinal() );
 	}

@@ -175,9 +175,9 @@ public class VoxelBlob
 					min_y = Math.min( min_y, bi.y );
 					min_z = Math.min( min_z, bi.z );
 
-					max_x = Math.max( max_x, bi.x + 1 );
-					max_y = Math.max( max_y, bi.y + 1 );
-					max_z = Math.max( max_z, bi.z + 1 );
+					max_x = Math.max( max_x, bi.x );
+					max_y = Math.max( max_y, bi.y );
+					max_z = Math.max( max_z, bi.z );
 				}
 				else
 				{
@@ -187,9 +187,9 @@ public class VoxelBlob
 					min_y = bi.y;
 					min_z = bi.z;
 
-					max_x = bi.x + 1;
-					max_y = bi.y + 1;
-					max_z = bi.z + 1;
+					max_x = bi.x;
+					max_y = bi.y;
+					max_z = bi.z;
 				}
 			}
 		}
