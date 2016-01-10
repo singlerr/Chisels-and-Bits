@@ -2,13 +2,17 @@ package mod.chiselsandbits.bitbag;
 
 import java.io.IOException;
 
+import org.lwjgl.input.Keyboard;
+
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketBagGui;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
@@ -74,7 +78,6 @@ public class BagGui extends GuiContainer
 			final int mouseY,
 			final int mouseButton ) throws IOException
 	{
-		super.mouseClicked( mouseX, mouseY, mouseButton );
 		final boolean duplicateButton = mouseButton == mc.gameSettings.keyBindPickBlock.getKeyCode() + 100;
 
 		final Slot slot = getSlotAtPosition( mouseX, mouseY );
@@ -86,6 +89,7 @@ public class BagGui extends GuiContainer
 			bgp.slotNumber = slot.slotNumber;
 			bgp.mouseButton = mouseButton;
 			bgp.duplicateButton = duplicateButton;
+			bgp.holdingShift = Keyboard.isKeyDown( 42 ) || Keyboard.isKeyDown( 54 );
 
 			bgp.doAction( ClientSide.instance.getPlayer() );
 			NetworkRouter.instance.sendToServer( bgp );
@@ -93,7 +97,7 @@ public class BagGui extends GuiContainer
 			return;
 		}
 
-		mouseClicked( mouseX, mouseY, mouseButton );
+		super.mouseClicked( mouseX, mouseY, mouseButton );
 	}
 
 	@Override
@@ -106,10 +110,16 @@ public class BagGui extends GuiContainer
 
 		RenderHelper.enableGUIStandardItemLighting();
 
+		final RenderItem originalItemRender = itemRender;
+
 		for ( int i1 = 0; i1 < getBagContainer().customSlots.size(); ++i1 )
 		{
 			final Slot slot = getBagContainer().customSlots.get( i1 );
+
+			final FontRenderer originalheight = fontRendererObj;
+			fontRendererObj = new GuiBagFontRenderer( originalheight );
 			drawSlot( slot );
+			fontRendererObj = originalheight;
 
 			if ( isMouseOverSlot( slot, mouseX, mouseY ) && slot.canBeHovered() )
 			{
@@ -126,7 +136,6 @@ public class BagGui extends GuiContainer
 				GlStateManager.enableDepth();
 			}
 		}
-
 	}
 
 }

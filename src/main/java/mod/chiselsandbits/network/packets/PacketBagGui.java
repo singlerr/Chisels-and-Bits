@@ -12,6 +12,7 @@ public class PacketBagGui extends ModPacket
 	public int slotNumber = -1;
 	public int mouseButton = -1;
 	public boolean duplicateButton = false;
+	public boolean holdingShift = false;
 
 	@Override
 	public void server(
@@ -27,7 +28,7 @@ public class PacketBagGui extends ModPacket
 		if ( c instanceof BagContainer )
 		{
 			final BagContainer bc = (BagContainer) c;
-			bc.handleCustomSlotAction( slotNumber, mouseButton, duplicateButton );
+			bc.handleCustomSlotAction( slotNumber, mouseButton, duplicateButton, holdingShift );
 		}
 	}
 
@@ -38,6 +39,7 @@ public class PacketBagGui extends ModPacket
 		buffer.writeInt( slotNumber );
 		buffer.writeInt( mouseButton );
 		buffer.writeBoolean( duplicateButton );
+		buffer.writeBoolean( holdingShift );
 	}
 
 	@Override
@@ -47,6 +49,7 @@ public class PacketBagGui extends ModPacket
 		slotNumber = buffer.readInt();
 		mouseButton = buffer.readInt();
 		duplicateButton = buffer.readBoolean();
+		holdingShift = buffer.readBoolean();
 	}
 
 }

@@ -267,6 +267,12 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		{
 			final VoxelBlob[][][] blobs = new VoxelBlob[2][2][2];
 
+			// you can't place empty blocks...
+			if ( !stack.hasTagCompound() )
+			{
+				return false;
+			}
+
 			final TileEntityBlockChiseled tebc = new TileEntityBlockChiseled();
 			tebc.readChisleData( stack.getSubCompound( "BlockEntityTag", false ) );
 			VoxelBlob source = tebc.getBlob();

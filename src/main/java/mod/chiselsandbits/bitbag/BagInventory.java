@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
@@ -192,7 +193,7 @@ public class BagInventory implements IInventory
 	@Override
 	public int getInventoryStackLimit()
 	{
-		return getMaxStackSize();
+		return ChiselsAndBits.getConfig().bagStackSize;
 	}
 
 	@Override
@@ -269,7 +270,7 @@ public class BagInventory implements IInventory
 	public void restockItem(
 			final ItemStack target )
 	{
-		for ( int x = 0; x < getSizeInventory(); x++ )
+		for ( int x = getSizeInventory() - 1; x >= 0; x-- )
 		{
 			final ItemStack is = getStackInSlot( x );
 			if ( is != null && is.getItem() == target.getItem() && ItemChiseledBit.sameBit( target, ItemChisel.getStackState( is ) ) )
@@ -303,7 +304,7 @@ public class BagInventory implements IInventory
 			{
 				is.stackSize += which.stackSize;
 				final int total = is.stackSize;
-				is.stackSize = Math.min( getMaxStackSize(), is.stackSize );
+				is.stackSize = Math.min( getInventoryStackLimit(), is.stackSize );
 				final int overage = total - is.stackSize;
 				if ( overage > 0 )
 				{
@@ -327,18 +328,13 @@ public class BagInventory implements IInventory
 		return which;
 	}
 
-	private int getMaxStackSize()
-	{
-		return 512;
-	}
-
 	public int extractBit(
 			final int bitMeta,
 			int total )
 	{
 		int used = 0;
 
-		for ( int index = 0; index < stackSlots.length; index++ )
+		for ( int index = stackSlots.length - 1; index >= 0; index-- )
 		{
 			final int qty_idx = ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty;
 
@@ -347,7 +343,6 @@ public class BagInventory implements IInventory
 
 			if ( id == bitMeta && qty > 0 )
 			{
-
 				slots[qty_idx] -= total;
 
 				if ( slots[qty_idx] < 0 )

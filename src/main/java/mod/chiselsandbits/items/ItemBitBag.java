@@ -22,6 +22,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class ItemBitBag extends Item
 {
@@ -221,7 +222,7 @@ public class ItemBitBag extends Item
 		}
 	}
 
-	private void cleanupInventory(
+	static public void cleanupInventory(
 			final EntityPlayer player,
 			final ItemStack is )
 	{
@@ -231,16 +232,30 @@ public class ItemBitBag extends Item
 			final IInventory inv = player.inventory;
 			final List<BagPos> bags = getBags( inv );
 
-			boolean seen = false;
-			for ( int x = 0; x < inv.getSizeInventory(); x++ )
+			int firstSeen = -1;
+			for ( int slot = 0; slot < inv.getSizeInventory(); slot++ )
 			{
-				ItemStack which = inv.getStackInSlot( x );
+				int actingSlot = slot;
 
-				if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChisel.getStackState( is ) ) )
+				if ( actingSlot == player.inventory.currentItem )
 				{
-					if ( !seen )
+					if ( firstSeen != -1 )
 					{
-						seen = true;
+						actingSlot = firstSeen;
+					}
+					else
+					{
+						continue;
+					}
+				}
+
+				ItemStack which = inv.getStackInSlot( actingSlot );
+
+				if ( which != null && which.getItem() == is.getItem() && ( ItemChiseledBit.sameBit( which, ItemChisel.getStackState( is ) ) || is.getItemDamage() == OreDictionary.WILDCARD_VALUE ) )
+				{
+					if ( firstSeen == -1 )
+					{
+						firstSeen = actingSlot;
 					}
 					else
 					{
@@ -249,7 +264,7 @@ public class ItemBitBag extends Item
 							which = i.inv.insertItem( which );
 							if ( which == null )
 							{
-								inv.setInventorySlotContents( x, which );
+								inv.setInventorySlotContents( actingSlot, which );
 								break;
 							}
 						}

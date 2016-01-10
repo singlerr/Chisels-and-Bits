@@ -151,6 +151,8 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public double maxDrawnRegionSize;
 
+	public int bagStackSize;
+
 	public boolean isEnabled(
 			final String className )
 	{
@@ -183,6 +185,7 @@ public class ModConfig extends Configuration
 		enableToolbarIcons = true;
 		compatabilityMode = true;
 		maxDrawnRegionSize = 4;
+		bagStackSize = 512;
 
 		// Dynamic models..
 		dynamicModelFaceCount = 40;

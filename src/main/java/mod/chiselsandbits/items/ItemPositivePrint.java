@@ -146,17 +146,17 @@ public class ItemPositivePrint extends ItemNegativePrint
 						if ( inPlace == 0 && inPattern != 0 )
 						{
 							final ItemStackSlot bit = ModUtil.findBit( player, inPattern );
-							if ( bit.isValid() )
+							if ( consumeBagBit( bags, inPattern ) )
+							{
+								vb.set( x, y, z, inPattern );
+							}
+							else if ( bit.isValid() )
 							{
 								vb.set( x, y, z, inPattern );
 								if ( !player.capabilities.isCreativeMode )
 								{
 									bit.consume();
 								}
-							}
-							else if ( consumeBagBit( bags, inPattern ) )
-							{
-								vb.set( x, y, z, inPattern );
 							}
 						}
 					}
@@ -167,6 +167,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 		for ( final EntityItem ei : spawnlist )
 		{
 			ModUtil.feedPlayer( world, player, ei );
+			ItemBitBag.cleanupInventory( player, ei.getEntityItem() );
 		}
 
 	}

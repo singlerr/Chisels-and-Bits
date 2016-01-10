@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.ChiselMode;
+import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -14,6 +15,7 @@ import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
+import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.ModPacket;
@@ -28,6 +30,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class PacketChisel extends ModPacket
 {
@@ -173,6 +176,12 @@ public class PacketChisel extends ModPacket
 		for ( final EntityItem ei : spawnlist )
 		{
 			ModUtil.feedPlayer( world, player, ei );
+			ItemBitBag.cleanupInventory( player, ei.getEntityItem() );
+		}
+
+		if ( place )
+		{
+			ItemBitBag.cleanupInventory( player, new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
 		}
 
 		return returnVal;

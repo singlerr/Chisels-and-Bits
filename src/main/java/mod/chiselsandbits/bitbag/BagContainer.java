@@ -5,6 +5,7 @@ import java.util.List;
 
 import mod.chiselsandbits.helpers.NullInventory;
 import mod.chiselsandbits.items.ItemBitBag;
+import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
@@ -23,6 +24,7 @@ public class BagContainer extends Container
 	SlotReadonly thatSlot;
 
 	final public List<Slot> customSlots = new ArrayList<Slot>();
+	private final List<Slot> realInventorySlots;
 
 	private void addCustomSlot(
 			final SlotBit newSlot )
@@ -83,6 +85,8 @@ public class BagContainer extends Container
 				addSlotToContainer( new Slot( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
 			}
 		}
+
+		realInventorySlots = inventorySlots;
 	}
 
 	@Override
@@ -120,27 +124,67 @@ public class BagContainer extends Container
 			final EntityPlayer playerIn,
 			final int index )
 	{
-		ItemStack itemstack = null;
+		return transferStack( index, true );
+	}
+
+	private ItemStack transferStack(
+			final int index,
+			final boolean normalToBag )
+	{
+		ItemStack someReturnValue = null;
+		boolean reverse = true;
+
+		if ( !normalToBag )
+		{
+			inventorySlots = customSlots;
+		}
+		else
+		{
+			inventorySlots = realInventorySlots;
+			reverse = false;
+		}
+
 		final Slot slot = inventorySlots.get( index );
 
 		if ( slot != null && slot.getHasStack() )
 		{
-			final ItemStack itemstack1 = slot.getStack();
-			itemstack = itemstack1.copy();
+			final ItemStack transferStack = slot.getStack();
+			someReturnValue = transferStack.copy();
 
-			if ( index < 7 * 9 )
+			int extraItems = 0;
+			if ( transferStack.stackSize > transferStack.getMaxStackSize() )
 			{
-				if ( !mergeItemStack( itemstack1, 7 * 9, inventorySlots.size(), true ) )
+				extraItems = transferStack.stackSize - transferStack.getMaxStackSize();
+				transferStack.stackSize = transferStack.getMaxStackSize();
+			}
+
+			if ( normalToBag )
+			{
+				inventorySlots = customSlots;
+				ItemChiseledBit.inventoryHack = true;
+			}
+			else
+			{
+				inventorySlots = realInventorySlots;
+			}
+
+			try
+			{
+				if ( !mergeItemStack( transferStack, 0, inventorySlots.size(), reverse ) )
 				{
 					return null;
 				}
 			}
-			else if ( !mergeItemStack( itemstack1, 0, 7 * 9, false ) )
+			finally
 			{
-				return null;
+				// add the extra items back on...
+				transferStack.stackSize += extraItems;
+
+				inventorySlots = realInventorySlots;
+				ItemChiseledBit.inventoryHack = false;
 			}
 
-			if ( itemstack1.stackSize == 0 )
+			if ( transferStack.stackSize == 0 )
 			{
 				slot.putStack( (ItemStack) null );
 			}
@@ -150,7 +194,7 @@ public class BagContainer extends Container
 			}
 		}
 
-		return itemstack;
+		return someReturnValue;
 	}
 
 	@SideOnly( Side.CLIENT )
@@ -162,11 +206,114 @@ public class BagContainer extends Container
 	public void handleCustomSlotAction(
 			final int slotNumber,
 			final int mouseButton,
-			final boolean duplicateButton )
+			final boolean duplicateButton,
+			final boolean holdingShift )
 	{
-		if ( duplicateButton )
-		{
+		final Slot slot = customSlots.get( slotNumber );
+		final ItemStack held = thePlayer.inventory.getItemStack();
+		final ItemStack slotStack = slot.getStack();
 
+		if ( duplicateButton && thePlayer.capabilities.isCreativeMode )
+		{
+			if ( slot.getHasStack() && held == null )
+			{
+				final ItemStack is = slot.getStack().copy();
+				is.stackSize = is.getMaxStackSize();
+				thePlayer.inventory.setItemStack( is );
+			}
+		}
+		else if ( holdingShift )
+		{
+			if ( slotStack != null )
+			{
+				transferStack( slotNumber, false );
+			}
+		}
+		else if ( mouseButton == 0 && !duplicateButton )
+		{
+			if ( held == null && slot.getHasStack() )
+			{
+				final ItemStack pulled = slotStack.copy();
+				pulled.stackSize = Math.min( pulled.getMaxStackSize(), pulled.stackSize );
+
+				final ItemStack newStackSlot = slotStack.copy();
+				newStackSlot.stackSize = pulled.stackSize >= slotStack.stackSize ? 0 : slotStack.stackSize - pulled.stackSize;
+
+				slot.putStack( newStackSlot.stackSize <= 0 ? null : newStackSlot );
+				thePlayer.inventory.setItemStack( pulled );
+			}
+			else if ( held != null && slot.getHasStack() && slot.isItemValid( held ) )
+			{
+				if ( held.getItem() == slotStack.getItem() && held.getMetadata() == slotStack.getMetadata() && ItemStack.areItemStackTagsEqual( held, slotStack ) )
+				{
+					final ItemStack newStackSlot = slotStack.copy();
+					newStackSlot.stackSize += held.stackSize;
+					held.stackSize = 0;
+
+					if ( newStackSlot.stackSize > slot.getSlotStackLimit() )
+					{
+						held.stackSize = newStackSlot.stackSize - slot.getSlotStackLimit();
+						newStackSlot.stackSize -= held.stackSize;
+					}
+
+					slot.putStack( newStackSlot );
+					thePlayer.inventory.setItemStack( held.stackSize > 0 ? held : null );
+				}
+				else
+				{
+					if ( held != null && slot.getHasStack() && slotStack.stackSize <= slotStack.getMaxStackSize() )
+					{
+						slot.putStack( held );
+						thePlayer.inventory.setItemStack( slotStack );
+					}
+				}
+			}
+			else if ( held != null && !slot.getHasStack() && slot.isItemValid( held ) )
+			{
+				slot.putStack( held );
+				thePlayer.inventory.setItemStack( null );
+			}
+		}
+		else if ( mouseButton == 1 && !duplicateButton )
+		{
+			if ( held == null && slot.getHasStack() )
+			{
+				final ItemStack pulled = slotStack.copy();
+				pulled.stackSize = Math.max( 1, ( Math.min( pulled.getMaxStackSize(), pulled.stackSize ) + 1 ) / 2 );
+
+				final ItemStack newStackSlot = slotStack.copy();
+				newStackSlot.stackSize = pulled.stackSize >= slotStack.stackSize ? 0 : slotStack.stackSize - pulled.stackSize;
+
+				slot.putStack( newStackSlot.stackSize <= 0 ? null : newStackSlot );
+				thePlayer.inventory.setItemStack( pulled );
+			}
+			else if ( held != null && slot.getHasStack() && slot.isItemValid( held ) )
+			{
+				if ( held.getItem() == slotStack.getItem() && held.getMetadata() == slotStack.getMetadata() && ItemStack.areItemStackTagsEqual( held, slotStack ) )
+				{
+					final ItemStack newStackSlot = slotStack.copy();
+					newStackSlot.stackSize += 1;
+					held.stackSize--;
+
+					if ( newStackSlot.stackSize > slot.getSlotStackLimit() )
+					{
+						held.stackSize = newStackSlot.stackSize - slot.getSlotStackLimit();
+						newStackSlot.stackSize -= held.stackSize;
+					}
+
+					slot.putStack( newStackSlot );
+					thePlayer.inventory.setItemStack( held.stackSize > 0 ? held : null );
+				}
+			}
+			else if ( held != null && !slot.getHasStack() && slot.isItemValid( held ) )
+			{
+				final ItemStack newStackSlot = held.copy();
+				newStackSlot.stackSize = 1;
+				held.stackSize--;
+
+				slot.putStack( newStackSlot );
+				thePlayer.inventory.setItemStack( held.stackSize > 0 ? held : null );
+			}
 		}
 	}
 

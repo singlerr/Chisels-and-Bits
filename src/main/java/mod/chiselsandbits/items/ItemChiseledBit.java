@@ -41,6 +41,7 @@ import net.minecraft.world.World;
 
 public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselModeItem
 {
+
 	public ItemChiseledBit()
 	{
 		setHasSubtypes( true );
@@ -109,6 +110,15 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 		return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( target.getDisplayName() ).toString();
 	}
+
+	public static boolean inventoryHack;
+
+	@SuppressWarnings( "deprecation" )
+	@Override
+	public int getItemStackLimit()
+	{
+		return inventoryHack ? ChiselsAndBits.getConfig().bagStackSize : super.getItemStackLimit();
+	};
 
 	@Override
 	public int getColorFromItemStack(
