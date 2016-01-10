@@ -1,5 +1,8 @@
 package mod.chiselsandbits.bitbag;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mod.chiselsandbits.helpers.NullInventory;
 import mod.chiselsandbits.items.ItemBitBag;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,6 +21,14 @@ public class BagContainer extends Container
 
 	BagInventory bagInv;
 	SlotReadonly thatSlot;
+
+	final public List<Slot> customSlots = new ArrayList<Slot>();
+
+	private void addCustomSlot(
+			final SlotBit slotBit )
+	{
+		customSlots.add( slotBit );
+	}
 
 	public BagContainer(
 			final EntityPlayer player,
@@ -48,7 +59,7 @@ public class BagContainer extends Container
 		{
 			for ( int k = 0; k < 9; ++k )
 			{
-				addSlotToContainer( new SlotBit( pi, k + j * 9, 8 + k * 18, 18 + j * 18 ) );
+				addCustomSlot( new SlotBit( pi, k + j * 9, 8 + k * 18, 18 + j * 18 ) );
 			}
 		}
 

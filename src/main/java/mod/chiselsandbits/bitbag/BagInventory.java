@@ -192,7 +192,7 @@ public class BagInventory implements IInventory
 	@Override
 	public int getInventoryStackLimit()
 	{
-		return 64;
+		return getMaxStackSize();
 	}
 
 	@Override
@@ -303,7 +303,7 @@ public class BagInventory implements IInventory
 			{
 				is.stackSize += which.stackSize;
 				final int total = is.stackSize;
-				is.stackSize = Math.min( is.getMaxStackSize(), is.stackSize );
+				is.stackSize = Math.min( getMaxStackSize(), is.stackSize );
 				final int overage = total - is.stackSize;
 				if ( overage > 0 )
 				{
@@ -325,6 +325,11 @@ public class BagInventory implements IInventory
 		}
 
 		return which;
+	}
+
+	private int getMaxStackSize()
+	{
+		return 512;
 	}
 
 	public int extractBit(

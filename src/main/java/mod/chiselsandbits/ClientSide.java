@@ -505,16 +505,10 @@ public class ClientSide
 				return;
 			}
 
+			boolean showBox = false;
 			if ( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
 			{
 				final BitLocation location = new BitLocation( mop, true, getDrawnTool() );
-
-				GlStateManager.enableBlend();
-				GlStateManager.tryBlendFuncSeparate( 770, 771, 1, 0 );
-				GlStateManager.color( 0.0F, 0.0F, 0.0F, 0.4F );
-				GL11.glLineWidth( 2.0F );
-				GlStateManager.disableTexture2D();
-				GlStateManager.depthMask( false );
 
 				if ( theWorld.getWorldBorder().contains( location.blockPos ) )
 				{
@@ -530,6 +524,7 @@ public class ClientSide
 
 					if ( isChisel && data == null )
 					{
+						showBox = true;
 						vb.fill( 1 );
 					}
 
@@ -547,7 +542,7 @@ public class ClientSide
 						final double maxChiseSize = ChiselsAndBits.getConfig().maxDrawnRegionSize + 0.001;
 						if ( bb.maxX - bb.minX <= maxChiseSize && bb.maxY - bb.minY <= maxChiseSize && bb.maxZ - bb.minZ <= maxChiseSize )
 						{
-							drawSelectionBoundingBoxIfExists( bb, BlockPos.ORIGIN, player, partialTicks );
+							drawSelectionBoundingBoxIfExists( bb, BlockPos.ORIGIN, player, partialTicks, false );
 
 							if ( !getToolKey().isKeyDown() )
 							{
@@ -570,16 +565,16 @@ public class ClientSide
 						{
 							final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, vb, chMode, mop.sideHit );
 							final AxisAlignedBB bb = i.getBoundingBox( vb, isChisel );
-							drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks );
+							drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
 						}
 					}
 				}
 
-				GlStateManager.depthMask( true );
-				GlStateManager.enableTexture2D();
-				GlStateManager.disableBlend();
+				if ( !showBox )
+				{
+					event.setCanceled( true );
+				}
 
-				event.setCanceled( true );
 			}
 		}
 	}
@@ -588,7 +583,8 @@ public class ClientSide
 			final AxisAlignedBB bb,
 			final BlockPos blockPos,
 			final EntityPlayer player,
-			final float partialTicks )
+			final float partialTicks,
+			final boolean NormalBoundingBox )
 	{
 		if ( bb != null )
 		{
@@ -596,7 +592,27 @@ public class ClientSide
 			final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
 			final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
 
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate( 770, 771, 1, 0 );
+			GlStateManager.color( 0.0F, 0.0F, 0.0F, 0.4F );
+			GL11.glLineWidth( 2.0F );
+			GlStateManager.disableTexture2D();
+			GlStateManager.depthMask( false );
+
+			if ( !NormalBoundingBox )
+			{
+				RenderGlobal.drawSelectionBoundingBox( bb.expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ() ) );
+			}
+
+			GlStateManager.disableDepth();
+			GlStateManager.color( 0.0F, 0.0F, 0.0F, 0.1F );
+
 			RenderGlobal.drawSelectionBoundingBox( bb.expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ() ) );
+
+			GlStateManager.enableDepth();
+			GlStateManager.depthMask( true );
+			GlStateManager.enableTexture2D();
+			GlStateManager.disableBlend();
 		}
 	}
 
