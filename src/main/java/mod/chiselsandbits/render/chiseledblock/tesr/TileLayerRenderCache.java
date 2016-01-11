@@ -2,7 +2,7 @@ package mod.chiselsandbits.render.chiseledblock.tesr;
 
 import java.util.concurrent.FutureTask;
 
-import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.Tessellator;
 

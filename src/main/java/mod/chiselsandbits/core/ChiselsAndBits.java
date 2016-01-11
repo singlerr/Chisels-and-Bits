@@ -1,6 +1,7 @@
-package mod.chiselsandbits;
+package mod.chiselsandbits.core;
 
 import mod.chiselsandbits.config.ModConfig;
+import mod.chiselsandbits.core.api.IMCHandler;
 import mod.chiselsandbits.crafting.ChiselCrafting;
 import mod.chiselsandbits.crafting.MirrorTransferCrafting;
 import mod.chiselsandbits.crafting.NegativeInversionCrafting;
@@ -16,6 +17,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -73,6 +75,13 @@ public class ChiselsAndBits
 	public static ModConfig getConfig()
 	{
 		return instance.config;
+	}
+
+	@EventHandler
+	private void handleIMCEvent( final FMLInterModComms.IMCEvent event )
+	{
+		final IMCHandler imcHandler = new IMCHandler();
+		imcHandler.handleIMCEvent( event );
 	}
 
 	@EventHandler

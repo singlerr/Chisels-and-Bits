@@ -1,6 +1,6 @@
 package mod.chiselsandbits.render.patterns;
 
-import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.render.BaseBakedItemModel;
 import net.minecraft.client.Minecraft;

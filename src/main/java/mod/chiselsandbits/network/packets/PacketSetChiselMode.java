@@ -1,6 +1,6 @@
 package mod.chiselsandbits.network.packets;
 
-import mod.chiselsandbits.ChiselMode;
+import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.client.Minecraft;

@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.lwjgl.input.Keyboard;
 
-import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.LocalStrings;

@@ -5,8 +5,8 @@ import java.util.List;
 
 import org.lwjgl.input.Keyboard;
 
-import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.bitbag.BagInventory;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.NetworkRouter;

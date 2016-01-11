@@ -1,4 +1,4 @@
-package mod.chiselsandbits;
+package mod.chiselsandbits.core;
 
 import java.lang.reflect.Field;
 import java.util.Map;

@@ -1,7 +1,7 @@
 package mod.chiselsandbits.network.packets;
 
-import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.bitbag.BagContainer;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.ModPacket;

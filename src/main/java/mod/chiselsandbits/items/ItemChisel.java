@@ -6,16 +6,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.tuple.Pair;
-
-import com.google.common.base.Stopwatch;
-
-import mod.chiselsandbits.ChiselMode;
-import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.core.ChiselMode;
+import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.IContinuousInventory;
@@ -41,6 +37,10 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.google.common.base.Stopwatch;
 
 public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselModeItem
 {
@@ -138,7 +138,6 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	}
 
 	@Override
-	// 1.8.8 only hook.
 	public String getHighlightTip(
 			final ItemStack item,
 			final String displayName )

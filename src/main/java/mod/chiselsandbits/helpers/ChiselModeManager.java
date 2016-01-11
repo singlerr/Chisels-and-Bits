@@ -1,8 +1,8 @@
 package mod.chiselsandbits.helpers;
 
-import mod.chiselsandbits.ChiselMode;
-import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.ReflectionWrapper;
+import mod.chiselsandbits.core.ChiselMode;
+import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ReflectionWrapper;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketSetChiselMode;

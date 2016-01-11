@@ -3,9 +3,10 @@ package mod.chiselsandbits.render;
 import java.util.ArrayList;
 import java.util.List;
 
-import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.core.ClientSide;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
@@ -56,9 +57,9 @@ public class ModelCombined extends BaseBakedBlockModel
 	@Override
 	public List<BakedQuad> getFaceQuads(
 			final EnumFacing side )
-	{
+			{
 		return face[side.ordinal()];
-	}
+			}
 
 	@Override
 	public List<BakedQuad> getGeneralQuads()
@@ -69,7 +70,12 @@ public class ModelCombined extends BaseBakedBlockModel
 	@Override
 	public VertexFormat getFormat()
 	{
-		return null;
+		for ( final IFlexibleBakedModel a : merged )
+		{
+			return a.getFormat();
+		}
+
+		return DefaultVertexFormats.ITEM;
 	}
 
 }

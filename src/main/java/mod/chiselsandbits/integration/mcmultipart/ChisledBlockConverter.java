@@ -5,18 +5,18 @@ import java.util.Collections;
 
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
-import mcmultipart.multipart.IPartConverter;
+import mcmultipart.multipart.IPartConverter.IPartConverter2;
 import mcmultipart.multipart.IPartConverter.IReversePartConverter;
-import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-class ChisledBlockConverter implements IPartConverter, IReversePartConverter
+class ChisledBlockConverter implements IPartConverter2, IReversePartConverter
 {
 
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -26,10 +26,12 @@ class ChisledBlockConverter implements IPartConverter, IReversePartConverter
 		return (Collection) ChiselsAndBits.getBlocks().getConversions().values();
 	}
 
+	
 	@Override
 	public Collection<? extends IMultipart> convertBlock(
-			final IBlockAccess world,
-			final BlockPos pos )
+			IBlockAccess world,
+			BlockPos pos,
+			boolean client )
 	{
 		final TileEntity te = world.getTileEntity( pos );
 

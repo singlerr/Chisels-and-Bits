@@ -2,7 +2,7 @@ package mod.chiselsandbits.items;
 
 import java.util.List;
 
-import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;

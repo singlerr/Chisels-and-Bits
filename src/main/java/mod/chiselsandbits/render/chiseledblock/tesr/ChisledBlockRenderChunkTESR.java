@@ -16,11 +16,11 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Stopwatch;
 
-import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.Log;
 import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
+import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.render.chiseledblock.ChisledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
 import net.minecraft.client.Minecraft;

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.Block;

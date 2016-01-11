@@ -1,6 +1,6 @@
 package mod.chiselsandbits.network.packets;
 
-import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.gui.ModGuiTypes;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.entity.player.EntityPlayerMP;

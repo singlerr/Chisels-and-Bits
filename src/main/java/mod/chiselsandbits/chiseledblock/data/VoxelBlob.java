@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog.EnumAxis;
@@ -28,6 +28,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class VoxelBlob
 {
+	static final int SHORT_BYTES = Short.SIZE / 8;
 
 	public final static int dim = 16;
 	public final static int dim2 = dim * dim;
@@ -376,13 +377,11 @@ public class VoxelBlob
 		putBit( x | y << 4 | z << 8, 0 );
 	}
 
-	static final int SHORT_BYTES = Short.SIZE / 8;
-
 	public void read(
 			final ByteArrayInputStream o ) throws IOException
 	{
 		final GZIPInputStream w = new GZIPInputStream( o );
-		final ByteBuffer bb = ByteBuffer.allocate( values.length * Short.BYTES );
+		final ByteBuffer bb = ByteBuffer.allocate( values.length * SHORT_BYTES );
 
 		w.read( bb.array() );
 		final ShortBuffer src = bb.asShortBuffer();
@@ -402,7 +401,7 @@ public class VoxelBlob
 		{
 			final GZIPOutputStream w = new GZIPOutputStream( o );
 
-			final ByteBuffer bb = ByteBuffer.allocate( values.length * Short.BYTES );
+			final ByteBuffer bb = ByteBuffer.allocate( values.length * SHORT_BYTES );
 			final ShortBuffer sb = bb.asShortBuffer();
 
 			for ( int x = 0; x < array_size; x++ )
