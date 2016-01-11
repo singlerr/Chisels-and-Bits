@@ -6,7 +6,10 @@ import java.util.List;
 import mod.chiselsandbits.helpers.NullInventory;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.network.NetworkRouter;
+import mod.chiselsandbits.network.packets.PacketBagGuiStack;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -24,13 +27,14 @@ public class BagContainer extends Container
 	SlotReadonly thatSlot;
 
 	final public List<Slot> customSlots = new ArrayList<Slot>();
-	private final List<Slot> realInventorySlots;
+	final public List<ItemStack> customSlotsItems = new ArrayList<ItemStack>();
 
 	private void addCustomSlot(
 			final SlotBit newSlot )
 	{
 		newSlot.slotNumber = customSlots.size();
 		customSlots.add( newSlot );
+		customSlotsItems.add( null );
 	}
 
 	public BagContainer(
@@ -85,8 +89,6 @@ public class BagContainer extends Container
 				addSlotToContainer( new Slot( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
 			}
 		}
-
-		realInventorySlots = inventorySlots;
 	}
 
 	@Override
@@ -134,17 +136,19 @@ public class BagContainer extends Container
 		ItemStack someReturnValue = null;
 		boolean reverse = true;
 
+		final HelperContainer helper = new HelperContainer();
+
 		if ( !normalToBag )
 		{
-			inventorySlots = customSlots;
+			helper.inventorySlots = customSlots;
 		}
 		else
 		{
-			inventorySlots = realInventorySlots;
+			helper.inventorySlots = inventorySlots;
 			reverse = false;
 		}
 
-		final Slot slot = inventorySlots.get( index );
+		final Slot slot = helper.inventorySlots.get( index );
 
 		if ( slot != null && slot.getHasStack() )
 		{
@@ -160,17 +164,17 @@ public class BagContainer extends Container
 
 			if ( normalToBag )
 			{
-				inventorySlots = customSlots;
+				helper.inventorySlots = customSlots;
 				ItemChiseledBit.inventoryHack = true;
 			}
 			else
 			{
-				inventorySlots = realInventorySlots;
+				helper.inventorySlots = inventorySlots;
 			}
 
 			try
 			{
-				if ( !mergeItemStack( transferStack, 0, inventorySlots.size(), reverse ) )
+				if ( !helper.doMergeItemStack( transferStack, 0, helper.inventorySlots.size(), reverse ) )
 				{
 					return null;
 				}
@@ -179,8 +183,6 @@ public class BagContainer extends Container
 			{
 				// add the extra items back on...
 				transferStack.stackSize += extraItems;
-
-				inventorySlots = realInventorySlots;
 				ItemChiseledBit.inventoryHack = false;
 			}
 
@@ -313,6 +315,33 @@ public class BagContainer extends Container
 
 				slot.putStack( newStackSlot );
 				thePlayer.inventory.setItemStack( held.stackSize > 0 ? held : null );
+			}
+		}
+	}
+
+	@Override
+	public void detectAndSendChanges()
+	{
+		super.detectAndSendChanges();
+
+		for ( int i = 0; i < customSlots.size(); ++i )
+		{
+			final ItemStack realStack = customSlots.get( i ).getStack();
+			ItemStack clientstack = customSlotsItems.get( i );
+
+			if ( !ItemStack.areItemStacksEqual( clientstack, realStack ) )
+			{
+				clientstack = realStack == null ? null : realStack.copy();
+				customSlotsItems.set( i, clientstack );
+
+				for ( int j = 0; j < crafters.size(); ++j )
+				{
+					final PacketBagGuiStack pbgs = new PacketBagGuiStack();
+					pbgs.is = clientstack;
+					pbgs.index = i;
+
+					NetworkRouter.instance.sendTo( pbgs, (EntityPlayerMP) crafters.get( j ) );
+				}
 			}
 		}
 	}

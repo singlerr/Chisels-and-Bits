@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import mod.chiselsandbits.network.packets.PacketBagGui;
 import mod.chiselsandbits.network.packets.PacketBagGuiPacket;
+import mod.chiselsandbits.network.packets.PacketBagGuiStack;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.network.packets.PacketSetChiselMode;
@@ -14,7 +15,8 @@ public enum ModPacketTypes
 	OPEN_BAG_GUI( PacketBagGuiPacket.class ),
 	SET_CHISEL_MODE( PacketSetChiselMode.class ),
 	ROTATE_VOXEL_BLOB( PacketRotateVoxelBlob.class ),
-	BAG_GUI( PacketBagGui.class );
+	BAG_GUI( PacketBagGui.class ),
+	BAG_GUI_STACK( PacketBagGuiStack.class );
 
 	private final Class<? extends ModPacket> packetClass;
 

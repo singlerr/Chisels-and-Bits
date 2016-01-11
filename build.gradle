@@ -12,7 +12,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "mc1.8.9-v1.8-beta8"
+version = "mc1.8.9-v1.8-beta9"
 group= "mod.chiselsandbits"
 archivesBaseName = "chiselsandbits"
 
@@ -31,6 +31,12 @@ minecraft {
     version = "1.8.8-11.15.0.1634-1.8.8"
     runDir = "eclipse"
     mappings = "snapshot_20151227"
+}
+
+jar {
+	manifest {
+		attributes 'FMLAT': 'chiselsandbits_at.cfg'
+	}
 }
 
 processResources

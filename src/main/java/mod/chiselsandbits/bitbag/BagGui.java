@@ -12,7 +12,6 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
@@ -109,8 +108,6 @@ public class BagGui extends GuiContainer
 		fontRendererObj.drawString( I18n.format( "container.inventory", new Object[0] ), 8, ySize - 93, 4210752 );
 
 		RenderHelper.enableGUIStandardItemLighting();
-
-		final RenderItem originalItemRender = itemRender;
 
 		for ( int i1 = 0; i1 < getBagContainer().customSlots.size(); ++i1 )
 		{

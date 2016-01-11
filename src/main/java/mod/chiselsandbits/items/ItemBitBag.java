@@ -236,23 +236,24 @@ public class ItemBitBag extends Item
 			for ( int slot = 0; slot < inv.getSizeInventory(); slot++ )
 			{
 				int actingSlot = slot;
-
-				if ( actingSlot == player.inventory.currentItem )
-				{
-					if ( firstSeen != -1 )
-					{
-						actingSlot = firstSeen;
-					}
-					else
-					{
-						continue;
-					}
-				}
-
 				ItemStack which = inv.getStackInSlot( actingSlot );
 
 				if ( which != null && which.getItem() == is.getItem() && ( ItemChiseledBit.sameBit( which, ItemChisel.getStackState( is ) ) || is.getItemDamage() == OreDictionary.WILDCARD_VALUE ) )
 				{
+					if ( actingSlot == player.inventory.currentItem )
+					{
+						if ( firstSeen != -1 )
+						{
+							actingSlot = firstSeen;
+						}
+						else
+						{
+							continue;
+						}
+					}
+
+					which = inv.getStackInSlot( actingSlot );
+
 					if ( firstSeen == -1 )
 					{
 						firstSeen = actingSlot;

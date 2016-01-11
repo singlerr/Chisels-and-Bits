@@ -96,6 +96,7 @@ public class PacketChisel extends ModPacket
 
 		boolean update = false;
 		ItemStack extracted = null;
+		ItemStack bitPlaced = null;
 
 		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
 
@@ -147,6 +148,7 @@ public class PacketChisel extends ModPacket
 							{
 								if ( mask.get( i.x(), i.y(), i.z() ) == 0 )
 								{
+									bitPlaced = chisel.getItem( 0 ).getStack();
 									update = ItemChiseledBit.placeBit( chisel, player, vb, i.x(), i.y(), i.z() ) || update;
 								}
 							}
@@ -181,7 +183,7 @@ public class PacketChisel extends ModPacket
 
 		if ( place )
 		{
-			ItemBitBag.cleanupInventory( player, new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
+			ItemBitBag.cleanupInventory( player, bitPlaced != null ? bitPlaced : new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
 		}
 
 		return returnVal;
