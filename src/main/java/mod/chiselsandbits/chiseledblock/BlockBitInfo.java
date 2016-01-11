@@ -101,7 +101,7 @@ public class BlockBitInfo
 			if ( blkClass.isAnnotationPresent( IgnoreBlockLogic.class ) || IgnoredLogic != null && IgnoredLogic )
 			{
 				isFullBlock = true;
-				requiredImplementation = false;
+				requiredImplementation = true;
 				hasBehavior = false;
 			}
 
