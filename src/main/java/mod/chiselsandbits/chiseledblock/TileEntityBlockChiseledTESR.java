@@ -138,13 +138,17 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			final VoxelBlob vb )
 	{
 		setBlob( vb );
-		if ( renderChunk.singleInstanceMode )
+
+		if ( renderChunk != null )
 		{
-			getCache().rebuild( true );
-		}
-		else
-		{
-			renderChunk.rebuild( true );
+			if ( renderChunk.singleInstanceMode )
+			{
+				getCache().rebuild( true );
+			}
+			else
+			{
+				renderChunk.rebuild( true );
+			}
 		}
 	}
 
