@@ -1,6 +1,6 @@
 package mod.chiselsandbits.registry;
 
-import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.core.ChiselsAndBits;
 
 public class ModRegistry
 {

@@ -3,11 +3,11 @@ package mod.chiselsandbits.crafting;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.IntegerRef;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.ReflectionWrapper;
+import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ReflectionWrapper;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;

@@ -1,8 +1,8 @@
 package mod.chiselsandbits.crafting;
 
-import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryCrafting;

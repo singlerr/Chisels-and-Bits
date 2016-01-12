@@ -3,7 +3,7 @@ package mod.chiselsandbits.integration;
 import java.util.ArrayList;
 import java.util.List;
 
-import mod.chiselsandbits.Log;
+import mod.chiselsandbits.core.Log;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;

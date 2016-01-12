@@ -1,7 +1,7 @@
 package mod.chiselsandbits.network;
 
 import io.netty.buffer.Unpooled;
-import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.INetHandler;

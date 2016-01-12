@@ -2,9 +2,9 @@ package mod.chiselsandbits.render.chiseledblock.tesr;
 
 import java.util.List;
 
-import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
+import mod.chiselsandbits.core.ClientSide;
 import net.minecraft.util.EnumWorldBlockLayer;
 
 public abstract class TileRenderCache

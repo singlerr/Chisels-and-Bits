@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import org.lwjgl.input.Keyboard;
 
-import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketBagGui;
 import net.minecraft.client.gui.FontRenderer;

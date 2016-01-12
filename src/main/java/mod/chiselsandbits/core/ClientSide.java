@@ -1,4 +1,4 @@
-package mod.chiselsandbits;
+package mod.chiselsandbits.core;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

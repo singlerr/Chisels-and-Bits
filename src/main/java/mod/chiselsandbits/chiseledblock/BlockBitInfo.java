@@ -4,7 +4,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Random;
 
-import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.IgnoreBlockLogic;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockGlowstone;
@@ -20,9 +21,21 @@ import net.minecraft.world.World;
 
 public class BlockBitInfo
 {
+	// imc api...
+	private static HashMap<Block, Boolean> ignorelogicBlocks = new HashMap<Block, Boolean>();
 
+	// cache data..
 	private static HashMap<IBlockState, BlockBitInfo> stateBitInfo = new HashMap<IBlockState, BlockBitInfo>();
 	private static HashMap<Block, Boolean> supportedBlocks = new HashMap<Block, Boolean>();
+
+	public static void ignoreBlockLogic(
+			final Block which )
+	{
+		ignorelogicBlocks.put( which, true );
+
+		stateBitInfo.clear();
+		supportedBlocks.clear();
+	}
 
 	public static BlockBitInfo getBlockInfo(
 			final IBlockState state )
@@ -75,14 +88,22 @@ public class BlockBitInfo
 			// Compatibility use isFullBlock which can be true for glass.
 
 			// final boolean isFullCube = blk.isFullCube()
-			final boolean isFullBlock = blk.isFullBlock() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.slime_block;
+			boolean isFullBlock = blk.isFullBlock() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.slime_block;
 
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
-			final boolean requiredImplementation = quantityDroppedTest && quantityDroppedWithBonusTest && quantityDropped2Test && entityCollisionTest && entityCollision2Test;
-			final boolean hasBehavior = blk.hasTileEntity( state ) || blk.getTickRandomly();
+			boolean requiredImplementation = quantityDroppedTest && quantityDroppedWithBonusTest && quantityDropped2Test && entityCollisionTest && entityCollision2Test;
+			boolean hasBehavior = blk.hasTileEntity( state ) || blk.getTickRandomly();
 
 			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( blk.getMaterial() ) != null;
+
+			final Boolean IgnoredLogic = ignorelogicBlocks.get( blk );
+			if ( blkClass.isAnnotationPresent( IgnoreBlockLogic.class ) || IgnoredLogic != null && IgnoredLogic )
+			{
+				isFullBlock = true;
+				requiredImplementation = true;
+				hasBehavior = false;
+			}
 
 			if ( info.isCompatiable && requiredImplementation && info.hardness >= -0.01f && isFullBlock && supportedMaterial && !hasBehavior )
 			{

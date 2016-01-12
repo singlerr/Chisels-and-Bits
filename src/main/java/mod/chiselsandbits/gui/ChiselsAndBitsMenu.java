@@ -8,8 +8,8 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Stopwatch;
 
-import mod.chiselsandbits.ChiselMode;
-import mod.chiselsandbits.ClientSide;
+import mod.chiselsandbits.core.ChiselMode;
+import mod.chiselsandbits.core.ClientSide;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;

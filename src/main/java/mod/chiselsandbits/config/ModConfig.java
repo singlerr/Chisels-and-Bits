@@ -4,8 +4,8 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import mod.chiselsandbits.ChiselMode;
-import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.core.ChiselMode;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.registry.ModRegistry;
 import net.minecraftforge.common.config.Configuration;

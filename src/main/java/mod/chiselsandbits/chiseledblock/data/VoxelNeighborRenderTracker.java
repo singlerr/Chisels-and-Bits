@@ -2,9 +2,9 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import java.lang.ref.WeakReference;
 
-import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.ModelRenderState;
 import net.minecraft.util.BlockPos;

@@ -1,6 +1,6 @@
 package mod.chiselsandbits.integration.mods;
 
-import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.integration.ChiselsAndBitsIntegration;
 import mod.chiselsandbits.integration.IntegrationBase;
 import net.minecraft.nbt.NBTTagCompound;

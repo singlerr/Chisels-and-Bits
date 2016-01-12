@@ -1,4 +1,4 @@
-package mod.chiselsandbits;
+package mod.chiselsandbits.core;
 
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.item.ItemStack;

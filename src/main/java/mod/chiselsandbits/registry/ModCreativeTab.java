@@ -1,6 +1,6 @@
 package mod.chiselsandbits.registry;
 
-import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;

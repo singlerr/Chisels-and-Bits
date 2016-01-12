@@ -3,7 +3,7 @@ package mod.chiselsandbits.render;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.render.bit.BitItemSmartModel;
 import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
 import mod.chiselsandbits.render.patterns.PrintSmartModel;

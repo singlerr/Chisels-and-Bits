@@ -7,12 +7,12 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.ClientSide;
 import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
 import mod.chiselsandbits.render.helpers.ModelUVReader;
 import mod.chiselsandbits.render.helpers.ModelUtil;
