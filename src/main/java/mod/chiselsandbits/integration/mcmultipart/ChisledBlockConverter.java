@@ -26,12 +26,11 @@ class ChisledBlockConverter implements IPartConverter2, IReversePartConverter
 		return (Collection) ChiselsAndBits.getBlocks().getConversions().values();
 	}
 
-	
 	@Override
 	public Collection<? extends IMultipart> convertBlock(
-			IBlockAccess world,
-			BlockPos pos,
-			boolean client )
+			final IBlockAccess world,
+			final BlockPos pos,
+			final boolean client )
 	{
 		final TileEntity te = world.getTileEntity( pos );
 

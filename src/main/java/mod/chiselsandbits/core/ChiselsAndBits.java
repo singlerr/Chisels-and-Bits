@@ -78,7 +78,8 @@ public class ChiselsAndBits
 	}
 
 	@EventHandler
-	private void handleIMCEvent( final FMLInterModComms.IMCEvent event )
+	private void handleIMCEvent(
+			final FMLInterModComms.IMCEvent event )
 	{
 		final IMCHandler imcHandler = new IMCHandler();
 		imcHandler.handleIMCEvent( event );

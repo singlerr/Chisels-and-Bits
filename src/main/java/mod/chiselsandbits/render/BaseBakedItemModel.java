@@ -37,9 +37,9 @@ public abstract class BaseBakedItemModel implements IFlexibleBakedModel
 	@Override
 	final public List<BakedQuad> getFaceQuads(
 			final EnumFacing side )
-			{
+	{
 		return Collections.emptyList();
-			}
+	}
 
 	@Override
 	final public List<BakedQuad> getGeneralQuads()

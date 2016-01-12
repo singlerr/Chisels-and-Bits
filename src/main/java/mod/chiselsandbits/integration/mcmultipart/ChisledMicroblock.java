@@ -18,38 +18,38 @@ public class ChisledMicroblock extends MicroblockClass
 
 	@Override
 	public IMultipart create(
-			boolean clientside )
+			final boolean clientside )
 	{
 		return new ChisledBlockPart();
 	}
 
 	@Override
 	public ItemStack createStack(
-			IMicroMaterial material,
-			int arg1,
-			int arg2 )
+			final IMicroMaterial material,
+			final int arg1,
+			final int arg2 )
 	{
-		ChisledBlockPart part = (ChisledBlockPart) material;
+		final ChisledBlockPart part = (ChisledBlockPart) material;
 		return part.getTile().getItemStack( part.getBlock(), null );
 	}
 
 	@Override
 	public String getLocalizedName(
-			IMicroMaterial material,
-			int arg1 )
+			final IMicroMaterial material,
+			final int arg1 )
 	{
-		ChisledBlockPart part = (ChisledBlockPart) material;
+		final ChisledBlockPart part = (ChisledBlockPart) material;
 		return part.getBlock().getUnlocalizedName();
 	}
 
 	@Override
 	public MicroblockPlacement getPlacement(
-			World arg0,
-			BlockPos arg1,
-			IMicroMaterial arg2,
-			int arg3,
-			MovingObjectPosition arg4,
-			EntityPlayer arg5 )
+			final World arg0,
+			final BlockPos arg1,
+			final IMicroMaterial arg2,
+			final int arg3,
+			final MovingObjectPosition arg4,
+			final EntityPlayer arg5 )
 	{
 		return null;
 	}

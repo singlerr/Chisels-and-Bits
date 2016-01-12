@@ -360,9 +360,13 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 		}
 
 		if ( started )
-		return box;
+		{
+			return box;
+		}
 		else
+		{
 			return null;
+		}
 	}
 
 	public AxisAlignedBB getBoundingBox(

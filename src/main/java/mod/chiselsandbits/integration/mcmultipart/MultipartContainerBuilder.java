@@ -10,19 +10,19 @@ import net.minecraft.world.World;
 class MultipartContainerBuilder implements IChiseledTileContainer
 {
 
-	IMultipartContainer targetContainer;
+	final IMultipartContainer targetContainer;
 	final ChisledBlockPart container;
 	final World world;
 	final BlockPos pos;
 
 	public MultipartContainerBuilder(
 			final World w,
-			final BlockPos pos,
+			final BlockPos position,
 			final ChisledBlockPart chisledBlockPart,
 			final IMultipartContainer targ )
 	{
 		world = w;
-		this.pos = pos;
+		pos = position;
 		container = chisledBlockPart;
 		targetContainer = targ;
 	}
@@ -30,7 +30,6 @@ class MultipartContainerBuilder implements IChiseledTileContainer
 	@Override
 	public void sendUpdate()
 	{
-
 	}
 
 	@Override

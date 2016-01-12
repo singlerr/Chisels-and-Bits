@@ -57,9 +57,9 @@ public class ModelCombined extends BaseBakedBlockModel
 	@Override
 	public List<BakedQuad> getFaceQuads(
 			final EnumFacing side )
-			{
+	{
 		return face[side.ordinal()];
-			}
+	}
 
 	@Override
 	public List<BakedQuad> getGeneralQuads()

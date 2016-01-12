@@ -6,6 +6,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.google.common.base.Stopwatch;
+
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -37,10 +41,6 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-
-import org.apache.commons.lang3.tuple.Pair;
-
-import com.google.common.base.Stopwatch;
 
 public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselModeItem
 {

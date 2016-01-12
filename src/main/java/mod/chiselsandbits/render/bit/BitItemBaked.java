@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.lwjgl.util.vector.Vector3f;
+
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
 import mod.chiselsandbits.render.helpers.ModelUtil;
@@ -21,8 +23,6 @@ import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
-
-import org.lwjgl.util.vector.Vector3f;
 
 public class BitItemBaked extends BaseBakedBlockModel
 {
@@ -139,9 +139,9 @@ public class BitItemBaked extends BaseBakedBlockModel
 	@Override
 	public List<BakedQuad> getFaceQuads(
 			final EnumFacing p_177551_1_ )
-			{
+	{
 		return Collections.emptyList();
-			}
+	}
 
 	@Override
 	public List<BakedQuad> getGeneralQuads()
