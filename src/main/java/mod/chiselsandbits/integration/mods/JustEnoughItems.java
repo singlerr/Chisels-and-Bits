@@ -20,7 +20,7 @@ import net.minecraftforge.oredict.OreDictionary;
 public class JustEnoughItems implements IModPlugin
 {
 
-	@Override
+	// @Override
 	public boolean isModLoaded()
 	{
 		return true;

@@ -518,7 +518,7 @@ public class ClientSide
 					final TileEntity te = theWorld.getTileEntity( location.blockPos );
 					final boolean isMultipart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( te );
 					final boolean isChisel = getDrawnTool() == ChiselToolType.CHISEL;
-					final TileEntityBlockChiseled data = ModUtil.getChiseledTileEntity( te, false );
+					final TileEntityBlockChiseled data = ModUtil.getChiseledTileEntity( theWorld, location.blockPos, false );
 
 					final VoxelBlob vb = data != null ? data.getBlob() : new VoxelBlob();
 
@@ -740,7 +740,7 @@ public class ClientSide
 				if ( theWorld.isAirBlock( newOffset ) || theWorld.getBlockState( newOffset ).getBlock().isReplaceable( theWorld, newOffset ) || newTarget instanceof TileEntityBlockChiseled
 						|| MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( newTarget ) )
 				{
-					final TileEntityBlockChiseled test = ModUtil.getChiseledTileEntity( newTarget, false );
+					final TileEntityBlockChiseled test = ModUtil.getChiseledTileEntity( theWorld, newOffset, false );
 					showGhost( currentItem, item, newOffset, player, rotations, x, y, z, mop.sideHit, null, test == null ? null : test.getBlobStateReference() );
 				}
 			}

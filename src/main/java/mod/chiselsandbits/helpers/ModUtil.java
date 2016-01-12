@@ -291,19 +291,13 @@ public class ModUtil
 			final BlockPos pos,
 			final boolean create )
 	{
-		return getChiseledTileEntity( world.getTileEntity( pos ), create );
-	}
-
-	public static TileEntityBlockChiseled getChiseledTileEntity(
-			final TileEntity te,
-			final boolean create )
-	{
+		final TileEntity te = world.getTileEntity( pos );
 		if ( te instanceof TileEntityBlockChiseled )
 		{
 			return (TileEntityBlockChiseled) te;
 		}
 
-		return MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( te, create );
+		return MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( world, pos, create );
 	}
 
 	public static void removeChisledBlock(

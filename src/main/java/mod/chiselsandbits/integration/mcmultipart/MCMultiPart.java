@@ -15,6 +15,8 @@ import mod.chiselsandbits.integration.ChiselsAndBitsIntegration;
 import mod.chiselsandbits.integration.IntegrationBase;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -98,12 +100,14 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 
 	@Override
 	public TileEntityBlockChiseled getPartIfPossible(
-			final TileEntity te,
+			final World w,
+			final BlockPos pos,
 			final boolean create )
 	{
-		if ( te instanceof IMultipartContainer )
+		final IMultipartContainer container = MultipartHelper.getOrConvertPartContainer( w, pos, false );
+
+		if ( container != null )
 		{
-			final IMultipartContainer container = (IMultipartContainer) te;
 			for ( final IMultipart part : container.getParts() )
 			{
 				if ( part instanceof ChisledBlockPart )
@@ -113,14 +117,14 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 			}
 
 			final ChisledBlockPart part = new ChisledBlockPart();
-			if ( MultipartHelper.canAddPart( te.getWorld(), ( (IMultipartContainer) te ).getPosIn(), part ) )
+			if ( MultipartHelper.canAddPart( w, pos, part ) )
 			{
-				if ( create && !te.getWorld().isRemote )
+				if ( create && !w.isRemote )
 				{
 					final TileEntityBlockChiseled tx = part.getTile();
-					tx.occlusionState = new MultipartContainerBuilder( te, part, container );
-					tx.setWorldObj( te.getWorld() );
-					tx.setPos( te.getPos() );
+					tx.occlusionState = new MultipartContainerBuilder( w, pos, part, container );
+					tx.setWorldObj( w );
+					tx.setPos( pos );
 					return tx;
 				}
 				else if ( create )
@@ -138,7 +142,7 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 	public boolean isMultiPart(
 			final TileEntity te )
 	{
-		return te instanceof IMultipartContainer;
+		return te instanceof IMultipartContainer || MultipartHelper.canAddPart( te.getWorld(), te.getPos(), new ChisledBlockPart() );
 	}
 
 	@Override

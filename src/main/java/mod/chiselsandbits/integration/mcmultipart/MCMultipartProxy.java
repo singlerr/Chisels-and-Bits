@@ -4,6 +4,8 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.integration.IntegrationBase;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.world.World;
 
 public class MCMultipartProxy extends IntegrationBase
 {
@@ -34,7 +36,8 @@ public class MCMultipartProxy extends IntegrationBase
 
 		@Override
 		public TileEntityBlockChiseled getPartIfPossible(
-				final TileEntity te,
+				final World world,
+				final BlockPos pos,
 				final boolean create )
 		{
 			return null;
@@ -65,10 +68,11 @@ public class MCMultipartProxy extends IntegrationBase
 	}
 
 	public TileEntityBlockChiseled getChiseledTileEntity(
-			final TileEntity te,
+			final World world,
+			final BlockPos pos,
 			final boolean create )
 	{
-		return relay.getPartIfPossible( te, create );
+		return relay.getPartIfPossible( world, pos, create );
 	}
 
 	public void removeChisledBlock(
