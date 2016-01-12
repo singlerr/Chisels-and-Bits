@@ -140,19 +140,22 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 
 	@Override
 	public boolean isMultiPart(
-			final TileEntity te )
+			final World w,
+			final BlockPos pos )
 	{
-		return te instanceof IMultipartContainer || MultipartHelper.canAddPart( te.getWorld(), te.getPos(), new ChisledBlockPart() );
+		return w.getTileEntity( pos ) instanceof IMultipartContainer || MultipartHelper.canAddPart( w, pos, new ChisledBlockPart() );
 	}
 
 	@Override
 	public void addFiler(
-			final TileEntity te,
+			final World w,
+			final BlockPos pos,
 			final VoxelBlob vb )
 	{
-		if ( isMultiPart( te ) )
+		if ( isMultiPart( w, pos ) )
 		{
-			final IMultipartContainer mc = (IMultipartContainer) te;
+			final IMultipartContainer mc = MultipartHelper.getOrConvertPartContainer( w, pos, false );// get
+																										// container..
 
 			final BitCollisionIterator bci = new BitCollisionIterator();
 			while ( bci.hasNext() )

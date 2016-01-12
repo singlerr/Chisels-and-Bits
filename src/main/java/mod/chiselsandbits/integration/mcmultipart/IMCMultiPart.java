@@ -8,10 +8,6 @@ import net.minecraft.world.World;
 
 public interface IMCMultiPart
 {
-
-	boolean isMultiPart(
-			TileEntity target );
-
 	void convertIfPossible(
 			TileEntity current,
 			TileEntityBlockChiseled newTileEntity );
@@ -27,8 +23,13 @@ public interface IMCMultiPart
 	void triggerPartChange(
 			TileEntity te );
 
+	boolean isMultiPart(
+			World w,
+			BlockPos pos );
+
 	void addFiler(
-			TileEntity te,
+			World w,
+			BlockPos pos,
 			VoxelBlob vb );
 
 }

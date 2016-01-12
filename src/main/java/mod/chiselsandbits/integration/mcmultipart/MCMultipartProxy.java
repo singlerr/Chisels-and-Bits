@@ -14,13 +14,6 @@ public class MCMultipartProxy extends IntegrationBase
 	{
 
 		@Override
-		public boolean isMultiPart(
-				final TileEntity target )
-		{
-			return false;
-		}
-
-		@Override
 		public void convertIfPossible(
 				final TileEntity current,
 				final TileEntityBlockChiseled newTileEntity )
@@ -50,8 +43,17 @@ public class MCMultipartProxy extends IntegrationBase
 		}
 
 		@Override
+		public boolean isMultiPart(
+				final World w,
+				final BlockPos pos )
+		{
+			return false;
+		}
+
+		@Override
 		public void addFiler(
-				final TileEntity te,
+				final World w,
+				final BlockPos pos,
 				final VoxelBlob vb )
 		{
 		}
@@ -82,9 +84,10 @@ public class MCMultipartProxy extends IntegrationBase
 	}
 
 	public boolean isMultiPartTileEntity(
-			final TileEntity target )
+			final World w,
+			final BlockPos pos )
 	{
-		return relay.isMultiPart( target );
+		return relay.isMultiPart( w, pos );
 	}
 
 	public void convertTo(
@@ -101,10 +104,11 @@ public class MCMultipartProxy extends IntegrationBase
 	}
 
 	public void addFiller(
-			final TileEntity te,
+			final World w,
+			final BlockPos pos,
 			final VoxelBlob vb )
 	{
-		relay.addFiler( te, vb );
+		relay.addFiler( w, pos, vb );
 	}
 
 }

@@ -515,8 +515,7 @@ public class ClientSide
 					// this logic originated in the vanilla bounding box...
 					final IBlockState state = theWorld.getBlockState( location.blockPos );
 
-					final TileEntity te = theWorld.getTileEntity( location.blockPos );
-					final boolean isMultipart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( te );
+					final boolean isMultipart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( theWorld, location.blockPos );
 					final boolean isChisel = getDrawnTool() == ChiselToolType.CHISEL;
 					final TileEntityBlockChiseled data = ModUtil.getChiseledTileEntity( theWorld, location.blockPos, false );
 
@@ -561,6 +560,7 @@ public class ClientSide
 					}
 					else
 					{
+						final TileEntity te = theWorld.getTileEntity( location.blockPos );
 						if ( theWorld.isAirBlock( location.blockPos ) || te instanceof TileEntityBlockChiseled || BlockBitInfo.supportsBlock( state ) || isMultipart )
 						{
 							final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, vb, chMode, mop.sideHit );
@@ -738,7 +738,7 @@ public class ClientSide
 				final TileEntity newTarget = theWorld.getTileEntity( newOffset );
 
 				if ( theWorld.isAirBlock( newOffset ) || theWorld.getBlockState( newOffset ).getBlock().isReplaceable( theWorld, newOffset ) || newTarget instanceof TileEntityBlockChiseled
-						|| MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( newTarget ) )
+						|| MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( theWorld, newOffset ) )
 				{
 					final TileEntityBlockChiseled test = ModUtil.getChiseledTileEntity( theWorld, newOffset, false );
 					showGhost( currentItem, item, newOffset, player, rotations, x, y, z, mop.sideHit, null, test == null ? null : test.getBlobStateReference() );

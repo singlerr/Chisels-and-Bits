@@ -136,7 +136,7 @@ public class PacketChisel extends ModPacket
 						final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
 
 						final VoxelBlob mask = new VoxelBlob();
-						MCMultipartProxy.proxyMCMultiPart.addFiller( world.getTileEntity( pos ), mask );
+						MCMultipartProxy.proxyMCMultiPart.addFiller( world, pos, mask );
 
 						// adjust voxel state...
 						final VoxelBlob vb = tec.getBlob();
