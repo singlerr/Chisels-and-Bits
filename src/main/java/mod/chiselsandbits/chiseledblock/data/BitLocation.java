@@ -1,15 +1,40 @@
 package mod.chiselsandbits.chiseledblock.data;
 
+import mod.chiselsandbits.api.IBitLocation;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 
-public class BitLocation
+public class BitLocation implements IBitLocation
 {
 	private static final double One32nd = 0.5 / VoxelBlob.dim;
 
 	public final BlockPos blockPos;
 	public final int bitX, bitY, bitZ;
+
+	@Override
+	public BlockPos getBlockPos()
+	{
+		return blockPos;
+	}
+
+	@Override
+	public int getBitX()
+	{
+		return bitX;
+	}
+
+	@Override
+	public int getBitY()
+	{
+		return bitY;
+	}
+
+	@Override
+	public int getBitZ()
+	{
+		return bitZ;
+	}
 
 	public BitLocation(
 			final MovingObjectPosition mop,

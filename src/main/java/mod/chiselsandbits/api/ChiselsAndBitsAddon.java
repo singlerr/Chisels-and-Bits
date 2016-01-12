@@ -1,21 +1,14 @@
 package mod.chiselsandbits.api;
 
-/**
- * Implement this on a class with the @ChiselsAndBitsPlugin, you can do anything
- * you want to get your support ready, such as store the object for later use,
- * or replace a null implementation with a C&B implementation.
- *
- * Implementing object must have a default constructor.
- */
-public interface ChiselsAndBitsAddon
-{
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-	/**
-	 * Called during init-phase.
-	 *
-	 * @param api
-	 */
-	public void onReadyChiselsAndBits(
-			final IChiselAndBitsAPI api );
+/**
+ * Triggers C&B to create an instance of the class and call its callback method
+ * on load.
+ */
+@Retention( RetentionPolicy.RUNTIME )
+public @interface ChiselsAndBitsAddon
+{
 
 }

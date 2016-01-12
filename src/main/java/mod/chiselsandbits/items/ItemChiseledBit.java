@@ -95,7 +95,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		{
 			// for an unknown reason its possible to generate mod blocks without
 			// proper state here...
-			final IBlockState state = Block.getStateById( ItemChisel.getStackState( stack ) );
+			final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
 			final Block blk = state.getBlock();
 			target = new ItemStack( blk, 1, blk.getMetaFromState( state ) );
 		}
@@ -125,7 +125,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ItemStack stack,
 			final int renderPass )
 	{
-		final IBlockState state = Block.getStateById( ItemChisel.getStackState( stack ) );
+		final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
 		return state == null ? 0xffffff : BitColors.getColorFor( state, renderPass );
 	}
 
@@ -153,7 +153,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 			IBlockState blkstate = world.getBlockState( bitLocation.blockPos );
 			TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );
-			if ( tebc == null && BlockChiseled.replaceWithChisled( world, bitLocation.blockPos, blkstate, ItemChisel.getStackState( stack ) ) )
+			if ( tebc == null && BlockChiseled.replaceWithChisled( world, bitLocation.blockPos, blkstate, ItemChiseledBit.getStackState( stack ) ) )
 			{
 				blkstate = world.getBlockState( bitLocation.blockPos );
 				tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );
@@ -321,6 +321,12 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		ChiselModeManager.scrollOption( ChiselToolType.BIT, mode, mode, dwheel );
 	}
 
+	public static int getStackState(
+			final ItemStack inHand )
+	{
+		return inHand != null && inHand.hasTagCompound() ? inHand.getTagCompound().getInteger( "id" ) : 0;
+	}
+
 	public static boolean placeBit(
 			final IContinuousInventory bits,
 			final EntityPlayer player,
@@ -332,7 +338,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		if ( vb.get( x, y, z ) == 0 )
 		{
 			final ItemStackSlot slot = bits.getItem( 0 );
-			final int stateID = ItemChisel.getStackState( slot.getStack() );
+			final int stateID = ItemChiseledBit.getStackState( slot.getStack() );
 
 			vb.set( x, y, z, stateID );
 

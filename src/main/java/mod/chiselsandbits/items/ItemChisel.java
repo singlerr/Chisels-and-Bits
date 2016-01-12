@@ -315,12 +315,6 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 		return output;
 	}
 
-	public static int getStackState(
-			final ItemStack inHand )
-	{
-		return inHand != null && inHand.hasTagCompound() ? inHand.getTagCompound().getInteger( "id" ) : 0;
-	}
-
 	private static boolean testingChisel = false;
 
 	public static boolean canMine(

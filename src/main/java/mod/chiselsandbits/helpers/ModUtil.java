@@ -11,7 +11,6 @@ import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemBitBag.BagPos;
-import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.items.ItemPositivePrint;
@@ -142,7 +141,7 @@ public class ModUtil
 			final int StateID )
 	{
 		final ItemStack inHand = who.getCurrentEquippedItem();
-		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChisel.getStackState( inHand ) == StateID )
+		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChiseledBit.getStackState( inHand ) == StateID )
 		{
 			return new ItemStackSlot( who.inventory, who.inventory.currentItem, inHand, who );
 		}
@@ -368,7 +367,7 @@ public class ModUtil
 		{
 			final ItemStack which = inv.getStackInSlot( x );
 
-			if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChisel.getStackState( is ) ) )
+			if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChiseledBit.getStackState( is ) ) )
 			{
 				if ( !seen )
 				{

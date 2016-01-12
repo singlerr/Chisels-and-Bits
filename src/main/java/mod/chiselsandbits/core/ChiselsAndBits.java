@@ -1,6 +1,8 @@
 package mod.chiselsandbits.core;
 
+import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.config.ModConfig;
+import mod.chiselsandbits.core.api.ChiselAndBitsAPI;
 import mod.chiselsandbits.core.api.IMCHandler;
 import mod.chiselsandbits.crafting.ChiselCrafting;
 import mod.chiselsandbits.crafting.MirrorTransferCrafting;
@@ -51,6 +53,7 @@ public class ChiselsAndBits
 	private ModItems items;
 	private ModBlocks blocks;
 	private final Integration integration = new Integration();
+	private final IChiselAndBitsAPI api = new ChiselAndBitsAPI();
 
 	public ChiselsAndBits()
 	{
@@ -75,6 +78,11 @@ public class ChiselsAndBits
 	public static ModConfig getConfig()
 	{
 		return instance.config;
+	}
+
+	public static IChiselAndBitsAPI getApi()
+	{
+		return instance.api;
 	}
 
 	@EventHandler

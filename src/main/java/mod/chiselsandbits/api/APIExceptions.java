@@ -1,12 +1,13 @@
 package mod.chiselsandbits.api;
 
-public class Exceptions
+public class APIExceptions
 {
 
 	/**
-	 * Thrown when a ItemStack is not a valid chiseled bit.
+	 * Thrown when a ItemStack is not a valid chiseled bit, or contains invalid
+	 * data.
 	 */
-	static public class InvalidVoxelItem extends Exception
+	static public class InvalidBitItem extends Exception
 	{
 
 		private static final long serialVersionUID = -1101206778339096174L;
@@ -31,7 +32,7 @@ public class Exceptions
 	static public class SpaceOccupied extends Exception
 	{
 
-		private static final long serialVersionUID = -2164869172949828669L;
+		private static final long serialVersionUID = -5620527137925750306L;
 
 	}
 

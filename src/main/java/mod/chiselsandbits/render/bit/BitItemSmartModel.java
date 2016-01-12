@@ -2,7 +2,7 @@ package mod.chiselsandbits.render.bit;
 
 import java.util.HashMap;
 
-import mod.chiselsandbits.items.ItemChisel;
+import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.render.BaseSmartModel;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.ItemStack;
@@ -30,6 +30,6 @@ public class BitItemSmartModel extends BaseSmartModel implements ISmartItemModel
 	public IBakedModel handleItemState(
 			final ItemStack stack )
 	{
-		return getCachedModel( ItemChisel.getStackState( stack ) );
+		return getCachedModel( ItemChiseledBit.getStackState( stack ) );
 	}
 }

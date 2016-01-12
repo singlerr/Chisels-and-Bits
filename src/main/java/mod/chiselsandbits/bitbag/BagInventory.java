@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.items.ItemBitBag;
-import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -181,7 +180,7 @@ public class BagInventory implements IInventory
 		if ( stack != null && stack.getItem() instanceof ItemChiseledBit )
 		{
 			slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty] = stack.stackSize;
-			slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id] = ItemChisel.getStackState( stack );
+			slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id] = ItemChiseledBit.getStackState( stack );
 		}
 		else
 		{
@@ -273,7 +272,7 @@ public class BagInventory implements IInventory
 		for ( int x = getSizeInventory() - 1; x >= 0; x-- )
 		{
 			final ItemStack is = getStackInSlot( x );
-			if ( is != null && is.getItem() == target.getItem() && ItemChiseledBit.sameBit( target, ItemChisel.getStackState( is ) ) )
+			if ( is != null && is.getItem() == target.getItem() && ItemChiseledBit.sameBit( target, ItemChiseledBit.getStackState( is ) ) )
 			{
 				target.stackSize += is.stackSize;
 				final int total = target.stackSize;
@@ -300,7 +299,7 @@ public class BagInventory implements IInventory
 		for ( int x = 0; x < getSizeInventory(); x++ )
 		{
 			final ItemStack is = getStackInSlot( x );
-			if ( is != null && ItemChisel.getStackState( which ) == ItemChisel.getStackState( is ) )
+			if ( is != null && ItemChiseledBit.getStackState( which ) == ItemChiseledBit.getStackState( is ) )
 			{
 				is.stackSize += which.stackSize;
 				final int total = is.stackSize;
@@ -376,7 +375,7 @@ public class BagInventory implements IInventory
 
 			if ( is != null )
 			{
-				final IBlockState state = Block.getStateById( ItemChisel.getStackState( is ) );
+				final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( is ) );
 				if ( state == null )
 				{
 					continue;

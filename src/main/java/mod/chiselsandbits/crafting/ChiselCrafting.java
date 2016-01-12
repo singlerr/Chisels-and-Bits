@@ -9,7 +9,6 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.IntegerRef;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.items.ItemBitBag;
-import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
@@ -91,7 +90,7 @@ public class ChiselCrafting implements IRecipe
 
 					for ( final ItemStack is : stacks )
 					{
-						if ( ItemChisel.getStackState( is ) == ref.ref && is.stackSize > 0 )
+						if ( ItemChiseledBit.getStackState( is ) == ref.ref && is.stackSize > 0 )
 						{
 							final int original = is.stackSize;
 							is.stackSize = Math.max( 0, is.stackSize - ref.total );
