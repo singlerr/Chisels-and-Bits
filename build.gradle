@@ -12,7 +12,7 @@ buildscript {
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "mc1.8.9-v1.8-beta11"
+version = "mc1.8.9-v1.8-beta12"
 group= "mod.chiselsandbits"
 archivesBaseName = "chiselsandbits"
 
@@ -31,12 +31,19 @@ minecraft {
     version = "1.8.9-11.15.0.1694"
     runDir = "eclipse"
     mappings = "snapshot_20151227"
+    
+    replaceIn "ChiselsAndBits.java"
+    replace "@VERSION@", project.version
 }
 
-task deobfJar(type: Jar) {
-    from(sourceSets.main.output) {
-        classifier = "deobf"
-    }
+task apiJar(type: Jar) {
+    from sourceSets.main.java
+    include "mod/chiselsandbits/api/**"
+
+    from sourceSets.main.output
+    include "mod/chiselsandbits/api/**"
+
+    classifier = 'api'
 }
 
 jar {
@@ -46,7 +53,7 @@ jar {
 }
 
 artifacts {
-    archives deobfJar
+    archives apiJar
 }
 
 processResources
@@ -58,16 +65,16 @@ processResources
     // replace stuff in mcmod.info, nothing else
     from(sourceSets.main.resources.srcDirs) {
         include 'mcmod.info'
-                
+        
         // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
-        
+    
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
-
+    
     // Move access transformers to META-INF
     rename '(.+_at.cfg)', 'META-INF/$1'
 }

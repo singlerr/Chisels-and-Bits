@@ -12,6 +12,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -202,6 +203,47 @@ public abstract class DebugAction
 				Log.logError( "FAIL", e );
 			}
 			catch ( final InvalidBitItem e )
+			{
+				Log.logError( "FAIL", e );
+			}
+		}
+
+	};
+
+	static class getBit extends DebugAction
+	{
+
+		@Override
+		public void run(
+				final World w,
+				final BlockPos pos,
+				final EnumFacing side,
+				final float hitX,
+				final float hitY,
+				final float hitZ,
+				final EntityPlayer player )
+		{
+			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
+
+			try
+			{
+				final IBitAccess access = api.getBitAccess( w, loc.getBlockPos() );
+				final IBitBrush brush = access.getBitAt( loc.getBitX(), loc.getBitY(), loc.getBitZ() );
+
+				if ( brush == null )
+				{
+					player.addChatComponentMessage( new ChatComponentText( "AIR!" ) );
+				}
+				else
+				{
+					final IBlockState state = brush.getState();
+					final Block blk = state.getBlock();
+
+					player.inventory.addItemStackToInventory( brush.getItemStack( 1 ) );
+					player.inventory.addItemStackToInventory( new ItemStack( blk, 1, blk.getMetaFromState( state ) ) );
+				}
+			}
+			catch ( final CannotBeChiseled e )
 			{
 				Log.logError( "FAIL", e );
 			}

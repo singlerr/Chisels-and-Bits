@@ -2,6 +2,8 @@ package mod.chiselsandbits.core.api;
 
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 
 public class BitBrush implements IBitBrush
@@ -31,6 +33,17 @@ public class BitBrush implements IBitBrush
 	public boolean isAir()
 	{
 		return stateID == 0;
+	}
+
+	@Override
+	public IBlockState getState()
+	{
+		if ( stateID == 0 )
+		{
+			return null;
+		}
+
+		return Block.getStateById( stateID );
 	}
 
 }
