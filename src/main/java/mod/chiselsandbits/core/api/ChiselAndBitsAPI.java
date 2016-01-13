@@ -6,15 +6,22 @@ import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.IBitLocation;
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
+import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.items.ItemMirrorPrint;
+import mod.chiselsandbits.items.ItemNegativePrint;
+import mod.chiselsandbits.items.ItemPositivePrint;
+import mod.chiselsandbits.items.ItemWrench;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
@@ -38,7 +45,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			return false;
 		}
 
-		return ModUtil.getChiseledTileEntity( world, pos, true ) != null;
+		return BlockBitInfo.supportsBlock( world.getBlockState( pos ) ) || ModUtil.getChiseledTileEntity( world, pos, false ) != null;
 	}
 
 	@Override
@@ -64,8 +71,30 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			throw new CannotBeChiseled();
 		}
 
-		// TODO IMPLEMENT
-		return null;
+		final IBlockState state = world.getBlockState( pos );
+		if ( BlockBitInfo.supportsBlock( state ) )
+		{
+			final VoxelBlob blob = new VoxelBlob();
+			blob.fill( Block.getStateId( state ) );
+			return new BitAccess( world, pos, blob, VoxelBlob.NULL_BLOB );
+		}
+
+		if ( world.isAirBlock( pos ) )
+		{
+			final VoxelBlob blob = new VoxelBlob();
+			return new BitAccess( world, pos, blob, VoxelBlob.NULL_BLOB );
+		}
+
+		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, true );
+		if ( te != null )
+		{
+			final VoxelBlob mask = new VoxelBlob();
+			MCMultipartProxy.proxyMCMultiPart.addFiller( world, pos, mask );
+
+			return new BitAccess( world, pos, te.getBlob(), mask );
+		}
+
+		throw new CannotBeChiseled();
 	}
 
 	@Override
@@ -77,7 +106,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			return new BitBrush( 0 );
 		}
 
-		if ( isChisledBitBlock( bitItem ) )
+		if ( getItemType( bitItem ) == ItemType.CHISLED_BIT )
 		{
 			final int stateID = ItemChiseledBit.getStackState( bitItem );
 			final IBlockState state = Block.getStateById( stateID );
@@ -110,39 +139,79 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	}
 
 	@Override
-	public boolean isBitItem(
+	public ItemType getItemType(
 			final ItemStack item )
 	{
-		return item != null && item.getItem() instanceof ItemChiseledBit;
-	}
+		if ( item != null && item.getItem() instanceof ItemChiseledBit )
+		{
+			return ItemType.CHISLED_BIT;
+		}
 
-	@Override
-	public boolean isChisledBitBlock(
-			final ItemStack item )
-	{
-		return item != null && item.getItem() instanceof ItemBlockChiseled;
-	}
+		if ( item != null && item.getItem() instanceof ItemBitBag )
+		{
+			return ItemType.BIT_BAG;
+		}
 
-	@Override
-	public boolean isChisel(
-			final ItemStack item )
-	{
-		return item != null && item.getItem() instanceof ItemChisel;
-	}
+		if ( item != null && item.getItem() instanceof ItemChisel )
+		{
+			return ItemType.CHISEL;
+		}
 
-	@Override
-	public boolean isBitBag(
-			final ItemStack item )
-	{
-		return item != null && item.getItem() instanceof ItemBitBag;
+		if ( item != null && item.getItem() instanceof ItemBlockChiseled )
+		{
+			return ItemType.CHISLED_BLOCK;
+		}
+
+		if ( item != null && item.getItem() instanceof ItemMirrorPrint )
+		{
+			return ItemType.MIRROR_DESIGN;
+		}
+
+		if ( item != null && item.getItem() instanceof ItemPositivePrint )
+		{
+			return ItemType.POSITIVE_DESIGN;
+		}
+
+		if ( item != null && item.getItem() instanceof ItemNegativePrint )
+		{
+			return ItemType.NEGATIVE_DESIGN;
+		}
+
+		if ( item != null && item.getItem() instanceof ItemWrench )
+		{
+			return ItemType.WRENCH;
+		}
+
+		return null;
 	}
 
 	@Override
 	public IBitAccess createBitItem(
 			final ItemStack BitItemStack )
 	{
-		// TODO IMPLEMENT
-		return new BitAccess( null, null, new VoxelBlob() );
+		if ( BitItemStack == null )
+		{
+			return new BitAccess( null, null, new VoxelBlob(), VoxelBlob.NULL_BLOB );
+		}
+
+		final ItemType type = getItemType( BitItemStack );
+		if ( type != null && type.isBitAccess )
+		{
+			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+			tmp.readChisleData( BitItemStack.getSubCompound( "BlockEntityTag", false ) );
+			final VoxelBlob blob = tmp.getBlob();
+
+			return new BitAccess( null, null, blob, VoxelBlob.NULL_BLOB );
+		}
+
+		return null;
+	}
+
+	@Override
+	public ItemStack getBitItem(
+			final IBlockState defaultState ) throws InvalidBitItem
+	{
+		return ItemChiseledBit.createStack( Block.getStateId( defaultState ), 1, true );
 	}
 
 }

@@ -1,6 +1,7 @@
 package mod.chiselsandbits.registry;
 
 import mod.chiselsandbits.config.ModConfig;
+import mod.chiselsandbits.debug.ItemApiDebug;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -63,6 +64,7 @@ public class ModItems extends ModRegistry
 		itemBitBag = registerItem( config.enableBitBag, new ItemBitBag(), "bit_bag" );
 		itemWrench = registerItem( config.enableWoodenWrench, new ItemWrench(), "wrench_wood" );
 		itemBlockBit = registerItem( config.enableChisledBits, new ItemChiseledBit(), "block_bit" );
+		registerItem( config.enableAPITestingItem, new ItemApiDebug(), "debug" );
 	}
 
 	public void addRecipes()

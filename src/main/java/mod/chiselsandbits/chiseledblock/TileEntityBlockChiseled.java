@@ -3,11 +3,13 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.Collections;
 import java.util.List;
 
+import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IChiseledTileContainer;
@@ -18,7 +20,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -524,7 +525,6 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			final Block what,
 			final EntityPlayer player )
 	{
-		final ItemStack itemstack = new ItemStack( what, 1 );
 		final ItemStackGeneratedCache cache = pickcache;
 
 		if ( player != null )
@@ -537,7 +537,6 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				return cache.out.copy();
 			}
 
-			final TileEntityBlockChiseled test = new TileEntityBlockChiseled();
 			VoxelBlob vb = getBlob();
 
 			int countDown = rotations;
@@ -548,14 +547,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				vb = vb.spin( Axis.Y );
 			}
 
-			test.setBlob( vb );
+			final BitAccess ba = new BitAccess( null, null, vb, VoxelBlob.NULL_BLOB );
+			final ItemStack itemstack = ba.getBitsAsItem( enumfacing, ItemType.CHISLED_BLOCK );
 
-			final NBTTagCompound nbttagcompound = new NBTTagCompound();
-			test.writeChisleData( nbttagcompound );
-			itemstack.setTagInfo( "BlockEntityTag", nbttagcompound );
-
-			itemstack.setTagInfo( "side", new NBTTagByte( (byte) enumfacing.ordinal() ) );
 			pickcache = new ItemStackGeneratedCache( itemstack, getBlobStateReference(), rotations );
+			return itemstack;
 		}
 		else
 		{
@@ -564,14 +560,12 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				return cache.out.copy();
 			}
 
-			final NBTTagCompound nbttagcompound = new NBTTagCompound();
-			writeChisleData( nbttagcompound );
-			itemstack.setTagInfo( "BlockEntityTag", nbttagcompound );
+			final BitAccess ba = new BitAccess( null, null, getBlob(), VoxelBlob.NULL_BLOB );
+			final ItemStack itemstack = ba.getBitsAsItem( null, ItemType.CHISLED_BLOCK );
 
 			pickcache = new ItemStackGeneratedCache( itemstack, getBlobStateReference(), 0 );
+			return itemstack;
 		}
-
-		return itemstack;
 	}
 
 	public boolean isSideSolid(

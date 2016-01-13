@@ -2,6 +2,7 @@ package mod.chiselsandbits.api;
 
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 
 /**
  * Do not implement, acquire from {@link IChiselAndBitsAPI}
@@ -50,10 +51,16 @@ public interface IBitAccess
 	/**
 	 * Returns an item for the {@link IBitAccess}
 	 *
-	 * Useable for any {@link IBitAccess}
+	 * Usable for any {@link IBitAccess}
 	 *
+	 * @param side
+	 *            angle the player is looking at, can be null.
+	 * @param type
+	 *            what type of item to give.
 	 * @return an Item for bits, null if there are no bits.
 	 */
-	ItemStack getBitsAsItem();
+	ItemStack getBitsAsItem(
+			EnumFacing side,
+			ItemType type );
 
 }

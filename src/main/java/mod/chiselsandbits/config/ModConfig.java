@@ -8,6 +8,7 @@ import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.registry.ModRegistry;
+import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -23,6 +24,9 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Integration Settings" )
 	public boolean ShowBitsInJEI;
+
+	@Configured( category = "Integration Settings" )
+	public boolean enableAPITestingItem;
 
 	// mod settings...
 	@Configured( category = "Client Settings" )
@@ -153,6 +157,12 @@ public class ModConfig extends Configuration
 
 	public int bagStackSize;
 
+	public boolean deobfuscatedEnvironment()
+	{
+		final Object deObf = Launch.blackboard.get( "fml.deobfuscatedEnvironment" );
+		return Boolean.valueOf( String.valueOf( deObf ) );
+	}
+
 	public boolean isEnabled(
 			final String className )
 	{
@@ -169,6 +179,7 @@ public class ModConfig extends Configuration
 
 	private void setDefaults()
 	{
+		enableAPITestingItem = deobfuscatedEnvironment();
 		enableChiselMode_ConnectedPlane = !ChiselMode.CONNECTED_PLANE.isDisabled;
 		enableChiselMode_HugeCube = !ChiselMode.CUBE_LARGE.isDisabled;
 		enableChiselMode_LargeCube = !ChiselMode.CUBE_MEDIUM.isDisabled;

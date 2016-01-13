@@ -2,6 +2,7 @@ package mod.chiselsandbits.api;
 
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -14,39 +15,12 @@ public interface IChiselAndBitsAPI
 {
 
 	/**
-	 * Is item a Chisel?
+	 * Determine the Item Type and return it.
 	 *
 	 * @param item
-	 * @return true if yes.
+	 * @return ItemType of the item, or null if it is not any of them.
 	 */
-	boolean isChisel(
-			ItemStack item );
-
-	/**
-	 * Is item a bit bag?
-	 *
-	 * @param item
-	 * @return true if yes.
-	 */
-	boolean isBitBag(
-			ItemStack item );
-
-	/**
-	 * Is the item a chiseled bit?
-	 *
-	 * @param item
-	 * @return true if yes.
-	 */
-	boolean isBitItem(
-			ItemStack item );
-
-	/**
-	 * Is the item a chiseled bit block?
-	 *
-	 * @param item
-	 * @return true if yes.
-	 */
-	boolean isChisledBitBlock(
+	ItemType getItemType(
 			ItemStack item );
 
 	/**
@@ -87,7 +61,8 @@ public interface IChiselAndBitsAPI
 			BlockPos pos ) throws CannotBeChiseled;
 
 	/**
-	 * Create a bit access from an item, passing null creates an empty item.
+	 * Create a bit access from an item, passing null creates an empty item,
+	 * passing an invalid item returns null.
 	 *
 	 * @return a {@link IBitAccess} for an item.
 	 */
@@ -106,7 +81,8 @@ public interface IChiselAndBitsAPI
 			ItemStack bitItem ) throws InvalidBitItem;
 
 	/**
-	 * Convert ray trace information into bit location information
+	 * Convert ray trace information into bit location information, note that
+	 * the block position can change, be aware.
 	 *
 	 * @param hitX
 	 * @param hitY
@@ -124,5 +100,18 @@ public interface IChiselAndBitsAPI
 			EnumFacing side,
 			BlockPos pos,
 			boolean placement );
+
+	/**
+	 * Get an ItemStack for the bit type of the state...
+	 * 
+	 * VERY IMPORTANT: C&B lets you disable bits, if this happens the Item in
+	 * this ItemStack WILL BE NULL, if you put this item in an inventory, drop
+	 * it on the ground, or anything else.. CHECK THIS!!!!!
+	 * 
+	 * @param defaultState
+	 * @return the bit.
+	 */
+	ItemStack getBitItem(
+			IBlockState defaultState ) throws InvalidBitItem;
 
 }
