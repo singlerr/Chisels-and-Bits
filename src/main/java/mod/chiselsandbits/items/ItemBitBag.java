@@ -53,17 +53,17 @@ public class ItemBitBag extends Item
 		super.addInformation( stack, playerIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBitBag, tooltip );
 
-		if ( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
+		if ( cachedInfo != stack )
 		{
-			if ( cachedInfo != stack )
-			{
-				cachedInfo = stack;
-				details.clear();
+			cachedInfo = stack;
+			details.clear();
 
-				final BagInventory bi = new BagInventory( stack );
-				bi.listContents( details );
-			}
+			final BagInventory bi = new BagInventory( stack );
+			bi.listContents( details );
+		}
 
+		if ( details.size() <= 2 || Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
+		{
 			tooltip.addAll( details );
 		}
 		else

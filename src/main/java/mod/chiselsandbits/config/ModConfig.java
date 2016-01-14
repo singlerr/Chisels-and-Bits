@@ -155,6 +155,7 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public double maxDrawnRegionSize;
 
+	@Configured( category = "Balance Settings" )
 	public int bagStackSize;
 
 	public boolean deobfuscatedEnvironment()
@@ -315,6 +316,17 @@ public class ModConfig extends Configuration
 
 	private void sync()
 	{
+		// sane bag sizes...
+		if ( bagStackSize < 64 )
+		{
+			bagStackSize = 64;
+		}
+		else if ( bagStackSize > 999999 )
+		{
+			bagStackSize = 999999;
+		}
+
+		// configure mode enums..
 		ChiselMode.CONNECTED_PLANE.isDisabled = !enableChiselMode_ConnectedPlane;
 		ChiselMode.CUBE_LARGE.isDisabled = !enableChiselMode_HugeCube;
 		ChiselMode.CUBE_MEDIUM.isDisabled = !enableChiselMode_LargeCube;

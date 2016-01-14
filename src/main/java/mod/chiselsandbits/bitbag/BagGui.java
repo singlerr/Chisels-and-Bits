@@ -114,7 +114,7 @@ public class BagGui extends GuiContainer
 			final Slot slot = getBagContainer().customSlots.get( i1 );
 
 			final FontRenderer originalheight = fontRendererObj;
-			fontRendererObj = new GuiBagFontRenderer( originalheight );
+			fontRendererObj = new GuiBagFontRenderer( originalheight, ChiselsAndBits.getConfig().bagStackSize );
 			drawSlot( slot );
 			fontRendererObj = originalheight;
 

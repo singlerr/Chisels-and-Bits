@@ -9,23 +9,39 @@ public class GuiBagFontRenderer extends FontRenderer
 {
 	FontRenderer talkto;
 
+	int offset_x, offset_y;
+	double scale;
+
 	public GuiBagFontRenderer(
-			final FontRenderer src )
+			final FontRenderer src,
+			final int bagStackSize )
 	{
 		super( Minecraft.getMinecraft().gameSettings, new ResourceLocation( "textures/font/ascii.png" ), Minecraft.getMinecraft().getTextureManager(), false );
 		talkto = src;
+
+		if ( bagStackSize < 100 )
+		{
+			scale = 1.0;
+		}
+		else if ( bagStackSize >= 100 )
+		{
+			scale = 0.75;
+			offset_x = 3;
+			offset_y = 2;
+		}
 	}
 
 	@Override
 	public int getStringWidth(
-			final String text )
+			String text )
 	{
+		text = convertText( text );
 		return talkto.getStringWidth( text );
 	}
 
 	@Override
 	public int renderString(
-			final String text,
+			String text,
 			float x,
 			float y,
 			final int color,
@@ -33,12 +49,13 @@ public class GuiBagFontRenderer extends FontRenderer
 	{
 		try
 		{
+			text = convertText( text );
 			GlStateManager.pushMatrix();
-			GlStateManager.scale( 0.75, 0.75, 0.75 );
-			x /= 0.75;
-			y /= 0.75;
-			x += 3;
-			y += 2;
+			GlStateManager.scale( scale, scale, scale );
+			x /= scale;
+			y /= scale;
+			x += offset_x;
+			y += offset_y;
 			return talkto.renderString(
 					text,
 					x,
@@ -49,6 +66,26 @@ public class GuiBagFontRenderer extends FontRenderer
 		finally
 		{
 			GlStateManager.popMatrix();
+		}
+	}
+
+	private String convertText(
+			final String text )
+	{
+		try
+		{
+			final int value = Integer.parseInt( text );
+
+			if ( value >= 1000 )
+			{
+				return value / 1000 + "k";
+			}
+
+			return text;
+		}
+		catch ( final NumberFormatException e )
+		{
+			return text;
 		}
 	}
 }

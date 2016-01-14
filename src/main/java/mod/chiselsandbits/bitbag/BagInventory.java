@@ -1,8 +1,11 @@
 package mod.chiselsandbits.bitbag;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -367,7 +370,7 @@ public class BagInventory implements IInventory
 	public void listContents(
 			final List<String> details )
 	{
-		final HashMap<String, Integer> contents = new HashMap<String, Integer>();
+		final TreeMap<String, Integer> contents = new TreeMap<String, Integer>();
 
 		for ( int x = 0; x < getSizeInventory(); x++ )
 		{
@@ -414,10 +417,27 @@ public class BagInventory implements IInventory
 			details.add( LocalStrings.Empty.getLocal() );
 		}
 
-		for ( final Entry<String, Integer> e : contents.entrySet() )
+		final List<Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>();
+		list.addAll( contents.entrySet() );
+
+		list.sort( new Comparator<Entry<String, Integer>>() {
+
+			@Override
+			public int compare(
+					final Entry<String, Integer> o1,
+					final Entry<String, Integer> o2 )
+			{
+				final int y = o1.getValue();
+				final int x = o2.getValue();
+
+				return x < y ? -1 : x == y ? 0 : 1;
+			}
+
+		} );
+
+		for ( final Entry<String, Integer> e : list )
 		{
 			details.add( new StringBuilder().append( e.getValue() ).append( ' ' ).append( e.getKey() ).toString() );
 		}
 	}
-
 }

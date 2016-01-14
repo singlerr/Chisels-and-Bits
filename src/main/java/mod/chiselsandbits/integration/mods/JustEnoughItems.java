@@ -21,6 +21,7 @@ public class JustEnoughItems implements IModPlugin
 {
 
 	// @Override
+	@Override
 	public boolean isModLoaded()
 	{
 		return true;
@@ -30,7 +31,10 @@ public class JustEnoughItems implements IModPlugin
 	public void onJeiHelpersAvailable(
 			final IJeiHelpers jeiHelpers )
 	{
-		jeiHelpers.getItemBlacklist().addItemToBlacklist( new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
+		if ( !ChiselsAndBits.getConfig().ShowBitsInJEI )
+		{
+			jeiHelpers.getItemBlacklist().addItemToBlacklist( new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
+		}
 	}
 
 	@Override
@@ -90,14 +94,14 @@ public class JustEnoughItems implements IModPlugin
 
 	private List<ItemStack> stackCollection(
 			final Item it )
-	{
+			{
 		if ( it == null )
 		{
 			return null;
 		}
 
 		return Collections.singletonList( itemToItemstack( it ) );
-	}
+			}
 
 	private ItemStack blockToItemstack(
 			final Block blk )
