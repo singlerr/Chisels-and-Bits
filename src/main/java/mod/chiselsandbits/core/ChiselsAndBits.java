@@ -20,6 +20,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
+import net.minecraftforge.fml.common.event.FMLModIdMappingEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -170,6 +171,13 @@ public class ChiselsAndBits
 
 		NetworkRouter.instance = new NetworkRouter();
 		NetworkRegistry.INSTANCE.registerGuiHandler( this, new ModGuiRouter() );
+	}
+
+	@EventHandler
+	public void idsMapped(
+			final FMLModIdMappingEvent event )
+	{
+		getItems().itemBlockBit.clearCache();
 	}
 
 	public static void registerWithBus(

@@ -419,7 +419,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	public IBlockState getPreferedBlock()
 	{
-		return ChiselsAndBits.getBlocks().getConversion( getBlockState( Blocks.stone ).getBlock().getMaterial() ).getDefaultState();
+		return ChiselsAndBits.getBlocks().getConversionWithDefault( getBlockState( Blocks.stone ).getBlock().getMaterial() ).getDefaultState();
 	}
 
 	public void setBlob(

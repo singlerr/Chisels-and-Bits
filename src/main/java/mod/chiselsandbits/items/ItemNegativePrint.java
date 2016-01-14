@@ -244,7 +244,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		}
 
 		final IBlockState blk = Block.getStateById( tag.getInteger( TileEntityBlockChiseled.block_prop ) );
-		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversion( blk.getBlock().getMaterial() ), 1 );
+		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk.getBlock().getMaterial() ), 1 );
 
 		itemstack.setTagInfo( "BlockEntityTag", tag );
 		return itemstack;

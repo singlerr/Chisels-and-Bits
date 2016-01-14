@@ -75,6 +75,22 @@ public class ModBlocks extends ModRegistry
 		return getConversions().get( material );
 	}
 
+	public BlockChiseled getConversionWithDefault(
+			final Material material )
+	{
+		final BlockChiseled bcX = getConversion( material );
+
+		if ( bcX == null )
+		{
+			for ( final BlockChiseled bc : getConversions().values() )
+			{
+				return bc;
+			}
+		}
+
+		return bcX;
+	}
+
 	public Map<Material, BlockChiseled> getConversions()
 	{
 		return conversions;

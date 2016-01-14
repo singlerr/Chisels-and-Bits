@@ -229,6 +229,11 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 	private ArrayList<ItemStack> bits;
 
+	public void clearCache()
+	{
+		bits = null;
+	}
+
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public void getSubItems(

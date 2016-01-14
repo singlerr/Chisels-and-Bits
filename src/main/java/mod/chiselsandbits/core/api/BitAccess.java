@@ -136,6 +136,11 @@ public class BitAccess implements IBitAccess
 			final IBlockState state = Block.getStateById( cb.ref );
 			final BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( state.getBlock().getMaterial() );
 
+			if ( blk == null )
+			{
+				return null;
+			}
+
 			itemstack = new ItemStack( blk, 1 );
 			itemstack.setTagInfo( "BlockEntityTag", nbttagcompound );
 		}

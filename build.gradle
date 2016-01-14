@@ -10,9 +10,10 @@ buildscript {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
     }
 }
+
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "mc1.8.9-v1.8-beta12"
+version = "mc1.8.9-v1.8-beta16"
 group= "mod.chiselsandbits"
 archivesBaseName = "chiselsandbits"
 
