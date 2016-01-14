@@ -505,7 +505,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				final VoxelBlobStateReference blobStateReference,
 				final int rotations2 )
 		{
-			out = itemstack.copy();
+			out = itemstack == null ? null : itemstack.copy();
 			ref = blobStateReference;
 			rotations = rotations2;
 		}

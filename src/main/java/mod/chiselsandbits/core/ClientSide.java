@@ -769,7 +769,7 @@ public class ClientSide
 			final BlockPos partial,
 			final Object cacheRef )
 	{
-		IBakedModel baked;
+		IBakedModel baked = null;
 
 		if ( previousCacheRef == cacheRef && samePos( lastPos, blockPos ) && previousItem == refItem && previousRotations == rotationCount && previousModel != null && samePos( lastPartial, partial ) )
 		{
@@ -825,20 +825,28 @@ public class ClientSide
 			bc.setBlob( blob );
 
 			final Block blk = Block.getBlockFromItem( item.getItem() );
-			previousModel = baked = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( bc.getItemStack( blk, null ) );
+			final ItemStack is = bc.getItemStack( blk, null );
 
-			if ( refItem.getItem() instanceof IPatternItem )
+			if ( is == null || is.getItem() == null )
 			{
-				isVisible = true;
+				isVisible = false;
 			}
 			else
 			{
-				isVisible = ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, partial, false );
+				previousModel = baked = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( is );
+
+				if ( refItem.getItem() instanceof IPatternItem )
+				{
+					isVisible = true;
+				}
+				else
+				{
+					isVisible = ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, partial, false );
+				}
 			}
 		}
 
 		if ( !isVisible )
-
 		{
 			return;
 		}
