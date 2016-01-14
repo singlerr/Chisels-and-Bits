@@ -116,3 +116,6 @@ mod.chiselsandbits.config.enableBitLightSource=Chiseled blocks can emit light
 mod.chiselsandbits.config.enableBitLightSource.tooltip=When disabled light emiting bits will simply glow and the block will emit no light level.
 mod.chiselsandbits.config.bitLightPercentage=Percentage of block for max light level
 mod.chiselsandbits.config.compatabilityMode=Enhance Mod compatibility
+mod.chiselsandbits.config.enableAPITestingItem=Enable API Testing Item
+mod.chiselsandbits.config.bagStackSize=Bit Bag - Bit Stack Size
+mod.chiselsandbits.config.bagStackSize.tooltip=Stack size of bits in the bag: Minimum of 64, maximum of 99,999
