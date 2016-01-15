@@ -8,7 +8,7 @@ import net.minecraft.world.World;
 
 public interface IMCMultiPart
 {
-	void convertIfPossible(
+	void swapRenderIfPossible(
 			TileEntity current,
 			TileEntityBlockChiseled newTileEntity );
 

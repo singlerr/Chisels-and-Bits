@@ -80,7 +80,7 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 	}
 
 	@Override
-	public void convertIfPossible(
+	public void swapRenderIfPossible(
 			final TileEntity current,
 			final TileEntityBlockChiseled newTileEntity )
 	{
@@ -143,7 +143,8 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 			final World w,
 			final BlockPos pos )
 	{
-		return w.getTileEntity( pos ) instanceof IMultipartContainer || MultipartHelper.canAddPart( w, pos, new ChisledBlockPart() );
+		return MultipartHelper.getPartContainer( w, pos ) != null // is it a container?
+				|| MultipartHelper.canAddPart( w, pos, new ChisledBlockPart() ); // or can it be converted?
 	}
 
 	@Override
@@ -155,7 +156,7 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 		if ( isMultiPart( w, pos ) )
 		{
 			final IMultipartContainer mc = MultipartHelper.getOrConvertPartContainer( w, pos, false );// get
-																										// container..
+			// container..
 
 			final BitCollisionIterator bci = new BitCollisionIterator();
 			while ( bci.hasNext() )

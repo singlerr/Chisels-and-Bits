@@ -14,7 +14,7 @@ public class MCMultipartProxy extends IntegrationBase
 	{
 
 		@Override
-		public void convertIfPossible(
+		public void swapRenderIfPossible(
 				final TileEntity current,
 				final TileEntityBlockChiseled newTileEntity )
 		{
@@ -94,7 +94,7 @@ public class MCMultipartProxy extends IntegrationBase
 			final TileEntity current,
 			final TileEntityBlockChiseled newTileEntity )
 	{
-		relay.convertIfPossible( current, newTileEntity );
+		relay.swapRenderIfPossible( current, newTileEntity );
 	}
 
 	public void triggerPartChange(
