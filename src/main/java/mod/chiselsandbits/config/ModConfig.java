@@ -209,7 +209,7 @@ public class ModConfig extends Configuration
 		invertBitBagFullness = false;
 
 		damageTools = true;
-		availableUsesMultiplier = 32;
+		availableUsesMultiplier = 64;
 
 		enablePositivePrintCrafting = true;
 		enableStackableCrafting = true;
