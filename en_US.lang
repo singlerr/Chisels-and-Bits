@@ -89,8 +89,6 @@ mod.chiselsandbits.config.dynamicModelMinimizeLatancy.tooltip=Disabling can impr
 mod.chiselsandbits.config.dynamicMaxConcurrentTessalators=Maximum Number of Concurrent Updates
 mod.chiselsandbits.config.dynamicMaxConcurrentTessalators.tooltip=When this number is exceeded updates will begin pausing to prevent memory saturation.
 mod.chiselsandbits.config.damageTools=Tools take damage
-mod.chiselsandbits.config.availableUsesMultiplier=Available Uses Multiplier
-mod.chiselsandbits.config.availableUsesMultiplier.tooltip=0.5 = Half as many uses, 2 = Twice as many uses.
 mod.chiselsandbits.config.enablePositivePrintCrafting=Crafting with Positive Chisel Design
 mod.chiselsandbits.config.enablePositivePrintCrafting.tooltip=Crafting a positive design with bits/bags of bits will let you craft the block.
 mod.chiselsandbits.config.enableStackableCrafting=Craft Chiseled Blocks to Remove Rotation
@@ -119,3 +117,8 @@ mod.chiselsandbits.config.compatabilityMode=Enhance Mod compatibility
 mod.chiselsandbits.config.enableAPITestingItem=Enable API Testing Item
 mod.chiselsandbits.config.bagStackSize=Bit Bag - Bit Stack Size
 mod.chiselsandbits.config.bagStackSize.tooltip=Stack size of bits in the bag: Minimum of 64, maximum of 99,999
+mod.chiselsandbits.config.stoneChiselUses=Stone Chisel Uses
+mod.chiselsandbits.config.ironChiselUses=Iron Chisel Uses
+mod.chiselsandbits.config.diamondChiselUses=Diamond Chisel Uses
+mod.chiselsandbits.config.goldChiselUses=Gold Chisel uses
+mod.chiselsandbits.config.wrenchUses=Wrench Uses
