@@ -51,8 +51,25 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	{
 		super( 0.1F, material, new HashSet<Block>() );
 
-		// chisels are scaled up so that 1 stone chisel can mine one block.
-		final long uses = material.getMaxUses() * ChiselsAndBits.getConfig().availableUsesMultiplier;
+		long uses = 1;
+		switch ( material )
+		{
+			case EMERALD:
+				uses = ChiselsAndBits.getConfig().diamondChiselUses;
+				break;
+			case GOLD:
+				uses = ChiselsAndBits.getConfig().goldChiselUses;
+				break;
+			case IRON:
+				uses = ChiselsAndBits.getConfig().ironChiselUses;
+				break;
+			case STONE:
+				uses = ChiselsAndBits.getConfig().stoneChiselUses;
+				break;
+			default:
+				break;
+		}
+
 		setMaxDamage( ChiselsAndBits.getConfig().damageTools ? (int) Math.max( 0, uses ) : 0 );
 	}
 
@@ -98,7 +115,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		if ( itemstack != null && ( timer == null || timer.elapsed( TimeUnit.MILLISECONDS ) > 100 ) )
+		if ( itemstack != null && ( timer == null || timer.elapsed( TimeUnit.MILLISECONDS ) > 1 ) )
 		{
 			timer = Stopwatch.createStarted();
 			if ( mode == ChiselMode.DRAWN_REGION )

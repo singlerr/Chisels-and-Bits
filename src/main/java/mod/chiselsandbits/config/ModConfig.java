@@ -92,9 +92,6 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public boolean damageTools;
 
-	@Configured( category = "Balance Settings" )
-	public long availableUsesMultiplier;
-
 	@Configured( category = "Crafting" )
 	public boolean enablePositivePrintCrafting;
 
@@ -158,6 +155,21 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public int bagStackSize;
 
+	@Configured( category = "Balance Settings" )
+	public int stoneChiselUses;
+
+	@Configured( category = "Balance Settings" )
+	public int ironChiselUses;
+
+	@Configured( category = "Balance Settings" )
+	public int diamondChiselUses;
+
+	@Configured( category = "Balance Settings" )
+	public int goldChiselUses;
+
+	@Configured( category = "Balance Settings" )
+	public int wrenchUses;
+
 	public boolean deobfuscatedEnvironment()
 	{
 		final Object deObf = Launch.blackboard.get( "fml.deobfuscatedEnvironment" );
@@ -209,7 +221,11 @@ public class ModConfig extends Configuration
 		invertBitBagFullness = false;
 
 		damageTools = true;
-		availableUsesMultiplier = 64;
+		stoneChiselUses = 8384;
+		ironChiselUses = 293440;
+		diamondChiselUses = 796480;
+		goldChiselUses = 1024;
+		wrenchUses = 1888;
 
 		enablePositivePrintCrafting = true;
 		enableStackableCrafting = true;

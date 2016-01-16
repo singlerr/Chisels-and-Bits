@@ -19,7 +19,7 @@ public class ItemWrench extends Item
 	{
 		setMaxStackSize( 1 );
 
-		final long uses = ToolMaterial.WOOD.getMaxUses() * ChiselsAndBits.getConfig().availableUsesMultiplier;
+		final long uses = ChiselsAndBits.getConfig().wrenchUses;
 		setMaxDamage( ChiselsAndBits.getConfig().damageTools ? (int) Math.max( 0, Math.min( Short.MAX_VALUE, uses ) ) : 0 );
 	}
 
