@@ -115,7 +115,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		if ( itemstack != null && ( timer == null || timer.elapsed( TimeUnit.MILLISECONDS ) > 1 ) )
+		if ( itemstack != null && ( timer == null || timer.elapsed( TimeUnit.MILLISECONDS ) > 100 ) )
 		{
 			timer = Stopwatch.createStarted();
 			if ( mode == ChiselMode.DRAWN_REGION )
