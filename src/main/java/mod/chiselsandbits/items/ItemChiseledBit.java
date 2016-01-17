@@ -97,7 +97,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			// proper state here...
 			final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
 			final Block blk = state.getBlock();
-			target = new ItemStack( blk, 1, blk.getMetaFromState( state ) );
+			target = new ItemStack( blk, 1, blk.damageDropped( state ) );
 		}
 		catch ( final IllegalArgumentException e )
 		{
