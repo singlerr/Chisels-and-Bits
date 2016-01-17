@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
@@ -1163,6 +1164,11 @@ public class ClientSide
 	public ChiselToolType getDrawnTool()
 	{
 		return lastTool;
+	}
+
+	public boolean holdingShift()
+	{
+		return Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT );
 	}
 
 }

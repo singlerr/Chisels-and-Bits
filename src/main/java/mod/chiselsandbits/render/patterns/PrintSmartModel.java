@@ -2,8 +2,7 @@ package mod.chiselsandbits.render.patterns;
 
 import java.util.WeakHashMap;
 
-import org.lwjgl.input.Keyboard;
-
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.render.BaseSmartModel;
 import net.minecraft.client.Minecraft;
@@ -32,7 +31,7 @@ public class PrintSmartModel extends BaseSmartModel implements ISmartItemModel
 	public IBakedModel handleItemState(
 			final ItemStack stack )
 	{
-		if ( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
+		if ( ClientSide.instance.holdingShift() )
 		{
 			PrintBaked npb = cache.get( stack );
 
