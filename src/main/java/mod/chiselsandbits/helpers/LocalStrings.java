@@ -43,7 +43,10 @@ public enum LocalStrings
 	LongHelpMirrorPrint( "help.mirrorprint.long" ),
 
 	HelpChisel( "help.chisel" ),
-	LongHelpChisel( "help.chisel.long" );
+	LongHelpChisel( "help.chisel.long" ),
+
+	leftAlt( "help.leftalt" ),
+	rightAlt( "help.rightalt" );
 
 	private final String string;
 

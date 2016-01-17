@@ -27,6 +27,7 @@ import mod.chiselsandbits.gui.ChiselsAndBitsMenu;
 import mod.chiselsandbits.gui.SpriteIconPositioning;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
@@ -1156,7 +1157,7 @@ public class ClientSide
 
 	public String getModeKey()
 	{
-		return GameSettings.getKeyDisplayString( modeMenu.getKeyCode() );
+		return GameSettings.getKeyDisplayString( modeMenu.getKeyCode() ).replace( "LMENU", LocalStrings.leftAlt.getLocal() ).replace( "RMENU", LocalStrings.rightAlt.getLocal() );
 	}
 
 	public ChiselToolType getDrawnTool()
