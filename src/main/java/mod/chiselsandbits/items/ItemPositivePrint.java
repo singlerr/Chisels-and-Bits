@@ -16,6 +16,7 @@ import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
+import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
@@ -110,6 +111,9 @@ public class ItemPositivePrint extends ItemNegativePrint
 		final IContinuousInventory selected = new ContinousChisels( player, pos, side );
 		ItemStack spawnedItem = null;
 
+		final VoxelBlob filled = new VoxelBlob();
+		MCMultipartProxy.proxyMCMultiPart.addFiller( world, pos, filled );
+
 		final ArrayList<BagInventory> bags = new ArrayList<BagInventory>();
 		final IInventory inv = player.inventory;
 		for ( int zz = 0; zz < inv.getSizeInventory(); zz++ )
@@ -143,7 +147,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 							}
 						}
 
-						if ( inPlace == 0 && inPattern != 0 )
+						if ( inPlace == 0 && inPattern != 0 && filled.get( x, y, z ) == 0 )
 						{
 							final ItemStackSlot bit = ModUtil.findBit( player, inPattern );
 							if ( consumeBagBit( bags, inPattern ) )

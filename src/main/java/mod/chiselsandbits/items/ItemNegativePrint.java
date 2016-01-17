@@ -14,6 +14,7 @@ import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
@@ -146,12 +147,12 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		{
 			// we can do this!
 		}
-		else if ( !BlockChiseled.replaceWithChisled( world, pos, blkstate ) )
+		else if ( !BlockChiseled.replaceWithChisled( world, pos, blkstate ) && !MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( world, pos ) )
 		{
 			return true;
 		}
 
-		final TileEntityBlockChiseled tec = ModUtil.getChiseledTileEntity( world, pos, false );
+		final TileEntityBlockChiseled tec = ModUtil.getChiseledTileEntity( world, pos, true );
 		if ( tec != null )
 		{
 			final NBTTagCompound blueprintTag = stack.getTagCompound();
