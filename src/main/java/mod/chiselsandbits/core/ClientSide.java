@@ -707,7 +707,7 @@ public class ClientSide
 			}
 
 			final IBlockState s = theWorld.getBlockState( mop.getBlockPos() );
-			if ( !( s.getBlock() instanceof BlockChiseled ) && !BlockBitInfo.supportsBlock( s ) )
+			if ( !( s.getBlock() instanceof BlockChiseled ) && !BlockBitInfo.supportsBlock( s ) && !MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( theWorld, mop.getBlockPos() ) )
 			{
 				return;
 			}
@@ -727,7 +727,8 @@ public class ClientSide
 
 			if ( item != null )
 			{
-				Object cacheRef = s.getBlock() instanceof BlockChiseled ? theWorld.getTileEntity( mop.getBlockPos() ) : s;
+				final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( theWorld, mop.getBlockPos(), false );
+				Object cacheRef = tebc != null ? tebc : s;
 				if ( cacheRef instanceof TileEntityBlockChiseled )
 				{
 					cacheRef = ( (TileEntityBlockChiseled) cacheRef ).getBlobStateReference();
