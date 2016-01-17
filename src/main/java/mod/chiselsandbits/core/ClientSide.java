@@ -486,11 +486,6 @@ public class ClientSide
 	public void drawHighlight(
 			final DrawBlockHighlightEvent event )
 	{
-		final EntityPlayer player = event.player;
-		final float partialTicks = event.partialTicks;
-		final MovingObjectPosition mop = event.target;
-		final World theWorld = player.worldObj;
-
 		ChiselToolType tool = getHeldToolType();
 		final ChiselMode chMode = ChiselModeManager.getChiselMode( tool );
 		if ( chMode == ChiselMode.DRAWN_REGION )
@@ -500,6 +495,11 @@ public class ClientSide
 
 		if ( tool != null && chMode != null )
 		{
+			final EntityPlayer player = event.player;
+			final float partialTicks = event.partialTicks;
+			final MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+			final World theWorld = player.worldObj;
+
 			if ( mop.typeOfHit != MovingObjectType.BLOCK )
 			{
 				return;
@@ -509,7 +509,6 @@ public class ClientSide
 			if ( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
 			{
 				final BitLocation location = new BitLocation( mop, true, getDrawnTool() );
-
 				if ( theWorld.getWorldBorder().contains( location.blockPos ) )
 				{
 					// this logic originated in the vanilla bounding box...
@@ -517,6 +516,7 @@ public class ClientSide
 
 					final boolean isMultipart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( theWorld, location.blockPos );
 					final boolean isChisel = getDrawnTool() == ChiselToolType.CHISEL;
+					final boolean isBit = getHeldToolType() == ChiselToolType.BIT;
 					final TileEntityBlockChiseled data = ModUtil.getChiseledTileEntity( theWorld, location.blockPos, false );
 
 					final VoxelBlob vb = data != null ? data.getBlob() : new VoxelBlob();
@@ -561,10 +561,34 @@ public class ClientSide
 					else
 					{
 						final TileEntity te = theWorld.getTileEntity( location.blockPos );
-						if ( theWorld.isAirBlock( location.blockPos ) || te instanceof TileEntityBlockChiseled || BlockBitInfo.supportsBlock( state ) || isMultipart )
+						boolean isBitBlock = te instanceof TileEntityBlockChiseled;
+						final boolean isBlockSupported = BlockBitInfo.supportsBlock( state );
+
+						if ( !( isBitBlock || isBlockSupported ) )
+						{
+							final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( theWorld, location.blockPos, false );
+							if ( tebc != null )
+							{
+								final VoxelBlob vx = tebc.getBlob();
+								if ( vx.get( location.bitX, location.bitY, location.bitZ ) != 0 )
+								{
+									isBitBlock = true;
+								}
+							}
+						}
+
+						if ( theWorld.isAirBlock( location.blockPos ) || isBitBlock || isBlockSupported )
 						{
 							final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, vb, chMode, mop.sideHit );
 							final AxisAlignedBB bb = i.getBoundingBox( vb, isChisel );
+							drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
+						}
+						else if ( isBit )
+						{
+							final VoxelBlob j = new VoxelBlob();
+							j.fill( 1 );
+							final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, j, chMode, mop.sideHit );
+							final AxisAlignedBB bb = snapToSide( i.getBoundingBox( j, isChisel ), mop.sideHit );
 							drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
 						}
 					}
@@ -577,6 +601,34 @@ public class ClientSide
 
 			}
 		}
+	}
+
+	private AxisAlignedBB snapToSide(
+			final AxisAlignedBB boundingBox,
+			final EnumFacing sideHit )
+	{
+		if ( boundingBox != null )
+		{
+			switch ( sideHit )
+			{
+				case DOWN:
+					return AxisAlignedBB.fromBounds( boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.maxX, boundingBox.minY, boundingBox.maxZ );
+				case EAST:
+					return AxisAlignedBB.fromBounds( boundingBox.maxX, boundingBox.minY, boundingBox.minZ, boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ );
+				case NORTH:
+					return AxisAlignedBB.fromBounds( boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.maxX, boundingBox.maxY, boundingBox.minZ );
+				case SOUTH:
+					return AxisAlignedBB.fromBounds( boundingBox.minX, boundingBox.minY, boundingBox.maxZ, boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ );
+				case UP:
+					return AxisAlignedBB.fromBounds( boundingBox.minX, boundingBox.maxY, boundingBox.minZ, boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ );
+				case WEST:
+					return AxisAlignedBB.fromBounds( boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.minX, boundingBox.maxY, boundingBox.maxZ );
+				default:
+					break;
+			}
+		}
+
+		return boundingBox;
 	}
 
 	private void drawSelectionBoundingBoxIfExists(
