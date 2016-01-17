@@ -454,7 +454,15 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final List<AxisAlignedBB> list,
 			final Entity collidingEntity )
 	{
-		setBounds( te, pos, mask, list );
+		final AxisAlignedBB localMask = mask.offset( -pos.getX(), -pos.getY(), -pos.getZ() );
+
+		for ( final AxisAlignedBB bb : te.getOcclusionBoxes() )
+		{
+			if ( bb.intersectsWith( localMask ) )
+			{
+				list.add( bb.offset( pos.getX(), pos.getY(), pos.getZ() ) );
+			}
+		}
 	}
 
 	/**
