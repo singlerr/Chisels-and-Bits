@@ -63,6 +63,9 @@ mod.chiselsandbits.help.negativeprint.long=Right click on a chiseled block to wr
 mod.chiselsandbits.help.mirrorprint.long=Right click on a chiseled block face on wish to mirror from, clicking an east facing face will mirror it along the east->west axis. Craft written design with a positive or negative design to transfer the mirror image to the type of design you want.
 mod.chiselsandbits.help.chisel.long=Left click any compatible block to chisel. Right click to cycle thought chisel modes, you can also use Shift + Mouse Wheel to cycle modes.
 
+mod.chiselsandbits.help.leftalt=Left Alt
+mod.chiselsandbits.help.rightalt=Right Alt
+
 mod.chiselsandbits.config.ShowBitsInJEI=Show Bits in JEI
 mod.chiselsandbits.config.showUsage=Add help text to item descriptions
 mod.chiselsandbits.config.invertBitBagFullness=Invert damage bar on bit-bag.
