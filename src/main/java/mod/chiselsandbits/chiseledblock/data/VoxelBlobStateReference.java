@@ -1,5 +1,6 @@
 package mod.chiselsandbits.chiseledblock.data;
 
+import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
@@ -67,6 +68,7 @@ public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReferen
 			final long weight )
 	{
 		this( blob.toByteArray(), weight );
+		data.blob = new SoftReference<VoxelBlob>( new VoxelBlob( blob ) );
 	}
 
 	public VoxelBlobStateReference(
