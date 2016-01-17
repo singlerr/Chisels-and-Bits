@@ -27,7 +27,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -193,31 +192,28 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final EntityPlayer player )
 	{
 
-		final Block blkObj = world.getBlockState( pos ).getBlock();
-		if ( blkObj instanceof BlockChiseled )
+		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, false );
+		if ( te != null )
 		{
-			final TileEntity te = world.getTileEntity( pos );
-			if ( te instanceof TileEntityBlockChiseled )
+			final NBTTagCompound comp = new NBTTagCompound();
+			te.writeChisleData( comp );
+
+			if ( convertToStone() )
 			{
-				final NBTTagCompound comp = new NBTTagCompound();
-				( (TileEntityBlockChiseled) te ).writeChisleData( comp );
+				final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+				tmp.readChisleData( comp );
 
-				if ( convertToStone() )
-				{
-					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-					tmp.readChisleData( comp );
+				final VoxelBlob bestBlob = tmp.getBlob();
+				bestBlob.binaryReplacement( 0, Block.getStateId( Blocks.stone.getDefaultState() ) );
 
-					final VoxelBlob bestBlob = tmp.getBlob();
-					bestBlob.binaryReplacement( 0, Block.getStateId( Blocks.stone.getDefaultState() ) );
-
-					tmp.setBlob( bestBlob );
-					tmp.writeChisleData( comp );
-				}
-
-				comp.setByte( "side", (byte) ModUtil.getPlaceFace( player ).ordinal() );
-				return comp;
+				tmp.setBlob( bestBlob );
+				tmp.writeChisleData( comp );
 			}
+
+			comp.setByte( "side", (byte) ModUtil.getPlaceFace( player ).ordinal() );
+			return comp;
 		}
+
 		return null;
 	}
 

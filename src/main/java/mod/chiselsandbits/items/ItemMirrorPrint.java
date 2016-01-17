@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.lwjgl.input.Keyboard;
 
-import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
@@ -19,7 +18,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
@@ -129,27 +127,24 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			final EntityPlayer player,
 			final EnumFacing face )
 	{
+		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, false );
 
-		final Block blkObj = world.getBlockState( pos ).getBlock();
-		if ( blkObj instanceof BlockChiseled )
+		if ( te != null )
 		{
-			final TileEntity te = world.getTileEntity( pos );
-			if ( te instanceof TileEntityBlockChiseled )
-			{
-				final NBTTagCompound comp = new NBTTagCompound();
-				( (TileEntityBlockChiseled) te ).writeChisleData( comp );
+			final NBTTagCompound comp = new NBTTagCompound();
+			te.writeChisleData( comp );
 
-				final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-				tmp.readChisleData( comp );
+			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+			tmp.readChisleData( comp );
 
-				final VoxelBlob bestBlob = tmp.getBlob();
-				tmp.setBlob( bestBlob.mirror( face.getAxis() ) );
-				tmp.writeChisleData( comp );
+			final VoxelBlob bestBlob = tmp.getBlob();
+			tmp.setBlob( bestBlob.mirror( face.getAxis() ) );
+			tmp.writeChisleData( comp );
 
-				comp.setByte( "side", (byte) ModUtil.getPlaceFace( player ).ordinal() );
-				return comp;
-			}
+			comp.setByte( "side", (byte) ModUtil.getPlaceFace( player ).ordinal() );
+			return comp;
 		}
+
 		return null;
 	}
 
