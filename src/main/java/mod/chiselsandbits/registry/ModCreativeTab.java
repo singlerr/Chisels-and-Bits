@@ -11,6 +11,13 @@ class ModCreativeTab extends CreativeTabs
 	public ModCreativeTab()
 	{
 		super( ChiselsAndBits.MODID );
+		setBackgroundImageName( "item_search.png" );
+	}
+
+	@Override
+	public boolean hasSearchBar()
+	{
+		return true;
 	}
 
 	@Override
