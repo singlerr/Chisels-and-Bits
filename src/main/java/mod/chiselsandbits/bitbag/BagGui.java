@@ -22,6 +22,7 @@ public class BagGui extends GuiContainer
 {
 
 	private static final ResourceLocation BAG_GUI_TEXTURE = new ResourceLocation( ChiselsAndBits.MODID, "textures/gui/container/bitbag.png" );
+	private static GuiBagFontRenderer specialFontRenderer;
 
 	public BagGui(
 			final EntityPlayer player,
@@ -109,12 +110,18 @@ public class BagGui extends GuiContainer
 
 		RenderHelper.enableGUIStandardItemLighting();
 
+		if ( specialFontRenderer == null )
+		{
+			specialFontRenderer = new GuiBagFontRenderer( fontRendererObj, ChiselsAndBits.getConfig().bagStackSize );
+		}
+
 		for ( int i1 = 0; i1 < getBagContainer().customSlots.size(); ++i1 )
 		{
 			final Slot slot = getBagContainer().customSlots.get( i1 );
 
 			final FontRenderer originalheight = fontRendererObj;
-			fontRendererObj = new GuiBagFontRenderer( originalheight, ChiselsAndBits.getConfig().bagStackSize );
+
+			fontRendererObj = specialFontRenderer;
 			drawSlot( slot );
 			fontRendererObj = originalheight;
 
