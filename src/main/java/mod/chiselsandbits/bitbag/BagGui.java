@@ -43,6 +43,18 @@ public class BagGui extends GuiContainer
 	}
 
 	@Override
+	protected boolean checkHotbarKeys(
+			final int keyCode )
+	{
+		if ( theSlot instanceof SlotBit )
+		{
+			theSlot = null;
+		}
+
+		return super.checkHotbarKeys( keyCode );
+	}
+
+	@Override
 	protected void drawGuiContainerBackgroundLayer(
 			final float partialTicks,
 			final int mouseX,
