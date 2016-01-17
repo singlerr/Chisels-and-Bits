@@ -16,7 +16,7 @@ public interface IBitBrush
 
 	/**
 	 * Gets the corresponding block state.
-	 * 
+	 *
 	 * @return IBlockState of brush, null for air.
 	 */
 	IBlockState getState();

@@ -94,14 +94,14 @@ public class JustEnoughItems implements IModPlugin
 
 	private List<ItemStack> stackCollection(
 			final Item it )
-			{
+	{
 		if ( it == null )
 		{
 			return null;
 		}
 
 		return Collections.singletonList( itemToItemstack( it ) );
-			}
+	}
 
 	private ItemStack blockToItemstack(
 			final Block blk )

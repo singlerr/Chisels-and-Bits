@@ -103,11 +103,11 @@ public interface IChiselAndBitsAPI
 
 	/**
 	 * Get an ItemStack for the bit type of the state...
-	 * 
+	 *
 	 * VERY IMPORTANT: C&B lets you disable bits, if this happens the Item in
 	 * this ItemStack WILL BE NULL, if you put this item in an inventory, drop
 	 * it on the ground, or anything else.. CHECK THIS!!!!!
-	 * 
+	 *
 	 * @param defaultState
 	 * @return the bit.
 	 */

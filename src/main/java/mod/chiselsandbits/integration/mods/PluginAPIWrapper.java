@@ -17,7 +17,7 @@ public class PluginAPIWrapper extends IntegrationBase
 	@Override
 	public void init()
 	{
-		this.addon.onReadyChiselsAndBits( ChiselsAndBits.getApi() );
+		addon.onReadyChiselsAndBits( ChiselsAndBits.getApi() );
 	}
 
 }
