@@ -45,14 +45,6 @@ public class BitItemBaked extends BaseBakedBlockModel
 		}
 
 		generic = new ArrayList<BakedQuad>();
-		TextureAtlasSprite texture = null;
-		for ( final EnumWorldBlockLayer layer : EnumWorldBlockLayer.values() )
-		{
-			if ( texture == null )
-			{
-				texture = ModelUtil.findTexture( BlockRef, originalModel, EnumFacing.UP, layer );
-			}
-		}
 
 		final Vector3f to = new Vector3f( 6.0f, 6.0f, 6.0f );
 		final Vector3f from = new Vector3f( 10.0f, 10.0f, 10.0f );
@@ -62,6 +54,16 @@ public class BitItemBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : EnumFacing.VALUES )
 		{
+			TextureAtlasSprite texture = null;
+
+			for ( final EnumWorldBlockLayer layer : EnumWorldBlockLayer.values() )
+			{
+				if ( texture == null )
+				{
+					texture = ModelUtil.findTexture( BlockRef, originalModel, myFace, layer );
+				}
+			}
+
 			final BlockFaceUV uv = new BlockFaceUV( getFaceUvs( myFace ), 0 );
 			final BlockPartFace bpf = new BlockPartFace( myFace, 0, "", uv );
 
