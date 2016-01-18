@@ -63,4 +63,10 @@ public interface IBitAccess
 			EnumFacing side,
 			ItemType type );
 
+	/**
+	 * Like commitChanges, but suppresses updates, only use if your setting a
+	 * large area at once and want to manage updates your self.
+	 */
+	void commitChangesNoNotifications();
+
 }

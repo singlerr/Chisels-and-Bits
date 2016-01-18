@@ -41,7 +41,8 @@ public class PacketChisel extends ModPacket
 	EnumFacing side;
 	ChiselMode mode;
 
-	@Deprecated // never call this...
+	@Deprecated
+	// never call this...
 	public PacketChisel()
 	{
 	}
@@ -124,7 +125,7 @@ public class PacketChisel extends ModPacket
 						world.setBlockToAir( pos );
 					}
 
-					if ( BlockChiseled.replaceWithChisled( world, pos, blkstate, placeStateID ) )
+					if ( BlockChiseled.replaceWithChisled( world, pos, blkstate, placeStateID, true ) )
 					{
 						blkstate = world.getBlockState( pos );
 						blkObj = blkstate.getBlock();

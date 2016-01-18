@@ -153,7 +153,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 			IBlockState blkstate = world.getBlockState( bitLocation.blockPos );
 			TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );
-			if ( tebc == null && BlockChiseled.replaceWithChisled( world, bitLocation.blockPos, blkstate, ItemChiseledBit.getStackState( stack ) ) )
+			if ( tebc == null && BlockChiseled.replaceWithChisled( world, bitLocation.blockPos, blkstate, ItemChiseledBit.getStackState( stack ), true ) )
 			{
 				blkstate = world.getBlockState( bitLocation.blockPos );
 				tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );

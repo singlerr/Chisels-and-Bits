@@ -92,12 +92,29 @@ public class BitAccess implements IBitAccess
 	}
 
 	@Override
+	public void commitChangesNoNotifications()
+	{
+		TileEntityBlockChiseled tile = ModUtil.getChiseledTileEntity( w, pos, true );
+		final CommonBlock cb = blob.mostCommonBlock();
+
+		if ( tile == null && BlockChiseled.replaceWithChisled( w, pos, w.getBlockState( pos ), cb.ref, false ) )
+		{
+			tile = ModUtil.getChiseledTileEntity( w, pos, true );
+		}
+
+		if ( tile != null )
+		{
+			tile.setBlob( blob, false );
+		}
+	}
+
+	@Override
 	public void commitChanges()
 	{
 		TileEntityBlockChiseled tile = ModUtil.getChiseledTileEntity( w, pos, true );
 		final CommonBlock cb = blob.mostCommonBlock();
 
-		if ( tile == null && BlockChiseled.replaceWithChisled( w, pos, w.getBlockState( pos ), cb.ref ) )
+		if ( tile == null && BlockChiseled.replaceWithChisled( w, pos, w.getBlockState( pos ), cb.ref, true ) )
 		{
 			tile = ModUtil.getChiseledTileEntity( w, pos, true );
 		}

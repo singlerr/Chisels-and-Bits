@@ -695,9 +695,10 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	public static boolean replaceWithChisled(
 			final World world,
 			final BlockPos pos,
-			final IBlockState originalState )
+			final IBlockState originalState,
+			final boolean triggerUpdate )
 	{
-		return replaceWithChisled( world, pos, originalState, 0 );
+		return replaceWithChisled( world, pos, originalState, 0, triggerUpdate );
 	}
 
 	@Override
@@ -745,7 +746,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final World world,
 			final BlockPos pos,
 			final IBlockState originalState,
-			final int fragmentBlockStateID )
+			final int fragmentBlockStateID,
+			final boolean triggerUpdate )
 	{
 		IBlockState actingState = originalState;
 		Block target = originalState.getBlock();

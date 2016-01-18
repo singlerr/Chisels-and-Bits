@@ -425,6 +425,13 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public void setBlob(
 			final VoxelBlob vb )
 	{
+		setBlob( vb, true );
+	}
+
+	public void setBlob(
+			final VoxelBlob vb,
+			final boolean triggerUpdates )
+	{
 		final Integer olv = getBasicState().getValue( BlockChiseled.light_prop );
 
 		final CommonBlock common = vb.mostCommonBlock();
@@ -467,7 +474,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 		if ( common.isFull )
 		{
-			worldObj.setBlockState( pos, Block.getStateById( common.ref ) );
+			worldObj.setBlockState( pos, Block.getStateById( common.ref ), triggerUpdates ? 3 : 0 );
 		}
 		else if ( common.ref != 0 )
 		{
@@ -485,7 +492,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			final Block blk = worldObj.getBlockState( pos ).getBlock();
 			MCMultipartProxy.proxyMCMultiPart.triggerPartChange( worldObj.getTileEntity( pos ) );
 			worldObj.notifyBlockOfStateChange( pos, blk );
-			worldObj.notifyNeighborsOfStateChange( pos, blk );
+
+			if ( triggerUpdates )
+			{
+				worldObj.notifyNeighborsOfStateChange( pos, blk );
+			}
 		}
 		else
 		{

@@ -147,7 +147,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		{
 			// we can do this!
 		}
-		else if ( !BlockChiseled.replaceWithChisled( world, pos, blkstate ) && !MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( world, pos ) )
+		else if ( !BlockChiseled.replaceWithChisled( world, pos, blkstate, true ) && !MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( world, pos ) )
 		{
 			return true;
 		}
