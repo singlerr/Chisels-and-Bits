@@ -16,19 +16,23 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ModConfig extends Configuration
 {
+
 	// automatic setting...
 	public boolean allowBlockAlternatives = false;
 
 	// file path...
 	final private File myPath;
 
+	// mod settings...
 	@Configured( category = "Integration Settings" )
 	public boolean ShowBitsInJEI;
 
 	@Configured( category = "Integration Settings" )
 	public boolean enableAPITestingItem;
 
-	// mod settings...
+	@Configured( category = "Compatabiilty" )
+	public boolean enableCustomVertexFormat;
+
 	@Configured( category = "Client Settings" )
 	private boolean showUsage;
 

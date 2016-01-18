@@ -9,6 +9,7 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
 import net.minecraft.block.state.IBlockState;
@@ -25,7 +26,7 @@ import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.common.Optional.Interface;
 
-@Optional.InterfaceList( { @Interface( iface = "mcmultipart.client.multipart.ISmartMultipartModel", modid = "mcmultipart" ) })
+@Optional.InterfaceList( { @Interface( iface = "mcmultipart.client.multipart.ISmartMultipartModel", modid = "mcmultipart" ) } )
 public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel, ISmartMultipartModel
 {
 	@SuppressWarnings( "unchecked" )
@@ -68,7 +69,17 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 
 		blockP = blockP == null ? 0 : blockP;
 
-		return getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, ChisledBlockBaked.CNB );
+		return getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, getModelFormat() );
+	}
+
+	private static VertexFormat getModelFormat()
+	{
+		if ( ChiselsAndBits.getConfig().enableCustomVertexFormat )
+		{
+			return ChisledBlockBaked.CNB;
+		}
+
+		return DefaultVertexFormats.ITEM;
 	}
 
 	private static ChisledBlockBaked getCachedModel(
@@ -148,7 +159,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 			return ChisledBlockBaked.breakingParticleModel( layer, blockP );
 		}
 
-		final ChisledBlockBaked baked = getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, ChisledBlockBaked.CNB );
+		final ChisledBlockBaked baked = getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, getModelFormat() );
 
 		if ( rTracker != null )
 		{
