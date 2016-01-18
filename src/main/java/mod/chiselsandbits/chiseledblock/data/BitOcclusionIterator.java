@@ -77,15 +77,16 @@ public class BitOcclusionIterator extends BitCollisionIterator
 				{
 					offset = o.size() - 1;
 					lastBox = o.get( offset );
-					if ( !o.isEmpty() && isNextTo( newBox, lastBox ) )
+					if ( !o.isEmpty() && isNextTo( combined, lastBox ) )
 					{
-						combined = lastBox.union( newBox );
+						combined = lastBox.union( combined );
 						o.remove( offset );
 					}
 
-					o.add( combined );
-					return;
 				}
+
+				o.add( combined );
+				return;
 			}
 
 		}
