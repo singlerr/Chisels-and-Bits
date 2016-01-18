@@ -1,6 +1,7 @@
 package mod.chiselsandbits.bitbag;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -420,7 +421,7 @@ public class BagInventory implements IInventory
 		final List<Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>();
 		list.addAll( contents.entrySet() );
 
-		list.sort( new Comparator<Entry<String, Integer>>() {
+		Collections.sort( list, new Comparator<Entry<String, Integer>>() {
 
 			@Override
 			public int compare(
