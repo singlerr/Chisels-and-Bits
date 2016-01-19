@@ -42,10 +42,23 @@ public interface IBitAccess
 
 	/**
 	 * Any time you modify a block you must commit your changes for them to take
+	 * affect, optionally you can trigger updates or not.
+	 *
+	 * If the {@link IBitAccess} is not in the world this method does nothing.
+	 * 
+	 * @param triggerUpdates
+	 *            normally true, only use false if your doing something special.
+	 */
+	void commitChanges(
+			boolean triggerUpdates );
+
+	/**
+	 * Any time you modify a block you must commit your changes for them to take
 	 * affect.
 	 *
 	 * If the {@link IBitAccess} is not in the world this method does nothing.
 	 */
+	@Deprecated
 	void commitChanges();
 
 	/**
@@ -62,11 +75,5 @@ public interface IBitAccess
 	ItemStack getBitsAsItem(
 			EnumFacing side,
 			ItemType type );
-
-	/**
-	 * Like commitChanges, but suppresses updates, only use if your setting a
-	 * large area at once and want to manage updates your self.
-	 */
-	void commitChangesNoNotifications();
 
 }
