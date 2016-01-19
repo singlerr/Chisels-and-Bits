@@ -19,7 +19,8 @@ public class ItemApiDebug extends Item implements IItemScrollWheel
 		getBitAccess( new DebugAction.getBitAccess() ),
 		setBitAccess( new DebugAction.setBitAccess() ),
 		isBlockChiseled( new DebugAction.isBlockChiseled() ),
-		ItemTests( new DebugAction.ItemTests() );
+		ItemTests( new DebugAction.ItemTests() ),
+		Randomize( new DebugAction.Randomize() );
 
 		final DebugAction which;
 

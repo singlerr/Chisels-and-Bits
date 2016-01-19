@@ -192,18 +192,21 @@ public class BitAccess implements IBitAccess
 		final BitIterator bi = new BitIterator();
 		while ( bi.hasNext() )
 		{
-			final IBitBrush brush = getBrushForState( bi.getNext( blob ) );
-			final IBitBrush after = visitor.visitBit( bi.x, bi.y, bi.z, brush );
-
-			if ( brush != after )
+			if ( bi.getNext( filler ) == 0 )
 			{
-				if ( after == null )
+				final IBitBrush brush = getBrushForState( bi.getNext( blob ) );
+				final IBitBrush after = visitor.visitBit( bi.x, bi.y, bi.z, brush );
+
+				if ( brush != after )
 				{
-					bi.setNext( blob, 0 );
-				}
-				else
-				{
-					bi.setNext( blob, brush.getStateID() );
+					if ( after == null )
+					{
+						bi.setNext( blob, 0 );
+					}
+					else
+					{
+						bi.setNext( blob, after.getStateID() );
+					}
 				}
 			}
 		}

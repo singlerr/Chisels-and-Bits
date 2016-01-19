@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.IBitLocation;
+import mod.chiselsandbits.api.IBitVisitor;
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -153,7 +154,7 @@ public abstract class DebugAction
 				final IBitBrush brush = api.createBrush( api.getBitItem( Blocks.cobblestone.getDefaultState() ) );
 
 				access.setBitAt( loc.getBitX(), loc.getBitY(), loc.getBitZ(), brush );
-				access.commitChanges();
+				access.commitChanges( true );
 			}
 			catch ( final CannotBeChiseled e )
 			{
@@ -192,7 +193,7 @@ public abstract class DebugAction
 				final IBitBrush brush = api.createBrush( null );
 
 				access.setBitAt( loc.getBitX(), loc.getBitY(), loc.getBitZ(), brush );
-				access.commitChanges();
+				access.commitChanges( true );
 			}
 			catch ( final CannotBeChiseled e )
 			{
@@ -203,6 +204,59 @@ public abstract class DebugAction
 				Log.logError( "FAIL", e );
 			}
 			catch ( final InvalidBitItem e )
+			{
+				Log.logError( "FAIL", e );
+			}
+		}
+
+	};
+
+	static class Randomize extends DebugAction
+	{
+
+		@Override
+		public void run(
+				final World w,
+				final BlockPos pos,
+				final EnumFacing side,
+				final float hitX,
+				final float hitY,
+				final float hitZ,
+				final EntityPlayer player )
+		{
+			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
+
+			try
+			{
+				final IBitAccess access = api.getBitAccess( w, loc.getBlockPos() );
+
+				access.visitBits( new IBitVisitor() {
+
+					@Override
+					public IBitBrush visitBit(
+							final int x,
+							final int y,
+							final int z,
+							final IBitBrush currentValue )
+					{
+						IBitBrush bit = null;
+						final IBlockState state = Blocks.wool.getStateFromMeta( 3 );
+
+						try
+						{
+							bit = api.createBrush( api.getBitItem( state ) );
+						}
+						catch ( final InvalidBitItem e )
+						{
+						}
+
+						return y % 2 == 0 ? currentValue : bit;
+					}
+				} );
+
+				access.commitChanges( true );
+			}
+			catch ( final CannotBeChiseled e )
 			{
 				Log.logError( "FAIL", e );
 			}
