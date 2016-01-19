@@ -12,7 +12,7 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
@@ -102,9 +102,9 @@ public class BitAccess implements IBitAccess
 			final boolean triggerUpdates )
 	{
 		TileEntityBlockChiseled tile = ModUtil.getChiseledTileEntity( w, pos, true );
-		final CommonBlock cb = blob.mostCommonBlock();
+		final BlobStats cb = blob.getVoxelStats();
 
-		if ( tile == null && BlockChiseled.replaceWithChisled( w, pos, w.getBlockState( pos ), cb.ref, false ) )
+		if ( tile == null && BlockChiseled.replaceWithChisled( w, pos, w.getBlockState( pos ), cb.mostCommonState, false ) )
 		{
 			tile = ModUtil.getChiseledTileEntity( w, pos, true );
 		}
@@ -131,8 +131,8 @@ public class BitAccess implements IBitAccess
 			return null;
 		}
 
-		final CommonBlock cb = blob.mostCommonBlock();
-		if ( cb.ref == 0 )
+		final BlobStats cb = blob.getVoxelStats();
+		if ( cb.mostCommonState == 0 )
 		{
 			return null;
 		}
@@ -146,7 +146,7 @@ public class BitAccess implements IBitAccess
 
 		if ( type == ItemType.CHISLED_BLOCK )
 		{
-			final IBlockState state = Block.getStateById( cb.ref );
+			final IBlockState state = Block.getStateById( cb.mostCommonState );
 			final BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( state.getBlock().getMaterial() );
 
 			if ( blk == null )

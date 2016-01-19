@@ -5,7 +5,7 @@ import java.util.List;
 
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -13,7 +13,7 @@ import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IChiseledTileContainer;
-import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -344,10 +344,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		vb.fill( Block.getStateId( blockType ) );
 
 		int ref = 0;
-		final CommonBlock cb = vb.mostCommonBlock();
+		final BlobStats cb = vb.getVoxelStats();
+
 		if ( cb != null )
 		{
-			ref = cb.ref;
+			ref = cb.mostCommonState;
 		}
 
 		IExtendedBlockState state = getBasicState()
@@ -434,9 +435,9 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	{
 		final Integer olv = getBasicState().getValue( BlockChiseled.light_prop );
 
-		final CommonBlock common = vb.mostCommonBlock();
+		final BlobStats common = vb.getVoxelStats();
 		final float opacity = vb.getOpacity();
-		final float light = vb.getLight();
+		final float light = common.blockLight;
 		final int lv = Math.max( 0, Math.min( 15, (int) ( light * 15 ) ) );
 
 		// are most of the bits in the center solid?
@@ -444,9 +445,9 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 		if ( worldObj == null )
 		{
-			if ( common.ref == 0 )
+			if ( common.mostCommonState == 0 )
 			{
-				common.ref = getBasicState().getValue( BlockChiseled.block_prop );
+				common.mostCommonState = getBasicState().getValue( BlockChiseled.block_prop );
 			}
 
 			IExtendedBlockState newState = getBasicState()
@@ -455,7 +456,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 					.withProperty( BlockChiseled.light_prop, lv )
 					.withProperty( BlockChiseled.opacity_prop, opacity )
 					.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() )
-					.withProperty( BlockChiseled.block_prop, common.ref );
+					.withProperty( BlockChiseled.block_prop, common.mostCommonState );
 
 			final VoxelNeighborRenderTracker tracker = newState.getValue( BlockChiseled.n_prop );
 
@@ -472,18 +473,18 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			return;
 		}
 
-		if ( common.isFull )
+		if ( common.isFullBlock )
 		{
-			worldObj.setBlockState( pos, Block.getStateById( common.ref ), triggerUpdates ? 3 : 0 );
+			worldObj.setBlockState( pos, Block.getStateById( common.mostCommonState ), triggerUpdates ? 3 : 0 );
 		}
-		else if ( common.ref != 0 )
+		else if ( common.mostCommonState != 0 )
 		{
 			setState( getBasicState()
 					.withProperty( BlockChiseled.side_prop, sideFlags )
 					.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb.toByteArray(), getPositionRandom( pos ) ) )
 					.withProperty( BlockChiseled.light_prop, lv )
 					.withProperty( BlockChiseled.opacity_prop, opacity )
-					.withProperty( BlockChiseled.block_prop, common.ref ) );
+					.withProperty( BlockChiseled.block_prop, common.mostCommonState ) );
 
 			getTileContainer().saveData();
 			getTileContainer().sendUpdate();
@@ -597,7 +598,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public boolean isSideOpaque(
 			final EnumFacing side )
 	{
-		final Integer sideFlags = ChisledBlockSmartModel.getSides( this );
+		final Integer sideFlags = ChiseledBlockSmartModel.getSides( this );
 		return ( sideFlags & 1 << side.ordinal() ) != 0;
 	}
 

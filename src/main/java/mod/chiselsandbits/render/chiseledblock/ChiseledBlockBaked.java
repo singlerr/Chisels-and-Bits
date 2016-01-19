@@ -35,7 +35,7 @@ import net.minecraft.util.Vec3i;
 
 import org.lwjgl.util.vector.Vector3f;
 
-public class ChisledBlockBaked extends BaseBakedBlockModel
+public class ChiseledBlockBaked extends BaseBakedBlockModel
 {
 	public static final float PIXELS_PER_BLOCK = 16.0f;
 	static boolean hasFaceMap = false;
@@ -65,12 +65,12 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	VertexFormat format;
 	TextureAtlasSprite sprite;
 
-	private ChisledBlockBaked()
+	private ChiseledBlockBaked()
 	{
 		initEmpty();
 	}
 
-	public ChisledBlockBaked(
+	public ChiseledBlockBaked(
 			final int blockReference,
 			final EnumWorldBlockLayer layer,
 			final VoxelBlobStateReference data,
@@ -108,11 +108,11 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 		}
 	}
 
-	public static ChisledBlockBaked breakingParticleModel(
+	public static ChiseledBlockBaked breakingParticleModel(
 			final EnumWorldBlockLayer layer,
 			final Integer blockStateID )
 	{
-		final ChisledBlockBaked out = new ChisledBlockBaked();
+		final ChiseledBlockBaked out = new ChiseledBlockBaked();
 
 		final IBakedModel model = ModelUtil.solveModel( blockStateID, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( Block.getStateById( blockStateID ) ) );
 		if ( model != null )

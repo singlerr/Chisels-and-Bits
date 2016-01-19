@@ -12,8 +12,8 @@ import org.lwjgl.opengl.GL11;
 
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
-import mod.chiselsandbits.render.chiseledblock.ChisledBlockBaked;
-import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.Tessellator;
@@ -84,7 +84,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 
 				for ( final EnumWorldBlockLayer lx : layers )
 				{
-					final ChisledBlockBaked model = ChisledBlockSmartModel.getCachedModel( tx, lx );
+					final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( tx, lx );
 
 					if ( !model.isEmpty() )
 					{

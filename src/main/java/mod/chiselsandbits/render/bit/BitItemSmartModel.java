@@ -8,7 +8,7 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
-import mod.chiselsandbits.render.chiseledblock.ChisledBlockBaked;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.ItemStack;
@@ -35,10 +35,10 @@ public class BitItemSmartModel extends BaseSmartModel implements ISmartItemModel
 				final VoxelBlob blob = new VoxelBlob();
 				blob.fill( stateID );
 				final VoxelBlobStateReference ref = new VoxelBlobStateReference( blob, 0 );
-				final IFlexibleBakedModel a = new ChisledBlockBaked( stateID, EnumWorldBlockLayer.SOLID, ref, null, DefaultVertexFormats.ITEM );
-				final IFlexibleBakedModel b = new ChisledBlockBaked( stateID, EnumWorldBlockLayer.CUTOUT_MIPPED, ref, null, DefaultVertexFormats.ITEM );
-				final IFlexibleBakedModel c = new ChisledBlockBaked( stateID, EnumWorldBlockLayer.CUTOUT, ref, null, DefaultVertexFormats.ITEM );
-				final IFlexibleBakedModel d = new ChisledBlockBaked( stateID, EnumWorldBlockLayer.TRANSLUCENT, ref, null, DefaultVertexFormats.ITEM );
+				final IFlexibleBakedModel a = new ChiseledBlockBaked( stateID, EnumWorldBlockLayer.SOLID, ref, null, DefaultVertexFormats.ITEM );
+				final IFlexibleBakedModel b = new ChiseledBlockBaked( stateID, EnumWorldBlockLayer.CUTOUT_MIPPED, ref, null, DefaultVertexFormats.ITEM );
+				final IFlexibleBakedModel c = new ChiseledBlockBaked( stateID, EnumWorldBlockLayer.CUTOUT, ref, null, DefaultVertexFormats.ITEM );
+				final IFlexibleBakedModel d = new ChiseledBlockBaked( stateID, EnumWorldBlockLayer.TRANSLUCENT, ref, null, DefaultVertexFormats.ITEM );
 				out = new ModelCombined( a, b, c, d );
 			}
 			else

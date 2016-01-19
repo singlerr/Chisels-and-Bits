@@ -1,12 +1,12 @@
 package mod.chiselsandbits.crafting;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob.IntegerRef;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob.TypeRef;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -80,30 +80,30 @@ public class ChiselCrafting implements IRecipe
 				return isValid;
 			}
 
-			final HashMap<Integer, IntegerRef> count = voxelBlob.getBlockCounts();
+			final List<TypeRef> count = voxelBlob.getBlockCounts();
 
 			isValid = true;
-			for ( final IntegerRef ref : count.values() )
+			for ( final TypeRef ref : count )
 			{
-				if ( ref.ref != 0 )
+				if ( ref.stateId != 0 )
 				{
 
 					for ( final ItemStack is : stacks )
 					{
-						if ( ItemChiseledBit.getStackState( is ) == ref.ref && is.stackSize > 0 )
+						if ( ItemChiseledBit.getStackState( is ) == ref.stateId && is.stackSize > 0 )
 						{
 							final int original = is.stackSize;
-							is.stackSize = Math.max( 0, is.stackSize - ref.total );
-							ref.total -= original - is.stackSize;
+							is.stackSize = Math.max( 0, is.stackSize - ref.quantity );
+							ref.quantity -= original - is.stackSize;
 						}
 					}
 
 					for ( final BagInventory bag : bags )
 					{
-						ref.total -= bag.extractBit( ref.ref, ref.total );
+						ref.quantity -= bag.extractBit( ref.stateId, ref.quantity );
 					}
 
-					if ( ref.total > 0 )
+					if ( ref.quantity > 0 )
 					{
 						isValid = false;
 						break;
