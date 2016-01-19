@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.lwjgl.util.vector.Vector3f;
-
 import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
@@ -34,6 +32,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3i;
+
+import org.lwjgl.util.vector.Vector3f;
 
 public class ChisledBlockBaked extends BaseBakedBlockModel
 {
@@ -64,8 +64,6 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	EnumWorldBlockLayer myLayer;
 	VertexFormat format;
 	TextureAtlasSprite sprite;
-
-	private int sides = 0;
 
 	private ChisledBlockBaked()
 	{
@@ -126,11 +124,6 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 		return out;
 	}
 
-	public int getSides()
-	{
-		return sides;
-	}
-
 	public boolean isEmpty()
 	{
 		boolean trulyEmpty = generic.isEmpty();
@@ -174,7 +167,6 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 		processZFaces( blob, visFace, mrs, rset );
 
 		final float[] defUVs = new float[] { 0, 0, 1, 1 };
-		sides = blob.getSideFlags( 0, VoxelBlob.dim_minus_one, VoxelBlob.dim2 );
 
 		for ( final ArrayList<FaceRegion> src : rset )
 		{
@@ -819,9 +811,9 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	@Override
 	public List<BakedQuad> getFaceQuads(
 			final EnumFacing requestedFace )
-	{
+			{
 		return face[requestedFace.ordinal()];
-	}
+			}
 
 	@Override
 	public List<BakedQuad> getGeneralQuads()

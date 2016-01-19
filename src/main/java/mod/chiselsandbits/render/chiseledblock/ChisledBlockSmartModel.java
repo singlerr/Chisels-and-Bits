@@ -7,6 +7,7 @@ import java.util.WeakHashMap;
 import mcmultipart.client.multipart.ISmartMultipartModel;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -33,6 +34,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 	static private final Map<ModelRenderState, ChisledBlockBaked>[] modelCache = new Map[4];
 	static private final Map<VoxelBlobStateReference, ChisledBlockBaked> solidCache = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateReference, ChisledBlockBaked>() );
 	static private final Map<ItemStack, IBakedModel> itemToModel = Collections.synchronizedMap( new WeakHashMap<ItemStack, IBakedModel>() );
+	static private final Map<VoxelBlobStateReference, Integer> sideCache = new WeakHashMap<VoxelBlobStateReference, Integer>();
 
 	static
 	{
@@ -53,8 +55,27 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 	public static int getSides(
 			final TileEntityBlockChiseled te )
 	{
-		final ChisledBlockBaked model = getCachedModel( te, EnumWorldBlockLayer.SOLID );
-		return model.getSides();
+		final VoxelBlobStateReference ref = te.getBlobStateReference();
+		Integer out = null;
+
+		if ( ref == null )
+		{
+			return 0;
+		}
+
+		synchronized ( sideCache )
+		{
+			out = sideCache.get( ref );
+			if ( out == null )
+			{
+				final VoxelBlob blob = ref.getVoxelBlob();
+				blob.filter( EnumWorldBlockLayer.SOLID );
+				out = blob.getSideFlags( 0, VoxelBlob.dim_minus_one, VoxelBlob.dim2 );
+				sideCache.put( ref, out );
+			}
+		}
+
+		return out;
 	}
 
 	public static ChisledBlockBaked getCachedModel(
