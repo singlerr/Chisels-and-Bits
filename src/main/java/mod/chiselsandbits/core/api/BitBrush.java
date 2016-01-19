@@ -46,4 +46,10 @@ public class BitBrush implements IBitBrush
 		return Block.getStateById( stateID );
 	}
 
+	@Override
+	public int getStateID()
+	{
+		return stateID;
+	}
+
 }

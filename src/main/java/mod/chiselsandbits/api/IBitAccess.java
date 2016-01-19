@@ -11,6 +11,15 @@ public interface IBitAccess
 {
 
 	/**
+	 * Process each bit in the {@link IBitAccess} and return a new bit in its
+	 * place, can be used to optimize large changes, or iteration.
+	 * 
+	 * @param visitor
+	 */
+	void visitBits(
+			IBitVisitor visitor );
+
+	/**
 	 * Returns the bit at the specific location, this should always return a
 	 * valid IBitBrush, never null.
 	 *

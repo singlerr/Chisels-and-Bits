@@ -6,9 +6,11 @@ import java.util.Map;
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBrush;
+import mod.chiselsandbits.api.IBitVisitor;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -50,8 +52,12 @@ public class BitAccess implements IBitAccess
 			final int y,
 			final int z )
 	{
-		final int state = blob.getSafe( x, y, z );
+		return getBrushForState( blob.getSafe( x, y, z ) );
+	}
 
+	private IBitBrush getBrushForState(
+			final int state )
+	{
 		IBitBrush brush = brushes.get( state );
 
 		if ( brush == null )
@@ -73,7 +79,7 @@ public class BitAccess implements IBitAccess
 
 		if ( bit instanceof BitBrush )
 		{
-			state = ( (BitBrush) bit ).stateID;
+			state = bit.getStateID();
 		}
 
 		// make sure that they are only 0-15
@@ -177,6 +183,30 @@ public class BitAccess implements IBitAccess
 		}
 
 		return itemstack;
+	}
+
+	@Override
+	public void visitBits(
+			final IBitVisitor visitor )
+	{
+		final BitIterator bi = new BitIterator();
+		while ( bi.hasNext() )
+		{
+			final IBitBrush brush = getBrushForState( bi.getNext( blob ) );
+			final IBitBrush after = visitor.visitBit( bi.x, bi.y, bi.z, brush );
+
+			if ( brush != after )
+			{
+				if ( after == null )
+				{
+					bi.setNext( blob, 0 );
+				}
+				else
+				{
+					bi.setNext( blob, brush.getStateID() );
+				}
+			}
+		}
 	}
 
 }

@@ -30,4 +30,9 @@ public interface IBitBrush
 	ItemStack getItemStack(
 			int count );
 
+	/**
+	 * @return the state id for the {@link IBlockState}
+	 */
+	int getStateID();
+
 }
