@@ -778,7 +778,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			{
 				replacementLightValue.set( actingState.getBlock().getLightValue() );
 
-				world.setBlockState( pos, blk.getDefaultState() );
+				world.setBlockState( pos, blk.getDefaultState(), triggerUpdate ? 3 : 0 );
 				final TileEntity te = world.getTileEntity( pos );
 
 				TileEntityBlockChiseled tec;
