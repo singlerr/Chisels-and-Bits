@@ -412,7 +412,13 @@ public class ModConfig extends Configuration
 			{
 				while ( a.contains( "{}" ) && variables.length > varOffset )
 				{
-					a = a.replaceFirst( "\\{\\}", variables[varOffset++] );
+					final int offset = a.indexOf( "{}" );
+					if ( offset >= 0 )
+					{
+						final String pre = a.substring( 0, offset );
+						final String post = a.substring( offset + 2 );
+						a = new StringBuilder( pre ).append( variables[varOffset++] ).append( post ).toString();
+					}
 				}
 
 				tooltip.add( a );
