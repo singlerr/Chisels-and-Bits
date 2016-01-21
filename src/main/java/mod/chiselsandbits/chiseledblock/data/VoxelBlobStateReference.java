@@ -67,7 +67,7 @@ public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReferen
 			final VoxelBlob blob,
 			final long weight )
 	{
-		this( blob.toByteArray(), weight );
+		this( blob.blobToBytes( VoxelBlob.VERSION_COMPACT ), weight );
 		data.blob = new SoftReference<VoxelBlob>( new VoxelBlob( blob ) );
 	}
 

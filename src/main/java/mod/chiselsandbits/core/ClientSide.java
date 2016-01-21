@@ -516,7 +516,6 @@ public class ClientSide
 					// this logic originated in the vanilla bounding box...
 					final IBlockState state = theWorld.getBlockState( location.blockPos );
 
-					final boolean isMultipart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( theWorld, location.blockPos );
 					final boolean isChisel = getDrawnTool() == ChiselToolType.CHISEL;
 					final boolean isBit = getHeldToolType() == ChiselToolType.BIT;
 					final TileEntityBlockChiseled data = ModUtil.getChiseledTileEntity( theWorld, location.blockPos, false );

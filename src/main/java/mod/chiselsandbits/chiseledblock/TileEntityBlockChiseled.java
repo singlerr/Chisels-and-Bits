@@ -1,5 +1,6 @@
 package mod.chiselsandbits.chiseledblock;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob.CommonBlock;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
@@ -42,6 +44,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public static final String block_prop = "b";
 	public static final String side_prop = "s";
 	public static final String voxel_prop = "v";
+	public static final String versioned_voxel_prop = "X";
 	public static final String light_opacity_prop = "l";
 	public static final String light_prop = "lv";
 
@@ -271,7 +274,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			compound.setInteger( light_prop, lv == null ? 0 : lv );
 			compound.setInteger( block_prop, b );
 			compound.setInteger( side_prop, s );
-			compound.setByteArray( voxel_prop, vbs.getByteArray() );
+			compound.setByteArray( versioned_voxel_prop, vbs.getByteArray() );
 		}
 	}
 
@@ -284,7 +287,28 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		int b = compound.getInteger( block_prop );
 		final float l = compound.getFloat( light_opacity_prop );
 		final int lv = compound.getInteger( light_prop );
-		final byte[] v = compound.getByteArray( voxel_prop );
+		byte[] v = compound.getByteArray( versioned_voxel_prop );
+
+		if ( v == null || v.length == 0 )
+		{
+			final byte[] vx = compound.getByteArray( voxel_prop );
+			if ( v != null && vx.length > 0 )
+			{
+				final VoxelBlob bx = new VoxelBlob();
+
+				try
+				{
+					bx.fromLegacyByteArray( vx );
+				}
+				catch ( final IOException e )
+				{
+				}
+
+				v = bx.blobToBytes( VoxelBlob.VERSION_COMPACT );
+
+				Log.info( "Converted: " + vx.length + " -> " + v.length );
+			}
+		}
 
 		if ( b == 0 )
 		{
@@ -451,7 +475,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 			IExtendedBlockState newState = getBasicState()
 					.withProperty( BlockChiseled.side_prop, sideFlags )
-					.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb.toByteArray(), getPositionRandom( pos ) ) )
+					.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb.blobToBytes( VoxelBlob.VERSION_COMPACT ), getPositionRandom( pos ) ) )
 					.withProperty( BlockChiseled.light_prop, lv )
 					.withProperty( BlockChiseled.opacity_prop, opacity )
 					.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() )
@@ -480,7 +504,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		{
 			setState( getBasicState()
 					.withProperty( BlockChiseled.side_prop, sideFlags )
-					.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb.toByteArray(), getPositionRandom( pos ) ) )
+					.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb.blobToBytes( VoxelBlob.VERSION_COMPACT ), getPositionRandom( pos ) ) )
 					.withProperty( BlockChiseled.light_prop, lv )
 					.withProperty( BlockChiseled.opacity_prop, opacity )
 					.withProperty( BlockChiseled.block_prop, common.ref ) );

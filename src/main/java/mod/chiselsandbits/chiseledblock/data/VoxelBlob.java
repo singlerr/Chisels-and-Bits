@@ -8,9 +8,15 @@ import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import java.util.zip.InflaterInputStream;
 
+import io.netty.buffer.Unpooled;
+import mod.chiselsandbits.chiseledblock.serialization.BitStream;
+import mod.chiselsandbits.chiseledblock.serialization.BlobSerializer;
+import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializer;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.block.Block;
@@ -18,6 +24,7 @@ import net.minecraft.block.BlockLog.EnumAxis;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -377,7 +384,7 @@ public class VoxelBlob
 		putBit( x | y << 4 | z << 8, 0 );
 	}
 
-	public void read(
+	private void legacyRead(
 			final ByteArrayInputStream o ) throws IOException
 	{
 		final GZIPInputStream w = new GZIPInputStream( o );
@@ -394,7 +401,7 @@ public class VoxelBlob
 		w.close();
 	}
 
-	public void write(
+	private void legacyWrite(
 			final ByteArrayOutputStream o )
 	{
 		try
@@ -422,18 +429,18 @@ public class VoxelBlob
 		}
 	}
 
-	public byte[] toByteArray()
+	public byte[] toLegacyByteArray()
 	{
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		write( out );
+		legacyWrite( out );
 		return out.toByteArray();
 	}
 
-	public void fromByteArray(
+	public void fromLegacyByteArray(
 			final byte[] i ) throws IOException
 	{
 		final ByteArrayInputStream out = new ByteArrayInputStream( i );
-		read( out );
+		legacyRead( out );
 	}
 
 	public int getSafe(
@@ -759,6 +766,124 @@ public class VoxelBlob
 	{
 		final IBlockState state = Block.getStateById( ref );
 		return state.getBlock().canRenderInLayer( layer );
+	}
+
+	public static int VERSION_COMPACT = 0;
+	public static int VERSION_CROSSWORLD = 1;
+
+	public void blobFromBytes(
+			final byte[] bytes ) throws IOException
+	{
+		final ByteArrayInputStream out = new ByteArrayInputStream( bytes );
+		read( out );
+	}
+
+	private void read(
+			final ByteArrayInputStream o ) throws IOException
+	{
+		final InflaterInputStream w = new InflaterInputStream( o );
+		final ByteBuffer bb = BlobSerializer.getBuffer();
+
+		int usedBytes = 0;
+		int rv = 0;
+
+		do
+		{
+			usedBytes += rv;
+			rv = w.read( bb.array(), usedBytes, bb.limit() - usedBytes );
+		}
+		while ( rv > 0 );
+
+		final PacketBuffer header = new PacketBuffer( Unpooled.wrappedBuffer( bb ) );
+
+		final int version = header.readVarIntFromBuffer();
+
+		BlobSerializer bs = null;
+
+		if ( version == VERSION_COMPACT )
+		{
+			bs = new BlobSerializer( header );
+		}
+		else if ( version == VERSION_CROSSWORLD )
+		{
+			bs = new CrossWorldBlobSerializer( header );
+		}
+		else
+		{
+			throw new RuntimeException( "Invalid Version: " + version );
+		}
+
+		final int bytesOfInterest = header.readVarIntFromBuffer();
+
+		final BitStream bits = BitStream.valueOf( ByteBuffer.wrap( bb.array(), header.readerIndex(), bytesOfInterest ) );
+		for ( int x = 0; x < array_size; x++ )
+		{
+			values[x] = bs.readVoxelStateID( bits );// src.get();
+		}
+
+		w.close();
+	}
+
+	public byte[] blobToBytes(
+			final int version )
+	{
+		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		write( out, getSerializer( version ) );
+		return out.toByteArray();
+	}
+
+	private BlobSerializer getSerializer(
+			final int version )
+	{
+		if ( version == VERSION_COMPACT )
+		{
+			return new BlobSerializer( this );
+		}
+
+		if ( version == VERSION_CROSSWORLD )
+		{
+			return new CrossWorldBlobSerializer( this );
+		}
+
+		throw new RuntimeException( "Invalid Version: " + version );
+	}
+
+	private void write(
+			final ByteArrayOutputStream o,
+			final BlobSerializer bs )
+	{
+		try
+		{
+			final DeflaterOutputStream w = new DeflaterOutputStream( o );
+
+			final PacketBuffer pb = BlobSerializer.getPacketBuffer();
+			pb.writeVarIntToBuffer( bs.getVersion() );
+			bs.write( pb );
+
+			final BitStream set = BlobSerializer.getBitSet();
+			for ( int x = 0; x < array_size; x++ )
+			{
+				bs.writeVoxelState( values[x], set );
+			}
+
+			final byte[] arrayContents = set.toByteArray();
+			final int bytesToWrite = arrayContents.length;
+
+			pb.writeVarIntToBuffer( bytesToWrite );
+
+			w.write( pb.array(), 0, pb.writerIndex() );
+
+			w.write( arrayContents, 0, bytesToWrite );
+
+			w.finish();
+			w.close();
+
+			o.close();
+		}
+		catch ( final IOException e )
+		{
+			throw new RuntimeException( e );
+		}
 	}
 
 }

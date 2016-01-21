@@ -75,7 +75,7 @@ public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance
 			if ( vb == null )
 			{
 				vb = new VoxelBlob();
-				vb.fromByteArray( v );
+				vb.blobFromBytes( v );
 				blob = new SoftReference<VoxelBlob>( vb );
 			}
 

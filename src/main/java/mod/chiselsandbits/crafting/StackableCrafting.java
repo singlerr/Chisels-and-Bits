@@ -85,13 +85,13 @@ public class StackableCrafting implements IRecipe
 		tmp.readChisleData( stack.getSubCompound( "BlockEntityTag", false ) );
 
 		VoxelBlob bestBlob = tmp.getBlob();
-		byte[] bestValue = bestBlob.toByteArray();
+		byte[] bestValue = bestBlob.toLegacyByteArray();
 
 		VoxelBlob lastBlob = bestBlob;
 		for ( int x = 0; x < 34; x++ )
 		{
 			lastBlob = lastBlob.spin( Axis.Y );
-			final byte[] aValue = lastBlob.toByteArray();
+			final byte[] aValue = lastBlob.toLegacyByteArray();
 
 			if ( arrayCompare( bestValue, aValue ) )
 			{

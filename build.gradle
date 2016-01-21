@@ -29,8 +29,8 @@ dependencies {
 }
 
 minecraft {
-    version = "1.8.8-11.15.0.1634-1.8.8"
-    // version = "1.8.9-11.15.0.1694"
+    //version = "1.8.8-11.15.0.1634-1.8.8"
+    version = "1.8.9-11.15.0.1710"
     runDir = "eclipse"
     mappings = "stable_20"
     
