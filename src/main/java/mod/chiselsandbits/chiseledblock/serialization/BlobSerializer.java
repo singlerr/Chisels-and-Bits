@@ -1,11 +1,12 @@
 package mod.chiselsandbits.chiseledblock.serialization;
 
-import gnu.trove.map.TIntIntMap;
-import gnu.trove.map.hash.TIntIntHashMap;
-import gnu.trove.procedure.TIntIntProcedure;
 import io.netty.buffer.Unpooled;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.zip.Deflater;
 
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import net.minecraft.network.PacketBuffer;
@@ -14,7 +15,7 @@ public class BlobSerializer
 {
 
 	private final int types;
-	private final TIntIntMap index; // deflate...
+	private final Map<Integer, Integer> index; // deflate...
 	private final int[] palette; // inflate...
 	private final int bitsPerInt;
 	private final int bitsPerIntMinus1;
@@ -22,27 +23,18 @@ public class BlobSerializer
 	public BlobSerializer(
 			final VoxelBlob toDeflate )
 	{
-		final TIntIntMap entries = toDeflate.getBlockSums();
+		final Map<Integer, Integer> entries = toDeflate.getBlockSums();
 
-		index = new TIntIntHashMap( types = entries.size() );
+		index = new HashMap<Integer, Integer>( types = entries.size() );
 		palette = new int[types];
 
-		entries.forEachEntry( new TIntIntProcedure() {
-
-			int offset = 0;
-
-			@Override
-			public boolean execute(
-					final int stateID,
-					final int count )
-			{
-				palette[offset] = stateID;
-				index.put( stateID, offset++ );
-
-				return true;
-			}
-
-		} );
+		int offset = 0;
+		for ( final Entry<Integer, Integer> o : entries.entrySet() )
+		{
+			final int stateID = o.getKey();
+			palette[offset] = stateID;
+			index.put( stateID, offset++ );
+		}
 
 		bitsPerInt = bitsPerBit();
 		bitsPerIntMinus1 = bitsPerInt - 1;
@@ -104,10 +96,19 @@ public class BlobSerializer
 		return bits > 0 ? bits : 1;
 	}
 
+	int lastState = -1;
+	int lastIndex = -1;
+
 	private int getIndex(
 			final int stateID )
 	{
-		return index.get( stateID );
+		if ( lastState == stateID )
+		{
+			return lastIndex;
+		}
+
+		lastState = stateID;
+		return lastIndex = index.get( stateID );
 	}
 
 	private int getStateID(
@@ -162,6 +163,21 @@ public class BlobSerializer
 		}
 
 		bb.reset();
+		return bb;
+	}
+
+	static ThreadLocal<Deflater> deflater = new ThreadLocal<Deflater>();
+
+	public static Deflater getDeflater()
+	{
+		Deflater bb = deflater.get();
+
+		if ( bb == null )
+		{
+			bb = new Deflater( Deflater.BEST_COMPRESSION );
+			deflater.set( bb );
+		}
+
 		return bb;
 	}
 

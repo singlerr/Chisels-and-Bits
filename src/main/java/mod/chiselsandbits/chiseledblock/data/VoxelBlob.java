@@ -1,8 +1,5 @@
 package mod.chiselsandbits.chiseledblock.data;
 
-import gnu.trove.map.TIntIntMap;
-import gnu.trove.map.hash.TIntIntHashMap;
-import gnu.trove.procedure.TIntIntProcedure;
 import io.netty.buffer.Unpooled;
 
 import java.io.ByteArrayInputStream;
@@ -13,7 +10,9 @@ import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -494,58 +493,73 @@ public class VoxelBlob
 		}
 	};
 
-	public TIntIntMap getBlockSums()
+	public Map<Integer, Integer> getBlockSums()
 	{
-		final TIntIntMap counts = new TIntIntHashMap();
+		final Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
 
-		for ( int x = 0; x < array_size; x++ )
+		int lastType = values[0];
+		int firstOfType = 0;
+
+		for ( int x = 1; x < array_size; x++ )
 		{
-			counts.adjustOrPutValue( values[x], 1, 1 );
+			final int v = values[x];
+
+			if ( lastType != v )
+			{
+				final Integer sumx = counts.get( lastType );
+
+				if ( sumx == null )
+				{
+					counts.put( lastType, x - firstOfType );
+				}
+				else
+				{
+					counts.put( lastType, sumx + ( x - firstOfType ) );
+				}
+
+				// new count.
+				firstOfType = x;
+				lastType = v;
+			}
+		}
+
+		final Integer sumx = counts.get( lastType );
+
+		if ( sumx == null )
+		{
+			counts.put( lastType, array_size - firstOfType );
+		}
+		else
+		{
+			counts.put( lastType, sumx + ( array_size - firstOfType ) );
 		}
 
 		return counts;
 	}
 
-	private static class BlockCountListCalc implements TIntIntProcedure
-	{
-
-		final List<TypeRef> out;
-
-		public BlockCountListCalc(
-				final int size )
-		{
-			out = new ArrayList<TypeRef>( size );
-		}
-
-		@Override
-		public boolean execute(
-				final int r,
-				final int quantity )
-		{
-			out.add( new TypeRef( r, quantity ) );
-			return true;
-		}
-	};
-
 	public List<TypeRef> getBlockCounts()
 	{
-		final TIntIntMap count = getBlockSums();
-		final BlockCountListCalc calc = new BlockCountListCalc( count.size() );
+		final Map<Integer, Integer> count = getBlockSums();
 
-		count.forEachEntry( calc );
+		final List<TypeRef> out;
+		out = new ArrayList<TypeRef>( count.size() );
 
-		return calc.out;
+		for ( final Entry<Integer, Integer> o : count.entrySet() )
+		{
+			out.add( new TypeRef( o.getKey(), o.getValue() ) );
+		}
+		return out;
 	}
 
-	private static class VoxelBlobStatsCalc implements TIntIntProcedure
+	public BlobStats getVoxelStats()
 	{
-		public BlobStats cb = new BlobStats();
+		final BlobStats cb = new BlobStats();
 
-		@Override
-		public boolean execute(
-				final int r,
-				final int quantity )
+		for ( final Entry<Integer, Integer> o : getBlockSums().entrySet() )
 		{
+			final int quantity = o.getValue();
+			final int r = o.getKey();
+
 			if ( quantity > cb.mostCommonStateTotal && r != 0 )
 			{
 				cb.mostCommonState = r;
@@ -557,17 +571,8 @@ public class VoxelBlob
 			{
 				cb.blockLight += quantity * state.getBlock().getLightValue();
 			}
-
-			return true;
 		}
-	};
 
-	public BlobStats getVoxelStats()
-	{
-		final VoxelBlobStatsCalc ca = new VoxelBlobStatsCalc();
-		getBlockSums().forEachEntry( ca );
-
-		final BlobStats cb = ca.cb;
 		cb.isFullBlock = cb.mostCommonStateTotal == array_size;
 
 		final float light_size = ChiselsAndBits.getConfig().bitLightPercentage * array_size * 15.0f / 100.0f;
@@ -835,12 +840,21 @@ public class VoxelBlob
 		w.close();
 	}
 
+	static int bestBufferSize = 26;
+
 	public byte[] blobToBytes(
 			final int version )
 	{
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
+		final ByteArrayOutputStream out = new ByteArrayOutputStream( bestBufferSize );
 		write( out, getSerializer( version ) );
-		return out.toByteArray();
+		final byte[] o = out.toByteArray();
+
+		if ( bestBufferSize < o.length )
+		{
+			bestBufferSize = o.length;
+		}
+
+		return o;
 	}
 
 	private BlobSerializer getSerializer(
@@ -865,7 +879,8 @@ public class VoxelBlob
 	{
 		try
 		{
-			final DeflaterOutputStream w = new DeflaterOutputStream( o );
+			final Deflater def = BlobSerializer.getDeflater();
+			final DeflaterOutputStream w = new DeflaterOutputStream( o, def, bestBufferSize );
 
 			final PacketBuffer pb = BlobSerializer.getPacketBuffer();
 			pb.writeVarIntToBuffer( bs.getVersion() );
@@ -889,6 +904,8 @@ public class VoxelBlob
 			w.finish();
 			w.close();
 
+			def.reset();
+
 			o.close();
 		}
 		catch ( final IOException e )
@@ -896,5 +913,4 @@ public class VoxelBlob
 			throw new RuntimeException( e );
 		}
 	}
-
 }
