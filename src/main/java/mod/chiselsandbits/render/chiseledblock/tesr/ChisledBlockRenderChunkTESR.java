@@ -285,12 +285,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			return;
 		}
 
-		GL11.glPushMatrix();
-
 		final BlockPos chunkOffset = renderChunk.chunkOffset();
-		GL11.glTranslated( -TileEntityRendererDispatcher.staticPlayerX + chunkOffset.getX(),
-				-TileEntityRendererDispatcher.staticPlayerY + chunkOffset.getY(),
-				-TileEntityRendererDispatcher.staticPlayerZ + chunkOffset.getZ() );
 
 		final TileLayerRenderCache tlrc = renderCache.getLayer( layer );
 		final boolean isNew = tlrc.isNew();
@@ -375,12 +370,17 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		final int dl = tlrc.displayList;
 		if ( dl != 0 )
 		{
+			GL11.glPushMatrix();
+			GL11.glTranslated( -TileEntityRendererDispatcher.staticPlayerX + chunkOffset.getX(),
+					-TileEntityRendererDispatcher.staticPlayerY + chunkOffset.getY(),
+					-TileEntityRendererDispatcher.staticPlayerZ + chunkOffset.getZ() );
+
 			configureGLState( layer );
 			GL11.glCallList( dl );
 			unconfigureGLState();
-		}
 
-		GL11.glPopMatrix();
+			GL11.glPopMatrix();
+		}
 	}
 
 	private void configureGLState(
