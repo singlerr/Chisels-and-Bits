@@ -190,11 +190,21 @@ public class BitAccess implements IBitAccess
 			final IBitVisitor visitor )
 	{
 		final BitIterator bi = new BitIterator();
+		IBitBrush brush = getBrushForState( 0 );
 		while ( bi.hasNext() )
 		{
 			if ( bi.getNext( filler ) == 0 )
 			{
-				final IBitBrush brush = getBrushForState( bi.getNext( blob ) );
+				final int stateID = bi.getNext( blob );
+
+				// Most blocks are mostly the same bit type, so if it dosn't
+				// change just keep the current brush, only if they differ
+				// should we bother looking it up again.
+				if ( stateID != brush.getStateID() )
+				{
+					brush = getBrushForState( stateID );
+				}
+
 				final IBitBrush after = visitor.visitBit( bi.x, bi.y, bi.z, brush );
 
 				if ( brush != after )

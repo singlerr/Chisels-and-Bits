@@ -1,14 +1,13 @@
 package mod.chiselsandbits.chiseledblock.serialization;
 
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map.Entry;
-
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.procedure.TIntIntProcedure;
 import io.netty.buffer.Unpooled;
+
+import java.nio.ByteBuffer;
+
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob.IntegerRef;
 import net.minecraft.network.PacketBuffer;
 
 public class BlobSerializer
@@ -19,22 +18,31 @@ public class BlobSerializer
 	private final int[] palette; // inflate...
 	private final int bitsPerInt;
 	private final int bitsPerIntMinus1;
-	private final int offset = 0;
 
 	public BlobSerializer(
 			final VoxelBlob toDeflate )
 	{
-		int offset = 0;
-		final HashMap<Integer, IntegerRef> entries = toDeflate.getBlockCounts();
+		final TIntIntMap entries = toDeflate.getBlockSums();
 
 		index = new TIntIntHashMap( types = entries.size() );
 		palette = new int[types];
 
-		for ( final Entry<Integer, IntegerRef> block : entries.entrySet() )
-		{
-			palette[offset] = block.getKey();
-			index.put( block.getKey(), offset++ );
-		}
+		entries.forEachEntry( new TIntIntProcedure() {
+
+			int offset = 0;
+
+			@Override
+			public boolean execute(
+					final int stateID,
+					final int count )
+			{
+				palette[offset] = stateID;
+				index.put( stateID, offset++ );
+
+				return true;
+			}
+
+		} );
 
 		bitsPerInt = bitsPerBit();
 		bitsPerIntMinus1 = bitsPerInt - 1;

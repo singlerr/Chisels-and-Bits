@@ -364,22 +364,13 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public void fillWith(
 			final IBlockState blockType )
 	{
-		final VoxelBlob vb = new VoxelBlob();
-		vb.fill( Block.getStateId( blockType ) );
-
-		int ref = 0;
-		final BlobStats cb = vb.getVoxelStats();
-
-		if ( cb != null )
-		{
-			ref = cb.mostCommonState;
-		}
+		final int ref = Block.getStateId( blockType );
 
 		IExtendedBlockState state = getBasicState()
 				.withProperty( BlockChiseled.side_prop, 0xFF )
-				.withProperty( BlockChiseled.opacity_prop, vb.getOpacity() )
+				.withProperty( BlockChiseled.opacity_prop, 1.0f )
 				.withProperty( BlockChiseled.light_prop, blockType.getBlock().getLightValue() )
-				.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb, getPositionRandom( pos ) ) );
+				.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( Block.getStateId( blockType ), getPositionRandom( pos ) ) );
 
 		final VoxelNeighborRenderTracker tracker = state.getValue( BlockChiseled.n_prop );
 

@@ -3,6 +3,7 @@ package mod.chiselsandbits.chiseledblock.data;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.procedure.TIntIntProcedure;
+import io.netty.buffer.Unpooled;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -18,7 +19,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.chiseledblock.serialization.BitStream;
 import mod.chiselsandbits.chiseledblock.serialization.BlobSerializer;
 import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializer;
@@ -494,7 +494,7 @@ public class VoxelBlob
 		}
 	};
 
-	private TIntIntMap getBlockSums()
+	public TIntIntMap getBlockSums()
 	{
 		final TIntIntMap counts = new TIntIntHashMap();
 

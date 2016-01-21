@@ -13,6 +13,7 @@ public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReferen
 {
 
 	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> innerRefs = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>>() );
+	private static byte[] airBlob;
 
 	private static VoxelBlobStateInstance lookupRef(
 			final VoxelBlobStateInstance inst )
@@ -25,6 +26,26 @@ public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReferen
 		}
 
 		return null;
+	}
+
+	private static byte[] findBytesFor(
+			final int stateId )
+	{
+		if ( stateId == 0 )
+		{
+			if ( airBlob == null )
+			{
+				final VoxelBlob vb = new VoxelBlob();
+				vb.fill( 0 );
+				airBlob = vb.blobToBytes( VoxelBlob.VERSION_COMPACT );
+			}
+
+			return airBlob;
+		}
+
+		final VoxelBlob vb = new VoxelBlob();
+		vb.fill( stateId );
+		return vb.blobToBytes( VoxelBlob.VERSION_COMPACT );
 	}
 
 	private static void addRef(
@@ -69,6 +90,13 @@ public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReferen
 	{
 		this( blob.blobToBytes( VoxelBlob.VERSION_COMPACT ), weight );
 		data.blob = new SoftReference<VoxelBlob>( new VoxelBlob( blob ) );
+	}
+
+	public VoxelBlobStateReference(
+			final int stateId,
+			final long weight )
+	{
+		this( findBytesFor( stateId ), weight );
 	}
 
 	public VoxelBlobStateReference(
