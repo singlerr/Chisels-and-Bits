@@ -1,10 +1,15 @@
 package mod.chiselsandbits.chiseledblock.data;
 
+import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.procedure.TIntIntProcedure;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -301,36 +306,6 @@ public class VoxelBlob
 		}
 	}
 
-	public int light()
-	{
-		int p = 0;
-
-		final HashMap<Integer, IntegerRef> count = new HashMap<Integer, IntegerRef>();
-
-		for ( int x = 0; x < array_size; x++ )
-		{
-			final int ref = values[x];
-			IntegerRef tf = count.get( ref );
-
-			if ( tf == null )
-			{
-				final IBlockState state = Block.getStateById( ref );
-				int l = 0;
-
-				if ( state != null )
-				{
-					l = state.getBlock().getLightValue();
-				}
-
-				count.put( ref, tf = new IntegerRef( ref, l ) );
-			}
-
-			p += tf.total;
-		}
-
-		return p;
-	}
-
 	public int solid()
 	{
 		int p = 0;
@@ -495,74 +470,110 @@ public class VoxelBlob
 		}
 	}
 
-	public static class IntegerRef
+	public static class BlobStats
 	{
-		public final int ref;
-		public int total;
+		public int mostCommonState;
+		public int mostCommonStateTotal;
 
-		public IntegerRef(
-				final int ref,
-				final int total )
+		public boolean isFullBlock;
+
+		public float blockLight;
+	};
+
+	public static class TypeRef
+	{
+		final public int stateId;
+		public int quantity;
+
+		public TypeRef(
+				final int id,
+				final int q )
 		{
-			this.ref = ref;
-			this.total = total;
+			this.stateId = id;
+			this.quantity = q;
 		}
 	};
 
-	public static class CommonBlock
+	private TIntIntMap getBlockSums()
 	{
-		public int ref;
-		public boolean isFull;
-	};
-
-	public HashMap<Integer, IntegerRef> getBlockCounts()
-	{
-		final HashMap<Integer, IntegerRef> count = new HashMap<Integer, IntegerRef>();
+		final TIntIntMap counts = new TIntIntHashMap();
 
 		for ( int x = 0; x < array_size; x++ )
 		{
-			final int ref = values[x];
-
-			final IntegerRef tf = count.get( ref );
-			if ( tf == null )
-			{
-				count.put( ref, new IntegerRef( ref, 1 ) );
-			}
-			else
-			{
-				tf.total++;
-			}
+			counts.adjustOrPutValue( values[x], 1, 1 );
 		}
 
-		return count;
+		return counts;
 	}
 
-	public CommonBlock mostCommonBlock()
+	private static class BlockCountListCalc implements TIntIntProcedure
 	{
-		final HashMap<Integer, IntegerRef> count = getBlockCounts();
 
-		IntegerRef out = new IntegerRef( 0, 0 );
+		final List<TypeRef> out;
 
-		for ( final IntegerRef r : count.values() )
+		public BlockCountListCalc(
+				final int size )
 		{
-			if ( r.total > out.total && r.ref != 0 )
-			{
-				out = r;
-			}
+			out = new ArrayList<TypeRef>( size );
 		}
 
-		final CommonBlock cb = new CommonBlock();
-		cb.ref = out.ref;
-		cb.isFull = out.total == array_size;
-		return cb;
+		@Override
+		public boolean execute(
+				final int r,
+				final int quantity )
+		{
+			out.add( new TypeRef( r, quantity ) );
+			return true;
+		}
+	};
+
+	public List<TypeRef> getBlockCounts()
+	{
+		final TIntIntMap count = getBlockSums();
+		final BlockCountListCalc calc = new BlockCountListCalc( count.size() );
+
+		count.forEachEntry( calc );
+
+		return calc.out;
 	}
 
-	public float getLight()
+	private static class VoxelBlobStatsCalc implements TIntIntProcedure
 	{
-		// 15 is the getLightValue range, 100 is to convert the percentage.
+		public BlobStats cb = new BlobStats();
+
+		@Override
+		public boolean execute(
+				final int r,
+				final int quantity )
+		{
+			if ( quantity > cb.mostCommonStateTotal && r != 0 )
+			{
+				cb.mostCommonState = r;
+				cb.mostCommonStateTotal = quantity;
+			}
+
+			final IBlockState state = Block.getStateById( r );
+			if ( state != null )
+			{
+				cb.blockLight += quantity * state.getBlock().getLightValue();
+			}
+
+			return true;
+		}
+	};
+
+	public BlobStats getVoxelStats()
+	{
+		final VoxelBlobStatsCalc ca = new VoxelBlobStatsCalc();
+		getBlockSums().forEachEntry( ca );
+
+		final BlobStats cb = ca.cb;
+		cb.isFullBlock = cb.mostCommonStateTotal == array_size;
+
 		final float light_size = ChiselsAndBits.getConfig().bitLightPercentage * array_size * 15.0f / 100.0f;
-		final float o = light() / light_size;
-		return o;
+		cb.blockLight = cb.blockLight / light_size;
+
+		return cb;
 	}
 
 	public float getOpacity()

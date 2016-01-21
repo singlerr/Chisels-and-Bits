@@ -28,11 +28,11 @@ import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.common.Optional.Interface;
 
 @Optional.InterfaceList( { @Interface( iface = "mcmultipart.client.multipart.ISmartMultipartModel", modid = "mcmultipart" ) } )
-public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel, ISmartMultipartModel
+public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel, ISmartMultipartModel
 {
 	@SuppressWarnings( "unchecked" )
-	static private final Map<ModelRenderState, ChisledBlockBaked>[] modelCache = new Map[4];
-	static private final Map<VoxelBlobStateReference, ChisledBlockBaked> solidCache = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateReference, ChisledBlockBaked>() );
+	static private final Map<ModelRenderState, ChiseledBlockBaked>[] modelCache = new Map[4];
+	static private final Map<VoxelBlobStateReference, ChiseledBlockBaked> solidCache = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateReference, ChiseledBlockBaked>() );
 	static private final Map<ItemStack, IBakedModel> itemToModel = Collections.synchronizedMap( new WeakHashMap<ItemStack, IBakedModel>() );
 	static private final Map<VoxelBlobStateReference, Integer> sideCache = new WeakHashMap<VoxelBlobStateReference, Integer>();
 
@@ -48,7 +48,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 		// setup layers.
 		for ( final EnumWorldBlockLayer l : EnumWorldBlockLayer.values() )
 		{
-			modelCache[l.ordinal()] = Collections.synchronizedMap( new WeakHashMap<ModelRenderState, ChisledBlockBaked>() );
+			modelCache[l.ordinal()] = Collections.synchronizedMap( new WeakHashMap<ModelRenderState, ChiseledBlockBaked>() );
 		}
 	}
 
@@ -78,7 +78,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 		return out;
 	}
 
-	public static ChisledBlockBaked getCachedModel(
+	public static ChiseledBlockBaked getCachedModel(
 			final TileEntityBlockChiseled te,
 			final EnumWorldBlockLayer layer )
 	{
@@ -97,13 +97,13 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 	{
 		if ( ChiselsAndBits.getConfig().enableCustomVertexFormat )
 		{
-			return ChisledBlockBaked.CNB;
+			return ChiseledBlockBaked.CNB;
 		}
 
 		return DefaultVertexFormats.ITEM;
 	}
 
-	private static ChisledBlockBaked getCachedModel(
+	private static ChiseledBlockBaked getCachedModel(
 			final Integer blockP,
 			final VoxelBlobStateReference data,
 			final ModelRenderState mrs,
@@ -112,12 +112,12 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 	{
 		if ( data == null )
 		{
-			return new ChisledBlockBaked( blockP, layer, data, new ModelRenderState( null ), format );
+			return new ChiseledBlockBaked( blockP, layer, data, new ModelRenderState( null ), format );
 		}
 
-		ChisledBlockBaked out = null;
+		ChiseledBlockBaked out = null;
 
-		if ( format == ChisledBlockBaked.CNB )
+		if ( format == ChiseledBlockBaked.CNB )
 		{
 			if ( layer == EnumWorldBlockLayer.SOLID )
 			{
@@ -131,14 +131,14 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 
 		if ( out == null )
 		{
-			out = new ChisledBlockBaked( blockP, layer, data, mrs, format );
+			out = new ChiseledBlockBaked( blockP, layer, data, mrs, format );
 
 			if ( out.isEmpty() )
 			{
-				out = ChisledBlockBaked.breakingParticleModel( layer, blockP );
+				out = ChiseledBlockBaked.breakingParticleModel( layer, blockP );
 			}
 
-			if ( format == ChisledBlockBaked.CNB )
+			if ( format == ChiseledBlockBaked.CNB )
 			{
 				if ( layer == EnumWorldBlockLayer.SOLID )
 				{
@@ -177,10 +177,10 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 
 		if ( rTracker != null && rTracker.isDynamic() )
 		{
-			return ChisledBlockBaked.breakingParticleModel( layer, blockP );
+			return ChiseledBlockBaked.breakingParticleModel( layer, blockP );
 		}
 
-		final ChisledBlockBaked baked = getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, getModelFormat() );
+		final ChiseledBlockBaked baked = getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, getModelFormat() );
 
 		if ( rTracker != null )
 		{

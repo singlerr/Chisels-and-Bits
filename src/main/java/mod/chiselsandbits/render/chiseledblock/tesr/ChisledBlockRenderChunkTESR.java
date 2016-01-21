@@ -21,8 +21,8 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
-import mod.chiselsandbits.render.chiseledblock.ChisledBlockBaked;
-import mod.chiselsandbits.render.chiseledblock.ChisledBlockSmartModel;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.GLAllocation;
@@ -226,7 +226,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 		for ( final EnumWorldBlockLayer lx : layers )
 		{
-			final ChisledBlockBaked model = ChisledBlockSmartModel.getCachedModel( te, lx );
+			final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( te, lx );
 
 			if ( !model.isEmpty() )
 			{

@@ -814,7 +814,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final VoxelBlob vb = data.getVoxelBlob();
 			if ( vb != null )
 			{
-				return Block.getStateById( vb.mostCommonBlock().ref );
+				return Block.getStateById( vb.getVoxelStats().mostCommonState );
 			}
 		}
 
