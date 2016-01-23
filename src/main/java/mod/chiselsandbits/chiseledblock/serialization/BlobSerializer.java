@@ -1,13 +1,12 @@
 package mod.chiselsandbits.chiseledblock.serialization;
 
-import io.netty.buffer.Unpooled;
-
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.zip.Deflater;
 
+import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import net.minecraft.network.PacketBuffer;
 

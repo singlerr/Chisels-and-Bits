@@ -1,7 +1,5 @@
 package mod.chiselsandbits.chiseledblock.data;
 
-import io.netty.buffer.Unpooled;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,6 +16,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
 
+import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.chiseledblock.serialization.BitStream;
 import mod.chiselsandbits.chiseledblock.serialization.BlobSerializer;
 import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializer;
@@ -488,8 +487,8 @@ public class VoxelBlob
 				final int id,
 				final int q )
 		{
-			this.stateId = id;
-			this.quantity = q;
+			stateId = id;
+			quantity = q;
 		}
 	};
 

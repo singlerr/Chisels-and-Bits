@@ -1,5 +1,10 @@
 package mod.chiselsandbits.render.chiseledblock;
 
+import java.lang.reflect.Field;
+
+import mezz.jei.util.Log;
+import mod.chiselsandbits.render.cache.InMemoryQuadCompressor;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
@@ -12,9 +17,41 @@ import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
  * Based on the UnpackedBakedQuad Builder, this is temporary until the issue can
  * be resolved in forge, and 1.8.9 becomes the main version.
  */
-@Deprecated
-public class HackedUnpackedBakedQuad extends UnpackedBakedQuad
+public class MagicUnpackedBakedQuad extends UnpackedBakedQuad
 {
+
+	private static InMemoryQuadCompressor inMemoryCompressor = new InMemoryQuadCompressor();
+	private static Field d;
+
+	{
+		for ( final Field f : BakedQuad.class.getDeclaredFields() )
+		{
+			if ( f.getType() == int[].class )
+			{
+				d = f;
+				d.setAccessible( true );
+				break;
+			}
+		}
+	}
+
+	private void setInts(
+			final MagicUnpackedBakedQuad quad,
+			final int[] vertData )
+	{
+		try
+		{
+			d.set( quad, vertData );
+		}
+		catch ( final IllegalArgumentException e )
+		{
+			Log.error( "Derp.", e );
+		}
+		catch ( final IllegalAccessException e )
+		{
+			Log.error( "Derp.", e );
+		}
+	}
 
 	@Override
 	public int[] getVertexData()
@@ -23,6 +60,9 @@ public class HackedUnpackedBakedQuad extends UnpackedBakedQuad
 
 		if ( !packed )
 		{
+			final int[] vertData = new int[format.getNextOffset() /* / 4 * 4 */];
+			setInts( this, vertData );
+
 			packed = true;
 			for ( int v = 0; v < 4; v++ )
 			{
@@ -36,16 +76,17 @@ public class HackedUnpackedBakedQuad extends UnpackedBakedQuad
 		return vertexData;
 	}
 
-	public HackedUnpackedBakedQuad(
+	public MagicUnpackedBakedQuad(
 			final float[][][] unpackedData,
 			final int tint,
 			final EnumFacing orientation,
 			final VertexFormat format )
 	{
-		super( unpackedData, tint, orientation, format );
+		super( inMemoryCompressor.compress( unpackedData ), tint, orientation, format );
+		setInts( this, null );
 	}
 
-	public static class Colored extends HackedUnpackedBakedQuad implements IColoredBakedQuad
+	public static class Colored extends MagicUnpackedBakedQuad implements IColoredBakedQuad
 	{
 		public Colored(
 				final float[][][] unpackedData,
@@ -140,7 +181,7 @@ public class HackedUnpackedBakedQuad extends UnpackedBakedQuad
 			{
 				return new Colored( unpackedData, tint, orientation, format );
 			}
-			return new HackedUnpackedBakedQuad( unpackedData, tint, orientation, format );
+			return new MagicUnpackedBakedQuad( unpackedData, tint, orientation, format );
 		}
 	}
 }

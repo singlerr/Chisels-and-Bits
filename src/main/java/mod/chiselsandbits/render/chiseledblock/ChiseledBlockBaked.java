@@ -1,9 +1,12 @@
 package mod.chiselsandbits.render.chiseledblock;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
+import org.lwjgl.util.vector.Vector3f;
 
 import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -33,8 +36,6 @@ import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3i;
 
-import org.lwjgl.util.vector.Vector3f;
-
 public class ChiseledBlockBaked extends BaseBakedBlockModel
 {
 	public static final float PIXELS_PER_BLOCK = 16.0f;
@@ -58,16 +59,57 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		CNB.addElement( DefaultVertexFormats.TEX_2S );
 	}
 
-	@SuppressWarnings( "unchecked" )
-	final List<BakedQuad>[] face = new List[6];
-	List<BakedQuad> generic;
 	EnumWorldBlockLayer myLayer;
 	VertexFormat format;
 	TextureAtlasSprite sprite;
 
+	BakedQuad[] up;
+	BakedQuad[] down;
+	BakedQuad[] north;
+	BakedQuad[] south;
+	BakedQuad[] east;
+	BakedQuad[] west;
+	BakedQuad[] generic;
+
+	public List<BakedQuad> getList(
+			final EnumFacing side )
+	{
+		if ( side != null )
+		{
+			switch ( side )
+			{
+				case DOWN:
+					return asList( down );
+				case EAST:
+					return asList( east );
+				case NORTH:
+					return asList( north );
+				case SOUTH:
+					return asList( south );
+				case UP:
+					return asList( up );
+				case WEST:
+					return asList( west );
+				default:
+			}
+		}
+
+		return asList( generic );
+	}
+
+	private List<BakedQuad> asList(
+			final BakedQuad[] array )
+	{
+		if ( array == null )
+		{
+			return Collections.emptyList();
+		}
+
+		return Arrays.asList( array );
+	}
+
 	private ChiseledBlockBaked()
 	{
-		initEmpty();
 	}
 
 	public ChiseledBlockBaked(
@@ -80,7 +122,6 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		myLayer = layer;
 		this.format = format;
 		final IBlockState state = Block.getStateById( blockReference );
-		initEmpty();
 
 		IBakedModel originalModel = null;
 
@@ -94,16 +135,16 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final VoxelBlob vb = data.getVoxelBlob();
 			if ( vb != null && vb.filter( layer ) )
 			{
-				// create lists...
-				face[0] = new ArrayList<BakedQuad>();
-				face[1] = new ArrayList<BakedQuad>();
-				face[2] = new ArrayList<BakedQuad>();
-				face[3] = new ArrayList<BakedQuad>();
-				face[4] = new ArrayList<BakedQuad>();
-				face[5] = new ArrayList<BakedQuad>();
-				generic = new ArrayList<BakedQuad>();
+				final ChiseledModelBuilder builder = new ChiseledModelBuilder();
+				generateFaces( builder, vb, mrs, data.weight );
 
-				generateFaces( vb, mrs, data.weight );
+				up = builder.getSide( EnumFacing.UP );
+				down = builder.getSide( EnumFacing.DOWN );
+				east = builder.getSide( EnumFacing.EAST );
+				west = builder.getSide( EnumFacing.WEST );
+				north = builder.getSide( EnumFacing.NORTH );
+				south = builder.getSide( EnumFacing.SOUTH );
+				generic = builder.getSide( null );
 			}
 		}
 	}
@@ -126,29 +167,18 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	public boolean isEmpty()
 	{
-		boolean trulyEmpty = generic.isEmpty();
+		boolean trulyEmpty = getList( null ).isEmpty();
 
-		for ( final List<BakedQuad> l : face )
+		for ( final EnumFacing e : EnumFacing.VALUES )
 		{
-			trulyEmpty = trulyEmpty && l.isEmpty();
+			trulyEmpty = trulyEmpty && getList( e ).isEmpty();
 		}
 
 		return trulyEmpty;
 	}
 
-	private void initEmpty()
-	{
-		face[0] = Collections.emptyList();
-		face[1] = Collections.emptyList();
-		face[2] = Collections.emptyList();
-		face[3] = Collections.emptyList();
-		face[4] = Collections.emptyList();
-		face[5] = Collections.emptyList();
-		generic = Collections.emptyList();
-	}
-
-	@SuppressWarnings( "deprecation" )
 	private void generateFaces(
+			final ChiseledModelBuilder builder,
 			final VoxelBlob blob,
 			final ModelRenderState mrs,
 			final long weight )
@@ -196,7 +226,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				final float[] uvs = getFaceUvs( myFace, from, to, getSourceUVs( sourceUVCache, region.blockStateID, weight, texture, myFace ) );
 				final BakedQuad g = faceBakery.makeBakedQuad( to, from, bpf, texture, myFace, mr, bpr, true, true );
 
-				final HackedUnpackedBakedQuad.Builder b = new HackedUnpackedBakedQuad.Builder( format );
+				final MagicUnpackedBakedQuad.Builder b = new MagicUnpackedBakedQuad.Builder( format );
 				b.setQuadColored();
 				b.setQuadOrientation( myFace );
 				b.setQuadTint( 0 );
@@ -251,11 +281,11 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 				if ( region.isEdge )
 				{
-					face[myFace.ordinal()].add( b.build() );
+					builder.getList( myFace ).add( b.build() );
 				}
 				else
 				{
-					generic.add( b.build() );
+					builder.getList( null ).add( b.build() );
 				}
 			}
 		}
@@ -811,14 +841,14 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	@Override
 	public List<BakedQuad> getFaceQuads(
 			final EnumFacing requestedFace )
-			{
-		return face[requestedFace.ordinal()];
-			}
+	{
+		return getList( requestedFace );
+	}
 
 	@Override
 	public List<BakedQuad> getGeneralQuads()
 	{
-		return generic;
+		return getList( null );
 	}
 
 	@Override
@@ -835,7 +865,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	public int faceCount()
 	{
-		int count = generic.size();
+		int count = getList( null ).size();
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{

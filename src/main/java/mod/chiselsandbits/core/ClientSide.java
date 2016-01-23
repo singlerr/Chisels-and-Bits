@@ -221,7 +221,6 @@ public class ClientSide
 		}
 
 		ChiselsAndBits.getConfig().allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
-
 	}
 
 	private void registerMesh(

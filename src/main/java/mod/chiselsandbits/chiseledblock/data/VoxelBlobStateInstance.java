@@ -14,8 +14,8 @@ public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance
 	public final int hash;
 	public final byte[] v;
 
-	SoftReference<List<AxisAlignedBB>> occlusion;
-	SoftReference<VoxelBlob> blob;
+	private SoftReference<List<AxisAlignedBB>> occlusion;
+	protected SoftReference<VoxelBlob> blob;
 
 	public VoxelBlobStateInstance(
 			final byte[] data )

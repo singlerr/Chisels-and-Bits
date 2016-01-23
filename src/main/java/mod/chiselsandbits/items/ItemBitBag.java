@@ -33,7 +33,6 @@ public class ItemBitBag extends Item
 
 	public ItemBitBag()
 	{
-		setHasSubtypes( true );
 		setMaxStackSize( 1 );
 		ChiselsAndBits.registerWithBus( this );
 	}

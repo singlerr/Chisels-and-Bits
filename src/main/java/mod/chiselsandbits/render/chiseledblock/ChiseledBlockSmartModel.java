@@ -9,10 +9,12 @@ import mcmultipart.client.multipart.ISmartMultipartModel;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateInstance;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
+import mod.chiselsandbits.render.cache.CacheMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -30,11 +32,13 @@ import net.minecraftforge.fml.common.Optional.Interface;
 @Optional.InterfaceList( { @Interface( iface = "mcmultipart.client.multipart.ISmartMultipartModel", modid = "mcmultipart" ) })
 public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel, ISmartMultipartModel
 {
+
+	static final CacheMap<VoxelBlobStateReference, ChiseledBlockBaked> solidCache = new CacheMap<VoxelBlobStateReference, ChiseledBlockBaked>();
+	static final CacheMap<ItemStack, IBakedModel> itemToModel = new CacheMap<ItemStack, IBakedModel>();
+	static final CacheMap<VoxelBlobStateInstance, Integer> sideCache = new CacheMap<VoxelBlobStateInstance, Integer>();
+
 	@SuppressWarnings( "unchecked" )
 	static private final Map<ModelRenderState, ChiseledBlockBaked>[] modelCache = new Map[4];
-	static private final Map<VoxelBlobStateReference, ChiseledBlockBaked> solidCache = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateReference, ChiseledBlockBaked>() );
-	static private final Map<ItemStack, IBakedModel> itemToModel = Collections.synchronizedMap( new WeakHashMap<ItemStack, IBakedModel>() );
-	static private final Map<VoxelBlobStateReference, Integer> sideCache = new WeakHashMap<VoxelBlobStateReference, Integer>();
 
 	static public void resetCache()
 	{
@@ -76,13 +80,13 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 		synchronized ( sideCache )
 		{
-			out = sideCache.get( ref );
+			out = sideCache.get( ref.getInstance() );
 			if ( out == null )
 			{
 				final VoxelBlob blob = ref.getVoxelBlob();
 				blob.filter( EnumWorldBlockLayer.SOLID );
 				out = blob.getSideFlags( 0, VoxelBlob.dim_minus_one, VoxelBlob.dim2 );
-				sideCache.put( ref, out );
+				sideCache.put( ref.getInstance(), out );
 			}
 		}
 

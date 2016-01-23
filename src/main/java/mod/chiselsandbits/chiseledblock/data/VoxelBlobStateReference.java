@@ -8,17 +8,29 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReference>
 {
 
-	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> innerRefs = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>>() );
+	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> serverRefs = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>>() );
+	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> clientRefs = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>>() );
 	private static byte[] airBlob;
+
+	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> getRefs()
+	{
+		if ( FMLCommonHandler.instance().getEffectiveSide().isClient() )
+		{
+			return clientRefs;
+		}
+
+		return serverRefs;
+	}
 
 	private static VoxelBlobStateInstance lookupRef(
 			final VoxelBlobStateInstance inst )
 	{
-		final WeakReference<VoxelBlobStateInstance> o = innerRefs.get( inst );
+		final WeakReference<VoxelBlobStateInstance> o = getRefs().get( inst );
 
 		if ( o != null )
 		{
@@ -51,7 +63,7 @@ public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReferen
 	private static void addRef(
 			final VoxelBlobStateInstance inst )
 	{
-		innerRefs.put( inst, new WeakReference<VoxelBlobStateInstance>( inst ) );
+		getRefs().put( inst, new WeakReference<VoxelBlobStateInstance>( inst ) );
 	}
 
 	private static VoxelBlobStateInstance FindRef(
@@ -73,6 +85,11 @@ public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReferen
 
 	private final VoxelBlobStateInstance data;
 	public final long weight;
+
+	public VoxelBlobStateInstance getInstance()
+	{
+		return data;
+	}
 
 	public byte[] getByteArray()
 	{

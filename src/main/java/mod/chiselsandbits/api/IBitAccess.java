@@ -13,7 +13,7 @@ public interface IBitAccess
 	/**
 	 * Process each bit in the {@link IBitAccess} and return a new bit in its
 	 * place, can be used to optimize large changes, or iteration.
-	 * 
+	 *
 	 * @param visitor
 	 */
 	void visitBits(
@@ -54,7 +54,7 @@ public interface IBitAccess
 	 * affect, optionally you can trigger updates or not.
 	 *
 	 * If the {@link IBitAccess} is not in the world this method does nothing.
-	 * 
+	 *
 	 * @param triggerUpdates
 	 *            normally true, only use false if your doing something special.
 	 */

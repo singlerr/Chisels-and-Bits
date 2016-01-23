@@ -322,24 +322,14 @@ public abstract class DebugAction
 		{
 			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
 
-			try
-			{
-				final IBitAccess access = api.getBitAccess( w, loc.getBlockPos() );
+			final VoxelBlob out = new VoxelBlob();
+			MCMultipartProxy.proxyMCMultiPart.addFiller( w, loc.getBlockPos(), out );
 
-				final VoxelBlob out = new VoxelBlob();
-				MCMultipartProxy.proxyMCMultiPart.addFiller( w, loc.getBlockPos(), out );
+			player.addChatComponentMessage( new ChatComponentText( out.solid() + " blocked" ) );
+			player.addChatComponentMessage( new ChatComponentText( out.air() + " not-blocked" ) );
 
-				player.addChatComponentMessage( new ChatComponentText( out.solid() + " blocked" ) );
-				player.addChatComponentMessage( new ChatComponentText( out.air() + " not-blocked" ) );
-
-				final boolean isMultiPart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( w, loc.getBlockPos() );
-				player.addChatComponentMessage( new ChatComponentText( isMultiPart ? "Multipart" : "Not-Multipart" ) );
-
-			}
-			catch ( final CannotBeChiseled e )
-			{
-				Log.logError( "FAIL", e );
-			}
+			final boolean isMultiPart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( w, loc.getBlockPos() );
+			player.addChatComponentMessage( new ChatComponentText( isMultiPart ? "Multipart" : "Not-Multipart" ) );
 		}
 
 	};
