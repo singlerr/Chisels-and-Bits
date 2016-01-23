@@ -110,7 +110,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 	private static VertexFormat getModelFormat()
 	{
-		return ChiseledBlockBaked.CNB;
+		return ChiselsAndBitsBakedQuad.VERTEX_FORMAT;
 	}
 
 	private static ChiseledBlockBaked getCachedModel(

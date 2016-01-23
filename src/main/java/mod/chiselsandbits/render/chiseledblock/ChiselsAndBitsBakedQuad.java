@@ -1,5 +1,6 @@
 package mod.chiselsandbits.render.chiseledblock;
 
+import mod.chiselsandbits.render.cache.InMemoryQuadCompressor;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -10,6 +11,8 @@ import net.minecraftforge.client.model.pipeline.LightUtil;
 
 public class ChiselsAndBitsBakedQuad extends BakedQuad
 {
+
+	private static InMemoryQuadCompressor inMemoryCompressor = new InMemoryQuadCompressor();
 
 	public static final VertexFormat VERTEX_FORMAT = new VertexFormat();
 
@@ -76,7 +79,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 			final EnumFacing orientation )
 	{
 		super( null, tint, orientation );
-		rawVertData = unpackedData;
+		rawVertData = inMemoryCompressor.compress( unpackedData );
 	}
 
 	public static class Colored extends ChiselsAndBitsBakedQuad

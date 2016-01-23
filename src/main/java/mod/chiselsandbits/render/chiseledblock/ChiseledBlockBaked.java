@@ -266,11 +266,11 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 				if ( region.isEdge )
 				{
-					face[myFace.ordinal()].add( faceBuilder.create() );
+					builder.getList( myFace ).add( faceBuilder.create() );
 				}
 				else
 				{
-					generic.add( faceBuilder.create() );
+					builder.getList( null ).add( faceBuilder.create() );
 				}
 			}
 		}
