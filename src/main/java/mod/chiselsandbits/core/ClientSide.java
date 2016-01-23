@@ -995,36 +995,38 @@ public class ClientSide
 		}
 
 		final BlockPos pos = target.getBlockPos();
-		final Block block = state.getBlock();
-
-		final int posX = pos.getX();
-		final int posY = pos.getY();
-		final int posZ = pos.getZ();
 		final float boxOffset = 0.1F;
 
-		double x = posX + RANDOM.nextDouble() * ( block.getBlockBoundsMaxX() - block.getBlockBoundsMinX() - boxOffset * 2.0F ) + boxOffset + block.getBlockBoundsMinX();
-		double y = posY + RANDOM.nextDouble() * ( block.getBlockBoundsMaxY() - block.getBlockBoundsMinY() - boxOffset * 2.0F ) + boxOffset + block.getBlockBoundsMinY();
-		double z = posZ + RANDOM.nextDouble() * ( block.getBlockBoundsMaxZ() - block.getBlockBoundsMinZ() - boxOffset * 2.0F ) + boxOffset + block.getBlockBoundsMinZ();
+		AxisAlignedBB bb = world.getBlockState( pos ).getBlock().getSelectedBoundingBox( world, pos );
+
+		if ( bb == null )
+		{
+			bb = AxisAlignedBB.fromBounds( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
+		}
+
+		double x = RANDOM.nextDouble() * ( bb.maxX - bb.minX - boxOffset * 2.0F ) + boxOffset + bb.minX;
+		double y = RANDOM.nextDouble() * ( bb.maxY - bb.minY - boxOffset * 2.0F ) + boxOffset + bb.minY;
+		double z = RANDOM.nextDouble() * ( bb.maxZ - bb.minZ - boxOffset * 2.0F ) + boxOffset + bb.minZ;
 
 		switch ( target.sideHit )
 		{
 			case DOWN:
-				y = posY + block.getBlockBoundsMinY() - boxOffset;
+				y = bb.minY - boxOffset;
 				break;
 			case EAST:
-				x = posX + block.getBlockBoundsMaxX() + boxOffset;
+				x = bb.maxX + boxOffset;
 				break;
 			case NORTH:
-				z = posZ + block.getBlockBoundsMinZ() - boxOffset;
+				z = bb.minZ - boxOffset;
 				break;
 			case SOUTH:
-				z = posZ + block.getBlockBoundsMaxZ() + boxOffset;
+				z = bb.maxZ + boxOffset;
 				break;
 			case UP:
-				y = posY + block.getBlockBoundsMaxY() + boxOffset;
+				y = bb.maxY + boxOffset;
 				break;
 			case WEST:
-				x = posX + block.getBlockBoundsMinX() - boxOffset;
+				x = bb.minX - boxOffset;
 				break;
 			default:
 				break;

@@ -127,7 +127,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 		ChiseledBlockBaked out = null;
 
-		if ( format == ChiseledBlockBaked.CNB )
+		if ( format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT )
 		{
 			if ( layer == EnumWorldBlockLayer.SOLID )
 			{
@@ -148,7 +148,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 				out = ChiseledBlockBaked.breakingParticleModel( layer, blockP );
 			}
 
-			if ( format == ChiseledBlockBaked.CNB )
+			if ( format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT )
 			{
 				if ( layer == EnumWorldBlockLayer.SOLID )
 				{
