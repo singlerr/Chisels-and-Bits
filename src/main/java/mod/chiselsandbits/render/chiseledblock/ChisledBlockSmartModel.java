@@ -35,6 +35,17 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 	static private final Map<ItemStack, IBakedModel> itemToModel = Collections.synchronizedMap( new WeakHashMap<ItemStack, IBakedModel>() );
 	static private final Map<VoxelBlobStateReference, Integer> sideCache = new WeakHashMap<VoxelBlobStateReference, Integer>();
 
+	static public void resetCache()
+	{
+		for ( final EnumWorldBlockLayer l : EnumWorldBlockLayer.values() )
+		{
+			modelCache[l.ordinal()].clear();
+		}
+
+		solidCache.clear();
+		itemToModel.clear();
+	}
+
 	static
 	{
 		final int count = EnumWorldBlockLayer.values().length;

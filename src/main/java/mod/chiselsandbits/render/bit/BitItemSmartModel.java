@@ -18,8 +18,14 @@ import net.minecraftforge.client.model.ISmartItemModel;
 
 public class BitItemSmartModel extends BaseSmartModel implements ISmartItemModel
 {
-	private final HashMap<Integer, IFlexibleBakedModel> modelCache = new HashMap<Integer, IFlexibleBakedModel>();
-	private final HashMap<Integer, IFlexibleBakedModel> largeModelCache = new HashMap<Integer, IFlexibleBakedModel>();
+	static private final HashMap<Integer, IFlexibleBakedModel> modelCache = new HashMap<Integer, IFlexibleBakedModel>();
+	static private final HashMap<Integer, IFlexibleBakedModel> largeModelCache = new HashMap<Integer, IFlexibleBakedModel>();
+
+	public static void resetCache()
+	{
+		modelCache.clear();
+		largeModelCache.clear();
+	}
 
 	private IBakedModel getCachedModel(
 			final int stateID,
