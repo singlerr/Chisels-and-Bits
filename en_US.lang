@@ -68,6 +68,7 @@ mod.chiselsandbits.help.leftalt=Left Alt
 mod.chiselsandbits.help.rightalt=Right Alt
 
 mod.chiselsandbits.config.ShowBitsInJEI=Show Bits in JEI
+mod.chiselsandbits.config.maxDrawnRegionSize=Max Drawn Region Size
 mod.chiselsandbits.config.showUsage=Add help text to item descriptions
 mod.chiselsandbits.config.invertBitBagFullness=Invert damage bar on bit-bag.
 mod.chiselsandbits.config.enableChiselMode_Plane=Enable Mode - Plane
