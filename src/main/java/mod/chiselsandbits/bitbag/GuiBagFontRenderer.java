@@ -40,7 +40,7 @@ public class GuiBagFontRenderer extends FontRenderer
 	}
 
 	@Override
-	public int renderString(
+	public int drawString(
 			String text,
 			float x,
 			float y,
@@ -56,7 +56,7 @@ public class GuiBagFontRenderer extends FontRenderer
 			y /= scale;
 			x += offset_x;
 			y += offset_y;
-			return talkto.renderString(
+			return talkto.drawString(
 					text,
 					x,
 					y,

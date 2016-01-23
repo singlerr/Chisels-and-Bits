@@ -25,7 +25,6 @@ import net.minecraft.client.renderer.block.model.BlockPartFace;
 import net.minecraft.client.renderer.block.model.BlockPartRotation;
 import net.minecraft.client.renderer.block.model.FaceBakery;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.resources.model.IBakedModel;
@@ -44,19 +43,6 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	private static final EnumFacing[] X_Faces = new EnumFacing[] { EnumFacing.EAST, EnumFacing.WEST };
 	private static final EnumFacing[] Y_Faces = new EnumFacing[] { EnumFacing.UP, EnumFacing.DOWN };
 	private static final EnumFacing[] Z_Faces = new EnumFacing[] { EnumFacing.SOUTH, EnumFacing.NORTH };
-
-	public static final VertexFormat CNB = new VertexFormat();
-
-	static
-	{
-		for ( final VertexFormatElement element : DefaultVertexFormats.ITEM.getElements() )
-		{
-			CNB.addElement( element );
-		}
-
-		// add lightmap ;)
-		CNB.addElement( DefaultVertexFormats.TEX_2S );
-	}
 
 	@SuppressWarnings( "unchecked" )
 	final List<BakedQuad>[] face = new List[6];
@@ -154,7 +140,6 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 		generic = Collections.emptyList();
 	}
 
-	@SuppressWarnings( "deprecation" )
 	private void generateFaces(
 			final VoxelBlob blob,
 			final ModelRenderState mrs,
@@ -176,6 +161,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 		final float[] defUVs = new float[] { 0, 0, 1, 1 };
 		sides = blob.getSideFlags( 0, VoxelBlob.dim_minus_one, VoxelBlob.dim2 );
 
+		final IFaceBuilder faceBuilder = format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT ? new ChiselsAndBitsBakedQuad.Builder() : new UnpackedQuadBuilderWrapper();
 		for ( final ArrayList<FaceRegion> src : rset )
 		{
 			mergeFaces( src );
@@ -204,10 +190,8 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 				final float[] uvs = getFaceUvs( myFace, from, to, getSourceUVs( sourceUVCache, region.blockStateID, weight, texture, myFace ) );
 				final BakedQuad g = faceBakery.makeBakedQuad( to, from, bpf, texture, myFace, mr, bpr, true, true );
 
-				final HackedUnpackedBakedQuad.Builder b = new HackedUnpackedBakedQuad.Builder( format );
-				b.setQuadColored();
-				b.setQuadOrientation( myFace );
-				b.setQuadTint( 0 );
+				faceBuilder.begin( format );
+				faceBuilder.setFace( myFace );
 
 				final int[] vertData = g.getVertexData();
 				final int wrapAt = vertData.length / 4;
@@ -226,32 +210,32 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 						switch ( element.getUsage() )
 						{
 							case POSITION:
-								b.put( elementIndex, Float.intBitsToFloat( vertData[0 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[1 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[2 + wrapAt * vertNum] ) );
+								faceBuilder.put( elementIndex, Float.intBitsToFloat( vertData[0 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[1 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[2 + wrapAt * vertNum] ) );
 								break;
 
 							case COLOR:
 								final int cb = getShadeColor( vertData, wrapAt * vertNum, region, blob, color );
-								b.put( elementIndex, byteToFloat( cb ), byteToFloat( cb >> 8 ), byteToFloat( cb >> 16 ), byteToFloat( cb >> 24 ) );
+								faceBuilder.put( elementIndex, byteToFloat( cb ), byteToFloat( cb >> 8 ), byteToFloat( cb >> 16 ), byteToFloat( cb >> 24 ) );
 								break;
 
 							case NORMAL:
-								b.put( elementIndex, myFace.getFrontOffsetX(), myFace.getFrontOffsetY(), myFace.getFrontOffsetZ() );
+								faceBuilder.put( elementIndex, myFace.getFrontOffsetX(), myFace.getFrontOffsetY(), myFace.getFrontOffsetZ() );
 								break;
 
 							case UV:
 								if ( element.getIndex() == 1 )
 								{
 									final float v = maxLightmap * Math.max( 0, Math.min( 15, lightValue ) );
-									b.put( elementIndex, v, v );
+									faceBuilder.put( elementIndex, v, v );
 								}
 								else
 								{
-									b.put( elementIndex, texture.getInterpolatedU( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 0] ), texture.getInterpolatedV( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1] ) );
+									faceBuilder.put( elementIndex, texture.getInterpolatedU( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 0] ), texture.getInterpolatedV( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1] ) );
 								}
 								break;
 
 							default:
-								b.put( elementIndex );
+								faceBuilder.put( elementIndex );
 								break;
 						}
 					}
@@ -259,11 +243,11 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 
 				if ( region.isEdge )
 				{
-					face[myFace.ordinal()].add( b.build() );
+					face[myFace.ordinal()].add( faceBuilder.create() );
 				}
 				else
 				{
-					generic.add( b.build() );
+					generic.add( faceBuilder.create() );
 				}
 			}
 		}
@@ -512,7 +496,7 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 			final float f,
 			final int color )
 	{
-		final int i = MathHelper.clamp_int( (int) ( ( format == CNB ? getFaceBrightness( face ) * f : f ) * 255.0F ), 0, 255 );
+		final int i = MathHelper.clamp_int( (int) ( ( format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT ? getFaceBrightness( face ) * f : f ) * 255.0F ), 0, 255 );
 
 		final int r = ( color >> 16 & 0xff ) * i / 255;
 		final int g = ( color >> 8 & 0xff ) * i / 255;

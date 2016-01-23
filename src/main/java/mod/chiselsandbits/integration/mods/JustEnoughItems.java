@@ -21,7 +21,6 @@ public class JustEnoughItems implements IModPlugin
 {
 
 	// @Override
-	@Override
 	public boolean isModLoaded()
 	{
 		return true;
