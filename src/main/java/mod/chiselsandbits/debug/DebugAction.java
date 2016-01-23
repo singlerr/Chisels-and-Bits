@@ -16,15 +16,25 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public abstract class DebugAction
 {
 
 	public static IChiselAndBitsAPI api;
+
+	protected static void Msg(
+			final EntityPlayer player,
+			final String msg )
+	{
+		final String side = FMLCommonHandler.instance().getEffectiveSide().name() + ": ";
+		player.addChatComponentMessage( new ChatComponentText( side + msg ) );
+	}
 
 	private static void apiAssert(
 			final String name,
@@ -33,7 +43,7 @@ public abstract class DebugAction
 	{
 		if ( must_be_true != true )
 		{
-			player.addChatMessage( new ChatComponentText( name + " = false" ) );
+			Msg( player, name + " = false" );
 		}
 	}
 
@@ -96,6 +106,28 @@ public abstract class DebugAction
 
 	};
 
+	static class getTileClass extends DebugAction
+	{
+
+		@Override
+		public void run(
+				final World w,
+				final BlockPos pos,
+				final EnumFacing side,
+				final float hitX,
+				final float hitY,
+				final float hitZ,
+				final EntityPlayer player )
+		{
+			final TileEntity te = w.getTileEntity( pos );
+			if ( te != null )
+			{
+				Msg( player, te.getClass().getName() );
+			}
+		}
+
+	};
+
 	static class canBeChiseled extends DebugAction
 	{
 
@@ -109,7 +141,7 @@ public abstract class DebugAction
 				final float hitZ,
 				final EntityPlayer player )
 		{
-			player.addChatMessage( new ChatComponentText( "canBeChiseled = " + ( api.canBeChiseled( w, pos ) ? "true" : "false" ) ) );
+			Msg( player, "canBeChiseled = " + ( api.canBeChiseled( w, pos ) ? "true" : "false" ) );
 		}
 
 	};
@@ -127,7 +159,7 @@ public abstract class DebugAction
 				final float hitZ,
 				final EntityPlayer player )
 		{
-			player.addChatMessage( new ChatComponentText( "isBlockChiseled = " + ( api.isBlockChiseled( w, pos ) ? "true" : "false" ) ) );
+			Msg( player, "isBlockChiseled = " + ( api.isBlockChiseled( w, pos ) ? "true" : "false" ) );
 		}
 
 	};
@@ -232,7 +264,7 @@ public abstract class DebugAction
 
 				if ( brush == null )
 				{
-					player.addChatComponentMessage( new ChatComponentText( "AIR!" ) );
+					Msg( player, "AIR!" );
 				}
 				else
 				{
