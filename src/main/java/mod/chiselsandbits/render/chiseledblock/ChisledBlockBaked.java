@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.lwjgl.util.vector.Vector3f;
+
 import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
@@ -32,8 +34,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3i;
-
-import org.lwjgl.util.vector.Vector3f;
 
 public class ChisledBlockBaked extends BaseBakedBlockModel
 {
@@ -811,9 +811,9 @@ public class ChisledBlockBaked extends BaseBakedBlockModel
 	@Override
 	public List<BakedQuad> getFaceQuads(
 			final EnumFacing requestedFace )
-			{
+	{
 		return face[requestedFace.ordinal()];
-			}
+	}
 
 	@Override
 	public List<BakedQuad> getGeneralQuads()

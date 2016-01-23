@@ -8,8 +8,10 @@ import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.IBitLocation;
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.api.ItemType;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -242,6 +244,43 @@ public abstract class DebugAction
 					player.inventory.addItemStackToInventory( brush.getItemStack( 1 ) );
 					player.inventory.addItemStackToInventory( new ItemStack( blk, 1, blk.getMetaFromState( state ) ) );
 				}
+			}
+			catch ( final CannotBeChiseled e )
+			{
+				Log.logError( "FAIL", e );
+			}
+		}
+
+	};
+
+	static class occlusionTest extends DebugAction
+	{
+
+		@Override
+		public void run(
+				final World w,
+				final BlockPos pos,
+				final EnumFacing side,
+				final float hitX,
+				final float hitY,
+				final float hitZ,
+				final EntityPlayer player )
+		{
+			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
+
+			try
+			{
+				final IBitAccess access = api.getBitAccess( w, loc.getBlockPos() );
+
+				final VoxelBlob out = new VoxelBlob();
+				MCMultipartProxy.proxyMCMultiPart.addFiller( w, loc.getBlockPos(), out );
+
+				player.addChatComponentMessage( new ChatComponentText( out.solid() + " blocked" ) );
+				player.addChatComponentMessage( new ChatComponentText( out.air() + " not-blocked" ) );
+
+				final boolean isMultiPart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( w, loc.getBlockPos() );
+				player.addChatComponentMessage( new ChatComponentText( isMultiPart ? "Multipart" : "Not-Multipart" ) );
+
 			}
 			catch ( final CannotBeChiseled e )
 			{

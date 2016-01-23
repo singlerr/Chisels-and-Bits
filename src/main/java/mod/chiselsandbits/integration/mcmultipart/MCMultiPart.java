@@ -1,5 +1,7 @@
 package mod.chiselsandbits.integration.mcmultipart;
 
+import java.util.Collection;
+
 import mcmultipart.block.TileMultipart;
 import mcmultipart.client.multipart.MultipartRegistryClient;
 import mcmultipart.microblock.MicroblockRegistry;
@@ -169,11 +171,22 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 			// container..
 
 			final BitCollisionIterator bci = new BitCollisionIterator();
+			final Collection<? extends IMultipart> parts = mc.getParts();
+			IMultipart ignore = null;
+
+			for ( final IMultipart part : parts )
+			{
+				if ( part instanceof ChiseledBlockPart )
+				{
+					ignore = part;
+				}
+			}
+
 			while ( bci.hasNext() )
 			{
 				final AxisAlignedBB aabb = new AxisAlignedBB( bci.physicalX, bci.physicalY, bci.physicalZ, bci.physicalX + BitCollisionIterator.One16thf, bci.physicalYp1, bci.physicalZp1 );
 
-				if ( !OcclusionHelper.occlusionTest( mc.getParts(), aabb ) )
+				if ( !OcclusionHelper.occlusionTest( parts, ignore, aabb ) )
 				{
 					bci.setNext( vb, 1 );
 				}
