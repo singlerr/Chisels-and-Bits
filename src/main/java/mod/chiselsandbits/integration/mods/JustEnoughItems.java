@@ -20,7 +20,6 @@ import net.minecraftforge.oredict.OreDictionary;
 public class JustEnoughItems implements IModPlugin
 {
 
-	@Override
 	public void onJeiHelpersAvailable(
 			final IJeiHelpers jeiHelpers )
 	{

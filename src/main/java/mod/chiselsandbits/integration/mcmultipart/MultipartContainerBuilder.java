@@ -11,14 +11,14 @@ class MultipartContainerBuilder implements IChiseledTileContainer
 {
 
 	final IMultipartContainer targetContainer;
-	final ChisledBlockPart container;
+	final ChiseledBlockPart container;
 	final World world;
 	final BlockPos pos;
 
 	public MultipartContainerBuilder(
 			final World w,
 			final BlockPos position,
-			final ChisledBlockPart chisledBlockPart,
+			final ChiseledBlockPart chisledBlockPart,
 			final IMultipartContainer targ )
 	{
 		world = w;

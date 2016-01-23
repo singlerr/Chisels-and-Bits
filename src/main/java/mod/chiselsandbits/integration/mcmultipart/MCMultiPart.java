@@ -1,5 +1,8 @@
 package mod.chiselsandbits.integration.mcmultipart;
 
+import java.util.Collection;
+
+import mcmultipart.block.TileMultipart;
 import mcmultipart.client.multipart.MultipartRegistryClient;
 import mcmultipart.microblock.MicroblockRegistry;
 import mcmultipart.multipart.IMultipart;
@@ -7,15 +10,19 @@ import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartHelper;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.OcclusionHelper;
+import mcmultipart.raytrace.RayTraceUtils;
+import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.integration.ChiselsAndBitsIntegration;
 import mod.chiselsandbits.integration.IntegrationBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -31,16 +38,16 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 	{
 		MCMultipartProxy.proxyMCMultiPart.setRelay( this );
 
-		MultipartRegistry.registerPart( ChisledBlockPart.class, block_name );
-		MicroblockRegistry.registerMicroClass( ChisledMicroblock.instance );
+		MultipartRegistry.registerPart( ChiseledBlockPart.class, block_name );
+		MicroblockRegistry.registerMicroClass( ChiseledMicroblock.instance );
 
-		final ChisledBlockConverter converter = new ChisledBlockConverter();
+		final ChiseledBlockConverter converter = new ChiseledBlockConverter();
 		MultipartRegistry.registerPartConverter( converter );
 		MultipartRegistry.registerReversePartConverter( converter );
 
 		if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
 		{
-			MultipartRegistryClient.bindMultipartSpecialRenderer( ChisledBlockPart.class, new ChisledBlockRenderChunkMPSR() );
+			MultipartRegistryClient.bindMultipartSpecialRenderer( ChiseledBlockPart.class, new ChiseledBlockRenderChunkMPSR() );
 		}
 	}
 
@@ -53,7 +60,7 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 			final IMultipartContainer container = (IMultipartContainer) te;
 			for ( final IMultipart part : container.getParts() )
 			{
-				if ( part instanceof ChisledBlockPart )
+				if ( part instanceof ChiseledBlockPart )
 				{
 					container.removePart( part );
 					return;
@@ -71,9 +78,9 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 		{
 			for ( final IMultipart part : ( (IMultipartContainer) te ).getParts() )
 			{
-				if ( part instanceof ChisledBlockPart )
+				if ( part instanceof ChiseledBlockPart )
 				{
-					( (ChisledBlockPart) part ).notifyPartUpdate();
+					( (ChiseledBlockPart) part ).notifyPartUpdate();
 				}
 			}
 		}
@@ -89,9 +96,9 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 			final IMultipartContainer container = (IMultipartContainer) current;
 			for ( final IMultipart part : container.getParts() )
 			{
-				if ( part instanceof ChisledBlockPart )
+				if ( part instanceof ChiseledBlockPart )
 				{
-					( (ChisledBlockPart) part ).swapTile( newTileEntity );
+					( (ChiseledBlockPart) part ).swapTile( newTileEntity );
 					return;
 				}
 			}
@@ -110,13 +117,13 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 		{
 			for ( final IMultipart part : container.getParts() )
 			{
-				if ( part instanceof ChisledBlockPart )
+				if ( part instanceof ChiseledBlockPart )
 				{
-					return ( (ChisledBlockPart) part ).getTile();
+					return ( (ChiseledBlockPart) part ).getTile();
 				}
 			}
 
-			final ChisledBlockPart part = new ChisledBlockPart();
+			final ChiseledBlockPart part = new ChiseledBlockPart();
 			if ( MultipartHelper.canAddPart( w, pos, part ) )
 			{
 				if ( create && !w.isRemote )
@@ -143,8 +150,13 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 			final World w,
 			final BlockPos pos )
 	{
-		return MultipartHelper.getPartContainer( w, pos ) != null // is it a container?
-				|| MultipartHelper.canAddPart( w, pos, new ChisledBlockPart() ); // or can it be converted?
+		return MultipartHelper.getPartContainer( w, pos ) != null // is it a
+																	// container?
+				|| MultipartHelper.canAddPart( w, pos, new ChiseledBlockPart() ); // or
+																					// can
+																					// it
+																					// be
+																					// converted?
 	}
 
 	@Override
@@ -159,16 +171,47 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 			// container..
 
 			final BitCollisionIterator bci = new BitCollisionIterator();
+			final Collection<? extends IMultipart> parts = mc.getParts();
+			IMultipart ignore = null;
+
+			for ( final IMultipart part : parts )
+			{
+				if ( part instanceof ChiseledBlockPart )
+				{
+					ignore = part;
+				}
+			}
+
 			while ( bci.hasNext() )
 			{
 				final AxisAlignedBB aabb = new AxisAlignedBB( bci.physicalX, bci.physicalY, bci.physicalZ, bci.physicalX + BitCollisionIterator.One16thf, bci.physicalYp1, bci.physicalZp1 );
 
-				if ( !OcclusionHelper.occlusionTest( mc.getParts(), aabb ) )
+				if ( !OcclusionHelper.occlusionTest( parts, ignore, aabb ) )
 				{
 					bci.setNext( vb, 1 );
 				}
 			}
 		}
+	}
+
+	@Override
+	public boolean rotate(
+			final World world,
+			final BlockPos pos,
+			final EntityPlayer player )
+	{
+		final IMultipartContainer container = MultipartHelper.getPartContainer( world, pos );
+		if ( container != null )
+		{
+			final Vec3 start = RayTraceUtils.getStart( player );
+			final Vec3 end = RayTraceUtils.getEnd( player );
+			final RayTraceResultPart result = ( (TileMultipart) world.getTileEntity( pos ) ).getPartContainer().collisionRayTrace( start, end );
+			if ( result != null && result.hit != null && result.hit.partHit != null )
+			{
+				return result.hit.partHit.rotatePart( result.hit.sideHit );
+			}
+		}
+		return false;
 	}
 
 }

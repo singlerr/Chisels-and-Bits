@@ -4,6 +4,7 @@ import java.util.List;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -48,7 +49,14 @@ public class ItemWrench extends Item
 		final IBlockState b = world.getBlockState( pos );
 		if ( b != null && !player.isSneaking() )
 		{
-			if ( b.getBlock().rotateBlock( world, pos, side ) )
+			if ( MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( world, pos ) )
+			{
+				if ( MCMultipartProxy.proxyMCMultiPart.rotate( world, pos, player ) )
+				{
+					return !world.isRemote;
+				}
+			}
+			else if ( b.getBlock().rotateBlock( world, pos, side ) )
 			{
 				stack.damageItem( 1, player );
 				world.notifyNeighborsOfStateChange( pos, b.getBlock() );

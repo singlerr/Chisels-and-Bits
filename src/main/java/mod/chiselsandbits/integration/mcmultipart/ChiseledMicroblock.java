@@ -11,16 +11,16 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 
-public class ChisledMicroblock extends MicroblockClass
+public class ChiseledMicroblock extends MicroblockClass
 {
 
-	final public static MicroblockClass instance = new ChisledMicroblock();
+	final public static MicroblockClass instance = new ChiseledMicroblock();
 
 	@Override
 	public IMultipart create(
 			final boolean clientside )
 	{
-		return new ChisledBlockPart();
+		return new ChiseledBlockPart();
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class ChisledMicroblock extends MicroblockClass
 			final int arg1,
 			final int arg2 )
 	{
-		final ChisledBlockPart part = (ChisledBlockPart) material;
+		final ChiseledBlockPart part = (ChiseledBlockPart) material;
 		return part.getTile().getItemStack( part.getBlock(), null );
 	}
 
@@ -38,7 +38,7 @@ public class ChisledMicroblock extends MicroblockClass
 			final IMicroMaterial material,
 			final int arg1 )
 	{
-		final ChisledBlockPart part = (ChisledBlockPart) material;
+		final ChiseledBlockPart part = (ChiseledBlockPart) material;
 		return part.getBlock().getUnlocalizedName();
 	}
 
