@@ -35,7 +35,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-public class ChisledBlockPart extends Multipart implements IOccludingPart, ISolidPart, IMicroblock
+public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISolidPart, IMicroblock
 {
 	protected TileEntityBlockChiseled inner; // never use directly..
 	protected BlockChiseled bc; // never use directly..
@@ -76,7 +76,7 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart, ISoli
 	public boolean occlusionTest(
 			final IMultipart part )
 	{
-		return OcclusionHelper.defaultOcclusionTest( this, part ) && !( part instanceof ChisledBlockPart );
+		return OcclusionHelper.defaultOcclusionTest( this, part ) && !( part instanceof ChiseledBlockPart );
 	}
 
 	@Override
@@ -300,7 +300,7 @@ public class ChisledBlockPart extends Multipart implements IOccludingPart, ISoli
 	@Override
 	public MicroblockClass getMicroClass()
 	{
-		return ChisledMicroblock.instance;
+		return ChiseledMicroblock.instance;
 	}
 
 	@Override

@@ -599,7 +599,21 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public void rotateBlock(
 			final EnumFacing axis )
 	{
-		setBlob( getBlob().spin( axis.getAxis() ) );
+		final VoxelBlob occluded = new VoxelBlob();
+		MCMultipartProxy.proxyMCMultiPart.addFiller( getWorld(), getPos(), occluded );
+
+		VoxelBlob postRotation = getBlob();
+		int maxRotations = 4;
+		while ( --maxRotations > 0 )
+		{
+			postRotation = postRotation.spin( axis.getAxis() );
+
+			if ( occluded.canMerge( postRotation ) )
+			{
+				setBlob( postRotation );
+				return;
+			}
+		}
 	}
 
 	public boolean canMerge(

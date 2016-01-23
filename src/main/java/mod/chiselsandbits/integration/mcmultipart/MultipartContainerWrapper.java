@@ -12,10 +12,10 @@ import net.minecraft.util.AxisAlignedBB;
 class MultipartContainerWrapper implements IChiseledTileContainer
 {
 
-	final ChisledBlockPart container;
+	final ChiseledBlockPart container;
 
 	public MultipartContainerWrapper(
-			final ChisledBlockPart chisledBlockPart )
+			final ChiseledBlockPart chisledBlockPart )
 	{
 		container = chisledBlockPart;
 	}
@@ -36,7 +36,7 @@ class MultipartContainerWrapper implements IChiseledTileContainer
 	public boolean isBlobOccluded(
 			final VoxelBlob blob )
 	{
-		final ChisledBlockPart part = new ChisledBlockPart();
+		final ChiseledBlockPart part = new ChiseledBlockPart();
 		part.getTile().setBlob( blob );
 
 		if ( container.getContainer() == null )

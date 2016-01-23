@@ -4,18 +4,18 @@ import mcmultipart.client.multipart.MultipartSpecialRenderer;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 
-class ChisledBlockRenderChunkMPSR extends MultipartSpecialRenderer<ChisledBlockPart>
+class ChiseledBlockRenderChunkMPSR extends MultipartSpecialRenderer<ChiseledBlockPart>
 {
 	@Override
 	public boolean canRenderBreaking(
-			final ChisledBlockPart part )
+			final ChiseledBlockPart part )
 	{
 		return part.getTile() instanceof TileEntityBlockChiseledTESR;
 	}
 
 	@Override
 	public void renderMultipartAt(
-			final ChisledBlockPart part,
+			final ChiseledBlockPart part,
 			final double x,
 			final double y,
 			final double z,

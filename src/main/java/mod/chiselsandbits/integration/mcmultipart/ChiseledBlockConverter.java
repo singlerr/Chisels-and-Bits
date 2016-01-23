@@ -16,7 +16,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-class ChisledBlockConverter implements IPartConverter2, IReversePartConverter
+class ChiseledBlockConverter implements IPartConverter2, IReversePartConverter
 {
 
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -36,7 +36,7 @@ class ChisledBlockConverter implements IPartConverter2, IReversePartConverter
 
 		if ( te instanceof TileEntityBlockChiseled )
 		{
-			final ChisledBlockPart part = new ChisledBlockPart();
+			final ChiseledBlockPart part = new ChiseledBlockPart();
 
 			part.bc = (BlockChiseled) world.getBlockState( pos ).getBlock();
 			part.inner = new TileEntityBlockChiseled();
@@ -56,9 +56,9 @@ class ChisledBlockConverter implements IPartConverter2, IReversePartConverter
 
 		for ( final IMultipart part : container.getParts() )
 		{
-			if ( part instanceof ChisledBlockPart )
+			if ( part instanceof ChiseledBlockPart )
 			{
-				tile = ( (ChisledBlockPart) part ).getTile();
+				tile = ( (ChiseledBlockPart) part ).getTile();
 			}
 			else
 			{

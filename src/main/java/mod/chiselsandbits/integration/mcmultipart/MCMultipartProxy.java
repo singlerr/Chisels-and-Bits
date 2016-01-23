@@ -3,6 +3,7 @@ package mod.chiselsandbits.integration.mcmultipart;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.integration.IntegrationBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
@@ -58,6 +59,15 @@ public class MCMultipartProxy extends IntegrationBase
 		{
 		}
 
+		@Override
+		public boolean rotate(
+				final World world,
+				final BlockPos pos,
+				final EntityPlayer player )
+		{
+			return false;
+		}
+
 	};
 
 	public static final MCMultipartProxy proxyMCMultiPart = new MCMultipartProxy();
@@ -109,6 +119,14 @@ public class MCMultipartProxy extends IntegrationBase
 			final VoxelBlob vb )
 	{
 		relay.addFiler( w, pos, vb );
+	}
+
+	public boolean rotate(
+			final World world,
+			final BlockPos pos,
+			final EntityPlayer player )
+	{
+		return relay.rotate( world, pos, player );
 	}
 
 }
