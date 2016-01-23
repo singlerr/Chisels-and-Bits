@@ -1,5 +1,6 @@
 package mod.chiselsandbits.render.chiseledblock;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -10,7 +11,6 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
-import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
 import net.minecraft.block.state.IBlockState;
@@ -27,7 +27,7 @@ import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.common.Optional.Interface;
 
-@Optional.InterfaceList( { @Interface( iface = "mcmultipart.client.multipart.ISmartMultipartModel", modid = "mcmultipart" ) } )
+@Optional.InterfaceList( { @Interface( iface = "mcmultipart.client.multipart.ISmartMultipartModel", modid = "mcmultipart" ) })
 public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel, ISmartMultipartModel
 {
 	@SuppressWarnings( "unchecked" )
@@ -95,12 +95,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 	private static VertexFormat getModelFormat()
 	{
-		if ( ChiselsAndBits.getConfig().enableCustomVertexFormat )
-		{
-			return ChiseledBlockBaked.CNB;
-		}
-
-		return DefaultVertexFormats.ITEM;
+		return ChiseledBlockBaked.CNB;
 	}
 
 	private static ChiseledBlockBaked getCachedModel(
@@ -227,12 +222,29 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 		}
 
 		final byte[] data = c.getByteArray( "v" );
+		byte[] vdata = c.getByteArray( "X" );
 		final Integer blockP = c.getInteger( "b" );
+
+		if ( vdata == null && data != null )
+		{
+			final VoxelBlob xx = new VoxelBlob();
+
+			try
+			{
+				xx.fromLegacyByteArray( data );
+			}
+			catch ( final IOException e )
+			{
+				// :_(
+			}
+
+			vdata = xx.blobToBytes( VoxelBlob.VERSION_COMPACT );
+		}
 
 		final IFlexibleBakedModel[] models = new IFlexibleBakedModel[EnumWorldBlockLayer.values().length];
 		for ( final EnumWorldBlockLayer l : EnumWorldBlockLayer.values() )
 		{
-			models[l.ordinal()] = getCachedModel( blockP, new VoxelBlobStateReference( data, 0L ), null, l, DefaultVertexFormats.ITEM );
+			models[l.ordinal()] = getCachedModel( blockP, new VoxelBlobStateReference( vdata, 0L ), null, l, DefaultVertexFormats.ITEM );
 		}
 
 		mdl = new ModelCombined( models );

@@ -20,12 +20,6 @@ import net.minecraftforge.oredict.OreDictionary;
 public class JustEnoughItems implements IModPlugin
 {
 
-	// @Override
-	public boolean isModLoaded()
-	{
-		return true;
-	}
-
 	@Override
 	public void onJeiHelpersAvailable(
 			final IJeiHelpers jeiHelpers )
@@ -95,14 +89,14 @@ public class JustEnoughItems implements IModPlugin
 
 	private List<ItemStack> stackCollection(
 			final Item it )
-			{
+	{
 		if ( it == null )
 		{
 			return null;
 		}
 
 		return Collections.singletonList( itemToItemstack( it ) );
-			}
+	}
 
 	private ItemStack blockToItemstack(
 			final Block blk )

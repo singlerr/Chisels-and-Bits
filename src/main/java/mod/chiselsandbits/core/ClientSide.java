@@ -153,7 +153,7 @@ public class ClientSide
 
 		if ( modItems.itemPositiveprint != null )
 		{
-			ModelBakery.addVariantName( modItems.itemPositiveprint, modId + ":positiveprint", modId + ":positiveprint_written" );
+			ModelBakery.registerItemVariants( modItems.itemPositiveprint, new ResourceLocation( modId, "positiveprint" ), new ResourceLocation( modId, "positiveprint_written" ) );
 			mesher.register( modItems.itemPositiveprint, new ItemMeshDefinition() {
 
 				@Override
@@ -168,7 +168,7 @@ public class ClientSide
 
 		if ( modItems.itemNegativeprint != null )
 		{
-			ModelBakery.addVariantName( modItems.itemNegativeprint, modId + ":negativeprint", modId + ":negativeprint_written" );
+			ModelBakery.registerItemVariants( modItems.itemNegativeprint, new ResourceLocation( modId, "negativeprint" ), new ResourceLocation( modId, "negativeprint_written" ) );
 			mesher.register( modItems.itemNegativeprint, new ItemMeshDefinition() {
 
 				@Override
@@ -183,7 +183,7 @@ public class ClientSide
 
 		if ( modItems.itemMirrorprint != null )
 		{
-			ModelBakery.addVariantName( modItems.itemMirrorprint, modId + ":mirrorprint", modId + ":mirrorprint_written" );
+			ModelBakery.registerItemVariants( modItems.itemMirrorprint, new ResourceLocation( modId, "mirrorprint" ), new ResourceLocation( modId, "mirrorprint_written" ) );
 			mesher.register( modItems.itemMirrorprint, new ItemMeshDefinition() {
 
 				@Override

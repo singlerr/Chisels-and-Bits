@@ -278,6 +278,9 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		}
 	}
 
+	static long oldSize = 0;
+	static long newSize = 0;
+
 	public final void readChisleData(
 			final NBTTagCompound compound )
 	{
@@ -306,7 +309,10 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 				v = bx.blobToBytes( VoxelBlob.VERSION_COMPACT );
 
-				Log.info( "Converted: " + vx.length + " -> " + v.length );
+				oldSize += vx.length;
+				newSize += v.length;
+
+				Log.info( "Converted: " + vx.length + " -> " + v.length + " : total: " + oldSize + " -> " + newSize );
 			}
 		}
 

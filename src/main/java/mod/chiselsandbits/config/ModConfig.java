@@ -30,9 +30,6 @@ public class ModConfig extends Configuration
 	@Configured( category = "Integration Settings" )
 	public boolean enableAPITestingItem;
 
-	@Configured( category = "Compatabiilty" )
-	public boolean enableCustomVertexFormat;
-
 	@Configured( category = "Client Settings" )
 	private boolean showUsage;
 
@@ -303,6 +300,13 @@ public class ModConfig extends Configuration
 						final float defaultValue = f.getFloat( this );
 						p = get( c.category(), f.getName(), defaultValue );
 						final float value = (float) p.getDouble();
+						f.set( this, value );
+					}
+					else if ( f.getType() == double.class || f.getType() == Double.class )
+					{
+						final double defaultValue = f.getDouble( this );
+						p = get( c.category(), f.getName(), defaultValue );
+						final double value = p.getDouble();
 						f.set( this, value );
 					}
 					else if ( f.getType() == boolean.class || f.getType() == Boolean.class )
