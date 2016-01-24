@@ -9,6 +9,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockGlowstone;
+import net.minecraft.block.BlockGrass;
 import net.minecraft.block.BlockSlime;
 import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.block.state.IBlockState;
@@ -93,7 +94,7 @@ public class BlockBitInfo
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
 			boolean requiredImplementation = quantityDroppedTest && quantityDroppedWithBonusTest && quantityDropped2Test && entityCollisionTest && entityCollision2Test;
-			boolean hasBehavior = blk.hasTileEntity( state ) || blk.getTickRandomly();
+			boolean hasBehavior = ( blk.hasTileEntity( state ) || blk.getTickRandomly() ) && blkClass != BlockGrass.class;
 
 			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( blk.getMaterial() ) != null;
 
