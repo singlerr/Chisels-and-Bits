@@ -75,7 +75,7 @@ public class GeneratedModelLoader implements ICustomModelLoader
 	public void onModelBakeEvent(
 			final ModelBakeEvent event )
 	{
-		ChiseledBlockSmartModel.resetCache();
+		ChisledBlockSmartModel.resetCache();
 		BitItemSmartModel.resetCache();
 
 		for ( final ModelResourceLocation rl : res )
