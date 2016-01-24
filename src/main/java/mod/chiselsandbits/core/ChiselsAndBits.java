@@ -177,7 +177,10 @@ public class ChiselsAndBits
 	public void idsMapped(
 			final FMLModIdMappingEvent event )
 	{
-		getItems().itemBlockBit.clearCache();
+		if ( getItems().itemBlockBit != null )
+		{
+			getItems().itemBlockBit.clearCache();
+		}
 	}
 
 	public static void registerWithBus(
