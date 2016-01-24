@@ -24,6 +24,10 @@ public interface IBitBrush
 	/**
 	 * Get the ItemStack for a bit, returns null for air.
 	 *
+	 * VERY IMPORTANT: C&B lets you disable bits, if this happens the Item in
+	 * this ItemStack WILL BE NULL, if you put this item in an inventory, drop
+	 * it on the ground, or anything else.. CHECK THIS!!!!!
+	 *
 	 * @param count
 	 * @return ItemStack, or null for air.
 	 */

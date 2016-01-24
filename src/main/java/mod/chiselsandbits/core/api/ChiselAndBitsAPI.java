@@ -106,7 +106,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			return new BitBrush( 0 );
 		}
 
-		if ( getItemType( bitItem ) == ItemType.CHISLED_BIT )
+		if ( bitItem.getItem() == null || getItemType( bitItem ) == ItemType.CHISLED_BIT )
 		{
 			final int stateID = ItemChiseledBit.getStackState( bitItem );
 			final IBlockState state = Block.getStateById( stateID );
