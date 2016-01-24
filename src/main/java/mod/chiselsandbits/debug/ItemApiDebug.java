@@ -3,6 +3,7 @@ package mod.chiselsandbits.debug;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
@@ -31,6 +32,12 @@ public class ItemApiDebug extends Item
 		}
 	};
 
+	public ItemApiDebug()
+	{
+		setMaxStackSize( 1 );
+		setHasSubtypes( true );
+	}
+
 	@Override
 	public String getItemStackDisplayName(
 			final ItemStack stack )
@@ -41,7 +48,7 @@ public class ItemApiDebug extends Item
 	private Tests getAction(
 			final ItemStack stack )
 	{
-		return Tests.values()[stack.getItemDamage()];
+		return Tests.values()[getActionID( stack )];
 	}
 
 	@Override
@@ -57,13 +64,34 @@ public class ItemApiDebug extends Item
 	{
 		if ( playerIn.isSneaking() )
 		{
-			stack.setItemDamage( ( stack.getItemDamage() + 1 ) % Tests.values().length );
+			final int newDamage = getActionID( stack ) + 1;
+			setActionID( stack, newDamage % Tests.values().length );
 			DebugAction.Msg( playerIn, getAction( stack ).name() );
-		return true;
-	}
+			return true;
+		}
 
 		getAction( stack ).which.run( worldIn, pos, side, hitX, hitY, hitZ, playerIn );
 		return true;
+	}
+
+	private void setActionID(
+			final ItemStack stack,
+			final int i )
+	{
+		final NBTTagCompound o = new NBTTagCompound();
+		o.setInteger( "id", i );
+		stack.setTagCompound( o );
+	}
+
+	private int getActionID(
+			final ItemStack stack )
+	{
+		if ( stack.hasTagCompound() )
+		{
+			return stack.getTagCompound().getInteger( "id" );
+		}
+
+		return 0;
 	}
 
 }

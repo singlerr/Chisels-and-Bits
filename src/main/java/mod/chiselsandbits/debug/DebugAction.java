@@ -273,7 +273,13 @@ public abstract class DebugAction
 					final IBlockState state = brush.getState();
 					final Block blk = state.getBlock();
 
-					player.inventory.addItemStackToInventory( brush.getItemStack( 1 ) );
+					final ItemStack it = brush.getItemStack( 1 );
+
+					if ( it.getItem() != null )
+					{
+						player.inventory.addItemStackToInventory( it );
+					}
+
 					player.inventory.addItemStackToInventory( new ItemStack( blk, 1, blk.getMetaFromState( state ) ) );
 				}
 			}
