@@ -318,7 +318,7 @@ public class ClientSide
 			{
 				if ( ChiselsAndBitsMenu.instance.switchTo != null )
 				{
-					ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( tool ), ChiselsAndBitsMenu.instance.switchTo );
+					ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool ), ChiselsAndBitsMenu.instance.switchTo );
 					ChiselsAndBitsMenu.instance.switchTo = null;
 				}
 
@@ -364,7 +364,12 @@ public class ClientSide
 				final ItemStack stack = mc.thePlayer.inventory.mainInventory[slot];
 				if ( stack != null && stack.getItem() instanceof ItemChisel )
 				{
-					final ChiselMode mode = ChiselMode.getMode( stack );
+					ChiselMode mode = ChiselMode.getMode( stack );
+
+					if ( !ChiselsAndBits.getConfig().perChiselMode )
+					{
+						mode = ChiselModeManager.getChiselMode( mc.thePlayer, ChiselToolType.CHISEL );
+					}
 
 					final int x = event.resolution.getScaledWidth() / 2 - 90 + slot * 20 + 2;
 					final int y = event.resolution.getScaledHeight() - 16 - 3;
@@ -461,7 +466,7 @@ public class ClientSide
 			if ( kb.isKeyDown() )
 			{
 				final ChiselToolType tool = getHeldToolType();
-				ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( tool ), mode );
+				ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool ), mode );
 			}
 		}
 	}
@@ -488,7 +493,7 @@ public class ClientSide
 			final DrawBlockHighlightEvent event )
 	{
 		ChiselToolType tool = getHeldToolType();
-		final ChiselMode chMode = ChiselModeManager.getChiselMode( tool );
+		final ChiselMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool );
 		if ( chMode == ChiselMode.DRAWN_REGION )
 		{
 			tool = lastTool;

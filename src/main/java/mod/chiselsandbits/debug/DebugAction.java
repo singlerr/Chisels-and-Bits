@@ -88,7 +88,8 @@ public abstract class DebugAction
 
 			try
 			{
-				final IBitBrush brush = api.createBrush( api.getBitItem( Blocks.cobblestone.getDefaultState() ) );
+				final ItemStack bitItem = api.getBitItem( Blocks.cobblestone.getDefaultState() );
+				final IBitBrush brush = api.createBrush( bitItem );
 				access.setBitAt( 0, 0, 0, brush );
 			}
 			catch ( final InvalidBitItem e )
@@ -327,7 +328,13 @@ public abstract class DebugAction
 					final IBlockState state = brush.getState();
 					final Block blk = state.getBlock();
 
-					player.inventory.addItemStackToInventory( brush.getItemStack( 1 ) );
+					final ItemStack it = brush.getItemStack( 1 );
+
+					if ( it.getItem() != null )
+					{
+						player.inventory.addItemStackToInventory( it );
+					}
+
 					player.inventory.addItemStackToInventory( new ItemStack( blk, 1, blk.getMetaFromState( state ) ) );
 				}
 			}

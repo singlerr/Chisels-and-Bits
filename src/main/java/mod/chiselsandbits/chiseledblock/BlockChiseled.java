@@ -78,6 +78,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
+			Log.noTileError( e );
 			return super.isReplaceable( worldIn, pos );
 		}
 	}
@@ -94,6 +95,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
+			Log.noTileError( e );
 			return false;
 		}
 	}
@@ -209,6 +211,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
+			Log.noTileError( e );
 			return state;
 		}
 		catch ( final Throwable err )
@@ -230,9 +233,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		{
 			spawnAsEntity( worldIn, pos, getTileEntity( worldIn, pos ).getItemStack( this, null ) );
 		}
-		catch ( final ExceptionNoTileEntity exp )
+		catch ( final ExceptionNoTileEntity e )
 		{
-			// not much we can do here..
+			Log.noTileError( e );
 		}
 	}
 
@@ -249,8 +252,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			spawnAsEntity( worldIn, pos, getTileEntity( te ).getItemStack( this, player ) );
 
 		}
-		catch ( final ExceptionNoTileEntity exp )
+		catch ( final ExceptionNoTileEntity e )
 		{
+			Log.noTileError( e );
 			super.harvestBlock( worldIn, player, pos, state, (TileEntity) null );
 		}
 	}
@@ -268,7 +272,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
-			Log.logError( "Unable to get drops", e );
+			Log.noTileError( e );
 			return Collections.emptyList();
 		}
 	}
@@ -300,7 +304,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
-			// :(
+			Log.noTileError( e );
 		}
 	}
 
@@ -316,6 +320,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
+			Log.noTileError( e );
 			return null;
 		}
 	}
@@ -373,6 +378,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
+			Log.noTileError( e );
 			return false;
 		}
 	}
@@ -390,7 +396,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
-			// well not much we can do, so just don't render anything...
+			Log.noTileError( e );
 		}
 
 		return true;
@@ -408,9 +414,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final IBlockState state = getTileEntity( world, pos ).getBlockState( this );
 			return ClientSide.instance.addHitEffects( world, target, state, effectRenderer );
 		}
-		catch ( final ExceptionNoTileEntity exp )
+		catch ( final ExceptionNoTileEntity e )
 		{
-			// well not much we can do, so just don't render anything...
+			Log.noTileError( e );
 			return true;
 		}
 	}
@@ -440,10 +446,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
-			Log.logError( "Unable to generate collisions", e );
-		}
-		finally
-		{
+			Log.noTileError( e );
 		}
 	}
 
@@ -578,7 +581,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
-			Log.logError( "Unable to getSelectedBoundingBox", e );
+			Log.noTileError( e );
 		}
 
 		return super.getSelectedBoundingBox( worldIn, pos );
@@ -617,7 +620,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
-			Log.logError( "Unable to collisionRayTrace", e );
+			Log.noTileError( e );
 		}
 
 		return super.collisionRayTrace( worldIn, pos, a, b );
@@ -671,6 +674,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
+			Log.noTileError( e );
 			return super.getBlockHardness( worldIn, pos );
 		}
 	}
@@ -686,8 +690,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		{
 			return getTileEntity( world, pos ).getBlockInfo( this ).explosionResistance;
 		}
-		catch ( final ExceptionNoTileEntity err )
+		catch ( final ExceptionNoTileEntity e )
 		{
+			Log.noTileError( e );
 			return super.getExplosionResistance( world, pos, exploder, explosion );
 		}
 	}
@@ -721,6 +726,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
+			Log.noTileError( e );
 			return false;
 		}
 	}
@@ -738,6 +744,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
+			Log.noTileError( e );
 			return false;
 		}
 	}
@@ -849,7 +856,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 			catch ( final ExceptionNoTileEntity e )
 			{
-				// nope..
+				Log.noTileError( e );
 			}
 		}
 
@@ -890,6 +897,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 			catch ( final ExceptionNoTileEntity e )
 			{
+				Log.noTileError( e );
 			}
 		}
 

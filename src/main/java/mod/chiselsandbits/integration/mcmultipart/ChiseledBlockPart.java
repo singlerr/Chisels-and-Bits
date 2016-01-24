@@ -19,6 +19,7 @@ import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.Log;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -266,7 +267,7 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 		}
 		catch ( final IOException e )
 		{
-			// crap update.
+			Log.logError( "Invalid Chisled Block Packet.", e );
 		}
 	}
 

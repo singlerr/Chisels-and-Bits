@@ -21,6 +21,7 @@ import mod.chiselsandbits.chiseledblock.serialization.BitStream;
 import mod.chiselsandbits.chiseledblock.serialization.BlobSerializer;
 import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializer;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog.EnumAxis;
@@ -398,6 +399,7 @@ public class VoxelBlob
 		}
 		catch ( final IOException e )
 		{
+			Log.logError( "Unable to write blob.", e );
 			throw new RuntimeException( e );
 		}
 	}
