@@ -70,12 +70,14 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		return tmpData;
 	}
 
+	static int[] OPTIFINE_WORKAROUND = new int[1];
+
 	public ChiselsAndBitsBakedQuad(
 			final float[][][] unpackedData,
 			final int tint,
 			final EnumFacing orientation )
 	{
-		super( null, tint, orientation );
+		super( OPTIFINE_WORKAROUND, tint, orientation );
 		rawVertData = unpackedData;
 	}
 
