@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import mod.chiselsandbits.core.Log;
 import net.minecraft.util.AxisAlignedBB;
 
 public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance>
@@ -83,6 +84,7 @@ public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance
 		}
 		catch ( final IOException e )
 		{
+			Log.logError( "Unable to read blob.", e );
 			return new VoxelBlob();
 		}
 	}

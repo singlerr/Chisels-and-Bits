@@ -87,7 +87,8 @@ public abstract class DebugAction
 
 			try
 			{
-				final IBitBrush brush = api.createBrush( api.getBitItem( Blocks.cobblestone.getDefaultState() ) );
+				final ItemStack bitItem = api.getBitItem( Blocks.cobblestone.getDefaultState() );
+				final IBitBrush brush = api.createBrush( bitItem );
 				access.setBitAt( 0, 0, 0, brush );
 			}
 			catch ( final InvalidBitItem e )

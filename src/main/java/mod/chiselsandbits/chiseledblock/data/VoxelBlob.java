@@ -12,6 +12,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog.EnumAxis;
@@ -418,6 +419,7 @@ public class VoxelBlob
 		}
 		catch ( final IOException e )
 		{
+			Log.logError( "Unable to write blob.", e );
 			throw new RuntimeException( e );
 		}
 	}

@@ -3,6 +3,8 @@ package mod.chiselsandbits.core;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
+
 public class Log
 {
 
@@ -27,6 +29,12 @@ public class Log
 			final String message )
 	{
 		getLogger().info( message );
+	}
+
+	public static void noTileError(
+			final ExceptionNoTileEntity e )
+	{
+		getLogger().error( "Unable to find TileEntity while interacting with block.", e );
 	}
 
 }

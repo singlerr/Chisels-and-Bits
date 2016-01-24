@@ -14,6 +14,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.IContinuousInventory;
@@ -103,6 +104,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		}
 		catch ( final IllegalArgumentException e )
 		{
+			Log.logError( "Unable to get Item Details for Bit.", e );
 		}
 
 		if ( target == null || target.getItem() == null )

@@ -46,7 +46,7 @@ public enum ChiselMode
 			}
 			catch ( final Exception e )
 			{
-				// well whatever just use the default..
+				Log.logError( "Unable to determine mode.", e );
 			}
 		}
 
