@@ -96,6 +96,14 @@ public class ModItems extends ModRegistry
 	{
 		if ( result != null )
 		{
+			for ( final Object o : recipe )
+			{
+				if ( o == null || o instanceof ItemStack && ( (ItemStack) o ).getItem() == null )
+				{
+					return;
+				}
+			}
+
 			GameRegistry.addRecipe( new ShapedOreRecipe( result, recipe ) );
 		}
 	}
@@ -106,6 +114,14 @@ public class ModItems extends ModRegistry
 	{
 		if ( result != null )
 		{
+			for ( final Object o : recipe )
+			{
+				if ( o == null || o instanceof ItemStack && ( (ItemStack) o ).getItem() == null )
+				{
+					return;
+				}
+			}
+
 			GameRegistry.addRecipe( new ShapelessOreRecipe( result, recipe ) );
 		}
 	}
