@@ -1,6 +1,5 @@
 package mod.chiselsandbits.debug;
 
-import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -8,7 +7,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-public class ItemApiDebug extends Item implements IItemScrollWheel
+public class ItemApiDebug extends Item
 {
 
 	static enum Tests
@@ -20,6 +19,7 @@ public class ItemApiDebug extends Item implements IItemScrollWheel
 		setBitAccess( new DebugAction.setBitAccess() ),
 		isBlockChiseled( new DebugAction.isBlockChiseled() ),
 		ItemTests( new DebugAction.ItemTests() ),
+		getTileClass( new DebugAction.getTileClass() ),
 		occusionTest( new DebugAction.occlusionTest() );
 
 		final DebugAction which;
@@ -55,17 +55,15 @@ public class ItemApiDebug extends Item implements IItemScrollWheel
 			final float hitY,
 			final float hitZ )
 	{
-		getAction( stack ).which.run( worldIn, pos, side, hitX, hitY, hitZ, playerIn );
+		if ( playerIn.isSneaking() )
+		{
+			stack.setItemDamage( ( stack.getItemDamage() + 1 ) % Tests.values().length );
+			DebugAction.Msg( playerIn, getAction( stack ).name() );
 		return true;
 	}
 
-	@Override
-	public void scroll(
-			final EntityPlayer player,
-			final ItemStack stack,
-			final int dwheel )
-	{
-		stack.setItemDamage( ( stack.getItemDamage() + 1 ) % Tests.values().length );
+		getAction( stack ).which.run( worldIn, pos, side, hitX, hitY, hitZ, playerIn );
+		return true;
 	}
 
 }

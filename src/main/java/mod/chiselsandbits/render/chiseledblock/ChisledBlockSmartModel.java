@@ -89,7 +89,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 
 		blockP = blockP == null ? 0 : blockP;
 
-		return getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, ChisledBlockBaked.CNB );
+		return getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, ChiselsAndBitsBakedQuad.VERTEX_FORMAT );
 	}
 
 	private static ChisledBlockBaked getCachedModel(
@@ -106,7 +106,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 
 		ChisledBlockBaked out = null;
 
-		if ( format == ChisledBlockBaked.CNB )
+		if ( format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT )
 		{
 			if ( layer == EnumWorldBlockLayer.SOLID )
 			{
@@ -127,7 +127,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 				out = ChisledBlockBaked.breakingParticleModel( layer, blockP );
 			}
 
-			if ( format == ChisledBlockBaked.CNB )
+			if ( format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT )
 			{
 				if ( layer == EnumWorldBlockLayer.SOLID )
 				{
@@ -169,7 +169,7 @@ public class ChisledBlockSmartModel extends BaseSmartModel implements ISmartItem
 			return ChisledBlockBaked.breakingParticleModel( layer, blockP );
 		}
 
-		final ChisledBlockBaked baked = getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, ChisledBlockBaked.CNB );
+		final ChisledBlockBaked baked = getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, ChiselsAndBitsBakedQuad.VERTEX_FORMAT );
 
 		if ( rTracker != null )
 		{
