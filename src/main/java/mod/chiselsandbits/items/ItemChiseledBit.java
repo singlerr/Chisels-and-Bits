@@ -38,6 +38,8 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselModeItem
 {
@@ -64,9 +66,9 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ItemStack item,
 			final String displayName )
 	{
-		if ( ChiselsAndBits.getConfig().itemNameModeDisplay )
+		if ( ChiselsAndBits.getConfig().itemNameModeDisplay && FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT )
 		{
-			return displayName + " - " + ChiselModeManager.getChiselMode( ChiselToolType.BIT ).string.getLocal();
+			return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.BIT ).string.getLocal();
 		}
 
 		return displayName;
@@ -82,7 +84,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( ChiselToolType.BIT ), itemstack, pos, player );
+		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( player, ChiselToolType.BIT ), itemstack, pos, player );
 	}
 
 	@Override
@@ -147,7 +149,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 		if ( world.isRemote )
 		{
-			final ChiselMode mode = ChiselModeManager.getChiselMode( ClientSide.instance.getHeldToolType() );
+			final ChiselMode mode = ChiselModeManager.getChiselMode( player, ClientSide.instance.getHeldToolType() );
 			final BitLocation bitLocation = new BitLocation( new MovingObjectPosition( MovingObjectType.BLOCK, new Vec3( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.BIT );
 			final BitLocation chiselLocation = new BitLocation( new MovingObjectPosition( MovingObjectType.BLOCK, new Vec3( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.CHISEL );
 
@@ -322,7 +324,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final ChiselMode mode = ChiselModeManager.getChiselMode( ChiselToolType.BIT );
+		final ChiselMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.BIT );
 		ChiselModeManager.scrollOption( ChiselToolType.BIT, mode, mode, dwheel );
 	}
 

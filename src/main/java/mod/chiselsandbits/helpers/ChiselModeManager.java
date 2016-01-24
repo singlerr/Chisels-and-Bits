@@ -7,6 +7,7 @@ import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketSetChiselMode;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentTranslation;
 
@@ -93,13 +94,14 @@ public class ChiselModeManager
 	}
 
 	public static ChiselMode getChiselMode(
+			final EntityPlayer player,
 			final ChiselToolType setting )
 	{
 		if ( setting == ChiselToolType.CHISEL )
 		{
 			if ( ChiselsAndBits.getConfig().perChiselMode )
 			{
-				final ItemStack ei = Minecraft.getMinecraft().thePlayer.getCurrentEquippedItem();
+				final ItemStack ei = player.getCurrentEquippedItem();
 				if ( ei != null && ei.getItem() instanceof IChiselModeItem )
 				{
 					return ChiselMode.getMode( ei );
