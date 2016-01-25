@@ -30,6 +30,12 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	}
 
 	@Override
+	public boolean hasFastRenderer()
+	{
+		return true;// renderChunk.hasRenderedThisFrame();
+	}
+
+	@Override
 	protected void tesrUpdate(
 			final VoxelNeighborRenderTracker vns )
 	{

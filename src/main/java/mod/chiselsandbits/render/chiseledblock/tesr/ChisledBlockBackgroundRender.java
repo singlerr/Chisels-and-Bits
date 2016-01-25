@@ -16,6 +16,7 @@ import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.RegionRenderCache;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -31,15 +32,18 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 	private final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
 	private final static Queue<SoftReference<Tessellator>> previousTessellators = new ConcurrentLinkedQueue<SoftReference<Tessellator>>();
 
+	private RegionRenderCache cache;
 	private final BlockPos chunkOffset;
 
 	public ChisledBlockBackgroundRender(
+			final RegionRenderCache cache,
 			final BlockPos chunkOffset,
 			final List<TileEntityBlockChiseledTESR> tiles,
 			final EnumWorldBlockLayer layer )
 	{
 		myPrivateList = new ArrayList<TileEntityBlockChiseledTESR>( tiles );
 		this.layer = layer;
+		this.cache = cache;
 		this.chunkOffset = chunkOffset;
 	}
 
@@ -88,7 +92,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 
 					if ( !model.isEmpty() )
 					{
-						blockRenderer.getBlockModelRenderer().renderModel( tx.getWorld(), model, estate, tx.getPos(), worldrenderer, false );
+						blockRenderer.getBlockModelRenderer().renderModel( cache, model, estate, tx.getPos(), worldrenderer );
 					}
 				}
 			}

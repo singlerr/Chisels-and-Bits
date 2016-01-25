@@ -6,6 +6,7 @@ import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.core.ClientSide;
 import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraftforge.client.MinecraftForgeClient;
 
 public abstract class TileRenderCache
 {
@@ -41,6 +42,15 @@ public abstract class TileRenderCache
 		}
 
 		return EnumTESRRenderState.SKIP;
+	}
+
+	public boolean hasRenderedThisFrame()
+	{
+		final EnumWorldBlockLayer layer = MinecraftForgeClient.getRenderPass() == 0 ? EnumWorldBlockLayer.SOLID : EnumWorldBlockLayer.TRANSLUCENT;
+		final TileLayerRenderCache tlrc = getLayer( layer );
+
+		final int lastRF = ClientSide.instance.getLastRenderedFrame();
+		return !( layer != null && tlrc.lastRenderedFrame != lastRF );
 	}
 
 	public void rebuild(
