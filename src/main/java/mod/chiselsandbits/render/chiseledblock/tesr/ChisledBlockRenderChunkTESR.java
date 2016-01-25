@@ -1,6 +1,7 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -305,11 +306,15 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 					return;
 				}
 
-				for ( final TileEntityBlockChiseledTESR e : renderChunk.getTiles() )
+				final List<TileEntityBlockChiseledTESR> tiles = renderChunk.getTiles();
+				synchronized ( tiles )
 				{
-					configureGLState( layer );
-					renderLogic( e, x, y, z, partialTicks, destroyStage, false );
-					unconfigureGLState();
+					for ( final TileEntityBlockChiseledTESR e : tiles )
+					{
+						configureGLState( layer );
+						renderLogic( e, x, y, z, partialTicks, destroyStage, false );
+						unconfigureGLState();
+					}
 				}
 
 				return;

@@ -10,7 +10,8 @@ public interface IFaceBuilder
 	BakedQuad create();
 
 	void setFace(
-			EnumFacing myFace );
+			EnumFacing myFace,
+			int tintIndex );
 
 	void put(
 			int element,

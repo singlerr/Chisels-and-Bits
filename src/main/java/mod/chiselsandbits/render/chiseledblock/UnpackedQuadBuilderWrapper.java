@@ -25,11 +25,12 @@ public class UnpackedQuadBuilderWrapper implements IFaceBuilder
 
 	@Override
 	public void setFace(
-			final EnumFacing myFace )
+			final EnumFacing myFace,
+			final int tintIndex )
 	{
 		builder.setQuadColored();
 		builder.setQuadOrientation( myFace );
-		builder.setQuadTint( 0 );
+		builder.setQuadTint( tintIndex );
 	}
 
 	@Override

@@ -202,6 +202,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				final IBlockState state = Block.getStateById( region.blockStateID );
 				final IBakedModel model = ModelUtil.solveModel( region.blockStateID, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
 				final TextureAtlasSprite texture = ModelUtil.findTexture( region.blockStateID, model, myFace, myLayer );
+				final int tintIndex = 0;
 
 				sprite = texture;
 
@@ -214,7 +215,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				final BakedQuad g = faceBakery.makeBakedQuad( to, from, bpf, texture, myFace, mr, bpr, true, true );
 
 				faceBuilder.begin( format );
-				faceBuilder.setFace( myFace );
+				faceBuilder.setFace( myFace, tintIndex );
 
 				final int[] vertData = g.getVertexData();
 				final int wrapAt = vertData.length / 4;

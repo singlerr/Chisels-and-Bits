@@ -187,11 +187,12 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 
 		@Override
 		public void setFace(
-				final EnumFacing myFace )
+				final EnumFacing myFace,
+				final int tintIndex )
 		{
 			setQuadColored();
 			setQuadOrientation( myFace );
-			setQuadTint( 0 );
+			setQuadTint( tintIndex );
 		}
 	}
 }

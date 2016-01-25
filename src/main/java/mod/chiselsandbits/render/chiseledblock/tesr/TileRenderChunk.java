@@ -23,7 +23,10 @@ public class TileRenderChunk extends TileRenderCache
 
 		rebuild( true );
 
-		tiles.add( which );
+		synchronized ( tiles )
+		{
+			tiles.add( which );
+		}
 	}
 
 	@Override
@@ -32,9 +35,12 @@ public class TileRenderChunk extends TileRenderCache
 	{
 		if ( singleInstanceMode )
 		{
-			for ( final TileEntityBlockChiseledTESR te : tiles )
+			synchronized ( tiles )
 			{
-				te.getCache().rebuild( conversion );
+				for ( final TileEntityBlockChiseledTESR te : tiles )
+				{
+					te.getCache().rebuild( conversion );
+				}
 			}
 
 			return;
@@ -47,16 +53,22 @@ public class TileRenderChunk extends TileRenderCache
 	public void unregister(
 			final TileEntityBlockChiseledTESR which )
 	{
-		tiles.remove( which );
+		synchronized ( tiles )
+		{
+			tiles.remove( which );
+		}
 
 		super.rebuild( true );
 	}
 
 	public BlockPos chunkOffset()
 	{
-		if ( getTiles().isEmpty() )
+		synchronized ( tiles )
 		{
-			return BlockPos.ORIGIN;
+			if ( getTiles().isEmpty() )
+			{
+				return BlockPos.ORIGIN;
+			}
 		}
 
 		final int bitMask = ~0xf;

@@ -27,8 +27,11 @@ public class ModConfig extends Configuration
 	@Configured( category = "Integration Settings" )
 	public boolean ShowBitsInJEI;
 
-	@Configured( category = "Integration Settings" )
+	@Configured( category = "Troubleshooting" )
 	public boolean enableAPITestingItem;
+
+	@Configured( category = "Troubleshooting" )
+	public boolean logTileErrors;
 
 	@Configured( category = "Client Settings" )
 	private boolean showUsage;
@@ -193,6 +196,7 @@ public class ModConfig extends Configuration
 
 	private void setDefaults()
 	{
+		logTileErrors = false;
 		enableAPITestingItem = deobfuscatedEnvironment();
 		enableChiselMode_ConnectedPlane = !ChiselMode.CONNECTED_PLANE.isDisabled;
 		enableChiselMode_HugeCube = !ChiselMode.CUBE_LARGE.isDisabled;
