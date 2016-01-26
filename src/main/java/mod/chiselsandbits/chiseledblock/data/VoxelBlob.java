@@ -796,7 +796,7 @@ public class VoxelBlob
 	}
 
 	private void read(
-			final ByteArrayInputStream o ) throws IOException
+			final ByteArrayInputStream o ) throws IOException, RuntimeException
 	{
 		final InflaterInputStream w = new InflaterInputStream( o );
 		final ByteBuffer bb = BlobSerializer.getBuffer();
@@ -830,9 +830,10 @@ public class VoxelBlob
 			throw new RuntimeException( "Invalid Version: " + version );
 		}
 
+		final int byteOffset = header.readVarIntFromBuffer();
 		final int bytesOfInterest = header.readVarIntFromBuffer();
 
-		final BitStream bits = BitStream.valueOf( ByteBuffer.wrap( bb.array(), header.readerIndex(), bytesOfInterest ) );
+		final BitStream bits = BitStream.valueOf( byteOffset, ByteBuffer.wrap( bb.array(), header.readerIndex(), bytesOfInterest ) );
 		for ( int x = 0; x < array_size; x++ )
 		{
 			values[x] = bs.readVoxelStateID( bits );// src.get();
@@ -895,12 +896,14 @@ public class VoxelBlob
 
 			final byte[] arrayContents = set.toByteArray();
 			final int bytesToWrite = arrayContents.length;
+			final int byteOffset = set.byteOffset();
 
-			pb.writeVarIntToBuffer( bytesToWrite );
+			pb.writeVarIntToBuffer( byteOffset );
+			pb.writeVarIntToBuffer( bytesToWrite -byteOffset);
 
 			w.write( pb.array(), 0, pb.writerIndex() );
 
-			w.write( arrayContents, 0, bytesToWrite );
+			w.write( arrayContents, byteOffset, bytesToWrite - byteOffset );
 
 			w.finish();
 			w.close();

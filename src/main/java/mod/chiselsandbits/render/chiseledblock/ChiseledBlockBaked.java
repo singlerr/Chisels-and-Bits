@@ -3,19 +3,17 @@ package mod.chiselsandbits.render.chiseledblock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
-import mod.chiselsandbits.render.helpers.ModelUVReader;
+import mod.chiselsandbits.render.helpers.ModelParserCache;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -175,7 +173,6 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		final ModelRotation mr = ModelRotation.X0_Y0;
 
 		final ArrayList<ArrayList<FaceRegion>> rset = new ArrayList<ArrayList<FaceRegion>>();
-		final HashMap<Integer, float[]> sourceUVCache = new HashMap<Integer, float[]>();
 		final VisibleFace visFace = new VisibleFace();
 
 		processXFaces( blob, visFace, mrs, rset );
@@ -199,79 +196,74 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				final Vector3f to = offsetVec( region.max, myFace, 1 );
 				final Vector3f from = offsetVec( region.min, myFace, -1 );
 
-				final IBlockState state = Block.getStateById( region.blockStateID );
-				final IBakedModel model = ModelUtil.solveModel( region.blockStateID, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
-				final TextureAtlasSprite texture = ModelUtil.findTexture( region.blockStateID, model, myFace, myLayer );
-				final int tintIndex = 0;
-
-				sprite = texture;
-
-				final int lightValue = Math.max( state.getBlock().getLightValue(), ModelUtil.findLightValue( region.blockStateID, model ) );
-
 				final BlockFaceUV uv = new BlockFaceUV( defUVs, 0 );
 				final BlockPartFace bpf = new BlockPartFace( myFace, -1, "", uv );
 
-				final float[] uvs = getFaceUvs( myFace, from, to, getSourceUVs( sourceUVCache, region.blockStateID, weight, texture, myFace ) );
-				final BakedQuad g = faceBakery.makeBakedQuad( to, from, bpf, texture, myFace, mr, bpr, true, true );
+				final ModelParserCache[] mpc = ModelUtil.getCachedFace( region.blockStateID, weight, myFace, myLayer );
 
-				faceBuilder.begin( format );
-				faceBuilder.setFace( myFace, tintIndex );
-
-				final int[] vertData = g.getVertexData();
-				final int wrapAt = vertData.length / 4;
-
-				final int color = BitColors.getColorFor( state, myLayer.ordinal() );
-				calcVertFaceMap();
-
-				final float maxLightmap = 32.0f / 0xffff;
-
-				// build it.
-				for ( int vertNum = 0; vertNum < 4; vertNum++ )
+				for ( final ModelParserCache pc : mpc )
 				{
-					for ( int elementIndex = 0; elementIndex < format.getElementCount(); elementIndex++ )
+					final float[] uvs = getFaceUvs( myFace, from, to, pc.uvs );
+					final BakedQuad g = faceBakery.makeBakedQuad( to, from, bpf, pc.sprite, myFace, mr, bpr, true, true );
+
+					faceBuilder.begin( format );
+					faceBuilder.setFace( myFace, pc.tint );
+
+					final int[] vertData = g.getVertexData();
+					final int wrapAt = vertData.length / 4;
+
+					calcVertFaceMap();
+
+					final float maxLightmap = 32.0f / 0xffff;
+
+					// build it.
+					for ( int vertNum = 0; vertNum < 4; vertNum++ )
 					{
-						final VertexFormatElement element = format.getElement( elementIndex );
-						switch ( element.getUsage() )
+						for ( int elementIndex = 0; elementIndex < format.getElementCount(); elementIndex++ )
 						{
-							case POSITION:
-								faceBuilder.put( elementIndex, Float.intBitsToFloat( vertData[0 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[1 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[2 + wrapAt * vertNum] ) );
-								break;
+							final VertexFormatElement element = format.getElement( elementIndex );
+							switch ( element.getUsage() )
+							{
+								case POSITION:
+									faceBuilder.put( elementIndex, Float.intBitsToFloat( vertData[0 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[1 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[2 + wrapAt * vertNum] ) );
+									break;
 
-							case COLOR:
-								final int cb = getShadeColor( vertData, wrapAt * vertNum, region, blob, color );
-								faceBuilder.put( elementIndex, byteToFloat( cb ), byteToFloat( cb >> 8 ), byteToFloat( cb >> 16 ), byteToFloat( cb >> 24 ) );
-								break;
+								case COLOR:
+									final int cb = getShadeColor( vertData, wrapAt * vertNum, region, blob, pc.tint == -1 ? 0xffffff : pc.color );
+									faceBuilder.put( elementIndex, byteToFloat( cb ), byteToFloat( cb >> 8 ), byteToFloat( cb >> 16 ), byteToFloat( cb >> 24 ) );
+									break;
 
-							case NORMAL:
-								faceBuilder.put( elementIndex, myFace.getFrontOffsetX(), myFace.getFrontOffsetY(), myFace.getFrontOffsetZ() );
-								break;
+								case NORMAL:
+									faceBuilder.put( elementIndex, myFace.getFrontOffsetX(), myFace.getFrontOffsetY(), myFace.getFrontOffsetZ() );
+									break;
 
-							case UV:
-								if ( element.getIndex() == 1 )
-								{
-									final float v = maxLightmap * Math.max( 0, Math.min( 15, lightValue ) );
-									faceBuilder.put( elementIndex, v, v );
-								}
-								else
-								{
-									faceBuilder.put( elementIndex, texture.getInterpolatedU( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 0] ), texture.getInterpolatedV( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1] ) );
-								}
-								break;
+								case UV:
+									if ( element.getIndex() == 1 )
+									{
+										final float v = maxLightmap * Math.max( 0, Math.min( 15, pc.light ) );
+										faceBuilder.put( elementIndex, v, v );
+									}
+									else
+									{
+										faceBuilder.put( elementIndex, pc.sprite.getInterpolatedU( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 0] ), pc.sprite.getInterpolatedV( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1] ) );
+									}
+									break;
 
-							default:
-								faceBuilder.put( elementIndex );
-								break;
+								default:
+									faceBuilder.put( elementIndex );
+									break;
+							}
 						}
 					}
-				}
 
-				if ( region.isEdge )
-				{
-					builder.getList( myFace ).add( faceBuilder.create() );
-				}
-				else
-				{
-					builder.getList( null ).add( faceBuilder.create() );
+					if ( region.isEdge )
+					{
+						builder.getList( myFace ).add( faceBuilder.create() );
+					}
+					else
+					{
+						builder.getList( null ).add( faceBuilder.create() );
+					}
 				}
 			}
 		}
@@ -616,74 +608,6 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				}
 			}
 		}
-	}
-
-	private float[] getSourceUVs(
-			final HashMap<Integer, float[]> sourceUVCache,
-			final int id,
-			final long weight,
-			final TextureAtlasSprite texture,
-			final EnumFacing myFace )
-	{
-		float[] quadUVs = sourceUVCache.get( id << 4 | myFace.getIndex() );
-
-		if ( quadUVs == null )
-		{
-			final IBakedModel model = ModelUtil.solveModel( id, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( Block.getStateById( id ) ) );
-			if ( model != null )
-			{
-				if ( model != null )
-				{
-					final List<BakedQuad> quads = model.getFaceQuads( myFace );
-
-					// top/bottom
-					int uCoord = 0;
-					int vCoord = 2;
-
-					switch ( myFace )
-					{
-						case NORTH:
-						case SOUTH:
-							uCoord = 0;
-							vCoord = 1;
-							break;
-						case EAST:
-						case WEST:
-							uCoord = 1;
-							vCoord = 2;
-							break;
-						default:
-					}
-
-					final ModelUVReader uvr = new ModelUVReader( texture, uCoord, vCoord );
-
-					// process all the quads on the face.
-					for ( final BakedQuad src : quads )
-					{
-						if ( src.getFace() == myFace )
-						{
-							src.pipe( uvr );
-						}
-					}
-
-					// was the auto-discover fully successful?
-					if ( uvr.corners == 0xf )
-					{
-						quadUVs = uvr.quadUVs;
-					}
-				}
-			}
-
-			// default.
-			if ( quadUVs == null )
-			{
-				quadUVs = new float[] { 0, 0, 0, 1, 1, 0, 1, 1 };
-			}
-
-			sourceUVCache.put( id << 4 | myFace.getIndex(), quadUVs );
-		}
-
-		return quadUVs;
 	}
 
 	private float[] getFaceUvs(

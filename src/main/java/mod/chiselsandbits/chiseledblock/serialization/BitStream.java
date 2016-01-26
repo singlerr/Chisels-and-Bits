@@ -8,9 +8,11 @@ public class BitStream
 {
 	int offset = 0;
 	int bit = 0;
+	int firstLiveInt = -1;
 	int lastLiveInt = -1;
 
 	int currentInt = 0;
+	int intOffset = 0;
 
 	IntBuffer output;
 	ByteBuffer bytes;
@@ -22,26 +24,31 @@ public class BitStream
 	}
 
 	private BitStream(
+			final int byteOffset,
 			final ByteBuffer wrap )
 	{
+		intOffset = byteOffset / 4;
 		bytes = wrap;
 		output = bytes.asIntBuffer();
-		currentInt = output.capacity() > 0 ? output.get( 0 ) : 0;
+		currentInt = hasInt() ? output.get( 0 ) : 0;
 	}
 
 	public static BitStream valueOf(
+			final int byteOffset,
 			final ByteBuffer wrap )
 	{
-		return new BitStream( wrap );
+		return new BitStream( byteOffset, wrap );
 	}
 
 	public void reset()
 	{
 		offset = 0;
 		bit = 0;
+		firstLiveInt = -1;
 		lastLiveInt = -1;
 		output.put( 0, 0 );
 		currentInt = 0;
+		intOffset = 0;
 	}
 
 	public byte[] toByteArray()
@@ -60,10 +67,15 @@ public class BitStream
 		{
 			++offset;
 			bit = 0;
-			currentInt = output.capacity() > offset ? output.get( offset ) : 0;
+			currentInt = hasInt() ? output.get( offset - intOffset ) : 0;
 		}
 
 		return result;
+	}
+
+	private boolean hasInt()
+	{
+		return output.capacity() > offset - intOffset && offset - intOffset >= 0;
 	}
 
 	public void add(
@@ -73,6 +85,11 @@ public class BitStream
 		{
 			currentInt = currentInt | 1 << bit;
 			lastLiveInt = offset;
+
+			if ( firstLiveInt == -1 )
+			{
+				firstLiveInt = offset;
+			}
 		}
 
 		if ( ++bit >= 32 )
@@ -97,6 +114,11 @@ public class BitStream
 
 			output.put( offset, 0 );
 		}
+	}
+
+	public int byteOffset()
+	{
+		return Math.max( firstLiveInt * 4, 0 );
 	}
 
 }

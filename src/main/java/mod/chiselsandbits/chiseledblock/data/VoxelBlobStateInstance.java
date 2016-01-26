@@ -1,6 +1,5 @@
 package mod.chiselsandbits.chiseledblock.data;
 
-import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,7 +81,7 @@ public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance
 
 			return new VoxelBlob( vb );
 		}
-		catch ( final IOException e )
+		catch ( final Exception e )
 		{
 			Log.logError( "Unable to read blob.", e );
 			return new VoxelBlob();
