@@ -27,11 +27,25 @@ public class ModelQuadLayer
 		}
 
 		public ModelQuadLayer build(
-				final int color )
+				final int stateid,
+				final int color,
+				final boolean isGrass )
 		{
 			cache.light = lv.lv;
 			cache.uvs = uvr.quadUVs;
-			cache.color = color;
+			cache.color = cache.tint != -1 ? color : 0xffffff;
+
+			if ( isGrass )
+			{
+				cache.color = 0xffffffff;
+				cache.tint = cache.tint == -1 ? -1 : stateid;
+			}
+			else
+			{
+				// remove tints, I'm only support grass for the time being.
+				cache.tint = -1;
+			}
+
 			return cache;
 		}
 	};

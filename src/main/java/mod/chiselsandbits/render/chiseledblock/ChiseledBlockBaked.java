@@ -132,7 +132,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	public List<BakedQuad> getList(
 			final EnumFacing side )
-	{
+			{
 		if ( side != null )
 		{
 			switch ( side )
@@ -154,18 +154,18 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		}
 
 		return asList( generic );
-	}
+			}
 
 	private List<BakedQuad> asList(
 			final BakedQuad[] array )
-			{
+	{
 		if ( array == null )
 		{
 			return Collections.emptyList();
 		}
 
 		return Arrays.asList( array );
-			}
+	}
 
 	private ChiseledBlockBaked()
 	{
@@ -296,7 +296,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 									break;
 
 								case COLOR:
-									final int cb = getShadeColor( region.face, 1.0f, pc.tint == -1 ? 0xffffff : pc.color );
+									final int cb = getShadeColor( region.face, 1.0f, pc.color );
 									faceBuilder.put( elementIndex, byteToFloat( cb ), byteToFloat( cb >> 8 ), byteToFloat( cb >> 16 ), byteToFloat( cb >> 24 ) );
 									break;
 
@@ -755,9 +755,9 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	@Override
 	public List<BakedQuad> getFaceQuads(
 			final EnumFacing requestedFace )
-	{
+			{
 		return getList( requestedFace );
-	}
+			}
 
 	@Override
 	public List<BakedQuad> getGeneralQuads()

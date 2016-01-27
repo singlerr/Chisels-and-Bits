@@ -51,6 +51,8 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockChiseled extends Block implements ITileEntityProvider
 {
@@ -200,6 +202,17 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
+	@SideOnly( Side.CLIENT )
+	public int colorMultiplier(
+			final IBlockAccess worldIn,
+			final BlockPos pos,
+			final int tint )
+	{
+		final Block blk = Block.getStateById( tint ).getBlock();
+		return blk.colorMultiplier( worldIn, pos, 0 );
+	}
+
+	@Override
 	public IBlockState getExtendedState(
 			final IBlockState state,
 			final IBlockAccess world,
@@ -265,7 +278,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final BlockPos pos,
 			final IBlockState state,
 			final int fortune )
-	{
+			{
 		try
 		{
 			return Collections.singletonList( getTileEntity( world, pos ).getItemStack( this, null ) );
@@ -275,7 +288,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			Log.noTileError( e );
 			return Collections.emptyList();
 		}
-	}
+			}
 
 	@Override
 	public void onBlockPlacedBy(

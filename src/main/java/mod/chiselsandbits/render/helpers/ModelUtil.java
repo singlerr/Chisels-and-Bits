@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.WeightedBakedModel;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
@@ -89,7 +90,7 @@ public class ModelUtil
 
 			for ( int z = 0; z < x.size(); z++ )
 			{
-				mp[z] = x.get( z ).build( color );
+				mp[z] = x.get( z ).build( stateID, color, state.getBlock() == Blocks.grass );
 			}
 
 			cache.put( cacheV, mp );

@@ -3,8 +3,6 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.input.Keyboard;
-
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -25,6 +23,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -37,6 +36,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import org.lwjgl.input.Keyboard;
 
 public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IItemScrollWheel
 {
@@ -90,9 +91,17 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	@Override
 	public int getColorFromItemStack(
 			final ItemStack stack,
-			final int renderPass )
+			final int tint )
 	{
-		return super.getColorFromItemStack( stack, renderPass );
+		final Block blk = Block.getStateById( tint ).getBlock();
+		final Item i = Item.getItemFromBlock( blk );
+
+		if ( i != null )
+		{
+			return i.getColorFromItemStack( stack, 0 );
+		}
+
+		return super.getColorFromItemStack( stack, tint );
 	}
 
 	@Override

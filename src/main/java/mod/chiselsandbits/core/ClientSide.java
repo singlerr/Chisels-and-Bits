@@ -7,12 +7,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
-import com.google.common.base.Stopwatch;
-
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
@@ -92,6 +86,12 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Type;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+
+import com.google.common.base.Stopwatch;
 
 public class ClientSide
 {
@@ -213,7 +213,7 @@ public class ClientSide
 
 		for (
 
-		final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
+				final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
 
 		{
 			final Item item = Item.getItemFromBlock( blk );
@@ -264,14 +264,14 @@ public class ClientSide
 					{
 						final int color = bi.getRGB( x, y );
 						final int a = color >> 24 & 0xff;
-						if ( a > 0 )
-						{
-							sip.left = Math.min( sip.left, x );
-							right = Math.max( right, x );
+					if ( a > 0 )
+					{
+						sip.left = Math.min( sip.left, x );
+						right = Math.max( right, x );
 
-							sip.top = Math.min( sip.top, y );
-							bottom = Math.max( bottom, y );
-						}
+						sip.top = Math.min( sip.top, y );
+						bottom = Math.max( bottom, y );
+					}
 					}
 				}
 
@@ -925,10 +925,10 @@ public class ClientSide
 		GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
 		GlStateManager.colorMask( false, false, false, false );
 
-		renderModel( baked );
+		renderModel( baked, player.worldObj, blockPos );
 		GlStateManager.colorMask( true, true, true, true );
 		GlStateManager.depthFunc( GL11.GL_LEQUAL );
-		renderModel( baked );
+		renderModel( baked, player.worldObj, blockPos );
 
 		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
 		GlStateManager.disableBlend();
@@ -937,19 +937,31 @@ public class ClientSide
 
 	private void renderQuads(
 			final WorldRenderer renderer,
-			final List<BakedQuad> quads )
+			final List<BakedQuad> quads,
+			final World worldObj,
+			final BlockPos blockPos )
 	{
 		int i = 0;
 		for ( final int j = quads.size(); i < j; ++i )
 		{
 			final BakedQuad bakedquad = quads.get( i );
-			final int color = 0xaaffffff;
+			final int color = bakedquad.getTintIndex() == -1 ? 0xaaffffff : getTint( bakedquad.getTintIndex(), worldObj, blockPos );
 			net.minecraftforge.client.model.pipeline.LightUtil.renderQuadColor( renderer, bakedquad, color );
 		}
 	}
 
+	private int getTint(
+			final int tintIndex,
+			final World worldObj,
+			final BlockPos blockPos )
+	{
+		return 0xaa000000 | ChiselsAndBits.getBlocks().getChiseledDefaultState().getBlock().colorMultiplier( worldObj, blockPos, tintIndex );
+	}
+
 	private void renderModel(
-			final IBakedModel model )
+			final IBakedModel model,
+			final World worldObj,
+			final BlockPos blockPos )
 	{
 		final Tessellator tessellator = Tessellator.getInstance();
 		final WorldRenderer worldrenderer = tessellator.getWorldRenderer();
@@ -957,10 +969,10 @@ public class ClientSide
 
 		for ( final EnumFacing enumfacing : EnumFacing.values() )
 		{
-			renderQuads( worldrenderer, model.getFaceQuads( enumfacing ) );
+			renderQuads( worldrenderer, model.getFaceQuads( enumfacing ), worldObj, blockPos );
 		}
 
-		renderQuads( worldrenderer, model.getGeneralQuads() );
+		renderQuads( worldrenderer, model.getGeneralQuads(), worldObj, blockPos );
 		tessellator.draw();
 	}
 

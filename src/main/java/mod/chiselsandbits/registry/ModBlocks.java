@@ -31,6 +31,7 @@ public class ModBlocks extends ModRegistry
 			new MaterialType( "sand", Material.sand ),
 			new MaterialType( "ground", Material.ground ),
 			new MaterialType( "grass", Material.grass ),
+			new MaterialType( "snow", Material.snow ),
 	};
 
 	private final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();
