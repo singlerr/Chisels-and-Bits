@@ -1,9 +1,10 @@
 package mod.chiselsandbits.render.cache;
 
 import java.lang.ref.WeakReference;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
+import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.render.cache.CacheMap.EqTest;
 
 public class InMemoryQuadCompressor implements Runnable
@@ -97,11 +98,11 @@ public class InMemoryQuadCompressor implements Runnable
 
 	} );
 
-	Queue<WeakReference<float[][][]>> submissions = new LinkedList<WeakReference<float[][][]>>();
+	BlockingQueue<WeakReference<float[][][]>> submissions = new LinkedBlockingQueue<WeakReference<float[][][]>>();
 
 	float[] junk;
 
-	private float[] referize(
+	private float[] combineLevel1(
 			final float[] fs )
 	{
 		final WeakReference<float[]> o = cache.get( fs );
@@ -119,7 +120,7 @@ public class InMemoryQuadCompressor implements Runnable
 		return fs;
 	}
 
-	private float[][] referizelvl2(
+	private float[][] combineLevel2(
 			final float[][] fs )
 	{
 		final WeakReference<float[][]> o = cachelvl2.get( fs );
@@ -148,9 +149,13 @@ public class InMemoryQuadCompressor implements Runnable
 	public float[][][] compress(
 			final float[][][] unpackedData )
 	{
-		synchronized ( submissions )
+		try
 		{
-			submissions.add( new WeakReference<float[][][]>( unpackedData ) );
+			submissions.put( new WeakReference<float[][][]>( unpackedData ) );
+		}
+		catch ( final InterruptedException e )
+		{
+			Log.logError( "Error in compresssor", e );
 		}
 
 		return unpackedData;
@@ -163,29 +168,14 @@ public class InMemoryQuadCompressor implements Runnable
 		{
 			try
 			{
-				Thread.sleep( 5 );
-			}
-			catch ( final InterruptedException e )
-			{
-				// :P
-			}
-
-			do
-			{
-				float[][][] active = null;
-				WeakReference<float[][][]> l;
-
-				synchronized ( submissions )
-				{
-					l = submissions.poll();
-				}
+				final WeakReference<float[][][]> l = submissions.take();
 
 				if ( l == null )
 				{
 					break;
 				}
 
-				active = l.get();
+				final float[][][] active = l.get();
 
 				if ( active == null )
 				{
@@ -196,13 +186,16 @@ public class InMemoryQuadCompressor implements Runnable
 				{
 					for ( int y = 0; y < active[x].length; y++ )
 					{
-						active[x][y] = referize( active[x][y] );
+						active[x][y] = combineLevel1( active[x][y] );
 					}
 
-					active[x] = referizelvl2( active[x] );
+					active[x] = combineLevel2( active[x] );
 				}
 			}
-			while ( true );
+			catch ( final InterruptedException e )
+			{
+				Log.logError( "Error in compresssor", e );
+			}
 		}
 	}
 

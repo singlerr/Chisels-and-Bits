@@ -2,7 +2,7 @@ package mod.chiselsandbits.render.helpers;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
-public class ModelParserCache
+public class ModelQuadLayer
 {
 
 	public float[] uvs = new float[6];
@@ -11,13 +11,13 @@ public class ModelParserCache
 	public int color;
 	public int tint;
 
-	public static class ModelParserCacheBuilder
+	public static class ModelQuadLayerBuilder
 	{
-		public final ModelParserCache cache = new ModelParserCache();
+		public final ModelQuadLayer cache = new ModelQuadLayer();
 		public final ModelLightMapReader lv = new ModelLightMapReader( 0 );
 		public ModelUVReader uvr;
 
-		public ModelParserCacheBuilder(
+		public ModelQuadLayerBuilder(
 				final TextureAtlasSprite sprite,
 				final int uCoord,
 				final int vCoord )
@@ -26,7 +26,7 @@ public class ModelParserCache
 			uvr = new ModelUVReader( sprite, uCoord, vCoord );
 		}
 
-		public ModelParserCache build(
+		public ModelQuadLayer build(
 				final int color )
 		{
 			cache.light = lv.lv;

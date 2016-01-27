@@ -1,25 +1,75 @@
 package mod.chiselsandbits.render.chiseledblock;
 
-import java.util.Arrays;
-
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import net.minecraft.util.EnumFacing;
 
 public class ModelRenderState
 {
+	// less objects/garbage to clean up, and less memory usage.
+	private VoxelBlobStateReference north, south, east, west, up, down;
 
-	public final VoxelBlobStateReference[] sides;
+	public VoxelBlobStateReference get(
+			final EnumFacing side )
+	{
+		switch ( side )
+		{
+			case DOWN:
+				return down;
+			case EAST:
+				return east;
+			case NORTH:
+				return north;
+			case SOUTH:
+				return south;
+			case UP:
+				return up;
+			case WEST:
+				return west;
+			default:
+		}
+
+		return null;
+	}
+
+	public void put(
+			final EnumFacing side,
+			final VoxelBlobStateReference value )
+	{
+		switch ( side )
+		{
+			case DOWN:
+				down = value;
+				break;
+			case EAST:
+				east = value;
+				break;
+			case NORTH:
+				north = value;
+				break;
+			case SOUTH:
+				south = value;
+				break;
+			case UP:
+				up = value;
+				break;
+			case WEST:
+				west = value;
+				break;
+			default:
+		}
+	}
 
 	public ModelRenderState(
-			final VoxelBlobStateReference[] sides )
+			final ModelRenderState sides )
 	{
-		if ( sides == null )
+		if ( sides != null )
 		{
-			this.sides = new VoxelBlobStateReference[EnumFacing.VALUES.length];
-		}
-		else
-		{
-			this.sides = Arrays.copyOf( sides, sides.length );
+			this.north = sides.north;
+			this.south = sides.south;
+			this.east = sides.east;
+			this.west = sides.west;
+			this.up = sides.up;
+			this.down = sides.down;
 		}
 	}
 

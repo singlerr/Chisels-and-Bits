@@ -5,15 +5,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.lwjgl.util.vector.Vector3f;
-
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
-import mod.chiselsandbits.render.helpers.ModelParserCache;
+import mod.chiselsandbits.render.helpers.ModelQuadLayer;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -33,27 +31,104 @@ import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3i;
 
+import org.lwjgl.util.vector.Vector3f;
+
 public class ChiseledBlockBaked extends BaseBakedBlockModel
 {
 	public static final float PIXELS_PER_BLOCK = 16.0f;
-	static boolean hasFaceMap = false;
-	static int[][] faceVertMap = new int[6][4];
+	private final static int[][] faceVertMap = new int[6][4];
+	private final static float[][][] quadMapping = new float[6][4][6];
 
 	private static final EnumFacing[] X_Faces = new EnumFacing[] { EnumFacing.EAST, EnumFacing.WEST };
 	private static final EnumFacing[] Y_Faces = new EnumFacing[] { EnumFacing.UP, EnumFacing.DOWN };
 	private static final EnumFacing[] Z_Faces = new EnumFacing[] { EnumFacing.SOUTH, EnumFacing.NORTH };
 
-	EnumWorldBlockLayer myLayer;
-	VertexFormat format;
-	TextureAtlasSprite sprite;
+	// Analyze FaceBakery / makeBakedQuad and prepare static data for face gen.
+	static
+	{
+		final Vector3f to = new Vector3f( 0, 0, 0 );
+		final Vector3f from = new Vector3f( 16, 16, 16 );
 
-	BakedQuad[] up;
-	BakedQuad[] down;
-	BakedQuad[] north;
-	BakedQuad[] south;
-	BakedQuad[] east;
-	BakedQuad[] west;
-	BakedQuad[] generic;
+		for ( final EnumFacing myFace : EnumFacing.VALUES )
+		{
+			final FaceBakery faceBakery = new FaceBakery();
+
+			final BlockPartRotation bpr = null;
+			final ModelRotation mr = ModelRotation.X0_Y0;
+
+			final float[] defUVs = new float[] { 0, 0, 1, 1 };
+			final BlockFaceUV uv = new BlockFaceUV( defUVs, 0 );
+			final BlockPartFace bpf = new BlockPartFace( myFace, 0, "", uv );
+
+			final TextureAtlasSprite texture = Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
+			final BakedQuad q = faceBakery.makeBakedQuad( to, from, bpf, texture, myFace, mr, bpr, true, true );
+
+			final int[] vertData = q.getVertexData();
+
+			int a = 0;
+			int b = 2;
+
+			switch ( myFace )
+			{
+				case NORTH:
+				case SOUTH:
+					a = 0;
+					b = 1;
+					break;
+				case EAST:
+				case WEST:
+					a = 1;
+					b = 2;
+					break;
+				default:
+			}
+
+			final int p = vertData.length / 4;
+			for ( int vertNum = 0; vertNum < 4; vertNum++ )
+			{
+				final float A = Float.intBitsToFloat( vertData[vertNum * p + a] );
+				final float B = Float.intBitsToFloat( vertData[vertNum * p + b] );
+
+				for ( int o = 0; o < 3; o++ )
+				{
+					final float v = Float.intBitsToFloat( vertData[vertNum * p + o] );
+					final float scaler = 1.0f / 16.0f; // pos start in the 0-16
+					quadMapping[myFace.ordinal()][vertNum][o * 2] = v * scaler;
+					quadMapping[myFace.ordinal()][vertNum][o * 2 + 1] = ( 1.0f - v ) * scaler;
+				}
+
+				if ( ModelUtil.isZero( A ) && ModelUtil.isZero( B ) )
+				{
+					faceVertMap[myFace.getIndex()][vertNum] = 0;
+				}
+				else if ( ModelUtil.isZero( A ) && ModelUtil.isOne( B ) )
+				{
+					faceVertMap[myFace.getIndex()][vertNum] = 3;
+				}
+				else if ( ModelUtil.isOne( A ) && ModelUtil.isZero( B ) )
+				{
+					faceVertMap[myFace.getIndex()][vertNum] = 1;
+				}
+				else
+				{
+					faceVertMap[myFace.getIndex()][vertNum] = 2;
+				}
+			}
+		}
+	}
+
+	private EnumWorldBlockLayer myLayer;
+	private VertexFormat format;
+	private TextureAtlasSprite sprite;
+
+	// keep memory requirements low by using arrays.
+	private BakedQuad[] up;
+	private BakedQuad[] down;
+	private BakedQuad[] north;
+	private BakedQuad[] south;
+	private BakedQuad[] east;
+	private BakedQuad[] west;
+	private BakedQuad[] generic;
 
 	public List<BakedQuad> getList(
 			final EnumFacing side )
@@ -83,14 +158,14 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	private List<BakedQuad> asList(
 			final BakedQuad[] array )
-	{
+			{
 		if ( array == null )
 		{
 			return Collections.emptyList();
 		}
 
 		return Arrays.asList( array );
-	}
+			}
 
 	private ChiseledBlockBaked()
 	{
@@ -122,6 +197,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				final ChiseledModelBuilder builder = new ChiseledModelBuilder();
 				generateFaces( builder, vb, mrs, data.weight );
 
+				// convert from builder to final storage.
 				up = builder.getSide( EnumFacing.UP );
 				down = builder.getSide( EnumFacing.DOWN );
 				east = builder.getSide( EnumFacing.EAST );
@@ -167,11 +243,6 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final ModelRenderState mrs,
 			final long weight )
 	{
-		final FaceBakery faceBakery = new FaceBakery();
-
-		final BlockPartRotation bpr = null;
-		final ModelRotation mr = ModelRotation.X0_Y0;
-
 		final ArrayList<ArrayList<FaceRegion>> rset = new ArrayList<ArrayList<FaceRegion>>();
 		final VisibleFace visFace = new VisibleFace();
 
@@ -179,9 +250,15 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		processYFaces( blob, visFace, mrs, rset );
 		processZFaces( blob, visFace, mrs, rset );
 
-		final float[] defUVs = new float[] { 0, 0, 1, 1 };
+		// re-usable float[]'s to minimize garbage cleanup.
+		final float[] to = new float[3];
+		final float[] from = new float[3];
+		final float[] uvs = new float[8];
+		final float[] pos = new float[3];
 
+		// single reusable face builder.
 		final IFaceBuilder faceBuilder = format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT ? new ChiselsAndBitsBakedQuad.Builder() : new UnpackedQuadBuilderWrapper();
+
 		for ( final ArrayList<FaceRegion> src : rset )
 		{
 			mergeFaces( src );
@@ -193,28 +270,17 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				// keep integers up until the last moment... ( note I tested
 				// snapping the floats after this stage, it made no
 				// difference. )
-				final Vector3f to = offsetVec( region.max, myFace, 1 );
-				final Vector3f from = offsetVec( region.min, myFace, -1 );
+				offsetVec( to, region.max, myFace, 1 );
+				offsetVec( from, region.min, myFace, -1 );
+				final ModelQuadLayer[] mpc = ModelUtil.getCachedFace( region.blockStateID, weight, myFace, myLayer );
 
-				final BlockFaceUV uv = new BlockFaceUV( defUVs, 0 );
-				final BlockPartFace bpf = new BlockPartFace( myFace, -1, "", uv );
-
-				final ModelParserCache[] mpc = ModelUtil.getCachedFace( region.blockStateID, weight, myFace, myLayer );
-
-				for ( final ModelParserCache pc : mpc )
+				for ( final ModelQuadLayer pc : mpc )
 				{
-					final float[] uvs = getFaceUvs( myFace, from, to, pc.uvs );
-					final BakedQuad g = faceBakery.makeBakedQuad( to, from, bpf, pc.sprite, myFace, mr, bpr, true, true );
-
 					faceBuilder.begin( format );
 					faceBuilder.setFace( myFace, pc.tint );
 
-					final int[] vertData = g.getVertexData();
-					final int wrapAt = vertData.length / 4;
-
-					calcVertFaceMap();
-
 					final float maxLightmap = 32.0f / 0xffff;
+					getFaceUvs( uvs, myFace, from, to, pc.uvs );
 
 					// build it.
 					for ( int vertNum = 0; vertNum < 4; vertNum++ )
@@ -225,11 +291,12 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 							switch ( element.getUsage() )
 							{
 								case POSITION:
-									faceBuilder.put( elementIndex, Float.intBitsToFloat( vertData[0 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[1 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[2 + wrapAt * vertNum] ) );
+									getVertexPos( pos, myFace, vertNum, to, from );
+									faceBuilder.put( elementIndex, pos[0], pos[1], pos[2] );
 									break;
 
 								case COLOR:
-									final int cb = getShadeColor( vertData, wrapAt * vertNum, region, blob, pc.tint == -1 ? 0xffffff : pc.color );
+									final int cb = getShadeColor( region.face, 1.0f, pc.tint == -1 ? 0xffffff : pc.color );
 									faceBuilder.put( elementIndex, byteToFloat( cb ), byteToFloat( cb >> 8 ), byteToFloat( cb >> 16 ), byteToFloat( cb >> 24 ) );
 									break;
 
@@ -319,7 +386,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : X_Faces )
 		{
-			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.sides[myFace.ordinal()] : null;
+			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.get( myFace ) : null;
 			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 			for ( int x = 0; x < blob.detail; x++ )
 			{
@@ -374,7 +441,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : Y_Faces )
 		{
-			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.sides[myFace.ordinal()] : null;
+			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.get( myFace ) : null;
 			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 			for ( int y = 0; y < blob.detail; y++ )
 			{
@@ -429,7 +496,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : Z_Faces )
 		{
-			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.sides[myFace.ordinal()] : null;
+			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.get( myFace ) : null;
 			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 			for ( int z = 0; z < blob.detail; z++ )
 			{
@@ -472,16 +539,6 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				}
 			}
 		}
-	}
-
-	private int getShadeColor(
-			final int[] vertData,
-			final int offset,
-			final FaceRegion region,
-			final VoxelBlob blob,
-			final int color )
-	{
-		return getShadeColor( region.face, 1.0f, color );
 	}
 
 	private FaceRegion getRegion(
@@ -542,78 +599,26 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		}
 	}
 
-	static void calcVertFaceMap()
+	// generate final pos from static data.
+	private void getVertexPos(
+			final float[] pos,
+			final EnumFacing side,
+			final int vertNum,
+			final float[] to,
+			final float[] from )
 	{
-		if ( hasFaceMap )
-		{
-			return;
-		}
+		final float[] interpos = quadMapping[side.ordinal()][vertNum];
 
-		hasFaceMap = true;
-		final Vector3f to = new Vector3f( 0, 0, 0 );
-		final Vector3f from = new Vector3f( 16, 16, 16 );
-
-		for ( final EnumFacing myFace : EnumFacing.VALUES )
-		{
-			final FaceBakery faceBakery = new FaceBakery();
-
-			final BlockPartRotation bpr = null;
-			final ModelRotation mr = ModelRotation.X0_Y0;
-
-			final float[] defUVs = new float[] { 0, 0, 1, 1 };
-			final BlockFaceUV uv = new BlockFaceUV( defUVs, 0 );
-			final BlockPartFace bpf = new BlockPartFace( myFace, 0, "", uv );
-
-			final TextureAtlasSprite texture = Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
-			final BakedQuad q = faceBakery.makeBakedQuad( to, from, bpf, texture, myFace, mr, bpr, true, true );
-
-			final int[] vertData = q.getVertexData();
-
-			int a = 0;
-			int b = 2;
-
-			switch ( myFace )
-			{
-				case NORTH:
-				case SOUTH:
-					a = 0;
-					b = 1;
-					break;
-				case EAST:
-				case WEST:
-					a = 1;
-					b = 2;
-					break;
-				default:
-			}
-
-			final int p = vertData.length / 4;
-			for ( int vertNum = 0; vertNum < 4; vertNum++ )
-			{
-				if ( ModelUtil.isZero( Float.intBitsToFloat( vertData[vertNum * p + a] ) ) && ModelUtil.isZero( Float.intBitsToFloat( vertData[vertNum * p + b] ) ) )
-				{
-					faceVertMap[myFace.getIndex()][vertNum] = 0;
-				}
-				else if ( ModelUtil.isZero( Float.intBitsToFloat( vertData[vertNum * p + a] ) ) && ModelUtil.isOne( Float.intBitsToFloat( vertData[vertNum * p + b] ) ) )
-				{
-					faceVertMap[myFace.getIndex()][vertNum] = 3;
-				}
-				else if ( ModelUtil.isOne( Float.intBitsToFloat( vertData[vertNum * p + a] ) ) && ModelUtil.isZero( Float.intBitsToFloat( vertData[vertNum * p + b] ) ) )
-				{
-					faceVertMap[myFace.getIndex()][vertNum] = 1;
-				}
-				else
-				{
-					faceVertMap[myFace.getIndex()][vertNum] = 2;
-				}
-			}
-		}
+		pos[0] = to[0] * interpos[0] + from[0] * interpos[1];
+		pos[1] = to[1] * interpos[2] + from[1] * interpos[3];
+		pos[2] = to[2] * interpos[4] + from[2] * interpos[5];
 	}
 
-	private float[] getFaceUvs(
+	private void getFaceUvs(
+			final float[] uvs,
 			final EnumFacing face,
-			final Vector3f to16,
-			final Vector3f from16,
+			final float[] from,
+			final float[] to,
 			final float[] quadsUV )
 	{
 		float fromA = 0;
@@ -624,57 +629,55 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		switch ( face )
 		{
 			case UP:
-				fromA = from16.x / 16.0f;
-				fromB = from16.z / 16.0f;
-				toA = to16.x / 16.0f;
-				toB = to16.z / 16.0f;
+				fromA = to[0] / 16.0f;
+				fromB = to[2] / 16.0f;
+				toA = from[0] / 16.0f;
+				toB = from[2] / 16.0f;
 				break;
 			case DOWN:
-				fromA = from16.x / 16.0f;
-				fromB = from16.z / 16.0f;
-				toA = to16.x / 16.0f;
-				toB = to16.z / 16.0f;
+				fromA = to[0] / 16.0f;
+				fromB = to[2] / 16.0f;
+				toA = from[0] / 16.0f;
+				toB = from[2] / 16.0f;
 				break;
 			case SOUTH:
-				fromA = from16.x / 16.0f;
-				fromB = from16.y / 16.0f;
-				toA = to16.x / 16.0f;
-				toB = to16.y / 16.0f;
+				fromA = to[0] / 16.0f;
+				fromB = to[1] / 16.0f;
+				toA = from[0] / 16.0f;
+				toB = from[1] / 16.0f;
 				break;
 			case NORTH:
-				fromA = from16.x / 16.0f;
-				fromB = from16.y / 16.0f;
-				toA = to16.x / 16.0f;
-				toB = to16.y / 16.0f;
+				fromA = to[0] / 16.0f;
+				fromB = to[1] / 16.0f;
+				toA = from[0] / 16.0f;
+				toB = from[1] / 16.0f;
 				break;
 			case EAST:
-				fromA = from16.y / 16.0f;
-				fromB = from16.z / 16.0f;
-				toA = to16.y / 16.0f;
-				toB = to16.z / 16.0f;
+				fromA = to[1] / 16.0f;
+				fromB = to[2] / 16.0f;
+				toA = from[1] / 16.0f;
+				toB = from[2] / 16.0f;
 				break;
 			case WEST:
-				fromA = from16.y / 16.0f;
-				fromB = from16.z / 16.0f;
-				toA = to16.y / 16.0f;
-				toB = to16.z / 16.0f;
+				fromA = to[1] / 16.0f;
+				fromB = to[2] / 16.0f;
+				toA = from[1] / 16.0f;
+				toB = from[2] / 16.0f;
 				break;
 			default:
 		}
 
-		return new float[] {
-				16.0f * u( quadsUV, fromA, fromB ), // 0
-				16.0f * v( quadsUV, fromA, fromB ), // 1
+		uvs[0] = 16.0f * u( quadsUV, fromA, fromB ); // 0
+		uvs[1] = 16.0f * v( quadsUV, fromA, fromB ); // 1
 
-				16.0f * u( quadsUV, toA, fromB ), // 2
-				16.0f * v( quadsUV, toA, fromB ), // 3
+		uvs[2] = 16.0f * u( quadsUV, toA, fromB ); // 2
+		uvs[3] = 16.0f * v( quadsUV, toA, fromB ); // 3
 
-				16.0f * u( quadsUV, toA, toB ), // 2
-				16.0f * v( quadsUV, toA, toB ), // 3
+		uvs[4] = 16.0f * u( quadsUV, toA, toB ); // 2
+		uvs[5] = 16.0f * v( quadsUV, toA, toB ); // 3
 
-				16.0f * u( quadsUV, fromA, toB ), // 0
-				16.0f * v( quadsUV, fromA, toB ), // 1
-		};
+		uvs[6] = 16.0f * u( quadsUV, fromA, toB ); // 0
+		uvs[7] = 16.0f * v( quadsUV, fromA, toB ); // 1
 	}
 
 	float u(
@@ -682,8 +685,9 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final float inU,
 			final float inV )
 	{
-		final float u1 = src[0] * inU + ( 1.0f - inU ) * src[2];
-		final float u2 = src[4] * inU + ( 1.0f - inU ) * src[6];
+		final float inv = 1.0f - inU;
+		final float u1 = src[0] * inU + inv * src[2];
+		final float u2 = src[4] * inU + inv * src[6];
 		return u1 * inV + ( 1.0f - inV ) * u2;
 	}
 
@@ -692,12 +696,14 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final float inU,
 			final float inV )
 	{
-		final float v1 = src[1] * inU + ( 1.0f - inU ) * src[3];
-		final float v2 = src[5] * inU + ( 1.0f - inU ) * src[7];
+		final float inv = 1.0f - inU;
+		final float v1 = src[1] * inU + inv * src[3];
+		final float v2 = src[5] * inU + inv * src[7];
 		return v1 * inV + ( 1.0f - inV ) * v2;
 	}
 
-	static private Vector3f offsetVec(
+	static private void offsetVec(
+			final float[] result,
 			final Vec3i to,
 			final EnumFacing f,
 			final int d )
@@ -741,11 +747,9 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				break;
 		}
 
-		final int x = to.getX() + leftX * d + upX * d;
-		final int y = to.getY() + leftY * d + upY * d;
-		final int z = to.getZ() + leftZ * d + upZ * d;
-
-		return new Vector3f( x * 0.5f, y * 0.5f, z * 0.5f );
+		result[0] = ( to.getX() + leftX * d + upX * d ) * 0.5f;
+		result[1] = ( to.getY() + leftY * d + upY * d ) * 0.5f;
+		result[2] = ( to.getZ() + leftZ * d + upZ * d ) * 0.5f;
 	}
 
 	@Override

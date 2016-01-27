@@ -10,7 +10,7 @@ import java.util.Random;
 import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ReflectionWrapper;
-import mod.chiselsandbits.render.helpers.ModelParserCache.ModelParserCacheBuilder;
+import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -33,7 +33,7 @@ public class ModelUtil
 {
 	private final static Random RANDOM = new Random();
 	private final static HashMap<Integer, String> blockToTexture[];
-	static HashMap<Integer, ModelParserCache[]> cache = new HashMap<Integer, ModelParserCache[]>();
+	static HashMap<Integer, ModelQuadLayer[]> cache = new HashMap<Integer, ModelQuadLayer[]>();
 
 	static
 	{
@@ -45,7 +45,7 @@ public class ModelUtil
 		}
 	}
 
-	static public ModelParserCache[] getCachedFace(
+	static public ModelQuadLayer[] getCachedFace(
 			final int stateID,
 			final long weight,
 			final EnumFacing face,
@@ -53,7 +53,7 @@ public class ModelUtil
 	{
 		final int cacheVal = stateID << 4 | face.ordinal();
 
-		final ModelParserCache[] mpc = cache.get( cacheVal );
+		final ModelQuadLayer[] mpc = cache.get( cacheVal );
 		if ( mpc != null )
 		{
 			return mpc;
@@ -62,12 +62,12 @@ public class ModelUtil
 		final IBlockState state = Block.getStateById( stateID );
 		final IBakedModel model = ModelUtil.solveModel( stateID, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
 
-		final HashMap<EnumFacing, ArrayList<ModelParserCacheBuilder>> tmp = new HashMap<EnumFacing, ArrayList<ModelParserCacheBuilder>>();
+		final HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>> tmp = new HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>>();
 		final int color = BitColors.getColorFor( state, layer == EnumWorldBlockLayer.SOLID ? 0 : 1 );
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
-			tmp.put( f, new ArrayList<ModelParserCache.ModelParserCacheBuilder>() );
+			tmp.put( f, new ArrayList<ModelQuadLayer.ModelQuadLayerBuilder>() );
 		}
 
 		if ( model != null )
@@ -75,17 +75,17 @@ public class ModelUtil
 			for ( final EnumFacing f : EnumFacing.VALUES )
 			{
 				final List<BakedQuad> quads = model.getFaceQuads( f );
-				parseFaces( tmp, quads );
+				processFaces( tmp, quads );
 			}
 
-			parseFaces( tmp, model.getGeneralQuads() );
+			processFaces( tmp, model.getGeneralQuads() );
 		}
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
 			final int cacheV = stateID << 4 | f.ordinal();
-			final ArrayList<ModelParserCacheBuilder> x = tmp.get( f );
-			final ModelParserCache[] mp = new ModelParserCache[x.size()];
+			final ArrayList<ModelQuadLayerBuilder> x = tmp.get( f );
+			final ModelQuadLayer[] mp = new ModelQuadLayer[x.size()];
 
 			for ( int z = 0; z < x.size(); z++ )
 			{
@@ -98,8 +98,8 @@ public class ModelUtil
 		return cache.get( cacheVal );
 	}
 
-	private static void parseFaces(
-			final HashMap<EnumFacing, ArrayList<ModelParserCacheBuilder>> tmp,
+	private static void processFaces(
+			final HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>> tmp,
 			final List<BakedQuad> quads )
 	{
 		for ( final BakedQuad q : quads )
@@ -114,10 +114,10 @@ public class ModelUtil
 			try
 			{
 				final TextureAtlasSprite sprite = findTexture( q );
-				final ArrayList<ModelParserCacheBuilder> l = tmp.get( face );
+				final ArrayList<ModelQuadLayerBuilder> l = tmp.get( face );
 
-				ModelParserCacheBuilder b = null;
-				for ( final ModelParserCacheBuilder lx : l )
+				ModelQuadLayerBuilder b = null;
+				for ( final ModelQuadLayerBuilder lx : l )
 				{
 					if ( lx.cache.sprite == sprite )
 					{
@@ -147,7 +147,7 @@ public class ModelUtil
 						default:
 					}
 
-					b = new ModelParserCacheBuilder( sprite, uCoord, vCoord );
+					b = new ModelQuadLayerBuilder( sprite, uCoord, vCoord );
 					b.cache.tint = q.getTintIndex();
 					l.add( b );
 				}

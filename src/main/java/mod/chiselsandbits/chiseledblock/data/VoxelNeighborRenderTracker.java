@@ -26,7 +26,7 @@ public class VoxelNeighborRenderTracker
 		faceCount = new Integer[EnumWorldBlockLayer.values().length];
 	}
 
-	private final VoxelBlobStateReference[] sides = new VoxelBlobStateReference[6];
+	private final ModelRenderState sides = new ModelRenderState( null );
 
 	public boolean isAboveLimit()
 	{
@@ -95,14 +95,14 @@ public class VoxelNeighborRenderTracker
 			final EnumFacing f,
 			final VoxelBlobStateReference value )
 	{
-		if ( sides[f.ordinal()] == value )
+		if ( sides.get( f ) == value )
 		{
 			return;
 		}
 
 		synchronized ( this )
 		{
-			sides[f.ordinal()] = value;
+			sides.put( f, value );
 			lrs = null;
 		}
 	}
