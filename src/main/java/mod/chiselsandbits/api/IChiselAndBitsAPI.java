@@ -3,6 +3,7 @@ package mod.chiselsandbits.api;
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -113,5 +114,21 @@ public interface IChiselAndBitsAPI
 	 */
 	ItemStack getBitItem(
 			IBlockState defaultState ) throws InvalidBitItem;
+
+	/**
+	 * Give a bit to a player, it will end up in their inventory, a bag, or if
+	 * there is no where to put it, on the ground.
+	 *
+	 * CLIENT: destroys the item.
+	 *
+	 * SERVER: adds item to inv/bag/spawns entity.
+	 *
+	 * @param player
+	 * @param is
+	 * @throws InvalidBitItem
+	 */
+	void giveBitToPlayer(
+			EntityPlayer player,
+			ItemStack is ) throws InvalidBitItem;
 
 }

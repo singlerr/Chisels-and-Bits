@@ -12,6 +12,7 @@ import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
@@ -24,6 +25,8 @@ import mod.chiselsandbits.items.ItemPositivePrint;
 import mod.chiselsandbits.items.ItemWrench;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -214,4 +217,23 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		return ItemChiseledBit.createStack( Block.getStateId( defaultState ), 1, true );
 	}
 
+	@Override
+	public void giveBitToPlayer(
+			final EntityPlayer player,
+			final ItemStack is ) throws InvalidBitItem
+	{
+		if ( is.getItem() == ChiselsAndBits.getItems().itemBlockBit )
+		{
+			if ( player.getEntityWorld().isRemote )
+			{
+				return;
+			}
+
+			final EntityItem ei = new EntityItem( player.getEntityWorld(), player.posX, player.posY, player.posZ, is );
+			ModUtil.feedPlayer( player.getEntityWorld(), player, ei );
+			return;
+		}
+
+		throw new InvalidBitItem();
+	}
 }
