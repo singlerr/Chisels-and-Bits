@@ -7,6 +7,15 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.lwjgl.input.Keyboard;
+import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
+
+import com.google.common.base.Stopwatch;
+
+import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
+import mod.chiselsandbits.api.IBitAccess;
+import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
@@ -87,12 +96,6 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Type;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
-import com.google.common.base.Stopwatch;
-
 public class ClientSide
 {
 
@@ -103,6 +106,7 @@ public class ClientSide
 	private KeyBinding rotateCCW;
 	private KeyBinding rotateCW;
 	private KeyBinding modeMenu;
+	private KeyBinding pickBit;
 	private Stopwatch rotateTimer;
 
 	public void preinit(
@@ -131,6 +135,9 @@ public class ClientSide
 
 		rotateCW = new KeyBinding( "mod.chiselsandbits.other.rotate.cw", 0, "itemGroup.chiselsandbits" );
 		ClientRegistry.registerKeyBinding( rotateCW );
+
+		pickBit = new KeyBinding( "mod.chiselsandbits.other.pickbit", 0, "itemGroup.chiselsandbits" );
+		ClientRegistry.registerKeyBinding( pickBit );
 
 		ChiselsAndBits.registerWithBus( instance );
 	}
@@ -213,7 +220,7 @@ public class ClientSide
 
 		for (
 
-				final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
+		final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
 
 		{
 			final Item item = Item.getItemFromBlock( blk );
@@ -264,14 +271,14 @@ public class ClientSide
 					{
 						final int color = bi.getRGB( x, y );
 						final int a = color >> 24 & 0xff;
-					if ( a > 0 )
-					{
-						sip.left = Math.min( sip.left, x );
-						right = Math.max( right, x );
+						if ( a > 0 )
+						{
+							sip.left = Math.min( sip.left, x );
+							right = Math.max( right, x );
 
-						sip.top = Math.min( sip.top, y );
-						bottom = Math.max( bottom, y );
-					}
+							sip.top = Math.min( sip.top, y );
+							bottom = Math.max( bottom, y );
+						}
 					}
 				}
 
@@ -354,6 +361,29 @@ public class ClientSide
 			}
 		}
 
+		if ( pickBit.isPressed() )
+		{
+			final Minecraft mc = Minecraft.getMinecraft();
+			if ( mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK )
+			{
+				try
+				{
+					final BitLocation bl = new BitLocation( mc.objectMouseOver, true, ChiselToolType.CHISEL );
+					final IBitAccess access = ChiselsAndBits.getApi().getBitAccess( mc.theWorld, bl.getBlockPos() );
+					final IBitBrush brush = access.getBitAt( bl.getBitX(), bl.getBitY(), bl.getBitZ() );
+					if ( brush != null )
+					{
+						final ItemStack is = brush.getItemStack( 1 );
+						doPick( is );
+					}
+				}
+				catch ( final CannotBeChiseled e )
+				{
+					// nope.
+				}
+			}
+		}
+
 		if ( event.type == ElementType.HOTBAR && ChiselsAndBits.getConfig().enableToolbarIcons )
 		{
 			final Minecraft mc = Minecraft.getMinecraft();
@@ -384,6 +414,42 @@ public class ClientSide
 				}
 			}
 		}
+	}
+
+	private boolean doPick(
+			final ItemStack result )
+	{
+		final EntityPlayer player = getPlayer();
+
+		for ( int x = 0; x < 9; x++ )
+		{
+			final ItemStack stack = player.inventory.getStackInSlot( x );
+			if ( stack != null && stack.isItemEqual( result ) && ItemStack.areItemStackTagsEqual( stack, result ) )
+			{
+				player.inventory.currentItem = x;
+				return true;
+			}
+		}
+
+		if ( !player.capabilities.isCreativeMode )
+		{
+			return false;
+		}
+
+		int slot = player.inventory.getFirstEmptyStack();
+		if ( slot < 0 || slot >= 9 )
+		{
+			slot = player.inventory.currentItem;
+		}
+
+		// update inventory..
+		player.inventory.setInventorySlotContents( slot, result );
+		player.inventory.currentItem = slot;
+
+		// update server...
+		final int j = player.inventoryContainer.inventorySlots.size() - 9 + player.inventory.currentItem;
+		Minecraft.getMinecraft().playerController.sendSlotPacket( player.inventory.getStackInSlot( player.inventory.currentItem ), j );
+		return true;
 	}
 
 	public ChiselToolType getHeldToolType()
