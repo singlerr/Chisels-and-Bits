@@ -8,6 +8,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
+import mod.chiselsandbits.render.helpers.ModelQuadLayer;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -54,52 +55,55 @@ public class BitItemBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : EnumFacing.VALUES )
 		{
-			TextureAtlasSprite texture = null;
-
 			for ( final EnumWorldBlockLayer layer : EnumWorldBlockLayer.values() )
 			{
-				if ( texture == null )
+				final ModelQuadLayer[] layers = ModelUtil.getCachedFace( BlockRef, 0, myFace, layer );
+
+				if ( layers == null || layers.length == 0 )
 				{
-					texture = ModelUtil.findTexture( BlockRef, originalModel, myFace, layer );
+					continue;
+				}
+
+				for ( final ModelQuadLayer clayer : layers )
+				{
+					final BlockFaceUV uv = new BlockFaceUV( getFaceUvs( myFace ), 0 );
+					final BlockPartFace bpf = new BlockPartFace( myFace, 0, "", uv );
+
+					Vector3f toB, fromB;
+
+					switch ( myFace )
+					{
+						case UP:
+							toB = new Vector3f( to.x, from.y, to.z );
+							fromB = new Vector3f( from.x, from.y, from.z );
+							break;
+						case EAST:
+							toB = new Vector3f( from.x, to.y, to.z );
+							fromB = new Vector3f( from.x, from.y, from.z );
+							break;
+						case NORTH:
+							toB = new Vector3f( to.x, to.y, to.z );
+							fromB = new Vector3f( from.x, from.y, to.z );
+							break;
+						case SOUTH:
+							toB = new Vector3f( to.x, to.y, from.z );
+							fromB = new Vector3f( from.x, from.y, from.z );
+							break;
+						case DOWN:
+							toB = new Vector3f( to.x, to.y, to.z );
+							fromB = new Vector3f( from.x, to.y, from.z );
+							break;
+						case WEST:
+							toB = new Vector3f( to.x, to.y, to.z );
+							fromB = new Vector3f( to.x, from.y, from.z );
+							break;
+						default:
+							throw new NullPointerException();
+					}
+
+					generic.add( faceBakery.makeBakedQuad( toB, fromB, bpf, clayer.sprite, myFace, mr, bpr, false, true ) );
 				}
 			}
-
-			final BlockFaceUV uv = new BlockFaceUV( getFaceUvs( myFace ), 0 );
-			final BlockPartFace bpf = new BlockPartFace( myFace, 0, "", uv );
-
-			Vector3f toB, fromB;
-
-			switch ( myFace )
-			{
-				case UP:
-					toB = new Vector3f( to.x, from.y, to.z );
-					fromB = new Vector3f( from.x, from.y, from.z );
-					break;
-				case EAST:
-					toB = new Vector3f( from.x, to.y, to.z );
-					fromB = new Vector3f( from.x, from.y, from.z );
-					break;
-				case NORTH:
-					toB = new Vector3f( to.x, to.y, to.z );
-					fromB = new Vector3f( from.x, from.y, to.z );
-					break;
-				case SOUTH:
-					toB = new Vector3f( to.x, to.y, from.z );
-					fromB = new Vector3f( from.x, from.y, from.z );
-					break;
-				case DOWN:
-					toB = new Vector3f( to.x, to.y, to.z );
-					fromB = new Vector3f( from.x, to.y, from.z );
-					break;
-				case WEST:
-					toB = new Vector3f( to.x, to.y, to.z );
-					fromB = new Vector3f( to.x, from.y, from.z );
-					break;
-				default:
-					throw new NullPointerException();
-			}
-
-			generic.add( faceBakery.makeBakedQuad( toB, fromB, bpf, texture, myFace, mr, bpr, false, true ) );
 		}
 
 	}
