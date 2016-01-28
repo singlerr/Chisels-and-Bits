@@ -3,9 +3,9 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.input.Keyboard;
-
+import mod.chiselsandbits.bitbag.BagCapabilityProvider;
 import mod.chiselsandbits.bitbag.BagInventory;
+import mod.chiselsandbits.bitbag.BagStorage;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -16,13 +16,17 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
 import net.minecraftforge.oredict.OreDictionary;
+
+import org.lwjgl.input.Keyboard;
 
 public class ItemBitBag extends Item
 {
@@ -40,6 +44,14 @@ public class ItemBitBag extends Item
 	// add info cached info
 	ItemStack cachedInfo;
 	List<String> details = new ArrayList<String>();
+
+	@Override
+	public ICapabilityProvider initCapabilities(
+			final ItemStack stack,
+			final NBTTagCompound nbt )
+	{
+		return new BagCapabilityProvider( stack, nbt );
+	}
 
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
@@ -309,7 +321,7 @@ public class ItemBitBag extends Item
 	{
 		final int qty = BagInventory.getSlotsUsed( stack );
 
-		final double value = qty / (float) BagInventory.max_size;
+		final double value = qty / (float) BagStorage.max_size;
 		return Math.min( 1.0d, Math.max( 0.0d, ChiselsAndBits.getConfig().invertBitBagFullness ? value : 1.0 - value ) );
 	}
 

@@ -22,16 +22,17 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 public class BagInventory implements IInventory
 {
 
-	final public static int max_size = 63;
+	// internal storage, the capability.
+	BagStorage inv;
 
-	final int[] slots;
-	final ItemStack[] stackSlots;
-
-	final ItemStack target;
+	// tmp storage, the IInventory
+	ItemStack[] stackSlots;
+	public ItemStack target;
 
 	static public int getSlotsUsed(
 			final ItemStack target )
@@ -68,30 +69,9 @@ public class BagInventory implements IInventory
 	public BagInventory(
 			final ItemStack is )
 	{
+		inv = (BagStorage) is.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null );
+		stackSlots = new ItemStack[BagStorage.max_size];
 		target = is;
-		NBTTagCompound tag = target.getTagCompound();
-
-		if ( tag == null )
-		{
-			is.setTagCompound( tag = new NBTTagCompound() );
-		}
-
-		final int slotCount = max_size;
-		final int len = slotCount * ItemBitBag.intsPerBitType;
-
-		stackSlots = new ItemStack[slotCount];
-
-		if ( !tag.hasKey( "contents" ) )
-		{
-			tag.setIntArray( "contents", new int[len] );
-		}
-
-		if ( tag.getIntArray( "contents" ).length != len )
-		{
-			tag.setIntArray( "contents", new int[len] );
-		}
-
-		slots = tag.getIntArray( "contents" );
 	}
 
 	@Override
@@ -122,8 +102,8 @@ public class BagInventory implements IInventory
 	public ItemStack getStackInSlot(
 			final int index )
 	{
-		final int qty = slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty];
-		final int id = slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id];
+		final int qty = inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty];
+		final int id = inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id];
 
 		if ( stackSlots[index] != null )
 		{
@@ -144,8 +124,8 @@ public class BagInventory implements IInventory
 			final int index,
 			int count )
 	{
-		final int qty = slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty];
-		final int id = slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id];
+		final int qty = inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty];
+		final int id = inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id];
 
 		if ( qty == 0 || id == 0 )
 		{
@@ -157,7 +137,7 @@ public class BagInventory implements IInventory
 			count = qty;
 		}
 
-		slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty] -= count;
+		inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty] -= count;
 
 		if ( stackSlots[index] != null )
 		{
@@ -183,13 +163,13 @@ public class BagInventory implements IInventory
 
 		if ( stack != null && stack.getItem() instanceof ItemChiseledBit )
 		{
-			slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty] = stack.stackSize;
-			slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id] = ItemChiseledBit.getStackState( stack );
+			inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty] = stack.stackSize;
+			inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id] = ItemChiseledBit.getStackState( stack );
 		}
 		else
 		{
-			slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty] = 0;
-			slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id] = 0;
+			inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty] = 0;
+			inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id] = 0;
 		}
 	}
 
@@ -206,7 +186,7 @@ public class BagInventory implements IInventory
 		{
 			if ( stackSlots[x] != null )
 			{
-				slots[ItemBitBag.intsPerBitType * x + ItemBitBag.offset_qty] = stackSlots[x].stackSize;
+				inv.contents[ItemBitBag.intsPerBitType * x + ItemBitBag.offset_qty] = stackSlots[x].stackSize;
 				stackSlots[x] = null;
 			}
 		}
@@ -263,9 +243,9 @@ public class BagInventory implements IInventory
 	@Override
 	public void clear()
 	{
-		for ( int x = 0; x < slots.length; x++ )
+		for ( int x = 0; x < inv.contents.length; x++ )
 		{
-			slots[x] = 0;
+			inv.contents[x] = 0;
 			stackSlots[x] = null;
 		}
 	}
@@ -341,19 +321,19 @@ public class BagInventory implements IInventory
 		{
 			final int qty_idx = ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty;
 
-			final int qty = slots[qty_idx];
-			final int id = slots[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id];
+			final int qty = inv.contents[qty_idx];
+			final int id = inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id];
 
 			if ( id == bitMeta && qty > 0 )
 			{
-				slots[qty_idx] -= total;
+				inv.contents[qty_idx] -= total;
 
-				if ( slots[qty_idx] < 0 )
+				if ( inv.contents[qty_idx] < 0 )
 				{
-					slots[qty_idx] = 0;
+					inv.contents[qty_idx] = 0;
 				}
 
-				final int diff = qty - slots[qty_idx];
+				final int diff = qty - inv.contents[qty_idx];
 				used += diff;
 				total -= diff;
 
