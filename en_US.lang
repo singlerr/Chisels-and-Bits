@@ -41,6 +41,7 @@ mod.chiselsandbits.chiselmode.drawn_region=Drawn Region
 mod.chiselsandbits.other.rotate.ccw=Rotate Held Counter Clockwise
 mod.chiselsandbits.other.rotate.cw=Rotate Held Clockwise
 mod.chiselsandbits.other.mode=Radial Menu
+mod.chiselsandbits.other.pickbit=Pick Bit
 
 mod.chiselsandbits.help.shiftdetails=<Hold Shift For Details>
 mod.chiselsandbits.help.empty=Empty
