@@ -211,10 +211,27 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	}
 
 	@Override
-	public ItemStack getBitItem(
-			final IBlockState defaultState ) throws InvalidBitItem
+	public IBitBrush createBrushFromState(
+			final IBlockState state ) throws InvalidBitItem
 	{
-		return ItemChiseledBit.createStack( Block.getStateId( defaultState ), 1, true );
+		if ( !BlockBitInfo.supportsBlock( state ) )
+		{
+			throw new InvalidBitItem();
+		}
+
+		return new BitBrush( Block.getStateId( state ) );
+	}
+
+	@Override
+	public ItemStack getBitItem(
+			final IBlockState state ) throws InvalidBitItem
+	{
+		if ( !BlockBitInfo.supportsBlock( state ) )
+		{
+			throw new InvalidBitItem();
+		}
+
+		return ItemChiseledBit.createStack( Block.getStateId( state ), 1, true );
 	}
 
 	@Override
@@ -236,4 +253,5 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 		throw new InvalidBitItem();
 	}
+
 }

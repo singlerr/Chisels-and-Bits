@@ -82,6 +82,17 @@ public interface IChiselAndBitsAPI
 			ItemStack bitItem ) throws InvalidBitItem;
 
 	/**
+	 * Create a brush from an state, once created you can use it many times.
+	 *
+	 * @param state
+	 * @return A brush for the specified state, if null is passed for the item
+	 *         an air brush is created.
+	 * @throws InvalidBitItem
+	 */
+	IBitBrush createBrushFromState(
+			IBlockState state ) throws InvalidBitItem;
+
+	/**
 	 * Convert ray trace information into bit location information, note that
 	 * the block position can change, be aware.
 	 *
