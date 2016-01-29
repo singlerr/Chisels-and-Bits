@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ReflectionWrapper;
@@ -23,11 +24,13 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.client.model.ISmartItemModel;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraftforge.fluids.Fluid;
 
 @SuppressWarnings( "unchecked" )
 public class ModelUtil
@@ -46,7 +49,17 @@ public class ModelUtil
 		}
 	}
 
-	static public ModelQuadLayer[] getCachedFace(
+	public static void resetCache()
+	{
+		for ( int x = 0; x < blockToTexture.length; x++ )
+		{
+			blockToTexture[x].clear();
+		}
+
+		cache.clear();
+	}
+
+	public static ModelQuadLayer[] getCachedFace(
 			final int stateID,
 			final long weight,
 			final EnumFacing face,
@@ -62,6 +75,36 @@ public class ModelUtil
 
 		final IBlockState state = Block.getStateById( stateID );
 		final IBakedModel model = ModelUtil.solveModel( stateID, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
+
+		final Fluid fluid = BlockBitInfo.getFluidFromBlock( state.getBlock() );
+		if ( fluid != null )
+		{
+			for ( final EnumFacing xf : EnumFacing.VALUES )
+			{
+				final ModelQuadLayer[] mp = new ModelQuadLayer[1];
+				mp[0] = new ModelQuadLayer();
+				mp[0].color = 0xffffff;
+				mp[0].light = state.getBlock().getLightValue();
+
+				if ( xf.getAxis() == Axis.Y )
+				{
+					mp[0].sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( fluid.getStill().toString() );
+					mp[0].uvs = new float[] { 1, 1, 0, 1, 1, 0, 0, 0 };
+				}
+				else
+				{
+					mp[0].sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( fluid.getFlowing().toString() );
+					mp[0].uvs = new float[] { 0.5f, 0, 0, 0, 0.5f, 1, 0, 1 };
+				}
+
+				mp[0].tint = -1;
+
+				final int cacheV = stateID << 4 | xf.ordinal();
+				cache.put( cacheV, mp );
+			}
+
+			return cache.get( cacheVal );
+		}
 
 		final HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>> tmp = new HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>>();
 		final int color = BitColors.getColorFor( state, layer == EnumWorldBlockLayer.SOLID ? 0 : 1 );

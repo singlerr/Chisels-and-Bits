@@ -19,6 +19,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.Fluid;
 
 public class BlockBitInfo
 {
@@ -28,6 +29,28 @@ public class BlockBitInfo
 	// cache data..
 	private static HashMap<IBlockState, BlockBitInfo> stateBitInfo = new HashMap<IBlockState, BlockBitInfo>();
 	private static HashMap<Block, Boolean> supportedBlocks = new HashMap<Block, Boolean>();
+	private static HashMap<Block, Fluid> fluidBlocks = new HashMap<Block, Fluid>();
+
+	public static void addFluidBlock(
+			final Block blk,
+			final Fluid fluid )
+	{
+		if ( blk == null )
+		{
+			return;
+		}
+
+		fluidBlocks.put( blk, fluid );
+
+		stateBitInfo.clear();
+		supportedBlocks.clear();
+	}
+
+	static public Fluid getFluidFromBlock(
+			final Block blk )
+	{
+		return fluidBlocks.get( blk );
+	}
 
 	public static void ignoreBlockLogic(
 			final Block which )
@@ -96,7 +119,7 @@ public class BlockBitInfo
 			boolean requiredImplementation = quantityDroppedTest && quantityDroppedWithBonusTest && quantityDropped2Test && entityCollisionTest && entityCollision2Test;
 			boolean hasBehavior = ( blk.hasTileEntity( state ) || blk.getTickRandomly() ) && blkClass != BlockGrass.class;
 
-			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( blk.getMaterial() ) != null;
+			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( blk ) != null;
 
 			final Boolean IgnoredLogic = ignorelogicBlocks.get( blk );
 			if ( blkClass.isAnnotationPresent( IgnoreBlockLogic.class ) || IgnoredLogic != null && IgnoredLogic )
@@ -117,6 +140,12 @@ public class BlockBitInfo
 				}
 
 				return result;
+			}
+
+			if ( fluidBlocks.containsKey( blk ) )
+			{
+				supportedBlocks.put( blk, true );
+				return true;
 			}
 
 			supportedBlocks.put( blk, false );

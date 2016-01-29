@@ -15,6 +15,7 @@ public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance
 	public final byte[] v;
 
 	private SoftReference<List<AxisAlignedBB>> occlusion;
+	private SoftReference<List<AxisAlignedBB>> collision;
 	protected SoftReference<VoxelBlob> blob;
 
 	public VoxelBlobStateInstance(
@@ -88,15 +89,35 @@ public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance
 		}
 	}
 
-	public List<AxisAlignedBB> getOcclusionBoxes()
+	public List<AxisAlignedBB> getBoxes(
+			final boolean isCollision )
 	{
-		List<AxisAlignedBB> cache = occlusion == null ? null : occlusion.get();
+		List<AxisAlignedBB> cache;
+
+		if ( isCollision )
+		{
+			cache = collision == null ? null : collision.get();
+		}
+		else
+		{
+			cache = occlusion == null ? null : occlusion.get();
+		}
 
 		if ( cache == null )
 		{
-			occlusion = new SoftReference<List<AxisAlignedBB>>( cache = new ArrayList<AxisAlignedBB>() );
-
 			final VoxelBlob blob = getBlob();
+			boolean same = false;
+
+			if ( isCollision )
+			{
+				same = !blob.filterFluids( false );
+				collision = new SoftReference<List<AxisAlignedBB>>( cache = new ArrayList<AxisAlignedBB>() );
+			}
+			else
+			{
+				occlusion = new SoftReference<List<AxisAlignedBB>>( cache = new ArrayList<AxisAlignedBB>() );
+			}
+
 			final BitOcclusionIterator boi = new BitOcclusionIterator( cache );
 
 			while ( boi.hasNext() )
@@ -109,6 +130,11 @@ public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance
 				{
 					boi.drop();
 				}
+			}
+
+			if ( same )
+			{
+				occlusion = collision;
 			}
 		}
 

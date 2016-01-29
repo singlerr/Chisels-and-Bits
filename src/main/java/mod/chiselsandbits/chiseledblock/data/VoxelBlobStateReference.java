@@ -160,9 +160,10 @@ public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReferen
 		return comp;
 	}
 
-	public List<AxisAlignedBB> getOcclusionBoxes()
+	public List<AxisAlignedBB> getBoxes(
+			final boolean collision )
 	{
-		return data.getOcclusionBoxes();
+		return data.getBoxes( collision );
 	}
 
 }

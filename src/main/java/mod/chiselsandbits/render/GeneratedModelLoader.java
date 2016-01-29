@@ -6,6 +6,7 @@ import java.util.HashMap;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.render.bit.BitItemSmartModel;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
+import mod.chiselsandbits.render.helpers.ModelUtil;
 import mod.chiselsandbits.render.patterns.PrintSmartModel;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -35,6 +36,7 @@ public class GeneratedModelLoader implements ICustomModelLoader
 		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_ground" ), new ChiseledBlockSmartModel() );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_sand" ), new ChiseledBlockSmartModel() );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_grass" ), new ChiseledBlockSmartModel() );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_fluid" ), new ChiseledBlockSmartModel() );
 
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_chiseled" ), new ChiseledBlockSmartModel() );
 
@@ -80,6 +82,7 @@ public class GeneratedModelLoader implements ICustomModelLoader
 	{
 		ChiseledBlockSmartModel.resetCache();
 		BitItemSmartModel.resetCache();
+		ModelUtil.resetCache();
 
 		for ( final ModelResourceLocation rl : res )
 		{

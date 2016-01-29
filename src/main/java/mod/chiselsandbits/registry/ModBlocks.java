@@ -3,6 +3,7 @@ package mod.chiselsandbits.registry;
 import java.util.HashMap;
 import java.util.Map;
 
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.MaterialType;
@@ -13,6 +14,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemBlock;
+import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -32,6 +34,7 @@ public class ModBlocks extends ModRegistry
 			new MaterialType( "ground", Material.ground ),
 			new MaterialType( "grass", Material.grass ),
 			new MaterialType( "snow", Material.snow ),
+			new MaterialType( "fluid", Material.water ),
 	};
 
 	private final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();
@@ -74,13 +77,20 @@ public class ModBlocks extends ModRegistry
 	}
 
 	public BlockChiseled getConversion(
-			final Material material )
+			final Block material )
 	{
-		return getConversions().get( material );
+		final Fluid f = BlockBitInfo.getFluidFromBlock( material );
+
+		if ( f != null )
+		{
+			return getConversions().get( Material.water );
+		}
+
+		return getConversions().get( material.getMaterial() );
 	}
 
 	public BlockChiseled getConversionWithDefault(
-			final Material material )
+			final Block material )
 	{
 		final BlockChiseled bcX = getConversion( material );
 

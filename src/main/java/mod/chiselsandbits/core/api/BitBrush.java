@@ -12,9 +12,9 @@ public class BitBrush implements IBitBrush
 	protected final int stateID;
 
 	public BitBrush(
-			final int BitBrush )
+			final int blockStateID )
 	{
-		stateID = BitBrush;
+		stateID = blockStateID;
 	}
 
 	@Override

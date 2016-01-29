@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 public class ModelQuadLayer
 {
 
-	public float[] uvs = new float[6];
+	public float[] uvs;
 	public TextureAtlasSprite sprite;
 	public int light;
 	public int color;

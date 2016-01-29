@@ -117,7 +117,7 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 	public void addOcclusionBoxes(
 			final List<AxisAlignedBB> list )
 	{
-		list.addAll( getTile().getOcclusionBoxes() );
+		list.addAll( getTile().getBoxes( false ) );
 	}
 
 	public TileEntityBlockChiseled getTile()

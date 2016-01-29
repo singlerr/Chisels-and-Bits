@@ -1,6 +1,7 @@
 package mod.chiselsandbits.core;
 
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.api.ChiselAndBitsAPI;
 import mod.chiselsandbits.core.api.IMCHandler;
@@ -16,6 +17,8 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -168,6 +171,16 @@ public class ChiselsAndBits
 		}
 
 		integration.postinit();
+
+		for ( final Fluid o : FluidRegistry.getRegisteredFluids().values() )
+		{
+			if ( o.canBePlacedInWorld() )
+			{
+				BlockBitInfo.addFluidBlock( o.getBlock(), o );
+			}
+		}
+
+		getItems().itemBlockBit.clearCache();
 
 		NetworkRouter.instance = new NetworkRouter();
 		NetworkRegistry.INSTANCE.registerGuiHandler( this, new ModGuiRouter() );

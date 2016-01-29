@@ -278,7 +278,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final BlockPos pos,
 			final IBlockState state,
 			final int fortune )
-			{
+	{
 		try
 		{
 			return Collections.singletonList( getTileEntity( world, pos ).getItemStack( this, null ) );
@@ -288,7 +288,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			Log.noTileError( e );
 			return Collections.emptyList();
 		}
-			}
+	}
 
 	@Override
 	public void onBlockPlacedBy(
@@ -472,7 +472,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		final AxisAlignedBB localMask = mask.offset( -pos.getX(), -pos.getY(), -pos.getZ() );
 
-		for ( final AxisAlignedBB bb : te.getOcclusionBoxes() )
+		for ( final AxisAlignedBB bb : te.getBoxes( true ) )
 		{
 			if ( bb.intersectsWith( localMask ) )
 			{
@@ -651,7 +651,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		MovingObjectPosition br = null;
 		double lastDist = 0;
 
-		for ( final AxisAlignedBB box : tec.getOcclusionBoxes() )
+		for ( final AxisAlignedBB box : tec.getBoxes( false ) )
 		{
 			boundsToTest.setBlockBounds( (float) box.minX, (float) box.minY, (float) box.minZ, (float) box.maxX, (float) box.maxY, (float) box.maxZ );
 			final MovingObjectPosition r = boundsToTest.collisionRayTrace( null, pos, a, b );
@@ -775,7 +775,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		if ( BlockBitInfo.supportsBlock( actingState ) || isAir )
 		{
-			BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( target.getMaterial() );
+			BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( target );
 
 			int BlockID = Block.getStateId( actingState );
 
@@ -784,7 +784,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				actingState = Block.getStateById( fragmentBlockStateID );
 				target = actingState.getBlock();
 				BlockID = Block.getStateId( actingState );
-				blk = ChiselsAndBits.getBlocks().getConversion( target.getMaterial() );
+				blk = ChiselsAndBits.getBlocks().getConversion( target );
 				// its still air tho..
 				actingState = Blocks.air.getDefaultState();
 			}

@@ -441,7 +441,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	public IBlockState getPreferedBlock()
 	{
-		return ChiselsAndBits.getBlocks().getConversionWithDefault( getBlockState( Blocks.stone ).getBlock().getMaterial() ).getDefaultState();
+		return ChiselsAndBits.getBlocks().getConversionWithDefault( getBlockState( Blocks.stone ).getBlock() ).getDefaultState();
 	}
 
 	public void setBlob(
@@ -663,13 +663,14 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return false;
 	}
 
-	public List<AxisAlignedBB> getOcclusionBoxes()
+	public List<AxisAlignedBB> getBoxes(
+			final boolean collision )
 	{
 		final VoxelBlobStateReference ref = getBlobStateReference();
 
 		if ( ref != null )
 		{
-			return ref.getOcclusionBoxes();
+			return ref.getBoxes( collision );
 		}
 		else
 		{

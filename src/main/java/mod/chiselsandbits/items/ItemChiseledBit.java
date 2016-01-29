@@ -1,6 +1,7 @@
 package mod.chiselsandbits.items;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
@@ -39,6 +40,9 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -100,7 +104,20 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			// proper state here...
 			final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
 			final Block blk = state.getBlock();
-			target = new ItemStack( blk, 1, blk.damageDropped( state ) );
+
+			final Item item = Item.getItemFromBlock( blk );
+			if ( item == null )
+			{
+				final Fluid f = BlockBitInfo.getFluidFromBlock( blk );
+				if ( f != null )
+				{
+					return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( f.getLocalizedName( new FluidStack( f, 10 ) ) ).toString();
+				}
+			}
+			else
+			{
+				target = new ItemStack( blk, 1, blk.damageDropped( state ) );
+			}
 		}
 		catch ( final IllegalArgumentException e )
 		{
@@ -250,6 +267,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			bits = new ArrayList<ItemStack>();
 
 			final ArrayList<ItemStack> List = new ArrayList<ItemStack>();
+			final HashSet<IBlockState> used = new HashSet();
 
 			for ( final Object obj : Item.itemRegistry )
 			{
@@ -277,6 +295,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 						if ( state != null && BlockBitInfo.supportsBlock( state ) )
 						{
+							used.add( state );
 							bits.add( ItemChiseledBit.createStack( Block.getStateId( state ), 1, false ) );
 						}
 					}
@@ -289,6 +308,19 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				}
 
 				List.clear();
+			}
+
+			for ( final Fluid o : FluidRegistry.getRegisteredFluids().values() )
+			{
+				if ( o.canBePlacedInWorld() && o.getBlock() != null )
+				{
+					if ( used.contains( o.getBlock().getDefaultState() ) )
+					{
+						continue;
+					}
+
+					bits.add( ItemChiseledBit.createStack( Block.getStateId( o.getBlock().getDefaultState() ), 1, false ) );
+				}
 			}
 		}
 

@@ -17,6 +17,7 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
 
 import io.netty.buffer.Unpooled;
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.serialization.BitStream;
 import mod.chiselsandbits.chiseledblock.serialization.BlobSerializer;
 import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializer;
@@ -749,6 +750,34 @@ public class VoxelBlob
 		return output;
 	}
 
+	public boolean filterFluids(
+			final boolean wantsFluids )
+	{
+		final HashMap<Integer, Boolean> filterState = new HashMap<Integer, Boolean>();
+		filterState.put( 0, false );
+
+		boolean hasValues = false;
+
+		for ( int x = 0; x < array_size; x++ )
+		{
+			final int ref = values[x];
+
+			Boolean state = filterState.get( ref );
+			if ( state == null )
+			{
+				filterState.put( ref, state = isFluid( ref ) );
+				hasValues = hasValues || state;
+			}
+
+			if ( state != wantsFluids )
+			{
+				values[x] = 0;
+			}
+		}
+
+		return hasValues;
+	}
+
 	public boolean filter(
 			final EnumWorldBlockLayer layer )
 	{
@@ -775,6 +804,13 @@ public class VoxelBlob
 		}
 
 		return hasValues;
+	}
+
+	private Boolean isFluid(
+			final int ref )
+	{
+		final IBlockState state = Block.getStateById( ref );
+		return BlockBitInfo.getFluidFromBlock( state.getBlock() ) != null;
 	}
 
 	private Boolean inLayer(
@@ -899,7 +935,7 @@ public class VoxelBlob
 			final int byteOffset = set.byteOffset();
 
 			pb.writeVarIntToBuffer( byteOffset );
-			pb.writeVarIntToBuffer( bytesToWrite -byteOffset);
+			pb.writeVarIntToBuffer( bytesToWrite - byteOffset );
 
 			w.write( pb.array(), 0, pb.writerIndex() );
 

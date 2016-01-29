@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.lwjgl.util.vector.Vector3f;
+
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
@@ -30,8 +32,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3i;
-
-import org.lwjgl.util.vector.Vector3f;
 
 public class ChiseledBlockBaked extends BaseBakedBlockModel
 {
@@ -132,7 +132,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	public List<BakedQuad> getList(
 			final EnumFacing side )
-			{
+	{
 		if ( side != null )
 		{
 			switch ( side )
@@ -154,7 +154,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		}
 
 		return asList( generic );
-			}
+	}
 
 	private List<BakedQuad> asList(
 			final BakedQuad[] array )
@@ -387,7 +387,13 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		for ( final EnumFacing myFace : X_Faces )
 		{
 			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.get( myFace ) : null;
-			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
+			VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
+
+			if ( nextTo != null )
+			{
+				nextTo = nextTo.filter( myLayer ) ? nextTo : null;
+			}
+
 			for ( int x = 0; x < blob.detail; x++ )
 			{
 				if ( regions == null )
@@ -442,7 +448,13 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		for ( final EnumFacing myFace : Y_Faces )
 		{
 			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.get( myFace ) : null;
-			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
+			VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
+
+			if ( nextTo != null )
+			{
+				nextTo = nextTo.filter( myLayer ) ? nextTo : null;
+			}
+
 			for ( int y = 0; y < blob.detail; y++ )
 			{
 				if ( regions == null )
@@ -497,7 +509,13 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		for ( final EnumFacing myFace : Z_Faces )
 		{
 			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.get( myFace ) : null;
-			final VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
+			VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
+
+			if ( nextTo != null )
+			{
+				nextTo = nextTo.filter( myLayer ) ? nextTo : null;
+			}
+
 			for ( int z = 0; z < blob.detail; z++ )
 			{
 				if ( regions == null )
@@ -755,9 +773,9 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	@Override
 	public List<BakedQuad> getFaceQuads(
 			final EnumFacing requestedFace )
-			{
+	{
 		return getList( requestedFace );
-			}
+	}
 
 	@Override
 	public List<BakedQuad> getGeneralQuads()
