@@ -103,7 +103,6 @@ public class BagContainer extends Container
 	{
 		if ( bagInv.target != player.getCurrentEquippedItem() )
 		{
-
 			final ItemStack is = player.getCurrentEquippedItem();
 			if ( is != null && is.getItem() instanceof ItemBitBag )
 			{
@@ -115,7 +114,6 @@ public class BagContainer extends Container
 				pi.setInventory( new NullInventory( 63 ) );
 				return false;
 			}
-
 		}
 
 		return bagInv.target.getItem() instanceof ItemBitBag;
