@@ -91,6 +91,11 @@ public class ModelUtil
 					mp[0].sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( fluid.getStill().toString() );
 					mp[0].uvs = new float[] { 1, 1, 0, 1, 1, 0, 0, 0 };
 				}
+				else if ( xf.getAxis() == Axis.X )
+				{
+					mp[0].sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( fluid.getFlowing().toString() );
+					mp[0].uvs = new float[] { 0.5f, 0, 0.5f, 1, 0, 0, 0, 1 };
+				}
 				else
 				{
 					mp[0].sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( fluid.getFlowing().toString() );

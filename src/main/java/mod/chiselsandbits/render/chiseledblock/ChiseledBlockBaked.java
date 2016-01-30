@@ -251,8 +251,8 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		processZFaces( blob, visFace, mrs, rset );
 
 		// re-usable float[]'s to minimize garbage cleanup.
-		final float[] to = new float[3];
-		final float[] from = new float[3];
+		final int[] to = new int[3];
+		final int[] from = new int[3];
 		final float[] uvs = new float[8];
 		final float[] pos = new float[3];
 
@@ -280,7 +280,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 					faceBuilder.setFace( myFace, pc.tint );
 
 					final float maxLightmap = 32.0f / 0xffff;
-					getFaceUvs( uvs, myFace, from, to, pc.uvs, Math.max( pc.sprite.getIconHeight(), pc.sprite.getIconWidth() ) );
+					getFaceUvs( uvs, myFace, from, to, pc.uvs );
 
 					// build it.
 					for ( int vertNum = 0; vertNum < 4; vertNum++ )
@@ -622,8 +622,8 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final float[] pos,
 			final EnumFacing side,
 			final int vertNum,
-			final float[] to,
-			final float[] from )
+			final int[] to,
+			final int[] from )
 	{
 		final float[] interpos = quadMapping[side.ordinal()][vertNum];
 
@@ -635,10 +635,9 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	private void getFaceUvs(
 			final float[] uvs,
 			final EnumFacing face,
-			final float[] from,
-			final float[] to,
-			final float[] quadsUV,
-			final int scale )
+			final int[] from,
+			final int[] to,
+			final float[] quadsUV )
 	{
 		float to_u = 0;
 		float to_v = 0;
@@ -686,12 +685,6 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			default:
 		}
 
-		final float epsilon = 1.0f / ( 15.625f * scale );
-		from_u += epsilon;
-		from_v += epsilon;
-		to_u -= epsilon;
-		to_v -= epsilon;
-
 		uvs[0] = 16.0f * u( quadsUV, to_u, to_v ); // 0
 		uvs[1] = 16.0f * v( quadsUV, to_u, to_v ); // 1
 
@@ -728,7 +721,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	}
 
 	static private void offsetVec(
-			final float[] result,
+			final int[] result,
 			final Vec3i to,
 			final EnumFacing f,
 			final int d )
@@ -772,9 +765,9 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				break;
 		}
 
-		result[0] = ( to.getX() + leftX * d + upX * d ) * 0.5f;
-		result[1] = ( to.getY() + leftY * d + upY * d ) * 0.5f;
-		result[2] = ( to.getZ() + leftZ * d + upZ * d ) * 0.5f;
+		result[0] = ( to.getX() + leftX * d + upX * d ) / 2;
+		result[1] = ( to.getY() + leftY * d + upY * d ) / 2;
+		result[2] = ( to.getZ() + leftZ * d + upZ * d ) / 2;
 	}
 
 	@Override
