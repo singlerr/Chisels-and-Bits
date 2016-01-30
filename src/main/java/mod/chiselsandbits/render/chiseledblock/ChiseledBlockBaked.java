@@ -280,7 +280,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 					faceBuilder.setFace( myFace, pc.tint );
 
 					final float maxLightmap = 32.0f / 0xffff;
-					getFaceUvs( uvs, myFace, from, to, pc.uvs );
+					getFaceUvs( uvs, myFace, from, to, pc.uvs, Math.max( pc.sprite.getIconHeight(), pc.sprite.getIconWidth() ) );
 
 					// build it.
 					for ( int vertNum = 0; vertNum < 4; vertNum++ )
@@ -637,65 +637,72 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final EnumFacing face,
 			final float[] from,
 			final float[] to,
-			final float[] quadsUV )
+			final float[] quadsUV,
+			final int scale )
 	{
-		float fromA = 0;
-		float fromB = 0;
-		float toA = 0;
-		float toB = 0;
+		float to_u = 0;
+		float to_v = 0;
+		float from_u = 0;
+		float from_v = 0;
 
 		switch ( face )
 		{
 			case UP:
-				fromA = to[0] / 16.0f;
-				fromB = to[2] / 16.0f;
-				toA = from[0] / 16.0f;
-				toB = from[2] / 16.0f;
+				to_u = to[0] / 16.0f;
+				to_v = to[2] / 16.0f;
+				from_u = from[0] / 16.0f;
+				from_v = from[2] / 16.0f;
 				break;
 			case DOWN:
-				fromA = to[0] / 16.0f;
-				fromB = to[2] / 16.0f;
-				toA = from[0] / 16.0f;
-				toB = from[2] / 16.0f;
+				to_u = to[0] / 16.0f;
+				to_v = to[2] / 16.0f;
+				from_u = from[0] / 16.0f;
+				from_v = from[2] / 16.0f;
 				break;
 			case SOUTH:
-				fromA = to[0] / 16.0f;
-				fromB = to[1] / 16.0f;
-				toA = from[0] / 16.0f;
-				toB = from[1] / 16.0f;
+				to_u = to[0] / 16.0f;
+				to_v = to[1] / 16.0f;
+				from_u = from[0] / 16.0f;
+				from_v = from[1] / 16.0f;
 				break;
 			case NORTH:
-				fromA = to[0] / 16.0f;
-				fromB = to[1] / 16.0f;
-				toA = from[0] / 16.0f;
-				toB = from[1] / 16.0f;
+				to_u = to[0] / 16.0f;
+				to_v = to[1] / 16.0f;
+				from_u = from[0] / 16.0f;
+				from_v = from[1] / 16.0f;
 				break;
 			case EAST:
-				fromA = to[1] / 16.0f;
-				fromB = to[2] / 16.0f;
-				toA = from[1] / 16.0f;
-				toB = from[2] / 16.0f;
+				to_u = to[1] / 16.0f;
+				to_v = to[2] / 16.0f;
+				from_u = from[1] / 16.0f;
+				from_v = from[2] / 16.0f;
 				break;
 			case WEST:
-				fromA = to[1] / 16.0f;
-				fromB = to[2] / 16.0f;
-				toA = from[1] / 16.0f;
-				toB = from[2] / 16.0f;
+				to_u = to[1] / 16.0f;
+				to_v = to[2] / 16.0f;
+				from_u = from[1] / 16.0f;
+				from_v = from[2] / 16.0f;
 				break;
 			default:
 		}
 
-		uvs[0] = 16.0f * u( quadsUV, fromA, fromB ); // 0
-		uvs[1] = 16.0f * v( quadsUV, fromA, fromB ); // 1
+		final float epsilon = 1.0f / ( 15.625f * scale );
+		from_u += epsilon;
+		from_v += epsilon;
+		to_u -= epsilon;
+		to_v -= epsilon;
 
-		uvs[2] = 16.0f * u( quadsUV, toA, fromB ); // 2
-		uvs[3] = 16.0f * v( quadsUV, toA, fromB ); // 3
+		uvs[0] = 16.0f * u( quadsUV, to_u, to_v ); // 0
+		uvs[1] = 16.0f * v( quadsUV, to_u, to_v ); // 1
 
-		uvs[4] = 16.0f * u( quadsUV, toA, toB ); // 2
-		uvs[5] = 16.0f * v( quadsUV, toA, toB ); // 3
+		uvs[2] = 16.0f * u( quadsUV, from_u, to_v ); // 2
+		uvs[3] = 16.0f * v( quadsUV, from_u, to_v ); // 3
 
-		uvs[6] = 16.0f * u( quadsUV, fromA, toB ); // 0
-		uvs[7] = 16.0f * v( quadsUV, fromA, toB ); // 1
+		uvs[4] = 16.0f * u( quadsUV, from_u, from_v ); // 2
+		uvs[5] = 16.0f * v( quadsUV, from_u, from_v ); // 3
+
+		uvs[6] = 16.0f * u( quadsUV, to_u, from_v ); // 0
+		uvs[7] = 16.0f * v( quadsUV, to_u, from_v ); // 1
 	}
 
 	float u(
