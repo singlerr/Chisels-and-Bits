@@ -70,6 +70,29 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	public final String name;
 
 	@Override
+	public Boolean isAABBInsideMaterial(
+			final World world,
+			final BlockPos pos,
+			final AxisAlignedBB bb,
+			final Material materialIn )
+	{
+		return false;
+	}
+
+	@Override
+	public Boolean isEntityInsideMaterial(
+			final World world,
+			final BlockPos blockpos,
+			final IBlockState iblockstate,
+			final Entity entity,
+			final double yToTest,
+			final Material materialIn,
+			final boolean testingHead )
+	{
+		return false;
+	}
+
+	@Override
 	public boolean isReplaceable(
 			final World worldIn,
 			final BlockPos pos )
