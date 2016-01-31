@@ -24,7 +24,7 @@ class SubMaterial extends Material
 	@Override
 	public boolean isSolid()
 	{
-		return false;
+		return true;
 	}
 
 	@Override
@@ -36,7 +36,7 @@ class SubMaterial extends Material
 	@Override
 	public boolean blocksMovement()
 	{
-		return c.blocksMovement();
+		return true;
 	}
 
 	@Override
