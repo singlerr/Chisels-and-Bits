@@ -9,6 +9,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderCache;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderChunk;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.property.IExtendedBlockState;
@@ -118,6 +119,13 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			final int pass )
 	{
 		return true;
+	}
+
+	@Override
+	public AxisAlignedBB getRenderBoundingBox()
+	{
+		final BlockPos p = getPos();
+		return new AxisAlignedBB( p.getX(), p.getY(), p.getZ(), p.getX() + 1, p.getY() + 1, p.getZ() + 1 );
 	}
 
 	@Override

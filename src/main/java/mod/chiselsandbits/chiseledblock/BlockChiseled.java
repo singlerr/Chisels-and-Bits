@@ -265,7 +265,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final BlockPos pos,
 			final IBlockState state,
 			final int fortune )
-	{
+			{
 		try
 		{
 			return Collections.singletonList( getTileEntity( world, pos ).getItemStack( this, null ) );
@@ -275,7 +275,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			Log.noTileError( e );
 			return Collections.emptyList();
 		}
-	}
+			}
 
 	@Override
 	public void onBlockPlacedBy(
@@ -448,7 +448,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			Log.noTileError( e );
 		}
 
-		return r;
+		return r.offset( pos.getX(), pos.getY(), pos.getZ() );
 	}
 
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
