@@ -41,6 +41,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselModeItem
 {
@@ -125,10 +126,16 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	};
 
 	@Override
+	@SideOnly( Side.CLIENT )
 	public int getColorFromItemStack(
 			final ItemStack stack,
 			final int renderPass )
 	{
+		if ( ClientSide.instance.holdingShift() )
+		{
+			return 0xffffff;
+		}
+
 		final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
 		return state == null ? 0xffffff : BitColors.getColorFor( state, renderPass );
 	}
