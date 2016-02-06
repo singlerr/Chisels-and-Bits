@@ -20,7 +20,7 @@ public class BitColors
 		if ( out == null )
 		{
 			final Block blk = state.getBlock();
-			final ItemStack target = new ItemStack( blk, 1, blk.getMetaFromState( state ) );
+			final ItemStack target = new ItemStack( blk, 1, blk.damageDropped( state ) );
 
 			if ( target.getItem() == null )
 			{
