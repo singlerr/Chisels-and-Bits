@@ -356,6 +356,11 @@ public class ModUtil
 				ei.worldObj.playSoundAtEntity( ei, "random.pop", 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
 			}
 		}
+
+		if ( player.inventoryContainer != null )
+		{
+			player.inventoryContainer.detectAndSendChanges();
+		}
 	}
 
 	public static boolean containsAtLeastOneOf(
