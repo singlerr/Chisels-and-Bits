@@ -389,10 +389,16 @@ public class VoxelBlob
 
 		for ( int x = 0; x < array_size; x++ )
 		{
-			values[x] = src.get();
+			values[x] = fixShorts( src.get() );
 		}
 
 		w.close();
+	}
+
+	private int fixShorts(
+			final short s )
+	{
+		return s & 0xffff;
 	}
 
 	public void write(
