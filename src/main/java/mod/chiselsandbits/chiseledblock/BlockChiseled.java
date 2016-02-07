@@ -463,7 +463,33 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final BlockPos pos,
 			final IBlockState state )
 	{
-		return null;
+		AxisAlignedBB r = null;
+
+		try
+		{
+			for ( final AxisAlignedBB bb : getTileEntity( worldIn, pos ).getBoxes( true ) )
+			{
+				if ( r == null )
+				{
+					r = bb;
+				}
+				else
+				{
+					r = r.union( bb );
+				}
+			}
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			Log.noTileError( e );
+		}
+
+		if ( r == null )
+		{
+			return null;
+		}
+
+		return r.offset( pos.getX(), pos.getY(), pos.getZ() );
 	}
 
 	@SuppressWarnings( { "unchecked", "rawtypes" } )

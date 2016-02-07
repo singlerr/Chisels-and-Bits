@@ -64,12 +64,12 @@ public class ModelRenderState
 	{
 		if ( sides != null )
 		{
-			this.north = sides.north;
-			this.south = sides.south;
-			this.east = sides.east;
-			this.west = sides.west;
-			this.up = sides.up;
-			this.down = sides.down;
+			north = sides.north;
+			south = sides.south;
+			east = sides.east;
+			west = sides.west;
+			up = sides.up;
+			down = sides.down;
 		}
 	}
 

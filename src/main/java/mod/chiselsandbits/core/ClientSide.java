@@ -16,6 +16,7 @@ import com.google.common.base.Stopwatch;
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBrush;
+import mod.chiselsandbits.bittank.BlockBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
@@ -27,6 +28,7 @@ import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.commands.JsonModelExport;
 import mod.chiselsandbits.gui.ChiselsAndBitsMenu;
 import mod.chiselsandbits.gui.SpriteIconPositioning;
 import mod.chiselsandbits.helpers.ChiselModeManager;
@@ -57,6 +59,7 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
@@ -80,6 +83,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.MouseEvent;
@@ -87,6 +91,7 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -140,6 +145,8 @@ public class ClientSide
 		ClientRegistry.registerKeyBinding( pickBit );
 
 		ChiselsAndBits.registerWithBus( instance );
+
+		ClientCommandHandler.instance.registerCommand( new JsonModelExport() );
 	}
 
 	public void postinit(
@@ -218,14 +225,19 @@ public class ClientSide
 			} );
 		}
 
-		for (
-
-		final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
-
+		for ( final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
 		{
 			final Item item = Item.getItemFromBlock( blk );
 			mesher.register( item, 0, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "inventory" ) );
 		}
+
+		final BlockBitTank bitTank = ChiselsAndBits.getBlocks().blockBitTank;
+		final Item bitTankItem = Item.getItemFromBlock( bitTank );
+		final ModelResourceLocation bittank_block = new ModelResourceLocation( "bittank", "normal" );
+		final ModelResourceLocation bittank_item = new ModelResourceLocation( "bittank", "inventory" );
+
+		mesher.register( bitTankItem, 0, bittank_item );
+		ModelLoader.setCustomStateMapper( bitTank, new StateMap.Builder().withName( BlockBitTank.FACING ).build() );
 
 		ChiselsAndBits.getConfig().allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
 	}

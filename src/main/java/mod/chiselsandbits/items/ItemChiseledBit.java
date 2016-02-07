@@ -45,6 +45,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselModeItem
 {
@@ -142,10 +143,16 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	};
 
 	@Override
+	@SideOnly( Side.CLIENT )
 	public int getColorFromItemStack(
 			final ItemStack stack,
 			final int renderPass )
 	{
+		if ( ClientSide.instance.holdingShift() )
+		{
+			return 0xffffff;
+		}
+
 		final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
 		return state == null ? 0xffffff : BitColors.getColorFor( state, renderPass );
 	}
@@ -331,7 +338,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ItemStack output,
 			final int blk )
 	{
-		return output.hasTagCompound() ? output.getTagCompound().getInteger( "id" ) == blk : false;
+		return output.hasTagCompound() ? getStackState( output ) == blk : false;
 	}
 
 	public static ItemStack createStack(
@@ -365,7 +372,10 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	public static int getStackState(
 			final ItemStack inHand )
 	{
-		return inHand != null && inHand.hasTagCompound() ? inHand.getTagCompound().getInteger( "id" ) : 0;
+		final int v = inHand != null && inHand.hasTagCompound() ? inHand.getTagCompound().getInteger( "id" ) : 0;
+
+		// fix broken bits...
+		return v < 0 ? v & 0xffff : v;
 	}
 
 	public static boolean placeBit(

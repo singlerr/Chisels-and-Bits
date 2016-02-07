@@ -27,6 +27,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -48,7 +49,8 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			return false;
 		}
 
-		return BlockBitInfo.supportsBlock( world.getBlockState( pos ) ) || ModUtil.getChiseledTileEntity( world, pos, false ) != null;
+		final IBlockState state = world.getBlockState( pos );
+		return state.getBlock() == Blocks.air || BlockBitInfo.supportsBlock( state ) || ModUtil.getChiseledTileEntity( world, pos, false ) != null;
 	}
 
 	@Override

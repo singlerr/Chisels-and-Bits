@@ -7,6 +7,7 @@ import mod.chiselsandbits.bitbag.BagCapabilityProvider;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.bitbag.BagStorage;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.NetworkRouter;
@@ -24,9 +25,8 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.oredict.OreDictionary;
-
-import org.lwjgl.input.Keyboard;
 
 public class ItemBitBag extends Item
 {
@@ -73,7 +73,7 @@ public class ItemBitBag extends Item
 			bi.listContents( details );
 		}
 
-		if ( details.size() <= 2 || Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
+		if ( details.size() <= 2 || ClientSide.instance.holdingShift() )
 		{
 			tooltip.addAll( details );
 		}
@@ -306,9 +306,11 @@ public class ItemBitBag extends Item
 	public boolean showDurabilityBar(
 			final ItemStack stack )
 	{
-		if ( stack.hasTagCompound() )
+		final Object o = stack.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null );
+
+		if ( o instanceof BagStorage )
 		{
-			final int qty = BagInventory.getSlotsUsed( stack );
+			final int qty = ( (BagStorage) o ).getSlotsUsed();
 			return qty != 0;
 		}
 
@@ -319,10 +321,17 @@ public class ItemBitBag extends Item
 	public double getDurabilityForDisplay(
 			final ItemStack stack )
 	{
-		final int qty = BagInventory.getSlotsUsed( stack );
+		final Object o = stack.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null );
 
-		final double value = qty / (float) BagStorage.max_size;
-		return Math.min( 1.0d, Math.max( 0.0d, ChiselsAndBits.getConfig().invertBitBagFullness ? value : 1.0 - value ) );
+		if ( o instanceof BagStorage )
+		{
+			final int qty = ( (BagStorage) o ).getSlotsUsed();
+
+			final double value = qty / (float) BagStorage.max_size;
+			return Math.min( 1.0d, Math.max( 0.0d, ChiselsAndBits.getConfig().invertBitBagFullness ? value : 1.0 - value ) );
+		}
+
+		return 0;
 	}
 
 }

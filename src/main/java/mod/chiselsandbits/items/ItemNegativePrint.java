@@ -8,7 +8,6 @@ import org.lwjgl.input.Keyboard;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
@@ -232,13 +231,6 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		// Detect and provide full blocks if pattern solid full and solid.
 		final TileEntityBlockChiseled tebc = new TileEntityBlockChiseled();
 		tebc.readChisleData( tag );
-
-		final BlobStats common = tebc.getBlob().getVoxelStats();
-		if ( common.isFullBlock )
-		{
-			final IBlockState state = Block.getStateById( common.mostCommonState );
-			return new ItemStack( state.getBlock(), 1, state.getBlock().getMetaFromState( state ) );
-		}
 
 		final IBlockState blk = Block.getStateById( tag.getInteger( TileEntityBlockChiseled.block_prop ) );
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk.getBlock() ), 1 );

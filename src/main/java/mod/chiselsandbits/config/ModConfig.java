@@ -106,6 +106,9 @@ public class ModConfig extends Configuration
 	public boolean enableNegativePrintInversionCrafting;
 
 	@Configured( category = "Items" )
+	public boolean enableBitTank;
+
+	@Configured( category = "Items" )
 	public boolean enableBitBag;
 
 	@Configured( category = "Items" )
@@ -240,6 +243,7 @@ public class ModConfig extends Configuration
 		enableToolHarvestLevels = true;
 		enableChiselToolHarvestCheckTools = "pickaxe,axe,shovel";
 
+		enableBitTank = true;
 		enableBitLightSource = true;
 		bitLightPercentage = 6.25f;
 		enableBitBag = true;

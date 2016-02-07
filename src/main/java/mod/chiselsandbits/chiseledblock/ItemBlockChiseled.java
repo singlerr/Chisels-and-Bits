@@ -7,6 +7,7 @@ import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
@@ -37,8 +38,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import org.lwjgl.input.Keyboard;
-
 public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IItemScrollWheel
 {
 
@@ -65,7 +64,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 		if ( stack.hasTagCompound() )
 		{
-			if ( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
+			if ( ClientSide.instance.holdingShift() )
 			{
 				if ( cachedInfo != stack )
 				{

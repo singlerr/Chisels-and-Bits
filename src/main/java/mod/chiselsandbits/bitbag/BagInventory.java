@@ -18,7 +18,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -33,38 +32,6 @@ public class BagInventory implements IInventory
 	// tmp storage, the IInventory
 	ItemStack[] stackSlots;
 	public ItemStack target;
-
-	static public int getSlotsUsed(
-			final ItemStack target )
-	{
-		final NBTTagCompound tag = target.getTagCompound();
-
-		if ( tag == null )
-		{
-			return 0;
-		}
-
-		if ( !tag.hasKey( "contents" ) )
-		{
-			return 0;
-		}
-
-		final int slots[] = tag.getIntArray( "contents" );
-
-		int used = 0;
-		for ( int index = 0; index < slots.length; index += ItemBitBag.intsPerBitType )
-		{
-			final int qty = slots[index + ItemBitBag.offset_qty];
-			final int id = slots[index + ItemBitBag.offset_state_id];
-
-			if ( qty > 0 && id > 0 )
-			{
-				used++;
-			}
-		}
-
-		return used;
-	}
 
 	public BagInventory(
 			final ItemStack is )

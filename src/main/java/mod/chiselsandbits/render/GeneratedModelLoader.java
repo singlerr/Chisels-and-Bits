@@ -37,6 +37,7 @@ public class GeneratedModelLoader implements ICustomModelLoader
 		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_sand" ), new ChiseledBlockSmartModel() );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_grass" ), new ChiseledBlockSmartModel() );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_fluid" ), new ChiseledBlockSmartModel() );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_snow" ), new ChiseledBlockSmartModel() );
 
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_chiseled" ), new ChiseledBlockSmartModel() );
 

@@ -162,7 +162,7 @@ public class ModelUtil
 
 			try
 			{
-				final TextureAtlasSprite sprite = findTexture( q );
+				final TextureAtlasSprite sprite = findQuadTexture( q );
 				final ArrayList<ModelQuadLayerBuilder> l = tmp.get( face );
 
 				ModelQuadLayerBuilder b = null;
@@ -216,7 +216,7 @@ public class ModelUtil
 
 	}
 
-	private static TextureAtlasSprite findTexture(
+	public static TextureAtlasSprite findQuadTexture(
 			final BakedQuad q ) throws IllegalArgumentException, IllegalAccessException, NullPointerException
 	{
 		final TextureMap map = Minecraft.getMinecraft().getTextureMapBlocks();
@@ -397,7 +397,7 @@ public class ModelUtil
 		{
 			if ( q.getFace() == myFace )
 			{
-				texture = findTexture( q );
+				texture = findQuadTexture( q );
 			}
 		}
 

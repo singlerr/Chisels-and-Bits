@@ -91,7 +91,6 @@ public class PacketChisel extends ModPacket
 		final int maxY = Math.max( from.blockPos.getY(), to.blockPos.getY() );
 		final int minZ = Math.min( from.blockPos.getZ(), to.blockPos.getZ() );
 		final int maxZ = Math.max( from.blockPos.getZ(), to.blockPos.getZ() );
-		// final BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
 		int returnVal = 0;
 
@@ -162,12 +161,12 @@ public class PacketChisel extends ModPacket
 						if ( update )
 						{
 							tec.postChisel( vb );
-							returnVal += update ? 1 : 0;
+							returnVal++;
 						}
 						else if ( extracted != null )
 						{
 							tec.postChisel( vb );
-							returnVal += ItemChiseledBit.getStackState( extracted );
+							returnVal++;
 						}
 
 					}

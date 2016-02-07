@@ -3,6 +3,8 @@ package mod.chiselsandbits.registry;
 import java.util.HashMap;
 import java.util.Map;
 
+import mod.chiselsandbits.bittank.BlockBitTank;
+import mod.chiselsandbits.bittank.TileEntityBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
@@ -20,6 +22,8 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class ModBlocks extends ModRegistry
 {
+
+	public final BlockBitTank blockBitTank;
 
 	public static final MaterialType[] validMaterials = new MaterialType[] {
 			new MaterialType( "wood", Material.wood ),
@@ -44,10 +48,21 @@ public class ModBlocks extends ModRegistry
 			final Side side )
 	{
 		// register tile entities.
+		GameRegistry.registerTileEntity( TileEntityBitTank.class, "mod.chiselsandbits.TileEntityBitTank" );
 		GameRegistry.registerTileEntity( TileEntityBlockChiseled.class, "mod.chiselsandbits.TileEntityChiseled" );
 
 		// register TESR differently on the server..
 		GameRegistry.registerTileEntity( side == Side.CLIENT ? TileEntityBlockChiseledTESR.class : TileEntityBlockChiseled.class, "mod.chiselsandbits.TileEntityChiseled.tesr" );
+
+		if ( config.enableBitTank )
+		{
+			blockBitTank = new BlockBitTank();
+			registerBlock( blockBitTank, null, "bittank" );
+		}
+		else
+		{
+			blockBitTank = null;
+		}
 
 		// register blocks...
 		for ( final MaterialType mat : validMaterials )

@@ -32,7 +32,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 	private final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
 	private final static Queue<SoftReference<Tessellator>> previousTessellators = new ConcurrentLinkedQueue<SoftReference<Tessellator>>();
 
-	private RegionRenderCache cache;
+	private final RegionRenderCache cache;
 	private final BlockPos chunkOffset;
 
 	public ChisledBlockBackgroundRender(

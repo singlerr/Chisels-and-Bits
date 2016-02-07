@@ -206,4 +206,21 @@ public class BagStorage implements IItemHandler, INBTSerializable<NBTTagCompound
 		}
 	}
 
+	public int getSlotsUsed()
+	{
+		int used = 0;
+		for ( int index = 0; index < contents.length; index += ItemBitBag.intsPerBitType )
+		{
+			final int qty = contents[index + ItemBitBag.offset_qty];
+			final int id = contents[index + ItemBitBag.offset_state_id];
+
+			if ( qty > 0 && id > 0 )
+			{
+				used++;
+			}
+		}
+
+		return used;
+	}
+
 }
