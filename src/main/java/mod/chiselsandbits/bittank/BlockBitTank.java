@@ -2,16 +2,24 @@ package mod.chiselsandbits.bittank;
 
 import com.google.common.base.Predicate;
 
+import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidContainerRegistry;
+import net.minecraftforge.fluids.FluidStack;
 
 public class BlockBitTank extends Block implements ITileEntityProvider
 {
@@ -109,6 +117,99 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 			final int meta )
 	{
 		return new TileEntityBitTank();
+	}
+
+	public TileEntityBitTank getTileEntity(
+			final TileEntity te ) throws ExceptionNoTileEntity
+	{
+		if ( te instanceof TileEntityBitTank )
+		{
+			return (TileEntityBitTank) te;
+		}
+		throw new ExceptionNoTileEntity();
+	}
+
+	public TileEntityBitTank getTileEntity(
+			final IBlockAccess world,
+			final BlockPos pos ) throws ExceptionNoTileEntity
+	{
+		return getTileEntity( world.getTileEntity( pos ) );
+	}
+
+	@Override
+	public boolean onBlockActivated(
+			final World worldIn,
+			final BlockPos pos,
+			final IBlockState state,
+			final EntityPlayer playerIn,
+			final EnumFacing side,
+			final float hitX,
+			final float hitY,
+			final float hitZ )
+	{
+		try
+		{
+			final TileEntityBitTank tank = getTileEntity( worldIn, pos );
+			final ItemStack current = playerIn.inventory.getCurrentItem();
+
+			if ( current != null )
+			{
+				final FluidStack liquid = FluidContainerRegistry.getFluidForFilledItem( current );
+				if ( liquid != null && liquid.amount % TileEntityBitTank.MB_PER_BIT_CONVERSION == 0 && liquid.amount > 0 )
+				{
+					final int bitCount = liquid.amount * TileEntityBitTank.BITS_PER_MB_CONVERSION / TileEntityBitTank.MB_PER_BIT_CONVERSION;
+					final ItemStack bitItems = tank.getFluidBitStack( liquid.getFluid(), bitCount );
+
+					if ( tank.insertItem( 0, bitItems, true ) == null )
+					{
+						final ItemStack empty = FluidContainerRegistry.drainFluidContainer( current );
+
+						if ( empty != null )
+						{
+							// insert items.. and drain the container.
+							tank.insertItem( 0, bitItems, false );
+							playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, empty );
+							playerIn.inventory.markDirty();
+						}
+					}
+					return true;
+				}
+
+				if ( FluidContainerRegistry.isEmptyContainer( current ) )
+				{
+					final FluidStack outFluid = tank.getAccessableFluid();
+					final int capacity = FluidContainerRegistry.getContainerCapacity( outFluid, current );
+
+					if ( capacity % TileEntityBitTank.MB_PER_BIT_CONVERSION == 0 )
+					{
+						int requiredBits = capacity / TileEntityBitTank.MB_PER_BIT_CONVERSION;
+						requiredBits *= TileEntityBitTank.BITS_PER_MB_CONVERSION;
+
+						final ItemStack output = tank.extractBits( 0, requiredBits, true );
+						if ( output != null && output.stackSize == requiredBits )
+						{
+							outFluid.amount = capacity;
+							final ItemStack filled = FluidContainerRegistry.fillFluidContainer( outFluid, current );
+
+							if ( filled != null )
+							{
+								tank.extractBits( 0, requiredBits, false );
+								playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, filled );
+								playerIn.inventory.markDirty();
+							}
+						}
+					}
+					return true;
+				}
+			}
+
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			Log.noTileError( e );
+		}
+
+		return false;
 	}
 
 }
