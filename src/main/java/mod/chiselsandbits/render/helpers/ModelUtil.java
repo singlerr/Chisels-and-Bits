@@ -13,6 +13,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ReflectionWrapper;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockLeavesBase;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -138,7 +139,7 @@ public class ModelUtil
 
 			for ( int z = 0; z < x.size(); z++ )
 			{
-				mp[z] = x.get( z ).build( stateID, color, state.getBlock() == Blocks.grass );
+				mp[z] = x.get( z ).build( stateID, color, state.getBlock() == Blocks.grass || state.getBlock() instanceof BlockLeavesBase );
 			}
 
 			cache.put( cacheV, mp );

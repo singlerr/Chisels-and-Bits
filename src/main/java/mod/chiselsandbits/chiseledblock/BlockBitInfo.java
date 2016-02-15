@@ -26,6 +26,12 @@ public class BlockBitInfo
 	// imc api...
 	private static HashMap<Block, Boolean> ignorelogicBlocks = new HashMap<Block, Boolean>();
 
+	static
+	{
+		ignorelogicBlocks.put( Blocks.leaves, true );
+		ignorelogicBlocks.put( Blocks.leaves2, true );
+	}
+
 	// cache data..
 	private static HashMap<IBlockState, BlockBitInfo> stateBitInfo = new HashMap<IBlockState, BlockBitInfo>();
 	private static HashMap<Block, Boolean> supportedBlocks = new HashMap<Block, Boolean>();
