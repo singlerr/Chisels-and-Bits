@@ -3,6 +3,7 @@ package mod.chiselsandbits.core.api;
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import mod.chiselsandbits.api.IBitAccess;
+import mod.chiselsandbits.api.IBitBag;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.IBitLocation;
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
@@ -35,6 +36,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.items.CapabilityItemHandler;
 
 public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 {
@@ -239,7 +241,8 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	@Override
 	public void giveBitToPlayer(
 			final EntityPlayer player,
-			final ItemStack is ) throws InvalidBitItem
+			final ItemStack is,
+			Vec3 spawnPos ) throws InvalidBitItem
 	{
 		if ( is.getItem() == ChiselsAndBits.getItems().itemBlockBit )
 		{
@@ -248,12 +251,33 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 				return;
 			}
 
-			final EntityItem ei = new EntityItem( player.getEntityWorld(), player.posX, player.posY, player.posZ, is );
+			if ( spawnPos == null )
+			{
+				spawnPos = new Vec3( player.posX, player.posY, player.posZ );
+			}
+
+			final EntityItem ei = new EntityItem( player.getEntityWorld(), spawnPos.xCoord, spawnPos.yCoord, spawnPos.zCoord, is );
 			ModUtil.feedPlayer( player.getEntityWorld(), player, ei );
 			return;
 		}
 
 		throw new InvalidBitItem();
+	}
+
+	@Override
+	public IBitBag getBitbag(
+			final ItemStack itemstack )
+	{
+		if ( itemstack != null )
+		{
+			final Object o = itemstack.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP );
+			if ( o instanceof IBitBag )
+			{
+				return (IBitBag) o;
+			}
+		}
+
+		return null;
 	}
 
 }

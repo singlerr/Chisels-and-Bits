@@ -7,7 +7,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.items.IItemHandler;
 
 /**
  * Do not implement, is passed to your {@link IChiselsAndBitsAddon}
@@ -135,11 +137,26 @@ public interface IChiselAndBitsAPI
 	 * SERVER: adds item to inv/bag/spawns entity.
 	 *
 	 * @param player
-	 * @param is
+	 *            player to give bits to.
+	 * @param itemstack
+	 *            bits to store.
+	 * @param spawnPos
+	 *            if null defaults to the players position, absolute position of
+	 *            where to spawn bits, should be in the block near where they
+	 *            are being extracted from.
 	 * @throws InvalidBitItem
 	 */
 	void giveBitToPlayer(
 			EntityPlayer player,
-			ItemStack is ) throws InvalidBitItem;
+			ItemStack itemstack,
+			Vec3 spawnPos ) throws InvalidBitItem;
 
+	/**
+	 * Access the contents of a bitbag as if it was a normal
+	 * {@link IItemHandler} with a few extra features.
+	 *
+	 * @return internal object to manipulate bag.
+	 */
+	IBitBag getBitbag(
+			ItemStack itemstack );
 }

@@ -1,6 +1,7 @@
 package mod.chiselsandbits.bitbag;
 
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
+import mod.chiselsandbits.api.IBitBag;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -9,9 +10,8 @@ import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.items.IItemHandler;
 
-public class BagStorage implements IItemHandler, INBTSerializable<NBTTagCompound>
+public class BagStorage implements IBitBag, INBTSerializable<NBTTagCompound>
 {
 
 	public static final int max_size = 63;
@@ -107,7 +107,7 @@ public class BagStorage implements IItemHandler, INBTSerializable<NBTTagCompound
 					if ( brush.getStateID() == id || id == 0 )
 					{
 						int newTotal = qty + stack.stackSize;
-						final int overFlow = newTotal > getMaxStackSize() ? newTotal - getMaxStackSize() : 0;
+						final int overFlow = newTotal > getBitbagStackSize() ? newTotal - getBitbagStackSize() : 0;
 						newTotal -= overFlow;
 
 						if ( !simulate )
@@ -134,7 +134,8 @@ public class BagStorage implements IItemHandler, INBTSerializable<NBTTagCompound
 		return stack;
 	}
 
-	private int getMaxStackSize()
+	@Override
+	public int getBitbagStackSize()
 	{
 		return ChiselsAndBits.getConfig().bagStackSize;
 	}
@@ -206,6 +207,7 @@ public class BagStorage implements IItemHandler, INBTSerializable<NBTTagCompound
 		}
 	}
 
+	@Override
 	public int getSlotsUsed()
 	{
 		int used = 0;
