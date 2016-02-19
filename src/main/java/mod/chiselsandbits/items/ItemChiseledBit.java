@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import mod.chiselsandbits.bittank.BlockBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
@@ -170,6 +171,15 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	{
 		if ( !player.canPlayerEdit( usedBlock, side, stack ) )
 		{
+			return false;
+		}
+
+		// forward interactions to tank...
+		final IBlockState usedState = world.getBlockState( usedBlock );
+		final Block blk = usedState.getBlock();
+		if ( blk instanceof BlockBitTank )
+		{
+			blk.onBlockActivated( world, usedBlock, usedState, player, side, hitX, hitY, hitZ );
 			return false;
 		}
 

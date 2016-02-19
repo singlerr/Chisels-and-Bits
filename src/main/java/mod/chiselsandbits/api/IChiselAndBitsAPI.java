@@ -144,12 +144,11 @@ public interface IChiselAndBitsAPI
 	 *            if null defaults to the players position, absolute position of
 	 *            where to spawn bits, should be in the block near where they
 	 *            are being extracted from.
-	 * @throws InvalidBitItem
 	 */
 	void giveBitToPlayer(
 			EntityPlayer player,
 			ItemStack itemstack,
-			Vec3 spawnPos ) throws InvalidBitItem;
+			Vec3 spawnPos );
 
 	/**
 	 * Access the contents of a bitbag as if it was a normal

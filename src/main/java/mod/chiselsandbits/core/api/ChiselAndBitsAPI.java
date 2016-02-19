@@ -242,26 +242,33 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	public void giveBitToPlayer(
 			final EntityPlayer player,
 			final ItemStack is,
-			Vec3 spawnPos ) throws InvalidBitItem
+			Vec3 spawnPos )
 	{
-		if ( is.getItem() == ChiselsAndBits.getItems().itemBlockBit )
+		if ( is != null )
 		{
-			if ( player.getEntityWorld().isRemote )
-			{
-				return;
-			}
-
 			if ( spawnPos == null )
 			{
 				spawnPos = new Vec3( player.posX, player.posY, player.posZ );
 			}
 
 			final EntityItem ei = new EntityItem( player.getEntityWorld(), spawnPos.xCoord, spawnPos.yCoord, spawnPos.zCoord, is );
-			ModUtil.feedPlayer( player.getEntityWorld(), player, ei );
-			return;
-		}
 
-		throw new InvalidBitItem();
+			if ( is.getItem() == ChiselsAndBits.getItems().itemBlockBit )
+			{
+				if ( player.getEntityWorld().isRemote )
+				{
+					return;
+				}
+
+				ModUtil.feedPlayer( player.getEntityWorld(), player, ei );
+				return;
+			}
+			else if ( !player.inventory.addItemStackToInventory( is ) )
+			{
+				ei.setEntityItemStack( is );
+				player.getEntityWorld().spawnEntityInWorld( ei );
+			}
+		}
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 package mod.chiselsandbits.bittank;
 
-import com.google.common.base.Predicate;
-
+import mod.chiselsandbits.api.ItemType;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import net.minecraft.block.Block;
@@ -16,10 +16,13 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
+
+import com.google.common.base.Predicate;
 
 public class BlockBitTank extends Block implements ITileEntityProvider
 {
@@ -201,8 +204,27 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 					}
 					return true;
 				}
+
+				if ( playerIn.isSneaking() )
+				{
+					if ( ChiselsAndBits.getApi().getItemType( current ) == ItemType.CHISLED_BIT )
+					{
+						playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, tank.insertItem( 0, current, false ) );
+						playerIn.inventory.markDirty();
+						return true;
+					}
+				}
 			}
 
+			if ( !playerIn.isSneaking() )
+			{
+				final ItemStack is = tank.extractItem( 0, 64, false );
+				if ( is != null )
+				{
+					ChiselsAndBits.getApi().giveBitToPlayer( playerIn, is, new Vec3( (double) hitX + pos.getX(), (double) hitY + pos.getY(), (double) hitZ + pos.getZ() ) );
+				}
+				return true;
+			}
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
