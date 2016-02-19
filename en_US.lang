@@ -9,6 +9,14 @@ tile.mod.chiselsandbits.chiseled_glass.name=Chiseled Glass
 tile.mod.chiselsandbits.chiseled_ice.name=Chiseled Ice
 tile.mod.chiselsandbits.chiseled_packedIce.name=Chiseled Packed Ice
 tile.mod.chiselsandbits.chiseled_clay.name=Chiseled Clay
+tile.mod.chiselsandbits.chiseled_sand.name=Chiseled Sand
+tile.mod.chiselsandbits.chiseled_ground.name=Chiseled Ground
+tile.mod.chiselsandbits.chiseled_grass.name=Chiseled Grass
+tile.mod.chiselsandbits.chiseled_snow.name=Chiseled Snow
+tile.mod.chiselsandbits.chiseled_fluid.name=Chiseled Fluid
+tile.mod.chiselsandbits.chiseled_leaves.name=Chiseled Leaves
+
+tile.mod.chiselsandbits.bittank.name=Chiseled Fluid Bit Tank
 
 item.mod.chiselsandbits.block_bit.name=Chiseled Bit
 item.mod.chiselsandbits.bit_bag.name=Chiseled Bit Bag
