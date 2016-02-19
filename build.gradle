@@ -24,12 +24,12 @@ repositories {
 }
 
 dependencies {
-	deobfCompile "mezz.jei:jei_1.8.9:2.16.0.74"
+	deobfCompile "mezz.jei:jei_1.8.9:2.27.+"
 	deobfCompile "MCMultiPart:MCMultiPart:1.0.5:universal"
 }
 
 minecraft {
-    version = "1.8.9-11.15.1.1726"
+    version = "1.8.9-11.15.1.1755"
     runDir = "eclipse"
     mappings = "stable_20"
     

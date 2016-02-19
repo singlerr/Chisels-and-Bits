@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import mezz.jei.api.IItemRegistry;
+import mezz.jei.api.BlankModPlugin;
 import mezz.jei.api.IJeiHelpers;
-import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
-import mezz.jei.api.IRecipeRegistry;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.block.Block;
@@ -17,7 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 @mezz.jei.api.JEIPlugin
-public class JustEnoughItems implements IModPlugin
+public class JustEnoughItems extends BlankModPlugin
 {
 
 	@Override
@@ -30,13 +28,6 @@ public class JustEnoughItems implements IModPlugin
 		}
 
 		jeiHelpers.getNbtIgnoreList().ignoreNbtTagNames( ChiselsAndBits.getItems().itemBitBag, "contents" );
-	}
-
-	@Override
-	public void onItemRegistryAvailable(
-			final IItemRegistry itemRegistry )
-	{
-
 	}
 
 	@Override
@@ -89,14 +80,14 @@ public class JustEnoughItems implements IModPlugin
 
 	private List<ItemStack> stackCollection(
 			final Item it )
-	{
+			{
 		if ( it == null )
 		{
 			return null;
 		}
 
 		return Collections.singletonList( itemToItemstack( it ) );
-	}
+			}
 
 	private ItemStack blockToItemstack(
 			final Block blk )
@@ -118,13 +109,6 @@ public class JustEnoughItems implements IModPlugin
 		}
 
 		return new ItemStack( it, 1, OreDictionary.WILDCARD_VALUE );
-	}
-
-	@Override
-	public void onRecipeRegistryAvailable(
-			final IRecipeRegistry recipeRegistry )
-	{
-
 	}
 
 }
