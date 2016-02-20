@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import mezz.jei.api.BlankModPlugin;
-import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IModRegistry;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -19,21 +18,16 @@ public class JustEnoughItems extends BlankModPlugin
 {
 
 	@Override
-	public void onJeiHelpersAvailable(
-			final IJeiHelpers jeiHelpers )
-	{
-		if ( !ChiselsAndBits.getConfig().ShowBitsInJEI )
-		{
-			jeiHelpers.getItemBlacklist().addItemToBlacklist( new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
-		}
-
-		jeiHelpers.getNbtIgnoreList().ignoreNbtTagNames( ChiselsAndBits.getItems().itemBitBag, "contents" );
-	}
-
-	@Override
 	public void register(
 			final IModRegistry registry )
 	{
+		if ( !ChiselsAndBits.getConfig().ShowBitsInJEI )
+		{
+			registry.getJeiHelpers().getItemBlacklist().addItemToBlacklist( new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
+		}
+
+		registry.getJeiHelpers().getNbtIgnoreList().ignoreNbtTagNames( ChiselsAndBits.getItems().itemBitBag, "contents" );
+
 		final ArrayList<ItemStack> chiseles = new ArrayList<ItemStack>();
 		addList( chiseles, itemToItemstack( ChiselsAndBits.getItems().itemChiselDiamond ) );
 		addList( chiseles, itemToItemstack( ChiselsAndBits.getItems().itemChiselGold ) );
@@ -80,14 +74,14 @@ public class JustEnoughItems extends BlankModPlugin
 
 	private List<ItemStack> stackCollection(
 			final Item it )
-			{
+	{
 		if ( it == null )
 		{
 			return null;
 		}
 
 		return Collections.singletonList( itemToItemstack( it ) );
-			}
+	}
 
 	private ItemStack blockToItemstack(
 			final Block blk )

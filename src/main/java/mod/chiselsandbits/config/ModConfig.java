@@ -2,13 +2,18 @@ package mod.chiselsandbits.config;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.registry.ModRegistry;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -52,10 +57,10 @@ public class ModConfig extends Configuration
 	public boolean enableChiselMode_SmallCube;
 
 	@Configured( category = "Client Settings" )
-	public boolean enableChiselMode_LargeCube;
+	public boolean enableChiselMode_MediumCube;
 
 	@Configured( category = "Client Settings" )
-	public boolean enableChiselMode_HugeCube;
+	public boolean enableChiselMode_LargeCube;
 
 	@Configured( category = "Client Settings" )
 	public boolean enableChiselMode_DrawnRegion;
@@ -202,8 +207,8 @@ public class ModConfig extends Configuration
 		logTileErrors = false;
 		enableAPITestingItem = deobfuscatedEnvironment();
 		enableChiselMode_ConnectedPlane = !ChiselMode.CONNECTED_PLANE.isDisabled;
-		enableChiselMode_HugeCube = !ChiselMode.CUBE_LARGE.isDisabled;
-		enableChiselMode_LargeCube = !ChiselMode.CUBE_MEDIUM.isDisabled;
+		enableChiselMode_LargeCube = !ChiselMode.CUBE_LARGE.isDisabled;
+		enableChiselMode_MediumCube = !ChiselMode.CUBE_MEDIUM.isDisabled;
 		enableChiselMode_SmallCube = !ChiselMode.CUBE_SMALL.isDisabled;
 		enableChiselMode_Line = !ChiselMode.LINE.isDisabled;
 		enableChiselMode_Plane = !ChiselMode.PLANE.isDisabled;
@@ -273,6 +278,8 @@ public class ModConfig extends Configuration
 	void populateSettings()
 	{
 		final Class<ModConfig> me = ModConfig.class;
+		final Set<Property> fields = new HashSet<Property>();
+
 		for ( final Field f : me.getDeclaredFields() )
 		{
 			final Configured c = f.getAnnotation( Configured.class );
@@ -328,6 +335,7 @@ public class ModConfig extends Configuration
 					if ( p != null )
 					{
 						p.setLanguageKey( ModRegistry.unlocalizedPrefix + "config." + f.getName() );
+						fields.add( p );
 					}
 				}
 				catch ( final IllegalArgumentException e )
@@ -340,6 +348,31 @@ public class ModConfig extends Configuration
 					// yar!
 					e.printStackTrace();
 				}
+			}
+		}
+
+		// cleanup the config... remove junk...
+		for ( final String s : getCategoryNames() )
+		{
+			if ( s.equals( "enabled blocks" ) )
+			{
+				continue;
+			}
+
+			final ConfigCategory cc = getCategory( s );
+			final List<String> removeThis = new ArrayList<String>();
+
+			for ( final Entry<String, Property> e : cc.entrySet() )
+			{
+				if ( !fields.contains( e.getValue() ) )
+				{
+					removeThis.add( e.getKey() );
+				}
+			}
+
+			for ( final String g : removeThis )
+			{
+				cc.remove( g );
 			}
 		}
 
@@ -360,8 +393,8 @@ public class ModConfig extends Configuration
 
 		// configure mode enums..
 		ChiselMode.CONNECTED_PLANE.isDisabled = !enableChiselMode_ConnectedPlane;
-		ChiselMode.CUBE_LARGE.isDisabled = !enableChiselMode_HugeCube;
-		ChiselMode.CUBE_MEDIUM.isDisabled = !enableChiselMode_LargeCube;
+		ChiselMode.CUBE_LARGE.isDisabled = !enableChiselMode_LargeCube;
+		ChiselMode.CUBE_MEDIUM.isDisabled = !enableChiselMode_MediumCube;
 		ChiselMode.CUBE_SMALL.isDisabled = !enableChiselMode_SmallCube;
 		ChiselMode.LINE.isDisabled = !enableChiselMode_Line;
 		ChiselMode.PLANE.isDisabled = !enableChiselMode_Plane;
@@ -412,7 +445,7 @@ public class ModConfig extends Configuration
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	public void helpText(
 			final LocalStrings string,
-			final List tooltip,
+			final List<String> tooltip,
 			final String... variables )
 	{
 		if ( showUsage )
