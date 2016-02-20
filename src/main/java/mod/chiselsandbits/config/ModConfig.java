@@ -2,13 +2,18 @@ package mod.chiselsandbits.config;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.registry.ModRegistry;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -269,6 +274,8 @@ public class ModConfig extends Configuration
 	void populateSettings()
 	{
 		final Class<ModConfig> me = ModConfig.class;
+		final Set<Property> fields = new HashSet<Property>();
+
 		for ( final Field f : me.getDeclaredFields() )
 		{
 			final Configured c = f.getAnnotation( Configured.class );
@@ -317,6 +324,7 @@ public class ModConfig extends Configuration
 					if ( p != null )
 					{
 						p.setLanguageKey( ModRegistry.unlocalizedPrefix + "config." + f.getName() );
+						fields.add( p );
 					}
 				}
 				catch ( final IllegalArgumentException e )
@@ -329,6 +337,31 @@ public class ModConfig extends Configuration
 					// yar!
 					e.printStackTrace();
 				}
+			}
+		}
+
+		// cleanup the config... remove junk...
+		for ( final String s : getCategoryNames() )
+		{
+			if ( s.equals( "enabled blocks" ) )
+			{
+				continue;
+			}
+
+			final ConfigCategory cc = getCategory( s );
+			final List<String> removeThis = new ArrayList<String>();
+
+			for ( final Entry<String, Property> e : cc.entrySet() )
+			{
+				if ( !fields.contains( e.getValue() ) )
+				{
+					removeThis.add( e.getKey() );
+				}
+			}
+
+			for ( final String g : removeThis )
+			{
+				cc.remove( g );
 			}
 		}
 
@@ -401,7 +434,7 @@ public class ModConfig extends Configuration
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	public void helpText(
 			final LocalStrings string,
-			final List tooltip,
+			final List<String> tooltip,
 			final String... variables )
 	{
 		if ( showUsage )
