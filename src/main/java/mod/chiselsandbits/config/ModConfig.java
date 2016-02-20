@@ -52,10 +52,10 @@ public class ModConfig extends Configuration
 	public boolean enableChiselMode_SmallCube;
 
 	@Configured( category = "Client Settings" )
-	public boolean enableChiselMode_LargeCube;
+	public boolean enableChiselMode_MediumCube;
 
 	@Configured( category = "Client Settings" )
-	public boolean enableChiselMode_HugeCube;
+	public boolean enableChiselMode_LargeCube;
 
 	@Configured( category = "Client Settings" )
 	public boolean enableChiselMode_DrawnRegion;
@@ -199,8 +199,8 @@ public class ModConfig extends Configuration
 		logTileErrors = false;
 		enableAPITestingItem = deobfuscatedEnvironment();
 		enableChiselMode_ConnectedPlane = !ChiselMode.CONNECTED_PLANE.isDisabled;
-		enableChiselMode_HugeCube = !ChiselMode.CUBE_LARGE.isDisabled;
-		enableChiselMode_LargeCube = !ChiselMode.CUBE_MEDIUM.isDisabled;
+		enableChiselMode_LargeCube = !ChiselMode.CUBE_LARGE.isDisabled;
+		enableChiselMode_MediumCube = !ChiselMode.CUBE_MEDIUM.isDisabled;
 		enableChiselMode_SmallCube = !ChiselMode.CUBE_SMALL.isDisabled;
 		enableChiselMode_Line = !ChiselMode.LINE.isDisabled;
 		enableChiselMode_Plane = !ChiselMode.PLANE.isDisabled;
@@ -349,8 +349,8 @@ public class ModConfig extends Configuration
 
 		// configure mode enums..
 		ChiselMode.CONNECTED_PLANE.isDisabled = !enableChiselMode_ConnectedPlane;
-		ChiselMode.CUBE_LARGE.isDisabled = !enableChiselMode_HugeCube;
-		ChiselMode.CUBE_MEDIUM.isDisabled = !enableChiselMode_LargeCube;
+		ChiselMode.CUBE_LARGE.isDisabled = !enableChiselMode_LargeCube;
+		ChiselMode.CUBE_MEDIUM.isDisabled = !enableChiselMode_MediumCube;
 		ChiselMode.CUBE_SMALL.isDisabled = !enableChiselMode_SmallCube;
 		ChiselMode.LINE.isDisabled = !enableChiselMode_Line;
 		ChiselMode.PLANE.isDisabled = !enableChiselMode_Plane;
