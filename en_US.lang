@@ -1,5 +1,6 @@
 
 itemGroup.chiselsandbits=Chisels & Bits
+itemGroup.chiselsandbits.Clipboard=Chisels & Bits Clipboard
 
 tile.mod.chiselsandbits.chiseled_wood.name=Chiseled Wood
 tile.mod.chiselsandbits.chiseled_rock.name=Chiseled Rock
