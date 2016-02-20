@@ -111,7 +111,7 @@ public class BitAccess implements IBitAccess
 
 		if ( tile != null )
 		{
-			tile.setBlob( blob, false );
+			tile.setBlob( blob, triggerUpdates, false );
 		}
 	}
 
@@ -124,7 +124,8 @@ public class BitAccess implements IBitAccess
 	@Override
 	public ItemStack getBitsAsItem(
 			final EnumFacing side,
-			final ItemType type )
+			final ItemType type,
+			final boolean crossWorld )
 	{
 		if ( type == null )
 		{
@@ -138,7 +139,7 @@ public class BitAccess implements IBitAccess
 		}
 
 		final TileEntityBlockChiseled test = new TileEntityBlockChiseled();
-		test.setBlob( blob );
+		test.setBlob( blob, false, crossWorld );
 		final NBTTagCompound nbttagcompound = new NBTTagCompound();
 		test.writeChisleData( nbttagcompound );
 
@@ -183,6 +184,14 @@ public class BitAccess implements IBitAccess
 		}
 
 		return itemstack;
+	}
+
+	@Override
+	public ItemStack getBitsAsItem(
+			final EnumFacing side,
+			final ItemType type )
+	{
+		return getBitsAsItem( side, type, false );
 	}
 
 	@Override

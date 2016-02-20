@@ -86,6 +86,15 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Settings" )
 	public boolean itemNameModeDisplay;
 
+	@Configured( category = "Client Settings" )
+	public int creativeClipboardSize;
+
+	@Configured( category = "Client Settings" )
+	public boolean addPickedBlocksToCreativeClipboard;
+
+	@Configured( category = "Client Settings" )
+	public boolean addBrokenBlocksToCreativeClipboard;
+
 	@Configured( category = "Client Preformance Settings" )
 	public int dynamicModelFaceCount;
 
@@ -247,6 +256,10 @@ public class ModConfig extends Configuration
 		enableChiselToolHarvestCheck = true;
 		enableToolHarvestLevels = true;
 		enableChiselToolHarvestCheckTools = "pickaxe,axe,shovel";
+
+		creativeClipboardSize = 32;
+		addPickedBlocksToCreativeClipboard = true;
+		addBrokenBlocksToCreativeClipboard = true;
 
 		enableBitTank = true;
 		enableBitLightSource = true;

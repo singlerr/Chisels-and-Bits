@@ -9,6 +9,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedBlockFlags;
+import mod.chiselsandbits.chiseledblock.properties.UnlistedBlockNormalCube;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedBlockStateID;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedLightOpacity;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedLightValue;
@@ -21,6 +22,7 @@ import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.registry.CreativeClipboardTab;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -64,6 +66,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	public static final IUnlistedProperty<VoxelBlobStateReference> v_prop = new UnlistedVoxelBlob();
 	public static final IUnlistedProperty<Integer> block_prop = new UnlistedBlockStateID();
 	public static final IUnlistedProperty<Integer> side_prop = new UnlistedBlockFlags( "f" );
+	public static final IUnlistedProperty<Boolean> normalcube_prop = new UnlistedBlockNormalCube( "nc" );
 	public static final IUnlistedProperty<Float> opacity_prop = new UnlistedLightOpacity();
 	public static final IUnlistedProperty<Integer> light_prop = new UnlistedLightValue();
 
@@ -90,6 +93,71 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final boolean testingHead )
 	{
 		return false;
+	}
+
+	@Override
+	public boolean removedByPlayer(
+			final World world,
+			final BlockPos pos,
+			final EntityPlayer player,
+			final boolean willHarvest )
+	{
+		if ( !willHarvest && ChiselsAndBits.getConfig().addBrokenBlocksToCreativeClipboard )
+		{
+
+			try
+			{
+				final TileEntityBlockChiseled tebc = getTileEntity( world, pos );
+				CreativeClipboardTab.addItem( tebc.getItemStack( world.getBlockState( pos ).getBlock(), player ) );
+			}
+			catch ( final ExceptionNoTileEntity e )
+			{
+				Log.noTileError( e );
+			}
+		}
+
+		return super.removedByPlayer( world, pos, player, willHarvest );
+	}
+
+	@Override
+	public boolean shouldCheckWeakPower(
+			final IBlockAccess world,
+			final BlockPos pos,
+			final EnumFacing side )
+	{
+		return isNormalCube( world, pos );
+	}
+
+	@Override
+	public int getLightOpacity(
+			final IBlockAccess world,
+			final BlockPos pos )
+	{
+		try
+		{
+			return getTileEntity( world, pos ).isNormalCube() ? 255 : 0;
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			Log.noTileError( e );
+			return 0;
+		}
+	}
+
+	@Override
+	public boolean isNormalCube(
+			final IBlockAccess world,
+			final BlockPos pos )
+	{
+		try
+		{
+			return getTileEntity( world, pos ).isNormalCube();
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			Log.noTileError( e );
+			return false;
+		}
 	}
 
 	@Override
@@ -352,7 +420,14 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			return getPickBlock( target, pos, getTileEntity( world, pos ) );
+			final ItemStack result = getPickBlock( target, pos, getTileEntity( world, pos ) );
+
+			if ( ChiselsAndBits.getConfig().addPickedBlocksToCreativeClipboard )
+			{
+				CreativeClipboardTab.addItem( result );
+			}
+
+			return result;
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
@@ -387,7 +462,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	@Override
 	protected BlockState createBlockState()
 	{
-		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, opacity_prop, side_prop, light_prop, n_prop } );
+		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, opacity_prop, side_prop, light_prop, n_prop, normalcube_prop } );
 	}
 
 	@Override
@@ -396,6 +471,29 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final int meta )
 	{
 		return new TileEntityBlockChiseled();
+	}
+
+	@Override
+	public void breakBlock(
+			final World worldIn,
+			final BlockPos pos,
+			final IBlockState state )
+	{
+		try
+		{
+			final TileEntityBlockChiseled tebc = getTileEntity( worldIn, pos );
+			tebc.setState( tebc.getBasicState().withProperty( normalcube_prop, false ) );
+
+			worldIn.checkLight( pos );
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+
+		}
+		finally
+		{
+			super.breakBlock( worldIn, pos, state );
+		}
 	}
 
 	@Override

@@ -6,6 +6,16 @@ public class ModRegistry
 {
 
 	public static final String unlocalizedPrefix = "mod." + ChiselsAndBits.MODID + ".";
-	protected static ModCreativeTab creativeTab = new ModCreativeTab();
+
+	static ModCreativeTab creativeTab = new ModCreativeTab();
+	static CreativeClipboardTab creativeClipboard = null;
+
+	static
+	{
+		if ( ChiselsAndBits.getConfig().creativeClipboardSize > 0 )
+		{
+			creativeClipboard = new CreativeClipboardTab();
+		}
+	}
 
 }

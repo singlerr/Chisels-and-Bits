@@ -485,6 +485,7 @@ public class VoxelBlob
 		public boolean isFullBlock;
 
 		public float blockLight;
+		public boolean isNormalBlock;
 	};
 
 	public static class TypeRef
@@ -562,7 +563,9 @@ public class VoxelBlob
 	public BlobStats getVoxelStats()
 	{
 		final BlobStats cb = new BlobStats();
+		cb.isNormalBlock = true;
 
+		int nonAirBits = 0;
 		for ( final Entry<Integer, Integer> o : getBlockSums().entrySet() )
 		{
 			final int quantity = o.getValue();
@@ -575,13 +578,18 @@ public class VoxelBlob
 			}
 
 			final IBlockState state = Block.getStateById( r );
-			if ( state != null )
+			if ( state != null && r != 0 )
 			{
-				cb.blockLight += quantity * state.getBlock().getLightValue();
+				final Block blk = state.getBlock();
+
+				nonAirBits += quantity;
+				cb.isNormalBlock = cb.isNormalBlock && blk.isNormalCube();
+				cb.blockLight += quantity * blk.getLightValue();
 			}
 		}
 
 		cb.isFullBlock = cb.mostCommonStateTotal == array_size;
+		cb.isNormalBlock = cb.isNormalBlock && array_size == nonAirBits;
 
 		final float light_size = ChiselsAndBits.getConfig().bitLightPercentage * array_size * 15.0f / 100.0f;
 		cb.blockLight = cb.blockLight / light_size;

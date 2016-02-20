@@ -51,7 +51,6 @@ public class ChiselsAndBits
 			+ net.minecraftforge.common.ForgeVersion.revisionVersion + '.' // revisionVersion
 			+ net.minecraftforge.common.ForgeVersion.buildVersion + ",);after:mcmultipart@[1.0.4,);after:jei@[11.15.0.1697,)"; // buildVersion
 
-	// create creative tab...
 	private static ChiselsAndBits instance;
 	private ModConfig config;
 	private ModItems items;
