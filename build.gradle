@@ -13,7 +13,7 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "mc1.8.9-v1.8.10"
+version = "mc1.8.9-v1.8.11"
 group= "mod.chiselsandbits"
 archivesBaseName = "chiselsandbits"
 
@@ -24,12 +24,12 @@ repositories {
 }
 
 dependencies {
-	deobfCompile "mezz.jei:jei_1.8.9:2.16.0.74"
+	deobfCompile "mezz.jei:jei_1.8.9:2.27.+"
 	deobfCompile "MCMultiPart:MCMultiPart:1.0.4:universal"
 }
 
 minecraft {
-    version = "1.8.9-11.15.0.1697"
+    version = "1.8.9-11.15.1.1726"
     runDir = "eclipse"
     mappings = "stable_20"
     
