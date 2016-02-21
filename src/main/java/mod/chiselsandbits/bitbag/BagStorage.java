@@ -1,5 +1,7 @@
 package mod.chiselsandbits.bitbag;
 
+import java.util.Arrays;
+
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import mod.chiselsandbits.api.IBitBag;
 import mod.chiselsandbits.api.IBitBrush;
@@ -14,6 +16,8 @@ import net.minecraftforge.common.util.INBTSerializable;
 public class BagStorage implements IBitBag, INBTSerializable<NBTTagCompound>
 {
 
+	protected ItemStack stack;
+
 	public static final int max_size = 63;
 	final int[] contents;
 
@@ -21,6 +25,38 @@ public class BagStorage implements IBitBag, INBTSerializable<NBTTagCompound>
 	{
 		final int len = max_size * ItemBitBag.intsPerBitType;
 		contents = new int[len];
+	}
+
+	/**
+	 * I lied.. this just updates some NBT on the stack so that the server will
+	 * sync it.
+	 */
+	public void saveBag()
+	{
+		if ( stack != null )
+		{
+			final NBTTagCompound c = new NBTTagCompound();
+			c.setInteger( "hash", hashCode() );
+			stack.setTagCompound( c );
+		}
+	}
+
+	@Override
+	public boolean equals(
+			final Object obj )
+	{
+		if ( obj instanceof BagStorage )
+		{
+			return Arrays.equals( contents, ( (BagStorage) obj ).contents );
+		}
+
+		return false;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Arrays.hashCode( contents );
 	}
 
 	/**
@@ -114,6 +150,8 @@ public class BagStorage implements IBitBag, INBTSerializable<NBTTagCompound>
 						{
 							contents[id_index] = brush.getStateID();
 							contents[qty_index] = newTotal;
+
+							saveBag();
 						}
 
 						if ( overFlow > 0 )
@@ -179,6 +217,8 @@ public class BagStorage implements IBitBag, INBTSerializable<NBTTagCompound>
 					{
 						contents[id_index] = 0;
 					}
+
+					saveBag();
 				}
 
 				return ItemChiseledBit.createStack( id, extracted, false );

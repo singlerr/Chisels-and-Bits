@@ -14,6 +14,8 @@ public class BagCapabilityProvider extends BagStorage implements ICapabilitySeri
 			final ItemStack stack,
 			final NBTTagCompound nbt )
 	{
+		this.stack = stack;
+
 		// migration.
 		if ( stack.hasTagCompound() )
 		{

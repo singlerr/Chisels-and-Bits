@@ -17,6 +17,8 @@ import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.bittank.BlockBitTank;
+import mod.chiselsandbits.bittank.TileEntityBitTank;
+import mod.chiselsandbits.bittank.TileEntitySpecialRenderBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
@@ -124,6 +126,7 @@ public class ClientSide
 			final ChiselsAndBits chiselsandbits )
 	{
 		ClientRegistry.bindTileEntitySpecialRenderer( TileEntityBlockChiseledTESR.class, new ChisledBlockRenderChunkTESR() );
+		ClientRegistry.bindTileEntitySpecialRenderer( TileEntityBitTank.class, new TileEntitySpecialRenderBitTank() );
 
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
@@ -211,7 +214,6 @@ public class ClientSide
 		}
 
 		if ( modItems.itemBlockBit != null )
-
 		{
 			mesher.register( modItems.itemBlockBit, new ItemMeshDefinition() {
 
@@ -233,8 +235,7 @@ public class ClientSide
 
 		final BlockBitTank bitTank = ChiselsAndBits.getBlocks().blockBitTank;
 		final Item bitTankItem = Item.getItemFromBlock( bitTank );
-		final ModelResourceLocation bittank_block = new ModelResourceLocation( "bittank", "normal" );
-		final ModelResourceLocation bittank_item = new ModelResourceLocation( "bittank", "inventory" );
+		final ModelResourceLocation bittank_item = new ModelResourceLocation( new ResourceLocation( modId, "bittank" ), "inventory" );
 
 		mesher.register( bitTankItem, 0, bittank_item );
 		ModelLoader.setCustomStateMapper( bitTank, new StateMap.Builder().withName( BlockBitTank.FACING ).build() );

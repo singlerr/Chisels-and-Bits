@@ -6,6 +6,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -17,7 +20,7 @@ import net.minecraftforge.items.IItemHandler;
 public class TileEntityBitTank extends TileEntity implements IItemHandler
 {
 
-	private static final int MAX_CONTENTS = 4096;
+	public static final int MAX_CONTENTS = 4096;
 
 	// best conversion...
 	// 125mb = 512bits
@@ -27,8 +30,26 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 	private Fluid myFluid = null;
 	private int bits = 0;
 
+	private int oldLV = -1;
+
 	@Override
-	public void readFromNBT(
+	public void onDataPacket(
+			final NetworkManager net,
+			final S35PacketUpdateTileEntity pkt )
+	{
+		deserializeFromNBT( pkt.getNbtCompound() );
+	}
+
+	@SuppressWarnings( "rawtypes" )
+	@Override
+	public Packet getDescriptionPacket()
+	{
+		final NBTTagCompound t = new NBTTagCompound();
+		serializeToNBT( t );
+		return new S35PacketUpdateTileEntity( getPos(), 0, t );
+	}
+
+	public void deserializeFromNBT(
 			final NBTTagCompound compound )
 	{
 		final String fluid = compound.getString( "fluid" );
@@ -43,6 +64,20 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 		}
 
 		bits = compound.getInteger( "bits" );
+	}
+
+	public void serializeToNBT(
+			final NBTTagCompound compound )
+	{
+		compound.setString( "fluid", myFluid == null ? "" : myFluid.getName() );
+		compound.setInteger( "bits", bits );
+	}
+
+	@Override
+	public void readFromNBT(
+			final NBTTagCompound compound )
+	{
+		deserializeFromNBT( compound );
 		super.readFromNBT( compound );
 	}
 
@@ -50,8 +85,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 	public void writeToNBT(
 			final NBTTagCompound compound )
 	{
-		compound.setString( "fluid", myFluid == null ? "" : myFluid.getName() );
-		compound.setInteger( "bits", bits );
+		serializeToNBT( compound );
 		super.writeToNBT( compound );
 	}
 
@@ -148,9 +182,16 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 
 				if ( !simulate )
 				{
+					final Fluid oldFluid = myFluid;
+					final int oldBits = bits;
+
 					myFluid = f;
 					bits = amount;
-					markDirty();
+
+					if ( bits != oldBits || myFluid != oldFluid )
+					{
+						saveAndUpdate();
+					}
 				}
 
 				if ( amount < merged )
@@ -164,6 +205,19 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 			}
 		}
 		return stack;
+	}
+
+	private void saveAndUpdate()
+	{
+		markDirty();
+		worldObj.markBlockForUpdate( getPos() );
+
+		final int lv = getLightValue();
+		if ( oldLV != lv )
+		{
+			getWorld().checkLight( getPos() );
+			oldLV = lv;
+		}
 	}
 
 	/**
@@ -189,14 +243,31 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 			// modulate?
 			if ( !simulate )
 			{
+				final int oldBits = bits;
+
 				bits -= contents.stackSize;
-				markDirty();
+				if ( bits == 0 )
+				{
+					myFluid = null;
+				}
+
+				if ( bits != oldBits )
+				{
+					saveAndUpdate();
+				}
 			}
 
 			return contents;
 		}
 
 		return null;
+	}
+
+	@Override
+	public boolean shouldRenderInPass(
+			final int pass )
+	{
+		return true;
 	}
 
 	@Override
@@ -219,6 +290,34 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 		}
 
 		return null;
+	}
+
+	@Override
+	public boolean hasFastRenderer()
+	{
+		return false;
+	}
+
+	FluidStack getBitsAsFluidStack()
+	{
+		if ( bits > 0 && myFluid != null )
+		{
+			return new FluidStack( myFluid, bits );
+		}
+
+		return null;
+	}
+
+	public int getLightValue()
+	{
+		if ( myFluid == null || myFluid.getBlock() == null )
+		{
+			return 0;
+		}
+
+		final int lv = myFluid.getBlock().getLightValue();
+		return lv;
+
 	}
 
 }
