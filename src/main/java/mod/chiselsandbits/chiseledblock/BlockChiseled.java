@@ -79,19 +79,82 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final AxisAlignedBB bb,
 			final Material materialIn )
 	{
+		try
+		{
+			if ( materialIn == Material.water )
+			{
+				final TileEntityBlockChiseled tebc = getTileEntity( world, pos );
+				for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
+				{
+					if ( b.intersectsWith( bb ) )
+					{
+						return true;
+					}
+				}
+			}
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			Log.noTileError( e );
+		}
+
 		return false;
 	}
 
 	@Override
 	public Boolean isEntityInsideMaterial(
 			final World world,
-			final BlockPos blockpos,
+			final BlockPos pos,
 			final IBlockState iblockstate,
 			final Entity entity,
 			final double yToTest,
 			final Material materialIn,
 			final boolean testingHead )
 	{
+		try
+		{
+			if ( testingHead && materialIn == Material.water )
+			{
+				Vec3 head = entity.getPositionVector();
+				head = new Vec3( head.xCoord - pos.getX(), yToTest - pos.getY(), head.zCoord - pos.getZ() );
+
+				final TileEntityBlockChiseled tebc = getTileEntity( world, pos );
+				for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
+				{
+					if ( b.isVecInside( head ) )
+					{
+						return true;
+					}
+				}
+			}
+			else if ( !testingHead && materialIn == Material.water )
+			{
+				AxisAlignedBB what = entity.getCollisionBoundingBox();
+
+				if ( what == null )
+				{
+					what = entity.getEntityBoundingBox();
+				}
+
+				if ( what != null )
+				{
+					what = what.offset( -pos.getX(), -pos.getY(), -pos.getZ() );
+					final TileEntityBlockChiseled tebc = getTileEntity( world, pos );
+					for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
+					{
+						if ( b.intersectsWith( what ) )
+						{
+							return true;
+						}
+					}
+				}
+			}
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			Log.noTileError( e );
+		}
+
 		return false;
 	}
 
@@ -565,7 +628,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		try
 		{
-			for ( final AxisAlignedBB bb : getTileEntity( worldIn, pos ).getBoxes( true ) )
+			for ( final AxisAlignedBB bb : getTileEntity( worldIn, pos ).getBoxes( BoxType.COLLISION ) )
 			{
 				if ( r == null )
 				{
@@ -619,7 +682,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		final AxisAlignedBB localMask = mask.offset( -pos.getX(), -pos.getY(), -pos.getZ() );
 
-		for ( final AxisAlignedBB bb : te.getBoxes( true ) )
+		for ( final AxisAlignedBB bb : te.getBoxes( BoxType.COLLISION ) )
 		{
 			if ( bb.intersectsWith( localMask ) )
 			{
@@ -798,7 +861,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		MovingObjectPosition br = null;
 		double lastDist = 0;
 
-		for ( final AxisAlignedBB box : tec.getBoxes( false ) )
+		for ( final AxisAlignedBB box : tec.getBoxes( BoxType.OCCLUSION ) )
 		{
 			boundsToTest.setBlockBounds( (float) box.minX, (float) box.minY, (float) box.minZ, (float) box.maxX, (float) box.maxY, (float) box.maxZ );
 			final MovingObjectPosition r = boundsToTest.collisionRayTrace( null, pos, a, b );

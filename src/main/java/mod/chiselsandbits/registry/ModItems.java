@@ -16,8 +16,6 @@ import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
-import net.minecraftforge.oredict.ShapedOreRecipe;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
 
 public class ModItems extends ModRegistry
 {
@@ -88,42 +86,6 @@ public class ModItems extends ModRegistry
 
 		// make a bit bag..
 		ShapedOreRecipe( itemBitBag, "WWW", "WbW", "WWW", 'W', new ItemStack( Blocks.wool, 1, OreDictionary.WILDCARD_VALUE ), 'b', new ItemStack( itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
-	}
-
-	private void ShapedOreRecipe(
-			final Item result,
-			final Object... recipe )
-	{
-		if ( result != null )
-		{
-			for ( final Object o : recipe )
-			{
-				if ( o == null || o instanceof ItemStack && ( (ItemStack) o ).getItem() == null )
-				{
-					return;
-				}
-			}
-
-			GameRegistry.addRecipe( new ShapedOreRecipe( result, recipe ) );
-		}
-	}
-
-	private void ShapelessOreRecipe(
-			final Item result,
-			final Object... recipe )
-	{
-		if ( result != null )
-		{
-			for ( final Object o : recipe )
-			{
-				if ( o == null || o instanceof ItemStack && ( (ItemStack) o ).getItem() == null )
-				{
-					return;
-				}
-			}
-
-			GameRegistry.addRecipe( new ShapelessOreRecipe( result, recipe ) );
-		}
 	}
 
 }

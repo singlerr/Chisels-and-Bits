@@ -17,6 +17,7 @@ import mcmultipart.multipart.PartSlot;
 import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
@@ -117,7 +118,7 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 	public void addOcclusionBoxes(
 			final List<AxisAlignedBB> list )
 	{
-		list.addAll( getTile().getBoxes( false ) );
+		list.addAll( getTile().getBoxes( BoxType.OCCLUSION ) );
 	}
 
 	public TileEntityBlockChiseled getTile()

@@ -1,8 +1,8 @@
 package mod.chiselsandbits.chiseledblock;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -681,14 +681,14 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return false;
 	}
 
-	public List<AxisAlignedBB> getBoxes(
-			final boolean collision )
+	public Collection<AxisAlignedBB> getBoxes(
+			final BoxType type )
 	{
 		final VoxelBlobStateReference ref = getBlobStateReference();
 
 		if ( ref != null )
 		{
-			return ref.getBoxes( collision );
+			return ref.getBoxes( type );
 		}
 		else
 		{

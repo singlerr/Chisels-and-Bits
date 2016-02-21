@@ -780,12 +780,15 @@ public class VoxelBlob
 			if ( state == null )
 			{
 				filterState.put( ref, state = isFluid( ref ) );
-				hasValues = hasValues || state;
 			}
 
 			if ( state != wantsFluids )
 			{
 				values[x] = 0;
+			}
+			else if ( ref != 0 )
+			{
+				hasValues = true;
 			}
 		}
 

@@ -3,8 +3,12 @@ package mod.chiselsandbits.chiseledblock.data;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import mod.chiselsandbits.chiseledblock.BoxCollection;
+import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.core.Log;
 import net.minecraft.util.AxisAlignedBB;
 
@@ -14,8 +18,14 @@ public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance
 	public final int hash;
 	public final byte[] v;
 
-	private SoftReference<List<AxisAlignedBB>> occlusion;
-	private SoftReference<List<AxisAlignedBB>> collision;
+	private static final int HAS_FLUIDS = 1;
+	private static final int HAS_SOLIDS = 2;
+
+	// Separate fluids and solids, and use both for occlusion.
+	private int generated = 0;
+	private SoftReference<AxisAlignedBB[]> fluidBoxes = null;
+	private SoftReference<AxisAlignedBB[]> solidBoxes = null;
+
 	protected SoftReference<VoxelBlob> blob;
 
 	public VoxelBlobStateInstance(
@@ -89,55 +99,121 @@ public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance
 		}
 	}
 
-	public List<AxisAlignedBB> getBoxes(
-			final boolean isCollision )
+	private AxisAlignedBB[] getBoxType(
+			final int type )
 	{
-		List<AxisAlignedBB> cache;
-
-		if ( isCollision )
+		// if they are not generated, then generate them.
+		if ( ( generated & type ) == 0 )
 		{
-			cache = collision == null ? null : collision.get();
-		}
-		else
-		{
-			cache = occlusion == null ? null : occlusion.get();
-		}
-
-		if ( cache == null )
-		{
-			final VoxelBlob blob = getBlob();
-			boolean same = false;
-
-			if ( isCollision )
+			switch ( type )
 			{
-				same = !blob.filterFluids( false );
-				collision = new SoftReference<List<AxisAlignedBB>>( cache = new ArrayList<AxisAlignedBB>() );
+				case HAS_FLUIDS:
+
+					final VoxelBlob fluidBlob = getBlob();
+					generated |= HAS_FLUIDS;
+
+					if ( fluidBlob.filterFluids( true ) )
+					{
+						final AxisAlignedBB[] out = generateBoxes( fluidBlob );
+						fluidBoxes = new SoftReference<AxisAlignedBB[]>( out );
+						return out;
+					}
+
+					fluidBoxes = null;
+					return null;
+
+				case HAS_SOLIDS:
+
+					final VoxelBlob solidBlob = getBlob();
+					generated |= HAS_SOLIDS;
+
+					if ( solidBlob.filterFluids( false ) )
+					{
+						final AxisAlignedBB[] out = generateBoxes( solidBlob );
+						solidBoxes = new SoftReference<AxisAlignedBB[]>( out );
+						return out;
+					}
+
+					solidBoxes = null;
+					return null;
+
+			}
+
+		}
+
+		// snag the boxes we want.
+		AxisAlignedBB[] out = null;
+		switch ( type )
+		{
+			case HAS_FLUIDS:
+
+				if ( fluidBoxes == null )
+				{
+					return null;
+				}
+
+				out = fluidBoxes.get();
+				break;
+
+			case HAS_SOLIDS:
+
+				if ( solidBoxes == null )
+				{
+					return null;
+				}
+
+				out = solidBoxes.get();
+				break;
+		}
+
+		// did they expire?
+		if ( out != null )
+		{
+			return out;
+		}
+
+		// regenerate boxes...
+		generated = generated & ~type;
+		return getBoxType( type );
+	}
+
+	public Collection<AxisAlignedBB> getBoxes(
+			final BoxType type )
+	{
+		switch ( type )
+		{
+			case COLLISION:
+				return new BoxCollection( getBoxType( HAS_SOLIDS ) );
+
+			case OCCLUSION:
+				return new BoxCollection( getBoxType( HAS_SOLIDS ), getBoxType( HAS_FLUIDS ) );
+
+			case SWIMMING:
+				return new BoxCollection( getBoxType( HAS_FLUIDS ) );
+
+		}
+
+		return Collections.emptyList();
+	}
+
+	private AxisAlignedBB[] generateBoxes(
+			final VoxelBlob blob )
+	{
+		final List<AxisAlignedBB> cache = new ArrayList<AxisAlignedBB>();
+		final BitOcclusionIterator boi = new BitOcclusionIterator( cache );
+
+		while ( boi.hasNext() )
+		{
+			if ( boi.getNext( blob ) != 0 )
+			{
+				boi.add();
 			}
 			else
 			{
-				occlusion = new SoftReference<List<AxisAlignedBB>>( cache = new ArrayList<AxisAlignedBB>() );
-			}
-
-			final BitOcclusionIterator boi = new BitOcclusionIterator( cache );
-
-			while ( boi.hasNext() )
-			{
-				if ( boi.getNext( blob ) != 0 )
-				{
-					boi.add();
-				}
-				else
-				{
-					boi.drop();
-				}
-			}
-
-			if ( same )
-			{
-				occlusion = collision;
+				boi.drop();
 			}
 		}
 
-		return cache;
+		return cache.toArray( new AxisAlignedBB[cache.size()] );
 	}
 }

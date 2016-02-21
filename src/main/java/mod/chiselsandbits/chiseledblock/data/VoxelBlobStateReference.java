@@ -2,11 +2,12 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import mod.chiselsandbits.chiseledblock.BoxType;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
@@ -160,10 +161,10 @@ public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReferen
 		return comp;
 	}
 
-	public List<AxisAlignedBB> getBoxes(
-			final boolean collision )
+	public Collection<AxisAlignedBB> getBoxes(
+			final BoxType type )
 	{
-		return data.getBoxes( collision );
+		return data.getBoxes( type );
 	}
 
 }

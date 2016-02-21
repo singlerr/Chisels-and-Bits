@@ -87,20 +87,25 @@ public class ModelUtil
 				mp[0].color = 0xffffff;
 				mp[0].light = state.getBlock().getLightValue();
 
+				final float V = 0.5f;
+				final float Uf = 1.0f;
+				final float U = 0.5f;
+				final float Vf = 1.0f;
+
 				if ( xf.getAxis() == Axis.Y )
 				{
 					mp[0].sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( fluid.getStill().toString() );
-					mp[0].uvs = new float[] { 1, 1, 0, 1, 1, 0, 0, 0 };
+					mp[0].uvs = new float[] { Uf, Vf, 0, Vf, Uf, 0, 0, 0 };
 				}
 				else if ( xf.getAxis() == Axis.X )
 				{
 					mp[0].sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( fluid.getFlowing().toString() );
-					mp[0].uvs = new float[] { 0.5f, 0, 0.5f, 1, 0, 0, 0, 1 };
+					mp[0].uvs = new float[] { U, 0, U, V, 0, 0, 0, V };
 				}
 				else
 				{
 					mp[0].sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( fluid.getFlowing().toString() );
-					mp[0].uvs = new float[] { 0.5f, 0, 0, 0, 0.5f, 1, 0, 1 };
+					mp[0].uvs = new float[] { U, 0, 0, 0, U, V, 0, V };
 				}
 
 				mp[0].tint = -1;

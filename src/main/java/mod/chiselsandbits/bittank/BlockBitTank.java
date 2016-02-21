@@ -247,6 +247,29 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 					}
 				}
 			}
+			else
+			{
+				if ( playerIn.isSneaking() )
+				{
+					boolean change = false;
+					for ( int x = 0; x < playerIn.inventory.getSizeInventory(); x++ )
+					{
+						final ItemStack stackInSlot = playerIn.inventory.getStackInSlot( x );
+						if ( ChiselsAndBits.getApi().getItemType( stackInSlot ) == ItemType.CHISLED_BIT )
+						{
+							playerIn.inventory.setInventorySlotContents( x, tank.insertItem( 0, stackInSlot, false ) );
+							change = true;
+						}
+					}
+
+					if ( change )
+					{
+						playerIn.inventory.markDirty();
+					}
+
+					return change;
+				}
+			}
 
 			if ( !playerIn.isSneaking() )
 			{
