@@ -77,6 +77,7 @@ mod.chiselsandbits.help.chisel.long=Left click any compatible block to chisel. R
 mod.chiselsandbits.help.leftalt=Left Alt
 mod.chiselsandbits.help.rightalt=Right Alt
 
+mod.chiselsandbits.config.persistCreativeClipboard=Save/Load Creative Clipboard Contents
 mod.chiselsandbits.config.fluidBitsAreClickThough=Click though Fluid Bits.
 mod.chiselsandbits.config.addBrokenBlocksToCreativeClipboard=Add Broken Blocks to Creative clipboard
 mod.chiselsandbits.config.addPickedBlocksToCreativeClipboard=Add Picked Blocks to Creative clipboard
