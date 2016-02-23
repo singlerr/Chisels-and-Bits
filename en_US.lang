@@ -77,6 +77,12 @@ mod.chiselsandbits.help.chisel.long=Left click any compatible block to chisel. R
 mod.chiselsandbits.help.leftalt=Left Alt
 mod.chiselsandbits.help.rightalt=Right Alt
 
+mod.chiselsandbits.config.fluidBitsAreClickThough=Click though Fluid Bits.
+mod.chiselsandbits.config.addBrokenBlocksToCreativeClipboard=Add Broken Blocks to Creative clipboard
+mod.chiselsandbits.config.addPickedBlocksToCreativeClipboard=Add Picked Blocks to Creative clipboard
+mod.chiselsandbits.config.creativeClipboardSize=Creative Clip Board Size
+mod.chiselsandbits.config.creativeClipboardSize.tooltip=Number of items that can be stored on the creative clipboard before they begin to be removed, 0 will disable it.
+mod.chiselsandbits.config.ShowBitsInJEI=Show Bits in JEI
 mod.chiselsandbits.config.ShowBitsInJEI=Show Bits in JEI
 mod.chiselsandbits.config.maxDrawnRegionSize=Max Drawn Region Size
 mod.chiselsandbits.config.showUsage=Add help text to item descriptions
