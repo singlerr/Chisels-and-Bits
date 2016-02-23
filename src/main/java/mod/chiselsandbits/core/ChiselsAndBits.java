@@ -1,5 +1,7 @@
 package mod.chiselsandbits.core;
 
+import java.io.File;
+
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.config.ModConfig;
@@ -14,6 +16,7 @@ import mod.chiselsandbits.events.EventPlayerInteract;
 import mod.chiselsandbits.gui.ModGuiRouter;
 import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.network.NetworkRouter;
+import mod.chiselsandbits.registry.CreativeClipboardTab;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
 import net.minecraftforge.common.MinecraftForge;
@@ -101,7 +104,9 @@ public class ChiselsAndBits
 			final FMLPreInitializationEvent event )
 	{
 		// load config...
-		config = new ModConfig( event.getSuggestedConfigurationFile() );
+		final File configFile = event.getSuggestedConfigurationFile();
+		config = new ModConfig( configFile );
+
 		items = new ModItems( getConfig() );
 		blocks = new ModBlocks( getConfig(), event.getSide() );
 
@@ -111,6 +116,9 @@ public class ChiselsAndBits
 		// model/textures must be configured later.
 		if ( event.getSide() == Side.CLIENT )
 		{
+			// load this after items are created...
+			CreativeClipboardTab.load( new File( configFile.getParent(), MODID + "_clipboard.cfg" ) );
+			
 			ClientSide.instance.preinit( this );
 		}
 	}

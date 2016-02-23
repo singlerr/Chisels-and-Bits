@@ -1,10 +1,12 @@
 package mod.chiselsandbits.registry;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.ItemType;
+import mod.chiselsandbits.config.ClipboardStorage;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.creativetab.CreativeTabs;
@@ -16,8 +18,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CreativeClipboardTab extends CreativeTabs
 {
+	static private List<ItemStack> myItems = new ArrayList<ItemStack>();
+	static private ClipboardStorage clipStorage = null;
 
-	static private final List<ItemStack> myItems = new ArrayList<ItemStack>();
+	public static void load(
+			final File file )
+	{
+		clipStorage = new ClipboardStorage( file );
+		myItems = clipStorage.read();
+	}
 
 	static public void addItem(
 			final ItemStack iss )
@@ -57,6 +66,8 @@ public class CreativeClipboardTab extends CreativeTabs
 			{
 				myItems.remove( myItems.size() - 1 );
 			}
+
+			clipStorage.write( myItems );
 		}
 	}
 
@@ -87,4 +98,5 @@ public class CreativeClipboardTab extends CreativeTabs
 	{
 		p_78018_1_.addAll( myItems );
 	}
+
 }
