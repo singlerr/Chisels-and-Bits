@@ -38,7 +38,7 @@ import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class VoxelBlob
+public final class VoxelBlob
 {
 	static final int SHORT_BYTES = Short.SIZE / 8;
 
@@ -342,6 +342,14 @@ public class VoxelBlob
 		return getBit( x | y << 4 | z << 8 );
 	}
 
+	public VoxelType getVoxelType(
+			final int x,
+			final int y,
+			final int z )
+	{
+		return BlockBitInfo.getTypeFromStateID( get( x, y, z ) );
+	}
+
 	public void set(
 			final int x,
 			final int y,
@@ -453,8 +461,8 @@ public class VoxelBlob
 			final VisibleFace dest,
 			final VoxelBlob secondBlob )
 	{
-		final int solid = get( x, y, z );
-		dest.state = solid;
+		final int mySpot = get( x, y, z );
+		dest.state = mySpot;
 
 		x += face.getFrontOffsetX();
 		y += face.getFrontOffsetY();
@@ -463,17 +471,17 @@ public class VoxelBlob
 		if ( x >= 0 && x < dim && y >= 0 && y < dim && z >= 0 && z < dim )
 		{
 			dest.isEdge = false;
-			dest.visibleFace = solid != 0 && get( x, y, z ) == 0;
+			dest.visibleFace = BlockBitInfo.getTypeFromStateID( mySpot ).shouldShow( getVoxelType( x, y, z ) );
 		}
 		else if ( secondBlob != null )
 		{
 			dest.isEdge = true;
-			dest.visibleFace = solid != 0 && secondBlob.get( x - face.getFrontOffsetX() * dim, y - face.getFrontOffsetY() * dim, z - face.getFrontOffsetZ() * dim ) == 0;
+			dest.visibleFace = BlockBitInfo.getTypeFromStateID( mySpot ).shouldShow( secondBlob.getVoxelType( x - face.getFrontOffsetX() * dim, y - face.getFrontOffsetY() * dim, z - face.getFrontOffsetZ() * dim ) );
 		}
 		else
 		{
 			dest.isEdge = true;
-			dest.visibleFace = solid != 0;
+			dest.visibleFace = mySpot != 0;
 		}
 	}
 
@@ -720,7 +728,7 @@ public class VoxelBlob
 					{
 						for ( int y = minRange; y <= maxRange; y++ )
 						{
-							if ( get( edge, y, z ) != 0 )
+							if ( getVoxelType( edge, y, z ) == VoxelType.SOLID )
 							{
 								required--;
 							}
@@ -732,7 +740,7 @@ public class VoxelBlob
 					{
 						for ( int x = minRange; x <= maxRange; x++ )
 						{
-							if ( get( x, edge, z ) != 0 )
+							if ( getVoxelType( x, edge, z ) == VoxelType.SOLID )
 							{
 								required--;
 							}
@@ -744,7 +752,7 @@ public class VoxelBlob
 					{
 						for ( int x = minRange; x <= maxRange; x++ )
 						{
-							if ( get( x, y, edge ) != 0 )
+							if ( getVoxelType( x, y, edge ) == VoxelType.SOLID )
 							{
 								required--;
 							}

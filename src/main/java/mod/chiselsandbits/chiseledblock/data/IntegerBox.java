@@ -2,7 +2,7 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import net.minecraft.util.EnumFacing;
 
-public class IntegerBox
+public final class IntegerBox
 {
 	public IntegerBox(
 			final int x1,

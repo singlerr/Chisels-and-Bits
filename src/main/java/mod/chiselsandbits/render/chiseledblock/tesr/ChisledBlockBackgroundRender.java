@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL11;
 
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
+import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.Minecraft;
@@ -79,14 +80,14 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 		worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
 		worldrenderer.setTranslation( -chunkOffset.getX(), -chunkOffset.getY(), -chunkOffset.getZ() );
 
-		final EnumSet<EnumWorldBlockLayer> layers = layer == EnumWorldBlockLayer.TRANSLUCENT ? EnumSet.of( layer ) : EnumSet.complementOf( EnumSet.of( EnumWorldBlockLayer.TRANSLUCENT ) );
+		final EnumSet<ChiselLayer> layers = layer == EnumWorldBlockLayer.TRANSLUCENT ? EnumSet.of( ChiselLayer.TRANSLUCENT ) : EnumSet.complementOf( EnumSet.of( ChiselLayer.TRANSLUCENT ) );
 		for ( final TileEntityBlockChiseled tx : myPrivateList )
 		{
 			if ( tx instanceof TileEntityBlockChiseledTESR && !tx.isInvalid() )
 			{
 				final IExtendedBlockState estate = ( (TileEntityBlockChiseledTESR) tx ).getTileRenderState();
 
-				for ( final EnumWorldBlockLayer lx : layers )
+				for ( final ChiselLayer lx : layers )
 				{
 					final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( tx, lx );
 

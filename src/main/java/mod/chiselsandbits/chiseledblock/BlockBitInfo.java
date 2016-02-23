@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Random;
 
 import mod.chiselsandbits.api.IgnoreBlockLogic;
+import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockGlass;
@@ -36,6 +37,7 @@ public class BlockBitInfo
 	private static HashMap<IBlockState, BlockBitInfo> stateBitInfo = new HashMap<IBlockState, BlockBitInfo>();
 	private static HashMap<Block, Boolean> supportedBlocks = new HashMap<Block, Boolean>();
 	private static HashMap<Block, Fluid> fluidBlocks = new HashMap<Block, Fluid>();
+	private static HashMap<Integer, Fluid> fluidStates = new HashMap<Integer, Fluid>();
 
 	public static void addFluidBlock(
 			final Block blk,
@@ -48,6 +50,18 @@ public class BlockBitInfo
 
 		fluidBlocks.put( blk, fluid );
 
+		for ( final IBlockState state : blk.getBlockState().getValidStates() )
+		{
+			try
+			{
+				fluidStates.put( Block.getStateId( state ), fluid );
+			}
+			catch ( final Throwable t )
+			{
+				// :(
+			}
+		}
+
 		stateBitInfo.clear();
 		supportedBlocks.clear();
 	}
@@ -56,6 +70,17 @@ public class BlockBitInfo
 			final Block blk )
 	{
 		return fluidBlocks.get( blk );
+	}
+
+	public static VoxelType getTypeFromStateID(
+			final int bit )
+	{
+		if ( bit == 0 )
+		{
+			return VoxelType.AIR;
+		}
+
+		return fluidStates.containsKey( bit ) ? VoxelType.FLUID : VoxelType.SOLID;
 	}
 
 	public static void ignoreBlockLogic(

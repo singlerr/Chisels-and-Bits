@@ -53,6 +53,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -83,10 +84,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		{
 			if ( materialIn == Material.water )
 			{
+				final AxisAlignedBB bx = bb.offset( -pos.getX(), -pos.getY(), -pos.getZ() );
 				final TileEntityBlockChiseled tebc = getTileEntity( world, pos );
 				for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
 				{
-					if ( b.intersectsWith( bb ) )
+					if ( b.intersectsWith( bx ) )
 					{
 						return true;
 					}
@@ -861,7 +863,13 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		MovingObjectPosition br = null;
 		double lastDist = 0;
 
-		for ( final AxisAlignedBB box : tec.getBoxes( BoxType.OCCLUSION ) )
+		boolean occlusion = true;
+		if ( FMLCommonHandler.instance().getEffectiveSide().isClient() )
+		{
+			occlusion = !ChiselsAndBits.getConfig().fluidBitsAreClickThough || ClientSide.instance.getHeldToolType() != null;
+		}
+
+		for ( final AxisAlignedBB box : tec.getBoxes( occlusion ? BoxType.OCCLUSION : BoxType.COLLISION ) )
 		{
 			boundsToTest.setBlockBounds( (float) box.minX, (float) box.minY, (float) box.minZ, (float) box.maxX, (float) box.maxY, (float) box.maxZ );
 			final MovingObjectPosition r = boundsToTest.collisionRayTrace( null, pos, a, b );

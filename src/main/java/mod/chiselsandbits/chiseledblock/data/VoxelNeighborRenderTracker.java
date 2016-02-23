@@ -12,7 +12,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.World;
 
-public class VoxelNeighborRenderTracker
+public final class VoxelNeighborRenderTracker
 {
 	private WeakReference<VoxelBlobStateReference> lastCenter;
 	private ModelRenderState lrs = null;

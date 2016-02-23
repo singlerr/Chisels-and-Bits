@@ -1,6 +1,5 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -22,6 +21,7 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.Minecraft;
@@ -223,11 +223,9 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		worldrenderer.setTranslation( 0, 0, 0 );
 
 		final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
-		final EnumSet<EnumWorldBlockLayer> layers = EnumSet.allOf( EnumWorldBlockLayer.class );
-
 		final IExtendedBlockState estate = te.getRenderState();
 
-		for ( final EnumWorldBlockLayer lx : layers )
+		for ( final ChiselLayer lx : ChiselLayer.values() )
 		{
 			final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( te, lx );
 

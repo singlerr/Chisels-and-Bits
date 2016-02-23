@@ -12,7 +12,7 @@ import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.core.Log;
 import net.minecraft.util.AxisAlignedBB;
 
-public class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance>
+public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance>
 {
 
 	public final int hash;

@@ -11,7 +11,7 @@ import mod.chiselsandbits.chiseledblock.BoxType;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
-public class VoxelBlobStateReference implements Comparable<VoxelBlobStateReference>
+public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateReference>
 {
 
 	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> serverRefs = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>>() );

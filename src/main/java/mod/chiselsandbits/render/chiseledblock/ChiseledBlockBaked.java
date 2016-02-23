@@ -29,7 +29,6 @@ import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3i;
 
@@ -117,7 +116,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		}
 	}
 
-	private EnumWorldBlockLayer myLayer;
+	private ChiselLayer myLayer;
 	private VertexFormat format;
 	private TextureAtlasSprite sprite;
 
@@ -173,7 +172,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	public ChiseledBlockBaked(
 			final int blockReference,
-			final EnumWorldBlockLayer layer,
+			final ChiselLayer layer,
 			final VoxelBlobStateReference data,
 			final ModelRenderState mrs,
 			final VertexFormat format )
@@ -192,7 +191,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		if ( originalModel != null && data != null )
 		{
 			final VoxelBlob vb = data.getVoxelBlob();
-			if ( vb != null && vb.filter( layer ) )
+			if ( vb != null && layer.filter( vb ) )
 			{
 				final ChiseledModelBuilder builder = new ChiseledModelBuilder();
 				generateFaces( builder, vb, mrs, data.weight );
@@ -210,7 +209,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	}
 
 	public static ChiseledBlockBaked breakingParticleModel(
-			final EnumWorldBlockLayer layer,
+			final ChiselLayer layer,
 			final Integer blockStateID )
 	{
 		final ChiseledBlockBaked out = new ChiseledBlockBaked();
@@ -218,7 +217,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		final IBakedModel model = ModelUtil.solveModel( blockStateID, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( Block.getStateById( blockStateID ) ) );
 		if ( model != null )
 		{
-			out.sprite = ModelUtil.findTexture( blockStateID, model, EnumFacing.UP, layer );
+			out.sprite = ModelUtil.findTexture( blockStateID, model, EnumFacing.UP, layer.layer );
 			out.myLayer = layer;
 		}
 
@@ -272,7 +271,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				// difference. )
 				offsetVec( to, region.max, myFace, 1 );
 				offsetVec( from, region.min, myFace, -1 );
-				final ModelQuadLayer[] mpc = ModelUtil.getCachedFace( region.blockStateID, weight, myFace, myLayer );
+				final ModelQuadLayer[] mpc = ModelUtil.getCachedFace( region.blockStateID, weight, myFace, myLayer.layer );
 
 				for ( final ModelQuadLayer pc : mpc )
 				{
@@ -389,12 +388,12 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : X_Faces )
 		{
-			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.get( myFace ) : null;
+			final VoxelBlobStateReference nextToState = mrs != null && myLayer != ChiselLayer.SOLID ? mrs.get( myFace ) : null;
 			VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 
-			if ( nextTo != null )
+			if ( !myLayer.filter( nextTo ) )
 			{
-				nextTo = nextTo.filter( myLayer ) ? nextTo : null;
+				nextTo = null;
 			}
 
 			for ( int x = 0; x < blob.detail; x++ )
@@ -450,12 +449,12 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : Y_Faces )
 		{
-			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.get( myFace ) : null;
+			final VoxelBlobStateReference nextToState = mrs != null && myLayer != ChiselLayer.SOLID ? mrs.get( myFace ) : null;
 			VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 
-			if ( nextTo != null )
+			if ( !myLayer.filter( nextTo ) )
 			{
-				nextTo = nextTo.filter( myLayer ) ? nextTo : null;
+				nextTo = null;
 			}
 
 			for ( int y = 0; y < blob.detail; y++ )
@@ -511,12 +510,12 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : Z_Faces )
 		{
-			final VoxelBlobStateReference nextToState = mrs != null && myLayer != EnumWorldBlockLayer.SOLID ? mrs.get( myFace ) : null;
+			final VoxelBlobStateReference nextToState = mrs != null && myLayer != ChiselLayer.SOLID ? mrs.get( myFace ) : null;
 			VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 
-			if ( nextTo != null )
+			if ( !myLayer.filter( nextTo ) )
 			{
-				nextTo = nextTo.filter( myLayer ) ? nextTo : null;
+				nextTo = null;
 			}
 
 			for ( int z = 0; z < blob.detail; z++ )

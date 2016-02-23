@@ -38,11 +38,11 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 	static final CacheMap<VoxelBlobStateInstance, Integer> sideCache = new CacheMap<VoxelBlobStateInstance, Integer>();
 
 	@SuppressWarnings( "unchecked" )
-	static private final Map<ModelRenderState, ChiseledBlockBaked>[] modelCache = new Map[4];
+	static private final Map<ModelRenderState, ChiseledBlockBaked>[] modelCache = new Map[5];
 
 	static public void resetCache()
 	{
-		for ( final EnumWorldBlockLayer l : EnumWorldBlockLayer.values() )
+		for ( final ChiselLayer l : ChiselLayer.values() )
 		{
 			modelCache[l.ordinal()].clear();
 		}
@@ -53,7 +53,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 	static
 	{
-		final int count = EnumWorldBlockLayer.values().length;
+		final int count = ChiselLayer.values().length;
 
 		if ( modelCache.length != count )
 		{
@@ -61,7 +61,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 		}
 
 		// setup layers.
-		for ( final EnumWorldBlockLayer l : EnumWorldBlockLayer.values() )
+		for ( final ChiselLayer l : ChiselLayer.values() )
 		{
 			modelCache[l.ordinal()] = Collections.synchronizedMap( new WeakHashMap<ModelRenderState, ChiseledBlockBaked>() );
 		}
@@ -84,7 +84,11 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 			if ( out == null )
 			{
 				final VoxelBlob blob = ref.getVoxelBlob();
+
+				// ignore non-solid, and fluids.
 				blob.filter( EnumWorldBlockLayer.SOLID );
+				blob.filterFluids( false );
+
 				out = blob.getSideFlags( 0, VoxelBlob.dim_minus_one, VoxelBlob.dim2 );
 				sideCache.put( ref.getInstance(), out );
 			}
@@ -95,7 +99,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 	public static ChiseledBlockBaked getCachedModel(
 			final TileEntityBlockChiseled te,
-			final EnumWorldBlockLayer layer )
+			final ChiselLayer layer )
 	{
 		final IExtendedBlockState myState = te.getBasicState();
 
@@ -117,7 +121,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 			final Integer blockP,
 			final VoxelBlobStateReference data,
 			final ModelRenderState mrs,
-			final EnumWorldBlockLayer layer,
+			final ChiselLayer layer,
 			final VertexFormat format )
 	{
 		if ( data == null )
@@ -129,7 +133,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 		if ( format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT )
 		{
-			if ( layer == EnumWorldBlockLayer.SOLID )
+			if ( layer == ChiselLayer.SOLID )
 			{
 				out = solidCache.get( data );
 			}
@@ -150,7 +154,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 			if ( format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT )
 			{
-				if ( layer == EnumWorldBlockLayer.SOLID )
+				if ( layer == ChiselLayer.SOLID )
 				{
 					solidCache.put( data, out );
 				}
@@ -187,14 +191,42 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 		if ( rTracker != null && rTracker.isDynamic() )
 		{
-			return ChiseledBlockBaked.breakingParticleModel( layer, blockP );
+			return ChiseledBlockBaked.breakingParticleModel( ChiselLayer.fromLayer( layer, false ), blockP );
 		}
 
-		final ChiseledBlockBaked baked = getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, getModelFormat() );
+		IBakedModel baked = null;
+		int faces = 0;
+
+		if ( layer == EnumWorldBlockLayer.SOLID )
+		{
+			final ChiseledBlockBaked a = getCachedModel( blockP, data, getRenderState( rTracker, data ), ChiselLayer.fromLayer( layer, false ), getModelFormat() );
+			final ChiseledBlockBaked b = getCachedModel( blockP, data, getRenderState( rTracker, data ), ChiselLayer.fromLayer( layer, true ), getModelFormat() );
+
+			faces = a.faceCount() + b.faceCount();
+
+			if ( a.isEmpty() )
+			{
+				baked = b;
+			}
+			else if ( b.isEmpty() )
+			{
+				baked = a;
+			}
+			else
+			{
+				baked = new ModelCombined( a, b );
+			}
+		}
+		else
+		{
+			final ChiseledBlockBaked t = getCachedModel( blockP, data, getRenderState( rTracker, data ), ChiselLayer.fromLayer( layer, false ), getModelFormat() );
+			faces = t.faceCount();
+			baked = t;
+		}
 
 		if ( rTracker != null )
 		{
-			rTracker.setAbovelimit( layer, baked.faceCount() );
+			rTracker.setAbovelimit( layer, faces );
 		}
 
 		return baked;
@@ -256,8 +288,8 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 			vdata = xx.blobToBytes( VoxelBlob.VERSION_COMPACT );
 		}
 
-		final IFlexibleBakedModel[] models = new IFlexibleBakedModel[EnumWorldBlockLayer.values().length];
-		for ( final EnumWorldBlockLayer l : EnumWorldBlockLayer.values() )
+		final IFlexibleBakedModel[] models = new IFlexibleBakedModel[ChiselLayer.values().length];
+		for ( final ChiselLayer l : ChiselLayer.values() )
 		{
 			models[l.ordinal()] = getCachedModel( blockP, new VoxelBlobStateReference( vdata, 0L ), null, l, DefaultVertexFormats.ITEM );
 		}

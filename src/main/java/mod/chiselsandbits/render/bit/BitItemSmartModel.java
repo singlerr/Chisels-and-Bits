@@ -8,11 +8,11 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
+import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.ISmartItemModel;
 
@@ -41,11 +41,12 @@ public class BitItemSmartModel extends BaseSmartModel implements ISmartItemModel
 				final VoxelBlob blob = new VoxelBlob();
 				blob.fill( stateID );
 				final VoxelBlobStateReference ref = new VoxelBlobStateReference( blob, 0 );
-				final IFlexibleBakedModel a = new ChiseledBlockBaked( stateID, EnumWorldBlockLayer.SOLID, ref, null, DefaultVertexFormats.ITEM );
-				final IFlexibleBakedModel b = new ChiseledBlockBaked( stateID, EnumWorldBlockLayer.CUTOUT_MIPPED, ref, null, DefaultVertexFormats.ITEM );
-				final IFlexibleBakedModel c = new ChiseledBlockBaked( stateID, EnumWorldBlockLayer.CUTOUT, ref, null, DefaultVertexFormats.ITEM );
-				final IFlexibleBakedModel d = new ChiseledBlockBaked( stateID, EnumWorldBlockLayer.TRANSLUCENT, ref, null, DefaultVertexFormats.ITEM );
-				out = new ModelCombined( a, b, c, d );
+				final IFlexibleBakedModel a = new ChiseledBlockBaked( stateID, ChiselLayer.SOLID, ref, null, DefaultVertexFormats.ITEM );
+				final IFlexibleBakedModel b = new ChiseledBlockBaked( stateID, ChiselLayer.SOLID_FLUID, ref, null, DefaultVertexFormats.ITEM );
+				final IFlexibleBakedModel c = new ChiseledBlockBaked( stateID, ChiselLayer.CUTOUT_MIPPED, ref, null, DefaultVertexFormats.ITEM );
+				final IFlexibleBakedModel d = new ChiseledBlockBaked( stateID, ChiselLayer.CUTOUT, ref, null, DefaultVertexFormats.ITEM );
+				final IFlexibleBakedModel e = new ChiseledBlockBaked( stateID, ChiselLayer.TRANSLUCENT, ref, null, DefaultVertexFormats.ITEM );
+				out = new ModelCombined( a, b, c, d, e );
 			}
 			else
 			{
