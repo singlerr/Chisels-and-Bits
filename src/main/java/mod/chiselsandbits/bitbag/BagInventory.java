@@ -31,14 +31,17 @@ public class BagInventory implements IInventory
 
 	// tmp storage, the IInventory
 	ItemStack[] stackSlots;
-	public ItemStack target;
 
 	public BagInventory(
 			final ItemStack is )
 	{
 		inv = (BagStorage) is.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null );
 		stackSlots = new ItemStack[BagStorage.max_size];
-		target = is;
+	}
+
+	public ItemStack getItemStack()
+	{
+		return inv.stack;
 	}
 
 	@Override
@@ -105,7 +108,7 @@ public class BagInventory implements IInventory
 		}
 
 		inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty] -= count;
-		inv.saveBag();
+		inv.onChange();
 
 		if ( stackSlots[index] != null )
 		{
@@ -140,7 +143,7 @@ public class BagInventory implements IInventory
 			inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id] = 0;
 		}
 
-		inv.saveBag();
+		inv.onChange();
 	}
 
 	@Override
@@ -158,7 +161,7 @@ public class BagInventory implements IInventory
 			{
 				inv.contents[ItemBitBag.intsPerBitType * x + ItemBitBag.offset_qty] = stackSlots[x].stackSize;
 				stackSlots[x] = null;
-				inv.saveBag();
+				inv.onChange();
 			}
 		}
 	}
@@ -220,7 +223,7 @@ public class BagInventory implements IInventory
 			stackSlots[x] = null;
 		}
 
-		inv.saveBag();
+		inv.onChange();
 	}
 
 	public void restockItem(
@@ -306,7 +309,7 @@ public class BagInventory implements IInventory
 					inv.contents[qty_idx] = 0;
 				}
 
-				inv.saveBag();
+				inv.onChange();
 
 				final int diff = qty - inv.contents[qty_idx];
 				used += diff;

@@ -10,10 +10,9 @@ public class PassThruInv implements IInventory
 
 	private IInventory src;
 
-	public PassThruInv(
-			final IInventory a )
+	public PassThruInv()
 	{
-		src = a;
+		src = null;
 	}
 
 	public void setInventory(

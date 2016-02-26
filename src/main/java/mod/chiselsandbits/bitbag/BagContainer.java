@@ -21,7 +21,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class BagContainer extends Container
 {
 	final EntityPlayer thePlayer;
-	final PassThruInv pi;
+	final PassThruInv pi = new PassThruInv();
 
 	BagInventory bagInv;
 	SlotReadonly thatSlot;
@@ -47,20 +47,9 @@ public class BagContainer extends Container
 		thePlayer = player;
 
 		final int i = ( 7 - 4 ) * 18;
-		IInventory inv;
 
 		final ItemStack is = player.getCurrentEquippedItem();
-		if ( is != null && is.getItem() instanceof ItemBitBag )
-		{
-			inv = bagInv = new BagInventory( is );
-		}
-		else
-		{
-			bagInv = null;
-			inv = new NullInventory( 63 );
-		}
-
-		pi = new PassThruInv( inv );
+		setBag( is );
 
 		for ( int j = 0; j < 7; ++j )
 		{
@@ -91,6 +80,24 @@ public class BagContainer extends Container
 		}
 	}
 
+	private void setBag(
+			final ItemStack is )
+	{
+		final IInventory inv;
+
+		if ( is != null && is.getItem() instanceof ItemBitBag )
+		{
+			inv = bagInv = new BagInventory( is );
+		}
+		else
+		{
+			bagInv = null;
+			inv = new NullInventory( BagStorage.max_size );
+		}
+
+		pi.setInventory( inv );
+	}
+
 	@Override
 	public boolean canInteractWith(
 			final EntityPlayer playerIn )
@@ -101,22 +108,12 @@ public class BagContainer extends Container
 	private boolean hasBagInHand(
 			final EntityPlayer player )
 	{
-		if ( bagInv.target != player.getCurrentEquippedItem() )
+		if ( bagInv.getItemStack() != player.getCurrentEquippedItem() )
 		{
-			final ItemStack is = player.getCurrentEquippedItem();
-			if ( is != null && is.getItem() instanceof ItemBitBag )
-			{
-				pi.setInventory( bagInv = new BagInventory( is ) );
-			}
-			else
-			{
-				bagInv = null;
-				pi.setInventory( new NullInventory( 63 ) );
-				return false;
-			}
+			setBag( player.getCurrentEquippedItem() );
 		}
 
-		return bagInv.target.getItem() instanceof ItemBitBag;
+		return bagInv != null && bagInv.getItemStack().getItem() instanceof ItemBitBag;
 	}
 
 	@Override
