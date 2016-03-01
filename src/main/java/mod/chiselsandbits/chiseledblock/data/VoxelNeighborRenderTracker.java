@@ -82,7 +82,7 @@ public final class VoxelNeighborRenderTracker
 			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( worldObj, pos.offset( f ), false );
 			if ( tebc != null )
 			{
-				update( f, tebc.getBasicState().getValue( BlockChiseled.v_prop ) );
+				update( f, tebc.getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob ) );
 			}
 			else
 			{

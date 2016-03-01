@@ -41,7 +41,7 @@ public class CreativeClipboardTab extends CreativeTabs
 				return;
 			}
 
-			final ItemStack is = bitData.getBitsAsItem( null, ItemType.CHISLED_BLOCK );
+			final ItemStack is = bitData.getBitsAsItem( null, ItemType.CHISLED_BLOCK, false );
 
 			if ( is == null )
 			{

@@ -10,7 +10,6 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
@@ -41,16 +40,20 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class TileEntityBlockChiseled extends TileEntity implements IChiseledTileContainer
 {
 
-	public static final String block_prop = "b";
-	public static final String side_prop = "s";
-	public static final String normalcube_prop = "nc";
-	public static final String voxel_prop = "v";
-	public static final String versioned_voxel_prop = "X";
-	public static final String light_opacity_prop = "l";
-	public static final String light_prop = "lv";
+	public static final String NBT_SIDE_FLAGS = "s";
+	public static final String NBT_NORMALCUBE_FLAG = "nc";
+	public static final String NBT_LIGHTVALUE = "lv";
+
+	public static final String NBT_PRIMARY_STATE = "b";
+	public static final String NBT_LEGACY_VOXEL = "v";
+	public static final String NBT_VERSIONED_VOXEL = "X";
 
 	private IExtendedBlockState state;
 	public IChiseledTileContainer occlusionState;
+
+	boolean isNormalCube = false;
+	int side_state = 0;
+	int lightlevel = 0;
 
 	public TileEntityBlockChiseled()
 	{
@@ -115,7 +118,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		{
 			final boolean isDyanmic = this instanceof TileEntityBlockChiseledTESR;
 
-			final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.n_prop );
+			final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.UProperty_VoxelNeighborState );
 			if ( vns == null )
 			{
 				return state;
@@ -198,7 +201,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public IBlockState getBlockState(
 			final Block alternative )
 	{
-		final Integer stateID = getBasicState().getValue( BlockChiseled.block_prop );
+		final Integer stateID = getBasicState().getValue( BlockChiseled.UProperty_Primary_BlockState );
 
 		if ( stateID != null )
 		{
@@ -258,12 +261,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public final void writeChisleData(
 			final NBTTagCompound compound )
 	{
-		final Integer b = getBasicState().getValue( BlockChiseled.block_prop );
-		final Integer s = getBasicState().getValue( BlockChiseled.side_prop );
-		final Float l = getBasicState().getValue( BlockChiseled.opacity_prop );
-		final Integer lv = getBasicState().getValue( BlockChiseled.light_prop );
-		final Boolean nc = getBasicState().getValue( BlockChiseled.normalcube_prop );
-		final VoxelBlobStateReference vbs = getBasicState().getValue( BlockChiseled.v_prop );
+		final int s = side_state;
+		final int lv = getLightValue();
+		final boolean nc = isNormalCube();
+		final Integer b = getBasicState().getValue( BlockChiseled.UProperty_Primary_BlockState );
+		final VoxelBlobStateReference vbs = getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob );
 
 		if ( b == null || vbs == null )
 		{
@@ -272,12 +274,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 		if ( b != null && vbs != null )
 		{
-			compound.setFloat( light_opacity_prop, l == null ? 1.0f : l );
-			compound.setInteger( light_prop, lv == null ? 0 : lv );
-			compound.setInteger( block_prop, b );
-			compound.setInteger( side_prop, s );
-			compound.setBoolean( normalcube_prop, nc );
-			compound.setByteArray( versioned_voxel_prop, vbs.getByteArray() );
+			compound.setInteger( NBT_LIGHTVALUE, lv );
+			compound.setInteger( NBT_PRIMARY_STATE, b );
+			compound.setInteger( NBT_SIDE_FLAGS, s );
+			compound.setBoolean( NBT_NORMALCUBE_FLAG, nc );
+			compound.setByteArray( NBT_VERSIONED_VOXEL, vbs.getByteArray() );
 		}
 	}
 
@@ -287,19 +288,18 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public final void readChisleData(
 			final NBTTagCompound compound )
 	{
-		final Integer oldLV = getBasicState().getValue( BlockChiseled.light_prop );
-		final Boolean oldNC = getBasicState().getValue( BlockChiseled.normalcube_prop );
+		final int oldLV = getLightValue();
+		final boolean oldNC = isNormalCube();
 
-		final int sideFlags = compound.getInteger( side_prop );
-		int b = compound.getInteger( block_prop );
-		final float l = compound.getFloat( light_opacity_prop );
-		final int lv = compound.getInteger( light_prop );
-		final boolean nc = compound.getBoolean( normalcube_prop );
-		byte[] v = compound.getByteArray( versioned_voxel_prop );
+		side_state = compound.getInteger( NBT_SIDE_FLAGS );
+		int b = compound.getInteger( NBT_PRIMARY_STATE );
+		lightlevel = compound.getInteger( NBT_LIGHTVALUE );
+		isNormalCube = compound.getBoolean( NBT_NORMALCUBE_FLAG );
+		byte[] v = compound.getByteArray( NBT_VERSIONED_VOXEL );
 
 		if ( v == null || v.length == 0 )
 		{
-			final byte[] vx = compound.getByteArray( voxel_prop );
+			final byte[] vx = compound.getByteArray( NBT_LEGACY_VOXEL );
 			if ( v != null && vx.length > 0 )
 			{
 				final VoxelBlob bx = new VoxelBlob();
@@ -316,8 +316,6 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 				oldSize += vx.length;
 				newSize += v.length;
-
-				Log.info( "Converted: " + vx.length + " -> " + v.length + " : total: " + oldSize + " -> " + newSize );
 			}
 		}
 
@@ -328,18 +326,14 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		}
 
 		IExtendedBlockState newstate = getBasicState()
-				.withProperty( BlockChiseled.side_prop, sideFlags )
-				.withProperty( BlockChiseled.block_prop, b )
-				.withProperty( BlockChiseled.light_prop, lv )
-				.withProperty( BlockChiseled.opacity_prop, l )
-				.withProperty( BlockChiseled.normalcube_prop, nc )
-				.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( v, getPositionRandom( pos ) ) );
+				.withProperty( BlockChiseled.UProperty_Primary_BlockState, b )
+				.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( v, getPositionRandom( pos ) ) );
 
-		final VoxelNeighborRenderTracker tracker = newstate.getValue( BlockChiseled.n_prop );
+		final VoxelNeighborRenderTracker tracker = newstate.getValue( BlockChiseled.UProperty_VoxelNeighborState );
 
 		if ( tracker == null )
 		{
-			newstate = newstate.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() );
+			newstate = newstate.withProperty( BlockChiseled.UProperty_VoxelNeighborState, new VoxelNeighborRenderTracker() );
 		}
 		else
 		{
@@ -348,7 +342,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 		setState( newstate );
 
-		if ( oldNC == null || oldLV == null || oldLV != lv || oldNC != nc )
+		if ( oldLV != getLightValue() || oldNC != isNormalCube() )
 		{
 			if ( worldObj != null )
 			{
@@ -378,18 +372,18 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	{
 		final int ref = Block.getStateId( blockType );
 
-		IExtendedBlockState state = getBasicState()
-				.withProperty( BlockChiseled.side_prop, 0xFF )
-				.withProperty( BlockChiseled.opacity_prop, 1.0f )
-				.withProperty( BlockChiseled.light_prop, blockType.getBlock().getLightValue() )
-				.withProperty( BlockChiseled.normalcube_prop, blockType.getBlock().isNormalCube() )
-				.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( Block.getStateId( blockType ), getPositionRandom( pos ) ) );
+		side_state = 0xff;
+		lightlevel = blockType.getBlock().getLightValue();
+		isNormalCube = blockType.getBlock().isNormalCube();
 
-		final VoxelNeighborRenderTracker tracker = state.getValue( BlockChiseled.n_prop );
+		IExtendedBlockState state = getBasicState()
+				.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( Block.getStateId( blockType ), getPositionRandom( pos ) ) );
+
+		final VoxelNeighborRenderTracker tracker = state.getValue( BlockChiseled.UProperty_VoxelNeighborState );
 
 		if ( tracker == null )
 		{
-			state = state.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() );
+			state = state.withProperty( BlockChiseled.UProperty_VoxelNeighborState, new VoxelNeighborRenderTracker() );
 		}
 		else
 		{
@@ -399,7 +393,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		// required for placing bits
 		if ( ref != 0 )
 		{
-			state = state.withProperty( BlockChiseled.block_prop, ref );
+			state = state.withProperty( BlockChiseled.UProperty_Primary_BlockState, ref );
 		}
 
 		setState( state );
@@ -420,7 +414,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	public VoxelBlobStateReference getBlobStateReference()
 	{
-		return getBasicState().getValue( BlockChiseled.v_prop );
+		return getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob );
 	}
 
 	public VoxelBlob getBlob()
@@ -462,11 +456,10 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			final boolean triggerUpdates,
 			final boolean crossWorldNbt )
 	{
-		final Integer olv = getBasicState().getValue( BlockChiseled.light_prop );
-		final Boolean oldNC = getBasicState().getValue( BlockChiseled.normalcube_prop );
+		final Integer olv = getLightValue();
+		final Boolean oldNC = isNormalCube();
 
 		final BlobStats common = vb.getVoxelStats();
-		final float opacity = vb.getOpacity();
 		final float light = common.blockLight;
 		final boolean nc = common.isNormalBlock;
 		final int lv = Math.max( 0, Math.min( 15, (int) ( light * 15 ) ) );
@@ -478,23 +471,23 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		{
 			if ( common.mostCommonState == 0 )
 			{
-				common.mostCommonState = getBasicState().getValue( BlockChiseled.block_prop );
+				common.mostCommonState = getBasicState().getValue( BlockChiseled.UProperty_Primary_BlockState );
 			}
 
-			IExtendedBlockState newState = getBasicState()
-					.withProperty( BlockChiseled.side_prop, sideFlags )
-					.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb.blobToBytes( crossWorldNbt ? VoxelBlob.VERSION_CROSSWORLD : VoxelBlob.VERSION_COMPACT ), getPositionRandom( pos ) ) )
-					.withProperty( BlockChiseled.light_prop, lv )
-					.withProperty( BlockChiseled.normalcube_prop, nc )
-					.withProperty( BlockChiseled.opacity_prop, opacity )
-					.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() )
-					.withProperty( BlockChiseled.block_prop, common.mostCommonState );
+			side_state = sideFlags;
+			lightlevel = lv;
+			isNormalCube = nc;
 
-			final VoxelNeighborRenderTracker tracker = newState.getValue( BlockChiseled.n_prop );
+			IExtendedBlockState newState = getBasicState()
+					.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( vb.blobToBytes( crossWorldNbt ? VoxelBlob.VERSION_CROSSWORLD : VoxelBlob.VERSION_COMPACT ), getPositionRandom( pos ) ) )
+					.withProperty( BlockChiseled.UProperty_VoxelNeighborState, new VoxelNeighborRenderTracker() )
+					.withProperty( BlockChiseled.UProperty_Primary_BlockState, common.mostCommonState );
+
+			final VoxelNeighborRenderTracker tracker = newState.getValue( BlockChiseled.UProperty_VoxelNeighborState );
 
 			if ( tracker == null )
 			{
-				newState = newState.withProperty( BlockChiseled.n_prop, new VoxelNeighborRenderTracker() );
+				newState = newState.withProperty( BlockChiseled.UProperty_VoxelNeighborState, new VoxelNeighborRenderTracker() );
 			}
 			else
 			{
@@ -511,13 +504,13 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		}
 		else if ( common.mostCommonState != 0 )
 		{
+			side_state = sideFlags;
+			lightlevel = lv;
+			isNormalCube = nc;
+
 			setState( getBasicState()
-					.withProperty( BlockChiseled.side_prop, sideFlags )
-					.withProperty( BlockChiseled.v_prop, new VoxelBlobStateReference( vb.blobToBytes( VoxelBlob.VERSION_COMPACT ), getPositionRandom( pos ) ) )
-					.withProperty( BlockChiseled.light_prop, lv )
-					.withProperty( BlockChiseled.normalcube_prop, nc )
-					.withProperty( BlockChiseled.opacity_prop, opacity )
-					.withProperty( BlockChiseled.block_prop, common.mostCommonState ) );
+					.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( vb.blobToBytes( VoxelBlob.VERSION_COMPACT ), getPositionRandom( pos ) ) )
+					.withProperty( BlockChiseled.UProperty_Primary_BlockState, common.mostCommonState ) );
 
 			getTileContainer().saveData();
 			getTileContainer().sendUpdate();
@@ -537,7 +530,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			ModUtil.removeChisledBlock( worldObj, pos );
 		}
 
-		if ( oldNC == null || olv == null || olv != lv || oldNC != nc )
+		if ( olv != lv || oldNC != nc )
 		{
 			worldObj.checkLight( pos );
 		}
@@ -615,22 +608,13 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	public boolean isNormalCube()
 	{
-		final Boolean nc = getBasicState().getValue( BlockChiseled.normalcube_prop );
-		return nc != null && nc;
+		return isNormalCube;
 	}
 
 	public boolean isSideSolid(
 			final EnumFacing side )
 	{
-		final Integer sideFlags = getBasicState().getValue( BlockChiseled.side_prop );
-
-		if ( sideFlags == null )
-		{
-			return true; // if torches or other blocks are on the block this
-			// prevents a conversion from crashing.
-		}
-
-		return ( sideFlags & 1 << side.ordinal() ) != 0;
+		return ( side_state & 1 << side.ordinal() ) != 0;
 	}
 
 	@SideOnly( Side.CLIENT )
@@ -696,4 +680,14 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		}
 	}
 
+	public void setNormalCube(
+			final boolean b )
+	{
+		isNormalCube = b;
+	}
+
+	public int getLightValue()
+	{
+		return lightlevel;
+	}
 }

@@ -62,6 +62,7 @@ public class BagCapabilityProvider extends BagStorage implements ICapabilityProv
 		return false;
 	}
 
+	@SuppressWarnings( "unchecked" )
 	@Override
 	public <T> T getCapability(
 			final Capability<T> capability,

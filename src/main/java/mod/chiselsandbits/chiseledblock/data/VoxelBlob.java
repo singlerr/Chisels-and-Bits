@@ -1,5 +1,7 @@
 package mod.chiselsandbits.chiseledblock.data;
 
+import io.netty.buffer.Unpooled;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -16,7 +18,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.serialization.BitStream;
 import mod.chiselsandbits.chiseledblock.serialization.BlobSerializer;
@@ -603,12 +604,6 @@ public final class VoxelBlob
 		cb.blockLight = cb.blockLight / light_size;
 
 		return cb;
-	}
-
-	public float getOpacity()
-	{
-		final float o = (float) solid() / (float) array_size;
-		return o;
 	}
 
 	public VoxelBlob offset(

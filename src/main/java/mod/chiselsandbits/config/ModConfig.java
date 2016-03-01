@@ -463,7 +463,6 @@ public class ModConfig extends Configuration
 		return prop;
 	}
 
-	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	public void helpText(
 			final LocalStrings string,
 			final List<String> tooltip,

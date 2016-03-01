@@ -81,10 +81,10 @@ public abstract class DebugAction
 			apiAssert( "POSITIVE_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemPositiveprint ) ) == ItemType.POSITIVE_DESIGN );
 			apiAssert( "WRENCH", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemWrench ) ) == ItemType.WRENCH );
 			apiAssert( "CHISLED_BIT-cobblestone", player, api.getItemType( ItemChiseledBit.createStack( Block.getStateId( Blocks.cobblestone.getDefaultState() ), 1, true ) ) == ItemType.CHISLED_BIT );
-			apiAssert( "CHISLED_BLOCK", player, api.getItemType( access.getBitsAsItem( null, ItemType.CHISLED_BLOCK ) ) == null );
-			apiAssert( "MIRROR_DESIGN 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.MIRROR_DESIGN ) ) == null );
-			apiAssert( "NEGATIVE_DESIGN 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.NEGATIVE_DESIGN ) ) == null );
-			apiAssert( "POSITIVE_DESIGN 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.POSITIVE_DESIGN ) ) == null );
+			apiAssert( "CHISLED_BLOCK", player, api.getItemType( access.getBitsAsItem( null, ItemType.CHISLED_BLOCK, false ) ) == null );
+			apiAssert( "MIRROR_DESIGN 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.MIRROR_DESIGN, false ) ) == null );
+			apiAssert( "NEGATIVE_DESIGN 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.NEGATIVE_DESIGN, false ) ) == null );
+			apiAssert( "POSITIVE_DESIGN 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.POSITIVE_DESIGN, false ) ) == null );
 
 			try
 			{
@@ -101,11 +101,11 @@ public abstract class DebugAction
 				apiAssert( "setBitAt", player, false );
 			}
 
-			apiAssert( "CHISLED_BLOCK 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.CHISLED_BLOCK ) ) == ItemType.CHISLED_BLOCK );
-			apiAssert( "MIRROR_DESIGN 3", player, api.getItemType( access.getBitsAsItem( null, ItemType.MIRROR_DESIGN ) ) == ItemType.MIRROR_DESIGN );
-			apiAssert( "NEGATIVE_DESIGN 3", player, api.getItemType( access.getBitsAsItem( null, ItemType.NEGATIVE_DESIGN ) ) == ItemType.NEGATIVE_DESIGN );
-			apiAssert( "POSITIVE_DESIGN 3", player, api.getItemType( access.getBitsAsItem( null, ItemType.POSITIVE_DESIGN ) ) == ItemType.POSITIVE_DESIGN );
-			apiAssert( "WRENCH", player, api.getItemType( access.getBitsAsItem( null, ItemType.WRENCH ) ) == null );
+			apiAssert( "CHISLED_BLOCK 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.CHISLED_BLOCK, false ) ) == ItemType.CHISLED_BLOCK );
+			apiAssert( "MIRROR_DESIGN 3", player, api.getItemType( access.getBitsAsItem( null, ItemType.MIRROR_DESIGN, false ) ) == ItemType.MIRROR_DESIGN );
+			apiAssert( "NEGATIVE_DESIGN 3", player, api.getItemType( access.getBitsAsItem( null, ItemType.NEGATIVE_DESIGN, false ) ) == ItemType.NEGATIVE_DESIGN );
+			apiAssert( "POSITIVE_DESIGN 3", player, api.getItemType( access.getBitsAsItem( null, ItemType.POSITIVE_DESIGN, false ) ) == ItemType.POSITIVE_DESIGN );
+			apiAssert( "WRENCH", player, api.getItemType( access.getBitsAsItem( null, ItemType.WRENCH, false ) ) == null );
 		}
 
 	};
@@ -392,10 +392,10 @@ public abstract class DebugAction
 			{
 				final IBitAccess access = api.getBitAccess( w, loc.getBlockPos() );
 
-				player.inventory.addItemStackToInventory( access.getBitsAsItem( side, ItemType.CHISLED_BLOCK ) );
-				player.inventory.addItemStackToInventory( access.getBitsAsItem( side, ItemType.MIRROR_DESIGN ) );
-				player.inventory.addItemStackToInventory( access.getBitsAsItem( side, ItemType.NEGATIVE_DESIGN ) );
-				player.inventory.addItemStackToInventory( access.getBitsAsItem( side, ItemType.POSITIVE_DESIGN ) );
+				player.inventory.addItemStackToInventory( access.getBitsAsItem( side, ItemType.CHISLED_BLOCK, false ) );
+				player.inventory.addItemStackToInventory( access.getBitsAsItem( side, ItemType.MIRROR_DESIGN, false ) );
+				player.inventory.addItemStackToInventory( access.getBitsAsItem( side, ItemType.NEGATIVE_DESIGN, false ) );
+				player.inventory.addItemStackToInventory( access.getBitsAsItem( side, ItemType.POSITIVE_DESIGN, false ) );
 			}
 			catch ( final CannotBeChiseled e )
 			{
