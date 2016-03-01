@@ -1,5 +1,6 @@
 package mod.chiselsandbits.debug;
 
+import mod.chiselsandbits.debug.DebugAction.Tests;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -10,28 +11,6 @@ import net.minecraft.world.World;
 
 public class ItemApiDebug extends Item
 {
-
-	static enum Tests
-	{
-		canBeChiseled( new DebugAction.canBeChiseled() ),
-		createBitItem( new DebugAction.createBitItem() ),
-		getBit( new DebugAction.getBit() ),
-		getBitAccess( new DebugAction.getBitAccess() ),
-		setBitAccess( new DebugAction.setBitAccess() ),
-		isBlockChiseled( new DebugAction.isBlockChiseled() ),
-		ItemTests( new DebugAction.ItemTests() ),
-		Randomize( new DebugAction.Randomize() ),
-		getTileClass( new DebugAction.getTileClass() ),
-		occusionTest( new DebugAction.occlusionTest() );
-
-		final DebugAction which;
-
-		private Tests(
-				final DebugAction action )
-		{
-			which = action;
-		}
-	};
 
 	public ItemApiDebug()
 	{

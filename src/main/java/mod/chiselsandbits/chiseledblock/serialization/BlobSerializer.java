@@ -1,12 +1,9 @@
 package mod.chiselsandbits.chiseledblock.serialization;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.zip.Deflater;
 
-import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import net.minecraft.network.PacketBuffer;
 
@@ -83,16 +80,8 @@ public class BlobSerializer
 
 	private int bitsPerBit()
 	{
-		int maxValue = types - 1; // maximum value to represent..
-		int bits = 0;
-
-		while ( maxValue > 0 )
-		{
-			bits++;
-			maxValue = maxValue >> 1;
-		}
-
-		return bits > 0 ? bits : 1;
+		final int bits = Integer.SIZE - Integer.numberOfLeadingZeros( types - 1 );
+		return Math.max( bits, 1 );
 	}
 
 	int lastState = -1;
@@ -116,128 +105,79 @@ public class BlobSerializer
 		return palette[indexID];
 	}
 
-	static ThreadLocal<ByteBuffer> buffer = new ThreadLocal<ByteBuffer>();
-
-	public static ByteBuffer getBuffer()
-	{
-		ByteBuffer bb = buffer.get();
-
-		if ( bb == null )
-		{
-			bb = ByteBuffer.allocate( 3145728 );
-			buffer.set( bb );
-		}
-
-		return bb;
-	}
-
-	static ThreadLocal<PacketBuffer> pbuffer = new ThreadLocal<PacketBuffer>();
-
-	public static PacketBuffer getPacketBuffer()
-	{
-		PacketBuffer bb = pbuffer.get();
-
-		if ( bb == null )
-		{
-			bb = new PacketBuffer( Unpooled.buffer() );
-			pbuffer.set( bb );
-		}
-
-		bb.resetReaderIndex();
-		bb.resetWriterIndex();
-
-		return bb;
-	}
-
-	static ThreadLocal<BitStream> bitbuffer = new ThreadLocal<BitStream>();
-
-	public static BitStream getBitSet()
-	{
-		BitStream bb = bitbuffer.get();
-
-		if ( bb == null )
-		{
-			bb = new BitStream();
-			bitbuffer.set( bb );
-		}
-
-		bb.reset();
-		return bb;
-	}
-
-	static ThreadLocal<Deflater> deflater = new ThreadLocal<Deflater>();
-
-	public static Deflater getDeflater()
-	{
-		Deflater bb = deflater.get();
-
-		if ( bb == null )
-		{
-			bb = new Deflater( Deflater.BEST_COMPRESSION );
-			deflater.set( bb );
-		}
-
-		return bb;
-	}
-
-	public int readVoxelStateID(
-			final BitStream bits )
-	{
-		int val = 0;
-
-		for ( int x = bitsPerIntMinus1; x >= 0; x-- )
-		{
-			val |= bits.get() ? 1 << x : 0;
-		}
-
-		return getStateID( val );
-	}
-
 	public int getVersion()
 	{
 		return VoxelBlob.VERSION_COMPACT;
 	}
 
+	/**
+	 * Reads 1, to 16 bits per int from stream.
+	 *
+	 * @param bits
+	 * @return stateID
+	 */
+	public int readVoxelStateID(
+			final BitStream bits )
+	{
+		int index = 0;
+
+		for ( int x = bitsPerIntMinus1; x >= 0; --x )
+		{
+			index |= bits.get() ? 1 << x : 0;
+		}
+
+		return getStateID( index );
+	}
+
+	/**
+	 * Write 1, to 16 bits per int into stream.
+	 *
+	 * @param stateID
+	 * @param stream
+	 */
 	public void writeVoxelState(
 			final int stateID,
-			final BitStream set )
+			final BitStream stream )
 	{
-		final int val = getIndex( stateID );
+		final int index = getIndex( stateID );
 
 		switch ( bitsPerInt )
 		{
+			default:
+				throw new RuntimeException( "bitsPerInt is not valid, " + bitsPerInt );
+
 			case 16:
-				set.add( ( val & 0x8000 ) != 0 );
+				stream.add( ( index & 0x8000 ) != 0 );
 			case 15:
-				set.add( ( val & 0x4000 ) != 0 );
+				stream.add( ( index & 0x4000 ) != 0 );
 			case 14:
-				set.add( ( val & 0x2000 ) != 0 );
+				stream.add( ( index & 0x2000 ) != 0 );
 			case 13:
-				set.add( ( val & 0x1000 ) != 0 );
+				stream.add( ( index & 0x1000 ) != 0 );
 			case 12:
-				set.add( ( val & 0x800 ) != 0 );
+				stream.add( ( index & 0x800 ) != 0 );
 			case 11:
-				set.add( ( val & 0x400 ) != 0 );
+				stream.add( ( index & 0x400 ) != 0 );
 			case 10:
-				set.add( ( val & 0x200 ) != 0 );
+				stream.add( ( index & 0x200 ) != 0 );
 			case 9:
-				set.add( ( val & 0x100 ) != 0 );
+				stream.add( ( index & 0x100 ) != 0 );
 			case 8:
-				set.add( ( val & 0x80 ) != 0 );
+				stream.add( ( index & 0x80 ) != 0 );
 			case 7:
-				set.add( ( val & 0x40 ) != 0 );
+				stream.add( ( index & 0x40 ) != 0 );
 			case 6:
-				set.add( ( val & 0x20 ) != 0 );
+				stream.add( ( index & 0x20 ) != 0 );
 			case 5:
-				set.add( ( val & 0x10 ) != 0 );
+				stream.add( ( index & 0x10 ) != 0 );
 			case 4:
-				set.add( ( val & 0x8 ) != 0 );
+				stream.add( ( index & 0x8 ) != 0 );
 			case 3:
-				set.add( ( val & 0x4 ) != 0 );
+				stream.add( ( index & 0x4 ) != 0 );
 			case 2:
-				set.add( ( val & 0x2 ) != 0 );
+				stream.add( ( index & 0x2 ) != 0 );
 			case 1:
-				set.add( ( val & 0x1 ) != 0 );
+				stream.add( ( index & 0x1 ) != 0 );
 		}
 	}
 

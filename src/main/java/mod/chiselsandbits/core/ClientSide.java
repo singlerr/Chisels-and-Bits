@@ -46,7 +46,6 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.registry.ModItems;
-import mod.chiselsandbits.render.GeneratedModelLoader;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -94,7 +93,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -119,7 +117,7 @@ public class ClientSide
 	public void preinit(
 			final ChiselsAndBits mod )
 	{
-		ModelLoaderRegistry.registerLoader( new GeneratedModelLoader() );
+
 	}
 
 	public void init(
@@ -284,14 +282,14 @@ public class ClientSide
 					{
 						final int color = bi.getRGB( x, y );
 						final int a = color >> 24 & 0xff;
-						if ( a > 0 )
-						{
-							sip.left = Math.min( sip.left, x );
-							right = Math.max( right, x );
+					if ( a > 0 )
+					{
+						sip.left = Math.min( sip.left, x );
+						right = Math.max( right, x );
 
-							sip.top = Math.min( sip.top, y );
-							bottom = Math.max( bottom, y );
-						}
+						sip.top = Math.min( sip.top, y );
+						bottom = Math.max( bottom, y );
+					}
 					}
 				}
 

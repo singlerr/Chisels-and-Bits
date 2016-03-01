@@ -21,6 +21,7 @@ import java.util.zip.InflaterInputStream;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.serialization.BitStream;
 import mod.chiselsandbits.chiseledblock.serialization.BlobSerializer;
+import mod.chiselsandbits.chiseledblock.serialization.BlobSerilizationCache;
 import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializer;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
@@ -855,7 +856,7 @@ public final class VoxelBlob
 			final ByteArrayInputStream o ) throws IOException, RuntimeException
 	{
 		final InflaterInputStream w = new InflaterInputStream( o );
-		final ByteBuffer bb = BlobSerializer.getBuffer();
+		final ByteBuffer bb = BlobSerilizationCache.getCacheBuffer();
 
 		int usedBytes = 0;
 		int rv = 0;
@@ -937,14 +938,14 @@ public final class VoxelBlob
 	{
 		try
 		{
-			final Deflater def = BlobSerializer.getDeflater();
+			final Deflater def = BlobSerilizationCache.getCacheDeflater();
 			final DeflaterOutputStream w = new DeflaterOutputStream( o, def, bestBufferSize );
 
-			final PacketBuffer pb = BlobSerializer.getPacketBuffer();
+			final PacketBuffer pb = BlobSerilizationCache.getCachePacketBuffer();
 			pb.writeVarIntToBuffer( bs.getVersion() );
 			bs.write( pb );
 
-			final BitStream set = BlobSerializer.getBitSet();
+			final BitStream set = BlobSerilizationCache.getCacheBitStream();
 			for ( int x = 0; x < array_size; x++ )
 			{
 				bs.writeVoxelState( values[x], set );
