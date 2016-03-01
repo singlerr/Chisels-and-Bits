@@ -46,8 +46,7 @@ public enum ModGuiTypes
 		}
 		catch ( final Exception e )
 		{
-			// if and only if we are on the client should this be considered an
-			// error...
+			// Only throw error if this is a client...
 			if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
 			{
 				throw new RuntimeException( e );

@@ -1,5 +1,8 @@
 package mod.chiselsandbits.chiseledblock;
 
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Random;
@@ -39,7 +42,7 @@ public class BlockBitInfo
 	private static HashMap<IBlockState, BlockBitInfo> stateBitInfo = new HashMap<IBlockState, BlockBitInfo>();
 	private static HashMap<Block, Boolean> supportedBlocks = new HashMap<Block, Boolean>();
 	private static HashMap<Block, Fluid> fluidBlocks = new HashMap<Block, Fluid>();
-	private static HashMap<Integer, Fluid> fluidStates = new HashMap<Integer, Fluid>();
+	private static TIntObjectMap<Fluid> fluidStates = new TIntObjectHashMap<Fluid>();
 	private static HashMap<IBlockState, Integer> bitColor = new HashMap<IBlockState, Integer>();
 
 	public static int getColorFor(

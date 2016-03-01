@@ -15,7 +15,6 @@ import mod.chiselsandbits.config.ModConfig;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemBlock;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -23,43 +22,57 @@ import net.minecraftforge.fml.relauncher.Side;
 public class ModBlocks extends ModRegistry
 {
 
+	// TE Registration names.
+	private static String TE_BIT_TANK = "mod.chiselsandbits.TileEntityBitTank";
+	private static String TE_CHISELEDBLOCK = "mod.chiselsandbits.TileEntityChiseled";
+	private static String TE_CHISELEDBLOCK_TESR = "mod.chiselsandbits.TileEntityChiseled.tesr";
+
+	private final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();
+
 	public final BlockBitTank blockBitTank;
 
 	public static final MaterialType[] validMaterials = new MaterialType[] {
-			new MaterialType( "wood", Material.wood ),
-			new MaterialType( "rock", Material.rock ),
-			new MaterialType( "iron", Material.iron ),
-			new MaterialType( "cloth", Material.cloth ),
-			new MaterialType( "ice", Material.ice ),
-			new MaterialType( "packedIce", Material.packedIce ),
-			new MaterialType( "clay", Material.clay ),
-			new MaterialType( "glass", Material.glass ),
-			new MaterialType( "sand", Material.sand ),
-			new MaterialType( "ground", Material.ground ),
-			new MaterialType( "grass", Material.grass ),
-			new MaterialType( "snow", Material.snow ),
-			new MaterialType( "fluid", Material.water ),
-			new MaterialType( "leaves", Material.leaves ),
+		new MaterialType( "wood", Material.wood ),
+		new MaterialType( "rock", Material.rock ),
+		new MaterialType( "iron", Material.iron ),
+		new MaterialType( "cloth", Material.cloth ),
+		new MaterialType( "ice", Material.ice ),
+		new MaterialType( "packedIce", Material.packedIce ),
+		new MaterialType( "clay", Material.clay ),
+		new MaterialType( "glass", Material.glass ),
+		new MaterialType( "sand", Material.sand ),
+		new MaterialType( "ground", Material.ground ),
+		new MaterialType( "grass", Material.grass ),
+		new MaterialType( "snow", Material.snow ),
+		new MaterialType( "fluid", Material.water ),
+		new MaterialType( "leaves", Material.leaves ),
 	};
-
-	private final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();
 
 	public ModBlocks(
 			final ModConfig config,
 			final Side side )
 	{
 		// register tile entities.
-		GameRegistry.registerTileEntity( TileEntityBitTank.class, "mod.chiselsandbits.TileEntityBitTank" );
-		GameRegistry.registerTileEntity( TileEntityBlockChiseled.class, "mod.chiselsandbits.TileEntityChiseled" );
+		GameRegistry.registerTileEntity( TileEntityBlockChiseled.class, TE_CHISELEDBLOCK );
 
-		// register TESR differently on the server..
-		GameRegistry.registerTileEntity( side == Side.CLIENT ? TileEntityBlockChiseledTESR.class : TileEntityBlockChiseled.class, "mod.chiselsandbits.TileEntityChiseled.tesr" );
+		/**
+		 * register the TESR name either way, but if its a dedicated server
+		 * register the normal class under the same name.
+		 */
+		if ( side == Side.CLIENT )
+		{
+			GameRegistry.registerTileEntity( TileEntityBlockChiseledTESR.class, TE_CHISELEDBLOCK_TESR );
+		}
+		else
+		{
+			GameRegistry.registerTileEntity( TileEntityBlockChiseled.class, TE_CHISELEDBLOCK_TESR );
+		}
 
 		if ( config.enableBitTank )
 		{
 			blockBitTank = new BlockBitTank();
 			registerBlock( blockBitTank, null, "bittank" );
-			ShapedOreRecipe( blockBitTank, " G ", "GOG", " I ", 'G', "blockGlass", 'O', "logWood", 'I', "ingotIron" );
+			GameRegistry.registerTileEntity( TileEntityBitTank.class, TE_BIT_TANK );
 		}
 		else
 		{
@@ -75,13 +88,9 @@ public class ModBlocks extends ModRegistry
 		}
 	}
 
-	private void registerBlock(
-			final Block block,
-			final Class<? extends ItemBlock> itemBlock,
-			final String name )
+	public void addRecipes()
 	{
-		block.setCreativeTab( creativeTab );
-		GameRegistry.registerBlock( block.setUnlocalizedName( unlocalizedPrefix + name ), itemBlock == null ? ItemBlock.class : itemBlock, name );
+		ShapedOreRecipe( blockBitTank, " G ", "GOG", " I ", 'G', "blockGlass", 'O', "logWood", 'I', "ingotIron" );
 	}
 
 	public IBlockState getChiseledDefaultState()

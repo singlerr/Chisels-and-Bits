@@ -1,4 +1,4 @@
-package mod.chiselsandbits.registry;
+package mod.chiselsandbits.creative;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.config.ClipboardStorage;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

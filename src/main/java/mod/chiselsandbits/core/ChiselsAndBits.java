@@ -4,6 +4,7 @@ import java.io.File;
 
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.api.ChiselAndBitsAPI;
 import mod.chiselsandbits.core.api.IMCHandler;
@@ -11,12 +12,12 @@ import mod.chiselsandbits.crafting.ChiselCrafting;
 import mod.chiselsandbits.crafting.MirrorTransferCrafting;
 import mod.chiselsandbits.crafting.NegativeInversionCrafting;
 import mod.chiselsandbits.crafting.StackableCrafting;
+import mod.chiselsandbits.creative.CreativeClipboardTab;
 import mod.chiselsandbits.events.EventBreakSpeed;
 import mod.chiselsandbits.events.EventPlayerInteract;
 import mod.chiselsandbits.gui.ModGuiRouter;
 import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.network.NetworkRouter;
-import mod.chiselsandbits.registry.CreativeClipboardTab;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
 import net.minecraftforge.common.MinecraftForge;
@@ -118,7 +119,7 @@ public class ChiselsAndBits
 		{
 			// load this after items are created...
 			CreativeClipboardTab.load( new File( configFile.getParent(), MODID + "_clipboard.cfg" ) );
-			
+
 			ClientSide.instance.preinit( this );
 		}
 	}
@@ -138,6 +139,7 @@ public class ChiselsAndBits
 		registerWithBus( new EventPlayerInteract() );
 
 		// add recipes to game...
+		getBlocks().addRecipes();
 		getItems().addRecipes();
 
 		final String craftingOrder = "after:minecraft:shapeless";
@@ -201,6 +203,8 @@ public class ChiselsAndBits
 		{
 			getItems().itemBlockBit.clearCache();
 		}
+
+		VoxelBlob.clearCache();
 	}
 
 	public static void registerWithBus(

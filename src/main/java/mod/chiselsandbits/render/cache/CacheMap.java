@@ -4,6 +4,10 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
+/**
+ * In the end i'm not sure if this helps vs WeakHashMap, but it is cleaner sync
+ * wise...
+ */
 public class CacheMap<K, V>
 {
 

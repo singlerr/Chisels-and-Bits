@@ -46,6 +46,7 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.registry.ModItems;
+import mod.chiselsandbits.render.SmartModelManager;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -117,7 +118,7 @@ public class ClientSide
 	public void preinit(
 			final ChiselsAndBits mod )
 	{
-
+		ChiselsAndBits.registerWithBus( new SmartModelManager() );
 	}
 
 	public void init(
@@ -282,14 +283,14 @@ public class ClientSide
 					{
 						final int color = bi.getRGB( x, y );
 						final int a = color >> 24 & 0xff;
-					if ( a > 0 )
-					{
-						sip.left = Math.min( sip.left, x );
-						right = Math.max( right, x );
+						if ( a > 0 )
+						{
+							sip.left = Math.min( sip.left, x );
+							right = Math.max( right, x );
 
-						sip.top = Math.min( sip.top, y );
-						bottom = Math.max( bottom, y );
-					}
+							sip.top = Math.min( sip.top, y );
+							bottom = Math.max( bottom, y );
+						}
 					}
 				}
 
