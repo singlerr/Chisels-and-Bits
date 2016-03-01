@@ -1,5 +1,8 @@
 package mod.chiselsandbits.chiseledblock.data;
 
+import gnu.trove.TCollections;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import io.netty.buffer.Unpooled;
 
 import java.io.ByteArrayInputStream;
@@ -42,6 +45,19 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public final class VoxelBlob
 {
+
+	// generated filtering data as needed.
+	private static final TIntObjectMap<Boolean> fluidFilterState = TCollections.synchronizedMap( new TIntObjectHashMap<Boolean>() );
+	private static final TIntObjectMap<Boolean> layerFilterStateSolid = TCollections.synchronizedMap( new TIntObjectHashMap<Boolean>() );
+	private static final TIntObjectMap<Boolean> layerFilterStateCutout = TCollections.synchronizedMap( new TIntObjectHashMap<Boolean>() );
+	private static final TIntObjectMap<Boolean> layerFilterStateCutoutMipped = TCollections.synchronizedMap( new TIntObjectHashMap<Boolean>() );
+	private static final TIntObjectMap<Boolean> layerFilterStateTransparent = TCollections.synchronizedMap( new TIntObjectHashMap<Boolean>() );
+
+	static
+	{
+		clearCache();
+	}
+
 	static final int SHORT_BYTES = Short.SIZE / 8;
 
 	public final static int dim = 16;
@@ -60,6 +76,22 @@ public final class VoxelBlob
 
 	public VoxelBlob()
 	{
+		// nothing specific here...
+	}
+
+	public static void clearCache()
+	{
+		fluidFilterState.clear();
+		layerFilterStateSolid.clear();
+		layerFilterStateCutout.clear();
+		layerFilterStateCutoutMipped.clear();
+		layerFilterStateTransparent.clear();
+
+		fluidFilterState.put( 0, false );
+		layerFilterStateSolid.put( 0, false );
+		layerFilterStateCutout.put( 0, false );
+		layerFilterStateCutoutMipped.put( 0, false );
+		layerFilterStateTransparent.put( 0, false );
 	}
 
 	public VoxelBlob(
@@ -771,19 +803,16 @@ public final class VoxelBlob
 	public boolean filterFluids(
 			final boolean wantsFluids )
 	{
-		final HashMap<Integer, Boolean> filterState = new HashMap<Integer, Boolean>();
-		filterState.put( 0, false );
-
 		boolean hasValues = false;
 
 		for ( int x = 0; x < array_size; x++ )
 		{
 			final int ref = values[x];
 
-			Boolean state = filterState.get( ref );
+			Boolean state = fluidFilterState.get( ref );
 			if ( state == null )
 			{
-				filterState.put( ref, state = isFluid( ref ) );
+				fluidFilterState.put( ref, state = isFluid( ref ) );
 			}
 
 			if ( state != wantsFluids )
@@ -802,29 +831,47 @@ public final class VoxelBlob
 	public boolean filter(
 			final EnumWorldBlockLayer layer )
 	{
-		final HashMap<Integer, Boolean> filterState = new HashMap<Integer, Boolean>();
-		filterState.put( 0, false );
-
+		final TIntObjectMap<Boolean> layerFilterState = getStateLayer( layer );
 		boolean hasValues = false;
 
 		for ( int x = 0; x < array_size; x++ )
 		{
 			final int ref = values[x];
 
-			Boolean state = filterState.get( ref );
+			Boolean state = layerFilterState.get( ref );
 			if ( state == null )
 			{
-				filterState.put( ref, state = inLayer( layer, ref ) );
-				hasValues = hasValues || state;
+				layerFilterState.put( ref, state = inLayer( layer, ref ) );
 			}
 
 			if ( state == false )
 			{
 				values[x] = 0;
 			}
+			else
+			{
+				hasValues = true;
+			}
 		}
 
 		return hasValues;
+	}
+
+	private TIntObjectMap<Boolean> getStateLayer(
+			final EnumWorldBlockLayer layer )
+	{
+		switch ( layer )
+		{
+			case CUTOUT:
+				return layerFilterStateCutout;
+			case CUTOUT_MIPPED:
+				return layerFilterStateCutoutMipped;
+			case SOLID:
+				return layerFilterStateSolid;
+			case TRANSLUCENT:
+				return layerFilterStateTransparent;
+		}
+		throw new RuntimeException( "Invalid Layer" );
 	}
 
 	private Boolean isFluid(
