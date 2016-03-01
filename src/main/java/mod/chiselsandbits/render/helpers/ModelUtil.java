@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Random;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
-import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ReflectionWrapper;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
@@ -118,7 +117,7 @@ public class ModelUtil
 		}
 
 		final HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>> tmp = new HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>>();
-		final int color = BitColors.getColorFor( state, layer == EnumWorldBlockLayer.SOLID ? 0 : 1 );
+		final int color = BlockBitInfo.getColorFor( state, layer == EnumWorldBlockLayer.SOLID ? 0 : 1 );
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{

@@ -13,7 +13,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
-class ProxyBlock extends Block
+class ReflectionHelperBlock extends Block
 {
 	public String MethodName;
 
@@ -22,7 +22,7 @@ class ProxyBlock extends Block
 		MethodName = new Throwable().fillInStackTrace().getStackTrace()[1].getMethodName();
 	}
 
-	protected ProxyBlock()
+	protected ReflectionHelperBlock()
 	{
 		super( Material.air );
 	}

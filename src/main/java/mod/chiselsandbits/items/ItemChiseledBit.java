@@ -9,7 +9,6 @@ import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
-import mod.chiselsandbits.chiseledblock.data.BitColors;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -155,7 +154,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		}
 
 		final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
-		return state == null ? 0xffffff : BitColors.getColorFor( state, renderPass );
+		return state == null ? 0xffffff : BlockBitInfo.getColorFor( state, renderPass );
 	}
 
 	@Override
