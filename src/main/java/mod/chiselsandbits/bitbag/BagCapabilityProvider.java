@@ -18,6 +18,13 @@ public class BagCapabilityProvider extends BagStorage implements ICapabilityProv
 		this.stack = stack;
 	}
 
+	/**
+	 * Read NBT int array in and ensure its the proper size.
+	 *
+	 * @param stack
+	 * @param size
+	 * @return a usable int[] for the bag storage.
+	 */
 	private static int[] getStorageArray(
 			final ItemStack stack,
 			final int size )
@@ -70,7 +77,7 @@ public class BagCapabilityProvider extends BagStorage implements ICapabilityProv
 	{
 		if ( capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY )
 		{
-			setStorage( getStorageArray( stack, max_size * ItemBitBag.intsPerBitType ) );
+			setStorage( getStorageArray( stack, BAG_STORAGE_SLOTS * ItemBitBag.INTS_PER_BIT_TYPE ) );
 			return (T) this;
 		}
 

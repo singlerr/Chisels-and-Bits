@@ -21,10 +21,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class BagContainer extends Container
 {
 	final EntityPlayer thePlayer;
-	final PassThruInv pi = new PassThruInv();
+	final TargetedInventory visibleInventory = new TargetedInventory();
 
 	BagInventory bagInv;
-	SlotReadonly thatSlot;
+	SlotReadonly bagSlot;
 
 	final public List<Slot> customSlots = new ArrayList<Slot>();
 	final public List<ItemStack> customSlotsItems = new ArrayList<ItemStack>();
@@ -55,7 +55,7 @@ public class BagContainer extends Container
 		{
 			for ( int k = 0; k < 9; ++k )
 			{
-				addCustomSlot( new SlotBit( pi, k + j * 9, 8 + k * 18, 18 + j * 18 ) );
+				addCustomSlot( new SlotBit( visibleInventory, k + j * 9, 8 + k * 18, 18 + j * 18 ) );
 			}
 		}
 
@@ -71,7 +71,7 @@ public class BagContainer extends Container
 		{
 			if ( thePlayer.inventory.currentItem == j )
 			{
-				addSlotToContainer( thatSlot = new SlotReadonly( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
+				addSlotToContainer( bagSlot = new SlotReadonly( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
 			}
 			else
 			{
@@ -92,10 +92,10 @@ public class BagContainer extends Container
 		else
 		{
 			bagInv = null;
-			inv = new NullInventory( BagStorage.max_size );
+			inv = new NullInventory( BagStorage.BAG_STORAGE_SLOTS );
 		}
 
-		pi.setInventory( inv );
+		visibleInventory.setInventory( inv );
 	}
 
 	@Override
@@ -131,7 +131,7 @@ public class BagContainer extends Container
 		ItemStack someReturnValue = null;
 		boolean reverse = true;
 
-		final HelperContainer helper = new HelperContainer();
+		final TargetedTransferContainer helper = new TargetedTransferContainer();
 
 		if ( !normalToBag )
 		{

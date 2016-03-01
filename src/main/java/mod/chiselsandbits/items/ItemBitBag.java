@@ -31,9 +31,9 @@ import net.minecraftforge.oredict.OreDictionary;
 public class ItemBitBag extends Item
 {
 
-	public static final int intsPerBitType = 2;
-	public static final int offset_state_id = 0;
-	public static final int offset_qty = 1;
+	public static final int INTS_PER_BIT_TYPE = 2;
+	public static final int OFFSET_STATE_ID = 0;
+	public static final int OFFSET_QUANTITY = 1;
 
 	public ItemBitBag()
 	{
@@ -327,7 +327,7 @@ public class ItemBitBag extends Item
 		{
 			final int qty = ( (BagStorage) o ).getSlotsUsed();
 
-			final double value = qty / (float) BagStorage.max_size;
+			final double value = qty / (float) BagStorage.BAG_STORAGE_SLOTS;
 			return Math.min( 1.0d, Math.max( 0.0d, ChiselsAndBits.getConfig().invertBitBagFullness ? value : 1.0 - value ) );
 		}
 

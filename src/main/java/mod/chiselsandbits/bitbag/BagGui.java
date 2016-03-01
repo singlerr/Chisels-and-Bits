@@ -2,8 +2,6 @@ package mod.chiselsandbits.bitbag;
 
 import java.io.IOException;
 
-import org.lwjgl.input.Keyboard;
-
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.network.NetworkRouter;
@@ -22,7 +20,9 @@ public class BagGui extends GuiContainer
 {
 
 	private static final ResourceLocation BAG_GUI_TEXTURE = new ResourceLocation( ChiselsAndBits.MODID, "textures/gui/container/bitbag.png" );
-	private static GuiBagFontRenderer specialFontRenderer;
+	private static int SLOT_SIZE = 16;
+
+	private static GuiBagFontRenderer specialFontRenderer = null;
 
 	public BagGui(
 			final EntityPlayer player,
@@ -60,20 +60,21 @@ public class BagGui extends GuiContainer
 			final int mouseX,
 			final int mouseY )
 	{
+		final int xOffset = ( width - xSize ) / 2;
+		final int yOffset = ( height - ySize ) / 2;
+
 		GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
 		mc.getTextureManager().bindTexture( BAG_GUI_TEXTURE );
-		final int k = ( width - xSize ) / 2;
-		final int l = ( height - ySize ) / 2;
-		this.drawTexturedModalRect( k, l, 0, 0, xSize, ySize );
+		this.drawTexturedModalRect( xOffset, yOffset, 0, 0, xSize, ySize );
 	}
 
 	private Slot getSlotAtPosition(
 			final int x,
 			final int y )
 	{
-		for ( int i = 0; i < getBagContainer().customSlots.size(); ++i )
+		for ( int slotIdx = 0; slotIdx < getBagContainer().customSlots.size(); ++slotIdx )
 		{
-			final Slot slot = getBagContainer().customSlots.get( i );
+			final Slot slot = getBagContainer().customSlots.get( slotIdx );
 
 			if ( isMouseOverSlot( slot, x, y ) )
 			{
@@ -90,21 +91,21 @@ public class BagGui extends GuiContainer
 			final int mouseY,
 			final int mouseButton ) throws IOException
 	{
+		// This is what vanilla does...
 		final boolean duplicateButton = mouseButton == mc.gameSettings.keyBindPickBlock.getKeyCode() + 100;
 
 		final Slot slot = getSlotAtPosition( mouseX, mouseY );
-
 		if ( slot != null )
 		{
-			final PacketBagGui bgp = new PacketBagGui();
+			final PacketBagGui bagGuiPacket = new PacketBagGui();
 
-			bgp.slotNumber = slot.slotNumber;
-			bgp.mouseButton = mouseButton;
-			bgp.duplicateButton = duplicateButton;
-			bgp.holdingShift = Keyboard.isKeyDown( 42 ) || Keyboard.isKeyDown( 54 );
+			bagGuiPacket.slotNumber = slot.slotNumber;
+			bagGuiPacket.mouseButton = mouseButton;
+			bagGuiPacket.duplicateButton = duplicateButton;
+			bagGuiPacket.holdingShift = ClientSide.instance.holdingShift();
 
-			bgp.doAction( ClientSide.instance.getPlayer() );
-			NetworkRouter.instance.sendToServer( bgp );
+			bagGuiPacket.doAction( ClientSide.instance.getPlayer() );
+			NetworkRouter.instance.sendToServer( bagGuiPacket );
 
 			return;
 		}
@@ -131,22 +132,28 @@ public class BagGui extends GuiContainer
 		{
 			final Slot slot = getBagContainer().customSlots.get( i1 );
 
-			final FontRenderer originalheight = fontRendererObj;
+			final FontRenderer defaultFontRenderer = fontRendererObj;
 
-			fontRendererObj = specialFontRenderer;
-			drawSlot( slot );
-			fontRendererObj = originalheight;
+			try
+			{
+				fontRendererObj = specialFontRenderer;
+				drawSlot( slot );
+			}
+			finally
+			{
+				fontRendererObj = defaultFontRenderer;
+			}
 
 			if ( isMouseOverSlot( slot, mouseX, mouseY ) && slot.canBeHovered() )
 			{
+				final int xDisplayPos = slot.xDisplayPosition;
+				final int yDisplayPos = slot.yDisplayPosition;
 				theSlot = slot;
 
 				GlStateManager.disableLighting();
 				GlStateManager.disableDepth();
-				final int j1 = slot.xDisplayPosition;
-				final int k1 = slot.yDisplayPosition;
 				GlStateManager.colorMask( true, true, true, false );
-				drawGradientRect( j1, k1, j1 + 16, k1 + 16, -2130706433, -2130706433 );
+				drawGradientRect( xDisplayPos, yDisplayPos, xDisplayPos + SLOT_SIZE, yDisplayPos + SLOT_SIZE, 0x80FFFFFF, 0x80FFFFFF );
 				GlStateManager.colorMask( true, true, true, true );
 				GlStateManager.enableLighting();
 				GlStateManager.enableDepth();

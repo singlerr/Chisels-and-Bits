@@ -36,7 +36,7 @@ public class BagInventory implements IInventory
 			final ItemStack is )
 	{
 		inv = (BagStorage) is.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null );
-		stackSlots = new ItemStack[BagStorage.max_size];
+		stackSlots = new ItemStack[BagStorage.BAG_STORAGE_SLOTS];
 	}
 
 	public ItemStack getItemStack()
@@ -72,8 +72,8 @@ public class BagInventory implements IInventory
 	public ItemStack getStackInSlot(
 			final int index )
 	{
-		final int qty = inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty];
-		final int id = inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id];
+		final int qty = inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY];
+		final int id = inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_STATE_ID];
 
 		if ( stackSlots[index] != null )
 		{
@@ -94,8 +94,8 @@ public class BagInventory implements IInventory
 			final int index,
 			int count )
 	{
-		final int qty = inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty];
-		final int id = inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id];
+		final int qty = inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY];
+		final int id = inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_STATE_ID];
 
 		if ( qty == 0 || id == 0 )
 		{
@@ -107,7 +107,7 @@ public class BagInventory implements IInventory
 			count = qty;
 		}
 
-		inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty] -= count;
+		inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY] -= count;
 		inv.onChange();
 
 		if ( stackSlots[index] != null )
@@ -134,13 +134,13 @@ public class BagInventory implements IInventory
 
 		if ( stack != null && stack.getItem() instanceof ItemChiseledBit )
 		{
-			inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty] = stack.stackSize;
-			inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id] = ItemChiseledBit.getStackState( stack );
+			inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY] = stack.stackSize;
+			inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_STATE_ID] = ItemChiseledBit.getStackState( stack );
 		}
 		else
 		{
-			inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty] = 0;
-			inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id] = 0;
+			inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY] = 0;
+			inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_STATE_ID] = 0;
 		}
 
 		inv.onChange();
@@ -159,7 +159,7 @@ public class BagInventory implements IInventory
 		{
 			if ( stackSlots[x] != null )
 			{
-				inv.contents[ItemBitBag.intsPerBitType * x + ItemBitBag.offset_qty] = stackSlots[x].stackSize;
+				inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * x + ItemBitBag.OFFSET_QUANTITY] = stackSlots[x].stackSize;
 				stackSlots[x] = null;
 				inv.onChange();
 			}
@@ -295,10 +295,10 @@ public class BagInventory implements IInventory
 
 		for ( int index = stackSlots.length - 1; index >= 0; index-- )
 		{
-			final int qty_idx = ItemBitBag.intsPerBitType * index + ItemBitBag.offset_qty;
+			final int qty_idx = ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY;
 
 			final int qty = inv.contents[qty_idx];
-			final int id = inv.contents[ItemBitBag.intsPerBitType * index + ItemBitBag.offset_state_id];
+			final int id = inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_STATE_ID];
 
 			if ( id == bitMeta && qty > 0 )
 			{

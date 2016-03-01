@@ -7,6 +7,7 @@ import mod.chiselsandbits.api.IBitBag;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.item.ItemStack;
@@ -14,10 +15,10 @@ import net.minecraft.item.ItemStack;
 public class BagStorage implements IBitBag
 {
 
-	protected ItemStack stack;
+	public static final int BAG_STORAGE_SLOTS = 63;
 
-	public static final int max_size = 63;
-	int[] contents;
+	protected ItemStack stack;
+	protected int[] contents;
 
 	protected void setStorage(
 			final int[] source )
@@ -27,6 +28,7 @@ public class BagStorage implements IBitBag
 
 	public void onChange()
 	{
+		// noop at the moment.
 	}
 
 	@Override
@@ -50,23 +52,24 @@ public class BagStorage implements IBitBag
 	@Override
 	public int getSlots()
 	{
-		return max_size;
+		return BAG_STORAGE_SLOTS;
 	}
 
 	@Override
 	public ItemStack getStackInSlot(
 			final int slot )
 	{
-		if ( slot < max_size )
+		if ( slot < BAG_STORAGE_SLOTS )
 		{
-			final int qty = contents[ItemBitBag.intsPerBitType * slot + ItemBitBag.offset_qty];
-			final int id = contents[ItemBitBag.intsPerBitType * slot + ItemBitBag.offset_state_id];
+			final int slotQty = contents[ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_QUANTITY];
+			final int slotId = contents[ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_STATE_ID];
 
-			if ( id != 0 && qty > 0 )
+			if ( slotId != 0 && slotQty > 0 )
 			{
-				return ItemChiseledBit.createStack( id, qty, false );
+				return ItemChiseledBit.createStack( slotId, slotQty, false );
 			}
 		}
+
 		return null;
 	}
 
@@ -76,13 +79,13 @@ public class BagStorage implements IBitBag
 			final ItemStack stack,
 			final boolean simulate )
 	{
-		if ( slot >= 0 && slot < max_size && stack != null )
+		if ( slot >= 0 && slot < BAG_STORAGE_SLOTS && stack != null )
 		{
-			final int id_index = ItemBitBag.intsPerBitType * slot + ItemBitBag.offset_state_id;
-			final int qty_index = ItemBitBag.intsPerBitType * slot + ItemBitBag.offset_qty;
+			final int indexId = ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_STATE_ID;
+			final int indexQty = ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_QUANTITY;
 
-			final int id = contents[id_index];
-			final int qty = id == 0 ? 0 : contents[qty_index];
+			final int slotId = contents[indexId];
+			final int slotQty = slotId == 0 ? 0 : contents[indexQty];
 
 			final ItemType type = ChiselsAndBits.getApi().getItemType( stack );
 			if ( type == ItemType.CHISLED_BIT )
@@ -90,16 +93,16 @@ public class BagStorage implements IBitBag
 				try
 				{
 					final IBitBrush brush = ChiselsAndBits.getApi().createBrush( stack );
-					if ( brush.getStateID() == id || id == 0 )
+					if ( brush.getStateID() == slotId || slotId == 0 )
 					{
-						int newTotal = qty + stack.stackSize;
+						int newTotal = slotQty + stack.stackSize;
 						final int overFlow = newTotal > getBitbagStackSize() ? newTotal - getBitbagStackSize() : 0;
 						newTotal -= overFlow;
 
 						if ( !simulate )
 						{
-							contents[id_index] = brush.getStateID();
-							contents[qty_index] = newTotal;
+							contents[indexId] = brush.getStateID();
+							contents[indexQty] = newTotal;
 
 							onChange();
 						}
@@ -114,7 +117,7 @@ public class BagStorage implements IBitBag
 				}
 				catch ( final InvalidBitItem e )
 				{
-					// something is wrong.
+					Log.logError( "Something went wrong", e );
 				}
 			}
 		}
@@ -134,29 +137,29 @@ public class BagStorage implements IBitBag
 			final int amount,
 			final boolean simulate )
 	{
-		if ( slot >= 0 && slot < max_size )
+		if ( slot >= 0 && slot < BAG_STORAGE_SLOTS )
 		{
-			final int id_index = ItemBitBag.intsPerBitType * slot + ItemBitBag.offset_state_id;
-			final int qty_index = ItemBitBag.intsPerBitType * slot + ItemBitBag.offset_qty;
+			final int indexId = ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_STATE_ID;
+			final int indexQty = ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_QUANTITY;
 
-			final int id = contents[id_index];
-			final int qty = id == 0 ? 0 : contents[qty_index];
+			final int slotId = contents[indexId];
+			final int slotQty = slotId == 0 ? 0 : contents[indexQty];
 
-			final int extracted = qty >= amount ? amount : qty;
+			final int extracted = slotQty >= amount ? amount : slotQty;
 			if ( extracted > 0 )
 			{
 				if ( !simulate )
 				{
-					contents[qty_index] -= extracted;
-					if ( contents[qty_index] <= 0 )
+					contents[indexQty] -= extracted;
+					if ( contents[indexQty] <= 0 )
 					{
-						contents[id_index] = 0;
+						contents[indexId] = 0;
 					}
 
 					onChange();
 				}
 
-				return ItemChiseledBit.createStack( id, extracted, false );
+				return ItemChiseledBit.createStack( slotId, extracted, false );
 			}
 		}
 
@@ -167,12 +170,12 @@ public class BagStorage implements IBitBag
 	public int getSlotsUsed()
 	{
 		int used = 0;
-		for ( int index = 0; index < contents.length; index += ItemBitBag.intsPerBitType )
+		for ( int index = 0; index < contents.length; index += ItemBitBag.INTS_PER_BIT_TYPE )
 		{
-			final int qty = contents[index + ItemBitBag.offset_qty];
-			final int id = contents[index + ItemBitBag.offset_state_id];
+			final int slotQty = contents[index + ItemBitBag.OFFSET_QUANTITY];
+			final int slotId = contents[index + ItemBitBag.OFFSET_STATE_ID];
 
-			if ( qty > 0 && id > 0 )
+			if ( slotQty > 0 && slotId > 0 )
 			{
 				used++;
 			}
