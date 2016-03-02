@@ -32,20 +32,20 @@ public class ModBlocks extends ModRegistry
 	public final BlockBitTank blockBitTank;
 
 	public static final MaterialType[] validMaterials = new MaterialType[] {
-		new MaterialType( "wood", Material.wood ),
-		new MaterialType( "rock", Material.rock ),
-		new MaterialType( "iron", Material.iron ),
-		new MaterialType( "cloth", Material.cloth ),
-		new MaterialType( "ice", Material.ice ),
-		new MaterialType( "packedIce", Material.packedIce ),
-		new MaterialType( "clay", Material.clay ),
-		new MaterialType( "glass", Material.glass ),
-		new MaterialType( "sand", Material.sand ),
-		new MaterialType( "ground", Material.ground ),
-		new MaterialType( "grass", Material.grass ),
-		new MaterialType( "snow", Material.snow ),
-		new MaterialType( "fluid", Material.water ),
-		new MaterialType( "leaves", Material.leaves ),
+			new MaterialType( "wood", Material.wood ),
+			new MaterialType( "rock", Material.rock ),
+			new MaterialType( "iron", Material.iron ),
+			new MaterialType( "cloth", Material.cloth ),
+			new MaterialType( "ice", Material.ice ),
+			new MaterialType( "packedIce", Material.packedIce ),
+			new MaterialType( "clay", Material.clay ),
+			new MaterialType( "glass", Material.glass ),
+			new MaterialType( "sand", Material.sand ),
+			new MaterialType( "ground", Material.ground ),
+			new MaterialType( "grass", Material.grass ),
+			new MaterialType( "snow", Material.craftedSnow ),
+			new MaterialType( "fluid", Material.water ),
+			new MaterialType( "leaves", Material.leaves ),
 	};
 
 	public ModBlocks(

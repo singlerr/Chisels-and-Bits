@@ -1,12 +1,11 @@
 package mod.chiselsandbits.chiseledblock;
 
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
-
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Random;
 
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 import mod.chiselsandbits.api.IgnoreBlockLogic;
 import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -16,6 +15,7 @@ import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockGlowstone;
 import net.minecraft.block.BlockGrass;
 import net.minecraft.block.BlockSlime;
+import net.minecraft.block.BlockSnowBlock;
 import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -36,6 +36,7 @@ public class BlockBitInfo
 	{
 		ignoreLogicBlocks.put( Blocks.leaves, true );
 		ignoreLogicBlocks.put( Blocks.leaves2, true );
+		ignoreLogicBlocks.put( Blocks.snow, true );
 	}
 
 	// cache data..
@@ -157,7 +158,7 @@ public class BlockBitInfo
 			// require default drop behavior...
 			pb.quantityDropped( null );
 			final Class<?> wc = blkClass.getMethod( pb.MethodName, Random.class ).getDeclaringClass();
-			final boolean quantityDroppedTest = wc == Block.class || wc == BlockGlowstone.class || wc == BlockStainedGlass.class || wc == BlockGlass.class;
+			final boolean quantityDroppedTest = wc == Block.class || wc == BlockGlowstone.class || wc == BlockStainedGlass.class || wc == BlockGlass.class || wc == BlockSnowBlock.class;
 
 			pb.quantityDroppedWithBonus( 0, null );
 			final boolean quantityDroppedWithBonusTest = blkClass.getMethod( pb.MethodName, int.class, Random.class ).getDeclaringClass() == Block.class || wc == BlockGlowstone.class;
