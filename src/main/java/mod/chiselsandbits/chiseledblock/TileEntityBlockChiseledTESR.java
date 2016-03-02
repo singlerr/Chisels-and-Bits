@@ -18,6 +18,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 {
 	private TileRenderChunk renderChunk;
 	private TileRenderCache singleCache;
+	private final AxisAlignedBB renderBox = null;
 
 	@Override
 	public boolean canRenderBreaking()
@@ -33,7 +34,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	@Override
 	public boolean hasFastRenderer()
 	{
-		return true;// renderChunk.hasRenderedThisFrame();
+		return true;
 	}
 
 	@Override
@@ -130,6 +131,11 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	@Override
 	public AxisAlignedBB getRenderBoundingBox()
 	{
+		if ( getRenderChunk() != null )
+		{
+			return getRenderChunk().getBounds();
+		}
+
 		final BlockPos p = getPos();
 		return new AxisAlignedBB( p.getX(), p.getY(), p.getZ(), p.getX() + 1, p.getY() + 1, p.getZ() + 1 );
 	}

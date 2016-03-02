@@ -24,6 +24,7 @@ public class ModConfig extends Configuration
 
 	// automatic setting...
 	public boolean allowBlockAlternatives = false;
+	public boolean lowMemoryMode = false;
 
 	// file path...
 	final private File myPath;
@@ -219,8 +220,11 @@ public class ModConfig extends Configuration
 
 	private void setDefaults()
 	{
+		final long mem = Runtime.getRuntime().maxMemory() / ( 1024 * 1024 ); // mb
+
 		logTileErrors = false;
 		enableAPITestingItem = deobfuscatedEnvironment();
+		lowMemoryMode = mem < 1200;
 		enableChiselMode_ConnectedPlane = !ChiselMode.CONNECTED_PLANE.isDisabled;
 		enableChiselMode_LargeCube = !ChiselMode.CUBE_LARGE.isDisabled;
 		enableChiselMode_MediumCube = !ChiselMode.CUBE_MEDIUM.isDisabled;
@@ -243,7 +247,7 @@ public class ModConfig extends Configuration
 		dynamicModelFaceCount = 40;
 		dynamicModelRange = 128;
 		dynamicModelMinimizeLatancy = true;
-		dynamicMaxConcurrentTessalators = 64;
+		dynamicMaxConcurrentTessalators = 32;
 
 		showUsage = true;
 		invertBitBagFullness = false;

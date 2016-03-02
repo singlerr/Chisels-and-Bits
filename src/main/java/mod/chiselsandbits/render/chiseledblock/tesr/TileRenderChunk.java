@@ -1,6 +1,7 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 
 public class TileRenderChunk extends TileRenderCache
@@ -94,6 +95,19 @@ public class TileRenderChunk extends TileRenderCache
 		final int bitMask = ~0xf;
 		final BlockPos tilepos = getTiles().get( 0 ).getPos();
 		return new BlockPos( tilepos.getX() & bitMask, tilepos.getY() & bitMask, tilepos.getZ() & bitMask );
+	}
+
+	AxisAlignedBB renderBox = null;
+
+	public AxisAlignedBB getBounds()
+	{
+		if ( renderBox == null )
+		{
+			final BlockPos p = chunkOffset();
+			renderBox = new AxisAlignedBB( p.getX(), p.getY(), p.getZ(), p.getX() + 16, p.getY() + 16, p.getZ() + 16 );
+		}
+
+		return renderBox;
 	}
 
 	@Override

@@ -1,7 +1,10 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -9,6 +12,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.lwjgl.opengl.GL11;
@@ -48,7 +52,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileEntityBlockChiseledTESR>
 {
+	public final static AtomicInteger pendingTess = new AtomicInteger( 0 );
 	public final static AtomicInteger activeTess = new AtomicInteger( 0 );
+
 	private final static ThreadPoolExecutor pool;
 	private static ChisledBlockRenderChunkTESR instance;
 
@@ -57,32 +63,102 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		return instance;
 	}
 
-	private static class UploadTracker
-	{
-		final TileRenderCache trc;
-		final EnumWorldBlockLayer layer;
-		final Tessellator src;
-
-		public UploadTracker(
-				final TileRenderCache t,
-				final EnumWorldBlockLayer l,
-				final Tessellator tess )
-		{
-			trc = t;
-			layer = l;
-			src = tess;
-		}
-
-	};
-
+	private final LinkedList<FutureTracker> futureTrackers = new LinkedList<FutureTracker>();
 	private final Queue<UploadTracker> uploaders = new ConcurrentLinkedQueue<UploadTracker>();
-	private final Queue<FutureTask<Tessellator>> canceledUploaders = new ConcurrentLinkedQueue<FutureTask<Tessellator>>();
 	private final static Queue<Runnable> nextFrameTasks = new ConcurrentLinkedQueue<Runnable>();
 
 	public static void addTask(
 			final Runnable r )
 	{
 		nextFrameTasks.offer( r );
+	}
+
+	private static class FutureTracker
+	{
+		final TileLayerRenderCache tlrc;
+		final TileRenderCache renderCache;
+		final EnumWorldBlockLayer layer;
+		final FutureTask<Tessellator> future;
+
+		public FutureTracker(
+				final TileLayerRenderCache tlrc,
+				final TileRenderCache renderCache,
+				final EnumWorldBlockLayer layer )
+		{
+			this.tlrc = tlrc;
+			this.renderCache = renderCache;
+			this.layer = layer;
+			future = tlrc.future;
+		}
+
+		public void done()
+		{
+			pendingTess.decrementAndGet();
+		}
+	};
+
+	private void addFutureTracker(
+			final TileLayerRenderCache tlrc,
+			final TileRenderCache renderCache,
+			final EnumWorldBlockLayer layer )
+	{
+		futureTrackers.add( new FutureTracker( tlrc, renderCache, layer ) );
+	}
+
+	private boolean handleFutureTracker(
+			final FutureTracker ft )
+	{
+		// next frame..?
+		if ( ft.future != null && ft.future.isDone() )
+		{
+			try
+			{
+				final Tessellator t = ft.future.get();
+
+				if ( ft.future == ft.tlrc.future )
+				{
+					ft.tlrc.waiting = true;
+					uploaders.offer( new UploadTracker( ft.renderCache, ft.layer, t ) );
+				}
+				else
+				{
+					try
+					{
+						t.getWorldRenderer().finishDrawing();
+					}
+					catch ( final IllegalStateException e )
+					{
+						Log.logError( "Bad Tessellator Behavior.", e );
+					}
+
+					ChisledBlockBackgroundRender.submitTessellator( t );
+				}
+			}
+			catch ( final InterruptedException e )
+			{
+				Log.logError( "Failed to get TESR Future - C", e );
+			}
+			catch ( final ExecutionException e )
+			{
+				Log.logError( "Failed to get TESR Future - D", e );
+			}
+			catch ( final CancellationException e )
+			{
+				// no issues here.
+			}
+			finally
+			{
+				if ( ft.future == ft.tlrc.future )
+				{
+					ft.tlrc.future = null;
+				}
+			}
+
+			ft.done();
+			return true;
+		}
+
+		return false;
 	}
 
 	@SubscribeEvent
@@ -102,31 +178,18 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		}
 		while ( true );
 
-		final FutureTask<Tessellator> ft = canceledUploaders.poll();
-		if ( ft != null && ft.isDone() )
+		final Iterator<FutureTracker> i = futureTrackers.iterator();
+		while ( i.hasNext() )
 		{
-			try
+			if ( handleFutureTracker( i.next() ) )
 			{
-				activeTess.decrementAndGet();
-
-				// mark it as finished, but don't draw it.
-				final Tessellator t = ft.get();
-				t.getWorldRenderer().finishDrawing();
-
-				ChisledBlockBackgroundRender.submitTessellator( t );
-			}
-			catch ( final InterruptedException e1 )
-			{
-				Log.logError( "Failed to get TESR Future - E", e1 );
-			}
-			catch ( final ExecutionException e1 )
-			{
-				Log.logError( "Failed to get TESR Future - F", e1 );
+				i.remove();
 			}
 		}
 
 		final Stopwatch w = Stopwatch.createStarted();
 		do
+
 		{
 			final UploadTracker t = uploaders.poll();
 
@@ -150,12 +213,10 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 				uploadDisplayList( t );
 			}
 
-			activeTess.decrementAndGet();
-			ChisledBlockBackgroundRender.submitTessellator( t.src );
-
 			t.trc.getLayer( t.layer ).waiting = false;
 		}
 		while ( w.elapsed( TimeUnit.MILLISECONDS ) < 1 );
+
 	}
 
 	private void uploadDisplayList(
@@ -169,9 +230,22 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			tlrc.displayList = GLAllocation.generateDisplayLists( 1 );
 		}
 
-		GL11.glNewList( tlrc.displayList, GL11.GL_COMPILE );
-		t.src.draw();
-		GL11.glEndList();
+		try
+		{
+			GL11.glNewList( tlrc.displayList, GL11.GL_COMPILE );
+			t.getTessellator().draw();
+		}
+		catch ( final IllegalStateException e )
+		{
+			Log.logError( "Erratic Tessellator Behavior", e );
+			tlrc.rebuild = true;
+		}
+		finally
+		{
+			GL11.glEndList();
+		}
+
+		t.submitForReuse();
 	}
 
 	public ChisledBlockRenderChunkTESR()
@@ -194,7 +268,14 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 				return t;
 			}
 		};
-		pool = new ThreadPoolExecutor( 1, Runtime.getRuntime().availableProcessors(), 10, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>( 64 ), threadFactory );
+
+		int processors = Runtime.getRuntime().availableProcessors();
+		if ( ChiselsAndBits.getConfig().lowMemoryMode )
+		{
+			processors = 1;
+		}
+
+		pool = new ThreadPoolExecutor( 1, processors, 10, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>( 64 ), threadFactory );
 		pool.allowCoreThreadTimeOut( false );
 	}
 
@@ -336,10 +417,13 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 		final TileLayerRenderCache tlrc = renderCache.getLayer( layer );
 		final boolean isNew = tlrc.isNew();
+		boolean hasSubmitted = false;
 
 		if ( tlrc.displayList == 0 || tlrc.rebuild )
 		{
-			if ( activeTess.get() < ChiselsAndBits.getConfig().dynamicMaxConcurrentTessalators && tlrc.future == null && !tlrc.waiting || isNew )
+			final int dynamicTess = getMaxTessalators();
+
+			if ( pendingTess.get() < dynamicTess && tlrc.future == null && !tlrc.waiting || isNew )
 			{
 				// copy the tiles for the thread..
 				final RegionRenderCache cache = new RegionRenderCache( getWorld(), chunkOffset, chunkOffset.add( 16, 16, 16 ), 1 );
@@ -348,14 +432,16 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 				try
 				{
 					pool.submit( newFuture );
+					hasSubmitted = true;
 
 					if ( tlrc.future != null )
 					{
-						canceledUploaders.offer( tlrc.future );
+						tlrc.future.cancel( true );
 					}
 
 					tlrc.rebuild = false;
 					tlrc.future = newFuture;
+					pendingTess.incrementAndGet();
 				}
 				catch ( final RejectedExecutionException err )
 				{
@@ -365,54 +451,35 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		}
 
 		// now..
-		if ( tlrc.future != null && isNew )
+		if ( tlrc.future != null && isNew && hasSubmitted )
 		{
 			try
 			{
-				final Tessellator tess = tlrc.future.get();
+				final Tessellator tess = tlrc.future.get( 5, TimeUnit.MILLISECONDS );
+				pendingTess.decrementAndGet();
 
 				uploadDisplayList( new UploadTracker( renderCache, layer, tess ) );
-				activeTess.decrementAndGet();
-				ChisledBlockBackgroundRender.submitTessellator( tess );
 
 				tlrc.waiting = false;
 			}
 			catch ( final InterruptedException e )
 			{
 				Log.logError( "Failed to get TESR Future - A", e );
+				tlrc.future = null;
 			}
 			catch ( final ExecutionException e )
 			{
 				Log.logError( "Failed to get TESR Future - B", e );
-			}
-			finally
-			{
 				tlrc.future = null;
+			}
+			catch ( final TimeoutException e )
+			{
+				addFutureTracker( tlrc, renderCache, layer );
 			}
 		}
-
-		// next frame..?
-		if ( tlrc.future != null && tlrc.future.isDone() )
+		else if ( tlrc.future != null && hasSubmitted )
 		{
-			try
-			{
-				final Tessellator t = tlrc.future.get();
-
-				tlrc.waiting = true;
-				uploaders.offer( new UploadTracker( renderCache, layer, t ) );
-			}
-			catch ( final InterruptedException e )
-			{
-				Log.logError( "Failed to get TESR Future - C", e );
-			}
-			catch ( final ExecutionException e )
-			{
-				Log.logError( "Failed to get TESR Future - D", e );
-			}
-			finally
-			{
-				tlrc.future = null;
-			}
+			addFutureTracker( tlrc, renderCache, layer );
 		}
 
 		final int dl = tlrc.displayList;
@@ -429,6 +496,18 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 			GL11.glPopMatrix();
 		}
+	}
+
+	public static int getMaxTessalators()
+	{
+		int dynamicTess = ChiselsAndBits.getConfig().dynamicMaxConcurrentTessalators;
+
+		if ( ChiselsAndBits.getConfig().lowMemoryMode )
+		{
+			dynamicTess = Math.min( 2, dynamicTess );
+		}
+
+		return dynamicTess;
 	}
 
 	int isConfigured = 0;

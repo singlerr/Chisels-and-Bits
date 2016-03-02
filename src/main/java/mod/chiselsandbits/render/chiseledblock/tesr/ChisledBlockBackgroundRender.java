@@ -6,12 +6,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.lwjgl.opengl.GL11;
 
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
+import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
@@ -31,10 +32,28 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 	private final List<TileEntityBlockChiseledTESR> myPrivateList;
 	private final EnumWorldBlockLayer layer;
 	private final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
-	private final static Queue<SoftReference<Tessellator>> previousTessellators = new ConcurrentLinkedQueue<SoftReference<Tessellator>>();
+	private final static Queue<SoftReference<Tessellator>> previousTessellators = new LinkedBlockingQueue<SoftReference<Tessellator>>();
 
 	private final RegionRenderCache cache;
 	private final BlockPos chunkOffset;
+
+	static class CBTessellator extends Tessellator
+	{
+
+		public CBTessellator(
+				final int bufferSize )
+		{
+			super( bufferSize );
+			ChisledBlockRenderChunkTESR.activeTess.incrementAndGet();
+		}
+
+		@Override
+		protected void finalize() throws Throwable
+		{
+			ChisledBlockRenderChunkTESR.activeTess.decrementAndGet();
+		}
+
+	};
 
 	public ChisledBlockBackgroundRender(
 			final RegionRenderCache cache,
@@ -61,24 +80,46 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 
 		do
 		{
-			final SoftReference<Tessellator> softTessellator = previousTessellators.poll();
-			if ( softTessellator != null )
+			do
 			{
-				tessellator = softTessellator.get();
+				final SoftReference<Tessellator> softTessellator = previousTessellators.poll();
+
+				if ( softTessellator != null )
+				{
+					tessellator = softTessellator.get();
+				}
+			}
+			while ( tessellator == null && !previousTessellators.isEmpty() );
+
+			// no previous queues?
+			if ( tessellator == null )
+			{
+				synchronized ( CBTessellator.class )
+				{
+					if ( ChisledBlockRenderChunkTESR.activeTess.get() < ChisledBlockRenderChunkTESR.getMaxTessalators() )
+					{
+						tessellator = new CBTessellator( 2109952 );
+					}
+					else
+					{
+						Thread.sleep( 10 );
+					}
+				}
 			}
 		}
-		while ( tessellator == null && !previousTessellators.isEmpty() );
-
-		// no previous queues?
-		if ( tessellator == null )
-		{
-			tessellator = new Tessellator( 2109952 );
-		}
+		while ( tessellator == null );
 
 		final WorldRenderer worldrenderer = tessellator.getWorldRenderer();
 
-		worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
-		worldrenderer.setTranslation( -chunkOffset.getX(), -chunkOffset.getY(), -chunkOffset.getZ() );
+		try
+		{
+			worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
+			worldrenderer.setTranslation( -chunkOffset.getX(), -chunkOffset.getY(), -chunkOffset.getZ() );
+		}
+		catch ( final IllegalStateException e )
+		{
+			Log.logError( "Invalid Tessellator Behavior", e );
+		}
 
 		final EnumSet<ChiselLayer> layers = layer == EnumWorldBlockLayer.TRANSLUCENT ? EnumSet.of( ChiselLayer.TRANSLUCENT ) : EnumSet.complementOf( EnumSet.of( ChiselLayer.TRANSLUCENT ) );
 		for ( final TileEntityBlockChiseled tx : myPrivateList )
@@ -94,12 +135,25 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 					if ( !model.isEmpty() )
 					{
 						blockRenderer.getBlockModelRenderer().renderModel( cache, model, estate, tx.getPos(), worldrenderer );
+
+						if ( Thread.interrupted() )
+						{
+							worldrenderer.finishDrawing();
+							submitTessellator( tessellator );
+							return null;
+						}
 					}
 				}
 			}
 		}
 
-		ChisledBlockRenderChunkTESR.activeTess.incrementAndGet();
+		if ( Thread.interrupted() )
+		{
+			worldrenderer.finishDrawing();
+			submitTessellator( tessellator );
+			return null;
+		}
+
 		return tessellator;
 	}
 
