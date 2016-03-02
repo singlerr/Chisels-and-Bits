@@ -1,6 +1,5 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -304,8 +303,10 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 					return;
 				}
 
-				final List<TileEntityBlockChiseledTESR> tiles = renderChunk.getTiles();
-				synchronized ( tiles )
+				final TileList tiles = renderChunk.getTiles();
+				tiles.getReadLock().lock();
+
+				try
 				{
 					for ( final TileEntityBlockChiseledTESR e : tiles )
 					{
@@ -313,6 +314,10 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 						renderLogic( e, x, y, z, partialTicks, destroyStage, false );
 						unconfigureGLState();
 					}
+				}
+				finally
+				{
+					tiles.getReadLock().unlock();
 				}
 
 				return;
