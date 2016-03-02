@@ -1,15 +1,12 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import net.minecraft.util.BlockPos;
 
 public class TileRenderChunk extends TileRenderCache
 {
 
-	private final List<TileEntityBlockChiseledTESR> tiles = new ArrayList<TileEntityBlockChiseledTESR>();
+	private final TileList tiles = new TileList();
 	public boolean singleInstanceMode = false;
 
 	// upon registration convert new tiles into the correct type...
@@ -23,9 +20,14 @@ public class TileRenderChunk extends TileRenderCache
 
 		rebuild( true );
 
-		synchronized ( tiles )
+		tiles.getWriteLock().lock();
+		try
 		{
 			tiles.add( which );
+		}
+		finally
+		{
+			tiles.getWriteLock().unlock();
 		}
 	}
 
@@ -35,12 +37,18 @@ public class TileRenderChunk extends TileRenderCache
 	{
 		if ( singleInstanceMode )
 		{
-			synchronized ( tiles )
+			tiles.getReadLock().lock();
+
+			try
 			{
 				for ( final TileEntityBlockChiseledTESR te : tiles )
 				{
 					te.getCache().rebuild( conversion );
 				}
+			}
+			finally
+			{
+				tiles.getReadLock().unlock();
 			}
 
 			return;
@@ -53,9 +61,15 @@ public class TileRenderChunk extends TileRenderCache
 	public void unregister(
 			final TileEntityBlockChiseledTESR which )
 	{
-		synchronized ( tiles )
+		tiles.getWriteLock().lock();
+
+		try
 		{
 			tiles.remove( which );
+		}
+		finally
+		{
+			tiles.getWriteLock().unlock();
 		}
 
 		super.rebuild( true );
@@ -63,12 +77,18 @@ public class TileRenderChunk extends TileRenderCache
 
 	public BlockPos chunkOffset()
 	{
-		synchronized ( tiles )
+		tiles.getReadLock().lock();
+
+		try
 		{
 			if ( getTiles().isEmpty() )
 			{
 				return BlockPos.ORIGIN;
 			}
+		}
+		finally
+		{
+			tiles.getReadLock().unlock();
 		}
 
 		final int bitMask = ~0xf;
@@ -77,7 +97,7 @@ public class TileRenderChunk extends TileRenderCache
 	}
 
 	@Override
-	public List<TileEntityBlockChiseledTESR> getTiles()
+	public TileList getTiles()
 	{
 		return tiles;
 	}
