@@ -272,7 +272,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 		byte[] vdata = c.getByteArray( "X" );
 		final Integer blockP = c.getInteger( "b" );
 
-		if ( vdata == null && data != null )
+		if ( ( vdata == null || vdata.length == 0 ) && data != null && data.length > 0 )
 		{
 			final VoxelBlob xx = new VoxelBlob();
 
