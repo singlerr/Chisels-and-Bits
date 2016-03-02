@@ -36,7 +36,7 @@ import net.minecraftforge.oredict.RecipeSorter.Category;
 		name = ChiselsAndBits.MODNAME,
 		modid = ChiselsAndBits.MODID,
 		version = ChiselsAndBits.VERSION,
-		acceptedMinecraftVersions = "[1.8.8,1.8.9]",
+		acceptedMinecraftVersions = "[1.8.9]",
 		dependencies = ChiselsAndBits.DEPENDENCIES,
 		guiFactory = "mod.chiselsandbits.gui.ModConfigGuiFactory" )
 public class ChiselsAndBits
@@ -49,7 +49,7 @@ public class ChiselsAndBits
 			+ net.minecraftforge.common.ForgeVersion.majorVersion + '.' // majorVersion
 			+ net.minecraftforge.common.ForgeVersion.minorVersion + '.' // minorVersion
 			+ net.minecraftforge.common.ForgeVersion.revisionVersion + '.' // revisionVersion
-			+ net.minecraftforge.common.ForgeVersion.buildVersion + ",);after:mcmultipart@[1.0.4,);after:jei@[11.15.0.1697,)"; // buildVersion
+			+ net.minecraftforge.common.ForgeVersion.buildVersion + ",);after:mcmultipart@[1.0.8,);after:jei@[11.15.0.1697,)"; // buildVersion
 
 	private static ChiselsAndBits instance;
 	private ModConfig config;

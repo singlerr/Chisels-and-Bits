@@ -8,6 +8,7 @@ import java.util.List;
 import mcmultipart.microblock.IMicroMaterial;
 import mcmultipart.microblock.IMicroblock;
 import mcmultipart.microblock.MicroblockClass;
+import mcmultipart.multipart.IMaterialPart;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IOccludingPart;
 import mcmultipart.multipart.ISolidPart;
@@ -21,6 +22,7 @@ import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -37,7 +39,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISolidPart, IMicroblock
+public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISolidPart, IMicroblock, IMaterialPart
 {
 	protected TileEntityBlockChiseled inner; // never use directly..
 	protected BlockChiseled bc; // never use directly..
@@ -335,4 +337,21 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 	{
 	}
 
+	@Override
+	public Boolean isAABBInsideMaterial(
+			final AxisAlignedBB bx,
+			final Material materialIn )
+	{
+		return BlockChiseled.sharedIsAABBInsideMaterial( getTile(), bx, materialIn );
+	}
+
+	@Override
+	public Boolean isEntityInsideMaterial(
+			final Entity entity,
+			final double yToTest,
+			final Material materialIn,
+			final boolean testingHead )
+	{
+		return BlockChiseled.sharedIsEntityInsideMaterial( getTile(), getPos(), entity, yToTest, materialIn, testingHead );
+	}
 }

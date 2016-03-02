@@ -82,25 +82,13 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			if ( materialIn == Material.water )
-			{
-				final AxisAlignedBB bx = bb.offset( -pos.getX(), -pos.getY(), -pos.getZ() );
-				final TileEntityBlockChiseled tebc = getTileEntity( world, pos );
-				for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
-				{
-					if ( b.intersectsWith( bx ) )
-					{
-						return true;
-					}
-				}
-			}
+			return sharedIsAABBInsideMaterial( getTileEntity( world, pos ), bb, materialIn );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
 			Log.noTileError( e );
+			return null;
 		}
-
-		return false;
 	}
 
 	@Override
@@ -115,49 +103,13 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			if ( testingHead && materialIn == Material.water )
-			{
-				Vec3 head = entity.getPositionVector();
-				head = new Vec3( head.xCoord - pos.getX(), yToTest - pos.getY(), head.zCoord - pos.getZ() );
-
-				final TileEntityBlockChiseled tebc = getTileEntity( world, pos );
-				for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
-				{
-					if ( b.isVecInside( head ) )
-					{
-						return true;
-					}
-				}
-			}
-			else if ( !testingHead && materialIn == Material.water )
-			{
-				AxisAlignedBB what = entity.getCollisionBoundingBox();
-
-				if ( what == null )
-				{
-					what = entity.getEntityBoundingBox();
-				}
-
-				if ( what != null )
-				{
-					what = what.offset( -pos.getX(), -pos.getY(), -pos.getZ() );
-					final TileEntityBlockChiseled tebc = getTileEntity( world, pos );
-					for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
-					{
-						if ( b.intersectsWith( what ) )
-						{
-							return true;
-						}
-					}
-				}
-			}
+			return sharedIsEntityInsideMaterial( getTileEntity( world, pos ), pos, entity, yToTest, materialIn, testingHead );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
 			Log.noTileError( e );
+			return null;
 		}
-
-		return false;
 	}
 
 	@Override
@@ -1204,6 +1156,73 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final List<ItemStack> list )
 	{
 		// no items.
+	}
+
+	// shared for part and block.
+	public static Boolean sharedIsAABBInsideMaterial(
+			final TileEntityBlockChiseled tebc,
+			final AxisAlignedBB bx,
+			final Material materialIn )
+	{
+		if ( materialIn == Material.water )
+		{
+			for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
+			{
+				if ( b.intersectsWith( bx ) )
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	// shared for part and block.
+	public static Boolean sharedIsEntityInsideMaterial(
+			final TileEntityBlockChiseled tebc,
+			final BlockPos pos,
+			final Entity entity,
+			final double yToTest,
+			final Material materialIn,
+			final boolean testingHead )
+	{
+		if ( testingHead && materialIn == Material.water )
+		{
+			Vec3 head = entity.getPositionVector();
+			head = new Vec3( head.xCoord - pos.getX(), yToTest - pos.getY(), head.zCoord - pos.getZ() );
+
+			for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
+			{
+				if ( b.isVecInside( head ) )
+				{
+					return true;
+				}
+			}
+		}
+		else if ( !testingHead && materialIn == Material.water )
+		{
+			AxisAlignedBB what = entity.getCollisionBoundingBox();
+
+			if ( what == null )
+			{
+				what = entity.getEntityBoundingBox();
+			}
+
+			if ( what != null )
+			{
+				what = what.offset( -pos.getX(), -pos.getY(), -pos.getZ() );
+				for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
+				{
+					if ( b.intersectsWith( what ) )
+					{
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
 }
