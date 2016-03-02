@@ -9,7 +9,7 @@ public class GuiBagFontRenderer extends FontRenderer
 {
 	FontRenderer talkto;
 
-	int offset_x, offset_y;
+	int offsetX, offsetY;
 	double scale;
 
 	public GuiBagFontRenderer(
@@ -26,8 +26,8 @@ public class GuiBagFontRenderer extends FontRenderer
 		else if ( bagStackSize >= 100 )
 		{
 			scale = 0.75;
-			offset_x = 3;
-			offset_y = 2;
+			offsetX = 3;
+			offsetY = 2;
 		}
 	}
 
@@ -52,16 +52,13 @@ public class GuiBagFontRenderer extends FontRenderer
 			text = convertText( text );
 			GlStateManager.pushMatrix();
 			GlStateManager.scale( scale, scale, scale );
+
 			x /= scale;
 			y /= scale;
-			x += offset_x;
-			y += offset_y;
-			return talkto.drawString(
-					text,
-					x,
-					y,
-					color,
-					dropShadow );
+			x += offsetX;
+			y += offsetY;
+
+			return talkto.drawString( text, x, y, color, dropShadow );
 		}
 		finally
 		{

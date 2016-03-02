@@ -161,8 +161,8 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 	@Override
 	public int getLightValue()
 	{
-		final Integer lv = getTile().getBasicState().getValue( BlockChiseled.light_prop );
-		return lv == null ? 0 : lv;
+		final int lv = getTile().getLightValue();
+		return lv;
 	}
 
 	@Override

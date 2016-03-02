@@ -46,7 +46,7 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.registry.ModItems;
-import mod.chiselsandbits.render.GeneratedModelLoader;
+import mod.chiselsandbits.render.SmartModelManager;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -94,7 +94,6 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -119,7 +118,7 @@ public class ClientSide
 	public void preinit(
 			final ChiselsAndBits mod )
 	{
-		ModelLoaderRegistry.registerLoader( new GeneratedModelLoader() );
+		ChiselsAndBits.registerWithBus( new SmartModelManager() );
 	}
 
 	public void init(

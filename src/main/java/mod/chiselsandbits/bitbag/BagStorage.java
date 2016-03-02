@@ -7,38 +7,28 @@ import mod.chiselsandbits.api.IBitBag;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.INBTSerializable;
 
-public class BagStorage implements IBitBag, INBTSerializable<NBTTagCompound>
+public class BagStorage implements IBitBag
 {
 
+	public static final int BAG_STORAGE_SLOTS = 63;
+
 	protected ItemStack stack;
+	protected int[] contents;
 
-	public static final int max_size = 63;
-	final int[] contents;
-
-	public BagStorage()
+	protected void setStorage(
+			final int[] source )
 	{
-		final int len = max_size * ItemBitBag.intsPerBitType;
-		contents = new int[len];
+		contents = source;
 	}
 
-	/**
-	 * I lied.. this just updates some NBT on the stack so that the server will
-	 * sync it.
-	 */
-	public void saveBag()
+	public void onChange()
 	{
-		if ( stack != null )
-		{
-			final NBTTagCompound c = new NBTTagCompound();
-			c.setInteger( "hash", hashCode() );
-			stack.setTagCompound( c );
-		}
+		// noop at the moment.
 	}
 
 	@Override
@@ -59,80 +49,43 @@ public class BagStorage implements IBitBag, INBTSerializable<NBTTagCompound>
 		return Arrays.hashCode( contents );
 	}
 
-	/**
-	 * Returns the number of slots available
-	 *
-	 * @return The number of slots available
-	 **/
 	@Override
 	public int getSlots()
 	{
-		return max_size;
+		return BAG_STORAGE_SLOTS;
 	}
 
-	/**
-	 * Returns the ItemStack in a given slot.
-	 *
-	 * The result's stack size may be greater than the itemstacks max size.
-	 *
-	 * If the result is null, then the slot is empty. If the result is not null
-	 * but the stack size is zero, then it represents an empty slot that will
-	 * only accept* a specific itemstack.
-	 *
-	 * <p/>
-	 * IMPORTANT: This ItemStack MUST NOT be modified. This method is not for
-	 * altering an inventories contents. Any implementers who are able to detect
-	 * modification through this method should throw an exception.
-	 * <p/>
-	 * SERIOUSLY: DO NOT MODIFY THE RETURNED ITEMSTACK
-	 *
-	 * @param slot
-	 *            Slot to query
-	 * @return ItemStack in given slot. May be null.
-	 **/
 	@Override
 	public ItemStack getStackInSlot(
 			final int slot )
 	{
-		if ( slot < max_size )
+		if ( slot < BAG_STORAGE_SLOTS )
 		{
-			final int qty = contents[ItemBitBag.intsPerBitType * slot + ItemBitBag.offset_qty];
-			final int id = contents[ItemBitBag.intsPerBitType * slot + ItemBitBag.offset_state_id];
+			final int slotQty = contents[ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_QUANTITY];
+			final int slotId = contents[ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_STATE_ID];
 
-			if ( id != 0 && qty > 0 )
+			if ( slotId != 0 && slotQty > 0 )
 			{
-				return ItemChiseledBit.createStack( id, qty, false );
+				return ItemChiseledBit.createStack( slotId, slotQty, false );
 			}
 		}
+
 		return null;
 	}
 
-	/**
-	 * Inserts an ItemStack into the given slot and return the remainder. Note:
-	 * This behavior is subtly different from IFluidHandlers.fill()
-	 *
-	 * @param slot
-	 *            Slot to insert into.
-	 * @param stack
-	 *            ItemStack to insert
-	 * @param simulate
-	 *            If true, the insertion is only simulated
-	 * @return The remaining ItemStack that was not inserted (if the entire
-	 *         stack is accepted, then return null)
-	 **/
 	@Override
 	public ItemStack insertItem(
 			final int slot,
 			final ItemStack stack,
 			final boolean simulate )
 	{
-		if ( slot >= 0 && slot < max_size && stack != null )
+		if ( slot >= 0 && slot < BAG_STORAGE_SLOTS && stack != null )
 		{
-			final int id_index = ItemBitBag.intsPerBitType * slot + ItemBitBag.offset_state_id;
-			final int qty_index = ItemBitBag.intsPerBitType * slot + ItemBitBag.offset_qty;
+			final int indexId = ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_STATE_ID;
+			final int indexQty = ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_QUANTITY;
 
-			final int id = contents[id_index];
-			final int qty = id == 0 ? 0 : contents[qty_index];
+			final int slotId = contents[indexId];
+			final int slotQty = slotId == 0 ? 0 : contents[indexQty];
 
 			final ItemType type = ChiselsAndBits.getApi().getItemType( stack );
 			if ( type == ItemType.CHISLED_BIT )
@@ -140,18 +93,18 @@ public class BagStorage implements IBitBag, INBTSerializable<NBTTagCompound>
 				try
 				{
 					final IBitBrush brush = ChiselsAndBits.getApi().createBrush( stack );
-					if ( brush.getStateID() == id || id == 0 )
+					if ( brush.getStateID() == slotId || slotId == 0 )
 					{
-						int newTotal = qty + stack.stackSize;
+						int newTotal = slotQty + stack.stackSize;
 						final int overFlow = newTotal > getBitbagStackSize() ? newTotal - getBitbagStackSize() : 0;
 						newTotal -= overFlow;
 
 						if ( !simulate )
 						{
-							contents[id_index] = brush.getStateID();
-							contents[qty_index] = newTotal;
+							contents[indexId] = brush.getStateID();
+							contents[indexQty] = newTotal;
 
-							saveBag();
+							onChange();
 						}
 
 						if ( overFlow > 0 )
@@ -164,7 +117,7 @@ public class BagStorage implements IBitBag, INBTSerializable<NBTTagCompound>
 				}
 				catch ( final InvalidBitItem e )
 				{
-					// something is wrong.
+					Log.logError( "Something went wrong", e );
 				}
 			}
 		}
@@ -178,50 +131,35 @@ public class BagStorage implements IBitBag, INBTSerializable<NBTTagCompound>
 		return ChiselsAndBits.getConfig().bagStackSize;
 	}
 
-	/**
-	 * Extracts an ItemStack from the given slot. The returned value must be
-	 * null if nothing is extracted, otherwise it's stack size must not be
-	 * greater than amount or the itemstacks getMaxStackSize().
-	 *
-	 * @param slot
-	 *            Slot to extract from.
-	 * @param amount
-	 *            Amount to extract (may be greater than the current stacks max
-	 *            limit)
-	 * @param simulate
-	 *            If true, the extraction is only simulated
-	 * @return ItemStack extracted from the slot, must be null, if nothing can
-	 *         be extracted
-	 **/
 	@Override
 	public ItemStack extractItem(
 			final int slot,
 			final int amount,
 			final boolean simulate )
 	{
-		if ( slot >= 0 && slot < max_size )
+		if ( slot >= 0 && slot < BAG_STORAGE_SLOTS )
 		{
-			final int id_index = ItemBitBag.intsPerBitType * slot + ItemBitBag.offset_state_id;
-			final int qty_index = ItemBitBag.intsPerBitType * slot + ItemBitBag.offset_qty;
+			final int indexId = ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_STATE_ID;
+			final int indexQty = ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_QUANTITY;
 
-			final int id = contents[id_index];
-			final int qty = id == 0 ? 0 : contents[qty_index];
+			final int slotId = contents[indexId];
+			final int slotQty = slotId == 0 ? 0 : contents[indexQty];
 
-			final int extracted = qty >= amount ? amount : qty;
+			final int extracted = slotQty >= amount ? amount : slotQty;
 			if ( extracted > 0 )
 			{
 				if ( !simulate )
 				{
-					contents[qty_index] -= extracted;
-					if ( contents[qty_index] <= 0 )
+					contents[indexQty] -= extracted;
+					if ( contents[indexQty] <= 0 )
 					{
-						contents[id_index] = 0;
+						contents[indexId] = 0;
 					}
 
-					saveBag();
+					onChange();
 				}
 
-				return ItemChiseledBit.createStack( id, extracted, false );
+				return ItemChiseledBit.createStack( slotId, extracted, false );
 			}
 		}
 
@@ -229,34 +167,15 @@ public class BagStorage implements IBitBag, INBTSerializable<NBTTagCompound>
 	}
 
 	@Override
-	public NBTTagCompound serializeNBT()
-	{
-		final NBTTagCompound out = new NBTTagCompound();
-		out.setIntArray( "contents", contents );
-		return out;
-	}
-
-	@Override
-	public void deserializeNBT(
-			final NBTTagCompound tag )
-	{
-		final int[] src = tag.getIntArray( "contents" );
-		if ( src != null && src.length > 0 )
-		{
-			System.arraycopy( src, 0, contents, 0, Math.min( src.length, contents.length ) );
-		}
-	}
-
-	@Override
 	public int getSlotsUsed()
 	{
 		int used = 0;
-		for ( int index = 0; index < contents.length; index += ItemBitBag.intsPerBitType )
+		for ( int index = 0; index < contents.length; index += ItemBitBag.INTS_PER_BIT_TYPE )
 		{
-			final int qty = contents[index + ItemBitBag.offset_qty];
-			final int id = contents[index + ItemBitBag.offset_state_id];
+			final int slotQty = contents[index + ItemBitBag.OFFSET_QUANTITY];
+			final int slotId = contents[index + ItemBitBag.OFFSET_STATE_ID];
 
-			if ( qty > 0 && id > 0 )
+			if ( slotQty > 0 && slotId > 0 )
 			{
 				used++;
 			}

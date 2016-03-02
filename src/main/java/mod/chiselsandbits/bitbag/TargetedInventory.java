@@ -5,15 +5,14 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IChatComponent;
 
-public class PassThruInv implements IInventory
+public class TargetedInventory implements IInventory
 {
 
 	private IInventory src;
 
-	public PassThruInv(
-			final IInventory a )
+	public TargetedInventory()
 	{
-		src = a;
+		src = null;
 	}
 
 	public void setInventory(

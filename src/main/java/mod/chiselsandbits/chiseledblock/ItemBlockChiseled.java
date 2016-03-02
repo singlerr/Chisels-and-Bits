@@ -370,7 +370,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 								if ( world.isAirBlock( bp ) )
 								{
-									if ( BlockChiseled.replaceWithChisled( world, bp, state, tebc.getBasicState().getValue( BlockChiseled.block_prop ), true ) )
+									if ( BlockChiseled.replaceWithChisled( world, bp, state, tebc.getBasicState().getValue( BlockChiseled.UProperty_Primary_BlockState ), true ) )
 									{
 										final TileEntityBlockChiseled target = myBlock.getTileEntity( world, bp );
 										target.setBlob( blobs[x][y][z] );

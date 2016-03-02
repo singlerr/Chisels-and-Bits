@@ -1,18 +1,23 @@
 package mod.chiselsandbits.bittank;
 
+import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandler;
@@ -222,7 +227,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 
 	/**
 	 * Dosn't limit to stack size...
-	 * 
+	 *
 	 * @param slot
 	 * @param amount
 	 * @param simulate
@@ -295,7 +300,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 	@Override
 	public boolean hasFastRenderer()
 	{
-		return false;
+		return true;
 	}
 
 	FluidStack getBitsAsFluidStack()
@@ -320,4 +325,130 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 
 	}
 
+	boolean extractBits(
+			final EntityPlayer playerIn,
+			final float hitX,
+			final float hitY,
+			final float hitZ,
+			final BlockPos pos )
+	{
+		if ( !playerIn.isSneaking() )
+		{
+			final ItemStack is = extractItem( 0, 64, false );
+			if ( is != null )
+			{
+				ChiselsAndBits.getApi().giveBitToPlayer( playerIn, is, new Vec3( (double) hitX + pos.getX(), (double) hitY + pos.getY(), (double) hitZ + pos.getZ() ) );
+			}
+			return true;
+		}
+
+		return false;
+	}
+
+	boolean addAllPossibleBits(
+			final EntityPlayer playerIn )
+	{
+		if ( playerIn.isSneaking() )
+		{
+			boolean change = false;
+			for ( int x = 0; x < playerIn.inventory.getSizeInventory(); x++ )
+			{
+				final ItemStack stackInSlot = playerIn.inventory.getStackInSlot( x );
+				if ( ChiselsAndBits.getApi().getItemType( stackInSlot ) == ItemType.CHISLED_BIT )
+				{
+					playerIn.inventory.setInventorySlotContents( x, insertItem( 0, stackInSlot, false ) );
+					change = true;
+				}
+			}
+
+			if ( change )
+			{
+				playerIn.inventory.markDirty();
+			}
+
+			return change;
+		}
+
+		return false;
+	}
+
+	boolean addHeldBits(
+			final ItemStack current,
+			final EntityPlayer playerIn )
+	{
+		if ( playerIn.isSneaking() )
+		{
+			if ( ChiselsAndBits.getApi().getItemType( current ) == ItemType.CHISLED_BIT )
+			{
+				playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, insertItem( 0, current, false ) );
+				playerIn.inventory.markDirty();
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	boolean putFluidIntoItem(
+			final ItemStack current,
+			final FluidStack liquid,
+			final EntityPlayer playerIn )
+	{
+		if ( FluidContainerRegistry.isEmptyContainer( current ) )
+		{
+			final FluidStack outFluid = getAccessableFluid();
+			final int capacity = FluidContainerRegistry.getContainerCapacity( outFluid, current );
+
+			if ( capacity % TileEntityBitTank.MB_PER_BIT_CONVERSION == 0 )
+			{
+				int requiredBits = capacity / TileEntityBitTank.MB_PER_BIT_CONVERSION;
+				requiredBits *= TileEntityBitTank.BITS_PER_MB_CONVERSION;
+
+				final ItemStack output = extractBits( 0, requiredBits, true );
+				if ( output != null && output.stackSize == requiredBits )
+				{
+					outFluid.amount = capacity;
+					final ItemStack filled = FluidContainerRegistry.fillFluidContainer( outFluid, current );
+
+					if ( filled != null )
+					{
+						extractBits( 0, requiredBits, false );
+						playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, filled );
+						playerIn.inventory.markDirty();
+					}
+				}
+			}
+			return true;
+		}
+
+		return false;
+	}
+
+	boolean addFluidFromItem(
+			final ItemStack current,
+			final FluidStack liquid,
+			final EntityPlayer playerIn )
+	{
+		if ( liquid != null && liquid.amount % TileEntityBitTank.MB_PER_BIT_CONVERSION == 0 && liquid.amount > 0 )
+		{
+			final int bitCount = liquid.amount * TileEntityBitTank.BITS_PER_MB_CONVERSION / TileEntityBitTank.MB_PER_BIT_CONVERSION;
+			final ItemStack bitItems = getFluidBitStack( liquid.getFluid(), bitCount );
+
+			if ( insertItem( 0, bitItems, true ) == null )
+			{
+				final ItemStack empty = FluidContainerRegistry.drainFluidContainer( current );
+
+				if ( empty != null )
+				{
+					// insert items.. and drain the container.
+					insertItem( 0, bitItems, false );
+					playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, empty );
+					playerIn.inventory.markDirty();
+				}
+			}
+			return true;
+		}
+
+		return false;
+	}
 }

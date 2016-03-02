@@ -21,10 +21,10 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class BagContainer extends Container
 {
 	final EntityPlayer thePlayer;
-	final PassThruInv pi;
+	final TargetedInventory visibleInventory = new TargetedInventory();
 
 	BagInventory bagInv;
-	SlotReadonly thatSlot;
+	SlotReadonly bagSlot;
 
 	final public List<Slot> customSlots = new ArrayList<Slot>();
 	final public List<ItemStack> customSlotsItems = new ArrayList<ItemStack>();
@@ -47,26 +47,15 @@ public class BagContainer extends Container
 		thePlayer = player;
 
 		final int i = ( 7 - 4 ) * 18;
-		IInventory inv;
 
 		final ItemStack is = player.getCurrentEquippedItem();
-		if ( is != null && is.getItem() instanceof ItemBitBag )
-		{
-			inv = bagInv = new BagInventory( is );
-		}
-		else
-		{
-			bagInv = null;
-			inv = new NullInventory( 63 );
-		}
-
-		pi = new PassThruInv( inv );
+		setBag( is );
 
 		for ( int j = 0; j < 7; ++j )
 		{
 			for ( int k = 0; k < 9; ++k )
 			{
-				addCustomSlot( new SlotBit( pi, k + j * 9, 8 + k * 18, 18 + j * 18 ) );
+				addCustomSlot( new SlotBit( visibleInventory, k + j * 9, 8 + k * 18, 18 + j * 18 ) );
 			}
 		}
 
@@ -82,13 +71,31 @@ public class BagContainer extends Container
 		{
 			if ( thePlayer.inventory.currentItem == j )
 			{
-				addSlotToContainer( thatSlot = new SlotReadonly( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
+				addSlotToContainer( bagSlot = new SlotReadonly( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
 			}
 			else
 			{
 				addSlotToContainer( new Slot( thePlayer.inventory, j, 8 + j * 18, 162 + i ) );
 			}
 		}
+	}
+
+	private void setBag(
+			final ItemStack is )
+	{
+		final IInventory inv;
+
+		if ( is != null && is.getItem() instanceof ItemBitBag )
+		{
+			inv = bagInv = new BagInventory( is );
+		}
+		else
+		{
+			bagInv = null;
+			inv = new NullInventory( BagStorage.BAG_STORAGE_SLOTS );
+		}
+
+		visibleInventory.setInventory( inv );
 	}
 
 	@Override
@@ -101,22 +108,12 @@ public class BagContainer extends Container
 	private boolean hasBagInHand(
 			final EntityPlayer player )
 	{
-		if ( bagInv.target != player.getCurrentEquippedItem() )
+		if ( bagInv.getItemStack() != player.getCurrentEquippedItem() )
 		{
-			final ItemStack is = player.getCurrentEquippedItem();
-			if ( is != null && is.getItem() instanceof ItemBitBag )
-			{
-				pi.setInventory( bagInv = new BagInventory( is ) );
-			}
-			else
-			{
-				bagInv = null;
-				pi.setInventory( new NullInventory( 63 ) );
-				return false;
-			}
+			setBag( player.getCurrentEquippedItem() );
 		}
 
-		return bagInv.target.getItem() instanceof ItemBitBag;
+		return bagInv != null && bagInv.getItemStack().getItem() instanceof ItemBitBag;
 	}
 
 	@Override
@@ -134,7 +131,7 @@ public class BagContainer extends Container
 		ItemStack someReturnValue = null;
 		boolean reverse = true;
 
-		final HelperContainer helper = new HelperContainer();
+		final TargetedTransferContainer helper = new TargetedTransferContainer();
 
 		if ( !normalToBag )
 		{

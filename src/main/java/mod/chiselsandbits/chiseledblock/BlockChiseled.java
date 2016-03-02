@@ -8,21 +8,17 @@ import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
-import mod.chiselsandbits.chiseledblock.properties.UnlistedBlockFlags;
-import mod.chiselsandbits.chiseledblock.properties.UnlistedBlockNormalCube;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedBlockStateID;
-import mod.chiselsandbits.chiseledblock.properties.UnlistedLightOpacity;
-import mod.chiselsandbits.chiseledblock.properties.UnlistedLightValue;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedVoxelBlob;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedVoxelNeighborState;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.creative.CreativeClipboardTab;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import mod.chiselsandbits.registry.CreativeClipboardTab;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
@@ -60,16 +56,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class BlockChiseled extends Block implements ITileEntityProvider
 {
 
-	private static ThreadLocal<Integer> replacementLightValue = new ThreadLocal<Integer>();
 	private static ThreadLocal<IBlockState> actingAs = new ThreadLocal<IBlockState>();
 
-	public static final IUnlistedProperty<VoxelNeighborRenderTracker> n_prop = new UnlistedVoxelNeighborState();
-	public static final IUnlistedProperty<VoxelBlobStateReference> v_prop = new UnlistedVoxelBlob();
-	public static final IUnlistedProperty<Integer> block_prop = new UnlistedBlockStateID();
-	public static final IUnlistedProperty<Integer> side_prop = new UnlistedBlockFlags( "f" );
-	public static final IUnlistedProperty<Boolean> normalcube_prop = new UnlistedBlockNormalCube( "nc" );
-	public static final IUnlistedProperty<Float> opacity_prop = new UnlistedLightOpacity();
-	public static final IUnlistedProperty<Integer> light_prop = new UnlistedLightValue();
+	public static final IUnlistedProperty<VoxelNeighborRenderTracker> UProperty_VoxelNeighborState = new UnlistedVoxelNeighborState();
+	public static final IUnlistedProperty<VoxelBlobStateReference> UProperty_VoxelBlob = new UnlistedVoxelBlob();
+	public static final IUnlistedProperty<Integer> UProperty_Primary_BlockState = new UnlistedBlockStateID();
 
 	public final String name;
 
@@ -150,15 +141,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final IBlockAccess world,
 			final BlockPos pos )
 	{
-		try
-		{
-			return getTileEntity( world, pos ).isNormalCube() ? 255 : 0;
-		}
-		catch ( final ExceptionNoTileEntity e )
-		{
-			Log.noTileError( e );
-			return 0;
-		}
+		return isNormalCube( world, pos ) ? 255 : 0;
 	}
 
 	@Override
@@ -386,7 +369,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final BlockPos pos,
 			final IBlockState state,
 			final int fortune )
-	{
+			{
 		try
 		{
 			return Collections.singletonList( getTileEntity( world, pos ).getItemStack( this, null ) );
@@ -396,7 +379,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			Log.noTileError( e );
 			return Collections.emptyList();
 		}
-	}
+			}
 
 	@Override
 	public void onBlockPlacedBy(
@@ -479,7 +462,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	@Override
 	protected BlockState createBlockState()
 	{
-		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { v_prop, block_prop, opacity_prop, side_prop, light_prop, n_prop, normalcube_prop } );
+		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { UProperty_VoxelBlob, UProperty_Primary_BlockState, UProperty_VoxelNeighborState } );
 	}
 
 	@Override
@@ -499,7 +482,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		try
 		{
 			final TileEntityBlockChiseled tebc = getTileEntity( worldIn, pos );
-			tebc.setState( tebc.getBasicState().withProperty( normalcube_prop, false ) );
+			tebc.setNormalCube( false );
 
 			worldIn.checkLight( pos );
 		}
@@ -966,8 +949,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 			if ( blk != null && blk != target )
 			{
-				replacementLightValue.set( actingState.getBlock().getLightValue() );
-
 				world.setBlockState( pos, blk.getDefaultState(), triggerUpdate ? 3 : 0 );
 				final TileEntity te = world.getTileEntity( pos );
 
@@ -983,9 +964,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				}
 
 				tec.fillWith( actingState );
-				tec.setState( tec.getBasicState().withProperty( BlockChiseled.block_prop, BlockID ) );
-
-				replacementLightValue.remove();
+				tec.setState( tec.getBasicState().withProperty( BlockChiseled.UProperty_Primary_BlockState, BlockID ) );
 
 				return true;
 			}
@@ -997,7 +976,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	public IBlockState getCommonState(
 			final IExtendedBlockState myState )
 	{
-		final VoxelBlobStateReference data = myState.getValue( BlockChiseled.v_prop );
+		final VoxelBlobStateReference data = myState.getValue( BlockChiseled.UProperty_VoxelBlob );
 
 		if ( data != null )
 		{
@@ -1028,14 +1007,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		{
 			try
 			{
-				final Integer rlv = replacementLightValue.get();
-				if ( rlv != null )
-				{
-					return rlv;
-				}
-
-				final Integer lv = getTileEntity( world, pos ).getBasicState().getValue( BlockChiseled.light_prop );
-				return lv == null ? 0 : lv;
+				return getTileEntity( world, pos ).getLightValue();
 			}
 			catch ( final ExceptionNoTileEntity e )
 			{
@@ -1057,7 +1029,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		{
 			try
 			{
-				// require a real world, and extended bloack state..
+				// require a real world, and extended block state..
 				if ( state instanceof IExtendedBlockState && worldIn instanceof World )
 				{
 					// this is pure insanity, but there is no other solution

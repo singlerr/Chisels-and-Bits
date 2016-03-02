@@ -98,6 +98,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Settings" )
 	public boolean fluidBitsAreClickThough;
 
+	@Configured( category = "Client Settings" )
+	public boolean persistCreativeClipboard;
+
 	@Configured( category = "Client Preformance Settings" )
 	public int dynamicModelFaceCount;
 
@@ -264,6 +267,7 @@ public class ModConfig extends Configuration
 		addPickedBlocksToCreativeClipboard = true;
 		addBrokenBlocksToCreativeClipboard = true;
 		fluidBitsAreClickThough = true;
+		persistCreativeClipboard = true;
 
 		enableBitTank = true;
 		enableBitLightSource = true;
@@ -459,7 +463,6 @@ public class ModConfig extends Configuration
 		return prop;
 	}
 
-	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	public void helpText(
 			final LocalStrings string,
 			final List<String> tooltip,

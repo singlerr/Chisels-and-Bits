@@ -1,11 +1,12 @@
-package mod.chiselsandbits.registry;
+package mod.chiselsandbits.creative;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 
-class ModCreativeTab extends CreativeTabs
+public class ModCreativeTab extends CreativeTabs
 {
 
 	public ModCreativeTab()

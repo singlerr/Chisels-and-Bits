@@ -103,9 +103,9 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 	{
 		final IExtendedBlockState myState = te.getBasicState();
 
-		final VoxelBlobStateReference data = myState.getValue( BlockChiseled.v_prop );
-		final VoxelNeighborRenderTracker rTracker = myState.getValue( BlockChiseled.n_prop );
-		Integer blockP = myState.getValue( BlockChiseled.block_prop );
+		final VoxelBlobStateReference data = myState.getValue( BlockChiseled.UProperty_VoxelBlob );
+		final VoxelNeighborRenderTracker rTracker = myState.getValue( BlockChiseled.UProperty_VoxelNeighborState );
+		Integer blockP = myState.getValue( BlockChiseled.UProperty_Primary_BlockState );
 
 		blockP = blockP == null ? 0 : blockP;
 
@@ -181,9 +181,9 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 	{
 		final IExtendedBlockState myState = (IExtendedBlockState) state;
 
-		final VoxelBlobStateReference data = myState.getValue( BlockChiseled.v_prop );
-		final VoxelNeighborRenderTracker rTracker = myState.getValue( BlockChiseled.n_prop );
-		Integer blockP = myState.getValue( BlockChiseled.block_prop );
+		final VoxelBlobStateReference data = myState.getValue( BlockChiseled.UProperty_VoxelBlob );
+		final VoxelNeighborRenderTracker rTracker = myState.getValue( BlockChiseled.UProperty_VoxelNeighborState );
+		Integer blockP = myState.getValue( BlockChiseled.UProperty_Primary_BlockState );
 
 		blockP = blockP == null ? 0 : blockP;
 

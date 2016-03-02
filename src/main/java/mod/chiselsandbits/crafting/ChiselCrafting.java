@@ -1,118 +1,15 @@
 package mod.chiselsandbits.crafting;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import mod.chiselsandbits.bitbag.BagInventory;
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob.TypeRef;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
 public class ChiselCrafting implements IRecipe
 {
-
-	class CCReq
-	{
-		private final NBTTagCompound patternTag;
-		private final ItemStack pattern;
-		private final VoxelBlob voxelBlob;
-
-		private Boolean isValid = null;
-
-		private final ItemStack[] pile;
-		private final ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
-		private final ArrayList<BagInventory> bags = new ArrayList<BagInventory>();
-
-		public CCReq(
-				final IInventory inv,
-				final ItemStack pattern,
-				final boolean copy )
-		{
-			pile = new ItemStack[inv.getSizeInventory()];
-			this.pattern = pattern;
-			patternTag = pattern.getTagCompound();
-
-			for ( int x = 0; x < inv.getSizeInventory(); x++ )
-			{
-				final ItemStack is = inv.getStackInSlot( x );
-				pile[x] = is;
-
-				if ( !copy )
-				{
-					// if we are not copying.. then we remove it...
-					inv.setInventorySlotContents( x, null );
-				}
-
-				if ( is == null )
-				{
-					continue;
-				}
-
-				if ( is.getItem() instanceof ItemBitBag )
-				{
-					bags.add( new BagInventory( copy ? is.copy() : is ) );
-				}
-
-				if ( is.getItem() instanceof ItemChiseledBit )
-				{
-					stacks.add( copy ? is.copy() : is );
-				}
-			}
-
-			final TileEntityBlockChiseled tec = new TileEntityBlockChiseled();
-			tec.readChisleData( patternTag );
-			voxelBlob = tec.getBlob();
-		}
-
-		public boolean isValid()
-		{
-			if ( isValid != null )
-			{
-				return isValid;
-			}
-
-			final List<TypeRef> count = voxelBlob.getBlockCounts();
-
-			isValid = true;
-			for ( final TypeRef ref : count )
-			{
-				if ( ref.stateId != 0 )
-				{
-
-					for ( final ItemStack is : stacks )
-					{
-						if ( ItemChiseledBit.getStackState( is ) == ref.stateId && is.stackSize > 0 )
-						{
-							final int original = is.stackSize;
-							is.stackSize = Math.max( 0, is.stackSize - ref.quantity );
-							ref.quantity -= original - is.stackSize;
-						}
-					}
-
-					for ( final BagInventory bag : bags )
-					{
-						ref.quantity -= bag.extractBit( ref.stateId, ref.quantity );
-					}
-
-					if ( ref.quantity > 0 )
-					{
-						isValid = false;
-						break;
-					}
-				}
-			}
-			return isValid;
-		}
-	};
 
 	/**
 	 * Find the bag and pattern...
@@ -120,7 +17,7 @@ public class ChiselCrafting implements IRecipe
 	 * @param inv
 	 * @return
 	 */
-	private CCReq getCraftingReqs(
+	private ChiselCraftingRequirements getCraftingReqs(
 			final InventoryCrafting inv,
 			final boolean copy )
 	{
@@ -158,7 +55,7 @@ public class ChiselCrafting implements IRecipe
 			return null;
 		}
 
-		final CCReq r = new CCReq( inv, pattern, copy );
+		final ChiselCraftingRequirements r = new ChiselCraftingRequirements( inv, pattern, copy );
 		if ( r.isValid() )
 		{
 			return r;
@@ -179,7 +76,7 @@ public class ChiselCrafting implements IRecipe
 	public ItemStack getCraftingResult(
 			final InventoryCrafting inv )
 	{
-		final CCReq req = getCraftingReqs( inv, true );
+		final ChiselCraftingRequirements req = getCraftingReqs( inv, true );
 
 		if ( req != null )
 		{
@@ -209,7 +106,7 @@ public class ChiselCrafting implements IRecipe
 		final ItemStack[] out = new ItemStack[inv.getSizeInventory()];
 
 		// just getting this will alter the stacks..
-		final CCReq r = getCraftingReqs( inv, false );
+		final ChiselCraftingRequirements r = getCraftingReqs( inv, false );
 
 		if ( inv.getSizeInventory() != r.pile.length )
 		{

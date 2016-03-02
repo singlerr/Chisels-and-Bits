@@ -170,7 +170,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			return new ItemStack( state.getBlock(), 1, state.getBlock().getMetaFromState( state ) );
 		}
 
-		final IBlockState blk = Block.getStateById( tag.getInteger( TileEntityBlockChiseled.block_prop ) );
+		final IBlockState blk = Block.getStateById( tag.getInteger( TileEntityBlockChiseled.NBT_PRIMARY_STATE ) );
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk.getBlock() ), 1 );
 
 		itemstack.setTagInfo( "BlockEntityTag", tag );

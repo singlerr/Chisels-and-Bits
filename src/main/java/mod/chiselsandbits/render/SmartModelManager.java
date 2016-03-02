@@ -8,22 +8,19 @@ import mod.chiselsandbits.render.bit.BitItemSmartModel;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import mod.chiselsandbits.render.patterns.PrintSmartModel;
-import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
-import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class GeneratedModelLoader implements ICustomModelLoader
+public class SmartModelManager
 {
 
 	private final HashMap<ResourceLocation, IFlexibleBakedModel> models = new HashMap<ResourceLocation, IFlexibleBakedModel>();
 	private final ArrayList<ModelResourceLocation> res = new ArrayList<ModelResourceLocation>();
 
-	public GeneratedModelLoader()
+	public SmartModelManager()
 	{
 		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_iron" ), new ChiseledBlockSmartModel() );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_clay" ), new ChiseledBlockSmartModel() );
@@ -46,8 +43,6 @@ public class GeneratedModelLoader implements ICustomModelLoader
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/positiveprint_written_preview" ), new PrintSmartModel( "positiveprint", ChiselsAndBits.getItems().itemPositiveprint ) );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/negativeprint_written_preview" ), new PrintSmartModel( "negativeprint", ChiselsAndBits.getItems().itemNegativeprint ) );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/mirrorprint_written_preview" ), new PrintSmartModel( "mirrorprint", ChiselsAndBits.getItems().itemMirrorprint ) );
-
-		ChiselsAndBits.registerWithBus( this );
 	}
 
 	private void add(
@@ -90,27 +85,6 @@ public class GeneratedModelLoader implements ICustomModelLoader
 		{
 			event.modelRegistry.putObject( rl, getModel( rl ) );
 		}
-	}
-
-	@Override
-	public void onResourceManagerReload(
-			final IResourceManager resourceManager )
-	{
-
-	}
-
-	@Override
-	public boolean accepts(
-			final ResourceLocation modelLocation )
-	{
-		return models.containsKey( modelLocation );
-	}
-
-	@Override
-	public IModel loadModel(
-			final ResourceLocation modelLocation )
-	{
-		return new SmartModelContainer( getModel( modelLocation ) );
 	}
 
 	private IFlexibleBakedModel getModel(

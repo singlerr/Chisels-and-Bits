@@ -1,9 +1,5 @@
 package mod.chiselsandbits.bittank;
 
-import com.google.common.base.Predicate;
-
-import mod.chiselsandbits.api.ItemType;
-import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import net.minecraft.block.Block;
@@ -19,22 +15,25 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 
+import com.google.common.base.Predicate;
+
 public class BlockBitTank extends Block implements ITileEntityProvider
 {
 
 	public static final PropertyDirection FACING = PropertyDirection.create( "facing", new Predicate<EnumFacing>() {
+
 		@Override
 		public boolean apply(
 				final EnumFacing face )
 		{
 			return face != EnumFacing.DOWN && face != EnumFacing.UP;
 		}
+
 	} );
 
 	public BlockBitTank()
@@ -190,94 +189,32 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 			if ( current != null )
 			{
 				final FluidStack liquid = FluidContainerRegistry.getFluidForFilledItem( current );
-				if ( liquid != null && liquid.amount % TileEntityBitTank.MB_PER_BIT_CONVERSION == 0 && liquid.amount > 0 )
+
+				if ( tank.addFluidFromItem( current, liquid, playerIn ) )
 				{
-					final int bitCount = liquid.amount * TileEntityBitTank.BITS_PER_MB_CONVERSION / TileEntityBitTank.MB_PER_BIT_CONVERSION;
-					final ItemStack bitItems = tank.getFluidBitStack( liquid.getFluid(), bitCount );
-
-					if ( tank.insertItem( 0, bitItems, true ) == null )
-					{
-						final ItemStack empty = FluidContainerRegistry.drainFluidContainer( current );
-
-						if ( empty != null )
-						{
-							// insert items.. and drain the container.
-							tank.insertItem( 0, bitItems, false );
-							playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, empty );
-							playerIn.inventory.markDirty();
-						}
-					}
 					return true;
 				}
 
-				if ( FluidContainerRegistry.isEmptyContainer( current ) )
+				if ( tank.putFluidIntoItem( current, liquid, playerIn ) )
 				{
-					final FluidStack outFluid = tank.getAccessableFluid();
-					final int capacity = FluidContainerRegistry.getContainerCapacity( outFluid, current );
-
-					if ( capacity % TileEntityBitTank.MB_PER_BIT_CONVERSION == 0 )
-					{
-						int requiredBits = capacity / TileEntityBitTank.MB_PER_BIT_CONVERSION;
-						requiredBits *= TileEntityBitTank.BITS_PER_MB_CONVERSION;
-
-						final ItemStack output = tank.extractBits( 0, requiredBits, true );
-						if ( output != null && output.stackSize == requiredBits )
-						{
-							outFluid.amount = capacity;
-							final ItemStack filled = FluidContainerRegistry.fillFluidContainer( outFluid, current );
-
-							if ( filled != null )
-							{
-								tank.extractBits( 0, requiredBits, false );
-								playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, filled );
-								playerIn.inventory.markDirty();
-							}
-						}
-					}
 					return true;
 				}
 
-				if ( playerIn.isSneaking() )
+				if ( tank.addHeldBits( current, playerIn ) )
 				{
-					if ( ChiselsAndBits.getApi().getItemType( current ) == ItemType.CHISLED_BIT )
-					{
-						playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, tank.insertItem( 0, current, false ) );
-						playerIn.inventory.markDirty();
-						return true;
-					}
+					return true;
 				}
 			}
 			else
 			{
-				if ( playerIn.isSneaking() )
+				if ( tank.addAllPossibleBits( playerIn ) )
 				{
-					boolean change = false;
-					for ( int x = 0; x < playerIn.inventory.getSizeInventory(); x++ )
-					{
-						final ItemStack stackInSlot = playerIn.inventory.getStackInSlot( x );
-						if ( ChiselsAndBits.getApi().getItemType( stackInSlot ) == ItemType.CHISLED_BIT )
-						{
-							playerIn.inventory.setInventorySlotContents( x, tank.insertItem( 0, stackInSlot, false ) );
-							change = true;
-						}
-					}
-
-					if ( change )
-					{
-						playerIn.inventory.markDirty();
-					}
-
-					return change;
+					return true;
 				}
 			}
 
-			if ( !playerIn.isSneaking() )
+			if ( tank.extractBits( playerIn, hitX, hitY, hitZ, pos ) )
 			{
-				final ItemStack is = tank.extractItem( 0, 64, false );
-				if ( is != null )
-				{
-					ChiselsAndBits.getApi().giveBitToPlayer( playerIn, is, new Vec3( (double) hitX + pos.getX(), (double) hitY + pos.getY(), (double) hitZ + pos.getZ() ) );
-				}
 				return true;
 			}
 		}

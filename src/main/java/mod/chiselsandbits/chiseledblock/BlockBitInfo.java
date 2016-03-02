@@ -1,5 +1,8 @@
 package mod.chiselsandbits.chiseledblock;
 
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Random;
@@ -7,6 +10,7 @@ import java.util.Random;
 import mod.chiselsandbits.api.IgnoreBlockLogic;
 import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.Log;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockGlowstone;
@@ -17,6 +21,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
@@ -25,19 +30,46 @@ import net.minecraftforge.fluids.Fluid;
 public class BlockBitInfo
 {
 	// imc api...
-	private static HashMap<Block, Boolean> ignorelogicBlocks = new HashMap<Block, Boolean>();
+	private static HashMap<Block, Boolean> ignoreLogicBlocks = new HashMap<Block, Boolean>();
 
 	static
 	{
-		ignorelogicBlocks.put( Blocks.leaves, true );
-		ignorelogicBlocks.put( Blocks.leaves2, true );
+		ignoreLogicBlocks.put( Blocks.leaves, true );
+		ignoreLogicBlocks.put( Blocks.leaves2, true );
 	}
 
 	// cache data..
 	private static HashMap<IBlockState, BlockBitInfo> stateBitInfo = new HashMap<IBlockState, BlockBitInfo>();
 	private static HashMap<Block, Boolean> supportedBlocks = new HashMap<Block, Boolean>();
 	private static HashMap<Block, Fluid> fluidBlocks = new HashMap<Block, Fluid>();
-	private static HashMap<Integer, Fluid> fluidStates = new HashMap<Integer, Fluid>();
+	private static TIntObjectMap<Fluid> fluidStates = new TIntObjectHashMap<Fluid>();
+	private static HashMap<IBlockState, Integer> bitColor = new HashMap<IBlockState, Integer>();
+
+	public static int getColorFor(
+			final IBlockState state,
+			final int renderPass )
+	{
+		Integer out = bitColor.get( state );
+
+		if ( out == null )
+		{
+			final Block blk = state.getBlock();
+			final ItemStack target = new ItemStack( blk, 1, blk.damageDropped( state ) );
+
+			if ( target.getItem() == null )
+			{
+				out = 0xffffff;
+			}
+			else
+			{
+				out = target.getItem().getColorFromItemStack( target, renderPass );
+			}
+
+			bitColor.put( state, out );
+		}
+
+		return out;
+	}
 
 	public static void addFluidBlock(
 			final Block blk,
@@ -58,7 +90,7 @@ public class BlockBitInfo
 			}
 			catch ( final Throwable t )
 			{
-				// :(
+				Log.logError( "Error while determining fluid state.", t );
 			}
 		}
 
@@ -86,7 +118,7 @@ public class BlockBitInfo
 	public static void ignoreBlockLogic(
 			final Block which )
 	{
-		ignorelogicBlocks.put( which, true );
+		ignoreLogicBlocks.put( which, true );
 
 		stateBitInfo.clear();
 		supportedBlocks.clear();
@@ -119,7 +151,7 @@ public class BlockBitInfo
 		try
 		{
 			// require basic hardness behavior...
-			final ProxyBlock pb = new ProxyBlock();
+			final ReflectionHelperBlock pb = new ReflectionHelperBlock();
 			final Class<? extends Block> blkClass = blk.getClass();
 
 			// require default drop behavior...
@@ -142,7 +174,6 @@ public class BlockBitInfo
 			// full cube specifically is tied to lighting... so for glass
 			// Compatibility use isFullBlock which can be true for glass.
 
-			// final boolean isFullCube = blk.isFullCube()
 			boolean isFullBlock = blk.isFullBlock() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.slime_block;
 
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
@@ -152,7 +183,7 @@ public class BlockBitInfo
 
 			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( blk ) != null;
 
-			final Boolean IgnoredLogic = ignorelogicBlocks.get( blk );
+			final Boolean IgnoredLogic = ignoreLogicBlocks.get( blk );
 			if ( blkClass.isAnnotationPresent( IgnoreBlockLogic.class ) || IgnoredLogic != null && IgnoredLogic )
 			{
 				isFullBlock = true;
@@ -211,23 +242,23 @@ public class BlockBitInfo
 		try
 		{
 			// require basic hardness behavior...
-			final ProxyBlock pb = new ProxyBlock();
+			final ReflectionHelperBlock reflectBlock = new ReflectionHelperBlock();
 			final Block blk = state.getBlock();
 			final Class<? extends Block> blkClass = blk.getClass();
 
-			pb.getBlockHardness( null, null );
-			final Method hardnessMethod = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class );
+			reflectBlock.getBlockHardness( null, null );
+			final Method hardnessMethod = blkClass.getMethod( reflectBlock.MethodName, World.class, BlockPos.class );
 			final boolean test_a = hardnessMethod.getDeclaringClass() == Block.class;
 
-			pb.getPlayerRelativeBlockHardness( null, null, null );
-			final boolean test_b = blkClass.getMethod( pb.MethodName, EntityPlayer.class, World.class, BlockPos.class ).getDeclaringClass() == Block.class;
+			reflectBlock.getPlayerRelativeBlockHardness( null, null, null );
+			final boolean test_b = blkClass.getMethod( reflectBlock.MethodName, EntityPlayer.class, World.class, BlockPos.class ).getDeclaringClass() == Block.class;
 
-			pb.getExplosionResistance( null );
-			final Method exploResistance = blkClass.getMethod( pb.MethodName, Entity.class );
+			reflectBlock.getExplosionResistance( null );
+			final Method exploResistance = blkClass.getMethod( reflectBlock.MethodName, Entity.class );
 			final boolean test_c = exploResistance.getDeclaringClass() == Block.class;
 
-			pb.getExplosionResistance( null, null, null, null );
-			final boolean test_d = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, Entity.class, Explosion.class ).getDeclaringClass() == Block.class;
+			reflectBlock.getExplosionResistance( null, null, null, null );
+			final boolean test_d = blkClass.getMethod( reflectBlock.MethodName, World.class, BlockPos.class, Entity.class, Explosion.class ).getDeclaringClass() == Block.class;
 
 			// is it perfect?
 			if ( test_a && test_b && test_c && test_d )
@@ -239,8 +270,8 @@ public class BlockBitInfo
 			}
 			else
 			{
-				// okay.. so maybe its a bit fancy.. but it still might work..
-				// just fill in the gaps.
+				// less accurate, we can just pretend they are some fixed
+				// hardness... say like stone?
 
 				final Block stone = Blocks.stone;
 				return new BlockBitInfo( ChiselsAndBits.getConfig().compatabilityMode, stone.getBlockHardness( null, null ), stone.getExplosionResistance( null ) );

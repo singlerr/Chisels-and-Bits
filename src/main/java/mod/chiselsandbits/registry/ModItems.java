@@ -11,42 +11,25 @@ import mod.chiselsandbits.items.ItemPositivePrint;
 import mod.chiselsandbits.items.ItemWrench;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class ModItems extends ModRegistry
 {
 
-	public ItemChisel itemChiselStone;
-	public ItemChisel itemChiselIron;
-	public ItemChisel itemChiselGold;
-	public ItemChisel itemChiselDiamond;
+	final public ItemChisel itemChiselStone;
+	final public ItemChisel itemChiselIron;
+	final public ItemChisel itemChiselGold;
+	final public ItemChisel itemChiselDiamond;
 
-	public ItemChiseledBit itemBlockBit;
-	public ItemMirrorPrint itemMirrorprint;
-	public ItemPositivePrint itemPositiveprint;
-	public ItemNegativePrint itemNegativeprint;
+	final public ItemChiseledBit itemBlockBit;
+	final public ItemMirrorPrint itemMirrorprint;
+	final public ItemPositivePrint itemPositiveprint;
+	final public ItemNegativePrint itemNegativeprint;
 
-	public ItemBitBag itemBitBag;
-	public ItemWrench itemWrench;
-
-	private <T extends Item> T registerItem(
-			final boolean enabled,
-			final T item,
-			final String name )
-	{
-		if ( enabled )
-		{
-			item.setCreativeTab( creativeTab );
-			GameRegistry.registerItem( item.setUnlocalizedName( unlocalizedPrefix + name ), name );
-			return item;
-		}
-
-		return null;
-	}
+	final public ItemBitBag itemBitBag;
+	final public ItemWrench itemWrench;
 
 	public ModItems(
 			final ModConfig config )

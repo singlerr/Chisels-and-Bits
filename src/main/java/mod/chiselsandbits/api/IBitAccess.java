@@ -82,8 +82,9 @@ public interface IBitAccess
 	 *            what type of item to give.
 	 * @param crossWorld
 	 *            determines if the NBT for the item is specific to this world
-	 *            or if it is portable, cross world NBT is larger, you should
-	 *            only request cross world NBT if you specifically need it.
+	 *            or if it is portable, cross world NBT is larger and slower,
+	 *            you should only request cross world NBT if you specifically
+	 *            need it.
 	 * @return an Item for bits, null if there are no bits.
 	 */
 	ItemStack getBitsAsItem(
