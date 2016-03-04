@@ -8,6 +8,7 @@ import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ContinousChisels;
@@ -24,7 +25,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
@@ -90,19 +90,38 @@ public class PacketUndo extends ModPacket
 		after = new VoxelBlobStateReference( tb, 0 );
 	}
 
+	/**
+	 * This method modifies the player, make sure you backup and restore the
+	 * players inventory prior to doing this...
+	 *
+	 * @param player
+	 * @return
+	 */
+	public boolean canPreformAction(
+			final EntityPlayer player )
+	{
+		if ( inRange( player, pos ) )
+		{
+			return apply( player, true );
+		}
+
+		return false;
+	}
+
 	public boolean preformAction(
 			final EntityPlayer player )
 	{
 		if ( inRange( player, pos ) )
 		{
-			return apply( player );
+			return apply( player, false );
 		}
 
 		return false;
 	}
 
 	private boolean apply(
-			final EntityPlayer player )
+			final EntityPlayer player,
+			final boolean testing )
 	{
 		try
 		{
@@ -172,6 +191,16 @@ public class PacketUndo extends ModPacket
 					}
 				}
 
+				if ( testing )
+				{
+					if ( !successful )
+					{
+						UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.missing_bits" );
+					}
+
+					return successful;
+				}
+
 				if ( successful )
 				{
 					ba.commitChanges( true );
@@ -186,7 +215,6 @@ public class PacketUndo extends ModPacket
 				else
 				{
 					backup.rollback();
-					player.addChatMessage( new ChatComponentTranslation( "mod.chiselsandbits.result.missing_bits" ) );
 					return false;
 				}
 			}
@@ -196,7 +224,12 @@ public class PacketUndo extends ModPacket
 			// error message below.
 		}
 
-		player.addChatMessage( new ChatComponentTranslation( "mod.chiselsandbits.result.has_changed" ) );
+		if ( testing )
+		{
+			UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.has_changed" );
+			return false;
+		}
+
 		return false;
 
 	}
@@ -216,7 +249,7 @@ public class PacketUndo extends ModPacket
 			return true;
 		}
 
-		player.addChatMessage( new ChatComponentTranslation( "mod.chiselsandbits.result.out_of_range" ) );
+		UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.out_of_range" );
 		return false;
 	}
 

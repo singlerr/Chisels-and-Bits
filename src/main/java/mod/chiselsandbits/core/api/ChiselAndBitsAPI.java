@@ -13,6 +13,7 @@ import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -285,6 +286,20 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		}
 
 		return null;
+	}
+
+	@Override
+	public void beginUndoGroup(
+			final EntityPlayer player )
+	{
+		UndoTracker.getInstance().beginGroup( player );
+	}
+
+	@Override
+	public void endUndoGroup(
+			final EntityPlayer player )
+	{
+		UndoTracker.getInstance().endGroup( player );
 	}
 
 }

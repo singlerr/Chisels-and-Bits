@@ -158,4 +158,35 @@ public interface IChiselAndBitsAPI
 	 */
 	IBitBag getBitbag(
 			ItemStack itemstack );
+
+	/**
+	 * Begins an undo operation, starting two operations without ending the
+	 * previous operation will throw a runtime exception.
+	 *
+	 * @formatter:off
+	 *
+	 * Example:
+	 *
+	 * try
+	 * {
+	 *     api.beginUndoGroup();
+	 *     this.manipulateAllTheBlocks();
+	 * }
+	 * finally
+	 * {
+	 *     api.endUndoGroup();
+	 * }
+	 *
+	 */
+	void beginUndoGroup(
+			EntityPlayer player );
+
+	/**
+	 * Ends a previously running undo operation, must be called after starting
+	 * an undo operation, closing a group without opening one will result in a
+	 * runtime exception.
+	 */
+	void endUndoGroup(
+			EntityPlayer player );
+
 }

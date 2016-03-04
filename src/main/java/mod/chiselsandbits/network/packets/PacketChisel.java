@@ -8,6 +8,7 @@ import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ContinousBits;
@@ -100,90 +101,100 @@ public class PacketChisel extends ModPacket
 
 		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
 
-		for ( int xOff = minX; xOff <= maxX; ++xOff )
+		try
 		{
-			for ( int yOff = minY; yOff <= maxY; ++yOff )
+			UndoTracker.getInstance().beginGroup( player );
+
+			for ( int xOff = minX; xOff <= maxX; ++xOff )
 			{
-				for ( int zOff = minZ; zOff <= maxZ; ++zOff )
+				for ( int yOff = minY; yOff <= maxY; ++yOff )
 				{
-					final BlockPos pos = new BlockPos( xOff, yOff, zOff );
-
-					final int placeStateID = place ? ItemChiseledBit.getStackState( player.getCurrentEquippedItem() ) : 0;
-					final IContinuousInventory chisel = place ? new ContinousBits( player, placeStateID ) : new ContinousChisels( player, pos, side );
-
-					IBlockState blkstate = world.getBlockState( pos );
-					Block blkObj = blkstate.getBlock();
-
-					if ( !chisel.isValid() || blkObj == null || blkstate == null || !place && !ItemChisel.canMine( chisel, blkstate, player, world, pos ) )
+					for ( int zOff = minZ; zOff <= maxZ; ++zOff )
 					{
-						continue;
-					}
+						final BlockPos pos = new BlockPos( xOff, yOff, zOff );
 
-					if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) && place )
-					{
-						world.setBlockToAir( pos );
-					}
+						final int placeStateID = place ? ItemChiseledBit.getStackState( player.getCurrentEquippedItem() ) : 0;
+						final IContinuousInventory chisel = place ? new ContinousBits( player, placeStateID ) : new ContinousChisels( player, pos, side );
 
-					if ( BlockChiseled.replaceWithChisled( world, pos, blkstate, placeStateID, true ) )
-					{
-						blkstate = world.getBlockState( pos );
-						blkObj = blkstate.getBlock();
-					}
+						IBlockState blkstate = world.getBlockState( pos );
+						Block blkObj = blkstate.getBlock();
 
-					final TileEntity te = ModUtil.getChiseledTileEntity( world, pos, place );
-					if ( te instanceof TileEntityBlockChiseled && chisel.isValid() )
-					{
-						final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
-
-						final VoxelBlob mask = new VoxelBlob();
-						MCMultipartProxy.proxyMCMultiPart.addFiller( world, pos, mask );
-
-						// adjust voxel state...
-						final VoxelBlob vb = tec.getBlob();
-
-						final ChiselTypeIterator i = getIterator( vb, pos );
-						while ( i.hasNext() && chisel.isValid() )
+						if ( !chisel.isValid() || blkObj == null || blkstate == null || !place && !ItemChisel.canMine( chisel, blkstate, player, world, pos ) )
 						{
-							if ( place )
+							continue;
+						}
+
+						if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) && place )
+						{
+							world.setBlockToAir( pos );
+						}
+
+						if ( BlockChiseled.replaceWithChisled( world, pos, blkstate, placeStateID, true ) )
+						{
+							blkstate = world.getBlockState( pos );
+							blkObj = blkstate.getBlock();
+						}
+
+						final TileEntity te = ModUtil.getChiseledTileEntity( world, pos, place );
+						if ( te instanceof TileEntityBlockChiseled && chisel.isValid() )
+						{
+							final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
+
+							final VoxelBlob mask = new VoxelBlob();
+							MCMultipartProxy.proxyMCMultiPart.addFiller( world, pos, mask );
+
+							// adjust voxel state...
+							final VoxelBlob vb = tec.getBlob();
+
+							final ChiselTypeIterator i = getIterator( vb, pos );
+							while ( i.hasNext() && chisel.isValid() )
 							{
-								if ( mask.get( i.x(), i.y(), i.z() ) == 0 )
+								if ( place )
 								{
-									bitPlaced = chisel.getItem( 0 ).getStack();
-									update = ItemChiseledBit.placeBit( chisel, player, vb, i.x(), i.y(), i.z() ) || update;
+									if ( mask.get( i.x(), i.y(), i.z() ) == 0 )
+									{
+										bitPlaced = chisel.getItem( 0 ).getStack();
+										update = ItemChiseledBit.placeBit( chisel, player, vb, i.x(), i.y(), i.z() ) || update;
+									}
+								}
+								else
+								{
+									extracted = ItemChisel.chiselBlock( chisel, player, vb, world, pos, i.side, i.x(), i.y(), i.z(), extracted, spawnlist );
 								}
 							}
-							else
-							{
-								extracted = ItemChisel.chiselBlock( chisel, player, vb, world, pos, i.side, i.x(), i.y(), i.z(), extracted, spawnlist );
-							}
-						}
 
-						if ( update )
-						{
-							tec.completeEditOperation( vb );
-							returnVal++;
-						}
-						else if ( extracted != null )
-						{
-							tec.completeEditOperation( vb );
-							returnVal++;
+							if ( update )
+							{
+								tec.completeEditOperation( vb );
+								returnVal++;
+							}
+							else if ( extracted != null )
+							{
+								tec.completeEditOperation( vb );
+								returnVal++;
+							}
+
 						}
 
 					}
-
 				}
 			}
-		}
 
-		for ( final EntityItem ei : spawnlist )
-		{
-			ModUtil.feedPlayer( world, player, ei );
-			ItemBitBag.cleanupInventory( player, ei.getEntityItem() );
-		}
+			for ( final EntityItem ei : spawnlist )
+			{
+				ModUtil.feedPlayer( world, player, ei );
+				ItemBitBag.cleanupInventory( player, ei.getEntityItem() );
+			}
 
-		if ( place )
+			if ( place )
+			{
+				ItemBitBag.cleanupInventory( player, bitPlaced != null ? bitPlaced : new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
+			}
+
+		}
+		finally
 		{
-			ItemBitBag.cleanupInventory( player, bitPlaced != null ? bitPlaced : new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
+			UndoTracker.getInstance().endGroup( player );
 		}
 
 		return returnVal;

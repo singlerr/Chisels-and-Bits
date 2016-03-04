@@ -9,6 +9,7 @@ public class UndoStep
 	public final BlockPos pos;
 	public final VoxelBlobStateReference before;
 	public final VoxelBlobStateReference after;
+	public UndoStep next = null;
 
 	public UndoStep(
 			final int dimensionId,
