@@ -51,12 +51,11 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	ItemStack cachedInfo;
 	List<String> details = new ArrayList<String>();
 
-	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
-			final List tooltip,
+			final List<String> tooltip,
 			final boolean advanced )
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
@@ -172,10 +171,10 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final float hitY,
 			final float hitZ )
 	{
-		final IBlockState iblockstate = worldIn.getBlockState( pos );
-		final Block block = iblockstate.getBlock();
+		final IBlockState state = worldIn.getBlockState( pos );
+		final Block block = state.getBlock();
 
-		if ( block == Blocks.snow_layer && iblockstate.getValue( BlockSnow.LAYERS ).intValue() < 1 )
+		if ( block == Blocks.snow_layer && state.getValue( BlockSnow.LAYERS ).intValue() < 1 )
 		{
 			side = EnumFacing.UP;
 		}

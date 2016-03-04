@@ -16,6 +16,8 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 
 	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> serverRefs = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>>() );
 	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> clientRefs = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>>() );
+
+	// optimize air.
 	private static byte[] airBlob;
 
 	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> getRefs()
@@ -31,11 +33,11 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 	private static VoxelBlobStateInstance lookupRef(
 			final VoxelBlobStateInstance inst )
 	{
-		final WeakReference<VoxelBlobStateInstance> o = getRefs().get( inst );
+		final WeakReference<VoxelBlobStateInstance> ref = getRefs().get( inst );
 
-		if ( o != null )
+		if ( ref != null )
 		{
-			return o.get();
+			return ref.get();
 		}
 
 		return null;
@@ -49,7 +51,6 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 			if ( airBlob == null )
 			{
 				final VoxelBlob vb = new VoxelBlob();
-				vb.fill( 0 );
 				airBlob = vb.blobToBytes( VoxelBlob.VERSION_COMPACT );
 			}
 
@@ -94,7 +95,7 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 
 	public byte[] getByteArray()
 	{
-		return data.v;
+		return data.voxelBytes;
 	}
 
 	public VoxelBlob getVoxelBlob()

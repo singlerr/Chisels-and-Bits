@@ -205,12 +205,12 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		GlStateManager.bindTexture( Minecraft.getMinecraft().getTextureMapBlocks().getGlTextureId() );
 
 		renderBuffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR );
-		for ( final MenuRegion mr : modes )
+		for ( final MenuRegion mnuRgn : modes )
 		{
-			final double x = ( mr.x1 + mr.x2 ) * 0.5 * ( ring_outer_edge * 0.6 + 0.4 * ring_inner_edge );
-			final double y = ( mr.y1 + mr.y2 ) * 0.5 * ( ring_outer_edge * 0.6 + 0.4 * ring_inner_edge );
+			final double x = ( mnuRgn.x1 + mnuRgn.x2 ) * 0.5 * ( ring_outer_edge * 0.6 + 0.4 * ring_inner_edge );
+			final double y = ( mnuRgn.y1 + mnuRgn.y2 ) * 0.5 * ( ring_outer_edge * 0.6 + 0.4 * ring_inner_edge );
 
-			final SpriteIconPositioning sip = ClientSide.instance.getIconForMode( mr.mode );
+			final SpriteIconPositioning sip = ClientSide.instance.getIconForMode( mnuRgn.mode );
 
 			final double scalex = 15 * sip.width * 0.5;
 			final double scaley = 15 * sip.height * 0.5;
@@ -237,16 +237,16 @@ public class ChiselsAndBitsMenu extends GuiScreen
 
 		tessellator.draw();
 
-		for ( final MenuRegion mr : modes )
+		for ( final MenuRegion mnuRgn : modes )
 		{
-			if ( mr.highlighted )
+			if ( mnuRgn.highlighted )
 			{
-				final double x = ( mr.x1 + mr.x2 ) * 0.5;
-				final double y = ( mr.y1 + mr.y2 ) * 0.5;
+				final double x = ( mnuRgn.x1 + mnuRgn.x2 ) * 0.5;
+				final double y = ( mnuRgn.y1 + mnuRgn.y2 ) * 0.5;
 
 				int fixed_x = (int) ( x * text_distnace );
 				final int fixed_y = (int) ( y * text_distnace );
-				final String text = mr.mode.string.getLocal();
+				final String text = mnuRgn.mode.string.getLocal();
 
 				if ( x <= -0.2 )
 				{

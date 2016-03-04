@@ -28,10 +28,10 @@ public class UndoTracker
 		return instance;
 	}
 
-	int level = -1; // the current undo level.
-	boolean recording = true; // is the system currently recording undos?
-	boolean grouping = false; // is a group active?
-	boolean hasCreatedGroup = false; // has a new item already been added?
+	private int level = -1; // the current undo level.
+	private boolean recording = true; // is the system currently recording?
+	private boolean grouping = false; // is a group active?
+	private boolean hasCreatedGroup = false; // did we add an item yet?
 
 	private final List<UndoStep> undoLevels = new ArrayList<UndoStep>();
 

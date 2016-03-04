@@ -16,7 +16,7 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
 {
 
 	public final int hash;
-	public final byte[] v;
+	public final byte[] voxelBytes;
 
 	private static final int HAS_FLUIDS = 1;
 	private static final int HAS_SOLIDS = 2;
@@ -31,8 +31,8 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
 	public VoxelBlobStateInstance(
 			final byte[] data )
 	{
-		v = data;
-		hash = Arrays.hashCode( v );
+		voxelBytes = data;
+		hash = Arrays.hashCode( voxelBytes );
 	}
 
 	@Override
@@ -62,15 +62,15 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
 		// length?
 		if ( r == 0 )
 		{
-			r = v.length - o.v.length;
+			r = voxelBytes.length - o.voxelBytes.length;
 		}
 
 		// for real then...
 		if ( r == 0 )
 		{
-			for ( int x = 0; x < v.length && r == 0; x++ )
+			for ( int x = 0; x < voxelBytes.length && r == 0; x++ )
 			{
-				r = v[x] - o.v[x];
+				r = voxelBytes[x] - o.voxelBytes[x];
 			}
 		}
 
@@ -86,7 +86,7 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
 			if ( vb == null )
 			{
 				vb = new VoxelBlob();
-				vb.blobFromBytes( v );
+				vb.blobFromBytes( voxelBytes );
 				blob = new SoftReference<VoxelBlob>( vb );
 			}
 

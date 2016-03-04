@@ -58,6 +58,21 @@ public final class VoxelBlob
 		clearCache();
 	}
 
+	public static void clearCache()
+	{
+		fluidFilterState.clear();
+		layerFilterStateSolid.clear();
+		layerFilterStateCutout.clear();
+		layerFilterStateCutoutMipped.clear();
+		layerFilterStateTransparent.clear();
+
+		fluidFilterState.put( 0, false );
+		layerFilterStateSolid.put( 0, false );
+		layerFilterStateCutout.put( 0, false );
+		layerFilterStateCutoutMipped.put( 0, false );
+		layerFilterStateTransparent.put( 0, false );
+	}
+
 	static final int SHORT_BYTES = Short.SIZE / 8;
 
 	public final static int dim = 16;
@@ -90,21 +105,6 @@ public final class VoxelBlob
 		}
 
 		return false;
-	}
-
-	public static void clearCache()
-	{
-		fluidFilterState.clear();
-		layerFilterStateSolid.clear();
-		layerFilterStateCutout.clear();
-		layerFilterStateCutoutMipped.clear();
-		layerFilterStateTransparent.clear();
-
-		fluidFilterState.put( 0, false );
-		layerFilterStateSolid.put( 0, false );
-		layerFilterStateCutout.put( 0, false );
-		layerFilterStateCutoutMipped.put( 0, false );
-		layerFilterStateTransparent.put( 0, false );
 	}
 
 	public VoxelBlob(
@@ -872,7 +872,7 @@ public final class VoxelBlob
 
 	private TIntObjectMap<Boolean> getStateLayer(
 			final EnumWorldBlockLayer layer )
-	{
+			{
 		switch ( layer )
 		{
 			case CUTOUT:
@@ -885,7 +885,7 @@ public final class VoxelBlob
 				return layerFilterStateTransparent;
 		}
 		throw new RuntimeException( "Invalid Layer" );
-	}
+			}
 
 	private Boolean isFluid(
 			final int ref )
