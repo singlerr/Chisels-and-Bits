@@ -1,4 +1,4 @@
-package mod.chiselsandbits.gui;
+package mod.chiselsandbits.client.gui;
 
 import java.util.ArrayList;
 import java.util.List;

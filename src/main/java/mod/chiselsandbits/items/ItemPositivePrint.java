@@ -21,7 +21,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
@@ -114,17 +113,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 		final VoxelBlob filled = new VoxelBlob();
 		MCMultipartProxy.proxyMCMultiPart.addFiller( world, pos, filled );
 
-		final ArrayList<BagInventory> bags = new ArrayList<BagInventory>();
-		final IInventory inv = player.inventory;
-		for ( int zz = 0; zz < inv.getSizeInventory(); zz++ )
-		{
-			final ItemStack which = inv.getStackInSlot( zz );
-			if ( which != null && which.getItem() instanceof ItemBitBag )
-			{
-				bags.add( new BagInventory( which ) );
-			}
-		}
-
+		final List<BagInventory> bags = ModUtil.getBags( player );
 		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
 
 		for ( int y = 0; y < vb.detail; y++ )
@@ -150,7 +139,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 						if ( inPlace == 0 && inPattern != 0 && filled.get( x, y, z ) == 0 )
 						{
 							final ItemStackSlot bit = ModUtil.findBit( player, inPattern );
-							if ( consumeBagBit( bags, inPattern ) )
+							if ( ModUtil.consumeBagBit( bags, inPattern ) )
 							{
 								vb.set( x, y, z, inPattern );
 							}
@@ -174,21 +163,6 @@ public class ItemPositivePrint extends ItemNegativePrint
 			ItemBitBag.cleanupInventory( player, ei.getEntityItem() );
 		}
 
-	}
-
-	private boolean consumeBagBit(
-			final ArrayList<BagInventory> bags,
-			final int inPattern )
-	{
-		for ( final BagInventory inv : bags )
-		{
-			if ( inv.extractBit( inPattern, 1 ) == 1 )
-			{
-				return true;
-			}
-		}
-
-		return false;
 	}
 
 }

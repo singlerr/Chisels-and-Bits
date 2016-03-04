@@ -13,6 +13,8 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
@@ -33,6 +35,11 @@ public class BitAccess implements IBitAccess
 	private final VoxelBlob filler;
 
 	private final Map<Integer, IBitBrush> brushes = new HashMap<Integer, IBitBrush>();
+
+	public VoxelBlob getNativeBlob()
+	{
+		return blob;
+	}
 
 	public BitAccess(
 			final World w,
@@ -111,7 +118,11 @@ public class BitAccess implements IBitAccess
 
 		if ( tile != null )
 		{
+			final VoxelBlobStateReference before = tile.getBlobStateReference();
 			tile.setBlob( blob, triggerUpdates, false );
+			final VoxelBlobStateReference after = tile.getBlobStateReference();
+
+			UndoTracker.getInstance().add( w, pos, before, after );
 		}
 	}
 

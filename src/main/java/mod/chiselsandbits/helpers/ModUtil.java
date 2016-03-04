@@ -1,8 +1,12 @@
 package mod.chiselsandbits.helpers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.lang3.tuple.Pair;
+
+import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
@@ -25,8 +29,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 public class ModUtil
 {
 
@@ -38,7 +40,7 @@ public class ModUtil
 
 	static public Pair<Vec3, Vec3> getPlayerRay(
 			final EntityPlayer playerIn )
-			{
+	{
 		double reachDistance = 5.0d;
 
 		final double x = playerIn.prevPosX + ( playerIn.posX - playerIn.prevPosX );
@@ -65,7 +67,7 @@ public class ModUtil
 		final Vec3 to = from.addVector( eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance );
 
 		return Pair.of( from, to );
-			}
+	}
 
 	static public class ItemStackSlot
 	{
@@ -80,13 +82,13 @@ public class ModUtil
 				final int s,
 				final ItemStack st,
 				final EntityPlayer player )
-				{
+		{
 			inv = i;
 			slot = s;
 			stack = st;
 			toolSlot = player.inventory.currentItem;
 			isCreative = player.capabilities.isCreativeMode;
-				}
+		}
 
 		public boolean isValid()
 		{
@@ -383,6 +385,44 @@ public class ModUtil
 			}
 		}
 		return seen;
+	}
+
+	public static List<BagInventory> getBags(
+			final EntityPlayer player )
+	{
+		if ( player.capabilities.isCreativeMode )
+		{
+			return java.util.Collections.emptyList();
+		}
+
+		final List<BagInventory> bags = new ArrayList<BagInventory>();
+		final IInventory inv = player.inventory;
+
+		for ( int zz = 0; zz < inv.getSizeInventory(); zz++ )
+		{
+			final ItemStack which = inv.getStackInSlot( zz );
+			if ( which != null && which.getItem() instanceof ItemBitBag )
+			{
+				bags.add( new BagInventory( which ) );
+			}
+		}
+
+		return bags;
+	}
+
+	public static boolean consumeBagBit(
+			final List<BagInventory> bags,
+			final int inPattern )
+	{
+		for ( final BagInventory inv : bags )
+		{
+			if ( inv.extractBit( inPattern, 1 ) == 1 )
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 }

@@ -160,12 +160,12 @@ public class PacketChisel extends ModPacket
 
 						if ( update )
 						{
-							tec.postChisel( vb );
+							tec.completeEditOperation( vb );
 							returnVal++;
 						}
 						else if ( extracted != null )
 						{
-							tec.postChisel( vb );
+							tec.completeEditOperation( vb );
 							returnVal++;
 						}
 

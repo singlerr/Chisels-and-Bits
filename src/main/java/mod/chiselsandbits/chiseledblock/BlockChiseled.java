@@ -11,10 +11,11 @@ import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedBlockStateID;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedVoxelBlob;
 import mod.chiselsandbits.chiseledblock.properties.UnlistedVoxelNeighborState;
+import mod.chiselsandbits.client.CreativeClipboardTab;
+import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
-import mod.chiselsandbits.creative.CreativeClipboardTab;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -117,6 +118,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			{
 				final TileEntityBlockChiseled tebc = getTileEntity( world, pos );
 				CreativeClipboardTab.addItem( tebc.getItemStack( world.getBlockState( pos ).getBlock(), player ) );
+
+				UndoTracker.getInstance().add( world, pos, tebc.getBlobStateReference(), new VoxelBlobStateReference( 0, 0 ) );
 			}
 			catch ( final ExceptionNoTileEntity e )
 			{
@@ -369,7 +372,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final BlockPos pos,
 			final IBlockState state,
 			final int fortune )
-			{
+	{
 		try
 		{
 			return Collections.singletonList( getTileEntity( world, pos ).getItemStack( this, null ) );
@@ -379,7 +382,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			Log.noTileError( e );
 			return Collections.emptyList();
 		}
-			}
+	}
 
 	@Override
 	public void onBlockPlacedBy(

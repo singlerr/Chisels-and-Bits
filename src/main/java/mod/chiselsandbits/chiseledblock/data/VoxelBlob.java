@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,19 @@ public final class VoxelBlob
 	public VoxelBlob()
 	{
 		// nothing specific here...
+	}
+
+	@Override
+	public boolean equals(
+			final Object obj )
+	{
+		if ( obj instanceof VoxelBlob )
+		{
+			final VoxelBlob a = (VoxelBlob) obj;
+			return Arrays.equals( a.values, values );
+		}
+
+		return false;
 	}
 
 	public static void clearCache()

@@ -1,8 +1,8 @@
 package mod.chiselsandbits.registry;
 
+import mod.chiselsandbits.client.CreativeClipboardTab;
+import mod.chiselsandbits.client.ModCreativeTab;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.creative.CreativeClipboardTab;
-import mod.chiselsandbits.creative.ModCreativeTab;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;

@@ -102,6 +102,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Settings" )
 	public boolean persistCreativeClipboard;
 
+	@Configured( category = "Client Settings" )
+	public int maxUndoLevel;
+
 	@Configured( category = "Client Preformance Settings" )
 	public int dynamicModelFaceCount;
 
@@ -242,6 +245,7 @@ public class ModConfig extends Configuration
 		compatabilityMode = true;
 		maxDrawnRegionSize = 4;
 		bagStackSize = 512;
+		maxUndoLevel = 32;
 
 		// Dynamic models..
 		dynamicModelFaceCount = 40;

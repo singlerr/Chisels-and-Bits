@@ -1,4 +1,4 @@
-package mod.chiselsandbits.gui;
+package mod.chiselsandbits.client.gui;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;

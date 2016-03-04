@@ -154,7 +154,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	}
 
 	@Override
-	public void postChisel(
+	public void completeEditOperation(
 			final VoxelBlob vb )
 	{
 		setBlob( vb );

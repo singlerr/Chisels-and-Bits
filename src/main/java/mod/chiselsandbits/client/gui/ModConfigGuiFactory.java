@@ -1,4 +1,4 @@
-package mod.chiselsandbits.gui;
+package mod.chiselsandbits.client.gui;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.client.FMLConfigGuiFactory;

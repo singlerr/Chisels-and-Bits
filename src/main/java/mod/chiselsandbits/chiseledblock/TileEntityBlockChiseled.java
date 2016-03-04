@@ -9,6 +9,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
+import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -625,10 +626,14 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return ( sideFlags & 1 << side.ordinal() ) != 0;
 	}
 
-	public void postChisel(
+	public void completeEditOperation(
 			final VoxelBlob vb )
 	{
+		final VoxelBlobStateReference before = getBlobStateReference();
 		setBlob( vb );
+		final VoxelBlobStateReference after = getBlobStateReference();
+
+		UndoTracker.getInstance().add( getWorld(), getPos(), before, after );
 	}
 
 	public void rotateBlock(

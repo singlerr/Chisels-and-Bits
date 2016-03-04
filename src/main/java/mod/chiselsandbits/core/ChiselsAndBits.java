@@ -5,6 +5,9 @@ import java.io.File;
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.client.CreativeClipboardTab;
+import mod.chiselsandbits.client.UndoTracker;
+import mod.chiselsandbits.client.gui.ModGuiRouter;
 import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.api.ChiselAndBitsAPI;
 import mod.chiselsandbits.core.api.IMCHandler;
@@ -12,10 +15,8 @@ import mod.chiselsandbits.crafting.ChiselCrafting;
 import mod.chiselsandbits.crafting.MirrorTransferCrafting;
 import mod.chiselsandbits.crafting.NegativeInversionCrafting;
 import mod.chiselsandbits.crafting.StackableCrafting;
-import mod.chiselsandbits.creative.CreativeClipboardTab;
 import mod.chiselsandbits.events.EventBreakSpeed;
 import mod.chiselsandbits.events.EventPlayerInteract;
-import mod.chiselsandbits.gui.ModGuiRouter;
 import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.registry.ModBlocks;
@@ -204,6 +205,7 @@ public class ChiselsAndBits
 			getItems().itemBlockBit.clearCache();
 		}
 
+		UndoTracker.getInstance().clear();
 		VoxelBlob.clearCache();
 	}
 

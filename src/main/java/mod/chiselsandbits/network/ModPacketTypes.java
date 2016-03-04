@@ -8,6 +8,7 @@ import mod.chiselsandbits.network.packets.PacketBagGuiStack;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.network.packets.PacketSetChiselMode;
+import mod.chiselsandbits.network.packets.PacketUndo;
 
 public enum ModPacketTypes
 {
@@ -16,7 +17,8 @@ public enum ModPacketTypes
 	SET_CHISEL_MODE( PacketSetChiselMode.class ),
 	ROTATE_VOXEL_BLOB( PacketRotateVoxelBlob.class ),
 	BAG_GUI( PacketBagGui.class ),
-	BAG_GUI_STACK( PacketBagGuiStack.class );
+	BAG_GUI_STACK( PacketBagGuiStack.class ),
+	UNDO( PacketUndo.class );
 
 	private final Class<? extends ModPacket> packetClass;
 

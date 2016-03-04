@@ -1,4 +1,4 @@
-package mod.chiselsandbits.creative;
+package mod.chiselsandbits.client;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -6,7 +6,6 @@ import java.util.List;
 
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.ItemType;
-import mod.chiselsandbits.config.ClipboardStorage;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.registry.ModItems;

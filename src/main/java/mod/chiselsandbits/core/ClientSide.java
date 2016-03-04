@@ -30,9 +30,10 @@ import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.client.UndoTracker;
+import mod.chiselsandbits.client.gui.ChiselsAndBitsMenu;
+import mod.chiselsandbits.client.gui.SpriteIconPositioning;
 import mod.chiselsandbits.commands.JsonModelExport;
-import mod.chiselsandbits.gui.ChiselsAndBitsMenu;
-import mod.chiselsandbits.gui.SpriteIconPositioning;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -56,7 +57,6 @@ import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemMeshDefinition;
-import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
@@ -111,6 +111,8 @@ public class ClientSide
 	private final HashMap<ChiselMode, SpriteIconPositioning> chiselModeIcons = new HashMap<ChiselMode, SpriteIconPositioning>();
 	private KeyBinding rotateCCW;
 	private KeyBinding rotateCW;
+	private KeyBinding undo;
+	private KeyBinding redo;
 	private KeyBinding modeMenu;
 	private KeyBinding pickBit;
 	private Stopwatch rotateTimer;
@@ -119,6 +121,8 @@ public class ClientSide
 			final ChiselsAndBits mod )
 	{
 		ChiselsAndBits.registerWithBus( new SmartModelManager() );
+
+		registerModels();
 	}
 
 	public void init(
@@ -146,6 +150,12 @@ public class ClientSide
 		pickBit = new KeyBinding( "mod.chiselsandbits.other.pickbit", 0, "itemGroup.chiselsandbits" );
 		ClientRegistry.registerKeyBinding( pickBit );
 
+		undo = new KeyBinding( "mod.chiselsandbits.other.undo", 0, "itemGroup.chiselsandbits" );
+		ClientRegistry.registerKeyBinding( undo );
+
+		redo = new KeyBinding( "mod.chiselsandbits.other.redo", 0, "itemGroup.chiselsandbits" );
+		ClientRegistry.registerKeyBinding( redo );
+
 		ChiselsAndBits.registerWithBus( instance );
 
 		ClientCommandHandler.instance.registerCommand( new JsonModelExport() );
@@ -154,23 +164,26 @@ public class ClientSide
 	public void postinit(
 			final ChiselsAndBits mod )
 	{
-		final ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
 
+	}
+
+	public void registerModels()
+	{
 		final String modId = ChiselsAndBits.MODID;
 
 		final ModItems modItems = ChiselsAndBits.getItems();
 
-		registerMesh( mesher, modItems.itemChiselStone, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_stone" ), "inventory" ) );
-		registerMesh( mesher, modItems.itemChiselIron, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_iron" ), "inventory" ) );
-		registerMesh( mesher, modItems.itemChiselGold, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_gold" ), "inventory" ) );
-		registerMesh( mesher, modItems.itemChiselDiamond, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_diamond" ), "inventory" ) );
-		registerMesh( mesher, modItems.itemBitBag, 0, new ModelResourceLocation( new ResourceLocation( modId, "bit_bag" ), "inventory" ) );
-		registerMesh( mesher, modItems.itemWrench, 0, new ModelResourceLocation( new ResourceLocation( modId, "wrench_wood" ), "inventory" ) );
+		registerMesh( modItems.itemChiselStone, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_stone" ), "inventory" ) );
+		registerMesh( modItems.itemChiselIron, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_iron" ), "inventory" ) );
+		registerMesh( modItems.itemChiselGold, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_gold" ), "inventory" ) );
+		registerMesh( modItems.itemChiselDiamond, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_diamond" ), "inventory" ) );
+		registerMesh( modItems.itemBitBag, 0, new ModelResourceLocation( new ResourceLocation( modId, "bit_bag" ), "inventory" ) );
+		registerMesh( modItems.itemWrench, 0, new ModelResourceLocation( new ResourceLocation( modId, "wrench_wood" ), "inventory" ) );
 
 		if ( modItems.itemPositiveprint != null )
 		{
 			ModelBakery.registerItemVariants( modItems.itemPositiveprint, new ResourceLocation( modId, "positiveprint" ), new ResourceLocation( modId, "positiveprint_written" ) );
-			mesher.register( modItems.itemPositiveprint, new ItemMeshDefinition() {
+			ModelLoader.setCustomMeshDefinition( modItems.itemPositiveprint, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
@@ -185,7 +198,7 @@ public class ClientSide
 		if ( modItems.itemNegativeprint != null )
 		{
 			ModelBakery.registerItemVariants( modItems.itemNegativeprint, new ResourceLocation( modId, "negativeprint" ), new ResourceLocation( modId, "negativeprint_written" ) );
-			mesher.register( modItems.itemNegativeprint, new ItemMeshDefinition() {
+			ModelLoader.setCustomMeshDefinition( modItems.itemNegativeprint, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
@@ -200,7 +213,7 @@ public class ClientSide
 		if ( modItems.itemMirrorprint != null )
 		{
 			ModelBakery.registerItemVariants( modItems.itemMirrorprint, new ResourceLocation( modId, "mirrorprint" ), new ResourceLocation( modId, "mirrorprint_written" ) );
-			mesher.register( modItems.itemMirrorprint, new ItemMeshDefinition() {
+			ModelLoader.setCustomMeshDefinition( modItems.itemMirrorprint, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
@@ -214,7 +227,7 @@ public class ClientSide
 
 		if ( modItems.itemBlockBit != null )
 		{
-			mesher.register( modItems.itemBlockBit, new ItemMeshDefinition() {
+			ModelLoader.setCustomMeshDefinition( modItems.itemBlockBit, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
@@ -229,28 +242,27 @@ public class ClientSide
 		for ( final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
 		{
 			final Item item = Item.getItemFromBlock( blk );
-			mesher.register( item, 0, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "inventory" ) );
+			registerMesh( item, 0, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "inventory" ) );
 		}
 
 		final BlockBitTank bitTank = ChiselsAndBits.getBlocks().blockBitTank;
 		final Item bitTankItem = Item.getItemFromBlock( bitTank );
 		final ModelResourceLocation bittank_item = new ModelResourceLocation( new ResourceLocation( modId, "bittank" ), "inventory" );
 
-		mesher.register( bitTankItem, 0, bittank_item );
+		registerMesh( bitTankItem, 0, bittank_item );
 		ModelLoader.setCustomStateMapper( bitTank, new StateMap.Builder().withName( BlockBitTank.FACING ).build() );
 
 		ChiselsAndBits.getConfig().allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
 	}
 
 	private void registerMesh(
-			final ItemModelMesher mesher,
 			final Item item,
-			final int i,
+			final int meta,
 			final ModelResourceLocation loctaion )
 	{
 		if ( item != null )
 		{
-			mesher.register( item, i, loctaion );
+			ModelLoader.setCustomModelResourceLocation( item, meta, loctaion );
 		}
 	}
 
@@ -371,6 +383,16 @@ public class ClientSide
 					ChiselsAndBitsMenu.instance.mc.setIngameFocus();
 				}
 			}
+		}
+
+		if ( undo.isPressed() )
+		{
+			UndoTracker.getInstance().undo();
+		}
+
+		if ( redo.isPressed() )
+		{
+			UndoTracker.getInstance().redo();
 		}
 
 		if ( pickBit.isPressed() )

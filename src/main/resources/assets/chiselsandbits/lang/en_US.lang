@@ -47,9 +47,17 @@ mod.chiselsandbits.chiselmode.cube_medium=Medium Cube
 mod.chiselsandbits.chiselmode.cube_large=Large Cube
 mod.chiselsandbits.chiselmode.drawn_region=Drawn Region
 
+mod.chiselsandbits.result.out_of_range=Not close enough
+mod.chiselsandbits.result.has_changed=Block has changed
+mod.chiselsandbits.result.missing_bits=Not enough bits or chisel durability!
+mod.chiselsandbits.result.nothing_to_undo=Nothing to Undo
+mod.chiselsandbits.result.nothing_to_redo=Nothing to Redo
+
 mod.chiselsandbits.other.rotate.ccw=Rotate Held Counter Clockwise
 mod.chiselsandbits.other.rotate.cw=Rotate Held Clockwise
 mod.chiselsandbits.other.mode=Radial Menu
+mod.chiselsandbits.other.undo=Undo
+mod.chiselsandbits.other.redo=Redo
 mod.chiselsandbits.other.pickbit=Pick Bit
 
 mod.chiselsandbits.help.shiftdetails=<Hold Shift For Details>
@@ -77,6 +85,7 @@ mod.chiselsandbits.help.chisel.long=Left click any compatible block to chisel. R
 mod.chiselsandbits.help.leftalt=Left Alt
 mod.chiselsandbits.help.rightalt=Right Alt
 
+mod.chiselsandbits.config.maxUndoLevel=Max Undo Level
 mod.chiselsandbits.config.persistCreativeClipboard=Save/Load Creative Clipboard Contents
 mod.chiselsandbits.config.fluidBitsAreClickThough=Click though Fluid Bits.
 mod.chiselsandbits.config.addBrokenBlocksToCreativeClipboard=Add Broken Blocks to Creative clipboard

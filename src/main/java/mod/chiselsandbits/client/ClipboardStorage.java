@@ -1,4 +1,4 @@
-package mod.chiselsandbits.config;
+package mod.chiselsandbits.client;
 
 import io.netty.buffer.Unpooled;
 

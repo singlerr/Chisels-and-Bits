@@ -1,4 +1,4 @@
-package mod.chiselsandbits.creative;
+package mod.chiselsandbits.client;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
