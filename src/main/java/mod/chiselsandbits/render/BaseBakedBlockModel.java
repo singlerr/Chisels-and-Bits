@@ -34,7 +34,6 @@ public abstract class BaseBakedBlockModel implements IFlexibleBakedModel, IPersp
 		final TRSRTransformation transform = new TRSRTransformation( translation, rotation, scale, null );
 		thirdPerson = transform.getMatrix();
 
-		// yerp.
 		identity = new Matrix4f();
 		identity.setIdentity();
 	}
@@ -42,7 +41,7 @@ public abstract class BaseBakedBlockModel implements IFlexibleBakedModel, IPersp
 	@Override
 	public Pair<? extends IFlexibleBakedModel, Matrix4f> handlePerspective(
 			final TransformType cameraTransformType )
-	{
+			{
 		switch ( cameraTransformType )
 		{
 			case THIRD_PERSON:
@@ -51,7 +50,7 @@ public abstract class BaseBakedBlockModel implements IFlexibleBakedModel, IPersp
 				return new ImmutablePair<IFlexibleBakedModel, Matrix4f>( this, identity );
 		}
 
-	}
+			}
 
 	@Override
 	final public boolean isAmbientOcclusion()

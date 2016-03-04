@@ -124,10 +124,10 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			if ( mode == ChiselMode.DRAWN_REGION )
 			{
 				final Pair<Vec3, Vec3> PlayerRay = ModUtil.getPlayerRay( player );
-				final Vec3 a = PlayerRay.getLeft();
-				final Vec3 b = PlayerRay.getRight();
+				final Vec3 ray_from = PlayerRay.getLeft();
+				final Vec3 ray_to = PlayerRay.getRight();
 
-				final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, a, b );
+				final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, ray_from, ray_to );
 				if ( mop != null && mop.typeOfHit == MovingObjectType.BLOCK )
 				{
 					final BitLocation loc = new BitLocation( mop, true, ChiselToolType.CHISEL );
@@ -144,10 +144,10 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			}
 
 			final Pair<Vec3, Vec3> PlayerRay = ModUtil.getPlayerRay( player );
-			final Vec3 a = PlayerRay.getLeft();
-			final Vec3 b = PlayerRay.getRight();
+			final Vec3 ray_from = PlayerRay.getLeft();
+			final Vec3 ray_to = PlayerRay.getRight();
 
-			final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, a, b );
+			final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, ray_from, ray_to );
 			if ( mop != null && mop.typeOfHit == MovingObjectType.BLOCK )
 			{
 				useChisel( mode, player, player.worldObj, pos, mop.sideHit, (float) ( mop.hitVec.xCoord - pos.getX() ), (float) ( mop.hitVec.yCoord - pos.getY() ), (float) ( mop.hitVec.zCoord - pos.getZ() ) );

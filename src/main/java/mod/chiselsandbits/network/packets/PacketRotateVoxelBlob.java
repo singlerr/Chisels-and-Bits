@@ -9,7 +9,7 @@ import net.minecraft.network.PacketBuffer;
 public class PacketRotateVoxelBlob extends ModPacket
 {
 
-	public int wheel;
+	public int rotationDirection;
 
 	@Override
 	public void server(
@@ -18,7 +18,7 @@ public class PacketRotateVoxelBlob extends ModPacket
 		final ItemStack is = player.getCurrentEquippedItem();
 		if ( is != null && is.getItem() instanceof IVoxelBlobItem )
 		{
-			( (IVoxelBlobItem) is.getItem() ).rotate( is, wheel );
+			( (IVoxelBlobItem) is.getItem() ).rotate( is, rotationDirection );
 		}
 	}
 
@@ -26,14 +26,14 @@ public class PacketRotateVoxelBlob extends ModPacket
 	public void getPayload(
 			final PacketBuffer buffer )
 	{
-		buffer.writeInt( wheel );
+		buffer.writeInt( rotationDirection );
 	}
 
 	@Override
 	public void readPayload(
 			final PacketBuffer buffer )
 	{
-		wheel = buffer.readInt();
+		rotationDirection = buffer.readInt();
 	}
 
 }

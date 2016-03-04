@@ -160,7 +160,7 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 	}
 
 	@Override
-	public void addFiler(
+	public void populateBlobWithUsedSpace(
 			final World w,
 			final BlockPos pos,
 			final VoxelBlob vb )

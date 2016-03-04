@@ -28,10 +28,10 @@ public interface IMCMultiPart
 			World w,
 			BlockPos pos );
 
-	void addFiler(
+	void populateBlobWithUsedSpace(
 			World w,
 			BlockPos pos,
-			VoxelBlob vb );
+			VoxelBlob blob );
 
 	boolean rotate(
 			World world,

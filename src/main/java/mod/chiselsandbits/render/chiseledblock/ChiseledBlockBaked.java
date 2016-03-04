@@ -295,7 +295,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 									break;
 
 								case COLOR:
-									final int cb = getShadeColor( region.face, 1.0f, pc.color );
+									final int cb = getShadeColor( region.face, pc.color );
 									faceBuilder.put( elementIndex, byteToFloat( cb ), byteToFloat( cb >> 8 ), byteToFloat( cb >> 16 ), byteToFloat( cb >> 24 ) );
 									break;
 
@@ -586,16 +586,15 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	// merge face brightness with custom multiplier
 	private int getShadeColor(
 			final EnumFacing face,
-			final float f,
 			final int color )
 	{
-		final int i = MathHelper.clamp_int( (int) ( ( format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT ? getFaceBrightness( face ) * f : f ) * 255.0F ), 0, 255 );
+		final int intensity = MathHelper.clamp_int( (int) ( ( format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT ? getFaceBrightness( face ) : 1.0f ) * 255.0F ), 0, 255 );
 
-		final int r = ( color >> 16 & 0xff ) * i / 255;
-		final int g = ( color >> 8 & 0xff ) * i / 255;
-		final int b = ( color & 0xff ) * i / 255;
+		final int r = ( color >> 16 & 0xff ) * intensity / 255;
+		final int g = ( color >> 8 & 0xff ) * intensity / 255;
+		final int b = ( color & 0xff ) * intensity / 255;
 
-		return -16777216 | b << 16 | g << 8 | r;
+		return 0xFF000000 | b << 16 | g << 8 | r;
 	}
 
 	// based on MC's FaceBakery...

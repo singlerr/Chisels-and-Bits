@@ -32,6 +32,8 @@ import net.minecraft.world.World;
 public class ModUtil
 {
 
+	private final static float DEG_TO_RAD = 0.017453292f;
+
 	static public EnumFacing getPlaceFace(
 			final EntityLivingBase placer )
 	{
@@ -50,11 +52,11 @@ public class ModUtil
 		final float playerPitch = playerIn.prevRotationPitch + ( playerIn.rotationPitch - playerIn.prevRotationPitch );
 		final float playerYaw = playerIn.prevRotationYaw + ( playerIn.rotationYaw - playerIn.prevRotationYaw );
 
-		final float yawRayX = MathHelper.sin( -playerYaw * 0.017453292f - (float) Math.PI );
-		final float yawRayZ = MathHelper.cos( -playerYaw * 0.017453292f - (float) Math.PI );
+		final float yawRayX = MathHelper.sin( -playerYaw * DEG_TO_RAD - (float) Math.PI );
+		final float yawRayZ = MathHelper.cos( -playerYaw * DEG_TO_RAD - (float) Math.PI );
 
-		final float pitchMultiplier = -MathHelper.cos( -playerPitch * 0.017453292F );
-		final float eyeRayY = MathHelper.sin( -playerPitch * 0.017453292F );
+		final float pitchMultiplier = -MathHelper.cos( -playerPitch * DEG_TO_RAD );
+		final float eyeRayY = MathHelper.sin( -playerPitch * DEG_TO_RAD );
 		final float eyeRayX = yawRayX * pitchMultiplier;
 		final float eyeRayZ = yawRayZ * pitchMultiplier;
 
@@ -67,7 +69,7 @@ public class ModUtil
 		final Vec3 to = from.addVector( eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance );
 
 		return Pair.of( from, to );
-			}
+	}
 
 	static public class ItemStackSlot
 	{
@@ -82,13 +84,13 @@ public class ModUtil
 				final int s,
 				final ItemStack st,
 				final ActingPlayer player )
-				{
+		{
 			inv = i;
 			slot = s;
 			stack = st;
 			toolSlot = player.getCurrentItem();
 			isCreative = player.isCreative();
-				}
+		}
 
 		public boolean isValid()
 		{
@@ -391,7 +393,7 @@ public class ModUtil
 
 	public static List<BagInventory> getBags(
 			final ActingPlayer player )
-			{
+	{
 		if ( player.isCreative() )
 		{
 			return java.util.Collections.emptyList();
@@ -410,7 +412,7 @@ public class ModUtil
 		}
 
 		return bags;
-			}
+	}
 
 	public static boolean consumeBagBit(
 			final List<BagInventory> bags,

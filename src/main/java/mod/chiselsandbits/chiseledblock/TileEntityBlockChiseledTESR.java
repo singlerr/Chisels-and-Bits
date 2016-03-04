@@ -56,14 +56,14 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 
 	private TileRenderChunk findRenderChunk()
 	{
-		int cp_x = getPos().getX();
-		int cp_y = getPos().getY();
-		int cp_z = getPos().getZ();
+		int chunkPosX = getPos().getX();
+		int chunkPosY = getPos().getY();
+		int chunkPosZ = getPos().getZ();
 
 		final int mask = ~0xf;
-		cp_x = cp_x & mask;
-		cp_y = cp_y & mask;
-		cp_z = cp_z & mask;
+		chunkPosX = chunkPosX & mask;
+		chunkPosY = chunkPosY & mask;
+		chunkPosZ = chunkPosZ & mask;
 
 		for ( int x = 0; x < 16; ++x )
 		{
@@ -71,7 +71,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			{
 				for ( int z = 0; z < 16; ++z )
 				{
-					final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( worldObj, new BlockPos( cp_x + x, cp_y + y, cp_z + z ), false );
+					final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( worldObj, new BlockPos( chunkPosX + x, chunkPosY + y, chunkPosZ + z ), false );
 					if ( te instanceof TileEntityBlockChiseledTESR )
 					{
 						final TileRenderChunk trc = ( (TileEntityBlockChiseledTESR) te ).renderChunk;

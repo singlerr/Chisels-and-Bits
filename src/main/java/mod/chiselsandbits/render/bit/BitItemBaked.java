@@ -1,63 +1,52 @@
 package mod.chiselsandbits.render.bit;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import org.lwjgl.util.vector.Vector3f;
 
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer;
 import mod.chiselsandbits.render.helpers.ModelUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
 import net.minecraft.client.renderer.block.model.BlockPartFace;
 import net.minecraft.client.renderer.block.model.BlockPartRotation;
 import net.minecraft.client.renderer.block.model.FaceBakery;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 
+import org.lwjgl.util.vector.Vector3f;
+
 public class BitItemBaked extends BaseBakedBlockModel
 {
-	VertexFormat frm;
-	IBakedModel originalModel;
+	public static final float PIXELS_PER_BLOCK = 16.0f;
 
-	List<BakedQuad> generic;
+	private static final float BIT_BEGIN = 6.0f;
+	private static final float BIT_END = 10.0f;
 
-	public static final float pixelsPerBlock = 16.0f;
+	final List<BakedQuad> generic;
 
 	public BitItemBaked(
-			final int BlockRef )
+			final int blockRef )
 	{
 		final FaceBakery faceBakery = new FaceBakery();
-		final IBlockState state = Block.getStateById( BlockRef );
+		final BakedQuad[] faces = new BakedQuad[6];
 
-		if ( state != null )
-		{
-			originalModel = ModelUtil.solveModel( BlockRef, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
-		}
-
-		generic = new ArrayList<BakedQuad>();
-
-		final Vector3f to = new Vector3f( 6.0f, 6.0f, 6.0f );
-		final Vector3f from = new Vector3f( 10.0f, 10.0f, 10.0f );
+		final Vector3f to = new Vector3f( BIT_BEGIN, BIT_BEGIN, BIT_BEGIN );
+		final Vector3f from = new Vector3f( BIT_END, BIT_END, BIT_END );
 
 		final BlockPartRotation bpr = null;
 		final ModelRotation mr = ModelRotation.X0_Y0;
 
+		int offset = 0;
 		for ( final EnumFacing myFace : EnumFacing.VALUES )
 		{
 			for ( final EnumWorldBlockLayer layer : EnumWorldBlockLayer.values() )
 			{
-				final ModelQuadLayer[] layers = ModelUtil.getCachedFace( BlockRef, 0, myFace, layer );
+				final ModelQuadLayer[] layers = ModelUtil.getCachedFace( blockRef, 0, myFace, layer );
 
 				if ( layers == null || layers.length == 0 )
 				{
@@ -101,11 +90,12 @@ public class BitItemBaked extends BaseBakedBlockModel
 							throw new NullPointerException();
 					}
 
-					generic.add( faceBakery.makeBakedQuad( toB, fromB, bpf, clayer.sprite, myFace, mr, bpr, false, true ) );
+					faces[offset++] = faceBakery.makeBakedQuad( toB, fromB, bpf, clayer.sprite, myFace, mr, bpr, false, true );
 				}
 			}
 		}
 
+		generic = Arrays.asList( faces );
 	}
 
 	private float[] getFaceUvs(
@@ -129,11 +119,11 @@ public class BitItemBaked extends BaseBakedBlockModel
 				break;
 			case NORTH:
 			case SOUTH:
-				afloat = new float[] { from_x, pixelsPerBlock - to_y, to_x, pixelsPerBlock - from_y };
+				afloat = new float[] { from_x, PIXELS_PER_BLOCK - to_y, to_x, PIXELS_PER_BLOCK - from_y };
 				break;
 			case WEST:
 			case EAST:
-				afloat = new float[] { from_z, pixelsPerBlock - to_y, to_z, pixelsPerBlock - from_y };
+				afloat = new float[] { from_z, PIXELS_PER_BLOCK - to_y, to_z, PIXELS_PER_BLOCK - from_y };
 				break;
 			default:
 				throw new NullPointerException();
@@ -144,7 +134,7 @@ public class BitItemBaked extends BaseBakedBlockModel
 
 	@Override
 	public List<BakedQuad> getFaceQuads(
-			final EnumFacing p_177551_1_ )
+			final EnumFacing side )
 	{
 		return Collections.emptyList();
 	}
@@ -158,7 +148,7 @@ public class BitItemBaked extends BaseBakedBlockModel
 	@Override
 	public TextureAtlasSprite getParticleTexture()
 	{
-		return originalModel == null ? ClientSide.instance.getMissingIcon() : originalModel.getParticleTexture();
+		return ClientSide.instance.getMissingIcon();
 	}
 
 }

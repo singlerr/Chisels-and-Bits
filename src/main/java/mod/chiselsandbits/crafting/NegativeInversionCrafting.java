@@ -93,9 +93,9 @@ public class NegativeInversionCrafting implements IRecipe
 
 	@Override
 	public ItemStack getCraftingResult(
-			final InventoryCrafting inv )
+			final InventoryCrafting craftingInv )
 	{
-		return analzyeCraftingInventory( inv, false );
+		return analzyeCraftingInventory( craftingInv, false );
 	}
 
 	@Override
@@ -112,13 +112,13 @@ public class NegativeInversionCrafting implements IRecipe
 
 	@Override
 	public ItemStack[] getRemainingItems(
-			final InventoryCrafting p_179532_1_ )
+			final InventoryCrafting craftingInv )
 	{
-		final ItemStack[] aitemstack = new ItemStack[p_179532_1_.getSizeInventory()];
+		final ItemStack[] aitemstack = new ItemStack[craftingInv.getSizeInventory()];
 
 		for ( int i = 0; i < aitemstack.length; ++i )
 		{
-			final ItemStack itemstack = p_179532_1_.getStackInSlot( i );
+			final ItemStack itemstack = craftingInv.getStackInSlot( i );
 			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.getItems().itemNegativeprint && itemstack.hasTagCompound() )
 			{
 				itemstack.stackSize++;

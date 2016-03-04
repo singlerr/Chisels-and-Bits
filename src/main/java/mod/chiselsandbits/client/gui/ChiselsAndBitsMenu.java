@@ -21,9 +21,9 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 public class ChiselsAndBitsMenu extends GuiScreen
 {
 
+	private final float TIME_SCALE = 0.01f;
 	public static final ChiselsAndBitsMenu instance = new ChiselsAndBitsMenu();
 
-	private final float TIME_SCALE = 0.01f;
 	private float visibility = 0.0f;
 	private Stopwatch lastChange = Stopwatch.createStarted();
 	public ChiselMode switchTo = null;
@@ -94,22 +94,21 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		GlStateManager.disableTexture2D();
 		GlStateManager.enableBlend();
 		GlStateManager.disableAlpha();
-		GlStateManager.tryBlendFuncSeparate( 770, 771, 1, 0 );
-		GlStateManager.shadeModel( 7425 );
+		GlStateManager.tryBlendFuncSeparate( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0 );
+		GlStateManager.shadeModel( GL11.GL_SMOOTH );
 		final Tessellator tessellator = Tessellator.getInstance();
-		final WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+		final WorldRenderer renderBuffer = tessellator.getWorldRenderer();
 
-		worldrenderer.begin( GL11.GL_QUADS,
-				DefaultVertexFormats.POSITION_COLOR );
+		renderBuffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
 
 		final double vecX = mouseX - width / 2;
 		final double vecY = mouseY - height / 2;
 		double radians = Math.atan2( vecY, vecX );
 		final double length = Math.sqrt( vecX * vecX + vecY * vecY );
 
-		final double m1 = 20;
-		final double m2 = 50;
-		final double m3 = 65;
+		final double ring_inner_edge = 20;
+		final double ring_outer_edge = 50;
+		final double text_distnace = 65;
 		final double quarterCircle = Math.PI / 2.0;
 
 		if ( radians < -quarterCircle )
@@ -151,43 +150,43 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			final double fragment2 = Math.PI * 0.0025;
 			final double perObject = 2.0 * Math.PI / totalModes;
 
-			for ( final MenuRegion mr : modes )
+			for ( final MenuRegion mnuRgn : modes )
 			{
 				final double begin_rad = currentMode * perObject - quarterCircle;
 				final double end_rad = ( currentMode + 1 ) * perObject - quarterCircle;
 
-				mr.x1 = Math.cos( begin_rad );
-				mr.x2 = Math.cos( end_rad );
-				mr.y1 = Math.sin( begin_rad );
-				mr.y2 = Math.sin( end_rad );
+				mnuRgn.x1 = Math.cos( begin_rad );
+				mnuRgn.x2 = Math.cos( end_rad );
+				mnuRgn.y1 = Math.sin( begin_rad );
+				mnuRgn.y2 = Math.sin( end_rad );
 
-				final double x1m1 = Math.cos( begin_rad + fragment ) * m1;
-				final double x2m1 = Math.cos( end_rad - fragment ) * m1;
-				final double y1m1 = Math.sin( begin_rad + fragment ) * m1;
-				final double y2m1 = Math.sin( end_rad - fragment ) * m1;
+				final double x1m1 = Math.cos( begin_rad + fragment ) * ring_inner_edge;
+				final double x2m1 = Math.cos( end_rad - fragment ) * ring_inner_edge;
+				final double y1m1 = Math.sin( begin_rad + fragment ) * ring_inner_edge;
+				final double y2m1 = Math.sin( end_rad - fragment ) * ring_inner_edge;
 
-				final double x1m2 = Math.cos( begin_rad + fragment2 ) * m2;
-				final double x2m2 = Math.cos( end_rad - fragment2 ) * m2;
-				final double y1m2 = Math.sin( begin_rad + fragment2 ) * m2;
-				final double y2m2 = Math.sin( end_rad - fragment2 ) * m2;
+				final double x1m2 = Math.cos( begin_rad + fragment2 ) * ring_outer_edge;
+				final double x2m2 = Math.cos( end_rad - fragment2 ) * ring_outer_edge;
+				final double y1m2 = Math.sin( begin_rad + fragment2 ) * ring_outer_edge;
+				final double y2m2 = Math.sin( end_rad - fragment2 ) * ring_outer_edge;
 
 				final float a = 0.5f;
 				float f = 0f;
 
-				if ( begin_rad <= radians && radians <= end_rad && m1 < length && length <= m2 )
+				if ( begin_rad <= radians && radians <= end_rad && ring_inner_edge < length && length <= ring_outer_edge )
 				{
 					f = 1;
-					mr.highlighted = true;
-					switchTo = mr.mode;
+					mnuRgn.highlighted = true;
+					switchTo = mnuRgn.mode;
 				}
 
-				worldrenderer.pos( middle_x + x1m1, middle_y + y1m1,
+				renderBuffer.pos( middle_x + x1m1, middle_y + y1m1,
 						zLevel ).color( f, f, f, a ).endVertex();
-				worldrenderer.pos( middle_x + x2m1, middle_y + y2m1,
+				renderBuffer.pos( middle_x + x2m1, middle_y + y2m1,
 						zLevel ).color( f, f, f, a ).endVertex();
-				worldrenderer.pos( middle_x + x2m2, middle_y + y2m2,
+				renderBuffer.pos( middle_x + x2m2, middle_y + y2m2,
 						zLevel ).color( f, f, f, a ).endVertex();
-				worldrenderer.pos( middle_x + x1m2, middle_y + y1m2,
+				renderBuffer.pos( middle_x + x1m2, middle_y + y1m2,
 						zLevel ).color( f, f, f, a ).endVertex();
 
 				currentMode++;
@@ -196,7 +195,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 
 		tessellator.draw();
 
-		GlStateManager.shadeModel( 7424 );
+		GlStateManager.shadeModel( GL11.GL_FLAT );
 
 		GlStateManager.translate( 0.0F, 0.0F, 5.0F );
 		GlStateManager.enableTexture2D();
@@ -205,11 +204,11 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		GlStateManager.enableAlpha();
 		GlStateManager.bindTexture( Minecraft.getMinecraft().getTextureMapBlocks().getGlTextureId() );
 
-		worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR );
+		renderBuffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR );
 		for ( final MenuRegion mr : modes )
 		{
-			final double x = ( mr.x1 + mr.x2 ) * 0.5 * ( m2 * 0.6 + 0.4 * m1 );
-			final double y = ( mr.y1 + mr.y2 ) * 0.5 * ( m2 * 0.6 + 0.4 * m1 );
+			final double x = ( mr.x1 + mr.x2 ) * 0.5 * ( ring_outer_edge * 0.6 + 0.4 * ring_inner_edge );
+			final double y = ( mr.y1 + mr.y2 ) * 0.5 * ( ring_outer_edge * 0.6 + 0.4 * ring_inner_edge );
 
 			final SpriteIconPositioning sip = ClientSide.instance.getIconForMode( mr.mode );
 
@@ -230,10 +229,10 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			final double v1 = sip.top * 16.0;
 			final double v2 = ( sip.top + sip.height ) * 16.0;
 
-			worldrenderer.pos( middle_x + x1, middle_y + y1, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
-			worldrenderer.pos( middle_x + x1, middle_y + y2, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
-			worldrenderer.pos( middle_x + x2, middle_y + y2, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
-			worldrenderer.pos( middle_x + x2, middle_y + y1, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
+			renderBuffer.pos( middle_x + x1, middle_y + y1, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
+			renderBuffer.pos( middle_x + x1, middle_y + y2, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
+			renderBuffer.pos( middle_x + x2, middle_y + y2, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
+			renderBuffer.pos( middle_x + x2, middle_y + y1, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
 		}
 
 		tessellator.draw();
@@ -245,8 +244,8 @@ public class ChiselsAndBitsMenu extends GuiScreen
 				final double x = ( mr.x1 + mr.x2 ) * 0.5;
 				final double y = ( mr.y1 + mr.y2 ) * 0.5;
 
-				int fixed_x = (int) ( x * m3 );
-				final int fixed_y = (int) ( y * m3 );
+				int fixed_x = (int) ( x * text_distnace );
+				final int fixed_y = (int) ( y * text_distnace );
 				final String text = mr.mode.string.getLocal();
 
 				if ( x <= -0.2 )

@@ -438,14 +438,14 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final int dwheel )
 	{
 		final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-		p.wheel = dwheel;
+		p.rotationDirection = dwheel;
 		NetworkRouter.instance.sendToServer( p );
 	}
 
 	@Override
 	public void rotate(
 			final ItemStack stack,
-			final int wheel )
+			final int rotationDirection )
 	{
 		final NBTTagCompound blueprintTag = stack.getTagCompound();
 		EnumFacing side = EnumFacing.VALUES[blueprintTag.getByte( "side" )];
@@ -455,7 +455,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			side = EnumFacing.NORTH;
 		}
 
-		side = wheel > 0 ? side.rotateY() : side.rotateYCCW();
+		side = rotationDirection > 0 ? side.rotateY() : side.rotateYCCW();
 		blueprintTag.setInteger( "side", +side.ordinal() );
 	}
 

@@ -544,7 +544,7 @@ public class ClientSide
 			{
 				rotateTimer = Stopwatch.createStarted();
 				final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-				p.wheel = 1;
+				p.rotationDirection = 1;
 				NetworkRouter.instance.sendToServer( p );
 			}
 		}
@@ -555,7 +555,7 @@ public class ClientSide
 			{
 				rotateTimer = Stopwatch.createStarted();
 				final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-				p.wheel = -1;
+				p.rotationDirection = -1;
 				NetworkRouter.instance.sendToServer( p );
 			}
 		}
@@ -750,7 +750,7 @@ public class ClientSide
 			final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
 
 			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate( 770, 771, 1, 0 );
+			GlStateManager.tryBlendFuncSeparate( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0 );
 			GlStateManager.color( 0.0F, 0.0F, 0.0F, 0.4F );
 			GL11.glLineWidth( 2.0F );
 			GlStateManager.disableTexture2D();

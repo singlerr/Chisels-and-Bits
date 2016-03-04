@@ -52,7 +52,7 @@ public class MCMultipartProxy extends IntegrationBase
 		}
 
 		@Override
-		public void addFiler(
+		public void populateBlobWithUsedSpace(
 				final World w,
 				final BlockPos pos,
 				final VoxelBlob vb )
@@ -118,7 +118,7 @@ public class MCMultipartProxy extends IntegrationBase
 			final BlockPos pos,
 			final VoxelBlob vb )
 	{
-		relay.addFiler( w, pos, vb );
+		relay.populateBlobWithUsedSpace( w, pos, vb );
 	}
 
 	public boolean rotate(

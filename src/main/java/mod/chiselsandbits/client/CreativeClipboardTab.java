@@ -94,9 +94,9 @@ public class CreativeClipboardTab extends CreativeTabs
 	@Override
 	@SideOnly( Side.CLIENT )
 	public void displayAllReleventItems(
-			final List<ItemStack> p_78018_1_ )
+			final List<ItemStack> itemList )
 	{
-		p_78018_1_.addAll( myItems );
+		itemList.addAll( myItems );
 	}
 
 }

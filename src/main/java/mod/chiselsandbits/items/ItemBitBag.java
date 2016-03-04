@@ -129,10 +129,10 @@ public class ItemBitBag extends Item
 	{
 		boolean modified = false;
 
-		final EntityItem ei = event.item;
-		if ( ei != null )
+		final EntityItem entityItem = event.item;
+		if ( entityItem != null )
 		{
-			final ItemStack is = ei.getEntityItem();
+			final ItemStack is = entityItem.getEntityItem();
 			if ( is != null && is.getItem() instanceof ItemChiseledBit )
 			{
 				final int originalSize = is.stackSize;
@@ -146,15 +146,15 @@ public class ItemBitBag extends Item
 				{
 					for ( final BagPos i : bags )
 					{
-						if ( !ei.isDead )
+						if ( !entityItem.isDead )
 						{
-							modified = updateEntity( event.entityPlayer, ei, i.inv.insertItem( ei.getEntityItem() ), originalSize ) || modified;
+							modified = updateEntity( event.entityPlayer, entityItem, i.inv.insertItem( entityItem.getEntityItem() ), originalSize ) || modified;
 						}
 					}
 				}
 				else
 				{
-					if ( is.stackSize > is.getMaxStackSize() && !ei.isDead )
+					if ( is.stackSize > is.getMaxStackSize() && !entityItem.isDead )
 					{
 						final ItemStack singleStack = is.copy();
 						singleStack.stackSize = singleStack.getMaxStackSize();
@@ -164,7 +164,7 @@ public class ItemBitBag extends Item
 							is.stackSize -= singleStack.getMaxStackSize() - is.stackSize;
 						}
 
-						modified = updateEntity( event.entityPlayer, ei, is, originalSize ) || modified;
+						modified = updateEntity( event.entityPlayer, entityItem, is, originalSize ) || modified;
 					}
 					else
 					{
@@ -174,9 +174,9 @@ public class ItemBitBag extends Item
 					for ( final BagPos i : bags )
 					{
 
-						if ( !ei.isDead )
+						if ( !entityItem.isDead )
 						{
-							modified = updateEntity( event.entityPlayer, ei, i.inv.insertItem( ei.getEntityItem() ), originalSize ) || modified;
+							modified = updateEntity( event.entityPlayer, entityItem, i.inv.insertItem( entityItem.getEntityItem() ), originalSize ) || modified;
 						}
 					}
 				}

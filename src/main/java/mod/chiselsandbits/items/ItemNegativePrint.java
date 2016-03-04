@@ -282,14 +282,14 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final int dwheel )
 	{
 		final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-		p.wheel = dwheel;
+		p.rotationDirection = dwheel;
 		NetworkRouter.instance.sendToServer( p );
 	}
 
 	@Override
 	public void rotate(
 			final ItemStack stack,
-			final int wheel )
+			final int rotationDirection )
 	{
 		final NBTTagCompound blueprintTag = stack.getTagCompound();
 		EnumFacing side = EnumFacing.VALUES[blueprintTag.getByte( "side" )];
@@ -299,7 +299,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			side = EnumFacing.NORTH;
 		}
 
-		side = wheel > 0 ? side.rotateY() : side.rotateYCCW();
+		side = rotationDirection > 0 ? side.rotateY() : side.rotateYCCW();
 		blueprintTag.setInteger( "side", +side.ordinal() );
 	}
 

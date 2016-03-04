@@ -20,7 +20,7 @@ public class BagGui extends GuiContainer
 {
 
 	private static final ResourceLocation BAG_GUI_TEXTURE = new ResourceLocation( ChiselsAndBits.MODID, "textures/gui/container/bitbag.png" );
-	private static int SLOT_SIZE = 16;
+	private static int INNER_SLOT_SIZE = 16;
 
 	private static GuiBagFontRenderer specialFontRenderer = null;
 
@@ -118,8 +118,8 @@ public class BagGui extends GuiContainer
 			final int mouseX,
 			final int mouseY )
 	{
-		fontRendererObj.drawString( ChiselsAndBits.getItems().itemBitBag.getItemStackDisplayName( null ), 8, 6, 4210752 );
-		fontRendererObj.drawString( I18n.format( "container.inventory", new Object[0] ), 8, ySize - 93, 4210752 );
+		fontRendererObj.drawString( ChiselsAndBits.getItems().itemBitBag.getItemStackDisplayName( null ), 8, 6, 0x404040 );
+		fontRendererObj.drawString( I18n.format( "container.inventory", new Object[0] ), 8, ySize - 93, 0x404040 );
 
 		RenderHelper.enableGUIStandardItemLighting();
 
@@ -128,9 +128,9 @@ public class BagGui extends GuiContainer
 			specialFontRenderer = new GuiBagFontRenderer( fontRendererObj, ChiselsAndBits.getConfig().bagStackSize );
 		}
 
-		for ( int i1 = 0; i1 < getBagContainer().customSlots.size(); ++i1 )
+		for ( int slotIdx = 0; slotIdx < getBagContainer().customSlots.size(); ++slotIdx )
 		{
-			final Slot slot = getBagContainer().customSlots.get( i1 );
+			final Slot slot = getBagContainer().customSlots.get( slotIdx );
 
 			final FontRenderer defaultFontRenderer = fontRendererObj;
 
@@ -153,7 +153,7 @@ public class BagGui extends GuiContainer
 				GlStateManager.disableLighting();
 				GlStateManager.disableDepth();
 				GlStateManager.colorMask( true, true, true, false );
-				drawGradientRect( xDisplayPos, yDisplayPos, xDisplayPos + SLOT_SIZE, yDisplayPos + SLOT_SIZE, 0x80FFFFFF, 0x80FFFFFF );
+				drawGradientRect( xDisplayPos, yDisplayPos, xDisplayPos + INNER_SLOT_SIZE, yDisplayPos + INNER_SLOT_SIZE, 0x80FFFFFF, 0x80FFFFFF );
 				GlStateManager.colorMask( true, true, true, true );
 				GlStateManager.enableLighting();
 				GlStateManager.enableDepth();

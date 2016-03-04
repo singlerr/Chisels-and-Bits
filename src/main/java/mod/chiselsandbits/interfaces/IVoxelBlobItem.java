@@ -7,6 +7,6 @@ public interface IVoxelBlobItem
 
 	void rotate(
 			ItemStack is,
-			int wheel );
+			int rotationDirection );
 
 }

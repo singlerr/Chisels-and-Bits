@@ -29,7 +29,7 @@ import net.minecraft.world.World;
 public class BitAccess implements IBitAccess
 {
 
-	private final World w;
+	private final World world;
 	private final BlockPos pos;
 	private final VoxelBlob blob;
 	private final VoxelBlob filler;
@@ -42,12 +42,12 @@ public class BitAccess implements IBitAccess
 	}
 
 	public BitAccess(
-			final World w,
+			final World worldIn,
 			final BlockPos pos,
 			final VoxelBlob blob,
 			final VoxelBlob filler )
 	{
-		this.w = w;
+		this.world = worldIn;
 		this.pos = pos;
 		this.blob = blob;
 		this.filler = filler;
@@ -108,12 +108,12 @@ public class BitAccess implements IBitAccess
 	public void commitChanges(
 			final boolean triggerUpdates )
 	{
-		TileEntityBlockChiseled tile = ModUtil.getChiseledTileEntity( w, pos, true );
+		TileEntityBlockChiseled tile = ModUtil.getChiseledTileEntity( world, pos, true );
 		final BlobStats cb = blob.getVoxelStats();
 
-		if ( tile == null && BlockChiseled.replaceWithChisled( w, pos, w.getBlockState( pos ), cb.mostCommonState, false ) )
+		if ( tile == null && BlockChiseled.replaceWithChisled( world, pos, world.getBlockState( pos ), cb.mostCommonState, false ) )
 		{
-			tile = ModUtil.getChiseledTileEntity( w, pos, true );
+			tile = ModUtil.getChiseledTileEntity( world, pos, true );
 		}
 
 		if ( tile != null )
@@ -122,7 +122,7 @@ public class BitAccess implements IBitAccess
 			tile.setBlob( blob, triggerUpdates, false );
 			final VoxelBlobStateReference after = tile.getBlobStateReference();
 
-			UndoTracker.getInstance().add( w, pos, before, after );
+			UndoTracker.getInstance().add( world, pos, before, after );
 		}
 	}
 
