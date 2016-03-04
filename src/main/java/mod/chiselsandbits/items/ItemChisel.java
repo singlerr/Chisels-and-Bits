@@ -16,6 +16,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.IContinuousInventory;
@@ -267,7 +268,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	 */
 	static public ItemStack chiselBlock(
 			final IContinuousInventory selected,
-			final EntityPlayer player,
+			final ActingPlayer player,
 			final VoxelBlob vb,
 			final World world,
 			final BlockPos pos,
@@ -278,7 +279,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			ItemStack output,
 			final List<EntityItem> spawnlist )
 	{
-		final boolean isCreative = player.capabilities.isCreativeMode;
+		final boolean isCreative = player.isCreative();
 
 		final int blk = vb.get( x, y, z );
 		if ( blk == 0 )
@@ -286,7 +287,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			return output;
 		}
 
-		if ( !canMine( selected, Block.getStateById( blk ), player, world, pos ) )
+		if ( !canMine( selected, Block.getStateById( blk ), player.getPlayer(), world, pos ) )
 		{
 			return output;
 		}

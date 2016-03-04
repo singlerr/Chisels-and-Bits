@@ -18,7 +18,6 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 {
 	private TileRenderChunk renderChunk;
 	private TileRenderCache singleCache;
-	private final AxisAlignedBB renderBox = null;
 
 	@Override
 	public boolean canRenderBreaking()

@@ -1,16 +1,16 @@
 package mod.chiselsandbits.helpers;
 
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
 public class InventoryBackup
 {
 
-	InventoryPlayer original;
+	IInventory original;
 	ItemStack[] slots;
 
 	public InventoryBackup(
-			final InventoryPlayer inventory )
+			final IInventory inventory )
 	{
 		original = inventory;
 		slots = new ItemStack[original.getSizeInventory()];

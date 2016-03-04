@@ -11,6 +11,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.ContinousBits;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
@@ -82,9 +83,10 @@ public class PacketChisel extends ModPacket
 	}
 
 	public int doAction(
-			final EntityPlayer player )
+			final EntityPlayer who )
 	{
-		final World world = player.worldObj;
+		final World world = who.worldObj;
+		final ActingPlayer player = ActingPlayer.actingAs( who );
 
 		final int minX = Math.min( from.blockPos.getX(), to.blockPos.getX() );
 		final int maxX = Math.max( from.blockPos.getX(), to.blockPos.getX() );
@@ -103,7 +105,7 @@ public class PacketChisel extends ModPacket
 
 		try
 		{
-			UndoTracker.getInstance().beginGroup( player );
+			UndoTracker.getInstance().beginGroup( who );
 
 			for ( int xOff = minX; xOff <= maxX; ++xOff )
 			{
@@ -113,13 +115,13 @@ public class PacketChisel extends ModPacket
 					{
 						final BlockPos pos = new BlockPos( xOff, yOff, zOff );
 
-						final int placeStateID = place ? ItemChiseledBit.getStackState( player.getCurrentEquippedItem() ) : 0;
+						final int placeStateID = place ? ItemChiseledBit.getStackState( who.getCurrentEquippedItem() ) : 0;
 						final IContinuousInventory chisel = place ? new ContinousBits( player, placeStateID ) : new ContinousChisels( player, pos, side );
 
 						IBlockState blkstate = world.getBlockState( pos );
 						Block blkObj = blkstate.getBlock();
 
-						if ( !chisel.isValid() || blkObj == null || blkstate == null || !place && !ItemChisel.canMine( chisel, blkstate, player, world, pos ) )
+						if ( !chisel.isValid() || blkObj == null || blkstate == null || !place && !ItemChisel.canMine( chisel, blkstate, who, world, pos ) )
 						{
 							continue;
 						}
@@ -182,19 +184,19 @@ public class PacketChisel extends ModPacket
 
 			for ( final EntityItem ei : spawnlist )
 			{
-				ModUtil.feedPlayer( world, player, ei );
-				ItemBitBag.cleanupInventory( player, ei.getEntityItem() );
+				ModUtil.feedPlayer( world, who, ei );
+				ItemBitBag.cleanupInventory( who, ei.getEntityItem() );
 			}
 
 			if ( place )
 			{
-				ItemBitBag.cleanupInventory( player, bitPlaced != null ? bitPlaced : new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
+				ItemBitBag.cleanupInventory( who, bitPlaced != null ? bitPlaced : new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
 			}
 
 		}
 		finally
 		{
-			UndoTracker.getInstance().endGroup( player );
+			UndoTracker.getInstance().endGroup( who );
 		}
 
 		return returnVal;

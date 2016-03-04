@@ -3,14 +3,14 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.input.Keyboard;
-
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -43,7 +43,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 
 		if ( stack.hasTagCompound() )
 		{
-			if ( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
+			if ( ClientSide.instance.holdingShift() )
 			{
 				if ( cachedInfo != stack )
 				{
@@ -104,9 +104,10 @@ public class ItemPositivePrint extends ItemNegativePrint
 			final EnumFacing side,
 			final VoxelBlob vb,
 			final VoxelBlob pattern,
-			final EntityPlayer player )
+			final EntityPlayer who )
 	{
 		// snag a tool...
+		final ActingPlayer player = ActingPlayer.actingAs( who );
 		final IContinuousInventory selected = new ContinousChisels( player, pos, side );
 		ItemStack spawnedItem = null;
 
@@ -146,7 +147,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 							else if ( bit.isValid() )
 							{
 								vb.set( x, y, z, inPattern );
-								if ( !player.capabilities.isCreativeMode )
+								if ( !who.capabilities.isCreativeMode )
 								{
 									bit.consume();
 								}
@@ -159,8 +160,8 @@ public class ItemPositivePrint extends ItemNegativePrint
 
 		for ( final EntityItem ei : spawnlist )
 		{
-			ModUtil.feedPlayer( world, player, ei );
-			ItemBitBag.cleanupInventory( player, ei.getEntityItem() );
+			ModUtil.feedPlayer( world, who, ei );
+			ItemBitBag.cleanupInventory( who, ei.getEntityItem() );
 		}
 
 	}

@@ -7,24 +7,23 @@ import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
 public class ContinousBits implements IContinuousInventory
 {
 	final int stateID;
-	private final EntityPlayer who;
+	private final ActingPlayer who;
 	private final List<ItemStackSlot> options = new ArrayList<ItemStackSlot>();
 	private final List<BagInventory> bags = new ArrayList<BagInventory>();
 
 	public ContinousBits(
-			final EntityPlayer src,
+			final ActingPlayer src,
 			final int stateID )
 	{
 		who = src;
 		this.stateID = stateID;
-		final IInventory inv = src.inventory;
+		final IInventory inv = src.getInventory();
 
 		ItemStackSlot handSlot = null;
 
@@ -35,7 +34,7 @@ public class ContinousBits implements IContinuousInventory
 			{
 				if ( ItemChiseledBit.getStackState( which ) == stateID )
 				{
-					if ( zz == src.inventory.currentItem )
+					if ( zz == src.getCurrentItem() )
 					{
 						handSlot = new ItemStackSlot( inv, zz, which, src );
 					}
@@ -104,7 +103,7 @@ public class ContinousBits implements IContinuousInventory
 	@Override
 	public boolean isValid()
 	{
-		return !options.isEmpty() || who.capabilities.isCreativeMode;
+		return !options.isEmpty() || who.isCreative();
 	}
 
 }

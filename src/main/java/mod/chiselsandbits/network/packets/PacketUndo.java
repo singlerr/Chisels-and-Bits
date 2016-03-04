@@ -11,6 +11,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.api.BitAccess;
+import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.InventoryBackup;
@@ -20,7 +21,6 @@ import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -54,7 +54,7 @@ public class PacketUndo extends ModPacket
 	public void server(
 			final EntityPlayerMP player )
 	{
-		preformAction( player );
+		preformAction( ActingPlayer.actingAs( player ), true );
 	}
 
 	@Override
@@ -90,44 +90,27 @@ public class PacketUndo extends ModPacket
 		after = new VoxelBlobStateReference( tb, 0 );
 	}
 
-	/**
-	 * This method modifies the player, make sure you backup and restore the
-	 * players inventory prior to doing this...
-	 *
-	 * @param player
-	 * @return
-	 */
-	public boolean canPreformAction(
-			final EntityPlayer player )
-	{
-		if ( inRange( player, pos ) )
-		{
-			return apply( player, true );
-		}
-
-		return false;
-	}
-
 	public boolean preformAction(
-			final EntityPlayer player )
+			final ActingPlayer player,
+			final boolean spawnItemsAndCommitWorldChanges )
 	{
 		if ( inRange( player, pos ) )
 		{
-			return apply( player, false );
+			return apply( player, spawnItemsAndCommitWorldChanges );
 		}
 
 		return false;
 	}
 
 	private boolean apply(
-			final EntityPlayer player,
-			final boolean testing )
+			final ActingPlayer player,
+			final boolean spawnItemsAndCommitWorldChanges )
 	{
 		try
 		{
 			final EnumFacing side = EnumFacing.UP;
 
-			final World world = player.worldObj;
+			final World world = player.getWorld();
 			final BitAccess ba = (BitAccess) ChiselsAndBits.getApi().getBitAccess( world, pos );
 
 			final VoxelBlob bBefore = before.getVoxelBlob();
@@ -137,7 +120,10 @@ public class PacketUndo extends ModPacket
 
 			if ( target.equals( bBefore ) )
 			{
-				final InventoryBackup backup = new InventoryBackup( player.inventory );
+				// if something horrible goes wrong in a single block change we
+				// can roll it back, but it shouldn't happen since its already
+				// been approved as possible.
+				final InventoryBackup backup = new InventoryBackup( player.getInventory() );
 
 				boolean successful = true;
 
@@ -177,7 +163,7 @@ public class PacketUndo extends ModPacket
 							else if ( bit.isValid() )
 							{
 								bi.setNext( target, inAfter );
-								if ( !player.capabilities.isCreativeMode )
+								if ( !player.isCreative() )
 								{
 									bit.consume();
 								}
@@ -191,23 +177,16 @@ public class PacketUndo extends ModPacket
 					}
 				}
 
-				if ( testing )
-				{
-					if ( !successful )
-					{
-						UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.missing_bits" );
-					}
-
-					return successful;
-				}
-
 				if ( successful )
 				{
-					ba.commitChanges( true );
-					for ( final EntityItem ei : spawnlist )
+					if ( spawnItemsAndCommitWorldChanges )
 					{
-						ModUtil.feedPlayer( player.worldObj, player, ei );
-						ItemBitBag.cleanupInventory( player, ei.getEntityItem() );
+						ba.commitChanges( true );
+						for ( final EntityItem ei : spawnlist )
+						{
+							ModUtil.feedPlayer( player.getWorld(), player.getPlayer(), ei );
+							ItemBitBag.cleanupInventory( player.getPlayer(), ei.getEntityItem() );
+						}
 					}
 
 					return true;
@@ -215,6 +194,7 @@ public class PacketUndo extends ModPacket
 				else
 				{
 					backup.rollback();
+					UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.missing_bits" );
 					return false;
 				}
 			}
@@ -224,27 +204,22 @@ public class PacketUndo extends ModPacket
 			// error message below.
 		}
 
-		if ( testing )
-		{
-			UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.has_changed" );
-			return false;
-		}
-
+		UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.has_changed" );
 		return false;
 
 	}
 
 	private boolean inRange(
-			final EntityPlayer player,
+			final ActingPlayer player,
 			final BlockPos pos )
 	{
 		double reach = 6;
-		if ( player.capabilities.isCreativeMode )
+		if ( player.isCreative() )
 		{
 			reach = 32;
 		}
 
-		if ( player.getDistanceSq( pos ) < reach * reach )
+		if ( player.getPlayer().getDistanceSq( pos ) < reach * reach )
 		{
 			return true;
 		}

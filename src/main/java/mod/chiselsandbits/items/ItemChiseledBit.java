@@ -16,6 +16,7 @@ import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.IContinuousInventory;
@@ -389,7 +390,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 	public static boolean placeBit(
 			final IContinuousInventory bits,
-			final EntityPlayer player,
+			final ActingPlayer player,
 			final VoxelBlob vb,
 			final int x,
 			final int y,
@@ -402,7 +403,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 			vb.set( x, y, z, stateID );
 
-			if ( !player.capabilities.isCreativeMode )
+			if ( !player.isCreative() )
 			{
 				bits.useItem( stateID );
 			}

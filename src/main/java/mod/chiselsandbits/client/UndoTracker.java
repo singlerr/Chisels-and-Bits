@@ -8,7 +8,7 @@ import java.util.Set;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
-import mod.chiselsandbits.helpers.InventoryBackup;
+import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketUndo;
 import net.minecraft.entity.player.EntityPlayer;
@@ -87,17 +87,17 @@ public class UndoTracker
 		if ( level > -1 )
 		{
 			final UndoStep step = undoLevels.get( level );
-			final EntityPlayer player = ClientSide.instance.getPlayer();
+			final EntityPlayer who = ClientSide.instance.getPlayer();
 
-			if ( correctWorld( player, step ) )
+			if ( correctWorld( who, step ) )
 			{
-				final InventoryBackup backup = new InventoryBackup( player.inventory );
-				final boolean result = actions( player, step, true, true );
-				backup.rollback();
+				final ActingPlayer testPlayer = ActingPlayer.testingAs( who );
+				final boolean result = replayChanges( testPlayer, step, true, false );
 
 				if ( result )
 				{
-					if ( actions( player, step, true, false ) )
+					final ActingPlayer player = ActingPlayer.actingAs( who );
+					if ( replayChanges( player, step, true, true ) )
 					{
 						level--;
 					}
@@ -117,17 +117,17 @@ public class UndoTracker
 		if ( level + 1 < undoLevels.size() )
 		{
 			final UndoStep step = undoLevels.get( level + 1 );
-			final EntityPlayer player = ClientSide.instance.getPlayer();
+			final EntityPlayer who = ClientSide.instance.getPlayer();
 
-			if ( correctWorld( player, step ) )
+			if ( correctWorld( who, step ) )
 			{
-				final InventoryBackup backup = new InventoryBackup( player.inventory );
-				final boolean result = actions( player, step, false, true );
-				backup.rollback();
+				final ActingPlayer testPlayer = ActingPlayer.testingAs( who );
+				final boolean result = replayChanges( testPlayer, step, false, false );
 
 				if ( result )
 				{
-					if ( actions( player, step, false, false ) )
+					final ActingPlayer player = ActingPlayer.actingAs( who );
+					if ( replayChanges( player, step, false, true ) )
 					{
 						level++;
 					}
@@ -148,15 +148,15 @@ public class UndoTracker
 		undoLevels.clear();
 	}
 
-	private boolean actions(
-			final EntityPlayer player,
+	private boolean replayChanges(
+			final ActingPlayer player,
 			UndoStep step,
 			final boolean backwards,
-			final boolean test )
+			final boolean spawnItemsAndCommitWorldChanges )
 	{
 		boolean done = false;
 
-		while ( step != null && trigger( player, test, step.pos, backwards ? step.after : step.before, backwards ? step.before : step.after ) )
+		while ( step != null && replaySingleAction( player, step.pos, backwards ? step.after : step.before, backwards ? step.before : step.after, spawnItemsAndCommitWorldChanges ) )
 		{
 			step = step.next;
 			if ( step == null )
@@ -168,21 +168,6 @@ public class UndoTracker
 		return done;
 	}
 
-	private boolean trigger(
-			final EntityPlayer player,
-			final boolean test,
-			final BlockPos pos,
-			final VoxelBlobStateReference before,
-			final VoxelBlobStateReference after )
-	{
-		if ( test )
-		{
-			return canApply( player, pos, before, after );
-		}
-
-		return apply( player, pos, before, after );
-	}
-
 	private boolean correctWorld(
 			final EntityPlayer player,
 			final UndoStep step )
@@ -190,41 +175,18 @@ public class UndoTracker
 		return player.dimension == step.dimensionId;
 	}
 
-	/**
-	 * This method modifies the player, make sure you backup and restore the
-	 * players inventory prior to doing this...
-	 *
-	 * @param pos
-	 * @param before
-	 * @param after
-	 * @return
-	 */
-	private boolean canApply(
-			final EntityPlayer player,
+	private boolean replaySingleAction(
+			final ActingPlayer player,
 			final BlockPos pos,
 			final VoxelBlobStateReference before,
-			final VoxelBlobStateReference after )
-	{
-		final PacketUndo packet = new PacketUndo( pos, before, after );
-		if ( packet.canPreformAction( player ) )
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	private boolean apply(
-			final EntityPlayer player,
-			final BlockPos pos,
-			final VoxelBlobStateReference before,
-			final VoxelBlobStateReference after )
+			final VoxelBlobStateReference after,
+			final boolean spawnItemsAndCommitWorldChanges )
 	{
 		try
 		{
 			recording = false;
 			final PacketUndo packet = new PacketUndo( pos, before, after );
-			if ( packet.preformAction( player ) )
+			if ( packet.preformAction( player, spawnItemsAndCommitWorldChanges ) )
 			{
 				NetworkRouter.instance.sendToServer( packet );
 				return true;
@@ -278,11 +240,11 @@ public class UndoTracker
 	}
 
 	public void addError(
-			final EntityPlayer player,
+			final ActingPlayer player,
 			final String string )
 	{
 		// servers don't care about this...
-		if ( player.worldObj.isRemote )
+		if ( !player.isReal() && player.getWorld().isRemote )
 		{
 			errors.add( string );
 		}

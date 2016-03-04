@@ -3,12 +3,12 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.input.Keyboard;
-
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -66,7 +66,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 		if ( stack.hasTagCompound() )
 		{
-			if ( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
+			if ( ClientSide.instance.holdingShift() )
 			{
 				if ( cachedInfo != stack )
 				{
@@ -245,9 +245,10 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final EnumFacing side,
 			final VoxelBlob vb,
 			final VoxelBlob pattern,
-			final EntityPlayer player )
+			final EntityPlayer who )
 	{
 		// snag a tool...
+		final ActingPlayer player = ActingPlayer.actingAs( who );
 		final IContinuousInventory selected = new ContinousChisels( player, pos, side );
 		ItemStack spawnedItem = null;
 
@@ -270,7 +271,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 		for ( final EntityItem ei : spawnlist )
 		{
-			ModUtil.feedPlayer( world, player, ei );
+			ModUtil.feedPlayer( world, who, ei );
 		}
 	}
 

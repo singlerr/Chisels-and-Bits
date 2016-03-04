@@ -40,7 +40,7 @@ public class ModUtil
 
 	static public Pair<Vec3, Vec3> getPlayerRay(
 			final EntityPlayer playerIn )
-	{
+			{
 		double reachDistance = 5.0d;
 
 		final double x = playerIn.prevPosX + ( playerIn.posX - playerIn.prevPosX );
@@ -67,7 +67,7 @@ public class ModUtil
 		final Vec3 to = from.addVector( eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance );
 
 		return Pair.of( from, to );
-	}
+			}
 
 	static public class ItemStackSlot
 	{
@@ -81,14 +81,14 @@ public class ModUtil
 				final IInventory i,
 				final int s,
 				final ItemStack st,
-				final EntityPlayer player )
-		{
+				final ActingPlayer player )
+				{
 			inv = i;
 			slot = s;
 			stack = st;
-			toolSlot = player.inventory.currentItem;
-			isCreative = player.capabilities.isCreativeMode;
-		}
+			toolSlot = player.getCurrentItem();
+			isCreative = player.isCreative();
+				}
 
 		public boolean isValid()
 		{
@@ -96,17 +96,17 @@ public class ModUtil
 		}
 
 		public void damage(
-				final EntityPlayer who )
+				final ActingPlayer who )
 		{
 			if ( isCreative )
 			{
 				return;
 			}
 
-			stack.damageItem( 1, who );
+			who.damageItem( stack, 1 );
 			if ( stack.stackSize <= 0 )
 			{
-				net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem( who, stack );
+				who.playerDestroyItem( stack );
 				inv.setInventorySlotContents( slot, null );
 			}
 		}
@@ -139,21 +139,23 @@ public class ModUtil
 	};
 
 	static public ItemStackSlot findBit(
-			final EntityPlayer who,
+			final ActingPlayer who,
 			final int StateID )
 	{
 		final ItemStack inHand = who.getCurrentEquippedItem();
+		final IInventory inv = who.getInventory();
+
 		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChiseledBit.getStackState( inHand ) == StateID )
 		{
-			return new ItemStackSlot( who.inventory, who.inventory.currentItem, inHand, who );
+			return new ItemStackSlot( inv, who.getCurrentItem(), inHand, who );
 		}
 
-		for ( int x = 0; x < who.inventory.getSizeInventory(); x++ )
+		for ( int x = 0; x < inv.getSizeInventory(); x++ )
 		{
-			final ItemStack is = who.inventory.getStackInSlot( x );
+			final ItemStack is = inv.getStackInSlot( x );
 			if ( is != null && is.stackSize > 0 && is.getItem() instanceof ItemChiseledBit && ItemChiseledBit.sameBit( is, StateID ) )
 			{
-				return new ItemStackSlot( who.inventory, x, is, who );
+				return new ItemStackSlot( inv, x, is, who );
 			}
 		}
 
@@ -388,15 +390,15 @@ public class ModUtil
 	}
 
 	public static List<BagInventory> getBags(
-			final EntityPlayer player )
-	{
-		if ( player.capabilities.isCreativeMode )
+			final ActingPlayer player )
+			{
+		if ( player.isCreative() )
 		{
 			return java.util.Collections.emptyList();
 		}
 
 		final List<BagInventory> bags = new ArrayList<BagInventory>();
-		final IInventory inv = player.inventory;
+		final IInventory inv = player.getInventory();
 
 		for ( int zz = 0; zz < inv.getSizeInventory(); zz++ )
 		{
@@ -408,7 +410,7 @@ public class ModUtil
 		}
 
 		return bags;
-	}
+			}
 
 	public static boolean consumeBagBit(
 			final List<BagInventory> bags,
