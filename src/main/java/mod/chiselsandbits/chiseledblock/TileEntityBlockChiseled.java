@@ -501,6 +501,9 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 		if ( common.isFullBlock )
 		{
+			setState( getBasicState()
+					.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( common.mostCommonState, getPositionRandom( pos ) ) ) );
+
 			worldObj.setBlockState( pos, Block.getStateById( common.mostCommonState ), triggerUpdates ? 3 : 0 );
 		}
 		else if ( common.mostCommonState != 0 )
@@ -528,6 +531,9 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		}
 		else
 		{
+			setState( getBasicState()
+					.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( 0, getPositionRandom( pos ) ) ) );
+
 			ModUtil.removeChisledBlock( worldObj, pos );
 		}
 
@@ -672,7 +678,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	public Collection<AxisAlignedBB> getBoxes(
 			final BoxType type )
-	{
+			{
 		final VoxelBlobStateReference ref = getBlobStateReference();
 
 		if ( ref != null )
@@ -683,7 +689,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		{
 			return Collections.emptyList();
 		}
-	}
+			}
 
 	public void setNormalCube(
 			final boolean b )

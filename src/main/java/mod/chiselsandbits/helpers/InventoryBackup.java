@@ -30,7 +30,7 @@ public class InventoryBackup
 	{
 		for ( int x = 0; x < slots.length; ++x )
 		{
-			original.setItemStack( slots[x] );
+			original.setInventorySlotContents( x, slots[x] );
 		}
 	}
 }
