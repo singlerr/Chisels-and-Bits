@@ -14,7 +14,9 @@ public class ItemBitSaw extends Item
 	public ItemBitSaw()
 	{
 		setMaxStackSize( 1 );
-		setMaxDamage( ChiselsAndBits.getConfig().diamondSawUses );
+
+		final int uses = ChiselsAndBits.getConfig().diamondSawUses;
+		setMaxDamage( ChiselsAndBits.getConfig().damageTools ? (int) Math.max( 0, uses ) : 0 );
 	}
 
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -33,7 +35,11 @@ public class ItemBitSaw extends Item
 	public ItemStack getContainerItem(
 			final ItemStack itemStack )
 	{
-		itemStack.setItemDamage( itemStack.getItemDamage() + 1 );
+		if ( ChiselsAndBits.getConfig().damageTools )
+		{
+			itemStack.setItemDamage( itemStack.getItemDamage() + 1 );
+		}
+
 		return itemStack;
 	}
 
