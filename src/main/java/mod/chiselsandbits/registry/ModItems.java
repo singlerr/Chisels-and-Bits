@@ -3,6 +3,7 @@ package mod.chiselsandbits.registry;
 import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.debug.ItemApiDebug;
 import mod.chiselsandbits.items.ItemBitBag;
+import mod.chiselsandbits.items.ItemBitSaw;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.items.ItemMirrorPrint;
@@ -30,6 +31,7 @@ public class ModItems extends ModRegistry
 
 	final public ItemBitBag itemBitBag;
 	final public ItemWrench itemWrench;
+	final public ItemBitSaw itemBitSawDiamond;
 
 	public ModItems(
 			final ModConfig config )
@@ -44,6 +46,7 @@ public class ModItems extends ModRegistry
 		itemMirrorprint = registerItem( config.enableMirrorPrint, new ItemMirrorPrint(), "mirrorprint" );
 		itemBitBag = registerItem( config.enableBitBag, new ItemBitBag(), "bit_bag" );
 		itemWrench = registerItem( config.enableWoodenWrench, new ItemWrench(), "wrench_wood" );
+		itemBitSawDiamond = registerItem( config.enableBitSaw, new ItemBitSaw(), "bitsaw_diamond" );
 		itemBlockBit = registerItem( config.enableChisledBits, new ItemChiseledBit(), "block_bit" );
 		registerItem( config.enableAPITestingItem, new ItemApiDebug(), "debug" );
 	}
@@ -55,6 +58,7 @@ public class ModItems extends ModRegistry
 		ShapedOreRecipe( itemChiselGold, "TS", 'T', "ingotGold", 'S', "stickWood" );
 		ShapedOreRecipe( itemChiselIron, "TS", 'T', "ingotIron", 'S', "stickWood" );
 		ShapedOreRecipe( itemChiselStone, "TS", 'T', "cobblestone", 'S', "stickWood" );
+		ShapedOreRecipe( itemBitSawDiamond, "SSS", "STT", 'T', "gemDiamond", 'S', "stickWood" );
 		ShapedOreRecipe( itemWrench, " W ", "WS ", "  S", 'W', "plankWood", 'S', "stickWood" );
 
 		// create prints...

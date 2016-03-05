@@ -162,6 +162,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Items" )
 	public boolean enableWoodenWrench;
 
+	@Configured( category = "Items" )
+	public boolean enableBitSaw;
+
 	@Configured( category = "Balance Settings" )
 	public boolean enableChiselToolHarvestCheck;
 
@@ -200,6 +203,9 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Balance Settings" )
 	public int wrenchUses;
+
+	@Configured( category = "Balance Settings" )
+	public int diamondSawUses;
 
 	public boolean deobfuscatedEnvironment()
 	{
@@ -262,6 +268,7 @@ public class ModConfig extends Configuration
 		diamondChiselUses = 796480;
 		goldChiselUses = 1024;
 		wrenchUses = 1888;
+		diamondSawUses = 7980;
 
 		enablePositivePrintCrafting = true;
 		enableStackableCrafting = true;
@@ -290,6 +297,7 @@ public class ModConfig extends Configuration
 		enableGoldChisel = true;
 		enableDiamondChisel = true;
 		enableWoodenWrench = true;
+		enableBitSaw = true;
 		ShowBitsInJEI = false;
 	}
 

@@ -30,6 +30,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -195,21 +196,34 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public IBitAccess createBitItem(
-			final ItemStack BitItemStack )
+			final ItemStack bitItemStack )
 	{
-		if ( BitItemStack == null )
+		if ( bitItemStack == null )
 		{
 			return new BitAccess( null, null, new VoxelBlob(), VoxelBlob.NULL_BLOB );
 		}
 
-		final ItemType type = getItemType( BitItemStack );
+		final ItemType type = getItemType( bitItemStack );
 		if ( type != null && type.isBitAccess )
 		{
 			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-			tmp.readChisleData( BitItemStack.getSubCompound( "BlockEntityTag", false ) );
+			tmp.readChisleData( bitItemStack.getSubCompound( "BlockEntityTag", false ) );
 			final VoxelBlob blob = tmp.getBlob();
 
 			return new BitAccess( null, null, blob, VoxelBlob.NULL_BLOB );
+		}
+
+		if ( bitItemStack != null && bitItemStack.getItem() instanceof ItemBlock )
+		{
+			final ItemBlock blkItem = (ItemBlock) bitItemStack.getItem();
+			final IBlockState state = blkItem.getBlock().getStateFromMeta( blkItem.getMetadata( bitItemStack ) );
+
+			if ( BlockBitInfo.supportsBlock( state ) )
+			{
+				final VoxelBlob blob = new VoxelBlob();
+				blob.fill( Block.getStateId( state ) );
+				return new BitAccess( null, null, blob, VoxelBlob.NULL_BLOB );
+			}
 		}
 
 		return null;

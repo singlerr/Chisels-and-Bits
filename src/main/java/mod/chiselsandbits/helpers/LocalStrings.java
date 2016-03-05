@@ -24,6 +24,9 @@ public enum LocalStrings
 	HelpChiseledBlock( "help.chiseled_block" ),
 	LongHelpChiseledBlock( "help.chiseled_block.long" ),
 
+	HelpBitSaw( "help.bitsaw" ),
+	LongHelpBitSaw( "help.bitsaw.long" ),
+
 	HelpBitBag( "help.bit_bag" ),
 	LongHelpBitBag( "help.bit_bag.long" ),
 

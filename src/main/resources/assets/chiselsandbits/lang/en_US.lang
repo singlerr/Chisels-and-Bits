@@ -35,6 +35,8 @@ item.mod.chiselsandbits.chisel_iron.name=Iron Chisel
 item.mod.chiselsandbits.chisel_gold.name=Golden Chisel
 item.mod.chiselsandbits.chisel_diamond.name=Diamond Chisel
 
+item.mod.chiselsandbits.bitsaw_diamond.name=Diamond Bit Saw
+
 mod.chiselsandbits.chiselmode.single=Single Bit
 mod.chiselsandbits.chiselmode.snap2=Grid Snapped 1/8 Size Cube
 mod.chiselsandbits.chiselmode.snap4=Grid Snapped 1/4 Size Cube
@@ -72,6 +74,7 @@ mod.chiselsandbits.help.positiveprint=Right click to write;Right click to chisel
 mod.chiselsandbits.help.negativeprint=Right click to write;Right click to chisel.;Mouse Wheel to cycle rotation.
 mod.chiselsandbits.help.mirrorprint=Right click the face on wish to mirror from;Craft with positive/negative design to transfer.
 mod.chiselsandbits.help.chisel=Left click to chisel;Right click to cycle modes.;Use {} to display menu.
+mod.chiselsandbits.help.bitsaw=Craft with Blocks or Chiseled blocks;Cut along any of the 3 axis.
 
 mod.chiselsandbits.help.chiseled_block.long=Left click to place the block. Sneak while placing to ignore block grid. Shift + Mouse Wheel to cycle placement rotation.
 mod.chiselsandbits.help.bit_bag.long=Automatically re-stocks, and store bits when you exceed or go under a stack in your inventory.
@@ -81,6 +84,7 @@ mod.chiselsandbits.help.positiveprint.long=Right click on a chiseled block to wr
 mod.chiselsandbits.help.negativeprint.long=Right click on a chiseled block to write the design. Right click on a block to chisel it removing any bits that are not in the negative design. Shift + Mouse Wheel can be used to cycle rotations without moving.
 mod.chiselsandbits.help.mirrorprint.long=Right click on a chiseled block face on wish to mirror from, clicking an east facing face will mirror it along the east->west axis. Craft written design with a positive or negative design to transfer the mirror image to the type of design you want.
 mod.chiselsandbits.help.chisel.long=Left click any compatible block to chisel. Right click to cycle thought chisel modes, you can also use Shift + Mouse Wheel to cycle modes.
+mod.chiselsandbits.help.bitsaw.long=Craft this saw with supported blocks, or symmetrical chiseled blocks to cut them in half. The axis of cutting is determined by the position of the saw related the block, cut along the X axis with the saw to the side, along the Y axis if the saw is above or below, and Z is if the saw is diagonal.
 
 mod.chiselsandbits.help.leftalt=Left Alt
 mod.chiselsandbits.help.rightalt=Right Alt

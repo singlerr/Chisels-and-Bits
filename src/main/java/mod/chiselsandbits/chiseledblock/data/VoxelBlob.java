@@ -323,6 +323,15 @@ public final class VoxelBlob
 		}
 	}
 
+	public void fill(
+			final VoxelBlob src )
+	{
+		for ( int x = 0; x < array_size; x++ )
+		{
+			values[x] = src.values[x];
+		}
+	}
+
 	public void clear()
 	{
 		fill( 0 );
@@ -872,7 +881,7 @@ public final class VoxelBlob
 
 	private TIntObjectMap<Boolean> getStateLayer(
 			final EnumWorldBlockLayer layer )
-			{
+	{
 		switch ( layer )
 		{
 			case CUTOUT:
@@ -885,7 +894,7 @@ public final class VoxelBlob
 				return layerFilterStateTransparent;
 		}
 		throw new RuntimeException( "Invalid Layer" );
-			}
+	}
 
 	private Boolean isFluid(
 			final int ref )

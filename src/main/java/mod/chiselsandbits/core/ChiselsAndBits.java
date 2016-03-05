@@ -11,6 +11,7 @@ import mod.chiselsandbits.client.gui.ModGuiRouter;
 import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.api.ChiselAndBitsAPI;
 import mod.chiselsandbits.core.api.IMCHandler;
+import mod.chiselsandbits.crafting.BitSawCrafting;
 import mod.chiselsandbits.crafting.ChiselCrafting;
 import mod.chiselsandbits.crafting.MirrorTransferCrafting;
 import mod.chiselsandbits.crafting.NegativeInversionCrafting;
@@ -168,6 +169,12 @@ public class ChiselsAndBits
 		{
 			GameRegistry.addRecipe( new MirrorTransferCrafting() );
 			RecipeSorter.register( MODID + ":mirrorpatterncrafting", MirrorTransferCrafting.class, Category.UNKNOWN, craftingOrder );
+		}
+
+		if ( getConfig().enableBitSaw )
+		{
+			GameRegistry.addRecipe( new BitSawCrafting() );
+			RecipeSorter.register( MODID + ":bitsawcrafting", BitSawCrafting.class, Category.UNKNOWN, craftingOrder );
 		}
 	}
 
