@@ -343,4 +343,9 @@ public class BagContainer extends Container
 		}
 	}
 
+	public void clear()
+	{
+		bagInv.clear();
+	}
+
 }

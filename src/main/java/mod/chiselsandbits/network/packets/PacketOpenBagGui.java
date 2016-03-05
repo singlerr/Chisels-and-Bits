@@ -6,7 +6,7 @@ import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.network.PacketBuffer;
 
-public class PacketBagGuiPacket extends ModPacket
+public class PacketOpenBagGui extends ModPacket
 {
 	@Override
 	public void server(

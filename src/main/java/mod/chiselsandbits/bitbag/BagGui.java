@@ -1,12 +1,17 @@
 package mod.chiselsandbits.bitbag;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketBagGui;
+import mod.chiselsandbits.network.packets.PacketClearBagGui;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -23,6 +28,7 @@ public class BagGui extends GuiContainer
 	private static int INNER_SLOT_SIZE = 16;
 
 	private static GuiBagFontRenderer specialFontRenderer = null;
+	private GuiIconButton trashBtn;
 
 	public BagGui(
 			final EntityPlayer player,
@@ -35,6 +41,14 @@ public class BagGui extends GuiContainer
 
 		allowUserInput = false;
 		ySize = 239;
+	}
+
+	@Override
+	public void initGui()
+	{
+		super.initGui();
+
+		buttonList.add( trashBtn = new GuiIconButton( 1, guiLeft - 18, guiTop + 0, "help.trash", ClientSide.trashIcon ) );
 	}
 
 	BagContainer getBagContainer()
@@ -157,6 +171,36 @@ public class BagGui extends GuiContainer
 				GlStateManager.colorMask( true, true, true, true );
 				GlStateManager.enableLighting();
 				GlStateManager.enableDepth();
+			}
+		}
+
+		if ( trashBtn.isMouseOver() )
+		{
+			final List<String> text = Arrays.asList( new String[] { requireConfirm ? LocalStrings.Trash.getLocal() : LocalStrings.ReallyTrash.getLocal() } );
+			drawHoveringText( text, mouseX - guiLeft, mouseY - guiTop, fontRendererObj );
+		}
+		else
+		{
+			requireConfirm = true;
+		}
+	}
+
+	boolean requireConfirm = true;
+
+	@Override
+	protected void actionPerformed(
+			final GuiButton button ) throws IOException
+	{
+		if ( button == trashBtn )
+		{
+			if ( requireConfirm )
+			{
+				requireConfirm = false;
+			}
+			else
+			{
+				requireConfirm = true;
+				NetworkRouter.instance.sendToServer( new PacketClearBagGui() );
 			}
 		}
 	}

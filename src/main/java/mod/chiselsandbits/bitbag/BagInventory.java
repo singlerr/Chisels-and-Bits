@@ -217,9 +217,13 @@ public class BagInventory implements IInventory
 	@Override
 	public void clear()
 	{
-		for ( int x = 0; x < inv.contents.length; x++ )
+		for ( int x = 0; x < inv.contents.length; ++x )
 		{
 			inv.contents[x] = 0;
+		}
+
+		for ( int x = 0; x < stackSlots.length; ++x )
+		{
 			stackSlots[x] = null;
 		}
 

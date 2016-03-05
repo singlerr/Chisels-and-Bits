@@ -46,7 +46,10 @@ public enum LocalStrings
 	LongHelpChisel( "help.chisel.long" ),
 
 	leftAlt( "help.leftalt" ),
-	rightAlt( "help.rightalt" );
+	rightAlt( "help.rightalt" ),
+
+	Trash( "help.trash" ),
+	ReallyTrash( "help.reallytrash" );
 
 	private final String string;
 

@@ -11,7 +11,7 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.NetworkRouter;
-import mod.chiselsandbits.network.packets.PacketBagGuiPacket;
+import mod.chiselsandbits.network.packets.PacketOpenBagGui;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -91,7 +91,7 @@ public class ItemBitBag extends Item
 	{
 		if ( worldIn.isRemote )
 		{
-			NetworkRouter.instance.sendToServer( new PacketBagGuiPacket() );
+			NetworkRouter.instance.sendToServer( new PacketOpenBagGui() );
 		}
 
 		return itemStackIn;

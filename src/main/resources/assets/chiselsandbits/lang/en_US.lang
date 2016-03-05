@@ -84,6 +84,8 @@ mod.chiselsandbits.help.chisel.long=Left click any compatible block to chisel. R
 
 mod.chiselsandbits.help.leftalt=Left Alt
 mod.chiselsandbits.help.rightalt=Right Alt
+mod.chiselsandbits.help.trash=Delete Bag Contents
+mod.chiselsandbits.help.reallytrash=Click again to confirm deletion.
 
 mod.chiselsandbits.config.maxUndoLevel=Max Undo Level
 mod.chiselsandbits.config.persistCreativeClipboard=Save/Load Creative Clipboard Contents
