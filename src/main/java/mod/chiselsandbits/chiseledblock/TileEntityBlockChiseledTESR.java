@@ -156,7 +156,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	public void completeEditOperation(
 			final VoxelBlob vb )
 	{
-		setBlob( vb );
+		super.completeEditOperation( vb );
 
 		if ( renderChunk != null )
 		{

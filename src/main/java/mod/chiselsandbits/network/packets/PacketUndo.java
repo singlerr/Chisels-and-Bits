@@ -213,6 +213,11 @@ public class PacketUndo extends ModPacket
 			final ActingPlayer player,
 			final BlockPos pos )
 	{
+		if ( player.isReal() )
+		{
+			return true;
+		}
+
 		double reach = 6;
 		if ( player.isCreative() )
 		{

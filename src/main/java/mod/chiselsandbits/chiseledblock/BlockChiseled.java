@@ -1021,6 +1021,25 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		return 0;
 	}
 
+	ThreadLocal<Boolean> testingHarvest = new ThreadLocal<Boolean>();
+
+	@Override
+	public boolean canHarvestBlock(
+			final IBlockAccess world,
+			final BlockPos pos,
+			final EntityPlayer player )
+	{
+		try
+		{
+			testingHarvest.set( true );
+			return super.canHarvestBlock( world, pos, player );
+		}
+		finally
+		{
+			testingHarvest.remove();
+		}
+	}
+
 	@Override
 	public IBlockState getActualState(
 			final IBlockState state,
@@ -1035,21 +1054,31 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				// require a real world, and extended block state..
 				if ( state instanceof IExtendedBlockState && worldIn instanceof World )
 				{
-					// this is pure insanity, but there is no other solution
-					// without core modding.
-					final Exception e = new Exception();
-					final StackTraceElement[] elements = e.getStackTrace();
+					Boolean isTesting = testingHarvest.get(); // fast or slow?
 
-					if ( elements != null && elements.length > 2 )
+					if ( isTesting == null )
 					{
-						final String cname = elements[1].getClassName();
+						// SLOW - this is pure insanity, but there is no other
+						// solution without core modding... some kinda PR?
+						final Exception e = new Exception();
+						final StackTraceElement[] elements = e.getStackTrace();
 
-						// test to see if the hook is asking for this.
-						if ( cname.contains( "minecraftforge" ) )
+						if ( elements != null && elements.length > 2 )
 						{
-							final TileEntityBlockChiseled tebc = getTileEntity( worldIn, pos );
-							return tebc.getBasicState();
+							final String cname = elements[1].getClassName();
+
+							// test to see if the hook is asking for this.
+							if ( cname.contains( "minecraftforge" ) )
+							{
+								isTesting = true;
+							}
 						}
+					}
+
+					if ( isTesting != null )
+					{
+						final TileEntityBlockChiseled tebc = getTileEntity( worldIn, pos );
+						return tebc.getBasicState();
 					}
 				}
 			}
@@ -1060,6 +1089,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 
 		return super.getActualState( state, worldIn, pos );
+
 	}
 
 	public static void setActingAs(
