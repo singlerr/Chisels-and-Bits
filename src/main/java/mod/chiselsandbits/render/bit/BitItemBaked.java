@@ -1,8 +1,10 @@
 package mod.chiselsandbits.render.bit;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.lwjgl.util.vector.Vector3f;
 
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
@@ -18,8 +20,6 @@ import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 
-import org.lwjgl.util.vector.Vector3f;
-
 public class BitItemBaked extends BaseBakedBlockModel
 {
 	public static final float PIXELS_PER_BLOCK = 16.0f;
@@ -27,13 +27,12 @@ public class BitItemBaked extends BaseBakedBlockModel
 	private static final float BIT_BEGIN = 6.0f;
 	private static final float BIT_END = 10.0f;
 
-	final List<BakedQuad> generic;
+	final ArrayList<BakedQuad> generic = new ArrayList<BakedQuad>( 6 );
 
 	public BitItemBaked(
-			final int blockRef )
+			final int BlockRef )
 	{
 		final FaceBakery faceBakery = new FaceBakery();
-		final BakedQuad[] faces = new BakedQuad[6];
 
 		final Vector3f to = new Vector3f( BIT_BEGIN, BIT_BEGIN, BIT_BEGIN );
 		final Vector3f from = new Vector3f( BIT_END, BIT_END, BIT_END );
@@ -41,12 +40,11 @@ public class BitItemBaked extends BaseBakedBlockModel
 		final BlockPartRotation bpr = null;
 		final ModelRotation mr = ModelRotation.X0_Y0;
 
-		int offset = 0;
 		for ( final EnumFacing myFace : EnumFacing.VALUES )
 		{
 			for ( final EnumWorldBlockLayer layer : EnumWorldBlockLayer.values() )
 			{
-				final ModelQuadLayer[] layers = ModelUtil.getCachedFace( blockRef, 0, myFace, layer );
+				final ModelQuadLayer[] layers = ModelUtil.getCachedFace( BlockRef, 0, myFace, layer );
 
 				if ( layers == null || layers.length == 0 )
 				{
@@ -90,12 +88,12 @@ public class BitItemBaked extends BaseBakedBlockModel
 							throw new NullPointerException();
 					}
 
-					faces[offset++] = faceBakery.makeBakedQuad( toB, fromB, bpf, clayer.sprite, myFace, mr, bpr, false, true );
+					generic.add( faceBakery.makeBakedQuad( toB, fromB, bpf, clayer.sprite, myFace, mr, bpr, false, true ) );
 				}
 			}
 		}
 
-		generic = Arrays.asList( faces );
+		generic.trimToSize();
 	}
 
 	private float[] getFaceUvs(
