@@ -266,10 +266,18 @@ public class ClientSide
 		}
 	}
 
+	public static TextureAtlasSprite undoIcon;
+	public static TextureAtlasSprite redoIcon;
+	public static TextureAtlasSprite trashIcon;
+
 	@SubscribeEvent
 	void registerIconTextures(
 			final TextureStitchEvent.Pre ev )
 	{
+		undoIcon = ev.map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/undo" ) );
+		redoIcon = ev.map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/redo" ) );
+		trashIcon = ev.map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/trash" ) );
+
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
 			final SpriteIconPositioning sip = new SpriteIconPositioning();
@@ -343,16 +351,34 @@ public class ClientSide
 
 			if ( modeMenu.isKeyDown() )
 			{
+				ChiselsAndBitsMenu.instance.actionUsed = false;
 				ChiselsAndBitsMenu.instance.raiseVisibility();
 			}
 			else
 			{
-				if ( ChiselsAndBitsMenu.instance.switchTo != null )
+				if ( !ChiselsAndBitsMenu.instance.actionUsed )
 				{
-					ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool ), ChiselsAndBitsMenu.instance.switchTo );
-					ChiselsAndBitsMenu.instance.switchTo = null;
+					if ( ChiselsAndBitsMenu.instance.switchTo != null )
+					{
+						ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool ), ChiselsAndBitsMenu.instance.switchTo );
+					}
+
+					if ( ChiselsAndBitsMenu.instance.doAction != null )
+					{
+						switch ( ChiselsAndBitsMenu.instance.doAction )
+						{
+							case UNDO:
+								UndoTracker.getInstance().undo();
+								break;
+
+							case REDO:
+								UndoTracker.getInstance().redo();
+								break;
+						}
+					}
 				}
 
+				ChiselsAndBitsMenu.instance.actionUsed = true;
 				ChiselsAndBitsMenu.instance.decreaseVisibility();
 			}
 

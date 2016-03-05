@@ -251,7 +251,7 @@ public class ModConfig extends Configuration
 		dynamicModelFaceCount = 40;
 		dynamicModelRange = 128;
 		dynamicModelMinimizeLatancy = true;
-		dynamicMaxConcurrentTessalators = 32;
+		dynamicMaxConcurrentTessalators = 32; // in low memory this acts as 1.
 
 		showUsage = true;
 		invertBitBagFullness = false;

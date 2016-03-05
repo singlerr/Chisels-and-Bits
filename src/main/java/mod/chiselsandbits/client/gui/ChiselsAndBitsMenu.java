@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.StatCollector;
 
 public class ChiselsAndBitsMenu extends GuiScreen
 {
@@ -27,6 +28,8 @@ public class ChiselsAndBitsMenu extends GuiScreen
 	private float visibility = 0.0f;
 	private Stopwatch lastChange = Stopwatch.createStarted();
 	public ChiselMode switchTo = null;
+	public ButtonAction doAction = null;
+	public boolean actionUsed = false;
 
 	private float clampVis(
 			final float f )
@@ -61,7 +64,36 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		height = scaledHeight;
 	}
 
-	private static class MenuRegion
+	private static class MenuButton
+	{
+
+		public double x1, x2;
+		public double y1, y2;
+		public boolean highlighted;
+
+		public final ButtonAction action;
+		public TextureAtlasSprite icon;
+		public String name;
+
+		public MenuButton(
+				final String name,
+				final ButtonAction action,
+				final double x,
+				final double y,
+				final TextureAtlasSprite ico )
+		{
+			this.name = name;
+			this.action = action;
+			x1 = x;
+			x2 = x + 18;
+			y1 = y;
+			y2 = y + 18;
+			icon = ico;
+		}
+
+	};
+
+	static class MenuRegion
 	{
 
 		public final ChiselMode mode;
@@ -116,10 +148,17 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			radians = radians + Math.PI * 2;
 		}
 
+		final double middle_x = width / 2;
+		final double middle_y = height / 2;
+
 		final ArrayList<MenuRegion> modes = new ArrayList<MenuRegion>();
+		final ArrayList<MenuButton> btns = new ArrayList<MenuButton>();
 
 		final EnumSet<ChiselMode> used = EnumSet.noneOf( ChiselMode.class );
 		final ChiselMode[] orderedModes = { ChiselMode.SINGLE, ChiselMode.LINE, ChiselMode.PLANE, ChiselMode.CONNECTED_PLANE, ChiselMode.DRAWN_REGION };
+
+		btns.add( new MenuButton( "mod.chiselsandbits.other.undo", ButtonAction.UNDO, text_distnace, -20, ClientSide.undoIcon ) );
+		btns.add( new MenuButton( "mod.chiselsandbits.other.redo", ButtonAction.REDO, text_distnace, 4, ClientSide.redoIcon ) );
 
 		for ( final ChiselMode mode : orderedModes )
 		{
@@ -138,9 +177,8 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			}
 		}
 
-		final double middle_x = width / 2;
-		final double middle_y = height / 2;
 		switchTo = null;
+		doAction = null;
 
 		if ( !modes.isEmpty() )
 		{
@@ -180,17 +218,31 @@ public class ChiselsAndBitsMenu extends GuiScreen
 					switchTo = mnuRgn.mode;
 				}
 
-				renderBuffer.pos( middle_x + x1m1, middle_y + y1m1,
-						zLevel ).color( f, f, f, a ).endVertex();
-				renderBuffer.pos( middle_x + x2m1, middle_y + y2m1,
-						zLevel ).color( f, f, f, a ).endVertex();
-				renderBuffer.pos( middle_x + x2m2, middle_y + y2m2,
-						zLevel ).color( f, f, f, a ).endVertex();
-				renderBuffer.pos( middle_x + x1m2, middle_y + y1m2,
-						zLevel ).color( f, f, f, a ).endVertex();
+				renderBuffer.pos( middle_x + x1m1, middle_y + y1m1, zLevel ).color( f, f, f, a ).endVertex();
+				renderBuffer.pos( middle_x + x2m1, middle_y + y2m1, zLevel ).color( f, f, f, a ).endVertex();
+				renderBuffer.pos( middle_x + x2m2, middle_y + y2m2, zLevel ).color( f, f, f, a ).endVertex();
+				renderBuffer.pos( middle_x + x1m2, middle_y + y1m2, zLevel ).color( f, f, f, a ).endVertex();
 
 				currentMode++;
 			}
+		}
+
+		for ( final MenuButton btn : btns )
+		{
+			final float a = 0.5f;
+			float f = 0f;
+
+			if ( btn.x1 <= vecX && btn.x2 >= vecX && btn.y1 <= vecY && btn.y2 >= vecY )
+			{
+				f = 1;
+				btn.highlighted = true;
+				doAction = btn.action;
+			}
+
+			renderBuffer.pos( middle_x + btn.x1, middle_y + btn.y1, zLevel ).color( f, f, f, a ).endVertex();
+			renderBuffer.pos( middle_x + btn.x1, middle_y + btn.y2, zLevel ).color( f, f, f, a ).endVertex();
+			renderBuffer.pos( middle_x + btn.x2, middle_y + btn.y2, zLevel ).color( f, f, f, a ).endVertex();
+			renderBuffer.pos( middle_x + btn.x2, middle_y + btn.y1, zLevel ).color( f, f, f, a ).endVertex();
 		}
 
 		tessellator.draw();
@@ -205,6 +257,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		GlStateManager.bindTexture( Minecraft.getMinecraft().getTextureMapBlocks().getGlTextureId() );
 
 		renderBuffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR );
+
 		for ( final MenuRegion mnuRgn : modes )
 		{
 			final double x = ( mnuRgn.x1 + mnuRgn.x2 ) * 0.5 * ( ring_outer_edge * 0.6 + 0.4 * ring_inner_edge );
@@ -235,6 +288,29 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			renderBuffer.pos( middle_x + x2, middle_y + y1, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
 		}
 
+		for ( final MenuButton btn : btns )
+		{
+			final float f = switchTo == null ? 1.0f : 0.5f;
+			final float a = 1.0f;
+
+			final double u1 = 0;
+			final double u2 = 16;
+			final double v1 = 0;
+			final double v2 = 16;
+
+			final TextureAtlasSprite sprite = btn.icon;
+
+			final double btnx1 = btn.x1 + 1;
+			final double btnx2 = btn.x2 - 1;
+			final double btny1 = btn.y1 + 1;
+			final double btny2 = btn.y2 - 1;
+
+			renderBuffer.pos( middle_x + btnx1, middle_y + btny1, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
+			renderBuffer.pos( middle_x + btnx1, middle_y + btny2, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
+			renderBuffer.pos( middle_x + btnx2, middle_y + btny2, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
+			renderBuffer.pos( middle_x + btnx2, middle_y + btny1, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
+		}
+
 		tessellator.draw();
 
 		for ( final MenuRegion mnuRgn : modes )
@@ -257,9 +333,18 @@ public class ChiselsAndBitsMenu extends GuiScreen
 					fixed_x -= fontRendererObj.getStringWidth( text ) / 2;
 				}
 
-				fontRendererObj.drawString( text, (int) middle_x + fixed_x, (int) middle_y + fixed_y, 0xffffffff );
+				fontRendererObj.drawStringWithShadow( text, (int) middle_x + fixed_x, (int) middle_y + fixed_y, 0xffffffff );
 			}
 		}
+
+		for ( final MenuButton btn : btns )
+		{
+			if ( btn.highlighted )
+			{
+				fontRendererObj.drawString( StatCollector.translateToLocal( btn.name ), (int) ( middle_x + btn.x2 + 8 ), (int) ( middle_y + btn.y1 + 6 ), 0xffffffff );
+			}
+		}
+
 		GlStateManager.popMatrix();
 	}
 
