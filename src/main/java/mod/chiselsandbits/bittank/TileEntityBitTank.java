@@ -300,7 +300,8 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 	@Override
 	public boolean hasFastRenderer()
 	{
-		return true;
+		// https://github.com/MinecraftForge/MinecraftForge/issues/2528
+		return false; // true can cause crashes when rendering in pass1.
 	}
 
 	FluidStack getBitsAsFluidStack()

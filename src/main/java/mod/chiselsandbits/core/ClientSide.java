@@ -61,7 +61,6 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
@@ -251,8 +250,6 @@ public class ClientSide
 		final ModelResourceLocation bittank_item = new ModelResourceLocation( new ResourceLocation( modId, "bittank" ), "inventory" );
 
 		registerMesh( bitTankItem, 0, bittank_item );
-		ModelLoader.setCustomStateMapper( bitTank, new StateMap.Builder().withName( BlockBitTank.FACING ).build() );
-
 		ChiselsAndBits.getConfig().allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
 	}
 
