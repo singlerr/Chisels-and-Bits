@@ -25,7 +25,7 @@ repositories {
 
 dependencies {
 	deobfCompile "mezz.jei:jei_1.8.9:2.27.+"
-	deobfCompile "MCMultiPart:MCMultiPart:1.0.5:universal"
+	deobfCompile "MCMultiPart:MCMultiPart:1.0.8:universal"
 }
 
 minecraft {
