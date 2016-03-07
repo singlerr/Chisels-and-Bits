@@ -91,9 +91,6 @@ public class ModConfig extends Configuration
 	public int creativeClipboardSize;
 
 	@Configured( category = "Client Settings" )
-	public boolean addPickedBlocksToCreativeClipboard;
-
-	@Configured( category = "Client Settings" )
 	public boolean addBrokenBlocksToCreativeClipboard;
 
 	@Configured( category = "Client Settings" )
@@ -279,7 +276,6 @@ public class ModConfig extends Configuration
 		enableChiselToolHarvestCheckTools = "pickaxe,axe,shovel";
 
 		creativeClipboardSize = 32;
-		addPickedBlocksToCreativeClipboard = true;
 		addBrokenBlocksToCreativeClipboard = true;
 		fluidBitsAreClickThough = true;
 		persistCreativeClipboard = true;

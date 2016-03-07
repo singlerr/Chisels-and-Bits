@@ -423,14 +423,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			final ItemStack result = getPickBlock( target, pos, getTileEntity( world, pos ) );
-
-			if ( ChiselsAndBits.getConfig().addPickedBlocksToCreativeClipboard )
-			{
-				CreativeClipboardTab.addItem( result );
-			}
-
-			return result;
+			return getPickBlock( target, pos, getTileEntity( world, pos ) );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
