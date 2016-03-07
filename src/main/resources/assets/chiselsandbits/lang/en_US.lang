@@ -75,6 +75,7 @@ mod.chiselsandbits.help.negativeprint=Right click to write;Right click to chisel
 mod.chiselsandbits.help.mirrorprint=Right click the face on wish to mirror from;Craft with positive/negative design to transfer.
 mod.chiselsandbits.help.chisel=Left click to chisel;Right click to cycle modes.;Use {} to display menu.
 mod.chiselsandbits.help.bitsaw=Craft with Blocks or Chiseled blocks;Cut along any of the 3 axis.
+mod.chiselsandbits.help.bittank=Fill with fluid and extract bits.
 
 mod.chiselsandbits.help.chiseled_block.long=Left click to place the block. Sneak while placing to ignore block grid. Shift + Mouse Wheel to cycle placement rotation.
 mod.chiselsandbits.help.bit_bag.long=Automatically re-stocks, and store bits when you exceed or go under a stack in your inventory.
@@ -85,6 +86,7 @@ mod.chiselsandbits.help.negativeprint.long=Right click on a chiseled block to wr
 mod.chiselsandbits.help.mirrorprint.long=Right click on a chiseled block face on wish to mirror from, clicking an east facing face will mirror it along the east->west axis. Craft written design with a positive or negative design to transfer the mirror image to the type of design you want.
 mod.chiselsandbits.help.chisel.long=Left click any compatible block to chisel. Right click to cycle thought chisel modes, you can also use Shift + Mouse Wheel to cycle modes.
 mod.chiselsandbits.help.bitsaw.long=Craft this saw with supported blocks, or symmetrical chiseled blocks to cut them in half. The axis of cutting is determined by the position of the saw related the block, cut along the X axis with the saw to the side, along the Y axis if the saw is above or below, and Z is if the saw is diagonal.
+mod.chiselsandbits.help.bittank.long=Right click with a bucket to insert/remove fluid. Right click without a bucket to extract bits from a filled tank, shift+right click inserts bits in your hand, inserting with an empty hand will attempt to insert as many bits as possible. You can use automation such as hoppers to extract bits from a tank with fluid in it.
 
 mod.chiselsandbits.help.leftalt=Left Alt
 mod.chiselsandbits.help.rightalt=Right Alt

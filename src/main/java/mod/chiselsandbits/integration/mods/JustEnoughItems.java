@@ -50,6 +50,7 @@ public class JustEnoughItems extends BlankModPlugin
 		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemPositiveprint ), LocalStrings.LongHelpPositivePrint );
 		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemBitSawDiamond ), LocalStrings.LongHelpBitSaw );
 		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemWrench ), LocalStrings.LongHelpWrench );
+		addDescription( registry, stackCollection( ChiselsAndBits.getBlocks().blockBitTank ), LocalStrings.LongHelpBitTank );
 	}
 
 	private void addDescription(
@@ -82,6 +83,17 @@ public class JustEnoughItems extends BlankModPlugin
 		}
 
 		return Collections.singletonList( itemToItemstack( it ) );
+	}
+
+	private List<ItemStack> stackCollection(
+			final Block it )
+	{
+		if ( it == null )
+		{
+			return null;
+		}
+
+		return Collections.singletonList( blockToItemstack( it ) );
 	}
 
 	private ItemStack blockToItemstack(

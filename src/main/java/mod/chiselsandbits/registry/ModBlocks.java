@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mod.chiselsandbits.bittank.BlockBitTank;
+import mod.chiselsandbits.bittank.ItemBlockBitTank;
 import mod.chiselsandbits.bittank.TileEntityBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
@@ -32,20 +33,20 @@ public class ModBlocks extends ModRegistry
 	public final BlockBitTank blockBitTank;
 
 	public static final MaterialType[] validMaterials = new MaterialType[] {
-			new MaterialType( "wood", Material.wood ),
-			new MaterialType( "rock", Material.rock ),
-			new MaterialType( "iron", Material.iron ),
-			new MaterialType( "cloth", Material.cloth ),
-			new MaterialType( "ice", Material.ice ),
-			new MaterialType( "packedIce", Material.packedIce ),
-			new MaterialType( "clay", Material.clay ),
-			new MaterialType( "glass", Material.glass ),
-			new MaterialType( "sand", Material.sand ),
-			new MaterialType( "ground", Material.ground ),
-			new MaterialType( "grass", Material.grass ),
-			new MaterialType( "snow", Material.craftedSnow ),
-			new MaterialType( "fluid", Material.water ),
-			new MaterialType( "leaves", Material.leaves ),
+		new MaterialType( "wood", Material.wood ),
+		new MaterialType( "rock", Material.rock ),
+		new MaterialType( "iron", Material.iron ),
+		new MaterialType( "cloth", Material.cloth ),
+		new MaterialType( "ice", Material.ice ),
+		new MaterialType( "packedIce", Material.packedIce ),
+		new MaterialType( "clay", Material.clay ),
+		new MaterialType( "glass", Material.glass ),
+		new MaterialType( "sand", Material.sand ),
+		new MaterialType( "ground", Material.ground ),
+		new MaterialType( "grass", Material.grass ),
+		new MaterialType( "snow", Material.craftedSnow ),
+		new MaterialType( "fluid", Material.water ),
+		new MaterialType( "leaves", Material.leaves ),
 	};
 
 	public ModBlocks(
@@ -71,7 +72,7 @@ public class ModBlocks extends ModRegistry
 		if ( config.enableBitTank )
 		{
 			blockBitTank = new BlockBitTank();
-			registerBlock( blockBitTank, null, "bittank" );
+			registerBlock( blockBitTank, ItemBlockBitTank.class, "bittank" );
 			GameRegistry.registerTileEntity( TileEntityBitTank.class, TE_BIT_TANK );
 		}
 		else
