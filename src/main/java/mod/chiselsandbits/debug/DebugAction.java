@@ -386,7 +386,7 @@ public abstract class DebugAction
 			final VoxelBlob out = new VoxelBlob();
 			MCMultipartProxy.proxyMCMultiPart.addFiller( w, loc.getBlockPos(), out );
 
-			player.addChatComponentMessage( new ChatComponentText( out.solid() + " blocked" ) );
+			player.addChatComponentMessage( new ChatComponentText( out.filled() + " blocked" ) );
 			player.addChatComponentMessage( new ChatComponentText( out.air() + " not-blocked" ) );
 
 			final boolean isMultiPart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( w, loc.getBlockPos() );

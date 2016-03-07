@@ -170,7 +170,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			return getTileEntity( worldIn, pos ).getBlob().solid() == 0;
+			return getTileEntity( worldIn, pos ).getBlob().filled() == 0;
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{

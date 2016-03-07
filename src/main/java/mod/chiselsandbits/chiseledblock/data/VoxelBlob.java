@@ -29,11 +29,10 @@ import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializer;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog.EnumAxis;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
@@ -362,7 +361,7 @@ public final class VoxelBlob
 		}
 	}
 
-	public int solid()
+	public int filled()
 	{
 		int p = 0;
 
@@ -714,25 +713,13 @@ public final class VoxelBlob
 
 		for ( final Entry<Integer, Integer> e : states.entrySet() )
 		{
-			final IBlockState state = Block.getStateById( e.getKey() );
-			if ( state == null )
+			final ItemChiseledBit bit = ChiselsAndBits.getItems().itemBlockBit;
+			final String name = bit.getBitTypeName( ItemChiseledBit.createStack( e.getKey(), 1, false ) );
+
+			if ( name == null )
 			{
 				continue;
 			}
-
-			final Block blk = state.getBlock();
-			if ( blk == null )
-			{
-				continue;
-			}
-
-			final Item what = Item.getItemFromBlock( blk );
-			if ( what == null )
-			{
-				continue;
-			}
-
-			final String name = what.getItemStackDisplayName( new ItemStack( what, 1, blk.getMetaFromState( state ) ) );
 
 			Integer count = contents.get( name );
 

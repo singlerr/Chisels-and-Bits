@@ -77,7 +77,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 					tmp.readChisleData( stack.getTagCompound() );
 					final VoxelBlob blob = tmp.getBlob();
 
-					final int solid = blob.solid();
+					final int solid = blob.filled();
 					final int air = blob.air();
 
 					if ( solid > 0 )
@@ -87,7 +87,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 					if ( air > 0 )
 					{
-						details.add( air + " " + LocalStrings.Solid.getLocal() );
+						details.add( air + " " + LocalStrings.Filled.getLocal() );
 					}
 				}
 

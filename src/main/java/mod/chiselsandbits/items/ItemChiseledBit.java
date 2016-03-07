@@ -94,8 +94,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( player, ChiselToolType.BIT ), itemstack, pos, player );
 	}
 
-	@Override
-	public String getItemStackDisplayName(
+	public String getBitTypeName(
 			final ItemStack stack )
 	{
 		ItemStack target = null;
@@ -113,7 +112,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				final Fluid f = BlockBitInfo.getFluidFromBlock( blk );
 				if ( f != null )
 				{
-					return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( f.getLocalizedName( new FluidStack( f, 10 ) ) ).toString();
+					return f.getLocalizedName( new FluidStack( f, 10 ) );
 				}
 			}
 			else
@@ -128,10 +127,24 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 		if ( target == null || target.getItem() == null )
 		{
+			return null;
+		}
+
+		return target.getDisplayName();
+	}
+
+	@Override
+	public String getItemStackDisplayName(
+			final ItemStack stack )
+	{
+		final String typeName = getBitTypeName( stack );
+
+		if ( typeName == null )
+		{
 			return super.getItemStackDisplayName( stack );
 		}
 
-		return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( target.getDisplayName() ).toString();
+		return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( typeName ).toString();
 	}
 
 	public static boolean inventoryHack;

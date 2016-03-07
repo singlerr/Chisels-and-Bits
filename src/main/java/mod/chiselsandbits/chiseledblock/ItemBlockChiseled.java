@@ -320,7 +320,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 					for ( int z = 0; z < 2; z++ )
 					{
 						blobs[x][y][z] = source.offset( offset.getX() - source.detail * x, offset.getY() - source.detail * y, offset.getZ() - source.detail * z );
-						final int solids = blobs[x][y][z].solid();
+						final int solids = blobs[x][y][z].filled();
 						if ( solids > 0 )
 						{
 							final BlockPos bp = pos.add( x, y, z );
@@ -356,7 +356,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 					{
 						for ( int z = 0; z < 2; z++ )
 						{
-							if ( blobs[x][y][z].solid() > 0 )
+							if ( blobs[x][y][z].filled() > 0 )
 							{
 								final BlockPos bp = pos.add( x, y, z );
 								final IBlockState state = world.getBlockState( bp );

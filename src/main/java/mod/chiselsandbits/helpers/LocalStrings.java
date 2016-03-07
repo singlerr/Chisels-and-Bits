@@ -19,7 +19,7 @@ public enum LocalStrings
 
 	ShiftDetails( "help.shiftdetails" ),
 	Empty( "help.empty" ),
-	Solid( "help.solid" ),
+	Filled( "help.filled" ),
 
 	HelpChiseledBlock( "help.chiseled_block" ),
 	LongHelpChiseledBlock( "help.chiseled_block.long" ),
