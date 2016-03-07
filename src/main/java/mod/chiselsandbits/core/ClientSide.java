@@ -965,6 +965,7 @@ public class ClientSide
 			previousRotations = rotations;
 			previousCacheRef = cacheRef;
 			lastPos = blockPos;
+			lastPartial = partial;
 
 			final TileEntityBlockChiseled bc = new TileEntityBlockChiseled();
 			bc.readChisleData( item.getSubCompound( "BlockEntityTag", false ) );
