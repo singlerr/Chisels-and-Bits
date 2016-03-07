@@ -216,9 +216,6 @@ public class BitSawCrafting implements IRecipe
 			}
 		}
 
-		final IntegerBox aB = a.getBounds();
-		final IntegerBox bB = b.getBounds();
-
 		if ( a.equals( b ) )
 		{
 			final List<TypeRef> refs = a.getBlockCounts();
