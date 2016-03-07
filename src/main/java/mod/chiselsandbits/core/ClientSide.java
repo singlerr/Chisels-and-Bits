@@ -38,6 +38,7 @@ import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.helpers.VoxelRegionSrc;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IPatternItem;
@@ -648,6 +649,7 @@ public class ClientSide
 					final boolean isBit = getHeldToolType() == ChiselToolType.BIT;
 					final TileEntityBlockChiseled data = ModUtil.getChiseledTileEntity( theWorld, location.blockPos, false );
 
+					final VoxelRegionSrc region = new VoxelRegionSrc( theWorld, location.blockPos, 1 );
 					final VoxelBlob vb = data != null ? data.getBlob() : new VoxelBlob();
 
 					if ( isChisel && data == null )
@@ -708,9 +710,10 @@ public class ClientSide
 
 						if ( theWorld.isAirBlock( location.blockPos ) || isBitBlock || isBlockSupported )
 						{
-							final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, vb, chMode, mop.sideHit );
+							final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, region, chMode, mop.sideHit );
 							final AxisAlignedBB bb = i.getBoundingBox( vb, isChisel );
 							drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
+							showBox = false;
 						}
 						else if ( isBit )
 						{

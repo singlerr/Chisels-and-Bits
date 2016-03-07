@@ -5,6 +5,7 @@ import java.util.Iterator;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselMode;
+import mod.chiselsandbits.helpers.IVoxelSrc;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing;
 
@@ -59,7 +60,7 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 			int x,
 			int y,
 			int z,
-			final VoxelBlob source,
+			final IVoxelSrc source,
 			final ChiselMode mode,
 			final EnumFacing side )
 	{

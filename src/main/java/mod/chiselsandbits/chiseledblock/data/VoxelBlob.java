@@ -28,6 +28,7 @@ import mod.chiselsandbits.chiseledblock.serialization.BlobSerilizationCache;
 import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializer;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.IVoxelSrc;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
@@ -42,7 +43,7 @@ import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public final class VoxelBlob
+public final class VoxelBlob implements IVoxelSrc
 {
 
 	// generated filtering data as needed.

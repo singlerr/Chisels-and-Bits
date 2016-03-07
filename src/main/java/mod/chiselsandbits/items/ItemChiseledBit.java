@@ -23,6 +23,7 @@ import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
+import mod.chiselsandbits.helpers.VoxelRegionSrc;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.network.NetworkRouter;
@@ -225,21 +226,10 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 					case CONNECTED_PLANE:
 
-						final TileEntityBlockChiseled vsTile = ModUtil.getChiseledTileEntity( world, chiselLocation.blockPos, true );
-						VoxelBlob vsBlob = null;
+						final VoxelRegionSrc region = new VoxelRegionSrc( world, chiselLocation.blockPos, 1 );
 
-						if ( vsTile == null )
-						{
-							vsBlob = new VoxelBlob();
-							vsBlob.fill( 1 );
-						}
-						else
-						{
-							vsBlob = vsTile.getBlob();
-						}
-
-						final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, chiselLocation.bitX, chiselLocation.bitY, chiselLocation.bitZ, vsBlob, ChiselMode.CONNECTED_PLANE, side );
-						final IntegerBox connectedBox = i.getVoxelBox( vsBlob, true );
+						final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, chiselLocation.bitX, chiselLocation.bitY, chiselLocation.bitZ, region, ChiselMode.CONNECTED_PLANE, side );
+						final IntegerBox connectedBox = i.getVoxelBox( region.getBlobAt( chiselLocation.blockPos ), true );
 
 						if ( connectedBox == null )
 						{

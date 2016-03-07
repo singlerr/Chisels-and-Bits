@@ -16,6 +16,7 @@ import mod.chiselsandbits.helpers.ContinousBits;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.helpers.VoxelRegionSrc;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
@@ -148,7 +149,7 @@ public class PacketChisel extends ModPacket
 							// adjust voxel state...
 							final VoxelBlob vb = tec.getBlob();
 
-							final ChiselTypeIterator i = getIterator( vb, pos );
+							final ChiselTypeIterator i = getIterator( new VoxelRegionSrc( world, pos, 1 ), pos );
 							while ( i.hasNext() && chisel.isValid() )
 							{
 								if ( place )
@@ -203,7 +204,7 @@ public class PacketChisel extends ModPacket
 	}
 
 	private ChiselTypeIterator getIterator(
-			final VoxelBlob vb,
+			final VoxelRegionSrc vb,
 			final BlockPos pos )
 	{
 		if ( mode == ChiselMode.DRAWN_REGION )
