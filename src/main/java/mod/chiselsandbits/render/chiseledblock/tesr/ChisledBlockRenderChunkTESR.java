@@ -456,6 +456,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			try
 			{
 				final Tessellator tess = tlrc.future.get( 5, TimeUnit.MILLISECONDS );
+				tlrc.future = null;
 				pendingTess.decrementAndGet();
 
 				uploadDisplayList( new UploadTracker( renderCache, layer, tess ) );
