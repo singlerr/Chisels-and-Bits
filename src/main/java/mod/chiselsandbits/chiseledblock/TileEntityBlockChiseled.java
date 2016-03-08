@@ -567,7 +567,6 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	private ItemStackGeneratedCache pickcache = null;
 
 	public ItemStack getItemStack(
-			final Block what,
 			final EntityPlayer player )
 	{
 		final ItemStackGeneratedCache cache = pickcache;
@@ -593,7 +592,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			}
 
 			final BitAccess ba = new BitAccess( null, null, vb, VoxelBlob.NULL_BLOB );
-			final ItemStack itemstack = ba.getBitsAsItem( enumfacing, ItemType.CHISLED_BLOCK );
+			final ItemStack itemstack = ba.getBitsAsItem( enumfacing, ItemType.CHISLED_BLOCK, false );
 
 			pickcache = new ItemStackGeneratedCache( itemstack, getBlobStateReference(), rotations );
 			return itemstack;
@@ -606,7 +605,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			}
 
 			final BitAccess ba = new BitAccess( null, null, getBlob(), VoxelBlob.NULL_BLOB );
-			final ItemStack itemstack = ba.getBitsAsItem( null, ItemType.CHISLED_BLOCK );
+			final ItemStack itemstack = ba.getBitsAsItem( null, ItemType.CHISLED_BLOCK, false );
 
 			pickcache = new ItemStackGeneratedCache( itemstack, getBlobStateReference(), 0 );
 			return itemstack;

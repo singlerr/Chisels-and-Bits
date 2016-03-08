@@ -4,7 +4,6 @@ import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.EnumFacing.Axis;
@@ -101,7 +100,7 @@ public class StackableCrafting implements IRecipe
 		}
 
 		tmp.setBlob( bestBlob );
-		return tmp.getItemStack( ( (ItemBlock) stack.getItem() ).block, null );
+		return tmp.getItemStack( null );
 	}
 
 	private boolean arrayCompare(

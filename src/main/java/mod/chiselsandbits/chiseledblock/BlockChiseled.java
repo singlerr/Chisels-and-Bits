@@ -117,7 +117,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			try
 			{
 				final TileEntityBlockChiseled tebc = getTileEntity( world, pos );
-				CreativeClipboardTab.addItem( tebc.getItemStack( world.getBlockState( pos ).getBlock(), player ) );
+				CreativeClipboardTab.addItem( tebc.getItemStack( player ) );
 
 				UndoTracker.getInstance().add( world, pos, tebc.getBlobStateReference(), new VoxelBlobStateReference( 0, 0 ) );
 			}
@@ -338,7 +338,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			spawnAsEntity( worldIn, pos, getTileEntity( worldIn, pos ).getItemStack( this, null ) );
+			spawnAsEntity( worldIn, pos, getTileEntity( worldIn, pos ).getItemStack( null ) );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
@@ -356,7 +356,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			spawnAsEntity( worldIn, pos, getTileEntity( te ).getItemStack( this, player ) );
+			spawnAsEntity( worldIn, pos, getTileEntity( te ).getItemStack( player ) );
 
 		}
 		catch ( final ExceptionNoTileEntity e )
@@ -375,7 +375,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			return Collections.singletonList( getTileEntity( world, pos ).getItemStack( this, null ) );
+			return Collections.singletonList( getTileEntity( world, pos ).getItemStack( null ) );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
@@ -452,7 +452,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			return ItemChiseledBit.createStack( itemBlock, 1, false );
 		}
 
-		return te.getItemStack( this, ClientSide.instance.getPlayer() );
+		return te.getItemStack( ClientSide.instance.getPlayer() );
 	}
 
 	@Override

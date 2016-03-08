@@ -190,7 +190,7 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 	@Override
 	public List<ItemStack> getDrops()
 	{
-		return Collections.singletonList( getTile().getItemStack( getBlock(), null ) );
+		return Collections.singletonList( getTile().getItemStack( null ) );
 	}
 
 	@Override
@@ -207,7 +207,7 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 				&& !world.restoringBlockSnapshots )
 		{
 
-			final ItemStack stack = getTile().getItemStack( getBlock(), player );
+			final ItemStack stack = getTile().getItemStack( player );
 			final EntityItem item = new EntityItem( world, x, y, z, stack );
 			item.setDefaultPickupDelay();
 			world.spawnEntityInWorld( item );

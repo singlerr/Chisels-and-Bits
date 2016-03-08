@@ -16,6 +16,7 @@ import com.google.common.base.Stopwatch;
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBrush;
+import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.bittank.BlockBitTank;
 import mod.chiselsandbits.bittank.TileEntityBitTank;
 import mod.chiselsandbits.bittank.TileEntitySpecialRenderBitTank;
@@ -30,6 +31,7 @@ import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.client.CreativeClipboardTab;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.client.gui.ChiselsAndBitsMenu;
 import mod.chiselsandbits.client.gui.SpriteIconPositioning;
@@ -114,6 +116,7 @@ public class ClientSide
 	private KeyBinding undo;
 	private KeyBinding redo;
 	private KeyBinding modeMenu;
+	private KeyBinding addToClipboard;
 	private KeyBinding pickBit;
 	private Stopwatch rotateTimer;
 
@@ -155,6 +158,9 @@ public class ClientSide
 
 		redo = new KeyBinding( "mod.chiselsandbits.other.redo", 0, "itemGroup.chiselsandbits" );
 		ClientRegistry.registerKeyBinding( redo );
+
+		addToClipboard = new KeyBinding( "mod.chiselsandbits.other.add_to_clipboard", 0, "itemGroup.chiselsandbits" );
+		ClientRegistry.registerKeyBinding( addToClipboard );
 
 		ChiselsAndBits.registerWithBus( instance );
 
@@ -418,6 +424,25 @@ public class ClientSide
 		if ( redo.isPressed() )
 		{
 			UndoTracker.getInstance().redo();
+		}
+
+		if ( addToClipboard.isPressed() )
+		{
+			final Minecraft mc = Minecraft.getMinecraft();
+			if ( mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK )
+			{
+				try
+				{
+					final IBitAccess access = ChiselsAndBits.getApi().getBitAccess( mc.theWorld, mc.objectMouseOver.getBlockPos() );
+					final ItemStack is = access.getBitsAsItem( null, ItemType.CHISLED_BLOCK, false );
+
+					CreativeClipboardTab.addItem( is );
+				}
+				catch ( final CannotBeChiseled e )
+				{
+					// nope.
+				}
+			}
 		}
 
 		if ( pickBit.isPressed() )
@@ -1011,7 +1036,7 @@ public class ClientSide
 			bc.setBlob( blob );
 
 			final Block blk = Block.getBlockFromItem( item.getItem() );
-			final ItemStack is = bc.getItemStack( blk, null );
+			final ItemStack is = bc.getItemStack( null );
 
 			if ( is == null || is.getItem() == null )
 			{

@@ -22,9 +22,11 @@ import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
+import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -210,6 +212,12 @@ public class ChiselsAndBits
 		if ( getItems().itemBlockBit != null )
 		{
 			getItems().itemBlockBit.clearCache();
+		}
+
+		if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
+		{
+			CreativeClipboardTab.clearMappings();
+			ModelUtil.resetCache();
 		}
 
 		UndoTracker.getInstance().clear();

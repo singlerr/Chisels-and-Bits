@@ -6,10 +6,14 @@ import java.util.List;
 
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.ItemType;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.registry.ModItems;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -18,14 +22,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CreativeClipboardTab extends CreativeTabs
 {
-	static private List<ItemStack> myItems = new ArrayList<ItemStack>();
+	static boolean renewMappings = true;
+	static private List<ItemStack> myWorldItems = new ArrayList<ItemStack>();
+	static private List<ItemStack> myCrossItems = new ArrayList<ItemStack>();
 	static private ClipboardStorage clipStorage = null;
 
 	public static void load(
 			final File file )
 	{
 		clipStorage = new ClipboardStorage( file );
-		myItems = clipStorage.read();
+		myCrossItems = clipStorage.read();
 	}
 
 	static public void addItem(
@@ -41,7 +47,7 @@ public class CreativeClipboardTab extends CreativeTabs
 				return;
 			}
 
-			final ItemStack is = bitData.getBitsAsItem( null, ItemType.CHISLED_BLOCK, false );
+			final ItemStack is = bitData.getBitsAsItem( null, ItemType.CHISLED_BLOCK, true );
 
 			if ( is == null )
 			{
@@ -49,25 +55,26 @@ public class CreativeClipboardTab extends CreativeTabs
 			}
 
 			// remove duplicates if they exist...
-			for ( final ItemStack isa : myItems )
+			for ( final ItemStack isa : myCrossItems )
 			{
 				if ( ItemStack.areItemStackTagsEqual( is, isa ) )
 				{
-					myItems.remove( isa );
+					myCrossItems.remove( isa );
 					break;
 				}
 			}
 
 			// add item to front...
-			myItems.add( 0, is );
+			myCrossItems.add( 0, is );
 
 			// remove extra items from back..
-			while ( myItems.size() > ChiselsAndBits.getConfig().creativeClipboardSize && !myItems.isEmpty() )
+			while ( myCrossItems.size() > ChiselsAndBits.getConfig().creativeClipboardSize && !myCrossItems.isEmpty() )
 			{
-				myItems.remove( myItems.size() - 1 );
+				myCrossItems.remove( myCrossItems.size() - 1 );
 			}
 
-			clipStorage.write( myItems );
+			clipStorage.write( myCrossItems );
+			myWorldItems.clear();
 		}
 	}
 
@@ -96,7 +103,40 @@ public class CreativeClipboardTab extends CreativeTabs
 	public void displayAllReleventItems(
 			final List<ItemStack> itemList )
 	{
-		itemList.addAll( myItems );
+		if ( renewMappings )
+		{
+			myWorldItems.clear();
+			renewMappings = false;
+
+			for ( final ItemStack is : myCrossItems )
+			{
+				final TileEntityBlockChiseled tebc = new TileEntityBlockChiseled();
+				tebc.readChisleData( is.getSubCompound( "BlockEntityTag", true ) );
+
+				// recalculate.
+				tebc.setBlob( tebc.getBlob() );
+
+				final IBlockState state = tebc.getBlockState( Blocks.stone );
+				final Block blk = ChiselsAndBits.getBlocks().getConversion( state.getBlock() );
+
+				if ( blk != null )
+				{
+					final ItemStack worldItem = tebc.getItemStack( null );
+
+					if ( worldItem != null )
+					{
+						myWorldItems.add( worldItem );
+					}
+				}
+			}
+		}
+
+		itemList.addAll( myWorldItems );
+	}
+
+	public static void clearMappings()
+	{
+		renewMappings = true;
 	}
 
 }

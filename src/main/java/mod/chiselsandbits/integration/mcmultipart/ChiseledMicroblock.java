@@ -30,7 +30,7 @@ public class ChiseledMicroblock extends MicroblockClass
 			final int arg2 )
 	{
 		final ChiseledBlockPart part = (ChiseledBlockPart) material;
-		return part.getTile().getItemStack( part.getBlock(), null );
+		return part.getTile().getItemStack( null );
 	}
 
 	@Override
