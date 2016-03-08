@@ -15,7 +15,7 @@ public class PlayerCopiedInventory implements IInventory
 	public PlayerCopiedInventory(
 			final InventoryPlayer original )
 	{
-		this.logicBase = original;
+		logicBase = original;
 		slots = new ItemStack[original.getSizeInventory()];
 
 		for ( int x = 0; x < slots.length; ++x )

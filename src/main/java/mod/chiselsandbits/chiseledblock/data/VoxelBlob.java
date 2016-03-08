@@ -489,6 +489,7 @@ public final class VoxelBlob implements IVoxelSrc
 		legacyRead( out );
 	}
 
+	@Override
 	public int getSafe(
 			final int x,
 			final int y,

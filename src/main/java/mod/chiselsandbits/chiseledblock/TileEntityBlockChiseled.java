@@ -678,7 +678,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	public Collection<AxisAlignedBB> getBoxes(
 			final BoxType type )
-			{
+	{
 		final VoxelBlobStateReference ref = getBlobStateReference();
 
 		if ( ref != null )
@@ -689,7 +689,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		{
 			return Collections.emptyList();
 		}
-			}
+	}
 
 	public void setNormalCube(
 			final boolean b )

@@ -19,9 +19,9 @@ public class ActingPlayer
 			final EntityPlayer player,
 			final boolean realPlayer )
 	{
-		this.innerPlayer = player;
+		innerPlayer = player;
 		this.realPlayer = realPlayer;
-		this.storage = realPlayer ? player.inventory : new PlayerCopiedInventory( player.inventory );
+		storage = realPlayer ? player.inventory : new PlayerCopiedInventory( player.inventory );
 	}
 
 	public IInventory getInventory()
@@ -102,7 +102,7 @@ public class ActingPlayer
 
 	public boolean isReal()
 	{
-		return this.realPlayer;
+		return realPlayer;
 	}
 
 }

@@ -41,7 +41,7 @@ public abstract class BaseBakedBlockModel implements IFlexibleBakedModel, IPersp
 	@Override
 	public Pair<? extends IFlexibleBakedModel, Matrix4f> handlePerspective(
 			final TransformType cameraTransformType )
-			{
+	{
 		switch ( cameraTransformType )
 		{
 			case THIRD_PERSON:
@@ -50,7 +50,7 @@ public abstract class BaseBakedBlockModel implements IFlexibleBakedModel, IPersp
 				return new ImmutablePair<IFlexibleBakedModel, Matrix4f>( this, identity );
 		}
 
-			}
+	}
 
 	@Override
 	final public boolean isAmbientOcclusion()

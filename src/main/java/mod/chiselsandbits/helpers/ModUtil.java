@@ -42,7 +42,7 @@ public class ModUtil
 
 	static public Pair<Vec3, Vec3> getPlayerRay(
 			final EntityPlayer playerIn )
-			{
+	{
 		double reachDistance = 5.0d;
 
 		final double x = playerIn.prevPosX + ( playerIn.posX - playerIn.prevPosX );

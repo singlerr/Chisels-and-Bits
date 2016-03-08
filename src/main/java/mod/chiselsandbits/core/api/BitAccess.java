@@ -47,7 +47,7 @@ public class BitAccess implements IBitAccess
 			final VoxelBlob blob,
 			final VoxelBlob filler )
 	{
-		this.world = worldIn;
+		world = worldIn;
 		this.pos = pos;
 		this.blob = blob;
 		this.filler = filler;
