@@ -183,7 +183,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final World worldIn,
 			final EntityPlayer playerIn )
 	{
-		if ( worldIn.isRemote )
+		if ( worldIn.isRemote && ChiselsAndBits.getConfig().enableRightClickModeChange )
 		{
 			final ChiselMode mode = ChiselModeManager.getChiselMode( playerIn, ChiselToolType.CHISEL );
 			ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, playerIn.isSneaking() ? -1 : 1 );
@@ -206,12 +206,13 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final float hitY,
 			final float hitZ )
 	{
-		if ( world.isRemote )
+		if ( world.isRemote && ChiselsAndBits.getConfig().enableRightClickModeChange )
 		{
 			onItemRightClick( stack, world, player );
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	/**

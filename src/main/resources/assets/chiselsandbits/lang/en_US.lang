@@ -74,7 +74,7 @@ mod.chiselsandbits.help.bit=Left click to chisel;Right click to place;Use {} to 
 mod.chiselsandbits.help.positiveprint=Right click to write;Right click to chisel/place or Craft with bits/bags.;Mouse Wheel to cycle rotation.
 mod.chiselsandbits.help.negativeprint=Right click to write;Right click to chisel.;Mouse Wheel to cycle rotation.
 mod.chiselsandbits.help.mirrorprint=Right click the face on wish to mirror from;Craft with positive/negative design to transfer.
-mod.chiselsandbits.help.chisel=Left click to chisel;Right click to cycle modes.;Use {} to display menu.
+mod.chiselsandbits.help.chisel=Left click to chisel;Use {} to display menu.
 mod.chiselsandbits.help.bitsaw=Craft with Blocks or Chiseled blocks;Cut along any of the 3 axis.
 mod.chiselsandbits.help.bittank=Fill with fluid and extract bits.
 
@@ -160,3 +160,4 @@ mod.chiselsandbits.config.ironChiselUses=Iron Chisel Uses
 mod.chiselsandbits.config.diamondChiselUses=Diamond Chisel Uses
 mod.chiselsandbits.config.goldChiselUses=Gold Chisel uses
 mod.chiselsandbits.config.wrenchUses=Wrench Uses
+mod.chiselsandbits.config.enableRightClickModeChange=Cycle Chisel mode on right click

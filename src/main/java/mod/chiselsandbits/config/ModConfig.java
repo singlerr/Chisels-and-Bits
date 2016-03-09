@@ -40,6 +40,9 @@ public class ModConfig extends Configuration
 	public boolean logTileErrors;
 
 	@Configured( category = "Client Settings" )
+	public boolean enableRightClickModeChange;
+
+	@Configured( category = "Client Settings" )
 	private boolean showUsage;
 
 	@Configured( category = "Client Settings" )
@@ -279,6 +282,7 @@ public class ModConfig extends Configuration
 		addBrokenBlocksToCreativeClipboard = true;
 		fluidBitsAreClickThough = true;
 		persistCreativeClipboard = true;
+		enableRightClickModeChange = false;
 
 		enableBitTank = true;
 		enableBitLightSource = true;
