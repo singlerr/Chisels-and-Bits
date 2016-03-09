@@ -31,7 +31,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
@@ -69,10 +68,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			{
 				if ( tooltipCache.needsUpdate( stack ) )
 				{
-					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-					tmp.readChisleData( stack.getSubCompound( NBT_CHISELED_DATA, false ) );
-					final VoxelBlob blob = tmp.getBlob();
-
+					final VoxelBlob blob = ModUtil.getBlobFromStack( stack, null );
 					tooltipCache.updateCachedValue( blob.listContents( new ArrayList<String>() ) );
 				}
 
@@ -186,16 +182,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 				if ( tebc != null )
 				{
-					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-					tmp.readChisleData( stack.getSubCompound( NBT_CHISELED_DATA, false ) );
-					VoxelBlob blob = tmp.getBlob();
-
-					int rotations = ModUtil.getRotations( playerIn, stack.getTagCompound().getByte( NBT_SIDE ) );
-					while ( rotations-- > 0 )
-					{
-						blob = blob.spin( Axis.Y );
-					}
-
+					final VoxelBlob blob = ModUtil.getBlobFromStack( stack, playerIn );
 					canMerge = tebc.canMerge( blob );
 				}
 			}
@@ -280,15 +267,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 				return false;
 			}
 
-			final TileEntityBlockChiseled tebc = new TileEntityBlockChiseled();
-			tebc.readChisleData( stack.getSubCompound( NBT_CHISELED_DATA, false ) );
-			VoxelBlob source = tebc.getBlob();
-
-			int rotations = ModUtil.getRotations( player, stack.getTagCompound().getByte( NBT_SIDE ) );
-			while ( rotations-- > 0 )
-			{
-				source = source.spin( Axis.Y );
-			}
+			final VoxelBlob source = ModUtil.getBlobFromStack( stack, player );
 
 			final IntegerBox modelBounds = source.getBounds();
 			BlockPos offset = partial == null ? new BlockPos( 0, 0, 0 ) : ModUtil.getPartialOffset( side, partial, modelBounds );
@@ -368,7 +347,8 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 								if ( world.isAirBlock( bp ) )
 								{
-									if ( BlockChiseled.replaceWithChisled( world, bp, state, tebc.getBasicState().getValue( BlockChiseled.UProperty_Primary_BlockState ), true ) )
+									final int commonBlock = blobs[x][y][z].getVoxelStats().mostCommonState;
+									if ( BlockChiseled.replaceWithChisled( world, bp, state, commonBlock, true ) )
 									{
 										final TileEntityBlockChiseled target = myBlock.getTileEntity( world, bp );
 										target.setBlob( blobs[x][y][z] );

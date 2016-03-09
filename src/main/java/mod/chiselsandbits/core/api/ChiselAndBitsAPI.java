@@ -206,10 +206,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		final ItemType type = getItemType( bitItemStack );
 		if ( type != null && type.isBitAccess )
 		{
-			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-			tmp.readChisleData( bitItemStack.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) );
-			final VoxelBlob blob = tmp.getBlob();
-
+			final VoxelBlob blob = ModUtil.getBlobFromStack( bitItemStack, null );
 			return new BitAccess( null, null, blob, VoxelBlob.NULL_BLOB );
 		}
 

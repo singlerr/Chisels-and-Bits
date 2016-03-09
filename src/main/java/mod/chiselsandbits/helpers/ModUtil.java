@@ -10,6 +10,7 @@ import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemBitBag.BagPos;
@@ -22,9 +23,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -427,6 +430,42 @@ public class ModUtil
 		}
 
 		return false;
+	}
+
+	public static VoxelBlob getBlobFromStack(
+			final ItemStack stack,
+			final EntityLivingBase rotationPlayer )
+	{
+		if ( stack.hasTagCompound() )
+		{
+			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+
+			NBTTagCompound cData = stack.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false );
+
+			if ( cData == null )
+			{
+				cData = stack.getTagCompound();
+			}
+
+			tmp.readChisleData( cData );
+			VoxelBlob blob = tmp.getBlob();
+
+			if ( rotationPlayer != null )
+			{
+				final NBTTagCompound rotationSrc = cData.hasKey( ItemBlockChiseled.NBT_SIDE ) ? cData : stack.getTagCompound();
+				final byte rotations = rotationSrc.getByte( ItemBlockChiseled.NBT_SIDE );
+
+				int xrotations = ModUtil.getRotations( rotationPlayer, rotations );
+				while ( xrotations-- > 0 )
+				{
+					blob = blob.spin( Axis.Y );
+				}
+			}
+
+			return blob;
+		}
+
+		return new VoxelBlob();
 	}
 
 }

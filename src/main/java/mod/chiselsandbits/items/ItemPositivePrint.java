@@ -48,10 +48,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 			{
 				if ( toolTipCache.needsUpdate( stack ) )
 				{
-					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-					tmp.readChisleData( stack.getTagCompound() );
-					final VoxelBlob blob = tmp.getBlob();
-
+					final VoxelBlob blob = ModUtil.getBlobFromStack( stack, null );
 					toolTipCache.updateCachedValue( blob.listContents( new ArrayList<String>() ) );
 				}
 

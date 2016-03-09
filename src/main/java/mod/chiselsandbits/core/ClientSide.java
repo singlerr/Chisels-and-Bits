@@ -924,16 +924,7 @@ public class ClientSide
 
 					if ( tebc != null )
 					{
-						final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-						tmp.readChisleData( currentItem.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) );
-						VoxelBlob blob = tmp.getBlob();
-
-						int xrotations = ModUtil.getRotations( player, currentItem.getTagCompound().getByte( ItemBlockChiseled.NBT_SIDE ) );
-						while ( xrotations-- > 0 )
-						{
-							blob = blob.spin( Axis.Y );
-						}
-
+						final VoxelBlob blob = ModUtil.getBlobFromStack( currentItem, player );
 						canMerge = tebc.canMerge( blob );
 					}
 				}

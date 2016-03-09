@@ -4,18 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.bitbag.BagInventory;
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.TypeRef;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 
 class ChiselCraftingRequirements
 {
-	private final NBTTagCompound patternTag;
 	private final VoxelBlob voxelBlob;
 	final ItemStack pattern;
 
@@ -32,7 +30,6 @@ class ChiselCraftingRequirements
 	{
 		pile = new ItemStack[inv.getSizeInventory()];
 		pattern = inPattern;
-		patternTag = inPattern.getTagCompound();
 
 		for ( int x = 0; x < inv.getSizeInventory(); x++ )
 		{
@@ -61,9 +58,7 @@ class ChiselCraftingRequirements
 			}
 		}
 
-		final TileEntityBlockChiseled tec = new TileEntityBlockChiseled();
-		tec.readChisleData( patternTag );
-		voxelBlob = tec.getBlob();
+		voxelBlob = ModUtil.getBlobFromStack( inPattern, null );
 	}
 
 	public boolean isValid()

@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.helpers.ModelQuadReader;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.client.Minecraft;
@@ -67,9 +67,7 @@ public class JsonModelExport extends CommandBase
 
 			if ( is.getItem() instanceof ItemBlockChiseled && is.hasTagCompound() )
 			{
-				final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-				tmp.readChisleData( is.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) );
-				final VoxelBlob blob = tmp.getBlob();
+				final VoxelBlob blob = ModUtil.getBlobFromStack( is, null );
 
 				final byte[] bd = blob.blobToBytes( VoxelBlob.VERSION_CROSSWORLD );
 				data = Arrays.toString( bd );

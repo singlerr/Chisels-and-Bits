@@ -75,9 +75,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 				{
 					details.clear();
 
-					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-					tmp.readChisleData( stack.getTagCompound() );
-					final VoxelBlob blob = tmp.getBlob();
+					final VoxelBlob blob = ModUtil.getBlobFromStack( stack, null );
 
 					final int solid = blob.filled();
 					final int air = blob.air();
@@ -156,23 +154,9 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		final TileEntityBlockChiseled tec = ModUtil.getChiseledTileEntity( world, pos, true );
 		if ( tec != null )
 		{
-			final NBTTagCompound blueprintTag = stack.getTagCompound();
-
-			// float newPitch = player.rotationPitch;
-			// float oldPitch = blueprintTag.getFloat("rotationPitch" );
-
-			int rotations = ModUtil.getRotations( player, blueprintTag.getByte( ItemBlockChiseled.NBT_SIDE ) );
-
 			final VoxelBlob vb = tec.getBlob();
 
-			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-			tmp.readChisleData( blueprintTag );
-			VoxelBlob pattern = tmp.getBlob();
-
-			while ( rotations-- > 0 )
-			{
-				pattern = pattern.spin( Axis.Y );
-			}
+			final VoxelBlob pattern = ModUtil.getBlobFromStack( stack, player );
 
 			applyPrint( world, pos, side, vb, pattern, player );
 
