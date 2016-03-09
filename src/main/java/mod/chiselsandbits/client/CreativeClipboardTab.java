@@ -6,9 +6,11 @@ import java.util.List;
 
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.ItemType;
+import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -20,7 +22,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class CreativeClipboardTab extends CreativeTabs
+public class CreativeClipboardTab extends CreativeTabs implements ICacheClearable
 {
 	static boolean renewMappings = true;
 	static private List<ItemStack> myWorldItems = new ArrayList<ItemStack>();
@@ -81,6 +83,7 @@ public class CreativeClipboardTab extends CreativeTabs
 	public CreativeClipboardTab()
 	{
 		super( ChiselsAndBits.MODID + ".Clipboard" );
+		ChiselsAndBits.getInstance().addClearable( this );
 	}
 
 	@Override
@@ -111,7 +114,7 @@ public class CreativeClipboardTab extends CreativeTabs
 			for ( final ItemStack is : myCrossItems )
 			{
 				final TileEntityBlockChiseled tebc = new TileEntityBlockChiseled();
-				tebc.readChisleData( is.getSubCompound( "BlockEntityTag", true ) );
+				tebc.readChisleData( is.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, true ) );
 
 				// recalculate.
 				tebc.setBlob( tebc.getBlob() );
@@ -134,7 +137,8 @@ public class CreativeClipboardTab extends CreativeTabs
 		itemList.addAll( myWorldItems );
 	}
 
-	public static void clearMappings()
+	@Override
+	public void clearCache()
 	{
 		renewMappings = true;
 	}

@@ -81,7 +81,7 @@ public class StackableCrafting implements IRecipe
 			final ItemStack stack )
 	{
 		final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-		tmp.readChisleData( stack.getSubCompound( "BlockEntityTag", false ) );
+		tmp.readChisleData( stack.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) );
 
 		VoxelBlob bestBlob = tmp.getBlob();
 		byte[] bestValue = bestBlob.toLegacyByteArray();

@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.IBitVisitor;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -167,7 +168,7 @@ public class BitAccess implements IBitAccess
 			}
 
 			itemstack = new ItemStack( blk, 1 );
-			itemstack.setTagInfo( "BlockEntityTag", nbttagcompound );
+			itemstack.setTagInfo( ItemBlockChiseled.NBT_CHISELED_DATA, nbttagcompound );
 		}
 		else
 		{
@@ -191,7 +192,7 @@ public class BitAccess implements IBitAccess
 
 		if ( side != null )
 		{
-			itemstack.setTagInfo( "side", new NBTTagByte( (byte) side.ordinal() ) );
+			itemstack.setTagInfo( ItemBlockChiseled.NBT_SIDE, new NBTTagByte( (byte) side.ordinal() ) );
 		}
 
 		return itemstack;

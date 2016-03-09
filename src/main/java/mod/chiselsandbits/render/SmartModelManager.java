@@ -2,11 +2,12 @@ package mod.chiselsandbits.render;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.bit.BitItemSmartModel;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
-import mod.chiselsandbits.render.helpers.ModelUtil;
 import mod.chiselsandbits.render.patterns.PrintSmartModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
@@ -18,7 +19,8 @@ public class SmartModelManager
 {
 
 	private final HashMap<ResourceLocation, IFlexibleBakedModel> models = new HashMap<ResourceLocation, IFlexibleBakedModel>();
-	private final ArrayList<ModelResourceLocation> res = new ArrayList<ModelResourceLocation>();
+	private final List<ModelResourceLocation> res = new ArrayList<ModelResourceLocation>();
+	private final List<ICacheClearable> clearable = new ArrayList<ICacheClearable>();
 
 	public SmartModelManager()
 	{
@@ -51,6 +53,11 @@ public class SmartModelManager
 	{
 		final ResourceLocation second = new ResourceLocation( modelLocation.getResourceDomain(), modelLocation.getResourcePath().substring( 1 + modelLocation.getResourcePath().lastIndexOf( '/' ) ) );
 
+		if ( modelGen instanceof ICacheClearable )
+		{
+			clearable.add( (ICacheClearable) modelGen );
+		}
+
 		res.add( new ModelResourceLocation( modelLocation, null ) );
 		res.add( new ModelResourceLocation( second, null ) );
 
@@ -77,9 +84,10 @@ public class SmartModelManager
 	public void onModelBakeEvent(
 			final ModelBakeEvent event )
 	{
-		ChiseledBlockSmartModel.resetCache();
-		BitItemSmartModel.resetCache();
-		ModelUtil.resetCache();
+		for ( final ICacheClearable c : clearable )
+		{
+			c.clearCache();
+		}
 
 		for ( final ModelResourceLocation rl : res )
 		{

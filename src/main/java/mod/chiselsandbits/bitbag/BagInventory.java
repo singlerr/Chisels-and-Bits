@@ -330,7 +330,7 @@ public class BagInventory implements IInventory
 	}
 
 	@SideOnly( Side.CLIENT )
-	public void listContents(
+	public List<String> listContents(
 			final List<String> details )
 	{
 		final TreeMap<String, Integer> contents = new TreeMap<String, Integer>();
@@ -402,5 +402,7 @@ public class BagInventory implements IInventory
 		{
 			details.add( new StringBuilder().append( e.getValue() ).append( ' ' ).append( e.getKey() ).toString() );
 		}
+
+		return details;
 	}
 }

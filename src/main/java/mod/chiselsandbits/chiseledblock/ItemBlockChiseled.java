@@ -17,6 +17,7 @@ import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
+import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
 import net.minecraft.block.state.IBlockState;
@@ -41,15 +42,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IItemScrollWheel
 {
 
+	public static final String NBT_CHISELED_DATA = "BlockEntityTag";
+	public static final String NBT_SIDE = "side";
+
+	SimpleInstanceCache<ItemStack, List<String>> tooltipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
+
 	public ItemBlockChiseled(
 			final Block block )
 	{
 		super( block );
 	}
-
-	// add info cached info
-	ItemStack cachedInfo;
-	List<String> details = new ArrayList<String>();
 
 	@Override
 	public void addInformation(
@@ -65,19 +67,16 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		{
 			if ( ClientSide.instance.holdingShift() )
 			{
-				if ( cachedInfo != stack )
+				if ( tooltipCache.needsUpdate( stack ) )
 				{
-					cachedInfo = stack;
-					details.clear();
-
 					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-					tmp.readChisleData( stack.getSubCompound( "BlockEntityTag", false ) );
+					tmp.readChisleData( stack.getSubCompound( NBT_CHISELED_DATA, false ) );
 					final VoxelBlob blob = tmp.getBlob();
 
-					blob.listContents( details );
+					tooltipCache.updateCachedValue( blob.listContents( new ArrayList<String>() ) );
 				}
 
-				tooltip.addAll( details );
+				tooltip.addAll( tooltipCache.getCached() );
 			}
 			else
 			{
@@ -188,10 +187,10 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 				if ( tebc != null )
 				{
 					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-					tmp.readChisleData( stack.getSubCompound( "BlockEntityTag", false ) );
+					tmp.readChisleData( stack.getSubCompound( NBT_CHISELED_DATA, false ) );
 					VoxelBlob blob = tmp.getBlob();
 
-					int rotations = ModUtil.getRotations( playerIn, stack.getTagCompound().getByte( "side" ) );
+					int rotations = ModUtil.getRotations( playerIn, stack.getTagCompound().getByte( NBT_SIDE ) );
 					while ( rotations-- > 0 )
 					{
 						blob = blob.spin( Axis.Y );
@@ -282,10 +281,10 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			}
 
 			final TileEntityBlockChiseled tebc = new TileEntityBlockChiseled();
-			tebc.readChisleData( stack.getSubCompound( "BlockEntityTag", false ) );
+			tebc.readChisleData( stack.getSubCompound( NBT_CHISELED_DATA, false ) );
 			VoxelBlob source = tebc.getBlob();
 
-			int rotations = ModUtil.getRotations( player, stack.getTagCompound().getByte( "side" ) );
+			int rotations = ModUtil.getRotations( player, stack.getTagCompound().getByte( NBT_SIDE ) );
 			while ( rotations-- > 0 )
 			{
 				source = source.spin( Axis.Y );
@@ -410,10 +409,10 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 		if ( comp != null )
 		{
-			final NBTTagCompound BlockEntityTag = comp.getCompoundTag( "BlockEntityTag" );
+			final NBTTagCompound BlockEntityTag = comp.getCompoundTag( NBT_CHISELED_DATA );
 			if ( BlockEntityTag != null )
 			{
-				final int stateid = BlockEntityTag.getInteger( "b" );
+				final int stateid = BlockEntityTag.getInteger( TileEntityBlockChiseled.NBT_PRIMARY_STATE );
 
 				final IBlockState state = Block.getStateById( stateid );
 				final Block blk = state.getBlock();
@@ -447,7 +446,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final int rotationDirection )
 	{
 		final NBTTagCompound blueprintTag = stack.getTagCompound();
-		EnumFacing side = EnumFacing.VALUES[blueprintTag.getByte( "side" )];
+		EnumFacing side = EnumFacing.VALUES[blueprintTag.getByte( NBT_SIDE )];
 
 		if ( side == EnumFacing.DOWN || side == EnumFacing.UP )
 		{
@@ -455,7 +454,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		}
 
 		side = rotationDirection > 0 ? side.rotateY() : side.rotateYCCW();
-		blueprintTag.setInteger( "side", +side.ordinal() );
+		blueprintTag.setInteger( NBT_SIDE, +side.ordinal() );
 	}
 
 }

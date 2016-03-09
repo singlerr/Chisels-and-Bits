@@ -12,6 +12,7 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketOpenBagGui;
+import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -35,15 +36,13 @@ public class ItemBitBag extends Item
 	public static final int OFFSET_STATE_ID = 0;
 	public static final int OFFSET_QUANTITY = 1;
 
+	SimpleInstanceCache<ItemStack, List<String>> tooltipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
+
 	public ItemBitBag()
 	{
 		setMaxStackSize( 1 );
 		ChiselsAndBits.registerWithBus( this );
 	}
-
-	// add info cached info
-	ItemStack cachedInfo;
-	List<String> details = new ArrayList<String>();
 
 	@Override
 	public ICapabilityProvider initCapabilities(
@@ -64,15 +63,13 @@ public class ItemBitBag extends Item
 		super.addInformation( stack, playerIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBitBag, tooltip );
 
-		if ( cachedInfo != stack )
+		if ( tooltipCache.needsUpdate( stack ) )
 		{
-			cachedInfo = stack;
-			details.clear();
-
 			final BagInventory bi = new BagInventory( stack );
-			bi.listContents( details );
+			tooltipCache.updateCachedValue( bi.listContents( new ArrayList<String>() ) );
 		}
 
+		final List<String> details = tooltipCache.getCached();
 		if ( details.size() <= 2 || ClientSide.instance.holdingShift() )
 		{
 			tooltip.addAll( details );

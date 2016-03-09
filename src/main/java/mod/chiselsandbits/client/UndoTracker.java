@@ -9,6 +9,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
+import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketUndo;
 import net.minecraft.entity.player.EntityPlayer;
@@ -18,7 +19,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class UndoTracker
+public class UndoTracker implements ICacheClearable
 {
 
 	private final static UndoTracker instance = new UndoTracker();
@@ -26,6 +27,11 @@ public class UndoTracker
 	public static UndoTracker getInstance()
 	{
 		return instance;
+	}
+
+	public UndoTracker()
+	{
+		ChiselsAndBits.getInstance().addClearable( this );
 	}
 
 	private int level = -1; // the current undo level.
@@ -142,12 +148,6 @@ public class UndoTracker
 		}
 	}
 
-	public void clear()
-	{
-		level = -1;
-		undoLevels.clear();
-	}
-
 	private boolean replayChanges(
 			final ActingPlayer player,
 			UndoStep step,
@@ -248,6 +248,13 @@ public class UndoTracker
 		{
 			errors.add( string );
 		}
+	}
+
+	@Override
+	public void clearCache()
+	{
+		level = -1;
+		undoLevels.clear();
 	}
 
 }

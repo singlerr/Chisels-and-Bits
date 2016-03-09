@@ -68,7 +68,7 @@ public class JsonModelExport extends CommandBase
 			if ( is.getItem() instanceof ItemBlockChiseled && is.hasTagCompound() )
 			{
 				final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-				tmp.readChisleData( is.getSubCompound( "BlockEntityTag", false ) );
+				tmp.readChisleData( is.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) );
 				final VoxelBlob blob = tmp.getBlob();
 
 				final byte[] bd = blob.blobToBytes( VoxelBlob.VERSION_CROSSWORLD );

@@ -10,6 +10,7 @@ import java.util.Random;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ReflectionWrapper;
+import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLeavesBase;
@@ -33,11 +34,14 @@ import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fluids.Fluid;
 
 @SuppressWarnings( "unchecked" )
-public class ModelUtil
+public class ModelUtil implements ICacheClearable
 {
 	private final static Random RANDOM = new Random();
 	private final static HashMap<Integer, String> blockToTexture[];
-	static HashMap<Integer, ModelQuadLayer[]> cache = new HashMap<Integer, ModelQuadLayer[]>();
+	private static HashMap<Integer, ModelQuadLayer[]> cache = new HashMap<Integer, ModelQuadLayer[]>();
+
+	@SuppressWarnings( "unused" )
+	private static ModelUtil instance = new ModelUtil();
 
 	static
 	{
@@ -49,7 +53,8 @@ public class ModelUtil
 		}
 	}
 
-	public static void resetCache()
+	@Override
+	public void clearCache()
 	{
 		for ( int x = 0; x < blockToTexture.length; x++ )
 		{
@@ -218,7 +223,7 @@ public class ModelUtil
 
 	private ModelUtil()
 	{
-
+		ChiselsAndBits.getInstance().addClearable( this );
 	}
 
 	public static TextureAtlasSprite findQuadTexture(

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -19,6 +20,7 @@ import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
+import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
@@ -50,8 +52,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	}
 
 	// add info cached info
-	protected ItemStack cachedInfo;
-	protected List<String> details = new ArrayList<String>();
+	SimpleInstanceCache<ItemStack, List<String>> toolTipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
 
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
@@ -68,9 +69,10 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		{
 			if ( ClientSide.instance.holdingShift() )
 			{
-				if ( cachedInfo != stack )
+				final List<String> details = toolTipCache.getCached();
+
+				if ( toolTipCache.needsUpdate( stack ) )
 				{
-					cachedInfo = stack;
 					details.clear();
 
 					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
@@ -159,7 +161,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			// float newPitch = player.rotationPitch;
 			// float oldPitch = blueprintTag.getFloat("rotationPitch" );
 
-			int rotations = ModUtil.getRotations( player, blueprintTag.getByte( "side" ) );
+			int rotations = ModUtil.getRotations( player, blueprintTag.getByte( ItemBlockChiseled.NBT_SIDE ) );
 
 			final VoxelBlob vb = tec.getBlob();
 
@@ -210,7 +212,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 				tmp.writeChisleData( comp );
 			}
 
-			comp.setByte( "side", (byte) ModUtil.getPlaceFace( player ).ordinal() );
+			comp.setByte( ItemBlockChiseled.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
 			return comp;
 		}
 
@@ -235,7 +237,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		final IBlockState blk = Block.getStateById( tag.getInteger( TileEntityBlockChiseled.NBT_PRIMARY_STATE ) );
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk.getBlock() ), 1 );
 
-		itemstack.setTagInfo( "BlockEntityTag", tag );
+		itemstack.setTagInfo( ItemBlockChiseled.NBT_CHISELED_DATA, tag );
 		return itemstack;
 	}
 
@@ -292,7 +294,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final int rotationDirection )
 	{
 		final NBTTagCompound blueprintTag = stack.getTagCompound();
-		EnumFacing side = EnumFacing.VALUES[blueprintTag.getByte( "side" )];
+		EnumFacing side = EnumFacing.VALUES[blueprintTag.getByte( ItemBlockChiseled.NBT_SIDE )];
 
 		if ( side.getAxis() == Axis.Y )
 		{
@@ -300,7 +302,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		}
 
 		side = rotationDirection > 0 ? side.rotateY() : side.rotateYCCW();
-		blueprintTag.setInteger( "side", +side.ordinal() );
+		blueprintTag.setInteger( ItemBlockChiseled.NBT_SIDE, +side.ordinal() );
 	}
 
 }

@@ -24,6 +24,7 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.helpers.VoxelRegionSrc;
+import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.network.NetworkRouter;
@@ -49,12 +50,17 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselModeItem
+public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselModeItem, ICacheClearable
 {
+
+	public static boolean bitBagStackLimitHack;
+
+	private ArrayList<ItemStack> bits;
 
 	public ItemChiseledBit()
 	{
 		setHasSubtypes( true );
+		ChiselsAndBits.getInstance().addClearable( this );
 	}
 
 	@Override
@@ -69,7 +75,6 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	}
 
 	@Override
-	// 1.8.8 only hook.
 	public String getHighlightTip(
 			final ItemStack item,
 			final String displayName )
@@ -148,14 +153,12 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( typeName ).toString();
 	}
 
-	public static boolean inventoryHack;
-
 	@SuppressWarnings( "deprecation" )
 	@Override
 	public int getItemStackLimit()
 	{
-		return inventoryHack ? ChiselsAndBits.getConfig().bagStackSize : super.getItemStackLimit();
-	};
+		return bitBagStackLimitHack ? ChiselsAndBits.getConfig().bagStackSize : super.getItemStackLimit();
+	}
 
 	@Override
 	@SideOnly( Side.CLIENT )
@@ -165,6 +168,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	{
 		if ( ClientSide.instance.holdingShift() )
 		{
+			// when holding shift on bits uses a block model, colors are baked.
 			return 0xffffff;
 		}
 
@@ -260,7 +264,6 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				if ( result > 0 )
 				{
 					NetworkRouter.instance.sendToServer( pc );
-					// ClientSide.placeSound( world, usedBlock, );
 				}
 			}
 		}
@@ -268,8 +271,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		return false;
 	}
 
-	private ArrayList<ItemStack> bits;
-
+	@Override
 	public void clearCache()
 	{
 		bits = null;
@@ -382,6 +384,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		ChiselModeManager.scrollOption( ChiselToolType.BIT, mode, mode, dwheel );
 	}
 
+	// TODO: Remove Legacy Fix in 1.9
 	public static int getStackState(
 			final ItemStack inHand )
 	{

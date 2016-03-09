@@ -3,15 +3,16 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.input.Keyboard;
-
+import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IPatternItem;
+import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,18 +31,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 
 	}
 
-	protected void defaultAddInfo(
-			final ItemStack stack,
-			final EntityPlayer playerIn,
-			final List<String> tooltip,
-			final boolean advanced )
-	{
-		super.addInformation( stack, playerIn, tooltip, advanced );
-	}
-
-	// add info cached info
-	protected ItemStack cachedInfo;
-	protected List<String> details = new ArrayList<String>();
+	SimpleInstanceCache<ItemStack, List<String>> toolTipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
 
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
@@ -51,26 +41,23 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			final List tooltip,
 			final boolean advanced )
 	{
-		defaultAddInfo( stack, playerIn, tooltip, advanced );
+		super.addInformation( stack, playerIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpMirrorPrint, tooltip );
 
 		if ( stack.hasTagCompound() )
 		{
-			if ( Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT ) )
+			if ( ClientSide.instance.holdingShift() )
 			{
-				if ( cachedInfo != stack )
+				if ( toolTipCache.needsUpdate( stack ) )
 				{
-					cachedInfo = stack;
-					details.clear();
-
 					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
 					tmp.readChisleData( stack.getTagCompound() );
 					final VoxelBlob blob = tmp.getBlob();
 
-					blob.listContents( details );
+					toolTipCache.updateCachedValue( blob.listContents( new ArrayList<String>() ) );
 				}
 
-				tooltip.addAll( details );
+				tooltip.addAll( toolTipCache.getCached() );
 			}
 			else
 			{
@@ -87,6 +74,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 		{
 			return super.getUnlocalizedName( stack ) + "_written";
 		}
+
 		return super.getUnlocalizedName( stack );
 	}
 
@@ -141,7 +129,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			tmp.setBlob( bestBlob.mirror( face.getAxis() ) );
 			tmp.writeChisleData( comp );
 
-			comp.setByte( "side", (byte) ModUtil.getPlaceFace( player ).ordinal() );
+			comp.setByte( ItemBlockChiseled.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
 			return comp;
 		}
 
@@ -173,7 +161,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 		final IBlockState blk = Block.getStateById( tag.getInteger( TileEntityBlockChiseled.NBT_PRIMARY_STATE ) );
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk.getBlock() ), 1 );
 
-		itemstack.setTagInfo( "BlockEntityTag", tag );
+		itemstack.setTagInfo( ItemBlockChiseled.NBT_CHISELED_DATA, tag );
 		return itemstack;
 	}
 

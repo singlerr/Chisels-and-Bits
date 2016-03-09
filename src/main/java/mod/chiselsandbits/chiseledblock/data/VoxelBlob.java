@@ -684,7 +684,7 @@ public final class VoxelBlob implements IVoxelSrc
 	}
 
 	@SideOnly( Side.CLIENT )
-	public void listContents(
+	public List<String> listContents(
 			final List<String> details )
 	{
 		final HashMap<Integer, Integer> states = new HashMap<Integer, Integer>();
@@ -746,6 +746,8 @@ public final class VoxelBlob implements IVoxelSrc
 		{
 			details.add( new StringBuilder().append( e.getValue() ).append( ' ' ).append( e.getKey() ).toString() );
 		}
+
+		return details;
 	}
 
 	public int getSideFlags(

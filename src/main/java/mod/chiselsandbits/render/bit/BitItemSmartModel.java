@@ -5,6 +5,7 @@ import java.util.HashMap;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
@@ -16,16 +17,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.ISmartItemModel;
 
-public class BitItemSmartModel extends BaseSmartModel implements ISmartItemModel
+public class BitItemSmartModel extends BaseSmartModel implements ISmartItemModel, ICacheClearable
 {
 	static private final HashMap<Integer, IFlexibleBakedModel> modelCache = new HashMap<Integer, IFlexibleBakedModel>();
 	static private final HashMap<Integer, IFlexibleBakedModel> largeModelCache = new HashMap<Integer, IFlexibleBakedModel>();
-
-	public static void resetCache()
-	{
-		modelCache.clear();
-		largeModelCache.clear();
-	}
 
 	private IBakedModel getCachedModel(
 			final int stateID,
@@ -64,5 +59,12 @@ public class BitItemSmartModel extends BaseSmartModel implements ISmartItemModel
 			final ItemStack stack )
 	{
 		return getCachedModel( ItemChiseledBit.getStackState( stack ), ClientSide.instance.holdingShift() );
+	}
+
+	@Override
+	public void clearCache()
+	{
+		modelCache.clear();
+		largeModelCache.clear();
 	}
 }

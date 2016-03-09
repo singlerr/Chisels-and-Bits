@@ -878,7 +878,7 @@ public class ClientSide
 				return;
 			}
 
-			final int rotations = ModUtil.getRotations( player, currentItem.getTagCompound().getByte( "side" ) );
+			final int rotations = ModUtil.getRotations( player, currentItem.getTagCompound().getByte( ItemBlockChiseled.NBT_SIDE ) );
 
 			if ( item != null )
 			{
@@ -907,7 +907,7 @@ public class ClientSide
 				return;
 			}
 
-			final int rotations = ModUtil.getRotations( player, item.getTagCompound().getByte( "side" ) );
+			final int rotations = ModUtil.getRotations( player, item.getTagCompound().getByte( ItemBlockChiseled.NBT_SIDE ) );
 			final BlockPos offset = mop.getBlockPos();
 
 			if ( player.isSneaking() )
@@ -925,10 +925,10 @@ public class ClientSide
 					if ( tebc != null )
 					{
 						final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-						tmp.readChisleData( currentItem.getSubCompound( "BlockEntityTag", false ) );
+						tmp.readChisleData( currentItem.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) );
 						VoxelBlob blob = tmp.getBlob();
 
-						int xrotations = ModUtil.getRotations( player, currentItem.getTagCompound().getByte( "side" ) );
+						int xrotations = ModUtil.getRotations( player, currentItem.getTagCompound().getByte( ItemBlockChiseled.NBT_SIDE ) );
 						while ( xrotations-- > 0 )
 						{
 							blob = blob.spin( Axis.Y );
@@ -996,7 +996,7 @@ public class ClientSide
 			lastPartial = partial;
 
 			final TileEntityBlockChiseled bc = new TileEntityBlockChiseled();
-			bc.readChisleData( item.getSubCompound( "BlockEntityTag", false ) );
+			bc.readChisleData( item.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) );
 			VoxelBlob blob = bc.getBlob();
 			while ( rotations-- > 0 )
 			{

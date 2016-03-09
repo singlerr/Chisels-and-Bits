@@ -7,11 +7,13 @@ import java.util.WeakHashMap;
 
 import mcmultipart.client.multipart.ISmartMultipartModel;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateInstance;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
+import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.cache.CacheMap;
@@ -29,8 +31,8 @@ import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.common.Optional.Interface;
 
-@Optional.InterfaceList( { @Interface( iface = "mcmultipart.client.multipart.ISmartMultipartModel", modid = "mcmultipart" ) })
-public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel, ISmartMultipartModel
+@Optional.InterfaceList( { @Interface( iface = "mcmultipart.client.multipart.ISmartMultipartModel", modid = "mcmultipart" ) } )
+public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel, ISmartMultipartModel, ICacheClearable
 {
 
 	static final CacheMap<VoxelBlobStateReference, ChiseledBlockBaked> solidCache = new CacheMap<VoxelBlobStateReference, ChiseledBlockBaked>();
@@ -39,17 +41,6 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 	@SuppressWarnings( "unchecked" )
 	static private final Map<ModelRenderState, ChiseledBlockBaked>[] modelCache = new Map[5];
-
-	static public void resetCache()
-	{
-		for ( final ChiselLayer l : ChiselLayer.values() )
-		{
-			modelCache[l.ordinal()].clear();
-		}
-
-		solidCache.clear();
-		itemToModel.clear();
-	}
 
 	static
 	{
@@ -262,15 +253,15 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 			return this;
 		}
 
-		c = c.getCompoundTag( "BlockEntityTag" );
+		c = c.getCompoundTag( ItemBlockChiseled.NBT_CHISELED_DATA );
 		if ( c == null )
 		{
 			return this;
 		}
 
-		final byte[] data = c.getByteArray( "v" );
-		byte[] vdata = c.getByteArray( "X" );
-		final Integer blockP = c.getInteger( "b" );
+		final byte[] data = c.getByteArray( TileEntityBlockChiseled.NBT_LEGACY_VOXEL );
+		byte[] vdata = c.getByteArray( TileEntityBlockChiseled.NBT_VERSIONED_VOXEL );
+		final Integer blockP = c.getInteger( TileEntityBlockChiseled.NBT_PRIMARY_STATE );
 
 		if ( ( vdata == null || vdata.length == 0 ) && data != null && data.length > 0 )
 		{
@@ -299,6 +290,18 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 		itemToModel.put( stack, mdl );
 
 		return mdl;
+	}
+
+	@Override
+	public void clearCache()
+	{
+		for ( final ChiselLayer l : ChiselLayer.values() )
+		{
+			modelCache[l.ordinal()].clear();
+		}
+
+		solidCache.clear();
+		itemToModel.clear();
 	}
 
 }

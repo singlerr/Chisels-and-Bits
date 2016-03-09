@@ -162,7 +162,7 @@ public class BagContainer extends Container
 			if ( normalToBag )
 			{
 				helper.inventorySlots = customSlots;
-				ItemChiseledBit.inventoryHack = true;
+				ItemChiseledBit.bitBagStackLimitHack = true;
 			}
 			else
 			{
@@ -180,7 +180,7 @@ public class BagContainer extends Container
 			{
 				// add the extra items back on...
 				transferStack.stackSize += extraItems;
-				ItemChiseledBit.inventoryHack = false;
+				ItemChiseledBit.bitBagStackLimitHack = false;
 			}
 
 			if ( transferStack.stackSize == 0 )

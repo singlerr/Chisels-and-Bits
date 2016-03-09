@@ -309,12 +309,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 
 			if ( output == null || !ItemChiseledBit.sameBit( output, blk ) || output.stackSize == 64 )
 			{
-				output = ItemChiseledBit.createStack( blk, 1, true );// new
-				// ItemStack(
-				// srcItem,
-				// 1,
-				// blk
-				// );
+				output = ItemChiseledBit.createStack( blk, 1, true );
 
 				if ( spawnBit )
 				{

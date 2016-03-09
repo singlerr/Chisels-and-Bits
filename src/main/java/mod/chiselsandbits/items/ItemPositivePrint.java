@@ -6,6 +6,7 @@ import java.util.List;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -45,19 +46,16 @@ public class ItemPositivePrint extends ItemNegativePrint
 		{
 			if ( ClientSide.instance.holdingShift() )
 			{
-				if ( cachedInfo != stack )
+				if ( toolTipCache.needsUpdate( stack ) )
 				{
-					cachedInfo = stack;
-					details.clear();
-
 					final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
 					tmp.readChisleData( stack.getTagCompound() );
 					final VoxelBlob blob = tmp.getBlob();
 
-					blob.listContents( details );
+					toolTipCache.updateCachedValue( blob.listContents( new ArrayList<String>() ) );
 				}
 
-				tooltip.addAll( details );
+				tooltip.addAll( toolTipCache.getCached() );
 			}
 			else
 			{
@@ -84,7 +82,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 			final NBTTagCompound comp = new NBTTagCompound();
 			tmp.writeChisleData( comp );
 
-			comp.setByte( "side", (byte) ModUtil.getPlaceFace( player ).ordinal() );
+			comp.setByte( ItemBlockChiseled.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
 			return comp;
 		}
 
@@ -147,7 +145,8 @@ public class ItemPositivePrint extends ItemNegativePrint
 							else if ( bit.isValid() )
 							{
 								vb.set( x, y, z, inPattern );
-								if ( !who.capabilities.isCreativeMode )
+
+								if ( player.isCreative() )
 								{
 									bit.consume();
 								}

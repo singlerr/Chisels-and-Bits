@@ -1,6 +1,8 @@
 package mod.chiselsandbits.core;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
@@ -19,14 +21,13 @@ import mod.chiselsandbits.crafting.StackableCrafting;
 import mod.chiselsandbits.events.EventBreakSpeed;
 import mod.chiselsandbits.events.EventPlayerInteract;
 import mod.chiselsandbits.integration.Integration;
+import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
-import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -65,6 +66,8 @@ public class ChiselsAndBits
 	private ModBlocks blocks;
 	private final Integration integration = new Integration();
 	private final IChiselAndBitsAPI api = new ChiselAndBitsAPI();
+
+	List<ICacheClearable> cacheClearables = new ArrayList<ICacheClearable>();
 
 	public ChiselsAndBits()
 	{
@@ -199,8 +202,6 @@ public class ChiselsAndBits
 			}
 		}
 
-		getItems().itemBlockBit.clearCache();
-
 		NetworkRouter.instance = new NetworkRouter();
 		NetworkRegistry.INSTANCE.registerGuiHandler( this, new ModGuiRouter() );
 	}
@@ -209,18 +210,12 @@ public class ChiselsAndBits
 	public void idsMapped(
 			final FMLModIdMappingEvent event )
 	{
-		if ( getItems().itemBlockBit != null )
+		for ( final ICacheClearable clearable : cacheClearables )
 		{
-			getItems().itemBlockBit.clearCache();
+			clearable.clearCache();
 		}
 
-		if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
-		{
-			CreativeClipboardTab.clearMappings();
-			ModelUtil.resetCache();
-		}
-
-		UndoTracker.getInstance().clear();
+		addClearable( UndoTracker.getInstance() );
 		VoxelBlob.clearCache();
 	}
 
@@ -228,6 +223,12 @@ public class ChiselsAndBits
 			final Object obj )
 	{
 		MinecraftForge.EVENT_BUS.register( obj );
+	}
+
+	public void addClearable(
+			final ICacheClearable cache )
+	{
+		cacheClearables.add( cache );
 	}
 
 }
