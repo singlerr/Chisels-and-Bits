@@ -24,7 +24,7 @@ public class SimpleInstanceCache<X, Y>
 				return true;
 			}
 
-			return isEqual( equalityValue, testValue );
+			return !isEqual( equalityValue, testValue );
 		}
 		finally
 		{
