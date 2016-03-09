@@ -2,7 +2,6 @@ package mod.chiselsandbits.chiseledblock;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Random;
 
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -12,10 +11,9 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockGlass;
-import net.minecraft.block.BlockGlowstone;
 import net.minecraft.block.BlockGrass;
+import net.minecraft.block.BlockIce;
 import net.minecraft.block.BlockSlime;
-import net.minecraft.block.BlockSnowBlock;
 import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -156,16 +154,6 @@ public class BlockBitInfo
 			final Class<? extends Block> blkClass = blk.getClass();
 
 			// require default drop behavior...
-			pb.quantityDropped( null );
-			final Class<?> wc = blkClass.getMethod( pb.MethodName, Random.class ).getDeclaringClass();
-			final boolean quantityDroppedTest = wc == Block.class || wc == BlockGlowstone.class || wc == BlockStainedGlass.class || wc == BlockGlass.class || wc == BlockSnowBlock.class;
-
-			pb.quantityDroppedWithBonus( 0, null );
-			final boolean quantityDroppedWithBonusTest = blkClass.getMethod( pb.MethodName, int.class, Random.class ).getDeclaringClass() == Block.class || wc == BlockGlowstone.class;
-
-			pb.quantityDropped( null, 0, null );
-			final boolean quantityDropped2Test = blkClass.getMethod( pb.MethodName, IBlockState.class, int.class, Random.class ).getDeclaringClass() == Block.class;
-
 			pb.onEntityCollidedWithBlock( null, null, null );
 			final boolean entityCollisionTest = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
 
@@ -175,12 +163,12 @@ public class BlockBitInfo
 			// full cube specifically is tied to lighting... so for glass
 			// Compatibility use isFullBlock which can be true for glass.
 
-			boolean isFullBlock = blk.isFullBlock() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.slime_block;
+			boolean isFullBlock = blk.isFullBlock() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.slime_block || blk == Blocks.ice;
 
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
-			boolean requiredImplementation = quantityDroppedTest && quantityDroppedWithBonusTest && quantityDropped2Test && entityCollisionTest && entityCollision2Test;
-			boolean hasBehavior = ( blk.hasTileEntity( state ) || blk.getTickRandomly() ) && blkClass != BlockGrass.class;
+			boolean requiredImplementation = entityCollisionTest && entityCollision2Test;
+			boolean hasBehavior = ( blk.hasTileEntity( state ) || blk.getTickRandomly() ) && blkClass != BlockGrass.class && blkClass != BlockIce.class;
 
 			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( blk ) != null;
 
