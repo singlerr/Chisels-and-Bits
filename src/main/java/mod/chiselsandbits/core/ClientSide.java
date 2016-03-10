@@ -24,6 +24,7 @@ import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
+import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
@@ -986,9 +987,10 @@ public class ClientSide
 			lastPos = blockPos;
 			lastPartial = partial;
 
-			final TileEntityBlockChiseled bc = new TileEntityBlockChiseled();
-			bc.readChisleData( item.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) );
-			VoxelBlob blob = bc.getBlob();
+			final NBTBlobConverter c = new NBTBlobConverter();
+			c.readChisleData( item.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) );
+			VoxelBlob blob = c.getBlob();
+
 			while ( rotations-- > 0 )
 			{
 				blob = blob.spin( Axis.Y );
@@ -1024,10 +1026,10 @@ public class ClientSide
 				}
 			}
 
-			bc.setBlob( blob );
+			c.setBlob( blob );
 
 			final Block blk = Block.getBlockFromItem( item.getItem() );
-			final ItemStack is = bc.getItemStack( null );
+			final ItemStack is = c.getItemStack( false );
 
 			if ( is == null || is.getItem() == null )
 			{

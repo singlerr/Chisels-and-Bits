@@ -1,6 +1,6 @@
 package mod.chiselsandbits.crafting;
 
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.block.Block;
@@ -103,7 +103,7 @@ public class MirrorTransferCrafting implements IRecipe
 				return targetA;
 			}
 
-			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+			final NBTBlobConverter tmp = new NBTBlobConverter();
 			tmp.readChisleData( targetA.getTagCompound() );
 
 			final VoxelBlob bestBlob = tmp.getBlob();
@@ -116,7 +116,7 @@ public class MirrorTransferCrafting implements IRecipe
 			tmp.setBlob( bestBlob );
 
 			final NBTTagCompound comp = (NBTTagCompound) targetA.getTagCompound().copy();
-			tmp.writeChisleData( comp );
+			tmp.writeChisleData( comp, false );
 
 			final ItemStack outputPattern = new ItemStack( targetB.getItem() );
 			outputPattern.setTagCompound( comp );

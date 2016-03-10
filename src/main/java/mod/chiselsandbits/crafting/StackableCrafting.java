@@ -1,7 +1,7 @@
 package mod.chiselsandbits.crafting;
 
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -80,7 +80,7 @@ public class StackableCrafting implements IRecipe
 	private ItemStack getSortedVersion(
 			final ItemStack stack )
 	{
-		final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+		final NBTBlobConverter tmp = new NBTBlobConverter();
 		tmp.readChisleData( stack.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) );
 
 		VoxelBlob bestBlob = tmp.getBlob();
@@ -100,7 +100,7 @@ public class StackableCrafting implements IRecipe
 		}
 
 		tmp.setBlob( bestBlob );
-		return tmp.getItemStack( null );
+		return tmp.getItemStack( false );
 	}
 
 	private boolean arrayCompare(

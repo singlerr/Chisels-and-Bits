@@ -153,21 +153,21 @@ public class BlockBitInfo
 			final ReflectionHelperBlock pb = new ReflectionHelperBlock();
 			final Class<? extends Block> blkClass = blk.getClass();
 
-			// require default drop behavior...
+			// ignore blocks with custom collision.
 			pb.onEntityCollidedWithBlock( null, null, null );
 			final boolean entityCollisionTest = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
 
 			pb.onEntityCollidedWithBlock( null, null, null, null );
 			final boolean entityCollision2Test = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
 
+			boolean noCustomCollision = entityCollisionTest && entityCollision2Test;
+
 			// full cube specifically is tied to lighting... so for glass
 			// Compatibility use isFullBlock which can be true for glass.
-
 			boolean isFullBlock = blk.isFullBlock() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.slime_block || blk == Blocks.ice;
 
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
-			boolean requiredImplementation = entityCollisionTest && entityCollision2Test;
 			boolean hasBehavior = ( blk.hasTileEntity( state ) || blk.getTickRandomly() ) && blkClass != BlockGrass.class && blkClass != BlockIce.class;
 
 			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( blk ) != null;
@@ -176,11 +176,11 @@ public class BlockBitInfo
 			if ( blkClass.isAnnotationPresent( IgnoreBlockLogic.class ) || IgnoredLogic != null && IgnoredLogic )
 			{
 				isFullBlock = true;
-				requiredImplementation = true;
+				noCustomCollision = true;
 				hasBehavior = false;
 			}
 
-			if ( info.isCompatiable && requiredImplementation && info.hardness >= -0.01f && isFullBlock && supportedMaterial && !hasBehavior )
+			if ( info.isCompatiable && noCustomCollision && info.hardness >= -0.01f && isFullBlock && supportedMaterial && !hasBehavior )
 			{
 				final boolean result = ChiselsAndBits.getConfig().isEnabled( blkClass.getName() );
 				supportedBlocks.put( blk, result );

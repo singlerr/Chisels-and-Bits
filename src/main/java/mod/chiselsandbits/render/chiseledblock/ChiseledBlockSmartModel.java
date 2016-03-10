@@ -8,6 +8,7 @@ import java.util.WeakHashMap;
 import mcmultipart.client.multipart.ISmartMultipartModel;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
+import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateInstance;
@@ -259,9 +260,9 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 			return this;
 		}
 
-		final byte[] data = c.getByteArray( TileEntityBlockChiseled.NBT_LEGACY_VOXEL );
-		byte[] vdata = c.getByteArray( TileEntityBlockChiseled.NBT_VERSIONED_VOXEL );
-		final Integer blockP = c.getInteger( TileEntityBlockChiseled.NBT_PRIMARY_STATE );
+		final byte[] data = c.getByteArray( NBTBlobConverter.NBT_LEGACY_VOXEL );
+		byte[] vdata = c.getByteArray( NBTBlobConverter.NBT_VERSIONED_VOXEL );
+		final Integer blockP = c.getInteger( NBTBlobConverter.NBT_PRIMARY_STATE );
 
 		if ( ( vdata == null || vdata.length == 0 ) && data != null && data.length > 0 )
 		{

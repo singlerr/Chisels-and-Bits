@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
+import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
@@ -145,17 +146,17 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 		final NBTTagCompound tag = stack.getTagCompound();
 
 		// Detect and provide full blocks if pattern solid full and solid.
-		final TileEntityBlockChiseled tebc = new TileEntityBlockChiseled();
-		tebc.readChisleData( tag );
+		final NBTBlobConverter conv = new NBTBlobConverter();
+		conv.readChisleData( tag );
 
-		final BlobStats common = tebc.getBlob().getVoxelStats();
+		final BlobStats common = conv.getBlob().getVoxelStats();
 		if ( common.isFullBlock )
 		{
 			final IBlockState state = Block.getStateById( common.mostCommonState );
 			return new ItemStack( state.getBlock(), 1, state.getBlock().getMetaFromState( state ) );
 		}
 
-		final IBlockState blk = Block.getStateById( tag.getInteger( TileEntityBlockChiseled.NBT_PRIMARY_STATE ) );
+		final IBlockState blk = conv.getPrimaryBlockState();
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk.getBlock() ), 1 );
 
 		itemstack.setTagInfo( ItemBlockChiseled.NBT_CHISELED_DATA, tag );

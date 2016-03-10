@@ -8,6 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
+import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -438,7 +439,7 @@ public class ModUtil
 	{
 		if ( stack.hasTagCompound() )
 		{
-			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+			final NBTBlobConverter tmp = new NBTBlobConverter();
 
 			NBTTagCompound cData = stack.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false );
 

@@ -10,6 +10,7 @@ import mod.chiselsandbits.api.IBitVisitor;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
+import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -120,7 +121,7 @@ public class BitAccess implements IBitAccess
 		if ( tile != null )
 		{
 			final VoxelBlobStateReference before = tile.getBlobStateReference();
-			tile.setBlob( blob, triggerUpdates, false );
+			tile.setBlob( blob, triggerUpdates );
 			final VoxelBlobStateReference after = tile.getBlobStateReference();
 
 			UndoTracker.getInstance().add( world, pos, before, after );
@@ -150,10 +151,11 @@ public class BitAccess implements IBitAccess
 			return null;
 		}
 
-		final TileEntityBlockChiseled test = new TileEntityBlockChiseled();
-		test.setBlob( blob, false, crossWorld );
+		final NBTBlobConverter c = new NBTBlobConverter();
+		c.setBlob( blob );
+
 		final NBTTagCompound nbttagcompound = new NBTTagCompound();
-		test.writeChisleData( nbttagcompound );
+		c.writeChisleData( nbttagcompound, crossWorld );
 
 		final ItemStack itemstack;
 

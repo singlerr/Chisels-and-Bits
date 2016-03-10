@@ -392,9 +392,10 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final NBTTagCompound BlockEntityTag = comp.getCompoundTag( NBT_CHISELED_DATA );
 			if ( BlockEntityTag != null )
 			{
-				final int stateid = BlockEntityTag.getInteger( TileEntityBlockChiseled.NBT_PRIMARY_STATE );
+				final NBTBlobConverter c = new NBTBlobConverter();
+				c.readChisleData( BlockEntityTag );
 
-				final IBlockState state = Block.getStateById( stateid );
+				final IBlockState state = c.getPrimaryBlockState();
 				final Block blk = state.getBlock();
 
 				final ItemStack target = new ItemStack( blk, 1, blk.getMetaFromState( state ) );

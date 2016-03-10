@@ -7,15 +7,12 @@ import java.util.List;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.registry.ModItems;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -114,23 +111,17 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 
 			for ( final ItemStack is : myCrossItems )
 			{
-				final TileEntityBlockChiseled tebc = new TileEntityBlockChiseled();
-				tebc.readChisleData( is.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, true ) );
+				final NBTBlobConverter c = new NBTBlobConverter();
+				c.readChisleData( is.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, true ) );
 
 				// recalculate.
-				tebc.setBlob( tebc.getBlob() );
+				c.updateFromBlob();
 
-				final IBlockState state = tebc.getBlockState( Blocks.stone );
-				final Block blk = ChiselsAndBits.getBlocks().getConversion( state.getBlock() );
+				final ItemStack worldItem = c.getItemStack( false );
 
-				if ( blk != null )
+				if ( worldItem != null )
 				{
-					final ItemStack worldItem = tebc.getItemStack( null );
-
-					if ( worldItem != null )
-					{
-						myWorldItems.add( worldItem );
-					}
+					myWorldItems.add( worldItem );
 				}
 			}
 		}

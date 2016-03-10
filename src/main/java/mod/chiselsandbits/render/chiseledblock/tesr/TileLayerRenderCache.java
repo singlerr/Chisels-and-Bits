@@ -15,12 +15,31 @@ public class TileLayerRenderCache
 	public int displayList = 0;
 	public boolean conversion = true;
 
+	private static class dspCleanup implements Runnable
+	{
+
+		final int dspList;
+
+		public dspCleanup(
+				final int x )
+		{
+			dspList = x;
+		}
+
+		@Override
+		public void run()
+		{
+			GLAllocation.deleteDisplayLists( dspList );
+		}
+
+	};
+
 	@Override
 	protected void finalize() throws Throwable
 	{
 		if ( displayList != 0 )
 		{
-			GLAllocation.deleteDisplayLists( displayList );
+			ChisledBlockRenderChunkTESR.addTask( new dspCleanup( displayList ) );
 		}
 	}
 

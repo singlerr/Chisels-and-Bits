@@ -7,7 +7,7 @@ import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
@@ -72,12 +72,11 @@ public class ItemPositivePrint extends ItemNegativePrint
 
 		if ( !( blkObj instanceof BlockChiseled ) && BlockBitInfo.supportsBlock( state ) )
 		{
-			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
+			final NBTBlobConverter tmp = new NBTBlobConverter();
 
 			tmp.fillWith( state );
-
 			final NBTTagCompound comp = new NBTTagCompound();
-			tmp.writeChisleData( comp );
+			tmp.writeChisleData( comp, false );
 
 			comp.setByte( ItemBlockChiseled.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
 			return comp;
