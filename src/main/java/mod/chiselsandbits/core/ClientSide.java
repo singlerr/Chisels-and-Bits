@@ -37,6 +37,7 @@ import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.client.gui.ChiselsAndBitsMenu;
 import mod.chiselsandbits.client.gui.SpriteIconPositioning;
 import mod.chiselsandbits.commands.JsonModelExport;
+import mod.chiselsandbits.commands.Share;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -166,6 +167,7 @@ public class ClientSide
 		ChiselsAndBits.registerWithBus( instance );
 
 		ClientCommandHandler.instance.registerCommand( new JsonModelExport() );
+		ClientCommandHandler.instance.registerCommand( new Share() );
 	}
 
 	public void postinit(
