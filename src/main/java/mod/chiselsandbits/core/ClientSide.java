@@ -472,30 +472,34 @@ public class ClientSide
 		if ( event.type == ElementType.HOTBAR && ChiselsAndBits.getConfig().enableToolbarIcons )
 		{
 			final Minecraft mc = Minecraft.getMinecraft();
-			final GuiIngame sc = mc.ingameGUI;
 
-			for ( int slot = 0; slot < 9; ++slot )
+			if (!mc.thePlayer.isSpectator())
 			{
-				final ItemStack stack = mc.thePlayer.inventory.mainInventory[slot];
-				if ( stack != null && stack.getItem() instanceof ItemChisel )
+				final GuiIngame sc = mc.ingameGUI;
+
+				for ( int slot = 0; slot < 9; ++slot )
 				{
-					ChiselMode mode = ChiselMode.getMode( stack );
-
-					if ( !ChiselsAndBits.getConfig().perChiselMode )
+					final ItemStack stack = mc.thePlayer.inventory.mainInventory[slot];
+					if ( stack != null && stack.getItem() instanceof ItemChisel )
 					{
-						mode = ChiselModeManager.getChiselMode( mc.thePlayer, ChiselToolType.CHISEL );
+						ChiselMode mode = ChiselMode.getMode( stack );
+		
+						if ( !ChiselsAndBits.getConfig().perChiselMode )
+						{
+							mode = ChiselModeManager.getChiselMode( mc.thePlayer, ChiselToolType.CHISEL );
+						}
+		
+						final int x = event.resolution.getScaledWidth() / 2 - 90 + slot * 20 + 2;
+						final int y = event.resolution.getScaledHeight() - 16 - 3;
+		
+						GlStateManager.color( 1, 1, 1, 1.0f );
+						Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.locationBlocksTexture );
+						final TextureAtlasSprite sprite = chiselModeIcons.get( mode ).sprite;
+		
+						GlStateManager.enableBlend();
+						sc.drawTexturedModalRect( x + 1, y + 1, sprite, 8, 8 );
+						GlStateManager.disableBlend();
 					}
-
-					final int x = event.resolution.getScaledWidth() / 2 - 90 + slot * 20 + 2;
-					final int y = event.resolution.getScaledHeight() - 16 - 3;
-
-					GlStateManager.color( 1, 1, 1, 1.0f );
-					Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.locationBlocksTexture );
-					final TextureAtlasSprite sprite = chiselModeIcons.get( mode ).sprite;
-
-					GlStateManager.enableBlend();
-					sc.drawTexturedModalRect( x + 1, y + 1, sprite, 8, 8 );
-					GlStateManager.disableBlend();
 				}
 			}
 		}
