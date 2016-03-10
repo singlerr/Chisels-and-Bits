@@ -77,6 +77,7 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 
 			clipStorage.write( myCrossItems );
 			myWorldItems.clear();
+			renewMappings = true;
 		}
 	}
 
