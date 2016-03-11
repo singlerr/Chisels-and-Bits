@@ -149,22 +149,27 @@ public class BitSawCrafting implements IRecipe
 			direction = Axis.Z;
 		}
 
-		int SPLIT = 7;
+		int split_pos = 7;
 		final IntegerBox box = blob.getBounds();
+		int scale = 0;
+
 		switch ( direction )
 		{
 			case X:
-				SPLIT = MathHelper.clamp_int( ( box.maxX - box.minX ) / 2, 0, 15 );
+				split_pos = MathHelper.clamp_int( ( box.maxX + box.minX ) / 2, 0, 15 );
+				scale = ( box.maxX - box.minX ) / 2;
 				break;
 			case Y:
-				SPLIT = MathHelper.clamp_int( ( box.maxY - box.minY ) / 2, 0, 15 );
+				split_pos = MathHelper.clamp_int( ( box.maxY + box.minY ) / 2, 0, 15 );
+				scale = ( box.maxY - box.minY ) / 2;
 				break;
 			case Z:
-				SPLIT = MathHelper.clamp_int( ( box.maxZ - box.minZ ) / 2, 0, 15 );
+				split_pos = MathHelper.clamp_int( ( box.maxZ + box.minZ ) / 2, 0, 15 );
+				scale = ( box.maxZ - box.minZ ) / 2;
 				break;
 		}
 
-		final int SPLITPLUS_ONE = MathHelper.clamp_int( SPLIT + 1, 0, 15 );
+		final int split_pos_plus_one = MathHelper.clamp_int( split_pos + 1, 0, 15 );
 
 		final BitIterator bi = new BitIterator();
 		while ( bi.hasNext() )
@@ -179,9 +184,9 @@ public class BitSawCrafting implements IRecipe
 			{
 				case X:
 
-					if ( bi.x > SPLIT )
+					if ( bi.x > split_pos )
 					{
-						a.set( SPLIT - ( bi.x - SPLITPLUS_ONE ), bi.y - box.minY, bi.z - box.minZ, state );
+						a.set( scale - ( bi.x - split_pos_plus_one ), bi.y - box.minY, bi.z - box.minZ, state );
 					}
 					else
 					{
@@ -191,9 +196,9 @@ public class BitSawCrafting implements IRecipe
 					break;
 				case Y:
 
-					if ( bi.y > SPLIT )
+					if ( bi.y > split_pos )
 					{
-						a.set( bi.x - box.minX, SPLIT - ( bi.y - SPLITPLUS_ONE ), bi.z - box.minZ, state );
+						a.set( bi.x - box.minX, scale - ( bi.y - split_pos_plus_one ), bi.z - box.minZ, state );
 					}
 					else
 					{
@@ -203,9 +208,9 @@ public class BitSawCrafting implements IRecipe
 					break;
 				case Z:
 
-					if ( bi.z > SPLIT )
+					if ( bi.z > split_pos )
 					{
-						a.set( bi.x - box.minX, bi.y - box.minY, SPLIT - ( bi.z - SPLITPLUS_ONE ), state );
+						a.set( bi.x - box.minX, bi.y - box.minY, scale - ( bi.z - split_pos_plus_one ), state );
 					}
 					else
 					{
