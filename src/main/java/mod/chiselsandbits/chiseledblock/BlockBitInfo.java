@@ -57,15 +57,24 @@ public class BlockBitInfo
 		if ( out == null )
 		{
 			final Block blk = state.getBlock();
-			final ItemStack target = new ItemStack( blk, 1, blk.damageDropped( state ) );
 
-			if ( target.getItem() == null )
+			final Fluid fluid = BlockBitInfo.getFluidFromBlock( blk );
+			if ( fluid != null )
 			{
-				out = 0xffffff;
+				out = fluid.getColor();
 			}
 			else
 			{
-				out = target.getItem().getColorFromItemStack( target, renderPass );
+				final ItemStack target = new ItemStack( blk, 1, blk.damageDropped( state ) );
+
+				if ( target.getItem() == null )
+				{
+					out = 0xffffff;
+				}
+				else
+				{
+					out = target.getItem().getColorFromItemStack( target, renderPass );
+				}
 			}
 
 			bitColor.put( state, out );
