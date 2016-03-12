@@ -73,6 +73,11 @@ public class UndoTracker implements ICacheClearable
 				undoLevels.remove( 0 );
 			}
 
+			if ( level >= undoLevels.size() )
+			{
+				level = undoLevels.size() - 1;
+			}
+
 			if ( grouping && hasCreatedGroup )
 			{
 				final UndoStep current = undoLevels.get( undoLevels.size() - 1 );
