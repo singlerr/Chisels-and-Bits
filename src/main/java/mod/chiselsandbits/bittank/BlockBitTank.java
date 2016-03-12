@@ -18,7 +18,9 @@ import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidContainerRegistry;
-import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.IFluidContainerItem;
+import net.minecraftforge.fluids.IFluidHandler;
 
 import com.google.common.base.Predicate;
 
@@ -188,14 +190,13 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 
 			if ( current != null )
 			{
-				final FluidStack liquid = FluidContainerRegistry.getFluidForFilledItem( current );
-
-				if ( tank.addFluidFromItem( current, liquid, playerIn ) )
+				final IFluidHandler wrappedTank = tank.getWrappedTank();
+				if ( FluidUtil.interactWithTank( current, playerIn, wrappedTank, side ) )
 				{
 					return true;
 				}
 
-				if ( tank.putFluidIntoItem( current, liquid, playerIn ) )
+				if ( FluidContainerRegistry.isBucket( current ) || FluidContainerRegistry.isFilledContainer( current ) || current.getItem() instanceof IFluidContainerItem )
 				{
 					return true;
 				}
