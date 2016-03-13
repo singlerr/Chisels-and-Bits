@@ -223,6 +223,7 @@ public class BlockBitInfo
 
 			if ( fluidBlocks.containsKey( blk ) )
 			{
+				stateBitInfo.put( state, info );
 				supportedBlocks.put( blk, true );
 				return true;
 			}
@@ -277,8 +278,10 @@ public class BlockBitInfo
 			reflectBlock.getExplosionResistance( null, null, null, null );
 			final boolean test_d = blkClass.getMethod( reflectBlock.MethodName, World.class, BlockPos.class, Entity.class, Explosion.class ).getDeclaringClass() == Block.class;
 
+			final boolean isFluid = fluidStates.containsKey( Block.getStateId( state ) );
+
 			// is it perfect?
-			if ( test_a && test_b && test_c && test_d )
+			if ( test_a && test_b && test_c && test_d && !isFluid )
 			{
 				final float blockHardness = blk.getBlockHardness( null, null );
 				final float resistance = blk.getExplosionResistance( null );
