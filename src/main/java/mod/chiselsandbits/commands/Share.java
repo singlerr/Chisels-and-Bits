@@ -12,12 +12,15 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
+import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
+import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
-import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.render.helpers.ModelQuadShare;
 import mod.chiselsandbits.render.helpers.ModelUtil;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -26,9 +29,13 @@ import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockPos.MutableBlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
 
 /**
  * This is a WIP, and will eventually be incorporated into a gameplay element.
@@ -54,36 +61,78 @@ public class Share extends CommandBase
 		return "chiselsandbits.commands.share.usage";
 	}
 
+	BlockPos start;
+
 	@Override
 	public void processCommand(
 			final ICommandSender sender,
 			final String[] args ) throws CommandException
 	{
-		final ItemStack is = ClientSide.instance.getPlayer().getCurrentEquippedItem();
-		if ( is != null && is.getItem() != null )
+		if ( args.length > 0 && args[0].equals( "start" ) )
 		{
-			final IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( is );
+			start = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
+			sender.addChatMessage( new ChatComponentText( "Start Pos Set" ) );
+		}
+		else if ( start == null )
+		{
+			sender.addChatMessage( new ChatComponentText( "Start Pos Not Set Yet, use argument 'start'." ) );
+		}
+		else if ( start != null )
+		{
+			final World w = Minecraft.getMinecraft().theWorld;
 
-			final Map<TextureAtlasSprite, String> textures = new HashMap<TextureAtlasSprite, String>();
-
-			for ( final EnumFacing face : EnumFacing.VALUES )
+			BlockPos end = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
+			if ( end == null )
 			{
-				outputFaces( model.getFaceQuads( face ), face, textures );
+				end = Minecraft.getMinecraft().thePlayer.getPosition();
 			}
 
-			outputFaces( model.getGeneralQuads(), null, textures );
+			final Map<TextureAtlasSprite, StringBuilder> textures = new HashMap<TextureAtlasSprite, StringBuilder>();
+			final StringBuilder output = new StringBuilder( "{\n" );
 
-			String data = "N/A";
-
-			if ( is.getItem() instanceof ItemBlockChiseled && is.hasTagCompound() )
+			final BlockPos min = new BlockPos( Math.min( start.getX(), end.getX() ), Math.min( start.getY(), end.getY() ), Math.min( start.getZ(), end.getZ() ) );
+			for ( final MutableBlockPos pos : BlockPos.getAllInBoxMutable( start, end ) )
 			{
-				final VoxelBlob blob = ModUtil.getBlobFromStack( is, null );
+				IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelFromBlockState( w.getBlockState( pos ), w, pos );
+				final BlockPos offset = pos.subtract( min );
 
-				final byte[] bd = blob.blobToBytes( VoxelBlob.VERSION_CROSSWORLD );
-				data = Arrays.toString( bd );
+				final IBlockState state = w.getBlockState( pos );
+				final Item BI = Item.getItemFromBlock( state.getBlock() );
+				ItemStack modelStack = BI != null ? new ItemStack( BI, 1, state.getBlock().getDamageValue( w, pos ) ) : null;
+
+				String data = "N/A";
+				try
+				{
+					final BitAccess ba = (BitAccess) ChiselsAndBits.getApi().getBitAccess( w, pos );
+					final VoxelBlob blob = ba.getNativeBlob();
+					final byte[] bd = blob.blobToBytes( VoxelBlob.VERSION_CROSSWORLD );
+					data = Arrays.toString( bd );
+
+					final ItemStack is = ba.getBitsAsItem( null, ItemType.CHISLED_BLOCK );
+
+					if ( is == null )
+					{
+						continue;
+					}
+					modelStack = is;
+					model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( is );
+				}
+				catch ( final CannotBeChiseled e )
+				{
+					// NOPE!
+				}
+
+				for ( final EnumFacing face : EnumFacing.VALUES )
+				{
+					outputFaces( offset, model.getFaceQuads( face ), face, modelStack, textures );
+				}
+
+				outputFaces( offset, model.getGeneralQuads(), null, modelStack, textures );
+
+				output.append( "\"source-" ).append( offset.toString() ).append( "\": \"" ).append( data ).append( "\",\n" );
 			}
 
-			final StringBuilder output = new StringBuilder( "{ \"source\": \"" ).append( data ).append( "\",\n\"textures\": {" );
+			output.append( "\"textures\": {" );
 			for ( final TextureAtlasSprite s : textures.keySet() )
 			{
 				output.append( "\"" ).append( System.identityHashCode( s ) ).append( "\": \"" ).append( getIcon( s ) ).append( "\",\n" );
@@ -99,7 +148,7 @@ public class Share extends CommandBase
 			output.append( "},\n\"model\": [\n" );
 
 			int off = 0;
-			for ( final String json : textures.values() )
+			for ( final StringBuilder json : textures.values() )
 			{
 				if ( off++ > 0 )
 				{
@@ -115,10 +164,6 @@ public class Share extends CommandBase
 			GuiScreen.setClipboardString( modelJSON );
 			sender.addChatMessage( new ChatComponentText( "Json Posted to Clipboard" ) );
 		}
-		else
-		{
-			sender.addChatMessage( new ChatComponentText( "No Item in Hand." ) );
-		}
 	}
 
 	private static BufferedImage getIconAsImage(
@@ -129,14 +174,24 @@ public class Share extends CommandBase
 
 		final BufferedImage bufferedImage = new BufferedImage( width, height, BufferedImage.TYPE_4BYTE_ABGR );
 
-		final int[] frameData = textureAtlasSprite.getFrameTextureData( 0 )[0];
+		int[] frameData;
+
+		try
+		{
+			frameData = textureAtlasSprite.getFrameTextureData( 0 )[0];
+		}
+		catch ( final Exception e )
+		{
+			frameData = ClientSide.instance.getMissingIcon().getFrameTextureData( 0 )[0];
+		}
+
 		bufferedImage.setRGB( 0, 0, width, height, frameData, 0, width );
 
 		// texture packs are too big... down sample to at least 32x, this
 		// preserves fluids as well...
 		if ( width > 32 )
 		{
-			final Image resampled = bufferedImage.getScaledInstance( 32, -1, BufferedImage.SCALE_FAST );
+			final Image resampled = bufferedImage.getScaledInstance( 32, -1, Image.SCALE_FAST );
 
 			final BufferedImage newImage = new BufferedImage( resampled.getWidth( null ), resampled.getHeight( null ), BufferedImage.TYPE_4BYTE_ABGR );
 			final Graphics g = newImage.getGraphics();
@@ -168,9 +223,11 @@ public class Share extends CommandBase
 	}
 
 	private void outputFaces(
+			final BlockPos offset,
 			final List<BakedQuad> faceQuads,
 			final EnumFacing cullFace,
-			final Map<TextureAtlasSprite, String> textures )
+			final ItemStack ItemStack,
+			final Map<TextureAtlasSprite, StringBuilder> textures )
 	{
 		for ( final BakedQuad quad : faceQuads )
 		{
@@ -178,22 +235,24 @@ public class Share extends CommandBase
 			{
 				final TextureAtlasSprite sprite = ModelUtil.findQuadTexture( quad );
 
-				final ModelQuadShare mqr = new ModelQuadShare( "" + System.identityHashCode( sprite ), sprite, quad.getFace(), cullFace );
+				final ModelQuadShare mqr = new ModelQuadShare( "" + System.identityHashCode( sprite ), offset, sprite, quad.getFace(), cullFace, ItemStack );
 				quad.pipe( mqr );
 				final String newJSON = mqr.toString();
 
-				String old = textures.get( sprite );
+				StringBuilder old = textures.get( sprite );
 
 				if ( old == null )
 				{
-					old = "";
+					old = new StringBuilder( "" );
+					textures.put( sprite, old );
 				}
 				else
 				{
-					old += ",\n";
+					old.append( ",\n" );
 				}
 
-				textures.put( sprite, old + newJSON );
+				old.append( newJSON );
+
 			}
 			catch ( final IllegalArgumentException e )
 			{
