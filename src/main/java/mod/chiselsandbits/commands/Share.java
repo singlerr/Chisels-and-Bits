@@ -19,8 +19,10 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.api.BitAccess;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.helpers.ModelQuadShare;
 import mod.chiselsandbits.render.helpers.ModelUtil;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -36,7 +38,9 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.BlockPos.MutableBlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.ISmartBlockModel;
 
 /**
  * This is a WIP, and will eventually be incorporated into a gameplay element.
@@ -88,20 +92,25 @@ public class Share extends CommandBase
 				end = Minecraft.getMinecraft().thePlayer.getPosition();
 			}
 
+			final EnumWorldBlockLayer[] layers = EnumWorldBlockLayer.values();
+
 			final Map<ShareMaterial, ShareMaterial> textures = new HashMap<ShareMaterial, ShareMaterial>();
 			final StringBuilder output = new StringBuilder( "{\n" );
 
 			final BlockPos min = new BlockPos( Math.min( start.getX(), end.getX() ), Math.min( start.getY(), end.getY() ), Math.min( start.getZ(), end.getZ() ) );
+			final BlockPos max = new BlockPos( Math.max( start.getX(), end.getX() ), Math.max( start.getY(), end.getY() ), Math.max( start.getZ(), end.getZ() ) );
+
 			for ( final MutableBlockPos pos : BlockPos.getAllInBoxMutable( start, end ) )
 			{
 				IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelFromBlockState( w.getBlockState( pos ), w, pos );
 				final BlockPos offset = pos.subtract( min );
-
 				final IBlockState state = w.getBlockState( pos );
+
 				final Item BI = Item.getItemFromBlock( state.getBlock() );
 				ItemStack modelStack = BI != null ? new ItemStack( BI, 1, state.getBlock().getDamageValue( w, pos ) ) : null;
 
-				String data = "N/A";
+				String data = Block.blockRegistry.getNameForObject( state.getBlock() ).toString();
+
 				try
 				{
 					final BitAccess ba = (BitAccess) ChiselsAndBits.getApi().getBitAccess( w, pos );
@@ -115,22 +124,53 @@ public class Share extends CommandBase
 					{
 						continue;
 					}
+
 					modelStack = is;
 					model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( is );
 				}
 				catch ( final CannotBeChiseled e )
 				{
-					// NOPE!
 				}
-
-				for ( final EnumFacing face : EnumFacing.VALUES )
-				{
-					outputFaces( offset, model.getFaceQuads( face ), face, modelStack, textures );
-				}
-
-				outputFaces( offset, model.getGeneralQuads(), null, modelStack, textures );
 
 				output.append( "\"source-" ).append( offset.toString() ).append( "\": \"" ).append( data ).append( "\",\n" );
+
+				for ( final EnumWorldBlockLayer layer : layers )
+				{
+					// test the block for the layer.
+					if ( !state.getBlock().canRenderInLayer( layer ) )
+					{
+						continue;
+					}
+
+					IBakedModel activeModel = model;
+
+					if ( activeModel instanceof ChiseledBlockSmartModel )
+					{
+						activeModel = ( (ChiseledBlockSmartModel) model ).handleBlockState( state.getBlock().getExtendedState( state, w, pos ), layer );
+					}
+					else if ( activeModel instanceof ISmartBlockModel )
+					{
+						activeModel = ( (ISmartBlockModel) model ).handleBlockState( state.getBlock().getExtendedState( state, w, pos ) );
+					}
+
+					for ( final EnumFacing face : EnumFacing.VALUES )
+					{
+						final BlockPos p = pos.offset( face );
+						final boolean isEdge = p.getX() < min.getX() ||
+								p.getX() > max.getX() ||
+								p.getY() < min.getY() ||
+								p.getY() > max.getY() ||
+								p.getZ() < min.getZ() ||
+								p.getZ() > max.getZ();
+
+						if ( w.getBlockState( p ).getBlock().shouldSideBeRendered( w, p, face ) || isEdge )
+						{
+							outputFaces( offset, activeModel.getFaceQuads( face ), face, modelStack, textures, layer );
+						}
+					}
+
+					outputFaces( offset, activeModel.getGeneralQuads(), null, modelStack, textures, layer );
+				}
 			}
 
 			output.append( "\"textures\": {" );
@@ -159,7 +199,8 @@ public class Share extends CommandBase
 
 			for ( final ShareMaterial m : textures.keySet() )
 			{
-				output.append( "\"" ).append( m.materialID ).append( "\": [\"" ).append( Integer.toHexString( m.col ) ).append( "\"," ).append( System.identityHashCode( m.sprite ) ).append( "],\n" );
+				output.append( "\"" ).append( m.materialID ).append( "\": [\"" ).append( getLayerName( m.layer ) ).append( "\",\"" ).append( Integer.toHexString( m.col ) ).append( "\"," ).append( System.identityHashCode( m.sprite ) )
+						.append( "],\n" );
 			}
 
 			if ( !textures.values().isEmpty() )
@@ -190,6 +231,26 @@ public class Share extends CommandBase
 			final String modelJSON = output.toString();
 			GuiScreen.setClipboardString( modelJSON );
 			sender.addChatMessage( new ChatComponentText( "Json Posted to Clipboard" ) );
+		}
+	}
+
+	private Object getLayerName(
+			final EnumWorldBlockLayer layer )
+	{
+		switch ( layer )
+		{
+			case CUTOUT:
+				return "cutout";
+
+			case CUTOUT_MIPPED:
+				return "cutout_mipped";
+
+			case TRANSLUCENT:
+				return "translucent";
+
+			case SOLID:
+			default:
+				return "solid";
 		}
 	}
 
@@ -254,22 +315,25 @@ public class Share extends CommandBase
 
 		TextureAtlasSprite sprite;
 		int col;
+		EnumWorldBlockLayer layer;
 
 		int materialID = -1;
 		public StringBuilder builder;
 
 		public ShareMaterial(
 				final TextureAtlasSprite sprite,
-				final int col )
+				final int col,
+				final EnumWorldBlockLayer layer )
 		{
 			this.sprite = sprite;
 			this.col = col;
+			this.layer = layer;
 		}
 
 		@Override
 		public int hashCode()
 		{
-			return sprite.hashCode() ^ col;
+			return sprite.hashCode() ^ col ^ layer.hashCode();
 		}
 
 		@Override
@@ -279,7 +343,7 @@ public class Share extends CommandBase
 			if ( obj instanceof ShareMaterial )
 			{
 				final ShareMaterial sm = (ShareMaterial) obj;
-				return sprite == sm.sprite && sm.col == col;
+				return sprite == sm.sprite && sm.col == col && sm.layer == layer;
 			}
 
 			return false;
@@ -291,7 +355,8 @@ public class Share extends CommandBase
 			final List<BakedQuad> faceQuads,
 			final EnumFacing cullFace,
 			final ItemStack ItemStack,
-			final Map<ShareMaterial, ShareMaterial> textures )
+			final Map<ShareMaterial, ShareMaterial> textures,
+			final EnumWorldBlockLayer layer )
 	{
 		ShareMaterial M = null;
 		ShareMaterial old = null;
@@ -307,7 +372,7 @@ public class Share extends CommandBase
 
 				if ( M == null || M.col != mqr.col || M.sprite != sprite )
 				{
-					M = new ShareMaterial( sprite, mqr.col );
+					M = new ShareMaterial( sprite, mqr.col, layer );
 					old = textures.get( M );
 				}
 
