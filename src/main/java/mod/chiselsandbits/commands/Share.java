@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -87,7 +88,7 @@ public class Share extends CommandBase
 				end = Minecraft.getMinecraft().thePlayer.getPosition();
 			}
 
-			final Map<TextureAtlasSprite, StringBuilder> textures = new HashMap<TextureAtlasSprite, StringBuilder>();
+			final Map<ShareMaterial, ShareMaterial> textures = new HashMap<ShareMaterial, ShareMaterial>();
 			final StringBuilder output = new StringBuilder( "{\n" );
 
 			final BlockPos min = new BlockPos( Math.min( start.getX(), end.getX() ), Math.min( start.getY(), end.getY() ), Math.min( start.getZ(), end.getZ() ) );
@@ -133,9 +134,32 @@ public class Share extends CommandBase
 			}
 
 			output.append( "\"textures\": {" );
-			for ( final TextureAtlasSprite s : textures.keySet() )
+			final HashSet<TextureAtlasSprite> sprites = new HashSet<TextureAtlasSprite>();
+
+			int materialID = 1;
+			for ( final ShareMaterial m : textures.keySet() )
+			{
+				m.materialID = materialID++;
+				sprites.add( m.sprite );
+			}
+
+			for ( final TextureAtlasSprite s : sprites )
 			{
 				output.append( "\"" ).append( System.identityHashCode( s ) ).append( "\": \"" ).append( getIcon( s ) ).append( "\",\n" );
+			}
+
+			if ( !sprites.isEmpty() )
+			{
+				// delete line ending + comma.
+				output.deleteCharAt( output.length() - 1 );
+				output.deleteCharAt( output.length() - 1 );
+			}
+
+			output.append( "},\n\"materials\": {\n" );
+
+			for ( final ShareMaterial m : textures.keySet() )
+			{
+				output.append( "\"" ).append( m.materialID ).append( "\": [\"" ).append( Integer.toHexString( m.col ) ).append( "\"," ).append( System.identityHashCode( m.sprite ) ).append( "],\n" );
 			}
 
 			if ( !textures.values().isEmpty() )
@@ -147,15 +171,18 @@ public class Share extends CommandBase
 
 			output.append( "},\n\"model\": [\n" );
 
-			int off = 0;
-			for ( final StringBuilder json : textures.values() )
+			for ( final ShareMaterial json : textures.values() )
 			{
-				if ( off++ > 0 )
-				{
-					output.append( ",\n" );
-				}
+				output.append( "\n{\"m\":" ).append( json.materialID ).append( ",\"f\":[" );
 
-				output.append( json );
+				output.append( json.builder );
+				output.append( "]}," );
+			}
+
+			if ( !textures.values().isEmpty() )
+			{
+				// delete comma.
+				output.deleteCharAt( output.length() - 1 );
 			}
 
 			output.append( "\n] }" );
@@ -222,13 +249,52 @@ public class Share extends CommandBase
 		return "data:image/png;base64," + new String( apacheBytes );
 	}
 
+	private static class ShareMaterial
+	{
+
+		TextureAtlasSprite sprite;
+		int col;
+
+		int materialID = -1;
+		public StringBuilder builder;
+
+		public ShareMaterial(
+				final TextureAtlasSprite sprite,
+				final int col )
+		{
+			this.sprite = sprite;
+			this.col = col;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return sprite.hashCode() ^ col;
+		}
+
+		@Override
+		public boolean equals(
+				final Object obj )
+		{
+			if ( obj instanceof ShareMaterial )
+			{
+				final ShareMaterial sm = (ShareMaterial) obj;
+				return sprite == sm.sprite && sm.col == col;
+			}
+
+			return false;
+		}
+	};
+
 	private void outputFaces(
 			final BlockPos offset,
 			final List<BakedQuad> faceQuads,
 			final EnumFacing cullFace,
 			final ItemStack ItemStack,
-			final Map<TextureAtlasSprite, StringBuilder> textures )
+			final Map<ShareMaterial, ShareMaterial> textures )
 	{
+		ShareMaterial M = null;
+		ShareMaterial old = null;
 		for ( final BakedQuad quad : faceQuads )
 		{
 			try
@@ -239,19 +305,24 @@ public class Share extends CommandBase
 				quad.pipe( mqr );
 				final String newJSON = mqr.toString();
 
-				StringBuilder old = textures.get( sprite );
+				if ( M == null || M.col != mqr.col || M.sprite != sprite )
+				{
+					M = new ShareMaterial( sprite, mqr.col );
+					old = textures.get( M );
+				}
 
 				if ( old == null )
 				{
-					old = new StringBuilder( "" );
-					textures.put( sprite, old );
+					old = M;
+					M.builder = new StringBuilder( "" );
+					textures.put( M, old );
 				}
 				else
 				{
-					old.append( ",\n" );
+					old.builder.append( ",\n" );
 				}
 
-				old.append( newJSON );
+				old.builder.append( newJSON );
 
 			}
 			catch ( final IllegalArgumentException e )
