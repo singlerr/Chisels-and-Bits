@@ -5,11 +5,13 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.zip.DeflaterOutputStream;
 
 import javax.imageio.ImageIO;
 
@@ -18,6 +20,7 @@ import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.helpers.ModelQuadShare;
@@ -95,10 +98,13 @@ public class Share extends CommandBase
 			final EnumWorldBlockLayer[] layers = EnumWorldBlockLayer.values();
 
 			final Map<ShareMaterial, ShareMaterial> textures = new HashMap<ShareMaterial, ShareMaterial>();
-			final StringBuilder output = new StringBuilder( "{\n" );
+			final StringBuilder output = new StringBuilder( "{\"version\":\"1\",\"sources\":{\n" );
 
 			final BlockPos min = new BlockPos( Math.min( start.getX(), end.getX() ), Math.min( start.getY(), end.getY() ), Math.min( start.getZ(), end.getZ() ) );
 			final BlockPos max = new BlockPos( Math.max( start.getX(), end.getX() ), Math.max( start.getY(), end.getY() ), Math.max( start.getZ(), end.getZ() ) );
+
+			int modelNum = 1;
+			final HashMap<String, Integer> models = new HashMap<String, Integer>();
 
 			for ( final MutableBlockPos pos : BlockPos.getAllInBoxMutable( start, end ) )
 			{
@@ -116,7 +122,7 @@ public class Share extends CommandBase
 					final BitAccess ba = (BitAccess) ChiselsAndBits.getApi().getBitAccess( w, pos );
 					final VoxelBlob blob = ba.getNativeBlob();
 					final byte[] bd = blob.blobToBytes( VoxelBlob.VERSION_CROSSWORLD );
-					data = Arrays.toString( bd );
+					data = bytesToString( bd );
 
 					final ItemStack is = ba.getBitsAsItem( null, ItemType.CHISLED_BLOCK );
 
@@ -132,7 +138,13 @@ public class Share extends CommandBase
 				{
 				}
 
-				output.append( "\"source-" ).append( offset.toString() ).append( "\": \"" ).append( data ).append( "\",\n" );
+				Integer cm = models.get( data );
+				if ( cm == null )
+				{
+					models.put( data, cm = modelNum++ );
+				}
+
+				output.append( "\"" ).append( posAsString( offset ) ).append( "\":" ).append( cm ).append( "," );
 
 				for ( final EnumWorldBlockLayer layer : layers )
 				{
@@ -173,7 +185,27 @@ public class Share extends CommandBase
 				}
 			}
 
-			output.append( "\"textures\": {" );
+			if ( !models.values().isEmpty() )
+			{
+				// delete line ending + comma.
+				output.deleteCharAt( output.length() - 1 );
+			}
+
+			output.append( "},\n\"types\": {" );
+
+			for ( final Entry<String, Integer> en : models.entrySet() )
+			{
+				output.append( "\"" ).append( en.getValue() ).append( "\": \"" ).append( en.getKey() ).append( "\"," );
+			}
+
+			if ( !models.entrySet().isEmpty() )
+			{
+				// delete line ending + comma.
+				output.deleteCharAt( output.length() - 1 );
+			}
+
+			output.append( "},\n\"textures\": {" );
+
 			final HashSet<TextureAtlasSprite> sprites = new HashSet<TextureAtlasSprite>();
 
 			int materialID = 1;
@@ -185,13 +217,12 @@ public class Share extends CommandBase
 
 			for ( final TextureAtlasSprite s : sprites )
 			{
-				output.append( "\"" ).append( System.identityHashCode( s ) ).append( "\": \"" ).append( getIcon( s ) ).append( "\",\n" );
+				output.append( "\"" ).append( System.identityHashCode( s ) ).append( "\": \"" ).append( getIcon( s ) ).append( "\"," );
 			}
 
 			if ( !sprites.isEmpty() )
 			{
 				// delete line ending + comma.
-				output.deleteCharAt( output.length() - 1 );
 				output.deleteCharAt( output.length() - 1 );
 			}
 
@@ -200,13 +231,12 @@ public class Share extends CommandBase
 			for ( final ShareMaterial m : textures.keySet() )
 			{
 				output.append( "\"" ).append( m.materialID ).append( "\": [\"" ).append( getLayerName( m.layer ) ).append( "\",\"" ).append( Integer.toHexString( m.col ) ).append( "\"," ).append( System.identityHashCode( m.sprite ) )
-						.append( "],\n" );
+						.append( "]," );
 			}
 
 			if ( !textures.values().isEmpty() )
 			{
 				// delete line ending + comma.
-				output.deleteCharAt( output.length() - 1 );
 				output.deleteCharAt( output.length() - 1 );
 			}
 
@@ -229,9 +259,84 @@ public class Share extends CommandBase
 			output.append( "\n] }" );
 
 			final String modelJSON = output.toString();
-			GuiScreen.setClipboardString( modelJSON );
-			sender.addChatMessage( new ChatComponentText( "Json Posted to Clipboard" ) );
+			byte[] jsonData;
+			try
+			{
+				jsonData = modelJSON.getBytes( "UTF-8" );
+
+				final ByteArrayOutputStream byteStream = new ByteArrayOutputStream( jsonData.length );
+				try
+				{
+					final DeflaterOutputStream zipStream = new DeflaterOutputStream( byteStream );
+					try
+					{
+						zipStream.write( jsonData );
+					}
+					finally
+					{
+						zipStream.close();
+					}
+				}
+				catch ( final IOException e )
+				{
+					Log.logError( "Error Deflating Data", e );
+				}
+				finally
+				{
+					try
+					{
+						byteStream.close();
+					}
+					catch ( final IOException e )
+					{
+						Log.logError( "Error Deflating Data", e );
+					}
+				}
+
+				final byte[] compressedData = byteStream.toByteArray();
+				final byte[] apacheBytes = org.apache.commons.codec.binary.Base64.encodeBase64( compressedData );
+
+				GuiScreen.setClipboardString( new String( apacheBytes ) );
+				sender.addChatMessage( new ChatComponentText( "Json Posted to Clipboard" ) );
+			}
+			catch ( final UnsupportedEncodingException e )
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
+	}
+
+	private String bytesToString(
+			final byte[] bd )
+	{
+		final StringBuilder o = new StringBuilder( "C&B:" );
+
+		for ( final byte b : bd )
+		{
+			final String hex = Integer.toHexString( b );
+
+			if ( hex.length() == 0 )
+			{
+				o.append( "00" );
+			}
+
+			if ( hex.length() == 1 )
+			{
+				o.append( "0" );
+			}
+
+			o.append( hex );
+		}
+
+		return o.toString();
+	}
+
+	private Object posAsString(
+			final BlockPos offset )
+	{
+		return new StringBuilder().append( Integer.toString( offset.getX(), 36 ) ).append( ',' ).append( Integer.toString( offset.getY(), 36 ) ).append( ',' ).append( Integer.toString( offset.getZ(), 36 ) ).toString();
 	}
 
 	private Object getLayerName(
@@ -240,17 +345,17 @@ public class Share extends CommandBase
 		switch ( layer )
 		{
 			case CUTOUT:
-				return "cutout";
+				return "a";
 
 			case CUTOUT_MIPPED:
-				return "cutout_mipped";
+				return "a";
 
 			case TRANSLUCENT:
-				return "translucent";
+				return "t";
 
 			case SOLID:
 			default:
-				return "solid";
+				return "s";
 		}
 	}
 
@@ -384,7 +489,7 @@ public class Share extends CommandBase
 				}
 				else
 				{
-					old.builder.append( ",\n" );
+					old.builder.append( "," );
 				}
 
 				old.builder.append( newJSON );
