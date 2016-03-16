@@ -14,11 +14,12 @@ import net.minecraft.util.MathHelper;
 public class ModelQuadShare extends BaseModelReader
 {
 
-	int[][] pos_uv = new int[4][6];
+	int[][] pos_uv = new int[4][5];
 	TextureAtlasSprite sprite;
 	String texture;
 	BlockPos offset;
 
+	public int col;
 	EnumFacing face;
 
 	public ModelQuadShare(
@@ -87,7 +88,7 @@ public class ModelQuadShare extends BaseModelReader
 			pos_uv[index][2] = 16 * offset.getZ() + Math.round( pos[2] * 16 );
 			pos_uv[index][3] = Math.round( ( uv[0] - sprite.getMinU() ) / ( sprite.getMaxU() - sprite.getMinU() ) * 16 );
 			pos_uv[index][4] = 16 - Math.round( ( uv[1] - sprite.getMinV() ) / ( sprite.getMaxV() - sprite.getMinV() ) * 16 );
-			pos_uv[index][5] = fillColor != -1 ? fillColor : color == null ? 0xffffffff : MathHelper.clamp_int( (int) ( color[0] * 0xff ), 0, 0xff ) << 16 |
+			col = fillColor != -1 ? fillColor : color == null ? 0xffffffff : MathHelper.clamp_int( (int) ( color[0] * 0xff ), 0, 0xff ) << 16 |
 					MathHelper.clamp_int( (int) ( color[1] * 0xff ), 0, 0xff ) << 8 |
 					MathHelper.clamp_int( (int) ( color[2] * 0xff ), 0, 0xff ) |
 					MathHelper.clamp_int( (int) ( color[3] * 0xff ), 0, 0xff ) << 24;
@@ -100,10 +101,6 @@ public class ModelQuadShare extends BaseModelReader
 	public String toString()
 	{
 		final StringBuilder o = new StringBuilder();
-
-		o.append( "{\"t\":\"" );
-		o.append( texture );
-		o.append( "\",\"v\":" );
 
 		o.append( '[' );
 		for ( int x = 0; x < index; x++ )
@@ -123,12 +120,10 @@ public class ModelQuadShare extends BaseModelReader
 			o.append( asHex( pos_uv[x][3] ) );
 			o.append( ' ' );
 			o.append( asHex( pos_uv[x][4] ) );
-			o.append( ' ' );
-			o.append( asHex( pos_uv[x][5] ) );
 			o.append( '"' );
 		}
 
-		o.append( "]}" );
+		o.append( "]" );
 		return o.toString();
 	}
 
