@@ -130,7 +130,7 @@ public class ModelQuadShare extends BaseModelReader
 	private String asHex(
 			final int i )
 	{
-		return Integer.toHexString( i );
+		return Integer.toString( i, 36 );
 	}
 
 }
