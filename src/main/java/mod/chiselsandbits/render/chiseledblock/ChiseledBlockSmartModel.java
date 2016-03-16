@@ -167,9 +167,9 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 		return handleBlockState( state );
 	}
 
-	@Override
 	public IBakedModel handleBlockState(
-			final IBlockState state )
+			final IBlockState state,
+			final EnumWorldBlockLayer layer )
 	{
 		final IExtendedBlockState myState = (IExtendedBlockState) state;
 
@@ -178,8 +178,6 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 		Integer blockP = myState.getValue( BlockChiseled.UProperty_Primary_BlockState );
 
 		blockP = blockP == null ? 0 : blockP;
-
-		final EnumWorldBlockLayer layer = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
 
 		if ( rTracker != null && rTracker.isDynamic() )
 		{
@@ -222,6 +220,14 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 		}
 
 		return baked;
+	}
+
+	@Override
+	public IBakedModel handleBlockState(
+			final IBlockState state )
+	{
+		final EnumWorldBlockLayer layer = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
+		return handleBlockState( state, layer );
 	}
 
 	private static ModelRenderState getRenderState(
