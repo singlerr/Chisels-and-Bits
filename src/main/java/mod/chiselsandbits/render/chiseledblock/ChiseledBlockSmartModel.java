@@ -254,6 +254,15 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 			return mdl;
 		}
 
+		mdl = handleItemState( stack, ChiselLayer.values() );
+		itemToModel.put( stack, mdl );
+		return mdl;
+	}
+
+	public IBakedModel handleItemState(
+			final ItemStack stack,
+			final ChiselLayer[] layers )
+	{
 		NBTTagCompound c = stack.getTagCompound();
 		if ( c == null )
 		{
@@ -286,17 +295,13 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 			vdata = xx.blobToBytes( VoxelBlob.VERSION_COMPACT );
 		}
 
-		final IFlexibleBakedModel[] models = new IFlexibleBakedModel[ChiselLayer.values().length];
-		for ( final ChiselLayer l : ChiselLayer.values() )
+		final IFlexibleBakedModel[] models = new IFlexibleBakedModel[layers.length];
+		for ( int offset = 0; offset < layers.length; ++offset )
 		{
-			models[l.ordinal()] = getCachedModel( blockP, new VoxelBlobStateReference( vdata, 0L ), null, l, DefaultVertexFormats.ITEM );
+			models[offset] = getCachedModel( blockP, new VoxelBlobStateReference( vdata, 0L ), null, layers[offset], DefaultVertexFormats.ITEM );
 		}
 
-		mdl = new ModelCombined( models );
-
-		itemToModel.put( stack, mdl );
-
-		return mdl;
+		return new ModelCombined( models );
 	}
 
 	@Override

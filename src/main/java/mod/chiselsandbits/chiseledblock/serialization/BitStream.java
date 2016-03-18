@@ -121,4 +121,30 @@ public class BitStream
 		return Math.max( firstLiveInt * 4, 0 );
 	}
 
+	public void writeBits(
+			final int singleByte,
+			final int howmany )
+	{
+		switch ( howmany )
+		{
+			case 8:
+				add( ( singleByte & 0x80 ) != 0 );
+			case 7:
+				add( ( singleByte & 0x40 ) != 0 );
+			case 6:
+				add( ( singleByte & 0x20 ) != 0 );
+			case 5:
+				add( ( singleByte & 0x10 ) != 0 );
+			case 4:
+				add( ( singleByte & 0x8 ) != 0 );
+			case 3:
+				add( ( singleByte & 0x4 ) != 0 );
+			case 2:
+				add( ( singleByte & 0x2 ) != 0 );
+			case 1:
+				add( ( singleByte & 0x1 ) != 0 );
+			default:
+		}
+	}
+
 }

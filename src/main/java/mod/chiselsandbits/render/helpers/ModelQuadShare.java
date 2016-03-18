@@ -1,5 +1,6 @@
 package mod.chiselsandbits.render.helpers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -14,6 +15,12 @@ import net.minecraft.util.MathHelper;
 public class ModelQuadShare extends BaseModelReader
 {
 
+	public static class ShareFaces
+	{
+		public int x, y, z; // varints.
+		public int u, v; // 5 bits per
+	};
+
 	int[][] pos_uv = new int[4][5];
 	TextureAtlasSprite sprite;
 	String texture;
@@ -21,6 +28,8 @@ public class ModelQuadShare extends BaseModelReader
 
 	public int col;
 	EnumFacing face;
+
+	ArrayList<ShareFaces> faces = new ArrayList<ShareFaces>();
 
 	public ModelQuadShare(
 			final String textureName,
@@ -97,40 +106,21 @@ public class ModelQuadShare extends BaseModelReader
 		}
 	}
 
-	@Override
-	public String toString()
+	public void getFaces(
+			final ArrayList<ShareFaces> faces )
 	{
-		final StringBuilder o = new StringBuilder();
-
-		o.append( '[' );
 		for ( int x = 0; x < index; x++ )
 		{
-			if ( x > 0 )
-			{
-				o.append( ',' );
-			}
+			final ShareFaces f = new ShareFaces();
 
-			o.append( '"' );
-			o.append( asHex( pos_uv[x][0] ) );
-			o.append( ' ' );
-			o.append( asHex( pos_uv[x][1] ) );
-			o.append( ' ' );
-			o.append( asHex( pos_uv[x][2] ) );
-			o.append( ' ' );
-			o.append( asHex( pos_uv[x][3] ) );
-			o.append( ' ' );
-			o.append( asHex( pos_uv[x][4] ) );
-			o.append( '"' );
+			f.x = pos_uv[x][0];
+			f.y = pos_uv[x][1];
+			f.z = pos_uv[x][2];
+			f.u = pos_uv[x][3];
+			f.v = pos_uv[x][4];
+
+			faces.add( f );
 		}
-
-		o.append( "]" );
-		return o.toString();
-	}
-
-	private String asHex(
-			final int i )
-	{
-		return Integer.toString( i, 36 );
 	}
 
 }
