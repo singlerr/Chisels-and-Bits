@@ -20,20 +20,24 @@ public class ShareFormatWriter
 		inner.writeBits( value, bits );
 	}
 
+	private static int SEVEN_BIT_FILL = 0x7F;
+	private static int INVERT_SEVEN_BIT_FILL = ~SEVEN_BIT_FILL;
+
 	public void writeInt(
 			int value )
 	{
-		while ( value > 0x7F )
+		while ( ( value & INVERT_SEVEN_BIT_FILL ) != 0 )
 		{
 			final int sevenBits = value & 0x7F;
 
 			writeBool( true );// means this value has more data...
 			writeBits( sevenBits, 7 ); // write the 7.
 
-			value = value >> 7; // remove 7 bits and continue.
+			value = value >>> 7; // remove 7 bits and continue.
 		}
 
-		writeBits( value, 8 ); // write the last 7 with a 0 indicating done.
+		writeBool( false );// means this value has more data...
+		writeBits( value, 7 ); // write the last 7 with a 0 indicating done.
 	}
 
 	public void writeBytes(
@@ -44,6 +48,11 @@ public class ShareFormatWriter
 		{
 			inner.writeBits( data[x], 8 );
 		}
+	}
+
+	public void snapToByte()
+	{
+		inner.snapToByte();
 	}
 
 }
