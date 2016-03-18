@@ -29,11 +29,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -238,7 +236,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	{
 		if ( player.isSneaking() )
 		{
-			final BitLocation bl = new BitLocation( new MovingObjectPosition( MovingObjectType.BLOCK, new Vec3( hitX, hitY, hitZ ), side, pos ), false, ChiselToolType.BIT );
+			final BitLocation bl = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3( hitX, hitY, hitZ ), side, pos ), false, ChiselToolType.BIT );
 			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );
 		}
 		else

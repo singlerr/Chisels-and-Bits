@@ -10,7 +10,7 @@ import java.util.List;
 import mod.chiselsandbits.chiseledblock.BoxCollection;
 import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.core.Log;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 
 public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance>
 {

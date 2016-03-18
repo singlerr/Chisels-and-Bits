@@ -14,14 +14,14 @@ import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.text.TextComponentString;
 
 public class JsonModelExport extends CommandBase
 {
@@ -104,11 +104,11 @@ public class JsonModelExport extends CommandBase
 
 			final String modelJSON = output.toString();
 			GuiScreen.setClipboardString( modelJSON );
-			sender.addChatMessage( new ChatComponentText( "Json Posted to Clipboard" ) );
+			sender.addChatMessage( new TextComponentString( "Json Posted to Clipboard" ) );
 		}
 		else
 		{
-			sender.addChatMessage( new ChatComponentText( "No Item in Hand." ) );
+			sender.addChatMessage( new TextComponentString( "No Item in Hand." ) );
 		}
 	}
 

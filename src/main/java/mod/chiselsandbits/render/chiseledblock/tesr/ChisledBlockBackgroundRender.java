@@ -20,17 +20,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.RegionRenderCache;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
 public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 {
 
 	private final List<TileEntityBlockChiseledTESR> myPrivateList;
-	private final EnumWorldBlockLayer layer;
+	private final BlockRenderLayer layer;
 	private final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
 	private final static Queue<SoftReference<Tessellator>> previousTessellators = new LinkedBlockingQueue<SoftReference<Tessellator>>();
 
@@ -59,7 +58,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 			final RegionRenderCache cache,
 			final BlockPos chunkOffset,
 			final List<TileEntityBlockChiseledTESR> tiles,
-			final EnumWorldBlockLayer layer )
+			final BlockRenderLayer layer )
 	{
 		myPrivateList = new ArrayList<TileEntityBlockChiseledTESR>( tiles );
 		this.layer = layer;
@@ -121,7 +120,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 			Log.logError( "Invalid Tessellator Behavior", e );
 		}
 
-		final EnumSet<ChiselLayer> layers = layer == EnumWorldBlockLayer.TRANSLUCENT ? EnumSet.of( ChiselLayer.TRANSLUCENT ) : EnumSet.complementOf( EnumSet.of( ChiselLayer.TRANSLUCENT ) );
+		final EnumSet<ChiselLayer> layers = layer == BlockRenderLayer.TRANSLUCENT ? EnumSet.of( ChiselLayer.TRANSLUCENT ) : EnumSet.complementOf( EnumSet.of( ChiselLayer.TRANSLUCENT ) );
 		for ( final TileEntityBlockChiseled tx : myPrivateList )
 		{
 			if ( tx instanceof TileEntityBlockChiseledTESR && !tx.isInvalid() )

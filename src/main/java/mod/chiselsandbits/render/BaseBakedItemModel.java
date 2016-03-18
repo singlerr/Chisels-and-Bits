@@ -5,14 +5,14 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.client.model.IFlexibleBakedModel;
 
 @SuppressWarnings( "deprecation" )
-public abstract class BaseBakedItemModel implements IFlexibleBakedModel
+public abstract class BaseBakedItemModel implements IBakedModel
 {
 	protected ArrayList<BakedQuad> list = new ArrayList<BakedQuad>();
 

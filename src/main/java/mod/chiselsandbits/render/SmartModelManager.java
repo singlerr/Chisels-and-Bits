@@ -9,16 +9,16 @@ import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.bit.BitItemSmartModel;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.patterns.PrintSmartModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class SmartModelManager
 {
 
-	private final HashMap<ResourceLocation, IFlexibleBakedModel> models = new HashMap<ResourceLocation, IFlexibleBakedModel>();
+	private final HashMap<ResourceLocation, IBakedModel> models = new HashMap<ResourceLocation, IBakedModel>();
 	private final List<ModelResourceLocation> res = new ArrayList<ModelResourceLocation>();
 	private final List<ICacheClearable> clearable = new ArrayList<ICacheClearable>();
 
@@ -49,7 +49,7 @@ public class SmartModelManager
 
 	private void add(
 			final ResourceLocation modelLocation,
-			final IFlexibleBakedModel modelGen )
+			final IBakedModel modelGen )
 	{
 		final ResourceLocation second = new ResourceLocation( modelLocation.getResourceDomain(), modelLocation.getResourcePath().substring( 1 + modelLocation.getResourcePath().lastIndexOf( '/' ) ) );
 
@@ -91,11 +91,11 @@ public class SmartModelManager
 
 		for ( final ModelResourceLocation rl : res )
 		{
-			event.modelRegistry.putObject( rl, getModel( rl ) );
+			event.getModelRegistry().putObject( rl, getModel( rl ) );
 		}
 	}
 
-	private IFlexibleBakedModel getModel(
+	private IBakedModel getModel(
 			final ResourceLocation modelLocation )
 	{
 		try

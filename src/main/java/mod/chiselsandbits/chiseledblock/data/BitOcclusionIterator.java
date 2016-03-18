@@ -2,7 +2,7 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import java.util.List;
 
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 
 public class BitOcclusionIterator extends BitCollisionIterator
 {

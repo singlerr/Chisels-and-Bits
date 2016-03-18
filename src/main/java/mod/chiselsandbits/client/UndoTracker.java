@@ -13,8 +13,8 @@ import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketUndo;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -114,7 +114,7 @@ public class UndoTracker implements ICacheClearable
 		}
 		else
 		{
-			ClientSide.instance.getPlayer().addChatMessage( new ChatComponentTranslation( "mod.chiselsandbits.result.nothing_to_undo" ) );
+			ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( "mod.chiselsandbits.result.nothing_to_undo" ) );
 		}
 	}
 
@@ -144,7 +144,7 @@ public class UndoTracker implements ICacheClearable
 		}
 		else
 		{
-			ClientSide.instance.getPlayer().addChatMessage( new ChatComponentTranslation( "mod.chiselsandbits.result.nothing_to_redo" ) );
+			ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( "mod.chiselsandbits.result.nothing_to_redo" ) );
 		}
 	}
 
@@ -233,7 +233,7 @@ public class UndoTracker implements ICacheClearable
 	{
 		for ( final String err : errors )
 		{
-			ClientSide.instance.getPlayer().addChatMessage( new ChatComponentTranslation( err ) );
+			ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( err ) );
 		}
 
 		errors.clear();

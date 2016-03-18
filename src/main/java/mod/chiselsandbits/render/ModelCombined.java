@@ -5,23 +5,23 @@ import java.util.List;
 
 import mod.chiselsandbits.core.ClientSide;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.client.model.IFlexibleBakedModel;
 
 public class ModelCombined extends BaseBakedBlockModel
 {
 
-	IFlexibleBakedModel[] merged;
+	IBakedModel[] merged;
 
 	List<BakedQuad>[] face;
 	List<BakedQuad> generic;
 
 	@SuppressWarnings( "unchecked" )
 	public ModelCombined(
-			final IFlexibleBakedModel... args )
+			final IBakedModel... args )
 	{
 		face = new ArrayList[EnumFacing.VALUES.length];
 
@@ -33,7 +33,7 @@ public class ModelCombined extends BaseBakedBlockModel
 
 		merged = args;
 
-		for ( final IFlexibleBakedModel m : merged )
+		for ( final IBakedModel m : merged )
 		{
 			generic.addAll( m.getGeneralQuads() );
 			for ( final EnumFacing f : EnumFacing.VALUES )
@@ -46,7 +46,7 @@ public class ModelCombined extends BaseBakedBlockModel
 	@Override
 	public TextureAtlasSprite getParticleTexture()
 	{
-		for ( final IFlexibleBakedModel a : merged )
+		for ( final IBakedModel a : merged )
 		{
 			return a.getParticleTexture();
 		}
@@ -70,7 +70,7 @@ public class ModelCombined extends BaseBakedBlockModel
 	@Override
 	public VertexFormat getFormat()
 	{
-		for ( final IFlexibleBakedModel a : merged )
+		for ( final IBakedModel a : merged )
 		{
 			return a.getFormat();
 		}

@@ -23,7 +23,6 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -31,12 +30,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISolidPart, IMicroblock, IMaterialPart
@@ -104,7 +100,7 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 			final Vec3 start,
 			final Vec3 end )
 	{
-		final MovingObjectPosition mop = getBlock().collisionRayTrace( getTile(), getPos(), start, end, true );
+		final RayTraceResult mop = getBlock().collisionRayTrace( getTile(), getPos(), start, end, true );
 
 		if ( mop == null )
 		{
@@ -175,7 +171,7 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 
 	@Override
 	public boolean canRenderInLayer(
-			final EnumWorldBlockLayer layer )
+			final BlockRenderLayer layer )
 	{
 		return true;
 	}

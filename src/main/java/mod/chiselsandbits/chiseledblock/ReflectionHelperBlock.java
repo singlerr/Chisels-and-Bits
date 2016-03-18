@@ -8,8 +8,8 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
@@ -29,30 +29,31 @@ class ReflectionHelperBlock extends Block
 
 	@Override
 	public float getBlockHardness(
-			final World worldIn,
+			final IBlockState state,
+			final World world,
 			final BlockPos pos )
 	{
 		markMethod();
 		return 0;
 	}
 
-	@SuppressWarnings( "rawtypes" )
 	@Override
-	public void addCollisionBoxesToList(
-			final World worldIn,
-			final BlockPos pos,
-			final IBlockState state,
-			final AxisAlignedBB mask,
-			final List list,
-			final Entity collidingEntity )
+	public void func_185477_a(
+			final IBlockState p_185477_1_,
+			final World p_185477_2_,
+			final BlockPos p_185477_3_,
+			final AxisAlignedBB p_185477_4_,
+			final List<AxisAlignedBB> p_185477_5_,
+			final Entity p_185477_6_ )
 	{
 		markMethod();
 	}
 
 	@Override
 	public float getPlayerRelativeBlockHardness(
-			final EntityPlayer playerIn,
-			final World worldIn,
+			final IBlockState state,
+			final EntityPlayer player,
+			final World world,
 			final BlockPos pos )
 	{
 		markMethod();

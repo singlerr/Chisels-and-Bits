@@ -36,11 +36,13 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemTool;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -57,7 +59,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 		long uses = 1;
 		switch ( material )
 		{
-			case EMERALD:
+			case DIAMOND:
 				uses = ChiselsAndBits.getConfig().diamondChiselUses;
 				break;
 			case GOLD:
@@ -127,8 +129,8 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 				final Vec3 ray_from = PlayerRay.getLeft();
 				final Vec3 ray_to = PlayerRay.getRight();
 
-				final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, ray_from, ray_to );
-				if ( mop != null && mop.typeOfHit == MovingObjectType.BLOCK )
+				final RayTraceResult mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, ray_from, ray_to );
+				if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
 				{
 					final BitLocation loc = new BitLocation( mop, true, ChiselToolType.CHISEL );
 					ClientSide.instance.pointAt( ChiselToolType.CHISEL, loc );
@@ -143,12 +145,12 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 				return true;
 			}
 
-			final Pair<Vec3, Vec3> PlayerRay = ModUtil.getPlayerRay( player );
-			final Vec3 ray_from = PlayerRay.getLeft();
-			final Vec3 ray_to = PlayerRay.getRight();
+			final Pair<Vec3d, Vec3d> PlayerRay = ModUtil.getPlayerRay( player );
+			final Vec3d ray_from = PlayerRay.getLeft();
+			final Vec3d ray_to = PlayerRay.getRight();
 
-			final MovingObjectPosition mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, ray_from, ray_to );
-			if ( mop != null && mop.typeOfHit == MovingObjectType.BLOCK )
+			final RayTraceResult mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, ray_from, ray_to );
+			if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
 			{
 				useChisel( mode, player, player.worldObj, pos, mop.sideHit, (float) ( mop.hitVec.xCoord - pos.getX() ), (float) ( mop.hitVec.yCoord - pos.getY() ), (float) ( mop.hitVec.zCoord - pos.getZ() ) );
 			}
@@ -178,10 +180,11 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	}
 
 	@Override
-	public ItemStack onItemRightClick(
+	public ActionResult<ItemStack> onItemRightClick(
 			final ItemStack itemStackIn,
 			final World worldIn,
-			final EntityPlayer playerIn )
+			final EntityPlayer playerIn,
+			final EnumHand hand )
 	{
 		if ( worldIn.isRemote && ChiselsAndBits.getConfig().enableRightClickModeChange )
 		{
@@ -189,14 +192,11 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, playerIn.isSneaking() ? -1 : 1 );
 		}
 
-		return super.onItemRightClick( itemStackIn, worldIn, playerIn );
+		return super.onItemRightClick( itemStackIn, worldIn, playerIn, hand );
 	}
 
 	@Override
-	/**
-	 * switch chisel modes.
-	 */
-	public boolean onItemUseFirst(
+	public EnumActionResult onItemUseFirst(
 			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
@@ -204,15 +204,16 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,
-			final float hitZ )
+			final float hitZ,
+			final EnumHand hand )
 	{
 		if ( world.isRemote && ChiselsAndBits.getConfig().enableRightClickModeChange )
 		{
 			onItemRightClick( stack, world, player );
-			return true;
+			return EnumActionResult.SUCCESS;
 		}
 
-		return false;
+		return EnumActionResult.FAIL;
 	}
 
 	/**
@@ -238,7 +239,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final float hitY,
 			final float hitZ )
 	{
-		final BitLocation location = new BitLocation( new MovingObjectPosition( MovingObjectType.BLOCK, new Vec3( hitX, hitY, hitZ ), side, pos ), false, ChiselToolType.CHISEL );
+		final BitLocation location = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos ), false, ChiselToolType.CHISEL );
 
 		final PacketChisel pc = new PacketChisel( false, location, side, mode );
 
@@ -434,13 +435,13 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 
 	@Override
 	public boolean canHarvestBlock(
-			final Block blk )
+			final IBlockState blk )
 	{
 		Item it;
 
 		switch ( getToolMaterial() )
 		{
-			case EMERALD:
+			case DIAMOND:
 				it = Items.diamond_pickaxe;
 				break;
 			case GOLD:

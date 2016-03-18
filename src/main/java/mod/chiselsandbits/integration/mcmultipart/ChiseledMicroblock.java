@@ -7,8 +7,7 @@ import mcmultipart.microblock.MicroblockPlacementGrid;
 import mcmultipart.multipart.IMultipart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class ChiseledMicroblock extends MicroblockClass
@@ -48,7 +47,7 @@ public class ChiseledMicroblock extends MicroblockClass
 			final BlockPos arg1,
 			final IMicroMaterial arg2,
 			final int arg3,
-			final MovingObjectPosition arg4,
+			final RayTraceResult arg4,
 			final EntityPlayer arg5 )
 	{
 		return null;

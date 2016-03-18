@@ -1,12 +1,12 @@
 package mod.chiselsandbits.bittank;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.animation.FastTESR;
 import net.minecraftforge.fluids.Fluid;
@@ -69,7 +69,7 @@ public class TileEntitySpecialRenderBitTank extends FastTESR<TileEntityBitTank>
 		if ( fluidStack != null )
 		{
 			final Fluid fluid = fluidStack.getFluid();
-			final int pass = fluid.getBlock().getBlockLayer() == EnumWorldBlockLayer.TRANSLUCENT ? 1 : 0;
+			final int pass = fluid.getBlock().getBlockLayer() == BlockRenderLayer.TRANSLUCENT ? 1 : 0;
 
 			if ( MinecraftForgeClient.getRenderPass() != pass )
 			{

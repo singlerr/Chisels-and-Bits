@@ -13,22 +13,20 @@ import mod.chiselsandbits.core.ReflectionWrapper;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockLeavesBase;
+import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.WeightedBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.WeightedBakedModel;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraftforge.client.model.ISmartBlockModel;
-import net.minecraftforge.client.model.ISmartItemModel;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fluids.Fluid;
@@ -45,7 +43,7 @@ public class ModelUtil implements ICacheClearable
 
 	static
 	{
-		blockToTexture = new HashMap[EnumFacing.VALUES.length * EnumWorldBlockLayer.values().length];
+		blockToTexture = new HashMap[EnumFacing.VALUES.length * BlockRenderLayer.values().length];
 
 		for ( int x = 0; x < blockToTexture.length; x++ )
 		{
@@ -68,7 +66,7 @@ public class ModelUtil implements ICacheClearable
 			final int stateID,
 			final long weight,
 			final EnumFacing face,
-			final EnumWorldBlockLayer layer )
+			final BlockRenderLayer layer )
 	{
 		final int cacheVal = stateID << 4 | face.ordinal();
 
@@ -122,7 +120,7 @@ public class ModelUtil implements ICacheClearable
 		}
 
 		final HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>> tmp = new HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>>();
-		final int color = BlockBitInfo.getColorFor( state, layer == EnumWorldBlockLayer.SOLID ? 0 : 1 );
+		final int color = BlockBitInfo.getColorFor( state, layer == BlockRenderLayer.SOLID ? 0 : 1 );
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
@@ -148,7 +146,7 @@ public class ModelUtil implements ICacheClearable
 
 			for ( int z = 0; z < x.size(); z++ )
 			{
-				mp[z] = x.get( z ).build( stateID, color, state.getBlock() == Blocks.grass || state.getBlock() instanceof BlockLeavesBase );
+				mp[z] = x.get( z ).build( stateID, color, state.getBlock() == Blocks.grass || state.getBlock() instanceof BlockLeaves );
 			}
 
 			cache.put( cacheV, mp );
@@ -340,7 +338,7 @@ public class ModelUtil implements ICacheClearable
 			final int BlockRef,
 			final IBakedModel model,
 			final EnumFacing myFace,
-			final EnumWorldBlockLayer layer )
+			final BlockRenderLayer layer )
 	{
 		final int blockToWork = layer.ordinal() * EnumFacing.VALUES.length + myFace.ordinal();
 

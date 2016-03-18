@@ -1,8 +1,8 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 
 public class TileRenderChunk extends TileRenderCache
 {

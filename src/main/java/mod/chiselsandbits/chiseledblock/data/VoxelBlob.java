@@ -35,11 +35,11 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog.EnumAxis;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -842,7 +842,7 @@ public final class VoxelBlob implements IVoxelSrc
 	}
 
 	public boolean filter(
-			final EnumWorldBlockLayer layer )
+			final BlockRenderLayer layer )
 	{
 		final TIntObjectMap<Boolean> layerFilterState = getStateLayer( layer );
 		boolean hasValues = false;
@@ -871,7 +871,7 @@ public final class VoxelBlob implements IVoxelSrc
 	}
 
 	private TIntObjectMap<Boolean> getStateLayer(
-			final EnumWorldBlockLayer layer )
+			final BlockRenderLayer layer )
 	{
 		switch ( layer )
 		{
@@ -895,7 +895,7 @@ public final class VoxelBlob implements IVoxelSrc
 	}
 
 	private Boolean inLayer(
-			final EnumWorldBlockLayer layer,
+			final BlockRenderLayer layer,
 			final int ref )
 	{
 		final IBlockState state = Block.getStateById( ref );

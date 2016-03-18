@@ -24,7 +24,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
@@ -182,7 +182,7 @@ public class BlockBitInfo
 
 			// full cube specifically is tied to lighting... so for glass
 			// Compatibility use isFullBlock which can be true for glass.
-			boolean isFullBlock = blk.isFullBlock() || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.slime_block || blk == Blocks.ice;
+			boolean isFullBlock = blk.isFullBlock( state ) || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.slime_block || blk == Blocks.ice;
 
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
@@ -254,11 +254,11 @@ public class BlockBitInfo
 			final Block blk = state.getBlock();
 			final Class<? extends Block> blkClass = blk.getClass();
 
-			reflectBlock.getBlockHardness( null, null );
+			reflectBlock.getBlockHardness( null, null, null );
 			final Method hardnessMethod = blkClass.getMethod( reflectBlock.MethodName, World.class, BlockPos.class );
 			final boolean test_a = hardnessMethod.getDeclaringClass() == Block.class;
 
-			reflectBlock.getPlayerRelativeBlockHardness( null, null, null );
+			reflectBlock.getPlayerRelativeBlockHardness( null, null, null, null );
 			final boolean test_b = blkClass.getMethod( reflectBlock.MethodName, EntityPlayer.class, World.class, BlockPos.class ).getDeclaringClass() == Block.class;
 
 			reflectBlock.getExplosionResistance( null );
@@ -271,7 +271,7 @@ public class BlockBitInfo
 			// is it perfect?
 			if ( test_a && test_b && test_c && test_d )
 			{
-				final float blockHardness = blk.getBlockHardness( null, null );
+				final float blockHardness = blk.getBlockHardness( null, null, null );
 				final float resistance = blk.getExplosionResistance( null );
 
 				return new BlockBitInfo( true, blockHardness, resistance );
@@ -282,7 +282,7 @@ public class BlockBitInfo
 				// hardness... say like stone?
 
 				final Block stone = Blocks.stone;
-				return new BlockBitInfo( ChiselsAndBits.getConfig().compatabilityMode, stone.getBlockHardness( null, null ), stone.getExplosionResistance( null ) );
+				return new BlockBitInfo( ChiselsAndBits.getConfig().compatabilityMode, stone.getBlockHardness( null, null, null ), stone.getExplosionResistance( null ) );
 			}
 		}
 		catch ( final Exception err )

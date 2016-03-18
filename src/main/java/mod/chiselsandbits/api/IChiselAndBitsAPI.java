@@ -5,9 +5,9 @@ import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 
@@ -148,7 +148,7 @@ public interface IChiselAndBitsAPI
 	void giveBitToPlayer(
 			EntityPlayer player,
 			ItemStack itemstack,
-			Vec3 spawnPos );
+			Vec3d spawnPos );
 
 	/**
 	 * Access the contents of a bitbag as if it was a normal

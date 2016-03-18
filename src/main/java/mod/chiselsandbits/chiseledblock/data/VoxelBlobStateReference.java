@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import mod.chiselsandbits.chiseledblock.BoxType;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateReference>

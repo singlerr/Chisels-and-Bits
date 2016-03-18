@@ -6,8 +6,8 @@ import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.helpers.IVoxelSrc;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 
 public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 {

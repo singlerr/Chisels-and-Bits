@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import mcmultipart.client.multipart.ISmartMultipartModel;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
@@ -19,21 +18,16 @@ import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.cache.CacheMap;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraftforge.client.model.IFlexibleBakedModel;
-import net.minecraftforge.client.model.ISmartBlockModel;
-import net.minecraftforge.client.model.ISmartItemModel;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.fml.common.Optional;
-import net.minecraftforge.fml.common.Optional.Interface;
 
-@Optional.InterfaceList( { @Interface( iface = "mcmultipart.client.multipart.ISmartMultipartModel", modid = "mcmultipart" ) } )
-public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel, ISmartMultipartModel, ICacheClearable
+// ISmartMultipartModel @Optional.InterfaceList( { @Interface( iface = "mcmultipart.client.multipart.ISmartMultipartModel", modid = "mcmultipart" ) } )
+public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel, ICacheClearable
 {
 
 	static final CacheMap<VoxelBlobStateReference, ChiseledBlockBaked> solidCache = new CacheMap<VoxelBlobStateReference, ChiseledBlockBaked>();
@@ -49,7 +43,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 		if ( modelCache.length != count )
 		{
-			throw new RuntimeException( "Invalid Number of EnumWorldBlockLayer" );
+			throw new RuntimeException( "Invalid Number of BlockRenderLayer" );
 		}
 
 		// setup layers.
@@ -78,7 +72,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 				final VoxelBlob blob = ref.getVoxelBlob();
 
 				// ignore non-solid, and fluids.
-				blob.filter( EnumWorldBlockLayer.SOLID );
+				blob.filter( BlockRenderLayer.SOLID );
 				blob.filterFluids( false );
 
 				out = blob.getSideFlags( 0, VoxelBlob.dim_minus_one, VoxelBlob.dim2 );
@@ -179,7 +173,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 		blockP = blockP == null ? 0 : blockP;
 
-		final EnumWorldBlockLayer layer = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
+		final BlockRenderLayer layer = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
 
 		if ( rTracker != null && rTracker.isDynamic() )
 		{
@@ -189,7 +183,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 		IBakedModel baked = null;
 		int faces = 0;
 
-		if ( layer == EnumWorldBlockLayer.SOLID )
+		if ( layer == BlockRenderLayer.SOLID )
 		{
 			final ChiseledBlockBaked a = getCachedModel( blockP, data, getRenderState( rTracker, data ), ChiselLayer.fromLayer( layer, false ), getModelFormat() );
 			final ChiseledBlockBaked b = getCachedModel( blockP, data, getRenderState( rTracker, data ), ChiselLayer.fromLayer( layer, true ), getModelFormat() );
@@ -280,7 +274,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 			vdata = xx.blobToBytes( VoxelBlob.VERSION_COMPACT );
 		}
 
-		final IFlexibleBakedModel[] models = new IFlexibleBakedModel[ChiselLayer.values().length];
+		final IBakedModel[] models = new IBakedModel[ChiselLayer.values().length];
 		for ( final ChiselLayer l : ChiselLayer.values() )
 		{
 			models[l.ordinal()] = getCachedModel( blockP, new VoxelBlobStateReference( vdata, 0L ), null, l, DefaultVertexFormats.ITEM );

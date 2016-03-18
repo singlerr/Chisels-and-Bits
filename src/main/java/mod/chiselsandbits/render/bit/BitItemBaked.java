@@ -15,10 +15,10 @@ import net.minecraft.client.renderer.block.model.BlockFaceUV;
 import net.minecraft.client.renderer.block.model.BlockPartFace;
 import net.minecraft.client.renderer.block.model.BlockPartRotation;
 import net.minecraft.client.renderer.block.model.FaceBakery;
+import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.ModelRotation;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
 
 public class BitItemBaked extends BaseBakedBlockModel
 {
@@ -42,7 +42,7 @@ public class BitItemBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : EnumFacing.VALUES )
 		{
-			for ( final EnumWorldBlockLayer layer : EnumWorldBlockLayer.values() )
+			for ( final BlockRenderLayer layer : BlockRenderLayer.values() )
 			{
 				final ModelQuadLayer[] layers = ModelUtil.getCachedFace( BlockRef, 0, myFace, layer );
 

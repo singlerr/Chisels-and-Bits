@@ -12,8 +12,8 @@ import mod.chiselsandbits.items.ItemChisel;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 
 public class ContinousChisels implements IContinuousInventory
 {

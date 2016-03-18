@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.text.TextComponentTranslation;
 
 public class PacketSetChiselMode extends ModPacket
 {
@@ -27,7 +27,7 @@ public class PacketSetChiselMode extends ModPacket
 
 			if ( originalMode != mode && chatNotification )
 			{
-				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new ChatComponentTranslation( mode.string.toString() ) );
+				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new TextComponentTranslation( mode.string.toString() ) );
 			}
 		}
 	}

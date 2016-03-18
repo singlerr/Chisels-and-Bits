@@ -32,11 +32,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 
@@ -143,7 +141,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			return null;
 		}
 
-		final MovingObjectPosition mop = new MovingObjectPosition( MovingObjectType.BLOCK, new Vec3( hitX, hitY, hitZ ), side, pos );
+		final RayTraceResult mop = new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3( hitX, hitY, hitZ ), side, pos );
 		return new BitLocation( mop, false, placement ? ChiselToolType.BIT : ChiselToolType.CHISEL );
 	}
 

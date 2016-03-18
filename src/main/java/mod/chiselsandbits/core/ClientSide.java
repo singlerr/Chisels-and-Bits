@@ -63,30 +63,28 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelBakery;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IResource;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.ModelBakery;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
@@ -430,7 +428,7 @@ public class ClientSide
 		if ( addToClipboard.isPressed() )
 		{
 			final Minecraft mc = Minecraft.getMinecraft();
-			if ( mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK )
+			if ( mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK )
 			{
 				try
 				{
@@ -449,7 +447,7 @@ public class ClientSide
 		if ( pickBit.isPressed() )
 		{
 			final Minecraft mc = Minecraft.getMinecraft();
-			if ( mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK )
+			if ( mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK )
 			{
 				try
 				{
@@ -473,7 +471,7 @@ public class ClientSide
 		{
 			final Minecraft mc = Minecraft.getMinecraft();
 
-			if (!mc.thePlayer.isSpectator())
+			if ( !mc.thePlayer.isSpectator() )
 			{
 				final GuiIngame sc = mc.ingameGUI;
 
@@ -483,19 +481,19 @@ public class ClientSide
 					if ( stack != null && stack.getItem() instanceof ItemChisel )
 					{
 						ChiselMode mode = ChiselMode.getMode( stack );
-		
+
 						if ( !ChiselsAndBits.getConfig().perChiselMode )
 						{
 							mode = ChiselModeManager.getChiselMode( mc.thePlayer, ChiselToolType.CHISEL );
 						}
-		
+
 						final int x = event.resolution.getScaledWidth() / 2 - 90 + slot * 20 + 2;
 						final int y = event.resolution.getScaledHeight() - 16 - 3;
-		
+
 						GlStateManager.color( 1, 1, 1, 1.0f );
 						Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.locationBlocksTexture );
 						final TextureAtlasSprite sprite = chiselModeIcons.get( mode ).sprite;
-		
+
 						GlStateManager.enableBlend();
 						sc.drawTexturedModalRect( x + 1, y + 1, sprite, 8, 8 );
 						GlStateManager.disableBlend();
@@ -658,16 +656,16 @@ public class ClientSide
 		{
 			final EntityPlayer player = event.player;
 			final float partialTicks = event.partialTicks;
-			final MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+			final RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
 			final World theWorld = player.worldObj;
 
-			if ( mop.typeOfHit != MovingObjectType.BLOCK )
+			if ( mop.typeOfHit != RayTraceResult.Type.BLOCK )
 			{
 				return;
 			}
 
 			boolean showBox = false;
-			if ( mop.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK )
+			if ( mop.typeOfHit == RayTraceResult.Type.BLOCK )
 			{
 				final BitLocation location = new BitLocation( mop, true, getDrawnTool() );
 				if ( theWorld.getWorldBorder().contains( location.blockPos ) )
@@ -846,7 +844,7 @@ public class ClientSide
 		// now render the ghosts...
 		final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
 		final float partialTicks = event.partialTicks;
-		final MovingObjectPosition mop = Minecraft.getMinecraft().objectMouseOver;
+		final RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
 		final World theWorld = player.worldObj;
 		final ItemStack currentItem = player.getCurrentEquippedItem();
 
@@ -861,7 +859,7 @@ public class ClientSide
 
 		if ( ModUtil.isHoldingPattern( player ) )
 		{
-			if ( mop.typeOfHit != MovingObjectType.BLOCK )
+			if ( mop.typeOfHit != RayTraceResult.Type.BLOCK )
 			{
 				return;
 			}
@@ -901,7 +899,7 @@ public class ClientSide
 		}
 		else if ( ModUtil.isHoldingChiseledBlock( player ) )
 		{
-			if ( mop.typeOfHit != MovingObjectType.BLOCK )
+			if ( mop.typeOfHit != RayTraceResult.Type.BLOCK )
 			{
 				return;
 			}
@@ -1150,7 +1148,7 @@ public class ClientSide
 
 	public boolean addHitEffects(
 			final World world,
-			final MovingObjectPosition target,
+			final RayTraceResult target,
 			final IBlockState state,
 			final EffectRenderer effectRenderer )
 	{

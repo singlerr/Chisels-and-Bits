@@ -35,16 +35,15 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RegionRenderCache;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.SimpleBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.SimpleBakedModel;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.property.IExtendedBlockState;
@@ -77,13 +76,13 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	{
 		final TileLayerRenderCache tlrc;
 		final TileRenderCache renderCache;
-		final EnumWorldBlockLayer layer;
+		final BlockRenderLayer layer;
 		final FutureTask<Tessellator> future;
 
 		public FutureTracker(
 				final TileLayerRenderCache tlrc,
 				final TileRenderCache renderCache,
-				final EnumWorldBlockLayer layer )
+				final BlockRenderLayer layer )
 		{
 			this.tlrc = tlrc;
 			this.renderCache = renderCache;
@@ -100,7 +99,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	private void addFutureTracker(
 			final TileLayerRenderCache tlrc,
 			final TileRenderCache renderCache,
-			final EnumWorldBlockLayer layer )
+			final BlockRenderLayer layer )
 	{
 		futureTrackers.add( new FutureTracker( tlrc, renderCache, layer ) );
 	}
@@ -222,7 +221,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	private void uploadDisplayList(
 			final UploadTracker t )
 	{
-		final EnumWorldBlockLayer layer = t.layer;
+		final BlockRenderLayer layer = t.layer;
 		final TileLayerRenderCache tlrc = t.trc.getLayer( layer );
 
 		if ( tlrc.displayList == 0 )
@@ -352,7 +351,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			final int destroyStage,
 			final boolean groupLogic )
 	{
-		final EnumWorldBlockLayer layer = MinecraftForgeClient.getRenderPass() == 0 ? EnumWorldBlockLayer.SOLID : EnumWorldBlockLayer.TRANSLUCENT;
+		final BlockRenderLayer layer = MinecraftForgeClient.getRenderPass() == 0 ? BlockRenderLayer.SOLID : BlockRenderLayer.TRANSLUCENT;
 		final TileRenderChunk renderChunk = te.getRenderChunk();
 		TileRenderCache renderCache = renderChunk;
 
@@ -364,7 +363,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 		if ( destroyStage >= 0 )
 		{
-			if ( layer == EnumWorldBlockLayer.SOLID )
+			if ( layer == BlockRenderLayer.SOLID )
 			{
 				return;
 			}
@@ -514,7 +513,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	int isConfigured = 0;
 
 	private void configureGLState(
-			final EnumWorldBlockLayer layer )
+			final BlockRenderLayer layer )
 	{
 		isConfigured++;
 
@@ -529,7 +528,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
 			GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
 
-			if ( layer == EnumWorldBlockLayer.TRANSLUCENT )
+			if ( layer == BlockRenderLayer.TRANSLUCENT )
 			{
 				GlStateManager.enableBlend();
 				GlStateManager.disableAlpha();

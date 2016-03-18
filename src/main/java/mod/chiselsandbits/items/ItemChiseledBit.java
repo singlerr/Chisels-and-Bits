@@ -37,11 +37,9 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -204,8 +202,8 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		if ( world.isRemote )
 		{
 			final ChiselMode mode = ChiselModeManager.getChiselMode( player, ClientSide.instance.getHeldToolType() );
-			final BitLocation bitLocation = new BitLocation( new MovingObjectPosition( MovingObjectType.BLOCK, new Vec3( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.BIT );
-			final BitLocation chiselLocation = new BitLocation( new MovingObjectPosition( MovingObjectType.BLOCK, new Vec3( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.CHISEL );
+			final BitLocation bitLocation = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.BIT );
+			final BitLocation chiselLocation = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.CHISEL );
 
 			IBlockState blkstate = world.getBlockState( bitLocation.blockPos );
 			TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );

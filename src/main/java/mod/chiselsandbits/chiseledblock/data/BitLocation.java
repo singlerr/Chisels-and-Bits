@@ -2,8 +2,8 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import mod.chiselsandbits.api.IBitLocation;
 import mod.chiselsandbits.helpers.ChiselToolType;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 
 public class BitLocation implements IBitLocation
 {
@@ -37,7 +37,7 @@ public class BitLocation implements IBitLocation
 	}
 
 	public BitLocation(
-			final MovingObjectPosition mop,
+			final RayTraceResult mop,
 			final boolean absHit,
 			final ChiselToolType type )
 	{

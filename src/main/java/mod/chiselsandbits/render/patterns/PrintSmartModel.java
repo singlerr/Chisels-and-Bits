@@ -6,10 +6,9 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.render.BaseSmartModel;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.model.IBakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.client.model.ISmartItemModel;
 
 public class PrintSmartModel extends BaseSmartModel implements ISmartItemModel
 {

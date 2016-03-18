@@ -7,9 +7,9 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.ModelRenderState;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public final class VoxelNeighborRenderTracker
@@ -23,7 +23,7 @@ public final class VoxelNeighborRenderTracker
 
 	public VoxelNeighborRenderTracker()
 	{
-		faceCount = new Integer[EnumWorldBlockLayer.values().length];
+		faceCount = new Integer[BlockRenderLayer.values().length];
 	}
 
 	private final ModelRenderState sides = new ModelRenderState( null );
@@ -46,7 +46,7 @@ public final class VoxelNeighborRenderTracker
 	}
 
 	public void setAbovelimit(
-			final EnumWorldBlockLayer layer,
+			final BlockRenderLayer layer,
 			final int fc )
 	{
 		faceCount[layer.ordinal()] = fc;

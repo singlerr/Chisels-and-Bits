@@ -4,21 +4,21 @@ import java.security.InvalidParameterException;
 
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelType;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.BlockRenderLayer;
 
 public enum ChiselLayer
 {
-	SOLID( EnumWorldBlockLayer.SOLID, VoxelType.SOLID ),
-	SOLID_FLUID( EnumWorldBlockLayer.SOLID, VoxelType.FLUID ),
-	CUTOUT( EnumWorldBlockLayer.CUTOUT, null ),
-	CUTOUT_MIPPED( EnumWorldBlockLayer.CUTOUT_MIPPED, null ),
-	TRANSLUCENT( EnumWorldBlockLayer.TRANSLUCENT, null );
+	SOLID( BlockRenderLayer.SOLID, VoxelType.SOLID ),
+	SOLID_FLUID( BlockRenderLayer.SOLID, VoxelType.FLUID ),
+	CUTOUT( BlockRenderLayer.CUTOUT, null ),
+	CUTOUT_MIPPED( BlockRenderLayer.CUTOUT_MIPPED, null ),
+	TRANSLUCENT( BlockRenderLayer.TRANSLUCENT, null );
 
-	public final EnumWorldBlockLayer layer;
+	public final BlockRenderLayer layer;
 	public final VoxelType type;
 
 	private ChiselLayer(
-			final EnumWorldBlockLayer layer,
+			final BlockRenderLayer layer,
 			final VoxelType type )
 	{
 		this.layer = layer;
@@ -46,7 +46,7 @@ public enum ChiselLayer
 	}
 
 	public static ChiselLayer fromLayer(
-			final EnumWorldBlockLayer layerInfo,
+			final BlockRenderLayer layerInfo,
 			final boolean isFluid )
 	{
 		switch ( layerInfo )

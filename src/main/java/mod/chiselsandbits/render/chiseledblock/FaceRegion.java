@@ -1,7 +1,7 @@
 package mod.chiselsandbits.render.chiseledblock;
 
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.Vec3i;
+import net.minecraft.util.math.Vec3i;
 
 class FaceRegion
 {

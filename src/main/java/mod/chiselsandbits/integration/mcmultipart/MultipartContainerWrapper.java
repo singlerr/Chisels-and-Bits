@@ -7,7 +7,7 @@ import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IOccludingPart;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.interfaces.IChiseledTileContainer;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 
 class MultipartContainerWrapper implements IChiseledTileContainer
 {

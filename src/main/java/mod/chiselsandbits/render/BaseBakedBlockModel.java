@@ -7,16 +7,16 @@ import javax.vecmath.Vector3f;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.TRSRTransformation;
 
 @SuppressWarnings( "deprecation" )
-public abstract class BaseBakedBlockModel implements IFlexibleBakedModel, IPerspectiveAwareModel
+public abstract class BaseBakedBlockModel implements IBakedModel, IPerspectiveAwareModel
 {
 
 	private final static Matrix4f identity;
@@ -39,15 +39,15 @@ public abstract class BaseBakedBlockModel implements IFlexibleBakedModel, IPersp
 	}
 
 	@Override
-	public Pair<? extends IFlexibleBakedModel, Matrix4f> handlePerspective(
+	public Pair<? extends IBakedModel, Matrix4f> handlePerspective(
 			final TransformType cameraTransformType )
 	{
 		switch ( cameraTransformType )
 		{
 			case THIRD_PERSON:
-				return new ImmutablePair<IFlexibleBakedModel, Matrix4f>( this, thirdPerson );
+				return new ImmutablePair<IBakedModel, Matrix4f>( this, thirdPerson );
 			default:
-				return new ImmutablePair<IFlexibleBakedModel, Matrix4f>( this, identity );
+				return new ImmutablePair<IBakedModel, Matrix4f>( this, identity );
 		}
 
 	}

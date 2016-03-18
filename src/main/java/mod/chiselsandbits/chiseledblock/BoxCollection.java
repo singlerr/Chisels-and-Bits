@@ -3,7 +3,7 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.Collection;
 import java.util.Iterator;
 
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 
 public class BoxCollection implements Collection<AxisAlignedBB>
 {

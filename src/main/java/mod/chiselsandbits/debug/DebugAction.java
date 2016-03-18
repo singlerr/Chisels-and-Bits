@@ -20,9 +20,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
@@ -58,7 +58,7 @@ public abstract class DebugAction
 			final String msg )
 	{
 		final String side = FMLCommonHandler.instance().getEffectiveSide().name() + ": ";
-		player.addChatComponentMessage( new ChatComponentText( side + msg ) );
+		player.addChatComponentMessage( new TextComponentString( side + msg ) );
 	}
 
 	private static void apiAssert(
@@ -386,11 +386,11 @@ public abstract class DebugAction
 			final VoxelBlob out = new VoxelBlob();
 			MCMultipartProxy.proxyMCMultiPart.addFiller( w, loc.getBlockPos(), out );
 
-			player.addChatComponentMessage( new ChatComponentText( out.filled() + " blocked" ) );
-			player.addChatComponentMessage( new ChatComponentText( out.air() + " not-blocked" ) );
+			player.addChatComponentMessage( new TextComponentString( out.filled() + " blocked" ) );
+			player.addChatComponentMessage( new TextComponentString( out.air() + " not-blocked" ) );
 
 			final boolean isMultiPart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( w, loc.getBlockPos() );
-			player.addChatComponentMessage( new ChatComponentText( isMultiPart ? "Multipart" : "Not-Multipart" ) );
+			player.addChatComponentMessage( new TextComponentString( isMultiPart ? "Multipart" : "Not-Multipart" ) );
 		}
 
 	};

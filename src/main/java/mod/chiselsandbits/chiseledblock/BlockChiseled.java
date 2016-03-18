@@ -24,7 +24,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.creativetab.CreativeTabs;
@@ -35,14 +35,14 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.EnumWorldBlockLayer;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -255,7 +255,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public boolean canRenderInLayer(
-			final EnumWorldBlockLayer layer )
+			final BlockRenderLayer layer )
 	{
 		return true;
 	}
@@ -417,7 +417,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public ItemStack getPickBlock(
-			final MovingObjectPosition target,
+			final RayTraceResult target,
 			final World world,
 			final BlockPos pos )
 	{
@@ -433,7 +433,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	public ItemStack getPickBlock(
-			final MovingObjectPosition target,
+			final RayTraceResult target,
 			final BlockPos pos,
 			final TileEntityBlockChiseled te )
 	{
@@ -456,7 +456,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
-	protected BlockState createBlockState()
+	protected BlockStateContainer createBlockState()
 	{
 		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { UProperty_VoxelBlob, UProperty_Primary_BlockState, UProperty_VoxelNeighborState } );
 	}
@@ -534,15 +534,16 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public boolean addHitEffects(
+			final IBlockState state,
 			final World world,
-			final MovingObjectPosition target,
+			final RayTraceResult target,
 			final EffectRenderer effectRenderer )
 	{
 		try
 		{
 			final BlockPos pos = target.getBlockPos();
-			final IBlockState state = getTileEntity( world, pos ).getBlockState( this );
-			return ClientSide.instance.addHitEffects( world, target, state, effectRenderer );
+			final IBlockState bs = getTileEntity( world, pos ).getBlockState( this );
+			return ClientSide.instance.addHitEffects( world, target, bs, effectRenderer );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
@@ -764,11 +765,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
-	public MovingObjectPosition collisionRayTrace(
+	public RayTraceResult collisionRayTrace(
 			final World worldIn,
 			final BlockPos pos,
-			final Vec3 a,
-			final Vec3 b )
+			final Vec3d a,
+			final Vec3d b )
 	{
 		try
 		{
@@ -782,16 +783,16 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		return super.collisionRayTrace( worldIn, pos, a, b );
 	}
 
-	public MovingObjectPosition collisionRayTrace(
+	public RayTraceResult collisionRayTrace(
 			final TileEntityBlockChiseled tec,
 			final BlockPos pos,
-			final Vec3 a,
-			final Vec3 b,
+			final Vec3d a,
+			final Vec3d b,
 			final boolean realTest )
 	{
 		final Block boundsToTest = getTestBlock();
 
-		MovingObjectPosition br = null;
+		RayTraceResult br = null;
 		double lastDist = 0;
 
 		boolean occlusion = true;
@@ -802,8 +803,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		for ( final AxisAlignedBB box : tec.getBoxes( occlusion ? BoxType.OCCLUSION : BoxType.COLLISION ) )
 		{
-			boundsToTest.setBlockBounds( (float) box.minX, (float) box.minY, (float) box.minZ, (float) box.maxX, (float) box.maxY, (float) box.maxZ );
-			final MovingObjectPosition r = boundsToTest.collisionRayTrace( null, pos, a, b );
+			final RayTraceResult r = func_185503_a( pos, a, b, box );
 
 			if ( r != null )
 			{
@@ -827,6 +827,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public float getBlockHardness(
+			final IBlockState state,
 			final World worldIn,
 			final BlockPos pos )
 	{
@@ -837,7 +838,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		catch ( final ExceptionNoTileEntity e )
 		{
 			Log.noTileError( e );
-			return super.getBlockHardness( worldIn, pos );
+			return super.getBlockHardness( worldIn, pos, p_176195_3_ );
 		}
 	}
 
