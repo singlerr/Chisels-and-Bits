@@ -248,13 +248,18 @@ public class Share extends CommandBase
 				writer.writeBits( stucture[si], bits );
 			}
 
+			// inserts 0's until the next byte, the rest of the format falls
+			// strictly into the byte grid.
+			writer.snapToByte();
+
 			final byte[][] orderedList = new byte[models.size()][];
 			for ( final Entry<byte[], Integer> en : models.entrySet() )
 			{
 				orderedList[en.getValue() - 1] = en.getKey();
 			}
 
-			writer.writeInt( orderedList.length ); // model count.
+			final int ml = orderedList.length;
+			writer.writeInt( ml ); // model count.
 			for ( int si = 0; si < orderedList.length; ++si )
 			{
 				writer.writeBytes( orderedList[si] );
@@ -286,7 +291,10 @@ public class Share extends CommandBase
 			for ( int si = 0; si < orderedMaterials.length; ++si )
 			{
 				final ShareMaterial m = orderedMaterials[si];
-				writer.writeInt( m.col );
+				writer.writeBits( m.col, 8 );
+				writer.writeBits( m.col >>> 8, 8 );
+				writer.writeBits( m.col >>> 16, 8 );
+				writer.writeBits( m.col >>> 24, 8 );
 				writer.writeInt( getLayerName( m.layer ) );
 				writer.writeInt( System.identityHashCode( m.sprite ) );
 			}
@@ -294,11 +302,12 @@ public class Share extends CommandBase
 			writer.writeInt( textures.size() ); // face groups...
 			for ( final ShareMaterial json : textures.values() )
 			{
+				writer.writeInt( json.materialID );
 				json.writeOut( writer );
 			}
 
 			final byte[] jsonData = writer.inner.toByteArray();
-
+			Log.info( "Uncompressed: " + jsonData.length );
 			final ByteArrayOutputStream byteStream = new ByteArrayOutputStream( jsonData.length );
 			try
 			{
@@ -441,13 +450,31 @@ public class Share extends CommandBase
 		public void writeOut(
 				final ShareFormatWriter writer )
 		{
+			writer.writeInt( faces.size() );
+
 			for ( final ShareFaces f : faces )
 			{
 				writer.writeInt( f.x );
+			}
+
+			for ( final ShareFaces f : faces )
+			{
 				writer.writeInt( f.y );
+			}
+
+			for ( final ShareFaces f : faces )
+			{
 				writer.writeInt( f.z );
-				writer.writeBits( f.u, 5 );
-				writer.writeBits( f.v, 5 );
+			}
+
+			for ( final ShareFaces f : faces )
+			{
+				writer.writeInt( f.u );
+			}
+
+			for ( final ShareFaces f : faces )
+			{
+				writer.writeInt( f.v );
 			}
 		}
 
@@ -469,6 +496,7 @@ public class Share extends CommandBase
 
 			return false;
 		}
+
 	};
 
 	private void outputFaces(

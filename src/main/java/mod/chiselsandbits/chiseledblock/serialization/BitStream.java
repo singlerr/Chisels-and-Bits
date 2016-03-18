@@ -122,28 +122,21 @@ public class BitStream
 	}
 
 	public void writeBits(
-			final int singleByte,
+			int singleByte,
 			final int howmany )
 	{
-		switch ( howmany )
+		for ( int x = 0; x < howmany; ++x )
 		{
-			case 8:
-				add( ( singleByte & 0x80 ) != 0 );
-			case 7:
-				add( ( singleByte & 0x40 ) != 0 );
-			case 6:
-				add( ( singleByte & 0x20 ) != 0 );
-			case 5:
-				add( ( singleByte & 0x10 ) != 0 );
-			case 4:
-				add( ( singleByte & 0x8 ) != 0 );
-			case 3:
-				add( ( singleByte & 0x4 ) != 0 );
-			case 2:
-				add( ( singleByte & 0x2 ) != 0 );
-			case 1:
-				add( ( singleByte & 0x1 ) != 0 );
-			default:
+			add( ( singleByte & 0x1 ) != 0 );
+			singleByte = singleByte >>> 1;
+		}
+	}
+
+	public void snapToByte()
+	{
+		while ( bit % 8 != 0 )
+		{
+			add( false );
 		}
 	}
 
