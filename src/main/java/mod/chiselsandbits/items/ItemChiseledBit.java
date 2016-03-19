@@ -123,7 +123,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			}
 			else
 			{
-				target = new ItemStack( blk, 1, blk.damageDropped( state ) );
+				target = new ItemStack( blk, 1, blk.getMetaFromState( state ) );
 			}
 		}
 		catch ( final IllegalArgumentException e )
@@ -136,7 +136,14 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			return null;
 		}
 
-		return target.getDisplayName();
+		try
+		{
+			return target.getDisplayName();
+		}
+		catch ( final Exception e )
+		{
+			return "ERROR";
+		}
 	}
 
 	@Override
