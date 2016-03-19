@@ -13,7 +13,7 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-version = "8.2"
+version = "9.0"
 group= "mod.chiselsandbits"
 archivesBaseName = "chiselsandbits"
 
