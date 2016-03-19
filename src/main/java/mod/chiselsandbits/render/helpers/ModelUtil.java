@@ -80,7 +80,7 @@ public class ModelUtil implements ICacheClearable
 			{
 				final ModelQuadLayer[] mp = new ModelQuadLayer[1];
 				mp[0] = new ModelQuadLayer();
-				mp[0].color = 0xffffff;
+				mp[0].color = fluid.getColor();
 				mp[0].light = state.getBlock().getLightValue( state );
 
 				final float V = 0.5f;
@@ -104,7 +104,7 @@ public class ModelUtil implements ICacheClearable
 					mp[0].uvs = new float[] { U, 0, 0, 0, U, V, 0, V };
 				}
 
-				mp[0].tint = -1;
+				mp[0].tint = 0;
 
 				final int cacheV = stateID << 4 | xf.ordinal();
 				cache.put( cacheV, mp );

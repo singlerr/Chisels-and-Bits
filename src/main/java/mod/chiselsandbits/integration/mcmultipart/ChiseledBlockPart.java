@@ -243,6 +243,11 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 	public void readFromNBT(
 			final NBTTagCompound tag )
 	{
+		if ( tag.hasNoTags() )
+		{
+			return;
+		}
+
 		getTile().readChisleData( tag );
 	}
 

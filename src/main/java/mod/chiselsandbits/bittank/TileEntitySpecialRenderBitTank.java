@@ -87,6 +87,12 @@ public class TileEntitySpecialRenderBitTank extends FastTESR<TileEntityBitTank>
 
 			final double fullness = (double) fluidStack.amount / (double) TileEntityBitTank.MAX_CONTENTS;
 
+			final int rgbaColor = fluid.getColor();
+			final int rColor = rgbaColor >> 16 & 0xff;
+			final int gColor = rgbaColor >> 8 & 0xff;
+			final int bColor = rgbaColor & 0xff;
+			final int aColor = rgbaColor >> 24 & 0xff;
+
 			worldRenderer.setTranslation( x - pos.getX(), y - pos.getY(), z - pos.getZ() );
 
 			for ( final FluidModelVertex vert : model )
@@ -99,7 +105,7 @@ public class TileEntitySpecialRenderBitTank extends FastTESR<TileEntityBitTank>
 					switch ( e.getUsage() )
 					{
 						case COLOR:
-							worldRenderer.color( 255, 255, 255, 255 );
+							worldRenderer.color( rColor, gColor, bColor, aColor );
 							break;
 
 						case NORMAL:

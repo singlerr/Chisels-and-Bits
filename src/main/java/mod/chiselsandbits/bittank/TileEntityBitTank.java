@@ -17,9 +17,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
 
 public class TileEntityBitTank extends TileEntity implements IItemHandler
@@ -390,66 +391,129 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 		return false;
 	}
 
-	boolean putFluidIntoItem(
-			final ItemStack current,
-			final FluidStack liquid,
-			final EntityPlayer playerIn )
+	/**
+	 * IFluidHandler is not implemented on the TE to prevent pipes from
+	 * connecting, this is because the conversion rate is too high for most
+	 * pipes to support it.
+	 * 
+	 * @return IFluidHandler for the tank.
+	 */
+	public IFluidHandler getWrappedTank()
 	{
-		if ( FluidContainerRegistry.isEmptyContainer( current ) )
-		{
-			final FluidStack outFluid = getAccessableFluid();
-			final int capacity = FluidContainerRegistry.getContainerCapacity( outFluid, current );
+		return new IFluidHandler() {
 
-			if ( capacity % TileEntityBitTank.MB_PER_BIT_CONVERSION == 0 )
+			@Override
+			public int fill(
+					final EnumFacing from,
+					final FluidStack liquid,
+					final boolean doFill )
 			{
-				int requiredBits = capacity / TileEntityBitTank.MB_PER_BIT_CONVERSION;
-				requiredBits *= TileEntityBitTank.BITS_PER_MB_CONVERSION;
+				final int possibleAmount = liquid.amount - liquid.amount % TileEntityBitTank.MB_PER_BIT_CONVERSION;
 
-				final ItemStack output = extractBits( 0, requiredBits, true );
-				if ( output != null && output.stackSize == requiredBits )
+				if ( possibleAmount > 0 )
 				{
-					outFluid.amount = capacity;
-					final ItemStack filled = FluidContainerRegistry.fillFluidContainer( outFluid, current );
+					final int bitCount = possibleAmount * TileEntityBitTank.BITS_PER_MB_CONVERSION / TileEntityBitTank.MB_PER_BIT_CONVERSION;
+					final ItemStack bitItems = getFluidBitStack( liquid.getFluid(), bitCount );
 
-					if ( filled != null )
+					final ItemStack leftOver = insertItem( 0, bitItems, true );
+
+					if ( leftOver == null )
 					{
-						extractBits( 0, requiredBits, false );
-						playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, filled );
-						playerIn.inventory.markDirty();
+						if ( doFill )
+						{
+							insertItem( 0, bitItems, false );
+						}
+
+						return possibleAmount;
+					}
+
+					int mbUsedUp = leftOver.stackSize;
+
+					// round up...
+					mbUsedUp += TileEntityBitTank.BITS_PER_MB_CONVERSION - 1;
+					mbUsedUp *= TileEntityBitTank.MB_PER_BIT_CONVERSION / TileEntityBitTank.BITS_PER_MB_CONVERSION;
+
+					return mbUsedUp;
+				}
+
+				return 0;
+			}
+
+			public FluidStack drainFluid(
+					final FluidStack type,
+					final int maxDrain,
+					final boolean doDrain )
+			{
+				final FluidStack a = getAccessableFluid();
+				final boolean rightType = a != null && type == null || a != null && type.containsFluid( a );
+
+				if ( rightType )
+				{
+					final int aboutHowMuch = Math.max( maxDrain, type == null ? 0 : type.amount );
+
+					final int mbThatCanBeRemoved = Math.min( a.amount, aboutHowMuch - aboutHowMuch % TileEntityBitTank.MB_PER_BIT_CONVERSION );
+					if ( mbThatCanBeRemoved > 0 )
+					{
+						a.amount = mbThatCanBeRemoved;
+
+						if ( doDrain )
+						{
+							final int bitCount = mbThatCanBeRemoved * TileEntityBitTank.BITS_PER_MB_CONVERSION / TileEntityBitTank.MB_PER_BIT_CONVERSION;
+							extractBits( 0, bitCount, false );
+						}
+
+						return a;
 					}
 				}
+
+				return null;
 			}
-			return true;
-		}
 
-		return false;
-	}
-
-	boolean addFluidFromItem(
-			final ItemStack current,
-			final FluidStack liquid,
-			final EntityPlayer playerIn )
-	{
-		if ( liquid != null && liquid.amount % TileEntityBitTank.MB_PER_BIT_CONVERSION == 0 && liquid.amount > 0 )
-		{
-			final int bitCount = liquid.amount * TileEntityBitTank.BITS_PER_MB_CONVERSION / TileEntityBitTank.MB_PER_BIT_CONVERSION;
-			final ItemStack bitItems = getFluidBitStack( liquid.getFluid(), bitCount );
-
-			if ( insertItem( 0, bitItems, true ) == null )
+			@Override
+			public FluidStack drain(
+					final EnumFacing from,
+					final FluidStack resource,
+					final boolean doDrain )
 			{
-				final ItemStack empty = FluidContainerRegistry.drainFluidContainer( current );
-
-				if ( empty != null )
-				{
-					// insert items.. and drain the container.
-					insertItem( 0, bitItems, false );
-					playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, empty );
-					playerIn.inventory.markDirty();
-				}
+				return drainFluid( resource, 1000, doDrain );
 			}
-			return true;
-		}
 
-		return false;
+			@Override
+			public FluidStack drain(
+					final EnumFacing from,
+					final int maxDrain,
+					final boolean doDrain )
+			{
+				return drainFluid( null, maxDrain, doDrain );
+			}
+
+			@Override
+			public boolean canFill(
+					final EnumFacing from,
+					final Fluid fluid )
+			{
+				final FluidStack a = getAccessableFluid();
+				return a == null || a.getFluid() == fluid && a.amount < 1000 - MB_PER_BIT_CONVERSION;
+			}
+
+			@Override
+			public boolean canDrain(
+					final EnumFacing from,
+					final Fluid fluid )
+			{
+				final FluidStack a = getAccessableFluid();
+				return a != null && ( fluid == null || a.getFluid() == fluid ) && a.amount >= MB_PER_BIT_CONVERSION;
+			}
+
+			@Override
+			public FluidTankInfo[] getTankInfo(
+					final EnumFacing from )
+			{
+				return new FluidTankInfo[] {
+						new FluidTankInfo( getAccessableFluid(), 1000 )
+				};
+			}
+		};
 	}
+
 }
