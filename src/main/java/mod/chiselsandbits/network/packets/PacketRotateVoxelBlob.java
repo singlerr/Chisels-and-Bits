@@ -15,7 +15,7 @@ public class PacketRotateVoxelBlob extends ModPacket
 	public void server(
 			final EntityPlayerMP player )
 	{
-		final ItemStack is = player.getCurrentEquippedItem();
+		final ItemStack is = player.getHeldItemMainhand();
 		if ( is != null && is.getItem() instanceof IVoxelBlobItem )
 		{
 			( (IVoxelBlobItem) is.getItem() ).rotate( is, rotationDirection );

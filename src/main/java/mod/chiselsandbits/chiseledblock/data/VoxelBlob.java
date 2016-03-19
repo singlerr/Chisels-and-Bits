@@ -648,8 +648,8 @@ public final class VoxelBlob implements IVoxelSrc
 				final Block blk = state.getBlock();
 
 				nonAirBits += quantity;
-				cb.isNormalBlock = cb.isNormalBlock && blk.isNormalCube();
-				cb.blockLight += quantity * blk.getLightValue();
+				cb.isNormalBlock = cb.isNormalBlock && blk.isNormalCube( state );
+				cb.blockLight += quantity * blk.getLightValue( state );
 			}
 		}
 

@@ -203,7 +203,7 @@ public class NBTBlobConverter
 	public ItemStack getItemStack(
 			final boolean crossWorld )
 	{
-		final Block blk = ChiselsAndBits.getBlocks().getConversion( getPrimaryBlockState().getBlock() );
+		final Block blk = ChiselsAndBits.getBlocks().getConversion( getPrimaryBlockState() );
 
 		if ( blk != null )
 		{

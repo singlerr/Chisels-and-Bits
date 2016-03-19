@@ -24,6 +24,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -77,7 +78,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	@Override
 	public void sendUpdate()
 	{
-		worldObj.markBlockForUpdate( pos );
+		worldObj.markBlockRangeForRenderUpdate( pos, pos );
 	}
 
 	public void copyFrom(
@@ -138,7 +139,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 								final TileEntityBlockChiseledTESR TESR = new TileEntityBlockChiseledTESR();
 								TESR.copyFrom( self );
 								self.worldObj.setTileEntity( self.pos, TESR );
-								self.worldObj.markBlockForUpdate( self.pos );
+								self.worldObj.markBlockRangeForRenderUpdate( self.pos, self.pos );
 							}
 							else
 							{
@@ -164,7 +165,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 								final TileEntityBlockChiseled nonTesr = new TileEntityBlockChiseled();
 								nonTesr.copyFrom( self );
 								self.worldObj.setTileEntity( self.pos, nonTesr );
-								self.worldObj.markBlockForUpdate( self.pos );
+								self.worldObj.markBlockRangeForRenderUpdate( self.pos, self.pos );
 							}
 							else
 							{
@@ -225,7 +226,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return oldState.getBlock() != newState.getBlock();
 	}
 
-	@SuppressWarnings( "rawtypes" )
+	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public Packet getDescriptionPacket()
 	{
@@ -237,18 +238,18 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			return null;
 		}
 
-		return new S35PacketUpdateTileEntity( pos, 255, nbttagcompound );
+		return new SPacketUpdateTileEntity( pos, 255, nbttagcompound );
 	}
 
 	@Override
 	public void onDataPacket(
 			final NetworkManager net,
-			final S35PacketUpdateTileEntity pkt )
+			final SPacketUpdateTileEntity pkt )
 	{
 		readChisleData( pkt.getNbtCompound() );
 		if ( worldObj != null )
 		{
-			worldObj.markBlockForUpdate( pos );
+			worldObj.markBlockRangeForRenderUpdate( pos, pos );
 		}
 	}
 
@@ -286,8 +287,8 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		final int ref = Block.getStateId( blockType );
 
 		sideState = 0xff;
-		lightlevel = blockType.getBlock().getLightValue();
-		isNormalCube = blockType.getBlock().isNormalCube();
+		lightlevel = blockType.getBlock().getLightValue( blockType );
+		isNormalCube = blockType.getBlock().isNormalCube( blockType );
 
 		IExtendedBlockState state = getBasicState()
 				.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( Block.getStateId( blockType ), getPositionRandom( pos ) ) );
@@ -355,7 +356,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	public IBlockState getPreferedBlock()
 	{
-		return ChiselsAndBits.getBlocks().getConversionWithDefault( getBlockState( Blocks.stone ).getBlock() ).getDefaultState();
+		return ChiselsAndBits.getBlocks().getConversionWithDefault( getBlockState( Blocks.stone ) ).getDefaultState();
 	}
 
 	public void setBlob(

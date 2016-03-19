@@ -22,12 +22,14 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -66,11 +68,11 @@ public class ModUtil
 
 		if ( playerIn instanceof EntityPlayerMP )
 		{
-			reachDistance = ( (EntityPlayerMP) playerIn ).theItemInWorldManager.getBlockReachDistance();
+			reachDistance = ( (EntityPlayerMP) playerIn ).interactionManager.getBlockReachDistance();
 		}
 
-		final Vec3 from = new Vec3( x, y, z );
-		final Vec3 to = from.addVector( eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance );
+		final Vec3d from = new Vec3d( x, y, z );
+		final Vec3d to = from.addVector( eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance );
 
 		return Pair.of( from, to );
 	}
@@ -112,7 +114,7 @@ public class ModUtil
 			who.damageItem( stack, 1 );
 			if ( stack.stackSize <= 0 )
 			{
-				who.playerDestroyItem( stack );
+				who.playerDestroyItem( stack, who.getHand() );
 				inv.setInventorySlotContents( slot, null );
 			}
 		}
@@ -171,7 +173,7 @@ public class ModUtil
 	public static boolean isHoldingPattern(
 			final EntityPlayer player )
 	{
-		final ItemStack inHand = player.getCurrentEquippedItem();
+		final ItemStack inHand = player.getHeldItemMainhand();
 
 		if ( inHand != null && inHand.getItem() instanceof ItemPositivePrint )
 		{
@@ -189,7 +191,7 @@ public class ModUtil
 	public static boolean isHoldingChiseledBlock(
 			final EntityPlayer player )
 	{
-		final ItemStack inHand = player.getCurrentEquippedItem();
+		final ItemStack inHand = player.getHeldItemMainhand();
 
 		if ( inHand != null && inHand.getItem() instanceof ItemBlockChiseled )
 		{
@@ -363,7 +365,7 @@ public class ModUtil
 		{
 			if ( !ei.isSilent() )
 			{
-				ei.worldObj.playSoundAtEntity( ei, "random.pop", 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
+				ei.worldObj.playSound( (EntityPlayer) null, ei.posX, ei.posY, ei.posZ, SoundEvents.entity_item_pickup, SoundCategory.PLAYERS, 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
 			}
 		}
 

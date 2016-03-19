@@ -22,6 +22,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
@@ -51,8 +52,6 @@ import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockChiseled extends Block implements ITileEntityProvider
 {
@@ -85,7 +84,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public Boolean isEntityInsideMaterial(
-			final World world,
+			final IBlockAccess world,
 			final BlockPos pos,
 			final IBlockState iblockstate,
 			final Entity entity,
@@ -106,6 +105,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public boolean removedByPlayer(
+			final IBlockState state,
 			final World world,
 			final BlockPos pos,
 			final EntityPlayer player,
@@ -127,28 +127,31 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 		}
 
-		return super.removedByPlayer( world, pos, player, willHarvest );
+		return super.removedByPlayer( state, world, pos, player, willHarvest );
 	}
 
 	@Override
 	public boolean shouldCheckWeakPower(
+			final IBlockState state,
 			final IBlockAccess world,
 			final BlockPos pos,
 			final EnumFacing side )
 	{
-		return isNormalCube( world, pos );
+		return isNormalCube( state, world, pos );
 	}
 
 	@Override
 	public int getLightOpacity(
+			final IBlockState state,
 			final IBlockAccess world,
 			final BlockPos pos )
 	{
-		return isNormalCube( world, pos ) ? 255 : 0;
+		return isNormalCube( state, world, pos ) ? 255 : 0;
 	}
 
 	@Override
 	public boolean isNormalCube(
+			final IBlockState state,
 			final IBlockAccess world,
 			final BlockPos pos )
 	{
@@ -165,7 +168,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public boolean isReplaceable(
-			final World worldIn,
+			final IBlockAccess worldIn,
 			final BlockPos pos )
 	{
 		try
@@ -181,13 +184,14 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public boolean doesSideBlockRendering(
+			final IBlockState state,
 			final IBlockAccess world,
 			final BlockPos pos,
 			final EnumFacing face )
 	{
 		try
 		{
-			return getTileEntity( world, pos ).isSideOpaque( face.getOpposite() );
+			return getTileEntity( world, pos ).isSideOpaque( face );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
@@ -221,35 +225,35 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		if ( mat == Material.wood )
 		{
-			setStepSound( soundTypeWood );
+			setStepSound( SoundType.WOOD );
 		}
 		else if ( mat == Material.rock )
 		{
-			setStepSound( soundTypeStone );
+			setStepSound( SoundType.STONE );
 		}
 		else if ( mat == Material.iron )
 		{
-			setStepSound( soundTypeMetal );
+			setStepSound( SoundType.METAL );
 		}
 		else if ( mat == Material.cloth )
 		{
-			setStepSound( soundTypeMetal );
+			setStepSound( SoundType.CLOTH );
 		}
 		else if ( mat == Material.ice )
 		{
-			setStepSound( soundTypeGlass );
+			setStepSound( SoundType.GLASS );
 		}
 		else if ( mat == Material.packedIce )
 		{
-			setStepSound( soundTypeGlass );
+			setStepSound( SoundType.GLASS );
 		}
 		else if ( mat == Material.clay )
 		{
-			setStepSound( soundTypeGravel );
+			setStepSound( SoundType.GROUND );
 		}
 		else if ( mat == Material.glass )
 		{
-			setStepSound( soundTypeGlass );
+			setStepSound( SoundType.GLASS );
 		}
 	}
 
@@ -278,32 +282,24 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
-	public float getAmbientOcclusionLightValue()
+	public float getAmbientOcclusionLightValue(
+			final IBlockState state )
 	{
 		return 1.0f;
 	}
 
 	@Override
-	public boolean isOpaqueCube()
+	public boolean isOpaqueCube(
+			final IBlockState state )
 	{
 		return false;
 	}
 
 	@Override
-	public boolean isFullCube()
+	public boolean isFullCube(
+			final IBlockState state )
 	{
 		return false;
-	}
-
-	@Override
-	@SideOnly( Side.CLIENT )
-	public int colorMultiplier(
-			final IBlockAccess worldIn,
-			final BlockPos pos,
-			final int tint )
-	{
-		final Block blk = Block.getStateById( tint ).getBlock();
-		return blk.colorMultiplier( worldIn, pos, 0 );
 	}
 
 	@Override
@@ -352,7 +348,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final EntityPlayer player,
 			final BlockPos pos,
 			final IBlockState state,
-			final TileEntity te )
+			final TileEntity te,
+			final ItemStack stack )
 	{
 		try
 		{
@@ -362,7 +359,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		catch ( final ExceptionNoTileEntity e )
 		{
 			Log.noTileError( e );
-			super.harvestBlock( worldIn, player, pos, state, (TileEntity) null );
+			super.harvestBlock( worldIn, player, pos, state, (TileEntity) null, stack );
 		}
 	}
 
@@ -417,9 +414,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public ItemStack getPickBlock(
+			final IBlockState state,
 			final RayTraceResult target,
 			final World world,
-			final BlockPos pos )
+			final BlockPos pos,
+			final EntityPlayer player )
 	{
 		try
 		{
@@ -494,6 +493,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public boolean addLandingEffects(
+			final IBlockState state,
 			final WorldServer worldObj,
 			final BlockPos blockPosition,
 			final IBlockState iblockstate,
@@ -554,9 +554,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public AxisAlignedBB getCollisionBoundingBox(
+			final IBlockState state,
 			final World worldIn,
-			final BlockPos pos,
-			final IBlockState state )
+			final BlockPos pos )
 	{
 		AxisAlignedBB r = null;
 
@@ -587,14 +587,13 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		return r.offset( pos.getX(), pos.getY(), pos.getZ() );
 	}
 
-	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	@Override
-	public void addCollisionBoxesToList(
+	public void addCollisionBoxToList(
+			final IBlockState state,
 			final World worldIn,
 			final BlockPos pos,
-			final IBlockState state,
 			final AxisAlignedBB mask,
-			final List list,
+			final List<AxisAlignedBB> list,
 			final Entity collidingEntity )
 	{
 		try
@@ -635,11 +634,12 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	 *
 	 * @return if the method results in a non-full cube box.
 	 */
-	private Block setBounds(
+	private AxisAlignedBB setBounds(
 			final TileEntityBlockChiseled tec,
 			final BlockPos pos,
 			final AxisAlignedBB mask,
-			final List<AxisAlignedBB> list )
+			final List<AxisAlignedBB> list,
+			final boolean includePosition )
 	{
 		boolean started = false;
 
@@ -650,8 +650,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		float maxX = 1.0f;
 		float maxY = 1.0f;
 		float maxZ = 1.0f;
-
-		final Block b = getTestBlock();
 
 		final VoxelBlob vb = tec.getBlob();
 
@@ -685,7 +683,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			// for top and one for the bottom.
 			if ( list != null && started && ( bi.y == 8 || bi.y == VoxelBlob.dim_minus_one ) )
 			{
-				final AxisAlignedBB bb = AxisAlignedBB.fromBounds(
+				final AxisAlignedBB bb = new AxisAlignedBB(
 						(double) minX + pos.getX(),
 						(double) minY + pos.getY(),
 						(double) minZ + pos.getZ(),
@@ -708,27 +706,29 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 		}
 
-		b.setBlockBounds( minX, minY, minZ, maxX, maxY, maxZ );
-		return b; // started ;
-	}
-
-	private final ThreadLocal<Block> testBlock = new ThreadLocal<Block>();
-
-	private Block getTestBlock()
-	{
-		Block b = testBlock.get();
-
-		if ( b == null )
+		if ( includePosition )
 		{
-			b = new Block( Material.rock );
-			testBlock.set( b );
+			return new AxisAlignedBB(
+					(double) minX + pos.getX(),
+					(double) minY + pos.getY(),
+					(double) minZ + pos.getZ(),
+					(double) maxX + pos.getX(),
+					(double) maxY + pos.getY(),
+					(double) maxZ + pos.getZ() );
 		}
 
-		return b;
+		return new AxisAlignedBB(
+				minX,
+				minY,
+				minZ,
+				maxX,
+				maxY,
+				maxZ );
 	}
 
 	@Override
 	public AxisAlignedBB getSelectedBoundingBox(
+			final IBlockState state,
 			final World worldIn,
 			final BlockPos pos )
 	{
@@ -741,31 +741,19 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			Log.noTileError( e );
 		}
 
-		return super.getSelectedBoundingBox( worldIn, pos );
+		return super.getSelectedBoundingBox( state, worldIn, pos );
 	}
 
 	public AxisAlignedBB getSelectedBoundingBox(
 			final TileEntityBlockChiseled tec,
 			final BlockPos pos )
 	{
-		return getBoundingBox( setBounds( tec, pos, null, null ), pos );
-	}
-
-	private AxisAlignedBB getBoundingBox(
-			final Block target,
-			final BlockPos pos )
-	{
-		return new AxisAlignedBB(
-				pos.getX() + target.getBlockBoundsMinX(),
-				pos.getY() + target.getBlockBoundsMinY(),
-				pos.getZ() + target.getBlockBoundsMinZ(),
-				pos.getX() + target.getBlockBoundsMaxX(),
-				pos.getY() + target.getBlockBoundsMaxY(),
-				pos.getZ() + target.getBlockBoundsMaxZ() );
+		return setBounds( tec, pos, null, null, true );
 	}
 
 	@Override
 	public RayTraceResult collisionRayTrace(
+			final IBlockState blockState,
 			final World worldIn,
 			final BlockPos pos,
 			final Vec3d a,
@@ -780,7 +768,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			Log.noTileError( e );
 		}
 
-		return super.collisionRayTrace( worldIn, pos, a, b );
+		return super.collisionRayTrace( blockState, worldIn, pos, a, b );
 	}
 
 	public RayTraceResult collisionRayTrace(
@@ -790,8 +778,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final Vec3d b,
 			final boolean realTest )
 	{
-		final Block boundsToTest = getTestBlock();
-
 		RayTraceResult br = null;
 		double lastDist = 0;
 
@@ -803,7 +789,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		for ( final AxisAlignedBB box : tec.getBoxes( occlusion ? BoxType.OCCLUSION : BoxType.COLLISION ) )
 		{
-			final RayTraceResult r = func_185503_a( pos, a, b, box );
+			final RayTraceResult r = rayTrace( pos, a, b, box );
 
 			if ( r != null )
 			{
@@ -821,7 +807,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 		}
 
-		setBlockBounds( 0, 0, 0, 1, 1, 1 );
 		return br;
 	}
 
@@ -838,7 +823,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		catch ( final ExceptionNoTileEntity e )
 		{
 			Log.noTileError( e );
-			return super.getBlockHardness( worldIn, pos, p_176195_3_ );
+			return super.getBlockHardness( state, worldIn, pos );
 		}
 	}
 
@@ -871,14 +856,16 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public boolean canPlaceTorchOnTop(
+			final IBlockState state,
 			final IBlockAccess world,
 			final BlockPos pos )
 	{
-		return isSideSolid( world, pos, EnumFacing.UP );
+		return isSideSolid( state, world, pos, EnumFacing.UP );
 	}
 
 	@Override
 	public boolean isSideSolid(
+			final IBlockState base_state,
 			final IBlockAccess world,
 			final BlockPos pos,
 			final EnumFacing side )
@@ -925,7 +912,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		if ( BlockBitInfo.supportsBlock( actingState ) || isAir )
 		{
-			BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( target );
+			BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( originalState );
 
 			int BlockID = Block.getStateId( actingState );
 
@@ -934,7 +921,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				actingState = Block.getStateById( fragmentBlockStateID );
 				target = actingState.getBlock();
 				BlockID = Block.getStateId( actingState );
-				blk = ChiselsAndBits.getBlocks().getConversion( target );
+				blk = ChiselsAndBits.getBlocks().getConversion( actingState );
 				// its still air tho..
 				actingState = Blocks.air.getDefaultState();
 			}
@@ -989,6 +976,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 	@Override
 	public int getLightValue(
+			final IBlockState state,
 			final IBlockAccess world,
 			final BlockPos pos )
 	{
@@ -996,7 +984,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		final Block block = world.getBlockState( pos ).getBlock();
 		if ( block != this )
 		{
-			return block.getLightValue( world, pos );
+			return block.getLightValue( state, world, pos );
 		}
 
 		// enabled?
@@ -1188,8 +1176,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		if ( testingHead && materialIn == Material.water )
 		{
-			Vec3 head = entity.getPositionVector();
-			head = new Vec3( head.xCoord - pos.getX(), yToTest - pos.getY(), head.zCoord - pos.getZ() );
+			Vec3d head = entity.getPositionVector();
+			head = new Vec3d( head.xCoord - pos.getX(), yToTest - pos.getY(), head.zCoord - pos.getZ() );
 
 			for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
 			{

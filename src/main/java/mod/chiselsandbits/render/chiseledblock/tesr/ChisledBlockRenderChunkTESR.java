@@ -35,6 +35,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RegionRenderCache;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.SimpleBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -123,7 +124,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 				{
 					try
 					{
-						t.getWorldRenderer().finishDrawing();
+						t.getBuffer().finishDrawing();
 					}
 					catch ( final IllegalStateException e )
 					{
@@ -296,7 +297,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		GlStateManager.translate( x - cp.getX(), y - cp.getY(), z - cp.getZ() );
 
 		final Tessellator tessellator = Tessellator.getInstance();
-		final WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+		final VertexBuffer worldrenderer = tessellator.getBuffer();
 
 		worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
 		worldrenderer.setTranslation( 0, 0, 0 );
@@ -310,7 +311,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 			if ( !model.isEmpty() )
 			{
-				final IBakedModel damageModel = new SimpleBakedModel.Builder( model, damageTexture ).makeBakedModel();
+				final IBakedModel damageModel = new SimpleBakedModel.Builder( estate, model, damageTexture, cp ).makeBakedModel();
 				blockRenderer.getBlockModelRenderer().renderModel( te.getWorld(), damageModel, estate, te.getPos(), worldrenderer, false );
 			}
 		}
@@ -331,7 +332,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			final double z,
 			final float partialTicks,
 			final int destroyStage,
-			final WorldRenderer worldRenderer )
+			final VertexBuffer worldRenderer )
 	{
 		if ( destroyStage > 0 )
 		{

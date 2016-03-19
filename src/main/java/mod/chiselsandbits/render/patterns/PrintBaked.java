@@ -22,14 +22,16 @@ public class PrintBaked extends BaseBakedItemModel
 		itemName = itname;
 
 		final ItemStack blockItem = item.getPatternedItem( stack );
-		final IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( blockItem );
+		IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( blockItem );
+
+		model = model.getOverrides().handleItemState( model, blockItem, null, null );
 
 		for ( final EnumFacing face : EnumFacing.VALUES )
 		{
-			list.addAll( model.getFaceQuads( face ) );
+			list.addAll( model.getQuads( null, face, 0 ) );
 		}
 
-		list.addAll( model.getGeneralQuads() );
+		list.addAll( model.getQuads( null, null, 0 ) );
 	}
 
 	@Override

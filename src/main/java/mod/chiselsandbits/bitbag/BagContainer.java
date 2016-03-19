@@ -50,7 +50,7 @@ public class BagContainer extends Container
 
 		final int playerInventoryOffset = ( 7 - 4 ) * OUTER_SLOT_SIZE;
 
-		final ItemStack is = player.getCurrentEquippedItem();
+		final ItemStack is = player.getHeldItemMainhand();
 		setBag( is );
 
 		for ( int yOffset = 0; yOffset < 7; ++yOffset )
@@ -110,9 +110,9 @@ public class BagContainer extends Container
 	private boolean hasBagInHand(
 			final EntityPlayer player )
 	{
-		if ( bagInv.getItemStack() != player.getCurrentEquippedItem() )
+		if ( bagInv.getItemStack() != player.getHeldItemMainhand() )
 		{
-			setBag( player.getCurrentEquippedItem() );
+			setBag( player.getHeldItemMainhand() );
 		}
 
 		return bagInv != null && bagInv.getItemStack().getItem() instanceof ItemBitBag;

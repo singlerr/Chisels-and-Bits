@@ -92,7 +92,7 @@ public class ReflectionWrapper
 	@SideOnly( Side.CLIENT )
 	public void endHighlightedStack()
 	{
-		setHighlightStack( Minecraft.getMinecraft().thePlayer.getCurrentEquippedItem() );
+		setHighlightStack( Minecraft.getMinecraft().thePlayer.getHeldItemMainhand() );
 	}
 
 	/**

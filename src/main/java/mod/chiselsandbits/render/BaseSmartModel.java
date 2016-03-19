@@ -1,22 +1,29 @@
 package mod.chiselsandbits.render;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.core.ClientSide;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.block.model.ItemOverride;
+import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
 
-@SuppressWarnings( "deprecation" )
-public abstract class BaseSmartModel implements IBakedModel
+public abstract class BaseSmartModel extends ItemOverrideList implements IBakedModel
 {
+	public BaseSmartModel()
+	{
+		super( new ArrayList<ItemOverride>() );
+	}
 
 	@Override
 	public boolean isAmbientOcclusion()
@@ -56,22 +63,36 @@ public abstract class BaseSmartModel implements IBakedModel
 	}
 
 	@Override
-	public List<BakedQuad> getFaceQuads(
-			final EnumFacing side )
+	public List<BakedQuad> getQuads(
+			final IBlockState state,
+			final EnumFacing side,
+			final long rand )
 	{
-		return Collections.emptyList();
+		final IBakedModel model = handleBlockState( state, rand );
+		return model.getQuads( state, side, rand );
+	}
+
+	public IBakedModel handleBlockState(
+			final IBlockState state,
+			final long rand )
+	{
+		return NullBakedModel.instance;
 	}
 
 	@Override
-	public List<BakedQuad> getGeneralQuads()
+	public ItemOverrideList getOverrides()
 	{
-		return Collections.emptyList();
+		return this;
 	}
 
 	@Override
-	public VertexFormat getFormat()
+	public IBakedModel handleItemState(
+			final IBakedModel originalModel,
+			final ItemStack stack,
+			final World world,
+			final EntityLivingBase entity )
 	{
-		return DefaultVertexFormats.ITEM;
+		return originalModel;
 	}
 
 }

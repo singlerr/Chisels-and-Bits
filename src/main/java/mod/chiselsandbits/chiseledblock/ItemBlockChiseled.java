@@ -25,13 +25,16 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -77,22 +80,6 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 				tooltip.add( LocalStrings.ShiftDetails.getLocal() );
 			}
 		}
-	}
-
-	@Override
-	public int getColorFromItemStack(
-			final ItemStack stack,
-			final int tint )
-	{
-		final Block blk = Block.getStateById( tint ).getBlock();
-		final Item i = Item.getItemFromBlock( blk );
-
-		if ( i != null )
-		{
-			return i.getColorFromItemStack( stack, 0 );
-		}
-
-		return super.getColorFromItemStack( stack, tint );
 	}
 
 	@Override
@@ -154,11 +141,12 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	}
 
 	@Override
-	public boolean onItemUse(
+	public EnumActionResult onItemUse(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
 			final World worldIn,
 			BlockPos pos,
+			final EnumHand hand,
 			EnumFacing side,
 			final float hitX,
 			final float hitY,
@@ -193,15 +181,15 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 		if ( stack.stackSize == 0 )
 		{
-			return false;
+			return EnumActionResult.FAIL;
 		}
 		else if ( !playerIn.canPlayerEdit( pos, side, stack ) )
 		{
-			return false;
+			return EnumActionResult.FAIL;
 		}
-		else if ( pos.getY() == 255 && this.block.getMaterial().isSolid() )
+		else if ( pos.getY() == 255 && this.block.getMaterial( this.block.getStateFromMeta( stack.getMetadata() ) ).isSolid() )
 		{
-			return false;
+			return EnumActionResult.FAIL;
 		}
 		else if ( canPlaceBlockHere( worldIn, pos, side, playerIn, stack ) )
 		{
@@ -210,15 +198,16 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 			if ( placeBlockAt( stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, iblockstate1 ) )
 			{
-				worldIn.playSoundEffect( pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, this.block.stepSound.getPlaceSound(), ( this.block.stepSound.getVolume() + 1.0F ) / 2.0F, this.block.stepSound.getFrequency() * 0.8F );
+				worldIn.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, this.block.getStepSound().getPlaceSound(), SoundCategory.BLOCKS, ( this.block.getStepSound().getVolume() + 1.0F ) / 2.0F,
+						this.block.getStepSound().getPitch() * 0.8F, false );
 				--stack.stackSize;
 			}
 
-			return true;
+			return EnumActionResult.SUCCESS;
 		}
 		else
 		{
-			return false;
+			return EnumActionResult.FAIL;
 		}
 	}
 
@@ -236,7 +225,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	{
 		if ( player.isSneaking() )
 		{
-			final BitLocation bl = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3( hitX, hitY, hitZ ), side, pos ), false, ChiselToolType.BIT );
+			final BitLocation bl = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos ), false, ChiselToolType.BIT );
 			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );
 		}
 		else

@@ -38,10 +38,10 @@ class ReflectionHelperBlock extends Block
 	}
 
 	@Override
-	public void func_185477_a(
-			final IBlockState p_185477_1_,
-			final World p_185477_2_,
-			final BlockPos p_185477_3_,
+	public void addCollisionBoxToList(
+			final IBlockState state,
+			final World worldIn,
+			final BlockPos pos,
 			final AxisAlignedBB p_185477_4_,
 			final List<AxisAlignedBB> p_185477_5_,
 			final Entity p_185477_6_ )

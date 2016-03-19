@@ -54,7 +54,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	public ItemChisel(
 			final ToolMaterial material )
 	{
-		super( 0.1F, material, new HashSet<Block>() );
+		super( 0.1F, -2.8F, material, new HashSet<Block>() );
 
 		long uses = 1;
 		switch ( material )
@@ -111,25 +111,26 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL ), itemstack, pos, player );
+		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL ), itemstack, pos, player, EnumHand.MAIN_HAND );
 	}
 
 	static public boolean fromBreakToChisel(
 			final ChiselMode mode,
 			final ItemStack itemstack,
 			final BlockPos pos,
-			final EntityPlayer player )
+			final EntityPlayer player,
+			final EnumHand hand )
 	{
 		if ( itemstack != null && ( timer == null || timer.elapsed( TimeUnit.MILLISECONDS ) > 100 ) )
 		{
 			timer = Stopwatch.createStarted();
 			if ( mode == ChiselMode.DRAWN_REGION )
 			{
-				final Pair<Vec3, Vec3> PlayerRay = ModUtil.getPlayerRay( player );
-				final Vec3 ray_from = PlayerRay.getLeft();
-				final Vec3 ray_to = PlayerRay.getRight();
+				final Pair<Vec3d, Vec3d> PlayerRay = ModUtil.getPlayerRay( player );
+				final Vec3d ray_from = PlayerRay.getLeft();
+				final Vec3d ray_to = PlayerRay.getRight();
 
-				final RayTraceResult mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, ray_from, ray_to );
+				final RayTraceResult mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.getEntityWorld().getBlockState( pos ), player.worldObj, pos, ray_from, ray_to );
 				if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
 				{
 					final BitLocation loc = new BitLocation( mop, true, ChiselToolType.CHISEL );
@@ -149,10 +150,10 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final Vec3d ray_from = PlayerRay.getLeft();
 			final Vec3d ray_to = PlayerRay.getRight();
 
-			final RayTraceResult mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj, pos, ray_from, ray_to );
+			final RayTraceResult mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj.getBlockState( pos ), player.worldObj, pos, ray_from, ray_to );
 			if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
 			{
-				useChisel( mode, player, player.worldObj, pos, mop.sideHit, (float) ( mop.hitVec.xCoord - pos.getX() ), (float) ( mop.hitVec.yCoord - pos.getY() ), (float) ( mop.hitVec.zCoord - pos.getZ() ) );
+				useChisel( mode, player, player.worldObj, pos, mop.sideHit, (float) ( mop.hitVec.xCoord - pos.getX() ), (float) ( mop.hitVec.yCoord - pos.getY() ), (float) ( mop.hitVec.zCoord - pos.getZ() ), hand );
 			}
 		}
 
@@ -190,6 +191,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 		{
 			final ChiselMode mode = ChiselModeManager.getChiselMode( playerIn, ChiselToolType.CHISEL );
 			ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, playerIn.isSneaking() ? -1 : 1 );
+			return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemStackIn );
 		}
 
 		return super.onItemRightClick( itemStackIn, worldIn, playerIn, hand );
@@ -209,7 +211,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	{
 		if ( world.isRemote && ChiselsAndBits.getConfig().enableRightClickModeChange )
 		{
-			onItemRightClick( stack, world, player );
+			onItemRightClick( stack, world, player, hand );
 			return EnumActionResult.SUCCESS;
 		}
 
@@ -237,11 +239,12 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,
-			final float hitZ )
+			final float hitZ,
+			final EnumHand hand )
 	{
 		final BitLocation location = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos ), false, ChiselToolType.CHISEL );
 
-		final PacketChisel pc = new PacketChisel( false, location, side, mode );
+		final PacketChisel pc = new PacketChisel( false, location, side, mode, hand );
 
 		final int extractedState = pc.doAction( player );
 		if ( extractedState != 0 )
@@ -459,7 +462,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 				break;
 		}
 
-		return blk instanceof BlockChiseled || it.canHarvestBlock( blk );
+		return blk.getBlock() instanceof BlockChiseled || it.canHarvestBlock( blk );
 	}
 
 	@Override

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -18,23 +17,18 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.WeightedBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fluids.Fluid;
 
 @SuppressWarnings( "unchecked" )
 public class ModelUtil implements ICacheClearable
 {
-	private final static Random RANDOM = new Random();
 	private final static HashMap<Integer, String> blockToTexture[];
 	private static HashMap<Integer, ModelQuadLayer[]> cache = new HashMap<Integer, ModelQuadLayer[]>();
 
@@ -87,7 +81,7 @@ public class ModelUtil implements ICacheClearable
 				final ModelQuadLayer[] mp = new ModelQuadLayer[1];
 				mp[0] = new ModelQuadLayer();
 				mp[0].color = 0xffffff;
-				mp[0].light = state.getBlock().getLightValue();
+				mp[0].light = state.getBlock().getLightValue( state );
 
 				final float V = 0.5f;
 				final float Uf = 1.0f;
@@ -131,11 +125,11 @@ public class ModelUtil implements ICacheClearable
 		{
 			for ( final EnumFacing f : EnumFacing.VALUES )
 			{
-				final List<BakedQuad> quads = model.getFaceQuads( f );
+				final List<BakedQuad> quads = model.getQuads( null, f, 0 );
 				processFaces( tmp, quads );
 			}
 
-			processFaces( tmp, model.getGeneralQuads() );
+			processFaces( tmp, model.getQuads( null, null, 0 ) );
 		}
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
@@ -254,84 +248,12 @@ public class ModelUtil implements ICacheClearable
 		return Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
 	}
 
-	@SuppressWarnings( "rawtypes" )
 	public static IBakedModel solveModel(
 			final int BlockRef,
 			final long weight,
 			final IBakedModel originalModel )
 	{
-		IBakedModel actingModel = originalModel;
-		final IBlockState state = Block.getStateById( BlockRef );
-
-		try
-		{
-			if ( actingModel != null && ChiselsAndBits.getConfig().allowBlockAlternatives && actingModel instanceof WeightedBakedModel )
-			{
-				actingModel = ( (WeightedBakedModel) actingModel ).getAlternativeModel( weight );
-			}
-		}
-		catch ( final Exception err )
-		{
-		}
-
-		// first try to get the real model...
-		try
-		{
-			if ( actingModel instanceof ISmartBlockModel )
-			{
-				if ( state instanceof IExtendedBlockState )
-				{
-					if ( actingModel instanceof ISmartItemModel )
-					{
-						final Item it = state.getBlock().getItemDropped( state, RANDOM, 0 );
-						final ItemStack stack = new ItemStack( it, 1, state.getBlock().damageDropped( state ) );
-
-						final IBakedModel newModel = ( (ISmartItemModel) actingModel ).handleItemState( stack );
-						if ( newModel != null )
-						{
-							return newModel;
-						}
-					}
-
-					IExtendedBlockState extendedState = (IExtendedBlockState) state;
-
-					for ( final IUnlistedProperty p : extendedState.getUnlistedNames() )
-					{
-						extendedState = extendedState.withProperty( p, p.getType().newInstance() );
-					}
-
-					final IBakedModel newModel = ( (ISmartBlockModel) actingModel ).handleBlockState( extendedState );
-					if ( newModel != null )
-					{
-						return newModel;
-					}
-				}
-				else
-				{
-					final IBakedModel newModel = ( (ISmartBlockModel) actingModel ).handleBlockState( state );
-					if ( newModel != null )
-					{
-						return newModel;
-					}
-				}
-			}
-		}
-		catch ( final Exception err )
-		{
-			if ( actingModel instanceof ISmartItemModel )
-			{
-				final Item it = state.getBlock().getItemDropped( state, RANDOM, 0 );
-				final ItemStack stack = new ItemStack( it, 1, state.getBlock().damageDropped( state ) );
-
-				final IBakedModel newModel = ( (ISmartItemModel) actingModel ).handleItemState( stack );
-				if ( newModel != null )
-				{
-					return newModel;
-				}
-			}
-		}
-
-		return actingModel;
+		return originalModel;
 	}
 
 	public static TextureAtlasSprite findTexture(
@@ -350,21 +272,22 @@ public class ModelUtil implements ICacheClearable
 		}
 
 		TextureAtlasSprite texture = null;
+		final IBlockState state = Block.getStateById( BlockRef );
 
 		if ( model != null )
 		{
 			try
 			{
-				texture = findTexture( texture, model.getFaceQuads( myFace ), myFace );
+				texture = findTexture( texture, model.getQuads( state, myFace, 0 ), myFace );
 
 				if ( texture == null )
 				{
 					for ( final EnumFacing side : EnumFacing.VALUES )
 					{
-						texture = findTexture( texture, model.getFaceQuads( side ), side );
+						texture = findTexture( texture, model.getQuads( state, side, 0 ), side );
 					}
 
-					texture = findTexture( texture, model.getGeneralQuads(), null );
+					texture = findTexture( texture, model.getQuads( state, null, 0 ), null );
 				}
 			}
 			catch ( final Exception errr )
@@ -422,6 +345,13 @@ public class ModelUtil implements ICacheClearable
 			final float v )
 	{
 		return Math.abs( v - 1.0f ) < 0.01;
+	}
+
+	public static Integer getItemStackColor(
+			final ItemStack target,
+			final int tint )
+	{
+		return Minecraft.getMinecraft().getItemColors().getColorFromItemstack( target, tint );
 	}
 
 }

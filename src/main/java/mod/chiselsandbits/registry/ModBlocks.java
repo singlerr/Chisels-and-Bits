@@ -13,7 +13,6 @@ import mod.chiselsandbits.chiseledblock.MaterialType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.config.ModConfig;
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraftforge.fluids.Fluid;
@@ -33,20 +32,20 @@ public class ModBlocks extends ModRegistry
 	public final BlockBitTank blockBitTank;
 
 	public static final MaterialType[] validMaterials = new MaterialType[] {
-		new MaterialType( "wood", Material.wood ),
-		new MaterialType( "rock", Material.rock ),
-		new MaterialType( "iron", Material.iron ),
-		new MaterialType( "cloth", Material.cloth ),
-		new MaterialType( "ice", Material.ice ),
-		new MaterialType( "packedIce", Material.packedIce ),
-		new MaterialType( "clay", Material.clay ),
-		new MaterialType( "glass", Material.glass ),
-		new MaterialType( "sand", Material.sand ),
-		new MaterialType( "ground", Material.ground ),
-		new MaterialType( "grass", Material.grass ),
-		new MaterialType( "snow", Material.craftedSnow ),
-		new MaterialType( "fluid", Material.water ),
-		new MaterialType( "leaves", Material.leaves ),
+			new MaterialType( "wood", Material.wood ),
+			new MaterialType( "rock", Material.rock ),
+			new MaterialType( "iron", Material.iron ),
+			new MaterialType( "cloth", Material.cloth ),
+			new MaterialType( "ice", Material.ice ),
+			new MaterialType( "packedIce", Material.packedIce ),
+			new MaterialType( "clay", Material.clay ),
+			new MaterialType( "glass", Material.glass ),
+			new MaterialType( "sand", Material.sand ),
+			new MaterialType( "ground", Material.ground ),
+			new MaterialType( "grass", Material.grass ),
+			new MaterialType( "snow", Material.craftedSnow ),
+			new MaterialType( "fluid", Material.water ),
+			new MaterialType( "leaves", Material.leaves ),
 	};
 
 	public ModBlocks(
@@ -104,9 +103,9 @@ public class ModBlocks extends ModRegistry
 	}
 
 	public BlockChiseled getConversion(
-			final Block material )
+			final IBlockState material )
 	{
-		final Fluid f = BlockBitInfo.getFluidFromBlock( material );
+		final Fluid f = BlockBitInfo.getFluidFromBlock( material.getBlock() );
 
 		if ( f != null )
 		{
@@ -117,7 +116,7 @@ public class ModBlocks extends ModRegistry
 	}
 
 	public BlockChiseled getConversionWithDefault(
-			final Block material )
+			final IBlockState material )
 	{
 		final BlockChiseled bcX = getConversion( material );
 

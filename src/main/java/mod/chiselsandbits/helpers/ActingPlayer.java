@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -14,12 +15,15 @@ public class ActingPlayer
 	// used to test permission and stuff...
 	private final EntityPlayer innerPlayer;
 	private final boolean realPlayer; // are we a real player?
+	private final EnumHand hand;
 
 	private ActingPlayer(
 			final EntityPlayer player,
-			final boolean realPlayer )
+			final boolean realPlayer,
+			final EnumHand hand )
 	{
 		innerPlayer = player;
+		this.hand = hand;
 		this.realPlayer = realPlayer;
 		storage = realPlayer ? player.inventory : new PlayerCopiedInventory( player.inventory );
 	}
@@ -67,24 +71,27 @@ public class ActingPlayer
 	}
 
 	public void playerDestroyItem(
-			final ItemStack stack )
+			final ItemStack stack,
+			final EnumHand hand )
 	{
 		if ( realPlayer )
 		{
-			net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem( innerPlayer, stack );
+			net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem( innerPlayer, stack, hand );
 		}
 	}
 
 	public static ActingPlayer actingAs(
-			final EntityPlayer player )
+			final EntityPlayer player,
+			final EnumHand hand )
 	{
-		return new ActingPlayer( player, true );
+		return new ActingPlayer( player, true, hand );
 	}
 
 	public static ActingPlayer testingAs(
-			final EntityPlayer player )
+			final EntityPlayer player,
+			final EnumHand hand )
 	{
-		return new ActingPlayer( player, false );
+		return new ActingPlayer( player, false, hand );
 	}
 
 	public World getWorld()
@@ -103,6 +110,14 @@ public class ActingPlayer
 	public boolean isReal()
 	{
 		return realPlayer;
+	}
+
+	/**
+	 * @return the hand
+	 */
+	public EnumHand getHand()
+	{
+		return hand;
 	}
 
 }

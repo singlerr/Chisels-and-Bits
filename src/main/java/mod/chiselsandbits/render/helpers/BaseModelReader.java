@@ -27,8 +27,10 @@ public abstract class BaseModelReader implements IVertexConsumer
 	}
 
 	@Override
-	public void setQuadColored()
+	public void setApplyDiffuseLighting(
+			final boolean diffuse )
 	{
+
 	}
 
 }

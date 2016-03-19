@@ -55,7 +55,7 @@ public class BitOcclusionIterator extends BitCollisionIterator
 	private void addBox(
 			final double addition )
 	{
-		final AxisAlignedBB newBox = AxisAlignedBB.fromBounds(
+		final AxisAlignedBB newBox = new AxisAlignedBB(
 				physicalStartX < epsilon ? physicalStartX : physicalStartX + epsilon,
 				y == 0 ? physicalY : physicalY + epsilon,
 				z == 0 ? physicalZ : physicalZ + epsilon,

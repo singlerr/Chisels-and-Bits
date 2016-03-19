@@ -20,7 +20,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -77,7 +79,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 	}
 
 	@Override
-	public boolean onItemUseFirst(
+	public EnumActionResult onItemUseFirst(
 			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
@@ -85,11 +87,12 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,
-			final float hitZ )
+			final float hitZ,
+			final EnumHand hand )
 	{
 		if ( !player.canPlayerEdit( pos, side, stack ) )
 		{
-			return true;
+			return EnumActionResult.SUCCESS;
 		}
 
 		if ( !stack.hasTagCompound() )
@@ -98,13 +101,13 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			if ( comp != null )
 			{
 				stack.setTagCompound( comp );
-				return false;
+				return EnumActionResult.FAIL;
 			}
 
-			return true;
+			return EnumActionResult.SUCCESS;
 		}
 
-		return true;
+		return EnumActionResult.SUCCESS;
 	}
 
 	protected NBTTagCompound getCompoundFromBlock(
@@ -157,7 +160,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 		}
 
 		final IBlockState blk = conv.getPrimaryBlockState();
-		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk.getBlock() ), 1 );
+		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk ), 1 );
 
 		itemstack.setTagInfo( ItemBlockChiseled.NBT_CHISELED_DATA, tag );
 		return itemstack;

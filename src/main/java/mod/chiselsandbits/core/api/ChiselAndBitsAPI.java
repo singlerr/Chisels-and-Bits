@@ -35,6 +35,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 
@@ -141,7 +142,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			return null;
 		}
 
-		final RayTraceResult mop = new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3( hitX, hitY, hitZ ), side, pos );
+		final RayTraceResult mop = new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos );
 		return new BitLocation( mop, false, placement ? ChiselToolType.BIT : ChiselToolType.CHISEL );
 	}
 
@@ -252,13 +253,13 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	public void giveBitToPlayer(
 			final EntityPlayer player,
 			final ItemStack is,
-			Vec3 spawnPos )
+			Vec3d spawnPos )
 	{
 		if ( is != null )
 		{
 			if ( spawnPos == null )
 			{
-				spawnPos = new Vec3( player.posX, player.posY, player.posZ );
+				spawnPos = new Vec3d( player.posX, player.posY, player.posZ );
 			}
 
 			final EntityItem ei = new EntityItem( player.getEntityWorld(), spawnPos.xCoord, spawnPos.yCoord, spawnPos.zCoord, is );

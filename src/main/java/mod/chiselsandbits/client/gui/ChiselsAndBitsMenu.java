@@ -14,8 +14,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.text.translation.I18n;
 
 public class ChiselsAndBitsMenu extends GuiScreen
 {
@@ -127,7 +129,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		GlStateManager.tryBlendFuncSeparate( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0 );
 		GlStateManager.shadeModel( GL11.GL_SMOOTH );
 		final Tessellator tessellator = Tessellator.getInstance();
-		final WorldRenderer renderBuffer = tessellator.getWorldRenderer();
+		final VertexBuffer renderBuffer = tessellator.getBuffer();
 
 		renderBuffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
 
@@ -339,7 +341,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		{
 			if ( btn.highlighted )
 			{
-				fontRendererObj.drawString( StatCollector.translateToLocal( btn.name ), (int) ( middle_x + btn.x2 + 8 ), (int) ( middle_y + btn.y1 + 6 ), 0xffffffff );
+				fontRendererObj.drawString( I18n.translateToLocal( btn.name ), (int) ( middle_x + btn.x2 + 8 ), (int) ( middle_y + btn.y1 + 6 ), 0xffffffff );
 			}
 		}
 

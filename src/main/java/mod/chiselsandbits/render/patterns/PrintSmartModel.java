@@ -8,9 +8,11 @@ import mod.chiselsandbits.render.BaseSmartModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
-public class PrintSmartModel extends BaseSmartModel implements ISmartItemModel
+public class PrintSmartModel extends BaseSmartModel
 {
 
 	WeakHashMap<ItemStack, PrintBaked> cache = new WeakHashMap<ItemStack, PrintBaked>();
@@ -28,7 +30,10 @@ public class PrintSmartModel extends BaseSmartModel implements ISmartItemModel
 
 	@Override
 	public IBakedModel handleItemState(
-			final ItemStack stack )
+			final IBakedModel originalModel,
+			final ItemStack stack,
+			final World world,
+			final EntityLivingBase entity )
 	{
 		if ( ClientSide.instance.holdingShift() )
 		{

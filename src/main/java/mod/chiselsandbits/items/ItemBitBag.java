@@ -15,11 +15,16 @@ import mod.chiselsandbits.network.packets.PacketOpenBagGui;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -81,21 +86,22 @@ public class ItemBitBag extends Item
 	}
 
 	@Override
-	public ItemStack onItemRightClick(
+	public ActionResult<ItemStack> onItemRightClick(
 			final ItemStack itemStackIn,
 			final World worldIn,
-			final EntityPlayer playerIn )
+			final EntityPlayer playerIn,
+			final EnumHand hand )
 	{
 		if ( worldIn.isRemote )
 		{
 			NetworkRouter.instance.sendToServer( new PacketOpenBagGui() );
 		}
 
-		return itemStackIn;
+		return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemStackIn );
 	}
 
 	@Override
-	public boolean onItemUseFirst(
+	public EnumActionResult onItemUseFirst(
 			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
@@ -103,10 +109,11 @@ public class ItemBitBag extends Item
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,
-			final float hitZ )
+			final float hitZ,
+			final EnumHand hand )
 	{
-		onItemRightClick( stack, world, player );
-		return true;
+		onItemRightClick( stack, world, player, hand );
+		return EnumActionResult.SUCCESS;
 	}
 
 	public static class BagPos
@@ -204,7 +211,7 @@ public class ItemBitBag extends Item
 
 			if ( !ei.isSilent() )
 			{
-				ei.worldObj.playSoundAtEntity( ei, "random.pop", 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
+				ei.worldObj.playSound( (EntityPlayer) null, ei.posX, ei.posY, ei.posZ, SoundEvents.entity_item_pickup, SoundCategory.PLAYERS, 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
 			}
 
 			player.onItemPickup( ei, originalSize );

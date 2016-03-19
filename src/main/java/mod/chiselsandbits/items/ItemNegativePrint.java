@@ -30,8 +30,10 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -113,11 +115,12 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	}
 
 	@Override
-	public boolean onItemUseFirst(
+	public EnumActionResult onItemUse(
 			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
 			final BlockPos pos,
+			final EnumHand hand,
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,
@@ -127,7 +130,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 		if ( !player.canPlayerEdit( pos, side, stack ) )
 		{
-			return true;
+			return EnumActionResult.FAIL;
 		}
 
 		if ( !stack.hasTagCompound() )
@@ -136,10 +139,10 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			if ( comp != null )
 			{
 				stack.setTagCompound( comp );
-				return false;
+				return EnumActionResult.SUCCESS;
 			}
 
-			return true;
+			return EnumActionResult.FAIL;
 		}
 
 		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, false );
@@ -149,7 +152,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		}
 		else if ( !BlockChiseled.replaceWithChisled( world, pos, blkstate, true ) && !MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( world, pos ) )
 		{
-			return true;
+			return EnumActionResult.FAIL;
 		}
 
 		final TileEntityBlockChiseled tec = ModUtil.getChiseledTileEntity( world, pos, true );
@@ -159,13 +162,13 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 			final VoxelBlob pattern = ModUtil.getBlobFromStack( stack, player );
 
-			applyPrint( world, pos, side, vb, pattern, player );
+			applyPrint( world, pos, side, vb, pattern, player, hand );
 
 			tec.setBlob( vb );
-			return false;
+			return EnumActionResult.SUCCESS;
 		}
 
-		return true;
+		return EnumActionResult.FAIL;
 	}
 
 	protected boolean convertToStone()
@@ -219,8 +222,8 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		final NBTBlobConverter conv = new NBTBlobConverter();
 		conv.readChisleData( tag );
 
-		final IBlockState blk = conv.getPrimaryBlockState();
-		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk.getBlock() ), 1 );
+		final IBlockState state = conv.getPrimaryBlockState();
+		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( state ), 1 );
 
 		itemstack.setTagInfo( ItemBlockChiseled.NBT_CHISELED_DATA, tag );
 		return itemstack;
@@ -232,10 +235,11 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final EnumFacing side,
 			final VoxelBlob vb,
 			final VoxelBlob pattern,
-			final EntityPlayer who )
+			final EntityPlayer who,
+			final EnumHand hand )
 	{
 		// snag a tool...
-		final ActingPlayer player = ActingPlayer.actingAs( who );
+		final ActingPlayer player = ActingPlayer.actingAs( who, hand );
 		final IContinuousInventory selected = new ContinousChisels( player, pos, side );
 		ItemStack spawnedItem = null;
 

@@ -23,7 +23,6 @@ public class ModConfig extends Configuration
 {
 
 	// automatic setting...
-	public boolean allowBlockAlternatives = false;
 	public boolean lowMemoryMode = false;
 
 	// file path...

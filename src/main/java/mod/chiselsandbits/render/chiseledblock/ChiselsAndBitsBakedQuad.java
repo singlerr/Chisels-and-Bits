@@ -2,6 +2,7 @@ package mod.chiselsandbits.render.chiseledblock;
 
 import mod.chiselsandbits.render.cache.InMemoryQuadCompressor;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
@@ -33,12 +34,11 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 	public void pipe(
 			final IVertexConsumer consumer )
 	{
-		final VertexFormat format = VERTEX_FORMAT;
 		final int[] eMap = LightUtil.mapFormats( consumer.getVertexFormat(), format );
 
 		consumer.setQuadTint( getTintIndex() );
 		consumer.setQuadOrientation( getFace() );
-		consumer.setQuadColored();
+		consumer.setApplyDiffuseLighting( true );
 
 		for ( int v = 0; v < 4; v++ )
 		{
@@ -59,7 +59,6 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 	@Override
 	public int[] getVertexData() // anyone asking this will expect ITEM.
 	{
-		final VertexFormat format = DefaultVertexFormats.ITEM;
 		final int[] tmpData = new int[format.getNextOffset() /* / 4 * 4 */];
 
 		for ( int v = 0; v < 4; v++ )
@@ -78,9 +77,10 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 	public ChiselsAndBitsBakedQuad(
 			final float[][][] unpackedData,
 			final int tint,
-			final EnumFacing orientation )
+			final EnumFacing orientation,
+			final TextureAtlasSprite sprite )
 	{
-		super( OPTIFINE_WORKAROUND, tint, orientation );
+		super( OPTIFINE_WORKAROUND, tint, orientation, sprite, true, VERTEX_FORMAT );
 		rawVertData = inMemoryCompressor.compress( unpackedData );
 	}
 
@@ -89,9 +89,10 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		public Colored(
 				final float[][][] unpackedData,
 				final int tint,
-				final EnumFacing orientation )
+				final EnumFacing orientation,
+				final TextureAtlasSprite sprite )
 		{
-			super( unpackedData, tint, orientation );
+			super( unpackedData, tint, orientation, sprite );
 		}
 	}
 
@@ -100,7 +101,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		private float[][][] unpackedData;
 		private int tint = -1;
 		private EnumFacing orientation;
-		private boolean isColored = false;
+		private final boolean isColored = false;
 
 		private int vertices = 0;
 		private int elements = 0;
@@ -123,12 +124,6 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 				final EnumFacing orientation )
 		{
 			this.orientation = orientation;
-		}
-
-		@Override
-		public void setQuadColored()
-		{
-			isColored = true;
 		}
 
 		@Override
@@ -175,14 +170,15 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		}
 
 		@Override
-		public BakedQuad create()
+		public BakedQuad create(
+				final TextureAtlasSprite sprite )
 		{
 			if ( isColored )
 			{
-				return new Colored( unpackedData, tint, orientation );
+				return new Colored( unpackedData, tint, orientation, sprite );
 			}
 
-			return new ChiselsAndBitsBakedQuad( unpackedData, tint, orientation );
+			return new ChiselsAndBitsBakedQuad( unpackedData, tint, orientation, sprite );
 		}
 
 		@Override
@@ -190,9 +186,14 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 				final EnumFacing myFace,
 				final int tintIndex )
 		{
-			setQuadColored();
 			setQuadOrientation( myFace );
 			setQuadTint( tintIndex );
+		}
+
+		@Override
+		public void setApplyDiffuseLighting(
+				final boolean diffuse )
+		{
 		}
 	}
 }

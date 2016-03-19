@@ -13,9 +13,11 @@ import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
-public class BitItemSmartModel extends BaseSmartModel implements ISmartItemModel, ICacheClearable
+public class BitItemSmartModel extends BaseSmartModel implements ICacheClearable
 {
 	static private final HashMap<Integer, IBakedModel> modelCache = new HashMap<Integer, IBakedModel>();
 	static private final HashMap<Integer, IBakedModel> largeModelCache = new HashMap<Integer, IBakedModel>();
@@ -54,7 +56,10 @@ public class BitItemSmartModel extends BaseSmartModel implements ISmartItemModel
 
 	@Override
 	public IBakedModel handleItemState(
-			final ItemStack stack )
+			final IBakedModel originalModel,
+			final ItemStack stack,
+			final World world,
+			final EntityLivingBase entity )
 	{
 		return getCachedModel( ItemChiseledBit.getStackState( stack ), ClientSide.instance.holdingShift() );
 	}

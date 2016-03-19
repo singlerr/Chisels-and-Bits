@@ -379,7 +379,7 @@ public class ChiselTypeIterator implements Iterator<ChiselTypeIterator>
 
 		if ( box != null )
 		{
-			return AxisAlignedBB.fromBounds( box.minX * One16thf, box.minY * One16thf, box.minZ * One16thf, ( box.maxX + 1 ) * One16thf, ( box.maxY + 1 ) * One16thf, ( box.maxZ + 1 ) * One16thf );
+			return new AxisAlignedBB( box.minX * One16thf, box.minY * One16thf, box.minZ * One16thf, ( box.maxX + 1 ) * One16thf, ( box.maxY + 1 ) * One16thf, ( box.maxZ + 1 ) * One16thf );
 		}
 		else
 		{

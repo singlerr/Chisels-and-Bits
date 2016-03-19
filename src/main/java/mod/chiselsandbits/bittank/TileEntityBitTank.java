@@ -10,9 +10,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
@@ -38,18 +40,18 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 	@Override
 	public void onDataPacket(
 			final NetworkManager net,
-			final S35PacketUpdateTileEntity pkt )
+			final SPacketUpdateTileEntity pkt )
 	{
 		deserializeFromNBT( pkt.getNbtCompound() );
 	}
 
-	@SuppressWarnings( "rawtypes" )
+	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public Packet getDescriptionPacket()
 	{
 		final NBTTagCompound t = new NBTTagCompound();
 		serializeToNBT( t );
-		return new S35PacketUpdateTileEntity( getPos(), 0, t );
+		return new SPacketUpdateTileEntity( getPos(), 0, t );
 	}
 
 	public void deserializeFromNBT(
@@ -213,7 +215,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 	private void saveAndUpdate()
 	{
 		markDirty();
-		worldObj.markBlockForUpdate( getPos() );
+		worldObj.markBlockRangeForRenderUpdate( getPos(), getPos() );
 
 		final int lv = getLightValue();
 		if ( oldLV != lv )
@@ -319,7 +321,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 			return 0;
 		}
 
-		final int lv = myFluid.getBlock().getLightValue();
+		final int lv = myFluid.getBlock().getLightValue( myFluid.getBlock().getDefaultState() );
 		return lv;
 
 	}
@@ -336,7 +338,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 			final ItemStack is = extractItem( 0, 64, false );
 			if ( is != null )
 			{
-				ChiselsAndBits.getApi().giveBitToPlayer( playerIn, is, new Vec3( (double) hitX + pos.getX(), (double) hitY + pos.getY(), (double) hitZ + pos.getZ() ) );
+				ChiselsAndBits.getApi().giveBitToPlayer( playerIn, is, new Vec3d( (double) hitX + pos.getX(), (double) hitY + pos.getY(), (double) hitZ + pos.getZ() ) );
 			}
 			return true;
 		}

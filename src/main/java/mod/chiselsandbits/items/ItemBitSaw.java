@@ -40,7 +40,7 @@ public class ItemBitSaw extends Item
 			itemStack.setItemDamage( itemStack.getItemDamage() + 1 );
 		}
 
-		return itemStack;
+		return itemStack.copy();
 	}
 
 	@Override

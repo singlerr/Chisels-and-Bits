@@ -6,6 +6,7 @@ import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
@@ -16,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -39,7 +41,7 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 	public BlockBitTank()
 	{
 		super( Material.iron );
-		setStepSound( soundTypeGlass );
+		setStepSound( SoundType.GLASS );
 		translucent = true;
 		setLightOpacity( 0 );
 		setHardness( 1 );
@@ -48,6 +50,7 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 
 	@Override
 	public int getLightValue(
+			final IBlockState state,
 			final IBlockAccess world,
 			final BlockPos pos )
 	{
@@ -84,19 +87,22 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 	}
 
 	@Override
-	public boolean isFullBlock()
+	public boolean isFullBlock(
+			final IBlockState state )
 	{
 		return false;
 	}
 
 	@Override
-	public boolean isOpaqueCube()
+	public boolean isOpaqueCube(
+			final IBlockState state )
 	{
 		return false;
 	}
 
 	@Override
-	public float getAmbientOcclusionLightValue()
+	public float getAmbientOcclusionLightValue(
+			final IBlockState state )
 	{
 		return 1.0f;
 	}
@@ -176,6 +182,8 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 			final BlockPos pos,
 			final IBlockState state,
 			final EntityPlayer playerIn,
+			final EnumHand hand,
+			final ItemStack heldItem,
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,

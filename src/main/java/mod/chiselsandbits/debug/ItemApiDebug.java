@@ -5,7 +5,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -32,11 +34,12 @@ public class ItemApiDebug extends Item
 	}
 
 	@Override
-	public boolean onItemUse(
+	public EnumActionResult onItemUse(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
 			final World worldIn,
 			final BlockPos pos,
+			final EnumHand hand,
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,
@@ -47,11 +50,11 @@ public class ItemApiDebug extends Item
 			final int newDamage = getActionID( stack ) + 1;
 			setActionID( stack, newDamage % Tests.values().length );
 			DebugAction.Msg( playerIn, getAction( stack ).name() );
-			return true;
+			return EnumActionResult.SUCCESS;
 		}
 
 		getAction( stack ).which.run( worldIn, pos, side, hitX, hitY, hitZ, playerIn );
-		return true;
+		return EnumActionResult.SUCCESS;
 	}
 
 	private void setActionID(

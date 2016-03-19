@@ -10,6 +10,7 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer;
 import mod.chiselsandbits.render.helpers.ModelUtil;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
 import net.minecraft.client.renderer.block.model.BlockPartFace;
@@ -131,15 +132,16 @@ public class BitItemBaked extends BaseBakedBlockModel
 	}
 
 	@Override
-	public List<BakedQuad> getFaceQuads(
-			final EnumFacing side )
+	public List<BakedQuad> getQuads(
+			final IBlockState state,
+			final EnumFacing side,
+			final long rand )
 	{
-		return Collections.emptyList();
-	}
+		if ( side != null )
+		{
+			return Collections.emptyList();
+		}
 
-	@Override
-	public List<BakedQuad> getGeneralQuads()
-	{
 		return generic;
 	}
 

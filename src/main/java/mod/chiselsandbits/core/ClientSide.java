@@ -32,7 +32,10 @@ import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.client.BlockColorChisled;
 import mod.chiselsandbits.client.CreativeClipboardTab;
+import mod.chiselsandbits.client.ItemColorBits;
+import mod.chiselsandbits.client.ItemColorChisled;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.client.gui.ChiselsAndBitsMenu;
 import mod.chiselsandbits.client.gui.SpriteIconPositioning;
@@ -63,6 +66,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelBakery;
@@ -80,15 +84,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
-import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
@@ -169,6 +174,19 @@ public class ClientSide
 	public void postinit(
 			final ChiselsAndBits mod )
 	{
+		final ModItems modItems = ChiselsAndBits.getItems();
+
+		if ( modItems.itemBlockBit != null )
+		{
+			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorBits(), modItems.itemBlockBit );
+		}
+
+		for ( final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
+		{
+			final Item item = Item.getItemFromBlock( blk );
+			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorChisled(), item );
+			Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler( new BlockColorChisled(), blk );
+		}
 
 	}
 
@@ -256,7 +274,6 @@ public class ClientSide
 		final ModelResourceLocation bittank_item = new ModelResourceLocation( new ResourceLocation( modId, "bittank" ), "inventory" );
 
 		registerMesh( bitTankItem, 0, bittank_item );
-		ChiselsAndBits.getConfig().allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
 	}
 
 	private void registerMesh(
@@ -548,7 +565,7 @@ public class ClientSide
 			return null;
 		}
 
-		final ItemStack is = player.getCurrentEquippedItem();
+		final ItemStack is = player.getHeldItemMainhand();
 
 		if ( is != null && is.getItem() instanceof ItemChisel )
 		{
@@ -626,22 +643,6 @@ public class ClientSide
 
 	@SubscribeEvent
 	@SideOnly( Side.CLIENT )
-	public void updateConfig(
-			final ActionPerformedEvent.Pre ev )
-	{
-		Minecraft.getMinecraft().addScheduledTask( new Runnable() {
-
-			@Override
-			public void run()
-			{
-				ChiselsAndBits.getConfig().allowBlockAlternatives = Minecraft.getMinecraft().gameSettings.allowBlockAlternatives;
-			}
-
-		} );
-	}
-
-	@SubscribeEvent
-	@SideOnly( Side.CLIENT )
 	public void drawHighlight(
 			final DrawBlockHighlightEvent event )
 	{
@@ -704,7 +705,7 @@ public class ClientSide
 
 							if ( !getToolKey().isKeyDown() )
 							{
-								final PacketChisel pc = new PacketChisel( lastTool == ChiselToolType.BIT, location, other, EnumFacing.UP, chMode );
+								final PacketChisel pc = new PacketChisel( lastTool == ChiselToolType.BIT, location, other, EnumFacing.UP, chMode, EnumHand.MAIN_HAND );
 
 								if ( pc.doAction( getPlayer() ) > 0 )
 								{
@@ -772,17 +773,17 @@ public class ClientSide
 			switch ( sideHit )
 			{
 				case DOWN:
-					return AxisAlignedBB.fromBounds( boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.maxX, boundingBox.minY, boundingBox.maxZ );
+					return new AxisAlignedBB( boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.maxX, boundingBox.minY, boundingBox.maxZ );
 				case EAST:
-					return AxisAlignedBB.fromBounds( boundingBox.maxX, boundingBox.minY, boundingBox.minZ, boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ );
+					return new AxisAlignedBB( boundingBox.maxX, boundingBox.minY, boundingBox.minZ, boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ );
 				case NORTH:
-					return AxisAlignedBB.fromBounds( boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.maxX, boundingBox.maxY, boundingBox.minZ );
+					return new AxisAlignedBB( boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.maxX, boundingBox.maxY, boundingBox.minZ );
 				case SOUTH:
-					return AxisAlignedBB.fromBounds( boundingBox.minX, boundingBox.minY, boundingBox.maxZ, boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ );
+					return new AxisAlignedBB( boundingBox.minX, boundingBox.minY, boundingBox.maxZ, boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ );
 				case UP:
-					return AxisAlignedBB.fromBounds( boundingBox.minX, boundingBox.maxY, boundingBox.minZ, boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ );
+					return new AxisAlignedBB( boundingBox.minX, boundingBox.maxY, boundingBox.minZ, boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ );
 				case WEST:
-					return AxisAlignedBB.fromBounds( boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.minX, boundingBox.maxY, boundingBox.maxZ );
+					return new AxisAlignedBB( boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.minX, boundingBox.maxY, boundingBox.maxZ );
 				default:
 					break;
 			}
@@ -846,7 +847,7 @@ public class ClientSide
 		final float partialTicks = event.partialTicks;
 		final RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
 		final World theWorld = player.worldObj;
-		final ItemStack currentItem = player.getCurrentEquippedItem();
+		final ItemStack currentItem = player.getHeldItemMainhand();
 
 		final double x = player.lastTickPosX + ( player.posX - player.lastTickPosX ) * partialTicks;
 		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
@@ -1039,7 +1040,8 @@ public class ClientSide
 			}
 			else
 			{
-				previousModel = baked = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( is );
+				baked = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( is );
+				previousModel = baked = baked.getOverrides().handleItemState( baked, is, player.getEntityWorld(), player );
 
 				if ( refItem.getItem() instanceof IPatternItem )
 				{
@@ -1084,7 +1086,7 @@ public class ClientSide
 	}
 
 	private void renderQuads(
-			final WorldRenderer renderer,
+			final VertexBuffer renderer,
 			final List<BakedQuad> quads,
 			final World worldObj,
 			final BlockPos blockPos )
@@ -1103,7 +1105,7 @@ public class ClientSide
 			final World worldObj,
 			final BlockPos blockPos )
 	{
-		return 0xaa000000 | ChiselsAndBits.getBlocks().getChiseledDefaultState().getBlock().colorMultiplier( worldObj, blockPos, tintIndex );
+		return 0xaa000000 | Minecraft.getMinecraft().getBlockColors().colorMultiplier( ChiselsAndBits.getBlocks().getChiseledDefaultState(), worldObj, blockPos, tintIndex );
 	}
 
 	private void renderModel(
@@ -1112,15 +1114,15 @@ public class ClientSide
 			final BlockPos blockPos )
 	{
 		final Tessellator tessellator = Tessellator.getInstance();
-		final WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+		final VertexBuffer worldrenderer = tessellator.getBuffer();
 		worldrenderer.begin( 7, DefaultVertexFormats.ITEM );
 
 		for ( final EnumFacing enumfacing : EnumFacing.values() )
 		{
-			renderQuads( worldrenderer, model.getFaceQuads( enumfacing ), worldObj, blockPos );
+			renderQuads( worldrenderer, model.getQuads( null, enumfacing, 0 ), worldObj, blockPos );
 		}
 
-		renderQuads( worldrenderer, model.getGeneralQuads(), worldObj, blockPos );
+		renderQuads( worldrenderer, model.getQuads( null, null, 0 ), worldObj, blockPos );
 		tessellator.draw();
 	}
 
@@ -1152,7 +1154,7 @@ public class ClientSide
 			final IBlockState state,
 			final EffectRenderer effectRenderer )
 	{
-		final ItemStack hitWith = getPlayer().getCurrentEquippedItem();
+		final ItemStack hitWith = getPlayer().getHeldItemMainhand();
 		if ( hitWith != null && ( hitWith.getItem() instanceof ItemChisel || hitWith.getItem() instanceof ItemChiseledBit ) )
 		{
 			return true; // no
@@ -1162,11 +1164,11 @@ public class ClientSide
 		final BlockPos pos = target.getBlockPos();
 		final float boxOffset = 0.1F;
 
-		AxisAlignedBB bb = world.getBlockState( pos ).getBlock().getSelectedBoundingBox( world, pos );
+		AxisAlignedBB bb = world.getBlockState( pos ).getBlock().getSelectedBoundingBox( state, world, pos );
 
 		if ( bb == null )
 		{
-			bb = AxisAlignedBB.fromBounds( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
+			bb = new AxisAlignedBB( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
 		}
 
 		double x = RANDOM.nextDouble() * ( bb.maxX - bb.minX - boxOffset * 2.0F ) + boxOffset + bb.minX;
@@ -1218,7 +1220,7 @@ public class ClientSide
 		}
 
 		final EntityPlayer player = ClientSide.instance.getPlayer();
-		final ItemStack is = player.getHeldItem();
+		final ItemStack is = player.getHeldItemMainhand();
 
 		if ( me.dwheel != 0 && is != null && is.getItem() instanceof IItemScrollWheel && player.isSneaking() )
 		{
@@ -1234,7 +1236,7 @@ public class ClientSide
 	{
 		final IBlockState state = Block.getStateById( stateID );
 		final Block block = state.getBlock();
-		world.playSound( pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, block.stepSound.getPlaceSound(), ( block.stepSound.getVolume() + 1.0F ) / 16.0F, block.stepSound.getFrequency() * 0.9F, false );
+		world.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, block.getStepSound().getPlaceSound(), SoundCategory.BLOCKS, ( block.getStepSound().getVolume() + 1.0F ) / 16.0F, block.getStepSound().getPitch() * 0.9F, false );
 	}
 
 	public static void breakSound(
@@ -1244,7 +1246,7 @@ public class ClientSide
 	{
 		final IBlockState state = Block.getStateById( extractedState );
 		final Block block = state.getBlock();
-		world.playSound( pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, block.stepSound.getBreakSound(), ( block.stepSound.getVolume() + 1.0F ) / 16.0F, block.stepSound.getFrequency() * 0.9F, false );
+		world.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, block.getStepSound().getBreakSound(), SoundCategory.BLOCKS, ( block.getStepSound().getVolume() + 1.0F ) / 16.0F, block.getStepSound().getPitch() * 0.9F, false );
 	}
 
 	private BitLocation drawStart;
@@ -1292,7 +1294,7 @@ public class ClientSide
 			IBlockState state,
 			final EffectRenderer effectRenderer )
 	{
-		if ( !state.getBlock().isAir( world, pos ) )
+		if ( !state.getBlock().isAir( state, world, pos ) )
 		{
 			state = state.getBlock().getActualState( state, world, pos );
 			final int StateID = Block.getStateId( state );

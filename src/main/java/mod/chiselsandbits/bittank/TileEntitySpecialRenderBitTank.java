@@ -1,9 +1,9 @@
 package mod.chiselsandbits.bittank;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -58,7 +58,7 @@ public class TileEntitySpecialRenderBitTank extends FastTESR<TileEntityBitTank>
 			final double z,
 			final float partialTicks,
 			final int destroyStage,
-			final WorldRenderer worldRenderer )
+			final VertexBuffer worldRenderer )
 	{
 		if ( destroyStage > 0 )
 		{
@@ -81,7 +81,7 @@ public class TileEntitySpecialRenderBitTank extends FastTESR<TileEntityBitTank>
 
 			final BlockPos pos = te.getPos();
 
-			final int mixedBrightness = te.getWorld().getBlockState( pos ).getBlock().getMixedBrightnessForBlock( te.getWorld(), pos );
+			final int mixedBrightness = te.getWorld().getBlockState( pos ).getBlock().getPackedLightmapCoords( te.getWorld().getBlockState( te.getPos() ), te.getWorld(), pos );
 			final int skyLight = mixedBrightness >> 16 & 65535;
 			final int blockLight = mixedBrightness & 65535;
 

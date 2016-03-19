@@ -16,18 +16,20 @@ import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
+import mod.chiselsandbits.render.NullBakedModel;
 import mod.chiselsandbits.render.cache.CacheMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.world.World;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
-// ISmartMultipartModel @Optional.InterfaceList( { @Interface( iface = "mcmultipart.client.multipart.ISmartMultipartModel", modid = "mcmultipart" ) } )
-public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartItemModel, ISmartBlockModel, ICacheClearable
+public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheClearable
 {
 
 	static final CacheMap<VoxelBlobStateReference, ChiseledBlockBaked> solidCache = new CacheMap<VoxelBlobStateReference, ChiseledBlockBaked>();
@@ -155,16 +157,15 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 	}
 
 	@Override
-	public IBakedModel handlePartState(
-			final IBlockState state )
-	{
-		return handleBlockState( state );
-	}
-
-	@Override
 	public IBakedModel handleBlockState(
-			final IBlockState state )
+			final IBlockState state,
+			final long rand )
 	{
+		if ( state == null )
+		{
+			return NullBakedModel.instance;
+		}
+
 		final IExtendedBlockState myState = (IExtendedBlockState) state;
 
 		final VoxelBlobStateReference data = myState.getValue( BlockChiseled.UProperty_VoxelBlob );
@@ -174,6 +175,19 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 		blockP = blockP == null ? 0 : blockP;
 
 		final BlockRenderLayer layer = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
+
+		if ( layer == null )
+		{
+			final ChiseledBlockBaked[] models = new ChiseledBlockBaked[ChiselLayer.values().length];
+			int o = 0;
+
+			for ( final ChiselLayer l : ChiselLayer.values() )
+			{
+				models[o++] = getCachedModel( blockP, data, getRenderState( rTracker, data ), l, getModelFormat() );
+			}
+
+			return new ModelCombined( models );
+		}
 
 		if ( rTracker != null && rTracker.isDynamic() )
 		{
@@ -232,7 +246,10 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ISmartIte
 
 	@Override
 	public IBakedModel handleItemState(
-			final ItemStack stack )
+			final IBakedModel originalModel,
+			final ItemStack stack,
+			final World world,
+			final EntityLivingBase entity )
 	{
 		IBakedModel mdl;
 		mdl = itemToModel.get( stack );

@@ -20,6 +20,7 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.text.TextComponentString;
 
@@ -45,11 +46,12 @@ public class JsonModelExport extends CommandBase
 	}
 
 	@Override
-	public void processCommand(
+	public void execute(
+			final MinecraftServer server,
 			final ICommandSender sender,
 			final String[] args ) throws CommandException
 	{
-		final ItemStack is = ClientSide.instance.getPlayer().getCurrentEquippedItem();
+		final ItemStack is = ClientSide.instance.getPlayer().getHeldItemMainhand();
 		if ( is != null && is.getItem() != null )
 		{
 			final IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( is );
@@ -58,10 +60,10 @@ public class JsonModelExport extends CommandBase
 
 			for ( final EnumFacing face : EnumFacing.VALUES )
 			{
-				outputFaces( model.getFaceQuads( face ), face, textures );
+				outputFaces( model.getQuads( null, face, 0 ), face, textures );
 			}
 
-			outputFaces( model.getGeneralQuads(), null, textures );
+			outputFaces( model.getQuads( null, null, 0 ), null, textures );
 
 			String data = "N/A";
 

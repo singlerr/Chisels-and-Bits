@@ -1,37 +1,21 @@
 package mod.chiselsandbits.render;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import mod.chiselsandbits.core.ClientSide;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.EnumFacing;
 
-public abstract class BaseBakedItemModel extends BaseBakedPerspectiveModel implements IBakedModel
+public class NullBakedModel implements IBakedModel
 {
-	protected ArrayList<BakedQuad> list = new ArrayList<BakedQuad>();
 
-	@Override
-	final public boolean isAmbientOcclusion()
-	{
-		return true;
-	}
-
-	@Override
-	final public boolean isGui3d()
-	{
-		return true;
-	}
-
-	@Override
-	final public boolean isBuiltInRenderer()
-	{
-		return false;
-	}
+	public static final NullBakedModel instance = new NullBakedModel();
 
 	@Override
 	public List<BakedQuad> getQuads(
@@ -39,16 +23,35 @@ public abstract class BaseBakedItemModel extends BaseBakedPerspectiveModel imple
 			final EnumFacing side,
 			final long rand )
 	{
-		if ( side != null )
-		{
-			return Collections.emptyList();
-		}
-
-		return list;
+		return Collections.emptyList();
 	}
 
 	@Override
-	final public ItemCameraTransforms getItemCameraTransforms()
+	public boolean isAmbientOcclusion()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isGui3d()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isBuiltInRenderer()
+	{
+		return false;
+	}
+
+	@Override
+	public TextureAtlasSprite getParticleTexture()
+	{
+		return ClientSide.instance.getMissingIcon();
+	}
+
+	@Override
+	public ItemCameraTransforms getItemCameraTransforms()
 	{
 		return ItemCameraTransforms.DEFAULT;
 	}
@@ -58,4 +61,5 @@ public abstract class BaseBakedItemModel extends BaseBakedPerspectiveModel imple
 	{
 		return ItemOverrideList.NONE;
 	}
+
 }

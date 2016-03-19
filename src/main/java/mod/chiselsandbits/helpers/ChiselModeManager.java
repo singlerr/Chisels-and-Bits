@@ -32,7 +32,7 @@ public class ChiselModeManager
 
 			if ( !itemNameModeDisplay )
 			{
-				newClientChiselMode.setMode( Minecraft.getMinecraft().thePlayer.getCurrentEquippedItem() );
+				newClientChiselMode.setMode( Minecraft.getMinecraft().thePlayer.getHeldItemMainhand() );
 			}
 
 			NetworkRouter.instance.sendToServer( packet );
@@ -101,7 +101,7 @@ public class ChiselModeManager
 		{
 			if ( ChiselsAndBits.getConfig().perChiselMode )
 			{
-				final ItemStack ei = player.getCurrentEquippedItem();
+				final ItemStack ei = player.getHeldItemMainhand();
 				if ( ei != null && ei.getItem() instanceof IChiselModeItem )
 				{
 					return ChiselMode.getMode( ei );

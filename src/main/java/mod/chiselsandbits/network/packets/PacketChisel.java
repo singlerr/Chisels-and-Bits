@@ -31,6 +31,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
@@ -43,6 +44,7 @@ public class PacketChisel extends ModPacket
 	boolean place;
 	EnumFacing side;
 	ChiselMode mode;
+	EnumHand hand;
 
 	@Deprecated
 	// never call this...
@@ -55,25 +57,29 @@ public class PacketChisel extends ModPacket
 			final BitLocation from,
 			final BitLocation to,
 			final EnumFacing side,
-			final ChiselMode mode )
+			final ChiselMode mode,
+			final EnumHand hand )
 	{
 		this.place = place;
 		this.from = BitLocation.min( from, to );
 		this.to = BitLocation.max( from, to );
 		this.side = side;
 		this.mode = mode;
+		this.hand = hand;
 	}
 
 	public PacketChisel(
 			final boolean place,
 			final BitLocation location,
 			final EnumFacing side,
-			final ChiselMode mode )
+			final ChiselMode mode,
+			final EnumHand hand )
 	{
 		this.place = place;
 		from = to = location;
 		this.side = side;
 		this.mode = mode;
+		this.hand = hand;
 	}
 
 	@Override
@@ -87,7 +93,7 @@ public class PacketChisel extends ModPacket
 			final EntityPlayer who )
 	{
 		final World world = who.worldObj;
-		final ActingPlayer player = ActingPlayer.actingAs( who );
+		final ActingPlayer player = ActingPlayer.actingAs( who, hand );
 
 		final int minX = Math.min( from.blockPos.getX(), to.blockPos.getX() );
 		final int maxX = Math.max( from.blockPos.getX(), to.blockPos.getX() );
@@ -116,7 +122,7 @@ public class PacketChisel extends ModPacket
 					{
 						final BlockPos pos = new BlockPos( xOff, yOff, zOff );
 
-						final int placeStateID = place ? ItemChiseledBit.getStackState( who.getCurrentEquippedItem() ) : 0;
+						final int placeStateID = place ? ItemChiseledBit.getStackState( who.getHeldItem( hand ) ) : 0;
 						final IContinuousInventory chisel = place ? new ContinousBits( player, placeStateID ) : new ContinousChisels( player, pos, side );
 
 						IBlockState blkstate = world.getBlockState( pos );
@@ -233,6 +239,7 @@ public class PacketChisel extends ModPacket
 		place = buffer.readBoolean();
 		side = EnumFacing.VALUES[buffer.readVarIntFromBuffer()];
 		mode = ChiselMode.values()[buffer.readVarIntFromBuffer()];
+		hand = EnumHand.values()[buffer.readVarIntFromBuffer()];
 	}
 
 	@Override
@@ -245,6 +252,7 @@ public class PacketChisel extends ModPacket
 		buffer.writeVarIntToBuffer( place ? 1 : 0 );
 		buffer.writeVarIntToBuffer( side.ordinal() );
 		buffer.writeVarIntToBuffer( mode.ordinal() );
+		buffer.writeVarIntToBuffer( hand.ordinal() );
 	}
 
 	private BitLocation readBitLoc(

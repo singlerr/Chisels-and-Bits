@@ -25,6 +25,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -98,10 +99,11 @@ public class ItemPositivePrint extends ItemNegativePrint
 			final EnumFacing side,
 			final VoxelBlob vb,
 			final VoxelBlob pattern,
-			final EntityPlayer who )
+			final EntityPlayer who,
+			final EnumHand hand )
 	{
 		// snag a tool...
-		final ActingPlayer player = ActingPlayer.actingAs( who );
+		final ActingPlayer player = ActingPlayer.actingAs( who, hand );
 		final IContinuousInventory selected = new ContinousChisels( player, pos, side );
 		ItemStack spawnedItem = null;
 

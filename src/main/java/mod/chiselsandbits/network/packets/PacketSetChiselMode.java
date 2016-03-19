@@ -19,7 +19,7 @@ public class PacketSetChiselMode extends ModPacket
 	public void server(
 			final EntityPlayerMP player )
 	{
-		final ItemStack ei = player.getCurrentEquippedItem();
+		final ItemStack ei = player.getHeldItemMainhand();
 		if ( ei != null && ei.getItem() instanceof IChiselModeItem )
 		{
 			final ChiselMode originalMode = ChiselMode.getMode( ei );

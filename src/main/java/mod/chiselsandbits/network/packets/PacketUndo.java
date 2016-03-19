@@ -25,6 +25,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -54,7 +55,7 @@ public class PacketUndo extends ModPacket
 	public void server(
 			final EntityPlayerMP player )
 	{
-		preformAction( ActingPlayer.actingAs( player ), true );
+		preformAction( ActingPlayer.actingAs( player, EnumHand.MAIN_HAND ), true );
 	}
 
 	@Override

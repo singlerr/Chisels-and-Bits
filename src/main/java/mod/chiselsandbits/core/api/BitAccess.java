@@ -162,7 +162,7 @@ public class BitAccess implements IBitAccess
 		if ( type == ItemType.CHISLED_BLOCK )
 		{
 			final IBlockState state = Block.getStateById( cb.mostCommonState );
-			final BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( state.getBlock() );
+			final BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( state );
 
 			if ( blk == null )
 			{

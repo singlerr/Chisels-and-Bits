@@ -327,11 +327,11 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 					if ( region.isEdge )
 					{
-						builder.getList( myFace ).add( faceBuilder.create() );
+						builder.getList( myFace ).add( faceBuilder.create( pc.sprite ) );
 					}
 					else
 					{
-						builder.getList( null ).add( faceBuilder.create() );
+						builder.getList( null ).add( faceBuilder.create( pc.sprite ) );
 					}
 				}
 			}
@@ -772,16 +772,12 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	}
 
 	@Override
-	public List<BakedQuad> getFaceQuads(
-			final EnumFacing requestedFace )
+	public List<BakedQuad> getQuads(
+			final IBlockState state,
+			final EnumFacing side,
+			final long rand )
 	{
-		return getList( requestedFace );
-	}
-
-	@Override
-	public List<BakedQuad> getGeneralQuads()
-	{
-		return getList( null );
+		return getList( side );
 	}
 
 	@Override
@@ -790,19 +786,13 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		return sprite != null ? sprite : ClientSide.instance.getMissingIcon();
 	}
 
-	@Override
-	public VertexFormat getFormat()
-	{
-		return format;
-	}
-
 	public int faceCount()
 	{
 		int count = getList( null ).size();
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
-			count += getFaceQuads( f ).size();
+			count += getList( f ).size();
 		}
 
 		return count;

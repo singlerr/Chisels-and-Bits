@@ -13,6 +13,7 @@ import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketUndo;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
@@ -76,13 +77,13 @@ public class UndoTracker implements ICacheClearable
 			if ( grouping && hasCreatedGroup )
 			{
 				final UndoStep current = undoLevels.get( undoLevels.size() - 1 );
-				final UndoStep newest = new UndoStep( world.provider.getDimensionId(), pos, before, after );
+				final UndoStep newest = new UndoStep( world.provider.getDimension(), pos, before, after );
 				undoLevels.set( undoLevels.size() - 1, newest );
 				newest.next = current;
 				return;
 			}
 
-			undoLevels.add( new UndoStep( world.provider.getDimensionId(), pos, before, after ) );
+			undoLevels.add( new UndoStep( world.provider.getDimension(), pos, before, after ) );
 			hasCreatedGroup = true;
 			level = undoLevels.size() - 1;
 		}
@@ -97,12 +98,12 @@ public class UndoTracker implements ICacheClearable
 
 			if ( correctWorld( who, step ) )
 			{
-				final ActingPlayer testPlayer = ActingPlayer.testingAs( who );
+				final ActingPlayer testPlayer = ActingPlayer.testingAs( who, EnumHand.MAIN_HAND );
 				final boolean result = replayChanges( testPlayer, step, true, false );
 
 				if ( result )
 				{
-					final ActingPlayer player = ActingPlayer.actingAs( who );
+					final ActingPlayer player = ActingPlayer.actingAs( who, EnumHand.MAIN_HAND );
 					if ( replayChanges( player, step, true, true ) )
 					{
 						level--;
@@ -127,12 +128,12 @@ public class UndoTracker implements ICacheClearable
 
 			if ( correctWorld( who, step ) )
 			{
-				final ActingPlayer testPlayer = ActingPlayer.testingAs( who );
+				final ActingPlayer testPlayer = ActingPlayer.testingAs( who, EnumHand.MAIN_HAND );
 				final boolean result = replayChanges( testPlayer, step, false, false );
 
 				if ( result )
 				{
-					final ActingPlayer player = ActingPlayer.actingAs( who );
+					final ActingPlayer player = ActingPlayer.actingAs( who, EnumHand.MAIN_HAND );
 					if ( replayChanges( player, step, false, true ) )
 					{
 						level++;

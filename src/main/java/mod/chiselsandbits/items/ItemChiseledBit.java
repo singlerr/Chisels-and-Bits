@@ -37,16 +37,18 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselModeItem, ICacheClearable
 {
@@ -95,7 +97,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( player, ChiselToolType.BIT ), itemstack, pos, player );
+		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( player, ChiselToolType.BIT ), itemstack, pos, player, EnumHand.MAIN_HAND );
 	}
 
 	public String getBitTypeName(
@@ -159,27 +161,12 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	}
 
 	@Override
-	@SideOnly( Side.CLIENT )
-	public int getColorFromItemStack(
-			final ItemStack stack,
-			final int renderPass )
-	{
-		if ( ClientSide.instance.holdingShift() )
-		{
-			// when holding shift on bits uses a block model, colors are baked.
-			return 0xffffff;
-		}
-
-		final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
-		return state == null ? 0xffffff : BlockBitInfo.getColorFor( state, renderPass );
-	}
-
-	@Override
-	public boolean onItemUse(
+	public EnumActionResult onItemUse(
 			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
 			final BlockPos usedBlock,
+			final EnumHand hand,
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,
@@ -187,7 +174,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	{
 		if ( !player.canPlayerEdit( usedBlock, side, stack ) )
 		{
-			return false;
+			return EnumActionResult.FAIL;
 		}
 
 		// forward interactions to tank...
@@ -195,15 +182,15 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		final Block blk = usedState.getBlock();
 		if ( blk instanceof BlockBitTank )
 		{
-			blk.onBlockActivated( world, usedBlock, usedState, player, side, hitX, hitY, hitZ );
-			return false;
+			blk.onBlockActivated( world, usedBlock, usedState, player, hand, player.getHeldItem( hand ), side, hitX, hitY, hitZ );
+			return EnumActionResult.FAIL;
 		}
 
 		if ( world.isRemote )
 		{
 			final ChiselMode mode = ChiselModeManager.getChiselMode( player, ClientSide.instance.getHeldToolType() );
-			final BitLocation bitLocation = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.BIT );
-			final BitLocation chiselLocation = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.CHISEL );
+			final BitLocation bitLocation = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.BIT );
+			final BitLocation chiselLocation = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.CHISEL );
 
 			IBlockState blkstate = world.getBlockState( bitLocation.blockPos );
 			TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );
@@ -224,7 +211,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 						{
 							ClientSide.instance.pointAt( ChiselToolType.BIT, bitLocation );
 						}
-						return false;
+						return EnumActionResult.FAIL;
 
 					case CONNECTED_PLANE:
 
@@ -235,7 +222,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 						if ( connectedBox == null )
 						{
-							return false;
+							return EnumActionResult.FAIL;
 						}
 
 						BlockPos targetBlock = bitLocation.blockPos;
@@ -250,10 +237,10 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 						final BitLocation from = new BitLocation( bitLocation.blockPos, connectedBox.minX, connectedBox.minY, connectedBox.minZ );
 						final BitLocation to = new BitLocation( bitLocation.blockPos, connectedBox.maxX, connectedBox.maxY, connectedBox.maxZ );
-						pc = new PacketChisel( true, from, to, side, ChiselMode.DRAWN_REGION );
+						pc = new PacketChisel( true, from, to, side, ChiselMode.DRAWN_REGION, hand );
 						break;
 					default:
-						pc = new PacketChisel( true, bitLocation, side, mode );
+						pc = new PacketChisel( true, bitLocation, side, mode, hand );
 						break;
 				}
 
@@ -266,7 +253,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			}
 		}
 
-		return false;
+		return EnumActionResult.FAIL;
 	}
 
 	@Override
@@ -382,14 +369,10 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		ChiselModeManager.scrollOption( ChiselToolType.BIT, mode, mode, dwheel );
 	}
 
-	// TODO: Remove Legacy Fix in 1.9
 	public static int getStackState(
 			final ItemStack inHand )
 	{
-		final int v = inHand != null && inHand.hasTagCompound() ? inHand.getTagCompound().getInteger( "id" ) : 0;
-
-		// fix broken bits...
-		return v < 0 ? v & 0xffff : v;
+		return inHand != null && inHand.hasTagCompound() ? inHand.getTagCompound().getInteger( "id" ) : 0;
 	}
 
 	public static boolean placeBit(

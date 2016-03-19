@@ -10,6 +10,7 @@ import mod.chiselsandbits.api.IgnoreBlockLogic;
 import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockGlowstone;
@@ -50,7 +51,7 @@ public class BlockBitInfo
 
 	public static int getColorFor(
 			final IBlockState state,
-			final int renderPass )
+			final int tint )
 	{
 		Integer out = bitColor.get( state );
 
@@ -65,7 +66,7 @@ public class BlockBitInfo
 			}
 			else
 			{
-				out = target.getItem().getColorFromItemStack( target, renderPass );
+				out = ModelUtil.getItemStackColor( target, tint );
 			}
 
 			bitColor.put( state, out );
@@ -188,7 +189,7 @@ public class BlockBitInfo
 
 			boolean hasBehavior = ( blk.hasTileEntity( state ) || blk.getTickRandomly() ) && blkClass != BlockGrass.class && blkClass != BlockIce.class;
 
-			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( blk ) != null;
+			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( state ) != null;
 
 			final Boolean IgnoredLogic = ignoreLogicBlocks.get( blk );
 			if ( blkClass.isAnnotationPresent( IgnoreBlockLogic.class ) || IgnoredLogic != null && IgnoredLogic )
@@ -255,11 +256,11 @@ public class BlockBitInfo
 			final Class<? extends Block> blkClass = blk.getClass();
 
 			reflectBlock.getBlockHardness( null, null, null );
-			final Method hardnessMethod = blkClass.getMethod( reflectBlock.MethodName, World.class, BlockPos.class );
+			final Method hardnessMethod = blkClass.getMethod( reflectBlock.MethodName, IBlockState.class, World.class, BlockPos.class );
 			final boolean test_a = hardnessMethod.getDeclaringClass() == Block.class;
 
 			reflectBlock.getPlayerRelativeBlockHardness( null, null, null, null );
-			final boolean test_b = blkClass.getMethod( reflectBlock.MethodName, EntityPlayer.class, World.class, BlockPos.class ).getDeclaringClass() == Block.class;
+			final boolean test_b = blkClass.getMethod( reflectBlock.MethodName, IBlockState.class, EntityPlayer.class, World.class, BlockPos.class ).getDeclaringClass() == Block.class;
 
 			reflectBlock.getExplosionResistance( null );
 			final Method exploResistance = blkClass.getMethod( reflectBlock.MethodName, Entity.class );

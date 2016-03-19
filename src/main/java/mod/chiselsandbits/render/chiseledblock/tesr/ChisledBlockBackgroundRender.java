@@ -20,6 +20,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.RegionRenderCache;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
@@ -108,7 +109,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 		}
 		while ( tessellator == null );
 
-		final WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+		final VertexBuffer worldrenderer = tessellator.getBuffer();
 
 		try
 		{
@@ -133,7 +134,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 
 					if ( !model.isEmpty() )
 					{
-						blockRenderer.getBlockModelRenderer().renderModel( cache, model, estate, tx.getPos(), worldrenderer );
+						blockRenderer.getBlockModelRenderer().renderModel( cache, model, estate, tx.getPos(), worldrenderer, true );
 
 						if ( Thread.interrupted() )
 						{
