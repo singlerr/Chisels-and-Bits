@@ -40,6 +40,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -1131,9 +1132,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		return super.getHarvestLevel( state );
 	}
 
-	public String getModel()
+	public ResourceLocation getModel()
 	{
-		return ChiselsAndBits.MODID + ":" + name;
+		return new ResourceLocation( ChiselsAndBits.MODID, name );
 	}
 
 	@Override

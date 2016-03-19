@@ -10,19 +10,20 @@ import mcmultipart.microblock.IMicroblock;
 import mcmultipart.microblock.MicroblockClass;
 import mcmultipart.multipart.IMaterialPart;
 import mcmultipart.multipart.IMultipart;
-import mcmultipart.multipart.IOccludingPart;
+import mcmultipart.multipart.INormallyOccludingPart;
 import mcmultipart.multipart.ISolidPart;
 import mcmultipart.multipart.Multipart;
 import mcmultipart.multipart.OcclusionHelper;
 import mcmultipart.multipart.PartSlot;
 import mcmultipart.raytrace.PartMOP;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
+import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -30,12 +31,16 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISolidPart, IMicroblock, IMaterialPart
+public class ChiseledBlockPart extends Multipart implements INormallyOccludingPart, ISolidPart, IMicroblock, IMaterialPart
 {
 	protected TileEntityBlockChiseled inner; // never use directly..
 	protected BlockChiseled bc; // never use directly..
@@ -96,9 +101,9 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 	}
 
 	@Override
-	public RayTraceResultPart collisionRayTrace(
-			final Vec3 start,
-			final Vec3 end )
+	public AdvancedRayTraceResultPart collisionRayTrace(
+			final Vec3d start,
+			final Vec3d end )
 	{
 		final RayTraceResult mop = getBlock().collisionRayTrace( getTile(), getPos(), start, end, true );
 
@@ -109,7 +114,7 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 
 		final BlockPos myPos = getPos() == null ? BlockPos.ORIGIN : getPos();
 		final AxisAlignedBB bb = getBlock().getSelectedBoundingBox( getTile(), myPos );
-		return new RayTraceResultPart( new PartMOP( mop, this ), bb == null ? null : bb.offset( -myPos.getX(), -myPos.getY(), -myPos.getZ() ) );
+		return new AdvancedRayTraceResultPart( new PartMOP( mop, this ), bb == null ? null : bb.offset( -myPos.getX(), -myPos.getY(), -myPos.getZ() ) );
 	}
 
 	@Override
@@ -149,7 +154,7 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 	}
 
 	@Override
-	public String getModelPath()
+	public ResourceLocation getModelPath()
 	{
 		return getBlock().getModel();
 	}
@@ -213,7 +218,7 @@ public class ChiseledBlockPart extends Multipart implements IOccludingPart, ISol
 	}
 
 	@Override
-	public BlockState createBlockState()
+	public BlockStateContainer createBlockState()
 	{
 		return getBlock().getBlockState();
 	}

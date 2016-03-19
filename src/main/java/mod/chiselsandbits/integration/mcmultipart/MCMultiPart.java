@@ -2,7 +2,9 @@ package mod.chiselsandbits.integration.mcmultipart;
 
 import java.util.Collection;
 
-import mcmultipart.block.TileMultipart;
+import com.google.common.base.Predicate;
+
+import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.client.multipart.MultipartRegistryClient;
 import mcmultipart.microblock.MicroblockRegistry;
 import mcmultipart.multipart.IMultipart;
@@ -11,7 +13,7 @@ import mcmultipart.multipart.MultipartHelper;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.OcclusionHelper;
 import mcmultipart.raytrace.RayTraceUtils;
-import mcmultipart.raytrace.RayTraceUtils.RayTraceResultPart;
+import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -22,6 +24,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -158,6 +161,26 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 																					// converted?
 	}
 
+	private static class IgnorePred implements Predicate<IMultipart>
+	{
+
+		final IMultipart ignore;
+
+		public IgnorePred(
+				final IMultipart i )
+		{
+			ignore = i;
+		}
+
+		@Override
+		public boolean apply(
+				final IMultipart input )
+		{
+			return ignore == input;
+		}
+
+	};
+
 	@Override
 	public void populateBlobWithUsedSpace(
 			final World w,
@@ -185,7 +208,7 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 			{
 				final AxisAlignedBB aabb = new AxisAlignedBB( bci.physicalX, bci.physicalY, bci.physicalZ, bci.physicalX + BitCollisionIterator.One16thf, bci.physicalYp1, bci.physicalZp1 );
 
-				if ( !OcclusionHelper.occlusionTest( parts, ignore, aabb ) )
+				if ( !OcclusionHelper.occlusionTest( parts, new IgnorePred( ignore ), aabb ) )
 				{
 					bci.setNext( vb, 1 );
 				}
@@ -202,9 +225,9 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 		final IMultipartContainer container = MultipartHelper.getPartContainer( world, pos );
 		if ( container != null )
 		{
-			final Vec3 start = RayTraceUtils.getStart( player );
-			final Vec3 end = RayTraceUtils.getEnd( player );
-			final RayTraceResultPart result = ( (TileMultipart) world.getTileEntity( pos ) ).getPartContainer().collisionRayTrace( start, end );
+			final Vec3d start = RayTraceUtils.getStart( player );
+			final Vec3d end = RayTraceUtils.getEnd( player );
+			final AdvancedRayTraceResultPart result = ( (TileMultipartContainer) world.getTileEntity( pos ) ).getPartContainer().collisionRayTrace( start, end );
 			if ( result != null && result.hit != null && result.hit.partHit != null )
 			{
 				return result.hit.partHit.rotatePart( result.hit.sideHit );

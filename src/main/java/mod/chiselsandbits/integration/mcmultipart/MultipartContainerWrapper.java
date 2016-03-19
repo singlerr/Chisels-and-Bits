@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mcmultipart.multipart.IMultipart;
-import mcmultipart.multipart.IOccludingPart;
+import mcmultipart.multipart.INormallyOccludingPart;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.interfaces.IChiseledTileContainer;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -51,10 +51,10 @@ class MultipartContainerWrapper implements IChiseledTileContainer
 		// test occlusion...
 		for ( final IMultipart comparePart : container.getContainer().getParts() )
 		{
-			if ( comparePart instanceof IOccludingPart )
+			if ( comparePart instanceof INormallyOccludingPart )
 			{
 				final List<AxisAlignedBB> partBoxes = new ArrayList<AxisAlignedBB>();
-				( (IOccludingPart) comparePart ).addOcclusionBoxes( partBoxes );
+				( (INormallyOccludingPart) comparePart ).addOcclusionBoxes( partBoxes );
 
 				for ( final AxisAlignedBB a : selfBoxes )
 				{

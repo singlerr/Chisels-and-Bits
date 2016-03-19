@@ -8,6 +8,7 @@ import mcmultipart.multipart.IMultipart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
 public class ChiseledMicroblock extends MicroblockClass
@@ -43,12 +44,12 @@ public class ChiseledMicroblock extends MicroblockClass
 
 	@Override
 	public MicroblockPlacement getPlacement(
-			final World arg0,
-			final BlockPos arg1,
-			final IMicroMaterial arg2,
-			final int arg3,
-			final RayTraceResult arg4,
-			final EntityPlayer arg5 )
+			final World world,
+			final BlockPos pos,
+			final IMicroMaterial material,
+			final int size,
+			final RayTraceResult hit,
+			final EntityPlayer player )
 	{
 		return null;
 	}

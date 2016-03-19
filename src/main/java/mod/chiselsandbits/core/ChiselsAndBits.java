@@ -58,7 +58,7 @@ public class ChiselsAndBits
 			+ net.minecraftforge.common.ForgeVersion.majorVersion + '.' // majorVersion
 			+ net.minecraftforge.common.ForgeVersion.minorVersion + '.' // minorVersion
 			+ net.minecraftforge.common.ForgeVersion.revisionVersion + '.' // revisionVersion
-			+ net.minecraftforge.common.ForgeVersion.buildVersion + ",);after:mcmultipart@[1.0.8,);after:jei@[11.15.0.1697,)"; // buildVersion
+			+ net.minecraftforge.common.ForgeVersion.buildVersion + ",);after:mcmultipart;after:jei@[11.15.0.1697,)"; // buildVersion
 
 	private static ChiselsAndBits instance;
 	private ModConfig config;

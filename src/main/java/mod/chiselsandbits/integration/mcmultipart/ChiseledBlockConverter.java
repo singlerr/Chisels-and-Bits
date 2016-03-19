@@ -5,8 +5,8 @@ import java.util.Collections;
 
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
-import mcmultipart.multipart.IPartConverter.IPartConverter2;
-import mcmultipart.multipart.IPartConverter.IReversePartConverter;
+import mcmultipart.multipart.IPartConverter;
+import mcmultipart.multipart.IReversePartConverter;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -16,7 +16,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-class ChiseledBlockConverter implements IPartConverter2, IReversePartConverter
+class ChiseledBlockConverter implements IPartConverter, IReversePartConverter
 {
 
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
