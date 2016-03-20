@@ -31,7 +31,6 @@ import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.IBakedModel;
@@ -73,6 +72,7 @@ public class Share extends CommandBase
 	}
 
 	BlockPos start;
+	BlockPos end;
 
 	private byte[] preFixByteArray(
 			final byte[] prefix,
@@ -93,24 +93,33 @@ public class Share extends CommandBase
 		{
 			start = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
 			sender.addChatMessage( new ChatComponentText( "Start Pos Set" ) );
-		}
-		else if ( start == null )
-		{
-			sender.addChatMessage( new ChatComponentText( "Start Pos Not Set Yet, use argument 'start'." ) );
-		}
-		else if ( start != null )
-		{
-			final World w = Minecraft.getMinecraft().theWorld;
 
-			BlockPos end = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
+			if ( start == null )
+			{
+				start = Minecraft.getMinecraft().thePlayer.getPosition();
+			}
+		}
+		else if ( args.length > 0 && args[0].equals( "end" ) )
+		{
+			end = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
+			sender.addChatMessage( new ChatComponentText( "End Pos Set" ) );
 
 			if ( end == null )
 			{
 				end = Minecraft.getMinecraft().thePlayer.getPosition();
 			}
-
-			start = new BlockPos( 295, 60, 246 );
-			end = new BlockPos( 325, 141, 278 );
+		}
+		else if ( start == null )
+		{
+			sender.addChatMessage( new ChatComponentText( "Start Pos Not Set Yet, use argument 'start'." ) );
+		}
+		else if ( end == null )
+		{
+			sender.addChatMessage( new ChatComponentText( "End Pos Not Set Yet, use argument 'end'." ) );
+		}
+		else if ( start != null && end != null )
+		{
+			final World w = Minecraft.getMinecraft().theWorld;
 
 			final EnumWorldBlockLayer[] layers = EnumWorldBlockLayer.values();
 
@@ -338,10 +347,13 @@ public class Share extends CommandBase
 			}
 
 			final byte[] compressedData = byteStream.toByteArray();
-			final byte[] apacheBytes = org.apache.commons.codec.binary.Base64.encodeBase64( compressedData );
-
-			GuiScreen.setClipboardString( new String( apacheBytes ) );
-			sender.addChatMessage( new ChatComponentText( "Json Posted to Clipboard" ) );
+			ScreenShotEncoder.ScreenShotEncoder( compressedData );
+			// final byte[] apacheBytes =
+			// org.apache.commons.codec.binary.Base64.encodeBase64(
+			// compressedData );
+			//
+			// GuiScreen.setClipboardString( new String( apacheBytes ) );
+			sender.addChatMessage( new ChatComponentText( "Image Posted to Clipboard" ) );
 		}
 	}
 
