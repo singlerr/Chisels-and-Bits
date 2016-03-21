@@ -8,7 +8,6 @@ import java.util.List;
 import mcmultipart.microblock.IMicroMaterial;
 import mcmultipart.microblock.IMicroblock;
 import mcmultipart.microblock.MicroblockClass;
-import mcmultipart.multipart.IMaterialPart;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.INormallyOccludingPart;
 import mcmultipart.multipart.ISolidPart;
@@ -40,7 +39,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public class ChiseledBlockPart extends Multipart implements INormallyOccludingPart, ISolidPart, IMicroblock, IMaterialPart
+public class ChiseledBlockPart extends Multipart implements INormallyOccludingPart, ISolidPart, IMicroblock
 {
 	protected TileEntityBlockChiseled inner; // never use directly..
 	protected BlockChiseled bc; // never use directly..

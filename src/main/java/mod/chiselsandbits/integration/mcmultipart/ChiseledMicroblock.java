@@ -1,9 +1,9 @@
 package mod.chiselsandbits.integration.mcmultipart;
 
 import mcmultipart.microblock.IMicroMaterial;
+import mcmultipart.microblock.IMicroblockPlacementGrid;
 import mcmultipart.microblock.MicroblockClass;
 import mcmultipart.microblock.MicroblockPlacement;
-import mcmultipart.microblock.MicroblockPlacementGrid;
 import mcmultipart.multipart.IMultipart;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -55,7 +55,7 @@ public class ChiseledMicroblock extends MicroblockClass
 	}
 
 	@Override
-	public MicroblockPlacementGrid getPlacementGrid()
+	public IMicroblockPlacementGrid getPlacementGrid()
 	{
 		return null;
 	}
