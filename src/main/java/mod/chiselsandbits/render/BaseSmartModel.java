@@ -18,11 +18,37 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
-public abstract class BaseSmartModel extends ItemOverrideList implements IBakedModel
+public abstract class BaseSmartModel implements IBakedModel
 {
+
+	private final ItemOverrideList overrides;
+
+	private static class OverrideHelper extends ItemOverrideList
+	{
+		final BaseSmartModel parent;
+
+		public OverrideHelper(
+				final BaseSmartModel p )
+		{
+			super( new ArrayList<ItemOverride>() );
+			parent = p;
+		}
+
+		@Override
+		public IBakedModel handleItemState(
+				final IBakedModel originalModel,
+				final ItemStack stack,
+				final World world,
+				final EntityLivingBase entity )
+		{
+			return parent.handleItemState( originalModel, stack, world, entity );
+		}
+
+	};
+
 	public BaseSmartModel()
 	{
-		super( new ArrayList<ItemOverride>() );
+		overrides = new OverrideHelper( this );
 	}
 
 	@Override
@@ -82,10 +108,9 @@ public abstract class BaseSmartModel extends ItemOverrideList implements IBakedM
 	@Override
 	public ItemOverrideList getOverrides()
 	{
-		return this;
+		return overrides;
 	}
 
-	@Override
 	public IBakedModel handleItemState(
 			final IBakedModel originalModel,
 			final ItemStack stack,
