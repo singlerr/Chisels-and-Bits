@@ -79,16 +79,16 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 	}
 
 	@Override
-	public EnumActionResult onItemUseFirst(
+	public EnumActionResult onItemUse(
 			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
 			final BlockPos pos,
+			final EnumHand hand,
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,
-			final float hitZ,
-			final EnumHand hand )
+			final float hitZ )
 	{
 		if ( !player.canPlayerEdit( pos, side, stack ) )
 		{
@@ -101,13 +101,13 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			if ( comp != null )
 			{
 				stack.setTagCompound( comp );
-				return EnumActionResult.FAIL;
+				return EnumActionResult.SUCCESS;
 			}
 
-			return EnumActionResult.SUCCESS;
+			return EnumActionResult.FAIL;
 		}
 
-		return EnumActionResult.SUCCESS;
+		return EnumActionResult.FAIL;
 	}
 
 	protected NBTTagCompound getCompoundFromBlock(
