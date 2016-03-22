@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumFacing;
@@ -51,10 +52,14 @@ public class JsonModelExport extends CommandBase
 			final ICommandSender sender,
 			final String[] args ) throws CommandException
 	{
-		final ItemStack is = ClientSide.instance.getPlayer().getHeldItemMainhand();
+		final EntityPlayer player = ClientSide.instance.getPlayer();
+		final ItemStack is = player.getHeldItemMainhand();
 		if ( is != null && is.getItem() != null )
 		{
-			final IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( is );
+			IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( is );
+
+			// handle overrides.
+			model = model.getOverrides().handleItemState( model, is, player.getEntityWorld(), player );
 
 			final Map<TextureAtlasSprite, String> textures = new HashMap<TextureAtlasSprite, String>();
 
