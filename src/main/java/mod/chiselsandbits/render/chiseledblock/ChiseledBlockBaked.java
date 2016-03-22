@@ -29,7 +29,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
 
 public class ChiseledBlockBaked extends BaseBakedBlockModel
@@ -295,7 +294,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 									break;
 
 								case COLOR:
-									final int cb = getShadeColor( region.face, pc.color );
+									final int cb = pc.color;
 									faceBuilder.put( elementIndex, byteToFloat( cb ), byteToFloat( cb >> 8 ), byteToFloat( cb >> 16 ), byteToFloat( cb >> 24 ) );
 									break;
 
@@ -581,41 +580,6 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		}
 
 		return null;
-	}
-
-	// merge face brightness with custom multiplier
-	private int getShadeColor(
-			final EnumFacing face,
-			final int color )
-	{
-		final int intensity = MathHelper.clamp_int( (int) ( ( format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT ? getFaceBrightness( face ) : 1.0f ) * 255.0F ), 0, 255 );
-
-		final int r = ( color >> 16 & 0xff ) * intensity / 255;
-		final int g = ( color >> 8 & 0xff ) * intensity / 255;
-		final int b = ( color & 0xff ) * intensity / 255;
-
-		return 0xFF000000 | b << 16 | g << 8 | r;
-	}
-
-	// based on MC's FaceBakery...
-	private float getFaceBrightness(
-			final EnumFacing face )
-	{
-		switch ( face )
-		{
-			case DOWN:
-				return 0.5F;
-			case UP:
-				return 1.0F;
-			case NORTH:
-			case SOUTH:
-				return 0.8F;
-			case WEST:
-			case EAST:
-				return 0.6F;
-			default:
-				return 1.0F;
-		}
 	}
 
 	// generate final pos from static data.
