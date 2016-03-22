@@ -24,7 +24,7 @@ class ChiseledBlockRenderChunkMPSR extends MultipartSpecialRenderer<ChiseledBloc
 	{
 		if ( part.getTile() instanceof TileEntityBlockChiseledTESR )
 		{
-			ChisledBlockRenderChunkTESR.getInstance().renderTileEntityAt( (TileEntityBlockChiseledTESR) part.getTile(), x, y, z, partialTicks, destroyStage );
+			ChisledBlockRenderChunkTESR.getInstance().renderTileEntityFast( (TileEntityBlockChiseledTESR) part.getTile(), x, y, z, partialTicks, destroyStage, null );
 		}
 	}
 
