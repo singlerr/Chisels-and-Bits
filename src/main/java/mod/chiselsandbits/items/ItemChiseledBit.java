@@ -189,7 +189,10 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		final Block blk = usedState.getBlock();
 		if ( blk instanceof BlockBitTank )
 		{
-			blk.onBlockActivated( world, usedBlock, usedState, player, hand, player.getHeldItem( hand ), side, hitX, hitY, hitZ );
+			if ( blk.onBlockActivated( world, usedBlock, usedState, player, hand, player.getHeldItem( hand ), side, hitX, hitY, hitZ ) )
+			{
+				return EnumActionResult.SUCCESS;
+			}
 			return EnumActionResult.FAIL;
 		}
 
@@ -260,7 +263,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			}
 		}
 
-		return EnumActionResult.FAIL;
+		return EnumActionResult.SUCCESS;
 	}
 
 	@Override
