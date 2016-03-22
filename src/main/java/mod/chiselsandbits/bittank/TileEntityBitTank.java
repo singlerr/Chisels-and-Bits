@@ -2,6 +2,7 @@ package mod.chiselsandbits.bittank;
 
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -216,7 +217,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 	private void saveAndUpdate()
 	{
 		markDirty();
-		worldObj.markBlockRangeForRenderUpdate( getPos(), getPos() );
+		ModUtil.sendUpdate( worldObj, getPos() );
 
 		final int lv = getLightValue();
 		if ( oldLV != lv )

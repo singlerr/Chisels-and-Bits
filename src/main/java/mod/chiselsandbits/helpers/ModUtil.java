@@ -18,6 +18,7 @@ import mod.chiselsandbits.items.ItemBitBag.BagPos;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.items.ItemPositivePrint;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -469,6 +470,14 @@ public class ModUtil
 		}
 
 		return new VoxelBlob();
+	}
+
+	public static void sendUpdate(
+			final World worldObj,
+			final BlockPos pos )
+	{
+		final IBlockState state = worldObj.getBlockState( pos );
+		worldObj.notifyBlockUpdate( pos, state, state, 0 );
 	}
 
 }

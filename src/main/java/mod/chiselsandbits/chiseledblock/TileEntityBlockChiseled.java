@@ -78,7 +78,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	@Override
 	public void sendUpdate()
 	{
-		worldObj.markBlockRangeForRenderUpdate( pos, pos );
+		ModUtil.sendUpdate( worldObj, pos );
 	}
 
 	public void copyFrom(
