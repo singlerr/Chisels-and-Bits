@@ -37,6 +37,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.CapabilityItemHandler;
 
@@ -72,7 +73,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public IBitAccess getBitAccess(
-			final World world,
+			final IBlockAccess world,
 			final BlockPos pos ) throws CannotBeChiseled
 	{
 		if ( world == null || pos == null )
@@ -104,6 +105,14 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		}
 
 		throw new CannotBeChiseled();
+	}
+
+	@Override
+	public IBitAccess getBitAccess(
+			final World world,
+			final BlockPos pos ) throws CannotBeChiseled
+	{
+		return getBitAccess( (IBlockAccess) world, pos );
 	}
 
 	@Override
@@ -312,5 +321,4 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	{
 		UndoTracker.getInstance().endGroup( player );
 	}
-
 }

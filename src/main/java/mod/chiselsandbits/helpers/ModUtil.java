@@ -31,6 +31,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class ModUtil
@@ -296,7 +297,7 @@ public class ModUtil
 	}
 
 	public static TileEntityBlockChiseled getChiseledTileEntity(
-			final World world,
+			final IBlockAccess world,
 			final BlockPos pos,
 			final boolean create )
 	{

@@ -119,7 +119,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				return state;
 			}
 
-			vns.update( isDyanmic, worldObj, pos );
+			vns.update( isDyanmic, worldObj, pos, false );
 
 			tesrUpdate( vns );
 
