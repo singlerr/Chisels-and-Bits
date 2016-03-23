@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.items.IItemHandler;
 
@@ -62,6 +63,20 @@ public interface IChiselAndBitsAPI
 	 */
 	IBitAccess getBitAccess(
 			World world,
+			BlockPos pos ) throws CannotBeChiseled;
+
+	/**
+	 * Read-Only access to bits for a given block.
+	 *
+	 * @param access
+	 * @param pos
+	 * @return A {@link IBitAccess} for the specified location.
+	 * @throws CannotBeChiseled
+	 *             when the location cannot support bits, or if the parameters
+	 *             are invalid.
+	 */
+	IBitAccess getBitAccess(
+			IBlockAccess access,
 			BlockPos pos ) throws CannotBeChiseled;
 
 	/**

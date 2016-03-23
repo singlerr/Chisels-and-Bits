@@ -25,6 +25,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -44,12 +45,12 @@ public class BitAccess implements IBitAccess
 	}
 
 	public BitAccess(
-			final World worldIn,
+			final IBlockAccess access,
 			final BlockPos pos,
 			final VoxelBlob blob,
 			final VoxelBlob filler )
 	{
-		world = worldIn;
+		world = access instanceof World ? (World) access : null;
 		this.pos = pos;
 		this.blob = blob;
 		this.filler = filler;
@@ -110,21 +111,24 @@ public class BitAccess implements IBitAccess
 	public void commitChanges(
 			final boolean triggerUpdates )
 	{
-		TileEntityBlockChiseled tile = ModUtil.getChiseledTileEntity( world, pos, true );
-		final BlobStats cb = blob.getVoxelStats();
-
-		if ( tile == null && BlockChiseled.replaceWithChisled( world, pos, world.getBlockState( pos ), cb.mostCommonState, false ) )
+		if ( world != null )
 		{
-			tile = ModUtil.getChiseledTileEntity( world, pos, true );
-		}
+			TileEntityBlockChiseled tile = ModUtil.getChiseledTileEntity( world, pos, true );
+			final BlobStats cb = blob.getVoxelStats();
 
-		if ( tile != null )
-		{
-			final VoxelBlobStateReference before = tile.getBlobStateReference();
-			tile.setBlob( blob, triggerUpdates );
-			final VoxelBlobStateReference after = tile.getBlobStateReference();
+			if ( tile == null && BlockChiseled.replaceWithChisled( world, pos, world.getBlockState( pos ), cb.mostCommonState, false ) )
+			{
+				tile = ModUtil.getChiseledTileEntity( world, pos, true );
+			}
 
-			UndoTracker.getInstance().add( world, pos, before, after );
+			if ( tile != null )
+			{
+				final VoxelBlobStateReference before = tile.getBlobStateReference();
+				tile.setBlob( blob, triggerUpdates );
+				final VoxelBlobStateReference after = tile.getBlobStateReference();
+
+				UndoTracker.getInstance().add( world, pos, before, after );
+			}
 		}
 	}
 

@@ -2,15 +2,17 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import java.lang.ref.WeakReference;
 
+import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.ModelRenderState;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.IBlockAccess;
 
 public final class VoxelNeighborRenderTracker
 {
@@ -59,8 +61,9 @@ public final class VoxelNeighborRenderTracker
 
 	public void update(
 			final boolean isDynamic,
-			final World worldObj,
-			final BlockPos pos )
+			final IBlockAccess worldObj,
+			final BlockPos pos,
+			final boolean convertToChiseledBlocks )
 	{
 		if ( worldObj == null || pos == null )
 		{
@@ -71,10 +74,24 @@ public final class VoxelNeighborRenderTracker
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
-			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( worldObj, pos.offset( f ), false );
+			final BlockPos offPos = pos.offset( f );
+
+			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( worldObj, offPos, false );
 			if ( tebc != null )
 			{
 				update( f, tebc.getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob ) );
+			}
+			else if ( convertToChiseledBlocks )
+			{
+				try
+				{
+					final BitAccess ba = (BitAccess) ChiselsAndBits.getApi().getBitAccess( worldObj, offPos );
+					update( f, new VoxelBlobStateReference( ba.getNativeBlob(), 0 ) );
+				}
+				catch ( final CannotBeChiseled e )
+				{
+					update( f, null );
+				}
 			}
 			else
 			{

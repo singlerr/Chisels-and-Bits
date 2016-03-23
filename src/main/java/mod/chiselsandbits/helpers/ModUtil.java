@@ -37,6 +37,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class ModUtil
@@ -308,7 +309,7 @@ public class ModUtil
 	}
 
 	public static TileEntityBlockChiseled getChiseledTileEntity(
-			final World world,
+			final IBlockAccess world,
 			final BlockPos pos,
 			final boolean create )
 	{

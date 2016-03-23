@@ -1,6 +1,5 @@
 package mod.chiselsandbits.commands;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -23,7 +22,7 @@ import net.minecraft.client.shader.Framebuffer;
 public class ScreenShotEncoder
 {
 
-	private static BufferedImage getScreenshot()
+	public static BufferedImage getScreenshot()
 	{
 		int width = Minecraft.getMinecraft().displayWidth;
 		int height = Minecraft.getMinecraft().displayHeight;
@@ -80,11 +79,10 @@ public class ScreenShotEncoder
 	}
 
 	static public void ScreenShotEncoder(
+			final BufferedImage screenshot,
 			final byte[] modelData )
 	{
 		final int sizeOfData = 4 + modelData.length;
-
-		final BufferedImage screenshot = getScreenshot();
 
 		final int extraStoragePerPixel = 3;
 		final int storagePerImagePixel = 1;
@@ -116,10 +114,11 @@ public class ScreenShotEncoder
 
 		final BufferedImage output = new BufferedImage( width + newXData, height + newYData, BufferedImage.TYPE_4BYTE_ABGR );
 
+		final int zeros[] = new int[output.getWidth() * output.getHeight() * 4];
+		output.setRGB( 0, 0, output.getWidth(), output.getHeight(), zeros, 0, output.getWidth() * 4 );
+
 		// transfer screenshot to output...
 		final Graphics g = output.getGraphics();
-		g.setColor( new Color( 0, 0, 0, 0 ) );
-		g.fillRect( 0, 0, width, height );
 		g.drawImage( screenshot, newXData / 2, newYData / 2, null );
 		g.dispose();
 
@@ -135,7 +134,7 @@ public class ScreenShotEncoder
 
 		for ( int x = 0; x < size; ++x )
 		{
-			writer.writeByte( modelData[x] );
+			writer.writeByte( modelData[x] & 0xff );
 		}
 
 		final JFileChooser fc = new JFileChooser();
@@ -189,7 +188,7 @@ public class ScreenShotEncoder
 			// extra...
 			if ( alpha < 128 )
 			{
-				rgba |= iByte << innerPixel;
+				rgba |= iByte << 16 - innerPixel;
 				image.setRGB( x, y, rgba );
 
 				innerPixel += 8;

@@ -6,6 +6,7 @@ import mod.chiselsandbits.integration.IntegrationBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class MCMultipartProxy extends IntegrationBase
@@ -80,11 +81,24 @@ public class MCMultipartProxy extends IntegrationBase
 	}
 
 	public TileEntityBlockChiseled getChiseledTileEntity(
-			final World world,
+			final IBlockAccess world,
 			final BlockPos pos,
 			final boolean create )
 	{
-		return relay.getPartIfPossible( world, pos, create );
+		if ( world instanceof World )
+		{
+			return relay.getPartIfPossible( (World) world, pos, create );
+		}
+		else
+		{
+			final TileEntity te = world.getTileEntity( pos );
+			if ( te instanceof TileEntityBlockChiseled )
+			{
+				return (TileEntityBlockChiseled) te;
+			}
+		}
+
+		return null;
 	}
 
 	public void removeChisledBlock(
@@ -114,11 +128,14 @@ public class MCMultipartProxy extends IntegrationBase
 	}
 
 	public void addFiller(
-			final World w,
+			final IBlockAccess w,
 			final BlockPos pos,
 			final VoxelBlob vb )
 	{
-		relay.populateBlobWithUsedSpace( w, pos, vb );
+		if ( w instanceof World )
+		{
+			relay.populateBlobWithUsedSpace( (World) w, pos, vb );
+		}
 	}
 
 	public boolean rotate(
