@@ -144,7 +144,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 							{
 								vb.set( x, y, z, inPattern );
 
-								if ( player.isCreative() )
+								if ( !player.isCreative() )
 								{
 									bit.consume();
 								}
