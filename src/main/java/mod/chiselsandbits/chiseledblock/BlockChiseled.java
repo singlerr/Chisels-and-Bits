@@ -795,7 +795,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		double lastDist = 0;
 
 		boolean occlusion = true;
-		if ( FMLCommonHandler.instance().getEffectiveSide().isClient() )
+		if ( FMLCommonHandler.instance().getEffectiveSide().isClient() && tec.getWorld() != null && tec.getWorld().isRemote )
 		{
 			occlusion = !ChiselsAndBits.getConfig().fluidBitsAreClickThough || ClientSide.instance.getHeldToolType() != null;
 		}
