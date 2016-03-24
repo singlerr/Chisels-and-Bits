@@ -251,8 +251,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 			final World world,
 			final EntityLivingBase entity )
 	{
-		IBakedModel mdl;
-		mdl = itemToModel.get( stack );
+		IBakedModel mdl = itemToModel.get( stack );
 
 		if ( mdl != null )
 		{

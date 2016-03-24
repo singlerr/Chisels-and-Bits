@@ -114,7 +114,7 @@ public class ModelUtil implements ICacheClearable
 		}
 
 		final HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>> tmp = new HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>>();
-		final int color = BlockBitInfo.getColorFor( state, layer == BlockRenderLayer.SOLID ? 0 : 1 );
+		final int color = BlockBitInfo.getColorFor( state, 0 );
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{

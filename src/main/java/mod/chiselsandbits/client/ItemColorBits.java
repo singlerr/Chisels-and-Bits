@@ -33,7 +33,7 @@ public class ItemColorBits implements IItemColor
 		}
 
 		final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
-		return state == null ? 0xffffff : BlockBitInfo.getColorFor( state, tint );
+		return state == null ? 0xffffffff : BlockBitInfo.getColorFor( state, tint );
 	}
 
 }

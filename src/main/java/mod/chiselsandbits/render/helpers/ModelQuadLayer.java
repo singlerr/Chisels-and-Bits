@@ -33,7 +33,7 @@ public class ModelQuadLayer
 		{
 			cache.light = lv.lv;
 			cache.uvs = uvr.quadUVs;
-			cache.color = cache.tint != -1 ? color : 0xffffff;
+			cache.color = cache.tint != -1 ? color : 0xffffffff;
 
 			if ( isGrass )
 			{

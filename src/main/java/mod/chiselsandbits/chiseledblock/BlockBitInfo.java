@@ -62,7 +62,7 @@ public class BlockBitInfo
 
 			if ( target.getItem() == null )
 			{
-				out = 0xffffff;
+				out = 0xffffffff;
 			}
 			else
 			{
