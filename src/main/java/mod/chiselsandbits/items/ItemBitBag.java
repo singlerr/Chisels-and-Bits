@@ -133,14 +133,15 @@ public class ItemBitBag extends Item
 	{
 		boolean modified = false;
 
-		final EntityItem entityItem = event.item;
+		final EntityItem entityItem = event.getItem();
 		if ( entityItem != null )
 		{
 			final ItemStack is = entityItem.getEntityItem();
+			final EntityPlayer player = event.getEntityPlayer();
 			if ( is != null && is.getItem() instanceof ItemChiseledBit )
 			{
 				final int originalSize = is.stackSize;
-				final IInventory inv = event.entityPlayer.inventory;
+				final IInventory inv = player.inventory;
 				final List<BagPos> bags = getBags( inv );
 
 				// has the stack?
@@ -152,7 +153,7 @@ public class ItemBitBag extends Item
 					{
 						if ( !entityItem.isDead )
 						{
-							modified = updateEntity( event.entityPlayer, entityItem, i.inv.insertItem( entityItem.getEntityItem() ), originalSize ) || modified;
+							modified = updateEntity( player, entityItem, i.inv.insertItem( entityItem.getEntityItem() ), originalSize ) || modified;
 						}
 					}
 				}
@@ -163,12 +164,12 @@ public class ItemBitBag extends Item
 						final ItemStack singleStack = is.copy();
 						singleStack.stackSize = singleStack.getMaxStackSize();
 
-						if ( event.entityPlayer.inventory.addItemStackToInventory( singleStack ) == false )
+						if ( player.inventory.addItemStackToInventory( singleStack ) == false )
 						{
 							is.stackSize -= singleStack.getMaxStackSize() - is.stackSize;
 						}
 
-						modified = updateEntity( event.entityPlayer, entityItem, is, originalSize ) || modified;
+						modified = updateEntity( player, entityItem, is, originalSize ) || modified;
 					}
 					else
 					{
@@ -180,13 +181,13 @@ public class ItemBitBag extends Item
 
 						if ( !entityItem.isDead )
 						{
-							modified = updateEntity( event.entityPlayer, entityItem, i.inv.insertItem( entityItem.getEntityItem() ), originalSize ) || modified;
+							modified = updateEntity( player, entityItem, i.inv.insertItem( entityItem.getEntityItem() ), originalSize ) || modified;
 						}
 					}
 				}
 			}
 
-			cleanupInventory( event.entityPlayer, is );
+			cleanupInventory( player, is );
 		}
 
 		if ( modified )

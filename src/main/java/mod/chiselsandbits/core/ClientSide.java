@@ -60,6 +60,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.renderer.GlStateManager;
@@ -295,9 +296,10 @@ public class ClientSide
 	void registerIconTextures(
 			final TextureStitchEvent.Pre ev )
 	{
-		undoIcon = ev.map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/undo" ) );
-		redoIcon = ev.map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/redo" ) );
-		trashIcon = ev.map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/trash" ) );
+		final TextureMap map = ev.getMap();
+		undoIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/undo" ) );
+		redoIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/redo" ) );
+		trashIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/trash" ) );
 
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
@@ -306,7 +308,7 @@ public class ClientSide
 			final ResourceLocation sprite = new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() );
 			final ResourceLocation png = new ResourceLocation( "chiselsandbits", "textures/icons/" + mode.name().toLowerCase() + ".png" );
 
-			sip.sprite = ev.map.registerSprite( sprite );
+			sip.sprite = map.registerSprite( sprite );
 
 			try
 			{
@@ -366,7 +368,8 @@ public class ClientSide
 			final RenderGameOverlayEvent.Post event )
 	{
 		final ChiselToolType tool = getHeldToolType();
-		if ( event.type == ElementType.ALL && tool != null )
+		final ElementType type = event.getType();
+		if ( type == ElementType.ALL && tool != null )
 		{
 			final boolean wasVisible = ChiselsAndBitsMenu.instance.isVisible();
 
@@ -405,7 +408,8 @@ public class ClientSide
 
 			if ( ChiselsAndBitsMenu.instance.isVisible() )
 			{
-				ChiselsAndBitsMenu.instance.configure( event.resolution.getScaledWidth(), event.resolution.getScaledHeight() );
+				final ScaledResolution res = event.getResolution();
+				ChiselsAndBitsMenu.instance.configure( res.getScaledWidth(), res.getScaledHeight() );
 
 				if ( wasVisible == false )
 				{
@@ -418,10 +422,10 @@ public class ClientSide
 					KeyBinding.unPressAllKeys();
 				}
 
-				final int k1 = Mouse.getX() * event.resolution.getScaledWidth() / ChiselsAndBitsMenu.instance.mc.displayWidth;
-				final int l1 = event.resolution.getScaledHeight() - Mouse.getY() * event.resolution.getScaledHeight() / ChiselsAndBitsMenu.instance.mc.displayHeight - 1;
+				final int k1 = Mouse.getX() * res.getScaledWidth() / ChiselsAndBitsMenu.instance.mc.displayWidth;
+				final int l1 = res.getScaledHeight() - Mouse.getY() * res.getScaledHeight() / ChiselsAndBitsMenu.instance.mc.displayHeight - 1;
 
-				net.minecraftforge.client.ForgeHooksClient.drawScreen( ChiselsAndBitsMenu.instance, k1, l1, event.partialTicks );
+				net.minecraftforge.client.ForgeHooksClient.drawScreen( ChiselsAndBitsMenu.instance, k1, l1, event.getPartialTicks() );
 			}
 			else
 			{
@@ -484,9 +488,10 @@ public class ClientSide
 			}
 		}
 
-		if ( event.type == ElementType.HOTBAR && ChiselsAndBits.getConfig().enableToolbarIcons )
+		if ( type == ElementType.HOTBAR && ChiselsAndBits.getConfig().enableToolbarIcons )
 		{
 			final Minecraft mc = Minecraft.getMinecraft();
+			final ScaledResolution res = event.getResolution();
 
 			if ( !mc.thePlayer.isSpectator() )
 			{
@@ -504,8 +509,8 @@ public class ClientSide
 							mode = ChiselModeManager.getChiselMode( mc.thePlayer, ChiselToolType.CHISEL );
 						}
 
-						final int x = event.resolution.getScaledWidth() / 2 - 90 + slot * 20 + 2;
-						final int y = event.resolution.getScaledHeight() - 16 - 3;
+						final int x = res.getScaledWidth() / 2 - 90 + slot * 20 + 2;
+						final int y = res.getScaledHeight() - 16 - 3;
 
 						GlStateManager.color( 1, 1, 1, 1.0f );
 						Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.locationBlocksTexture );
@@ -655,8 +660,8 @@ public class ClientSide
 
 		if ( tool != null && chMode != null )
 		{
-			final EntityPlayer player = event.player;
-			final float partialTicks = event.partialTicks;
+			final EntityPlayer player = event.getPlayer();
+			final float partialTicks = event.getPartialTicks();
 			final RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
 			final World theWorld = player.worldObj;
 
@@ -844,7 +849,7 @@ public class ClientSide
 
 		// now render the ghosts...
 		final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
-		final float partialTicks = event.partialTicks;
+		final float partialTicks = event.getPartialTicks();
 		final RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
 		final World theWorld = player.worldObj;
 		final ItemStack currentItem = player.getHeldItemMainhand();
@@ -1214,7 +1219,8 @@ public class ClientSide
 	public void wheelEvent(
 			final MouseEvent me )
 	{
-		if ( me.isCanceled() || me.dwheel == 0 )
+		final int dwheel = me.getDwheel();
+		if ( me.isCanceled() || dwheel == 0 )
 		{
 			return;
 		}
@@ -1222,9 +1228,9 @@ public class ClientSide
 		final EntityPlayer player = ClientSide.instance.getPlayer();
 		final ItemStack is = player.getHeldItemMainhand();
 
-		if ( me.dwheel != 0 && is != null && is.getItem() instanceof IItemScrollWheel && player.isSneaking() )
+		if ( dwheel != 0 && is != null && is.getItem() instanceof IItemScrollWheel && player.isSneaking() )
 		{
-			( (IItemScrollWheel) is.getItem() ).scroll( player, is, me.dwheel );
+			( (IItemScrollWheel) is.getItem() ).scroll( player, is, dwheel );
 			me.setCanceled( true );
 		}
 	}

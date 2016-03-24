@@ -16,12 +16,12 @@ public class EventBreakSpeed
 	public void breakSpeed(
 			final PlayerEvent.BreakSpeed event )
 	{
-		if ( event.entityPlayer != null )
+		if ( event.getEntityPlayer() != null )
 		{
-			final ItemStack is = event.entityPlayer.inventory.getCurrentItem();
+			final ItemStack is = event.getEntityPlayer().inventory.getCurrentItem();
 			if ( is != null && ( is.getItem() instanceof ItemChisel || is.getItem() instanceof ItemChiseledBit ) )
 			{
-				event.newSpeed = 9999;
+				event.setNewSpeed( 9999 );
 			}
 		}
 	}

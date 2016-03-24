@@ -17,9 +17,9 @@ public class EventPlayerInteract
 	public void interaction(
 			final PlayerInteractEvent event )
 	{
-		if ( event.action == Action.LEFT_CLICK_BLOCK && event.entityPlayer != null )
+		if ( event.getAction() == Action.LEFT_CLICK_BLOCK && event.getEntityPlayer() != null )
 		{
-			final ItemStack is = event.entityPlayer.inventory.getCurrentItem();
+			final ItemStack is = event.getEntityPlayer().inventory.getCurrentItem();
 			if ( is != null && ( is.getItem() instanceof ItemChisel || is.getItem() instanceof ItemChiseledBit ) )
 			{
 				event.setCanceled( true );

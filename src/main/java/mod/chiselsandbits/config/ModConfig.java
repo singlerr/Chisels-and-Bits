@@ -444,7 +444,7 @@ public class ModConfig extends Configuration
 	public void onConfigChanged(
 			final ConfigChangedEvent.OnConfigChangedEvent eventArgs )
 	{
-		if ( eventArgs.modID.equals( ChiselsAndBits.MODID ) )
+		if ( eventArgs.getModID().equals( ChiselsAndBits.MODID ) )
 		{
 			populateSettings();
 			save();
