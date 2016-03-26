@@ -24,12 +24,12 @@ repositories {
 }
 
 dependencies {
-	deobfCompile "mezz.jei:jei_1.9:3.0.2.164"
-	deobfCompile "MCMultiPart:MCMultiPart:1.1.0:universal"
+	deobfCompile "mezz.jei:jei_1.9:3.1.0.170"
+	deobfCompile "MCMultiPart:MCMultiPart-experimental:1.1.0_55:universal"
 }
 
 minecraft {
-    version = "1.9-12.16.0.1805-1.9"
+    version = "1.9-12.16.0.1811-1.9"
     runDir = "eclipse"
     mappings = "snapshot_nodoc_20160312"    
     replaceIn "ChiselsAndBits.java"
