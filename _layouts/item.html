@@ -1,0 +1,54 @@
+{% include header.html %}
+
+<div class="itemPage">
+
+{% for item in site.data.items %}{% if page.item == item.id %}
+		
+	<div id="itemHeader">
+		<img class="item_icon" alt="{{ item.name }}" src="{{ site.root }}/images/items/{{ item.icon }}" />
+		<h1>{{ item.name }}</h1>
+		<h6>First Seen in version {{ item.version }}</h6>
+	</div>
+	
+	<p>{{ content }}</p>
+
+</div></div>
+
+{% if item.features.size > 0 %}
+<div class="page">
+	<h2 class="section">Features</h2>
+	<ul class="features">
+		{% for feature in item.features %}
+			<li>{{ feature }}</li>
+		{% endfor %}
+	</ul>
+</div>
+{% endif %}
+
+{% if item.recipes.size > 0 %}
+<div class="page">
+	<h2 class="section">Recipes</h2>
+	<ul class="recipes">
+		{% for recipe in item.recipes %}
+			<li><img class="recipe" src="{{ site.root }}/images/recipes/{{ recipe }}" /></li>
+		{% endfor %}
+	</ul>
+</div>
+{% endif %}
+
+{% if item.usages.size > 0 %}
+<div class="page">
+	<h2 class="section">Usages</h2>
+	<ul class="usages">
+		{% for usage in item.usages %}
+			<li><img class="recipe" src="{{ site.root }}/images/usages/{{ usage }}" /></li>
+		{% endfor %}
+	</ul>
+</div>
+{% endif %}
+
+{% endif %}{% endfor %}
+
+{% include itemlist.html %}
+
+{% include footer.html %}

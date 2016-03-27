@@ -1,0 +1,17 @@
+
+<div class="page">
+
+	<h2 class="section">Items</h2>
+
+	<ul class="items">
+	{% for item in site.data.items %}
+		<li>
+			<a title="{{ item.name }} " href="{{ site.root }}/items/{{ item.url | slugify }}/ ">
+				<img class="item_icon" alt="{{ item.name }}" src="{{ site.root }}/images/items/{{ item.icon }}" />
+			</a>
+		</li>
+	{% endfor %}
+	</ul>
+	<div style="clear:both;"></div>
+
+</div>

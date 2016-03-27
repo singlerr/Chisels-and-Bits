@@ -1,0 +1,278 @@
+[
+
+
+	{
+		"id": "bit_bag",
+		"name": "Bit Bag",
+		"url": "bit-bag",
+		"features": [
+			"Automatically re-stocks and stores bits that you pick up and use.",
+			"Holds 63 stacks of bits inside of it.",
+			"Stores 512 ( by default ) bits per stack, instead of 64.",
+			"Has a button which allows you to clear the contents of the bag easily."
+		],
+		"controls": [{
+			"button": "Right Click",
+			"action": "Open bag to manipulate contents."
+		}],
+		"version": "1.0",
+		"icon": "bit_bag.png",
+		"recipes": ["bitBag.png"],
+		"usages": []
+	},
+
+
+	{
+		"id": "bitsaw_diamond",
+		"name": "Diamond Bit Saw",
+		"url": "diamond-bit-saw",
+		"features": [
+			"Cut symmetrical blocks in half.",
+			"Quickly and easily but blocks into slabs, panels, or other cuboid shapes."
+		],
+		"controls": [],
+		"version": "8.0",
+		"icon": "bitsaw_diamond.png",
+		"recipes": ["diamondSaw.png"],
+		"usages": ["sawCrafting.gif"]
+	},
+
+
+	{
+		"id": "bit_tank",
+		"name": "Bit Tank",
+		"url": "bit-tank",
+		"features": [
+			"Convert buckets of fluid into bits.",
+			"Convert fluid bits back into buckets of fluids."
+		],
+		"controls": [{
+			"button": "Right Click w/ bucket",
+			"action": "Insert fluid."
+		}, {
+			"button": "Right Click",
+			"action": "Extract fluid bits"
+		}, {
+			"button": "Shift + Right Click",
+			"action": "Insert fluid bits"
+		}],
+		"version": "8.0",
+		"icon": "bittank.png",
+		"recipes": ["bitTank.png"],
+		"usages": []
+	},
+
+
+	{
+		"id": "chisel_diamond",
+		"name": "Diamond Chisel",
+		"url": "diamond-chisel",
+		"features": [
+			"Allows removing bits from blocks in the world.",
+			"Has various modes, single bit, line, plane, and more.",
+			"Can harvest any material that requires a diamond pick."
+		],
+		"controls": [{
+			"button": "Left Click",
+			"action": "Chisel using current mode."
+		}, {
+			"button": "Left Alt",
+			"action": "Open Chisel Radial Menu"
+		}, {
+			"button": "Shift + Mouse Wheel",
+			"action": "Cycle Chisel Modes."
+		}, {
+			"button": "Optional Key Binds",
+			"action": "There is an optional key bind for each mode."
+		}],
+		"version": "1.0",
+		"icon": "chisel_diamond.png",
+		"recipes": ["diamondChisel.png"],
+		"usages": []
+	},
+
+
+	{
+		"id": "chisel_gold",
+		"name": "Golden Chisel",
+		"url": "golden-chisel",
+		"features": [
+			"Allows removing bits from blocks in the world.",
+			"Has various modes, single bit, line, plane, and more.",
+			"Can harvest any material that requires a gold pick."
+		],
+		"controls": [{
+			"button": "Left Click",
+			"action": "Chisel using current mode."
+		}, {
+			"button": "Left Alt",
+			"action": "Open Chisel Radial Menu"
+		}, {
+			"button": "Shift + Mouse Wheel",
+			"action": "Cycle Chisel Modes."
+		}, {
+			"button": "Optional Key Binds",
+			"action": "There is an optional key bind for each mode."
+		}],
+		"version": "1.0",
+		"icon": "chisel_gold.png",
+		"recipes": ["goldChisel.png"],
+		"usages": []
+	},
+
+
+	{
+		"id": "chisel_iron",
+		"name": "Iron Chisel",
+		"url": "iron-chisel",
+		"features": [
+			"Allows removing bits from blocks in the world.",
+			"Has various modes, single bit, line, plane, and more.",
+			"Can harvest any material that requires a iron pick."
+		],
+		"controls": [{
+			"button": "Left Click",
+			"action": "Chisel using current mode."
+		}, {
+			"button": "Left Alt",
+			"action": "Open Chisel Radial Menu"
+		}, {
+			"button": "Shift + Mouse Wheel",
+			"action": "Cycle Chisel Modes."
+		}, {
+			"button": "Optional Key Binds",
+			"action": "There is an optional key bind for each mode."
+		}],
+		"version": "1.0",
+		"icon": "chisel_iron.png",
+		"recipes": ["ironChisel.png"],
+		"usages": []
+	},
+
+
+	{
+		"id": "chisel_stone",
+		"name": "Stone Chisel",
+		"url": "stone-chisel",
+		"features": [
+			"Allows removing bits from blocks in the world.",
+			"Has various modes, single bit, line, plane, and more.",
+			"Can harvest any material that requires a stone pick."
+		],
+		"controls": [{
+			"button": "Left Click",
+			"action": "Chisel using current mode."
+		}, {
+			"button": "Left Alt",
+			"action": "Open Chisel Radial Menu"
+		}, {
+			"button": "Shift + Mouse Wheel",
+			"action": "Cycle Chisel Modes."
+		}, {
+			"button": "Optional Key Binds",
+			"action": "There is an optional key bind for each mode."
+		}],
+		"version": "1.0",
+		"icon": "chisel_stone.png",
+		"recipes": ["stoneChisel.png"],
+		"usages": []
+	},
+
+
+	{
+		"id": "positiveprint",
+		"name": "Positive Chisel Design",
+		"url": "positive-chisel-design",
+		"features": [
+			"Clone exact blocks in world.",
+			"Can be used to craft copies in a crafting table with bit bags and other bits.",
+			"Can be cleared and reused."
+		],
+		"controls": [{
+			"button": "Right Click when blank",
+			"action": "Store design in item."
+		}, {
+			"button": "Right Click when written",
+			"action": "Apply design from item to target block"
+		}, {
+			"button": "Shift + Mouse Wheel",
+			"action": "Rotate Design."
+		}, {
+			"button": "Optional Key Binds",
+			"action": "Rotate Clockwise or Counter Clockwise."
+		}],
+		"version": "1.0",
+		"icon": "positiveprint.png",
+		"recipes": ["positivePrint.png"],
+		"usages": ["patternCrafting.png", "clearPositive.png"]
+	},
+
+
+	{
+		"id": "negativeprint",
+		"name": "Negative Chisel Design",
+		"url": "negative-chisel-design",
+		"features": [
+			"Transfer shapes between materials",
+			"Can be inverted in the crafting table.",
+			"Can be cleared and reused."
+		],
+		"controls": [{
+			"button": "Right Click when blank",
+			"action": "Store design in item."
+		}, {
+			"button": "Right Click when written",
+			"action": "Apply design from item to target block"
+		}, {
+			"button": "Shift + Mouse Wheel",
+			"action": "Rotate Design."
+		}, {
+			"button": "Optional Key Binds",
+			"action": "Rotate Clockwise or Counter Clockwise."
+		}],
+		"version": "1.0",
+		"icon": "negativeprint.png",
+		"recipes": ["negativePrint.png"],
+		"usages": ["invertCraft.gif", "clearNegative.png"]
+	},
+
+
+	{
+		"id": "mirrorprint",
+		"name": "Mirror Chisel Design",
+		"url": "mirror-chisel-design",
+		"features": [
+			"Reverse the bits along a specific axis.",
+			"Can be converted into a positive or negative chisel design.",
+			"Can be cleared and reused."
+		],
+		"controls": [{
+			"button": "Right Click when blank",
+			"action": "Store design in item, clicked on face is mirrored."
+		}],
+		"version": "1.7.5",
+		"icon": "mirrorprint.png",
+		"recipes": ["mirrorPrint.png"],
+		"usages": ["mirrorPrintA.png", "mirrorPrintB.png", "clearMirror.png"]
+	},
+
+
+	{
+		"id": "wrench_wood",
+		"name": "Wooden Wrench",
+		"url": "wooden-wrench",
+		"features": [
+			"Rotate any forge compatible blocks by right clicking on the side to rotate around."
+		],
+		"controls": [{
+			"button": "Right Click",
+			"action": "Rotate clicked block around axis for selected face."
+		}],
+		"version": "1.0",
+		"icon": "wrench_wood.png",
+		"recipes": ["woodenWrench.png"],
+		"usages": []
+	}
+
+
+]

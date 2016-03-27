@@ -1,0 +1,131 @@
+
+html { height:100%; }
+
+#bg {
+	z-index:1;
+	position:fixed;
+	top:0px;
+	left:0px;
+	right:0px;
+	bottom:0px;
+	background-color:#dfdfdf;
+	background-repeat:no-repeat;
+	background-size:cover;
+	background-position:center center;
+	height:100%;
+}
+
+body { background:transparent none; }
+
+
+img {
+	image-rendering:-moz-crisp-edges;
+	image-rendering:-o-crisp-edges;
+	image-rendering:-moz-pixelated;
+	image-rendering:-ale the image to the largest size such that both its width and its height can fit inside the content areao-pixelated;
+	image-rendering:-webkit-optimize-contrast;
+	image-rendering:pixelated;
+	-ms-interpolation-mode: nearest-neighbor;
+}
+
+.recipes li, .usages li {
+	text-align:center;
+	margin:20px;
+}
+
+.page {
+	position:relative;
+	z-index:2;
+	padding:30px;
+	background:rgba(255,255,255,0.95);
+	max-width:800px;
+	margin:auto;
+	margin-top:20px;
+	margin-bottom:20px;
+	border:1px solid #666;
+	border-radius:5px;
+}
+
+.first-page { margin-top:20px; }
+
+nav {
+	position:relative;
+	z-index:2;
+	background:rgba(255,255,255,0.95);
+	padding:10px;
+	text-align:center;
+	border-bottom:1px solid #666;
+}
+
+nav a {
+	display:block-inline;
+	padding:0px 10px;
+	white-space:nowrap;
+}
+
+.faq { list-style:none; margin:0px; margin-top:30px; }
+
+.faq .question {
+	font-size:20px;
+	margin-bottom:0px;
+}
+
+.faq .answer {
+	margin-bottom:30px;
+	padding:10px;
+}
+
+.recipe { width:358px; }
+
+#itemHeader { height:64px; margin-bottom:15px; }
+
+#itemHeader img { float:left; }
+#itemHeader h1 { margin:0px; line-height:44px; height:44px; vertical-align:bottom; text-indent:15px; }
+#itemHeader h6 { color:#666; margin:0px; line-height:20px; font-size:12px; height:20px; text-indent:15px; }
+
+.items li {
+	float:left;
+	margin:15px;
+}
+
+.recipes, .usages, .items {
+	list-style:none;
+	margin:0px;
+	padding:0px;
+	clear:both;
+}
+
+.section { clear:both; }
+
+.item_icon {
+	width:64px;
+	height:64px;
+}
+
+@media(max-width:800px)
+{
+	
+	.item_icon {
+		width:42px;
+		height:42px;
+	}
+
+	#bg { background-image:none !important; }
+
+	#itemHeader h1 { font-size:18px; line-height:22px; height:22px; }
+	#itemHeader { height:42px; }
+
+	h1 { font-size:15px; }
+	h2 { font-size:15px; }
+	.faq .question { font-size:16px; }
+	.page { padding:15px; border-radius:0px; border-left:none; border-right:none; }
+
+}
+
+.items {
+	text-align:center;
+}
+
+.items li { float:none; display: inline-block; }
+
+
