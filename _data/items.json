@@ -68,6 +68,7 @@
 		"name": "Diamond Chisel",
 		"url": "diamond-chisel",
 		"features": [
+			"Can chisel up to 194 complete blocks by default",
 			"Allows removing bits from blocks in the world.",
 			"Has various modes, single bit, line, plane, and more.",
 			"Can harvest any material that requires a diamond pick."
@@ -97,6 +98,7 @@
 		"name": "Golden Chisel",
 		"url": "golden-chisel",
 		"features": [
+			"Can chisel up to about a quarter of a block by default",
 			"Allows removing bits from blocks in the world.",
 			"Has various modes, single bit, line, plane, and more.",
 			"Can harvest any material that requires a gold pick."
@@ -126,6 +128,7 @@
 		"name": "Iron Chisel",
 		"url": "iron-chisel",
 		"features": [
+			"Can chisel up to 71 complete blocks by default",
 			"Allows removing bits from blocks in the world.",
 			"Has various modes, single bit, line, plane, and more.",
 			"Can harvest any material that requires a iron pick."
@@ -155,6 +158,7 @@
 		"name": "Stone Chisel",
 		"url": "stone-chisel",
 		"features": [
+			"Can chisel up to 2 complete blocks by default",
 			"Allows removing bits from blocks in the world.",
 			"Has various modes, single bit, line, plane, and more.",
 			"Can harvest any material that requires a stone pick."
