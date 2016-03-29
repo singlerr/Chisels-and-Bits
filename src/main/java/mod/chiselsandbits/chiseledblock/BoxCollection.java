@@ -54,6 +54,12 @@ public class BoxCollection implements Collection<AxisAlignedBB>
 
 			return box;
 		}
+		
+		@Override
+		public void remove()
+		{
+			throw new RuntimeException( "Not Implemented." );
+		}
 
 	};
 
