@@ -582,7 +582,10 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			final float partialTicks,
 			final int destroyStage )
 	{
-		// nope.
+		if ( destroyStage > 0 )
+		{
+			renderTileEntityFast( te, x, y, z, partialTicks, destroyStage, null );
+		}
 	}
 
 }
