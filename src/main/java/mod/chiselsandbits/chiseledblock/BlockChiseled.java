@@ -398,7 +398,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 
 			final TileEntityBlockChiseled bc = getTileEntity( worldIn, pos );
-			int rotations = ModUtil.getRotations( placer, stack.getTagCompound().getByte( ItemBlockChiseled.NBT_SIDE ) );
+			int rotations = ModUtil.getRotations( placer,ModUtil.getItemRotation(stack) );
 
 			VoxelBlob blob = bc.getBlob();
 			while ( rotations-- > 0 )
@@ -783,7 +783,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		double lastDist = 0;
 
 		boolean occlusion = true;
-		if ( FMLCommonHandler.instance().getEffectiveSide().isClient() )
+		if ( FMLCommonHandler.instance().getEffectiveSide().isClient() && tec.getWorld() != null && tec.getWorld().isRemote )
 		{
 			occlusion = !ChiselsAndBits.getConfig().fluidBitsAreClickThough || ClientSide.instance.getHeldToolType() != null;
 		}

@@ -456,10 +456,7 @@ public class ModUtil
 
 			if ( rotationPlayer != null )
 			{
-				final NBTTagCompound rotationSrc = cData.hasKey( ItemBlockChiseled.NBT_SIDE ) ? cData : stack.getTagCompound();
-				final byte rotations = rotationSrc.getByte( ItemBlockChiseled.NBT_SIDE );
-
-				int xrotations = ModUtil.getRotations( rotationPlayer, rotations );
+				int xrotations = ModUtil.getRotations( rotationPlayer, ModUtil.getItemRotation(stack) );
 				while ( xrotations-- > 0 )
 				{
 					blob = blob.spin( Axis.Y );
@@ -470,6 +467,14 @@ public class ModUtil
 		}
 
 		return new VoxelBlob();
+	}
+
+	public static byte getItemRotation(
+			ItemStack stack )
+	{
+		NBTTagCompound cData = stack.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false );
+		final NBTTagCompound rotationSrc = cData != null && cData.hasKey( ItemBlockChiseled.NBT_SIDE ) ? cData : stack.getTagCompound();
+		return rotationSrc.getByte( ItemBlockChiseled.NBT_SIDE );
 	}
 
 	public static void sendUpdate(

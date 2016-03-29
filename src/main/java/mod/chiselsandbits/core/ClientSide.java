@@ -886,8 +886,8 @@ public class ClientSide
 			{
 				return;
 			}
-
-			final int rotations = ModUtil.getRotations( player, currentItem.getTagCompound().getByte( ItemBlockChiseled.NBT_SIDE ) );
+			
+			final int rotations = ModUtil.getRotations( player, ModUtil.getItemRotation(currentItem) );
 
 			if ( item != null )
 			{
@@ -916,7 +916,7 @@ public class ClientSide
 				return;
 			}
 
-			final int rotations = ModUtil.getRotations( player, item.getTagCompound().getByte( ItemBlockChiseled.NBT_SIDE ) );
+			final int rotations = ModUtil.getRotations( player, ModUtil.getItemRotation(item) );
 			final BlockPos offset = mop.getBlockPos();
 
 			if ( player.isSneaking() )
