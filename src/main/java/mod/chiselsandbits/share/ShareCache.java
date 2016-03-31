@@ -1,4 +1,4 @@
-package mod.chiselsandbits.commands;
+package mod.chiselsandbits.share;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;

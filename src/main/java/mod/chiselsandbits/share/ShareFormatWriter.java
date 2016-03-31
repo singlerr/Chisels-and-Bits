@@ -1,11 +1,11 @@
-package mod.chiselsandbits.commands;
+package mod.chiselsandbits.share;
 
 import mod.chiselsandbits.chiseledblock.serialization.BitStream;
 
 public class ShareFormatWriter
 {
 
-	BitStream inner = new BitStream();
+	final BitStream inner = new BitStream();
 
 	public void writeBool(
 			final boolean what )
