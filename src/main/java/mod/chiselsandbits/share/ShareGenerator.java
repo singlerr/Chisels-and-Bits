@@ -1,4 +1,4 @@
-package mod.chiselsandbits.commands;
+package mod.chiselsandbits.share;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -339,7 +339,7 @@ public class ShareGenerator implements Runnable
 		}
 
 		final byte[] compressedData = byteStream.toByteArray();
-		ScreenShotEncoder.ScreenShotEncoder( screenshot, compressedData );
+		ScreenShotEncoder.encodeScreenshot( screenshot, compressedData );
 
 		Minecraft.getMinecraft().addScheduledTask( new Runnable() {
 
@@ -524,7 +524,6 @@ public class ShareGenerator implements Runnable
 
 				final ModelQuadShare mqr = new ModelQuadShare( "" + System.identityHashCode( sprite ), offset, sprite, quad.getFace(), cullFace, ItemStack );
 				quad.pipe( mqr );
-				final String newJSON = mqr.toString();
 
 				if ( M == null || M.col != mqr.col || M.sprite != sprite || M.layer != layer )
 				{

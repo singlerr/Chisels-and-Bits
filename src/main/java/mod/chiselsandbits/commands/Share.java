@@ -1,5 +1,6 @@
 package mod.chiselsandbits.commands;
 
+import mod.chiselsandbits.share.ShareGenerator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;

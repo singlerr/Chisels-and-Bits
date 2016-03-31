@@ -916,6 +916,13 @@ public final class VoxelBlob implements IVoxelSrc
 		read( out );
 	}
 
+	public void blobFromBytes(
+			final byte[] bytes, int offset, int length ) throws IOException
+	{
+		final ByteArrayInputStream out = new ByteArrayInputStream( bytes, 1, length );
+		read( out );
+	}
+
 	private void read(
 			final ByteArrayInputStream o ) throws IOException, RuntimeException
 	{

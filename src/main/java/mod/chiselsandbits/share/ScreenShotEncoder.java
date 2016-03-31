@@ -1,4 +1,4 @@
-package mod.chiselsandbits.commands;
+package mod.chiselsandbits.share;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -78,7 +78,7 @@ public class ScreenShotEncoder
 		return screenshotImage;
 	}
 
-	static public void ScreenShotEncoder(
+	static public void encodeScreenshot(
 			final BufferedImage screenshot,
 			final byte[] modelData )
 	{
@@ -145,16 +145,12 @@ public class ScreenShotEncoder
 		}
 		catch ( final IOException e )
 		{
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	private static class ImageWriter
 	{
-
-		final int storagePerImagePixel;
-		final int extraStoragePerPixel;
 
 		int x = 0;
 		int y = 0;
@@ -170,8 +166,6 @@ public class ScreenShotEncoder
 		{
 			image = output;
 			width = image.getWidth();
-			this.storagePerImagePixel = storagePerImagePixel;
-			this.extraStoragePerPixel = extraStoragePerPixel;
 
 			if ( extraStoragePerPixel != 3 )
 			{

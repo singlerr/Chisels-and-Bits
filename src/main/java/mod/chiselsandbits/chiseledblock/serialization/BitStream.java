@@ -121,14 +121,29 @@ public class BitStream
 		return Math.max( firstLiveInt * 4, 0 );
 	}
 
+
+	public int readBits(
+			int howmany )
+	{
+		int integerValue =0;
+		
+		for ( int x = 0; x < howmany; ++x )
+		{
+			integerValue = integerValue << 1;
+			add( ( integerValue & 0x1 ) != 0 );
+		}
+		
+		return integerValue;
+	}
+	
 	public void writeBits(
-			int singleByte,
+			int integerValue,
 			final int howmany )
 	{
 		for ( int x = 0; x < howmany; ++x )
 		{
-			add( ( singleByte & 0x1 ) != 0 );
-			singleByte = singleByte >>> 1;
+			add( ( integerValue & 0x1 ) != 0 );
+			integerValue = integerValue >>> 1;
 		}
 	}
 
