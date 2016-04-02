@@ -213,7 +213,8 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	{
 		final ChiseledBlockBaked out = new ChiseledBlockBaked();
 
-		final IBakedModel model = ModelUtil.solveModel( blockStateID, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( Block.getStateById( blockStateID ) ) );
+		final IBlockState state = Block.getStateById( blockStateID );
+		final IBakedModel model = ModelUtil.solveModel( state, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( Block.getStateById( blockStateID ) ) );
 		if ( model != null )
 		{
 			out.sprite = ModelUtil.findTexture( blockStateID, model, EnumFacing.UP, layer.layer );
@@ -295,7 +296,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 								case COLOR:
 									final int cb = pc.color;
-									faceBuilder.put( elementIndex, byteToFloat( cb ), byteToFloat( cb >> 8 ), byteToFloat( cb >> 16 ), byteToFloat( cb >> 24 ) );
+									faceBuilder.put( elementIndex, byteToFloat( cb >> 16 ), byteToFloat( cb >> 8 ), byteToFloat( cb ), byteToFloat( cb >> 24 ) );
 									break;
 
 								case NORMAL:

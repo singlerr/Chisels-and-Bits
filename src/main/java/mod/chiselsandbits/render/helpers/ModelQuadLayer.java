@@ -29,9 +29,10 @@ public class ModelQuadLayer
 		public ModelQuadLayer build(
 				final int stateid,
 				final int color,
+				final int lightValue,
 				final boolean isGrass )
 		{
-			cache.light = lv.lv;
+			cache.light = Math.max( lightValue, lv.lv );
 			cache.uvs = uvr.quadUVs;
 			cache.color = cache.tint != -1 ? color : 0xffffffff;
 

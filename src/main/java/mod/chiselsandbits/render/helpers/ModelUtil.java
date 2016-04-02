@@ -9,6 +9,7 @@ import java.util.Map;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ReflectionWrapper;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
 import net.minecraft.block.Block;
@@ -71,7 +72,7 @@ public class ModelUtil implements ICacheClearable
 		}
 
 		final IBlockState state = Block.getStateById( stateID );
-		final IBakedModel model = ModelUtil.solveModel( stateID, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
+		final IBakedModel model = ModelUtil.solveModel( state, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
 
 		final Fluid fluid = BlockBitInfo.getFluidFromBlock( state.getBlock() );
 		if ( fluid != null )
@@ -140,7 +141,7 @@ public class ModelUtil implements ICacheClearable
 
 			for ( int z = 0; z < x.size(); z++ )
 			{
-				mp[z] = x.get( z ).build( stateID, color, state.getBlock() == Blocks.grass || state.getBlock() instanceof BlockLeaves );
+				mp[z] = x.get( z ).build( stateID, color, state.getBlock().getLightValue( state ), state.getBlock() == Blocks.grass || state.getBlock() instanceof BlockLeaves );
 			}
 
 			cache.put( cacheV, mp );
@@ -249,11 +250,61 @@ public class ModelUtil implements ICacheClearable
 	}
 
 	public static IBakedModel solveModel(
-			final int BlockRef,
+			final IBlockState state,
 			final long weight,
 			final IBakedModel originalModel )
 	{
+		boolean hasFaces = false;
+
+		try
+		{
+			hasFaces = hasFaces( originalModel, state, null, weight );
+
+			for ( final EnumFacing f : EnumFacing.VALUES )
+			{
+				hasFaces = hasFaces || hasFaces( originalModel, state, f, weight );
+			}
+		}
+		catch ( final Exception e )
+		{
+			// an exception was thrown.. use the item model and hope...
+			hasFaces = false;
+		}
+
+		if ( !hasFaces )
+		{
+			// if the model is empty then lets grab an item and try that...
+			final ItemStack is = ModUtil.getItemFromBlock( state );
+			if ( is != null )
+			{
+				final IBakedModel itemModel = Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides( is, Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer );
+				return itemModel;
+			}
+		}
+
 		return originalModel;
+	}
+
+	private static boolean hasFaces(
+			final IBakedModel model,
+			final IBlockState state,
+			final EnumFacing f,
+			final long weight )
+	{
+		final List<BakedQuad> l = model.getQuads( state, f, weight );
+		if ( l == null || l.isEmpty() )
+		{
+			return false;
+		}
+
+		final ModelVertexRange mvr = new ModelVertexRange();
+
+		for ( final BakedQuad q : l )
+		{
+			q.pipe( mvr );
+		}
+
+		return mvr.getLargestRange() > 0;
 	}
 
 	public static TextureAtlasSprite findTexture(
