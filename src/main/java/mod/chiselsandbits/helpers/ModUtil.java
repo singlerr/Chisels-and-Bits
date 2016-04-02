@@ -18,11 +18,14 @@ import mod.chiselsandbits.items.ItemBitBag.BagPos;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.items.ItemPositivePrint;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -36,6 +39,7 @@ import net.minecraft.world.World;
 public class ModUtil
 {
 
+	private final static Random RAND = new Random();
 	private final static float DEG_TO_RAD = 0.017453292f;
 
 	static public EnumFacing getPlaceFace(
@@ -472,6 +476,17 @@ public class ModUtil
 		NBTTagCompound cData = stack.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false );
 		final NBTTagCompound rotationSrc = cData != null && cData.hasKey( ItemBlockChiseled.NBT_SIDE ) ? cData : stack.getTagCompound();
 		return rotationSrc.getByte( ItemBlockChiseled.NBT_SIDE );
+	}
+
+	public static ItemStack getItemFromBlock(
+			final IBlockState state )
+	{
+		final Block blk = state.getBlock();
+
+		final Item i = blk.getItemDropped( state, RAND, 0 );
+		final int damage = blk.damageDropped( state );
+
+		return new ItemStack( i, 1, damage );
 	}
 
 }

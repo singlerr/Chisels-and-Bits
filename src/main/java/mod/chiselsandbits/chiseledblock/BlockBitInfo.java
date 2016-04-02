@@ -10,6 +10,7 @@ import mod.chiselsandbits.api.IgnoreBlockLogic;
 import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockGlowstone;
@@ -65,7 +66,7 @@ public class BlockBitInfo
 			}
 			else
 			{
-				final ItemStack target = new ItemStack( blk, 1, blk.damageDropped( state ) );
+				final ItemStack target = ModUtil.getItemFromBlock( state );
 
 				if ( target.getItem() == null )
 				{

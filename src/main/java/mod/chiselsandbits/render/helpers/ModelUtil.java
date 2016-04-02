@@ -148,7 +148,7 @@ public class ModelUtil implements ICacheClearable
 
 			for ( int z = 0; z < x.size(); z++ )
 			{
-				mp[z] = x.get( z ).build( stateID, color, state.getBlock() == Blocks.grass || state.getBlock() instanceof BlockLeavesBase );
+				mp[z] = x.get( z ).build( stateID, color, state.getBlock().getLightValue(), state.getBlock() == Blocks.grass || state.getBlock() instanceof BlockLeavesBase );
 			}
 
 			cache.put( cacheV, mp );
