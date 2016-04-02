@@ -28,6 +28,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.world.World;
 import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.fml.client.FMLClientHandler;
 
 public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheClearable
 {
@@ -102,7 +103,12 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 
 	private static VertexFormat getModelFormat()
 	{
-		return ChiselsAndBitsBakedQuad.VERTEX_FORMAT;
+		return hasOptifine() ? DefaultVertexFormats.ITEM : ChiselsAndBitsBakedQuad.VERTEX_FORMAT;
+	}
+
+	private static boolean hasOptifine()
+	{
+		return FMLClientHandler.instance().hasOptifine();
 	}
 
 	private static ChiseledBlockBaked getCachedModel(
@@ -119,7 +125,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 
 		ChiseledBlockBaked out = null;
 
-		if ( format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT )
+		if ( format == getModelFormat() )
 		{
 			if ( layer == ChiselLayer.SOLID )
 			{
@@ -140,7 +146,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 				out = ChiseledBlockBaked.breakingParticleModel( layer, blockP );
 			}
 
-			if ( format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT )
+			if ( format == getModelFormat() )
 			{
 				if ( layer == ChiselLayer.SOLID )
 				{
