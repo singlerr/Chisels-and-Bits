@@ -36,6 +36,7 @@ import mod.chiselsandbits.client.BlockColorChisled;
 import mod.chiselsandbits.client.CreativeClipboardTab;
 import mod.chiselsandbits.client.ItemColorBits;
 import mod.chiselsandbits.client.ItemColorChisled;
+import mod.chiselsandbits.client.ModConflictContext;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.client.gui.ChiselsAndBitsMenu;
 import mod.chiselsandbits.client.gui.SpriteIconPositioning;
@@ -101,6 +102,8 @@ import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.settings.IKeyConflictContext;
+import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -141,35 +144,32 @@ public class ClientSide
 
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
-			final KeyBinding binding = new KeyBinding( mode.string.toString(), 0, "itemGroup.chiselsandbits" );
-			ClientRegistry.registerKeyBinding( binding );
-			mode.binding = binding;
+			mode.binding = registerKeybind( mode.string.toString(), 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_CHISEL );
 		}
 
-		modeMenu = new KeyBinding( "mod.chiselsandbits.other.mode", 56, "itemGroup.chiselsandbits" );
-		ClientRegistry.registerKeyBinding( modeMenu );
-
-		rotateCCW = new KeyBinding( "mod.chiselsandbits.other.rotate.ccw", 0, "itemGroup.chiselsandbits" );
-		ClientRegistry.registerKeyBinding( rotateCCW );
-
-		rotateCW = new KeyBinding( "mod.chiselsandbits.other.rotate.cw", 0, "itemGroup.chiselsandbits" );
-		ClientRegistry.registerKeyBinding( rotateCW );
-
-		pickBit = new KeyBinding( "mod.chiselsandbits.other.pickbit", 0, "itemGroup.chiselsandbits" );
-		ClientRegistry.registerKeyBinding( pickBit );
-
-		undo = new KeyBinding( "mod.chiselsandbits.other.undo", 0, "itemGroup.chiselsandbits" );
-		ClientRegistry.registerKeyBinding( undo );
-
-		redo = new KeyBinding( "mod.chiselsandbits.other.redo", 0, "itemGroup.chiselsandbits" );
-		ClientRegistry.registerKeyBinding( redo );
-
-		addToClipboard = new KeyBinding( "mod.chiselsandbits.other.add_to_clipboard", 0, "itemGroup.chiselsandbits" );
-		ClientRegistry.registerKeyBinding( addToClipboard );
+		modeMenu = registerKeybind( "mod.chiselsandbits.other.mode", 56, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_CHISEL );
+		rotateCCW = registerKeybind( "mod.chiselsandbits.other.rotate.ccw", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
+		rotateCW = registerKeybind( "mod.chiselsandbits.other.rotate.cw", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
+		pickBit = registerKeybind( "mod.chiselsandbits.other.pickbit", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
+		undo = registerKeybind( "mod.chiselsandbits.other.undo", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
+		redo = registerKeybind( "mod.chiselsandbits.other.redo", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
+		addToClipboard = registerKeybind( "mod.chiselsandbits.other.add_to_clipboard", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
 
 		ChiselsAndBits.registerWithBus( instance );
 
 		ClientCommandHandler.instance.registerCommand( new JsonModelExport() );
+	}
+
+	private KeyBinding registerKeybind(
+			final String bindingName,
+			final int defaultKey,
+			final String groupName,
+			final IKeyConflictContext context )
+	{
+		final KeyBinding kb = new KeyBinding( bindingName, context, defaultKey, groupName );
+		kb.setAllowsKeyModifiers();
+		ClientRegistry.registerKeyBinding( kb );
+		return kb;
 	}
 
 	public void postinit(
@@ -886,8 +886,8 @@ public class ClientSide
 			{
 				return;
 			}
-			
-			final int rotations = ModUtil.getRotations( player, ModUtil.getItemRotation(currentItem) );
+
+			final int rotations = ModUtil.getRotations( player, ModUtil.getItemRotation( currentItem ) );
 
 			if ( item != null )
 			{
@@ -916,7 +916,7 @@ public class ClientSide
 				return;
 			}
 
-			final int rotations = ModUtil.getRotations( player, ModUtil.getItemRotation(item) );
+			final int rotations = ModUtil.getRotations( player, ModUtil.getItemRotation( item ) );
 			final BlockPos offset = mop.getBlockPos();
 
 			if ( player.isSneaking() )
