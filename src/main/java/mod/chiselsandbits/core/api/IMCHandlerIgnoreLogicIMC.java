@@ -5,7 +5,6 @@ import mod.chiselsandbits.core.Log;
 import net.minecraft.block.Block;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 public class IMCHandlerIgnoreLogicIMC implements IMCMessageHandler
 {
@@ -23,7 +22,7 @@ public class IMCHandlerIgnoreLogicIMC implements IMCMessageHandler
 			// try finding the block in the mod instead...
 			if ( blk == null )
 			{
-				blk = GameRegistry.findBlock( message.getSender(), name );
+				blk = Block.blockRegistry.getObject( new ResourceLocation( message.getSender(), name ) );
 			}
 
 			if ( blk != null )

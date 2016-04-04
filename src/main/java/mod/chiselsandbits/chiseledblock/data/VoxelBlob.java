@@ -899,7 +899,7 @@ public final class VoxelBlob implements IVoxelSrc
 			final int ref )
 	{
 		final IBlockState state = Block.getStateById( ref );
-		return state.getBlock().canRenderInLayer( layer );
+		return state.getBlock().canRenderInLayer( state, layer );
 	}
 
 	public static int VERSION_COMPACT = 0;

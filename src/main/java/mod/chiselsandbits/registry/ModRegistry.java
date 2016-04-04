@@ -35,7 +35,11 @@ public class ModRegistry
 		if ( enabled )
 		{
 			item.setCreativeTab( creativeTab );
-			GameRegistry.registerItem( item.setUnlocalizedName( unlocalizedPrefix + name ), name );
+
+			item.setUnlocalizedName( unlocalizedPrefix + name );
+			item.setRegistryName( ChiselsAndBits.MODID, name );
+
+			GameRegistry.register( item );
 			return item;
 		}
 
@@ -48,7 +52,28 @@ public class ModRegistry
 			final String name )
 	{
 		block.setCreativeTab( creativeTab );
-		GameRegistry.registerBlock( block.setUnlocalizedName( unlocalizedPrefix + name ), itemBlock == null ? ItemBlock.class : itemBlock, name );
+		final Class<? extends ItemBlock> itemClz = itemBlock == null ? ItemBlock.class : itemBlock;
+
+		Item item;
+
+		try
+		{
+			item = itemClz.getConstructor( Block.class ).newInstance( block );
+		}
+		catch ( final Throwable e )
+		{
+			// just re-throw it...
+			throw new RuntimeException( e );
+		}
+
+		item.setRegistryName( ChiselsAndBits.MODID, name );
+		block.setRegistryName( ChiselsAndBits.MODID, name );
+
+		block.setUnlocalizedName( unlocalizedPrefix + name );
+		item.setUnlocalizedName( unlocalizedPrefix + name );
+
+		GameRegistry.register( block );
+		GameRegistry.register( item );
 	}
 
 	protected void ShapedOreRecipe(
