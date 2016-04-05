@@ -28,9 +28,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraftforge.client.model.ISmartBlockModel;
-import net.minecraftforge.client.model.ISmartItemModel;
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fluids.Fluid;
 
 @SuppressWarnings( "unchecked" )
@@ -256,7 +253,6 @@ public class ModelUtil implements ICacheClearable
 		return Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
 	}
 
-	@SuppressWarnings( "rawtypes" )
 	public static IBakedModel solveModel(
 			final int BlockRef,
 			final long weight,
@@ -274,63 +270,16 @@ public class ModelUtil implements ICacheClearable
 		}
 		catch ( final Exception err )
 		{
+			// huh...
 		}
 
-		// first try to get the real model...
-		try
+		// if smart, then fall back to item.
+		if ( actingModel instanceof ISmartBlockModel )
 		{
-			if ( actingModel instanceof ISmartBlockModel )
-			{
-				if ( state instanceof IExtendedBlockState )
-				{
-					if ( actingModel instanceof ISmartItemModel )
-					{
-						final Item it = state.getBlock().getItemDropped( state, RANDOM, 0 );
-						final ItemStack stack = new ItemStack( it, 1, state.getBlock().damageDropped( state ) );
+			final Item it = state.getBlock().getItemDropped( state, RANDOM, 0 );
+			final ItemStack stack = new ItemStack( it, 1, state.getBlock().damageDropped( state ) );
 
-						final IBakedModel newModel = ( (ISmartItemModel) actingModel ).handleItemState( stack );
-						if ( newModel != null )
-						{
-							return newModel;
-						}
-					}
-
-					IExtendedBlockState extendedState = (IExtendedBlockState) state;
-
-					for ( final IUnlistedProperty p : extendedState.getUnlistedNames() )
-					{
-						extendedState = extendedState.withProperty( p, p.getType().newInstance() );
-					}
-
-					final IBakedModel newModel = ( (ISmartBlockModel) actingModel ).handleBlockState( extendedState );
-					if ( newModel != null )
-					{
-						return newModel;
-					}
-				}
-				else
-				{
-					final IBakedModel newModel = ( (ISmartBlockModel) actingModel ).handleBlockState( state );
-					if ( newModel != null )
-					{
-						return newModel;
-					}
-				}
-			}
-		}
-		catch ( final Exception err )
-		{
-			if ( actingModel instanceof ISmartItemModel )
-			{
-				final Item it = state.getBlock().getItemDropped( state, RANDOM, 0 );
-				final ItemStack stack = new ItemStack( it, 1, state.getBlock().damageDropped( state ) );
-
-				final IBakedModel newModel = ( (ISmartItemModel) actingModel ).handleItemState( stack );
-				if ( newModel != null )
-				{
-					return newModel;
-				}
-			}
+			return Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( stack );
 		}
 
 		return actingModel;
