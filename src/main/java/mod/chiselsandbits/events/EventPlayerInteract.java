@@ -7,7 +7,8 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
- * this prevents some unwanted left click behavior..
+ * Disable breaking blocks when using a chisel / bit, some items break too fast
+ * for the other code to prevent which is where this comes in.
  */
 public class EventPlayerInteract
 {
