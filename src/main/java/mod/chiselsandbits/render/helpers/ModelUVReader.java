@@ -77,7 +77,7 @@ public class ModelUVReader extends BaseModelReader
 				quadUVs[2] = ( uv[0] - minU ) / maxUMinusMin;
 				quadUVs[3] = ( uv[1] - minV ) / maxVMinusMin;
 			}
-			else
+			else if ( ModelUtil.isOne( pos[uCoord] ) && ModelUtil.isOne( pos[vCoord] ) )
 			{
 				corners = corners | 0x8;
 				quadUVs[6] = ( uv[0] - minU ) / maxUMinusMin;
