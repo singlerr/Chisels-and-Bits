@@ -167,7 +167,6 @@ public class ClientSide
 			final IKeyConflictContext context )
 	{
 		final KeyBinding kb = new KeyBinding( bindingName, context, defaultKey, groupName );
-		kb.setAllowsKeyModifiers();
 		ClientRegistry.registerKeyBinding( kb );
 		return kb;
 	}
