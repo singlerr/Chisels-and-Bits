@@ -27,6 +27,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -494,7 +495,18 @@ public class ModUtil
 		final Block blk = state.getBlock();
 
 		final Item i = blk.getItemDropped( state, RAND, 0 );
+		final int meta = blk.getMetaFromState( state );
 		final int damage = blk.damageDropped( state );
+
+		if ( i instanceof ItemBlock )
+		{
+			final ItemBlock ib = (ItemBlock) i;
+			if ( meta != ib.getMetadata( damage ) || ib != Item.getItemFromBlock( blk ) )
+			{
+				// this item dosn't drop itself... BAIL!
+				return null;
+			}
+		}
 
 		if ( i == null )
 		{

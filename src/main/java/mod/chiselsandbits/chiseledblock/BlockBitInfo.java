@@ -60,7 +60,7 @@ public class BlockBitInfo
 			final Block blk = state.getBlock();
 			final ItemStack target = new ItemStack( blk, 1, blk.damageDropped( state ) );
 
-			if ( target.getItem() == null )
+				if ( target == null )
 			{
 				out = 0xffffffff;
 			}
