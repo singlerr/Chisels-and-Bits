@@ -210,6 +210,11 @@ public class ChiselsAndBits
 	public void idsMapped(
 			final FMLModIdMappingEvent event )
 	{
+		clearCache();
+	}
+
+	public void clearCache()
+	{
 		for ( final ICacheClearable clearable : cacheClearables )
 		{
 			clearable.clearCache();

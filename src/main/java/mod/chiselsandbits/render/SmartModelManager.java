@@ -12,6 +12,7 @@ import mod.chiselsandbits.render.patterns.PrintSmartModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.IFlexibleBakedModel;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -78,6 +79,13 @@ public class SmartModelManager
 
 		models.put( new ModelResourceLocation( modelLocation, "multipart" ), modelGen );
 		models.put( new ModelResourceLocation( second, "multipart" ), modelGen );
+	}
+
+	@SubscribeEvent
+	public void textureStichEvent(
+			final TextureStitchEvent.Post stitch )
+	{
+		ChiselsAndBits.getInstance().clearCache();
 	}
 
 	@SubscribeEvent

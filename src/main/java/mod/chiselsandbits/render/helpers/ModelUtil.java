@@ -10,6 +10,7 @@ import java.util.Random;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ReflectionWrapper;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
 import net.minecraft.block.Block;
@@ -22,11 +23,11 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.client.resources.model.WeightedBakedModel;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraftforge.client.model.IFlexibleBakedModel.Wrapper;
 import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.fluids.Fluid;
 
@@ -276,10 +277,11 @@ public class ModelUtil implements ICacheClearable
 		// if smart, then fall back to item.
 		if ( actingModel instanceof ISmartBlockModel )
 		{
-			final Item it = state.getBlock().getItemDropped( state, RANDOM, 0 );
-			final ItemStack stack = new ItemStack( it, 1, state.getBlock().damageDropped( state ) );
-
-			return Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( stack );
+			final ItemStack stack = ModUtil.getItemFromBlock( state );
+			if ( stack != null )
+			{
+				return Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( stack );
+			}
 		}
 
 		return actingModel;
