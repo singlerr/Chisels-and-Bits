@@ -171,16 +171,24 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	@SideOnly( Side.CLIENT )
 	public int getColorFromItemStack(
 			final ItemStack stack,
-			final int renderPass )
+			final int tint )
 	{
 		if ( ClientSide.instance.holdingShift() )
 		{
 			// when holding shift on bits uses a block model, colors are baked.
-			return 0xffffff;
+			final Block blk = Block.getStateById( tint ).getBlock();
+			final Item i = Item.getItemFromBlock( blk );
+
+			if ( i != null )
+			{
+				return i.getColorFromItemStack( stack, 0 );
+			}
+
+			return super.getColorFromItemStack( stack, tint );
 		}
 
 		final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
-		return state == null ? 0xffffff : BlockBitInfo.getColorFor( state, renderPass );
+		return state == null ? 0xffffff : BlockBitInfo.getColorFor( state, tint );
 	}
 
 	@Override
