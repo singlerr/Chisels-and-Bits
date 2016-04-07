@@ -10,6 +10,7 @@ import mod.chiselsandbits.api.IgnoreBlockLogic;
 import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockGlass;
@@ -58,15 +59,24 @@ public class BlockBitInfo
 		if ( out == null )
 		{
 			final Block blk = state.getBlock();
-			final ItemStack target = new ItemStack( blk, 1, blk.damageDropped( state ) );
 
-				if ( target == null )
+			final Fluid fluid = BlockBitInfo.getFluidFromBlock( blk );
+			if ( fluid != null )
 			{
-				out = 0xffffffff;
+				out = fluid.getColor();
 			}
 			else
 			{
-				out = ModelUtil.getItemStackColor( target, tint );
+				final ItemStack target = ModUtil.getItemFromBlock( state );
+
+				if ( target == null )
+				{
+					out = 0xffffff;
+				}
+				else
+				{
+					out = ModelUtil.getItemStackColor( target, tint );
+				}
 			}
 
 			bitColor.put( state, out );
