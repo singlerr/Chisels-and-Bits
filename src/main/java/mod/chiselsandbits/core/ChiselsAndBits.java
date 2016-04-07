@@ -18,7 +18,6 @@ import mod.chiselsandbits.crafting.ChiselCrafting;
 import mod.chiselsandbits.crafting.MirrorTransferCrafting;
 import mod.chiselsandbits.crafting.NegativeInversionCrafting;
 import mod.chiselsandbits.crafting.StackableCrafting;
-import mod.chiselsandbits.events.EventBreakSpeed;
 import mod.chiselsandbits.events.EventPlayerInteract;
 import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.interfaces.ICacheClearable;
@@ -142,7 +141,7 @@ public class ChiselsAndBits
 
 		integration.init();
 
-		registerWithBus( new EventBreakSpeed() );
+		// registerWithBus( new EventBreakSpeed() );
 		registerWithBus( new EventPlayerInteract() );
 
 		// add recipes to game...
