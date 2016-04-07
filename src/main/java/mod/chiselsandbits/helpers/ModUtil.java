@@ -497,20 +497,31 @@ public class ModUtil
 		final Item i = blk.getItemDropped( state, RAND, 0 );
 		final int meta = blk.getMetaFromState( state );
 		final int damage = blk.damageDropped( state );
-
-		if ( i instanceof ItemBlock )
-		{
-			final ItemBlock ib = (ItemBlock) i;
-			if ( meta != ib.getMetadata( damage ) || ib != Item.getItemFromBlock( blk ) )
-			{
-				// this item dosn't drop itself... BAIL!
-				return null;
-			}
-		}
+		final Item blockVarient = Item.getItemFromBlock( blk );
 
 		if ( i == null )
 		{
 			return null;
+		}
+
+		if ( blockVarient == null )
+		{
+			return null;
+		}
+
+		if ( blockVarient != i )
+		{
+			return null;
+		}
+
+		if ( blockVarient instanceof ItemBlock )
+		{
+			final ItemBlock ib = (ItemBlock) blockVarient;
+			if ( meta != ib.getMetadata( damage ) )
+			{
+				// this item dosn't drop itself... BAIL!
+				return null;
+			}
 		}
 
 		return new ItemStack( i, 1, damage );
