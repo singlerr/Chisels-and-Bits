@@ -57,6 +57,8 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 public class BlockChiseled extends Block implements ITileEntityProvider
 {
 
+	private static final AxisAlignedBB BAD_AABB = new AxisAlignedBB( 0, Double.MIN_NORMAL, 0, 0, Double.MIN_NORMAL, 0 );
+
 	private static ThreadLocal<IBlockState> actingAs = new ThreadLocal<IBlockState>();
 
 	public static final IUnlistedProperty<VoxelNeighborRenderTracker> UProperty_VoxelNeighborState = new UnlistedVoxelNeighborState();
@@ -398,7 +400,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 
 			final TileEntityBlockChiseled bc = getTileEntity( worldIn, pos );
-			int rotations = ModUtil.getRotations( placer,ModUtil.getItemRotation(stack) );
+			int rotations = ModUtil.getRotations( placer, ModUtil.getItemRotation( stack ) );
 
 			VoxelBlob blob = bc.getBlob();
 			while ( rotations-- > 0 )
@@ -582,7 +584,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 		if ( r == null )
 		{
-			return null;
+			return BAD_AABB;
 		}
 
 		return r.offset( pos.getX(), pos.getY(), pos.getZ() );
