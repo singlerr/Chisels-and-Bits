@@ -3,6 +3,7 @@ package mod.chiselsandbits.client.gui;
 import java.lang.reflect.Constructor;
 
 import mod.chiselsandbits.bitbag.BagContainer;
+import mod.chiselsandbits.blueprints.BlueprintContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.world.World;
@@ -13,7 +14,8 @@ import net.minecraftforge.fml.relauncher.Side;
 public enum ModGuiTypes
 {
 
-	BitBag( BagContainer.class );
+	BitBag( BagContainer.class ),
+	Blueprint( BlueprintContainer.class );
 
 	private final Class<? extends Container> container;
 	private final Class<?> gui;

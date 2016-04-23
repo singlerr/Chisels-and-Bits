@@ -200,6 +200,9 @@ public class ModConfig extends Configuration
 	public boolean enableTapeMeasure;
 
 	@Configured( category = "Items" )
+	public boolean enableBlueprints;
+
+	@Configured( category = "Items" )
 	public boolean enableBitSaw;
 
 	@Configured( category = "Balance Settings" )
@@ -348,6 +351,7 @@ public class ModConfig extends Configuration
 		enableDiamondChisel = true;
 		enableWoodenWrench = true;
 		enableTapeMeasure = true;
+		enableBlueprints = true;
 		enableBitSaw = true;
 		ShowBitsInJEI = false;
 	}

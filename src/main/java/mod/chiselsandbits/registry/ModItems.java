@@ -1,5 +1,7 @@
 package mod.chiselsandbits.registry;
 
+import mod.chiselsandbits.blueprints.ItemBlueprintBlank;
+import mod.chiselsandbits.blueprints.ItemBlueprintWritten;
 import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.debug.ItemApiDebug;
 import mod.chiselsandbits.items.ItemBitBag;
@@ -30,6 +32,9 @@ public class ModItems extends ModRegistry
 	final public ItemPositivePrint itemPositiveprint;
 	final public ItemNegativePrint itemNegativeprint;
 
+	final public ItemBlueprintWritten itemBlueprintWritten;
+	final public ItemBlueprintBlank itemBlueprintBlank;
+
 	final public ItemBitBag itemBitBag;
 	final public ItemWrench itemWrench;
 	final public ItemBitSaw itemBitSawDiamond;
@@ -50,6 +55,8 @@ public class ModItems extends ModRegistry
 		itemWrench = registerItem( config.enableWoodenWrench, new ItemWrench(), "wrench_wood" );
 		itemBitSawDiamond = registerItem( config.enableBitSaw, new ItemBitSaw(), "bitsaw_diamond" );
 		itemBlockBit = registerItem( config.enableChisledBits, new ItemChiseledBit(), "block_bit" );
+		itemBlueprintWritten = registerItem( config.enableBlueprints, new ItemBlueprintWritten(), "blueprint_written" );
+		itemBlueprintBlank = registerItem( config.enableBlueprints, new ItemBlueprintBlank(), "blueprint" );
 		itemTapeMeasure = registerItem( config.enableTapeMeasure, new ItemTapeMeasure(), "tape_measure" );
 		registerItem( config.enableAPITestingItem, new ItemApiDebug(), "debug" );
 	}
@@ -70,10 +77,14 @@ public class ModItems extends ModRegistry
 		ShapelessOreRecipe( itemNegativeprint, Items.WATER_BUCKET, Items.PAPER, "dustRedstone" );
 		ShapelessOreRecipe( itemMirrorprint, Items.WATER_BUCKET, Items.PAPER, "dustGlowstone" );
 
+		// blue print.
+		ShapelessOreRecipe( itemBlueprintBlank, itemPositiveprint, itemPositiveprint, itemPositiveprint );
+
 		// clean patterns...
 		ShapelessOreRecipe( itemPositiveprint, new ItemStack( itemPositiveprint, 1, OreDictionary.WILDCARD_VALUE ) );
 		ShapelessOreRecipe( itemNegativeprint, new ItemStack( itemNegativeprint, 1, OreDictionary.WILDCARD_VALUE ) );
 		ShapelessOreRecipe( itemMirrorprint, new ItemStack( itemMirrorprint, 1, OreDictionary.WILDCARD_VALUE ) );
+		ShapelessOreRecipe( itemBlueprintBlank, new ItemStack( itemBlueprintWritten, 1, OreDictionary.WILDCARD_VALUE ) );
 
 		// make a bit bag..
 		ShapedOreRecipe( itemBitBag, "WWW", "WbW", "WWW", 'W', new ItemStack( Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE ), 'b', new ItemStack( itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );

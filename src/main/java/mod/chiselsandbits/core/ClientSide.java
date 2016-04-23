@@ -224,6 +224,9 @@ public class ClientSide
 		registerMesh( modItems.itemBitSawDiamond, 0, new ModelResourceLocation( new ResourceLocation( modId, "bitsaw_diamond" ), "inventory" ) );
 		registerMesh( modItems.itemTapeMeasure, 0, new ModelResourceLocation( new ResourceLocation( modId, "tape_measure" ), "inventory" ) );
 
+		registerMesh( modItems.itemBlueprintBlank, 0, new ModelResourceLocation( new ResourceLocation( modId, "blueprint" ), "inventory" ) );
+		registerMesh( modItems.itemBlueprintWritten, 0, new ModelResourceLocation( new ResourceLocation( modId, "blueprint_written" ), "inventory" ) );
+
 		if ( modItems.itemPositiveprint != null )
 		{
 			ModelBakery.registerItemVariants( modItems.itemPositiveprint, new ResourceLocation( modId, "positiveprint" ), new ResourceLocation( modId, "positiveprint_written" ) );
