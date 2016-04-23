@@ -3,7 +3,7 @@ package mod.chiselsandbits.network;
 import java.util.HashMap;
 
 import mod.chiselsandbits.network.packets.PacketBagGui;
-import mod.chiselsandbits.network.packets.PacketOpenBagGui;
+import mod.chiselsandbits.network.packets.PacketOpenGui;
 import mod.chiselsandbits.network.packets.PacketBagGuiStack;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketClearBagGui;
@@ -14,7 +14,7 @@ import mod.chiselsandbits.network.packets.PacketUndo;
 public enum ModPacketTypes
 {
 	CHISEL( PacketChisel.class ),
-	OPEN_BAG_GUI( PacketOpenBagGui.class ),
+	OPEN_BAG_GUI( PacketOpenGui.class ),
 	SET_CHISEL_MODE( PacketSetChiselMode.class ),
 	ROTATE_VOXEL_BLOB( PacketRotateVoxelBlob.class ),
 	BAG_GUI( PacketBagGui.class ),
