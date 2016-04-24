@@ -104,10 +104,10 @@ public class PacketChisel extends ModPacket
 
 		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
 
+		UndoTracker.getInstance().beginGroup( who );
+
 		try
 		{
-			UndoTracker.getInstance().beginGroup( who );
-
 			for ( int xOff = minX; xOff <= maxX; ++xOff )
 			{
 				for ( int yOff = minY; yOff <= maxY; ++yOff )
