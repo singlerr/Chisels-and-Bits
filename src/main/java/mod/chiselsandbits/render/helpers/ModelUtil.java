@@ -1,6 +1,7 @@
 package mod.chiselsandbits.render.helpers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -126,11 +127,11 @@ public class ModelUtil implements ICacheClearable
 		{
 			for ( final EnumFacing f : EnumFacing.VALUES )
 			{
-				final List<BakedQuad> quads = model.getQuads( null, f, 0 );
+				final List<BakedQuad> quads = ModelUtil.getModelQuads( model, state, f, 0 );
 				processFaces( tmp, quads );
 			}
 
-			processFaces( tmp, model.getQuads( null, null, 0 ) );
+			processFaces( tmp, ModelUtil.getModelQuads( model, state, null, 0 ) );
 		}
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
@@ -148,6 +149,51 @@ public class ModelUtil implements ICacheClearable
 		}
 
 		return cache.get( cacheVal );
+	}
+
+	private static List<BakedQuad> getModelQuads(
+			final IBakedModel model,
+			final IBlockState state,
+			final EnumFacing f,
+			final long rand )
+	{
+		try
+		{
+			// try to get block model...
+			return model.getQuads( state, f, rand );
+		}
+		catch ( final Throwable t )
+		{
+
+		}
+
+		try
+		{
+			// try to get item model?
+			return model.getQuads( null, f, rand );
+		}
+		catch ( final Throwable t )
+		{
+
+		}
+
+		final IBakedModel secondModel = model.getOverrides().handleItemState( model, ModUtil.getItemFromBlock( state ), Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer );
+
+		if ( secondModel != null )
+		{
+			try
+			{
+				return secondModel.getQuads( null, f, rand );
+			}
+			catch ( final Throwable t )
+			{
+
+			}
+
+		}
+
+		// try to not crash...
+		return Collections.emptyList();
 	}
 
 	private static void processFaces(
@@ -291,7 +337,7 @@ public class ModelUtil implements ICacheClearable
 			final EnumFacing f,
 			final long weight )
 	{
-		final List<BakedQuad> l = model.getQuads( state, f, weight );
+		final List<BakedQuad> l = getModelQuads( model, state, f, weight );
 		if ( l == null || l.isEmpty() )
 		{
 			return false;
@@ -329,16 +375,16 @@ public class ModelUtil implements ICacheClearable
 		{
 			try
 			{
-				texture = findTexture( texture, model.getQuads( state, myFace, 0 ), myFace );
+				texture = findTexture( texture, getModelQuads( model, state, myFace, 0 ), myFace );
 
 				if ( texture == null )
 				{
 					for ( final EnumFacing side : EnumFacing.VALUES )
 					{
-						texture = findTexture( texture, model.getQuads( state, side, 0 ), side );
+						texture = findTexture( texture, getModelQuads( model, state, side, 0 ), side );
 					}
 
-					texture = findTexture( texture, model.getQuads( state, null, 0 ), null );
+					texture = findTexture( texture, getModelQuads( model, state, null, 0 ), null );
 				}
 			}
 			catch ( final Exception errr )
