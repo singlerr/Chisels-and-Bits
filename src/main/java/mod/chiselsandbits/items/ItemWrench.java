@@ -38,16 +38,16 @@ public class ItemWrench extends Item
 	}
 
 	@Override
-	public EnumActionResult onItemUseFirst(
+	public EnumActionResult onItemUse(
 			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
 			final BlockPos pos,
+			final EnumHand hand,
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,
-			final float hitZ,
-			final EnumHand hand )
+			final float hitZ )
 	{
 		final IBlockState b = world.getBlockState( pos );
 		if ( b != null && !player.isSneaking() )
