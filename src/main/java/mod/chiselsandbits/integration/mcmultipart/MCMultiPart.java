@@ -138,8 +138,11 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 				}
 				else if ( create )
 				{
+					final TileEntityBlockChiseled tx = part.getTile();
 					part.setContainer( container );
-					return part.getTile();
+					tx.setWorldObj( w );
+					tx.setPos( pos );					
+					return tx;
 				}
 			}
 		}

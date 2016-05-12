@@ -156,7 +156,7 @@ public class PacketUndo extends ModPacket
 						}
 						else if ( inAfter != 0 )
 						{
-							final ItemStackSlot bit = ModUtil.findBit( player, inAfter );
+							final ItemStackSlot bit = ModUtil.findBit( player, pos, inAfter );
 							if ( ModUtil.consumeBagBit( bags, inAfter ) )
 							{
 								bi.setNext( target, inAfter );

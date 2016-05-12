@@ -135,7 +135,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 
 						if ( inPlace == 0 && inPattern != 0 && filled.get( x, y, z ) == 0 )
 						{
-							final ItemStackSlot bit = ModUtil.findBit( player, inPattern );
+							final ItemStackSlot bit = ModUtil.findBit( player, pos, inPattern );
 							if ( ModUtil.consumeBagBit( bags, inPattern ) )
 							{
 								vb.set( x, y, z, inPattern );

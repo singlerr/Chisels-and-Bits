@@ -398,11 +398,14 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ItemStackSlot slot = bits.getItem( 0 );
 			final int stateID = ItemChiseledBit.getStackState( slot.getStack() );
 
-			vb.set( x, y, z, stateID );
-
-			if ( !player.isCreative() )
+			if ( slot.isValid() )
 			{
-				bits.useItem( stateID );
+				vb.set( x, y, z, stateID );
+
+				if ( !player.isCreative() )
+				{
+					bits.useItem( stateID );
+				}
 			}
 
 			return true;

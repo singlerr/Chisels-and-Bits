@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.bitbag.BagInventory;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 
 public class ContinousBits implements IContinuousInventory
 {
@@ -16,14 +19,19 @@ public class ContinousBits implements IContinuousInventory
 	private final ActingPlayer who;
 	private final List<ItemStackSlot> options = new ArrayList<ItemStackSlot>();
 	private final List<BagInventory> bags = new ArrayList<BagInventory>();
+	private final boolean canEdit;
 
 	public ContinousBits(
 			final ActingPlayer src,
+			final BlockPos pos,
 			final int stateID )
 	{
 		who = src;
 		this.stateID = stateID;
 		final IInventory inv = src.getInventory();
+
+		// test can edit...
+		canEdit = who.canPlayerManipulate( pos, EnumFacing.UP, new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond, 1 ) );
 
 		ItemStackSlot handSlot = null;
 
@@ -36,11 +44,11 @@ public class ContinousBits implements IContinuousInventory
 				{
 					if ( zz == src.getCurrentItem() )
 					{
-						handSlot = new ItemStackSlot( inv, zz, which, src );
+						handSlot = new ItemStackSlot( inv, zz, which, src, canEdit );
 					}
 					else
 					{
-						options.add( new ItemStackSlot( inv, zz, which, src ) );
+						options.add( new ItemStackSlot( inv, zz, which, src, canEdit ) );
 					}
 				}
 			}

@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.items.ItemChisel;
 import net.minecraft.inventory.IInventory;
@@ -21,6 +22,7 @@ public class ContinousChisels implements IContinuousInventory
 	private final ActingPlayer who;
 	private final List<ItemStackSlot> options = new ArrayList<ItemStackSlot>();
 	private final HashMap<Integer, List<ItemStackSlot>> actionCache = new HashMap<Integer, List<ItemStackSlot>>();
+	private final boolean canEdit;
 
 	public ContinousChisels(
 			final ActingPlayer who,
@@ -31,11 +33,14 @@ public class ContinousChisels implements IContinuousInventory
 		final ItemStack inHand = who.getCurrentEquippedItem();
 		final IInventory inv = who.getInventory();
 
+		// test can edit...
+		canEdit = who.canPlayerManipulate( pos, side, new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond, 1 ) );
+
 		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChisel )
 		{
-			if ( who.canPlayerEdit( pos, side, inHand ) )
+			if ( who.canPlayerManipulate( pos, side, inHand ) )
 			{
-				options.add( new ItemStackSlot( inv, who.getCurrentItem(), inHand, who ) );
+				options.add( new ItemStackSlot( inv, who.getCurrentItem(), inHand, who, canEdit ) );
 			}
 		}
 		else
@@ -51,7 +56,7 @@ public class ContinousChisels implements IContinuousInventory
 					continue;
 				}
 
-				if ( !who.canPlayerEdit( pos, side, is ) )
+				if ( !who.canPlayerManipulate( pos, side, is ) )
 				{
 					continue;
 				}
@@ -59,7 +64,7 @@ public class ContinousChisels implements IContinuousInventory
 				if ( is != null && is.stackSize > 0 && is.getItem() instanceof ItemChisel )
 				{
 					final ToolMaterial newMat = ( (ItemChisel) is.getItem() ).whatMaterial();
-					discovered.put( newMat.getHarvestLevel(), new ItemStackSlot( inv, x, is, who ) );
+					discovered.put( newMat.getHarvestLevel(), new ItemStackSlot( inv, x, is, who, canEdit ) );
 				}
 			}
 
@@ -84,7 +89,7 @@ public class ContinousChisels implements IContinuousInventory
 
 		if ( choices.isEmpty() )
 		{
-			return new ItemStackSlot( null, -1, null, who );
+			return new ItemStackSlot( null, -1, null, who, canEdit );
 		}
 
 		final ItemStackSlot slot = choices.get( choices.size() - 1 );
