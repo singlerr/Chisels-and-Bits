@@ -984,10 +984,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final BlockPos pos )
 	{
 		// is this the right block?
-		final Block block = world.getBlockState( pos ).getBlock();
-		if ( block != this )
+		final IBlockState realState = world.getBlockState( pos );
+		final Block realBlock = realState.getBlock();
+		if ( realBlock != this )
 		{
-			return block.getLightValue( state, world, pos );
+			return realBlock.getLightValue( realState, world, pos );
 		}
 
 		// enabled?
