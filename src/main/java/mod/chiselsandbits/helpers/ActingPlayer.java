@@ -44,12 +44,12 @@ public class ActingPlayer
 		return storage.getStackInSlot( getCurrentItem() );
 	}
 
-	public boolean canPlayerEdit(
+	public boolean canPlayerManipulate(
 			final BlockPos pos,
 			final EnumFacing side,
 			final ItemStack is )
 	{
-		return innerPlayer.canPlayerEdit( pos, side, is );
+		return innerPlayer.canPlayerEdit( pos, side, is ) && innerPlayer.worldObj.isBlockModifiable( innerPlayer, pos );
 	}
 
 	public void damageItem(

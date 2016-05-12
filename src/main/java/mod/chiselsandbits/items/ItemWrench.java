@@ -46,6 +46,11 @@ public class ItemWrench extends Item
 			final float hitY,
 			final float hitZ )
 	{
+		if ( !player.canPlayerEdit( pos, side, stack ) || !world.isBlockModifiable( player, pos ) )
+		{
+			return false;
+		}
+
 		final IBlockState b = world.getBlockState( pos );
 		if ( b != null && !player.isSneaking() )
 		{

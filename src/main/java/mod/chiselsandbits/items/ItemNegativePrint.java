@@ -125,7 +125,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	{
 		final IBlockState blkstate = world.getBlockState( pos );
 
-		if ( !player.canPlayerEdit( pos, side, stack ) )
+		if ( !player.canPlayerEdit( pos, side, stack ) || !world.isBlockModifiable( player, pos ) )
 		{
 			return true;
 		}

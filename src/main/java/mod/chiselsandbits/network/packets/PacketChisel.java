@@ -117,7 +117,7 @@ public class PacketChisel extends ModPacket
 						final BlockPos pos = new BlockPos( xOff, yOff, zOff );
 
 						final int placeStateID = place ? ItemChiseledBit.getStackState( who.getCurrentEquippedItem() ) : 0;
-						final IContinuousInventory chisel = place ? new ContinousBits( player, placeStateID ) : new ContinousChisels( player, pos, side );
+						final IContinuousInventory chisel = place ? new ContinousBits( player, pos, placeStateID ) : new ContinousChisels( player, pos, side );
 
 						IBlockState blkstate = world.getBlockState( pos );
 						Block blkObj = blkstate.getBlock();

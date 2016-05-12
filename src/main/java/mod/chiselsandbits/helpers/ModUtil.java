@@ -86,24 +86,27 @@ public class ModUtil
 		private final int slot;
 		private final ItemStack stack;
 		private final boolean isCreative;
+		private final boolean isEditable;
 		private final int toolSlot;
 
 		ItemStackSlot(
 				final IInventory i,
 				final int s,
 				final ItemStack st,
-				final ActingPlayer player )
+				final ActingPlayer player,
+				final boolean canEdit )
 		{
 			inv = i;
 			slot = s;
 			stack = st;
 			toolSlot = player.getCurrentItem();
 			isCreative = player.isCreative();
+			isEditable = canEdit;
 		}
 
 		public boolean isValid()
 		{
-			return isCreative || stack != null && stack.stackSize > 0;
+			return isEditable && ( isCreative || stack != null && stack.stackSize > 0 );
 		}
 
 		public void damage(
@@ -151,14 +154,16 @@ public class ModUtil
 
 	static public ItemStackSlot findBit(
 			final ActingPlayer who,
+			final BlockPos pos,
 			final int StateID )
 	{
 		final ItemStack inHand = who.getCurrentEquippedItem();
 		final IInventory inv = who.getInventory();
+		final boolean canEdit = who.canPlayerManipulate( pos, EnumFacing.UP, inHand );
 
 		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChiseledBit.getStackState( inHand ) == StateID )
 		{
-			return new ItemStackSlot( inv, who.getCurrentItem(), inHand, who );
+			return new ItemStackSlot( inv, who.getCurrentItem(), inHand, who, canEdit );
 		}
 
 		for ( int x = 0; x < inv.getSizeInventory(); x++ )
@@ -166,11 +171,11 @@ public class ModUtil
 			final ItemStack is = inv.getStackInSlot( x );
 			if ( is != null && is.stackSize > 0 && is.getItem() instanceof ItemChiseledBit && ItemChiseledBit.sameBit( is, StateID ) )
 			{
-				return new ItemStackSlot( inv, x, is, who );
+				return new ItemStackSlot( inv, x, is, who, canEdit );
 			}
 		}
 
-		return new ItemStackSlot( null, -1, null, who );
+		return new ItemStackSlot( null, -1, null, who, canEdit );
 	}
 
 	public static boolean isHoldingPattern(

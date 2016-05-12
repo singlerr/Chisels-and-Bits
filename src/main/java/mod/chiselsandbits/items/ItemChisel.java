@@ -346,7 +346,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 
 		if ( player.capabilities.isCreativeMode )
 		{
-			return true;
+			return world.isBlockModifiable( player, pos );
 		}
 
 		if ( chisel == null )
