@@ -102,7 +102,7 @@ public abstract class DebugAction
 			apiAssert( "NEGATIVE_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemNegativeprint ) ) == ItemType.NEGATIVE_DESIGN );
 			apiAssert( "POSITIVE_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemPositiveprint ) ) == ItemType.POSITIVE_DESIGN );
 			apiAssert( "WRENCH", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemWrench ) ) == ItemType.WRENCH );
-			apiAssert( "CHISLED_BIT-cobblestone", player, api.getItemType( ItemChiseledBit.createStack( Block.getStateId( Blocks.cobblestone.getDefaultState() ), 1, true ) ) == ItemType.CHISLED_BIT );
+			apiAssert( "CHISLED_BIT-cobblestone", player, api.getItemType( ItemChiseledBit.createStack( Block.getStateId( Blocks.COBBLESTONE.getDefaultState() ), 1, true ) ) == ItemType.CHISLED_BIT );
 			apiAssert( "CHISLED_BLOCK", player, api.getItemType( access.getBitsAsItem( null, ItemType.CHISLED_BLOCK, false ) ) == null );
 			apiAssert( "MIRROR_DESIGN 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.MIRROR_DESIGN, false ) ) == null );
 			apiAssert( "NEGATIVE_DESIGN 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.NEGATIVE_DESIGN, false ) ) == null );
@@ -110,7 +110,7 @@ public abstract class DebugAction
 
 			try
 			{
-				final ItemStack bitItem = api.getBitItem( Blocks.cobblestone.getDefaultState() );
+				final ItemStack bitItem = api.getBitItem( Blocks.COBBLESTONE.getDefaultState() );
 				final IBitBrush brush = api.createBrush( bitItem );
 				access.setBitAt( 0, 0, 0, brush );
 			}
@@ -208,7 +208,7 @@ public abstract class DebugAction
 			try
 			{
 				final IBitAccess access = api.getBitAccess( w, loc.getBlockPos() );
-				final IBitBrush brush = api.createBrush( api.getBitItem( Blocks.cobblestone.getDefaultState() ) );
+				final IBitBrush brush = api.createBrush( api.getBitItem( Blocks.COBBLESTONE.getDefaultState() ) );
 
 				access.setBitAt( loc.getBitX(), loc.getBitY(), loc.getBitZ(), brush );
 				access.commitChanges( true );
@@ -297,7 +297,7 @@ public abstract class DebugAction
 							final IBitBrush currentValue )
 					{
 						IBitBrush bit = null;
-						final IBlockState state = Blocks.wool.getStateFromMeta( 3 );
+						final IBlockState state = Blocks.WOOL.getStateFromMeta( 3 );
 
 						try
 						{

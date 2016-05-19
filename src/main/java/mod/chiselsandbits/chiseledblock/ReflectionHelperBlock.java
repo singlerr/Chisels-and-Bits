@@ -24,7 +24,7 @@ class ReflectionHelperBlock extends Block
 
 	protected ReflectionHelperBlock()
 	{
-		super( Material.air );
+		super( Material.AIR );
 	}
 
 	@Override
@@ -111,19 +111,9 @@ class ReflectionHelperBlock extends Block
 	public void onEntityCollidedWithBlock(
 			final World worldIn,
 			final BlockPos pos,
-			final Entity entityIn )
-	{
-		markMethod();
-	}
-
-	@Override
-	public void onEntityCollidedWithBlock(
-			final World worldIn,
-			final BlockPos pos,
 			final IBlockState state,
 			final Entity entityIn )
 	{
-
 		markMethod();
 	}
 }

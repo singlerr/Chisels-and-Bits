@@ -194,7 +194,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 				tmp.readChisleData( comp );
 
 				final VoxelBlob bestBlob = tmp.getBlob();
-				bestBlob.binaryReplacement( 0, Block.getStateId( Blocks.stone.getDefaultState() ) );
+				bestBlob.binaryReplacement( 0, Block.getStateId( Blocks.STONE.getDefaultState() ) );
 
 				tmp.setBlob( bestBlob );
 				tmp.writeChisleData( comp );

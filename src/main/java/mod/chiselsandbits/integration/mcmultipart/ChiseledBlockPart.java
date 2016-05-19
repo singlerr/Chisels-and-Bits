@@ -237,10 +237,11 @@ public class ChiseledBlockPart extends Multipart implements INormallyOccludingPa
 	}
 
 	@Override
-	public void writeToNBT(
+	public NBTTagCompound writeToNBT(
 			final NBTTagCompound tag )
 	{
 		getTile().writeChisleData( tag );
+		return tag;
 	}
 
 	@Override

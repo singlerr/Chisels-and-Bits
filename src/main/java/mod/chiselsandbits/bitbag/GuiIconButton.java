@@ -30,7 +30,7 @@ public class GuiIconButton extends GuiButton
 		super.drawButton( mc, mouseX, mouseY );
 
 		mc.getTextureMapBlocks();
-		mc.getTextureManager().bindTexture( TextureMap.locationBlocksTexture );
+		mc.getTextureManager().bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
 		GlStateManager.color( 1.0F, 1.0F, 1.0F, 1.0F );
 
 		drawTexturedModalRect( xPosition + 1, yPosition + 1, icon, 16, 16 );

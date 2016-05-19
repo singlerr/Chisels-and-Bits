@@ -1,12 +1,11 @@
 package mod.chiselsandbits.client;
 
-import io.netty.buffer.Unpooled;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -45,7 +44,7 @@ public class ClipboardStorage extends Configuration
 				final NBTTagCompound nbt = i.getTagCompound();
 				final PacketBuffer b = new PacketBuffer( Unpooled.buffer() );
 
-				b.writeString( Item.itemRegistry.getNameForObject( i.getItem() ).toString() );
+				b.writeString( Item.REGISTRY.getNameForObject( i.getItem() ).toString() );
 				b.writeNBTTagCompoundToBuffer( nbt );
 
 				final int[] o = new int[b.writerIndex()];

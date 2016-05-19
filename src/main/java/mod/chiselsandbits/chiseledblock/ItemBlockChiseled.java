@@ -103,7 +103,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	{
 		final Block block = worldIn.getBlockState( pos ).getBlock();
 
-		if ( block == Blocks.snow_layer )
+		if ( block == Blocks.SNOW_LAYER )
 		{
 			side = EnumFacing.UP;
 		}
@@ -155,7 +155,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		final IBlockState state = worldIn.getBlockState( pos );
 		final Block block = state.getBlock();
 
-		if ( block == Blocks.snow_layer && state.getValue( BlockSnow.LAYERS ).intValue() < 1 )
+		if ( block == Blocks.SNOW_LAYER && state.getValue( BlockSnow.LAYERS ).intValue() < 1 )
 		{
 			side = EnumFacing.UP;
 		}
@@ -198,8 +198,8 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 			if ( placeBlockAt( stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, iblockstate1 ) )
 			{
-				worldIn.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, this.block.getStepSound().getPlaceSound(), SoundCategory.BLOCKS, ( this.block.getStepSound().getVolume() + 1.0F ) / 2.0F,
-						this.block.getStepSound().getPitch() * 0.8F, false );
+				worldIn.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, this.block.getSoundType().getPlaceSound(), SoundCategory.BLOCKS, ( this.block.getSoundType().getVolume() + 1.0F ) / 2.0F,
+						this.block.getSoundType().getPitch() * 0.8F, false );
 				--stack.stackSize;
 			}
 

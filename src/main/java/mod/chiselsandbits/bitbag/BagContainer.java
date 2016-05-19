@@ -331,13 +331,13 @@ public class BagContainer extends Container
 				clientstack = realStack == null ? null : realStack.copy();
 				customSlotsItems.set( slotIdx, clientstack );
 
-				for ( int crafterIndex = 0; crafterIndex < crafters.size(); ++crafterIndex )
+				for ( int crafterIndex = 0; crafterIndex < listeners.size(); ++crafterIndex )
 				{
 					final PacketBagGuiStack pbgs = new PacketBagGuiStack();
 					pbgs.is = clientstack;
 					pbgs.index = slotIdx;
 
-					NetworkRouter.instance.sendTo( pbgs, (EntityPlayerMP) crafters.get( crafterIndex ) );
+					NetworkRouter.instance.sendTo( pbgs, (EntityPlayerMP) listeners.get( crafterIndex ) );
 				}
 			}
 		}

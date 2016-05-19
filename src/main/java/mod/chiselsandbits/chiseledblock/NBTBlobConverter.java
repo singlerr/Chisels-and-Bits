@@ -90,7 +90,7 @@ public class NBTBlobConverter
 		sideState = tile.sideState;
 		lightValue = tile.getLightValue();
 		isNormalCube = tile.isNormalCube;
-		primaryBlockState = Block.getStateId( tile.getBlockState( Blocks.cobblestone ) );
+		primaryBlockState = Block.getStateId( tile.getBlockState( Blocks.COBBLESTONE ) );
 		voxelBlobRef = tile.getBlobStateReference();
 		format = getFormat( voxelBlobRef );
 	}
@@ -163,7 +163,7 @@ public class NBTBlobConverter
 		if ( primaryBlockState == 0 )
 		{
 			// if load fails default to cobble stone...
-			primaryBlockState = Block.getStateId( Blocks.cobblestone.getDefaultState() );
+			primaryBlockState = Block.getStateId( Blocks.COBBLESTONE.getDefaultState() );
 		}
 
 		voxelBlobRef = new VoxelBlobStateReference( v, 0 );

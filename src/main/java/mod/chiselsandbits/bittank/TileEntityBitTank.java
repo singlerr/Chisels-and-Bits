@@ -10,7 +10,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -47,9 +46,8 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 		deserializeFromNBT( pkt.getNbtCompound() );
 	}
 
-	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
-	public Packet getDescriptionPacket()
+	public SPacketUpdateTileEntity getUpdatePacket()
 	{
 		final NBTTagCompound t = new NBTTagCompound();
 		serializeToNBT( t );
@@ -89,11 +87,12 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 	}
 
 	@Override
-	public void writeToNBT(
+	public NBTTagCompound writeToNBT(
 			final NBTTagCompound compound )
 	{
 		serializeToNBT( compound );
 		super.writeToNBT( compound );
+		return compound;
 	}
 
 	@SuppressWarnings( "unchecked" )
@@ -396,7 +395,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 	 * IFluidHandler is not implemented on the TE to prevent pipes from
 	 * connecting, this is because the conversion rate is too high for most
 	 * pipes to support it.
-	 * 
+	 *
 	 * @return IFluidHandler for the tank.
 	 */
 	public IFluidHandler getWrappedTank()

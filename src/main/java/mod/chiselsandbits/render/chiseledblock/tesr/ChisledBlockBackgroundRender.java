@@ -18,12 +18,12 @@ import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.RegionRenderCache;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.ChunkCache;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
 public class ChisledBlockBackgroundRender implements Callable<Tessellator>
@@ -34,7 +34,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 	private final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
 	private final static Queue<SoftReference<Tessellator>> previousTessellators = new LinkedBlockingQueue<SoftReference<Tessellator>>();
 
-	private final RegionRenderCache cache;
+	private final ChunkCache cache;
 	private final BlockPos chunkOffset;
 
 	static class CBTessellator extends Tessellator
@@ -56,7 +56,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 	};
 
 	public ChisledBlockBackgroundRender(
-			final RegionRenderCache cache,
+			final ChunkCache cache,
 			final BlockPos chunkOffset,
 			final List<TileEntityBlockChiseledTESR> tiles,
 			final BlockRenderLayer layer )

@@ -62,9 +62,9 @@ public class ModItems extends ModRegistry
 		ShapedOreRecipe( itemWrench, " W ", "WS ", "  S", 'W', "plankWood", 'S', "stickWood" );
 
 		// create prints...
-		ShapelessOreRecipe( itemPositiveprint, Items.water_bucket, Items.paper, "gemLapis" );
-		ShapelessOreRecipe( itemNegativeprint, Items.water_bucket, Items.paper, "dustRedstone" );
-		ShapelessOreRecipe( itemMirrorprint, Items.water_bucket, Items.paper, "dustGlowstone" );
+		ShapelessOreRecipe( itemPositiveprint, Items.WATER_BUCKET, Items.PAPER, "gemLapis" );
+		ShapelessOreRecipe( itemNegativeprint, Items.WATER_BUCKET, Items.PAPER, "dustRedstone" );
+		ShapelessOreRecipe( itemMirrorprint, Items.WATER_BUCKET, Items.PAPER, "dustGlowstone" );
 
 		// clean patterns...
 		ShapelessOreRecipe( itemPositiveprint, new ItemStack( itemPositiveprint, 1, OreDictionary.WILDCARD_VALUE ) );
@@ -72,7 +72,7 @@ public class ModItems extends ModRegistry
 		ShapelessOreRecipe( itemMirrorprint, new ItemStack( itemMirrorprint, 1, OreDictionary.WILDCARD_VALUE ) );
 
 		// make a bit bag..
-		ShapedOreRecipe( itemBitBag, "WWW", "WbW", "WWW", 'W', new ItemStack( Blocks.wool, 1, OreDictionary.WILDCARD_VALUE ), 'b', new ItemStack( itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
+		ShapedOreRecipe( itemBitBag, "WWW", "WbW", "WWW", 'W', new ItemStack( Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE ), 'b', new ItemStack( itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
 	}
 
 }

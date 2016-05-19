@@ -286,7 +286,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ArrayList<ItemStack> List = new ArrayList<ItemStack>();
 			final HashSet<IBlockState> used = new HashSet();
 
-			for ( final Object obj : Item.itemRegistry )
+			for ( final Object obj : Item.REGISTRY )
 			{
 				if ( !( obj instanceof ItemBlock ) )
 				{

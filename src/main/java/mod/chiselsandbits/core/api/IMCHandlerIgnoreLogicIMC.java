@@ -17,12 +17,12 @@ public class IMCHandlerIgnoreLogicIMC implements IMCMessageHandler
 		{
 			final String name = message.getStringValue();
 
-			Block blk = Block.blockRegistry.getObject( new ResourceLocation( name ) );
+			Block blk = Block.REGISTRY.getObject( new ResourceLocation( name ) );
 
 			// try finding the block in the mod instead...
 			if ( blk == null )
 			{
-				blk = Block.blockRegistry.getObject( new ResourceLocation( message.getSender(), name ) );
+				blk = Block.REGISTRY.getObject( new ResourceLocation( message.getSender(), name ) );
 			}
 
 			if ( blk != null )

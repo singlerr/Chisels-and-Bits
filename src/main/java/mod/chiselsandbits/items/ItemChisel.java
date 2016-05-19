@@ -445,20 +445,20 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 		switch ( getToolMaterial() )
 		{
 			case DIAMOND:
-				it = Items.diamond_pickaxe;
+				it = Items.DIAMOND_PICKAXE;
 				break;
 			case GOLD:
-				it = Items.golden_pickaxe;
+				it = Items.GOLDEN_PICKAXE;
 				break;
 			case IRON:
-				it = Items.iron_pickaxe;
+				it = Items.IRON_PICKAXE;
 				break;
 			default:
 			case STONE:
-				it = Items.stone_pickaxe;
+				it = Items.STONE_PICKAXE;
 				break;
 			case WOOD:
-				it = Items.wooden_pickaxe;
+				it = Items.WOODEN_PICKAXE;
 				break;
 		}
 

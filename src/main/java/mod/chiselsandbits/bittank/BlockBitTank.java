@@ -42,8 +42,8 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 
 	public BlockBitTank()
 	{
-		super( Material.iron );
-		setStepSound( SoundType.GLASS );
+		super( Material.IRON );
+		setSoundType( SoundType.GLASS );
 		translucent = true;
 		setLightOpacity( 0 );
 		setHardness( 1 );

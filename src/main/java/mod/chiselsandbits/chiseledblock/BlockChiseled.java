@@ -27,7 +27,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -212,7 +212,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		configureSound( mat );
 
 		// slippery ice...
-		if ( mat == Material.ice || mat == Material.packedIce )
+		if ( mat == Material.ICE || mat == Material.PACKED_ICE )
 		{
 			slipperiness = 0.98F;
 		}
@@ -226,37 +226,37 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	private void configureSound(
 			final Material mat )
 	{
-		if ( mat == Material.wood )
+		if ( mat == Material.WOOD )
 		{
-			setStepSound( SoundType.WOOD );
+			setSoundType( SoundType.WOOD );
 		}
-		else if ( mat == Material.rock )
+		else if ( mat == Material.ROCK )
 		{
-			setStepSound( SoundType.STONE );
+			setSoundType( SoundType.STONE );
 		}
-		else if ( mat == Material.iron )
+		else if ( mat == Material.IRON )
 		{
-			setStepSound( SoundType.METAL );
+			setSoundType( SoundType.METAL );
 		}
-		else if ( mat == Material.cloth )
+		else if ( mat == Material.CLOTH )
 		{
-			setStepSound( SoundType.CLOTH );
+			setSoundType( SoundType.CLOTH );
 		}
-		else if ( mat == Material.ice )
+		else if ( mat == Material.ICE )
 		{
-			setStepSound( SoundType.GLASS );
+			setSoundType( SoundType.GLASS );
 		}
-		else if ( mat == Material.packedIce )
+		else if ( mat == Material.PACKED_ICE )
 		{
-			setStepSound( SoundType.GLASS );
+			setSoundType( SoundType.GLASS );
 		}
-		else if ( mat == Material.clay )
+		else if ( mat == Material.CLAY )
 		{
-			setStepSound( SoundType.GROUND );
+			setSoundType( SoundType.GROUND );
 		}
-		else if ( mat == Material.glass )
+		else if ( mat == Material.GLASS )
 		{
-			setStepSound( SoundType.GLASS );
+			setSoundType( SoundType.GLASS );
 		}
 	}
 
@@ -505,7 +505,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	{
 		try
 		{
-			final IBlockState texture = getTileEntity( worldObj, blockPosition ).getBlockState( Blocks.stone );
+			final IBlockState texture = getTileEntity( worldObj, blockPosition ).getBlockState( Blocks.STONE );
 			worldObj.spawnParticle( EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getStateId( texture ) } );
 			return true;
 		}
@@ -520,7 +520,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	public boolean addDestroyEffects(
 			final World world,
 			final BlockPos pos,
-			final EffectRenderer effectRenderer )
+			final ParticleManager effectRenderer )
 	{
 		try
 		{
@@ -540,7 +540,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final IBlockState state,
 			final World world,
 			final RayTraceResult target,
-			final EffectRenderer effectRenderer )
+			final ParticleManager effectRenderer )
 	{
 		try
 		{
@@ -730,6 +730,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
+	@Deprecated
 	public AxisAlignedBB getSelectedBoundingBox(
 			final IBlockState state,
 			final World worldIn,
@@ -755,6 +756,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
+	@Deprecated
 	public RayTraceResult collisionRayTrace(
 			final IBlockState blockState,
 			final World worldIn,
@@ -814,6 +816,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
+	@Deprecated
 	public float getBlockHardness(
 			final IBlockState state,
 			final World worldIn,
@@ -926,7 +929,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				BlockID = Block.getStateId( actingState );
 				blk = ChiselsAndBits.getBlocks().getConversion( actingState );
 				// its still air tho..
-				actingState = Blocks.air.getDefaultState();
+				actingState = Blocks.AIR.getDefaultState();
 			}
 
 			if ( BlockID == 0 )
@@ -1027,6 +1030,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
+	@Deprecated
 	public IBlockState getActualState(
 			final IBlockState state,
 			final IBlockAccess worldIn,
@@ -1075,7 +1079,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 
 		return super.getActualState( state, worldIn, pos );
-
 	}
 
 	public static void setActingAs(
@@ -1155,7 +1158,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final AxisAlignedBB bx,
 			final Material materialIn )
 	{
-		if ( materialIn == Material.water )
+		if ( materialIn == Material.WATER )
 		{
 			for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
 			{
@@ -1178,7 +1181,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final Material materialIn,
 			final boolean testingHead )
 	{
-		if ( testingHead && materialIn == Material.water )
+		if ( testingHead && materialIn == Material.WATER )
 		{
 			Vec3d head = entity.getPositionVector();
 			head = new Vec3d( head.xCoord - pos.getX(), yToTest - pos.getY(), head.zCoord - pos.getZ() );
@@ -1191,7 +1194,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 				}
 			}
 		}
-		else if ( !testingHead && materialIn == Material.water )
+		else if ( !testingHead && materialIn == Material.WATER )
 		{
 			AxisAlignedBB what = entity.getCollisionBoundingBox();
 

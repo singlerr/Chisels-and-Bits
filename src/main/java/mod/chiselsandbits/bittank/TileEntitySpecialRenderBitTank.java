@@ -81,7 +81,7 @@ public class TileEntitySpecialRenderBitTank extends FastTESR<TileEntityBitTank>
 
 			final BlockPos pos = te.getPos();
 
-			final int mixedBrightness = te.getWorld().getBlockState( pos ).getBlock().getPackedLightmapCoords( te.getWorld().getBlockState( te.getPos() ), te.getWorld(), pos );
+			final int mixedBrightness = te.getWorld().getBlockState( pos ).getPackedLightmapCoords( te.getWorld(), te.getPos() );
 			final int skyLight = mixedBrightness >> 16 & 65535;
 			final int blockLight = mixedBrightness & 65535;
 

@@ -62,8 +62,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.particle.EffectRenderer;
-import net.minecraft.client.particle.EntityFX;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -512,7 +512,7 @@ public class ClientSide
 						final int y = res.getScaledHeight() - 16 - 3;
 
 						GlStateManager.color( 1, 1, 1, 1.0f );
-						Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.locationBlocksTexture );
+						Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
 						final TextureAtlasSprite sprite = chiselModeIcons.get( mode ).sprite;
 
 						GlStateManager.enableBlend();
@@ -1156,7 +1156,7 @@ public class ClientSide
 			final World world,
 			final RayTraceResult target,
 			final IBlockState state,
-			final EffectRenderer effectRenderer )
+			final ParticleManager effectRenderer )
 	{
 		final ItemStack hitWith = getPlayer().getHeldItemMainhand();
 		if ( hitWith != null && ( hitWith.getItem() instanceof ItemChisel || hitWith.getItem() instanceof ItemChiseledBit ) )
@@ -1204,7 +1204,7 @@ public class ClientSide
 
 		}
 
-		final EntityFX fx = effectRenderer.spawnEffectParticle( EnumParticleTypes.BLOCK_DUST.getParticleID(), x, y, z, 0.0D, 0.0D, 0.0D, new int[] { Block.getStateId( state ) } );
+		final Particle fx = effectRenderer.spawnEffectParticle( EnumParticleTypes.BLOCK_DUST.getParticleID(), x, y, z, 0.0D, 0.0D, 0.0D, new int[] { Block.getStateId( state ) } );
 
 		if ( fx != null )
 		{
@@ -1241,7 +1241,7 @@ public class ClientSide
 	{
 		final IBlockState state = Block.getStateById( stateID );
 		final Block block = state.getBlock();
-		world.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, block.getStepSound().getPlaceSound(), SoundCategory.BLOCKS, ( block.getStepSound().getVolume() + 1.0F ) / 16.0F, block.getStepSound().getPitch() * 0.9F, false );
+		world.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, block.getSoundType().getPlaceSound(), SoundCategory.BLOCKS, ( block.getSoundType().getVolume() + 1.0F ) / 16.0F, block.getSoundType().getPitch() * 0.9F, false );
 	}
 
 	public static void breakSound(
@@ -1251,7 +1251,7 @@ public class ClientSide
 	{
 		final IBlockState state = Block.getStateById( extractedState );
 		final Block block = state.getBlock();
-		world.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, block.getStepSound().getBreakSound(), SoundCategory.BLOCKS, ( block.getStepSound().getVolume() + 1.0F ) / 16.0F, block.getStepSound().getPitch() * 0.9F, false );
+		world.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, block.getSoundType().getBreakSound(), SoundCategory.BLOCKS, ( block.getSoundType().getVolume() + 1.0F ) / 16.0F, block.getSoundType().getPitch() * 0.9F, false );
 	}
 
 	private BitLocation drawStart;
@@ -1297,7 +1297,7 @@ public class ClientSide
 			final World world,
 			final BlockPos pos,
 			IBlockState state,
-			final EffectRenderer effectRenderer )
+			final ParticleManager effectRenderer )
 	{
 		if ( !state.getBlock().isAir( state, world, pos ) )
 		{

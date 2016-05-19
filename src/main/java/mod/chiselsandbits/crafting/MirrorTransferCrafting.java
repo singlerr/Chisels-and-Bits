@@ -110,7 +110,7 @@ public class MirrorTransferCrafting implements IRecipe
 
 			if ( isNegative )
 			{
-				bestBlob.binaryReplacement( 0, Block.getStateId( Blocks.stone.getDefaultState() ) );
+				bestBlob.binaryReplacement( 0, Block.getStateId( Blocks.STONE.getDefaultState() ) );
 			}
 
 			tmp.setBlob( bestBlob );

@@ -32,7 +32,6 @@ import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RegionRenderCache;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
@@ -45,6 +44,7 @@ import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.ChunkCache;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.property.IExtendedBlockState;
@@ -287,7 +287,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			final float partialTicks,
 			final int destroyStage )
 	{
-		bindTexture( TextureMap.locationBlocksTexture );
+		bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
 		final String file = DESTROY_STAGES[destroyStage].toString().replace( "textures/", "" ).replace( ".png", "" );
 		final TextureAtlasSprite damageTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( file );
 
@@ -426,7 +426,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			if ( pendingTess.get() < dynamicTess && tlrc.future == null && !tlrc.waiting || isNew )
 			{
 				// copy the tiles for the thread..
-				final RegionRenderCache cache = new RegionRenderCache( getWorld(), chunkOffset, chunkOffset.add( 16, 16, 16 ), 1 );
+				final ChunkCache cache = new ChunkCache( getWorld(), chunkOffset, chunkOffset.add( 16, 16, 16 ), 1 );
 				final FutureTask<Tessellator> newFuture = new FutureTask<Tessellator>( new ChisledBlockBackgroundRender( cache, chunkOffset, renderCache.getTiles(), layer ) );
 
 				try
@@ -523,7 +523,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			OpenGlHelper.setLightmapTextureCoords( OpenGlHelper.lightmapTexUnit, 0, 0 );
 
 			GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
-			bindTexture( TextureMap.locationBlocksTexture );
+			bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
 
 			RenderHelper.disableStandardItemLighting();
 			GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );

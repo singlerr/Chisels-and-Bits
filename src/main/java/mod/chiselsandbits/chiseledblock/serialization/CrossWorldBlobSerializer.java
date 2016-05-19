@@ -28,7 +28,7 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 		final String name = buffer.readStringFromBuffer( 512 );
 		final int meta = buffer.readVarIntFromBuffer();
 
-		final Block blk = Block.blockRegistry.getObject( new ResourceLocation( name ) );
+		final Block blk = Block.REGISTRY.getObject( new ResourceLocation( name ) );
 
 		if ( blk == null )
 		{
@@ -52,7 +52,7 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 		final IBlockState state = Block.getStateById( key );
 		final Block blk = state.getBlock();
 
-		final String name = Block.blockRegistry.getNameForObject( blk ).toString();
+		final String name = Block.REGISTRY.getNameForObject( blk ).toString();
 		final int meta = blk.getMetaFromState( state );
 
 		buffer.writeString( name );

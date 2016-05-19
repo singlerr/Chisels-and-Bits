@@ -72,7 +72,7 @@ public abstract class BaseSmartModel implements IBakedModel
 	@Override
 	public TextureAtlasSprite getParticleTexture()
 	{
-		final TextureAtlasSprite sprite = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture( Blocks.stone.getDefaultState() );
+		final TextureAtlasSprite sprite = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture( Blocks.STONE.getDefaultState() );
 
 		if ( sprite == null )
 		{

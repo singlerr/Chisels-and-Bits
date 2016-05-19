@@ -53,7 +53,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		}
 
 		final IBlockState state = world.getBlockState( pos );
-		return state.getBlock() == Blocks.air || BlockBitInfo.supportsBlock( state ) || ModUtil.getChiseledTileEntity( world, pos, false ) != null;
+		return state.getBlock() == Blocks.AIR || BlockBitInfo.supportsBlock( state ) || ModUtil.getChiseledTileEntity( world, pos, false ) != null;
 	}
 
 	@Override

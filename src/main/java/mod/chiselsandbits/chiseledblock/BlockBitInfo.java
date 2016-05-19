@@ -38,9 +38,9 @@ public class BlockBitInfo
 
 	static
 	{
-		ignoreLogicBlocks.put( Blocks.leaves, true );
-		ignoreLogicBlocks.put( Blocks.leaves2, true );
-		ignoreLogicBlocks.put( Blocks.snow, true );
+		ignoreLogicBlocks.put( Blocks.LEAVES, true );
+		ignoreLogicBlocks.put( Blocks.LEAVES2, true );
+		ignoreLogicBlocks.put( Blocks.SNOW, true );
 	}
 
 	// cache data..
@@ -183,17 +183,12 @@ public class BlockBitInfo
 			boolean itemExistsOrNotSpecialDrops = quantityDroppedTest && quantityDroppedWithBonusTest && quantityDropped2Test || isNotSlab;
 
 			// ignore blocks with custom collision.
-			pb.onEntityCollidedWithBlock( null, null, null );
-			final boolean entityCollisionTest = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
-
 			pb.onEntityCollidedWithBlock( null, null, null, null );
-			final boolean entityCollision2Test = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
-
-			boolean noCustomCollision = entityCollisionTest && entityCollision2Test;
+			boolean noCustomCollision = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
 
 			// full cube specifically is tied to lighting... so for glass
 			// Compatibility use isFullBlock which can be true for glass.
-			boolean isFullBlock = blk.isFullBlock( state ) || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.slime_block || blk == Blocks.ice;
+			boolean isFullBlock = blk.isFullBlock( state ) || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.SLIME_BLOCK || blk == Blocks.ICE;
 
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
@@ -295,7 +290,7 @@ public class BlockBitInfo
 				// less accurate, we can just pretend they are some fixed
 				// hardness... say like stone?
 
-				final Block stone = Blocks.stone;
+				final Block stone = Blocks.STONE;
 				return new BlockBitInfo( ChiselsAndBits.getConfig().compatabilityMode, stone.getBlockHardness( null, null, null ), stone.getExplosionResistance( null ) );
 			}
 		}

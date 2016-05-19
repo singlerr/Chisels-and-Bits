@@ -32,20 +32,20 @@ public class ModBlocks extends ModRegistry
 	public final BlockBitTank blockBitTank;
 
 	public static final MaterialType[] validMaterials = new MaterialType[] {
-			new MaterialType( "wood", Material.wood ),
-			new MaterialType( "rock", Material.rock ),
-			new MaterialType( "iron", Material.iron ),
-			new MaterialType( "cloth", Material.cloth ),
-			new MaterialType( "ice", Material.ice ),
-			new MaterialType( "packedIce", Material.packedIce ),
-			new MaterialType( "clay", Material.clay ),
-			new MaterialType( "glass", Material.glass ),
-			new MaterialType( "sand", Material.sand ),
-			new MaterialType( "ground", Material.ground ),
-			new MaterialType( "grass", Material.grass ),
-			new MaterialType( "snow", Material.craftedSnow ),
-			new MaterialType( "fluid", Material.water ),
-			new MaterialType( "leaves", Material.leaves ),
+			new MaterialType( "wood", Material.WOOD ),
+			new MaterialType( "rock", Material.ROCK ),
+			new MaterialType( "iron", Material.IRON ),
+			new MaterialType( "cloth", Material.CLOTH ),
+			new MaterialType( "ice", Material.ICE ),
+			new MaterialType( "packedIce", Material.PACKED_ICE ),
+			new MaterialType( "clay", Material.CLAY ),
+			new MaterialType( "glass", Material.GLASS ),
+			new MaterialType( "sand", Material.SAND ),
+			new MaterialType( "ground", Material.GROUND ),
+			new MaterialType( "grass", Material.GRASS ),
+			new MaterialType( "snow", Material.CRAFTED_SNOW ),
+			new MaterialType( "fluid", Material.WATER ),
+			new MaterialType( "leaves", Material.LEAVES ),
 	};
 
 	public ModBlocks(
@@ -109,7 +109,7 @@ public class ModBlocks extends ModRegistry
 
 		if ( f != null )
 		{
-			return getConversions().get( Material.water );
+			return getConversions().get( Material.WATER );
 		}
 
 		return getConversions().get( material.getMaterial() );

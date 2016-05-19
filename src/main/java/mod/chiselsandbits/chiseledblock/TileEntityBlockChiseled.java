@@ -23,7 +23,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -226,9 +225,8 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return oldState.getBlock() != newState.getBlock();
 	}
 
-	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
-	public Packet getDescriptionPacket()
+	public SPacketUpdateTileEntity getUpdatePacket()
 	{
 		final NBTTagCompound nbttagcompound = new NBTTagCompound();
 		writeChisleData( nbttagcompound );
@@ -266,11 +264,12 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	@Override
-	public void writeToNBT(
+	public NBTTagCompound writeToNBT(
 			final NBTTagCompound compound )
 	{
 		super.writeToNBT( compound );
 		writeChisleData( compound );
+		return compound;
 	}
 
 	@Override
@@ -343,7 +342,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			if ( vb == null )
 			{
 				vb = new VoxelBlob();
-				vb.fill( Block.getStateId( Blocks.cobblestone.getDefaultState() ) );
+				vb.fill( Block.getStateId( Blocks.COBBLESTONE.getDefaultState() ) );
 			}
 		}
 		else
@@ -356,7 +355,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	public IBlockState getPreferedBlock()
 	{
-		return ChiselsAndBits.getBlocks().getConversionWithDefault( getBlockState( Blocks.stone ) ).getDefaultState();
+		return ChiselsAndBits.getBlocks().getConversionWithDefault( getBlockState( Blocks.STONE ) ).getDefaultState();
 	}
 
 	public void setBlob(
