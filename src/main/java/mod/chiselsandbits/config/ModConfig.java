@@ -104,16 +104,16 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Settings" )
 	public int maxUndoLevel;
 
-	@Configured( category = "Client Preformance Settings" )
+	@Configured( category = "Client Performance Settings" )
 	public int dynamicModelFaceCount;
 
-	@Configured( category = "Client Preformance Settings" )
+	@Configured( category = "Client Performance Settings" )
 	public int dynamicModelRange;
 
-	@Configured( category = "Client Preformance Settings" )
+	@Configured( category = "Client Performance Settings" )
 	public boolean dynamicModelMinimizeLatancy;
 
-	@Configured( category = "Client Preformance Settings" )
+	@Configured( category = "Client Performance Settings" )
 	public int dynamicMaxConcurrentTessalators;
 
 	@Configured( category = "Balance Settings" )
@@ -470,7 +470,7 @@ public class ModConfig extends Configuration
 	{
 		final Property prop = super.get( category, key, defaultValue, comment, type );
 
-		if ( prop != null && !category.equals( "Client Settings" ) && category.equals( "Client Preformance" ) )
+		if ( prop != null && !category.equals( "Client Settings" ) && category.equals( "Client Performance" ) )
 		{
 			prop.setRequiresMcRestart( true );
 		}
