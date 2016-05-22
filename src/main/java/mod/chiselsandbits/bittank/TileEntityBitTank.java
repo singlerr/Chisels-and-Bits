@@ -47,6 +47,14 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler
 	}
 
 	@Override
+	public NBTTagCompound getUpdateTag()
+	{
+		final NBTTagCompound nbttagcompound = new NBTTagCompound();
+		writeToNBT(nbttagcompound);
+		return nbttagcompound;
+	}
+	
+	@Override
 	public SPacketUpdateTileEntity getUpdatePacket()
 	{
 		final NBTTagCompound t = new NBTTagCompound();

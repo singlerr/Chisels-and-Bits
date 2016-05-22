@@ -240,6 +240,14 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	@Override
+	public NBTTagCompound getUpdateTag()
+	{
+		final NBTTagCompound nbttagcompound = new NBTTagCompound();
+		writeToNBT(nbttagcompound);
+		return nbttagcompound;
+	}
+	
+	@Override
 	public void onDataPacket(
 			final NetworkManager net,
 			final SPacketUpdateTileEntity pkt )
