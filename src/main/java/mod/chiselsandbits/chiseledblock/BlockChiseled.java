@@ -434,12 +434,20 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 	}
 
+	/**
+	 * Client side method.
+	 */
+	private ChiselToolType getClientHeldTool()
+	{
+		return ClientSide.instance.getHeldToolType();
+	}
+
 	public ItemStack getPickBlock(
 			final RayTraceResult target,
 			final BlockPos pos,
 			final TileEntityBlockChiseled te )
 	{
-		if ( ClientSide.instance.getHeldToolType() != null )
+		if ( te.getWorld().isRemote && getClientHeldTool() != null )
 		{
 			final VoxelBlob vb = te.getBlob();
 
