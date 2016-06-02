@@ -170,14 +170,14 @@ public class BlockBitInfo
 
 			// custom dropping behavior?
 			pb.quantityDropped( null );
-			final Class<?> wc = blkClass.getMethod( pb.MethodName, Random.class ).getDeclaringClass();
+			final Class<?> wc = getDeclaringClass( blkClass, pb.MethodName, Random.class );
 			final boolean quantityDroppedTest = wc == Block.class || wc == BlockGlowstone.class || wc == BlockStainedGlass.class || wc == BlockGlass.class || wc == BlockSnowBlock.class;
 
 			pb.quantityDroppedWithBonus( 0, null );
-			final boolean quantityDroppedWithBonusTest = blkClass.getMethod( pb.MethodName, int.class, Random.class ).getDeclaringClass() == Block.class || wc == BlockGlowstone.class;
+			final boolean quantityDroppedWithBonusTest = getDeclaringClass( blkClass,pb.MethodName, int.class, Random.class ) == Block.class || wc == BlockGlowstone.class;
 
 			pb.quantityDropped( null, 0, null );
-			final boolean quantityDropped2Test = blkClass.getMethod( pb.MethodName, IBlockState.class, int.class, Random.class ).getDeclaringClass() == Block.class;
+			final boolean quantityDropped2Test = getDeclaringClass( blkClass, pb.MethodName, IBlockState.class, int.class, Random.class ) == Block.class;
 
 			final boolean isNotSlab = Item.getItemFromBlock( blk ) != null;
 			boolean itemExistsOrNotSpecialDrops = quantityDroppedTest && quantityDroppedWithBonusTest && quantityDropped2Test || isNotSlab;
@@ -187,7 +187,8 @@ public class BlockBitInfo
 			final boolean entityCollisionTest = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
 
 			pb.onEntityCollidedWithBlock( null, null, null, null );
-			final boolean entityCollision2Test = blkClass.getMethod( pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ).getDeclaringClass() == Block.class || blkClass == BlockSlime.class;
+			boolean noCustomCollision = getDeclaringClass( blkClass,pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ) == Block.class || blkClass == BlockSlime.class;
+			final boolean entityCollision2Test = getDeclaringClass( blkClass, pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ) == Block.class || blkClass == BlockSlime.class;
 
 			boolean noCustomCollision = entityCollisionTest && entityCollision2Test;
 
@@ -242,6 +243,40 @@ public class BlockBitInfo
 		}
 	}
 
+	private static Class<?> getDeclaringClass(
+			Class<?> blkClass,
+			String methodName,
+			Class<?>... args )
+	{
+		try
+		{
+			blkClass.getDeclaredMethod( methodName, args);
+			return blkClass;
+		}
+		catch ( NoSuchMethodException e )
+		{
+			// nothing here...
+		}
+		catch ( SecurityException e )
+		{
+			// nothing here..
+		}
+		catch(NoClassDefFoundError e)
+		{
+			Log.info( "Unable to determine blocks eligibility for chiseling, " + blkClass.getName() +" attempted to load " + e.getMessage() );
+			return blkClass;
+		}
+		catch(Throwable t )
+		{			
+			return blkClass;
+		}
+		
+		return getDeclaringClass(
+				blkClass.getSuperclass(),
+				methodName,
+				args );
+	}
+
 	public final boolean isCompatiable;
 	public final float hardness;
 	public final float explosionResistance;
@@ -267,18 +302,18 @@ public class BlockBitInfo
 			final Class<? extends Block> blkClass = blk.getClass();
 
 			reflectBlock.getBlockHardness( null, null, null );
-			final Method hardnessMethod = blkClass.getMethod( reflectBlock.MethodName, IBlockState.class, World.class, BlockPos.class );
-			final boolean test_a = hardnessMethod.getDeclaringClass() == Block.class;
+			final Class hardnessMethodClass = getDeclaringClass( blkClass, reflectBlock.MethodName, IBlockState.class, World.class, BlockPos.class );
+			final boolean test_a = hardnessMethodClass == Block.class;
 
 			reflectBlock.getPlayerRelativeBlockHardness( null, null, null, null );
-			final boolean test_b = blkClass.getMethod( reflectBlock.MethodName, IBlockState.class, EntityPlayer.class, World.class, BlockPos.class ).getDeclaringClass() == Block.class;
+			final boolean test_b = getDeclaringClass( blkClass, reflectBlock.MethodName, IBlockState.class, EntityPlayer.class, World.class, BlockPos.class ) == Block.class;
 
 			reflectBlock.getExplosionResistance( null );
-			final Method exploResistance = blkClass.getMethod( reflectBlock.MethodName, Entity.class );
-			final boolean test_c = exploResistance.getDeclaringClass() == Block.class;
+			final Class exploResistanceClz = getDeclaringClass(blkClass, reflectBlock.MethodName, Entity.class );
+			final boolean test_c = exploResistanceClz == Block.class;
 
 			reflectBlock.getExplosionResistance( null, null, null, null );
-			final boolean test_d = blkClass.getMethod( reflectBlock.MethodName, World.class, BlockPos.class, Entity.class, Explosion.class ).getDeclaringClass() == Block.class;
+			final boolean test_d = getDeclaringClass( blkClass, reflectBlock.MethodName, World.class, BlockPos.class, Entity.class, Explosion.class ) == Block.class;
 
 			final boolean isFluid = fluidStates.containsKey( Block.getStateId( state ) );
 
