@@ -53,6 +53,8 @@ import net.minecraftforge.common.property.ExtendedBlockState;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockChiseled extends Block implements ITileEntityProvider
 {
@@ -517,6 +519,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public boolean addDestroyEffects(
 			final World world,
 			final BlockPos pos,
@@ -536,6 +539,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public boolean addHitEffects(
 			final IBlockState state,
 			final World world,
