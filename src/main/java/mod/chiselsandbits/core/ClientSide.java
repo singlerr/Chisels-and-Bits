@@ -709,7 +709,7 @@ public class ClientSide
 
 							if ( !getToolKey().isKeyDown() )
 							{
-								final PacketChisel pc = new PacketChisel( lastTool == ChiselToolType.BIT, location, other, EnumFacing.UP, chMode, EnumHand.MAIN_HAND );
+								final PacketChisel pc = new PacketChisel( lastTool == ChiselToolType.BIT, location, other, EnumFacing.UP, chMode, lastHand );
 
 								if ( pc.doAction( getPlayer() ) > 0 )
 								{
@@ -1270,16 +1270,19 @@ public class ClientSide
 
 	public void pointAt(
 			final ChiselToolType type,
-			final BitLocation pos )
+			final BitLocation pos,
+			final EnumHand hand )
 	{
 		if ( drawStart == null )
 		{
 			drawStart = pos;
 			lastTool = type;
+			lastHand = hand;
 		}
 	}
 
 	ChiselToolType lastTool = ChiselToolType.CHISEL;
+	EnumHand lastHand = EnumHand.MAIN_HAND;
 
 	KeyBinding getToolKey()
 	{

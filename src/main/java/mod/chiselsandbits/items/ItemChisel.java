@@ -134,7 +134,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 				if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
 				{
 					final BitLocation loc = new BitLocation( mop, true, ChiselToolType.CHISEL );
-					ClientSide.instance.pointAt( ChiselToolType.CHISEL, loc );
+					ClientSide.instance.pointAt( ChiselToolType.CHISEL, loc, hand );
 					return true;
 				}
 

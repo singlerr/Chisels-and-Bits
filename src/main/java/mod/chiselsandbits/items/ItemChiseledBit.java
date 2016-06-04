@@ -219,7 +219,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 					case DRAWN_REGION:
 						if ( world.isRemote )
 						{
-							ClientSide.instance.pointAt( ChiselToolType.BIT, bitLocation );
+							ClientSide.instance.pointAt( ChiselToolType.BIT, bitLocation, hand );
 						}
 						return EnumActionResult.FAIL;
 
