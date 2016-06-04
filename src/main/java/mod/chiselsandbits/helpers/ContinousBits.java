@@ -111,7 +111,7 @@ public class ContinousBits implements IContinuousInventory
 	@Override
 	public boolean isValid()
 	{
-		return !options.isEmpty() || who.isCreative();
+		return !options.isEmpty();
 	}
 
 }
