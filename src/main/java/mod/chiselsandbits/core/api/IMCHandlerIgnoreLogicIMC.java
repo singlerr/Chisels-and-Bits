@@ -15,14 +15,32 @@ public class IMCHandlerIgnoreLogicIMC implements IMCMessageHandler
 	{
 		try
 		{
-			final String name = message.getStringValue();
+			String errorName = "UNKNOWN";
+			Block blk = null;
 
-			Block blk = Block.REGISTRY.getObject( new ResourceLocation( name ) );
-
-			// try finding the block in the mod instead...
-			if ( blk == null )
+			if ( message.isStringMessage() )
 			{
-				blk = Block.REGISTRY.getObject( new ResourceLocation( message.getSender(), name ) );
+				final String name = message.getStringValue();
+
+				errorName = name;
+				blk = Block.REGISTRY.getObject( new ResourceLocation( name ) );
+
+				// try finding the block in the mod instead...
+				if ( blk == null )
+				{
+					errorName = message.getSender() + ":" + name;
+					blk = Block.REGISTRY.getObject( new ResourceLocation( message.getSender(), name ) );
+				}
+			}
+			else if ( message.getMessageType() == ResourceLocation.class )
+			{
+				errorName = message.getResourceLocationValue().toString();
+				blk = Block.REGISTRY.getObject( message.getResourceLocationValue() );
+			}
+			else
+			{
+				Log.info( "Invalid Type for IMC: " + message.getMessageType().getName() );
+				return;
 			}
 
 			if ( blk != null )
@@ -31,7 +49,7 @@ public class IMCHandlerIgnoreLogicIMC implements IMCMessageHandler
 			}
 			else
 			{
-				throw new RuntimeException( "Unable to locate block " + message.getSender() + ":" + message.getStringValue() );
+				throw new RuntimeException( "Unable to locate block " + errorName );
 			}
 		}
 		catch ( final Throwable e )
