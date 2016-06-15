@@ -54,6 +54,7 @@ import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
+import mod.chiselsandbits.network.packets.PacketSuppressInteraction;
 import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.SmartModelManager;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
@@ -104,6 +105,7 @@ import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -585,6 +587,25 @@ public class ClientSide
 	}
 
 	@SubscribeEvent
+	public void drawingInteractionPrevention(
+			final RightClickBlock pie )
+	{
+		if ( pie.getWorld() != null && pie.getWorld().isRemote )
+		{
+			final ChiselToolType tool = getHeldToolType();
+			final ChiselMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool );
+
+			final BitLocation other = getStartPos();
+			if ( chMode == ChiselMode.DRAWN_REGION && other != null )
+			{
+				// this handles the client side, but the server side will fire
+				// separately.
+				pie.setCanceled( true );
+			}
+		}
+	}
+
+	@SubscribeEvent
 	public void interaction(
 			final TickEvent.ClientTickEvent event )
 	{
@@ -644,6 +665,8 @@ public class ClientSide
 			}
 		}
 	}
+
+	boolean wasDrawing = false;
 
 	@SubscribeEvent
 	@SideOnly( Side.CLIENT )
@@ -765,6 +788,15 @@ public class ClientSide
 				}
 
 			}
+		}
+
+		final boolean isDrawing = chMode == ChiselMode.DRAWN_REGION && getStartPos() != null;
+		if ( isDrawing != wasDrawing )
+		{
+			wasDrawing = isDrawing;
+			final PacketSuppressInteraction packet = new PacketSuppressInteraction();
+			packet.newSetting = isDrawing;
+			NetworkRouter.instance.sendToServer( packet );
 		}
 	}
 

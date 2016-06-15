@@ -1,9 +1,13 @@
 package mod.chiselsandbits.events;
 
+import java.util.WeakHashMap;
+
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
@@ -18,6 +22,22 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 public class EventPlayerInteract
 {
+
+	private static WeakHashMap<EntityPlayer, Boolean> serverSuppressEvent = new WeakHashMap<EntityPlayer, Boolean>();
+
+	public static void setPlayerSuppressionState(
+			final EntityPlayer player,
+			final boolean state )
+	{
+		if ( state )
+		{
+			serverSuppressEvent.put( player, state );
+		}
+		else
+		{
+			serverSuppressEvent.remove( player );
+		}
+	}
 
 	@SubscribeEvent
 	public void interaction(
@@ -36,6 +56,23 @@ public class EventPlayerInteract
 
 				// cancel all interactions, creative is magic.
 				event.setCanceled( true );
+			}
+		}
+	}
+
+	@SubscribeEvent
+	public void interaction(
+			final RightClickBlock event )
+	{
+		if ( event.getEntityPlayer() != null )
+		{
+			final ItemStack is = event.getItemStack();
+			if ( is != null && ( is.getItem() instanceof ItemChisel || is.getItem() instanceof ItemChiseledBit ) )
+			{
+				if ( serverSuppressEvent.containsKey( event.getEntityPlayer() ) )
+				{
+					event.setCanceled( true );
+				}
 			}
 		}
 	}
