@@ -449,22 +449,27 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			final BlockPos pos,
 			final TileEntityBlockChiseled te )
 	{
-		if ( te.getWorld().isRemote && getClientHeldTool() != null )
+		if ( te.getWorld().isRemote )
 		{
-			final VoxelBlob vb = te.getBlob();
-
-			final BitLocation bitLoc = new BitLocation( target, true, ChiselToolType.CHISEL );
-
-			final int itemBlock = vb.get( bitLoc.bitX, bitLoc.bitY, bitLoc.bitZ );
-			if ( itemBlock == 0 )
+			if ( getClientHeldTool() != null )
 			{
-				return null;
+				final VoxelBlob vb = te.getBlob();
+
+				final BitLocation bitLoc = new BitLocation( target, true, ChiselToolType.CHISEL );
+
+				final int itemBlock = vb.get( bitLoc.bitX, bitLoc.bitY, bitLoc.bitZ );
+				if ( itemBlock == 0 )
+				{
+					return null;
+				}
+
+				return ItemChiseledBit.createStack( itemBlock, 1, false );
 			}
 
-			return ItemChiseledBit.createStack( itemBlock, 1, false );
+			return te.getItemStack( ClientSide.instance.getPlayer() );
 		}
 
-		return te.getItemStack( ClientSide.instance.getPlayer() );
+		return te.getItemStack( null );
 	}
 
 	@Override
@@ -527,7 +532,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
+	@SideOnly( Side.CLIENT )
 	public boolean addDestroyEffects(
 			final World world,
 			final BlockPos pos,
@@ -547,7 +552,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
+	@SideOnly( Side.CLIENT )
 	public boolean addHitEffects(
 			final IBlockState state,
 			final World world,
