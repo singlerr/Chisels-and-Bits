@@ -209,6 +209,12 @@ public class UndoTracker implements ICacheClearable
 	public void beginGroup(
 			final EntityPlayer player )
 	{
+		if ( player.isServerWorld() )
+		{
+			// don't touch this stuff if your a server.
+			return;
+		}
+
 		if ( grouping )
 		{
 			throw new RuntimeException( "Opening a new group, previous group already started.", groupStarted );
@@ -225,6 +231,12 @@ public class UndoTracker implements ICacheClearable
 	public void endGroup(
 			final EntityPlayer player )
 	{
+		if ( player.isServerWorld() )
+		{
+			// don't touch this stuff if your a server.
+			return;
+		}
+
 		if ( !grouping )
 		{
 			throw new RuntimeException( "Closing undo group, but no undogroup was started." );
