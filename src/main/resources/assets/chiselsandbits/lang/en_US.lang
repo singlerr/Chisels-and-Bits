@@ -105,6 +105,14 @@ mod.chiselsandbits.pretty.facing-west=West
 mod.chiselsandbits.pretty.facing-north=North
 mod.chiselsandbits.pretty.facing-south=South
 
+commands.setbit.usage=/setbit <x> <y> <z> <bitx> <bity> <bitz> <TileName> [dataValue]
+commands.setbit.outOfWorld=Cannot place block outside of the world
+commands.setbit.noChange=The bit couldn't be placed
+commands.setbit.success=Bit placed
+commands.setbit.cannotChiselBlock=Block cannot be chiseled.
+commands.setbit.invalidState=Invalid Bit Type
+commands.setbit.spaceOccupied=Bit cannot be placed space is occupied
+
 mod.chiselsandbits.config.maxUndoLevel=Max Undo Level
 mod.chiselsandbits.config.persistCreativeClipboard=Save/Load Creative Clipboard Contents
 mod.chiselsandbits.config.fluidBitsAreClickThough=Click though Fluid Bits.
@@ -172,3 +180,4 @@ mod.chiselsandbits.config.diamondChiselUses=Diamond Chisel Uses
 mod.chiselsandbits.config.goldChiselUses=Gold Chisel uses
 mod.chiselsandbits.config.wrenchUses=Wrench Uses
 mod.chiselsandbits.config.enableRightClickModeChange=Cycle Chisel mode on right click
+mod.chiselsandbits.config.enableSetBitCommand=Enable /setbit Command
