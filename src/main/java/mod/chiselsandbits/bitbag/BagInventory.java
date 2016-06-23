@@ -359,7 +359,8 @@ public class BagInventory implements IInventory
 					continue;
 				}
 
-				final String name = what.getItemStackDisplayName( new ItemStack( what, 1, blk.getMetaFromState( state ) ) );
+				final ItemChiseledBit bit = ChiselsAndBits.getItems().itemBlockBit;
+				final String name = bit.getBitTypeName( is );
 
 				Integer count = contents.get( name );
 				if ( count == null )

@@ -3,6 +3,7 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import mod.chiselsandbits.bittank.BlockBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
@@ -30,6 +31,7 @@ import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import net.minecraft.block.Block;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -43,6 +45,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -104,13 +107,15 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ItemStack stack )
 	{
 		ItemStack target = null;
+		IBlockState state = null;
+		Block blk = null;
 
 		try
 		{
 			// for an unknown reason its possible to generate mod blocks without
 			// proper state here...
-			final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
-			final Block blk = state.getBlock();
+			state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
+			blk = state.getBlock();
 
 			final Item item = Item.getItemFromBlock( blk );
 			if ( item == null )
@@ -123,7 +128,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			}
 			else
 			{
-				target = new ItemStack( blk, 1, blk.getMetaFromState( state ) );
+				target = new ItemStack( blk, 1, blk.damageDropped( state ) );
 			}
 		}
 		catch ( final IllegalArgumentException e )
@@ -138,7 +143,33 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 		try
 		{
-			return target.getDisplayName();
+			final String myName = target.getDisplayName();
+
+			final Set<String> extra = new HashSet<String>();
+			if ( blk != null && state != null )
+			{
+				for ( final IProperty<?> p : state.getPropertyNames() )
+				{
+					if ( p.getName().equals( "axis" ) || p.getName().equals( "facing" ) )
+					{
+						extra.add( I18n.translateToLocal( "mod.chiselsandbits.pretty." + p.getName() + "-" + state.getProperties().get( p ).toString() ) );
+					}
+				}
+			}
+
+			if ( extra.isEmpty() )
+			{
+				return myName;
+			}
+
+			final StringBuilder b = new StringBuilder( myName );
+
+			for ( final String x : extra )
+			{
+				b.append( ' ' ).append( x );
+			}
+
+			return b.toString();
 		}
 		catch ( final Exception e )
 		{
