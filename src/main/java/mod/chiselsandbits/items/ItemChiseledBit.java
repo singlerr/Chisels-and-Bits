@@ -43,8 +43,8 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.util.StatCollector;
 import net.minecraft.util.Vec3;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -152,7 +152,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				{
 					if ( p.getName().equals( "axis" ) || p.getName().equals( "facing" ) )
 					{
-						extra.add( I18n.translateToLocal( "mod.chiselsandbits.pretty." + p.getName() + "-" + state.getProperties().get( p ).toString() ) );
+						extra.add( StatCollector.translateToLocal( "mod.chiselsandbits.pretty." + p.getName() + "-" + state.getProperties().get( p ).toString() ) );
 					}
 				}
 			}

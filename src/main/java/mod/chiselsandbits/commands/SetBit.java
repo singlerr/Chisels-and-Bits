@@ -3,8 +3,6 @@ package mod.chiselsandbits.commands;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
@@ -19,8 +17,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 
 public class SetBit extends CommandBase
@@ -46,8 +43,7 @@ public class SetBit extends CommandBase
 	}
 
 	@Override
-	public void execute(
-			final MinecraftServer server,
+	public void processCommand(
 			final ICommandSender sender,
 			final String[] args ) throws CommandException
 	{
@@ -94,7 +90,7 @@ public class SetBit extends CommandBase
 						ba.setBitAt( bitpos.getX(), bitpos.getY(), bitpos.getZ(), brush );
 						ba.commitChanges( true );
 						sender.setCommandStat( CommandResultStats.Type.AFFECTED_BLOCKS, 1 );
-						notifyCommandListener( sender, this, "commands.setbit.success" );
+						notifyOperators( sender, this, "commands.setbit.success" );
 					}
 				}
 				catch ( final CannotBeChiseled e )
@@ -115,13 +111,12 @@ public class SetBit extends CommandBase
 	}
 
 	@Override
-	public List<String> getTabCompletionOptions(
-			final MinecraftServer server,
+	public List<String> addTabCompletionOptions(
 			final ICommandSender sender,
 			final String[] args,
-			@Nullable final BlockPos pos )
+			final BlockPos pos )
 	{
-		return args.length > 0 && args.length <= 3 ? getTabCompletionCoordinate( args, 0, pos )
-				: args.length == 7 ? getListOfStringsMatchingLastWord( args, Block.REGISTRY.getKeys() ) : Collections.<String> emptyList();
+		return args.length > 0 && args.length <= 3 ? func_175771_a( args, 0, pos )
+				: args.length == 7 ? getListOfStringsMatchingLastWord( args, Block.blockRegistry.getKeys() ) : Collections.<String> emptyList();
 	}
 }
