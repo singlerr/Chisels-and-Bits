@@ -161,7 +161,7 @@ public class ModUtil
 	{
 		final ItemStack inHand = who.getCurrentEquippedItem();
 		final IInventory inv = who.getInventory();
-		final boolean canEdit = who.canPlayerManipulate( pos, EnumFacing.UP, inHand );
+		final boolean canEdit = who.canPlayerManipulate( pos, EnumFacing.UP, inHand, true );
 
 		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChiseledBit.getStackState( inHand ) == StateID )
 		{

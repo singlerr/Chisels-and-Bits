@@ -34,11 +34,11 @@ public class ContinousChisels implements IContinuousInventory
 		final IInventory inv = who.getInventory();
 
 		// test can edit...
-		canEdit = who.canPlayerManipulate( pos, side, new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond, 1 ) );
+		canEdit = who.canPlayerManipulate( pos, side, new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond, 1 ), false );
 
 		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChisel )
 		{
-			if ( who.canPlayerManipulate( pos, side, inHand ) )
+			if ( who.canPlayerManipulate( pos, side, inHand, false ) )
 			{
 				options.add( new ItemStackSlot( inv, who.getCurrentItem(), inHand, who, canEdit ) );
 			}
@@ -56,7 +56,7 @@ public class ContinousChisels implements IContinuousInventory
 					continue;
 				}
 
-				if ( !who.canPlayerManipulate( pos, side, is ) )
+				if ( !who.canPlayerManipulate( pos, side, is, false ) )
 				{
 					continue;
 				}
