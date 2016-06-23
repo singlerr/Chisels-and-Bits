@@ -10,6 +10,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.client.CreativeClipboardTab;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.client.gui.ModGuiRouter;
+import mod.chiselsandbits.commands.SetBit;
 import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.api.ChiselAndBitsAPI;
 import mod.chiselsandbits.core.api.IMCHandler;
@@ -34,6 +35,7 @@ import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLModIdMappingEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -179,6 +181,17 @@ public class ChiselsAndBits
 		{
 			GameRegistry.addRecipe( new BitSawCrafting() );
 			RecipeSorter.register( MODID + ":bitsawcrafting", BitSawCrafting.class, Category.UNKNOWN, craftingOrder );
+		}
+	}
+
+	@EventHandler
+	public void serverStart(
+			final FMLServerStartingEvent e )
+	{
+
+		if ( getConfig().enableSetBitCommand )
+		{
+			e.registerServerCommand( new SetBit() );
 		}
 	}
 
