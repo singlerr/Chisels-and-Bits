@@ -94,6 +94,17 @@ mod.chiselsandbits.help.rightalt=Right Alt
 mod.chiselsandbits.help.trash=Delete Bag Contents
 mod.chiselsandbits.help.reallytrash=Click again to confirm deletion.
 
+mod.chiselsandbits.pretty.axis-y=Up/Down
+mod.chiselsandbits.pretty.axis-x=East/West
+mod.chiselsandbits.pretty.axis-z=North/South
+
+mod.chiselsandbits.pretty.facing-up=Up
+mod.chiselsandbits.pretty.facing-down=Down
+mod.chiselsandbits.pretty.facing-east=East
+mod.chiselsandbits.pretty.facing-west=West
+mod.chiselsandbits.pretty.facing-north=North
+mod.chiselsandbits.pretty.facing-south=South
+
 mod.chiselsandbits.config.maxUndoLevel=Max Undo Level
 mod.chiselsandbits.config.persistCreativeClipboard=Save/Load Creative Clipboard Contents
 mod.chiselsandbits.config.fluidBitsAreClickThough=Click though Fluid Bits.
