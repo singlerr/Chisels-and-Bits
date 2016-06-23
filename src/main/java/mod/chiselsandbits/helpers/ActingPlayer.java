@@ -1,5 +1,6 @@
 package mod.chiselsandbits.helpers;
 
+import mod.chiselsandbits.api.EventBlockBitModification;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -7,6 +8,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 
 public class ActingPlayer
 {
@@ -48,12 +50,39 @@ public class ActingPlayer
 		return storage.getStackInSlot( getCurrentItem() );
 	}
 
+	// permission check cache.
+	BlockPos lastPos = null;
+	Boolean lastPlacement = null;
+	ItemStack lastPermissionBit = null;
+	Boolean permissionResult = null;
+
 	public boolean canPlayerManipulate(
 			final BlockPos pos,
 			final EnumFacing side,
-			final ItemStack is )
+			final ItemStack is,
+			final boolean placement )
 	{
-		return innerPlayer.canPlayerEdit( pos, side, is ) && innerPlayer.worldObj.isBlockModifiable( innerPlayer, pos );
+		// only re-test if something changes.
+		if ( permissionResult == null || lastPermissionBit != is || lastPos != pos || placement != lastPlacement )
+		{
+			lastPos = pos;
+			lastPlacement = placement;
+			lastPermissionBit = is;
+
+			if ( innerPlayer.canPlayerEdit( pos, side, is ) && innerPlayer.worldObj.isBlockModifiable( innerPlayer, pos ) )
+			{
+				final EventBlockBitModification event = new EventBlockBitModification( innerPlayer.worldObj, pos, innerPlayer, hand, is, placement );
+				MinecraftForge.EVENT_BUS.post( event );
+
+				permissionResult = !event.isCanceled();
+			}
+			else
+			{
+				permissionResult = false;
+			}
+		}
+
+		return permissionResult;
 	}
 
 	public void damageItem(

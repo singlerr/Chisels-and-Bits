@@ -31,7 +31,7 @@ public class ContinousBits implements IContinuousInventory
 		final IInventory inv = src.getInventory();
 
 		// test can edit...
-		canEdit = who.canPlayerManipulate( pos, EnumFacing.UP, new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond, 1 ) );
+		canEdit = who.canPlayerManipulate( pos, EnumFacing.UP, new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond, 1 ), true );
 
 		ItemStackSlot handSlot = null;
 
