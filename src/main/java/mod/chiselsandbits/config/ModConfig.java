@@ -206,6 +206,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public int diamondSawUses;
 
+	@Configured( category = "Balance Settings" )
+	public boolean enableSetBitCommand;
+
 	public boolean deobfuscatedEnvironment()
 	{
 		final Object deObf = Launch.blackboard.get( "fml.deobfuscatedEnvironment" );
@@ -260,6 +263,7 @@ public class ModConfig extends Configuration
 
 		showUsage = true;
 		invertBitBagFullness = false;
+		enableSetBitCommand = false;
 
 		damageTools = true;
 		stoneChiselUses = 8384;
