@@ -26,6 +26,11 @@ public class JustEnoughItems extends BlankModPlugin
 			registry.getJeiHelpers().getItemBlacklist().addItemToBlacklist( new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
 		}
 
+		for ( final Block blk : ChiselsAndBits.getBlocks().getConversions().values() )
+		{
+			registry.getJeiHelpers().getItemBlacklist().addItemToBlacklist( new ItemStack( blk, 1, OreDictionary.WILDCARD_VALUE ) );
+		}
+
 		registry.getJeiHelpers().getNbtIgnoreList().ignoreNbtTagNames( ChiselsAndBits.getItems().itemBitBag, "contents" );
 
 		final ArrayList<ItemStack> chiseles = new ArrayList<ItemStack>();
