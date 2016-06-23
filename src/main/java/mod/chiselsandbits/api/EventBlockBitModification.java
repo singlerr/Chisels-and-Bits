@@ -61,7 +61,7 @@ public class EventBlockBitModification extends Event
 		return itemUsed;
 	}
 
-	boolean getPlacement()
+	public boolean isPlacing()
 	{
 		return placement;
 	}
