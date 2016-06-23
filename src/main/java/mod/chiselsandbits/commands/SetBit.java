@@ -94,7 +94,7 @@ public class SetBit extends CommandBase
 						ba.setBitAt( bitpos.getX(), bitpos.getY(), bitpos.getZ(), brush );
 						ba.commitChanges( true );
 						sender.setCommandStat( CommandResultStats.Type.AFFECTED_BLOCKS, 1 );
-						notifyCommandListener( sender, this, "commands.setbit.success" );
+						notifyOperators( sender, this, "commands.setbit.success" );
 					}
 				}
 				catch ( final CannotBeChiseled e )
@@ -122,6 +122,6 @@ public class SetBit extends CommandBase
 			@Nullable final BlockPos pos )
 	{
 		return args.length > 0 && args.length <= 3 ? getTabCompletionCoordinate( args, 0, pos )
-				: args.length == 7 ? getListOfStringsMatchingLastWord( args, Block.REGISTRY.getKeys() ) : Collections.<String> emptyList();
+				: args.length == 7 ? getListOfStringsMatchingLastWord( args, Block.blockRegistry.getKeys() ) : Collections.<String> emptyList();
 	}
 }
