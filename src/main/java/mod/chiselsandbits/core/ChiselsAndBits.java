@@ -157,31 +157,31 @@ public class ChiselsAndBits
 		if ( getConfig().enablePositivePrintCrafting )
 		{
 			GameRegistry.addRecipe( new ChiselCrafting() );
-			RecipeSorter.register( MODID + ":chiselcrafting", ChiselCrafting.class, Category.UNKNOWN, craftingOrder );
+			RecipeSorter.register( MODID + ":chiselcrafting", ChiselCrafting.class, Category.SHAPELESS, craftingOrder );
 		}
 
 		if ( getConfig().enableStackableCrafting )
 		{
 			GameRegistry.addRecipe( new StackableCrafting() );
-			RecipeSorter.register( MODID + ":stackablecrafting", StackableCrafting.class, Category.UNKNOWN, craftingOrder );
+			RecipeSorter.register( MODID + ":stackablecrafting", StackableCrafting.class, Category.SHAPELESS, craftingOrder );
 		}
 
 		if ( getConfig().enableNegativePrintInversionCrafting )
 		{
 			GameRegistry.addRecipe( new NegativeInversionCrafting() );
-			RecipeSorter.register( MODID + ":negativepatterncrafting", NegativeInversionCrafting.class, Category.UNKNOWN, craftingOrder );
+			RecipeSorter.register( MODID + ":negativepatterncrafting", NegativeInversionCrafting.class, Category.SHAPELESS, craftingOrder );
 		}
 
 		if ( getConfig().enableMirrorPrint )
 		{
 			GameRegistry.addRecipe( new MirrorTransferCrafting() );
-			RecipeSorter.register( MODID + ":mirrorpatterncrafting", MirrorTransferCrafting.class, Category.UNKNOWN, craftingOrder );
+			RecipeSorter.register( MODID + ":mirrorpatterncrafting", MirrorTransferCrafting.class, Category.SHAPELESS, craftingOrder );
 		}
 
 		if ( getConfig().enableBitSaw )
 		{
 			GameRegistry.addRecipe( new BitSawCrafting() );
-			RecipeSorter.register( MODID + ":bitsawcrafting", BitSawCrafting.class, Category.UNKNOWN, craftingOrder );
+			RecipeSorter.register( MODID + ":bitsawcrafting", BitSawCrafting.class, Category.SHAPELESS, craftingOrder );
 		}
 	}
 
