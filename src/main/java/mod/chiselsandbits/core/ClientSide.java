@@ -3,7 +3,6 @@ package mod.chiselsandbits.core;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -37,6 +36,7 @@ import mod.chiselsandbits.client.CreativeClipboardTab;
 import mod.chiselsandbits.client.ItemColorBits;
 import mod.chiselsandbits.client.ItemColorChisled;
 import mod.chiselsandbits.client.ModConflictContext;
+import mod.chiselsandbits.client.RenderHelper;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.client.gui.ChiselsAndBitsMenu;
 import mod.chiselsandbits.client.gui.SpriteIconPositioning;
@@ -67,17 +67,12 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemMeshDefinition;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
@@ -728,7 +723,7 @@ public class ClientSide
 						final double maxChiseSize = ChiselsAndBits.getConfig().maxDrawnRegionSize + 0.001;
 						if ( bb.maxX - bb.minX <= maxChiseSize && bb.maxY - bb.minY <= maxChiseSize && bb.maxZ - bb.minZ <= maxChiseSize )
 						{
-							drawSelectionBoundingBoxIfExists( bb, BlockPos.ORIGIN, player, partialTicks, false );
+							RenderHelper.drawSelectionBoundingBoxIfExists( bb, BlockPos.ORIGIN, player, partialTicks, false );
 
 							if ( !getToolKey().isKeyDown() )
 							{
@@ -768,7 +763,7 @@ public class ClientSide
 						{
 							final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, region, chMode, mop.sideHit );
 							final AxisAlignedBB bb = i.getBoundingBox( vb, isChisel );
-							drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
+							RenderHelper.drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
 							showBox = false;
 						}
 						else if ( isBit )
@@ -777,7 +772,7 @@ public class ClientSide
 							j.fill( 1 );
 							final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, j, chMode, mop.sideHit );
 							final AxisAlignedBB bb = snapToSide( i.getBoundingBox( j, isChisel ), mop.sideHit );
-							drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
+							RenderHelper.drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
 						}
 					}
 				}
@@ -826,41 +821,6 @@ public class ClientSide
 		}
 
 		return boundingBox;
-	}
-
-	private void drawSelectionBoundingBoxIfExists(
-			final AxisAlignedBB bb,
-			final BlockPos blockPos,
-			final EntityPlayer player,
-			final float partialTicks,
-			final boolean NormalBoundingBox )
-	{
-		if ( bb != null )
-		{
-			final double x = player.lastTickPosX + ( player.posX - player.lastTickPosX ) * partialTicks;
-			final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
-			final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
-
-			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0 );
-			GL11.glLineWidth( 2.0F );
-			GlStateManager.disableTexture2D();
-			GlStateManager.depthMask( false );
-
-			if ( !NormalBoundingBox )
-			{
-				RenderGlobal.func_189697_a( bb.expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ() ), 0.0F, 0.0F, 0.0F, 0.4F );
-			}
-
-			GlStateManager.disableDepth();
-
-			RenderGlobal.func_189697_a( bb.expand( 0.0020000000949949026D, 0.0020000000949949026D, 0.0020000000949949026D ).offset( -x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ() ), 0.0F, 0.0F, 0.0F, 0.1F );
-
-			GlStateManager.enableDepth();
-			GlStateManager.depthMask( true );
-			GlStateManager.enableTexture2D();
-			GlStateManager.disableBlend();
-		}
 	}
 
 	@SubscribeEvent
@@ -1102,62 +1062,8 @@ public class ClientSide
 			GlStateManager.translate( t.getX() * fullScale, t.getY() * fullScale, t.getZ() * fullScale );
 		}
 
-		GlStateManager.bindTexture( Minecraft.getMinecraft().getTextureMapBlocks().getGlTextureId() );
-		GlStateManager.color( 1.0f, 1.0f, 1.0f, 0.1f );
-		GlStateManager.enableBlend();
-		GlStateManager.enableTexture2D();
-		GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
-		GlStateManager.colorMask( false, false, false, false );
-
-		renderModel( baked, player.worldObj, blockPos );
-		GlStateManager.colorMask( true, true, true, true );
-		GlStateManager.depthFunc( GL11.GL_LEQUAL );
-		renderModel( baked, player.worldObj, blockPos );
-
-		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
-		GlStateManager.disableBlend();
+		RenderHelper.renderGhostModel( baked, player.worldObj, blockPos );
 		GlStateManager.popMatrix();
-	}
-
-	private void renderQuads(
-			final VertexBuffer renderer,
-			final List<BakedQuad> quads,
-			final World worldObj,
-			final BlockPos blockPos )
-	{
-		int i = 0;
-		for ( final int j = quads.size(); i < j; ++i )
-		{
-			final BakedQuad bakedquad = quads.get( i );
-			final int color = bakedquad.getTintIndex() == -1 ? 0xaaffffff : getTint( bakedquad.getTintIndex(), worldObj, blockPos );
-			net.minecraftforge.client.model.pipeline.LightUtil.renderQuadColor( renderer, bakedquad, color );
-		}
-	}
-
-	private int getTint(
-			final int tintIndex,
-			final World worldObj,
-			final BlockPos blockPos )
-	{
-		return 0xaa000000 | Minecraft.getMinecraft().getBlockColors().colorMultiplier( ChiselsAndBits.getBlocks().getChiseledDefaultState(), worldObj, blockPos, tintIndex );
-	}
-
-	private void renderModel(
-			final IBakedModel model,
-			final World worldObj,
-			final BlockPos blockPos )
-	{
-		final Tessellator tessellator = Tessellator.getInstance();
-		final VertexBuffer worldrenderer = tessellator.getBuffer();
-		worldrenderer.begin( 7, DefaultVertexFormats.ITEM );
-
-		for ( final EnumFacing enumfacing : EnumFacing.values() )
-		{
-			renderQuads( worldrenderer, model.getQuads( null, enumfacing, 0 ), worldObj, blockPos );
-		}
-
-		renderQuads( worldrenderer, model.getQuads( null, null, 0 ), worldObj, blockPos );
-		tessellator.draw();
 	}
 
 	private boolean samePos(
