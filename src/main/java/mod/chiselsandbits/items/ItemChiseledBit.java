@@ -8,10 +8,8 @@ import java.util.Set;
 import mod.chiselsandbits.bittank.BlockBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
-import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -24,7 +22,6 @@ import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
-import mod.chiselsandbits.helpers.VoxelRegionSrc;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
@@ -254,32 +251,6 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 						}
 						return EnumActionResult.FAIL;
 
-					case CONNECTED_PLANE:
-
-						final VoxelRegionSrc region = new VoxelRegionSrc( world, chiselLocation.blockPos, 1 );
-
-						final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, chiselLocation.bitX, chiselLocation.bitY, chiselLocation.bitZ, region, ChiselMode.CONNECTED_PLANE, side );
-						final IntegerBox connectedBox = i.getVoxelBox( region.getBlobAt( chiselLocation.blockPos ), true );
-
-						if ( connectedBox == null )
-						{
-							return EnumActionResult.FAIL;
-						}
-
-						BlockPos targetBlock = bitLocation.blockPos;
-
-						connectedBox.move( side, 1 );
-						if ( connectedBox.isBadBitPositions() )
-						{
-							final EnumFacing reverse = side.getOpposite();
-							connectedBox.move( reverse, 16 );
-							targetBlock = targetBlock.offset( side );
-						}
-
-						final BitLocation from = new BitLocation( bitLocation.blockPos, connectedBox.minX, connectedBox.minY, connectedBox.minZ );
-						final BitLocation to = new BitLocation( bitLocation.blockPos, connectedBox.maxX, connectedBox.maxY, connectedBox.maxZ );
-						pc = new PacketChisel( true, from, to, side, ChiselMode.DRAWN_REGION, hand );
-						break;
 					default:
 						pc = new PacketChisel( true, bitLocation, side, mode, hand );
 						break;

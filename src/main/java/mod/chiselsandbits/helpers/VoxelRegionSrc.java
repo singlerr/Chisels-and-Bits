@@ -61,9 +61,9 @@ public class VoxelRegionSrc implements IVoxelSrc
 	public VoxelRegionSrc(
 			final World theWorld,
 			final BlockPos blockPos,
-			final int i )
+			final int range )
 	{
-		this( theWorld, blockPos.add( -i, -i, -i ), blockPos.add( i, i, i ), blockPos );
+		this( theWorld, blockPos.add( -range, -range, -range ), blockPos.add( range, range, range ), blockPos );
 	}
 
 	@Override

@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.chiseledblock.iterators.ChiselIterator;
+import mod.chiselsandbits.chiseledblock.iterators.ChiselTypeIterator;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -155,7 +156,7 @@ public class PacketChisel extends ModPacket
 							// adjust voxel state...
 							final VoxelBlob vb = tec.getBlob();
 
-							final ChiselTypeIterator i = getIterator( new VoxelRegionSrc( world, pos, 1 ), pos );
+							final ChiselIterator i = getIterator( new VoxelRegionSrc( world, pos, 1 ), pos, place );
 							while ( i.hasNext() && chisel.isValid() )
 							{
 								if ( place )
@@ -168,7 +169,7 @@ public class PacketChisel extends ModPacket
 								}
 								else
 								{
-									extracted = ItemChisel.chiselBlock( chisel, player, vb, world, pos, i.side, i.x(), i.y(), i.z(), extracted, spawnlist );
+									extracted = ItemChisel.chiselBlock( chisel, player, vb, world, pos, i.side(), i.x(), i.y(), i.z(), extracted, spawnlist );
 								}
 							}
 
@@ -209,9 +210,10 @@ public class PacketChisel extends ModPacket
 		return returnVal;
 	}
 
-	private ChiselTypeIterator getIterator(
+	private ChiselIterator getIterator(
 			final VoxelRegionSrc vb,
-			final BlockPos pos )
+			final BlockPos pos,
+			final boolean place )
 	{
 		if ( mode == ChiselMode.DRAWN_REGION )
 		{
@@ -226,7 +228,7 @@ public class PacketChisel extends ModPacket
 			return new ChiselTypeIterator( VoxelBlob.dim, bitX, bitY, bitZ, scaleX, scaleY, scaleZ, side );
 		}
 
-		return new ChiselTypeIterator( VoxelBlob.dim, from.bitX, from.bitY, from.bitZ, vb, mode, side );
+		return ChiselTypeIterator.create( VoxelBlob.dim, from.bitX, from.bitY, from.bitZ, vb, mode, side, place );
 	}
 
 	@Override

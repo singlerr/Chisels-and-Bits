@@ -21,7 +21,6 @@ import mod.chiselsandbits.bittank.TileEntityBitTank;
 import mod.chiselsandbits.bittank.TileEntitySpecialRenderBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.chiseledblock.ChiselTypeIterator;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -31,6 +30,8 @@ import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.chiseledblock.iterators.ChiselIterator;
+import mod.chiselsandbits.chiseledblock.iterators.ChiselTypeIterator;
 import mod.chiselsandbits.client.BlockColorChisled;
 import mod.chiselsandbits.client.CreativeClipboardTab;
 import mod.chiselsandbits.client.ItemColorBits;
@@ -712,8 +713,8 @@ public class ClientSide
 					final BitLocation other = getStartPos();
 					if ( chMode == ChiselMode.DRAWN_REGION && other != null )
 					{
-						final ChiselTypeIterator oneEnd = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, VoxelBlob.NULL_BLOB, ChiselMode.SINGLE, EnumFacing.UP );
-						final ChiselTypeIterator otherEnd = new ChiselTypeIterator( VoxelBlob.dim, other.bitX, other.bitY, other.bitZ, VoxelBlob.NULL_BLOB, ChiselMode.SINGLE, EnumFacing.UP );
+						final ChiselIterator oneEnd = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, VoxelBlob.NULL_BLOB, ChiselMode.SINGLE, EnumFacing.UP, tool == ChiselToolType.BIT );
+						final ChiselIterator otherEnd = ChiselTypeIterator.create( VoxelBlob.dim, other.bitX, other.bitY, other.bitZ, VoxelBlob.NULL_BLOB, ChiselMode.SINGLE, EnumFacing.UP, tool == ChiselToolType.BIT );
 
 						final AxisAlignedBB a = oneEnd.getBoundingBox( VoxelBlob.NULL_BLOB, false ).offset( location.blockPos.getX(), location.blockPos.getY(), location.blockPos.getZ() );
 						final AxisAlignedBB b = otherEnd.getBoundingBox( VoxelBlob.NULL_BLOB, false ).offset( other.blockPos.getX(), other.blockPos.getY(), other.blockPos.getZ() );
@@ -761,7 +762,7 @@ public class ClientSide
 
 						if ( theWorld.isAirBlock( location.blockPos ) || isBitBlock || isBlockSupported )
 						{
-							final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, region, chMode, mop.sideHit );
+							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, region, chMode, mop.sideHit, !isChisel );
 							final AxisAlignedBB bb = i.getBoundingBox( vb, isChisel );
 							RenderHelper.drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
 							showBox = false;
@@ -770,7 +771,7 @@ public class ClientSide
 						{
 							final VoxelBlob j = new VoxelBlob();
 							j.fill( 1 );
-							final ChiselTypeIterator i = new ChiselTypeIterator( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, j, chMode, mop.sideHit );
+							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, j, chMode, mop.sideHit, !isChisel );
 							final AxisAlignedBB bb = snapToSide( i.getBoundingBox( j, isChisel ), mop.sideHit );
 							RenderHelper.drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
 						}

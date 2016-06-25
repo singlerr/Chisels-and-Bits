@@ -1,6 +1,5 @@
 package mod.chiselsandbits.chiseledblock;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -174,7 +173,7 @@ public class BlockBitInfo
 			final boolean quantityDroppedTest = wc == Block.class || wc == BlockGlowstone.class || wc == BlockStainedGlass.class || wc == BlockGlass.class || wc == BlockSnowBlock.class;
 
 			pb.quantityDroppedWithBonus( 0, null );
-			final boolean quantityDroppedWithBonusTest = getDeclaringClass( blkClass,pb.MethodName, int.class, Random.class ) == Block.class || wc == BlockGlowstone.class;
+			final boolean quantityDroppedWithBonusTest = getDeclaringClass( blkClass, pb.MethodName, int.class, Random.class ) == Block.class || wc == BlockGlowstone.class;
 
 			pb.quantityDropped( null, 0, null );
 			final boolean quantityDropped2Test = getDeclaringClass( blkClass, pb.MethodName, IBlockState.class, int.class, Random.class ) == Block.class;
@@ -184,7 +183,7 @@ public class BlockBitInfo
 
 			// ignore blocks with custom collision.
 			pb.onEntityCollidedWithBlock( null, null, null, null );
-			boolean noCustomCollision = getDeclaringClass( blkClass,pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ) == Block.class || blkClass == BlockSlime.class;
+			boolean noCustomCollision = getDeclaringClass( blkClass, pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ) == Block.class || blkClass == BlockSlime.class;
 
 			// full cube specifically is tied to lighting... so for glass
 			// Compatibility use isFullBlock which can be true for glass.
@@ -238,33 +237,33 @@ public class BlockBitInfo
 	}
 
 	private static Class<?> getDeclaringClass(
-			Class<?> blkClass,
-			String methodName,
-			Class<?>... args )
+			final Class<?> blkClass,
+			final String methodName,
+			final Class<?>... args )
 	{
 		try
 		{
-			blkClass.getDeclaredMethod( methodName, args);
+			blkClass.getDeclaredMethod( methodName, args );
 			return blkClass;
 		}
-		catch ( NoSuchMethodException e )
+		catch ( final NoSuchMethodException e )
 		{
 			// nothing here...
 		}
-		catch ( SecurityException e )
+		catch ( final SecurityException e )
 		{
 			// nothing here..
 		}
-		catch(NoClassDefFoundError e)
+		catch ( final NoClassDefFoundError e )
 		{
-			Log.info( "Unable to determine blocks eligibility for chiseling, " + blkClass.getName() +" attempted to load " + e.getMessage() );
+			Log.info( "Unable to determine blocks eligibility for chiseling, " + blkClass.getName() + " attempted to load " + e.getMessage() );
 			return blkClass;
 		}
-		catch(Throwable t )
-		{			
+		catch ( final Throwable t )
+		{
 			return blkClass;
 		}
-		
+
 		return getDeclaringClass(
 				blkClass.getSuperclass(),
 				methodName,
@@ -303,7 +302,7 @@ public class BlockBitInfo
 			final boolean test_b = getDeclaringClass( blkClass, reflectBlock.MethodName, IBlockState.class, EntityPlayer.class, World.class, BlockPos.class ) == Block.class;
 
 			reflectBlock.getExplosionResistance( null );
-			final Class exploResistanceClz = getDeclaringClass(blkClass, reflectBlock.MethodName, Entity.class );
+			final Class exploResistanceClz = getDeclaringClass( blkClass, reflectBlock.MethodName, Entity.class );
 			final boolean test_c = exploResistanceClz == Block.class;
 
 			reflectBlock.getExplosionResistance( null, null, null, null );
