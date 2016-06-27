@@ -1,7 +1,5 @@
 package mod.chiselsandbits.helpers;
 
-import net.minecraft.util.text.translation.I18n;
-
 public enum LocalStrings
 {
 
@@ -73,7 +71,7 @@ public enum LocalStrings
 
 	public String getLocal()
 	{
-		return I18n.translateToLocal( string );
+		return DeprecationHelper.translateToLocal( string );
 	}
 
 }

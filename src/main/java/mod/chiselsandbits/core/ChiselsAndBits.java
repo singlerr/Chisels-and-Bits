@@ -25,6 +25,7 @@ import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
+import net.minecraft.block.material.Material;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -116,6 +117,17 @@ public class ChiselsAndBits
 		blocks = new ModBlocks( getConfig(), event.getSide() );
 
 		integration.preinit( event );
+
+		// merge most of the extra materials into the normal set.
+		ChiselsAndBits.getApi().addEquivilantMaterial( Material.SPONGE, Material.CLAY );
+		ChiselsAndBits.getApi().addEquivilantMaterial( Material.ANVIL, Material.IRON );
+		ChiselsAndBits.getApi().addEquivilantMaterial( Material.PLANTS, Material.GRASS );
+		ChiselsAndBits.getApi().addEquivilantMaterial( Material.GOURD, Material.PLANTS );
+		ChiselsAndBits.getApi().addEquivilantMaterial( Material.CACTUS, Material.PLANTS );
+		ChiselsAndBits.getApi().addEquivilantMaterial( Material.CORAL, Material.ROCK );
+		ChiselsAndBits.getApi().addEquivilantMaterial( Material.WEB, Material.PLANTS );
+		ChiselsAndBits.getApi().addEquivilantMaterial( Material.VINE, Material.PLANTS );
+		ChiselsAndBits.getApi().addEquivilantMaterial( Material.TNT, Material.ROCK );
 
 		// loader must be added here to prevent missing models, the rest of the
 		// model/textures must be configured later.

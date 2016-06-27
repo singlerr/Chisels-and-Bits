@@ -16,6 +16,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ChiselToolType;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemBitBag;
@@ -26,6 +27,7 @@ import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.items.ItemPositivePrint;
 import mod.chiselsandbits.items.ItemWrench;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -41,6 +43,14 @@ import net.minecraftforge.items.CapabilityItemHandler;
 
 public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 {
+
+	@Override
+	public void addEquivilantMaterial(
+			final Material newMaterial,
+			final Material target )
+	{
+		ChiselsAndBits.getBlocks().addConversion( newMaterial, target );
+	}
 
 	@Override
 	public boolean canBeChiseled(
@@ -211,8 +221,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 		if ( bitItemStack != null && bitItemStack.getItem() instanceof ItemBlock )
 		{
-			final ItemBlock blkItem = (ItemBlock) bitItemStack.getItem();
-			final IBlockState state = blkItem.getBlock().getStateFromMeta( blkItem.getMetadata( bitItemStack ) );
+			final IBlockState state = DeprecationHelper.getStateFromItem( bitItemStack );
 
 			if ( BlockBitInfo.supportsBlock( state ) )
 			{

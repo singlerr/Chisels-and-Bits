@@ -2,6 +2,7 @@ package mod.chiselsandbits.api;
 
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -188,5 +189,15 @@ public interface IChiselAndBitsAPI
 	 */
 	void endUndoGroup(
 			EntityPlayer player );
+
+	/**
+	 * Register a custom material as equivalent to another material.
+	 *
+	 * @param newMaterial your custom material
+	 * @param target default MC Material C&B knows about.
+	 */
+	void addEquivilantMaterial(
+			Material newMaterial,
+			Material target ); // this should be a material C&B understands, other wise you'll get stone anyway.
 
 }

@@ -74,8 +74,6 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
 			placeoffset = side.getAxisDirection() == AxisDirection.POSITIVE ? 1 : -1;
 		}
 
-		final int target = source.getSafe( x, y, z );
-
 		for ( int b = 0; b < dim; ++b )
 		{
 			for ( int a = 0; a < dim; ++a )

@@ -6,7 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 
-public class IMCHandlerIgnoreLogicIMC implements IMCMessageHandler
+public class IMCHandlerIgnoreLogic implements IMCMessageHandler
 {
 
 	@Override
