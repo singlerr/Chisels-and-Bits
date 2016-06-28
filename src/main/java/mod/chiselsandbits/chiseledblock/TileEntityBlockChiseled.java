@@ -264,6 +264,13 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			final NBTTagCompound tag )
 	{
 		new NBTBlobConverter( false, this ).readChisleData( tag );
+
+		final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.UProperty_VoxelNeighborState );
+
+		if ( vns != null )
+		{
+			vns.triggerUpdate();
+		}
 	}
 
 	public void writeChisleData(

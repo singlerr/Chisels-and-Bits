@@ -105,6 +105,12 @@ public class ModConfig extends Configuration
 	public int maxUndoLevel;
 
 	@Configured( category = "Client Performance Settings" )
+	public int maxMillisecondsPerBlock = 10;
+
+	@Configured( category = "Client Performance Settings" )
+	public int maxMillisecondsUploadingPerFrame = 15;
+
+	@Configured( category = "Client Performance Settings" )
 	public int dynamicModelFaceCount;
 
 	@Configured( category = "Client Performance Settings" )

@@ -18,7 +18,7 @@ public final class VoxelNeighborRenderTracker
 	private ModelRenderState lrs = null;
 
 	private boolean isDynamic;
-	private boolean shouldUpdate;
+	private boolean shouldUpdate = false;
 	Integer[] faceCount = new Integer[4];
 
 	public VoxelNeighborRenderTracker()
@@ -52,16 +52,8 @@ public final class VoxelNeighborRenderTracker
 		faceCount[layer.ordinal()] = fc;
 	}
 
-	public boolean isShouldUpdate()
-	{
-		final boolean out = shouldUpdate;
-		shouldUpdate = false;
-		return out;
-	}
-
 	public boolean isDynamic()
 	{
-		shouldUpdate = true;
 		return isDynamic;
 	}
 
@@ -128,6 +120,18 @@ public final class VoxelNeighborRenderTracker
 			final VoxelBlobStateReference data )
 	{
 		lastCenter = new WeakReference<VoxelBlobStateReference>( data );
+	}
+
+	public void triggerUpdate()
+	{
+		shouldUpdate = true;
+	}
+
+	public boolean isShouldUpdate()
+	{
+		final boolean res = shouldUpdate;
+		shouldUpdate = false;
+		return res;
 	}
 
 }

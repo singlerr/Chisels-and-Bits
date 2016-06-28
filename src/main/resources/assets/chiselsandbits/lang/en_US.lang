@@ -181,3 +181,5 @@ mod.chiselsandbits.config.goldChiselUses=Gold Chisel uses
 mod.chiselsandbits.config.wrenchUses=Wrench Uses
 mod.chiselsandbits.config.enableRightClickModeChange=Cycle Chisel mode on right click
 mod.chiselsandbits.config.enableSetBitCommand=Enable /setbit Command
+mod.chiselsandbits.config.maxMillisecondsPerBlock=Max Milliseconds Per Block
+mod.chiselsandbits.config.maxMillisecondsUploadingPerFrame=Max Milliseconds Uploading/Cycle
