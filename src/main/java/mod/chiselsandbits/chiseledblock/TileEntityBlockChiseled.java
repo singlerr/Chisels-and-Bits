@@ -3,6 +3,7 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.Collection;
 import java.util.Collections;
 
+import mod.chiselsandbits.api.EventFullBlockRestoration;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
@@ -32,6 +33,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -476,7 +478,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			setState( getBasicState()
 					.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( common.mostCommonState, getPositionRandom( pos ) ) ) );
 
-			worldObj.setBlockState( pos, Block.getStateById( common.mostCommonState ), triggerUpdates ? 3 : 0 );
+			final IBlockState newState = Block.getStateById( common.mostCommonState );
+			if ( !MinecraftForge.EVENT_BUS.post( new EventFullBlockRestoration( worldObj, pos, newState ) ) )
+			{
+				worldObj.setBlockState( pos, newState, triggerUpdates ? 3 : 0 );
+			}
 		}
 		else if ( common.mostCommonState != 0 )
 		{
