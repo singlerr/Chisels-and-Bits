@@ -11,6 +11,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.api.BitAccess;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IChiseledTileContainer;
@@ -243,10 +244,10 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public NBTTagCompound getUpdateTag()
 	{
 		final NBTTagCompound nbttagcompound = new NBTTagCompound();
-		writeToNBT(nbttagcompound);
+		writeToNBT( nbttagcompound );
 		return nbttagcompound;
 	}
-	
+
 	@Override
 	public void onDataPacket(
 			final NetworkManager net,
@@ -294,8 +295,8 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		final int ref = Block.getStateId( blockType );
 
 		sideState = 0xff;
-		lightlevel = blockType.getBlock().getLightValue( blockType );
-		isNormalCube = blockType.getBlock().isNormalCube( blockType );
+		lightlevel = DeprecationHelper.getLightValue( blockType );
+		isNormalCube = ModUtil.isNormalCube( blockType );
 
 		IExtendedBlockState state = getBasicState()
 				.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( Block.getStateId( blockType ), getPositionRandom( pos ) ) );

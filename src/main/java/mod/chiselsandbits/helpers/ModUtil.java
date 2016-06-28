@@ -531,4 +531,11 @@ public class ModUtil
 
 		return new ItemStack( i, 1, damage );
 	}
+
+	public static boolean isNormalCube(
+			final IBlockState blockType )
+	{
+		return blockType.isNormalCube();
+	}
+
 }

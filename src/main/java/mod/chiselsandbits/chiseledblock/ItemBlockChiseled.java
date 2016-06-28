@@ -10,6 +10,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ChiselToolType;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -187,7 +188,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		{
 			return EnumActionResult.FAIL;
 		}
-		else if ( pos.getY() == 255 && this.block.getMaterial( this.block.getStateFromMeta( stack.getMetadata() ) ).isSolid() )
+		else if ( pos.getY() == 255 && DeprecationHelper.getStateFromItem( stack ).getMaterial().isSolid() )
 		{
 			return EnumActionResult.FAIL;
 		}

@@ -132,7 +132,11 @@ public class BlockBitInfo
 			final Block which )
 	{
 		ignoreLogicBlocks.put( which, true );
+		reset();
+	}
 
+	public static void reset()
+	{
 		stateBitInfo.clear();
 		supportedBlocks.clear();
 	}
@@ -151,6 +155,7 @@ public class BlockBitInfo
 		return bit;
 	}
 
+	@SuppressWarnings( "deprecation" )
 	public static boolean supportsBlock(
 			final IBlockState state )
 	{
@@ -284,6 +289,7 @@ public class BlockBitInfo
 		this.explosionResistance = explosionResistance;
 	}
 
+	@SuppressWarnings( "deprecation" )
 	public static BlockBitInfo createFromState(
 			final IBlockState state )
 	{
@@ -295,14 +301,14 @@ public class BlockBitInfo
 			final Class<? extends Block> blkClass = blk.getClass();
 
 			reflectBlock.getBlockHardness( null, null, null );
-			final Class hardnessMethodClass = getDeclaringClass( blkClass, reflectBlock.MethodName, IBlockState.class, World.class, BlockPos.class );
+			final Class<?> hardnessMethodClass = getDeclaringClass( blkClass, reflectBlock.MethodName, IBlockState.class, World.class, BlockPos.class );
 			final boolean test_a = hardnessMethodClass == Block.class;
 
 			reflectBlock.getPlayerRelativeBlockHardness( null, null, null, null );
 			final boolean test_b = getDeclaringClass( blkClass, reflectBlock.MethodName, IBlockState.class, EntityPlayer.class, World.class, BlockPos.class ) == Block.class;
 
 			reflectBlock.getExplosionResistance( null );
-			final Class exploResistanceClz = getDeclaringClass( blkClass, reflectBlock.MethodName, Entity.class );
+			final Class<?> exploResistanceClz = getDeclaringClass( blkClass, reflectBlock.MethodName, Entity.class );
 			final boolean test_c = exploResistanceClz == Block.class;
 
 			reflectBlock.getExplosionResistance( null, null, null, null );

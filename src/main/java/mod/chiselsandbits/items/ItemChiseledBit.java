@@ -18,6 +18,7 @@ import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -42,7 +43,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -149,7 +149,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				{
 					if ( p.getName().equals( "axis" ) || p.getName().equals( "facing" ) )
 					{
-						extra.add( I18n.translateToLocal( "mod.chiselsandbits.pretty." + p.getName() + "-" + state.getProperties().get( p ).toString() ) );
+						extra.add( DeprecationHelper.translateToLocal( "mod.chiselsandbits.pretty." + p.getName() + "-" + state.getProperties().get( p ).toString() ) );
 					}
 				}
 			}
@@ -228,7 +228,6 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		{
 			final ChiselMode mode = ChiselModeManager.getChiselMode( player, ClientSide.instance.getHeldToolType() );
 			final BitLocation bitLocation = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.BIT );
-			final BitLocation chiselLocation = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.CHISEL );
 
 			IBlockState blkstate = world.getBlockState( bitLocation.blockPos );
 			TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );
@@ -309,9 +308,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 							continue;
 						}
 
-						final ItemBlock ib = (ItemBlock) it;
-						final IBlockState state = ib.block.getStateFromMeta( out.getMetadata() );
-
+						final IBlockState state = DeprecationHelper.getStateFromItem( out );
 						if ( state != null && BlockBitInfo.supportsBlock( state ) )
 						{
 							used.add( state );

@@ -112,7 +112,15 @@ public class ModBlocks extends ModRegistry
 			return getConversions().get( Material.WATER );
 		}
 
-		return getConversions().get( material.getMaterial() );
+		BlockChiseled out = getConversions().get( material.getMaterial() );
+
+		if ( out == null )
+		{
+			// unknown material? just use stone.
+			out = getConversions().get( Material.ROCK );
+		}
+
+		return out;
 	}
 
 	public BlockChiseled getConversionWithDefault(
@@ -134,6 +142,22 @@ public class ModBlocks extends ModRegistry
 	public Map<Material, BlockChiseled> getConversions()
 	{
 		return conversions;
+	}
+
+	public boolean addConversion(
+			final Material newMaterial,
+			final Material target )
+	{
+		final BlockChiseled targ = conversions.get( target );
+
+		if ( targ != null && !conversions.containsKey( newMaterial ) )
+		{
+			BlockBitInfo.reset();
+			conversions.put( newMaterial, targ );
+			return true;
+		}
+
+		return false;
 	}
 
 }

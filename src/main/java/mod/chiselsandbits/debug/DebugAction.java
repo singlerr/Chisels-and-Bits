@@ -297,7 +297,7 @@ public abstract class DebugAction
 							final IBitBrush currentValue )
 					{
 						IBitBrush bit = null;
-						final IBlockState state = Blocks.WOOL.getStateFromMeta( 3 );
+						final IBlockState state = Blocks.WOOL.getDefaultState();
 
 						try
 						{

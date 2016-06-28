@@ -15,7 +15,8 @@ public class IMCHandler
 
 	public IMCHandler()
 	{
-		processors.put( "ignoreblocklogic", new IMCHandlerIgnoreLogicIMC() );
+		processors.put( "ignoreblocklogic", new IMCHandlerIgnoreLogic() );
+		processors.put( "materialequivilancy", new IMCHandlerMaterialEquivilancy() );
 	}
 
 	public void handleIMCEvent(

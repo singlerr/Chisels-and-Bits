@@ -142,7 +142,7 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 					final TileEntityBlockChiseled tx = part.getTile();
 					part.setContainer( container );
 					tx.setWorldObj( w );
-					tx.setPos( pos );					
+					tx.setPos( pos );
 					return tx;
 				}
 			}
@@ -212,7 +212,7 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 			{
 				final AxisAlignedBB aabb = new AxisAlignedBB( bci.physicalX, bci.physicalY, bci.physicalZ, bci.physicalX + BitCollisionIterator.One16thf, bci.physicalYp1, bci.physicalZp1 );
 
-				if ( !OcclusionHelper.occlusionTest( parts, new IgnorePred( ignore ), aabb ) )
+				if ( !OcclusionHelper.occlusionTest( OcclusionHelper.boxes( aabb ), new IgnorePred( ignore ), parts ) )
 				{
 					bci.setNext( vb, 1 );
 				}

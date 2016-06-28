@@ -10,6 +10,7 @@ import com.google.common.base.Stopwatch;
 
 import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,7 +18,6 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.text.translation.I18n;
 
 public class ChiselsAndBitsMenu extends GuiScreen
 {
@@ -341,7 +341,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		{
 			if ( btn.highlighted )
 			{
-				fontRendererObj.drawString( I18n.translateToLocal( btn.name ), (int) ( middle_x + btn.x2 + 8 ), (int) ( middle_y + btn.y1 + 6 ), 0xffffffff );
+				fontRendererObj.drawString( DeprecationHelper.translateToLocal( btn.name ), (int) ( middle_x + btn.x2 + 8 ), (int) ( middle_y + btn.y1 + 6 ), 0xffffffff );
 			}
 		}
 

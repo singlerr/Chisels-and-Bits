@@ -12,6 +12,7 @@ import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.CommandBase;
@@ -68,7 +69,7 @@ public class SetBit extends CommandBase
 				meta = parseInt( args[7], 0, 15 );
 			}
 
-			final IBlockState state = block.getStateFromMeta( meta );
+			final IBlockState state = DeprecationHelper.getStateFromMeta( block, meta );
 			final World world = sender.getEntityWorld();
 
 			if ( !world.isBlockLoaded( blockpos ) )

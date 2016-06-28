@@ -10,6 +10,7 @@ import java.util.Map;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ReflectionWrapper;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
@@ -83,7 +84,7 @@ public class ModelUtil implements ICacheClearable
 				final ModelQuadLayer[] mp = new ModelQuadLayer[1];
 				mp[0] = new ModelQuadLayer();
 				mp[0].color = fluid.getColor();
-				mp[0].light = state.getBlock().getLightValue( state );
+				mp[0].light = DeprecationHelper.getLightValue( state );
 
 				final float V = 0.5f;
 				final float Uf = 1.0f;
@@ -142,7 +143,7 @@ public class ModelUtil implements ICacheClearable
 
 			for ( int z = 0; z < x.size(); z++ )
 			{
-				mp[z] = x.get( z ).build( stateID, color, state.getBlock().getLightValue( state ), state.getBlock() == Blocks.GRASS || state.getBlock() instanceof BlockLeaves );
+				mp[z] = x.get( z ).build( stateID, color, DeprecationHelper.getLightValue( state ), state.getBlock() == Blocks.GRASS || state.getBlock() instanceof BlockLeaves );
 			}
 
 			cache.put( cacheV, mp );

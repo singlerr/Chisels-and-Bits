@@ -26,10 +26,13 @@ import mod.chiselsandbits.chiseledblock.serialization.BitStream;
 import mod.chiselsandbits.chiseledblock.serialization.BlobSerializer;
 import mod.chiselsandbits.chiseledblock.serialization.BlobSerilizationCache;
 import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializer;
+import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializerLegacy;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.IVoxelSrc;
 import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog.EnumAxis;
@@ -645,11 +648,9 @@ public final class VoxelBlob implements IVoxelSrc
 			final IBlockState state = Block.getStateById( r );
 			if ( state != null && r != 0 )
 			{
-				final Block blk = state.getBlock();
-
 				nonAirBits += quantity;
-				cb.isNormalBlock = cb.isNormalBlock && blk.isNormalCube( state );
-				cb.blockLight += quantity * blk.getLightValue( state );
+				cb.isNormalBlock = cb.isNormalBlock && ModUtil.isNormalCube( state );
+				cb.blockLight += quantity * DeprecationHelper.getLightValue( state );
 			}
 		}
 
@@ -903,7 +904,8 @@ public final class VoxelBlob implements IVoxelSrc
 	}
 
 	public static int VERSION_COMPACT = 0;
-	public static int VERSION_CROSSWORLD = 1;
+	public static int VERSION_CROSSWORLD_LEGACY = 1; // stored meta.
+	public static int VERSION_CROSSWORLD = 2;
 
 	public void blobFromBytes(
 			final byte[] bytes ) throws IOException
@@ -937,6 +939,10 @@ public final class VoxelBlob implements IVoxelSrc
 		if ( version == VERSION_COMPACT )
 		{
 			bs = new BlobSerializer( header );
+		}
+		else if ( version == VERSION_CROSSWORLD_LEGACY )
+		{
+			bs = new CrossWorldBlobSerializerLegacy( header );
 		}
 		else if ( version == VERSION_CROSSWORLD )
 		{
@@ -982,6 +988,11 @@ public final class VoxelBlob implements IVoxelSrc
 		if ( version == VERSION_COMPACT )
 		{
 			return new BlobSerializer( this );
+		}
+
+		if ( version == VERSION_CROSSWORLD_LEGACY )
+		{
+			return new CrossWorldBlobSerializerLegacy( this );
 		}
 
 		if ( version == VERSION_CROSSWORLD )
