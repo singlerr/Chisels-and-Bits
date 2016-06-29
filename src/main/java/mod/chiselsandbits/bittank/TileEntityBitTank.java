@@ -490,7 +490,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 	{
 		final FluidStack a = getAccessableFluid();
 
-		final int mbThatCanBeRemoved = Math.min( a.amount, maxDrain - maxDrain % TileEntityBitTank.MB_PER_BIT_CONVERSION );
+		final int mbThatCanBeRemoved = Math.min( a == null ? 0 : a.amount, maxDrain - maxDrain % TileEntityBitTank.MB_PER_BIT_CONVERSION );
 		if ( mbThatCanBeRemoved > 0 )
 		{
 			a.amount = mbThatCanBeRemoved;
