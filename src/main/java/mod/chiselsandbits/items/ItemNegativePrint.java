@@ -164,7 +164,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 			applyPrint( world, pos, side, vb, pattern, player, hand );
 
-			tec.setBlob( vb );
+			tec.completeEditOperation( vb );
 			return EnumActionResult.SUCCESS;
 		}
 
