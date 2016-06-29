@@ -20,6 +20,7 @@ import mod.chiselsandbits.crafting.MirrorTransferCrafting;
 import mod.chiselsandbits.crafting.NegativeInversionCrafting;
 import mod.chiselsandbits.crafting.StackableCrafting;
 import mod.chiselsandbits.events.EventPlayerInteract;
+import mod.chiselsandbits.events.VaporizeWater;
 import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkRouter;
@@ -153,6 +154,7 @@ public class ChiselsAndBits
 
 		// registerWithBus( new EventBreakSpeed() );
 		registerWithBus( new EventPlayerInteract() );
+		registerWithBus( new VaporizeWater() );
 
 		// add recipes to game...
 		getBlocks().addRecipes();
