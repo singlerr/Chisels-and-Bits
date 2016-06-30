@@ -230,7 +230,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	public IBitBrush createBrushFromState(
 			final IBlockState state ) throws InvalidBitItem
 	{
-		if ( state == null || state.getBlock() == Blocks.AIR )
+		if ( state == null || state.getBlock() == Blocks.air )
 		{
 			return new BitBrush( 0 );
 		}
