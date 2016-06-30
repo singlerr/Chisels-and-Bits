@@ -22,10 +22,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -98,22 +96,6 @@ public class ItemBitBag extends Item
 		}
 
 		return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemStackIn );
-	}
-
-	@Override
-	public EnumActionResult onItemUseFirst(
-			final ItemStack stack,
-			final EntityPlayer player,
-			final World world,
-			final BlockPos pos,
-			final EnumFacing side,
-			final float hitX,
-			final float hitY,
-			final float hitZ,
-			final EnumHand hand )
-	{
-		onItemRightClick( stack, world, player, hand );
-		return EnumActionResult.SUCCESS;
 	}
 
 	public static class BagPos
