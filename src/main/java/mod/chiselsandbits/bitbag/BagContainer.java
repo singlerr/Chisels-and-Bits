@@ -3,6 +3,7 @@ package mod.chiselsandbits.bitbag;
 import java.util.ArrayList;
 import java.util.List;
 
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.NullInventory;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -343,9 +344,19 @@ public class BagContainer extends Container
 		}
 	}
 
-	public void clear()
+	public void clear(
+			final ItemStack stack )
 	{
-		bagInv.clear();
+		if ( stack != null && stack.getItem() == ChiselsAndBits.getItems().itemBlockBit )
+		{
+			if ( bagInv.matches( stack, thePlayer.inventory.getItemStack() ) )
+			{
+				thePlayer.inventory.setItemStack( null );
+			}
+		}
+
+		bagInv.clear( stack );
+		( (EntityPlayerMP) thePlayer ).sendContainerToPlayer( this );
 	}
 
 }

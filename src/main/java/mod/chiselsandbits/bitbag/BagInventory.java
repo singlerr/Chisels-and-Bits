@@ -214,20 +214,32 @@ public class BagInventory implements IInventory
 		return 0;
 	}
 
-	@Override
-	public void clear()
+	public void clear(
+			final ItemStack stack )
 	{
-		for ( int x = 0; x < inv.contents.length; ++x )
-		{
-			inv.contents[x] = 0;
-		}
-
 		for ( int x = 0; x < stackSlots.length; ++x )
 		{
-			stackSlots[x] = null;
+			if ( matches( stack, stackSlots[x] ) )
+			{
+				stackSlots[x] = null;
+				inv.contents[x * ItemBitBag.INTS_PER_BIT_TYPE + ItemBitBag.OFFSET_STATE_ID] = 0;
+				inv.contents[x * ItemBitBag.INTS_PER_BIT_TYPE + ItemBitBag.OFFSET_QUANTITY] = 0;
+			}
 		}
 
 		inv.onChange();
+	}
+
+	public boolean matches(
+			final ItemStack cmpStack,
+			final ItemStack invStack )
+	{
+		if ( cmpStack == null || invStack == null )
+		{
+			return true;
+		}
+
+		return cmpStack.getItem() == invStack.getItem() && ItemStack.areItemStackTagsEqual( cmpStack, invStack );
 	}
 
 	public void restockItem(
@@ -405,5 +417,11 @@ public class BagInventory implements IInventory
 		}
 
 		return details;
+	}
+
+	@Override
+	public void clear()
+	{
+		clear( null );
 	}
 }

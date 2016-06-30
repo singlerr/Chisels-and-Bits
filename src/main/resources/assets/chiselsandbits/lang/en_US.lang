@@ -91,8 +91,11 @@ mod.chiselsandbits.help.bittank.long=Right click with a bucket to insert/remove 
 
 mod.chiselsandbits.help.leftalt=Left Alt
 mod.chiselsandbits.help.rightalt=Right Alt
-mod.chiselsandbits.help.trash=Delete Bag Contents
-mod.chiselsandbits.help.reallytrash=Click again to confirm deletion.
+mod.chiselsandbits.help.trash=Delete Bag Contents, Hold Item to filter.
+mod.chiselsandbits.help.trashitem=Delete only %s
+mod.chiselsandbits.help.reallytrash=Click again to confirm deletion of all
+mod.chiselsandbits.help.reallytrash_blank=Click again to confirm deletion of %s
+mod.chiselsandbits.help.trash.invalid=Cannot delete %s
 
 mod.chiselsandbits.pretty.axis-y=Up/Down
 mod.chiselsandbits.pretty.axis-x=East/West

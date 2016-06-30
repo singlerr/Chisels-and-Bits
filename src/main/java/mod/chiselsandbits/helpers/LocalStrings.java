@@ -53,7 +53,10 @@ public enum LocalStrings
 	rightAlt( "help.rightalt" ),
 
 	Trash( "help.trash" ),
-	ReallyTrash( "help.reallytrash" );
+	TrashItem( "help.trashitem" ),
+	ReallyTrash( "help.reallytrash" ),
+	ReallyTrashItem( "help.reallytrash_blank" ),
+	TrashInvalidItem( "help.trash.invalid" );
 
 	private final String string;
 
@@ -72,6 +75,12 @@ public enum LocalStrings
 	public String getLocal()
 	{
 		return DeprecationHelper.translateToLocal( string );
+	}
+
+	public String getLocal(
+			final Object... args )
+	{
+		return DeprecationHelper.translateToLocal( string, args );
 	}
 
 }

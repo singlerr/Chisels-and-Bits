@@ -17,7 +17,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
@@ -176,8 +178,21 @@ public class BagGui extends GuiContainer
 
 		if ( trashBtn.isMouseOver() )
 		{
-			final List<String> text = Arrays.asList( new String[] { requireConfirm ? LocalStrings.Trash.getLocal() : LocalStrings.ReallyTrash.getLocal() } );
-			drawHoveringText( text, mouseX - guiLeft, mouseY - guiTop, fontRendererObj );
+			if ( isValidBitItem() )
+			{
+				final String msgNotConfirm = getInHandItem() != null ? LocalStrings.TrashItem.getLocal( getInHandItem().getDisplayName() ) : LocalStrings.Trash.getLocal();
+				final String msgConfirm = getInHandItem() != null ? LocalStrings.ReallyTrashItem.getLocal( getInHandItem().getDisplayName() ) : LocalStrings.ReallyTrash.getLocal();
+
+				final List<String> text = Arrays
+						.asList( new String[] { requireConfirm ? msgNotConfirm : msgConfirm } );
+				drawHoveringText( text, mouseX - guiLeft, mouseY - guiTop, fontRendererObj );
+			}
+			else
+			{
+				final List<String> text = Arrays
+						.asList( new String[] { LocalStrings.TrashInvalidItem.getLocal( getInHandItem().getDisplayName() ) } );
+				drawHoveringText( text, mouseX - guiLeft, mouseY - guiTop, fontRendererObj );
+			}
 		}
 		else
 		{
@@ -185,7 +200,13 @@ public class BagGui extends GuiContainer
 		}
 	}
 
+	private ItemStack getInHandItem()
+	{
+		return getBagContainer().thePlayer.inventory.getItemStack();
+	}
+
 	boolean requireConfirm = true;
+	boolean dontThrow = false;
 
 	@Override
 	protected void actionPerformed(
@@ -195,14 +216,41 @@ public class BagGui extends GuiContainer
 		{
 			if ( requireConfirm )
 			{
-				requireConfirm = false;
+				dontThrow = true;
+				if ( isValidBitItem() )
+				{
+					requireConfirm = false;
+				}
 			}
 			else
 			{
 				requireConfirm = true;
-				NetworkRouter.instance.sendToServer( new PacketClearBagGui() );
+				// server side!
+				NetworkRouter.instance.sendToServer( new PacketClearBagGui( getInHandItem() ) );
+				dontThrow = false;
 			}
 		}
+	}
+
+	private boolean isValidBitItem()
+	{
+		return getInHandItem() == null || getInHandItem().getItem() == ChiselsAndBits.getItems().itemBlockBit;
+	}
+
+	@Override
+	protected void handleMouseClick(
+			final Slot slotIn,
+			final int slotId,
+			final int mouseButton,
+			final ClickType type )
+	{
+		if ( ( type == ClickType.PICKUP || type == ClickType.THROW ) && dontThrow )
+		{
+			dontThrow = false;
+			return;
+		}
+
+		super.handleMouseClick( slotIn, slotId, mouseButton, type );
 	}
 
 }

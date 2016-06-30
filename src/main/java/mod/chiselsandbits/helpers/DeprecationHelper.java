@@ -48,4 +48,12 @@ public class DeprecationHelper
 	{
 		return FluidContainerRegistry.isBucket( current ) || FluidContainerRegistry.isFilledContainer( current ) || current.getItem() instanceof IFluidContainerItem;
 	}
+
+	public static String translateToLocal(
+			final String string,
+			final Object... args )
+	{
+		return I18n.translateToLocalFormatted( string, args );
+
+	}
 }
