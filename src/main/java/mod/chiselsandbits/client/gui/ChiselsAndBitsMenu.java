@@ -175,7 +175,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 
 		if ( !modes.isEmpty() )
 		{
-			final int totalModes = modes.size();
+			final int totalModes = Math.max( 3, modes.size() );
 			int currentMode = 0;
 			final double fragment = Math.PI * 0.005;
 			final double fragment2 = Math.PI * 0.0025;
