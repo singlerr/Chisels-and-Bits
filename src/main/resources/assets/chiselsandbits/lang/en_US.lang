@@ -141,6 +141,12 @@ mod.chiselsandbits.config.enableChiselMode_DrawnRegion=Enable Mode - Drawn Regio
 mod.chiselsandbits.config.enableChiselMode_Snap2=Enable Mode - Grid Snapped 1/8 Cube
 mod.chiselsandbits.config.enableChiselMode_Snap4=Enable Mode - Grid Snapped 1/4 Cube
 mod.chiselsandbits.config.enableChiselMode_Snap8=Enable Mode - Grid Snapped 1/2 Cube
+
+mod.chiselsandbits.config.enablePositivePatternMode_Additive=Enable Mode - Additive
+mod.chiselsandbits.config.enablePositivePatternMode_Impose=Enable Mode - Impose
+mod.chiselsandbits.config.enablePositivePatternMode_Placement=Enable Mode - Placement
+mod.chiselsandbits.config.enablePositivePatternMode_Replace=Enable Mode - Replace
+
 mod.chiselsandbits.config.enableToolbarIcons=Show mode icon for chisel in tool bar
 mod.chiselsandbits.config.perChiselMode=Store selected mode per tool
 mod.chiselsandbits.config.chatModeNotification=Notify mode changes with chat

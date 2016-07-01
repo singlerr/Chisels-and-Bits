@@ -11,6 +11,7 @@ import java.util.Set;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.modes.ChiselMode;
+import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.registry.ModRegistry;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.ConfigCategory;
@@ -76,6 +77,18 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Client Settings" )
 	public boolean enableChiselMode_Snap8;
+
+	@Configured( category = "Client Settings" )
+	public boolean enablePositivePatternMode_Additive;
+
+	@Configured( category = "Client Settings" )
+	public boolean enablePositivePatternMode_Impose;
+
+	@Configured( category = "Client Settings" )
+	public boolean enablePositivePatternMode_Placement;
+
+	@Configured( category = "Client Settings" )
+	public boolean enablePositivePatternMode_Replace;
 
 	@Configured( category = "Client Settings" )
 	public boolean enableToolbarIcons;
@@ -252,6 +265,10 @@ public class ModConfig extends Configuration
 		enableChiselMode_Snap2 = !ChiselMode.SNAP2.isDisabled;
 		enableChiselMode_Snap4 = !ChiselMode.SNAP4.isDisabled;
 		enableChiselMode_Snap8 = !ChiselMode.SNAP8.isDisabled;
+		enablePositivePatternMode_Additive = !PositivePatternMode.ADDITIVE.isDisabled;
+		enablePositivePatternMode_Impose = !PositivePatternMode.IMPOSE.isDisabled;
+		enablePositivePatternMode_Placement = !PositivePatternMode.PLACEMENT.isDisabled;
+		enablePositivePatternMode_Replace = !PositivePatternMode.REPLACE.isDisabled;
 		perChiselMode = true;
 		chatModeNotification = false;
 		itemNameModeDisplay = true;
@@ -448,6 +465,10 @@ public class ModConfig extends Configuration
 		ChiselMode.SNAP2.isDisabled = !enableChiselMode_Snap2;
 		ChiselMode.SNAP4.isDisabled = !enableChiselMode_Snap4;
 		ChiselMode.SNAP8.isDisabled = !enableChiselMode_Snap8;
+		PositivePatternMode.ADDITIVE.isDisabled = !enablePositivePatternMode_Additive;
+		PositivePatternMode.IMPOSE.isDisabled = !enablePositivePatternMode_Impose;
+		PositivePatternMode.PLACEMENT.isDisabled = !enablePositivePatternMode_Placement;
+		PositivePatternMode.REPLACE.isDisabled = !enablePositivePatternMode_Replace;
 	}
 
 	@SubscribeEvent
