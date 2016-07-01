@@ -52,6 +52,9 @@ import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.modes.ChiselMode;
+import mod.chiselsandbits.modes.IToolMode;
+import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
@@ -116,7 +119,7 @@ public class ClientSide
 	private static final Random RANDOM = new Random();
 	public static final ClientSide instance = new ClientSide();
 
-	private final HashMap<ChiselMode, SpriteIconPositioning> chiselModeIcons = new HashMap<ChiselMode, SpriteIconPositioning>();
+	private final HashMap<IToolMode, SpriteIconPositioning> chiselModeIcons = new HashMap<IToolMode, SpriteIconPositioning>();
 	private KeyBinding rotateCCW;
 	private KeyBinding rotateCW;
 	private KeyBinding undo;
@@ -145,7 +148,12 @@ public class ClientSide
 			mode.binding = registerKeybind( mode.string.toString(), 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_CHISEL );
 		}
 
-		modeMenu = registerKeybind( "mod.chiselsandbits.other.mode", 56, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_CHISEL );
+		for ( final PositivePatternMode mode : PositivePatternMode.values() )
+		{
+			mode.binding = registerKeybind( mode.string.toString(), 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_POSTIVEPATTERN );
+		}
+
+		modeMenu = registerKeybind( "mod.chiselsandbits.other.mode", 56, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_MENUITEM );
 		rotateCCW = registerKeybind( "mod.chiselsandbits.other.rotate.ccw", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
 		rotateCW = registerKeybind( "mod.chiselsandbits.other.rotate.cw", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
 		pickBit = registerKeybind( "mod.chiselsandbits.other.pickbit", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
@@ -248,6 +256,7 @@ public class ClientSide
 		}
 
 		if ( modItems.itemBlockBit != null )
+
 		{
 			ModelLoader.setCustomMeshDefinition( modItems.itemBlockBit, new ItemMeshDefinition() {
 
@@ -300,62 +309,74 @@ public class ClientSide
 
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
-			final SpriteIconPositioning sip = new SpriteIconPositioning();
+			loadIcon( map, mode );
+		}
 
-			final ResourceLocation sprite = new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() );
-			final ResourceLocation png = new ResourceLocation( "chiselsandbits", "textures/icons/" + mode.name().toLowerCase() + ".png" );
-
-			sip.sprite = map.registerSprite( sprite );
-
-			try
-			{
-				final IResource iresource = Minecraft.getMinecraft().getResourceManager().getResource( png );
-				final BufferedImage bi = TextureUtil.readBufferedImage( iresource.getInputStream() );
-
-				int bottom = 0;
-				int right = 0;
-				sip.left = bi.getWidth();
-				sip.top = bi.getHeight();
-
-				for ( int x = 0; x < bi.getWidth(); x++ )
-				{
-					for ( int y = 0; y < bi.getHeight(); y++ )
-					{
-						final int color = bi.getRGB( x, y );
-						final int a = color >> 24 & 0xff;
-						if ( a > 0 )
-						{
-							sip.left = Math.min( sip.left, x );
-							right = Math.max( right, x );
-
-							sip.top = Math.min( sip.top, y );
-							bottom = Math.max( bottom, y );
-						}
-					}
-				}
-
-				sip.height = bottom - sip.top + 1;
-				sip.width = right - sip.left + 1;
-
-				sip.left /= bi.getWidth();
-				sip.width /= bi.getWidth();
-				sip.top /= bi.getHeight();
-				sip.height /= bi.getHeight();
-			}
-			catch ( final IOException e )
-			{
-				sip.height = 1;
-				sip.width = 1;
-				sip.left = 0;
-				sip.top = 0;
-			}
-
-			chiselModeIcons.put( mode, sip );
+		for ( final PositivePatternMode mode : PositivePatternMode.values() )
+		{
+			loadIcon( map, mode );
 		}
 	}
 
+	void loadIcon(
+			final TextureMap map,
+			final IToolMode mode )
+	{
+		final SpriteIconPositioning sip = new SpriteIconPositioning();
+
+		final ResourceLocation sprite = new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() );
+		final ResourceLocation png = new ResourceLocation( "chiselsandbits", "textures/icons/" + mode.name().toLowerCase() + ".png" );
+
+		sip.sprite = map.registerSprite( sprite );
+
+		try
+		{
+			final IResource iresource = Minecraft.getMinecraft().getResourceManager().getResource( png );
+			final BufferedImage bi = TextureUtil.readBufferedImage( iresource.getInputStream() );
+
+			int bottom = 0;
+			int right = 0;
+			sip.left = bi.getWidth();
+			sip.top = bi.getHeight();
+
+			for ( int x = 0; x < bi.getWidth(); x++ )
+			{
+				for ( int y = 0; y < bi.getHeight(); y++ )
+				{
+					final int color = bi.getRGB( x, y );
+					final int a = color >> 24 & 0xff;
+					if ( a > 0 )
+					{
+						sip.left = Math.min( sip.left, x );
+						right = Math.max( right, x );
+
+						sip.top = Math.min( sip.top, y );
+						bottom = Math.max( bottom, y );
+					}
+				}
+			}
+
+			sip.height = bottom - sip.top + 1;
+			sip.width = right - sip.left + 1;
+
+			sip.left /= bi.getWidth();
+			sip.width /= bi.getWidth();
+			sip.top /= bi.getHeight();
+			sip.height /= bi.getHeight();
+		}
+		catch ( final IOException e )
+		{
+			sip.height = 1;
+			sip.width = 1;
+			sip.left = 0;
+			sip.top = 0;
+		}
+
+		chiselModeIcons.put( mode, sip );
+	}
+
 	public SpriteIconPositioning getIconForMode(
-			final ChiselMode mode )
+			final IToolMode mode )
 	{
 		return chiselModeIcons.get( mode );
 	}
@@ -366,7 +387,7 @@ public class ClientSide
 	{
 		final ChiselToolType tool = getHeldToolType();
 		final ElementType type = event.getType();
-		if ( type == ElementType.ALL && tool != null )
+		if ( type == ElementType.ALL && tool != null && tool.hasMenu() )
 		{
 			final boolean wasVisible = ChiselsAndBitsMenu.instance.isVisible();
 
@@ -497,9 +518,10 @@ public class ClientSide
 				for ( int slot = 0; slot < 9; ++slot )
 				{
 					final ItemStack stack = mc.thePlayer.inventory.mainInventory[slot];
-					if ( stack != null && stack.getItem() instanceof ItemChisel )
+					if ( stack != null && ( stack.getItem() instanceof ItemChisel || stack.getItem() == ChiselsAndBits.getItems().itemPositiveprint ) )
 					{
-						ChiselMode mode = ChiselMode.getMode( stack );
+						final ChiselToolType toolType = getToolTypeForItemm( stack );
+						IToolMode mode = toolType.getMode( stack );
 
 						if ( !ChiselsAndBits.getConfig().perChiselMode )
 						{
@@ -568,7 +590,12 @@ public class ClientSide
 		}
 
 		final ItemStack is = player.getHeldItemMainhand();
+		return getToolTypeForItemm( is );
+	}
 
+	private ChiselToolType getToolTypeForItemm(
+			final ItemStack is )
+	{
 		if ( is != null && is.getItem() instanceof ItemChisel )
 		{
 			return ChiselToolType.CHISEL;
@@ -577,6 +604,21 @@ public class ClientSide
 		if ( is != null && is.getItem() instanceof ItemChiseledBit )
 		{
 			return ChiselToolType.BIT;
+		}
+
+		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemPositiveprint )
+		{
+			return ChiselToolType.POSITIVEPATTERN;
+		}
+
+		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemNegativeprint )
+		{
+			return ChiselToolType.NEGATIVEPATTERN;
+		}
+
+		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemMirrorprint )
+		{
+			return ChiselToolType.MIRRORPATTERN;
 		}
 
 		return null;
@@ -589,7 +631,7 @@ public class ClientSide
 		if ( pie.getWorld() != null && pie.getWorld().isRemote )
 		{
 			final ChiselToolType tool = getHeldToolType();
-			final ChiselMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool );
+			final IToolMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool );
 
 			final BitLocation other = getStartPos();
 			if ( chMode == ChiselMode.DRAWN_REGION && other != null )
@@ -657,7 +699,23 @@ public class ClientSide
 			if ( kb.isKeyDown() )
 			{
 				final ChiselToolType tool = getHeldToolType();
-				ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool ), mode );
+				if ( tool.isBitOrChisel() )
+				{
+					ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool ), mode );
+				}
+			}
+		}
+
+		for ( final PositivePatternMode mode : PositivePatternMode.values() )
+		{
+			final KeyBinding kb = (KeyBinding) mode.binding;
+			if ( kb.isKeyDown() )
+			{
+				final ChiselToolType tool = getHeldToolType();
+				if ( tool == ChiselToolType.POSITIVEPATTERN )
+				{
+					ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool ), mode );
+				}
 			}
 		}
 	}
@@ -670,13 +728,13 @@ public class ClientSide
 			final DrawBlockHighlightEvent event )
 	{
 		ChiselToolType tool = getHeldToolType();
-		final ChiselMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool );
+		final IToolMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool );
 		if ( chMode == ChiselMode.DRAWN_REGION )
 		{
 			tool = lastTool;
 		}
 
-		if ( tool != null && chMode != null )
+		if ( tool != null && tool.isBitOrChisel() && chMode != null )
 		{
 			final EntityPlayer player = event.getPlayer();
 			final float partialTicks = event.getPartialTicks();
@@ -728,7 +786,7 @@ public class ClientSide
 
 							if ( !getToolKey().isKeyDown() )
 							{
-								final PacketChisel pc = new PacketChisel( lastTool == ChiselToolType.BIT, location, other, EnumFacing.UP, chMode, lastHand );
+								final PacketChisel pc = new PacketChisel( lastTool == ChiselToolType.BIT, location, other, EnumFacing.UP, ChiselMode.DRAWN_REGION, lastHand );
 
 								if ( pc.doAction( getPlayer() ) > 0 )
 								{
@@ -762,7 +820,7 @@ public class ClientSide
 
 						if ( theWorld.isAirBlock( location.blockPos ) || isBitBlock || isBlockSupported )
 						{
-							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, region, chMode, mop.sideHit, !isChisel );
+							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, region, ChiselMode.castMode( chMode ), mop.sideHit, !isChisel );
 							final AxisAlignedBB bb = i.getBoundingBox( vb, isChisel );
 							RenderHelper.drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
 							showBox = false;
@@ -771,7 +829,7 @@ public class ClientSide
 						{
 							final VoxelBlob j = new VoxelBlob();
 							j.fill( 1 );
-							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, j, chMode, mop.sideHit, !isChisel );
+							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, j, ChiselMode.castMode( chMode ), mop.sideHit, !isChisel );
 							final AxisAlignedBB bb = snapToSide( i.getBoundingBox( j, isChisel ), mop.sideHit );
 							RenderHelper.drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
 						}
@@ -860,7 +918,12 @@ public class ClientSide
 				return;
 			}
 
-			final IBlockState s = theWorld.getBlockState( mop.getBlockPos() );
+			final IToolMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.POSITIVEPATTERN );
+
+			final BlockPos pos = mop.getBlockPos();
+			final BlockPos partial = null;
+
+			final IBlockState s = theWorld.getBlockState( pos );
 			if ( !( s.getBlock() instanceof BlockChiseled ) && !BlockBitInfo.supportsBlock( s ) && !MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( theWorld, mop.getBlockPos() ) )
 			{
 				return;
@@ -879,9 +942,15 @@ public class ClientSide
 
 			final int rotations = ModUtil.getRotations( player, ModUtil.getItemRotation( currentItem ) );
 
+			if ( mode == PositivePatternMode.PLACEMENT )
+			{
+				doGhostForChiseledBlock( x, y, z, theWorld, player, mop, item, item, rotations );
+				return;
+			}
+
 			if ( item != null )
 			{
-				final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( theWorld, mop.getBlockPos(), false );
+				final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( theWorld, pos, false );
 				Object cacheRef = tebc != null ? tebc : s;
 				if ( cacheRef instanceof TileEntityBlockChiseled )
 				{
@@ -889,7 +958,7 @@ public class ClientSide
 				}
 
 				GlStateManager.depthFunc( GL11.GL_ALWAYS );
-				showGhost( currentItem, item, mop.getBlockPos(), player, rotations, x, y, z, mop.sideHit, null, cacheRef );
+				showGhost( currentItem, item, mop.getBlockPos(), player, rotations, x, y, z, mop.sideHit, partial, cacheRef );
 				GlStateManager.depthFunc( GL11.GL_LEQUAL );
 			}
 		}
@@ -907,42 +976,56 @@ public class ClientSide
 			}
 
 			final int rotations = ModUtil.getRotations( player, ModUtil.getItemRotation( item ) );
-			final BlockPos offset = mop.getBlockPos();
+			doGhostForChiseledBlock( x, y, z, theWorld, player, mop, currentItem, item, rotations );
+		}
+	}
 
-			if ( player.isSneaking() )
+	private void doGhostForChiseledBlock(
+			final double x,
+			final double y,
+			final double z,
+			final World theWorld,
+			final EntityPlayer player,
+			final RayTraceResult mop,
+			final ItemStack currentItem,
+			final ItemStack item,
+			final int rotations )
+	{
+		final BlockPos offset = mop.getBlockPos();
+
+		if ( player.isSneaking() )
+		{
+			final BitLocation bl = new BitLocation( mop, true, ChiselToolType.BIT );
+			showGhost( currentItem, item, bl.blockPos, player, rotations, x, y, z, mop.sideHit, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), null );
+		}
+		else
+		{
+			boolean canMerge = false;
+			if ( currentItem.hasTagCompound() )
 			{
-				final BitLocation bl = new BitLocation( mop, true, ChiselToolType.BIT );
-				showGhost( currentItem, item, bl.blockPos, player, rotations, x, y, z, mop.sideHit, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), null );
+				final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( theWorld, offset, true );
+
+				if ( tebc != null )
+				{
+					final VoxelBlob blob = ModUtil.getBlobFromStack( currentItem, player );
+					canMerge = tebc.canMerge( blob );
+				}
 			}
-			else
+
+			BlockPos newOffset = offset;
+			final Block block = theWorld.getBlockState( newOffset ).getBlock();
+			if ( !canMerge && !player.isSneaking() && !block.isReplaceable( theWorld, newOffset ) )
 			{
-				boolean canMerge = false;
-				if ( currentItem.hasTagCompound() )
-				{
-					final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( theWorld, offset, true );
+				newOffset = offset.offset( mop.sideHit );
+			}
 
-					if ( tebc != null )
-					{
-						final VoxelBlob blob = ModUtil.getBlobFromStack( currentItem, player );
-						canMerge = tebc.canMerge( blob );
-					}
-				}
+			final TileEntity newTarget = theWorld.getTileEntity( newOffset );
 
-				BlockPos newOffset = offset;
-				final Block block = theWorld.getBlockState( newOffset ).getBlock();
-				if ( !canMerge && !player.isSneaking() && !block.isReplaceable( theWorld, newOffset ) )
-				{
-					newOffset = offset.offset( mop.sideHit );
-				}
-
-				final TileEntity newTarget = theWorld.getTileEntity( newOffset );
-
-				if ( theWorld.isAirBlock( newOffset ) || theWorld.getBlockState( newOffset ).getBlock().isReplaceable( theWorld, newOffset ) || newTarget instanceof TileEntityBlockChiseled
-						|| MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( theWorld, newOffset ) )
-				{
-					final TileEntityBlockChiseled test = ModUtil.getChiseledTileEntity( theWorld, newOffset, false );
-					showGhost( currentItem, item, newOffset, player, rotations, x, y, z, mop.sideHit, null, test == null ? null : test.getBlobStateReference() );
-				}
+			if ( theWorld.isAirBlock( newOffset ) || theWorld.getBlockState( newOffset ).getBlock().isReplaceable( theWorld, newOffset ) || newTarget instanceof TileEntityBlockChiseled
+					|| MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( theWorld, newOffset ) )
+			{
+				final TileEntityBlockChiseled test = ModUtil.getChiseledTileEntity( theWorld, newOffset, false );
+				showGhost( currentItem, item, newOffset, player, rotations, x, y, z, mop.sideHit, null, test == null ? null : test.getBlobStateReference() );
 			}
 		}
 	}
@@ -953,6 +1036,7 @@ public class ClientSide
 	private Object previousCacheRef;
 	private IntegerBox modelBounds;
 	private boolean isVisible = true;
+	private boolean isUnplaceable = true;
 	private BlockPos lastPartial;
 	private BlockPos lastPos;
 
@@ -1044,7 +1128,8 @@ public class ClientSide
 				}
 				else
 				{
-					isVisible = ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, partial, false );
+					isVisible = true;
+					isUnplaceable = !ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, partial, false );
 				}
 			}
 		}
@@ -1063,7 +1148,7 @@ public class ClientSide
 			GlStateManager.translate( t.getX() * fullScale, t.getY() * fullScale, t.getZ() * fullScale );
 		}
 
-		RenderHelper.renderGhostModel( baked, player.worldObj, blockPos );
+		RenderHelper.renderGhostModel( baked, player.worldObj, blockPos, isUnplaceable );
 		GlStateManager.popMatrix();
 	}
 

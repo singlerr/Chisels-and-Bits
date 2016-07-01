@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.registry.ModRegistry;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.ConfigCategory;

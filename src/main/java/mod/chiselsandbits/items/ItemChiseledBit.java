@@ -11,7 +11,6 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
@@ -26,6 +25,8 @@ import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
+import mod.chiselsandbits.modes.ChiselMode;
+import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import net.minecraft.block.Block;
@@ -81,7 +82,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	{
 		if ( ChiselsAndBits.getConfig().itemNameModeDisplay && FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT )
 		{
-			return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.BIT ).string.getLocal();
+			return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.BIT ).getName().getLocal();
 		}
 
 		return displayName;
@@ -97,7 +98,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( player, ChiselToolType.BIT ), itemstack, pos, player, EnumHand.MAIN_HAND );
+		return ItemChisel.fromBreakToChisel( ChiselMode.castMode( ChiselModeManager.getChiselMode( player, ChiselToolType.BIT ) ), itemstack, pos, player, EnumHand.MAIN_HAND );
 	}
 
 	public String getBitTypeName(
@@ -226,7 +227,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 		if ( world.isRemote )
 		{
-			final ChiselMode mode = ChiselModeManager.getChiselMode( player, ClientSide.instance.getHeldToolType() );
+			final IToolMode mode = ChiselModeManager.getChiselMode( player, ClientSide.instance.getHeldToolType() );
 			final BitLocation bitLocation = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.BIT );
 
 			IBlockState blkstate = world.getBlockState( bitLocation.blockPos );
@@ -240,19 +241,17 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			if ( tebc != null )
 			{
 				PacketChisel pc = null;
-
-				switch ( mode )
+				if ( mode == ChiselMode.DRAWN_REGION )
 				{
-					case DRAWN_REGION:
-						if ( world.isRemote )
-						{
-							ClientSide.instance.pointAt( ChiselToolType.BIT, bitLocation, hand );
-						}
-						return EnumActionResult.FAIL;
-
-					default:
-						pc = new PacketChisel( true, bitLocation, side, mode, hand );
-						break;
+					if ( world.isRemote )
+					{
+						ClientSide.instance.pointAt( ChiselToolType.BIT, bitLocation, hand );
+					}
+					return EnumActionResult.FAIL;
+				}
+				else
+				{
+					pc = new PacketChisel( true, bitLocation, side, ChiselMode.castMode( mode ), hand );
 				}
 
 				final int result = pc.doAction( player );
@@ -265,6 +264,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		}
 
 		return EnumActionResult.SUCCESS;
+
 	}
 
 	@Override
@@ -374,7 +374,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final ChiselMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.BIT );
+		final IToolMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.BIT );
 		ChiselModeManager.scrollOption( ChiselToolType.BIT, mode, mode, dwheel );
 	}
 

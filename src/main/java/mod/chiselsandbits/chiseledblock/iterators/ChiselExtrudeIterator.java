@@ -6,8 +6,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.helpers.IVoxelSrc;
+import mod.chiselsandbits.modes.ChiselMode;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.AxisDirection;
 

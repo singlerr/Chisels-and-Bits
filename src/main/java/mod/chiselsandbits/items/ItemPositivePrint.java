@@ -2,6 +2,8 @@ package mod.chiselsandbits.items;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
@@ -12,24 +14,31 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
+import mod.chiselsandbits.helpers.ChiselModeManager;
+import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
+import mod.chiselsandbits.interfaces.IChiselModeItem;
+import mod.chiselsandbits.modes.PositivePatternMode;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 
-public class ItemPositivePrint extends ItemNegativePrint
+public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeItem
 {
 
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -41,7 +50,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 			final boolean advanced )
 	{
 		defaultAddInfo( stack, playerIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpPositivePrint, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpPositivePrint, tooltip, ClientSide.instance.getModeKey() );
 
 		if ( stack.hasTagCompound() )
 		{
@@ -93,7 +102,85 @@ public class ItemPositivePrint extends ItemNegativePrint
 	}
 
 	@Override
+	public EnumActionResult onItemUse(
+			final ItemStack stack,
+			final EntityPlayer player,
+			final World world,
+			final BlockPos pos,
+			final EnumHand hand,
+			final EnumFacing side,
+			final float hitX,
+			final float hitY,
+			final float hitZ )
+	{
+		if ( PositivePatternMode.getMode( stack ) == PositivePatternMode.PLACEMENT )
+		{
+			final ItemStack output = getPatternedItem( stack );
+			if ( output != null )
+			{
+				final VoxelBlob pattern = ModUtil.getBlobFromStack( stack, player );
+				final Map<Integer, Integer> stats = pattern.getBlockSums();
+
+				if ( consumeEntirePattern( pattern, stats, pos, ActingPlayer.testingAs( player, hand ) ) )
+				{
+					final EnumActionResult res = output.getItem().onItemUse( output, player, world, pos, hand, side, hitX, hitY, hitZ );
+
+					if ( res == EnumActionResult.SUCCESS )
+					{
+						consumeEntirePattern( pattern, stats, pos, ActingPlayer.actingAs( player, hand ) );
+					}
+
+					return res;
+				}
+
+				return EnumActionResult.FAIL;
+			}
+		}
+
+		return super.onItemUse( stack, player, world, pos, hand, side, hitX, hitY, hitZ );
+	}
+
+	private boolean consumeEntirePattern(
+			final VoxelBlob pattern,
+			final Map<Integer, Integer> stats,
+			final BlockPos pos,
+			final ActingPlayer player )
+	{
+		final List<BagInventory> bags = ModUtil.getBags( player );
+
+		for ( final Entry<Integer, Integer> type : stats.entrySet() )
+		{
+			final int inPattern = type.getKey();
+
+			if ( type.getKey() == 0 )
+			{
+				continue;
+			}
+
+			ItemStackSlot bit = ModUtil.findBit( player, pos, inPattern );
+			int stillNeeded = type.getValue() - ModUtil.consumeBagBit( bags, inPattern, type.getValue() );
+			if ( stillNeeded != 0 )
+			{
+				for ( int x = stillNeeded; x > 0 && bit.isValid(); --x )
+				{
+					bit.consume();
+					stillNeeded--;
+					bit = ModUtil.findBit( player, pos, inPattern );
+				}
+
+				if ( stillNeeded != 0 )
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	@Override
 	protected void applyPrint(
+			final ItemStack stack,
 			final World world,
 			final BlockPos pos,
 			final EnumFacing side,
@@ -113,6 +200,8 @@ public class ItemPositivePrint extends ItemNegativePrint
 		final List<BagInventory> bags = ModUtil.getBags( player );
 		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
 
+		final boolean chisel_bits = PositivePatternMode.getMode( stack ) == PositivePatternMode.REPLACE;
+
 		for ( int y = 0; y < vb.detail; y++ )
 		{
 			for ( int z = 0; z < vb.detail; z++ )
@@ -123,7 +212,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 					final int inPattern = pattern.get( x, y, z );
 					if ( inPlace != inPattern )
 					{
-						if ( inPlace != 0 && selected.isValid() )
+						if ( inPlace != 0 && chisel_bits && selected.isValid() )
 						{
 							spawnedItem = ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
 
@@ -136,7 +225,7 @@ public class ItemPositivePrint extends ItemNegativePrint
 						if ( inPlace == 0 && inPattern != 0 && filled.get( x, y, z ) == 0 )
 						{
 							final ItemStackSlot bit = ModUtil.findBit( player, pos, inPattern );
-							if ( ModUtil.consumeBagBit( bags, inPattern ) )
+							if ( ModUtil.consumeBagBit( bags, inPattern, 1 ) == 1 )
 							{
 								vb.set( x, y, z, inPattern );
 							}
@@ -161,6 +250,26 @@ public class ItemPositivePrint extends ItemNegativePrint
 			ItemBitBag.cleanupInventory( who, ei.getEntityItem() );
 		}
 
+	}
+
+	@Override
+	public String getHighlightTip(
+			final ItemStack item,
+			final String displayName )
+	{
+		if ( ChiselsAndBits.getConfig().itemNameModeDisplay )
+		{
+			if ( ChiselsAndBits.getConfig().perChiselMode || FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER )
+			{
+				return displayName + " - " + PositivePatternMode.getMode( item ).string.getLocal();
+			}
+			else
+			{
+				return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.POSITIVEPATTERN ).getName().getLocal();
+			}
+		}
+
+		return displayName;
 	}
 
 }

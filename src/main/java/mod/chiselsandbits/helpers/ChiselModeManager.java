@@ -1,9 +1,11 @@
 package mod.chiselsandbits.helpers;
 
-import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ReflectionWrapper;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
+import mod.chiselsandbits.modes.ChiselMode;
+import mod.chiselsandbits.modes.IToolMode;
+import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketSetChiselMode;
 import net.minecraft.client.Minecraft;
@@ -18,15 +20,16 @@ public class ChiselModeManager
 
 	public static void changeChiselMode(
 			final ChiselToolType tool,
-			final ChiselMode originalMode,
-			final ChiselMode newClientChiselMode )
+			final IToolMode originalMode,
+			final IToolMode newClientChiselMode )
 	{
 		final boolean chatNotification = ChiselsAndBits.getConfig().chatModeNotification;
 		final boolean itemNameModeDisplay = ChiselsAndBits.getConfig().itemNameModeDisplay;
 
-		if ( ChiselsAndBits.getConfig().perChiselMode && tool == ChiselToolType.CHISEL )
+		if ( ChiselsAndBits.getConfig().perChiselMode && tool.hasPerToolSettings() || tool.requiresPerToolSettings() )
 		{
 			final PacketSetChiselMode packet = new PacketSetChiselMode();
+			packet.type = tool;
 			packet.mode = newClientChiselMode;
 			packet.chatNotification = chatNotification;
 
@@ -41,16 +44,16 @@ public class ChiselModeManager
 		{
 			if ( tool == ChiselToolType.CHISEL )
 			{
-				clientChiselMode = newClientChiselMode;
+				clientChiselMode = (ChiselMode) newClientChiselMode;
 			}
 			else
 			{
-				clientBitMode = newClientChiselMode;
+				clientBitMode = (ChiselMode) newClientChiselMode;
 			}
 
 			if ( originalMode != newClientChiselMode && chatNotification )
 			{
-				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new TextComponentTranslation( newClientChiselMode.string.toString() ) );
+				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new TextComponentTranslation( newClientChiselMode.getName().toString() ) );
 			}
 
 			ReflectionWrapper.instance.clearHighlightedStack();
@@ -65,8 +68,8 @@ public class ChiselModeManager
 
 	public static void scrollOption(
 			final ChiselToolType tool,
-			final ChiselMode originalMode,
-			ChiselMode currentMode,
+			final IToolMode originalMode,
+			IToolMode currentMode,
 			final int dwheel )
 	{
 		int offset = currentMode.ordinal() + ( dwheel < 0 ? -1 : 1 );
@@ -83,7 +86,7 @@ public class ChiselModeManager
 
 		currentMode = ChiselMode.values()[offset];
 
-		if ( currentMode.isDisabled )
+		if ( currentMode.isDisabled() )
 		{
 			scrollOption( tool, originalMode, currentMode, dwheel );
 		}
@@ -93,18 +96,28 @@ public class ChiselModeManager
 		}
 	}
 
-	public static ChiselMode getChiselMode(
+	public static IToolMode getChiselMode(
 			final EntityPlayer player,
 			final ChiselToolType setting )
 	{
-		if ( setting == ChiselToolType.CHISEL )
+		if ( setting == ChiselToolType.POSITIVEPATTERN )
+		{
+			final ItemStack ei = player.getHeldItemMainhand();
+			if ( ei != null && ei.getItem() instanceof IChiselModeItem )
+			{
+				return setting.getMode( ei );
+			}
+
+			return PositivePatternMode.REPLACE;
+		}
+		else if ( setting == ChiselToolType.CHISEL )
 		{
 			if ( ChiselsAndBits.getConfig().perChiselMode )
 			{
 				final ItemStack ei = player.getHeldItemMainhand();
 				if ( ei != null && ei.getItem() instanceof IChiselModeItem )
 				{
-					return ChiselMode.getMode( ei );
+					return setting.getMode( ei );
 				}
 			}
 

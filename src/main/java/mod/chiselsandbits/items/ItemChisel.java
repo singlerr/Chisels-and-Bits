@@ -13,7 +13,6 @@ import com.google.common.base.Stopwatch;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
@@ -25,6 +24,8 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
+import mod.chiselsandbits.modes.ChiselMode;
+import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import net.minecraft.block.Block;
@@ -111,7 +112,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		return ItemChisel.fromBreakToChisel( ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL ), itemstack, pos, player, EnumHand.MAIN_HAND );
+		return ItemChisel.fromBreakToChisel( ChiselMode.castMode( ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL ) ), itemstack, pos, player, EnumHand.MAIN_HAND );
 	}
 
 	static public boolean fromBreakToChisel(
@@ -173,7 +174,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			}
 			else
 			{
-				return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.CHISEL ).string.getLocal();
+				return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.CHISEL ).getName().getLocal();
 			}
 		}
 
@@ -189,7 +190,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	{
 		if ( worldIn.isRemote && ChiselsAndBits.getConfig().enableRightClickModeChange )
 		{
-			final ChiselMode mode = ChiselModeManager.getChiselMode( playerIn, ChiselToolType.CHISEL );
+			final IToolMode mode = ChiselModeManager.getChiselMode( playerIn, ChiselToolType.CHISEL );
 			ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, playerIn.isSneaking() ? -1 : 1 );
 			return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemStackIn );
 		}
@@ -493,7 +494,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final ChiselMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL );
+		final IToolMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL );
 		ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, dwheel );
 	}
 

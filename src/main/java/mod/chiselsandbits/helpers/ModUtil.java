@@ -430,19 +430,22 @@ public class ModUtil
 		return bags;
 	}
 
-	public static boolean consumeBagBit(
+	public static int consumeBagBit(
 			final List<BagInventory> bags,
-			final int inPattern )
+			final int inPattern,
+			final int howMany )
 	{
+		int remaining = howMany;
 		for ( final BagInventory inv : bags )
 		{
-			if ( inv.extractBit( inPattern, 1 ) == 1 )
+			remaining -= inv.extractBit( inPattern, remaining );
+			if ( remaining == 0 )
 			{
-				return true;
+				return howMany;
 			}
 		}
 
-		return false;
+		return howMany - remaining;
 	}
 
 	public static VoxelBlob getBlobFromStack(

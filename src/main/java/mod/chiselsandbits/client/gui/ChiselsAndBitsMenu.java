@@ -1,16 +1,16 @@
 package mod.chiselsandbits.client.gui;
 
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Stopwatch;
 
-import mod.chiselsandbits.core.ChiselMode;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.DeprecationHelper;
+import mod.chiselsandbits.modes.IToolMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
@@ -27,9 +27,14 @@ public class ChiselsAndBitsMenu extends GuiScreen
 
 	private float visibility = 0.0f;
 	private Stopwatch lastChange = Stopwatch.createStarted();
-	public ChiselMode switchTo = null;
+	public IToolMode switchTo = null;
 	public ButtonAction doAction = null;
 	public boolean actionUsed = false;
+
+	private ChiselToolType getTool()
+	{
+		return ClientSide.instance.getHeldToolType();
+	}
 
 	private float clampVis(
 			final float f )
@@ -96,13 +101,13 @@ public class ChiselsAndBitsMenu extends GuiScreen
 	static class MenuRegion
 	{
 
-		public final ChiselMode mode;
+		public final IToolMode mode;
 		public double x1, x2;
 		public double y1, y2;
 		public boolean highlighted;
 
 		public MenuRegion(
-				final ChiselMode mode )
+				final IToolMode mode )
 		{
 			this.mode = mode;
 		}
@@ -154,24 +159,12 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		final ArrayList<MenuRegion> modes = new ArrayList<MenuRegion>();
 		final ArrayList<MenuButton> btns = new ArrayList<MenuButton>();
 
-		final EnumSet<ChiselMode> used = EnumSet.noneOf( ChiselMode.class );
-		final ChiselMode[] orderedModes = { ChiselMode.SINGLE, ChiselMode.LINE, ChiselMode.PLANE, ChiselMode.CONNECTED_PLANE, ChiselMode.DRAWN_REGION };
-
 		btns.add( new MenuButton( "mod.chiselsandbits.other.undo", ButtonAction.UNDO, text_distnace, -20, ClientSide.undoIcon ) );
 		btns.add( new MenuButton( "mod.chiselsandbits.other.redo", ButtonAction.REDO, text_distnace, 4, ClientSide.redoIcon ) );
 
-		for ( final ChiselMode mode : orderedModes )
+		for ( final IToolMode mode : getTool().getAvailableModes() )
 		{
-			if ( !mode.isDisabled )
-			{
-				modes.add( new MenuRegion( mode ) );
-				used.add( mode );
-			}
-		}
-
-		for ( final ChiselMode mode : ChiselMode.values() )
-		{
-			if ( !mode.isDisabled && !used.contains( mode ) )
+			if ( !mode.isDisabled() )
 			{
 				modes.add( new MenuRegion( mode ) );
 			}
@@ -211,7 +204,17 @@ public class ChiselsAndBitsMenu extends GuiScreen
 				final float a = 0.5f;
 				float f = 0f;
 
-				if ( begin_rad <= radians && radians <= end_rad && ring_inner_edge < length && length <= ring_outer_edge )
+				final boolean quad = inTriangle(
+						x1m1, y1m1,
+						x2m2, y2m2,
+						x2m1, y2m1,
+						vecX, vecY ) || inTriangle(
+								x1m1, y1m1,
+								x1m2, y1m2,
+								x2m2, y2m2,
+								vecX, vecY );
+
+				if ( begin_rad <= radians && radians <= end_rad && quad )
 				{
 					f = 1;
 					mnuRgn.highlighted = true;
@@ -322,7 +325,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 
 				int fixed_x = (int) ( x * text_distnace );
 				final int fixed_y = (int) ( y * text_distnace );
-				final String text = mnuRgn.mode.string.getLocal();
+				final String text = mnuRgn.mode.getName().getLocal();
 
 				if ( x <= -0.2 )
 				{
@@ -348,4 +351,25 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		GlStateManager.popMatrix();
 	}
 
+	private boolean inTriangle(
+			final double x1,
+			final double y1,
+			final double x2,
+			final double y2,
+			final double x3,
+			final double y3,
+			final double x,
+			final double y )
+	{
+		final double ab = ( x1 - x ) * ( y2 - y ) - ( x2 - x ) * ( y1 - y );
+		final double bc = ( x2 - x ) * ( y3 - y ) - ( x3 - x ) * ( y2 - y );
+		final double ca = ( x3 - x ) * ( y1 - y ) - ( x1 - x ) * ( y3 - y );
+		return sign( ab ) == sign( bc ) && sign( bc ) == sign( ca );
+	}
+
+	private int sign(
+			final double n )
+	{
+		return n > 0 ? 1 : -1;
+	}
 }

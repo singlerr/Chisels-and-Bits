@@ -162,7 +162,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 			final VoxelBlob pattern = ModUtil.getBlobFromStack( stack, player );
 
-			applyPrint( world, pos, side, vb, pattern, player, hand );
+			applyPrint( stack, world, pos, side, vb, pattern, player, hand );
 
 			tec.completeEditOperation( vb );
 			return EnumActionResult.SUCCESS;
@@ -230,6 +230,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	}
 
 	protected void applyPrint(
+			final ItemStack stack,
 			final World world,
 			final BlockPos pos,
 			final EnumFacing side,
@@ -292,6 +293,15 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 		side = rotationDirection > 0 ? side.rotateY() : side.rotateYCCW();
 		blueprintTag.setInteger( ItemBlockChiseled.NBT_SIDE, +side.ordinal() );
+	}
+
+	public BlockPos findPlacementPosition(
+			final World theWorld,
+			final BlockPos pos,
+			final EnumFacing sideHit )
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

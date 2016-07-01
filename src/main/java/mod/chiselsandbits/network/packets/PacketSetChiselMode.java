@@ -1,7 +1,10 @@
 package mod.chiselsandbits.network.packets;
 
-import mod.chiselsandbits.core.ChiselMode;
+import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
+import mod.chiselsandbits.modes.ChiselMode;
+import mod.chiselsandbits.modes.IToolMode;
+import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -12,7 +15,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 public class PacketSetChiselMode extends ModPacket
 {
 
-	public ChiselMode mode = ChiselMode.SINGLE;
+	public IToolMode mode = ChiselMode.SINGLE;
+	public ChiselToolType type = ChiselToolType.CHISEL;
 	public boolean chatNotification = false;
 
 	@Override
@@ -22,12 +26,12 @@ public class PacketSetChiselMode extends ModPacket
 		final ItemStack ei = player.getHeldItemMainhand();
 		if ( ei != null && ei.getItem() instanceof IChiselModeItem )
 		{
-			final ChiselMode originalMode = ChiselMode.getMode( ei );
+			final IToolMode originalMode = type.getMode( ei );
 			mode.setMode( ei );
 
 			if ( originalMode != mode && chatNotification )
 			{
-				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new TextComponentTranslation( mode.string.toString() ) );
+				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new TextComponentTranslation( mode.getName().toString() ) );
 			}
 		}
 	}
@@ -37,7 +41,8 @@ public class PacketSetChiselMode extends ModPacket
 			final PacketBuffer buffer )
 	{
 		buffer.writeBoolean( chatNotification );
-		buffer.writeInt( mode.ordinal() );
+		buffer.writeEnumValue( type );
+		buffer.writeEnumValue( (Enum<?>) mode );
 	}
 
 	@Override
@@ -45,7 +50,17 @@ public class PacketSetChiselMode extends ModPacket
 			final PacketBuffer buffer )
 	{
 		chatNotification = buffer.readBoolean();
-		mode = ChiselMode.getMode( buffer.readInt() );
+		type = buffer.readEnumValue( ChiselToolType.class );
+
+		if ( type == ChiselToolType.BIT || type == ChiselToolType.CHISEL )
+		{
+			mode = buffer.readEnumValue( ChiselMode.class );
+		}
+
+		if ( type == ChiselToolType.POSITIVEPATTERN )
+		{
+			mode = buffer.readEnumValue( PositivePatternMode.class );
+		}
 	}
 
 }

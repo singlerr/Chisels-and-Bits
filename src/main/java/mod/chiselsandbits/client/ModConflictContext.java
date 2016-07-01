@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client;
 
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.client.settings.IKeyConflictContext;
@@ -22,6 +23,39 @@ public enum ModConflictContext implements IKeyConflictContext
 		public boolean conflicts(
 				final IKeyConflictContext other )
 		{
+			return this == other || other == KeyConflictContext.IN_GAME || other == HOLDING_MENUITEM;
+		}
+	},
+
+	HOLDING_MENUITEM
+	{
+		@Override
+		public boolean isActive()
+		{
+			final ChiselToolType tool = ClientSide.instance.getHeldToolType();
+			return tool != null && tool.hasMenu();
+		}
+
+		@Override
+		public boolean conflicts(
+				final IKeyConflictContext other )
+		{
+			return this == other || other == KeyConflictContext.IN_GAME || other == HOLDING_POSTIVEPATTERN || other == HOLDING_CHISEL;
+		}
+	},
+
+	HOLDING_POSTIVEPATTERN
+	{
+		@Override
+		public boolean isActive()
+		{
+			return ClientSide.instance.getHeldToolType() == ChiselToolType.POSITIVEPATTERN;
+		}
+
+		@Override
+		public boolean conflicts(
+				final IKeyConflictContext other )
+		{
 			return this == other || other == KeyConflictContext.IN_GAME;
 		}
 	},
@@ -31,7 +65,8 @@ public enum ModConflictContext implements IKeyConflictContext
 		@Override
 		public boolean isActive()
 		{
-			return ClientSide.instance.getHeldToolType() != null;
+			final ChiselToolType tool = ClientSide.instance.getHeldToolType();
+			return tool != null && tool.isBitOrChisel();
 		}
 
 		@Override

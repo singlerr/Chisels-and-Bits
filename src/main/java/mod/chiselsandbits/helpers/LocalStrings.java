@@ -56,7 +56,11 @@ public enum LocalStrings
 	TrashItem( "help.trashitem" ),
 	ReallyTrash( "help.reallytrash" ),
 	ReallyTrashItem( "help.reallytrash_blank" ),
-	TrashInvalidItem( "help.trash.invalid" );
+	TrashInvalidItem( "help.trash.invalid" ),
+
+	PositivePatternReplace( "positivepatternmode.replace" ),
+	PositivePatternAdditive( "positivepatternmode.additive" ),
+	PositivePatternPlacement( "positivepatternmode.placement" );
 
 	private final String string;
 

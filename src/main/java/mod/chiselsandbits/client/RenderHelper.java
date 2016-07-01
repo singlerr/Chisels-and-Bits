@@ -57,6 +57,7 @@ public class RenderHelper
 	}
 
 	public static void renderQuads(
+			final int alpha,
 			final VertexBuffer renderer,
 			final List<BakedQuad> quads,
 			final World worldObj,
@@ -66,7 +67,7 @@ public class RenderHelper
 		for ( final int j = quads.size(); i < j; ++i )
 		{
 			final BakedQuad bakedquad = quads.get( i );
-			final int color = bakedquad.getTintIndex() == -1 ? 0xaaffffff : getTint( bakedquad.getTintIndex(), worldObj, blockPos );
+			final int color = bakedquad.getTintIndex() == -1 ? alpha | 0xffffff : getTint( alpha, bakedquad.getTintIndex(), worldObj, blockPos );
 			net.minecraftforge.client.model.pipeline.LightUtil.renderQuadColor( renderer, bakedquad, color );
 		}
 	}
@@ -127,49 +128,53 @@ public class RenderHelper
 	}
 
 	public static int getTint(
+			final int alpha,
 			final int tintIndex,
 			final World worldObj,
 			final BlockPos blockPos )
 	{
-		return 0xaa000000 | Minecraft.getMinecraft().getBlockColors().colorMultiplier( ChiselsAndBits.getBlocks().getChiseledDefaultState(), worldObj, blockPos, tintIndex );
+		return alpha | Minecraft.getMinecraft().getBlockColors().colorMultiplier( ChiselsAndBits.getBlocks().getChiseledDefaultState(), worldObj, blockPos, tintIndex );
 	}
 
 	public static void renderModel(
 			final IBakedModel model,
 			final World worldObj,
-			final BlockPos blockPos )
+			final BlockPos blockPos,
+			final int alpha )
 	{
 		final Tessellator tessellator = Tessellator.getInstance();
 		final VertexBuffer worldrenderer = tessellator.getBuffer();
-		worldrenderer.begin( 7, DefaultVertexFormats.ITEM );
+		worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.ITEM );
 
 		for ( final EnumFacing enumfacing : EnumFacing.values() )
 		{
-			renderQuads( worldrenderer, model.getQuads( null, enumfacing, 0 ), worldObj, blockPos );
+			renderQuads( alpha, worldrenderer, model.getQuads( null, enumfacing, 0 ), worldObj, blockPos );
 		}
 
-		renderQuads( worldrenderer, model.getQuads( null, null, 0 ), worldObj, blockPos );
+		renderQuads( alpha, worldrenderer, model.getQuads( null, null, 0 ), worldObj, blockPos );
 		tessellator.draw();
 	}
 
 	public static void renderGhostModel(
 			final IBakedModel baked,
 			final World worldObj,
-			final BlockPos blockPos )
+			final BlockPos blockPos,
+			final boolean isUnplaceable )
 	{
+		final int alpha = isUnplaceable ? 0x22000000 : 0xaa000000;
 		GlStateManager.bindTexture( Minecraft.getMinecraft().getTextureMapBlocks().getGlTextureId() );
-		GlStateManager.color( 1.0f, 1.0f, 1.0f, 0.1f );
+		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
+
 		GlStateManager.enableBlend();
 		GlStateManager.enableTexture2D();
 		GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
 		GlStateManager.colorMask( false, false, false, false );
 
-		RenderHelper.renderModel( baked, worldObj, blockPos );
+		RenderHelper.renderModel( baked, worldObj, blockPos, alpha );
 		GlStateManager.colorMask( true, true, true, true );
 		GlStateManager.depthFunc( GL11.GL_LEQUAL );
-		RenderHelper.renderModel( baked, worldObj, blockPos );
+		RenderHelper.renderModel( baked, worldObj, blockPos, alpha );
 
-		GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
 		GlStateManager.disableBlend();
 	}
 

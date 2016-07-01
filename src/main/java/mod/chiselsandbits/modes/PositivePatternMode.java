@@ -1,37 +1,29 @@
-package mod.chiselsandbits.core;
+package mod.chiselsandbits.modes;
 
+import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagString;
 
-public enum ChiselMode
+public enum PositivePatternMode implements IToolMode
 {
-	SINGLE( LocalStrings.ChiselModeSingle ),
-	SNAP2( LocalStrings.ChiselModeSnap2 ),
-	SNAP4( LocalStrings.ChiselModeSnap4 ),
-	SNAP8( LocalStrings.ChiselModeSnap8 ),
-	LINE( LocalStrings.ChiselModeLine ),
-	PLANE( LocalStrings.ChiselModePlane ),
-	CONNECTED_PLANE( LocalStrings.ChiselModeConnectedPlane ),
-	CUBE_SMALL( LocalStrings.ChiselModeCubeSmall ),
-	CUBE_MEDIUM( LocalStrings.ChiselModeCubeMedium ),
-	CUBE_LARGE( LocalStrings.ChiselModeCubeLarge ),
-	DRAWN_REGION( LocalStrings.ChiselModeDrawnRegion );
+	REPLACE( LocalStrings.PositivePatternReplace ),
+	ADDITIVE( LocalStrings.PositivePatternAdditive ),
+	PLACEMENT( LocalStrings.PositivePatternPlacement );
 
 	public final LocalStrings string;
-
 	public boolean isDisabled = false;
 
 	public Object binding;
 
-	private ChiselMode(
+	private PositivePatternMode(
 			final LocalStrings str )
 	{
 		string = str;
 	}
 
-	public static ChiselMode getMode(
+	public static PositivePatternMode getMode(
 			final ItemStack stack )
 	{
 		if ( stack != null )
@@ -50,9 +42,10 @@ public enum ChiselMode
 			}
 		}
 
-		return SINGLE;
+		return REPLACE;
 	}
 
+	@Override
 	public void setMode(
 			final ItemStack stack )
 	{
@@ -62,10 +55,26 @@ public enum ChiselMode
 		}
 	}
 
-	public static ChiselMode getMode(
-			final int offset )
+	public static PositivePatternMode castMode(
+			final IToolMode chiselMode )
 	{
-		return values()[offset % values().length];
+		if ( chiselMode instanceof PositivePatternMode )
+		{
+			return (PositivePatternMode) chiselMode;
+		}
+
+		return PositivePatternMode.REPLACE;
 	}
 
+	@Override
+	public LocalStrings getName()
+	{
+		return string;
+	}
+
+	@Override
+	public boolean isDisabled()
+	{
+		return isDisabled;
+	}
 }
