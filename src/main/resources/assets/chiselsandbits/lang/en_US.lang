@@ -52,6 +52,7 @@ mod.chiselsandbits.chiselmode.drawn_region=Drawn Region
 mod.chiselsandbits.positivepatternmode.replace=Replace
 mod.chiselsandbits.positivepatternmode.additive=Additive
 mod.chiselsandbits.positivepatternmode.placement=Placement
+mod.chiselsandbits.positivepatternmode.impose=Impose
 
 mod.chiselsandbits.result.out_of_range=Not close enough
 mod.chiselsandbits.result.has_changed=Block has changed

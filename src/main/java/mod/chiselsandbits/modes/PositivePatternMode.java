@@ -10,7 +10,8 @@ public enum PositivePatternMode implements IToolMode
 {
 	REPLACE( LocalStrings.PositivePatternReplace ),
 	ADDITIVE( LocalStrings.PositivePatternAdditive ),
-	PLACEMENT( LocalStrings.PositivePatternPlacement );
+	PLACEMENT( LocalStrings.PositivePatternPlacement ),
+	IMPOSE( LocalStrings.PositivePatternImpose );
 
 	public final LocalStrings string;
 	public boolean isDisabled = false;

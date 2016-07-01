@@ -60,7 +60,8 @@ public enum LocalStrings
 
 	PositivePatternReplace( "positivepatternmode.replace" ),
 	PositivePatternAdditive( "positivepatternmode.additive" ),
-	PositivePatternPlacement( "positivepatternmode.placement" );
+	PositivePatternPlacement( "positivepatternmode.placement" ),
+	PositivePatternImpose( "positivepatternmode.impose" );
 
 	private final String string;
 

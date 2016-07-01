@@ -200,7 +200,9 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 		final List<BagInventory> bags = ModUtil.getBags( player );
 		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
 
-		final boolean chisel_bits = PositivePatternMode.getMode( stack ) == PositivePatternMode.REPLACE;
+		final PositivePatternMode chiselMode = PositivePatternMode.getMode( stack );
+		final boolean chisel_bits = chiselMode == PositivePatternMode.IMPOSE || chiselMode == PositivePatternMode.REPLACE;
+		final boolean chisel_to_air = chiselMode == PositivePatternMode.REPLACE;
 
 		for ( int y = 0; y < vb.detail; y++ )
 		{
@@ -214,11 +216,14 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 					{
 						if ( inPlace != 0 && chisel_bits && selected.isValid() )
 						{
-							spawnedItem = ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
-
-							if ( spawnedItem != null )
+							if ( chisel_to_air || inPattern != 0 )
 							{
-								inPlace = 0;
+								spawnedItem = ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
+
+								if ( spawnedItem != null )
+								{
+									inPlace = 0;
+								}
 							}
 						}
 
