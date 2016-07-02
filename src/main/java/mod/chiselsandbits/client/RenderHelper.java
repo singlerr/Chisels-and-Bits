@@ -16,6 +16,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class RenderHelper
@@ -28,6 +29,21 @@ public class RenderHelper
 			final float partialTicks,
 			final boolean NormalBoundingBox )
 	{
+		drawSelectionBoundingBoxIfExistsWithColor( bb, blockPos, player, partialTicks, NormalBoundingBox, 0, 0, 0, 102, 32 );
+	}
+
+	public static void drawSelectionBoundingBoxIfExistsWithColor(
+			final AxisAlignedBB bb,
+			final BlockPos blockPos,
+			final EntityPlayer player,
+			final float partialTicks,
+			final boolean NormalBoundingBox,
+			final int red,
+			final int green,
+			final int blue,
+			final int alpha,
+			final int seeThruAlpha )
+	{
 		if ( bb != null )
 		{
 			final double x = player.lastTickPosX + ( player.posX - player.lastTickPosX ) * partialTicks;
@@ -39,16 +55,63 @@ public class RenderHelper
 			GL11.glLineWidth( 2.0F );
 			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask( false );
+			GlStateManager.shadeModel( GL11.GL_FLAT );
 
 			if ( !NormalBoundingBox )
 			{
-				RenderHelper.renderBoundingBox( bb.expand( 0.002D, 0.002D, 0.002D ).offset( -x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ() ), 0, 0, 0, 102 );
+				RenderHelper.renderBoundingBox( bb.expand( 0.002D, 0.002D, 0.002D ).offset( -x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ() ), red, green, blue, alpha );
 			}
 
 			GlStateManager.disableDepth();
 
-			RenderHelper.renderBoundingBox( bb.expand( 0.002D, 0.002D, 0.002D ).offset( -x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ() ), 0, 0, 0, 26 );
+			RenderHelper.renderBoundingBox( bb.expand( 0.002D, 0.002D, 0.002D ).offset( -x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ() ), red, green, blue, seeThruAlpha );
 
+			GlStateManager.shadeModel( Minecraft.isAmbientOcclusionEnabled() ? GL11.GL_SMOOTH : GL11.GL_FLAT );
+			GlStateManager.enableDepth();
+			GlStateManager.depthMask( true );
+			GlStateManager.enableTexture2D();
+			GlStateManager.disableBlend();
+		}
+	}
+
+	public static void drawLineWithColor(
+			final Vec3d a,
+			final Vec3d b,
+			final BlockPos blockPos,
+			final EntityPlayer player,
+			final float partialTicks,
+			final boolean NormalBoundingBox,
+			final int red,
+			final int green,
+			final int blue,
+			final int alpha,
+			final int seeThruAlpha )
+	{
+		if ( a != null && b != null )
+		{
+			final double x = player.lastTickPosX + ( player.posX - player.lastTickPosX ) * partialTicks;
+			final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
+			final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
+
+			GlStateManager.enableBlend();
+			GlStateManager.tryBlendFuncSeparate( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0 );
+			GL11.glLineWidth( 2.0F );
+			GlStateManager.disableTexture2D();
+			GlStateManager.depthMask( false );
+			GlStateManager.shadeModel( GL11.GL_FLAT );
+
+			final Vec3d a2 = a.addVector( -x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ() );
+			final Vec3d b2 = b.addVector( -x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ() );
+			if ( !NormalBoundingBox )
+			{
+				RenderHelper.renderLine( a2, b2, red, green, blue, alpha );
+			}
+
+			GlStateManager.disableDepth();
+
+			RenderHelper.renderLine( a2, b2, red, green, blue, seeThruAlpha );
+
+			GlStateManager.shadeModel( Minecraft.isAmbientOcclusionEnabled() ? GL11.GL_SMOOTH : GL11.GL_FLAT );
 			GlStateManager.enableDepth();
 			GlStateManager.depthMask( true );
 			GlStateManager.enableTexture2D();
@@ -124,6 +187,22 @@ public class RenderHelper
 		buffer.pos( maxX, minY, maxZ ).color( red, green, blue, 0 ).endVertex();
 		buffer.pos( maxX, maxY, maxZ ).color( red, green, blue, alpha ).endVertex();
 
+		tess.draw();
+	}
+
+	public static void renderLine(
+			final Vec3d a,
+			final Vec3d b,
+			final int red,
+			final int green,
+			final int blue,
+			final int alpha )
+	{
+		final Tessellator tess = Tessellator.getInstance();
+		final VertexBuffer buffer = tess.getBuffer();
+		buffer.begin( GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR );
+		buffer.pos( a.xCoord, a.yCoord, a.zCoord ).color( red, green, blue, alpha ).endVertex();
+		buffer.pos( b.xCoord, b.yCoord, b.zCoord ).color( red, green, blue, alpha ).endVertex();
 		tess.draw();
 	}
 

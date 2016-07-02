@@ -14,8 +14,6 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
-import mod.chiselsandbits.helpers.ChiselModeManager;
-import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -35,8 +33,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeItem
 {
@@ -264,14 +260,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 	{
 		if ( ChiselsAndBits.getConfig().itemNameModeDisplay )
 		{
-			if ( ChiselsAndBits.getConfig().perChiselMode || FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER )
-			{
-				return displayName + " - " + PositivePatternMode.getMode( item ).string.getLocal();
-			}
-			else
-			{
-				return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.POSITIVEPATTERN ).getName().getLocal();
-			}
+			return displayName + " - " + PositivePatternMode.getMode( item ).string.getLocal();
 		}
 
 		return displayName;

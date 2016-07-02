@@ -82,7 +82,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	{
 		if ( ChiselsAndBits.getConfig().itemNameModeDisplay && FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT )
 		{
-			return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.BIT ).getName().getLocal();
+			return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.BIT, EnumHand.MAIN_HAND ).getName().getLocal();
 		}
 
 		return displayName;
@@ -98,7 +98,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		return ItemChisel.fromBreakToChisel( ChiselMode.castMode( ChiselModeManager.getChiselMode( player, ChiselToolType.BIT ) ), itemstack, pos, player, EnumHand.MAIN_HAND );
+		return ItemChisel.fromBreakToChisel( ChiselMode.castMode( ChiselModeManager.getChiselMode( player, ChiselToolType.BIT, EnumHand.MAIN_HAND ) ), itemstack, pos, player, EnumHand.MAIN_HAND );
 	}
 
 	public String getBitTypeName(
@@ -227,7 +227,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 		if ( world.isRemote )
 		{
-			final IToolMode mode = ChiselModeManager.getChiselMode( player, ClientSide.instance.getHeldToolType() );
+			final IToolMode mode = ChiselModeManager.getChiselMode( player, ClientSide.instance.getHeldToolType( hand ), hand );
 			final BitLocation bitLocation = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.BIT );
 
 			IBlockState blkstate = world.getBlockState( bitLocation.blockPos );
@@ -374,7 +374,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final IToolMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.BIT );
+		final IToolMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.BIT, EnumHand.MAIN_HAND );
 		ChiselModeManager.scrollOption( ChiselToolType.BIT, mode, mode, dwheel );
 	}
 

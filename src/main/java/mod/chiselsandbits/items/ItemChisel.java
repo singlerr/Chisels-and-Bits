@@ -112,7 +112,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final BlockPos pos,
 			final EntityPlayer player )
 	{
-		return ItemChisel.fromBreakToChisel( ChiselMode.castMode( ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL ) ), itemstack, pos, player, EnumHand.MAIN_HAND );
+		return ItemChisel.fromBreakToChisel( ChiselMode.castMode( ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL, EnumHand.MAIN_HAND ) ), itemstack, pos, player, EnumHand.MAIN_HAND );
 	}
 
 	static public boolean fromBreakToChisel(
@@ -174,7 +174,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			}
 			else
 			{
-				return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.CHISEL ).getName().getLocal();
+				return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.CHISEL, EnumHand.MAIN_HAND ).getName().getLocal();
 			}
 		}
 
@@ -190,7 +190,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	{
 		if ( worldIn.isRemote && ChiselsAndBits.getConfig().enableRightClickModeChange )
 		{
-			final IToolMode mode = ChiselModeManager.getChiselMode( playerIn, ChiselToolType.CHISEL );
+			final IToolMode mode = ChiselModeManager.getChiselMode( playerIn, ChiselToolType.CHISEL, hand );
 			ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, playerIn.isSneaking() ? -1 : 1 );
 			return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemStackIn );
 		}
@@ -494,7 +494,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final IToolMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL );
+		final IToolMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL, EnumHand.MAIN_HAND );
 		ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, dwheel );
 	}
 

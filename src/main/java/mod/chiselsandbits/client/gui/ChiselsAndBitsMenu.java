@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.EnumHand;
 
 public class ChiselsAndBitsMenu extends GuiScreen
 {
@@ -33,7 +34,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 
 	private ChiselToolType getTool()
 	{
-		return ClientSide.instance.getHeldToolType();
+		return ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND );
 	}
 
 	private float clampVis(

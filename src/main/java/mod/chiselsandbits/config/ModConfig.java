@@ -12,6 +12,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
+import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.registry.ModRegistry;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.ConfigCategory;
@@ -91,6 +92,15 @@ public class ModConfig extends Configuration
 	public boolean enablePositivePatternMode_Replace;
 
 	@Configured( category = "Client Settings" )
+	public boolean enableTapeMeasure_Bit;
+
+	@Configured( category = "Client Settings" )
+	public boolean enableTapeMeasure_Block;
+
+	@Configured( category = "Client Settings" )
+	public boolean enableTapeMeasure_Distance;
+
+	@Configured( category = "Client Settings" )
 	public boolean enableToolbarIcons;
 
 	@Configured( category = "Client Settings" )
@@ -116,6 +126,9 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Client Settings" )
 	public int maxUndoLevel;
+
+	@Configured( category = "Client Settings" )
+	public int maxTapeMeasures;
 
 	@Configured( category = "Client Performance Settings" )
 	public int maxMillisecondsPerBlock = 10;
@@ -179,6 +192,9 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Items" )
 	public boolean enableWoodenWrench;
+
+	@Configured( category = "Items" )
+	public boolean enableTapeMeasure;
 
 	@Configured( category = "Items" )
 	public boolean enableBitSaw;
@@ -269,6 +285,9 @@ public class ModConfig extends Configuration
 		enablePositivePatternMode_Impose = !PositivePatternMode.IMPOSE.isDisabled;
 		enablePositivePatternMode_Placement = !PositivePatternMode.PLACEMENT.isDisabled;
 		enablePositivePatternMode_Replace = !PositivePatternMode.REPLACE.isDisabled;
+		enableTapeMeasure_Bit = !TapeMeasureModes.BIT.isDisabled;
+		enableTapeMeasure_Block = !TapeMeasureModes.BLOCK.isDisabled;
+		enableTapeMeasure_Distance = !TapeMeasureModes.DISTANCE.isDisabled;
 		perChiselMode = true;
 		chatModeNotification = false;
 		itemNameModeDisplay = true;
@@ -277,6 +296,7 @@ public class ModConfig extends Configuration
 		maxDrawnRegionSize = 4;
 		bagStackSize = 512;
 		maxUndoLevel = 32;
+		maxTapeMeasures = 5;
 
 		// Dynamic models..
 		dynamicModelFaceCount = 40;
@@ -323,6 +343,7 @@ public class ModConfig extends Configuration
 		enableGoldChisel = true;
 		enableDiamondChisel = true;
 		enableWoodenWrench = true;
+		enableTapeMeasure = true;
 		enableBitSaw = true;
 		ShowBitsInJEI = false;
 	}
@@ -469,6 +490,9 @@ public class ModConfig extends Configuration
 		PositivePatternMode.IMPOSE.isDisabled = !enablePositivePatternMode_Impose;
 		PositivePatternMode.PLACEMENT.isDisabled = !enablePositivePatternMode_Placement;
 		PositivePatternMode.REPLACE.isDisabled = !enablePositivePatternMode_Replace;
+		TapeMeasureModes.BIT.isDisabled = !enableTapeMeasure_Bit;
+		TapeMeasureModes.BLOCK.isDisabled = !enableTapeMeasure_Block;
+		TapeMeasureModes.DISTANCE.isDisabled = !enableTapeMeasure_Distance;
 	}
 
 	@SubscribeEvent

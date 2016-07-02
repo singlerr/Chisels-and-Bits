@@ -11,6 +11,7 @@ import mod.chiselsandbits.network.packets.PacketSetChiselMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.text.TextComponentTranslation;
 
 public class ChiselModeManager
@@ -98,11 +99,12 @@ public class ChiselModeManager
 
 	public static IToolMode getChiselMode(
 			final EntityPlayer player,
-			final ChiselToolType setting )
+			final ChiselToolType setting,
+			final EnumHand hand )
 	{
-		if ( setting == ChiselToolType.POSITIVEPATTERN )
+		if ( setting == ChiselToolType.TAPEMEASURE || setting == ChiselToolType.POSITIVEPATTERN )
 		{
-			final ItemStack ei = player.getHeldItemMainhand();
+			final ItemStack ei = player.getHeldItem( hand );
 			if ( ei != null && ei.getItem() instanceof IChiselModeItem )
 			{
 				return setting.getMode( ei );

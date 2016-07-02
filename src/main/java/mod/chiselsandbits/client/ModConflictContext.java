@@ -4,6 +4,7 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
 
@@ -32,7 +33,7 @@ public enum ModConflictContext implements IKeyConflictContext
 		@Override
 		public boolean isActive()
 		{
-			final ChiselToolType tool = ClientSide.instance.getHeldToolType();
+			final ChiselToolType tool = ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND );
 			return tool != null && tool.hasMenu();
 		}
 
@@ -40,7 +41,22 @@ public enum ModConflictContext implements IKeyConflictContext
 		public boolean conflicts(
 				final IKeyConflictContext other )
 		{
-			return this == other || other == KeyConflictContext.IN_GAME || other == HOLDING_POSTIVEPATTERN || other == HOLDING_CHISEL;
+			return this == other || other == KeyConflictContext.IN_GAME || other == HOLDING_POSTIVEPATTERN || other == HOLDING_CHISEL || other == HOLDING_TAPEMEASURE;
+		}
+	},
+	HOLDING_TAPEMEASURE
+	{
+		@Override
+		public boolean isActive()
+		{
+			return ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND ) == ChiselToolType.TAPEMEASURE;
+		}
+
+		@Override
+		public boolean conflicts(
+				final IKeyConflictContext other )
+		{
+			return this == other || other == KeyConflictContext.IN_GAME;
 		}
 	},
 
@@ -49,7 +65,7 @@ public enum ModConflictContext implements IKeyConflictContext
 		@Override
 		public boolean isActive()
 		{
-			return ClientSide.instance.getHeldToolType() == ChiselToolType.POSITIVEPATTERN;
+			return ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND ) == ChiselToolType.POSITIVEPATTERN;
 		}
 
 		@Override
@@ -65,7 +81,7 @@ public enum ModConflictContext implements IKeyConflictContext
 		@Override
 		public boolean isActive()
 		{
-			final ChiselToolType tool = ClientSide.instance.getHeldToolType();
+			final ChiselToolType tool = ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND );
 			return tool != null && tool.isBitOrChisel();
 		}
 

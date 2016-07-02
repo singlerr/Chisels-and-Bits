@@ -9,6 +9,7 @@ import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.items.ItemMirrorPrint;
 import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.items.ItemPositivePrint;
+import mod.chiselsandbits.items.ItemTapeMeasure;
 import mod.chiselsandbits.items.ItemWrench;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -32,6 +33,7 @@ public class ModItems extends ModRegistry
 	final public ItemBitBag itemBitBag;
 	final public ItemWrench itemWrench;
 	final public ItemBitSaw itemBitSawDiamond;
+	final public ItemTapeMeasure itemTapeMeasure;
 
 	public ModItems(
 			final ModConfig config )
@@ -48,6 +50,7 @@ public class ModItems extends ModRegistry
 		itemWrench = registerItem( config.enableWoodenWrench, new ItemWrench(), "wrench_wood" );
 		itemBitSawDiamond = registerItem( config.enableBitSaw, new ItemBitSaw(), "bitsaw_diamond" );
 		itemBlockBit = registerItem( config.enableChisledBits, new ItemChiseledBit(), "block_bit" );
+		itemTapeMeasure = registerItem( config.enableTapeMeasure, new ItemTapeMeasure(), "tape_measure" );
 		registerItem( config.enableAPITestingItem, new ItemApiDebug(), "debug" );
 	}
 
@@ -60,6 +63,7 @@ public class ModItems extends ModRegistry
 		ShapedOreRecipe( itemChiselStone, "TS", 'T', "cobblestone", 'S', "stickWood" );
 		ShapedOreRecipe( itemBitSawDiamond, "SSS", "STT", 'T', "gemDiamond", 'S', "stickWood" );
 		ShapedOreRecipe( itemWrench, " W ", "WS ", "  S", 'W', "plankWood", 'S', "stickWood" );
+		ShapedOreRecipe( itemTapeMeasure, "  S", "ISY", "II ", 'I', "ingotIron", 'S', "string", 'Y', "dyeYellow" );
 
 		// create prints...
 		ShapelessOreRecipe( itemPositiveprint, Items.WATER_BUCKET, Items.PAPER, "gemLapis" );

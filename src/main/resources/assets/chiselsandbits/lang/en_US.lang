@@ -36,6 +36,7 @@ item.mod.chiselsandbits.chisel_gold.name=Golden Chisel
 item.mod.chiselsandbits.chisel_diamond.name=Diamond Chisel
 
 item.mod.chiselsandbits.bitsaw_diamond.name=Diamond Bit Saw
+item.mod.chiselsandbits.tape_measure.name=Tape Measure
 
 mod.chiselsandbits.chiselmode.single=Single Bit
 mod.chiselsandbits.chiselmode.snap2=Grid Snapped 1/8 Size Cube
@@ -53,6 +54,10 @@ mod.chiselsandbits.positivepatternmode.replace=Replace
 mod.chiselsandbits.positivepatternmode.additive=Additive
 mod.chiselsandbits.positivepatternmode.placement=Placement
 mod.chiselsandbits.positivepatternmode.impose=Impose
+
+mod.chiselsandbits.tapemeasure.bit=Bit
+mod.chiselsandbits.tapemeasure.block=Block
+mod.chiselsandbits.tapemeasure.distance=Distance
 
 mod.chiselsandbits.result.out_of_range=Not close enough
 mod.chiselsandbits.result.has_changed=Block has changed
@@ -82,10 +87,12 @@ mod.chiselsandbits.help.mirrorprint=Right click the face you wish to mirror from
 mod.chiselsandbits.help.chisel=Left click to chisel;Use {} to display menu.
 mod.chiselsandbits.help.bitsaw=Craft with Blocks or Chiseled blocks;Cut along any of the 3 axis.
 mod.chiselsandbits.help.bittank=Fill with fluid and extract bits.
+mod.chiselsandbits.help.tape_measure=Right click and drag to measure;Sneak + right click to clear;Use {} to display menu.
 
 mod.chiselsandbits.help.chiseled_block.long=Left click to place the block. Sneak while placing to ignore block grid. Shift + Mouse Wheel to cycle placement rotation.
 mod.chiselsandbits.help.bit_bag.long=Automatically re-stocks, and store bits when you exceed or go under a stack in your inventory.
 mod.chiselsandbits.help.wrench.long=Right click blocks to rotate them around the axis of the face you click.
+mod.chiselsandbits.help.tape_measure.long=Left click to and drag to measure spaces. Sneak Use to remove previously created measurements. Use the menu to switch between measurement modes.
 mod.chiselsandbits.help.bit.long=Left click to chisel the highlighted area. Right click to place at the designated area.
 mod.chiselsandbits.help.positiveprint.long=Right click on a chiseled block to write the design. Right click on a block to chisel it adding and removing any bits that do not match the design. You can also place the design in a crafting table and Craft with bits/bags. Shift + Mouse Wheel can be used to cycle rotations without moving.
 mod.chiselsandbits.help.negativeprint.long=Right click on a chiseled block to write the design. Right click on a block to chisel it removing any bits that are not in the negative design. Shift + Mouse Wheel can be used to cycle rotations without moving.
@@ -147,6 +154,10 @@ mod.chiselsandbits.config.enablePositivePatternMode_Impose=Enable Mode - Impose
 mod.chiselsandbits.config.enablePositivePatternMode_Placement=Enable Mode - Placement
 mod.chiselsandbits.config.enablePositivePatternMode_Replace=Enable Mode - Replace
 
+mod.chiselsandbits.config.enableTapeMeasure_Bit=Enable Mode - Bit
+mod.chiselsandbits.config.enableTapeMeasure_Block=Enable Mode - Block
+mod.chiselsandbits.config.enableTapeMeasure_Distance=Enable Mode - Distance
+
 mod.chiselsandbits.config.enableToolbarIcons=Show mode icon for chisel in tool bar
 mod.chiselsandbits.config.perChiselMode=Store selected mode per tool
 mod.chiselsandbits.config.chatModeNotification=Notify mode changes with chat
@@ -197,3 +208,4 @@ mod.chiselsandbits.config.enableRightClickModeChange=Cycle Chisel mode on right 
 mod.chiselsandbits.config.enableSetBitCommand=Enable /setbit Command
 mod.chiselsandbits.config.maxMillisecondsPerBlock=Max Milliseconds Per Block
 mod.chiselsandbits.config.maxMillisecondsUploadingPerFrame=Max Milliseconds Uploading/Cycle
+mod.chiselsandbits.config.maxTapeMeasures=Max Tape Measures

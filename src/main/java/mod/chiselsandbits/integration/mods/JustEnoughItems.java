@@ -54,6 +54,7 @@ public class JustEnoughItems extends BlankModPlugin
 		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemNegativeprint ), LocalStrings.LongHelpNegativePrint );
 		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemPositiveprint ), LocalStrings.LongHelpPositivePrint );
 		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemBitSawDiamond ), LocalStrings.LongHelpBitSaw );
+		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemTapeMeasure ), LocalStrings.LongHelpTapeMeasure );
 		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemWrench ), LocalStrings.LongHelpWrench );
 		addDescription( registry, stackCollection( ChiselsAndBits.getBlocks().blockBitTank ), LocalStrings.LongHelpBitTank );
 	}

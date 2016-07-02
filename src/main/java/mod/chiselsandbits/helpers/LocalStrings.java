@@ -61,7 +61,13 @@ public enum LocalStrings
 	PositivePatternReplace( "positivepatternmode.replace" ),
 	PositivePatternAdditive( "positivepatternmode.additive" ),
 	PositivePatternPlacement( "positivepatternmode.placement" ),
-	PositivePatternImpose( "positivepatternmode.impose" );
+	PositivePatternImpose( "positivepatternmode.impose" ),
+
+	HelpTapeMeasure( "help.tape_measure" ),
+	LongHelpTapeMeasure( "help.tape_measure.long" ),
+	TapeMeasureBit( "tapemeasure.bit" ),
+	TapeMeasureBlock( "tapemeasure.block" ),
+	TapeMeasureDistance( "tapemeasure.distance" );
 
 	private final String string;
 
