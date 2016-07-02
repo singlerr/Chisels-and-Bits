@@ -181,6 +181,9 @@ public class ModConfig extends Configuration
 	public boolean enableWoodenWrench;
 
 	@Configured( category = "Items" )
+	public boolean enableTapeMeasure;
+
+	@Configured( category = "Items" )
 	public boolean enableBitSaw;
 
 	@Configured( category = "Balance Settings" )
@@ -323,6 +326,7 @@ public class ModConfig extends Configuration
 		enableGoldChisel = true;
 		enableDiamondChisel = true;
 		enableWoodenWrench = true;
+		enableTapeMeasure = true;
 		enableBitSaw = true;
 		ShowBitsInJEI = false;
 	}

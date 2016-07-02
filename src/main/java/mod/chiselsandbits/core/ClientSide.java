@@ -38,6 +38,7 @@ import mod.chiselsandbits.client.ItemColorBits;
 import mod.chiselsandbits.client.ItemColorChisled;
 import mod.chiselsandbits.client.ModConflictContext;
 import mod.chiselsandbits.client.RenderHelper;
+import mod.chiselsandbits.client.TapeMeasures;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.client.gui.ChiselsAndBitsMenu;
 import mod.chiselsandbits.client.gui.SpriteIconPositioning;
@@ -128,6 +129,8 @@ public class ClientSide
 	private KeyBinding addToClipboard;
 	private KeyBinding pickBit;
 	private Stopwatch rotateTimer;
+
+	final public TapeMeasures tapeMeasures = new TapeMeasures();
 
 	public void preinit(
 			final ChiselsAndBits mod )
@@ -606,6 +609,11 @@ public class ClientSide
 			return ChiselToolType.BIT;
 		}
 
+		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemTapeMeasure )
+		{
+			return ChiselToolType.TAPEMEASURE;
+		}
+
 		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemPositiveprint )
 		{
 			return ChiselToolType.POSITIVEPATTERN;
@@ -733,6 +741,35 @@ public class ClientSide
 		{
 			tool = lastTool;
 		}
+
+		tapeMeasures.setPreviewMeasure( null, null );
+
+		if ( tool != null && tool == ChiselToolType.TAPEMEASURE )
+		{
+			final EntityPlayer player = event.getPlayer();
+			final RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
+			final World theWorld = player.worldObj;
+
+			if ( mop.typeOfHit == RayTraceResult.Type.BLOCK )
+			{
+				final BitLocation location = new BitLocation( mop, true, ChiselToolType.CHISEL );
+				if ( theWorld.getWorldBorder().contains( location.blockPos ) )
+				{
+					final BitLocation other = getStartPos();
+					if ( other != null )
+					{
+						tapeMeasures.setPreviewMeasure( other, location );
+
+						if ( !getToolKey().isKeyDown() )
+						{
+							tapeMeasures.addMeasure( other, location );
+						}
+					}
+				}
+			}
+		}
+
+		tapeMeasures.render( event.getPartialTicks() );
 
 		if ( tool != null && tool.isBitOrChisel() && chMode != null )
 		{

@@ -16,6 +16,7 @@ public enum ChiselToolType
 	BIT( true, false ),
 
 	POSITIVEPATTERN( true, true ),
+	TAPEMEASURE( false, false ),
 	NEGATIVEPATTERN( false, false ),
 	MIRRORPATTERN( false, false );
 
