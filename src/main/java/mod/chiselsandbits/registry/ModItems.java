@@ -63,7 +63,7 @@ public class ModItems extends ModRegistry
 		ShapedOreRecipe( itemChiselStone, "TS", 'T', "cobblestone", 'S', "stickWood" );
 		ShapedOreRecipe( itemBitSawDiamond, "SSS", "STT", 'T', "gemDiamond", 'S', "stickWood" );
 		ShapedOreRecipe( itemWrench, " W ", "WS ", "  S", 'W', "plankWood", 'S', "stickWood" );
-		ShapedOreRecipe( itemTapeMeasure, "  S", "IS ", "II ", 'I', "ingotIron", 'S', "string" );
+		ShapedOreRecipe( itemTapeMeasure, "  S", "ISY", "II ", 'I', "ingotIron", 'S', "string", 'Y', "dyeYellow" );
 
 		// create prints...
 		ShapelessOreRecipe( itemPositiveprint, Items.WATER_BUCKET, Items.PAPER, "gemLapis" );

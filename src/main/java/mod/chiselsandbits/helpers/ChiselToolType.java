@@ -8,6 +8,7 @@ import java.util.List;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
+import mod.chiselsandbits.modes.TapeMeasureModes;
 import net.minecraft.item.ItemStack;
 
 public enum ChiselToolType
@@ -16,7 +17,7 @@ public enum ChiselToolType
 	BIT( true, false ),
 
 	POSITIVEPATTERN( true, true ),
-	TAPEMEASURE( false, false ),
+	TAPEMEASURE( true, true ),
 	NEGATIVEPATTERN( false, false ),
 	MIRRORPATTERN( false, false );
 
@@ -42,6 +43,11 @@ public enum ChiselToolType
 		if ( this == POSITIVEPATTERN )
 		{
 			return PositivePatternMode.getMode( ei );
+		}
+
+		if ( this == ChiselToolType.TAPEMEASURE )
+		{
+			return TapeMeasureModes.getMode( ei );
 		}
 
 		throw new NullPointerException();
@@ -92,6 +98,18 @@ public enum ChiselToolType
 
 			return t;
 		}
+		else if ( this == TAPEMEASURE )
+		{
+			final TapeMeasureModes[] modes = TapeMeasureModes.values();
+			final ArrayList<IToolMode> t = new ArrayList<IToolMode>( modes.length );
+
+			for ( final TapeMeasureModes b : modes )
+			{
+				t.add( b );
+			}
+
+			return t;
+		}
 		else
 		{
 			return Collections.emptyList();
@@ -110,6 +128,6 @@ public enum ChiselToolType
 
 	public boolean requiresPerToolSettings()
 	{
-		return this == ChiselToolType.POSITIVEPATTERN;
+		return this == ChiselToolType.POSITIVEPATTERN || this == ChiselToolType.TAPEMEASURE;
 	}
 }

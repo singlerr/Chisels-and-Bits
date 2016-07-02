@@ -56,6 +56,7 @@ import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
+import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
@@ -156,6 +157,11 @@ public class ClientSide
 			mode.binding = registerKeybind( mode.string.toString(), 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_POSTIVEPATTERN );
 		}
 
+		for ( final TapeMeasureModes mode : TapeMeasureModes.values() )
+		{
+			mode.binding = registerKeybind( mode.string.toString(), 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_TAPEMEASURE );
+		}
+
 		modeMenu = registerKeybind( "mod.chiselsandbits.other.mode", 56, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_MENUITEM );
 		rotateCCW = registerKeybind( "mod.chiselsandbits.other.rotate.ccw", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
 		rotateCW = registerKeybind( "mod.chiselsandbits.other.rotate.cw", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
@@ -212,6 +218,7 @@ public class ClientSide
 		registerMesh( modItems.itemBitBag, 0, new ModelResourceLocation( new ResourceLocation( modId, "bit_bag" ), "inventory" ) );
 		registerMesh( modItems.itemWrench, 0, new ModelResourceLocation( new ResourceLocation( modId, "wrench_wood" ), "inventory" ) );
 		registerMesh( modItems.itemBitSawDiamond, 0, new ModelResourceLocation( new ResourceLocation( modId, "bitsaw_diamond" ), "inventory" ) );
+		registerMesh( modItems.itemTapeMeasure, 0, new ModelResourceLocation( new ResourceLocation( modId, "tape_measure" ), "inventory" ) );
 
 		if ( modItems.itemPositiveprint != null )
 		{
@@ -319,6 +326,11 @@ public class ClientSide
 		{
 			loadIcon( map, mode );
 		}
+
+		for ( final TapeMeasureModes mode : TapeMeasureModes.values() )
+		{
+			loadIcon( map, mode );
+		}
 	}
 
 	void loadIcon(
@@ -388,7 +400,7 @@ public class ClientSide
 	public void onRenderGUI(
 			final RenderGameOverlayEvent.Post event )
 	{
-		final ChiselToolType tool = getHeldToolType();
+		final ChiselToolType tool = getHeldToolType( lastHand );
 		final ElementType type = event.getType();
 		if ( type == ElementType.ALL && tool != null && tool.hasMenu() )
 		{
@@ -405,7 +417,7 @@ public class ClientSide
 				{
 					if ( ChiselsAndBitsMenu.instance.switchTo != null )
 					{
-						ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool ), ChiselsAndBitsMenu.instance.switchTo );
+						ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool, EnumHand.MAIN_HAND ), ChiselsAndBitsMenu.instance.switchTo );
 					}
 
 					if ( ChiselsAndBitsMenu.instance.doAction != null )
@@ -521,14 +533,14 @@ public class ClientSide
 				for ( int slot = 0; slot < 9; ++slot )
 				{
 					final ItemStack stack = mc.thePlayer.inventory.mainInventory[slot];
-					if ( stack != null && ( stack.getItem() instanceof ItemChisel || stack.getItem() == ChiselsAndBits.getItems().itemPositiveprint ) )
+					if ( stack != null && stack.getItem() instanceof ItemChisel )
 					{
 						final ChiselToolType toolType = getToolTypeForItemm( stack );
 						IToolMode mode = toolType.getMode( stack );
 
-						if ( !ChiselsAndBits.getConfig().perChiselMode )
+						if ( !ChiselsAndBits.getConfig().perChiselMode && tool == ChiselToolType.CHISEL )
 						{
-							mode = ChiselModeManager.getChiselMode( mc.thePlayer, ChiselToolType.CHISEL );
+							mode = ChiselModeManager.getChiselMode( mc.thePlayer, ChiselToolType.CHISEL, lastHand );
 						}
 
 						final int x = res.getScaledWidth() / 2 - 90 + slot * 20 + 2;
@@ -583,7 +595,8 @@ public class ClientSide
 		return true;
 	}
 
-	public ChiselToolType getHeldToolType()
+	public ChiselToolType getHeldToolType(
+			final EnumHand enumHand )
 	{
 		final EntityPlayer player = getPlayer();
 
@@ -592,7 +605,7 @@ public class ClientSide
 			return null;
 		}
 
-		final ItemStack is = player.getHeldItemMainhand();
+		final ItemStack is = player.getHeldItem( enumHand );
 		return getToolTypeForItemm( is );
 	}
 
@@ -638,11 +651,11 @@ public class ClientSide
 	{
 		if ( pie.getWorld() != null && pie.getWorld().isRemote )
 		{
-			final ChiselToolType tool = getHeldToolType();
-			final IToolMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool );
+			final ChiselToolType tool = getHeldToolType( pie.getHand() );
+			final IToolMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool, pie.getHand() );
 
 			final BitLocation other = getStartPos();
-			if ( chMode == ChiselMode.DRAWN_REGION && other != null )
+			if ( ( chMode == ChiselMode.DRAWN_REGION || tool == ChiselToolType.TAPEMEASURE ) && other != null )
 			{
 				// this handles the client side, but the server side will fire
 				// separately.
@@ -666,7 +679,12 @@ public class ClientSide
 		{
 			if ( loopDeath )
 			{
-				drawStart = null;
+				if ( drawStart != null )
+				{
+					drawStart = null;
+					lastHand = EnumHand.MAIN_HAND;
+				}
+
 				lastTool = ChiselToolType.CHISEL;
 			}
 			else
@@ -706,10 +724,10 @@ public class ClientSide
 			final KeyBinding kb = (KeyBinding) mode.binding;
 			if ( kb.isKeyDown() )
 			{
-				final ChiselToolType tool = getHeldToolType();
+				final ChiselToolType tool = getHeldToolType( lastHand );
 				if ( tool.isBitOrChisel() )
 				{
-					ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool ), mode );
+					ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool, lastHand ), mode );
 				}
 			}
 		}
@@ -719,10 +737,10 @@ public class ClientSide
 			final KeyBinding kb = (KeyBinding) mode.binding;
 			if ( kb.isKeyDown() )
 			{
-				final ChiselToolType tool = getHeldToolType();
+				final ChiselToolType tool = getHeldToolType( lastHand );
 				if ( tool == ChiselToolType.POSITIVEPATTERN )
 				{
-					ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool ), mode );
+					ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool, lastHand ), mode );
 				}
 			}
 		}
@@ -733,16 +751,24 @@ public class ClientSide
 	@SubscribeEvent
 	@SideOnly( Side.CLIENT )
 	public void drawHighlight(
+			final RenderWorldLastEvent event )
+	{
+		tapeMeasures.render( event.getPartialTicks() );
+	}
+
+	@SubscribeEvent
+	@SideOnly( Side.CLIENT )
+	public void drawHighlight(
 			final DrawBlockHighlightEvent event )
 	{
-		ChiselToolType tool = getHeldToolType();
-		final IToolMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool );
+		ChiselToolType tool = getHeldToolType( lastHand );
+		final IToolMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool, lastHand );
 		if ( chMode == ChiselMode.DRAWN_REGION )
 		{
 			tool = lastTool;
 		}
 
-		tapeMeasures.setPreviewMeasure( null, null );
+		tapeMeasures.setPreviewMeasure( null, null, chMode );
 
 		if ( tool != null && tool == ChiselToolType.TAPEMEASURE )
 		{
@@ -758,18 +784,18 @@ public class ClientSide
 					final BitLocation other = getStartPos();
 					if ( other != null )
 					{
-						tapeMeasures.setPreviewMeasure( other, location );
+						tapeMeasures.setPreviewMeasure( other, location, chMode );
 
 						if ( !getToolKey().isKeyDown() )
 						{
-							tapeMeasures.addMeasure( other, location );
+							tapeMeasures.addMeasure( other, location, chMode );
+							drawStart = null;
+							lastHand = EnumHand.MAIN_HAND;
 						}
 					}
 				}
 			}
 		}
-
-		tapeMeasures.render( event.getPartialTicks() );
 
 		if ( tool != null && tool.isBitOrChisel() && chMode != null )
 		{
@@ -793,7 +819,7 @@ public class ClientSide
 					final IBlockState state = theWorld.getBlockState( location.blockPos );
 
 					final boolean isChisel = getDrawnTool() == ChiselToolType.CHISEL;
-					final boolean isBit = getHeldToolType() == ChiselToolType.BIT;
+					final boolean isBit = getHeldToolType( EnumHand.MAIN_HAND ) == ChiselToolType.BIT;
 					final TileEntityBlockChiseled data = ModUtil.getChiseledTileEntity( theWorld, location.blockPos, false );
 
 					final VoxelRegionSrc region = new VoxelRegionSrc( theWorld, location.blockPos, 1 );
@@ -832,6 +858,7 @@ public class ClientSide
 								}
 
 								drawStart = null;
+								lastHand = EnumHand.MAIN_HAND;
 								lastTool = ChiselToolType.CHISEL;
 							}
 						}
@@ -881,7 +908,7 @@ public class ClientSide
 			}
 		}
 
-		final boolean isDrawing = chMode == ChiselMode.DRAWN_REGION && getStartPos() != null;
+		final boolean isDrawing = ( chMode == ChiselMode.DRAWN_REGION || tool == ChiselToolType.TAPEMEASURE ) && getStartPos() != null;
 		if ( isDrawing != wasDrawing )
 		{
 			wasDrawing = isDrawing;
@@ -955,7 +982,7 @@ public class ClientSide
 				return;
 			}
 
-			final IToolMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.POSITIVEPATTERN );
+			final IToolMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.POSITIVEPATTERN, EnumHand.MAIN_HAND );
 
 			final BlockPos pos = mop.getBlockPos();
 			final BlockPos partial = null;

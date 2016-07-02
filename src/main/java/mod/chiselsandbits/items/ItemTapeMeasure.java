@@ -1,11 +1,20 @@
 package mod.chiselsandbits.items;
 
+import java.util.List;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.interfaces.IChiselModeItem;
+import mod.chiselsandbits.interfaces.IItemScrollWheel;
+import mod.chiselsandbits.modes.IToolMode;
+import mod.chiselsandbits.modes.TapeMeasureModes;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -17,8 +26,19 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public class ItemTapeMeasure extends Item
+public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrollWheel
 {
+	@Override
+	public void addInformation(
+			final ItemStack stack,
+			final EntityPlayer playerIn,
+			final List<String> tooltip,
+			final boolean advanced )
+	{
+		super.addInformation( stack, playerIn, tooltip, advanced );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpTapeMeasure, tooltip, ClientSide.instance.getModeKey() );
+	}
+
 	@Override
 	public EnumActionResult onItemUse(
 			final ItemStack stack,
@@ -52,6 +72,29 @@ public class ItemTapeMeasure extends Item
 		}
 
 		return EnumActionResult.SUCCESS;
+	}
+
+	@Override
+	public String getHighlightTip(
+			final ItemStack item,
+			final String displayName )
+	{
+		if ( ChiselsAndBits.getConfig().itemNameModeDisplay )
+		{
+			return displayName + " - " + TapeMeasureModes.getMode( item ).string.getLocal();
+		}
+
+		return displayName;
+	}
+
+	@Override
+	public void scroll(
+			final EntityPlayer player,
+			final ItemStack stack,
+			final int dwheel )
+	{
+		final IToolMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL, EnumHand.MAIN_HAND );
+		ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, dwheel );
 	}
 
 }

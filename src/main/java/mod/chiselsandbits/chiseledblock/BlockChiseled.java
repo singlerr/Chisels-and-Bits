@@ -39,6 +39,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -441,7 +442,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 	 */
 	private ChiselToolType getClientHeldTool()
 	{
-		return ClientSide.instance.getHeldToolType();
+		return ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND );
 	}
 
 	public ItemStack getPickBlock(
@@ -806,7 +807,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		boolean occlusion = true;
 		if ( FMLCommonHandler.instance().getEffectiveSide().isClient() && tec.getWorld() != null && tec.getWorld().isRemote )
 		{
-			occlusion = !ChiselsAndBits.getConfig().fluidBitsAreClickThough || ClientSide.instance.getHeldToolType() != null;
+			occlusion = !ChiselsAndBits.getConfig().fluidBitsAreClickThough || ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND ) != null;
 		}
 
 		for ( final AxisAlignedBB box : tec.getBoxes( occlusion ? BoxType.OCCLUSION : BoxType.COLLISION ) )
