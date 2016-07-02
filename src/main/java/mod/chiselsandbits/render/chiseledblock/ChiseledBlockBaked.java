@@ -10,6 +10,7 @@ import org.lwjgl.util.vector.Vector3f;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
@@ -385,6 +386,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final ArrayList<ArrayList<FaceRegion>> rset )
 	{
 		ArrayList<FaceRegion> regions = null;
+		final ICullTest test = myLayer.getTest();
 
 		for ( final EnumFacing myFace : X_Faces )
 		{
@@ -409,7 +411,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 					for ( int y = 0; y < blob.detail; y++ )
 					{
-						final FaceRegion region = getRegion( blob, myFace, x, y, z, visFace, nextTo );
+						final FaceRegion region = getRegion( blob, myFace, x, y, z, visFace, nextTo, test );
 
 						if ( region == null )
 						{
@@ -446,6 +448,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final ArrayList<ArrayList<FaceRegion>> rset )
 	{
 		ArrayList<FaceRegion> regions = null;
+		final ICullTest test = myLayer.getTest();
 
 		for ( final EnumFacing myFace : Y_Faces )
 		{
@@ -470,7 +473,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 					for ( int x = 0; x < blob.detail; x++ )
 					{
-						final FaceRegion region = getRegion( blob, myFace, x, y, z, visFace, nextTo );
+						final FaceRegion region = getRegion( blob, myFace, x, y, z, visFace, nextTo, test );
 
 						if ( region == null )
 						{
@@ -507,6 +510,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final ArrayList<ArrayList<FaceRegion>> rset )
 	{
 		ArrayList<FaceRegion> regions = null;
+		final ICullTest test = myLayer.getTest();
 
 		for ( final EnumFacing myFace : Z_Faces )
 		{
@@ -531,7 +535,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 					for ( int x = 0; x < blob.detail; x++ )
 					{
-						final FaceRegion region = getRegion( blob, myFace, x, y, z, visFace, nextTo );
+						final FaceRegion region = getRegion( blob, myFace, x, y, z, visFace, nextTo, test );
 
 						if ( region == null )
 						{
@@ -568,9 +572,10 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final int y,
 			final int z,
 			final VisibleFace visFace,
-			final VoxelBlob nextTo )
+			final VoxelBlob nextTo,
+			final ICullTest test )
 	{
-		blob.visibleFace( myFace, x, y, z, visFace, nextTo );
+		blob.visibleFace( myFace, x, y, z, visFace, nextTo, test );
 
 		if ( visFace.visibleFace )
 		{

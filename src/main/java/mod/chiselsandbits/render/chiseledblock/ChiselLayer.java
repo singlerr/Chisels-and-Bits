@@ -4,6 +4,8 @@ import java.security.InvalidParameterException;
 
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelType;
+import mod.chiselsandbits.client.culling.ICullTest;
+import mod.chiselsandbits.client.culling.MCCullTest;
 import net.minecraft.util.BlockRenderLayer;
 
 public enum ChiselLayer
@@ -62,6 +64,11 @@ public enum ChiselLayer
 		}
 
 		throw new InvalidParameterException();
+	}
+
+	public ICullTest getTest()
+	{
+		return new MCCullTest();
 	}
 
 }

@@ -27,6 +27,7 @@ import mod.chiselsandbits.chiseledblock.serialization.BlobSerializer;
 import mod.chiselsandbits.chiseledblock.serialization.BlobSerilizationCache;
 import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializer;
 import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializerLegacy;
+import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.DeprecationHelper;
@@ -519,7 +520,8 @@ public final class VoxelBlob implements IVoxelSrc
 			int y,
 			int z,
 			final VisibleFace dest,
-			final VoxelBlob secondBlob )
+			final VoxelBlob secondBlob,
+			final ICullTest cullVisTest )
 	{
 		final int mySpot = get( x, y, z );
 		dest.state = mySpot;
@@ -531,12 +533,12 @@ public final class VoxelBlob implements IVoxelSrc
 		if ( x >= 0 && x < dim && y >= 0 && y < dim && z >= 0 && z < dim )
 		{
 			dest.isEdge = false;
-			dest.visibleFace = BlockBitInfo.getTypeFromStateID( mySpot ).shouldShow( getVoxelType( x, y, z ) );
+			dest.visibleFace = cullVisTest.isVisible( mySpot, get( x, y, z ) );
 		}
 		else if ( secondBlob != null )
 		{
 			dest.isEdge = true;
-			dest.visibleFace = BlockBitInfo.getTypeFromStateID( mySpot ).shouldShow( secondBlob.getVoxelType( x - face.getFrontOffsetX() * dim, y - face.getFrontOffsetY() * dim, z - face.getFrontOffsetZ() * dim ) );
+			dest.visibleFace = cullVisTest.isVisible( mySpot, secondBlob.get( x - face.getFrontOffsetX() * dim, y - face.getFrontOffsetY() * dim, z - face.getFrontOffsetZ() * dim ) );
 		}
 		else
 		{
