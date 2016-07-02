@@ -12,6 +12,8 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -27,16 +29,19 @@ public class TapeMeasures
 		public Measure(
 				final BitLocation a2,
 				final BitLocation b2,
-				final IToolMode chMode )
+				final IToolMode chMode,
+				final int dimentionid )
 		{
 			a = a2;
 			b = b2;
 			mode = chMode;
+			DimensionId = dimentionid;
 		}
 
 		public final IToolMode mode;
 		public final BitLocation a;
 		public final BitLocation b;
+		public final int DimensionId;
 
 		public AxisAlignedBB getBoundingBox()
 		{
@@ -104,13 +109,15 @@ public class TapeMeasures
 			final BitLocation b,
 			final IToolMode chMode )
 	{
+		final EntityPlayer player = ClientSide.instance.getPlayer();
+
 		if ( a == null || b == null )
 		{
 			preview = null;
 		}
 		else
 		{
-			preview = new Measure( a, b, chMode );
+			preview = new Measure( a, b, chMode, getDimension( player ) );
 		}
 	}
 
@@ -119,41 +126,75 @@ public class TapeMeasures
 			final BitLocation b,
 			final IToolMode chMode )
 	{
+		final EntityPlayer player = ClientSide.instance.getPlayer();
+
 		if ( measures.size() > 0 && measures.size() >= ChiselsAndBits.getConfig().maxTapeMeasures )
 		{
 			measures.remove( 0 );
 		}
 
-		measures.add( new Measure( a, b, chMode ) );
+		measures.add( new Measure( a, b, chMode, getDimension( player ) ) );
+	}
+
+	private int getDimension(
+			final EntityPlayer player )
+	{
+		return player.getEntityWorld().provider.getDimension();
 	}
 
 	public void render(
 			final float partialTicks )
 	{
-		if ( preview != null )
+		if ( !measures.isEmpty() || preview != null )
 		{
-			renderMeasure( preview, partialTicks );
+			final EntityPlayer player = ClientSide.instance.getPlayer();
+
+			if ( hasTapeMeasure( player.inventory ) )
+			{
+				if ( preview != null )
+				{
+					renderMeasure( preview, partialTicks );
+				}
+
+				for ( final Measure m : measures )
+				{
+					renderMeasure( m, partialTicks );
+				}
+			}
+		}
+	}
+
+	private boolean hasTapeMeasure(
+			final InventoryPlayer inventory )
+	{
+		for ( int x = 0; x < inventory.getSizeInventory(); x++ )
+		{
+			final ItemStack is = inventory.getStackInSlot( x );
+			if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemTapeMeasure )
+			{
+				return true;
+			}
 		}
 
-		for ( final Measure m : measures )
-		{
-			renderMeasure( m, partialTicks );
-		}
+		return false;
 	}
 
 	private void renderMeasure(
 			final Measure m,
 			final float partialTicks )
 	{
+		final EntityPlayer player = ClientSide.instance.getPlayer();
+
+		if ( m.DimensionId != getDimension( player ) )
+		{
+			return;
+		}
+
 		/**
-		 * TODO: FADE at a distance and handle dimension visibility.
+		 * TODO: FADE at a distance
 		 * 
 		 * TODO: Sort them by distance?
-		 * 
-		 * TODO: Hide the render if you remove the item form your inventory.
 		 */
-
-		final EntityPlayer player = ClientSide.instance.getPlayer();
 
 		final double x = player.lastTickPosX + ( player.posX - player.lastTickPosX ) * partialTicks;
 		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
