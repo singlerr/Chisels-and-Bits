@@ -295,13 +295,4 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		blueprintTag.setInteger( ItemBlockChiseled.NBT_SIDE, +side.ordinal() );
 	}
 
-	public BlockPos findPlacementPosition(
-			final World theWorld,
-			final BlockPos pos,
-			final EnumFacing sideHit )
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
