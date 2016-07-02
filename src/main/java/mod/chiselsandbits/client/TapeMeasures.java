@@ -2,14 +2,13 @@ package mod.chiselsandbits.client;
 
 import java.util.ArrayList;
 
-import org.lwjgl.opengl.GL11;
-
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -145,14 +144,15 @@ public class TapeMeasures
 			final Measure m,
 			final float partialTicks )
 	{
+		/**
+		 * TODO: FADE at a distance and handle dimension visibility.
+		 */
+
 		final EntityPlayer player = ClientSide.instance.getPlayer();
 
 		final double x = player.lastTickPosX + ( player.posX - player.lastTickPosX ) * partialTicks;
 		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
 		final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
-
-		final double letterSize = 5.0;
-		final double zScale = 0.001;
 
 		if ( m.mode == TapeMeasureModes.DISTANCE )
 		{
@@ -161,56 +161,57 @@ public class TapeMeasures
 
 			RenderHelper.drawLineWithColor( a, b, BlockPos.ORIGIN, player, partialTicks, false, 255, 255, 255, 102, 30 );
 
-			GL11.glDisable( GL11.GL_DEPTH_TEST );
-			GL11.glDisable( GL11.GL_CULL_FACE );
+			GlStateManager.disableDepth();
+			GlStateManager.disableCull();
 
 			final double Len = a.distanceTo( b ) + bitSize;
 
-			GL11.glPushMatrix();
-			GL11.glTranslated( ( a.xCoord + b.xCoord ) * 0.5 - x, ( a.yCoord + b.yCoord ) * 0.5 - y + getScale( Len ) * letterSize, ( a.zCoord + b.zCoord ) * 0.5 - z );
-			billBoard( player, partialTicks );
-			GL11.glScaled( getScale( Len ), -getScale( Len ), zScale );
-			Minecraft.getMinecraft().fontRendererObj.drawString( getSize( Len ), 0, 0, 0xffffff, true );
-			GL11.glPopMatrix();
+			renderSize( player, partialTicks, ( a.xCoord + b.xCoord ) * 0.5 - x, ( a.yCoord + b.yCoord ) * 0.5 - y, ( a.zCoord + b.zCoord ) * 0.5 - z, Len );
 
-			GL11.glEnable( GL11.GL_DEPTH_TEST );
-			GL11.glEnable( GL11.GL_CULL_FACE );
+			GlStateManager.enableDepth();
+			GlStateManager.enableCull();
 			return;
 		}
 
 		final AxisAlignedBB box = m.getBoundingBox();
 		RenderHelper.drawSelectionBoundingBoxIfExistsWithColor( box.expand( -0.001, -0.001, -0.001 ), BlockPos.ORIGIN, player, partialTicks, false, 255, 255, 255, 102, 30 );
 
-		GL11.glDisable( GL11.GL_DEPTH_TEST );
-		GL11.glDisable( GL11.GL_CULL_FACE );
+		GlStateManager.disableDepth();
+		GlStateManager.disableCull();
 
 		final double LenX = box.maxX - box.minX;
 		final double LenY = box.maxY - box.minY;
 		final double LenZ = box.maxZ - box.minZ;
 
-		GL11.glPushMatrix();
-		GL11.glTranslated( box.minX - x, ( box.maxY + box.minY ) * 0.5 - y + getScale( LenY ) * letterSize, box.minZ - z );
-		billBoard( player, partialTicks );
-		GL11.glScaled( getScale( LenY ), -getScale( LenY ), zScale );
-		Minecraft.getMinecraft().fontRendererObj.drawString( getSize( box.maxY - box.minY ), 0, 0, 0xffffff, true );
-		GL11.glPopMatrix();
+		/**
+		 * TODO: Figure out some better logic for which lines to display the
+		 * numbers on.
+		 **/
+		renderSize( player, partialTicks, box.minX - x, ( box.maxY + box.minY ) * 0.5 - y, box.minZ - z, LenY );
+		renderSize( player, partialTicks, ( box.minX + box.maxX ) * 0.5 - x, box.minY - y, box.minZ - z, LenX );
+		renderSize( player, partialTicks, box.minX - x, box.minY - y, ( box.minZ + box.maxZ ) * 0.5 - z, LenZ );
 
-		GL11.glPushMatrix();
-		GL11.glTranslated( ( box.minX + box.maxX ) * 0.5 - x, box.minY - y + getScale( LenX ) * letterSize, box.minZ - z );
-		billBoard( player, partialTicks );
-		GL11.glScaled( getScale( LenX ), -getScale( LenX ), zScale );
-		Minecraft.getMinecraft().fontRendererObj.drawString( getSize( box.maxX - box.minX ), 0, 0, 0xffffff, true );
-		GL11.glPopMatrix();
+		GlStateManager.enableDepth();
+		GlStateManager.enableCull();
+	}
 
-		GL11.glPushMatrix();
-		GL11.glTranslated( box.minX - x, box.minY - y + getScale( LenZ ) * letterSize, ( box.minZ + box.maxZ ) * 0.5 - z );
-		billBoard( player, partialTicks );
-		GL11.glScaled( getScale( LenZ ), -getScale( LenZ ), zScale );
-		Minecraft.getMinecraft().fontRendererObj.drawString( getSize( box.maxZ - box.minZ ), 0, 0, 0xffffff, true );
-		GL11.glPopMatrix();
+	private void renderSize(
+			final EntityPlayer player,
+			final float partialTicks,
+			final double x,
+			final double y,
+			final double z,
+			final double len )
+	{
+		final double letterSize = 5.0;
+		final double zScale = 0.001;
 
-		GL11.glEnable( GL11.GL_DEPTH_TEST );
-		GL11.glEnable( GL11.GL_CULL_FACE );
+		GlStateManager.pushMatrix();
+		GlStateManager.translate( x, y + getScale( len ) * letterSize, z );
+		billBoard( player, partialTicks );
+		GlStateManager.scale( getScale( len ), -getScale( len ), zScale );
+		Minecraft.getMinecraft().fontRendererObj.drawString( getSize( len ), 0, 0, 0xffffff, true );
+		GlStateManager.popMatrix();
 	}
 
 	private double getScale(
@@ -232,11 +233,11 @@ public class TapeMeasures
 			final float partialTicks )
 	{
 		final Entity view = Minecraft.getMinecraft().getRenderViewEntity();
-		final double yaw = view.prevRotationYaw + ( view.rotationYaw - view.prevRotationYaw ) * partialTicks;
-		GL11.glRotated( 180 + -yaw, 0, 1, 0 );
+		final float yaw = view.prevRotationYaw + ( view.rotationYaw - view.prevRotationYaw ) * partialTicks;
+		GlStateManager.rotate( 180 + -yaw, 0f, 1f, 0f );
 
-		final double pitch = view.prevRotationPitch + ( view.rotationPitch - view.prevRotationPitch ) * partialTicks;
-		GL11.glRotated( -pitch, 1, 0, 0 );
+		final float pitch = view.prevRotationPitch + ( view.rotationPitch - view.prevRotationPitch ) * partialTicks;
+		GlStateManager.rotate( -pitch, 1f, 0f, 0f );
 	}
 
 	private String getSize(
