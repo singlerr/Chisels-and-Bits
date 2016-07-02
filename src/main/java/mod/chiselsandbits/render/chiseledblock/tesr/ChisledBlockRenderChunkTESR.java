@@ -161,10 +161,24 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		return false;
 	}
 
+	boolean runUpload = false;
+
 	@SubscribeEvent
-	void uploadDisplaylists(
+	void nextFrame(
 			final RenderWorldLastEvent e )
 	{
+		runUpload = true;
+	}
+
+	void uploadDisplaylists()
+	{
+		if ( !runUpload )
+		{
+			return;
+		}
+
+		runUpload = false;
+
 		do
 		{
 			final Runnable x = nextFrameTasks.poll();
@@ -374,6 +388,8 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			renderBreakingEffects( te, x, y, z, partialTicks, destroyStage );
 			return;
 		}
+
+		uploadDisplaylists();
 
 		// cache at the tile level rather than the chunk level.
 		if ( renderChunk.singleInstanceMode )
