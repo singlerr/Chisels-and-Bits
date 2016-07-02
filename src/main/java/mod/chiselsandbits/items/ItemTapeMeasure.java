@@ -28,6 +28,11 @@ import net.minecraft.world.World;
 
 public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrollWheel
 {
+	public ItemTapeMeasure()
+	{
+		setMaxStackSize( 1 );
+	}
+
 	@Override
 	public void addInformation(
 			final ItemStack stack,

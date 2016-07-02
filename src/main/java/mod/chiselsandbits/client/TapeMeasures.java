@@ -149,6 +149,8 @@ public class TapeMeasures
 		 * TODO: FADE at a distance and handle dimension visibility.
 		 * 
 		 * TODO: Sort them by distance?
+		 * 
+		 * TODO: Hide the render if you remove the item form your inventory.
 		 */
 
 		final EntityPlayer player = ClientSide.instance.getPlayer();
@@ -227,7 +229,7 @@ public class TapeMeasures
 		final double maxFontSize = 0.04;
 		final double minFontSize = 0.004;
 
-		final double delta = Math.min( 1.0, maxLen / 2.0 );
+		final double delta = Math.min( 1.0, maxLen / 4.0 );
 		double scale = maxFontSize * delta + minFontSize * ( 1.0 - delta );
 
 		if ( maxLen < 0.25 )
