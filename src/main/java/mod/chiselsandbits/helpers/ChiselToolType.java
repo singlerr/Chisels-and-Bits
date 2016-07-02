@@ -9,7 +9,6 @@ import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import net.minecraft.item.ItemStack;
-import scala.actors.threadpool.Arrays;
 
 public enum ChiselToolType
 {
@@ -82,7 +81,15 @@ public enum ChiselToolType
 		}
 		else if ( this == POSITIVEPATTERN )
 		{
-			return Arrays.asList( PositivePatternMode.values() );
+			final PositivePatternMode[] modes = PositivePatternMode.values();
+			final ArrayList<IToolMode> t = new ArrayList<IToolMode>( modes.length );
+
+			for ( final PositivePatternMode b : modes )
+			{
+				t.add( b );
+			}
+
+			return t;
 		}
 		else
 		{
