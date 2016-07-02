@@ -8,6 +8,7 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -146,6 +147,8 @@ public class TapeMeasures
 	{
 		/**
 		 * TODO: FADE at a distance and handle dimension visibility.
+		 * 
+		 * TODO: Sort them by distance?
 		 */
 
 		final EntityPlayer player = ClientSide.instance.getPlayer();
@@ -206,11 +209,15 @@ public class TapeMeasures
 		final double letterSize = 5.0;
 		final double zScale = 0.001;
 
+		final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+		final String size = getSize( len );
+
 		GlStateManager.pushMatrix();
 		GlStateManager.translate( x, y + getScale( len ) * letterSize, z );
 		billBoard( player, partialTicks );
 		GlStateManager.scale( getScale( len ), -getScale( len ), zScale );
-		Minecraft.getMinecraft().fontRendererObj.drawString( getSize( len ), 0, 0, 0xffffff, true );
+		GlStateManager.translate( -fontRenderer.getStringWidth( size ) * 0.5, 0, 0 );
+		fontRenderer.drawString( size, 0, 0, 0xffffff, true );
 		GlStateManager.popMatrix();
 	}
 

@@ -1,6 +1,7 @@
 package mod.chiselsandbits.helpers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -58,7 +59,6 @@ public enum ChiselToolType
 		return hasMenu;
 	}
 
-	@SuppressWarnings( "unchecked" )
 	public List<IToolMode> getAvailableModes()
 	{
 		if ( isBitOrChisel() )
@@ -88,32 +88,22 @@ public enum ChiselToolType
 		}
 		else if ( this == POSITIVEPATTERN )
 		{
-			final PositivePatternMode[] modes = PositivePatternMode.values();
-			final ArrayList<IToolMode> t = new ArrayList<IToolMode>( modes.length );
-
-			for ( final PositivePatternMode b : modes )
-			{
-				t.add( b );
-			}
-
-			return t;
+			return asArray( PositivePatternMode.values() );
 		}
 		else if ( this == TAPEMEASURE )
 		{
-			final TapeMeasureModes[] modes = TapeMeasureModes.values();
-			final ArrayList<IToolMode> t = new ArrayList<IToolMode>( modes.length );
-
-			for ( final TapeMeasureModes b : modes )
-			{
-				t.add( b );
-			}
-
-			return t;
+			return asArray( TapeMeasureModes.values() );
 		}
 		else
 		{
 			return Collections.emptyList();
 		}
+	}
+
+	private List<IToolMode> asArray(
+			final Object[] values )
+	{
+		return Arrays.asList( (IToolMode[]) values );
 	}
 
 	public boolean isBitOrChisel()
