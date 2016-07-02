@@ -224,15 +224,18 @@ public class TapeMeasures
 	private double getScale(
 			final double maxLen )
 	{
+		final double maxFontSize = 0.04;
+		final double minFontSize = 0.004;
+
 		final double delta = Math.min( 1.0, maxLen / 2.0 );
-		double scale = 0.04 * delta + 0.0025 * ( 1.0 - delta );
+		double scale = maxFontSize * delta + minFontSize * ( 1.0 - delta );
 
 		if ( maxLen < 0.25 )
 		{
-			scale = 0.0025;
+			scale = minFontSize;
 		}
 
-		return Math.min( 0.04, scale );
+		return Math.min( maxFontSize, scale );
 	}
 
 	private void billBoard(
