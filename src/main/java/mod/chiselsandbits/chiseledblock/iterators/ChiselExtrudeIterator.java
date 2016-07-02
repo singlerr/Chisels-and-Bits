@@ -1,8 +1,12 @@
 package mod.chiselsandbits.chiseledblock.iterators;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
@@ -59,7 +63,7 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
 		this.side = side;
 
 		final Set<Integer> possiblepositions = new HashSet<Integer>();
-		final Set<Integer> selectedpositions = new HashSet<Integer>();
+		final List<Integer> selectedpositions = new ArrayList<Integer>();
 
 		final int tx = side.getFrontOffsetX(), ty = side.getFrontOffsetY(), tz = side.getFrontOffsetZ();
 		int placeoffset = 0;
@@ -108,6 +112,33 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
 		}
 
 		floodFill( sx, sy, sz, possiblepositions, selectedpositions );
+		Collections.sort( selectedpositions, new Comparator<Integer>() {
+
+			@Override
+			public int compare(
+					final Integer a,
+					final Integer b )
+			{
+				final int aX = getValue( a, INDEX_X );
+				final int bX = getValue( b, INDEX_X );
+				if ( aX != bX )
+				{
+					return aX - bX;
+				}
+
+				final int aY = getValue( a, INDEX_Y );
+				final int bY = getValue( b, INDEX_Y );
+				if ( aY != bY )
+				{
+					return aY - bY;
+				}
+
+				final int aZ = getValue( a, INDEX_Z );
+				final int bZ = getValue( b, INDEX_Z );
+				return aZ - bZ;
+			}
+
+		} );
 
 		// we are done, drop the list and keep an iterator.
 		list = selectedpositions.iterator();
@@ -118,7 +149,7 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
 			final int sy,
 			final int sz,
 			final Set<Integer> possiblepositions,
-			final Set<Integer> selectedpositions )
+			final List<Integer> selectedpositions )
 	{
 		final Queue<Integer> q = new LinkedList<Integer>();
 		q.add( createPos( sx, sy, sz ) );
