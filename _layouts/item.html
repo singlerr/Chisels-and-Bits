@@ -25,6 +25,17 @@
 </div>
 {% endif %}
 
+{% if item.controls.size > 0 %}
+<div class="page">
+	<h2 class="section">Controls</h2>
+	<ul class="features">
+		{% for control in item.controls %}
+			<li>{{ control.button }}: {{ control.action }}</li>
+		{% endfor %}
+	</ul>
+</div>
+{% endif %}
+
 {% if item.recipes.size > 0 %}
 <div class="page">
 	<h2 class="section">Recipes</h2>
