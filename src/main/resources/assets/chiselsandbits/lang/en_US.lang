@@ -55,6 +55,7 @@ mod.chiselsandbits.positivepatternmode.additive=Additive
 mod.chiselsandbits.positivepatternmode.placement=Placement
 mod.chiselsandbits.positivepatternmode.impose=Impose
 
+mod.chiselsandbits.tapemeasure.chatmsg=x: %s,  y: %s,  z: %s
 mod.chiselsandbits.tapemeasure.bit=Bit
 mod.chiselsandbits.tapemeasure.block=Block
 mod.chiselsandbits.tapemeasure.distance=Distance
@@ -176,7 +177,7 @@ mod.chiselsandbits.config.enableTapeMeasure_Block=Enable Mode - Block
 mod.chiselsandbits.config.enableTapeMeasure_Distance=Enable Mode - Distance
 
 mod.chiselsandbits.config.enableToolbarIcons=Show mode icon for chisel in tool bar
-mod.chiselsandbits.config.perChiselMode=Store selected mode per tool
+mod.chiselsandbits.config.perChiselMode=Store selected mode per chisel
 mod.chiselsandbits.config.chatModeNotification=Notify mode changes with chat
 mod.chiselsandbits.config.itemNameModeDisplay=Notify mode changes with tool highlight
 mod.chiselsandbits.config.dynamicModelFaceCount=Max faces for static render
@@ -226,3 +227,4 @@ mod.chiselsandbits.config.enableSetBitCommand=Enable /setbit Command
 mod.chiselsandbits.config.maxMillisecondsPerBlock=Max Milliseconds Per Block
 mod.chiselsandbits.config.maxMillisecondsUploadingPerFrame=Max Milliseconds Uploading/Cycle
 mod.chiselsandbits.config.maxTapeMeasures=Max Tape Measures
+mod.chiselsandbits.config.displayMeasuringTapeInChat=Display Measuring Tape In Chat

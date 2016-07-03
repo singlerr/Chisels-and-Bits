@@ -7,6 +7,7 @@ import java.util.Comparator;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import net.minecraft.client.Minecraft;
@@ -20,6 +21,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.Style;
+import net.minecraft.util.text.TextComponentString;
 
 public class TapeMeasures
 {
@@ -164,12 +167,33 @@ public class TapeMeasures
 	{
 		final EntityPlayer player = ClientSide.instance.getPlayer();
 
-		if ( measures.size() > 0 && measures.size() >= ChiselsAndBits.getConfig().maxTapeMeasures )
+		while ( measures.size() > 0 && measures.size() >= ChiselsAndBits.getConfig().maxTapeMeasures )
 		{
 			measures.remove( 0 );
 		}
 
-		measures.add( new Measure( a, b, chMode, getDimension( player ), getColor( itemStack ) ) );
+		final Measure newMeasure = new Measure( a, b, chMode, getDimension( player ), getColor( itemStack ) );
+
+		if ( ChiselsAndBits.getConfig().displayMeasuringTapeInChat )
+		{
+			final AxisAlignedBB box = newMeasure.getBoundingBox();
+
+			final double LenX = box.maxX - box.minX;
+			final double LenY = box.maxY - box.minY;
+			final double LenZ = box.maxZ - box.minZ;
+			final double Len = newMeasure.getVecA().distanceTo( newMeasure.getVecB() );
+
+			final String out = chMode == TapeMeasureModes.DISTANCE ? getSize( Len ) : DeprecationHelper.translateToLocal( "mod.chiselsandbits.tapemeasure.chatmsg", getSize( LenX ), getSize( LenY ), getSize( LenZ ) );
+
+			final TextComponentString chatMsg = new TextComponentString( out );
+
+			// NOT 100% Accurate, if anyone wants to try and resolve this, yay
+			chatMsg.setStyle( new Style().setColor( newMeasure.color.chatColor ) );
+
+			player.addChatComponentMessage( chatMsg );
+		}
+
+		measures.add( newMeasure );
 	}
 
 	private EnumDyeColor getColor(

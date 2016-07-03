@@ -130,6 +130,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Settings" )
 	public int maxTapeMeasures;
 
+	@Configured( category = "Client Settings" )
+	public boolean displayMeasuringTapeInChat;
+
 	@Configured( category = "Client Performance Settings" )
 	public int maxMillisecondsPerBlock = 10;
 
@@ -288,6 +291,7 @@ public class ModConfig extends Configuration
 		enableTapeMeasure_Bit = !TapeMeasureModes.BIT.isDisabled;
 		enableTapeMeasure_Block = !TapeMeasureModes.BLOCK.isDisabled;
 		enableTapeMeasure_Distance = !TapeMeasureModes.DISTANCE.isDisabled;
+		displayMeasuringTapeInChat = false;
 		perChiselMode = true;
 		chatModeNotification = false;
 		itemNameModeDisplay = true;

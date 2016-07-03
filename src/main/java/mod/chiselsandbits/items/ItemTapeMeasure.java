@@ -22,6 +22,7 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -46,6 +47,21 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 	{
 		super.addInformation( stack, playerIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpTapeMeasure, tooltip, ClientSide.instance.getModeKey() );
+	}
+
+	@Override
+	public ActionResult<ItemStack> onItemRightClick(
+			final ItemStack itemStackIn,
+			final World worldIn,
+			final EntityPlayer playerIn,
+			final EnumHand hand )
+	{
+		if ( playerIn.isSneaking() )
+		{
+			ClientSide.instance.tapeMeasures.clear();
+		}
+
+		return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemStackIn );
 	}
 
 	@Override
