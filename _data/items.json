@@ -9,7 +9,8 @@
 			"Automatically re-stocks and stores bits that you pick up and use.",
 			"Holds 63 stacks of bits inside of it.",
 			"Stores 512 ( by default ) bits per stack, instead of 64.",
-			"Has a button which allows you to clear the contents of the bag easily."
+			"Has a button which allows you to clear the contents of the bag easily.",
+			"Drag a stack of bits over the delete button to delete only those bits. ( 11.4 / 10.12 and up )"
 		],
 		"controls": [{
 			"button": "Right Click",
@@ -190,7 +191,12 @@
 		"features": [
 			"Clone exact blocks in world.",
 			"Can be used to craft copies in a crafting table with bit bags and other bits.",
-			"Can be cleared and reused."
+			"Can be cleared and reused.",
+			"Has 4 Modes of operation. ( 11.4 / 10.12 and up )",
+			"Replace: Classic mode the target block is replaced with the design.",
+			"Additive: Only add bits where they will fit.",
+			"Impose : Add and replace bits, but do not remove them.",
+			"Placement: Place the pattern as if it were a chiseled block."
 		],
 		"controls": [{
 			"button": "Right Click when blank",
@@ -198,6 +204,9 @@
 		}, {
 			"button": "Right Click when written",
 			"action": "Apply design from item to target block"
+		}, {
+			"button": "Left Alt",
+			"action": "Open Positive Print Radial Menu"
 		}, {
 			"button": "Shift + Mouse Wheel",
 			"action": "Rotate Design."
@@ -275,6 +284,36 @@
 		"version": "1.0",
 		"icon": "wrench_wood.png",
 		"recipes": ["woodenWrench.png"],
+		"usages": []
+	},
+
+
+	{
+		"id": "tape_measure",
+		"name": "Tape Measure",
+		"url": "tape-measure",
+		"features": [
+			"Measure Distances using 3 modes.",
+			"Bit Mode: Measures bit level distances as a 3d cube.",
+			"Block Mode: Measures block level distances as a 3d cube.",
+			"Distance Mode; Measures the distance between the start and end point at a bit level."
+		],
+		"controls": [{
+			"button": "Left Click and Drag",
+			"action": "Measure with the selected mode."
+		}, {
+			"button": "Sneak + Left Click",
+			"action": "Clear previous measurements."
+		}, {
+			"button": "Left Alt",
+			"action": "Open Tape Measure Radial Menu"
+		}, {
+			"button": "Shift + Mouse Wheel",
+			"action": "Cycle Measuring Tape Colors."
+		}],
+		"version": "11.4 / 10.12",
+		"icon": "tape_measure.png",
+		"recipes": ["tapeMeasure.png"],
 		"usages": []
 	}
 
