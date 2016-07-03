@@ -44,7 +44,7 @@ public class EventPlayerInteract
 	public void interaction(
 			final LeftClickBlock event )
 	{
-		if ( event.getEntityPlayer() != null && event.getUseItem() != Result.DENY)
+		if ( event.getEntityPlayer() != null && event.getUseItem() != Result.DENY )
 		{
 			final ItemStack is = event.getItemStack();
 			if ( is != null && ( is.getItem() instanceof ItemChisel || is.getItem() instanceof ItemChiseledBit ) )
@@ -65,15 +65,11 @@ public class EventPlayerInteract
 	public void interaction(
 			final RightClickBlock event )
 	{
-		if ( event.getEntityPlayer() != null && event.getUseItem() != Result.DENY)
+		if ( event.getEntityPlayer() != null && event.getUseItem() != Result.DENY )
 		{
-			final ItemStack is = event.getItemStack();
-			if ( is != null && ( is.getItem() instanceof ItemChisel || is.getItem() instanceof ItemChiseledBit ) )
+			if ( serverSuppressEvent.containsKey( event.getEntityPlayer() ) )
 			{
-				if ( serverSuppressEvent.containsKey( event.getEntityPlayer() ) )
-				{
-					event.setCanceled( true );
-				}
+				event.setCanceled( true );
 			}
 		}
 	}
