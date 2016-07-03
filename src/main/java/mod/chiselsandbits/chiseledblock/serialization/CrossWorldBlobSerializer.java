@@ -4,12 +4,16 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
+import com.google.common.base.Optional;
+
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.Log;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
 
 public class CrossWorldBlobSerializer extends BlobSerializer
@@ -48,7 +52,7 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 
 		final Block blk = Block.REGISTRY.getObject( new ResourceLocation( parts[0] ) );
 
-		if ( blk == null )
+		if ( blk == null || blk == Blocks.AIR )
 		{
 			return 0;
 		}
@@ -73,8 +77,7 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 						nameval[0] = URLDecoder.decode( nameval[0], "UTF-8" );
 						nameval[1] = URLDecoder.decode( nameval[1], "UTF-8" );
 
-						final IProperty prop = blk.getBlockState().getProperty( nameval[0] );
-						state = state.withProperty( prop, prop.parseValue( nameval[1] ).get() );
+						state = withState( state, blk, nameval );
 					}
 				}
 			}
@@ -85,6 +88,31 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 		}
 
 		return Block.getStateId( state );
+	}
+
+	@SuppressWarnings( { "unchecked", "rawtypes" } )
+	private IBlockState withState(
+			final IBlockState state,
+			final Block blk,
+			final String[] nameval )
+	{
+		final IProperty prop = blk.getBlockState().getProperty( nameval[0] );
+		if ( prop == null )
+		{
+			Log.info( nameval[0] + " is not a valid property for " + Block.REGISTRY.getNameForObject( blk ) );
+			return state;
+		}
+
+		final Optional pv = prop.parseValue( nameval[1] );
+		if ( pv.isPresent() )
+		{
+			return state.withProperty( prop, pv.get() );
+		}
+		else
+		{
+			Log.info( nameval[1] + " is not a valid value of " + nameval[0] + " for " + Block.REGISTRY.getNameForObject( blk ) );
+			return state;
+		}
 	}
 
 	@Override
@@ -112,9 +140,21 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 
 				first = false;
 
+				final Comparable<?> propVal = state.getProperties().get( P );
+
+				String saveAs;
+				if ( propVal instanceof IStringSerializable )
+				{
+					saveAs = ( (IStringSerializable) propVal ).getName();
+				}
+				else
+				{
+					saveAs = propVal.toString();
+				}
+
 				stateName.append( URLEncoder.encode( P.getName(), "UTF-8" ) );
 				stateName.append( '=' );
-				stateName.append( URLEncoder.encode( state.getProperties().get( P ).toString(), "UTF-8" ) );
+				stateName.append( URLEncoder.encode( saveAs, "UTF-8" ) );
 			}
 
 			sname = stateName.toString();
