@@ -18,7 +18,10 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.item.EnumDyeColor;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraftforge.client.model.ModelLoader;
 
 public class ChiselsAndBitsMenu extends GuiScreen
 {
@@ -79,14 +82,17 @@ public class ChiselsAndBitsMenu extends GuiScreen
 
 		public final ButtonAction action;
 		public TextureAtlasSprite icon;
+		public int color;
 		public String name;
+		public EnumFacing textSide;
 
 		public MenuButton(
 				final String name,
 				final ButtonAction action,
 				final double x,
 				final double y,
-				final TextureAtlasSprite ico )
+				final TextureAtlasSprite ico,
+				final EnumFacing textSide )
 		{
 			this.name = name;
 			this.action = action;
@@ -95,6 +101,26 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			y1 = y;
 			y2 = y + 18;
 			icon = ico;
+			color = 0xffffff;
+			this.textSide = textSide;
+		}
+
+		public MenuButton(
+				final String name,
+				final ButtonAction action,
+				final double x,
+				final double y,
+				final int col,
+				final EnumFacing textSide )
+		{
+			this.name = name;
+			this.action = action;
+			x1 = x;
+			x2 = x + 18;
+			y1 = y;
+			y2 = y + 18;
+			color = col;
+			this.textSide = textSide;
 		}
 
 	};
@@ -160,8 +186,30 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		final ArrayList<MenuRegion> modes = new ArrayList<MenuRegion>();
 		final ArrayList<MenuButton> btns = new ArrayList<MenuButton>();
 
-		btns.add( new MenuButton( "mod.chiselsandbits.other.undo", ButtonAction.UNDO, text_distnace, -20, ClientSide.undoIcon ) );
-		btns.add( new MenuButton( "mod.chiselsandbits.other.redo", ButtonAction.REDO, text_distnace, 4, ClientSide.redoIcon ) );
+		btns.add( new MenuButton( "mod.chiselsandbits.other.undo", ButtonAction.UNDO, text_distnace, -20, ClientSide.undoIcon, EnumFacing.EAST ) );
+		btns.add( new MenuButton( "mod.chiselsandbits.other.redo", ButtonAction.REDO, text_distnace, 4, ClientSide.redoIcon, EnumFacing.EAST ) );
+
+		if ( getTool() == ChiselToolType.TAPEMEASURE )
+		{
+			final int colorSize = EnumDyeColor.values().length / 4 * 24 - 4;
+			double underring = -ring_outer_edge - 34;
+			double bntPos = -colorSize;
+			final int bntSize = 24;
+			EnumFacing textSide = EnumFacing.UP;
+			for ( final EnumDyeColor color : EnumDyeColor.values() )
+			{
+				final ButtonAction action = ButtonAction.valueOf( color.name() );
+				if ( bntPos > colorSize )
+				{
+					underring = ring_outer_edge;
+					bntPos = -colorSize;
+					textSide = EnumFacing.DOWN;
+				}
+
+				btns.add( new MenuButton( "chiselsandbits.color." + color.getUnlocalizedName(), action, bntPos, underring, color.getMapColor().colorValue, textSide ) );
+				bntPos += bntSize;
+			}
+		}
 
 		for ( final IToolMode mode : getTool().getAvailableModes() )
 		{
@@ -302,17 +350,21 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			final double v1 = 0;
 			final double v2 = 16;
 
-			final TextureAtlasSprite sprite = btn.icon;
+			final TextureAtlasSprite sprite = btn.icon == null ? Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( ModelLoader.White.LOCATION.toString() ) : btn.icon;
 
 			final double btnx1 = btn.x1 + 1;
 			final double btnx2 = btn.x2 - 1;
 			final double btny1 = btn.y1 + 1;
 			final double btny2 = btn.y2 - 1;
 
-			renderBuffer.pos( middle_x + btnx1, middle_y + btny1, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
-			renderBuffer.pos( middle_x + btnx1, middle_y + btny2, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
-			renderBuffer.pos( middle_x + btnx2, middle_y + btny2, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
-			renderBuffer.pos( middle_x + btnx2, middle_y + btny1, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
+			final float red = f * ( ( btn.color >> 16 & 0xff ) / 255.0f );
+			final float green = f * ( ( btn.color >> 8 & 0xff ) / 255.0f );
+			final float blue = f * ( ( btn.color & 0xff ) / 255.0f );
+
+			renderBuffer.pos( middle_x + btnx1, middle_y + btny1, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v1 ) ).color( red, green, blue, a ).endVertex();
+			renderBuffer.pos( middle_x + btnx1, middle_y + btny2, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v2 ) ).color( red, green, blue, a ).endVertex();
+			renderBuffer.pos( middle_x + btnx2, middle_y + btny2, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v2 ) ).color( red, green, blue, a ).endVertex();
+			renderBuffer.pos( middle_x + btnx2, middle_y + btny1, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v1 ) ).color( red, green, blue, a ).endVertex();
 		}
 
 		tessellator.draw();
@@ -345,7 +397,21 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		{
 			if ( btn.highlighted )
 			{
-				fontRendererObj.drawString( DeprecationHelper.translateToLocal( btn.name ), (int) ( middle_x + btn.x2 + 8 ), (int) ( middle_y + btn.y1 + 6 ), 0xffffffff );
+				final String text = DeprecationHelper.translateToLocal( btn.name );
+
+				if ( btn.textSide == EnumFacing.EAST )
+				{
+					fontRendererObj.drawString( text, (int) ( middle_x + btn.x2 + 8 ), (int) ( middle_y + btn.y1 + 6 ), 0xffffffff );
+				}
+				else if ( btn.textSide == EnumFacing.UP )
+				{
+					fontRendererObj.drawString( text, (int) ( middle_x + ( btn.x1 + btn.x2 ) * 0.5 - fontRendererObj.getStringWidth( text ) * 0.5 ), (int) ( middle_y + btn.y1 - 14 ), 0xffffffff );
+				}
+				else if ( btn.textSide == EnumFacing.DOWN )
+				{
+					fontRendererObj.drawString( text, (int) ( middle_x + ( btn.x1 + btn.x2 ) * 0.5 - fontRendererObj.getStringWidth( text ) * 0.5 ), (int) ( middle_y + btn.y1 + 24 ), 0xffffffff );
+				}
+
 			}
 		}
 

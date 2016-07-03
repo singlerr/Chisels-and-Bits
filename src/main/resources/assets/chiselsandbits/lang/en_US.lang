@@ -120,6 +120,23 @@ mod.chiselsandbits.pretty.facing-west=West
 mod.chiselsandbits.pretty.facing-north=North
 mod.chiselsandbits.pretty.facing-south=South
 
+chiselsandbits.color.white=White
+chiselsandbits.color.orange=Orange
+chiselsandbits.color.magenta=Magenta
+chiselsandbits.color.lightBlue=Light Blue
+chiselsandbits.color.yellow=Yellow
+chiselsandbits.color.lime=Lime
+chiselsandbits.color.pink=Pink
+chiselsandbits.color.gray=Gray
+chiselsandbits.color.silver=Silver
+chiselsandbits.color.cyan=Cyan
+chiselsandbits.color.purple=Purple
+chiselsandbits.color.blue=Blue
+chiselsandbits.color.brown=Brown
+chiselsandbits.color.green=Green
+chiselsandbits.color.red=Red
+chiselsandbits.color.black=Black
+
 commands.setbit.usage=/setbit <x> <y> <z> <bitx> <bity> <bitz> <TileName> [dataValue]
 commands.setbit.outOfWorld=Cannot place block outside of the world
 commands.setbit.noChange=The bit couldn't be placed

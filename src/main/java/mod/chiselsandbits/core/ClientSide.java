@@ -60,6 +60,7 @@ import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
+import mod.chiselsandbits.network.packets.PacketSetColor;
 import mod.chiselsandbits.network.packets.PacketSuppressInteraction;
 import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.SmartModelManager;
@@ -83,6 +84,7 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -431,6 +433,33 @@ public class ClientSide
 							case REDO:
 								UndoTracker.getInstance().redo();
 								break;
+
+							case BLACK:
+							case BLUE:
+							case BROWN:
+							case CYAN:
+							case GRAY:
+							case GREEN:
+							case LIGHT_BLUE:
+							case LIME:
+							case MAGENTA:
+							case ORANGE:
+							case PINK:
+							case PURPLE:
+							case RED:
+							case SILVER:
+							case WHITE:
+							case YELLOW:
+
+								final PacketSetColor setColor = new PacketSetColor();
+								setColor.type = getHeldToolType( EnumHand.MAIN_HAND );
+								setColor.newColor = EnumDyeColor.valueOf( ChiselsAndBitsMenu.instance.doAction.name() );
+								setColor.chatNotification = ChiselsAndBits.getConfig().chatModeNotification;
+								NetworkRouter.instance.sendToServer( setColor );
+								ReflectionWrapper.instance.clearHighlightedStack();
+
+								break;
+
 						}
 					}
 				}
@@ -760,7 +789,7 @@ public class ClientSide
 			tool = lastTool;
 		}
 
-		tapeMeasures.setPreviewMeasure( null, null, chMode );
+		tapeMeasures.setPreviewMeasure( null, null, chMode, null );
 
 		if ( tool != null && tool == ChiselToolType.TAPEMEASURE )
 		{
@@ -776,11 +805,11 @@ public class ClientSide
 					final BitLocation other = getStartPos();
 					if ( other != null )
 					{
-						tapeMeasures.setPreviewMeasure( other, location, chMode );
+						tapeMeasures.setPreviewMeasure( other, location, chMode, getPlayer().getHeldItem( lastHand ) );
 
 						if ( !getToolKey().isKeyDown() )
 						{
-							tapeMeasures.addMeasure( other, location, chMode );
+							tapeMeasures.addMeasure( other, location, chMode, getPlayer().getHeldItem( lastHand ) );
 							drawStart = null;
 							lastHand = EnumHand.MAIN_HAND;
 						}

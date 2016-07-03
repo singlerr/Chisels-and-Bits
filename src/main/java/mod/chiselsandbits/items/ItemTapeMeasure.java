@@ -7,17 +7,21 @@ import org.apache.commons.lang3.tuple.Pair;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
-import mod.chiselsandbits.helpers.ChiselModeManager;
+import mod.chiselsandbits.core.ReflectionWrapper;
 import mod.chiselsandbits.helpers.ChiselToolType;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
-import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
+import mod.chiselsandbits.network.NetworkRouter;
+import mod.chiselsandbits.network.packets.PacketSetColor;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -86,10 +90,29 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 	{
 		if ( ChiselsAndBits.getConfig().itemNameModeDisplay )
 		{
-			return displayName + " - " + TapeMeasureModes.getMode( item ).string.getLocal();
+			return displayName + " - " + TapeMeasureModes.getMode( item ).string.getLocal() + " - " + DeprecationHelper.translateToLocal( "chiselsandbits.color." + getTapeColor( item ).getUnlocalizedName() );
 		}
 
 		return displayName;
+	}
+
+	public EnumDyeColor getTapeColor(
+			final ItemStack item )
+	{
+		final NBTTagCompound compound = item.getTagCompound();
+		if ( compound != null && compound.hasKey( "color" ) )
+		{
+			try
+			{
+				return EnumDyeColor.valueOf( compound.getString( "color" ) );
+			}
+			catch ( final IllegalArgumentException iae )
+			{
+				// nope!
+			}
+		}
+
+		return EnumDyeColor.WHITE;
 	}
 
 	@Override
@@ -98,8 +121,36 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final IToolMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL, EnumHand.MAIN_HAND );
-		ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, dwheel );
+		final EnumDyeColor color = getTapeColor( stack );
+		int next = color.ordinal() + ( dwheel < 0 ? -1 : 1 );
+
+		if ( next < 0 )
+		{
+			next = EnumDyeColor.values().length - 1;
+		}
+
+		if ( next >= EnumDyeColor.values().length )
+		{
+			next = 0;
+		}
+
+		final EnumDyeColor col = EnumDyeColor.values()[next];
+		setTapeColor( stack, col );
+
+		final PacketSetColor setColor = new PacketSetColor();
+		setColor.chatNotification = ChiselsAndBits.getConfig().chatModeNotification;
+		setColor.newColor = col;
+		setColor.type = ChiselToolType.TAPEMEASURE;
+
+		NetworkRouter.instance.sendToServer( setColor );
+		ReflectionWrapper.instance.clearHighlightedStack();
+	}
+
+	public void setTapeColor(
+			final ItemStack stack,
+			final EnumDyeColor color )
+	{
+		stack.getTagCompound().setString( "color", color.name() );
 	}
 
 }

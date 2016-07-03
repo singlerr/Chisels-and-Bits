@@ -36,6 +36,10 @@ public enum TapeMeasureModes implements IToolMode
 					return valueOf( nbt.getString( "mode" ) );
 				}
 			}
+			catch ( final IllegalArgumentException iae )
+			{
+				// nope!
+			}
 			catch ( final Exception e )
 			{
 				Log.logError( "Unable to determine mode.", e );

@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -32,17 +33,20 @@ public class TapeMeasures
 				final BitLocation a2,
 				final BitLocation b2,
 				final IToolMode chMode,
-				final int dimentionid )
+				final int dimentionid,
+				final EnumDyeColor color )
 		{
 			a = a2;
 			b = b2;
 			mode = chMode;
 			DimensionId = dimentionid;
+			this.color = color;
 		}
 
 		public final IToolMode mode;
 		public final BitLocation a;
 		public final BitLocation b;
+		public final EnumDyeColor color;
 		public final int DimensionId;
 		public double distance = 1;
 
@@ -137,7 +141,8 @@ public class TapeMeasures
 	public void setPreviewMeasure(
 			final BitLocation a,
 			final BitLocation b,
-			final IToolMode chMode )
+			final IToolMode chMode,
+			final ItemStack itemStack )
 	{
 		final EntityPlayer player = ClientSide.instance.getPlayer();
 
@@ -147,14 +152,15 @@ public class TapeMeasures
 		}
 		else
 		{
-			preview = new Measure( a, b, chMode, getDimension( player ) );
+			preview = new Measure( a, b, chMode, getDimension( player ), getColor( itemStack ) );
 		}
 	}
 
 	public void addMeasure(
 			final BitLocation a,
 			final BitLocation b,
-			final IToolMode chMode )
+			final IToolMode chMode,
+			final ItemStack itemStack )
 	{
 		final EntityPlayer player = ClientSide.instance.getPlayer();
 
@@ -163,7 +169,13 @@ public class TapeMeasures
 			measures.remove( 0 );
 		}
 
-		measures.add( new Measure( a, b, chMode, getDimension( player ) ) );
+		measures.add( new Measure( a, b, chMode, getDimension( player ), getColor( itemStack ) ) );
+	}
+
+	private EnumDyeColor getColor(
+			final ItemStack itemStack )
+	{
+		return ChiselsAndBits.getItems().itemTapeMeasure.getTapeColor( itemStack );
 	}
 
 	private int getDimension(
@@ -252,19 +264,23 @@ public class TapeMeasures
 		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
 		final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
 
+		final int val = m.color.getMapColor().colorValue;
+		final int red = val >> 16 & 0xff;
+		final int green = val >> 8 & 0xff;
+		final int blue = val & 0xff;
 		if ( m.mode == TapeMeasureModes.DISTANCE )
 		{
 			final Vec3d a = m.getVecA();
 			final Vec3d b = m.getVecB();
 
-			RenderHelper.drawLineWithColor( a, b, BlockPos.ORIGIN, player, partialTicks, false, 255, 255, 255, alpha, (int) ( alpha / 3.4 ) );
+			RenderHelper.drawLineWithColor( a, b, BlockPos.ORIGIN, player, partialTicks, false, red, green, blue, alpha, (int) ( alpha / 3.4 ) );
 
 			GlStateManager.disableDepth();
 			GlStateManager.disableCull();
 
 			final double Len = a.distanceTo( b ) + bitSize;
 
-			renderSize( player, partialTicks, ( a.xCoord + b.xCoord ) * 0.5 - x, ( a.yCoord + b.yCoord ) * 0.5 - y, ( a.zCoord + b.zCoord ) * 0.5 - z, Len );
+			renderSize( player, partialTicks, ( a.xCoord + b.xCoord ) * 0.5 - x, ( a.yCoord + b.yCoord ) * 0.5 - y, ( a.zCoord + b.zCoord ) * 0.5 - z, Len, red, green, blue );
 
 			GlStateManager.enableDepth();
 			GlStateManager.enableCull();
@@ -272,7 +288,7 @@ public class TapeMeasures
 		}
 
 		final AxisAlignedBB box = m.getBoundingBox();
-		RenderHelper.drawSelectionBoundingBoxIfExistsWithColor( box.expand( -0.001, -0.001, -0.001 ), BlockPos.ORIGIN, player, partialTicks, false, 255, 255, 255, alpha, (int) ( alpha / 3.4 ) );
+		RenderHelper.drawSelectionBoundingBoxIfExistsWithColor( box.expand( -0.001, -0.001, -0.001 ), BlockPos.ORIGIN, player, partialTicks, false, red, green, blue, alpha, (int) ( alpha / 3.4 ) );
 
 		GlStateManager.disableDepth();
 		GlStateManager.disableCull();
@@ -285,9 +301,9 @@ public class TapeMeasures
 		 * TODO: Figure out some better logic for which lines to display the
 		 * numbers on.
 		 **/
-		renderSize( player, partialTicks, box.minX - x, ( box.maxY + box.minY ) * 0.5 - y, box.minZ - z, LenY );
-		renderSize( player, partialTicks, ( box.minX + box.maxX ) * 0.5 - x, box.minY - y, box.minZ - z, LenX );
-		renderSize( player, partialTicks, box.minX - x, box.minY - y, ( box.minZ + box.maxZ ) * 0.5 - z, LenZ );
+		renderSize( player, partialTicks, box.minX - x, ( box.maxY + box.minY ) * 0.5 - y, box.minZ - z, LenY, red, green, blue );
+		renderSize( player, partialTicks, ( box.minX + box.maxX ) * 0.5 - x, box.minY - y, box.minZ - z, LenX, red, green, blue );
+		renderSize( player, partialTicks, box.minX - x, box.minY - y, ( box.minZ + box.maxZ ) * 0.5 - z, LenZ, red, green, blue );
 
 		GlStateManager.enableDepth();
 		GlStateManager.enableCull();
@@ -342,7 +358,10 @@ public class TapeMeasures
 			final double x,
 			final double y,
 			final double z,
-			final double len )
+			final double len,
+			final int red,
+			final int green,
+			final int blue )
 	{
 		final double letterSize = 5.0;
 		final double zScale = 0.001;
@@ -355,7 +374,7 @@ public class TapeMeasures
 		billBoard( player, partialTicks );
 		GlStateManager.scale( getScale( len ), -getScale( len ), zScale );
 		GlStateManager.translate( -fontRenderer.getStringWidth( size ) * 0.5, 0, 0 );
-		fontRenderer.drawString( size, 0, 0, 0xffffff, true );
+		fontRenderer.drawString( size, 0, 0, red << 16 | green << 8 | blue, true );
 		GlStateManager.popMatrix();
 	}
 
