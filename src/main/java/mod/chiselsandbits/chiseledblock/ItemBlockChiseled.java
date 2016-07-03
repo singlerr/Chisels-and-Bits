@@ -339,7 +339,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 									if ( BlockChiseled.replaceWithChisled( world, bp, state, commonBlock, true ) )
 									{
 										final TileEntityBlockChiseled target = myBlock.getTileEntity( world, bp );
-										target.setBlob( blobs[x][y][z] );
+										target.completeEditOperation( blobs[x][y][z] );
 									}
 
 									continue;
@@ -348,7 +348,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 								final TileEntityBlockChiseled target = ModUtil.getChiseledTileEntity( world, bp, true );
 								if ( target != null )
 								{
-									target.setBlob( blobs[x][y][z] );
+									target.completeEditOperation( blobs[x][y][z] );
 
 									continue;
 								}
