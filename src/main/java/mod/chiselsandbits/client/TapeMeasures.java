@@ -1,6 +1,8 @@
 package mod.chiselsandbits.client;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -42,6 +44,7 @@ public class TapeMeasures
 		public final BitLocation a;
 		public final BitLocation b;
 		public final int DimensionId;
+		public double distance = 1;
 
 		public AxisAlignedBB getBoundingBox()
 		{
@@ -94,6 +97,33 @@ public class TapeMeasures
 			final double bz = b.blockPos.getZ() + bitSize * b.bitZ + halfBit;
 			return new Vec3d( bx, by, bz );
 		}
+
+		public void calcDistance(
+				final float partialTicks )
+		{
+			if ( mode == TapeMeasureModes.DISTANCE )
+			{
+				final Vec3d a = getVecA();
+				final Vec3d b = getVecB();
+				final EntityPlayer player = ClientSide.instance.getPlayer();
+				distance = getLineDistance( a, b, player, partialTicks );
+			}
+			else
+			{
+				final EntityPlayer player = ClientSide.instance.getPlayer();
+				final Vec3d eyes = player.getPositionEyes( partialTicks );
+				final AxisAlignedBB box = getBoundingBox();
+				if ( box.isVecInside( eyes ) )
+				{
+					distance = 0.0;
+				}
+				else
+				{
+					distance = AABBDistnace( eyes, box );
+				}
+			}
+		}
+
 	};
 
 	private final ArrayList<Measure> measures = new ArrayList<Measure>();
@@ -151,14 +181,35 @@ public class TapeMeasures
 
 			if ( hasTapeMeasure( player.inventory ) )
 			{
+				final ArrayList<Measure> sortList = new ArrayList<Measure>( measures.size() + 1 );
+
 				if ( preview != null )
 				{
-					renderMeasure( preview, partialTicks );
+					preview.calcDistance( partialTicks );
+					sortList.add( preview );
 				}
 
 				for ( final Measure m : measures )
 				{
-					renderMeasure( m, partialTicks );
+					m.calcDistance( partialTicks );
+					sortList.add( m );
+				}
+
+				Collections.sort( sortList, new Comparator<Measure>() {
+
+					@Override
+					public int compare(
+							final Measure a,
+							final Measure b )
+					{
+						return a.distance < b.distance ? 1 : a.distance > b.distance ? -1 : 0;
+					}
+
+				} );
+
+				for ( final Measure m : sortList )
+				{
+					renderMeasure( m, m.distance, partialTicks );
 				}
 			}
 		}
@@ -181,6 +232,7 @@ public class TapeMeasures
 
 	private void renderMeasure(
 			final Measure m,
+			final double distance,
 			final float partialTicks )
 	{
 		final EntityPlayer player = ClientSide.instance.getPlayer();
@@ -190,11 +242,11 @@ public class TapeMeasures
 			return;
 		}
 
-		/**
-		 * TODO: FADE at a distance
-		 * 
-		 * TODO: Sort them by distance?
-		 */
+		final int alpha = getAlphaFromRange( distance );
+		if ( alpha < 30 )
+		{
+			return;
+		}
 
 		final double x = player.lastTickPosX + ( player.posX - player.lastTickPosX ) * partialTicks;
 		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
@@ -205,7 +257,7 @@ public class TapeMeasures
 			final Vec3d a = m.getVecA();
 			final Vec3d b = m.getVecB();
 
-			RenderHelper.drawLineWithColor( a, b, BlockPos.ORIGIN, player, partialTicks, false, 255, 255, 255, 102, 30 );
+			RenderHelper.drawLineWithColor( a, b, BlockPos.ORIGIN, player, partialTicks, false, 255, 255, 255, alpha, (int) ( alpha / 3.4 ) );
 
 			GlStateManager.disableDepth();
 			GlStateManager.disableCull();
@@ -220,7 +272,7 @@ public class TapeMeasures
 		}
 
 		final AxisAlignedBB box = m.getBoundingBox();
-		RenderHelper.drawSelectionBoundingBoxIfExistsWithColor( box.expand( -0.001, -0.001, -0.001 ), BlockPos.ORIGIN, player, partialTicks, false, 255, 255, 255, 102, 30 );
+		RenderHelper.drawSelectionBoundingBoxIfExistsWithColor( box.expand( -0.001, -0.001, -0.001 ), BlockPos.ORIGIN, player, partialTicks, false, 255, 255, 255, alpha, (int) ( alpha / 3.4 ) );
 
 		GlStateManager.disableDepth();
 		GlStateManager.disableCull();
@@ -239,6 +291,49 @@ public class TapeMeasures
 
 		GlStateManager.enableDepth();
 		GlStateManager.enableCull();
+	}
+
+	private int getAlphaFromRange(
+			final double distance )
+	{
+		if ( distance < 16 )
+		{
+			return 102;
+		}
+
+		return (int) ( 102 - ( distance - 16 ) * 6 );
+	}
+
+	private static double AABBDistnace(
+			final Vec3d eyes,
+			final AxisAlignedBB box )
+	{
+		// snap eyes into the box...
+		final double boxPointX = Math.min( box.maxX, Math.max( box.minX, eyes.xCoord ) );
+		final double boxPointY = Math.min( box.maxY, Math.max( box.minY, eyes.yCoord ) );
+		final double boxPointZ = Math.min( box.maxZ, Math.max( box.minZ, eyes.zCoord ) );
+
+		// then get the distance to it.
+		return Math.sqrt( eyes.squareDistanceTo( boxPointX, boxPointY, boxPointZ ) );
+	}
+
+	private static double getLineDistance(
+			final Vec3d v,
+			final Vec3d w,
+			final EntityPlayer player,
+			final float partialTicks )
+	{
+		final Vec3d p = player.getPositionEyes( partialTicks );
+		final double segmentLength = v.squareDistanceTo( w );
+
+		if ( segmentLength == 0.0 )
+		{
+			return p.distanceTo( v );
+		}
+
+		final double t = Math.max( 0, Math.min( 1, p.subtract( v ).dotProduct( w.subtract( v ) ) / segmentLength ) );
+		final Vec3d projection = v.add( w.subtract( v ).scale( t ) );
+		return p.distanceTo( projection );
 	}
 
 	private void renderSize(

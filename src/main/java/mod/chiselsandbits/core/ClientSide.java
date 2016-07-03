@@ -753,14 +753,6 @@ public class ClientSide
 	public void drawHighlight(
 			final RenderWorldLastEvent event )
 	{
-		tapeMeasures.render( event.getPartialTicks() );
-	}
-
-	@SubscribeEvent
-	@SideOnly( Side.CLIENT )
-	public void drawHighlight(
-			final DrawBlockHighlightEvent event )
-	{
 		ChiselToolType tool = getHeldToolType( lastHand );
 		final IToolMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool, lastHand );
 		if ( chMode == ChiselMode.DRAWN_REGION )
@@ -772,7 +764,7 @@ public class ClientSide
 
 		if ( tool != null && tool == ChiselToolType.TAPEMEASURE )
 		{
-			final EntityPlayer player = event.getPlayer();
+			final EntityPlayer player = getPlayer();
 			final RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
 			final World theWorld = player.worldObj;
 
@@ -795,6 +787,30 @@ public class ClientSide
 					}
 				}
 			}
+		}
+
+		tapeMeasures.render( event.getPartialTicks() );
+
+		final boolean isDrawing = ( chMode == ChiselMode.DRAWN_REGION || tool == ChiselToolType.TAPEMEASURE ) && getStartPos() != null;
+		if ( isDrawing != wasDrawing )
+		{
+			wasDrawing = isDrawing;
+			final PacketSuppressInteraction packet = new PacketSuppressInteraction();
+			packet.newSetting = isDrawing;
+			NetworkRouter.instance.sendToServer( packet );
+		}
+	}
+
+	@SubscribeEvent
+	@SideOnly( Side.CLIENT )
+	public void drawHighlight(
+			final DrawBlockHighlightEvent event )
+	{
+		ChiselToolType tool = getHeldToolType( lastHand );
+		final IToolMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool, lastHand );
+		if ( chMode == ChiselMode.DRAWN_REGION )
+		{
+			tool = lastTool;
 		}
 
 		if ( tool != null && tool.isBitOrChisel() && chMode != null )
@@ -908,14 +924,6 @@ public class ClientSide
 			}
 		}
 
-		final boolean isDrawing = ( chMode == ChiselMode.DRAWN_REGION || tool == ChiselToolType.TAPEMEASURE ) && getStartPos() != null;
-		if ( isDrawing != wasDrawing )
-		{
-			wasDrawing = isDrawing;
-			final PacketSuppressInteraction packet = new PacketSuppressInteraction();
-			packet.newSetting = isDrawing;
-			NetworkRouter.instance.sendToServer( packet );
-		}
 	}
 
 	private AxisAlignedBB snapToSide(
