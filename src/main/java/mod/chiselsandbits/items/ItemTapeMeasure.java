@@ -22,6 +22,7 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -166,7 +167,7 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 			final ItemStack stack,
 			final EnumDyeColor color )
 	{
-		stack.getTagCompound().setString( "color", color.name() );
+		stack.setTagInfo( "color", new NBTTagString( color.name() ) );
 	}
 
 }
