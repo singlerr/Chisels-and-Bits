@@ -57,7 +57,7 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 			final EntityPlayer playerIn,
 			final EnumHand hand )
 	{
-		if ( playerIn.isSneaking() )
+		if ( playerIn.isSneaking() && playerIn.getEntityWorld().isRemote )
 		{
 			ClientSide.instance.tapeMeasures.clear();
 		}
