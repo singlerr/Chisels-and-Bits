@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
+import mod.chiselsandbits.blueprints.EntityBlueprint;
+import mod.chiselsandbits.blueprints.RenderEntityBlueprint;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.client.CreativeClipboardTab;
@@ -26,10 +28,14 @@ import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
+import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fml.client.registry.IRenderFactory;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -39,6 +45,7 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.RecipeSorter;
@@ -117,6 +124,8 @@ public class ChiselsAndBits
 		items = new ModItems( getConfig() );
 		blocks = new ModBlocks( getConfig(), event.getSide() );
 
+		EntityRegistry.registerModEntity( EntityBlueprint.class, "mod.chiselsandbits.blueprint", 1, this, 200, 20, false );
+
 		integration.preinit( event );
 
 		// merge most of the extra materials into the normal set.
@@ -138,6 +147,17 @@ public class ChiselsAndBits
 			CreativeClipboardTab.load( new File( configFile.getParent(), MODID + "_clipboard.cfg" ) );
 
 			ClientSide.instance.preinit( this );
+
+			RenderingRegistry.registerEntityRenderingHandler( EntityBlueprint.class, new IRenderFactory<EntityBlueprint>() {
+
+				@Override
+				public Render<EntityBlueprint> createRenderFor(
+						final RenderManager manager )
+				{
+					return new RenderEntityBlueprint( manager );
+				}
+
+			} );
 		}
 	}
 
