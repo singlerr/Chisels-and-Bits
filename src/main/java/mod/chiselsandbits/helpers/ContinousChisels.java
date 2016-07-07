@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.items.ItemChisel;
@@ -21,7 +22,7 @@ public class ContinousChisels implements IContinuousInventory
 
 	private final ActingPlayer who;
 	private final List<ItemStackSlot> options = new ArrayList<ItemStackSlot>();
-	private final HashMap<Integer, List<ItemStackSlot>> actionCache = new HashMap<Integer, List<ItemStackSlot>>();
+	private final HashMap<BitState, List<ItemStackSlot>> actionCache = new HashMap<BitState, List<ItemStackSlot>>();
 	private final boolean canEdit;
 
 	public ContinousChisels(
@@ -78,7 +79,7 @@ public class ContinousChisels implements IContinuousInventory
 
 	@Override
 	public ItemStackSlot getItem(
-			final int BlockID )
+			final BitState BlockID )
 	{
 		if ( !actionCache.containsKey( BlockID ) )
 		{
@@ -108,7 +109,7 @@ public class ContinousChisels implements IContinuousInventory
 
 	@Override
 	public void fail(
-			final int BlockID )
+			final BitState BlockID )
 	{
 		final List<ItemStackSlot> choices = actionCache.get( BlockID );
 
@@ -126,7 +127,7 @@ public class ContinousChisels implements IContinuousInventory
 
 	@Override
 	public void useItem(
-			final int blk )
+			final BitState blk )
 	{
 		getItem( blk ).damage( who );
 	}

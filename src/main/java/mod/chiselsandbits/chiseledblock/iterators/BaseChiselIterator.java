@@ -17,7 +17,7 @@ public abstract class BaseChiselIterator implements ChiselIterator
 		boolean started = false;
 		while ( hasNext() )
 		{
-			if ( vb.get( x(), y(), z() ) != 0 == boundSolids )
+			if ( vb.isFilled( x(), y(), z() ) == boundSolids )
 			{
 				if ( started )
 				{

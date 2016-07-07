@@ -5,6 +5,7 @@ import java.util.List;
 
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
@@ -458,8 +459,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 
 				final BitLocation bitLoc = new BitLocation( target, true, ChiselToolType.CHISEL );
 
-				final int itemBlock = vb.get( bitLoc.bitX, bitLoc.bitY, bitLoc.bitZ );
-				if ( itemBlock == 0 )
+				final BitState itemBlock = vb.getState( bitLoc.bitX, bitLoc.bitY, bitLoc.bitZ );
+				if ( itemBlock.isEmpty() )
 				{
 					return null;
 				}
@@ -677,7 +678,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		final BitCollisionIterator bi = new BitCollisionIterator();
 		while ( bi.hasNext() )
 		{
-			if ( bi.getNext( vb ) != 0 )
+			if ( bi.getNext( vb ).isFilled() )
 			{
 				if ( started )
 				{

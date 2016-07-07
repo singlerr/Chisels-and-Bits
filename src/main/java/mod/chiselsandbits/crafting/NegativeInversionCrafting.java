@@ -1,9 +1,9 @@
 package mod.chiselsandbits.crafting;
 
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -75,11 +75,13 @@ public class NegativeInversionCrafting implements IRecipe
 			tmp.readChisleData( targetA.getTagCompound() );
 
 			final VoxelBlob bestBlob = tmp.getBlob();
-			bestBlob.binaryReplacement( Block.getStateId( Blocks.STONE.getDefaultState() ), 0 );
+			final BitState air = new BitState( Blocks.AIR );
+			final BitState stone = new BitState( Blocks.STONE );
+			bestBlob.binaryReplacement( stone, air );
 
 			tmp.setBlob( bestBlob );
 
-			final NBTTagCompound comp = (NBTTagCompound) targetA.getTagCompound().copy();
+			final NBTTagCompound comp = targetA.getTagCompound().copy();
 			tmp.writeChisleData( comp, false );
 
 			final ItemStack outputPattern = new ItemStack( targetA.getItem() );

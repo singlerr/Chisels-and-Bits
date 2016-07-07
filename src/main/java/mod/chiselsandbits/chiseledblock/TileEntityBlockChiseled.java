@@ -359,8 +359,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 			if ( vb == null )
 			{
-				vb = new VoxelBlob();
-				vb.fill( Block.getStateId( Blocks.COBBLESTONE.getDefaultState() ) );
+				vb = new VoxelBlob( Blocks.COBBLESTONE.getDefaultState(), null );
 			}
 		}
 		else

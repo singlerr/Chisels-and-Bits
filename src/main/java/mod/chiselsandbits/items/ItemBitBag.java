@@ -236,7 +236,7 @@ public class ItemBitBag extends Item
 				int actingSlot = slot;
 				ItemStack which = inv.getStackInSlot( actingSlot );
 
-				if ( which != null && which.getItem() == is.getItem() && ( ItemChiseledBit.sameBit( which, ItemChiseledBit.getStackState( is ) ) || is.getItemDamage() == OreDictionary.WILDCARD_VALUE ) )
+				if ( which != null && which.getItem() == is.getItem() && ( ItemChiseledBit.sameBit( which, ItemChiseledBit.getStackBitState( is ) ) || is.getItemDamage() == OreDictionary.WILDCARD_VALUE ) )
 				{
 					if ( actingSlot == player.inventory.currentItem )
 					{

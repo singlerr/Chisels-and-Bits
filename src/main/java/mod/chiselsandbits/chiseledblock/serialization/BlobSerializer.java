@@ -4,30 +4,35 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import net.minecraft.block.Block;
 import net.minecraft.network.PacketBuffer;
 
 public class BlobSerializer
 {
 
+	protected final VoxelBlob target;
+
 	private final int types;
-	private final Map<Integer, Integer> index; // deflate...
-	private final int[] palette; // inflate...
+	private final Map<BitState, Integer> index; // deflate...
+	private final BitState[] palette; // inflate...
 	private final int bitsPerInt;
 	private final int bitsPerIntMinus1;
 
 	public BlobSerializer(
 			final VoxelBlob toDeflate )
 	{
-		final Map<Integer, Integer> entries = toDeflate.getBlockSums();
+		target = toDeflate;
+		final Map<BitState, Integer> entries = toDeflate.getBlockSums();
 
-		index = new HashMap<Integer, Integer>( types = entries.size() );
-		palette = new int[types];
+		index = new HashMap<BitState, Integer>( types = entries.size() );
+		palette = new BitState[types];
 
 		int offset = 0;
-		for ( final Entry<Integer, Integer> o : entries.entrySet() )
+		for ( final Entry<BitState, Integer> o : entries.entrySet() )
 		{
-			final int stateID = o.getKey();
+			final BitState stateID = o.getKey();
 			palette[offset] = stateID;
 			index.put( stateID, offset++ );
 		}
@@ -37,10 +42,12 @@ public class BlobSerializer
 	}
 
 	public BlobSerializer(
+			final VoxelBlob voxelBlob,
 			final PacketBuffer toInflate )
 	{
+		target = voxelBlob;
 		types = toInflate.readVarIntFromBuffer();
-		palette = new int[types];
+		palette = new BitState[types];
 		index = null;
 
 		for ( int x = 0; x < types; x++ )
@@ -65,17 +72,18 @@ public class BlobSerializer
 		}
 	}
 
-	protected int readStateID(
+	protected BitState readStateID(
 			final PacketBuffer buffer )
 	{
-		return buffer.readVarIntFromBuffer();
+		final int id = buffer.readVarIntFromBuffer();
+		return new BitState( id, Block.getStateById( id ) );
 	}
 
 	protected void writeStateID(
 			final PacketBuffer buffer,
-			final int key )
+			final BitState key )
 	{
-		buffer.writeVarIntToBuffer( key );
+		buffer.writeVarIntToBuffer( key.getStateID() );
 	}
 
 	private int bitsPerBit()
@@ -99,7 +107,7 @@ public class BlobSerializer
 		return lastIndex = index.get( stateID );
 	}
 
-	private int getStateID(
+	private BitState getStateID(
 			final int indexID )
 	{
 		return palette[indexID];
@@ -126,7 +134,7 @@ public class BlobSerializer
 			index |= bits.get() ? 1 << x : 0;
 		}
 
-		return getStateID( index );
+		return getStateID( index ).index;
 	}
 
 	/**

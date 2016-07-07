@@ -38,11 +38,13 @@ import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog.EnumAxis;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -89,13 +91,22 @@ public final class VoxelBlob implements IVoxelSrc
 
 	public static VoxelBlob NULL_BLOB = new VoxelBlob();
 
+	private final ArrayList<BitState> states = new ArrayList<BitState>();
+	BitState air = null;
+
 	private final int[] values = new int[array_size];
 
 	public int detail = dim;
 
 	public VoxelBlob()
 	{
-		// nothing specific here...
+	}
+
+	public VoxelBlob(
+			final IBlockState state,
+			final IStringSerializable object )
+	{
+		states.add( new BitState( this, 0, state, object ) );
 	}
 
 	@Override
@@ -114,6 +125,7 @@ public final class VoxelBlob implements IVoxelSrc
 	public VoxelBlob(
 			final VoxelBlob vb )
 	{
+		states.addAll( vb.states );
 		for ( int x = 0; x < values.length; ++x )
 		{
 			values[x] = vb.values[x];
@@ -161,18 +173,18 @@ public final class VoxelBlob implements IVoxelSrc
 		final BitIterator bi = new BitIterator();
 		while ( bi.hasNext() )
 		{
-			if ( bi.getNext( this ) != 0 )
+			if ( bi.getNext( this ).isFilled() )
 			{
 				switch ( axis )
 				{
 					case X:
-						out.set( dim_minus_one - bi.x, bi.y, bi.z, bi.getNext( this ) );
+						out.setIndexAtPos( dim_minus_one - bi.x, bi.y, bi.z, bi.getNext( this ) );
 						break;
 					case Y:
-						out.set( bi.x, dim_minus_one - bi.y, bi.z, bi.getNext( this ) );
+						out.setIndexAtPos( bi.x, dim_minus_one - bi.y, bi.z, bi.getNext( this ) );
 						break;
 					case Z:
-						out.set( bi.x, bi.y, dim_minus_one - bi.z, bi.getNext( this ) );
+						out.setIndexAtPos( bi.x, bi.y, dim_minus_one - bi.z, bi.getNext( this ) );
 						break;
 					default:
 						throw new NullPointerException();
@@ -192,7 +204,7 @@ public final class VoxelBlob implements IVoxelSrc
 		final BitIterator bi = new BitIterator();
 		while ( bi.hasNext() )
 		{
-			if ( bi.getNext( this ) != 0 )
+			if ( bi.getNext( this ).isFilled() )
 			{
 				if ( found )
 				{
@@ -231,7 +243,7 @@ public final class VoxelBlob implements IVoxelSrc
 		final BitIterator bi = new BitIterator();
 		while ( bi.hasNext() )
 		{
-			if ( bi.getNext( this ) != 0 )
+			if ( bi.getNext( this ).isFilled() )
 			{
 				if ( found )
 				{
@@ -272,13 +284,13 @@ public final class VoxelBlob implements IVoxelSrc
 			switch ( axis )
 			{
 				case X:
-					d.set( dim_minus_one - bi.x, bi.y, bi.z, bi.getNext( this ) );
+					d.setIndexAtPos( dim_minus_one - bi.x, bi.y, bi.z, bi.getNext( this ) );
 					break;
 				case Y:
-					d.set( bi.x, dim_minus_one - bi.y, bi.z, bi.getNext( this ) );
+					d.setIndexAtPos( bi.x, dim_minus_one - bi.y, bi.z, bi.getNext( this ) );
 					break;
 				case Z:
-					d.set( bi.x, bi.y, dim_minus_one - bi.z, bi.getNext( this ) );
+					d.setIndexAtPos( bi.x, bi.y, dim_minus_one - bi.z, bi.getNext( this ) );
 				default:
 					throw new NullPointerException();
 			}
@@ -302,13 +314,13 @@ public final class VoxelBlob implements IVoxelSrc
 			switch ( axis )
 			{
 				case X:
-					d.set( bi.x, dim_minus_one - bi.z, bi.y, bi.getNext( this ) );
+					d.setIndexAtPos( bi.x, dim_minus_one - bi.z, bi.y, bi.getNext( this ) );
 					break;
 				case Y:
-					d.set( bi.z, bi.y, dim_minus_one - bi.x, bi.getNext( this ) );
+					d.setIndexAtPos( bi.z, bi.y, dim_minus_one - bi.x, bi.getNext( this ) );
 					break;
 				case Z:
-					d.set( dim_minus_one - bi.y, bi.x, bi.z, bi.getNext( this ) );
+					d.setIndexAtPos( dim_minus_one - bi.y, bi.x, bi.z, bi.getNext( this ) );
 					break;
 				default:
 					throw new NullPointerException();
@@ -318,7 +330,7 @@ public final class VoxelBlob implements IVoxelSrc
 		return d;
 	}
 
-	public void fill(
+	private void fill(
 			final int value )
 	{
 		for ( int x = 0; x < array_size; x++ )
@@ -356,13 +368,14 @@ public final class VoxelBlob implements IVoxelSrc
 		return p;
 	}
 
-	public void binaryReplacement(
+	private void binaryReplacement(
 			final int airReplacement,
 			final int solidReplacement )
 	{
+		final int airIndex = findState( null ).index;
 		for ( int x = 0; x < array_size; x++ )
 		{
-			values[x] = values[x] == 0 ? airReplacement : solidReplacement;
+			values[x] = values[x] == airIndex ? airReplacement : solidReplacement;
 		}
 	}
 
@@ -381,25 +394,27 @@ public final class VoxelBlob implements IVoxelSrc
 		return p;
 	}
 
-	protected int getBit(
+	private BitState getIndexAtOffset(
 			final int offset )
 	{
-		return values[offset];
+		return states.get( values[offset] );
 	}
 
-	protected void putBit(
+	private void putIndexAtOffset(
 			final int offset,
-			final int newValue )
+			final BitState newValue )
 	{
-		values[offset] = newValue;
+		getIndexAtOffset( offset ).used--;
+		values[offset] = newValue.index;
+		newValue.used++;
 	}
 
-	public int get(
+	private BitState getIndexAtPos(
 			final int x,
 			final int y,
 			final int z )
 	{
-		return getBit( x | y << 4 | z << 8 );
+		return getIndexAtOffset( x | y << 4 | z << 8 );
 	}
 
 	public VoxelType getVoxelType(
@@ -407,16 +422,16 @@ public final class VoxelBlob implements IVoxelSrc
 			final int y,
 			final int z )
 	{
-		return BlockBitInfo.getTypeFromStateID( get( x, y, z ) );
+		return BlockBitInfo.getTypeFromStateID( getIndexAtPos( x, y, z ).getStateID() );
 	}
 
-	public void set(
+	private void setIndexAtPos(
 			final int x,
 			final int y,
 			final int z,
-			final int value )
+			final BitState value )
 	{
-		putBit( x | y << 4 | z << 8, value );
+		putIndexAtOffset( x | y << 4 | z << 8, value );
 	}
 
 	public void clear(
@@ -424,7 +439,7 @@ public final class VoxelBlob implements IVoxelSrc
 			final int y,
 			final int z )
 	{
-		putBit( x | y << 4 | z << 8, 0 );
+		putIndexAtOffset( x | y << 4 | z << 8, findState( null ) );
 	}
 
 	private void legacyRead(
@@ -494,17 +509,17 @@ public final class VoxelBlob implements IVoxelSrc
 	}
 
 	@Override
-	public int getSafe(
+	public BitState getSafe(
 			final int x,
 			final int y,
 			final int z )
 	{
 		if ( x >= 0 && x < dim && y >= 0 && y < dim && z >= 0 && z < dim )
 		{
-			return get( x, y, z );
+			return getIndexAtPos( x, y, z );
 		}
 
-		return 0;
+		return findState( null );
 	}
 
 	public static class VisibleFace
@@ -523,7 +538,7 @@ public final class VoxelBlob implements IVoxelSrc
 			final VoxelBlob secondBlob,
 			final ICullTest cullVisTest )
 	{
-		final int mySpot = get( x, y, z );
+		final int mySpot = getIndexAtPos( x, y, z ).getStateID();
 		dest.state = mySpot;
 
 		x += face.getFrontOffsetX();
@@ -533,12 +548,12 @@ public final class VoxelBlob implements IVoxelSrc
 		if ( x >= 0 && x < dim && y >= 0 && y < dim && z >= 0 && z < dim )
 		{
 			dest.isEdge = false;
-			dest.visibleFace = cullVisTest.isVisible( mySpot, get( x, y, z ) );
+			dest.visibleFace = cullVisTest.isVisible( mySpot, getIndexAtPos( x, y, z ).getStateID() );
 		}
 		else if ( secondBlob != null )
 		{
 			dest.isEdge = true;
-			dest.visibleFace = cullVisTest.isVisible( mySpot, secondBlob.get( x - face.getFrontOffsetX() * dim, y - face.getFrontOffsetY() * dim, z - face.getFrontOffsetZ() * dim ) );
+			dest.visibleFace = cullVisTest.isVisible( mySpot, secondBlob.getIndexAtPos( x - face.getFrontOffsetX() * dim, y - face.getFrontOffsetY() * dim, z - face.getFrontOffsetZ() * dim ).getStateID() );
 		}
 		else
 		{
@@ -560,57 +575,28 @@ public final class VoxelBlob implements IVoxelSrc
 
 	public static class TypeRef
 	{
-		final public int stateId;
+		final public BitState state;
 		public int quantity;
 
 		public TypeRef(
-				final int id,
+				final BitState id,
 				final int q )
 		{
-			stateId = id;
+			state = id;
 			quantity = q;
 		}
 	};
 
-	public Map<Integer, Integer> getBlockSums()
+	public Map<BitState, Integer> getBlockSums()
 	{
-		final Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
+		final Map<BitState, Integer> counts = new HashMap<BitState, Integer>();
 
-		int lastType = values[0];
-		int firstOfType = 0;
-
-		for ( int x = 1; x < array_size; x++ )
+		for ( final BitState state : states )
 		{
-			final int v = values[x];
-
-			if ( lastType != v )
+			if ( state.used > 0 )
 			{
-				final Integer sumx = counts.get( lastType );
-
-				if ( sumx == null )
-				{
-					counts.put( lastType, x - firstOfType );
-				}
-				else
-				{
-					counts.put( lastType, sumx + ( x - firstOfType ) );
-				}
-
-				// new count.
-				firstOfType = x;
-				lastType = v;
+				counts.put( state, state.used );
 			}
-		}
-
-		final Integer sumx = counts.get( lastType );
-
-		if ( sumx == null )
-		{
-			counts.put( lastType, array_size - firstOfType );
-		}
-		else
-		{
-			counts.put( lastType, sumx + ( array_size - firstOfType ) );
 		}
 
 		return counts;
@@ -618,12 +604,12 @@ public final class VoxelBlob implements IVoxelSrc
 
 	public List<TypeRef> getBlockCounts()
 	{
-		final Map<Integer, Integer> count = getBlockSums();
+		final Map<BitState, Integer> count = getBlockSums();
 
 		final List<TypeRef> out;
 		out = new ArrayList<TypeRef>( count.size() );
 
-		for ( final Entry<Integer, Integer> o : count.entrySet() )
+		for ( final Entry<BitState, Integer> o : count.entrySet() )
 		{
 			out.add( new TypeRef( o.getKey(), o.getValue() ) );
 		}
@@ -636,19 +622,19 @@ public final class VoxelBlob implements IVoxelSrc
 		cb.isNormalBlock = true;
 
 		int nonAirBits = 0;
-		for ( final Entry<Integer, Integer> o : getBlockSums().entrySet() )
+		for ( final Entry<BitState, Integer> o : getBlockSums().entrySet() )
 		{
 			final int quantity = o.getValue();
-			final int r = o.getKey();
+			final BitState r = o.getKey();
 
-			if ( quantity > cb.mostCommonStateTotal && r != 0 )
+			if ( quantity > cb.mostCommonStateTotal && r.isFilled() )
 			{
-				cb.mostCommonState = r;
+				cb.mostCommonState = r.getStateID();
 				cb.mostCommonStateTotal = quantity;
 			}
 
-			final IBlockState state = Block.getStateById( r );
-			if ( state != null && r != 0 )
+			final IBlockState state = r.getBlockState();
+			if ( state != null && r.isFilled() )
 			{
 				nonAirBits += quantity;
 				cb.isNormalBlock = cb.isNormalBlock && ModUtil.isNormalCube( state );
@@ -678,7 +664,7 @@ public final class VoxelBlob implements IVoxelSrc
 			{
 				for ( int x = 0; x < dim; x++ )
 				{
-					out.set( x, y, z, getSafe( x - xx, y - yy, z - zz ) );
+					out.setIndexAtPos( x, y, z, getSafe( x - xx, y - yy, z - zz ) );
 				}
 			}
 		}
@@ -696,7 +682,7 @@ public final class VoxelBlob implements IVoxelSrc
 		final BitIterator bi = new BitIterator();
 		while ( bi.hasNext() )
 		{
-			final int state = bi.getNext( this );
+			final int state = bi.getNext( this ).getStateID();
 			if ( state == 0 )
 			{
 				continue;
@@ -844,6 +830,7 @@ public final class VoxelBlob implements IVoxelSrc
 		return hasValues;
 	}
 
+	@SideOnly( Side.CLIENT )
 	public boolean filter(
 			final BlockRenderLayer layer )
 	{
@@ -873,6 +860,7 @@ public final class VoxelBlob implements IVoxelSrc
 		return hasValues;
 	}
 
+	@SideOnly( Side.CLIENT )
 	private TIntObjectMap<Boolean> getStateLayer(
 			final BlockRenderLayer layer )
 	{
@@ -897,6 +885,7 @@ public final class VoxelBlob implements IVoxelSrc
 		return BlockBitInfo.getFluidFromBlock( state.getBlock() ) != null;
 	}
 
+	@SideOnly( Side.CLIENT )
 	private Boolean inLayer(
 			final BlockRenderLayer layer,
 			final int ref )
@@ -940,15 +929,15 @@ public final class VoxelBlob implements IVoxelSrc
 
 		if ( version == VERSION_COMPACT )
 		{
-			bs = new BlobSerializer( header );
+			bs = new BlobSerializer( this, header );
 		}
 		else if ( version == VERSION_CROSSWORLD_LEGACY )
 		{
-			bs = new CrossWorldBlobSerializerLegacy( header );
+			bs = new CrossWorldBlobSerializerLegacy( this, header );
 		}
 		else if ( version == VERSION_CROSSWORLD )
 		{
-			bs = new CrossWorldBlobSerializer( header );
+			bs = new CrossWorldBlobSerializer( this, header );
 		}
 		else
 		{
@@ -1047,4 +1036,90 @@ public final class VoxelBlob implements IVoxelSrc
 			throw new RuntimeException( e );
 		}
 	}
+
+	public void binaryReplacement(
+			final BitState air,
+			final BitState filled )
+	{
+		binaryReplacement( findState( air ).index, findState( filled ).index );
+	}
+
+	public boolean isFilled(
+			final int x,
+			final int y,
+			final int z )
+	{
+		return getState( x, y, z ) != Blocks.AIR.getDefaultState();
+	}
+
+	BitState getStateAtOffset(
+			final int offset )
+	{
+		return getIndexAtOffset( offset );
+	}
+
+	void setStateAtOffset(
+			final int offset,
+			final BitState value )
+	{
+		putIndexAtOffset( offset, findState( value ) );
+	}
+
+	public BitState getStateFor(
+			final BitState state )
+	{
+		if ( air != null && state == null )
+		{
+			return air;
+		}
+
+		if ( state != null )
+		{
+			return findState( state );
+		}
+		else
+		{
+			return air = findState( new BitState( 0, Blocks.AIR.getDefaultState() ) );
+		}
+	}
+
+	private BitState findState(
+			final BitState bitState )
+	{
+		if ( bitState.blob == this )
+		{
+			return bitState;
+		}
+
+		for ( final BitState state : states )
+		{
+			if ( state.equals( bitState ) )
+			{
+				return state;
+			}
+		}
+
+		final int index = states.size();
+		final BitState newState = new BitState( this, index, bitState );
+		states.add( newState );
+		return newState;
+	}
+
+	public void setState(
+			final int x,
+			final int y,
+			final int z,
+			final BitState state )
+	{
+		putIndexAtOffset( x | y << 4 | z << 8, findState( state ) );
+	}
+
+	public BitState getState(
+			final int x,
+			final int y,
+			final int z )
+	{
+		return getIndexAtPos( x, y, z );
+	}
+
 }

@@ -1,9 +1,11 @@
 package mod.chiselsandbits.helpers;
 
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.api.BitAccess;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -18,6 +20,7 @@ public class VoxelRegionSrc implements IVoxelSrc
 	final int wrapY;
 	final int wrapX;
 
+	BitState air = new BitState( 0, Blocks.AIR.getDefaultState() );
 	final VoxelBlob blobs[];
 
 	private VoxelRegionSrc(
@@ -66,8 +69,25 @@ public class VoxelRegionSrc implements IVoxelSrc
 		this( theWorld, blockPos.add( -range, -range, -range ), blockPos.add( range, range, range ), blockPos );
 	}
 
+	public VoxelBlob getBlobAt(
+			final BlockPos blockPos )
+	{
+		final int blkPosX = blockPos.getX() - min.getX();
+		final int blkPosY = blockPos.getY() - min.getY();
+		final int blkPosZ = blockPos.getZ() - min.getZ();
+
+		final int idx = blkPosX + blkPosY * wrapX + blkPosZ * wrapX * wrapY;
+
+		if ( blkPosX < 0 || blkPosY < 0 || blkPosZ < 0 || blkPosX >= wrapX || blkPosY >= wrapY || blkPosZ >= wrapZ )
+		{
+			return new VoxelBlob();
+		}
+
+		return blobs[idx];
+	}
+
 	@Override
-	public int getSafe(
+	public BitState getSafe(
 			int x,
 			int y,
 			int z )
@@ -88,26 +108,9 @@ public class VoxelRegionSrc implements IVoxelSrc
 
 		if ( blkPosX < 0 || blkPosY < 0 || blkPosZ < 0 || blkPosX >= wrapX || blkPosY >= wrapY || blkPosZ >= wrapZ )
 		{
-			return 0;
+			return air;
 		}
 
-		return blobs[idx].get( bitPosX, bitPosY, bitPosZ );
-	}
-
-	public VoxelBlob getBlobAt(
-			final BlockPos blockPos )
-	{
-		final int blkPosX = blockPos.getX() - min.getX();
-		final int blkPosY = blockPos.getY() - min.getY();
-		final int blkPosZ = blockPos.getZ() - min.getZ();
-
-		final int idx = blkPosX + blkPosY * wrapX + blkPosZ * wrapX * wrapY;
-
-		if ( blkPosX < 0 || blkPosY < 0 || blkPosZ < 0 || blkPosX >= wrapX || blkPosY >= wrapY || blkPosZ >= wrapZ )
-		{
-			return new VoxelBlob();
-		}
-
-		return blobs[idx];
+		return blobs[idx].getSafe( bitPosX, bitPosY, bitPosZ );
 	}
 }

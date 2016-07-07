@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.bitbag.BagInventory;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.items.ItemBitBag;
@@ -67,14 +68,14 @@ public class ContinousBits implements IContinuousInventory
 
 	@Override
 	public ItemStackSlot getItem(
-			final int BlockID )
+			final BitState BlockID )
 	{
 		return options.get( 0 );
 	}
 
 	@Override
 	public void useItem(
-			final int blk )
+			final BitState blk )
 	{
 		final ItemStackSlot slot = options.get( 0 );
 
@@ -103,7 +104,7 @@ public class ContinousBits implements IContinuousInventory
 
 	@Override
 	public void fail(
-			final int BlockID )
+			final BitState BlockID )
 	{
 		// hmm.. nope?
 	}

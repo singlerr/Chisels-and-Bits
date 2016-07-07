@@ -84,6 +84,7 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -868,12 +869,12 @@ public class ClientSide
 					final TileEntityBlockChiseled data = ModUtil.getChiseledTileEntity( theWorld, location.blockPos, false );
 
 					final VoxelRegionSrc region = new VoxelRegionSrc( theWorld, location.blockPos, 1 );
-					final VoxelBlob vb = data != null ? data.getBlob() : new VoxelBlob();
+					VoxelBlob vb = data != null ? data.getBlob() : new VoxelBlob();
 
 					if ( isChisel && data == null )
 					{
 						showBox = true;
-						vb.fill( 1 );
+						vb = new VoxelBlob( Blocks.STONE.getDefaultState(), null );
 					}
 
 					final BitLocation other = getStartPos();
@@ -920,7 +921,7 @@ public class ClientSide
 							if ( tebc != null )
 							{
 								final VoxelBlob vx = tebc.getBlob();
-								if ( vx.get( location.bitX, location.bitY, location.bitZ ) != 0 )
+								if ( vx.getState( location.bitX, location.bitY, location.bitZ ).isFilled() )
 								{
 									isBitBlock = true;
 								}
@@ -936,8 +937,7 @@ public class ClientSide
 						}
 						else if ( isBit )
 						{
-							final VoxelBlob j = new VoxelBlob();
-							j.fill( 1 );
+							final VoxelBlob j = new VoxelBlob( Blocks.STONE.getDefaultState(), null );
 							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, j, ChiselMode.castMode( chMode ), mop.sideHit, !isChisel );
 							final AxisAlignedBB bb = snapToSide( i.getBoundingBox( j, isChisel ), mop.sideHit );
 							RenderHelper.drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
@@ -1191,8 +1191,7 @@ public class ClientSide
 				}
 				else if ( cacheRef instanceof IBlockState )
 				{
-					blob = new VoxelBlob();
-					blob.fill( Block.getStateId( (IBlockState) cacheRef ) );
+					blob = new VoxelBlob( (IBlockState) cacheRef, null );
 				}
 				else
 				{
@@ -1202,9 +1201,9 @@ public class ClientSide
 				final BitIterator it = new BitIterator();
 				while ( it.hasNext() )
 				{
-					if ( it.getNext( pattern ) == 0 )
+					if ( it.getNext( pattern ).isEmpty() )
 					{
-						it.setNext( blob, 0 );
+						it.setNext( blob, null );
 					}
 				}
 			}

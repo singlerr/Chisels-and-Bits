@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.items.ItemBitBag;
@@ -248,7 +249,7 @@ public class BagInventory implements IInventory
 		for ( int x = getSizeInventory() - 1; x >= 0; x-- )
 		{
 			final ItemStack is = getStackInSlot( x );
-			if ( is != null && is.getItem() == target.getItem() && ItemChiseledBit.sameBit( target, ItemChiseledBit.getStackState( is ) ) )
+			if ( is != null && is.getItem() == target.getItem() && ItemChiseledBit.sameBit( target, ItemChiseledBit.getStackBitState( is ) ) )
 			{
 				target.stackSize += is.stackSize;
 				final int total = target.stackSize;
@@ -304,7 +305,7 @@ public class BagInventory implements IInventory
 	}
 
 	public int extractBit(
-			final int bitMeta,
+			final BitState bitMeta,
 			int total )
 	{
 		int used = 0;
@@ -316,7 +317,7 @@ public class BagInventory implements IInventory
 			final int qty = inv.contents[qty_idx];
 			final int id = inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_STATE_ID];
 
-			if ( id == bitMeta && qty > 0 )
+			if ( id == bitMeta.getStateID() && qty > 0 )
 			{
 				inv.contents[qty_idx] -= total;
 

@@ -6,6 +6,7 @@ import java.net.URLEncoder;
 
 import com.google.common.base.Optional;
 
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.Log;
 import net.minecraft.block.Block;
@@ -20,9 +21,10 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 {
 
 	public CrossWorldBlobSerializer(
+			final VoxelBlob voxelBlob,
 			final PacketBuffer toInflate )
 	{
-		super( toInflate );
+		super( voxelBlob, toInflate );
 	}
 
 	public CrossWorldBlobSerializer(
@@ -33,7 +35,7 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	@Override
-	protected int readStateID(
+	protected BitState readStateID(
 			final PacketBuffer buffer )
 	{
 		final String name = buffer.readStringFromBuffer( 2047 );
@@ -54,14 +56,14 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 
 		if ( blk == null || blk == Blocks.AIR )
 		{
-			return 0;
+			return target.getStateFor( null );
 		}
 
 		IBlockState state = blk.getDefaultState();
 
 		if ( state == null )
 		{
-			return 0;
+			return target.getStateFor( null );
 		}
 
 		// rebuild state...
@@ -87,7 +89,7 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 			}
 		}
 
-		return Block.getStateId( state );
+		return target.getStateFor( new BitState( Block.getStateId( state ), state ) );
 	}
 
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
@@ -118,9 +120,9 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 	@Override
 	protected void writeStateID(
 			final PacketBuffer buffer,
-			final int key )
+			final BitState key )
 	{
-		final IBlockState state = Block.getStateById( key );
+		final IBlockState state = key.getBlockState();
 		final Block blk = state.getBlock();
 
 		String sname = "air?";

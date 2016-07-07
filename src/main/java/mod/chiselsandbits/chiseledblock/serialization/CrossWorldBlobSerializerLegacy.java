@@ -1,5 +1,6 @@
 package mod.chiselsandbits.chiseledblock.serialization;
 
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import net.minecraft.block.Block;
@@ -11,9 +12,10 @@ public class CrossWorldBlobSerializerLegacy extends BlobSerializer
 {
 
 	public CrossWorldBlobSerializerLegacy(
+			final VoxelBlob voxelBlob,
 			final PacketBuffer toInflate )
 	{
-		super( toInflate );
+		super( voxelBlob, toInflate );
 	}
 
 	public CrossWorldBlobSerializerLegacy(
@@ -23,7 +25,7 @@ public class CrossWorldBlobSerializerLegacy extends BlobSerializer
 	}
 
 	@Override
-	protected int readStateID(
+	protected BitState readStateID(
 			final PacketBuffer buffer )
 	{
 		final String name = buffer.readStringFromBuffer( 512 );
@@ -33,24 +35,24 @@ public class CrossWorldBlobSerializerLegacy extends BlobSerializer
 
 		if ( blk == null )
 		{
-			return 0;
+			return target.getStateFor( null );
 		}
 
 		final IBlockState state = DeprecationHelper.getStateFromMeta( blk, meta );
 		if ( state == null )
 		{
-			return 0;
+			return target.getStateFor( null );
 		}
 
-		return Block.getStateId( state );
+		return target.getStateFor( new BitState( Block.getStateId( state ), state ) );
 	}
 
 	@Override
 	protected void writeStateID(
 			final PacketBuffer buffer,
-			final int key )
+			final BitState key )
 	{
-		final IBlockState state = Block.getStateById( key );
+		final IBlockState state = key.getBlockState();
 		final Block blk = state.getBlock();
 
 		final String name = Block.REGISTRY.getNameForObject( blk ).toString();

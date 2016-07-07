@@ -7,6 +7,7 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
@@ -22,7 +23,6 @@ import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -194,7 +194,9 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 				tmp.readChisleData( comp );
 
 				final VoxelBlob bestBlob = tmp.getBlob();
-				bestBlob.binaryReplacement( 0, Block.getStateId( Blocks.STONE.getDefaultState() ) );
+				final BitState air = new BitState( Blocks.AIR );
+				final BitState stone = new BitState( Blocks.STONE );
+				bestBlob.binaryReplacement( air, stone );
 
 				tmp.setBlob( bestBlob );
 				tmp.writeChisleData( comp );
@@ -252,8 +254,8 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			{
 				for ( int x = 0; x < vb.detail && selected.isValid(); x++ )
 				{
-					final int blkID = vb.get( x, y, z );
-					if ( blkID != 0 && pattern.get( x, y, z ) == 0 )
+					final BitState blkID = vb.getState( x, y, z );
+					if ( blkID.isFilled() && pattern.getState( x, y, z ).isEmpty() )
 					{
 						spawnedItem = ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
 					}

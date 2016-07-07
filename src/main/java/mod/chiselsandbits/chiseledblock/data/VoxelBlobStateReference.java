@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import mod.chiselsandbits.chiseledblock.BoxType;
+import net.minecraft.block.Block;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
@@ -57,8 +58,7 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 			return airBlob;
 		}
 
-		final VoxelBlob vb = new VoxelBlob();
-		vb.fill( stateId );
+		final VoxelBlob vb = new VoxelBlob( Block.getStateById( stateId ), null );
 		return vb.blobToBytes( VoxelBlob.VERSION_COMPACT );
 	}
 

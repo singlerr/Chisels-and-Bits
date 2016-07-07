@@ -7,6 +7,7 @@ import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.TypeRef;
@@ -174,8 +175,8 @@ public class BitSawCrafting implements IRecipe
 		final BitIterator bi = new BitIterator();
 		while ( bi.hasNext() )
 		{
-			final int state = bi.getNext( blob );
-			if ( state == 0 )
+			final BitState state = a.getStateFor( bi.getNext( blob ) );
+			if ( state.isEmpty() )
 			{
 				continue;
 			}
@@ -186,11 +187,11 @@ public class BitSawCrafting implements IRecipe
 
 					if ( bi.x > split_pos )
 					{
-						a.set( scale - ( bi.x - split_pos_plus_one ), bi.y - box.minY, bi.z - box.minZ, state );
+						a.setState( scale - ( bi.x - split_pos_plus_one ), bi.y - box.minY, bi.z - box.minZ, state );
 					}
 					else
 					{
-						b.set( bi.x - box.minX, bi.y - box.minY, bi.z - box.minZ, state );
+						b.setState( bi.x - box.minX, bi.y - box.minY, bi.z - box.minZ, state );
 					}
 
 					break;
@@ -198,11 +199,11 @@ public class BitSawCrafting implements IRecipe
 
 					if ( bi.y > split_pos )
 					{
-						a.set( bi.x - box.minX, scale - ( bi.y - split_pos_plus_one ), bi.z - box.minZ, state );
+						a.setState( bi.x - box.minX, scale - ( bi.y - split_pos_plus_one ), bi.z - box.minZ, state );
 					}
 					else
 					{
-						b.set( bi.x - box.minX, bi.y - box.minY, bi.z - box.minZ, state );
+						b.setState( bi.x - box.minX, bi.y - box.minY, bi.z - box.minZ, state );
 					}
 
 					break;
@@ -210,11 +211,11 @@ public class BitSawCrafting implements IRecipe
 
 					if ( bi.z > split_pos )
 					{
-						a.set( bi.x - box.minX, bi.y - box.minY, scale - ( bi.z - split_pos_plus_one ), state );
+						a.setState( bi.x - box.minX, bi.y - box.minY, scale - ( bi.z - split_pos_plus_one ), state );
 					}
 					else
 					{
-						b.set( bi.x - box.minX, bi.y - box.minY, bi.z - box.minZ, state );
+						b.setState( bi.x - box.minX, bi.y - box.minY, bi.z - box.minZ, state );
 					}
 
 					break;
@@ -228,20 +229,20 @@ public class BitSawCrafting implements IRecipe
 			if ( refs.size() == 2 )
 			{
 				boolean good = false;
-				int outState = -1;
+				BitState outState = null;
 				for ( final TypeRef tr : refs )
 				{
-					if ( tr.stateId != 0 && tr.quantity == 1 )
+					if ( tr.state.isFilled() && tr.quantity == 1 )
 					{
-						outState = tr.stateId;
+						outState = tr.state;
 					}
-					else if ( tr.stateId == 0 && tr.quantity == VoxelBlob.full_size - 1 )
+					else if ( tr.state.isEmpty() && tr.quantity == VoxelBlob.full_size - 1 )
 					{
 						good = true;
 					}
 				}
 
-				if ( good && outState != -1 )
+				if ( good && outState != null )
 				{
 					final ItemStack stack = ItemChiseledBit.createStack( outState, 2, false );
 

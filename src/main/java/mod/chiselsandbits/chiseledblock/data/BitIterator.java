@@ -68,17 +68,17 @@ public class BitIterator
 
 	}
 
-	public int getNext(
+	public BitState getNext(
 			final VoxelBlob blob )
 	{
-		return blob.getBit( bit );
+		return blob.getStateAtOffset( bit );
 	}
 
 	public void setNext(
 			final VoxelBlob blob,
-			final int value )
+			final BitState value )
 	{
-		blob.putBit( bit, value );
+		blob.setStateAtOffset( bit, value );
 	}
 
 }

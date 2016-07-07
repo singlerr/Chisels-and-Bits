@@ -13,6 +13,7 @@ import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
@@ -36,7 +37,7 @@ public class BitAccess implements IBitAccess
 	private final VoxelBlob blob;
 	private final VoxelBlob filler;
 
-	private final Map<Integer, IBitBrush> brushes = new HashMap<Integer, IBitBrush>();
+	private final Map<BitState, IBitBrush> brushes = new HashMap<BitState, IBitBrush>();
 
 	public VoxelBlob getNativeBlob()
 	{
@@ -61,11 +62,11 @@ public class BitAccess implements IBitAccess
 			final int y,
 			final int z )
 	{
-		return getBrushForState( blob.getSafe( x, y, z ) );
+		return getBrushForState( blob.getState( x, y, z ) );
 	}
 
 	private IBitBrush getBrushForState(
-			final int state )
+			final BitState state )
 	{
 		IBitBrush brush = brushes.get( state );
 
@@ -84,11 +85,11 @@ public class BitAccess implements IBitAccess
 			int z,
 			final IBitBrush bit ) throws SpaceOccupied
 	{
-		int state = 0;
+		BitState state = blob.getStateFor( null );
 
 		if ( bit instanceof BitBrush )
 		{
-			state = bit.getStateID();
+			state = ( (BitBrush) bit ).state;
 		}
 
 		// make sure that they are only 0-15
@@ -96,9 +97,9 @@ public class BitAccess implements IBitAccess
 		y = y & 0xf;
 		z = z & 0xf;
 
-		if ( filler.get( x, y, z ) == 0 )
+		if ( filler.getState( x, y, z ).isEmpty() )
 		{
-			blob.set( x, y, z, state );
+			blob.setState( x, y, z, state );
 		}
 		else
 		{
@@ -213,19 +214,19 @@ public class BitAccess implements IBitAccess
 			final IBitVisitor visitor )
 	{
 		final BitIterator bi = new BitIterator();
-		IBitBrush brush = getBrushForState( 0 );
+		IBitBrush brush = getBrushForState( null );
 		while ( bi.hasNext() )
 		{
-			if ( bi.getNext( filler ) == 0 )
+			if ( bi.getNext( filler ).isEmpty() )
 			{
-				final int stateID = bi.getNext( blob );
+				final BitState state = bi.getNext( blob );
 
 				// Most blocks are mostly the same bit type, so if it dosn't
 				// change just keep the current brush, only if they differ
 				// should we bother looking it up again.
-				if ( stateID != brush.getStateID() )
+				if ( !state.equals( brush.getState() ) )
 				{
-					brush = getBrushForState( stateID );
+					brush = getBrushForState( state );
 				}
 
 				final IBitBrush after = visitor.visitBit( bi.x, bi.y, bi.z, brush );
@@ -234,11 +235,11 @@ public class BitAccess implements IBitAccess
 				{
 					if ( after == null )
 					{
-						bi.setNext( blob, 0 );
+						bi.setNext( blob, state );
 					}
 					else
 					{
-						bi.setNext( blob, after.getStateID() );
+						bi.setNext( blob, ( (BitBrush) after ).state );
 					}
 				}
 			}

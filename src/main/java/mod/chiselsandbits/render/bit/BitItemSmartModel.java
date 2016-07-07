@@ -11,6 +11,7 @@ import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
@@ -33,8 +34,7 @@ public class BitItemSmartModel extends BaseSmartModel implements ICacheClearable
 		{
 			if ( large )
 			{
-				final VoxelBlob blob = new VoxelBlob();
-				blob.fill( stateID );
+				final VoxelBlob blob = new VoxelBlob( Block.getStateById( stateID ), null );
 				final VoxelBlobStateReference ref = new VoxelBlobStateReference( blob, 0 );
 				final IBakedModel a = new ChiseledBlockBaked( stateID, ChiselLayer.SOLID, ref, null, DefaultVertexFormats.ITEM );
 				final IBakedModel b = new ChiseledBlockBaked( stateID, ChiselLayer.SOLID_FLUID, ref, null, DefaultVertexFormats.ITEM );

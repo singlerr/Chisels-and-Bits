@@ -86,21 +86,21 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
 				{
 					case DOWN:
 					case UP:
-						if ( source.getSafe( a, y, b ) != 0 && source.getSafe( a + tx, y + ty, b + tz ) == 0 )
+						if ( source.getSafe( a, y, b ).isFilled() && source.getSafe( a + tx, y + ty, b + tz ).isEmpty() )
 						{
 							possiblepositions.add( createPos( a, y + placeoffset, b ) );
 						}
 						break;
 					case EAST:
 					case WEST:
-						if ( source.getSafe( x, a, b ) != 0 && source.getSafe( x + tx, a + ty, b + tz ) == 0 )
+						if ( source.getSafe( x, a, b ).isFilled() && source.getSafe( x + tx, a + ty, b + tz ).isEmpty() )
 						{
 							possiblepositions.add( createPos( x + placeoffset, a, b ) );
 						}
 						break;
 					case NORTH:
 					case SOUTH:
-						if ( source.getSafe( a, b, z ) != 0 && source.getSafe( a + tx, b + ty, z + tz ) == 0 )
+						if ( source.getSafe( a, b, z ).isFilled() && source.getSafe( a + tx, b + ty, z + tz ).isEmpty() )
 						{
 							possiblepositions.add( createPos( a, b, z + placeoffset ) );
 						}

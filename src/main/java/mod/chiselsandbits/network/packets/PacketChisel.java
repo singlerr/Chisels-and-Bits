@@ -6,6 +6,7 @@ import java.util.List;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.iterators.ChiselIterator;
 import mod.chiselsandbits.chiseledblock.iterators.ChiselTypeIterator;
@@ -155,15 +156,16 @@ public class PacketChisel extends ModPacket
 
 							// adjust voxel state...
 							final VoxelBlob vb = tec.getBlob();
+							final BitState air = vb.getStateFor( null );
 
 							final ChiselIterator i = getIterator( new VoxelRegionSrc( world, pos, 1 ), pos, place );
 							while ( i.hasNext() && chisel.isValid() )
 							{
 								if ( place )
 								{
-									if ( mask.get( i.x(), i.y(), i.z() ) == 0 )
+									if ( mask.getState( i.x(), i.y(), i.z() ).isEmpty() )
 									{
-										bitPlaced = chisel.getItem( 0 ).getStack();
+										bitPlaced = chisel.getItem( air ).getStack();
 										update = ItemChiseledBit.placeBit( chisel, player, vb, i.x(), i.y(), i.z() ) || update;
 									}
 								}

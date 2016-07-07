@@ -5,11 +5,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import mod.chiselsandbits.api.IBitState;
 import mod.chiselsandbits.bittank.BlockBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
@@ -345,9 +347,9 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 	public static boolean sameBit(
 			final ItemStack output,
-			final int blk )
+			final BitState blk )
 	{
-		return output.hasTagCompound() ? getStackState( output ) == blk : false;
+		return output.hasTagCompound() ? getStackBitState( output ).equals( blk ) : false;
 	}
 
 	public static ItemStack createStack(
@@ -384,6 +386,13 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		return inHand != null && inHand.hasTagCompound() ? inHand.getTagCompound().getInteger( "id" ) : 0;
 	}
 
+	public static BitState getStackBitState(
+			final ItemStack inHand )
+	{
+		// TODO: Implement BitState for bits.
+		return null;
+	}
+
 	public static boolean placeBit(
 			final IContinuousInventory bits,
 			final ActingPlayer player,
@@ -392,18 +401,18 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final int y,
 			final int z )
 	{
-		if ( vb.get( x, y, z ) == 0 )
+		if ( vb.getState( x, y, z ).isEmpty() )
 		{
-			final ItemStackSlot slot = bits.getItem( 0 );
-			final int stateID = ItemChiseledBit.getStackState( slot.getStack() );
+			final ItemStackSlot slot = bits.getItem( null );
+			final BitState state = ItemChiseledBit.getStackBitState( slot.getStack() );
 
 			if ( slot.isValid() )
 			{
-				vb.set( x, y, z, stateID );
+				vb.setState( x, y, z, state );
 
 				if ( !player.isCreative() )
 				{
-					bits.useItem( stateID );
+					bits.useItem( state );
 				}
 			}
 
@@ -411,5 +420,14 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		}
 
 		return false;
+	}
+
+	public static ItemStack createStack(
+			final IBitState state,
+			final int count,
+			final boolean requireStack )
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

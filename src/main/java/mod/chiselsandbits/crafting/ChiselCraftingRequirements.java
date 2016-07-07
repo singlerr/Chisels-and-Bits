@@ -73,12 +73,12 @@ class ChiselCraftingRequirements
 		isValid = true;
 		for ( final TypeRef ref : count )
 		{
-			if ( ref.stateId != 0 )
+			if ( ref.state.isFilled() )
 			{
 
 				for ( final ItemStack is : stacks )
 				{
-					if ( ItemChiseledBit.getStackState( is ) == ref.stateId && is.stackSize > 0 )
+					if ( ItemChiseledBit.getStackBitState( is ).equals( ref.state ) && is.stackSize > 0 )
 					{
 						final int original = is.stackSize;
 						is.stackSize = Math.max( 0, is.stackSize - ref.quantity );
@@ -88,7 +88,7 @@ class ChiselCraftingRequirements
 
 				for ( final BagInventory bag : bags )
 				{
-					ref.quantity -= bag.extractBit( ref.stateId, ref.quantity );
+					ref.quantity -= bag.extractBit( ref.state, ref.quantity );
 				}
 
 				if ( ref.quantity > 0 )

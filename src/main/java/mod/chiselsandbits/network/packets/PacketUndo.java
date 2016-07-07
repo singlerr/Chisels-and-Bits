@@ -6,6 +6,7 @@ import java.util.List;
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.UndoTracker;
@@ -137,12 +138,12 @@ public class PacketUndo extends ModPacket
 				final BitIterator bi = new BitIterator();
 				while ( bi.hasNext() )
 				{
-					final int inBefore = bi.getNext( bBefore );
-					final int inAfter = bi.getNext( bAfter );
+					final BitState inBefore = bi.getNext( bBefore );
+					final BitState inAfter = bi.getNext( bAfter );
 
 					if ( inBefore != inAfter )
 					{
-						if ( inAfter == 0 )
+						if ( inAfter.isEmpty() )
 						{
 							if ( selected.isValid() )
 							{
@@ -154,7 +155,7 @@ public class PacketUndo extends ModPacket
 								break;
 							}
 						}
-						else if ( inAfter != 0 )
+						else if ( inAfter.isFilled() )
 						{
 							final ItemStackSlot bit = ModUtil.findBit( player, pos, inAfter );
 							if ( ModUtil.consumeBagBit( bags, inAfter, 1 ) == 1 )

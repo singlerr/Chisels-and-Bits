@@ -204,7 +204,7 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
 
 		while ( boi.hasNext() )
 		{
-			if ( boi.getNext( blob ) != 0 )
+			if ( boi.getNext( blob ).isFilled() )
 			{
 				boi.add();
 			}

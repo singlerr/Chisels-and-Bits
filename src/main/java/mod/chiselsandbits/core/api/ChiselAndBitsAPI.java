@@ -92,8 +92,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		final IBlockState state = world.getBlockState( pos );
 		if ( BlockBitInfo.supportsBlock( state ) )
 		{
-			final VoxelBlob blob = new VoxelBlob();
-			blob.fill( Block.getStateId( state ) );
+			final VoxelBlob blob = new VoxelBlob( state, null );
 			return new BitAccess( world, pos, blob, VoxelBlob.NULL_BLOB );
 		}
 
@@ -225,8 +224,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 			if ( BlockBitInfo.supportsBlock( state ) )
 			{
-				final VoxelBlob blob = new VoxelBlob();
-				blob.fill( Block.getStateId( state ) );
+				final VoxelBlob blob = new VoxelBlob( state, null );
 				return new BitAccess( null, null, blob, VoxelBlob.NULL_BLOB );
 			}
 		}

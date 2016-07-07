@@ -16,11 +16,13 @@ import mcmultipart.raytrace.RayTraceUtils;
 import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.integration.ChiselsAndBitsIntegration;
 import mod.chiselsandbits.integration.IntegrationBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -208,13 +210,14 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 				}
 			}
 
+			final BitState stone = vb.getStateFor( new BitState( Blocks.STONE ) );
 			while ( bci.hasNext() )
 			{
 				final AxisAlignedBB aabb = new AxisAlignedBB( bci.physicalX, bci.physicalY, bci.physicalZ, bci.physicalX + BitCollisionIterator.One16thf, bci.physicalYp1, bci.physicalZp1 );
 
 				if ( !OcclusionHelper.occlusionTest( OcclusionHelper.boxes( aabb ), new IgnorePred( ignore ), parts ) )
 				{
-					bci.setNext( vb, 1 );
+					bci.setNext( vb, stone );
 				}
 			}
 		}

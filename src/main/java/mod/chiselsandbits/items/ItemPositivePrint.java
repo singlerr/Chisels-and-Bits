@@ -10,6 +10,7 @@ import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
@@ -115,7 +116,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			if ( output != null )
 			{
 				final VoxelBlob pattern = ModUtil.getBlobFromStack( stack, player );
-				final Map<Integer, Integer> stats = pattern.getBlockSums();
+				final Map<BitState, Integer> stats = pattern.getBlockSums();
 
 				if ( consumeEntirePattern( pattern, stats, pos, ActingPlayer.testingAs( player, hand ) ) )
 				{
@@ -138,17 +139,17 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 
 	private boolean consumeEntirePattern(
 			final VoxelBlob pattern,
-			final Map<Integer, Integer> stats,
+			final Map<BitState, Integer> stats,
 			final BlockPos pos,
 			final ActingPlayer player )
 	{
 		final List<BagInventory> bags = ModUtil.getBags( player );
 
-		for ( final Entry<Integer, Integer> type : stats.entrySet() )
+		for ( final Entry<BitState, Integer> type : stats.entrySet() )
 		{
-			final int inPattern = type.getKey();
+			final BitState inPattern = type.getKey();
 
-			if ( type.getKey() == 0 )
+			if ( type.getKey().isEmpty() )
 			{
 				continue;
 			}
@@ -200,39 +201,40 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 		final boolean chisel_bits = chiselMode == PositivePatternMode.IMPOSE || chiselMode == PositivePatternMode.REPLACE;
 		final boolean chisel_to_air = chiselMode == PositivePatternMode.REPLACE;
 
+		final BitState air = vb.getStateFor( null );
 		for ( int y = 0; y < vb.detail; y++ )
 		{
 			for ( int z = 0; z < vb.detail; z++ )
 			{
 				for ( int x = 0; x < vb.detail; x++ )
 				{
-					int inPlace = vb.get( x, y, z );
-					final int inPattern = pattern.get( x, y, z );
+					BitState inPlace = vb.getState( x, y, z );
+					final BitState inPattern = pattern.getState( x, y, z );
 					if ( inPlace != inPattern )
 					{
-						if ( inPlace != 0 && chisel_bits && selected.isValid() )
+						if ( inPlace.isFilled() && chisel_bits && selected.isValid() )
 						{
-							if ( chisel_to_air || inPattern != 0 )
+							if ( chisel_to_air || inPattern.isFilled() )
 							{
 								spawnedItem = ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
 
 								if ( spawnedItem != null )
 								{
-									inPlace = 0;
+									inPlace = air;
 								}
 							}
 						}
 
-						if ( inPlace == 0 && inPattern != 0 && filled.get( x, y, z ) == 0 )
+						if ( inPlace.isEmpty() && inPattern.isFilled() && filled.getState( x, y, z ).isEmpty() )
 						{
 							final ItemStackSlot bit = ModUtil.findBit( player, pos, inPattern );
 							if ( ModUtil.consumeBagBit( bags, inPattern, 1 ) == 1 )
 							{
-								vb.set( x, y, z, inPattern );
+								vb.setState( x, y, z, inPattern );
 							}
 							else if ( bit.isValid() )
 							{
-								vb.set( x, y, z, inPattern );
+								vb.setState( x, y, z, inPattern );
 
 								if ( !player.isCreative() )
 								{

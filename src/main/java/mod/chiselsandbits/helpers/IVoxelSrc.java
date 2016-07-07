@@ -1,11 +1,13 @@
 package mod.chiselsandbits.helpers;
 
+import mod.chiselsandbits.chiseledblock.data.BitState;
+
 public interface IVoxelSrc
 {
 
-	int getSafe(
+	BitState getSafe(
 			int x,
 			int y,
-			int i );
+			int z );
 
 }

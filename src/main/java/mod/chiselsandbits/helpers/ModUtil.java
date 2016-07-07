@@ -10,6 +10,7 @@ import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
@@ -157,13 +158,13 @@ public class ModUtil
 	static public ItemStackSlot findBit(
 			final ActingPlayer who,
 			final BlockPos pos,
-			final int StateID )
+			final BitState StateID )
 	{
 		final ItemStack inHand = who.getCurrentEquippedItem();
 		final IInventory inv = who.getInventory();
 		final boolean canEdit = who.canPlayerManipulate( pos, EnumFacing.UP, inHand, true );
 
-		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChiseledBit.getStackState( inHand ) == StateID )
+		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChiseledBit.getStackBitState( inHand ).equals( StateID ) )
 		{
 			return new ItemStackSlot( inv, who.getCurrentItem(), inHand, who, canEdit );
 		}
@@ -396,7 +397,7 @@ public class ModUtil
 		{
 			final ItemStack which = inv.getStackInSlot( x );
 
-			if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChiseledBit.getStackState( is ) ) )
+			if ( which != null && which.getItem() == is.getItem() && ItemChiseledBit.sameBit( which, ItemChiseledBit.getStackBitState( is ) ) )
 			{
 				if ( !seen )
 				{
@@ -432,7 +433,7 @@ public class ModUtil
 
 	public static int consumeBagBit(
 			final List<BagInventory> bags,
-			final int inPattern,
+			final BitState inPattern,
 			final int howMany )
 	{
 		int remaining = howMany;

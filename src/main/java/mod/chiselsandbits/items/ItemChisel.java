@@ -12,6 +12,7 @@ import com.google.common.base.Stopwatch;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
+import mod.chiselsandbits.chiseledblock.data.BitState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
@@ -287,13 +288,13 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	{
 		final boolean isCreative = player.isCreative();
 
-		final int blk = vb.get( x, y, z );
-		if ( blk == 0 )
+		final BitState blk = vb.getState( x, y, z );
+		if ( blk.isEmpty() )
 		{
 			return output;
 		}
 
-		if ( !canMine( selected, Block.getStateById( blk ), player.getPlayer(), world, pos ) )
+		if ( !canMine( selected, blk.getBlockState(), player.getPlayer(), world, pos ) )
 		{
 			return output;
 		}
@@ -345,7 +346,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final World world,
 			final BlockPos pos )
 	{
-		final int targetState = Block.getStateId( state );
+		final BitState targetState = new BitState( Block.getStateId( state ), state );
 		ItemStackSlot chiselSlot = chiselInv.getItem( targetState );
 		ItemStack chisel = chiselSlot.getStack();
 
