@@ -1,6 +1,12 @@
 package mod.chiselsandbits.commands;
 
+import javax.swing.JFileChooser;
+
 import mod.chiselsandbits.share.ShareGenerator;
+import mod.chiselsandbits.share.output.IShareOutput;
+import mod.chiselsandbits.share.output.LocalClipboard;
+import mod.chiselsandbits.share.output.LocalPNGFile;
+import mod.chiselsandbits.share.output.LocalTextFile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -72,7 +78,30 @@ public class Share extends CommandBase
 		else if ( start != null && end != null )
 		{
 			final World clientWorld = Minecraft.getMinecraft().theWorld;
-			new ShareGenerator( clientWorld, start, end );
+			IShareOutput out = new LocalClipboard();
+
+			if ( args.length > 0 )
+			{
+				final JFileChooser fc = new JFileChooser();
+
+				if ( args[0].equals( "textfile" ) || args[0].equals( "txtfile" ) || args[0].equals( "txt" ) )
+				{
+					if ( fc.showSaveDialog( null ) == JFileChooser.APPROVE_OPTION )
+					{
+						out = new LocalTextFile( fc.getSelectedFile() );
+					}
+				}
+
+				if ( args[0].equals( "imagefile" ) || args[0].equals( "pngfile" ) || args[0].equals( "png" ) )
+				{
+					if ( fc.showSaveDialog( null ) == JFileChooser.APPROVE_OPTION )
+					{
+						out = new LocalPNGFile( fc.getSelectedFile() );
+					}
+				}
+			}
+
+			new ShareGenerator( clientWorld, start, end, out );
 		}
 	}
 
