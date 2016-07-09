@@ -1,12 +1,17 @@
 package mod.chiselsandbits.blueprints;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import javax.imageio.ImageIO;
+
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.share.ShareWorldData;
 
 public class BlueprintData implements Runnable
 {
@@ -26,6 +31,8 @@ public class BlueprintData implements Runnable
 	private EnumLoadState state = EnumLoadState.LOADING;
 	private final URL url;
 
+	private ShareWorldData data;
+
 	public BlueprintData(
 			final String url )
 	{
@@ -33,10 +40,13 @@ public class BlueprintData implements Runnable
 
 		try
 		{
-			myURL = new URL( url );
-			final Thread t = new Thread( this );
-			t.setName( "Blueprint-" + url );
-			t.start();
+			if ( url != null )
+			{
+				myURL = new URL( url );
+				final Thread t = new Thread( this );
+				t.setName( "Blueprint-" + url );
+				t.start();
+			}
 		}
 		catch ( final MalformedURLException e )
 		{
@@ -70,6 +80,56 @@ public class BlueprintData implements Runnable
 		return state;
 	}
 
+	public void loadData(
+			InputStream is ) throws IOException
+	{
+		is = new BufferedInputStream( is );
+		EnumLoadState result = EnumLoadState.FAILED;
+
+		try
+		{
+			final byte[] peek = new byte[4];
+			is.mark( peek.length );
+			is.read( peek );
+			is.reset();
+
+			// load png? or is it text?
+			if ( peek[0] == 0x89 && peek[1] == 0x50 && peek[2] == 0x4E && peek[3] == 0x47 )
+			{
+				data = new ShareWorldData( ImageIO.read( is ) );
+			}
+			else
+			{
+				final StringBuilder builder = new StringBuilder();
+				final byte[] buffer = new byte[2048];
+				int read = 0;
+
+				do
+				{
+					read = is.read( buffer );
+
+					// C&B data should be visible as ascii if utf8 or various
+					// iso
+					// formats, probably the best approach to prevent utf-8 from
+					// being confused from other charsets
+					if ( read > 0 )
+					{
+						builder.append( new String( buffer, 0, read, "ASCII" ) );
+					}
+				}
+				while ( read > 0 );
+
+				data = new ShareWorldData( builder.toString() );
+			}
+
+			result = EnumLoadState.LOADED;
+		}
+		finally
+		{
+			state = result;
+		}
+	}
+
 	@Override
 	public void run()
 	{
@@ -77,8 +137,7 @@ public class BlueprintData implements Runnable
 		try
 		{
 			final URLConnection src = url.openConnection();
-			src.getInputStream();
-
+			loadData( src.getInputStream() );
 		}
 		catch ( final IOException e )
 		{
@@ -88,6 +147,26 @@ public class BlueprintData implements Runnable
 		{
 			state = result;
 		}
+	}
+
+	public byte[] getStuctureData() throws IOException
+	{
+		return data.getStuctureData();
+	}
+
+	public int getXSize()
+	{
+		return data.getXSize();
+	}
+
+	public int getYSize()
+	{
+		return data.getYSize();
+	}
+
+	public int getZSize()
+	{
+		return data.getZSize();
 	}
 
 }

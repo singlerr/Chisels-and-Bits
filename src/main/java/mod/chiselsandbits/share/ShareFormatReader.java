@@ -10,7 +10,7 @@ public class ShareFormatReader
 	final BitStream inner;
 
 	public ShareFormatReader(
-			byte[] data )
+			final byte[] data )
 	{
 		inner = BitStream.valueOf( 0, ByteBuffer.wrap( data ) );
 	}
@@ -35,29 +35,34 @@ public class ShareFormatReader
 		while ( hasMoreData )
 		{
 			hasMoreData = readBool();
-			value = value | ( readBits( 7 ) << offset );
+			value = value | readBits( 7 ) << offset;
 			offset += 7;
 		}
-		
+
 		return value;
 	}
 
-	public byte[] readBytes( )
+	public byte[] readBytes()
 	{
-		int size = readInt();
+		final int size = readInt();
 		final byte[] data = new byte[size];
-		
+
 		for ( int x = 0; x < data.length; ++x )
 		{
 			data[x] = (byte) inner.readBits( 8 );
 		}
-		
+
 		return data;
 	}
 
 	public void snapToByte()
 	{
 		inner.snapToByte();
+	}
+
+	public int consumedBytes()
+	{
+		return inner.consumedBytes();
 	}
 
 }

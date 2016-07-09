@@ -1,5 +1,7 @@
 package mod.chiselsandbits.share;
 
+import java.io.IOException;
+
 public class ScreenshotDecoder
 {
 
@@ -10,17 +12,17 @@ public class ScreenshotDecoder
 	byte readByte()
 	{
 		int currentValue = pixelBytes[pixelOffset + channel];
-		int alpha = pixelBytes[pixelOffset + 3];
+		final int alpha = pixelBytes[pixelOffset + 3];
 
 		pixelOffset++;
 
 		if ( alpha > 128 )
 		{
-			int p1 = pixelBytes[pixelOffset + 0];
-			int p2 = pixelBytes[pixelOffset + 1];
-			int p3 = pixelBytes[pixelOffset + 2];
+			final int p1 = pixelBytes[pixelOffset + 0];
+			final int p2 = pixelBytes[pixelOffset + 1];
+			final int p3 = pixelBytes[pixelOffset + 2];
 
-			currentValue = ( ( alpha & 3 ) << 6 ) | ( ( p1 & 3 ) << 4 ) | ( ( p2 & 3 ) << 2 ) | ( ( p3 & 3 ) );
+			currentValue = ( alpha & 3 ) << 6 | ( p1 & 3 ) << 4 | ( p2 & 3 ) << 2 | p3 & 3;
 
 			pixelOffset += 4;
 			channel = 0;
@@ -35,7 +37,7 @@ public class ScreenshotDecoder
 	}
 
 	byte[] imageDecode(
-			byte[] pixelbytes )
+			final byte[] pixelbytes ) throws IOException
 	{
 		pixelBytes = pixelbytes;
 		pixelOffset = 0;
@@ -47,11 +49,15 @@ public class ScreenshotDecoder
 		size |= readByte();
 
 		if ( size > pixelbytes.length )
-			throw new RuntimeException( "Not enough Data." );
+		{
+			throw new IOException( "Not enough Data." );
+		}
 
-		byte[] out = new byte[size];
+		final byte[] out = new byte[size];
 		for ( int x = 0; x < size; ++x )
+		{
 			out[x] = readByte();
+		}
 
 		return out;
 	}
