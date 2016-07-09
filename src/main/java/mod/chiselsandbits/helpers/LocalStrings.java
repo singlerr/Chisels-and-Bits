@@ -37,6 +37,11 @@ public enum LocalStrings
 	HelpBitTank( "help.bittank" ),
 	LongHelpBitTank( "help.bittank.long" ),
 
+	ShareStart( "help.share.start" ),
+	ShareComplete( "help.share.complete" ),
+	ShareClipboard( "help.share.clipboard" ),
+	ShareFile( "help.share.file" ),
+
 	HelpPositivePrint( "help.positiveprint" ),
 	LongHelpPositivePrint( "help.positiveprint.long" ),
 

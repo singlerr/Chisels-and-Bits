@@ -247,6 +247,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public int diamondSawUses;
 
+	// Not sure if this needs to be configurable yet.
+	public long blueprintExpireTime = 360000; // 6 minutes.
+
 	@Configured( category = "Balance Settings" )
 	public boolean enableSetBitCommand;
 

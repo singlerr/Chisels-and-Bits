@@ -26,12 +26,14 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.core.api.BitAccess;
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.helpers.ModelQuadShare;
 import mod.chiselsandbits.render.helpers.ModelQuadShare.ShareFaces;
 import mod.chiselsandbits.render.helpers.ModelUtil;
+import mod.chiselsandbits.share.output.IShareOutput;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -43,6 +45,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.BlockPos.MutableBlockPos;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.IBlockAccess;
@@ -59,13 +62,16 @@ public class ShareGenerator implements Runnable
 	BlockPos max;
 	final IBlockAccess w;
 	final BufferedImage screenshot;
+	IShareOutput output;
 
 	public ShareGenerator(
 			final World clientWorld,
 			final BlockPos start,
-			final BlockPos end )
+			final BlockPos end,
+			final IShareOutput output )
 	{
 		screenshot = ScreenShotEncoder.getScreenshot();
+		this.output = output;
 
 		this.start = start;
 		this.end = end;
@@ -75,7 +81,7 @@ public class ShareGenerator implements Runnable
 
 		w = new ShareCache( clientWorld, min, max, 0 );
 
-		ClientSide.instance.getPlayer().addChatMessage( new ChatComponentText( "Sharing Process Started." ) );
+		ClientSide.instance.getPlayer().addChatMessage( new ChatComponentTranslation( LocalStrings.ShareStart.toString() ) );
 
 		new Thread( this ).start();
 	}
@@ -338,23 +344,39 @@ public class ShareGenerator implements Runnable
 			}
 		}
 
-		final byte[] compressedData = byteStream.toByteArray();
-		ScreenShotEncoder.encodeScreenshot( screenshot, compressedData );
+		try
+		{
+			final String msg = output.handleOutput( byteStream.toByteArray(), screenshot );
 
-		Minecraft.getMinecraft().addScheduledTask( new Runnable() {
+			Minecraft.getMinecraft().addScheduledTask( new Runnable() {
 
-			@Override
-			public void run()
-			{
-				ClientSide.instance.getPlayer().addChatMessage( new ChatComponentText( "Sharing Process Complete." ) );
-			}
+				@Override
+				public void run()
+				{
+					ClientSide.instance.getPlayer().addChatMessage( new ChatComponentTranslation( LocalStrings.ShareComplete.toString() ) );
+					ClientSide.instance.getPlayer().addChatMessage( new ChatComponentTranslation( msg ) );
+				}
 
-		} );
+			} );
+		}
+		catch ( final Exception e )
+		{
+			Minecraft.getMinecraft().addScheduledTask( new Runnable() {
+
+				@Override
+				public void run()
+				{
+					ClientSide.instance.getPlayer().addChatMessage( new ChatComponentText( e.getLocalizedMessage() ) );
+				}
+
+			} );
+		}
+
 	}
 
 	/**
 	 * 0 - solid 1 - alpha 2 - translucent
-	 * 
+	 *
 	 * @param layer
 	 * @return
 	 */

@@ -10,7 +10,9 @@ import net.minecraft.world.World;
 public class EntityBlueprint extends Entity
 {
 
-	ItemStack item;
+	final static int ITEMSTACK_WATCHER = 10;
+
+	private ItemStack item;
 
 	int sizeX, sizeY, sizeZ;
 
@@ -48,6 +50,7 @@ public class EntityBlueprint extends Entity
 	@Override
 	protected void entityInit()
 	{
+		getDataWatcher().addObjectByDataType( ITEMSTACK_WATCHER, 5 /* ITEMSTACK */ );
 		setEntityBoundingBox( getEntityBoundingBox() );
 	}
 
@@ -61,7 +64,7 @@ public class EntityBlueprint extends Entity
 	protected void readEntityFromNBT(
 			final NBTTagCompound tagCompund )
 	{
-		item = ItemStack.loadItemStackFromNBT( tagCompund.getCompoundTag( "item" ) );
+		setItemStack( ItemStack.loadItemStackFromNBT( tagCompund.getCompoundTag( "item" ) ) );
 		sizeX = tagCompund.getInteger( "sizeX" );
 		sizeY = tagCompund.getInteger( "sizeY" );
 		sizeZ = tagCompund.getInteger( "sizeZ" );
@@ -71,10 +74,37 @@ public class EntityBlueprint extends Entity
 	protected void writeEntityToNBT(
 			final NBTTagCompound tagCompound )
 	{
-		item.writeToNBT( tagCompound.getCompoundTag( "item" ) );
+		final NBTTagCompound itemNBT = new NBTTagCompound();
+		item.writeToNBT( itemNBT );
+		tagCompound.setTag( "item", itemNBT );
 		tagCompound.setInteger( "sizeX", sizeX );
 		tagCompound.setInteger( "sizeY", sizeY );
 		tagCompound.setInteger( "sizeZ", sizeZ );
+	}
+
+	public ItemStack getItemStack()
+	{
+		return item != null ? item : getDataWatcher().getWatchableObjectItemStack( ITEMSTACK_WATCHER );
+	}
+
+	public void setItemStack(
+			final ItemStack copy )
+	{
+		item = copy;
+		getDataWatcher().updateObject( ITEMSTACK_WATCHER, item );
+	}
+
+	float age = 0;
+
+	@Override
+	public void onUpdate()
+	{
+		++age;
+	}
+
+	public float getRotation()
+	{
+		return age;
 	}
 
 }

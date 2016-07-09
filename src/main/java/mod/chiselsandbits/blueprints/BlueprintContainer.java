@@ -33,7 +33,7 @@ public class BlueprintContainer extends Container
 	{
 		final ItemStack inHand = player.getCurrentEquippedItem();
 
-		if ( inHand != null && inHand.getItem() instanceof ItemBlueprintBlank )
+		if ( inHand != null && inHand.getItem() instanceof ItemBlueprint )
 		{
 			return true;
 		}

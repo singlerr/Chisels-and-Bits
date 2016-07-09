@@ -152,6 +152,11 @@ commands.setbit.cannotChiselBlock=Block cannot be chiseled.
 commands.setbit.invalidState=Invalid Bit Type
 commands.setbit.spaceOccupied=Bit cannot be placed space is occupied
 
+mod.chiselsandbits.help.share.start=Blueprint Generation Starting
+mod.chiselsandbits.help.share.complete=Blueprint Generation Complete
+mod.chiselsandbits.help.share.clipboard=The data has been copied to your clipboard.
+mod.chiselsandbits.help.share.file=The file has been saved successfully.
+
 mod.chiselsandbits.config.maxUndoLevel=Max Undo Level
 mod.chiselsandbits.config.persistCreativeClipboard=Save/Load Creative Clipboard Contents
 mod.chiselsandbits.config.fluidBitsAreClickThough=Click though Fluid Bits.

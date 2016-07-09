@@ -224,8 +224,20 @@ public class ClientSide
 		registerMesh( modItems.itemBitSawDiamond, 0, new ModelResourceLocation( new ResourceLocation( modId, "bitsaw_diamond" ), "inventory" ) );
 		registerMesh( modItems.itemTapeMeasure, 0, new ModelResourceLocation( new ResourceLocation( modId, "tape_measure" ), "inventory" ) );
 
-		registerMesh( modItems.itemBlueprintBlank, 0, new ModelResourceLocation( new ResourceLocation( modId, "blueprint" ), "inventory" ) );
-		registerMesh( modItems.itemBlueprintWritten, 0, new ModelResourceLocation( new ResourceLocation( modId, "blueprint_written" ), "inventory" ) );
+		if ( modItems.itemBlueprint != null )
+		{
+			ModelBakery.registerItemVariants( modItems.itemBlueprint, new ResourceLocation( modId, "blueprint" ), new ResourceLocation( modId, "blueprint_written" ) );
+			ModelLoader.setCustomMeshDefinition( modItems.itemBlueprint, new ItemMeshDefinition() {
+
+				@Override
+				public ModelResourceLocation getModelLocation(
+						final ItemStack stack )
+				{
+					return new ModelResourceLocation( new ResourceLocation( modId, modItems.itemBlueprint.isWritten( stack ) ? "blueprint_written" : "blueprint" ), "inventory" );
+				}
+
+			} );
+		}
 
 		if ( modItems.itemPositiveprint != null )
 		{

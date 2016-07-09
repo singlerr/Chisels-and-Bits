@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.IntBuffer;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFileChooser;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -80,7 +79,8 @@ public class ScreenShotEncoder
 
 	static public void encodeScreenshot(
 			final BufferedImage screenshot,
-			final byte[] modelData )
+			final byte[] modelData,
+			final File outfile ) throws IOException
 	{
 		final int sizeOfData = 4 + modelData.length;
 
@@ -137,16 +137,7 @@ public class ScreenShotEncoder
 			writer.writeByte( modelData[x] & 0xff );
 		}
 
-		final JFileChooser fc = new JFileChooser();
-		final File f = new File( fc.getFileSystemView().getDefaultDirectory().toString(), "shared.png" );
-		try
-		{
-			ImageIO.write( output, "png", f );
-		}
-		catch ( final IOException e )
-		{
-			e.printStackTrace();
-		}
+		ImageIO.write( output, "png", outfile );
 	}
 
 	private static class ImageWriter

@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderEntityItem;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.util.ResourceLocation;
 
@@ -37,16 +38,16 @@ public class RenderEntityBlueprint extends Render<EntityBlueprint>
 		ei.lastTickPosX = entity.lastTickPosX;
 		ei.lastTickPosY = entity.lastTickPosY;
 		ei.lastTickPosZ = entity.lastTickPosZ;
-		ei.setEntityItemStack( entity.item );
-		rei.doRender( ei, x, y, z, entityYaw, partialTicks );
+		ei.setEntityItemStack( entity.getItemStack() );
+		ei.setAgeToCreativeDespawnTime();
+		rei.doRender( ei, x, y - 0.3, z, entityYaw, partialTicks + entity.getRotation() );
 	}
 
 	@Override
 	protected ResourceLocation getEntityTexture(
 			final EntityBlueprint entity )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return TextureMap.locationBlocksTexture;
 	}
 
 }
