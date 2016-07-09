@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -37,6 +38,18 @@ public class ItemBlueprint extends Item implements Runnable
 		}
 
 		return itemStackIn;
+	}
+
+	@Override
+	public String getItemStackDisplayName(
+			final ItemStack stack )
+	{
+		if ( isWritten( stack ) )
+		{
+			return ( "" + StatCollector.translateToLocal( "item.mod.chiselsandbits.blueprint_written.name" ) ).trim();
+		}
+
+		return super.getItemStackDisplayName( stack );
 	}
 
 	@Override
@@ -89,6 +102,11 @@ public class ItemBlueprint extends Item implements Runnable
 	private boolean verifyDataSource(
 			final NBTTagCompound tagCompound )
 	{
+		if ( !tagCompound.hasKey( "xSize" ) || !tagCompound.hasKey( "ySize" ) || !tagCompound.hasKey( "zSize" ) )
+		{
+			return false;
+		}
+
 		if ( tagCompound.hasKey( "data" ) )
 		{
 			return true;

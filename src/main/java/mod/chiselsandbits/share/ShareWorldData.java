@@ -4,10 +4,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Base64;
+import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.core.Log;
 
 public class ShareWorldData
 {
@@ -15,7 +16,7 @@ public class ShareWorldData
 	public static class SharedWorldBlock
 	{
 		public SharedWorldBlock(
-				byte[] bytes )
+				final byte[] bytes )
 		{
 			if ( bytes[0] == 1 ) // block
 			{
@@ -33,7 +34,7 @@ public class ShareWorldData
 				{
 					blob.blobFromBytes( bytes, 1, bytes.length - 1 );
 				}
-				catch ( IOException e )
+				catch ( final IOException e )
 				{
 					// ; _ ;
 				}
@@ -52,56 +53,91 @@ public class ShareWorldData
 		final VoxelBlob blob;
 	};
 
-	public final int xSize;
-	public final int ySize;
-	public final int zSize;
+	private int xSize;
+	private int ySize;
+	private int zSize;
 
 	int[] blocks;
 	SharedWorldBlock[] models;
 
-	ShareWorldData(
-			BufferedImage img )
+	public int getXSize()
 	{
-		byte[] data = new byte[img.getWidth() * img.getHeight() * 4];
+		return xSize;
+	}
 
-		ScreenshotDecoder sdecoder = new ScreenshotDecoder();
-		byte[] compressed = sdecoder.imageDecode( data );
+	public int getYSize()
+	{
+		return ySize;
+	}
+
+	public int getZSize()
+	{
+		return zSize;
+	}
+
+	public ShareWorldData(
+			String data ) throws IOException
+	{
+		final String header = "[C&B](";
+		final String footer = ")[C&B]";
+
+		int start = data.indexOf( header );
+		final int end = data.indexOf( footer );
+
+		if ( start == -1 || end == -1 )
+		{
+			throw new IOException( "Unable to locate C&B Data." );
+		}
+
+		start += header.length();
+		data = data.substring( start, end );
+		final byte[] compressed = Base64.getDecoder().decode( data );
+		readCompressed( compressed );
+	}
+
+	public ShareWorldData(
+			final BufferedImage img ) throws IOException
+	{
+		final byte[] data = new byte[img.getWidth() * img.getHeight() * 4];
+
+		final ScreenshotDecoder sdecoder = new ScreenshotDecoder();
+		final byte[] compressed = sdecoder.imageDecode( data );
+
+		readCompressed( compressed );
+	}
+
+	private void readCompressed(
+			final byte[] compressed ) throws IOException
+	{
 		byte[] uncompressed = null;
 
-		try
+		final InflaterInputStream in = new InflaterInputStream( new ByteArrayInputStream( compressed ) );
+		final ByteArrayOutputStream bout = new ByteArrayOutputStream( compressed.length );
+
+		int b;
+		while ( ( b = in.read() ) != -1 )
 		{
-			final InflaterInputStream in = new InflaterInputStream( new ByteArrayInputStream( compressed ) );
-			ByteArrayOutputStream bout = new ByteArrayOutputStream( compressed.length );
-
-			int b;
-			while ( ( b = in.read() ) != -1 )
-			{
-				bout.write( b );
-			}
-			bout.close();
-			in.close();
-
-			uncompressed = bout.toByteArray();
+			bout.write( b );
 		}
-		catch ( final IOException e )
-		{
-			Log.logError( "Error Deflating Data", e );
-		}
+		bout.close();
+		in.close();
 
-		ShareFormatReader reader = new ShareFormatReader( uncompressed );
+		uncompressed = bout.toByteArray();
 
-		int format = reader.readInt();
+		final ShareFormatReader reader = new ShareFormatReader( uncompressed );
+
+		final int format = reader.readInt();
 
 		if ( format != 1 )
 		{
-			throw new RuntimeException( "Invalid format!" );
+			throw new IOException( "Invalid format!" );
 		}
 
 		xSize = reader.readInt();
 		ySize = reader.readInt();
 		zSize = reader.readInt();
 
-		int bits = reader.readInt();
+		final int bits = reader.readInt();
 
 		blocks = new int[xSize * ySize * zSize];
 		for ( int x = 0; x < blocks.length; x++ )
@@ -109,12 +145,41 @@ public class ShareWorldData
 			blocks[x] = reader.readBits( bits );
 		}
 
-		int modelCount = reader.readInt();
+		final int modelCount = reader.readInt();
 		models = new SharedWorldBlock[modelCount];
 		for ( int x = 0; x < models.length; x++ )
 		{
 			models[x] = new SharedWorldBlock( reader.readBytes() );
 		}
+
+		structureData = new byte[reader.consumedBytes()];
+		System.arraycopy( uncompressed, 0, structureData, 0, structureData.length );
+	}
+
+	private byte[] structureData;
+
+	public byte[] getStuctureData() throws IOException
+	{
+		final ByteArrayOutputStream byteStream = new ByteArrayOutputStream( structureData.length );
+
+		try
+		{
+			final DeflaterOutputStream zipStream = new DeflaterOutputStream( byteStream );
+			try
+			{
+				zipStream.write( structureData );
+			}
+			finally
+			{
+				zipStream.close();
+			}
+		}
+		finally
+		{
+			byteStream.close();
+		}
+
+		return byteStream.toByteArray();
 	}
 
 }

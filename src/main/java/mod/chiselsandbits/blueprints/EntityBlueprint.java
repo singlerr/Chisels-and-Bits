@@ -14,8 +14,6 @@ public class EntityBlueprint extends Entity
 
 	private ItemStack item;
 
-	int sizeX, sizeY, sizeZ;
-
 	public EntityBlueprint(
 			final World worldIn )
 	{
@@ -33,6 +31,12 @@ public class EntityBlueprint extends Entity
 		}
 
 		return false;
+	}
+
+	@Override
+	public boolean canBeCollidedWith()
+	{
+		return true;
 	}
 
 	@Override
@@ -65,9 +69,6 @@ public class EntityBlueprint extends Entity
 			final NBTTagCompound tagCompund )
 	{
 		setItemStack( ItemStack.loadItemStackFromNBT( tagCompund.getCompoundTag( "item" ) ) );
-		sizeX = tagCompund.getInteger( "sizeX" );
-		sizeY = tagCompund.getInteger( "sizeY" );
-		sizeZ = tagCompund.getInteger( "sizeZ" );
 	}
 
 	@Override
@@ -77,9 +78,6 @@ public class EntityBlueprint extends Entity
 		final NBTTagCompound itemNBT = new NBTTagCompound();
 		item.writeToNBT( itemNBT );
 		tagCompound.setTag( "item", itemNBT );
-		tagCompound.setInteger( "sizeX", sizeX );
-		tagCompound.setInteger( "sizeY", sizeY );
-		tagCompound.setInteger( "sizeZ", sizeZ );
 	}
 
 	public ItemStack getItemStack()

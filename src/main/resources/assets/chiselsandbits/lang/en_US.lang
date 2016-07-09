@@ -104,6 +104,9 @@ mod.chiselsandbits.help.share.start=Blueprint Generation Starting
 mod.chiselsandbits.help.share.complete=Blueprint Generation Complete
 mod.chiselsandbits.help.share.clipboard=The data has been copied to your clipboard.
 mod.chiselsandbits.help.share.file=The file has been saved successfully.
+mod.chiselsandbits.help.share.nofile=Unable to load selected file.
+mod.chiselsandbits.help.share.invaliddata=File was invalid and could not be loaded.
+mod.chiselsandbits.help.share.badurl=Unable to download file at the provided url.
 
 mod.chiselsandbits.config.maxUndoLevel=Max Undo Level
 mod.chiselsandbits.config.persistCreativeClipboard=Save/Load Creative Clipboard Contents

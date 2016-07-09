@@ -1,13 +1,25 @@
 package mod.chiselsandbits.blueprints;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
+import javax.swing.JFileChooser;
+
+import mod.chiselsandbits.blueprints.BlueprintData.EnumLoadState;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.network.NetworkRouter;
+import mod.chiselsandbits.network.packets.PacketBlueprintSet;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -114,13 +126,88 @@ public class BlueprintGui extends GuiContainer
 	protected void actionPerformed(
 			final GuiButton button ) throws IOException
 	{
+		final BlueprintContainer c = (BlueprintContainer) inventorySlots;
 		if ( button == local )
 		{
+			c.thePlayer.closeScreen();
+			final Thread picker = new Thread( new Runnable() {
 
+				@Override
+				public void run()
+				{
+					final JFileChooser fc = new JFileChooser();
+					if ( fc.showOpenDialog( null ) == JFileChooser.APPROVE_OPTION )
+					{
+						final BlueprintData dat = new BlueprintData( null );
+						try
+						{
+							dat.loadData( new FileInputStream( fc.getSelectedFile() ) );
+							if ( dat.getState() == EnumLoadState.LOADED )
+							{
+								final PacketBlueprintSet packet = new PacketBlueprintSet();
+								packet.setFrom( dat );
+								NetworkRouter.instance.sendToServer( packet );
+							}
+						}
+						catch ( final FileNotFoundException e )
+						{
+							c.thePlayer.addChatComponentMessage( new ChatComponentTranslation( LocalStrings.ShareNoFile.toString() ) );
+							Log.logError( "Unable to read file into blueprint.", e );
+						}
+						catch ( final IOException e )
+						{
+							c.thePlayer.addChatComponentMessage( new ChatComponentTranslation( LocalStrings.ShareInvalidData.toString() ) );
+							Log.logError( "Invalid format or file.", e );
+						}
+					}
+				}
+			} );
+			picker.setName( "Load File Picker" );
+			picker.start();
 		}
 		else if ( button == url )
 		{
+			final String urlText = urlField.getText();
+			c.thePlayer.closeScreen();
+			final Thread picker = new Thread( new Runnable() {
 
+				@Override
+				public void run()
+				{
+					final BlueprintData dat = new BlueprintData( null );
+					final InputStream in;
+
+					try
+					{
+						final URL url = new URL( urlText );
+						in = url.openStream();
+					}
+					catch ( final IOException e )
+					{
+						c.thePlayer.addChatComponentMessage( new ChatComponentTranslation( LocalStrings.ShareNoUrl.toString() ) );
+						Log.logError( "Unable to read url into blueprint.", e );
+						return;
+					}
+
+					try
+					{
+						dat.loadData( in );
+						if ( dat.getState() == EnumLoadState.LOADED )
+						{
+							final PacketBlueprintSet packet = new PacketBlueprintSet();
+							packet.setFrom( dat );
+							NetworkRouter.instance.sendToServer( packet );
+						}
+					}
+					catch ( final IOException e )
+					{
+						c.thePlayer.addChatComponentMessage( new ChatComponentTranslation( LocalStrings.ShareInvalidData.toString() ) );
+						Log.logError( "Invalid format or file.", e );
+					}
+				}
+			} );
+			picker.setName( "Downloading blueprint - " + urlText );
+			picker.start();
 		}
 		else if ( button == create )
 		{

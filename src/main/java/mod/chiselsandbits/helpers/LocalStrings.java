@@ -43,6 +43,9 @@ public enum LocalStrings
 	ShareComplete( "help.share.complete" ),
 	ShareClipboard( "help.share.clipboard" ),
 	ShareFile( "help.share.file" ),
+	ShareNoFile( "help.share.nofile" ),
+	ShareInvalidData( "help.share.invaliddata" ),
+	ShareNoUrl( "help.share.badurl" ),
 
 	HelpPositivePrint( "help.positiveprint" ),
 	LongHelpPositivePrint( "help.positiveprint.long" ),
