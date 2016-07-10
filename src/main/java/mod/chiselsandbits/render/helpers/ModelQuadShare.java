@@ -3,14 +3,15 @@ package mod.chiselsandbits.render.helpers;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 
 public class ModelQuadShare extends BaseModelReader
 {
@@ -89,7 +90,7 @@ public class ModelQuadShare extends BaseModelReader
 
 			if ( tint != -1 && colorLookup != null )
 			{
-				fillColor = colorLookup.getItem().getColorFromItemStack( colorLookup, tint );
+				fillColor = Minecraft.getMinecraft().getItemColors().getColorFromItemstack( colorLookup, tint );
 			}
 
 			pos_uv[index][0] = 16 * offset.getX() + Math.round( pos[0] * 16 );

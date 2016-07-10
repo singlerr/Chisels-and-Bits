@@ -27,7 +27,6 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.LocalStrings;
-import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.helpers.ModelQuadShare;
@@ -38,19 +37,18 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.BlockPos.MutableBlockPos;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumWorldBlockLayer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.ISmartBlockModel;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
 public class ShareGenerator implements Runnable
@@ -81,7 +79,7 @@ public class ShareGenerator implements Runnable
 
 		w = new ShareCache( clientWorld, min, max, 0 );
 
-		ClientSide.instance.getPlayer().addChatMessage( new ChatComponentTranslation( LocalStrings.ShareStart.toString() ) );
+		ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( LocalStrings.ShareStart.toString() ) );
 
 		new Thread( this ).start();
 	}
@@ -99,7 +97,7 @@ public class ShareGenerator implements Runnable
 	@Override
 	public void run()
 	{
-		final EnumWorldBlockLayer[] layers = EnumWorldBlockLayer.values();
+		final BlockRenderLayer[] layers = BlockRenderLayer.values();
 
 		final Map<ShareMaterial, ShareMaterial> textures = new HashMap<ShareMaterial, ShareMaterial>();
 
@@ -123,11 +121,6 @@ public class ShareGenerator implements Runnable
 
 		final ChiseledBlockSmartModel cbsm = new ChiseledBlockSmartModel();
 
-		final ChiselLayer[] single = new ChiselLayer[1];
-		final ChiselLayer[] solid = new ChiselLayer[2];
-		solid[0] = ChiselLayer.SOLID;
-		solid[1] = ChiselLayer.SOLID_FLUID;
-
 		final byte[] badBlock = new byte[] { 0 };
 		final byte[] blockprefix = new byte[] { 1 };
 		final byte[] cbprefix = new byte[] { 2 };
@@ -135,7 +128,8 @@ public class ShareGenerator implements Runnable
 		for ( final MutableBlockPos pos : BlockPos.getAllInBoxMutable( start, end ) )
 		{
 			IBlockState renderState = w.getBlockState( pos );
-			IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelFromBlockState( renderState, w, pos );
+			renderState = renderState.getActualState( w, pos );
+			IBakedModel model = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState( renderState );
 			renderState = renderState.getBlock().getExtendedState( renderState, w, pos );
 
 			final BlockPos offset = pos.subtract( min );
@@ -147,7 +141,7 @@ public class ShareGenerator implements Runnable
 			byte[] data;
 			try
 			{
-				data = preFixByteArray( blockprefix, Block.blockRegistry.getNameForObject( state.getBlock() ).toString().getBytes( "UTF-8" ) );
+				data = preFixByteArray( blockprefix, Block.REGISTRY.getNameForObject( state.getBlock() ).toString().getBytes( "UTF-8" ) );
 			}
 			catch ( final UnsupportedEncodingException e1 )
 			{
@@ -190,36 +184,20 @@ public class ShareGenerator implements Runnable
 			}
 
 			stucture[offset.getX() + offset.getY() * xSize + offset.getZ() * xySize] = cm;
+			final long rand = 0;
 
-			for ( final EnumWorldBlockLayer layer : layers )
+			for ( final BlockRenderLayer layer : layers )
 			{
 				// test the block for the layer.
 				final Block blk = renderState.getBlock();
-				if ( !blk.canRenderInLayer( layer ) )
+				if ( !blk.canRenderInLayer( renderState, layer ) )
 				{
 					continue;
 				}
 
-				IBakedModel activeModel = model;
+				final IBakedModel activeModel = model;
 
-				if ( activeModel instanceof ChiseledBlockSmartModel )
-				{
-					if ( renderState instanceof IExtendedBlockState && renderState.getBlock() instanceof BlockChiseled )
-					{
-						activeModel = ( (ChiseledBlockSmartModel) model ).handleBlockState( renderState, layer );
-					}
-					else
-					{
-						single[0] = ChiselLayer.fromLayer( layer, false );
-						activeModel = ( (ChiseledBlockSmartModel) model ).handleItemState( modelStack, layer == EnumWorldBlockLayer.SOLID ? solid : single );
-					}
-				}
-				else if ( activeModel instanceof ISmartBlockModel )
-				{
-					activeModel = ( (ISmartBlockModel) model ).handleBlockState( blk.getExtendedState( state, w, pos ) );
-				}
-
-				if ( !( activeModel instanceof ChiseledBlockBaked ) && activeModel.getParticleTexture() == ClientSide.instance.getMissingIcon() )
+				if ( !( activeModel instanceof ChiseledBlockBaked ) && ( activeModel.getParticleTexture() == null || activeModel.getParticleTexture() == ClientSide.instance.getMissingIcon() ) )
 				{
 					continue;
 				}
@@ -234,13 +212,13 @@ public class ShareGenerator implements Runnable
 							p.getZ() < min.getZ() ||
 							p.getZ() > max.getZ();
 
-					if ( blk.shouldSideBeRendered( w, p, face ) || isEdge )
+					if ( renderState.shouldSideBeRendered( w, p, face ) || isEdge )
 					{
-						outputFaces( offset, activeModel.getFaceQuads( face ), face, modelStack, textures, layer );
+						outputFaces( offset, activeModel.getQuads( renderState, face, rand ), face, modelStack, textures, layer );
 					}
 				}
 
-				outputFaces( offset, activeModel.getGeneralQuads(), null, modelStack, textures, layer );
+				outputFaces( offset, activeModel.getQuads( renderState, null, rand ), null, modelStack, textures, layer );
 			}
 		}
 
@@ -353,8 +331,8 @@ public class ShareGenerator implements Runnable
 				@Override
 				public void run()
 				{
-					ClientSide.instance.getPlayer().addChatMessage( new ChatComponentTranslation( LocalStrings.ShareComplete.toString() ) );
-					ClientSide.instance.getPlayer().addChatMessage( new ChatComponentTranslation( msg ) );
+					ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( LocalStrings.ShareComplete.toString() ) );
+					ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( msg ) );
 				}
 
 			} );
@@ -366,7 +344,7 @@ public class ShareGenerator implements Runnable
 				@Override
 				public void run()
 				{
-					ClientSide.instance.getPlayer().addChatMessage( new ChatComponentText( e.getLocalizedMessage() ) );
+					ClientSide.instance.getPlayer().addChatMessage( new TextComponentString( e.getLocalizedMessage() ) );
 				}
 
 			} );
@@ -381,7 +359,7 @@ public class ShareGenerator implements Runnable
 	 * @return
 	 */
 	private int getLayerName(
-			final EnumWorldBlockLayer layer )
+			final BlockRenderLayer layer )
 	{
 		switch ( layer )
 		{
@@ -460,7 +438,7 @@ public class ShareGenerator implements Runnable
 
 		TextureAtlasSprite sprite;
 		int col;
-		EnumWorldBlockLayer layer;
+		BlockRenderLayer layer;
 
 		ArrayList<ModelQuadShare.ShareFaces> faces = null;
 
@@ -469,7 +447,7 @@ public class ShareGenerator implements Runnable
 		public ShareMaterial(
 				final TextureAtlasSprite sprite,
 				final int col,
-				final EnumWorldBlockLayer layer )
+				final BlockRenderLayer layer )
 		{
 			this.sprite = sprite;
 			this.col = col;
@@ -534,7 +512,7 @@ public class ShareGenerator implements Runnable
 			final EnumFacing cullFace,
 			final ItemStack ItemStack,
 			final Map<ShareMaterial, ShareMaterial> textures,
-			final EnumWorldBlockLayer layer )
+			final BlockRenderLayer layer )
 	{
 		ShareMaterial M = null;
 		ShareMaterial old = null;

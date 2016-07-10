@@ -8,7 +8,6 @@ import mod.chiselsandbits.network.packets.PacketBlueprintSet;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketClearBagGui;
 import mod.chiselsandbits.network.packets.PacketOpenGui;
-import mod.chiselsandbits.network.packets.PacketOpenBagGui;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.network.packets.PacketSetChiselMode;
 import mod.chiselsandbits.network.packets.PacketSetColor;
@@ -18,14 +17,13 @@ import mod.chiselsandbits.network.packets.PacketUndo;
 public enum ModPacketTypes
 {
 	CHISEL( PacketChisel.class ),
-	OPEN_BAG_GUI( PacketOpenGui.class ),
+	OPEN_GUI( PacketOpenGui.class ),
 	SET_CHISEL_MODE( PacketSetChiselMode.class ),
 	ROTATE_VOXEL_BLOB( PacketRotateVoxelBlob.class ),
 	BAG_GUI( PacketBagGui.class ),
 	BAG_GUI_STACK( PacketBagGuiStack.class ),
 	UNDO( PacketUndo.class ),
 	BLUEPRINT_SET( PacketBlueprintSet.class ),
-	CLEAR_BAG( PacketClearBagGui.class ),
 	CLEAR_BAG( PacketClearBagGui.class ),
 	SUPRESS_INTERACTION( PacketSuppressInteraction.class ),
 	SET_COLOR( PacketSetColor.class );

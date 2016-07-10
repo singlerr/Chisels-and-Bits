@@ -11,8 +11,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 
 /**
@@ -43,14 +44,15 @@ public class Share extends CommandBase
 	BlockPos end;
 
 	@Override
-	public void processCommand(
+	public void execute(
+			final MinecraftServer server,
 			final ICommandSender sender,
 			final String[] args ) throws CommandException
 	{
 		if ( args.length > 0 && args[0].equals( "start" ) )
 		{
 			start = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
-			sender.addChatMessage( new ChatComponentText( "Start Pos Set" ) );
+			sender.addChatMessage( new TextComponentString( "Start Pos Set" ) );
 
 			if ( start == null )
 			{
@@ -60,7 +62,7 @@ public class Share extends CommandBase
 		else if ( args.length > 0 && args[0].equals( "end" ) )
 		{
 			end = Minecraft.getMinecraft().objectMouseOver.getBlockPos();
-			sender.addChatMessage( new ChatComponentText( "End Pos Set" ) );
+			sender.addChatMessage( new TextComponentString( "End Pos Set" ) );
 
 			if ( end == null )
 			{
@@ -69,11 +71,11 @@ public class Share extends CommandBase
 		}
 		else if ( start == null )
 		{
-			sender.addChatMessage( new ChatComponentText( "Start Pos Not Set Yet, use argument 'start'." ) );
+			sender.addChatMessage( new TextComponentString( "Start Pos Not Set Yet, use argument 'start'." ) );
 		}
 		else if ( end == null )
 		{
-			sender.addChatMessage( new ChatComponentText( "End Pos Not Set Yet, use argument 'end'." ) );
+			sender.addChatMessage( new TextComponentString( "End Pos Not Set Yet, use argument 'end'." ) );
 		}
 		else if ( start != null && end != null )
 		{

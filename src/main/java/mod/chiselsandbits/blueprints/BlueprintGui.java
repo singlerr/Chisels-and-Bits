@@ -11,6 +11,7 @@ import javax.swing.JFileChooser;
 import mod.chiselsandbits.blueprints.BlueprintData.EnumLoadState;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketBlueprintSet;
@@ -19,9 +20,8 @@ import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
 public class BlueprintGui extends GuiContainer
@@ -61,9 +61,9 @@ public class BlueprintGui extends GuiContainer
 		urlField.setEnableBackgroundDrawing( true );
 		urlField.setMaxStringLength( 64 );
 
-		buttonList.add( url = new GuiButton( 1, guiLeft + 10, guiTop + 35, w, 20, StatCollector.translateToLocal( "mod.chiselsandbits.blueprint.url" ) ) );
-		buttonList.add( local = new GuiButton( 1, guiLeft + 10, guiTop + 60, w, 20, StatCollector.translateToLocal( "mod.chiselsandbits.blueprint.local" ) ) );
-		buttonList.add( create = new GuiButton( 1, guiLeft + 10, guiTop + 85, w, 20, StatCollector.translateToLocal( "mod.chiselsandbits.blueprint.create" ) ) );
+		buttonList.add( url = new GuiButton( 1, guiLeft + 10, guiTop + 35, w, 20, DeprecationHelper.translateToLocal( "mod.chiselsandbits.blueprint.url" ) ) );
+		buttonList.add( local = new GuiButton( 1, guiLeft + 10, guiTop + 60, w, 20, DeprecationHelper.translateToLocal( "mod.chiselsandbits.blueprint.local" ) ) );
+		buttonList.add( create = new GuiButton( 1, guiLeft + 10, guiTop + 85, w, 20, DeprecationHelper.translateToLocal( "mod.chiselsandbits.blueprint.create" ) ) );
 	}
 
 	@Override
@@ -141,6 +141,7 @@ public class BlueprintGui extends GuiContainer
 						final BlueprintData dat = new BlueprintData( null );
 						try
 						{
+							dat.setLocalSource( fc.getSelectedFile().getPath() );
 							dat.loadData( new FileInputStream( fc.getSelectedFile() ) );
 							if ( dat.getState() == EnumLoadState.LOADED )
 							{
@@ -151,12 +152,12 @@ public class BlueprintGui extends GuiContainer
 						}
 						catch ( final FileNotFoundException e )
 						{
-							c.thePlayer.addChatComponentMessage( new ChatComponentTranslation( LocalStrings.ShareNoFile.toString() ) );
+							c.thePlayer.addChatComponentMessage( new TextComponentTranslation( LocalStrings.ShareNoFile.toString() ) );
 							Log.logError( "Unable to read file into blueprint.", e );
 						}
 						catch ( final IOException e )
 						{
-							c.thePlayer.addChatComponentMessage( new ChatComponentTranslation( LocalStrings.ShareInvalidData.toString() ) );
+							c.thePlayer.addChatComponentMessage( new TextComponentTranslation( LocalStrings.ShareInvalidData.toString() ) );
 							Log.logError( "Invalid format or file.", e );
 						}
 					}
@@ -180,11 +181,12 @@ public class BlueprintGui extends GuiContainer
 					try
 					{
 						final URL url = new URL( urlText );
+						dat.setURLSource( url );
 						in = url.openStream();
 					}
 					catch ( final IOException e )
 					{
-						c.thePlayer.addChatComponentMessage( new ChatComponentTranslation( LocalStrings.ShareNoUrl.toString() ) );
+						c.thePlayer.addChatComponentMessage( new TextComponentTranslation( LocalStrings.ShareNoUrl.toString() ) );
 						Log.logError( "Unable to read url into blueprint.", e );
 						return;
 					}
@@ -201,7 +203,7 @@ public class BlueprintGui extends GuiContainer
 					}
 					catch ( final IOException e )
 					{
-						c.thePlayer.addChatComponentMessage( new ChatComponentTranslation( LocalStrings.ShareInvalidData.toString() ) );
+						c.thePlayer.addChatComponentMessage( new TextComponentTranslation( LocalStrings.ShareInvalidData.toString() ) );
 						Log.logError( "Invalid format or file.", e );
 					}
 				}

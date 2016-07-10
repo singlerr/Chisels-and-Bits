@@ -84,7 +84,16 @@ public class PacketBlueprintSet extends ModPacket
 		data.setInteger( "xSize", dat.getXSize() );
 		data.setInteger( "ySize", dat.getYSize() );
 		data.setInteger( "zSize", dat.getZSize() );
-		data.setByteArray( "data", dat.getStuctureData() );
+
+		final byte[] blob = dat.getStuctureData();
+		if ( blob.length > 30000 )
+		{
+			data.setString( "url", dat.getURL() );
+		}
+		else
+		{
+			data.setByteArray( "data", blob );
+		}
 	}
 
 }

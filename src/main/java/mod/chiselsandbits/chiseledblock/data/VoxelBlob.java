@@ -912,14 +912,15 @@ public final class VoxelBlob implements IVoxelSrc
 	public void blobFromBytes(
 			final byte[] bytes ) throws IOException
 	{
-		final ByteArrayInputStream out = new ByteArrayInputStream( bytes );
-		read( out );
+		blobFromBytes( bytes, 0, bytes.length );
 	}
 
 	public void blobFromBytes(
-			final byte[] bytes, int offset, int length ) throws IOException
+			final byte[] bytes,
+			final int offset,
+			final int length ) throws IOException
 	{
-		final ByteArrayInputStream out = new ByteArrayInputStream( bytes, 1, length );
+		final ByteArrayInputStream out = new ByteArrayInputStream( bytes, offset, length );
 		read( out );
 	}
 

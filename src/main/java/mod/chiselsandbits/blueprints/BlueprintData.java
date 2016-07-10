@@ -1,15 +1,21 @@
 package mod.chiselsandbits.blueprints;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import javax.imageio.ImageIO;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.share.ShareWorldData;
 
@@ -29,20 +35,18 @@ public class BlueprintData implements Runnable
 
 	private long lastNeeded = getCurrentTime();
 	private EnumLoadState state = EnumLoadState.LOADING;
-	private final URL url;
+	private URL url = null;
 
 	private ShareWorldData data;
 
 	public BlueprintData(
 			final String url )
 	{
-		URL myURL = null;
-
 		try
 		{
 			if ( url != null )
 			{
-				myURL = new URL( url );
+				this.url = new URL( url );
 				final Thread t = new Thread( this );
 				t.setName( "Blueprint-" + url );
 				t.start();
@@ -52,10 +56,6 @@ public class BlueprintData implements Runnable
 		{
 			state = EnumLoadState.FAILED;
 			Log.logError( "Blueprint URL is invalid.", e );
-		}
-		finally
-		{
-			this.url = myURL;
 		}
 	}
 
@@ -78,6 +78,18 @@ public class BlueprintData implements Runnable
 	{
 		updateTime();
 		return state;
+	}
+
+	public void setLocalSource(
+			final String string ) throws MalformedURLException, UnsupportedEncodingException
+	{
+		url = new URL( "file", ClientSide.instance.getLocalName(), 0, "/" + URLEncoder.encode( string, "UTF-8" ) );
+	}
+
+	public void setURLSource(
+			final URL url2 )
+	{
+		url = url2;
 	}
 
 	public void loadData(
@@ -133,11 +145,24 @@ public class BlueprintData implements Runnable
 	@Override
 	public void run()
 	{
-		final EnumLoadState result = EnumLoadState.FAILED;
+		EnumLoadState result = EnumLoadState.FAILED;
 		try
 		{
+			if ( url.getProtocol().equals( "file" ) )
+			{
+				if ( url.getHost().equals( ClientSide.instance.getLocalName() ) )
+				{
+					loadData( new FileInputStream( new File( URLDecoder.decode( url.getFile().substring( 1 ), "UTF-8" ) ) ) );
+					result = EnumLoadState.LOADED;
+					return;
+				}
+
+				return;
+			}
+
 			final URLConnection src = url.openConnection();
 			loadData( src.getInputStream() );
+			result = EnumLoadState.LOADED;
 		}
 		catch ( final IOException e )
 		{
@@ -167,6 +192,11 @@ public class BlueprintData implements Runnable
 	public int getZSize()
 	{
 		return data.getZSize();
+	}
+
+	public String getURL()
+	{
+		return url == null ? "" : url.toString();
 	}
 
 }

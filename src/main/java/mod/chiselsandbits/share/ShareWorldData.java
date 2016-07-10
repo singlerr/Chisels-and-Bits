@@ -18,13 +18,13 @@ public class ShareWorldData
 		public SharedWorldBlock(
 				final byte[] bytes )
 		{
-			if ( bytes[0] == 1 ) // block
+			if ( bytes.length > 0 && bytes[0] == 1 ) // block
 			{
 				blob = null;
 				isBlob = false;
 				blockName = new String( bytes, 1, bytes.length - 1 );
 			}
-			else if ( bytes[1] == 2 ) // blob )
+			else if ( bytes.length > 0 && bytes[0] == 2 ) // blob )
 			{
 				blob = new VoxelBlob();
 				isBlob = true;
@@ -145,6 +145,8 @@ public class ShareWorldData
 			blocks[x] = reader.readBits( bits );
 		}
 
+		reader.snapToByte();
+
 		final int modelCount = reader.readInt();
 		models = new SharedWorldBlock[modelCount];
 		for ( int x = 0; x < models.length; x++ )
@@ -152,7 +154,7 @@ public class ShareWorldData
 			models[x] = new SharedWorldBlock( reader.readBytes() );
 		}
 
-		structureData = new byte[reader.consumedBytes()];
+		structureData = new byte[Math.min( reader.consumedBytes(), uncompressed.length )];
 		System.arraycopy( uncompressed, 0, structureData, 0, structureData.length );
 	}
 

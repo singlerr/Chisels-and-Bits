@@ -1487,4 +1487,9 @@ public class ClientSide
 		return Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT );
 	}
 
+	public String getLocalName()
+	{
+		return getPlayer().getGameProfile().getId().toString();
+	}
+
 }

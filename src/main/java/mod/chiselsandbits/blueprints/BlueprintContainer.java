@@ -3,6 +3,7 @@ package mod.chiselsandbits.blueprints;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -31,7 +32,7 @@ public class BlueprintContainer extends Container
 	private boolean hasBlueprintInHand(
 			final EntityPlayer player )
 	{
-		final ItemStack inHand = player.getCurrentEquippedItem();
+		final ItemStack inHand = player.getHeldItem( EnumHand.MAIN_HAND );
 
 		if ( inHand != null && inHand.getItem() instanceof ItemBlueprint )
 		{

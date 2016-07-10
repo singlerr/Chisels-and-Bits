@@ -1,9 +1,12 @@
 package mod.chiselsandbits.blueprints;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import mod.chiselsandbits.client.gui.ModGuiTypes;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketOpenGui;
 import net.minecraft.block.state.IBlockState;
@@ -11,9 +14,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -21,23 +26,28 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ItemBlueprint extends Item implements Runnable
 {
 
+	final private String NBT_SIZE_X = "xSize";
+	final private String NBT_SIZE_Y = "ySize";
+	final private String NBT_SIZE_Z = "zSize";
+
 	public ItemBlueprint()
 	{
 		setMaxStackSize( 1 );
 	}
 
 	@Override
-	public ItemStack onItemRightClick(
+	public ActionResult<ItemStack> onItemRightClick(
 			final ItemStack itemStackIn,
 			final World worldIn,
-			final EntityPlayer playerIn )
+			final EntityPlayer playerIn,
+			final EnumHand hand )
 	{
 		if ( worldIn.isRemote )
 		{
 			NetworkRouter.instance.sendToServer( new PacketOpenGui( ModGuiTypes.Blueprint ) );
 		}
 
-		return itemStackIn;
+		return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemStackIn );
 	}
 
 	@Override
@@ -46,18 +56,19 @@ public class ItemBlueprint extends Item implements Runnable
 	{
 		if ( isWritten( stack ) )
 		{
-			return ( "" + StatCollector.translateToLocal( "item.mod.chiselsandbits.blueprint_written.name" ) ).trim();
+			return DeprecationHelper.translateToLocal( "item.mod.chiselsandbits.blueprint_written.name" );
 		}
 
 		return super.getItemStackDisplayName( stack );
 	}
 
 	@Override
-	public boolean onItemUse(
+	public EnumActionResult onItemUse(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
 			final World worldIn,
 			BlockPos pos,
+			final EnumHand hand,
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,
@@ -78,14 +89,16 @@ public class ItemBlueprint extends Item implements Runnable
 				e.posY = pos.getY() + 0.5;
 				e.posZ = pos.getZ() + 0.5;
 				e.setItemStack( stack.copy() );
+				final NBTTagCompound tag = stack.getTagCompound();
+				e.setSize( tag.getInteger( NBT_SIZE_X ), tag.getInteger( NBT_SIZE_Y ), tag.getInteger( NBT_SIZE_Z ) );
 				worldIn.spawnEntityInWorld( e );
 			}
 
 			stack.stackSize--;
-			return true;
+			return EnumActionResult.SUCCESS;
 		}
 
-		return false;
+		return EnumActionResult.FAIL;
 	}
 
 	public boolean isWritten(
@@ -124,8 +137,6 @@ public class ItemBlueprint extends Item implements Runnable
 		return false;
 	}
 
-	HashMap<String, BlueprintData> data;
-
 	@Override
 	public void run()
 	{
@@ -135,7 +146,13 @@ public class ItemBlueprint extends Item implements Runnable
 			{
 				synchronized ( this )
 				{
-
+					for ( final Entry<String, BlueprintData> a : data.entrySet() )
+					{
+						if ( a.getValue().isExpired() )
+						{
+							data.remove( a.getKey() );
+						}
+					}
 				}
 				Thread.sleep( 5000 );
 			}
@@ -147,11 +164,28 @@ public class ItemBlueprint extends Item implements Runnable
 	}
 
 	@SideOnly( Side.CLIENT )
+	private final Map<String, BlueprintData> data = new HashMap<String, BlueprintData>();
+	private Thread cleanThread;
+
+	@SideOnly( Side.CLIENT )
 	synchronized private BlueprintData getData(
-			final String string )
+			final String url )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		if ( data.containsKey( url ) )
+		{
+			return data.get( url );
+		}
+
+		if ( cleanThread != null )
+		{
+			cleanThread = new Thread( this );
+			cleanThread.setName( "BlueprintCleanup" );
+			cleanThread.start();
+		}
+
+		final BlueprintData dat = new BlueprintData( url );
+		data.put( url, dat );
+		return dat;
 	}
 
 }
