@@ -1086,7 +1086,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 					if ( isTesting != null )
 					{
 						final TileEntityBlockChiseled tebc = getTileEntity( worldIn, pos );
-						return tebc.getBasicState();
+						return tebc.getBlockState( Blocks.STONE );
 					}
 				}
 			}

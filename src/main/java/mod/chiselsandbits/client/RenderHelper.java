@@ -55,7 +55,6 @@ public class RenderHelper
 			GL11.glLineWidth( 2.0F );
 			GlStateManager.disableTexture2D();
 			GlStateManager.depthMask( false );
-			GlStateManager.shadeModel( GL11.GL_FLAT );
 
 			if ( !NormalBoundingBox )
 			{
@@ -66,7 +65,6 @@ public class RenderHelper
 
 			RenderHelper.renderBoundingBox( bb.expand( 0.002D, 0.002D, 0.002D ).offset( -x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ() ), red, green, blue, seeThruAlpha );
 
-			GlStateManager.shadeModel( Minecraft.isAmbientOcclusionEnabled() ? GL11.GL_SMOOTH : GL11.GL_FLAT );
 			GlStateManager.enableDepth();
 			GlStateManager.depthMask( true );
 			GlStateManager.enableTexture2D();
