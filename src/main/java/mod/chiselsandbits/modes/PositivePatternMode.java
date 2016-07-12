@@ -61,11 +61,11 @@ public enum PositivePatternMode implements IToolMode
 	}
 
 	public static PositivePatternMode castMode(
-			final IToolMode chiselMode )
+			final IToolMode mode )
 	{
-		if ( chiselMode instanceof PositivePatternMode )
+		if ( mode instanceof PositivePatternMode )
 		{
-			return (PositivePatternMode) chiselMode;
+			return (PositivePatternMode) mode;
 		}
 
 		return PositivePatternMode.REPLACE;

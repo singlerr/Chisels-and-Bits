@@ -96,6 +96,12 @@ public class ShareWorldData
 	}
 
 	public ShareWorldData(
+			final byte[] compressed ) throws IOException
+	{
+		readCompressed( compressed );
+	}
+
+	public ShareWorldData(
 			final BufferedImage img ) throws IOException
 	{
 		final byte[] data = new byte[img.getWidth() * img.getHeight() * 4];

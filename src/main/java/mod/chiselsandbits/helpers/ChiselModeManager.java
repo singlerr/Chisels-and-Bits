@@ -1,11 +1,12 @@
 package mod.chiselsandbits.helpers;
 
+import java.util.List;
+
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ReflectionWrapper;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.IToolMode;
-import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketSetChiselMode;
 import net.minecraft.client.Minecraft;
@@ -73,19 +74,31 @@ public class ChiselModeManager
 			IToolMode currentMode,
 			final int dwheel )
 	{
-		int offset = currentMode.ordinal() + ( dwheel < 0 ? -1 : 1 );
+		final List<IToolMode> modes = tool.getAvailableModes();
+		int offset = 0;
 
-		if ( offset >= ChiselMode.values().length )
+		for ( int x = 0; x < modes.size(); ++x )
+		{
+			if ( currentMode == modes.get( x ) )
+			{
+				offset = x;
+				break;
+			}
+		}
+
+		offset += dwheel < 0 ? -1 : 1;
+
+		if ( offset >= modes.size() )
 		{
 			offset = 0;
 		}
 
 		if ( offset < 0 )
 		{
-			offset = ChiselMode.values().length - 1;
+			offset = modes.size() - 1;
 		}
 
-		currentMode = ChiselMode.values()[offset];
+		currentMode = modes.get( offset );
 
 		if ( currentMode.isDisabled() )
 		{
@@ -102,7 +115,7 @@ public class ChiselModeManager
 			final ChiselToolType setting,
 			final EnumHand hand )
 	{
-		if ( setting == ChiselToolType.TAPEMEASURE || setting == ChiselToolType.POSITIVEPATTERN )
+		if ( setting != null && !setting.isBitOrChisel() )
 		{
 			final ItemStack ei = player.getHeldItem( hand );
 			if ( ei != null && ei.getItem() instanceof IChiselModeItem )
@@ -110,7 +123,7 @@ public class ChiselModeManager
 				return setting.getMode( ei );
 			}
 
-			return PositivePatternMode.REPLACE;
+			return setting.getAvailableModes().get( 0 );
 		}
 		else if ( setting == ChiselToolType.CHISEL )
 		{

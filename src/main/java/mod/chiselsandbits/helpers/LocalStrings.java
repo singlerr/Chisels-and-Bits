@@ -75,7 +75,12 @@ public enum LocalStrings
 	LongHelpTapeMeasure( "help.tape_measure.long" ),
 	TapeMeasureBit( "tapemeasure.bit" ),
 	TapeMeasureBlock( "tapemeasure.block" ),
-	TapeMeasureDistance( "tapemeasure.distance" );
+	TapeMeasureDistance( "tapemeasure.distance" ),
+
+	WrenchNudgeBit( "wrench.nudge_bit" ),
+	WrenchNudgeBlock( "wrench.nudge_block" ),
+	WrenchRotateBlock( "wrench.rotate_block" ),
+	WrenchOnlyGhosts( "wrenge.nudge_block_disabled" );
 
 	private final String string;
 

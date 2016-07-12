@@ -58,6 +58,7 @@ import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
+import mod.chiselsandbits.modes.WrenchModes;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
@@ -347,6 +348,11 @@ public class ClientSide
 		}
 
 		for ( final TapeMeasureModes mode : TapeMeasureModes.values() )
+		{
+			loadIcon( map, mode );
+		}
+
+		for ( final WrenchModes mode : WrenchModes.values() )
 		{
 			loadIcon( map, mode );
 		}
@@ -686,6 +692,11 @@ public class ClientSide
 		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemMirrorprint )
 		{
 			return ChiselToolType.MIRRORPATTERN;
+		}
+
+		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemWrench )
+		{
+			return ChiselToolType.WRENCH;
 		}
 
 		return null;

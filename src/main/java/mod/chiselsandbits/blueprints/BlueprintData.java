@@ -142,6 +142,21 @@ public class BlueprintData implements Runnable
 		}
 	}
 
+	public void loadData(
+			final byte[] bs ) throws IOException
+	{
+		EnumLoadState result = EnumLoadState.FAILED;
+		try
+		{
+			data = new ShareWorldData( bs );
+			result = EnumLoadState.LOADED;
+		}
+		finally
+		{
+			state = result;
+		}
+	}
+
 	@Override
 	public void run()
 	{

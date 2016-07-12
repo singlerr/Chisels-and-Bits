@@ -1,10 +1,13 @@
 package mod.chiselsandbits.blueprints;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.WeakHashMap;
 
 import mod.chiselsandbits.client.gui.ModGuiTypes;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.network.NetworkRouter;
@@ -127,7 +130,7 @@ public class ItemBlueprint extends Item implements Runnable
 
 		if ( tagCompound.hasKey( "url" ) )
 		{
-			final BlueprintData data = getData( tagCompound.getString( "url" ) );
+			final BlueprintData data = getURLData( tagCompound.getString( "url" ) );
 			if ( data != null )
 			{
 				return data.getState().readyOrWaiting();
@@ -165,15 +168,21 @@ public class ItemBlueprint extends Item implements Runnable
 
 	@SideOnly( Side.CLIENT )
 	private final Map<String, BlueprintData> data = new HashMap<String, BlueprintData>();
+	private final Map<ItemStack, BlueprintData> localdata = new WeakHashMap<ItemStack, BlueprintData>();
 	private Thread cleanThread;
 
 	@SideOnly( Side.CLIENT )
-	synchronized private BlueprintData getData(
+	synchronized protected BlueprintData getURLData(
 			final String url )
 	{
 		if ( data.containsKey( url ) )
 		{
 			return data.get( url );
+		}
+
+		if ( !ChiselsAndBits.getConfig().canDownload( url ) )
+		{
+			return null;
 		}
 
 		if ( cleanThread != null )
@@ -186,6 +195,50 @@ public class ItemBlueprint extends Item implements Runnable
 		final BlueprintData dat = new BlueprintData( url );
 		data.put( url, dat );
 		return dat;
+	}
+
+	@SideOnly( Side.CLIENT )
+	synchronized protected BlueprintData getItemData(
+			final byte[] bs,
+			final ItemStack data )
+	{
+		if ( localdata.containsKey( data ) )
+		{
+			return localdata.get( data );
+		}
+
+		final BlueprintData dat = new BlueprintData( null );
+		localdata.put( data, dat );
+
+		try
+		{
+			dat.loadData( bs );
+		}
+		catch ( final IOException e )
+		{
+
+		}
+
+		return dat;
+	}
+
+	@SideOnly( Side.CLIENT )
+	protected BlueprintData getStackData(
+			final ItemStack data )
+	{
+		final NBTTagCompound tagCompound = data.getTagCompound();
+
+		if ( tagCompound.hasKey( "data" ) )
+		{
+			return getItemData( tagCompound.getByteArray( "data" ), data );
+		}
+
+		if ( tagCompound.hasKey( "url" ) )
+		{
+			return getURLData( tagCompound.getString( "url" ) );
+		}
+
+		return null;
 	}
 
 }

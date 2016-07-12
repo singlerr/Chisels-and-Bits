@@ -6,24 +6,24 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagString;
 
-public enum TapeMeasureModes implements IToolMode
+public enum WrenchModes implements IToolMode
 {
-	BIT( LocalStrings.TapeMeasureBit ),
-	BLOCK( LocalStrings.TapeMeasureBlock ),
-	DISTANCE( LocalStrings.TapeMeasureDistance );
+	NUDGE_BIT( LocalStrings.WrenchNudgeBit ),
+	NUDGE_BLOCK( LocalStrings.WrenchNudgeBlock ),
+	ROTATE( LocalStrings.WrenchRotateBlock );
 
 	public final LocalStrings string;
 	public boolean isDisabled = false;
 
 	public Object binding;
 
-	private TapeMeasureModes(
+	private WrenchModes(
 			final LocalStrings str )
 	{
 		string = str;
 	}
 
-	public static TapeMeasureModes getMode(
+	public static WrenchModes getMode(
 			final ItemStack stack )
 	{
 		if ( stack != null )
@@ -46,7 +46,7 @@ public enum TapeMeasureModes implements IToolMode
 			}
 		}
 
-		return TapeMeasureModes.BIT;
+		return WrenchModes.ROTATE;
 	}
 
 	@Override
@@ -59,15 +59,15 @@ public enum TapeMeasureModes implements IToolMode
 		}
 	}
 
-	public static TapeMeasureModes castMode(
+	public static WrenchModes castMode(
 			final IToolMode mode )
 	{
-		if ( mode instanceof TapeMeasureModes )
+		if ( mode instanceof WrenchModes )
 		{
-			return (TapeMeasureModes) mode;
+			return (WrenchModes) mode;
 		}
 
-		return TapeMeasureModes.BIT;
+		return WrenchModes.ROTATE;
 	}
 
 	@Override
