@@ -1130,6 +1130,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 			}
 		}
 
+		if ( state.getBlock() != this )
+		{
+			return state.getBlock().getHarvestTool( state );
+		}
+
 		return super.getHarvestTool( state );
 	}
 
