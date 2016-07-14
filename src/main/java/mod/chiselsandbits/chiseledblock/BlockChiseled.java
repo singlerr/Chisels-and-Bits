@@ -3,6 +3,7 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.Collections;
 import java.util.List;
 
+import mod.chiselsandbits.api.IMultiStateBlock;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -57,7 +58,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class BlockChiseled extends Block implements ITileEntityProvider
+public class BlockChiseled extends Block implements ITileEntityProvider, IMultiStateBlock
 {
 
 	private static final AxisAlignedBB BAD_AABB = new AxisAlignedBB( 0, Double.MIN_NORMAL, 0, 0, Double.MIN_NORMAL, 0 );
@@ -1235,6 +1236,21 @@ public class BlockChiseled extends Block implements ITileEntityProvider
 		}
 
 		return false;
+	}
+
+	@Override
+	public IBlockState getPrimaryState(
+			final IBlockAccess world,
+			final BlockPos pos )
+	{
+		try
+		{
+			return getTileEntity( world, pos ).getBlockState( Blocks.STONE );
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			return Blocks.STONE.getDefaultState();
+		}
 	}
 
 }
