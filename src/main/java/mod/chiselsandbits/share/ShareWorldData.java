@@ -8,7 +8,10 @@ import java.util.Base64;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.chiseledblock.data.IVoxelAccess;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.helpers.ModUtil;
+import net.minecraft.block.Block;
 
 public class ShareWorldData
 {
@@ -26,18 +29,12 @@ public class ShareWorldData
 			}
 			else if ( bytes.length > 0 && bytes[0] == 2 ) // blob )
 			{
-				blob = new VoxelBlob();
 				isBlob = true;
 				blockName = null;
 
-				try
-				{
-					blob.blobFromBytes( bytes, 1, bytes.length - 1 );
-				}
-				catch ( final IOException e )
-				{
-					// ; _ ;
-				}
+				final byte[] tmp = new byte[bytes.length - 1];
+				System.arraycopy( bytes, 1, tmp, 0, tmp.length );
+				blob = new VoxelBlobStateReference( tmp, 0 );
 			}
 			else
 			{
@@ -50,12 +47,18 @@ public class ShareWorldData
 		final boolean isBlob;
 
 		final String blockName;
-		final VoxelBlob blob;
+		final IVoxelAccess blob;
+
+		public int getState()
+		{
+			return Block.getStateId( ModUtil.getStateFromString( blockName, "" ) );
+		}
 	};
 
 	private int xSize;
 	private int ySize;
 	private int zSize;
+	private int xySize;
 
 	int[] blocks;
 	SharedWorldBlock[] models;
@@ -142,6 +145,7 @@ public class ShareWorldData
 		xSize = reader.readInt();
 		ySize = reader.readInt();
 		zSize = reader.readInt();
+		xySize = xSize * ySize;
 
 		final int bits = reader.readInt();
 
@@ -188,6 +192,30 @@ public class ShareWorldData
 		}
 
 		return byteStream.toByteArray();
+	}
+
+	public IVoxelAccess getBlob(
+			final int x,
+			final int y,
+			final int z )
+	{
+		if ( x >= 0 && y >= 0 && z >= 0 && x < xSize && y < ySize && z < zSize )
+		{
+			final int modelid = blocks[x + y * xSize + z * xySize];
+			if ( models.length > modelid && modelid >= 0 )
+			{
+				final SharedWorldBlock swb = models[modelid];
+
+				if ( swb.blob == null )
+				{
+					return new VoxelBlobStateReference( swb.getState(), 0 );
+				}
+
+				return swb.blob;
+			}
+		}
+
+		return new VoxelBlobStateReference( 0, 0 );
 	}
 
 }

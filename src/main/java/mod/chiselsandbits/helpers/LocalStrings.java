@@ -80,7 +80,10 @@ public enum LocalStrings
 	WrenchNudgeBit( "wrench.nudge_bit" ),
 	WrenchNudgeBlock( "wrench.nudge_block" ),
 	WrenchRotateBlock( "wrench.rotate_block" ),
-	WrenchOnlyGhosts( "wrenge.nudge_block_disabled" );
+	WrenchOnlyGhosts( "wrenge.nudge_block_disabled" ),
+
+	BlueprintBeginPlace( "blueprint.placement" ),
+	BlueprintCannotMove( "blueprint.cannotmove" );
 
 	private final String string;
 

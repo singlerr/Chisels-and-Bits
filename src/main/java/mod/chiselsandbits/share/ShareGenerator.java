@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +28,7 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.helpers.ModelQuadShare;
@@ -94,6 +96,44 @@ public class ShareGenerator implements Runnable
 		return c;
 	}
 
+	private class CompareableBytes
+	{
+
+		public final byte[] data;
+
+		public CompareableBytes(
+				final byte[] g )
+		{
+			data = g;
+		}
+
+		@Override
+		public boolean equals(
+				final Object obj )
+		{
+			final CompareableBytes b = (CompareableBytes) obj;
+			if ( data.length == b.data.length )
+			{
+				for ( int x = 0; x < data.length; ++x )
+				{
+					if ( data[x] != b.data[x] )
+					{
+						return false;
+					}
+				}
+
+				return true;
+			}
+			return false;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return Arrays.hashCode( data );
+		}
+	};
+
 	@Override
 	public void run()
 	{
@@ -116,8 +156,8 @@ public class ShareGenerator implements Runnable
 		writer.writeInt( zSize );
 		final int[] stucture = new int[xSize * ySize * zSize];
 
-		int modelNum = 1;
-		final HashMap<byte[], Integer> models = new HashMap<byte[], Integer>();
+		int modelNum = 0;
+		final HashMap<CompareableBytes, Integer> models = new HashMap<CompareableBytes, Integer>();
 
 		final ChiseledBlockSmartModel cbsm = new ChiseledBlockSmartModel();
 
@@ -141,7 +181,7 @@ public class ShareGenerator implements Runnable
 			byte[] data;
 			try
 			{
-				data = preFixByteArray( blockprefix, Block.REGISTRY.getNameForObject( state.getBlock() ).toString().getBytes( "UTF-8" ) );
+				data = preFixByteArray( blockprefix, ModUtil.getStringFromState( state ).getBytes( "UTF-8" ) );
 			}
 			catch ( final UnsupportedEncodingException e1 )
 			{
@@ -159,7 +199,7 @@ public class ShareGenerator implements Runnable
 
 				if ( is == null )
 				{
-					continue;
+					throw new CannotBeChiseled();
 				}
 
 				IExtendedBlockState eState = (IExtendedBlockState) ChiselsAndBits.getBlocks().getChiseledDefaultState();
@@ -177,10 +217,11 @@ public class ShareGenerator implements Runnable
 			{
 			}
 
-			Integer cm = models.get( data );
+			final CompareableBytes cb = new CompareableBytes( data );
+			Integer cm = models.get( cb );
 			if ( cm == null )
 			{
-				models.put( data, cm = modelNum++ );
+				models.put( cb, cm = modelNum++ );
 			}
 
 			stucture[offset.getX() + offset.getY() * xSize + offset.getZ() * xySize] = cm;
@@ -238,9 +279,9 @@ public class ShareGenerator implements Runnable
 		writer.snapToByte();
 
 		final byte[][] orderedList = new byte[models.size()][];
-		for ( final Entry<byte[], Integer> en : models.entrySet() )
+		for ( final Entry<CompareableBytes, Integer> en : models.entrySet() )
 		{
-			orderedList[en.getValue() - 1] = en.getKey();
+			orderedList[en.getValue()] = en.getKey().data;
 		}
 
 		final int ml = orderedList.length;

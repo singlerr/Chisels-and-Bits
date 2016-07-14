@@ -147,7 +147,15 @@ public class BitStream
 		}
 	}
 
-	public void snapToByte()
+	public void readSnapToByte()
+	{
+		while ( bit % 8 != 0 )
+		{
+			readBits( 1 );
+		}
+	}
+
+	public void writeSnapToByte()
 	{
 		while ( bit % 8 != 0 )
 		{

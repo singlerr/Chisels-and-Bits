@@ -14,12 +14,14 @@ import java.net.URLEncoder;
 
 import javax.imageio.ImageIO;
 
+import mod.chiselsandbits.chiseledblock.data.IVoxelAccess;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.share.ShareWorldData;
+import mod.chiselsandbits.voxelspace.IVoxelProvider;
 
-public class BlueprintData implements Runnable
+public class BlueprintData implements Runnable, IVoxelProvider
 {
 	public static enum EnumLoadState
 	{
@@ -212,6 +214,15 @@ public class BlueprintData implements Runnable
 	public String getURL()
 	{
 		return url == null ? "" : url.toString();
+	}
+
+	@Override
+	public IVoxelAccess get(
+			final int x,
+			final int y,
+			final int z )
+	{
+		return data.getBlob( x, y, z );
 	}
 
 }

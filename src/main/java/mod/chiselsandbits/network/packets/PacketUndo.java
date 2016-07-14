@@ -32,6 +32,8 @@ import net.minecraft.world.World;
 public class PacketUndo extends ModPacket
 {
 
+	boolean verbose = false;
+
 	BlockPos pos;
 	VoxelBlobStateReference before;
 	VoxelBlobStateReference after;
@@ -195,7 +197,7 @@ public class PacketUndo extends ModPacket
 				else
 				{
 					backup.rollback();
-					UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.missing_bits" );
+					addError( player, "mod.chiselsandbits.result.missing_bits" );
 					return false;
 				}
 			}
@@ -205,15 +207,19 @@ public class PacketUndo extends ModPacket
 			// error message below.
 		}
 
-		UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.has_changed" );
+		addError( player, "mod.chiselsandbits.result.has_changed" );
 		return false;
-
 	}
 
 	private boolean inRange(
 			final ActingPlayer player,
 			final BlockPos pos )
 	{
+		if ( verbose == false )
+		{
+			return true;
+		}
+
 		if ( player.isReal() )
 		{
 			return true;
@@ -230,8 +236,18 @@ public class PacketUndo extends ModPacket
 			return true;
 		}
 
-		UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.out_of_range" );
+		addError( player, "mod.chiselsandbits.result.out_of_range" );
 		return false;
+	}
+
+	private void addError(
+			final ActingPlayer player,
+			final String string )
+	{
+		if ( verbose )
+		{
+			UndoTracker.getInstance().addError( player, string );
+		}
 	}
 
 }

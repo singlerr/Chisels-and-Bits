@@ -1,14 +1,28 @@
 package mod.chiselsandbits.blueprints;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.base.Optional;
 
 import mod.chiselsandbits.blueprints.BlueprintData.EnumLoadState;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.ActingPlayer;
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.modes.WrenchModes;
-import mod.chiselsandbits.network.packets.PacketAdjustBlueprint;
+import mod.chiselsandbits.network.NetworkRouter;
+import mod.chiselsandbits.network.packets.PacketUndo;
+import mod.chiselsandbits.voxelspace.IVoxelSrc;
+import mod.chiselsandbits.voxelspace.VoxelCompressedProviderWorld;
+import mod.chiselsandbits.voxelspace.VoxelOffsetRegion;
+import mod.chiselsandbits.voxelspace.VoxelRegionSrc;
+import mod.chiselsandbits.voxelspace.VoxelTransformedRegion;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -25,12 +39,15 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
 public class EntityBlueprint extends Entity
 {
 
 	private static final DataParameter<Optional<ItemStack>> BLUEPRINT_ITEMSTACK = EntityDataManager.<Optional<ItemStack>> createKey( EntityBlueprint.class, DataSerializers.OPTIONAL_ITEM_STACK );
+
+	private static final DataParameter<Boolean> BLUEPRINT_PLACING = EntityDataManager.<Boolean> createKey( EntityBlueprint.class, DataSerializers.BOOLEAN );
 
 	private static final DataParameter<EnumFacing> BLUEPRINT_AXIS_X = EntityDataManager.<EnumFacing> createKey( EntityBlueprint.class, DataSerializers.FACING );
 	private static final DataParameter<EnumFacing> BLUEPRINT_AXIS_Y = EntityDataManager.<EnumFacing> createKey( EntityBlueprint.class, DataSerializers.FACING );
@@ -84,7 +101,7 @@ public class EntityBlueprint extends Entity
 	public EnumActionResult applyPlayerInteraction(
 			final EntityPlayer player,
 			final Vec3d vec,
-			final ItemStack handStack,
+			ItemStack handStack,
 			final EnumHand hand )
 	{
 		final AxisAlignedBB box = getEntityBoundingBox();
@@ -95,6 +112,11 @@ public class EntityBlueprint extends Entity
 		if ( rtr == null )
 		{
 			return EnumActionResult.PASS;
+		}
+
+		if ( handStack == null )
+		{
+			handStack = player.getHeldItem( hand.MAIN_HAND );
 		}
 
 		int direction = player.isSneaking() ? 1 : -1;
@@ -108,6 +130,12 @@ public class EntityBlueprint extends Entity
 			}
 			else if ( handStack.getItem() == ChiselsAndBits.getItems().itemWrench )
 			{
+				if ( getDataManager().get( BLUEPRINT_PLACING ) == true )
+				{
+					player.addChatComponentMessage( new TextComponentTranslation( LocalStrings.BlueprintCannotMove.toString() ) );
+					return EnumActionResult.FAIL;
+				}
+
 				final WrenchModes mode = WrenchModes.getMode( handStack );
 
 				if ( mode == WrenchModes.ROTATE )
@@ -168,6 +196,12 @@ public class EntityBlueprint extends Entity
 			}
 			else if ( handStack.getItem() == ChiselsAndBits.getItems().itemWrench )
 			{
+				if ( getDataManager().get( BLUEPRINT_PLACING ) == true )
+				{
+					player.addChatComponentMessage( new TextComponentTranslation( LocalStrings.BlueprintCannotMove.toString() ) );
+					return EnumActionResult.FAIL;
+				}
+
 				final WrenchModes mode = WrenchModes.getMode( handStack );
 
 				if ( mode == WrenchModes.ROTATE )
@@ -252,15 +286,125 @@ public class EntityBlueprint extends Entity
 	private void beginPlacement(
 			final EntityPlayer player )
 	{
+		if ( getDataManager().get( BLUEPRINT_PLACING ) == false )
+		{
+			getDataManager().set( BLUEPRINT_PLACING, true );
+			player.addChatComponentMessage( new TextComponentTranslation( LocalStrings.BlueprintBeginPlace.toString() ) );
+		}
+
 		if ( player.getEntityWorld().isRemote )
 		{
-
 			final BlueprintData data = ChiselsAndBits.getItems().itemBlueprint.getStackData( getItemStack() );
 			if ( data.getState() == EnumLoadState.LOADED )
 			{
-				final BlockPos center = getPosition();
+				if ( calculatedSpace == null )
+				{
+					calculateSpace( data );
+				}
 
+				if ( calculatedSpace != null )
+				{
+					final long now = System.currentTimeMillis();
+					for ( final Entry<BlockPos, QueuedChanges> box : calculatedSpace.entrySet() )
+					{
+						final QueuedChanges qc = box.getValue();
+
+						if ( qc.complete )
+						{
+							continue;
+						}
+
+						if ( qc.lastAttempt == 0 || now - qc.lastAttempt > 1500 )
+						{
+							qc.lastAttempt = now;
+
+							box.getKey();
+							final VoxelBlob a = VoxelBlob.getBlobAt( source, qc.srcOffset );
+							final VoxelBlob b = VoxelBlob.getBlobAt( application, qc.srcOffset );
+
+							if ( a.equals( b ) )
+							{
+								qc.complete = true;
+							}
+							else
+							{
+								final PacketUndo p = new PacketUndo( box.getKey(), new VoxelBlobStateReference( a, 0 ), new VoxelBlobStateReference( b, 0 ) );
+
+								final ActingPlayer testPlayer = ActingPlayer.testingAs( player, EnumHand.MAIN_HAND );
+								final boolean result = p.preformAction( testPlayer, false );
+
+								if ( result )
+								{
+									final ActingPlayer actingPlayer = ActingPlayer.actingAs( player, EnumHand.MAIN_HAND );
+									if ( p.preformAction( actingPlayer, true ) )
+									{
+										NetworkRouter.instance.sendToServer( p );
+										qc.complete = true;
+									}
+								}
+							}
+
+							final long now2 = System.currentTimeMillis();
+							if ( now2 - now > 32 )
+							{
+								break;
+							}
+						}
+					}
+				}
 			}
+		}
+	}
+
+	private class QueuedChanges
+	{
+
+		public QueuedChanges(
+				final BlockPos offset )
+		{
+			srcOffset = offset;
+		}
+
+		final BlockPos srcOffset;
+		long lastAttempt = 0;
+		boolean complete = false;
+	};
+
+	IVoxelSrc source;
+	IVoxelSrc application;
+	Map<BlockPos, QueuedChanges> calculatedSpace = null;
+
+	private void calculateSpace(
+			final BlueprintData bd )
+	{
+		calculatedSpace = new HashMap<BlockPos, QueuedChanges>();
+
+		final int bitsPerBlock = 16;
+		final int bitsPerBlock_Minus1 = bitsPerBlock - 1;
+
+		final int minX = ( getDataManager().get( BLUEPRINT_MIN_X ) + bitsPerBlock_Minus1 ) / bitsPerBlock;
+		final int maxX = ( getDataManager().get( BLUEPRINT_MAX_X ) + bitsPerBlock_Minus1 ) / bitsPerBlock;
+		final int minY = ( getDataManager().get( BLUEPRINT_MIN_Y ) + bitsPerBlock_Minus1 ) / bitsPerBlock;
+		final int maxY = ( getDataManager().get( BLUEPRINT_MAX_Y ) + bitsPerBlock_Minus1 ) / bitsPerBlock;
+		final int minZ = ( getDataManager().get( BLUEPRINT_MIN_Z ) + bitsPerBlock_Minus1 ) / bitsPerBlock;
+		final int maxZ = ( getDataManager().get( BLUEPRINT_MAX_Z ) + bitsPerBlock_Minus1 ) / bitsPerBlock;
+
+		final BlockPos bitOffset = new BlockPos( getDataManager().get( BLUEPRINT_MIN_X ), getDataManager().get( BLUEPRINT_MIN_Y ), getDataManager().get( BLUEPRINT_MIN_Z ) );
+
+		final BlockPos center = getPosition().down(); // this adds 0.5 to y
+		final BlockPos min = center.add( -minX, -minY, -minZ );
+		final BlockPos max = center.add( maxX, maxY, maxZ );
+
+		source = new VoxelRegionSrc( new VoxelCompressedProviderWorld( worldObj ), min, max, min );
+		application = new VoxelTransformedRegion(
+				new VoxelOffsetRegion( new VoxelRegionSrc( bd, BlockPos.ORIGIN, BlockPos.ORIGIN.add( max.subtract( min ) ), BlockPos.ORIGIN ), bitOffset.add( -minX * bitsPerBlock, -minY * bitsPerBlock, -minZ * bitsPerBlock ) ),
+				getDataManager().get( BLUEPRINT_AXIS_X ),
+				getDataManager().get( BLUEPRINT_AXIS_Y ),
+				getDataManager().get( BLUEPRINT_AXIS_Z ) );
+
+		for ( final BlockPos p : BlockPos.getAllInBox( min, max ) )
+		{
+			calculatedSpace.put( p.toImmutable(), new QueuedChanges( p.subtract( min ) ) );
 		}
 	}
 
@@ -298,6 +442,7 @@ public class EntityBlueprint extends Entity
 	@Override
 	protected void entityInit()
 	{
+		getDataManager().register( BLUEPRINT_PLACING, false );
 		getDataManager().register( BLUEPRINT_ITEMSTACK, null );
 		getDataManager().register( BLUEPRINT_MIN_X, 0 );
 		getDataManager().register( BLUEPRINT_MAX_X, 0 );
@@ -336,6 +481,7 @@ public class EntityBlueprint extends Entity
 			final NBTTagCompound tagCompund )
 	{
 		setItemStack( ItemStack.loadItemStackFromNBT( tagCompund.getCompoundTag( "item" ) ) );
+		getDataManager().set( BLUEPRINT_PLACING, tagCompund.getBoolean( "placing" ) );
 		getDataManager().set( BLUEPRINT_MIN_X, tagCompund.getInteger( "minX" ) );
 		getDataManager().set( BLUEPRINT_MAX_X, tagCompund.getInteger( "maxX" ) );
 		getDataManager().set( BLUEPRINT_MIN_Y, tagCompund.getInteger( "minY" ) );
@@ -354,6 +500,7 @@ public class EntityBlueprint extends Entity
 			getItem().get().writeToNBT( itemNBT );
 		}
 		tagCompound.setTag( "item", itemNBT );
+		tagCompound.setBoolean( "placing", getDataManager().get( BLUEPRINT_PLACING ) );
 		tagCompound.setInteger( "minX", getDataManager().get( BLUEPRINT_MIN_X ) );
 		tagCompound.setInteger( "maxX", getDataManager().get( BLUEPRINT_MAX_X ) );
 		tagCompound.setInteger( "minY", getDataManager().get( BLUEPRINT_MIN_Y ) );
@@ -413,13 +560,6 @@ public class EntityBlueprint extends Entity
 		// place it on the floor...
 		getDataManager().set( BLUEPRINT_MIN_Y, 0 );
 		getDataManager().set( BLUEPRINT_MAX_Y, y * 16 );
-	}
-
-	public void handlePacket(
-			final PacketAdjustBlueprint packetAdjustBlueprint )
-	{
-		// TODO Auto-generated method stub
-
 	}
 
 }

@@ -1,9 +1,7 @@
-package mod.chiselsandbits.helpers;
+package mod.chiselsandbits.voxelspace;
 
-import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
+import mod.chiselsandbits.chiseledblock.data.IVoxelAccess;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.core.api.BitAccess;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -18,10 +16,10 @@ public class VoxelRegionSrc implements IVoxelSrc
 	final int wrapY;
 	final int wrapX;
 
-	final VoxelBlob blobs[];
+	final IVoxelAccess blobs[];
 
-	private VoxelRegionSrc(
-			final World src,
+	public VoxelRegionSrc(
+			final IVoxelProvider provider,
 			final BlockPos min,
 			final BlockPos max,
 			final BlockPos actingCenter )
@@ -34,7 +32,7 @@ public class VoxelRegionSrc implements IVoxelSrc
 		wrapY = max.getY() - min.getY() + 1;
 		wrapZ = max.getZ() - min.getZ() + 1;
 
-		blobs = new VoxelBlob[wrapX * wrapY * wrapZ];
+		blobs = new IVoxelAccess[wrapX * wrapY * wrapZ];
 
 		for ( int x = min.getX(); x <= max.getX(); ++x )
 		{
@@ -44,15 +42,7 @@ public class VoxelRegionSrc implements IVoxelSrc
 				{
 					final int idx = x - min.getX() + ( y - min.getY() ) * wrapX + ( z - min.getZ() ) * wrapX * wrapY;
 
-					try
-					{
-						final BitAccess access = (BitAccess) ChiselsAndBits.getApi().getBitAccess( src, new BlockPos( x, y, z ) );
-						blobs[idx] = access.getNativeBlob();
-					}
-					catch ( final CannotBeChiseled e )
-					{
-						blobs[idx] = new VoxelBlob();
-					}
+					blobs[idx] = provider.get( x, y, z );
 				}
 			}
 		}
@@ -63,7 +53,7 @@ public class VoxelRegionSrc implements IVoxelSrc
 			final BlockPos blockPos,
 			final int range )
 	{
-		this( theWorld, blockPos.add( -range, -range, -range ), blockPos.add( range, range, range ), blockPos );
+		this( new VoxelProviderWorld( theWorld ), blockPos.add( -range, -range, -range ), blockPos.add( range, range, range ), blockPos );
 	}
 
 	@Override
@@ -94,6 +84,7 @@ public class VoxelRegionSrc implements IVoxelSrc
 		return blobs[idx].get( bitPosX, bitPosY, bitPosZ );
 	}
 
+	/*
 	public VoxelBlob getBlobAt(
 			final BlockPos blockPos )
 	{
@@ -110,4 +101,5 @@ public class VoxelRegionSrc implements IVoxelSrc
 
 		return blobs[idx];
 	}
+	*/
 }

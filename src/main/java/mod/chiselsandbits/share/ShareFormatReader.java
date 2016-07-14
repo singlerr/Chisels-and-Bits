@@ -28,18 +28,19 @@ public class ShareFormatReader
 
 	public int readInt()
 	{
-		boolean hasMoreData = true;
+		boolean repeat = readBool();
+		int myInt = readBits( 7 );
+		int limit = 4;
 
-		int value = 0;
-		int offset = 0;
-		while ( hasMoreData )
+		int offset = 7;
+		while ( repeat && --limit >= 0 )
 		{
-			hasMoreData = readBool();
-			value = value | readBits( 7 ) << offset;
+			repeat = readBool();
+			myInt |= readBits( 7 ) << offset;
 			offset += 7;
 		}
 
-		return value;
+		return myInt;
 	}
 
 	public byte[] readBytes()
@@ -57,7 +58,7 @@ public class ShareFormatReader
 
 	public void snapToByte()
 	{
-		inner.snapToByte();
+		inner.readSnapToByte();
 	}
 
 	public int consumedBytes()

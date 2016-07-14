@@ -79,12 +79,6 @@ public class MCCullTest implements ICullTest, IBlockAccess
 	}
 
 	@Override
-	public boolean extendedLevelsInChunkCache()
-	{
-		return false;
-	}
-
-	@Override
 	public int getStrongPower(
 			final BlockPos pos,
 			final EnumFacing direction )

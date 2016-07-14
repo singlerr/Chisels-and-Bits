@@ -78,8 +78,11 @@ public class PacketBlueprintSet extends ModPacket
 	}
 
 	public void setFrom(
+			final int slot,
 			final BlueprintData dat ) throws IOException
 	{
+		this.slot = slot;
+
 		data = new NBTTagCompound();
 		data.setInteger( "xSize", dat.getXSize() );
 		data.setInteger( "ySize", dat.getYSize() );

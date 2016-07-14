@@ -180,7 +180,7 @@ public class ItemBlueprint extends Item implements Runnable
 			return data.get( url );
 		}
 
-		if ( !ChiselsAndBits.getConfig().canDownload( url ) )
+		if ( !url.startsWith( "file://" ) && !ChiselsAndBits.getConfig().canDownload( url ) )
 		{
 			return null;
 		}

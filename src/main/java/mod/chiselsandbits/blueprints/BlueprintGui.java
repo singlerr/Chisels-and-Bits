@@ -146,7 +146,7 @@ public class BlueprintGui extends GuiContainer
 							if ( dat.getState() == EnumLoadState.LOADED )
 							{
 								final PacketBlueprintSet packet = new PacketBlueprintSet();
-								packet.setFrom( dat );
+								packet.setFrom( getBlueprintContainer().bluePrintSlot, dat );
 								NetworkRouter.instance.sendToServer( packet );
 							}
 						}
@@ -197,7 +197,7 @@ public class BlueprintGui extends GuiContainer
 						if ( dat.getState() == EnumLoadState.LOADED )
 						{
 							final PacketBlueprintSet packet = new PacketBlueprintSet();
-							packet.setFrom( dat );
+							packet.setFrom( getBlueprintContainer().bluePrintSlot, dat );
 							NetworkRouter.instance.sendToServer( packet );
 						}
 					}

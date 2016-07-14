@@ -52,7 +52,7 @@ public class ShareFormatWriter
 
 	public void snapToByte()
 	{
-		inner.snapToByte();
+		inner.writeSnapToByte();
 	}
 
 }

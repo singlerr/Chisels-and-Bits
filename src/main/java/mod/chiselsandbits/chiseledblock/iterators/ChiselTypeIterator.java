@@ -1,7 +1,7 @@
 package mod.chiselsandbits.chiseledblock.iterators;
 
-import mod.chiselsandbits.helpers.IVoxelSrc;
 import mod.chiselsandbits.modes.ChiselMode;
+import mod.chiselsandbits.voxelspace.IVoxelSrc;
 import net.minecraft.util.EnumFacing;
 
 public class ChiselTypeIterator extends BaseChiselIterator implements ChiselIterator

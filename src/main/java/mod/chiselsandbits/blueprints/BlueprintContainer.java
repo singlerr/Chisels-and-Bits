@@ -11,6 +11,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class BlueprintContainer extends Container
 {
 	final EntityPlayer thePlayer;
+	protected int bluePrintSlot;
 
 	public BlueprintContainer(
 			final EntityPlayer player,
@@ -20,6 +21,7 @@ public class BlueprintContainer extends Container
 			final int z )
 	{
 		thePlayer = player;
+		bluePrintSlot = player.inventory.currentItem;
 	}
 
 	@Override
