@@ -299,10 +299,10 @@
 			"Distance Mode; Measures the distance between the start and end point at a bit level."
 		],
 		"controls": [{
-			"button": "Left Click and Drag",
+			"button": "Right Click and Drag",
 			"action": "Measure with the selected mode."
 		}, {
-			"button": "Sneak + Left Click",
+			"button": "Sneak + Right Click",
 			"action": "Clear previous measurements."
 		}, {
 			"button": "Left Alt",
