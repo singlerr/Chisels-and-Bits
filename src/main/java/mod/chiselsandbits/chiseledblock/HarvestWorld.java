@@ -1,4 +1,4 @@
-package mod.chiselsandbits.client.culling;
+package mod.chiselsandbits.chiseledblock;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
@@ -10,36 +10,15 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.biome.Biome;
 
-/**
- * Determine Culling using Block's Native Check.
- * 
- * hardcode vanilla stained glass because that looks horrible.
- */
-public class MCCullTest implements ICullTest, IBlockAccess
+public class HarvestWorld implements IBlockAccess
 {
 
-	private IBlockState a;
-	private IBlockState b;
+	IBlockState state;
 
-	@Override
-	public boolean isVisible(
-			final int mySpot,
-			final int secondSpot )
+	public HarvestWorld(
+			final IBlockState state )
 	{
-		if ( mySpot == 0 || mySpot == secondSpot )
-		{
-			return false;
-		}
-
-		a = net.minecraft.block.Block.getStateById( mySpot );
-		b = net.minecraft.block.Block.getStateById( secondSpot );
-
-		if ( a.getBlock() == Blocks.STAINED_GLASS && a.getBlock() == b.getBlock() )
-		{
-			return false;
-		}
-
-		return a.shouldSideBeRendered( this, BlockPos.ORIGIN, EnumFacing.NORTH );
+		this.state = state;
 	}
 
 	@Override
@@ -61,14 +40,19 @@ public class MCCullTest implements ICullTest, IBlockAccess
 	public IBlockState getBlockState(
 			final BlockPos pos )
 	{
-		return pos.equals( BlockPos.ORIGIN ) ? a : b;
+		return state;
 	}
 
 	@Override
 	public boolean isAirBlock(
 			final BlockPos pos )
 	{
-		return getBlockState( pos ) == Blocks.AIR;
+		return Blocks.AIR == state;
+	}
+
+	public boolean extendedLevelsInChunkCache()
+	{
+		return false;
 	}
 
 	@Override
@@ -76,11 +60,6 @@ public class MCCullTest implements ICullTest, IBlockAccess
 			final BlockPos pos )
 	{
 		return Biomes.PLAINS;
-	}
-
-	public boolean extendedLevelsInChunkCache()
-	{
-		return false;
 	}
 
 	@Override
@@ -103,7 +82,7 @@ public class MCCullTest implements ICullTest, IBlockAccess
 			final EnumFacing side,
 			final boolean _default )
 	{
-		return false;
+		return true;
 	}
 
 }
