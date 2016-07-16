@@ -933,7 +933,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	{
 		IBlockState actingState = originalState;
 		Block target = originalState.getBlock();
-		final boolean isAir = world.isAirBlock( pos );
+		final boolean isAir = world.isAirBlock( pos ) || actingState.getBlock().isReplaceable( world, pos );
 
 		if ( BlockBitInfo.supportsBlock( actingState ) || isAir )
 		{
