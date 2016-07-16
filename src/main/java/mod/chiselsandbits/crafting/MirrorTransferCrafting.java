@@ -41,7 +41,7 @@ public class MirrorTransferCrafting implements IRecipe
 
 			if ( f.getItem() == ChiselsAndBits.getItems().itemMirrorprint )
 			{
-				if ( f.hasTagCompound() )
+				if ( ChiselsAndBits.getItems().itemMirrorprint.isWritten( f ) )
 				{
 					if ( targetA != null )
 					{
@@ -58,7 +58,7 @@ public class MirrorTransferCrafting implements IRecipe
 
 			else if ( f.getItem() == ChiselsAndBits.getItems().itemNegativeprint )
 			{
-				if ( !f.hasTagCompound() )
+				if ( !ChiselsAndBits.getItems().itemNegativeprint.isWritten( f ) )
 				{
 					if ( targetB != null )
 					{
@@ -75,7 +75,7 @@ public class MirrorTransferCrafting implements IRecipe
 			}
 			else if ( f.getItem() == ChiselsAndBits.getItems().itemPositiveprint )
 			{
-				if ( !f.hasTagCompound() )
+				if ( !ChiselsAndBits.getItems().itemPositiveprint.isWritten( f ) )
 				{
 					if ( targetB != null )
 					{
@@ -115,7 +115,7 @@ public class MirrorTransferCrafting implements IRecipe
 
 			tmp.setBlob( bestBlob );
 
-			final NBTTagCompound comp = (NBTTagCompound) targetA.getTagCompound().copy();
+			final NBTTagCompound comp = targetA.getTagCompound().copy();
 			tmp.writeChisleData( comp, false );
 
 			final ItemStack outputPattern = new ItemStack( targetB.getItem() );

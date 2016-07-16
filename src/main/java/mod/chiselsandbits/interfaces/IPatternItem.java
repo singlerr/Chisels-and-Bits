@@ -8,4 +8,7 @@ public interface IPatternItem
 	ItemStack getPatternedItem(
 			ItemStack stack );
 
+	boolean isWritten(
+			ItemStack stack );
+
 }

@@ -68,7 +68,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		defaultAddInfo( stack, playerIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpNegativePrint, tooltip );
 
-		if ( stack.hasTagCompound() )
+		if ( isWritten( stack ) )
 		{
 			if ( ClientSide.instance.holdingShift() )
 			{
@@ -107,11 +107,25 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	public String getUnlocalizedName(
 			final ItemStack stack )
 	{
-		if ( stack.hasTagCompound() )
+		if ( isWritten( stack ) )
 		{
 			return super.getUnlocalizedName( stack ) + "_written";
 		}
 		return super.getUnlocalizedName( stack );
+	}
+
+	@Override
+	public boolean isWritten(
+			final ItemStack stack )
+	{
+		if ( stack != null && stack.hasTagCompound() )
+		{
+			final boolean a = stack.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) != null;
+			final boolean b = stack.getTagCompound().hasKey( NBTBlobConverter.NBT_LEGACY_VOXEL );
+			final boolean c = stack.getTagCompound().hasKey( NBTBlobConverter.NBT_VERSIONED_VOXEL );
+			return a || b || c;
+		}
+		return false;
 	}
 
 	@Override
@@ -133,7 +147,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			return EnumActionResult.FAIL;
 		}
 
-		if ( !stack.hasTagCompound() )
+		if ( !isWritten( stack ) )
 		{
 			final NBTTagCompound comp = getCompoundFromBlock( world, pos, player );
 			if ( comp != null )
@@ -211,7 +225,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	public ItemStack getPatternedItem(
 			final ItemStack stack )
 	{
-		if ( !stack.hasTagCompound() )
+		if ( !isWritten( stack ) )
 		{
 			return null;
 		}
