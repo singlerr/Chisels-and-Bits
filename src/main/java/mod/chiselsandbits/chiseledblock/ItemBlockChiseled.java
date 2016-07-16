@@ -423,6 +423,12 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		}
 
 		side = rotationDirection > 0 ? side.rotateY() : side.rotateYCCW();
+
+		if ( blueprintTag.hasKey( "BlockEntityTag" ) )
+		{
+			blueprintTag.getCompoundTag( "BlockEntityTag" ).setByte( NBT_SIDE, (byte) +side.ordinal() );
+		}
+
 		blueprintTag.setInteger( NBT_SIDE, +side.ordinal() );
 	}
 
