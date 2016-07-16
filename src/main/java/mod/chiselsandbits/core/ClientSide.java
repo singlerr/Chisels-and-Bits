@@ -1230,7 +1230,7 @@ public class ClientSide
 				else
 				{
 					isVisible = true;
-					isUnplaceable = !ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, partial, false );
+					isUnplaceable = !ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, EnumHand.MAIN_HAND, partial, false );
 				}
 			}
 		}
