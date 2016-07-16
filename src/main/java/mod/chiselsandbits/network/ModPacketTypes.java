@@ -23,10 +23,10 @@ public enum ModPacketTypes
 	BAG_GUI( PacketBagGui.class ),
 	BAG_GUI_STACK( PacketBagGuiStack.class ),
 	UNDO( PacketUndo.class ),
-	BLUEPRINT_SET( PacketBlueprintSet.class ),
 	CLEAR_BAG( PacketClearBagGui.class ),
 	SUPRESS_INTERACTION( PacketSuppressInteraction.class ),
-	SET_COLOR( PacketSetColor.class );
+	SET_COLOR( PacketSetColor.class ),
+	BLUEPRINT_SET( PacketBlueprintSet.class );
 
 	private final Class<? extends ModPacket> packetClass;
 

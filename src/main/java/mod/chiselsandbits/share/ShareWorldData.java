@@ -8,10 +8,12 @@ import java.util.Base64;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.data.IVoxelAccess;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 
 public class ShareWorldData
 {
@@ -49,9 +51,9 @@ public class ShareWorldData
 		final String blockName;
 		final IVoxelAccess blob;
 
-		public int getState()
+		public IBlockState getState()
 		{
-			return Block.getStateId( ModUtil.getStateFromString( blockName, "" ) );
+			return ModUtil.getStateFromString( blockName, "" );
 		}
 	};
 
@@ -208,7 +210,13 @@ public class ShareWorldData
 
 				if ( swb.blob == null )
 				{
-					return new VoxelBlobStateReference( swb.getState(), 0 );
+					final IBlockState bs = swb.getState();
+					final int stateID = Block.getStateId( bs );
+					if ( BlockBitInfo.supportsBlock( bs ) )
+					{
+						return new VoxelBlobStateReference( stateID, 0 );
+					}
+					return new VoxelBlobStateReference( 0, 0 );
 				}
 
 				return swb.blob;

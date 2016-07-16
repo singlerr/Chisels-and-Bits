@@ -265,6 +265,42 @@ public class EntityBlueprint extends Entity
 		final EnumFacing y = getDataManager().get( BLUEPRINT_AXIS_Y );
 		final EnumFacing z = getDataManager().get( BLUEPRINT_AXIS_Z );
 
+		final int minX = getDataManager().get( BLUEPRINT_MIN_X );
+		final int maxX = getDataManager().get( BLUEPRINT_MAX_X );
+		final int minY = getDataManager().get( BLUEPRINT_MIN_Y );
+		final int maxY = getDataManager().get( BLUEPRINT_MAX_Y );
+		final int minZ = getDataManager().get( BLUEPRINT_MIN_Z );
+		final int maxZ = getDataManager().get( BLUEPRINT_MAX_Z );
+
+		// move sizes around...
+		swapSides( x, minX, maxX );
+		swapSides( y, minY, maxY );
+		swapSides( z, minZ, maxZ );
+	}
+
+	private void swapSides(
+			final EnumFacing newAxis,
+			final int min,
+			final int max )
+	{
+		switch ( newAxis )
+		{
+			case DOWN:
+			case UP:
+				getDataManager().set( BLUEPRINT_MIN_Y, min );
+				getDataManager().set( BLUEPRINT_MAX_Y, max );
+				return;
+			case NORTH:
+			case SOUTH:
+				getDataManager().set( BLUEPRINT_MIN_Z, min );
+				getDataManager().set( BLUEPRINT_MAX_Z, max );
+				return;
+			case EAST:
+			case WEST:
+				getDataManager().set( BLUEPRINT_MIN_X, min );
+				getDataManager().set( BLUEPRINT_MAX_X, max );
+				return;
+		}
 	}
 
 	private void rotate(
