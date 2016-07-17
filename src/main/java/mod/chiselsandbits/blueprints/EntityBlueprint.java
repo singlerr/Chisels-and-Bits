@@ -53,12 +53,14 @@ public class EntityBlueprint extends Entity
 	private static final DataParameter<EnumFacing> BLUEPRINT_AXIS_Y = EntityDataManager.<EnumFacing> createKey( EntityBlueprint.class, DataSerializers.FACING );
 	private static final DataParameter<EnumFacing> BLUEPRINT_AXIS_Z = EntityDataManager.<EnumFacing> createKey( EntityBlueprint.class, DataSerializers.FACING );
 
-	private static final DataParameter<Integer> BLUEPRINT_MIN_X = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
-	private static final DataParameter<Integer> BLUEPRINT_MIN_Y = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
-	private static final DataParameter<Integer> BLUEPRINT_MIN_Z = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
-	private static final DataParameter<Integer> BLUEPRINT_MAX_X = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
-	private static final DataParameter<Integer> BLUEPRINT_MAX_Y = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
-	private static final DataParameter<Integer> BLUEPRINT_MAX_Z = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
+	static final DataParameter<Integer> BLUEPRINT_MIN_X = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
+	static final DataParameter<Integer> BLUEPRINT_MIN_Y = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
+	static final DataParameter<Integer> BLUEPRINT_MIN_Z = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
+	static final DataParameter<Integer> BLUEPRINT_MAX_X = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
+	static final DataParameter<Integer> BLUEPRINT_MAX_Y = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
+	static final DataParameter<Integer> BLUEPRINT_MAX_Z = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
+
+	Object renderData = null;
 
 	public EntityBlueprint(
 			final World worldIn )
@@ -72,6 +74,15 @@ public class EntityBlueprint extends Entity
 	{
 		if ( !worldObj.isRemote )
 		{
+			if ( entityIn instanceof EntityPlayer )
+			{
+				if ( ( (EntityPlayer) entityIn ).capabilities.isCreativeMode )
+				{
+					setDead();
+					return false;
+				}
+			}
+
 			worldObj.spawnEntityInWorld( new EntityItem( worldObj, posX, posY, posZ, getItem().orNull() ) );
 			setDead();
 		}

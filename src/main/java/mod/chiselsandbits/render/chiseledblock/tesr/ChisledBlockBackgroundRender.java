@@ -130,7 +130,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 
 				for ( final ChiselLayer lx : layers )
 				{
-					final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( tx, lx );
+					final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( tx, lx, null );
 
 					if ( !model.isEmpty() )
 					{

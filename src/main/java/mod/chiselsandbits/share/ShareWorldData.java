@@ -9,11 +9,16 @@ import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
+import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IVoxelAccess;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.math.BlockPos;
 
 public class ShareWorldData
 {
@@ -49,7 +54,7 @@ public class ShareWorldData
 		final boolean isBlob;
 
 		final String blockName;
-		final IVoxelAccess blob;
+		final VoxelBlobStateReference blob;
 
 		public IBlockState getState()
 		{
@@ -201,29 +206,80 @@ public class ShareWorldData
 			final int y,
 			final int z )
 	{
+		final SharedWorldBlock swb = getAtPos( x, y, z );
+
+		if ( swb != null )
+		{
+			if ( swb.blob == null )
+			{
+				final IBlockState bs = swb.getState();
+				final int stateID = Block.getStateId( bs );
+				if ( BlockBitInfo.supportsBlock( bs ) )
+				{
+					return new VoxelBlobStateReference( stateID, 0 );
+				}
+				return new VoxelBlobStateReference( 0, 0 );
+			}
+
+			return swb.blob;
+		}
+
+		return new VoxelBlobStateReference( 0, 0 );
+	}
+
+	SharedWorldBlock getAtPos(
+			final int x,
+			final int y,
+			final int z )
+	{
 		if ( x >= 0 && y >= 0 && z >= 0 && x < xSize && y < ySize && z < zSize )
 		{
 			final int modelid = blocks[x + y * xSize + z * xySize];
 			if ( models.length > modelid && modelid >= 0 )
 			{
-				final SharedWorldBlock swb = models[modelid];
-
-				if ( swb.blob == null )
-				{
-					final IBlockState bs = swb.getState();
-					final int stateID = Block.getStateId( bs );
-					if ( BlockBitInfo.supportsBlock( bs ) )
-					{
-						return new VoxelBlobStateReference( stateID, 0 );
-					}
-					return new VoxelBlobStateReference( 0, 0 );
-				}
-
-				return swb.blob;
+				return models[modelid];
 			}
 		}
 
-		return new VoxelBlobStateReference( 0, 0 );
+		return null;
+	}
+
+	public IBlockState getStateAt(
+			final BlockPos p )
+	{
+		final SharedWorldBlock swb = getAtPos( p.getX(), p.getY(), p.getZ() );
+
+		if ( swb != null )
+		{
+			if ( swb.blob != null )
+			{
+				return ChiselsAndBits.getBlocks().getChiseledDefaultState();
+			}
+			else
+			{
+				return swb.getState();
+			}
+		}
+
+		return Blocks.AIR.getDefaultState();
+	}
+
+	public TileEntityBlockChiseled getTileAt(
+			final BlockPos p )
+	{
+		final SharedWorldBlock swb = getAtPos( p.getX(), p.getY(), p.getZ() );
+
+		if ( swb != null )
+		{
+			if ( swb.blob != null )
+			{
+				final TileEntityBlockChiseled te = new TileEntityBlockChiseled();
+				te.setState( te.getBasicState().withProperty( BlockChiseled.UProperty_VoxelBlob, swb.blob ) );
+				return te;
+			}
+		}
+
+		return null;
 	}
 
 }

@@ -323,7 +323,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 		for ( final ChiselLayer lx : ChiselLayer.values() )
 		{
-			final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( te, lx );
+			final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( te, lx, null );
 
 			if ( !model.isEmpty() )
 			{

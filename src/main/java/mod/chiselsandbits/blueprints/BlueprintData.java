@@ -14,12 +14,15 @@ import java.net.URLEncoder;
 
 import javax.imageio.ImageIO;
 
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IVoxelAccess;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.share.ShareWorldData;
 import mod.chiselsandbits.voxelspace.IVoxelProvider;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.math.BlockPos;
 
 public class BlueprintData implements Runnable, IVoxelProvider
 {
@@ -223,6 +226,18 @@ public class BlueprintData implements Runnable, IVoxelProvider
 			final int z )
 	{
 		return data.getBlob( x, y, z );
+	}
+
+	public IBlockState getStateAt(
+			final BlockPos p )
+	{
+		return data.getStateAt( p );
+	}
+
+	public TileEntityBlockChiseled getTileAt(
+			final BlockPos p )
+	{
+		return data.getTileAt( p );
 	}
 
 }

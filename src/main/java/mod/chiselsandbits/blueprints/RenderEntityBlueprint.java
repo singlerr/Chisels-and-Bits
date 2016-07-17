@@ -2,7 +2,9 @@ package mod.chiselsandbits.blueprints;
 
 import org.lwjgl.opengl.GL11;
 
+import mod.chiselsandbits.blueprints.BlueprintData.EnumLoadState;
 import mod.chiselsandbits.client.RenderHelper;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
@@ -36,6 +38,39 @@ public class RenderEntityBlueprint extends Render<EntityBlueprint>
 			final float entityYaw,
 			final float partialTicks )
 	{
+		final int minX = entity.getDataManager().get( EntityBlueprint.BLUEPRINT_MIN_X );
+		final int minY = entity.getDataManager().get( EntityBlueprint.BLUEPRINT_MIN_Y );
+		final int minZ = entity.getDataManager().get( EntityBlueprint.BLUEPRINT_MIN_Z );
+
+		if ( entity.renderData != null )
+		{
+			final double intToPos = 1.0 / 16.0;
+			GlStateManager.pushMatrix();
+			GlStateManager.translate( x - 0.5 - minX * intToPos, y - 0.5 - minY * intToPos, z - 0.5 - minZ * intToPos );
+			GlStateManager.color( 1, 1, 1, 1 );
+			net.minecraft.client.renderer.RenderHelper.enableStandardItemLighting();
+
+			GlStateManager.disableAlpha();
+			GlStateManager.disableBlend();
+			GlStateManager.enableTexture2D();
+
+			GlStateManager.colorMask( false, false, false, false );
+			( (BlueprintRenderData) entity.renderData ).render();
+			GlStateManager.colorMask( true, true, true, true );
+
+			GlStateManager.enableBlend();
+			GlStateManager.enableTexture2D();
+			GlStateManager.bindTexture( Minecraft.getMinecraft().getTextureMapBlocks().getGlTextureId() );
+
+			GlStateManager.enableAlpha();
+			GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
+			( (BlueprintRenderData) entity.renderData ).render();
+			GlStateManager.disableBlend();
+
+			net.minecraft.client.renderer.RenderHelper.disableStandardItemLighting();
+			GlStateManager.popMatrix();
+		}
+
 		ei.setWorld( entity.getEntityWorld() );
 		ei.posX = entity.posX;
 		ei.posY = entity.posY;
@@ -62,6 +97,15 @@ public class RenderEntityBlueprint extends Render<EntityBlueprint>
 		GlStateManager.depthMask( true );
 		GlStateManager.enableTexture2D();
 		GlStateManager.disableBlend();
+
+		if ( entity.renderData == null )
+		{
+			final BlueprintData data = ChiselsAndBits.getItems().itemBlueprint.getStackData( entity.getItemStack() );
+			if ( data.getState() == EnumLoadState.LOADED )
+			{
+				entity.renderData = new BlueprintRenderData( data );
+			}
+		}
 	}
 
 	@Override

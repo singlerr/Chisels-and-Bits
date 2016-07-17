@@ -88,7 +88,8 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 
 	public static ChiseledBlockBaked getCachedModel(
 			final TileEntityBlockChiseled te,
-			final ChiselLayer layer )
+			final ChiselLayer layer,
+			final VertexFormat format )
 	{
 		final IExtendedBlockState myState = te.getBasicState();
 
@@ -98,7 +99,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 
 		blockP = blockP == null ? 0 : blockP;
 
-		return getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, getModelFormat() );
+		return getCachedModel( blockP, data, getRenderState( rTracker, data ), layer, format == null ? getModelFormat() : format );
 	}
 
 	private static VertexFormat getModelFormat()

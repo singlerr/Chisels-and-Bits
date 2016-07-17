@@ -5,6 +5,7 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -17,6 +18,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class RenderHelper
@@ -117,18 +119,35 @@ public class RenderHelper
 		}
 	}
 
-	public static void renderQuads(
+	public static void renderBlockQuads(
 			final int alpha,
 			final VertexBuffer renderer,
 			final List<BakedQuad> quads,
-			final World worldObj,
+			final IBlockAccess worldObj,
 			final BlockPos blockPos )
 	{
 		int i = 0;
 		for ( final int j = quads.size(); i < j; ++i )
 		{
 			final BakedQuad bakedquad = quads.get( i );
-			final int color = bakedquad.getTintIndex() == -1 ? alpha | 0xffffff : getTint( alpha, bakedquad.getTintIndex(), worldObj, blockPos );
+			final int color = bakedquad.getTintIndex() == -1 ? alpha << 24 | 0xffffff : getTint( alpha, bakedquad.getTintIndex(), worldObj, blockPos );
+			net.minecraftforge.client.model.pipeline.LightUtil.renderQuadColorSlow( renderer, bakedquad, color );
+		}
+	}
+
+	public static void renderQuads(
+			final int alpha,
+			final VertexBuffer renderer,
+			final List<BakedQuad> quads,
+			final IBlockAccess worldObj,
+			final BlockPos blockPos )
+	{
+		int i = 0;
+		for ( final int j = quads.size(); i < j; ++i )
+		{
+			final BakedQuad bakedquad = quads.get( i );
+			final int color = bakedquad.getTintIndex() == -1 ? alpha << 24 | 0xffffff : getTint( alpha, bakedquad.getTintIndex(), worldObj, blockPos );
+
 			net.minecraftforge.client.model.pipeline.LightUtil.renderQuadColor( renderer, bakedquad, color );
 		}
 	}
@@ -207,7 +226,7 @@ public class RenderHelper
 	public static int getTint(
 			final int alpha,
 			final int tintIndex,
-			final World worldObj,
+			final IBlockAccess worldObj,
 			final BlockPos blockPos )
 	{
 		return alpha | Minecraft.getMinecraft().getBlockColors().colorMultiplier( ChiselsAndBits.getBlocks().getChiseledDefaultState(), worldObj, blockPos, tintIndex );
@@ -215,7 +234,7 @@ public class RenderHelper
 
 	public static void renderModel(
 			final IBakedModel model,
-			final World worldObj,
+			final IBlockAccess worldObj,
 			final BlockPos blockPos,
 			final int alpha )
 	{
@@ -223,13 +242,43 @@ public class RenderHelper
 		final VertexBuffer worldrenderer = tessellator.getBuffer();
 		worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.ITEM );
 
+		uploadModel( worldrenderer, model, worldObj, blockPos, alpha );
+
+		tessellator.draw();
+	}
+
+	public static void uploadBlockModel(
+			final VertexBuffer worldrenderer,
+			final IBakedModel model,
+			final IBlockAccess worldObj,
+			final BlockPos blockPos,
+			final int alpha )
+	{
+		for ( final EnumFacing enumfacing : EnumFacing.values() )
+		{
+			final IBlockState a = worldObj.getBlockState( blockPos );
+			if ( a.shouldSideBeRendered( worldObj, blockPos, enumfacing ) )
+			{
+				renderBlockQuads( alpha, worldrenderer, model.getQuads( null, enumfacing, 0 ), worldObj, blockPos );
+			}
+		}
+
+		renderBlockQuads( alpha, worldrenderer, model.getQuads( null, null, 0 ), worldObj, blockPos );
+	}
+
+	public static void uploadModel(
+			final VertexBuffer worldrenderer,
+			final IBakedModel model,
+			final IBlockAccess worldObj,
+			final BlockPos blockPos,
+			final int alpha )
+	{
 		for ( final EnumFacing enumfacing : EnumFacing.values() )
 		{
 			renderQuads( alpha, worldrenderer, model.getQuads( null, enumfacing, 0 ), worldObj, blockPos );
 		}
 
 		renderQuads( alpha, worldrenderer, model.getQuads( null, null, 0 ), worldObj, blockPos );
-		tessellator.draw();
 	}
 
 	public static void renderGhostModel(
