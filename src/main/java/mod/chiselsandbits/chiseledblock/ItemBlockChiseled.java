@@ -3,6 +3,7 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.ArrayList;
 import java.util.List;
 
+import mod.chiselsandbits.api.EventBlockBitModification;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -17,13 +18,13 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.NetworkRouter;
+import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
@@ -37,6 +38,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -133,16 +135,54 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			return true;
 		}
 
-		if ( tryPlaceBlockAt( block, stack, player, worldIn, pos, side, null, false ) )
+		if ( tryPlaceBlockAt( block, stack, player, worldIn, pos, side, EnumHand.MAIN_HAND, null, false ) )
 		{
 			return true;
 		}
 
-		return tryPlaceBlockAt( block, stack, player, worldIn, pos.offset( side ), side, null, false );
+		return tryPlaceBlockAt( block, stack, player, worldIn, pos.offset( side ), side, EnumHand.MAIN_HAND, null, false );
 	}
 
 	@Override
 	public EnumActionResult onItemUse(
+			final ItemStack stack,
+			final EntityPlayer playerIn,
+			final World worldIn,
+			final BlockPos pos,
+			final EnumHand hand,
+			final EnumFacing side,
+			final float hitX,
+			final float hitY,
+			final float hitZ )
+	{
+		if ( playerIn.isSneaking() )
+		{
+			if ( !worldIn.isRemote )
+			{
+				// Say it "worked", Don't do anything we'll get a better packet.
+				return EnumActionResult.SUCCESS;
+			}
+			else
+			{
+				// send accurate packet.
+				final PacketAccurateSneakPlace pasp = new PacketAccurateSneakPlace();
+
+				pasp.hand = hand;
+				pasp.pos = pos;
+				pasp.side = side;
+				pasp.stack = stack;
+				pasp.hitX = hitX;
+				pasp.hitY = hitY;
+				pasp.hitZ = hitZ;
+
+				NetworkRouter.instance.sendToServer( pasp );
+			}
+		}
+
+		return doItemUse( stack, playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ );
+	}
+
+	public EnumActionResult doItemUse(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
 			final World worldIn,
@@ -227,21 +267,22 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		if ( player.isSneaking() )
 		{
 			final BitLocation bl = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos ), false, ChiselToolType.BIT );
-			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );
+			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, EnumHand.MAIN_HAND, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );
 		}
 		else
 		{
-			return tryPlaceBlockAt( block, stack, player, world, pos, side, null, true );
+			return tryPlaceBlockAt( block, stack, player, world, pos, side, EnumHand.MAIN_HAND, null, true );
 		}
 	}
 
 	static public boolean tryPlaceBlockAt(
 			final Block block,
 			final ItemStack stack,
-			final EntityLivingBase player,
+			final EntityPlayer player,
 			final World world,
 			BlockPos pos,
 			final EnumFacing side,
+			final EnumHand hand,
 			final BlockPos partial,
 			final boolean modulateWorld )
 	{
@@ -290,6 +331,15 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 						if ( solids > 0 )
 						{
 							final BlockPos bp = pos.add( x, y, z );
+
+							final EventBlockBitModification bmm = new EventBlockBitModification( world, bp, player, hand, stack, true );
+							MinecraftForge.EVENT_BUS.post( bmm );
+
+							// test permissions.
+							if ( !world.isBlockModifiable( player, bp ) || bmm.isCanceled() )
+							{
+								return false;
+							}
 
 							if ( world.isAirBlock( bp ) || world.getBlockState( bp ).getBlock().isReplaceable( world, bp ) )
 							{
@@ -423,6 +473,12 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		}
 
 		side = rotationDirection > 0 ? side.rotateY() : side.rotateYCCW();
+
+		if ( blueprintTag.hasKey( "BlockEntityTag" ) )
+		{
+			blueprintTag.getCompoundTag( "BlockEntityTag" ).setByte( NBT_SIDE, (byte) +side.ordinal() );
+		}
+
 		blueprintTag.setInteger( NBT_SIDE, +side.ordinal() );
 	}
 

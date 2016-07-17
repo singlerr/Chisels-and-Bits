@@ -2,6 +2,7 @@ package mod.chiselsandbits.network;
 
 import java.util.HashMap;
 
+import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace;
 import mod.chiselsandbits.network.packets.PacketBagGui;
 import mod.chiselsandbits.network.packets.PacketBagGuiStack;
 import mod.chiselsandbits.network.packets.PacketBlueprintSet;
@@ -26,6 +27,7 @@ public enum ModPacketTypes
 	CLEAR_BAG( PacketClearBagGui.class ),
 	SUPRESS_INTERACTION( PacketSuppressInteraction.class ),
 	SET_COLOR( PacketSetColor.class ),
+	ACCURATE_PLACEMENT( PacketAccurateSneakPlace.class ),
 	BLUEPRINT_SET( PacketBlueprintSet.class );
 
 	private final Class<? extends ModPacket> packetClass;

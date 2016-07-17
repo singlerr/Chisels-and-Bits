@@ -249,7 +249,7 @@ public class ClientSide
 				public ModelResourceLocation getModelLocation(
 						final ItemStack stack )
 				{
-					return new ModelResourceLocation( new ResourceLocation( modId, stack.hasTagCompound() ? "positiveprint_written_preview" : "positiveprint" ), "inventory" );
+					return new ModelResourceLocation( new ResourceLocation( modId, modItems.itemPositiveprint.isWritten( stack ) ? "positiveprint_written_preview" : "positiveprint" ), "inventory" );
 				}
 
 			} );
@@ -264,7 +264,7 @@ public class ClientSide
 				public ModelResourceLocation getModelLocation(
 						final ItemStack stack )
 				{
-					return new ModelResourceLocation( new ResourceLocation( modId, stack.hasTagCompound() ? "negativeprint_written_preview" : "negativeprint" ), "inventory" );
+					return new ModelResourceLocation( new ResourceLocation( modId, modItems.itemNegativeprint.isWritten( stack ) ? "negativeprint_written_preview" : "negativeprint" ), "inventory" );
 				}
 
 			} );
@@ -279,7 +279,7 @@ public class ClientSide
 				public ModelResourceLocation getModelLocation(
 						final ItemStack stack )
 				{
-					return new ModelResourceLocation( new ResourceLocation( modId, stack.hasTagCompound() ? "mirrorprint_written_preview" : "mirrorprint" ), "inventory" );
+					return new ModelResourceLocation( new ResourceLocation( modId, modItems.itemMirrorprint.isWritten( stack ) ? "mirrorprint_written_preview" : "mirrorprint" ), "inventory" );
 				}
 
 			} );
@@ -1058,13 +1058,13 @@ public class ClientSide
 				return;
 			}
 
-			if ( !currentItem.hasTagCompound() )
+			if ( !ChiselsAndBits.getItems().itemNegativeprint.isWritten( currentItem ) )
 			{
 				return;
 			}
 
 			final ItemStack item = ChiselsAndBits.getItems().itemNegativeprint.getPatternedItem( currentItem );
-			if ( !item.hasTagCompound() )
+			if ( item == null || !item.hasTagCompound() )
 			{
 				return;
 			}
@@ -1258,7 +1258,7 @@ public class ClientSide
 				else
 				{
 					isVisible = true;
-					isUnplaceable = !ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, partial, false );
+					isUnplaceable = !ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, EnumHand.MAIN_HAND, partial, false );
 				}
 			}
 		}

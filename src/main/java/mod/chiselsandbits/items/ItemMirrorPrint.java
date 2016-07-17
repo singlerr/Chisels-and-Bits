@@ -47,7 +47,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 		super.addInformation( stack, playerIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpMirrorPrint, tooltip );
 
-		if ( stack.hasTagCompound() )
+		if ( isWritten( stack ) )
 		{
 			if ( ClientSide.instance.holdingShift() )
 			{
@@ -70,7 +70,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 	public String getUnlocalizedName(
 			final ItemStack stack )
 	{
-		if ( stack.hasTagCompound() )
+		if ( isWritten( stack ) )
 		{
 			return super.getUnlocalizedName( stack ) + "_written";
 		}
@@ -95,7 +95,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			return EnumActionResult.SUCCESS;
 		}
 
-		if ( !stack.hasTagCompound() )
+		if ( !isWritten( stack ) )
 		{
 			final NBTTagCompound comp = getCompoundFromBlock( world, pos, player, side );
 			if ( comp != null )
@@ -141,7 +141,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 	public ItemStack getPatternedItem(
 			final ItemStack stack )
 	{
-		if ( !stack.hasTagCompound() )
+		if ( !isWritten( stack ) )
 		{
 			return null;
 		}
@@ -164,6 +164,13 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 
 		itemstack.setTagInfo( ItemBlockChiseled.NBT_CHISELED_DATA, tag );
 		return itemstack;
+	}
+
+	@Override
+	public boolean isWritten(
+			final ItemStack stack )
+	{
+		return stack != null && stack.hasTagCompound();
 	}
 
 }

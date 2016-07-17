@@ -172,7 +172,6 @@ public class ChiselsAndBits
 
 		integration.init();
 
-		// registerWithBus( new EventBreakSpeed() );
 		registerWithBus( new EventPlayerInteract() );
 		registerWithBus( new VaporizeWater() );
 

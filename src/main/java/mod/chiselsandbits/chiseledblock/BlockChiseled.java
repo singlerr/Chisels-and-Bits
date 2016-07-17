@@ -933,7 +933,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	{
 		IBlockState actingState = originalState;
 		Block target = originalState.getBlock();
-		final boolean isAir = world.isAirBlock( pos );
+		final boolean isAir = world.isAirBlock( pos ) || actingState.getBlock().isReplaceable( world, pos );
 
 		if ( BlockBitInfo.supportsBlock( actingState ) || isAir )
 		{
@@ -1029,77 +1029,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		return 0;
 	}
 
-	ThreadLocal<Boolean> testingHarvest = new ThreadLocal<Boolean>();
-
-	@Override
-	public boolean canHarvestBlock(
-			final IBlockAccess world,
-			final BlockPos pos,
-			final EntityPlayer player )
-	{
-		try
-		{
-			testingHarvest.set( true );
-			return super.canHarvestBlock( world, pos, player );
-		}
-		finally
-		{
-			testingHarvest.remove();
-		}
-	}
-
-	@Override
-	@Deprecated
-	public IBlockState getActualState(
-			final IBlockState state,
-			final IBlockAccess worldIn,
-			final BlockPos pos )
-	{
-		// only if this feature is enable should this code ever run.
-		if ( ChiselsAndBits.getConfig().enableToolHarvestLevels )
-		{
-			try
-			{
-				// require a real world, and extended block state..
-				if ( state instanceof IExtendedBlockState && worldIn instanceof World )
-				{
-					Boolean isTesting = testingHarvest.get(); // fast or slow?
-
-					if ( isTesting == null )
-					{
-						// SLOW - this is pure insanity, but there is no other
-						// solution without core modding... some kinda PR?
-						final Exception e = new Exception();
-						final StackTraceElement[] elements = e.getStackTrace();
-
-						if ( elements != null && elements.length > 2 )
-						{
-							final String cname = elements[1].getClassName();
-
-							// test to see if the hook is asking for this.
-							if ( cname.contains( "minecraftforge" ) )
-							{
-								isTesting = true;
-							}
-						}
-					}
-
-					if ( isTesting != null )
-					{
-						final TileEntityBlockChiseled tebc = getTileEntity( worldIn, pos );
-						return tebc.getBlockState( Blocks.STONE );
-					}
-				}
-			}
-			catch ( final ExceptionNoTileEntity e )
-			{
-				Log.noTileError( e );
-			}
-		}
-
-		return super.getActualState( state, worldIn, pos );
-	}
-
 	public static void setActingAs(
 			final IBlockState state )
 	{
@@ -1107,59 +1036,82 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	}
 
 	@Override
-	public String getHarvestTool(
-			final IBlockState state )
+	public boolean canHarvestBlock(
+			final IBlockAccess world,
+			final BlockPos pos,
+			final EntityPlayer player )
 	{
-		final IBlockState actingAsState = actingAs.get();
-
-		if ( actingAsState != null && actingAsState.getBlock() != this )
+		if ( ChiselsAndBits.getConfig().enableToolHarvestLevels )
 		{
-			return actingAsState.getBlock().getHarvestTool( actingAsState );
+			IBlockState state = actingAs.get();
+
+			if ( state == null )
+			{
+				state = getPrimaryState( world, pos );
+			}
+
+			return state.getBlock().canHarvestBlock( new HarvestWorld( state ), pos, player );
 		}
 
-		if ( ChiselsAndBits.getConfig().enableToolHarvestLevels && state instanceof IExtendedBlockState )
+		return true;
+	}
+
+	@Override
+	@Deprecated
+	public float getPlayerRelativeBlockHardness(
+			final IBlockState passedState,
+			final EntityPlayer player,
+			final World world,
+			final BlockPos pos )
+	{
+		if ( ChiselsAndBits.getConfig().enableToolHarvestLevels )
 		{
-			final IBlockState blockRef = getCommonState( (IExtendedBlockState) state );
-			if ( blockRef != null )
+			IBlockState state = actingAs.get();
+
+			if ( state == null )
 			{
-				String tool = blockRef.getBlock().getHarvestTool( blockRef );
-				if ( tool == null )
-				{
-					tool = "pickaxe";
-				}
-				return tool;
+				state = getPrimaryState( world, pos );
+			}
+
+			final float hardness = getBlockHardness( state, world, pos );
+			if ( hardness < 0.0F )
+			{
+				return 0.0F;
+			}
+
+			if ( !state.getBlock().canHarvestBlock( new HarvestWorld( state ), pos, player ) )
+			{
+				return player.getDigSpeed( state, pos ) / hardness / 100F;
+			}
+			else
+			{
+				return player.getDigSpeed( state, pos ) / hardness / 30F;
 			}
 		}
 
-		if ( state.getBlock() != this )
-		{
-			return state.getBlock().getHarvestTool( state );
-		}
+		return super.getPlayerRelativeBlockHardness( passedState, player, world, pos );
+	}
 
-		return super.getHarvestTool( state );
+	@Override
+	public boolean isToolEffective(
+			final String type,
+			final IBlockState state )
+	{
+		return Blocks.STONE.isToolEffective( type, Blocks.STONE.getDefaultState() );
+	}
+
+	@Override
+	public String getHarvestTool(
+			final IBlockState state )
+	{
+		return Blocks.STONE.getHarvestTool( Blocks.STONE.getDefaultState() );
 	}
 
 	@Override
 	public int getHarvestLevel(
 			final IBlockState state )
 	{
-		final IBlockState actingAsState = actingAs.get();
-
-		if ( actingAsState != null && actingAsState.getBlock() != this )
-		{
-			return actingAsState.getBlock().getHarvestLevel( actingAsState );
-		}
-
-		if ( ChiselsAndBits.getConfig().enableToolHarvestLevels && state instanceof IExtendedBlockState )
-		{
-			final IBlockState blockRef = getCommonState( (IExtendedBlockState) state );
-			if ( blockRef != null )
-			{
-				return blockRef.getBlock().getHarvestLevel( blockRef );
-			}
-		}
-
-		return super.getHarvestLevel( state );
+		return Blocks.STONE.getHarvestLevel( Blocks.STONE.getDefaultState() );
 	}
 
 	public ResourceLocation getModel()
