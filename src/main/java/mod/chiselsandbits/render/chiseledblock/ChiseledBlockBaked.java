@@ -315,7 +315,9 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 									}
 									else
 									{
-										faceBuilder.put( elementIndex, pc.sprite.getInterpolatedU( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 0] ), pc.sprite.getInterpolatedV( uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1] ) );
+										final float u = uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 0];
+										final float v = uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1];
+										faceBuilder.put( elementIndex, pc.sprite.getInterpolatedU( u ), pc.sprite.getInterpolatedV( v ) );
 									}
 									break;
 
@@ -667,6 +669,17 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		uvs[6] = 16.0f * u( quadsUV, to_u, from_v ); // 0
 		uvs[7] = 16.0f * v( quadsUV, to_u, from_v ); // 1
+
+		snapUVs( uvs );
+	}
+
+	private void snapUVs(
+			final float[] uvs )
+	{
+		for ( int x = 0; x < uvs.length; ++x )
+		{
+
+		}
 	}
 
 	float u(

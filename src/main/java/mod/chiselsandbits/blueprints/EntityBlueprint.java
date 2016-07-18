@@ -49,9 +49,9 @@ public class EntityBlueprint extends Entity
 
 	private static final DataParameter<Boolean> BLUEPRINT_PLACING = EntityDataManager.<Boolean> createKey( EntityBlueprint.class, DataSerializers.BOOLEAN );
 
-	private static final DataParameter<EnumFacing> BLUEPRINT_AXIS_X = EntityDataManager.<EnumFacing> createKey( EntityBlueprint.class, DataSerializers.FACING );
-	private static final DataParameter<EnumFacing> BLUEPRINT_AXIS_Y = EntityDataManager.<EnumFacing> createKey( EntityBlueprint.class, DataSerializers.FACING );
-	private static final DataParameter<EnumFacing> BLUEPRINT_AXIS_Z = EntityDataManager.<EnumFacing> createKey( EntityBlueprint.class, DataSerializers.FACING );
+	static final DataParameter<EnumFacing> BLUEPRINT_AXIS_X = EntityDataManager.<EnumFacing> createKey( EntityBlueprint.class, DataSerializers.FACING );
+	static final DataParameter<EnumFacing> BLUEPRINT_AXIS_Y = EntityDataManager.<EnumFacing> createKey( EntityBlueprint.class, DataSerializers.FACING );
+	static final DataParameter<EnumFacing> BLUEPRINT_AXIS_Z = EntityDataManager.<EnumFacing> createKey( EntityBlueprint.class, DataSerializers.FACING );
 
 	static final DataParameter<Integer> BLUEPRINT_MIN_X = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
 	static final DataParameter<Integer> BLUEPRINT_MIN_Y = EntityDataManager.<Integer> createKey( EntityBlueprint.class, DataSerializers.VARINT );
@@ -264,7 +264,7 @@ public class EntityBlueprint extends Entity
 			}
 		}
 
-		return EnumActionResult.PASS;
+		return EnumActionResult.SUCCESS;
 	}
 
 	private void adjustSize(
@@ -284,9 +284,33 @@ public class EntityBlueprint extends Entity
 		final int maxZ = getDataManager().get( BLUEPRINT_MAX_Z );
 
 		// move sizes around...
-		swapSides( x, minX, maxX );
-		swapSides( y, minY, maxY );
-		swapSides( z, minZ, maxZ );
+		swapSides( x, getSide( xOld, minX, minY, minZ ), getSide( xOld, maxX, maxY, maxZ ) );
+		swapSides( y, getSide( yOld, minX, minY, minZ ), getSide( yOld, maxX, maxY, maxZ ) );
+		swapSides( z, getSide( zOld, minX, minY, minZ ), getSide( zOld, maxX, maxY, maxZ ) );
+	}
+
+	private int getSide(
+			final EnumFacing axis,
+			final int X,
+			final int Y,
+			final int Z )
+	{
+		switch ( axis )
+		{
+			case DOWN:
+				return Y;
+			case EAST:
+				return X;
+			case NORTH:
+				return Z;
+			case SOUTH:
+				return Z;
+			case UP:
+				return Y;
+			case WEST:
+				return X;
+		}
+		throw new NullPointerException();
 	}
 
 	private void swapSides(
@@ -436,18 +460,31 @@ public class EntityBlueprint extends Entity
 		final int minZ = ( getDataManager().get( BLUEPRINT_MIN_Z ) + bitsPerBlock_Minus1 ) / bitsPerBlock;
 		final int maxZ = ( getDataManager().get( BLUEPRINT_MAX_Z ) + bitsPerBlock_Minus1 ) / bitsPerBlock;
 
-		final BlockPos bitOffset = new BlockPos( getDataManager().get( BLUEPRINT_MIN_X ), getDataManager().get( BLUEPRINT_MIN_Y ), getDataManager().get( BLUEPRINT_MIN_Z ) );
+		final EnumFacing axisX = getDataManager().get( BLUEPRINT_AXIS_X );
+		final EnumFacing axisY = getDataManager().get( BLUEPRINT_AXIS_Y );
+		final EnumFacing axisZ = getDataManager().get( BLUEPRINT_AXIS_Z );
+
+		BlockPos bitOffset = new BlockPos( getDataManager().get( BLUEPRINT_MIN_X ), getDataManager().get( BLUEPRINT_MIN_Y ), getDataManager().get( BLUEPRINT_MIN_Z ) );
+		bitOffset = bitOffset.add( -minX * bitsPerBlock, -minY * bitsPerBlock, -minZ * bitsPerBlock );
+
+		final int axis_x = 15 + getDataManager().get( BLUEPRINT_MIN_X ) + getDataManager().get( BLUEPRINT_MAX_X );
+		final int axis_y = 15 + getDataManager().get( BLUEPRINT_MIN_Y ) + getDataManager().get( BLUEPRINT_MAX_Y );
+		final int axis_z = 15 + getDataManager().get( BLUEPRINT_MIN_Z ) + getDataManager().get( BLUEPRINT_MAX_Z );
+
+		BlockPos afterOffset = BlockPos.ORIGIN;
+		afterOffset = adjustAxis( afterOffset, axisX, Axis.X, axis_x, axis_y, axis_z );
+		afterOffset = adjustAxis( afterOffset, axisY, Axis.Y, axis_x, axis_y, axis_z );
+		afterOffset = adjustAxis( afterOffset, axisZ, Axis.Z, axis_x, axis_y, axis_z );
 
 		final BlockPos center = getPosition().down(); // this adds 0.5 to y
 		final BlockPos min = center.add( -minX, -minY, -minZ );
 		final BlockPos max = center.add( maxX, maxY, maxZ );
 
 		source = new VoxelRegionSrc( new VoxelCompressedProviderWorld( worldObj ), min, max, min );
-		application = new VoxelTransformedRegion(
-				new VoxelOffsetRegion( new VoxelRegionSrc( bd, BlockPos.ORIGIN, BlockPos.ORIGIN.add( max.subtract( min ) ), BlockPos.ORIGIN ), bitOffset.add( -minX * bitsPerBlock, -minY * bitsPerBlock, -minZ * bitsPerBlock ) ),
-				getDataManager().get( BLUEPRINT_AXIS_X ),
-				getDataManager().get( BLUEPRINT_AXIS_Y ),
-				getDataManager().get( BLUEPRINT_AXIS_Z ) );
+
+		final IVoxelSrc data = new VoxelRegionSrc( bd, BlockPos.ORIGIN, new BlockPos( bd.getXSize(), bd.getYSize(), bd.getZSize() ), BlockPos.ORIGIN );
+		final IVoxelSrc offset = new VoxelTransformedRegion( data, axisX, axisY, axisZ, afterOffset );
+		application = new VoxelOffsetRegion( offset, bitOffset );
 
 		for ( final BlockPos p : BlockPos.getAllInBox( min, max ) )
 		{
@@ -607,6 +644,29 @@ public class EntityBlueprint extends Entity
 		// place it on the floor...
 		getDataManager().set( BLUEPRINT_MIN_Y, 0 );
 		getDataManager().set( BLUEPRINT_MAX_Y, y * 16 );
+	}
+
+	private BlockPos adjustAxis(
+			final BlockPos offset,
+			final EnumFacing axis,
+			final Axis which,
+			final int x,
+			final int y,
+			final int z )
+	{
+		switch ( axis )
+		{
+			case WEST:
+				return offset.add( which == Axis.X ? x : 0, which == Axis.Y ? x : 0, which == Axis.Z ? x : 0 );
+			case DOWN:
+				return offset.add( which == Axis.X ? y : 0, which == Axis.Y ? y : 0, which == Axis.Z ? y : 0 );
+			case NORTH:
+				return offset.add( which == Axis.X ? z : 0, which == Axis.Y ? z : 0, which == Axis.Z ? z : 0 );
+			default:
+				break;
+		}
+
+		return offset;
 	}
 
 }

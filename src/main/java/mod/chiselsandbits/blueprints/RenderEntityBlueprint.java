@@ -1,5 +1,8 @@
 package mod.chiselsandbits.blueprints;
 
+import java.nio.FloatBuffer;
+
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
 import mod.chiselsandbits.blueprints.BlueprintData.EnumLoadState;
@@ -12,6 +15,7 @@ import net.minecraft.client.renderer.entity.RenderEntityItem;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 
@@ -20,6 +24,7 @@ public class RenderEntityBlueprint extends Render<EntityBlueprint>
 
 	EntityItem ei;
 	RenderEntityItem rei;
+	FloatBuffer orientationMatrix = BufferUtils.createFloatBuffer( 16 );
 
 	public RenderEntityBlueprint(
 			final RenderManager renderManager )
@@ -38,9 +43,16 @@ public class RenderEntityBlueprint extends Render<EntityBlueprint>
 			final float entityYaw,
 			final float partialTicks )
 	{
+		final EnumFacing axisX = entity.getDataManager().get( EntityBlueprint.BLUEPRINT_AXIS_X );
+		final EnumFacing axisY = entity.getDataManager().get( EntityBlueprint.BLUEPRINT_AXIS_Y );
+		final EnumFacing axisZ = entity.getDataManager().get( EntityBlueprint.BLUEPRINT_AXIS_Z );
+
 		final int minX = entity.getDataManager().get( EntityBlueprint.BLUEPRINT_MIN_X );
 		final int minY = entity.getDataManager().get( EntityBlueprint.BLUEPRINT_MIN_Y );
 		final int minZ = entity.getDataManager().get( EntityBlueprint.BLUEPRINT_MIN_Z );
+		final int maxX = entity.getDataManager().get( EntityBlueprint.BLUEPRINT_MAX_X );
+		final int maxY = entity.getDataManager().get( EntityBlueprint.BLUEPRINT_MAX_Y );
+		final int maxZ = entity.getDataManager().get( EntityBlueprint.BLUEPRINT_MAX_Z );
 
 		if ( entity.renderData != null )
 		{
@@ -53,6 +65,34 @@ public class RenderEntityBlueprint extends Render<EntityBlueprint>
 			GlStateManager.disableAlpha();
 			GlStateManager.disableBlend();
 			GlStateManager.enableTexture2D();
+
+			adjustAxis( axisX, minX + maxX, minY + maxY, minZ + maxZ );
+			adjustAxis( axisY, minX + maxX, minY + maxY, minZ + maxZ );
+			adjustAxis( axisZ, minX + maxX, minY + maxY, minZ + maxZ );
+
+			orientationMatrix.clear();
+			orientationMatrix.put( axisX.getFrontOffsetX() );
+			orientationMatrix.put( axisX.getFrontOffsetY() );
+			orientationMatrix.put( axisX.getFrontOffsetZ() );
+			orientationMatrix.put( 0.0F );
+
+			orientationMatrix.put( axisY.getFrontOffsetX() );
+			orientationMatrix.put( axisY.getFrontOffsetY() );
+			orientationMatrix.put( axisY.getFrontOffsetZ() );
+			orientationMatrix.put( 0.0F );
+
+			orientationMatrix.put( axisZ.getFrontOffsetX() );
+			orientationMatrix.put( axisZ.getFrontOffsetY() );
+			orientationMatrix.put( axisZ.getFrontOffsetZ() );
+			orientationMatrix.put( 0.0F );
+
+			orientationMatrix.put( 0.0F );
+			orientationMatrix.put( 0.0F );
+			orientationMatrix.put( 0.0F );
+			orientationMatrix.put( 1.0F );
+			orientationMatrix.rewind();
+
+			GlStateManager.multMatrix( orientationMatrix );
 
 			GlStateManager.colorMask( false, false, false, false );
 			( (BlueprintRenderData) entity.renderData ).render();
@@ -105,6 +145,30 @@ public class RenderEntityBlueprint extends Render<EntityBlueprint>
 			{
 				entity.renderData = new BlueprintRenderData( data );
 			}
+		}
+	}
+
+	private void adjustAxis(
+			final EnumFacing axis,
+			final int x,
+			final int y,
+			final int z )
+	{
+		final double coef = 1.0 / 16.0;
+
+		switch ( axis )
+		{
+			case WEST:
+				GlStateManager.translate( ( x + 16 ) * coef, 0, 0 );
+				break;
+			case DOWN:
+				GlStateManager.translate( 0, ( y + 16 ) * coef, 0 );
+				break;
+			case NORTH:
+				GlStateManager.translate( 0, 0, ( z + 16 ) * coef );
+				break;
+			default:
+				break;
 		}
 	}
 
