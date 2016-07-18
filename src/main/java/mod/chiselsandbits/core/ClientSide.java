@@ -797,7 +797,7 @@ public class ClientSide
 			final RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
 			final World theWorld = player.worldObj;
 
-			if ( mop.typeOfHit == RayTraceResult.Type.BLOCK )
+			if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
 			{
 				final BitLocation location = new BitLocation( mop, true, ChiselToolType.CHISEL );
 				if ( theWorld.getWorldBorder().contains( location.blockPos ) )
@@ -849,7 +849,7 @@ public class ClientSide
 			final RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
 			final World theWorld = player.worldObj;
 
-			if ( mop.typeOfHit != RayTraceResult.Type.BLOCK )
+			if ( mop == null || mop.typeOfHit != RayTraceResult.Type.BLOCK )
 			{
 				return;
 			}
