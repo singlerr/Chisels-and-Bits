@@ -669,17 +669,6 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		uvs[6] = 16.0f * u( quadsUV, to_u, from_v ); // 0
 		uvs[7] = 16.0f * v( quadsUV, to_u, from_v ); // 1
-
-		snapUVs( uvs );
-	}
-
-	private void snapUVs(
-			final float[] uvs )
-	{
-		for ( int x = 0; x < uvs.length; ++x )
-		{
-
-		}
 	}
 
 	float u(
