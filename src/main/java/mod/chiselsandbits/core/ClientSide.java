@@ -1041,7 +1041,7 @@ public class ClientSide
 				return;
 			}
 
-			final int rotations = ModUtil.getRotations( player, ModUtil.getItemRotation( currentItem ) );
+			final int rotations = ModUtil.getRotations( player, ModUtil.getSide( currentItem ) );
 
 			if ( mode == PositivePatternMode.PLACEMENT )
 			{
@@ -1076,7 +1076,7 @@ public class ClientSide
 				return;
 			}
 
-			final int rotations = ModUtil.getRotations( player, ModUtil.getItemRotation( item ) );
+			final int rotations = ModUtil.getRotations( player, ModUtil.getSide( item ) );
 			doGhostForChiseledBlock( x, y, z, theWorld, player, mop, currentItem, item, rotations );
 		}
 	}
@@ -1171,7 +1171,7 @@ public class ClientSide
 			lastPartial = partial;
 
 			final NBTBlobConverter c = new NBTBlobConverter();
-			c.readChisleData( item.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) );
+			c.readChisleData( item.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, false ) );
 			VoxelBlob blob = c.getBlob();
 
 			while ( rotations-- > 0 )

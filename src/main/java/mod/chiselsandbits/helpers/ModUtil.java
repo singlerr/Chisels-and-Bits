@@ -42,6 +42,9 @@ import net.minecraft.world.World;
 public class ModUtil
 {
 
+	public static final String NBT_SIDE = "side";
+	public static final String NBT_BLOCKENTITYTAG = "BlockEntityTag";
+
 	private final static Random RAND = new Random();
 	private final static float DEG_TO_RAD = 0.017453292f;
 
@@ -219,10 +222,9 @@ public class ModUtil
 
 	public static int getRotations(
 			final EntityLivingBase placer,
-			final byte side )
+			final EnumFacing oldYaw )
 	{
 		final EnumFacing newFace = ModUtil.getPlaceFace( placer );
-		final EnumFacing oldYaw = EnumFacing.VALUES[side];
 
 		int rotations = getRotationIndex( newFace ) - getRotationIndex( oldYaw );
 
@@ -456,7 +458,7 @@ public class ModUtil
 		{
 			final NBTBlobConverter tmp = new NBTBlobConverter();
 
-			NBTTagCompound cData = stack.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false );
+			NBTTagCompound cData = stack.getSubCompound( NBT_BLOCKENTITYTAG, false );
 
 			if ( cData == null )
 			{
@@ -468,7 +470,7 @@ public class ModUtil
 
 			if ( rotationPlayer != null )
 			{
-				int xrotations = ModUtil.getRotations( rotationPlayer, ModUtil.getItemRotation( stack ) );
+				int xrotations = ModUtil.getRotations( rotationPlayer, ModUtil.getSide( stack ) );
 				while ( xrotations-- > 0 )
 				{
 					blob = blob.spin( Axis.Y );
@@ -479,14 +481,6 @@ public class ModUtil
 		}
 
 		return new VoxelBlob();
-	}
-
-	public static byte getItemRotation(
-			final ItemStack stack )
-	{
-		final NBTTagCompound cData = stack.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false );
-		final NBTTagCompound rotationSrc = cData != null && cData.hasKey( ItemBlockChiseled.NBT_SIDE ) ? cData : stack.getTagCompound();
-		return rotationSrc.getByte( ItemBlockChiseled.NBT_SIDE );
 	}
 
 	public static void sendUpdate(
@@ -539,6 +533,75 @@ public class ModUtil
 			final IBlockState blockType )
 	{
 		return blockType.isNormalCube();
+	}
+
+	public static EnumFacing getSide(
+			final ItemStack stack )
+	{
+		if ( stack != null )
+		{
+			final NBTTagCompound blueprintTag = stack.getTagCompound();
+
+			int byteValue = EnumFacing.NORTH.ordinal();
+
+			if ( blueprintTag == null )
+			{
+				return EnumFacing.NORTH;
+			}
+
+			if ( blueprintTag.hasKey( NBT_SIDE ) )
+			{
+				byteValue = blueprintTag.getByte( NBT_SIDE );
+			}
+
+			if ( blueprintTag.hasKey( NBT_BLOCKENTITYTAG ) )
+			{
+				final NBTTagCompound c = blueprintTag.getCompoundTag( NBT_BLOCKENTITYTAG );
+				if ( c.hasKey( NBT_SIDE ) )
+				{
+					byteValue = c.getByte( NBT_SIDE );
+				}
+			}
+
+			EnumFacing side = EnumFacing.NORTH;
+
+			if ( byteValue >= 0 && byteValue < EnumFacing.values().length )
+			{
+				side = EnumFacing.values()[byteValue];
+			}
+
+			if ( side == EnumFacing.DOWN || side == EnumFacing.UP )
+			{
+				side = EnumFacing.NORTH;
+			}
+
+			return side;
+		}
+
+		return EnumFacing.NORTH;
+	}
+
+	public static void setSide(
+			final ItemStack stack,
+			final EnumFacing side )
+	{
+		if ( stack != null )
+		{
+			NBTTagCompound blueprintTag = stack.getTagCompound();
+
+			if ( blueprintTag == null )
+			{
+				blueprintTag = new NBTTagCompound();
+			}
+			if ( blueprintTag.hasKey( NBT_BLOCKENTITYTAG ) )
+			{
+				blueprintTag.getCompoundTag( NBT_BLOCKENTITYTAG ).setByte( NBT_SIDE, (byte) +side.ordinal() );
+			}
+
+			blueprintTag.setInteger( NBT_SIDE, +side.ordinal() );
+
+			stack.setTagCompound( blueprintTag );
+		}
 	}
 
 }

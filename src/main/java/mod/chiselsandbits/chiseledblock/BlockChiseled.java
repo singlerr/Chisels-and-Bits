@@ -404,7 +404,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			}
 
 			final TileEntityBlockChiseled bc = getTileEntity( worldIn, pos );
-			int rotations = ModUtil.getRotations( placer, ModUtil.getItemRotation( stack ) );
+			int rotations = ModUtil.getRotations( placer, ModUtil.getSide( stack ) );
 
 			VoxelBlob blob = bc.getBlob();
 			while ( rotations-- > 0 )

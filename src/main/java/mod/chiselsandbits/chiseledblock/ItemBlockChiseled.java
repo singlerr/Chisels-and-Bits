@@ -19,6 +19,7 @@ import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace;
+import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace.IItemBlockAccurate;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.Block;
@@ -42,11 +43,8 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IItemScrollWheel
+public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IItemScrollWheel, IItemBlockAccurate
 {
-
-	public static final String NBT_CHISELED_DATA = "BlockEntityTag";
-	public static final String NBT_SIDE = "side";
 
 	SimpleInstanceCache<ItemStack, List<String>> tooltipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
 
@@ -427,7 +425,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 		if ( comp != null )
 		{
-			final NBTTagCompound BlockEntityTag = comp.getCompoundTag( NBT_CHISELED_DATA );
+			final NBTTagCompound BlockEntityTag = comp.getCompoundTag( ModUtil.NBT_BLOCKENTITYTAG );
 			if ( BlockEntityTag != null )
 			{
 				final NBTBlobConverter c = new NBTBlobConverter();
@@ -464,22 +462,11 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final ItemStack stack,
 			final int rotationDirection )
 	{
-		final NBTTagCompound blueprintTag = stack.getTagCompound();
-		EnumFacing side = EnumFacing.VALUES[blueprintTag.getByte( NBT_SIDE )];
-
-		if ( side == EnumFacing.DOWN || side == EnumFacing.UP )
-		{
-			side = EnumFacing.NORTH;
-		}
+		EnumFacing side = ModUtil.getSide( stack );
 
 		side = rotationDirection > 0 ? side.rotateY() : side.rotateYCCW();
 
-		if ( blueprintTag.hasKey( "BlockEntityTag" ) )
-		{
-			blueprintTag.getCompoundTag( "BlockEntityTag" ).setByte( NBT_SIDE, (byte) +side.ordinal() );
-		}
-
-		blueprintTag.setInteger( NBT_SIDE, +side.ordinal() );
+		ModUtil.setSide( stack, side );
 	}
 
 }

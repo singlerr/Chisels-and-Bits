@@ -3,6 +3,7 @@ package mod.chiselsandbits.crafting;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -81,7 +82,7 @@ public class StackableCrafting implements IRecipe
 			final ItemStack stack )
 	{
 		final NBTBlobConverter tmp = new NBTBlobConverter();
-		tmp.readChisleData( stack.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) );
+		tmp.readChisleData( stack.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, false ) );
 
 		VoxelBlob bestBlob = tmp.getBlob();
 		byte[] bestValue = bestBlob.toLegacyByteArray();

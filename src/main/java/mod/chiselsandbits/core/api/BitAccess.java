@@ -3,6 +3,8 @@ package mod.chiselsandbits.core.api;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sun.xml.internal.ws.api.server.Module;
+
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBrush;
@@ -22,7 +24,6 @@ import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -170,7 +171,7 @@ public class BitAccess implements IBitAccess
 			}
 
 			itemstack = new ItemStack( blk, 1 );
-			itemstack.setTagInfo( ItemBlockChiseled.NBT_CHISELED_DATA, nbttagcompound );
+			itemstack.setTagInfo( ModUtil.NBT_BLOCKENTITYTAG, nbttagcompound );
 		}
 		else
 		{
@@ -194,7 +195,7 @@ public class BitAccess implements IBitAccess
 
 		if ( side != null )
 		{
-			itemstack.setTagInfo( ItemBlockChiseled.NBT_SIDE, new NBTTagByte( (byte) side.ordinal() ) );
+			ModUtil.setSide( itemstack, side );
 		}
 
 		return itemstack;
