@@ -339,4 +339,10 @@ public class BlockBitInfo
 		}
 	}
 
+	public static boolean canChisel(
+			final IBlockState state )
+	{
+		return state.getBlock() instanceof BlockChiseled || supportsBlock( state );
+	}
+
 }

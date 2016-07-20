@@ -10,6 +10,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.base.Stopwatch;
 
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -122,43 +123,57 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final EntityPlayer player,
 			final EnumHand hand )
 	{
-		if ( itemstack != null && ( timer == null || timer.elapsed( TimeUnit.MILLISECONDS ) > 150 ) )
+		final IBlockState state = player.getEntityWorld().getBlockState( pos );
+		if ( BlockBitInfo.canChisel( state ) )
 		{
-			timer = Stopwatch.createStarted();
-			if ( mode == ChiselMode.DRAWN_REGION )
+			if ( itemstack != null && ( timer == null || timer.elapsed( TimeUnit.MILLISECONDS ) > 150 ) )
 			{
+				timer = Stopwatch.createStarted();
+				if ( mode == ChiselMode.DRAWN_REGION )
+				{
+					final Pair<Vec3d, Vec3d> PlayerRay = ModUtil.getPlayerRay( player );
+					final Vec3d ray_from = PlayerRay.getLeft();
+					final Vec3d ray_to = PlayerRay.getRight();
+
+					final RayTraceResult mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.getEntityWorld().getBlockState( pos ), player.worldObj, pos, ray_from, ray_to );
+					if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
+					{
+						final BitLocation loc = new BitLocation( mop, true, ChiselToolType.CHISEL );
+						ClientSide.instance.pointAt( ChiselToolType.CHISEL, loc, hand );
+						return true;
+					}
+
+					return true;
+				}
+
+				if ( !player.worldObj.isRemote )
+				{
+					return true;
+				}
+
 				final Pair<Vec3d, Vec3d> PlayerRay = ModUtil.getPlayerRay( player );
 				final Vec3d ray_from = PlayerRay.getLeft();
 				final Vec3d ray_to = PlayerRay.getRight();
 
-				final RayTraceResult mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.getEntityWorld().getBlockState( pos ), player.worldObj, pos, ray_from, ray_to );
+				final RayTraceResult mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj.getBlockState( pos ), player.worldObj, pos, ray_from, ray_to );
 				if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
 				{
-					final BitLocation loc = new BitLocation( mop, true, ChiselToolType.CHISEL );
-					ClientSide.instance.pointAt( ChiselToolType.CHISEL, loc, hand );
-					return true;
+					useChisel( mode, player, player.worldObj, pos, mop.sideHit, (float) ( mop.hitVec.xCoord - pos.getX() ), (float) ( mop.hitVec.yCoord - pos.getY() ), (float) ( mop.hitVec.zCoord - pos.getZ() ), hand );
 				}
-
-				return true;
 			}
 
-			if ( !player.worldObj.isRemote )
+			return true;
+		}
+
+		if ( player.getEntityWorld() != null && player.getEntityWorld().isRemote )
+		{
+			if ( ClientSide.instance.getStartPos() != null )
 			{
 				return true;
-			}
-
-			final Pair<Vec3d, Vec3d> PlayerRay = ModUtil.getPlayerRay( player );
-			final Vec3d ray_from = PlayerRay.getLeft();
-			final Vec3d ray_to = PlayerRay.getRight();
-
-			final RayTraceResult mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.worldObj.getBlockState( pos ), player.worldObj, pos, ray_from, ray_to );
-			if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
-			{
-				useChisel( mode, player, player.worldObj, pos, mop.sideHit, (float) ( mop.hitVec.xCoord - pos.getX() ), (float) ( mop.hitVec.yCoord - pos.getY() ), (float) ( mop.hitVec.zCoord - pos.getZ() ), hand );
 			}
 		}
 
-		return true;
+		return false;
 	}
 
 	@Override
