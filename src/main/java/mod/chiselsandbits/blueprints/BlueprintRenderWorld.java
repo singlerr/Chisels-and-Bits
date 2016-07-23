@@ -117,4 +117,10 @@ public class BlueprintRenderWorld implements IBlockAccess
 
 		return p.getX() + p.getY() * sizeX + p.getZ() * sizeXY;
 	}
+
+	@Override
+	public boolean extendedLevelsInChunkCache()
+	{
+		return false;
+	}
 }
