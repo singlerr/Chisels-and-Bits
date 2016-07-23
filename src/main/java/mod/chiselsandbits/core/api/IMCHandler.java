@@ -15,6 +15,7 @@ public class IMCHandler
 
 	public IMCHandler()
 	{
+		processors.put( "forcestatecompatibility", new IMCHandlerForceState() );
 		processors.put( "ignoreblocklogic", new IMCHandlerIgnoreLogic() );
 		processors.put( "materialequivilancy", new IMCHandlerMaterialEquivilancy() );
 	}
