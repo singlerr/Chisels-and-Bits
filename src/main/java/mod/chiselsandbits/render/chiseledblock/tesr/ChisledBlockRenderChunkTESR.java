@@ -3,6 +3,7 @@ package mod.chiselsandbits.render.chiseledblock.tesr;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.WeakHashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -23,6 +24,7 @@ import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
@@ -45,6 +47,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkCache;
+import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.property.IExtendedBlockState;
@@ -63,14 +66,39 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		return instance;
 	}
 
-	private final LinkedList<FutureTracker> futureTrackers = new LinkedList<FutureTracker>();
-	private final Queue<UploadTracker> uploaders = new ConcurrentLinkedQueue<UploadTracker>();
-	private final static Queue<Runnable> nextFrameTasks = new ConcurrentLinkedQueue<Runnable>();
+	private static class WorldTracker
+	{
+		private final LinkedList<FutureTracker> futureTrackers = new LinkedList<FutureTracker>();
+		private final Queue<UploadTracker> uploaders = new ConcurrentLinkedQueue<UploadTracker>();
+		private final Queue<Runnable> nextFrameTasks = new ConcurrentLinkedQueue<Runnable>();
+		private final Queue<Runnable> nextRenderTask = new ConcurrentLinkedQueue<Runnable>();
+	};
 
-	public static void addTask(
+	private static final WeakHashMap<World, WorldTracker> worldTrackers = new WeakHashMap<World, WorldTracker>();
+
+	private static WorldTracker getTracker()
+	{
+		final World w = ClientSide.instance.getPlayer().worldObj;
+		WorldTracker t = worldTrackers.get( w );
+
+		if ( t == null )
+		{
+			worldTrackers.put( w, t = new WorldTracker() );
+		}
+
+		return t;
+	}
+
+	public static void addNextFrameTask(
 			final Runnable r )
 	{
-		nextFrameTasks.offer( r );
+		getTracker().nextFrameTasks.offer( r );
+	}
+
+	public static void addRenderTask(
+			final Runnable r )
+	{
+		getTracker().nextRenderTask.offer( r );
 	}
 
 	private static class FutureTracker
@@ -102,7 +130,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			final TileRenderCache renderCache,
 			final BlockRenderLayer layer )
 	{
-		futureTrackers.add( new FutureTracker( tlrc, renderCache, layer ) );
+		getTracker().futureTrackers.add( new FutureTracker( tlrc, renderCache, layer ) );
 	}
 
 	private boolean handleFutureTracker(
@@ -118,7 +146,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 				if ( ft.future == ft.tlrc.future )
 				{
 					ft.tlrc.waiting = true;
-					uploaders.offer( new UploadTracker( ft.renderCache, ft.layer, t ) );
+					getTracker().uploaders.offer( new UploadTracker( ft.renderCache, ft.layer, t ) );
 				}
 				else
 				{
@@ -168,6 +196,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			final RenderWorldLastEvent e )
 	{
 		runUpload = true;
+		runJobs( getTracker().nextFrameTasks );
 	}
 
 	void uploadDisplaylists()
@@ -177,22 +206,12 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			return;
 		}
 
+		final WorldTracker trackers = getTracker();
+
 		runUpload = false;
+		runJobs( trackers.nextRenderTask );
 
-		do
-		{
-			final Runnable x = nextFrameTasks.poll();
-
-			if ( x == null )
-			{
-				break;
-			}
-
-			x.run();
-		}
-		while ( true );
-
-		final Iterator<FutureTracker> i = futureTrackers.iterator();
+		final Iterator<FutureTracker> i = trackers.futureTrackers.iterator();
 		while ( i.hasNext() )
 		{
 			if ( handleFutureTracker( i.next() ) )
@@ -207,7 +226,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 		do
 		{
-			final UploadTracker t = uploaders.poll();
+			final UploadTracker t = trackers.uploaders.poll();
 
 			if ( t == null )
 			{
@@ -233,6 +252,23 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		}
 		while ( w.elapsed( TimeUnit.MILLISECONDS ) < maxMillisecondsUploadingPerFrame );
 
+	}
+
+	private void runJobs(
+			final Queue<Runnable> tasks )
+	{
+		do
+		{
+			final Runnable x = tasks.poll();
+
+			if ( x == null )
+			{
+				break;
+			}
+
+			x.run();
+		}
+		while ( true );
 	}
 
 	private void uploadDisplayList(

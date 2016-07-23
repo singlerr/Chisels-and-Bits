@@ -39,7 +39,7 @@ public class TileLayerRenderCache
 	{
 		if ( displayList != 0 )
 		{
-			ChisledBlockRenderChunkTESR.addTask( new dspCleanup( displayList ) );
+			ChisledBlockRenderChunkTESR.addNextFrameTask( new dspCleanup( displayList ) );
 		}
 	}
 

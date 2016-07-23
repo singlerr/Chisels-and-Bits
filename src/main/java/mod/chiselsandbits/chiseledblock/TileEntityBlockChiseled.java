@@ -128,7 +128,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			final TileEntityBlockChiseled self = this;
 			if ( vns.isAboveLimit() && !isDyanmic )
 			{
-				ChisledBlockRenderChunkTESR.addTask( new Runnable() {
+				ChisledBlockRenderChunkTESR.addNextFrameTask( new Runnable() {
 
 					@Override
 					public void run()
@@ -154,7 +154,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			}
 			else if ( !vns.isAboveLimit() && isDyanmic )
 			{
-				ChisledBlockRenderChunkTESR.addTask( new Runnable() {
+				ChisledBlockRenderChunkTESR.addNextFrameTask( new Runnable() {
 
 					@Override
 					public void run()

@@ -31,7 +31,6 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 		super( toDeflate );
 	}
 
-	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	@Override
 	protected int readStateID(
 			final PacketBuffer buffer )

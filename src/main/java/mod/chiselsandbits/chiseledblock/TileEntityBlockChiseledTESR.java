@@ -112,6 +112,17 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 		if ( renderChunk != null )
 		{
 			renderChunk.unregister( this );
+			renderChunk = null;
+		}
+	}
+
+	@Override
+	public void onChunkUnload()
+	{
+		if ( renderChunk != null )
+		{
+			renderChunk.unregister( this );
+			renderChunk = null;
 		}
 	}
 
