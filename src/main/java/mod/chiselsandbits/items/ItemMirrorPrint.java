@@ -3,7 +3,6 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.List;
 
-import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -130,7 +129,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			tmp.setBlob( bestBlob.mirror( face.getAxis() ) );
 			tmp.writeChisleData( comp );
 
-			comp.setByte( ItemBlockChiseled.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
+			comp.setByte( ModUtil.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
 			return comp;
 		}
 
@@ -162,7 +161,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 		final IBlockState blk = conv.getPrimaryBlockState();
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk ), 1 );
 
-		itemstack.setTagInfo( ItemBlockChiseled.NBT_CHISELED_DATA, tag );
+		itemstack.setTagInfo( ModUtil.NBT_BLOCKENTITYTAG, tag );
 		return itemstack;
 	}
 

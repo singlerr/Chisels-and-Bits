@@ -2,10 +2,14 @@ package mod.chiselsandbits.events;
 
 import java.util.WeakHashMap;
 
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
@@ -47,25 +51,51 @@ public class EventPlayerInteract
 		if ( event.getEntityPlayer() != null && event.getUseItem() != Result.DENY )
 		{
 			final ItemStack is = event.getItemStack();
-			if ( is != null && ( is.getItem() instanceof ItemChisel || is.getItem() instanceof ItemChiseledBit ) )
+			final boolean validEvent = event.getPos() != null && event.getWorld() != null;
+			if ( is != null && ( is.getItem() instanceof ItemChisel || is.getItem() instanceof ItemChiseledBit ) && validEvent )
 			{
-				if ( event.getWorld().isRemote )
+				final IBlockState state = event.getWorld().getBlockState( event.getPos() );
+				if ( BlockBitInfo.canChisel( state ) )
 				{
-					// this is called when the player is survival - client side.
-					is.getItem().onBlockStartBreak( is, event.getPos(), event.getEntityPlayer() );
-				}
+					if ( event.getWorld().isRemote )
+					{
+						// this is called when the player is survival -
+						// client side.
+						is.getItem().onBlockStartBreak( is, event.getPos(), event.getEntityPlayer() );
+					}
 
-				// cancel all interactions, creative is magic.
-				event.setCanceled( true );
+					// cancel interactions vs chiseable blocks, creative is
+					// magic.
+					event.setCanceled( true );
+				}
 			}
 		}
+
+		testInteractionSupression( event, event.getUseItem() );
 	}
 
 	@SubscribeEvent
 	public void interaction(
 			final RightClickBlock event )
 	{
-		if ( event.getEntityPlayer() != null && event.getUseItem() != Result.DENY )
+		testInteractionSupression( event, event.getUseItem() );
+	}
+
+	private void testInteractionSupression(
+			final PlayerInteractEvent event,
+			final Result useItem )
+	{
+		// client is dragging...
+		if ( event.getWorld().isRemote )
+		{
+			if ( ClientSide.instance.getStartPos() != null )
+			{
+				event.setCanceled( true );
+			}
+		}
+
+		// server is supressed.
+		if ( !event.getWorld().isRemote && event.getEntityPlayer() != null && useItem != Result.DENY )
 		{
 			if ( serverSuppressEvent.containsKey( event.getEntityPlayer() ) )
 			{

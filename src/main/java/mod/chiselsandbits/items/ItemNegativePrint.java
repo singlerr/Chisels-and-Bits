@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -120,7 +119,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	{
 		if ( stack != null && stack.hasTagCompound() )
 		{
-			final boolean a = stack.getSubCompound( ItemBlockChiseled.NBT_CHISELED_DATA, false ) != null;
+			final boolean a = stack.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, false ) != null;
 			final boolean b = stack.getTagCompound().hasKey( NBTBlobConverter.NBT_LEGACY_VOXEL );
 			final boolean c = stack.getTagCompound().hasKey( NBTBlobConverter.NBT_VERSIONED_VOXEL );
 			return a || b || c;
@@ -214,7 +213,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 				tmp.writeChisleData( comp );
 			}
 
-			comp.setByte( ItemBlockChiseled.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
+			comp.setByte( ModUtil.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
 			return comp;
 		}
 
@@ -239,7 +238,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		final IBlockState state = conv.getPrimaryBlockState();
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( state ), 1 );
 
-		itemstack.setTagInfo( ItemBlockChiseled.NBT_CHISELED_DATA, tag );
+		itemstack.setTagInfo( ModUtil.NBT_BLOCKENTITYTAG, tag );
 		return itemstack;
 	}
 
@@ -297,8 +296,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final ItemStack stack,
 			final int rotationDirection )
 	{
-		final NBTTagCompound blueprintTag = stack.getTagCompound();
-		EnumFacing side = EnumFacing.VALUES[blueprintTag.getByte( ItemBlockChiseled.NBT_SIDE )];
+		EnumFacing side = ModUtil.getSide( stack );
 
 		if ( side.getAxis() == Axis.Y )
 		{
@@ -306,7 +304,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		}
 
 		side = rotationDirection > 0 ? side.rotateY() : side.rotateYCCW();
-		blueprintTag.setInteger( ItemBlockChiseled.NBT_SIDE, +side.ordinal() );
+		ModUtil.setSide( stack, side );
 	}
 
 }

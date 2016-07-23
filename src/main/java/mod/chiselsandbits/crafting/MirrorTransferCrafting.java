@@ -8,6 +8,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
@@ -115,7 +116,8 @@ public class MirrorTransferCrafting implements IRecipe
 
 			tmp.setBlob( bestBlob );
 
-			final NBTTagCompound comp = targetA.getTagCompound().copy();
+			final NBTBase copied = targetA.getTagCompound().copy();
+			final NBTTagCompound comp = (NBTTagCompound) copied;
 			tmp.writeChisleData( comp, false );
 
 			final ItemStack outputPattern = new ItemStack( targetB.getItem() );

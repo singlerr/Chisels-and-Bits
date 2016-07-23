@@ -22,6 +22,9 @@ import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.modes.PositivePatternMode;
+import mod.chiselsandbits.network.NetworkRouter;
+import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace;
+import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace.IItemBlockAccurate;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
@@ -34,7 +37,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeItem
+public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeItem, IItemBlockAccurate
 {
 
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -84,7 +87,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			final NBTTagCompound comp = new NBTTagCompound();
 			tmp.writeChisleData( comp, false );
 
-			comp.setByte( ItemBlockChiseled.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
+			comp.setByte( ModUtil.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
 			return comp;
 		}
 
@@ -111,15 +114,59 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 	{
 		if ( PositivePatternMode.getMode( stack ) == PositivePatternMode.PLACEMENT )
 		{
+			if ( player.isSneaking() )
+			{
+				if ( !world.isRemote )
+				{
+					// Say it "worked", Don't do anything we'll get a better
+					// packet.
+					return EnumActionResult.SUCCESS;
+				}
+				else
+				{
+					// send accurate packet.
+					final PacketAccurateSneakPlace pasp = new PacketAccurateSneakPlace();
+
+					pasp.hand = hand;
+					pasp.pos = pos;
+					pasp.side = side;
+					pasp.stack = stack;
+					pasp.hitX = hitX;
+					pasp.hitY = hitY;
+					pasp.hitZ = hitZ;
+
+					NetworkRouter.instance.sendToServer( pasp );
+				}
+			}
+		}
+
+		return doItemUse( stack, player, world, pos, hand, side, hitX, hitY, hitZ );
+	}
+
+	@Override
+	public final EnumActionResult doItemUse(
+			final ItemStack stack,
+			final EntityPlayer player,
+			final World world,
+			final BlockPos pos,
+			final EnumHand hand,
+			final EnumFacing side,
+			final float hitX,
+			final float hitY,
+			final float hitZ )
+	{
+		if ( PositivePatternMode.getMode( stack ) == PositivePatternMode.PLACEMENT )
+		{
 			final ItemStack output = getPatternedItem( stack );
 			if ( output != null )
 			{
 				final VoxelBlob pattern = ModUtil.getBlobFromStack( stack, player );
 				final Map<Integer, Integer> stats = pattern.getBlockSums();
 
-				if ( consumeEntirePattern( pattern, stats, pos, ActingPlayer.testingAs( player, hand ) ) )
+				if ( consumeEntirePattern( pattern, stats, pos, ActingPlayer.testingAs( player, hand ) ) && output.getItem() instanceof ItemBlockChiseled )
 				{
-					final EnumActionResult res = output.getItem().onItemUse( output, player, world, pos, hand, side, hitX, hitY, hitZ );
+					final ItemBlockChiseled ibc = (ItemBlockChiseled) output.getItem();
+					final EnumActionResult res = ibc.doItemUse( output, player, world, pos, hand, side, hitX, hitY, hitZ );
 
 					if ( res == EnumActionResult.SUCCESS )
 					{

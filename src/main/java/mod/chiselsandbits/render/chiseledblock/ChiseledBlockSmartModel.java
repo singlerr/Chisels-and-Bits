@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateInstance;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
@@ -271,7 +271,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 			return this;
 		}
 
-		c = c.getCompoundTag( ItemBlockChiseled.NBT_CHISELED_DATA );
+		c = c.getCompoundTag( ModUtil.NBT_BLOCKENTITYTAG );
 		if ( c == null )
 		{
 			return this;

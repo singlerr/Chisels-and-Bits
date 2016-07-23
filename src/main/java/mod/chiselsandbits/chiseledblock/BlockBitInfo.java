@@ -45,6 +45,7 @@ public class BlockBitInfo
 	// cache data..
 	private static HashMap<IBlockState, BlockBitInfo> stateBitInfo = new HashMap<IBlockState, BlockBitInfo>();
 	private static HashMap<Block, Boolean> supportedBlocks = new HashMap<Block, Boolean>();
+	private static HashMap<IBlockState, Boolean> forcedStates = new HashMap<IBlockState, Boolean>();
 	private static HashMap<Block, Fluid> fluidBlocks = new HashMap<Block, Fluid>();
 	private static TIntObjectMap<Fluid> fluidStates = new TIntObjectHashMap<Fluid>();
 	private static HashMap<IBlockState, Integer> bitColor = new HashMap<IBlockState, Integer>();
@@ -135,6 +136,14 @@ public class BlockBitInfo
 		reset();
 	}
 
+	public static void forceStateCompatibility(
+			final IBlockState which,
+			final boolean forceStatus )
+	{
+		forcedStates.put( which, forceStatus );
+		reset();
+	}
+
 	public static void reset()
 	{
 		stateBitInfo.clear();
@@ -159,8 +168,12 @@ public class BlockBitInfo
 	public static boolean supportsBlock(
 			final IBlockState state )
 	{
-		final Block blk = state.getBlock();
+		if ( forcedStates.containsKey( state ) )
+		{
+			return forcedStates.get( state );
+		}
 
+		final Block blk = state.getBlock();
 		if ( supportedBlocks.containsKey( blk ) )
 		{
 			return supportedBlocks.get( blk );
@@ -337,6 +350,12 @@ public class BlockBitInfo
 		{
 			return new BlockBitInfo( false, -1, -1 );
 		}
+	}
+
+	public static boolean canChisel(
+			final IBlockState state )
+	{
+		return state.getBlock() instanceof BlockChiseled || supportsBlock( state );
 	}
 
 }
