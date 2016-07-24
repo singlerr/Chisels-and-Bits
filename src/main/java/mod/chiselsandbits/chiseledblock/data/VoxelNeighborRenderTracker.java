@@ -11,6 +11,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.client.FMLClientHandler;
 
 public final class VoxelNeighborRenderTracker
 {
@@ -30,6 +31,15 @@ public final class VoxelNeighborRenderTracker
 
 	public boolean isAboveLimit()
 	{
+		if ( FMLClientHandler.instance().hasOptifine() )
+		{
+			// I simply cannot figure out why the displaylist uploads for the
+			// dynamic renderer don't work with optifine, so unless someone else
+			// can solve it; I'm just disabling the dynamic renderer pipeline.
+
+			return false;
+		}
+
 		int faces = 0;
 
 		for ( int x = 0; x < faceCount.length; ++x )
