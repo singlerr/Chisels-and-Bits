@@ -71,7 +71,6 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		private final LinkedList<FutureTracker> futureTrackers = new LinkedList<FutureTracker>();
 		private final Queue<UploadTracker> uploaders = new ConcurrentLinkedQueue<UploadTracker>();
 		private final Queue<Runnable> nextFrameTasks = new ConcurrentLinkedQueue<Runnable>();
-		private final Queue<Runnable> nextRenderTask = new ConcurrentLinkedQueue<Runnable>();
 	};
 
 	private static final WeakHashMap<World, WorldTracker> worldTrackers = new WeakHashMap<World, WorldTracker>();
@@ -93,12 +92,6 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			final Runnable r )
 	{
 		getTracker().nextFrameTasks.offer( r );
-	}
-
-	public static void addRenderTask(
-			final Runnable r )
-	{
-		getTracker().nextRenderTask.offer( r );
 	}
 
 	private static class FutureTracker
@@ -192,24 +185,17 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	boolean runUpload = false;
 
 	@SubscribeEvent
-	void nextFrame(
+	public void nextFrame(
 			final RenderWorldLastEvent e )
 	{
-		runUpload = true;
 		runJobs( getTracker().nextFrameTasks );
+
+		uploadDisplaylists();
 	}
 
-	void uploadDisplaylists()
+	private void uploadDisplaylists()
 	{
-		if ( !runUpload )
-		{
-			return;
-		}
-
 		final WorldTracker trackers = getTracker();
-
-		runUpload = false;
-		runJobs( trackers.nextRenderTask );
 
 		final Iterator<FutureTracker> i = trackers.futureTrackers.iterator();
 		while ( i.hasNext() )
@@ -424,8 +410,6 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			renderBreakingEffects( te, x, y, z, partialTicks, destroyStage );
 			return;
 		}
-
-		uploadDisplaylists();
 
 		// cache at the tile level rather than the chunk level.
 		if ( renderChunk.singleInstanceMode )
