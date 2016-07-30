@@ -196,7 +196,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		{
 		}
 
-		@Override
+		// @Override
 		public void setTexture(
 				final TextureAtlasSprite texture )
 		{

@@ -142,10 +142,12 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 								TESR.copyFrom( self );
 								self.worldObj.setTileEntity( self.pos, TESR );
 								self.worldObj.markBlockRangeForRenderUpdate( self.pos, self.pos );
+								vns.unlockDynamic();
 							}
 							else
 							{
 								MCMultipartProxy.proxyMCMultiPart.convertTo( current, new TileEntityBlockChiseledTESR() );
+								vns.unlockDynamic();
 							}
 						}
 					}
@@ -168,10 +170,12 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 								nonTesr.copyFrom( self );
 								self.worldObj.setTileEntity( self.pos, nonTesr );
 								self.worldObj.markBlockRangeForRenderUpdate( self.pos, self.pos );
+								vns.unlockDynamic();
 							}
 							else
 							{
 								MCMultipartProxy.proxyMCMultiPart.convertTo( current, new TileEntityBlockChiseled() );
+								vns.unlockDynamic();
 							}
 						}
 					}
@@ -666,6 +670,13 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		{
 			return Collections.emptyList();
 		}
+	}
+
+	@Override
+	public AxisAlignedBB getRenderBoundingBox()
+	{
+		final BlockPos p = getPos();
+		return new AxisAlignedBB( p.getX(), p.getY(), p.getZ(), p.getX() + 1, p.getY() + 1, p.getZ() + 1 );
 	}
 
 	public void setNormalCube(

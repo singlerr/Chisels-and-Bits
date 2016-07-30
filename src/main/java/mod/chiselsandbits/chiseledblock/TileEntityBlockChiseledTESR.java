@@ -146,8 +146,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			return getRenderChunk().getBounds();
 		}
 
-		final BlockPos p = getPos();
-		return new AxisAlignedBB( p.getX(), p.getY(), p.getZ(), p.getX() + 1, p.getY() + 1, p.getZ() + 1 );
+		return super.getRenderBoundingBox();
 	}
 
 	@Override

@@ -31,7 +31,6 @@ import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -49,6 +48,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkCache;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -60,6 +60,22 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 	private final static ThreadPoolExecutor pool;
 	private static ChisledBlockRenderChunkTESR instance;
+
+	static int TESR_Regions_rendered = 0;
+	static int TESR_SI_Regions_rendered = 0;
+
+	private void markRendered(
+			final boolean singleInstanceMode )
+	{
+		if ( singleInstanceMode )
+		{
+			++TESR_SI_Regions_rendered;
+		}
+		else
+		{
+			++TESR_Regions_rendered;
+		}
+	}
 
 	public static ChisledBlockRenderChunkTESR getInstance()
 	{
@@ -185,6 +201,26 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	boolean runUpload = false;
 
 	@SubscribeEvent
+	public void debugScreen(
+			final RenderGameOverlayEvent.Text t )
+	{
+		if ( Minecraft.getMinecraft().gameSettings.showDebugInfo )
+		{
+			if ( TESR_Regions_rendered > 0 || TESR_SI_Regions_rendered > 0 )
+			{
+				t.getRight().add( "C&B DynRender: " + TESR_Regions_rendered + ":" + TESR_SI_Regions_rendered );
+				TESR_Regions_rendered = 0;
+				TESR_SI_Regions_rendered = 0;
+			}
+		}
+		else
+		{
+			TESR_Regions_rendered = 0;
+			TESR_SI_Regions_rendered = 0;
+		}
+	}
+
+	@SubscribeEvent
 	public void nextFrame(
 			final RenderWorldLastEvent e )
 	{
@@ -263,25 +299,14 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		final BlockRenderLayer layer = t.layer;
 		final TileLayerRenderCache tlrc = t.trc.getLayer( layer );
 
-		if ( tlrc.displayList == 0 )
+		final Tessellator tx = t.getTessellator();
+
+		if ( tlrc.displayList == null )
 		{
-			tlrc.displayList = GLAllocation.generateDisplayLists( 1 );
+			tlrc.displayList = GfxRenderState.getNewState( tx.getBuffer().getVertexCount() );
 		}
 
-		try
-		{
-			GL11.glNewList( tlrc.displayList, GL11.GL_COMPILE );
-			t.getTessellator().draw();
-		}
-		catch ( final IllegalStateException e )
-		{
-			Log.logError( "Erratic Tessellator Behavior", e );
-			tlrc.rebuild = true;
-		}
-		finally
-		{
-			GL11.glEndList();
-		}
+		tlrc.displayList = tlrc.displayList.prepare( tx );
 
 		t.submitForReuse();
 	}
@@ -457,7 +482,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		final boolean isNew = tlrc.isNew();
 		boolean hasSubmitted = false;
 
-		if ( tlrc.displayList == 0 || tlrc.rebuild )
+		if ( tlrc.displayList == null || tlrc.rebuild )
 		{
 			final int dynamicTess = getMaxTessalators();
 
@@ -493,7 +518,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		{
 			try
 			{
-				final Tessellator tess = tlrc.future.get( 5, TimeUnit.MILLISECONDS );
+				final Tessellator tess = tlrc.future.get( 2, TimeUnit.MILLISECONDS );
 				tlrc.future = null;
 				pendingTess.decrementAndGet();
 
@@ -521,16 +546,27 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			addFutureTracker( tlrc, renderCache, layer );
 		}
 
-		final int dl = tlrc.displayList;
-		if ( dl != 0 )
+		final GfxRenderState dl = tlrc.displayList;
+		if ( dl != null && dl.shouldRender() )
 		{
+			if ( !dl.validForUse() )
+			{
+				tlrc.displayList = null;
+				return;
+			}
+
 			GL11.glPushMatrix();
 			GL11.glTranslated( -TileEntityRendererDispatcher.staticPlayerX + chunkOffset.getX(),
 					-TileEntityRendererDispatcher.staticPlayerY + chunkOffset.getY(),
 					-TileEntityRendererDispatcher.staticPlayerZ + chunkOffset.getZ() );
 
 			configureGLState( layer );
-			GL11.glCallList( dl );
+
+			if ( dl.render() )
+			{
+				markRendered( renderChunk.singleInstanceMode );
+			}
+
 			unconfigureGLState();
 
 			GL11.glPopMatrix();

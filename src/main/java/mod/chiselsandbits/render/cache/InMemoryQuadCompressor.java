@@ -155,7 +155,8 @@ public class InMemoryQuadCompressor implements Runnable
 		}
 		catch ( final InterruptedException e )
 		{
-			Log.logError( "Error in compresssor", e );
+			// If it fails to inject it into the list its not the end of the
+			// world, just continue.
 		}
 
 		return unpackedData;
