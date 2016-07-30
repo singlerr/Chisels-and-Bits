@@ -1,6 +1,9 @@
 package mod.chiselsandbits.chiseledblock;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+
+import org.apache.http.client.entity.DeflateInputStream;
 
 import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -184,8 +187,19 @@ public class NBTBlobConverter
 			return -1;
 		}
 
-		final PacketBuffer header = new PacketBuffer( Unpooled.wrappedBuffer( v.getByteArray() ) );
-		return header.readVarIntFromBuffer();
+		try
+		{
+			final DeflateInputStream arrayPeek = new DeflateInputStream( new ByteArrayInputStream( v.getByteArray() ) );
+			final byte[] peekBytes = new byte[5];
+			arrayPeek.read( peekBytes );
+
+			final PacketBuffer header = new PacketBuffer( Unpooled.wrappedBuffer( peekBytes ) );
+			return header.readVarIntFromBuffer();
+		}
+		catch ( final IOException e )
+		{
+			return 0;
+		}
 	}
 
 	public void updateFromBlob()
