@@ -84,12 +84,12 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 					if ( solid > 0 )
 					{
-						details.add( solid + " " + LocalStrings.Empty.getLocal() );
+						details.add( solid + " " + LocalStrings.Filled.getLocal() );
 					}
 
 					if ( air > 0 )
 					{
-						details.add( air + " " + LocalStrings.Filled.getLocal() );
+						details.add( air + " " + LocalStrings.Empty.getLocal() );
 					}
 				}
 
