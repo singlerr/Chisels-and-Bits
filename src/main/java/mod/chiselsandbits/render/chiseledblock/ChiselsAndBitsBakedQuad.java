@@ -195,5 +195,11 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 				final boolean diffuse )
 		{
 		}
+
+		@Override
+		public void setTexture(
+				final TextureAtlasSprite texture )
+		{
+		}
 	}
 }
