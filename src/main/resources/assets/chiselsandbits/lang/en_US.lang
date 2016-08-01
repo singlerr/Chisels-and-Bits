@@ -148,7 +148,7 @@ commands.setbit.spaceOccupied=Bit cannot be placed space is occupied
 
 mod.chiselsandbits.config.maxUndoLevel=Max Undo Level
 mod.chiselsandbits.config.persistCreativeClipboard=Save/Load Creative Clipboard Contents
-mod.chiselsandbits.config.fluidBitsAreClickThough=Click though Fluid Bits.
+mod.chiselsandbits.config.fluidBitsAreClickThrough=Click through Fluid Bits.
 mod.chiselsandbits.config.addBrokenBlocksToCreativeClipboard=Add Broken Blocks to Creative clipboard
 mod.chiselsandbits.config.creativeClipboardSize=Creative Clip Board Size
 mod.chiselsandbits.config.creativeClipboardSize.tooltip=Number of items that can be stored on the creative clipboard before they begin to be removed, 0 will disable it.

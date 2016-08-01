@@ -119,7 +119,7 @@ public class ModConfig extends Configuration
 	public boolean addBrokenBlocksToCreativeClipboard;
 
 	@Configured( category = "Client Settings" )
-	public boolean fluidBitsAreClickThough;
+	public boolean fluidBitsAreClickThrough;
 
 	@Configured( category = "Client Settings" )
 	public boolean persistCreativeClipboard;
@@ -338,7 +338,7 @@ public class ModConfig extends Configuration
 
 		creativeClipboardSize = 32;
 		addBrokenBlocksToCreativeClipboard = true;
-		fluidBitsAreClickThough = true;
+		fluidBitsAreClickThrough = true;
 		persistCreativeClipboard = true;
 		enableRightClickModeChange = false;
 
