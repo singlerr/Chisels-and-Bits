@@ -23,6 +23,7 @@ import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
+import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.modes.ChiselMode;
@@ -124,7 +125,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final EnumHand hand )
 	{
 		final IBlockState state = player.getEntityWorld().getBlockState( pos );
-		if ( BlockBitInfo.canChisel( state ) )
+		if ( BlockBitInfo.canChisel( state ) || MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( player.getEntityWorld(), pos ) )
 		{
 			if ( itemstack != null && ( timer == null || timer.elapsed( TimeUnit.MILLISECONDS ) > 150 ) )
 			{
