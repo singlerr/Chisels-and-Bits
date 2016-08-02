@@ -148,7 +148,7 @@ commands.setbit.spaceOccupied=空间已被占据,无法放置碎屑
 
 mod.chiselsandbits.config.maxUndoLevel=最大撤销次数
 mod.chiselsandbits.config.persistCreativeClipboard=保存/读取创造剪贴板内容
-mod.chiselsandbits.config.fluidBitsAreClickThough=左击时穿透流体碎屑
+mod.chiselsandbits.config.fluidBitsAreClickThrough=左击时穿透流体碎屑
 mod.chiselsandbits.config.addBrokenBlocksToCreativeClipboard=破坏雕塑时自动保存至创造剪贴板
 mod.chiselsandbits.config.creativeClipboardSize=创造剪贴板的容量
 mod.chiselsandbits.config.creativeClipboardSize.tooltip=创造剪贴板存放物品的最大数量,超过该值后之前存放的内容将被覆盖,设置为0将会禁用剪贴板.
