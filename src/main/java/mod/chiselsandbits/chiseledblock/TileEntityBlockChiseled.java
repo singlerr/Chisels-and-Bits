@@ -136,16 +136,26 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 						if ( self.worldObj != null && self.pos != null )
 						{
 							final TileEntity current = self.worldObj.getTileEntity( self.pos );
+							final TileEntityBlockChiseled dat = MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( self.worldObj, self.pos, false );
+
+							if ( current == null || self.isInvalid() )
+							{
+								return;
+							}
+
 							if ( current == self )
 							{
+								current.invalidate();
 								final TileEntityBlockChiseledTESR TESR = new TileEntityBlockChiseledTESR();
 								TESR.copyFrom( self );
+								self.worldObj.removeTileEntity( self.pos );
 								self.worldObj.setTileEntity( self.pos, TESR );
 								self.worldObj.markBlockRangeForRenderUpdate( self.pos, self.pos );
 								vns.unlockDynamic();
 							}
-							else
+							else if ( dat == self )
 							{
+								current.invalidate();
 								MCMultipartProxy.proxyMCMultiPart.convertTo( current, new TileEntityBlockChiseledTESR() );
 								vns.unlockDynamic();
 							}
@@ -164,16 +174,26 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 						if ( self.worldObj != null && self.pos != null )
 						{
 							final TileEntity current = self.worldObj.getTileEntity( self.pos );
+							final TileEntityBlockChiseled dat = MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( self.worldObj, self.pos, false );
+
+							if ( current == null || self.isInvalid() )
+							{
+								return;
+							}
+
 							if ( current == self )
 							{
+								current.invalidate();
 								final TileEntityBlockChiseled nonTesr = new TileEntityBlockChiseled();
 								nonTesr.copyFrom( self );
+								self.worldObj.removeTileEntity( self.pos );
 								self.worldObj.setTileEntity( self.pos, nonTesr );
 								self.worldObj.markBlockRangeForRenderUpdate( self.pos, self.pos );
 								vns.unlockDynamic();
 							}
-							else
+							else if ( dat == self )
 							{
+								current.invalidate();
 								MCMultipartProxy.proxyMCMultiPart.convertTo( current, new TileEntityBlockChiseled() );
 								vns.unlockDynamic();
 							}
@@ -609,6 +629,12 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public boolean isSideOpaque(
 			final EnumFacing side )
 	{
+		final VoxelNeighborRenderTracker vns = state != null ? state.getValue( BlockChiseled.UProperty_VoxelNeighborState ) : null;
+		if ( vns != null && vns.isDynamic() )
+		{
+			return false;
+		}
+
 		final Integer sideFlags = ChiseledBlockSmartModel.getSides( this );
 		return ( sideFlags & 1 << side.ordinal() ) != 0;
 	}

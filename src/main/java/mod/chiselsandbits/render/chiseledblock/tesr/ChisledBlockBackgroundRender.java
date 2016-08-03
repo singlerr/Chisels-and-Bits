@@ -1,7 +1,6 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
 import java.lang.ref.SoftReference;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Queue;
@@ -60,10 +59,10 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 	public ChisledBlockBackgroundRender(
 			final ChunkCache cache,
 			final BlockPos chunkOffset,
-			final List<TileEntityBlockChiseledTESR> tiles,
+			final TileList iterable,
 			final BlockRenderLayer layer )
 	{
-		myPrivateList = new ArrayList<TileEntityBlockChiseledTESR>( tiles );
+		myPrivateList = iterable.createCopy();
 		this.layer = layer;
 		this.cache = cache;
 		this.chunkOffset = chunkOffset;

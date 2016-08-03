@@ -2,6 +2,7 @@ package mod.chiselsandbits.render.chiseledblock.tesr;
 
 import org.lwjgl.opengl.GL11;
 
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GLAllocation;
@@ -15,6 +16,15 @@ import net.minecraft.client.renderer.vertex.VertexFormatElement;
 public abstract class GfxRenderState
 {
 
+	public static enum UseVBO
+	{
+		AUTOMATIC,
+		YES,
+		NO
+	};
+
+	public static int gfxRefresh = 0;
+
 	public abstract boolean validForUse();
 
 	public abstract boolean render();
@@ -27,6 +37,16 @@ public abstract class GfxRenderState
 	public boolean shouldRender()
 	{
 		return true;
+	}
+
+	static public boolean useVBO()
+	{
+		if ( ChiselsAndBits.getConfig().useVBO == UseVBO.AUTOMATIC )
+		{
+			return Minecraft.getMinecraft().gameSettings.useVbo;
+		}
+
+		return ChiselsAndBits.getConfig().useVBO == UseVBO.YES;
 	}
 
 	private static class displayListCleanup implements Runnable
@@ -76,7 +96,7 @@ public abstract class GfxRenderState
 		}
 		else
 		{
-			if ( Minecraft.getMinecraft().gameSettings.useVbo )
+			if ( useVBO() )
 			{
 				return new VBORenderState();
 			}
@@ -131,12 +151,13 @@ public abstract class GfxRenderState
 	public static class DisplayListRenderState extends GfxRenderState
 	{
 
+		int refreshNum = 0;
 		int displayList = 0;
 
 		@Override
 		public boolean validForUse()
 		{
-			return Minecraft.getMinecraft().gameSettings.useVbo == false;
+			return useVBO() == false && refreshNum == gfxRefresh;
 		}
 
 		@Override
@@ -170,6 +191,7 @@ public abstract class GfxRenderState
 			{
 				GlStateManager.glNewList( displayList, GL11.GL_COMPILE );
 				t.draw();
+				refreshNum = gfxRefresh;
 			}
 			catch ( final IllegalStateException e )
 			{
@@ -209,12 +231,13 @@ public abstract class GfxRenderState
 	public static class VBORenderState extends GfxRenderState
 	{
 
+		int refreshNum;
 		VertexBuffer vertexbuffer;
 
 		@Override
 		public boolean validForUse()
 		{
-			return Minecraft.getMinecraft().gameSettings.useVbo;
+			return useVBO() && refreshNum == gfxRefresh;
 		}
 
 		@Override
@@ -236,6 +259,7 @@ public abstract class GfxRenderState
 
 			t.getBuffer().finishDrawing();
 			vertexbuffer.bufferData( t.getBuffer().getByteBuffer() );
+			refreshNum = gfxRefresh;
 
 			return this;
 		}

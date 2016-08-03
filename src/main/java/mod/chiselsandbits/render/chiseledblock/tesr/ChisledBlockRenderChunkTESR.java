@@ -208,7 +208,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		{
 			if ( TESR_Regions_rendered > 0 || TESR_SI_Regions_rendered > 0 )
 			{
-				t.getRight().add( "C&B DynRender: " + TESR_Regions_rendered + ":" + TESR_SI_Regions_rendered );
+				t.getRight().add( "C&B DynRender: " + TESR_Regions_rendered + ":" + TESR_SI_Regions_rendered + " - " + ( GfxRenderState.useVBO() ? "VBO" : "DspList" ) );
 				TESR_Regions_rendered = 0;
 				TESR_SI_Regions_rendered = 0;
 			}

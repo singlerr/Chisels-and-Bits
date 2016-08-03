@@ -1,12 +1,10 @@
 package mod.chiselsandbits.chiseledblock;
 
-import java.util.Collections;
-import java.util.List;
-
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.render.chiseledblock.tesr.TileList;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderCache;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderChunk;
 import net.minecraft.util.EnumFacing;
@@ -96,9 +94,9 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			singleCache = new TileRenderCache() {
 
 				@Override
-				public List<TileEntityBlockChiseledTESR> getTiles()
+				public TileList getTiles()
 				{
-					return Collections.singletonList( self );
+					return new TileList();
 				}
 			};
 		}
@@ -106,8 +104,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 		return singleCache;
 	}
 
-	@Override
-	public void invalidate()
+	private void detatchRenderer()
 	{
 		if ( renderChunk != null )
 		{
@@ -117,13 +114,22 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	}
 
 	@Override
+	public void invalidate()
+	{
+		detatchRenderer();
+	}
+
+	@Override
 	public void onChunkUnload()
 	{
-		if ( renderChunk != null )
-		{
-			renderChunk.unregister( this );
-			renderChunk = null;
-		}
+		detatchRenderer();
+	}
+
+	@Override
+	protected void finalize() throws Throwable
+	{
+		// in a perfect world this would never happen...
+		detatchRenderer();
 	}
 
 	public IExtendedBlockState getTileRenderState()

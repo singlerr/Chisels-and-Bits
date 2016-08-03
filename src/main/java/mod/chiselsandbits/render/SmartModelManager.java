@@ -8,6 +8,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.bit.BitItemSmartModel;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
+import mod.chiselsandbits.render.chiseledblock.tesr.GfxRenderState;
 import mod.chiselsandbits.render.patterns.PrintSmartModel;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -85,6 +86,7 @@ public class SmartModelManager
 	public void textureStichEvent(
 			final TextureStitchEvent.Post stitch )
 	{
+		GfxRenderState.gfxRefresh++;
 		ChiselsAndBits.getInstance().clearCache();
 	}
 
