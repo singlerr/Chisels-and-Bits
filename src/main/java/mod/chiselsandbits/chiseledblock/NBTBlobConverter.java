@@ -2,8 +2,7 @@ package mod.chiselsandbits.chiseledblock;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-
-import org.apache.http.client.entity.DeflateInputStream;
+import java.util.zip.InflaterInputStream;
 
 import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -189,7 +188,7 @@ public class NBTBlobConverter
 
 		try
 		{
-			final DeflateInputStream arrayPeek = new DeflateInputStream( new ByteArrayInputStream( v.getByteArray() ) );
+			final InflaterInputStream arrayPeek = new InflaterInputStream( new ByteArrayInputStream( v.getByteArray() ) );
 			final byte[] peekBytes = new byte[5];
 			arrayPeek.read( peekBytes );
 
