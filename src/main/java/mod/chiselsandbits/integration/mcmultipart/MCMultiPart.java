@@ -207,12 +207,13 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 					ignore = part;
 				}
 			}
-
+			
+			IgnorePred ignorep = new IgnorePred( ignore );
 			while ( bci.hasNext() )
 			{
 				final AxisAlignedBB aabb = new AxisAlignedBB( bci.physicalX, bci.physicalY, bci.physicalZ, bci.physicalX + BitCollisionIterator.One16thf, bci.physicalYp1, bci.physicalZp1 );
 
-				if ( !OcclusionHelper.occlusionTest( OcclusionHelper.boxes( aabb ), new IgnorePred( ignore ), parts ) )
+				if ( !OcclusionHelper.occlusionTest( OcclusionHelper.boxes( aabb ), ignorep, parts ) )
 				{
 					bci.setNext( vb, 1 );
 				}
