@@ -15,7 +15,7 @@ Jenkins
 
 [![Build Status](https://dvs1.progwml6.com/jenkins/job/Chisels-and-Bits/badge/icon)](https://dvs1.progwml6.com/jenkins/job/Chisels-and-Bits/)
 
-Jenkins builds are for testing and development purposes; Do not use builds from the jenkins unless specifically directed to do so. Builds for play are avialble above at curseforge.
+Jenkins builds are for testing and development purposes; Do not use builds from the jenkins unless specifically directed to do so. Builds for play are available above at curseforge.
 
 Contributing
 ------------
