@@ -10,6 +10,13 @@ Downloads: http://minecraft.curseforge.com/projects/chisels-bits/files
 
 Discussion Thread: http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2576750
 
+Jenkins
+-------
+
+[![Build Status](https://dvs1.progwml6.com/jenkins/job/Chisels-and-Bits/badge/icon)](https://dvs1.progwml6.com/jenkins/job/Chisels-and-Bits/)
+
+Jenkins builds are for testing and development purposes; Do not use builds from the jenkins unless specifically directed to do so. Builds for play are avialble above at curseforge.
+
 Contributing
 ------------
 
