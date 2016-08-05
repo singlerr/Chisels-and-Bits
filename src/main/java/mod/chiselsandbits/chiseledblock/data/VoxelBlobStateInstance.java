@@ -229,7 +229,7 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
 	{
 		if ( format == Integer.MIN_VALUE )
 		{
-			if ( voxelBytes.length == 0 )
+			if ( voxelBytes == null || voxelBytes.length == 0 )
 			{
 				format = -1;
 			}
