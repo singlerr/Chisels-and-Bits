@@ -116,6 +116,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	@Override
 	public void invalidate()
 	{
+		super.invalidate();
 		detatchRenderer();
 	}
 

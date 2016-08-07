@@ -134,7 +134,7 @@ public class NBTBlobConverter
 		compound.setByteArray( NBT_VERSIONED_VOXEL, voxelBytes );
 	}
 
-	public final void readChisleData(
+	public final boolean readChisleData(
 			final NBTTagCompound compound )
 	{
 		sideState = compound.getInteger( NBT_SIDE_FLAGS );
@@ -174,8 +174,10 @@ public class NBTBlobConverter
 
 		if ( tile != null )
 		{
-			tile.updateBlob( this, triggerUpdates );
+			return tile.updateBlob( this, triggerUpdates );
 		}
+
+		return true;
 	}
 
 	private int getFormat(

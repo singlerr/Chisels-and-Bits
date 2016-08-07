@@ -279,17 +279,54 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			final NetworkManager net,
 			final SPacketUpdateTileEntity pkt )
 	{
-		readChisleData( pkt.getNbtCompound() );
-		if ( worldObj != null )
+		final boolean changed = readChisleData( pkt.getNbtCompound() );
+
+		if ( worldObj != null && changed )
 		{
 			worldObj.markBlockRangeForRenderUpdate( pos, pos );
+			triggerDynamicUpdates();
 		}
 	}
 
-	public void readChisleData(
+	/**
+	 * look at near by TESRs and re-render them.
+	 */
+	private void triggerDynamicUpdates()
+	{
+		if ( worldObj.isRemote )
+		{
+			final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.UProperty_VoxelNeighborState );
+
+			// will it update anyway?
+			if ( vns != null && vns.isDynamic() )
+			{
+				return;
+			}
+
+			for ( final EnumFacing f : EnumFacing.VALUES )
+			{
+				final BlockPos p = getPos().offset( f );
+				if ( worldObj.isBlockLoaded( p ) )
+				{
+					final TileEntity te = worldObj.getTileEntity( p );
+					if ( te instanceof TileEntityBlockChiseledTESR )
+					{
+						final TileEntityBlockChiseledTESR tesr = (TileEntityBlockChiseledTESR) te;
+
+						if ( tesr.getRenderChunk() != null )
+						{
+							tesr.getRenderChunk().rebuild( false );
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public boolean readChisleData(
 			final NBTTagCompound tag )
 	{
-		new NBTBlobConverter( false, this ).readChisleData( tag );
+		final boolean changed = new NBTBlobConverter( false, this ).readChisleData( tag );
 
 		final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.UProperty_VoxelNeighborState );
 
@@ -297,6 +334,8 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		{
 			vns.triggerUpdate();
 		}
+
+		return changed;
 	}
 
 	public void writeChisleData(
@@ -406,13 +445,15 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		setBlob( vb, true );
 	}
 
-	public void updateBlob(
+	public boolean updateBlob(
 			final NBTBlobConverter converter,
 			final boolean triggerUpdates )
 	{
 		final int oldLV = getLightValue();
 		final boolean oldNC = isNormalCube();
 		final int oldSides = sideState;
+
+		final VoxelBlobStateReference originalRef = getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob );
 
 		sideState = converter.getSideState();
 		final int b = converter.getPrimaryBlockStateID();
@@ -449,6 +490,8 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				worldObj.notifyNeighborsOfStateChange( pos, worldObj.getBlockState( pos ).getBlock() );
 			}
 		}
+
+		return voxelRef != null ? !voxelRef.equals( originalRef ) : true;
 	}
 
 	public void setBlob(
@@ -646,6 +689,12 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		setBlob( vb );
 		final VoxelBlobStateReference after = getBlobStateReference();
 
+		if ( worldObj != null )
+		{
+			worldObj.markBlockRangeForRenderUpdate( pos, pos );
+			triggerDynamicUpdates();
+		}
+
 		UndoTracker.getInstance().add( getWorld(), getPos(), before, after );
 	}
 
@@ -714,6 +763,15 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public int getLightValue()
 	{
 		return lightlevel;
+	}
+
+	@Override
+	public void invalidate()
+	{
+		if ( worldObj != null )
+		{
+			triggerDynamicUpdates();
+		}
 	}
 
 }
