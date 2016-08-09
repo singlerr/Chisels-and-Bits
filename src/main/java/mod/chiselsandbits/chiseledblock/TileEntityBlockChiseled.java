@@ -293,7 +293,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	 */
 	private void triggerDynamicUpdates()
 	{
-		if ( worldObj.isRemote )
+		if ( worldObj.isRemote && state != null )
 		{
 			final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.UProperty_VoxelNeighborState );
 
