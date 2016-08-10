@@ -10,12 +10,14 @@ import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderChunk;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EnumSkyBlock;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
 public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 {
 	private TileRenderChunk renderChunk;
 	private TileRenderCache singleCache;
+	private int previousLightLevel = -1;
 
 	@Override
 	public boolean canRenderBreaking()
@@ -45,6 +47,14 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 		}
 
 		renderChunk.update( null, 1 );
+
+		final int old = previousLightLevel;
+		previousLightLevel = worldObj.getLightFromNeighborsFor( EnumSkyBlock.BLOCK, getPos() );
+
+		if ( previousLightLevel != old )
+		{
+			vns.triggerUpdate();
+		}
 
 		if ( vns.isShouldUpdate() )
 		{
