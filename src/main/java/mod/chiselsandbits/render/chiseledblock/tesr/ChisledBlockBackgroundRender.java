@@ -59,10 +59,10 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 	public ChisledBlockBackgroundRender(
 			final ChunkCache cache,
 			final BlockPos chunkOffset,
-			final TileList iterable,
+			final List<TileEntityBlockChiseledTESR> myList,
 			final BlockRenderLayer layer )
 	{
-		myPrivateList = iterable.createCopy();
+		myPrivateList = myList;
 		this.layer = layer;
 		this.cache = cache;
 		this.chunkOffset = chunkOffset;

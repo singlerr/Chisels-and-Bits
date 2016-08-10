@@ -490,7 +490,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			{
 				// copy the tiles for the thread..
 				final ChunkCache cache = new ChunkCache( getWorld(), chunkOffset, chunkOffset.add( 16, 16, 16 ), 1 );
-				final FutureTask<Tessellator> newFuture = new FutureTask<Tessellator>( new ChisledBlockBackgroundRender( cache, chunkOffset, renderCache.getTiles(), layer ) );
+				final FutureTask<Tessellator> newFuture = new FutureTask<Tessellator>( new ChisledBlockBackgroundRender( cache, chunkOffset, renderCache.getTileList(), layer ) );
 
 				try
 				{

@@ -1,10 +1,12 @@
 package mod.chiselsandbits.chiseledblock;
 
+import java.util.Collections;
+import java.util.List;
+
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.render.chiseledblock.tesr.TileList;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderCache;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderChunk;
 import net.minecraft.util.EnumFacing;
@@ -104,10 +106,11 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			singleCache = new TileRenderCache() {
 
 				@Override
-				public TileList getTiles()
+				public List<TileEntityBlockChiseledTESR> getTileList()
 				{
-					return new TileList();
+					return Collections.singletonList( self );
 				}
+
 			};
 		}
 

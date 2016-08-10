@@ -1,6 +1,9 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
+import java.util.List;
+
 import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.core.ClientSide;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -22,7 +25,7 @@ public abstract class TileRenderCache
 		return solid;
 	}
 
-	public abstract TileList getTiles();
+	abstract public List<TileEntityBlockChiseledTESR> getTileList();
 
 	public EnumTESRRenderState update(
 			final BlockRenderLayer layer,
