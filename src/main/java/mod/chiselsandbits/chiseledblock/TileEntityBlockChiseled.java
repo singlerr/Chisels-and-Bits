@@ -32,6 +32,7 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.property.IExtendedBlockState;
@@ -94,17 +95,19 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	public IExtendedBlockState getBasicState()
 	{
-		return getState( false, 0 );
+		return getState( false, 0, worldObj );
 	}
 
-	public IExtendedBlockState getRenderState()
+	public IExtendedBlockState getRenderState(
+			final IBlockAccess access )
 	{
-		return getState( true, 1 );
+		return getState( true, 1, access );
 	}
 
 	protected IExtendedBlockState getState(
 			final boolean updateNeightbors,
-			final int updateCost )
+			final int updateCost,
+			final IBlockAccess access )
 	{
 		if ( state == null )
 		{
@@ -121,9 +124,8 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				return state;
 			}
 
-			vns.update( isDyanmic, worldObj, pos );
-
-			tesrUpdate( vns );
+			vns.update( isDyanmic, access, pos );
+			tesrUpdate( access, vns );
 
 			final TileEntityBlockChiseled self = this;
 			if ( vns.isAboveLimit() && !isDyanmic )
@@ -208,6 +210,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	protected void tesrUpdate(
+			final IBlockAccess access,
 			final VoxelNeighborRenderTracker vns )
 	{
 
@@ -270,8 +273,21 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public NBTTagCompound getUpdateTag()
 	{
 		final NBTTagCompound nbttagcompound = new NBTTagCompound();
-		writeToNBT( nbttagcompound );
+
+		nbttagcompound.setInteger( "x", pos.getX() );
+		nbttagcompound.setInteger( "y", pos.getY() );
+		nbttagcompound.setInteger( "z", pos.getZ() );
+
+		writeChisleData( nbttagcompound );
+
 		return nbttagcompound;
+	}
+
+	@Override
+	public void handleUpdateTag(
+			final NBTTagCompound tag )
+	{
+		readChisleData( tag );
 	}
 
 	@Override

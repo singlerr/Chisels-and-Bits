@@ -5,6 +5,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public interface IMCMultiPart
@@ -37,5 +38,9 @@ public interface IMCMultiPart
 			World world,
 			BlockPos pos,
 			EntityPlayer player );
+
+	TileEntityBlockChiseled getPartFromBlockAccess(
+			IBlockAccess w,
+			BlockPos pos );
 
 }

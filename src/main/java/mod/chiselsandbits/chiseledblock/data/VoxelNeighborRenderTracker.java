@@ -10,7 +10,7 @@ import mod.chiselsandbits.render.chiseledblock.ModelRenderState;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
 public final class VoxelNeighborRenderTracker
@@ -96,10 +96,10 @@ public final class VoxelNeighborRenderTracker
 
 	public void update(
 			final boolean isDynamic,
-			final World worldObj,
+			final IBlockAccess access,
 			final BlockPos pos )
 	{
-		if ( worldObj == null || pos == null )
+		if ( access == null || pos == null )
 		{
 			return;
 		}
@@ -111,7 +111,7 @@ public final class VoxelNeighborRenderTracker
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
-			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( worldObj, pos.offset( f ), false );
+			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( access, pos.offset( f ) );
 			if ( tebc != null )
 			{
 				update( f, tebc.getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob ) );

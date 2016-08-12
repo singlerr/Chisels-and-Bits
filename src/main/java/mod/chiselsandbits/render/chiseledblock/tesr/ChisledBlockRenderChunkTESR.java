@@ -366,7 +366,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		worldrenderer.setTranslation( 0, 0, 0 );
 
 		final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
-		final IExtendedBlockState estate = te.getRenderState();
+		final IExtendedBlockState estate = te.getRenderState( te.getWorld() );
 
 		for ( final ChiselLayer lx : ChiselLayer.values() )
 		{

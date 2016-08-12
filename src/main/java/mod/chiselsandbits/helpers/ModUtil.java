@@ -37,7 +37,10 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.ChunkCache;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 
 public class ModUtil
 {
@@ -309,18 +312,43 @@ public class ModUtil
 		throw new NullPointerException( "Unable to find a non null item." );
 	}
 
-	public static TileEntityBlockChiseled getChiseledTileEntity(
-			final World world,
-			final BlockPos pos,
-			final boolean create )
+	public static TileEntity getTileEntitySafely(
+			final IBlockAccess world,
+			final BlockPos pos )
 	{
-		final TileEntity te = world.getTileEntity( pos );
+		// not going to lie, this is really stupid.
+		return world instanceof ChunkCache ? ( (ChunkCache) world ).func_190300_a( pos, Chunk.EnumCreateEntityType.CHECK ) : world.getTileEntity( pos );
+	}
+
+	public static TileEntityBlockChiseled getChiseledTileEntity(
+			final IBlockAccess world,
+			final BlockPos pos )
+	{
+		final TileEntity te = getTileEntitySafely( world, pos );
 		if ( te instanceof TileEntityBlockChiseled )
 		{
 			return (TileEntityBlockChiseled) te;
 		}
 
-		return MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( world, pos, create );
+		return MCMultipartProxy.proxyMCMultiPart.getPartFromBlockAccess( world, pos );
+	}
+
+	public static TileEntityBlockChiseled getChiseledTileEntity(
+			final World world,
+			final BlockPos pos,
+			final boolean create )
+	{
+		if ( world.isBlockLoaded( pos ) )
+		{
+			final TileEntity te = world.getTileEntity( pos );
+			if ( te instanceof TileEntityBlockChiseled )
+			{
+				return (TileEntityBlockChiseled) te;
+			}
+
+			return MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( world, pos, create );
+		}
+		return null;
 	}
 
 	public static void removeChisledBlock(

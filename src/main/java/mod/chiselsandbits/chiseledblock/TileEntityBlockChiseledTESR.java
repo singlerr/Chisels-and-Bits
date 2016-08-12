@@ -13,6 +13,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
 public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
@@ -40,11 +41,12 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 
 	@Override
 	protected void tesrUpdate(
+			final IBlockAccess access,
 			final VoxelNeighborRenderTracker vns )
 	{
 		if ( renderChunk == null )
 		{
-			renderChunk = findRenderChunk();
+			renderChunk = findRenderChunk( access );
 			renderChunk.register( this );
 		}
 
@@ -64,7 +66,8 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 		}
 	}
 
-	private TileRenderChunk findRenderChunk()
+	private TileRenderChunk findRenderChunk(
+			final IBlockAccess access )
 	{
 		int chunkPosX = getPos().getX();
 		int chunkPosY = getPos().getY();
@@ -81,7 +84,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			{
 				for ( int z = 0; z < 16; ++z )
 				{
-					final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( worldObj, new BlockPos( chunkPosX + x, chunkPosY + y, chunkPosZ + z ), false );
+					final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( access, new BlockPos( chunkPosX + x, chunkPosY + y, chunkPosZ + z ) );
 					if ( te instanceof TileEntityBlockChiseledTESR )
 					{
 						final TileRenderChunk trc = ( (TileEntityBlockChiseledTESR) te ).renderChunk;
@@ -146,9 +149,10 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 		detatchRenderer();
 	}
 
-	public IExtendedBlockState getTileRenderState()
+	public IExtendedBlockState getTileRenderState(
+			final IBlockAccess world )
 	{
-		return getState( true, 0 );
+		return getState( true, 0, world );
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import mod.chiselsandbits.integration.IntegrationBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class MCMultipartProxy extends IntegrationBase
@@ -68,6 +69,14 @@ public class MCMultipartProxy extends IntegrationBase
 			return false;
 		}
 
+		@Override
+		public TileEntityBlockChiseled getPartFromBlockAccess(
+				final IBlockAccess w,
+				final BlockPos pos )
+		{
+			return null;
+		}
+
 	};
 
 	public static final MCMultipartProxy proxyMCMultiPart = new MCMultipartProxy();
@@ -127,6 +136,13 @@ public class MCMultipartProxy extends IntegrationBase
 			final EntityPlayer player )
 	{
 		return relay.rotate( world, pos, player );
+	}
+
+	public TileEntityBlockChiseled getPartFromBlockAccess(
+			final IBlockAccess world,
+			final BlockPos pos )
+	{
+		return relay.getPartFromBlockAccess( world, pos );
 	}
 
 }

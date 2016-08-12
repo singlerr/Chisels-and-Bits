@@ -130,7 +130,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 		{
 			if ( tx instanceof TileEntityBlockChiseledTESR && !tx.isInvalid() )
 			{
-				final IExtendedBlockState estate = ( (TileEntityBlockChiseledTESR) tx ).getTileRenderState();
+				final IExtendedBlockState estate = ( (TileEntityBlockChiseledTESR) tx ).getTileRenderState( cache );
 
 				mcLayers.clear();
 				for ( final ChiselLayer lx : layers )

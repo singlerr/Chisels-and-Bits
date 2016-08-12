@@ -184,7 +184,7 @@ public class ChiseledBlockPart extends Multipart implements INormallyOccludingPa
 	public IBlockState getExtendedState(
 			final IBlockState state )
 	{
-		return getTile().getRenderState();
+		return getTile().getRenderState( getWorld() ); // THIS IS PROBOBLY BAD
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import com.google.common.base.Predicate;
 
 import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.client.multipart.MultipartRegistryClient;
+import mcmultipart.microblock.IMicroblockContainerTile;
 import mcmultipart.microblock.MicroblockRegistry;
 import mcmultipart.multipart.IMultipart;
 import mcmultipart.multipart.IMultipartContainer;
@@ -18,6 +19,7 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.ChiselsAndBitsIntegration;
 import mod.chiselsandbits.integration.IntegrationBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -25,6 +27,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -152,6 +155,38 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 	}
 
 	@Override
+	public TileEntityBlockChiseled getPartFromBlockAccess(
+			final IBlockAccess w,
+			final BlockPos pos )
+	{
+		final TileEntity te = ModUtil.getTileEntitySafely( w, pos );
+		IMultipartContainer container = null;
+
+		if ( te instanceof IMultipartContainer )
+		{
+			container = (IMultipartContainer) te;
+		}
+
+		if ( te instanceof IMicroblockContainerTile )
+		{
+			container = ( (IMicroblockContainerTile) te ).getMicroblockContainer();
+		}
+
+		if ( container != null )
+		{
+			for ( final IMultipart part : container.getParts() )
+			{
+				if ( part instanceof ChiseledBlockPart )
+				{
+					return ( (ChiseledBlockPart) part ).getTile();
+				}
+			}
+		}
+
+		return null;
+	}
+
+	@Override
 	public boolean isMultiPart(
 			final World w,
 			final BlockPos pos )
@@ -207,8 +242,8 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 					ignore = part;
 				}
 			}
-			
-			IgnorePred ignorep = new IgnorePred( ignore );
+
+			final IgnorePred ignorep = new IgnorePred( ignore );
 			while ( bci.hasNext() )
 			{
 				final AxisAlignedBB aabb = new AxisAlignedBB( bci.physicalX, bci.physicalY, bci.physicalZ, bci.physicalX + BitCollisionIterator.One16thf, bci.physicalYp1, bci.physicalZp1 );
