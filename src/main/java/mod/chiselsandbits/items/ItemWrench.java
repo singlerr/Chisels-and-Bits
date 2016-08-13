@@ -64,7 +64,8 @@ public class ItemWrench extends Item
 					return EnumActionResult.SUCCESS;
 				}
 			}
-			else if ( b.getBlock().rotateBlock( world, pos, side ) )
+
+			if ( b.getBlock().rotateBlock( world, pos, side ) )
 			{
 				stack.damageItem( 1, player );
 				world.notifyNeighborsOfStateChange( pos, b.getBlock() );

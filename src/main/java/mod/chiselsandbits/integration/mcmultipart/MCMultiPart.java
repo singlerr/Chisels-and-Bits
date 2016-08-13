@@ -4,7 +4,6 @@ import java.util.Collection;
 
 import com.google.common.base.Predicate;
 
-import mcmultipart.block.TileMultipartContainer;
 import mcmultipart.client.multipart.MultipartRegistryClient;
 import mcmultipart.microblock.IMicroblockContainerTile;
 import mcmultipart.microblock.MicroblockRegistry;
@@ -13,7 +12,9 @@ import mcmultipart.multipart.IMultipartContainer;
 import mcmultipart.multipart.MultipartHelper;
 import mcmultipart.multipart.MultipartRegistry;
 import mcmultipart.multipart.OcclusionHelper;
+import mcmultipart.raytrace.PartMOP;
 import mcmultipart.raytrace.RayTraceUtils;
+import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResult;
 import mcmultipart.raytrace.RayTraceUtils.AdvancedRayTraceResultPart;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
@@ -22,6 +23,8 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.ChiselsAndBitsIntegration;
 import mod.chiselsandbits.integration.IntegrationBase;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -256,6 +259,7 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 		}
 	}
 
+	@SuppressWarnings( "deprecation" )
 	@Override
 	public boolean rotate(
 			final World world,
@@ -265,12 +269,31 @@ public class MCMultiPart extends IntegrationBase implements IMCMultiPart
 		final IMultipartContainer container = MultipartHelper.getPartContainer( world, pos );
 		if ( container != null )
 		{
-			final Vec3d start = RayTraceUtils.getStart( player );
-			final Vec3d end = RayTraceUtils.getEnd( player );
-			final AdvancedRayTraceResultPart result = ( (TileMultipartContainer) world.getTileEntity( pos ) ).getPartContainer().collisionRayTrace( start, end );
-			if ( result != null && result.hit != null && result.hit.partHit != null )
+			final IBlockState state = world.getBlockState( pos );
+			final Block blk = state.getBlock();
+
+			if ( blk != null )
 			{
-				return result.hit.partHit.rotatePart( result.hit.sideHit );
+				final Vec3d start = RayTraceUtils.getStart( player );
+				final Vec3d end = RayTraceUtils.getEnd( player );
+				final Object crt = blk.collisionRayTrace( state, world, pos, start, end );
+
+				if ( crt instanceof AdvancedRayTraceResult )
+				{
+					final AdvancedRayTraceResultPart result = (AdvancedRayTraceResultPart) crt;
+					if ( result != null && result.hit != null && result.hit.partHit != null )
+					{
+						return result.hit.partHit.rotatePart( result.hit.sideHit );
+					}
+				}
+				else if ( crt instanceof PartMOP )
+				{
+					final PartMOP result = (PartMOP) crt;
+					if ( result != null && result.sideHit != null && result.partHit != null )
+					{
+						return result.partHit.rotatePart( result.sideHit );
+					}
+				}
 			}
 		}
 		return false;
