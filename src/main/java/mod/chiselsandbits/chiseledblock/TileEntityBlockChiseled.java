@@ -157,7 +157,6 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 							}
 							else if ( dat == self )
 							{
-								current.invalidate();
 								MCMultipartProxy.proxyMCMultiPart.convertTo( current, new TileEntityBlockChiseledTESR() );
 								vns.unlockDynamic();
 							}
@@ -195,7 +194,6 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 							}
 							else if ( dat == self )
 							{
-								current.invalidate();
 								MCMultipartProxy.proxyMCMultiPart.convertTo( current, new TileEntityBlockChiseled() );
 								vns.unlockDynamic();
 							}
