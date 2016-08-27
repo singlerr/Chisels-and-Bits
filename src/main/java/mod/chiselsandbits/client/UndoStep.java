@@ -19,8 +19,9 @@ public class UndoStep
 	{
 		this.dimensionId = dimensionId;
 		this.pos = pos;
-		this.before = before;
-		this.after = after;
+		this.before = before != null ? before : new VoxelBlobStateReference( 0, 0 );
+		this.after = after != null ? after : new VoxelBlobStateReference( 0, 0 );
+		;
 	}
 
 }

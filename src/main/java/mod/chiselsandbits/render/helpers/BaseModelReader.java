@@ -1,5 +1,6 @@
 package mod.chiselsandbits.render.helpers;
 
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.EnumFacing;
@@ -33,4 +34,10 @@ public abstract class BaseModelReader implements IVertexConsumer
 
 	}
 
+	// @Override
+	public void setTexture(
+			final TextureAtlasSprite texture )
+	{
+
+	}
 }

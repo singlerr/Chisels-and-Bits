@@ -179,6 +179,11 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 		return data.getBoxes( type );
 	}
 
+	public int getFormat()
+	{
+		return data.getFormat();
+	}
+
 	@Override
 	public int get(
 			final int bitPosX,

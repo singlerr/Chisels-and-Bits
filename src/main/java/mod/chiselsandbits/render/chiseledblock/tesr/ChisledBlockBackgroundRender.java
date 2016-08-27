@@ -1,7 +1,6 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
 import java.lang.ref.SoftReference;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Queue;
@@ -10,8 +9,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.lwjgl.opengl.GL11;
 
+import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
+import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
@@ -58,10 +59,10 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 	public ChisledBlockBackgroundRender(
 			final ChunkCache cache,
 			final BlockPos chunkOffset,
-			final List<TileEntityBlockChiseledTESR> tiles,
+			final List<TileEntityBlockChiseledTESR> myList,
 			final BlockRenderLayer layer )
 	{
-		myPrivateList = new ArrayList<TileEntityBlockChiseledTESR>( tiles );
+		myPrivateList = myList;
 		this.layer = layer;
 		this.cache = cache;
 		this.chunkOffset = chunkOffset;
@@ -121,16 +122,22 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 			Log.logError( "Invalid Tessellator Behavior", e );
 		}
 
+		final int[] faceCount = new int[BlockRenderLayer.values().length];
+
+		final EnumSet<BlockRenderLayer> mcLayers = EnumSet.noneOf( BlockRenderLayer.class );
 		final EnumSet<ChiselLayer> layers = layer == BlockRenderLayer.TRANSLUCENT ? EnumSet.of( ChiselLayer.TRANSLUCENT ) : EnumSet.complementOf( EnumSet.of( ChiselLayer.TRANSLUCENT ) );
 		for ( final TileEntityBlockChiseled tx : myPrivateList )
 		{
 			if ( tx instanceof TileEntityBlockChiseledTESR && !tx.isInvalid() )
 			{
-				final IExtendedBlockState estate = ( (TileEntityBlockChiseledTESR) tx ).getTileRenderState();
+				final IExtendedBlockState estate = ( (TileEntityBlockChiseledTESR) tx ).getTileRenderState( cache );
 
+				mcLayers.clear();
 				for ( final ChiselLayer lx : layers )
 				{
+					mcLayers.add( lx.layer );
 					final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( tx, lx, null );
+					faceCount[lx.layer.ordinal()] += model.faceCount();
 
 					if ( !model.isEmpty() )
 					{
@@ -142,6 +149,16 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 							submitTessellator( tessellator );
 							return null;
 						}
+					}
+				}
+
+				final VoxelNeighborRenderTracker rTracker = estate.getValue( BlockChiseled.UProperty_VoxelNeighborState );
+				if ( rTracker != null )
+				{
+					for ( final BlockRenderLayer brl : mcLayers )
+					{
+						rTracker.setAbovelimit( brl, faceCount[brl.ordinal()] );
+						faceCount[brl.ordinal()] = 0;
 					}
 				}
 			}

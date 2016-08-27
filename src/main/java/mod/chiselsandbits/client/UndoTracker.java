@@ -101,7 +101,7 @@ public class UndoTracker implements ICacheClearable
 			final UndoStep step = undoLevels.get( level );
 			final EntityPlayer who = ClientSide.instance.getPlayer();
 
-			if ( correctWorld( who, step ) )
+			if ( correctWorld( who, step ) && step.after != null && step.before != null )
 			{
 				final ActingPlayer testPlayer = ActingPlayer.testingAs( who, EnumHand.MAIN_HAND );
 				final boolean result = replayChanges( testPlayer, step, true, false );

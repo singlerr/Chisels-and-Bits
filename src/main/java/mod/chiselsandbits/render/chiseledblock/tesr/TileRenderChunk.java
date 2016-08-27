@@ -1,5 +1,8 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
+import java.util.Iterator;
+import java.util.List;
+
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -93,7 +96,8 @@ public class TileRenderChunk extends TileRenderCache
 		}
 
 		final int bitMask = ~0xf;
-		final BlockPos tilepos = getTiles().get( 0 ).getPos();
+		final Iterator<TileEntityBlockChiseledTESR> i = getTiles().iterator();
+		final BlockPos tilepos = i.hasNext() ? i.next().getPos() : BlockPos.ORIGIN;
 		return new BlockPos( tilepos.getX() & bitMask, tilepos.getY() & bitMask, tilepos.getZ() & bitMask );
 	}
 
@@ -111,6 +115,11 @@ public class TileRenderChunk extends TileRenderCache
 	}
 
 	@Override
+	public List<TileEntityBlockChiseledTESR> getTileList()
+	{
+		return tiles.createCopy();
+	}
+
 	public TileList getTiles()
 	{
 		return tiles;

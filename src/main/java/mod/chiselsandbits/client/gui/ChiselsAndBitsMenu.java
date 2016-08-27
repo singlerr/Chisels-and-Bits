@@ -168,7 +168,6 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		final double vecX = mouseX - width / 2;
 		final double vecY = mouseY - height / 2;
 		double radians = Math.atan2( vecY, vecX );
-		final double length = Math.sqrt( vecX * vecX + vecY * vecY );
 
 		final double ring_inner_edge = 20;
 		final double ring_outer_edge = 50;

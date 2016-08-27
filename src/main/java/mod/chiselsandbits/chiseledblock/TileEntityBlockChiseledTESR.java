@@ -12,12 +12,15 @@ import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderChunk;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.EnumSkyBlock;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
 public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 {
 	private TileRenderChunk renderChunk;
 	private TileRenderCache singleCache;
+	private int previousLightLevel = -1;
 
 	@Override
 	public boolean canRenderBreaking()
@@ -38,15 +41,24 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 
 	@Override
 	protected void tesrUpdate(
+			final IBlockAccess access,
 			final VoxelNeighborRenderTracker vns )
 	{
 		if ( renderChunk == null )
 		{
-			renderChunk = findRenderChunk();
+			renderChunk = findRenderChunk( access );
 			renderChunk.register( this );
 		}
 
 		renderChunk.update( null, 1 );
+
+		final int old = previousLightLevel;
+		previousLightLevel = worldObj.getLightFromNeighborsFor( EnumSkyBlock.BLOCK, getPos() );
+
+		if ( previousLightLevel != old )
+		{
+			vns.triggerUpdate();
+		}
 
 		if ( vns.isShouldUpdate() )
 		{
@@ -54,7 +66,8 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 		}
 	}
 
-	private TileRenderChunk findRenderChunk()
+	private TileRenderChunk findRenderChunk(
+			final IBlockAccess access )
 	{
 		int chunkPosX = getPos().getX();
 		int chunkPosY = getPos().getY();
@@ -71,7 +84,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			{
 				for ( int z = 0; z < 16; ++z )
 				{
-					final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( worldObj, new BlockPos( chunkPosX + x, chunkPosY + y, chunkPosZ + z ), false );
+					final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( access, new BlockPos( chunkPosX + x, chunkPosY + y, chunkPosZ + z ) );
 					if ( te instanceof TileEntityBlockChiseledTESR )
 					{
 						final TileRenderChunk trc = ( (TileEntityBlockChiseledTESR) te ).renderChunk;
@@ -96,28 +109,50 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			singleCache = new TileRenderCache() {
 
 				@Override
-				public List<TileEntityBlockChiseledTESR> getTiles()
+				public List<TileEntityBlockChiseledTESR> getTileList()
 				{
 					return Collections.singletonList( self );
 				}
+
 			};
 		}
 
 		return singleCache;
 	}
 
-	@Override
-	public void invalidate()
+	private void detatchRenderer()
 	{
 		if ( renderChunk != null )
 		{
 			renderChunk.unregister( this );
+			renderChunk = null;
 		}
 	}
 
-	public IExtendedBlockState getTileRenderState()
+	@Override
+	public void invalidate()
 	{
-		return getState( true, 0 );
+		super.invalidate();
+		detatchRenderer();
+	}
+
+	@Override
+	public void onChunkUnload()
+	{
+		detatchRenderer();
+	}
+
+	@Override
+	protected void finalize() throws Throwable
+	{
+		// in a perfect world this would never happen...
+		detatchRenderer();
+	}
+
+	public IExtendedBlockState getTileRenderState(
+			final IBlockAccess world )
+	{
+		return getState( true, 0, world );
 	}
 
 	@Override
@@ -135,8 +170,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			return getRenderChunk().getBounds();
 		}
 
-		final BlockPos p = getPos();
-		return new AxisAlignedBB( p.getX(), p.getY(), p.getZ(), p.getX() + 1, p.getY() + 1, p.getZ() + 1 );
+		return super.getRenderBoundingBox();
 	}
 
 	@Override

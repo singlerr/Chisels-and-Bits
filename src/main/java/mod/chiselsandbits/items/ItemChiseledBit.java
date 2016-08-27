@@ -101,18 +101,21 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		return ItemChisel.fromBreakToChisel( ChiselMode.castMode( ChiselModeManager.getChiselMode( player, ChiselToolType.BIT, EnumHand.MAIN_HAND ) ), itemstack, pos, player, EnumHand.MAIN_HAND );
 	}
 
-	public String getBitTypeName(
-			final ItemStack stack )
+	public static String getBitStateName(
+			final IBlockState state )
 	{
 		ItemStack target = null;
-		IBlockState state = null;
 		Block blk = null;
+
+		if ( state == null )
+		{
+			return "Null";
+		}
 
 		try
 		{
 			// for an unknown reason its possible to generate mod blocks without
 			// proper state here...
-			state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
 			blk = state.getBlock();
 
 			final Item item = Item.getItemFromBlock( blk );
@@ -173,6 +176,12 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		{
 			return "ERROR";
 		}
+	}
+
+	public static String getBitTypeName(
+			final ItemStack stack )
+	{
+		return getBitStateName( Block.getStateById( ItemChiseledBit.getStackState( stack ) ) );
 	}
 
 	@Override

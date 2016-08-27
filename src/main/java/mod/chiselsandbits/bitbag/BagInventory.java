@@ -16,7 +16,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -350,7 +349,6 @@ public class BagInventory implements IInventory
 		for ( int x = 0; x < getSizeInventory(); x++ )
 		{
 			final ItemStack is = getStackInSlot( x );
-
 			if ( is != null )
 			{
 				final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( is ) );
@@ -359,32 +357,22 @@ public class BagInventory implements IInventory
 					continue;
 				}
 
-				final Block blk = state.getBlock();
-				if ( blk == null )
-				{
-					continue;
-				}
+				final String name = ItemChiseledBit.getBitStateName( state );
 
-				final Item what = Item.getItemFromBlock( blk );
-				if ( what == null )
+				if ( name != null )
 				{
-					continue;
-				}
+					Integer count = contents.get( name );
+					if ( count == null )
+					{
+						count = is.stackSize;
+					}
+					else
+					{
+						count += is.stackSize;
+					}
 
-				final ItemChiseledBit bit = ChiselsAndBits.getItems().itemBlockBit;
-				final String name = bit.getBitTypeName( is );
-
-				Integer count = contents.get( name );
-				if ( count == null )
-				{
-					count = is.stackSize;
+					contents.put( name, count );
 				}
-				else
-				{
-					count += is.stackSize;
-				}
-
-				contents.put( name, count );
 			}
 		}
 

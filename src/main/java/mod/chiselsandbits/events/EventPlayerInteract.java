@@ -4,6 +4,7 @@ import java.util.WeakHashMap;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.state.IBlockState;
@@ -55,7 +56,7 @@ public class EventPlayerInteract
 			if ( is != null && ( is.getItem() instanceof ItemChisel || is.getItem() instanceof ItemChiseledBit ) && validEvent )
 			{
 				final IBlockState state = event.getWorld().getBlockState( event.getPos() );
-				if ( BlockBitInfo.canChisel( state ) )
+				if ( BlockBitInfo.canChisel( state ) || MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( event.getWorld(), event.getPos() ) )
 				{
 					if ( event.getWorld().isRemote )
 					{

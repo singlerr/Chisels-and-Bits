@@ -416,7 +416,7 @@ public class EntityBlueprint extends Entity
 							}
 
 							final long now2 = System.currentTimeMillis();
-							if ( now2 - now > 32 )
+							if ( now2 - now > 64 )
 							{
 								break;
 							}

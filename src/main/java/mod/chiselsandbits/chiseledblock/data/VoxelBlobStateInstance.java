@@ -1,15 +1,20 @@
 package mod.chiselsandbits.chiseledblock.data;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.zip.InflaterInputStream;
 
+import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.chiseledblock.BoxCollection;
 import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.core.Log;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.AxisAlignedBB;
 
 public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateInstance>
@@ -246,5 +251,37 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
 		}
 
 		return cache.toArray( new AxisAlignedBB[cache.size()] );
+	}
+
+	// cache the format after reading it once.
+	private int format = Integer.MIN_VALUE;
+
+	public int getFormat()
+	{
+		if ( format == Integer.MIN_VALUE )
+		{
+			if ( voxelBytes == null || voxelBytes.length == 0 )
+			{
+				format = -1;
+			}
+			else
+			{
+				try
+				{
+					final InflaterInputStream arrayPeek = new InflaterInputStream( new ByteArrayInputStream( voxelBytes ) );
+					final byte[] peekBytes = new byte[5];
+					arrayPeek.read( peekBytes );
+
+					final PacketBuffer header = new PacketBuffer( Unpooled.wrappedBuffer( peekBytes ) );
+					format = header.readVarIntFromBuffer();
+				}
+				catch ( final IOException e )
+				{
+					format = 0;
+				}
+			}
+		}
+
+		return format;
 	}
 }

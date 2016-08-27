@@ -3,7 +3,6 @@ package mod.chiselsandbits.render.chiseledblock.tesr;
 import java.util.concurrent.FutureTask;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.render.helpers.DeleteDisplayList;
 import net.minecraft.client.renderer.Tessellator;
 
 public class TileLayerRenderCache
@@ -12,17 +11,8 @@ public class TileLayerRenderCache
 	public boolean waiting = false;
 	public boolean rebuild = true;
 	public int lastRenderedFrame = Integer.MAX_VALUE;
-	public int displayList = 0;
-	public boolean conversion = true;
-
-	@Override
-	protected void finalize() throws Throwable
-	{
-		if ( displayList != 0 )
-		{
-			ChisledBlockRenderChunkTESR.addTask( new DeleteDisplayList( displayList ) );
-		}
-	}
+	public GfxRenderState displayList = null;
+	public boolean conversion = ChiselsAndBits.getConfig().dynamicModelMinimizeLatancy;
 
 	public boolean isNew()
 	{

@@ -25,7 +25,7 @@ public abstract class TileRenderCache
 		return solid;
 	}
 
-	public abstract List<TileEntityBlockChiseledTESR> getTiles();
+	abstract public List<TileEntityBlockChiseledTESR> getTileList();
 
 	public EnumTESRRenderState update(
 			final BlockRenderLayer layer,

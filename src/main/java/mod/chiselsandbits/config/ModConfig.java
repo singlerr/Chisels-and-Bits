@@ -3,6 +3,7 @@ package mod.chiselsandbits.config;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -14,6 +15,7 @@ import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.registry.ModRegistry;
+import mod.chiselsandbits.render.chiseledblock.tesr.GfxRenderState.UseVBO;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
@@ -119,7 +121,7 @@ public class ModConfig extends Configuration
 	public boolean addBrokenBlocksToCreativeClipboard;
 
 	@Configured( category = "Client Settings" )
-	public boolean fluidBitsAreClickThough;
+	public boolean fluidBitsAreClickThrough;
 
 	@Configured( category = "Client Settings" )
 	public boolean persistCreativeClipboard;
@@ -135,6 +137,9 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Client Settings" )
 	public boolean displayMeasuringTapeInChat;
+
+	@Configured( category = "Client Performance Settings" )
+	public static UseVBO useVBO;
 
 	@Configured( category = "Client Performance Settings" )
 	public int maxMillisecondsPerBlock = 10;
@@ -153,6 +158,12 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Client Performance Settings" )
 	public int dynamicMaxConcurrentTessalators;
+
+	@Configured( category = "Client Performance Settings" )
+	public boolean forceDynamicRenderer;
+
+	@Configured( category = "Client Performance Settings" )
+	public boolean defaultToDynamicRenderer;
 
 	@Configured( category = "Balance Settings" )
 	public boolean damageTools;
@@ -324,6 +335,9 @@ public class ModConfig extends Configuration
 		dynamicModelRange = 128;
 		dynamicModelMinimizeLatancy = true;
 		dynamicMaxConcurrentTessalators = 32; // in low memory this acts as 2.
+		forceDynamicRenderer = false;
+		defaultToDynamicRenderer = false;
+		useVBO = UseVBO.AUTOMATIC;
 
 		showUsage = true;
 		invertBitBagFullness = false;
@@ -348,7 +362,7 @@ public class ModConfig extends Configuration
 
 		creativeClipboardSize = 32;
 		addBrokenBlocksToCreativeClipboard = true;
-		fluidBitsAreClickThough = true;
+		fluidBitsAreClickThrough = true;
 		persistCreativeClipboard = true;
 		enableRightClickModeChange = false;
 
@@ -382,6 +396,7 @@ public class ModConfig extends Configuration
 		save();
 	}
 
+	@SuppressWarnings( { "unchecked", "rawtypes" } )
 	void populateSettings()
 	{
 		final Class<ModConfig> me = ModConfig.class;
@@ -444,6 +459,32 @@ public class ModConfig extends Configuration
 						p = get( c.category(), f.getName(), defaultValue );
 						final boolean value = p.getBoolean();
 						f.set( this, value );
+					}
+					else if ( Enum.class.isAssignableFrom( f.getType() ) )
+					{
+						final Class<? extends Enum> eClass = (Class<? extends Enum>) f.getType();
+						final Enum<?> defaultValue = (Enum<?>) f.get( this );
+
+						final EnumSet<?> options = EnumSet.allOf( eClass );
+						final String[] values = new String[options.size()];
+						int off = 0;
+						for ( final Object eo : options )
+						{
+							final Enum<?> exc = (Enum<?>) eo;
+							values[off++] = exc.name();
+						}
+
+						p = get( c.category(), f.getName(), defaultValue != null ? defaultValue.toString() : "", "", values );
+						final String value = p.getString();
+
+						for ( final Object eo : options )
+						{
+							final Enum<?> exc = (Enum<?>) eo;
+							if ( exc.name().equals( value ) )
+							{
+								f.set( this, eo );
+							}
+						}
 					}
 
 					if ( p != null )

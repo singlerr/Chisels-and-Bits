@@ -2,7 +2,6 @@ package mod.chiselsandbits.chiseledblock;
 
 import java.io.IOException;
 
-import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
@@ -13,7 +12,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.PacketBuffer;
 
 public class NBTBlobConverter
 {
@@ -93,7 +91,7 @@ public class NBTBlobConverter
 		isNormalCube = tile.isNormalCube;
 		primaryBlockState = Block.getStateId( tile.getBlockState( Blocks.COBBLESTONE ) );
 		voxelBlobRef = tile.getBlobStateReference();
-		format = getFormat( voxelBlobRef );
+		format = voxelBlobRef == null ? -1 : voxelBlobRef.getFormat();
 	}
 
 	public void fillWith(
@@ -107,7 +105,7 @@ public class NBTBlobConverter
 			final VoxelBlob vb )
 	{
 		voxelBlobRef = new VoxelBlobStateReference( vb, 0 );
-		format = getFormat( voxelBlobRef );
+		format = voxelBlobRef.getFormat();
 		updateFromBlob();
 	}
 
@@ -132,7 +130,7 @@ public class NBTBlobConverter
 		compound.setByteArray( NBT_VERSIONED_VOXEL, voxelBytes );
 	}
 
-	public final void readChisleData(
+	public final boolean readChisleData(
 			final NBTTagCompound compound )
 	{
 		sideState = compound.getInteger( NBT_SIDE_FLAGS );
@@ -168,24 +166,14 @@ public class NBTBlobConverter
 		}
 
 		voxelBlobRef = new VoxelBlobStateReference( v, 0 );
-		format = getFormat( voxelBlobRef );
+		format = voxelBlobRef.getFormat();
 
 		if ( tile != null )
 		{
-			tile.updateBlob( this, triggerUpdates );
-		}
-	}
-
-	private int getFormat(
-			final VoxelBlobStateReference v )
-	{
-		if ( v == null || v.getByteArray() == null || v.getByteArray().length == 0 )
-		{
-			return -1;
+			return tile.updateBlob( this, triggerUpdates );
 		}
 
-		final PacketBuffer header = new PacketBuffer( Unpooled.wrappedBuffer( v.getByteArray() ) );
-		return header.readVarIntFromBuffer();
+		return true;
 	}
 
 	public void updateFromBlob()

@@ -32,6 +32,7 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.property.IExtendedBlockState;
@@ -94,17 +95,19 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	public IExtendedBlockState getBasicState()
 	{
-		return getState( false, 0 );
+		return getState( false, 0, worldObj );
 	}
 
-	public IExtendedBlockState getRenderState()
+	public IExtendedBlockState getRenderState(
+			final IBlockAccess access )
 	{
-		return getState( true, 1 );
+		return getState( true, 1, access );
 	}
 
 	protected IExtendedBlockState getState(
 			final boolean updateNeightbors,
-			final int updateCost )
+			final int updateCost,
+			final IBlockAccess access )
 	{
 		if ( state == null )
 		{
@@ -121,14 +124,13 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				return state;
 			}
 
-			vns.update( isDyanmic, worldObj, pos, false );
-
-			tesrUpdate( vns );
+			vns.update( isDyanmic, access, pos, false );
+			tesrUpdate( access, vns );
 
 			final TileEntityBlockChiseled self = this;
 			if ( vns.isAboveLimit() && !isDyanmic )
 			{
-				ChisledBlockRenderChunkTESR.addTask( new Runnable() {
+				ChisledBlockRenderChunkTESR.addNextFrameTask( new Runnable() {
 
 					@Override
 					public void run()
@@ -136,16 +138,27 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 						if ( self.worldObj != null && self.pos != null )
 						{
 							final TileEntity current = self.worldObj.getTileEntity( self.pos );
+							final TileEntityBlockChiseled dat = MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( self.worldObj, self.pos, false );
+
+							if ( current == null || self.isInvalid() )
+							{
+								return;
+							}
+
 							if ( current == self )
 							{
+								current.invalidate();
 								final TileEntityBlockChiseledTESR TESR = new TileEntityBlockChiseledTESR();
 								TESR.copyFrom( self );
+								self.worldObj.removeTileEntity( self.pos );
 								self.worldObj.setTileEntity( self.pos, TESR );
 								self.worldObj.markBlockRangeForRenderUpdate( self.pos, self.pos );
+								vns.unlockDynamic();
 							}
-							else
+							else if ( dat == self )
 							{
 								MCMultipartProxy.proxyMCMultiPart.convertTo( current, new TileEntityBlockChiseledTESR() );
+								vns.unlockDynamic();
 							}
 						}
 					}
@@ -154,7 +167,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			}
 			else if ( !vns.isAboveLimit() && isDyanmic )
 			{
-				ChisledBlockRenderChunkTESR.addTask( new Runnable() {
+				ChisledBlockRenderChunkTESR.addNextFrameTask( new Runnable() {
 
 					@Override
 					public void run()
@@ -162,16 +175,27 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 						if ( self.worldObj != null && self.pos != null )
 						{
 							final TileEntity current = self.worldObj.getTileEntity( self.pos );
+							final TileEntityBlockChiseled dat = MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( self.worldObj, self.pos, false );
+
+							if ( current == null || self.isInvalid() )
+							{
+								return;
+							}
+
 							if ( current == self )
 							{
+								current.invalidate();
 								final TileEntityBlockChiseled nonTesr = new TileEntityBlockChiseled();
 								nonTesr.copyFrom( self );
+								self.worldObj.removeTileEntity( self.pos );
 								self.worldObj.setTileEntity( self.pos, nonTesr );
 								self.worldObj.markBlockRangeForRenderUpdate( self.pos, self.pos );
+								vns.unlockDynamic();
 							}
-							else
+							else if ( dat == self )
 							{
 								MCMultipartProxy.proxyMCMultiPart.convertTo( current, new TileEntityBlockChiseled() );
+								vns.unlockDynamic();
 							}
 						}
 					}
@@ -184,6 +208,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	protected void tesrUpdate(
+			final IBlockAccess access,
 			final VoxelNeighborRenderTracker vns )
 	{
 
@@ -246,8 +271,21 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public NBTTagCompound getUpdateTag()
 	{
 		final NBTTagCompound nbttagcompound = new NBTTagCompound();
-		writeToNBT( nbttagcompound );
+
+		nbttagcompound.setInteger( "x", pos.getX() );
+		nbttagcompound.setInteger( "y", pos.getY() );
+		nbttagcompound.setInteger( "z", pos.getZ() );
+
+		writeChisleData( nbttagcompound );
+
 		return nbttagcompound;
+	}
+
+	@Override
+	public void handleUpdateTag(
+			final NBTTagCompound tag )
+	{
+		readChisleData( tag );
 	}
 
 	@Override
@@ -255,17 +293,54 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			final NetworkManager net,
 			final SPacketUpdateTileEntity pkt )
 	{
-		readChisleData( pkt.getNbtCompound() );
-		if ( worldObj != null )
+		final boolean changed = readChisleData( pkt.getNbtCompound() );
+
+		if ( worldObj != null && changed )
 		{
 			worldObj.markBlockRangeForRenderUpdate( pos, pos );
+			triggerDynamicUpdates();
 		}
 	}
 
-	public void readChisleData(
+	/**
+	 * look at near by TESRs and re-render them.
+	 */
+	private void triggerDynamicUpdates()
+	{
+		if ( worldObj.isRemote && state != null )
+		{
+			final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.UProperty_VoxelNeighborState );
+
+			// will it update anyway?
+			if ( vns != null && vns.isDynamic() )
+			{
+				return;
+			}
+
+			for ( final EnumFacing f : EnumFacing.VALUES )
+			{
+				final BlockPos p = getPos().offset( f );
+				if ( worldObj.isBlockLoaded( p ) )
+				{
+					final TileEntity te = worldObj.getTileEntity( p );
+					if ( te instanceof TileEntityBlockChiseledTESR )
+					{
+						final TileEntityBlockChiseledTESR tesr = (TileEntityBlockChiseledTESR) te;
+
+						if ( tesr.getRenderChunk() != null )
+						{
+							tesr.getRenderChunk().rebuild( false );
+						}
+					}
+				}
+			}
+		}
+	}
+
+	public boolean readChisleData(
 			final NBTTagCompound tag )
 	{
-		new NBTBlobConverter( false, this ).readChisleData( tag );
+		final boolean changed = new NBTBlobConverter( false, this ).readChisleData( tag );
 
 		final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.UProperty_VoxelNeighborState );
 
@@ -273,6 +348,8 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		{
 			vns.triggerUpdate();
 		}
+
+		return changed;
 	}
 
 	public void writeChisleData(
@@ -382,13 +459,15 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		setBlob( vb, true );
 	}
 
-	public void updateBlob(
+	public boolean updateBlob(
 			final NBTBlobConverter converter,
 			final boolean triggerUpdates )
 	{
 		final int oldLV = getLightValue();
 		final boolean oldNC = isNormalCube();
 		final int oldSides = sideState;
+
+		final VoxelBlobStateReference originalRef = getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob );
 
 		sideState = converter.getSideState();
 		final int b = converter.getPrimaryBlockStateID();
@@ -425,6 +504,8 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				worldObj.notifyNeighborsOfStateChange( pos, worldObj.getBlockState( pos ).getBlock() );
 			}
 		}
+
+		return voxelRef != null ? !voxelRef.equals( originalRef ) : true;
 	}
 
 	public void setBlob(
@@ -605,6 +686,12 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public boolean isSideOpaque(
 			final EnumFacing side )
 	{
+		final VoxelNeighborRenderTracker vns = state != null ? state.getValue( BlockChiseled.UProperty_VoxelNeighborState ) : null;
+		if ( vns != null && vns.isDynamic() )
+		{
+			return false;
+		}
+
 		final Integer sideFlags = ChiseledBlockSmartModel.getSides( this );
 		return ( sideFlags & 1 << side.ordinal() ) != 0;
 	}
@@ -615,6 +702,12 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		final VoxelBlobStateReference before = getBlobStateReference();
 		setBlob( vb );
 		final VoxelBlobStateReference after = getBlobStateReference();
+
+		if ( worldObj != null )
+		{
+			worldObj.markBlockRangeForRenderUpdate( pos, pos );
+			triggerDynamicUpdates();
+		}
 
 		UndoTracker.getInstance().add( getWorld(), getPos(), before, after );
 	}
@@ -668,6 +761,13 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		}
 	}
 
+	@Override
+	public AxisAlignedBB getRenderBoundingBox()
+	{
+		final BlockPos p = getPos();
+		return new AxisAlignedBB( p.getX(), p.getY(), p.getZ(), p.getX() + 1, p.getY() + 1, p.getZ() + 1 );
+	}
+
 	public void setNormalCube(
 			final boolean b )
 	{
@@ -677,6 +777,15 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public int getLightValue()
 	{
 		return lightlevel;
+	}
+
+	@Override
+	public void invalidate()
+	{
+		if ( worldObj != null )
+		{
+			triggerDynamicUpdates();
+		}
 	}
 
 }

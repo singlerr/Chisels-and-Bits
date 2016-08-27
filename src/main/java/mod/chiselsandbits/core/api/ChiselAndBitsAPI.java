@@ -104,7 +104,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			return new BitAccess( world, pos, blob, VoxelBlob.NULL_BLOB );
 		}
 
-		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, true );
+		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos );
 		if ( te != null )
 		{
 			final VoxelBlob mask = new VoxelBlob();

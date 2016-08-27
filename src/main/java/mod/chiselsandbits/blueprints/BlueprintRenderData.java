@@ -101,7 +101,7 @@ public class BlueprintRenderData implements Runnable
 
 			if ( tx != null )
 			{
-				final IExtendedBlockState estate = tx.getRenderState();
+				final IExtendedBlockState estate = tx.getRenderState( null );
 				for ( final ChiselLayer lx : layers )
 				{
 					final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( tx, lx, DefaultVertexFormats.ITEM );
@@ -135,7 +135,7 @@ public class BlueprintRenderData implements Runnable
 	{
 		if ( displayList != 0 )
 		{
-			ChisledBlockRenderChunkTESR.addTask( new DeleteDisplayList( displayList ) );
+			ChisledBlockRenderChunkTESR.addNextFrameTask( new DeleteDisplayList( displayList ) );
 		}
 	}
 

@@ -3,6 +3,7 @@ package mod.chiselsandbits.render.chiseledblock.tesr;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.WeakHashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -23,13 +24,13 @@ import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -45,7 +46,9 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkCache;
+import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -58,19 +61,53 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	private final static ThreadPoolExecutor pool;
 	private static ChisledBlockRenderChunkTESR instance;
 
+	static int TESR_Regions_rendered = 0;
+	static int TESR_SI_Regions_rendered = 0;
+
+	private void markRendered(
+			final boolean singleInstanceMode )
+	{
+		if ( singleInstanceMode )
+		{
+			++TESR_SI_Regions_rendered;
+		}
+		else
+		{
+			++TESR_Regions_rendered;
+		}
+	}
+
 	public static ChisledBlockRenderChunkTESR getInstance()
 	{
 		return instance;
 	}
 
-	private final LinkedList<FutureTracker> futureTrackers = new LinkedList<FutureTracker>();
-	private final Queue<UploadTracker> uploaders = new ConcurrentLinkedQueue<UploadTracker>();
-	private final static Queue<Runnable> nextFrameTasks = new ConcurrentLinkedQueue<Runnable>();
+	private static class WorldTracker
+	{
+		private final LinkedList<FutureTracker> futureTrackers = new LinkedList<FutureTracker>();
+		private final Queue<UploadTracker> uploaders = new ConcurrentLinkedQueue<UploadTracker>();
+		private final Queue<Runnable> nextFrameTasks = new ConcurrentLinkedQueue<Runnable>();
+	};
 
-	public static void addTask(
+	private static final WeakHashMap<World, WorldTracker> worldTrackers = new WeakHashMap<World, WorldTracker>();
+
+	private static WorldTracker getTracker()
+	{
+		final World w = ClientSide.instance.getPlayer().worldObj;
+		WorldTracker t = worldTrackers.get( w );
+
+		if ( t == null )
+		{
+			worldTrackers.put( w, t = new WorldTracker() );
+		}
+
+		return t;
+	}
+
+	public static void addNextFrameTask(
 			final Runnable r )
 	{
-		nextFrameTasks.offer( r );
+		getTracker().nextFrameTasks.offer( r );
 	}
 
 	private static class FutureTracker
@@ -102,7 +139,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			final TileRenderCache renderCache,
 			final BlockRenderLayer layer )
 	{
-		futureTrackers.add( new FutureTracker( tlrc, renderCache, layer ) );
+		getTracker().futureTrackers.add( new FutureTracker( tlrc, renderCache, layer ) );
 	}
 
 	private boolean handleFutureTracker(
@@ -118,7 +155,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 				if ( ft.future == ft.tlrc.future )
 				{
 					ft.tlrc.waiting = true;
-					uploaders.offer( new UploadTracker( ft.renderCache, ft.layer, t ) );
+					getTracker().uploaders.offer( new UploadTracker( ft.renderCache, ft.layer, t ) );
 				}
 				else
 				{
@@ -164,35 +201,39 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	boolean runUpload = false;
 
 	@SubscribeEvent
-	void nextFrame(
-			final RenderWorldLastEvent e )
+	public void debugScreen(
+			final RenderGameOverlayEvent.Text t )
 	{
-		runUpload = true;
+		if ( Minecraft.getMinecraft().gameSettings.showDebugInfo )
+		{
+			if ( TESR_Regions_rendered > 0 || TESR_SI_Regions_rendered > 0 )
+			{
+				t.getRight().add( "C&B DynRender: " + TESR_Regions_rendered + ":" + TESR_SI_Regions_rendered + " - " + ( GfxRenderState.useVBO() ? "VBO" : "DspList" ) );
+				TESR_Regions_rendered = 0;
+				TESR_SI_Regions_rendered = 0;
+			}
+		}
+		else
+		{
+			TESR_Regions_rendered = 0;
+			TESR_SI_Regions_rendered = 0;
+		}
 	}
 
-	void uploadDisplaylists()
+	@SubscribeEvent
+	public void nextFrame(
+			final RenderWorldLastEvent e )
 	{
-		if ( !runUpload )
-		{
-			return;
-		}
+		runJobs( getTracker().nextFrameTasks );
 
-		runUpload = false;
+		uploadDisplaylists();
+	}
 
-		do
-		{
-			final Runnable x = nextFrameTasks.poll();
+	private void uploadDisplaylists()
+	{
+		final WorldTracker trackers = getTracker();
 
-			if ( x == null )
-			{
-				break;
-			}
-
-			x.run();
-		}
-		while ( true );
-
-		final Iterator<FutureTracker> i = futureTrackers.iterator();
+		final Iterator<FutureTracker> i = trackers.futureTrackers.iterator();
 		while ( i.hasNext() )
 		{
 			if ( handleFutureTracker( i.next() ) )
@@ -207,7 +248,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 		do
 		{
-			final UploadTracker t = uploaders.poll();
+			final UploadTracker t = trackers.uploaders.poll();
 
 			if ( t == null )
 			{
@@ -235,31 +276,37 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 	}
 
+	private void runJobs(
+			final Queue<Runnable> tasks )
+	{
+		do
+		{
+			final Runnable x = tasks.poll();
+
+			if ( x == null )
+			{
+				break;
+			}
+
+			x.run();
+		}
+		while ( true );
+	}
+
 	private void uploadDisplayList(
 			final UploadTracker t )
 	{
 		final BlockRenderLayer layer = t.layer;
 		final TileLayerRenderCache tlrc = t.trc.getLayer( layer );
 
-		if ( tlrc.displayList == 0 )
+		final Tessellator tx = t.getTessellator();
+
+		if ( tlrc.displayList == null )
 		{
-			tlrc.displayList = GLAllocation.generateDisplayLists( 1 );
+			tlrc.displayList = GfxRenderState.getNewState( tx.getBuffer().getVertexCount() );
 		}
 
-		try
-		{
-			GL11.glNewList( tlrc.displayList, GL11.GL_COMPILE );
-			t.getTessellator().draw();
-		}
-		catch ( final IllegalStateException e )
-		{
-			Log.logError( "Erratic Tessellator Behavior", e );
-			tlrc.rebuild = true;
-		}
-		finally
-		{
-			GL11.glEndList();
-		}
+		tlrc.displayList = tlrc.displayList.prepare( tx );
 
 		t.submitForReuse();
 	}
@@ -319,7 +366,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		worldrenderer.setTranslation( 0, 0, 0 );
 
 		final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
-		final IExtendedBlockState estate = te.getRenderState();
+		final IExtendedBlockState estate = te.getRenderState( te.getWorld() );
 
 		for ( final ChiselLayer lx : ChiselLayer.values() )
 		{
@@ -389,8 +436,6 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			return;
 		}
 
-		uploadDisplaylists();
-
 		// cache at the tile level rather than the chunk level.
 		if ( renderChunk.singleInstanceMode )
 		{
@@ -437,7 +482,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		final boolean isNew = tlrc.isNew();
 		boolean hasSubmitted = false;
 
-		if ( tlrc.displayList == 0 || tlrc.rebuild )
+		if ( tlrc.displayList == null || tlrc.rebuild )
 		{
 			final int dynamicTess = getMaxTessalators();
 
@@ -445,7 +490,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			{
 				// copy the tiles for the thread..
 				final ChunkCache cache = new ChunkCache( getWorld(), chunkOffset, chunkOffset.add( 16, 16, 16 ), 1 );
-				final FutureTask<Tessellator> newFuture = new FutureTask<Tessellator>( new ChisledBlockBackgroundRender( cache, chunkOffset, renderCache.getTiles(), layer ) );
+				final FutureTask<Tessellator> newFuture = new FutureTask<Tessellator>( new ChisledBlockBackgroundRender( cache, chunkOffset, renderCache.getTileList(), layer ) );
 
 				try
 				{
@@ -473,7 +518,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		{
 			try
 			{
-				final Tessellator tess = tlrc.future.get( 5, TimeUnit.MILLISECONDS );
+				final Tessellator tess = tlrc.future.get( 2, TimeUnit.MILLISECONDS );
 				tlrc.future = null;
 				pendingTess.decrementAndGet();
 
@@ -501,16 +546,27 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			addFutureTracker( tlrc, renderCache, layer );
 		}
 
-		final int dl = tlrc.displayList;
-		if ( dl != 0 )
+		final GfxRenderState dl = tlrc.displayList;
+		if ( dl != null && dl.shouldRender() )
 		{
+			if ( !dl.validForUse() )
+			{
+				tlrc.displayList = null;
+				return;
+			}
+
 			GL11.glPushMatrix();
 			GL11.glTranslated( -TileEntityRendererDispatcher.staticPlayerX + chunkOffset.getX(),
 					-TileEntityRendererDispatcher.staticPlayerY + chunkOffset.getY(),
 					-TileEntityRendererDispatcher.staticPlayerZ + chunkOffset.getZ() );
 
 			configureGLState( layer );
-			GL11.glCallList( dl );
+
+			if ( dl.render() )
+			{
+				markRendered( renderChunk.singleInstanceMode );
+			}
+
 			unconfigureGLState();
 
 			GL11.glPopMatrix();

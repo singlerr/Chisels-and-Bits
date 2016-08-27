@@ -101,10 +101,4 @@ public class MCCullTest implements ICullTest, IBlockAccess
 		return false;
 	}
 
-	@Override
-	public boolean extendedLevelsInChunkCache()
-	{
-		return false;
-	}
-
 }

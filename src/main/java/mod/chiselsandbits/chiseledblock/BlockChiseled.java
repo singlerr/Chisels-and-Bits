@@ -285,7 +285,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			final IBlockAccess world,
 			final BlockPos pos ) throws ExceptionNoTileEntity
 	{
-		return getTileEntity( world.getTileEntity( pos ) );
+		return getTileEntity( ModUtil.getTileEntitySafely( world, pos ) );
 	}
 
 	@Override
@@ -317,7 +317,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	{
 		try
 		{
-			return getTileEntity( world, pos ).getRenderState();
+			return getTileEntity( world, pos ).getRenderState( world );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
@@ -808,7 +808,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		boolean occlusion = true;
 		if ( FMLCommonHandler.instance().getEffectiveSide().isClient() && tec.getWorld() != null && tec.getWorld().isRemote )
 		{
-			occlusion = !ChiselsAndBits.getConfig().fluidBitsAreClickThough || ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND ) != null;
+			occlusion = !ChiselsAndBits.getConfig().fluidBitsAreClickThrough || ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND ) != null;
 		}
 
 		for ( final AxisAlignedBB box : tec.getBoxes( occlusion ? BoxType.OCCLUSION : BoxType.COLLISION ) )

@@ -13,25 +13,62 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fml.client.FMLClientHandler;
 
 public final class VoxelNeighborRenderTracker
 {
+	static final int IS_DYNAMIC = 1;
+	static final int IS_LOCKED = 2;
+	static final int IS_STATIC = 4;
+
 	private WeakReference<VoxelBlobStateReference> lastCenter;
 	private ModelRenderState lrs = null;
 
-	private boolean isDynamic;
+	private byte isDynamic;
 	private boolean shouldUpdate = false;
 	Integer[] faceCount = new Integer[4];
+
+	public void unlockDynamic()
+	{
+		isDynamic = (byte) ( isDynamic & ~IS_LOCKED );
+	}
 
 	public VoxelNeighborRenderTracker()
 	{
 		faceCount = new Integer[BlockRenderLayer.values().length];
+
+		if ( ChiselsAndBits.getConfig().defaultToDynamicRenderer )
+		{
+			isDynamic = IS_DYNAMIC | IS_LOCKED;
+			for ( int x = 0; x < faceCount.length; ++x )
+			{
+				faceCount[x] = ChiselsAndBits.getConfig().dynamicModelFaceCount + 1;
+			}
+		}
+		else if ( ChiselsAndBits.getConfig().forceDynamicRenderer )
+		{
+			isDynamic = IS_DYNAMIC | IS_LOCKED;
+		}
 	}
 
 	private final ModelRenderState sides = new ModelRenderState( null );
 
 	public boolean isAboveLimit()
 	{
+		if ( FMLClientHandler.instance().hasOptifine() )
+		{
+			// I simply cannot figure out why the displaylist uploads for the
+			// dynamic renderer don't work with optifine, so unless someone else
+			// can solve it; I'm just disabling the dynamic renderer pipeline.
+
+			return false;
+		}
+
+		if ( ChiselsAndBits.getConfig().forceDynamicRenderer )
+		{
+			return true;
+		}
+
 		int faces = 0;
 
 		for ( int x = 0; x < faceCount.length; ++x )
@@ -56,27 +93,28 @@ public final class VoxelNeighborRenderTracker
 
 	public boolean isDynamic()
 	{
-		return isDynamic;
+		return ( isDynamic & IS_DYNAMIC ) != 0;
 	}
 
 	public void update(
 			final boolean isDynamic,
-			final IBlockAccess worldObj,
+			final IBlockAccess access,
 			final BlockPos pos,
 			final boolean convertToChiseledBlocks )
 	{
-		if ( worldObj == null || pos == null )
+		if ( access == null || pos == null )
 		{
 			return;
 		}
 
-		this.isDynamic = isDynamic;
+		if ( ( this.isDynamic & IS_LOCKED ) == 0 )
+		{
+			this.isDynamic = (byte) ( isDynamic ? IS_DYNAMIC : IS_STATIC );
+		}
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
-			final BlockPos offPos = pos.offset( f );
-
-			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( worldObj, offPos, false );
+			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( access, pos.offset( f ) );
 			if ( tebc != null )
 			{
 				update( f, tebc.getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob ) );
@@ -85,7 +123,7 @@ public final class VoxelNeighborRenderTracker
 			{
 				try
 				{
-					final BitAccess ba = (BitAccess) ChiselsAndBits.getApi().getBitAccess( worldObj, offPos );
+					final BitAccess ba = (BitAccess) ChiselsAndBits.getApi().getBitAccess( access, pos );
 					update( f, new VoxelBlobStateReference( ba.getNativeBlob(), 0 ) );
 				}
 				catch ( final CannotBeChiseled e )
