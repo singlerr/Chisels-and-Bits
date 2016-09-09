@@ -36,7 +36,6 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockLog.EnumAxis;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.BlockRenderLayer;
@@ -259,32 +258,6 @@ public final class VoxelBlob implements IVoxelSrc
 		}
 
 		return found ? new IntegerBox( min_x, min_y, min_z, max_x, max_y, max_z ) : null;
-	}
-
-	public VoxelBlob flip(
-			final EnumAxis axis )
-	{
-		final VoxelBlob d = new VoxelBlob();
-
-		final BitIterator bi = new BitIterator();
-		while ( bi.hasNext() )
-		{
-			switch ( axis )
-			{
-				case X:
-					d.set( dim_minus_one - bi.x, bi.y, bi.z, bi.getNext( this ) );
-					break;
-				case Y:
-					d.set( bi.x, dim_minus_one - bi.y, bi.z, bi.getNext( this ) );
-					break;
-				case Z:
-					d.set( bi.x, bi.y, dim_minus_one - bi.z, bi.getNext( this ) );
-				default:
-					throw new NullPointerException();
-			}
-		}
-
-		return d;
 	}
 
 	public VoxelBlob spin(
