@@ -12,7 +12,7 @@ import net.minecraft.world.biome.Biome;
 
 /**
  * Determine Culling using Block's Native Check.
- * 
+ *
  * hardcode vanilla stained glass because that looks horrible.
  */
 public class MCCullTest implements ICullTest, IBlockAccess
@@ -21,6 +21,7 @@ public class MCCullTest implements ICullTest, IBlockAccess
 	private IBlockState a;
 	private IBlockState b;
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean isVisible(
 			final int mySpot,
@@ -31,8 +32,10 @@ public class MCCullTest implements ICullTest, IBlockAccess
 			return false;
 		}
 
-		a = net.minecraft.block.Block.getStateById( mySpot );
-		b = net.minecraft.block.Block.getStateById( secondSpot );
+		a = net.minecraft.block.Block.BLOCK_STATE_IDS.getByValue( mySpot );
+		if (a == null) a = Blocks.AIR.getDefaultState();
+		b = net.minecraft.block.Block.BLOCK_STATE_IDS.getByValue( secondSpot );
+		if (b == null) b = Blocks.AIR.getDefaultState();
 
 		if ( a.getBlock() == Blocks.STAINED_GLASS && a.getBlock() == b.getBlock() )
 		{

@@ -7,7 +7,10 @@ import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,9 +20,20 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import gnu.trove.TCollections;
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockLog.EnumAxis;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.math.BlockPos;
+
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.serialization.BitStream;
@@ -35,45 +49,79 @@ import mod.chiselsandbits.helpers.IVoxelSrc;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public final class VoxelBlob implements IVoxelSrc
 {
 
-	// generated filtering data as needed.
-	private static final TIntObjectMap<Boolean> fluidFilterState = TCollections.synchronizedMap( new TIntObjectHashMap<Boolean>() );
-	private static final TIntObjectMap<Boolean> layerFilterStateSolid = TCollections.synchronizedMap( new TIntObjectHashMap<Boolean>() );
-	private static final TIntObjectMap<Boolean> layerFilterStateCutout = TCollections.synchronizedMap( new TIntObjectHashMap<Boolean>() );
-	private static final TIntObjectMap<Boolean> layerFilterStateCutoutMipped = TCollections.synchronizedMap( new TIntObjectHashMap<Boolean>() );
-	private static final TIntObjectMap<Boolean> layerFilterStateTransparent = TCollections.synchronizedMap( new TIntObjectHashMap<Boolean>() );
+	private static final BitSet fluidFilterState;
+	private static final Map<BlockRenderLayer, BitSet> layerFilters;
 
-	static
-	{
+	static {
+		fluidFilterState = new BitSet(256);
+
+		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+			layerFilters = new EnumMap<BlockRenderLayer, BitSet>(BlockRenderLayer.class);
+		} else {
+			layerFilters = null;
+		}
+
 		clearCache();
 	}
 
-	public static void clearCache()
-	{
+	public static synchronized void clearCache() {
 		fluidFilterState.clear();
-		layerFilterStateSolid.clear();
-		layerFilterStateCutout.clear();
-		layerFilterStateCutoutMipped.clear();
-		layerFilterStateTransparent.clear();
 
-		fluidFilterState.put( 0, false );
-		layerFilterStateSolid.put( 0, false );
-		layerFilterStateCutout.put( 0, false );
-		layerFilterStateCutoutMipped.put( 0, false );
-		layerFilterStateTransparent.put( 0, false );
+		for (Iterator<Block> it = Block.REGISTRY.iterator(); it.hasNext(); ) {
+			Block block = it.next();
+			int blockId = Block.REGISTRY.getIDForObject(block);
+
+			if (BlockBitInfo.getFluidFromBlock(block) != null) {
+				fluidFilterState.set(blockId);
+			}
+		}
+
+		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+			updateCacheClient();
+		}
+	}
+
+	private static void updateCacheClient() {
+		layerFilters.clear();
+
+		Map<BlockRenderLayer, BitSet> layerFilters = VoxelBlob.layerFilters;
+		BlockRenderLayer[] layers = BlockRenderLayer.values();
+
+		for (BlockRenderLayer layer : layers) {
+			layerFilters.put(layer, new BitSet(4096));
+		}
+
+		for (Iterator<Block> it = Block.REGISTRY.iterator(); it.hasNext(); ) {
+			Block block = it.next();
+			int blockId = Block.REGISTRY.getIDForObject(block);
+			int validMetas = 0;
+
+			for (IBlockState state : block.getBlockState().getValidStates()) {
+				int meta = block.getMetaFromState(state);
+				if (meta == -1) continue;
+
+				validMetas |= 1 << meta;
+			}
+
+			while (validMetas != 0) {
+				int meta = Integer.numberOfTrailingZeros(validMetas);
+				validMetas &= ~(1 << meta);
+
+				int id = blockId | meta << 12;
+				IBlockState state = Block.getStateById(id);
+				if (state == null) throw new IllegalStateException(); // reverse mapping is broken
+
+				for (BlockRenderLayer layer : layers) {
+					if (block.canRenderInLayer(state, layer)) {
+						layerFilters.get(layer).set(id);
+					}
+				}
+			}
+		}
 	}
 
 	static final int SHORT_BYTES = Short.SIZE / 8;
@@ -797,19 +845,11 @@ public final class VoxelBlob implements IVoxelSrc
 		for ( int x = 0; x < array_size; x++ )
 		{
 			final int ref = values[x];
+			if (ref == 0) continue;
 
-			Boolean state = fluidFilterState.get( ref );
-			if ( state == null )
-			{
-				fluidFilterState.put( ref, state = isFluid( ref ) );
-			}
-
-			if ( state != wantsFluids )
-			{
+			if (fluidFilterState.get(ref & 0xfff) != wantsFluids) {
 				values[x] = 0;
-			}
-			else if ( ref != 0 )
-			{
+			} else {
 				hasValues = true;
 			}
 		}
@@ -820,62 +860,22 @@ public final class VoxelBlob implements IVoxelSrc
 	public boolean filter(
 			final BlockRenderLayer layer )
 	{
-		final TIntObjectMap<Boolean> layerFilterState = getStateLayer( layer );
+		BitSet layerFilterState = layerFilters.get(layer);
 		boolean hasValues = false;
 
 		for ( int x = 0; x < array_size; x++ )
 		{
 			final int ref = values[x];
+			if (ref == 0) continue;
 
-			Boolean state = layerFilterState.get( ref );
-			if ( state == null )
-			{
-				layerFilterState.put( ref, state = inLayer( layer, ref ) );
-			}
-
-			if ( state == false )
-			{
+			if (!layerFilterState.get(ref)) {
 				values[x] = 0;
-			}
-			else
-			{
+			} else {
 				hasValues = true;
 			}
 		}
 
 		return hasValues;
-	}
-
-	private TIntObjectMap<Boolean> getStateLayer(
-			final BlockRenderLayer layer )
-	{
-		switch ( layer )
-		{
-			case CUTOUT:
-				return layerFilterStateCutout;
-			case CUTOUT_MIPPED:
-				return layerFilterStateCutoutMipped;
-			case SOLID:
-				return layerFilterStateSolid;
-			case TRANSLUCENT:
-				return layerFilterStateTransparent;
-		}
-		throw new RuntimeException( "Invalid Layer" );
-	}
-
-	private Boolean isFluid(
-			final int ref )
-	{
-		final IBlockState state = Block.getStateById( ref );
-		return BlockBitInfo.getFluidFromBlock( state.getBlock() ) != null;
-	}
-
-	private Boolean inLayer(
-			final BlockRenderLayer layer,
-			final int ref )
-	{
-		final IBlockState state = Block.getStateById( ref );
-		return state.getBlock().canRenderInLayer( state, layer );
 	}
 
 	public static int VERSION_COMPACT = 0;

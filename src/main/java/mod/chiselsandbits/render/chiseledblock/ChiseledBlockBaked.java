@@ -5,17 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.lwjgl.util.vector.Vector3f;
-
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
-import mod.chiselsandbits.client.culling.ICullTest;
-import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.core.ClientSide;
-import mod.chiselsandbits.render.BaseBakedBlockModel;
-import mod.chiselsandbits.render.helpers.ModelQuadLayer;
-import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -31,6 +20,17 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3i;
+
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.client.culling.ICullTest;
+import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.render.BaseBakedBlockModel;
+import mod.chiselsandbits.render.helpers.ModelQuadLayer;
+import mod.chiselsandbits.render.helpers.ModelUtil;
+import org.lwjgl.util.vector.Vector3f;
 
 public class ChiseledBlockBaked extends BaseBakedBlockModel
 {
@@ -270,8 +270,8 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				// keep integers up until the last moment... ( note I tested
 				// snapping the floats after this stage, it made no
 				// difference. )
-				offsetVec( to, region.max, myFace, 1 );
-				offsetVec( from, region.min, myFace, -1 );
+				offsetVec( to, region.getMaxX(), region.getMaxY(), region.getMaxZ(), myFace, 1 );
+				offsetVec( from, region.getMinX(), region.getMinY(), region.getMinZ(), myFace, -1 );
 				final ModelQuadLayer[] mpc = ModelUtil.getCachedFace( region.blockStateID, weight, myFace, myLayer.layer );
 
 				for ( final ModelQuadLayer pc : mpc )
@@ -582,9 +582,13 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		if ( visFace.visibleFace )
 		{
 			final Vec3i off = myFace.getDirectionVec();
-			final Vec3i center = new Vec3i( x * 2 + 1 + off.getX(), y * 2 + 1 + off.getY(), z * 2 + 1 + off.getZ() );
 
-			return new FaceRegion( myFace, center, visFace.state, visFace.isEdge );
+			return new FaceRegion( myFace,
+					x * 2 + 1 + off.getX(),
+					y * 2 + 1 + off.getY(),
+					z * 2 + 1 + off.getZ(),
+					visFace.state,
+					visFace.isEdge );
 		}
 
 		return null;
@@ -695,7 +699,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	static private void offsetVec(
 			final int[] result,
-			final Vec3i to,
+			final int toX, final int toY, final int toZ,
 			final EnumFacing f,
 			final int d )
 	{
@@ -710,37 +714,37 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		switch ( f )
 		{
-			case DOWN:
-				leftX = 1;
-				upZ = 1;
-				break;
-			case EAST:
-				leftZ = 1;
-				upY = 1;
-				break;
-			case NORTH:
-				leftX = 1;
-				upY = 1;
-				break;
-			case SOUTH:
-				leftX = 1;
-				upY = 1;
-				break;
-			case UP:
-				leftX = 1;
-				upZ = 1;
-				break;
-			case WEST:
-				leftZ = 1;
-				upY = 1;
-				break;
-			default:
-				break;
+		case DOWN:
+			leftX = 1;
+			upZ = 1;
+			break;
+		case EAST:
+			leftZ = 1;
+			upY = 1;
+			break;
+		case NORTH:
+			leftX = 1;
+			upY = 1;
+			break;
+		case SOUTH:
+			leftX = 1;
+			upY = 1;
+			break;
+		case UP:
+			leftX = 1;
+			upZ = 1;
+			break;
+		case WEST:
+			leftZ = 1;
+			upY = 1;
+			break;
+		default:
+			break;
 		}
 
-		result[0] = ( to.getX() + leftX * d + upX * d ) / 2;
-		result[1] = ( to.getY() + leftY * d + upY * d ) / 2;
-		result[2] = ( to.getZ() + leftZ * d + upZ * d ) / 2;
+		result[0] = ( toX + leftX * d + upX * d ) / 2;
+		result[1] = ( toY + leftY * d + upY * d ) / 2;
+		result[2] = ( toZ + leftZ * d + upZ * d ) / 2;
 	}
 
 	@Override
