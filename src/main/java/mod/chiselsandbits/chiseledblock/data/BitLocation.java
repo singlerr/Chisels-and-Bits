@@ -36,6 +36,14 @@ public class BitLocation implements IBitLocation
 		return bitZ;
 	}
 
+	public int snapToValid(
+			final int x )
+	{
+		// rounding can sometimes create -1 or 16, just snap int to the nearest
+		// valid position and move on.
+		return Math.min( Math.max( 0, x ), 15 );
+	}
+
 	public BitLocation(
 			final RayTraceResult mop,
 			final boolean absHit,
@@ -51,9 +59,9 @@ public class BitLocation implements IBitLocation
 			final double yCoord = mop.hitVec.yCoord - absOffset.getY() - mop.sideHit.getFrontOffsetY() * One32nd;
 			final double zCoord = mop.hitVec.zCoord - absOffset.getZ() - mop.sideHit.getFrontOffsetZ() * One32nd;
 
-			bitX = (int) Math.floor( xCoord * VoxelBlob.dim );
-			bitY = (int) Math.floor( yCoord * VoxelBlob.dim );
-			bitZ = (int) Math.floor( zCoord * VoxelBlob.dim );
+			bitX = snapToValid( (int) Math.floor( xCoord * VoxelBlob.dim ) );
+			bitY = snapToValid( (int) Math.floor( yCoord * VoxelBlob.dim ) );
+			bitZ = snapToValid( (int) Math.floor( zCoord * VoxelBlob.dim ) );
 		}
 		else
 		{
@@ -68,16 +76,16 @@ public class BitLocation implements IBitLocation
 			if ( bitXi < 0 || bitYi < 0 || bitZi < 0 || bitXi >= VoxelBlob.dim || bitYi >= VoxelBlob.dim || bitZi >= VoxelBlob.dim )
 			{
 				blockPos = mop.getBlockPos().offset( mop.sideHit );
-				bitX = bitXi - mop.sideHit.getFrontOffsetX() * VoxelBlob.dim;
-				bitY = bitYi - mop.sideHit.getFrontOffsetY() * VoxelBlob.dim;
-				bitZ = bitZi - mop.sideHit.getFrontOffsetZ() * VoxelBlob.dim;
+				bitX = snapToValid( bitXi - mop.sideHit.getFrontOffsetX() * VoxelBlob.dim );
+				bitY = snapToValid( bitYi - mop.sideHit.getFrontOffsetY() * VoxelBlob.dim );
+				bitZ = snapToValid( bitZi - mop.sideHit.getFrontOffsetZ() * VoxelBlob.dim );
 			}
 			else
 			{
 				blockPos = mop.getBlockPos();
-				bitX = bitXi;
-				bitY = bitYi;
-				bitZ = bitZi;
+				bitX = snapToValid( bitXi );
+				bitY = snapToValid( bitYi );
+				bitZ = snapToValid( bitZi );
 			}
 		}
 	}
