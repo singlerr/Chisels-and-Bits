@@ -227,22 +227,28 @@ public class ChiselsAndBits
 		NetworkRegistry.INSTANCE.registerGuiHandler( this, new ModGuiRouter() );
 	}
 
+	boolean idsHaveBeenMapped = false;
+
 	@EventHandler
 	public void idsMapped(
 			final FMLModIdMappingEvent event )
 	{
+		idsHaveBeenMapped = true;
 		clearCache();
 	}
 
 	public void clearCache()
 	{
-		for ( final ICacheClearable clearable : cacheClearables )
+		if ( idsHaveBeenMapped )
 		{
-			clearable.clearCache();
-		}
+			for ( final ICacheClearable clearable : cacheClearables )
+			{
+				clearable.clearCache();
+			}
 
-		addClearable( UndoTracker.getInstance() );
-		VoxelBlob.clearCache();
+			addClearable( UndoTracker.getInstance() );
+			VoxelBlob.clearCache();
+		}
 	}
 
 	public static void registerWithBus(
@@ -254,7 +260,10 @@ public class ChiselsAndBits
 	public void addClearable(
 			final ICacheClearable cache )
 	{
-		cacheClearables.add( cache );
+		if ( !cacheClearables.contains( cache ) )
+		{
+			cacheClearables.add( cache );
+		}
 	}
 
 }
