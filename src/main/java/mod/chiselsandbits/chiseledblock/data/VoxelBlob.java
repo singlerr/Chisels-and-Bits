@@ -20,20 +20,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockLog.EnumAxis;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
-import net.minecraft.util.math.BlockPos;
-
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
-
 import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.serialization.BitStream;
@@ -49,6 +35,17 @@ import mod.chiselsandbits.helpers.IVoxelSrc;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public final class VoxelBlob implements IVoxelSrc
 {
@@ -56,68 +53,90 @@ public final class VoxelBlob implements IVoxelSrc
 	private static final BitSet fluidFilterState;
 	private static final Map<BlockRenderLayer, BitSet> layerFilters;
 
-	static {
-		fluidFilterState = new BitSet(256);
+	static
+	{
+		fluidFilterState = new BitSet( 256 );
 
-		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
-			layerFilters = new EnumMap<BlockRenderLayer, BitSet>(BlockRenderLayer.class);
-		} else {
+		if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
+		{
+			layerFilters = new EnumMap<BlockRenderLayer, BitSet>( BlockRenderLayer.class );
+		}
+		else
+		{
 			layerFilters = null;
 		}
 
 		clearCache();
 	}
 
-	public static synchronized void clearCache() {
+	public static synchronized void clearCache()
+	{
 		fluidFilterState.clear();
 
-		for (Iterator<Block> it = Block.REGISTRY.iterator(); it.hasNext(); ) {
-			Block block = it.next();
-			int blockId = Block.REGISTRY.getIDForObject(block);
+		for ( final Iterator<Block> it = Block.REGISTRY.iterator(); it.hasNext(); )
+		{
+			final Block block = it.next();
+			final int blockId = Block.REGISTRY.getIDForObject( block );
 
-			if (BlockBitInfo.getFluidFromBlock(block) != null) {
-				fluidFilterState.set(blockId);
+			if ( BlockBitInfo.getFluidFromBlock( block ) != null )
+			{
+				fluidFilterState.set( blockId );
 			}
 		}
 
-		if (FMLCommonHandler.instance().getSide() == Side.CLIENT) {
+		if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
+		{
 			updateCacheClient();
 		}
 	}
 
-	private static void updateCacheClient() {
+	private static void updateCacheClient()
+	{
 		layerFilters.clear();
 
-		Map<BlockRenderLayer, BitSet> layerFilters = VoxelBlob.layerFilters;
-		BlockRenderLayer[] layers = BlockRenderLayer.values();
+		final Map<BlockRenderLayer, BitSet> layerFilters = VoxelBlob.layerFilters;
+		final BlockRenderLayer[] layers = BlockRenderLayer.values();
 
-		for (BlockRenderLayer layer : layers) {
-			layerFilters.put(layer, new BitSet(4096));
+		for ( final BlockRenderLayer layer : layers )
+		{
+			layerFilters.put( layer, new BitSet( 4096 ) );
 		}
 
-		for (Iterator<Block> it = Block.REGISTRY.iterator(); it.hasNext(); ) {
-			Block block = it.next();
-			int blockId = Block.REGISTRY.getIDForObject(block);
+		for ( final Iterator<Block> it = Block.REGISTRY.iterator(); it.hasNext(); )
+		{
+			final Block block = it.next();
+			final int blockId = Block.REGISTRY.getIDForObject( block );
 			int validMetas = 0;
 
-			for (IBlockState state : block.getBlockState().getValidStates()) {
-				int meta = block.getMetaFromState(state);
-				if (meta == -1) continue;
+			for ( final IBlockState state : block.getBlockState().getValidStates() )
+			{
+				final int meta = block.getMetaFromState( state );
+				if ( meta == -1 )
+				{
+					continue;
+				}
 
 				validMetas |= 1 << meta;
 			}
 
-			while (validMetas != 0) {
-				int meta = Integer.numberOfTrailingZeros(validMetas);
-				validMetas &= ~(1 << meta);
+			while ( validMetas != 0 )
+			{
+				final int meta = Integer.numberOfTrailingZeros( validMetas );
+				validMetas &= ~( 1 << meta );
 
-				int id = blockId | meta << 12;
-				IBlockState state = Block.getStateById(id);
-				if (state == null) throw new IllegalStateException(); // reverse mapping is broken
+				final int id = blockId | meta << 12;
+				final IBlockState state = Block.getStateById( id );
+				if ( state == null )
+				{
+					// reverse mapping is broken, so just skip over this state.
+					continue;
+				}
 
-				for (BlockRenderLayer layer : layers) {
-					if (block.canRenderInLayer(state, layer)) {
-						layerFilters.get(layer).set(id);
+				for ( final BlockRenderLayer layer : layers )
+				{
+					if ( block.canRenderInLayer( state, layer ) )
+					{
+						layerFilters.get( layer ).set( id );
 					}
 				}
 			}
@@ -845,11 +864,17 @@ public final class VoxelBlob implements IVoxelSrc
 		for ( int x = 0; x < array_size; x++ )
 		{
 			final int ref = values[x];
-			if (ref == 0) continue;
+			if ( ref == 0 )
+			{
+				continue;
+			}
 
-			if (fluidFilterState.get(ref & 0xfff) != wantsFluids) {
+			if ( fluidFilterState.get( ref & 0xfff ) != wantsFluids )
+			{
 				values[x] = 0;
-			} else {
+			}
+			else
+			{
 				hasValues = true;
 			}
 		}
@@ -860,17 +885,23 @@ public final class VoxelBlob implements IVoxelSrc
 	public boolean filter(
 			final BlockRenderLayer layer )
 	{
-		BitSet layerFilterState = layerFilters.get(layer);
+		final BitSet layerFilterState = layerFilters.get( layer );
 		boolean hasValues = false;
 
 		for ( int x = 0; x < array_size; x++ )
 		{
 			final int ref = values[x];
-			if (ref == 0) continue;
+			if ( ref == 0 )
+			{
+				continue;
+			}
 
-			if (!layerFilterState.get(ref)) {
+			if ( !layerFilterState.get( ref ) )
+			{
 				values[x] = 0;
-			} else {
+			}
+			else
+			{
 				hasValues = true;
 			}
 		}
