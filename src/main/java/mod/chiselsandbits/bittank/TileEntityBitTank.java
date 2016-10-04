@@ -439,8 +439,9 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			int mbUsedUp = leftOver.stackSize;
 
 			// round up...
+			mbUsedUp *= TileEntityBitTank.MB_PER_BIT_CONVERSION;
 			mbUsedUp += TileEntityBitTank.BITS_PER_MB_CONVERSION - 1;
-			mbUsedUp *= TileEntityBitTank.MB_PER_BIT_CONVERSION / TileEntityBitTank.BITS_PER_MB_CONVERSION;
+			mbUsedUp /= TileEntityBitTank.BITS_PER_MB_CONVERSION;
 
 			return mbUsedUp;
 		}
