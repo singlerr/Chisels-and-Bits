@@ -209,7 +209,7 @@ public class UndoTracker implements ICacheClearable
 	public void beginGroup(
 			final EntityPlayer player )
 	{
-		if ( player.isServerWorld() )
+		if ( player.worldObj == null || !player.worldObj.isRemote )
 		{
 			// don't touch this stuff if your a server.
 			return;
