@@ -225,10 +225,10 @@ public class BlockBitInfo
 
 			if ( info.isCompatiable && noCustomCollision && info.hardness >= -0.01f && isFullBlock && supportedMaterial && !hasBehavior && itemExistsOrNotSpecialDrops )
 			{
-				final boolean result = ChiselsAndBits.getConfig().isEnabled( blkClass.getName() );
+				final boolean result = hasItem && ChiselsAndBits.getConfig().isEnabled( blkClass.getName() );
 				supportedBlocks.put( blk, result );
 
-				if ( result && hasItem )
+				if ( result )
 				{
 					stateBitInfo.put( state, info );
 				}
