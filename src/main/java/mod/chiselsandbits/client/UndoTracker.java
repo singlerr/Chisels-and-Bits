@@ -17,6 +17,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -206,10 +207,16 @@ public class UndoTracker implements ICacheClearable
 		}
 	}
 
+	public boolean ignorePlayer(
+			final EntityPlayer player )
+	{
+		return player.worldObj == null || !player.worldObj.isRemote || FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER;
+	}
+
 	public void beginGroup(
 			final EntityPlayer player )
 	{
-		if ( player.worldObj == null || !player.worldObj.isRemote )
+		if ( ignorePlayer( player ) )
 		{
 			// don't touch this stuff if your a server.
 			return;
@@ -231,7 +238,7 @@ public class UndoTracker implements ICacheClearable
 	public void endGroup(
 			final EntityPlayer player )
 	{
-		if ( player.isServerWorld() )
+		if ( ignorePlayer( player ) )
 		{
 			// don't touch this stuff if your a server.
 			return;
