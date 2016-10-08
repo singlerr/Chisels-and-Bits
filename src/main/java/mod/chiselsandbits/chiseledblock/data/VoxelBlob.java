@@ -856,6 +856,12 @@ public final class VoxelBlob implements IVoxelSrc
 		return output;
 	}
 
+	public static boolean isFluid(
+			final int ref )
+	{
+		return fluidFilterState.get( ref & 0xfff );
+	}
+
 	public boolean filterFluids(
 			final boolean wantsFluids )
 	{

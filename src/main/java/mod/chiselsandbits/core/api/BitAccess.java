@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
+import mod.chiselsandbits.api.BitQueryResults;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.IBitVisitor;
@@ -241,6 +242,36 @@ public class BitAccess implements IBitAccess
 				}
 			}
 		}
+	}
+
+	@Override
+	public BitQueryResults queryBitRange(
+			final BlockPos a,
+			final BlockPos b )
+	{
+		int air = 0, fluid = 0, solid = 0;
+
+		final BitIterator bi = new BitIterator( a, b );
+
+		while ( bi.hasNext() )
+		{
+			final int state = bi.getNext( blob );
+
+			if ( state == 0 )
+			{
+				++air;
+			}
+			else if ( VoxelBlob.isFluid( state ) )
+			{
+				++fluid;
+			}
+			else
+			{
+				++solid;
+			}
+		}
+
+		return new BitQueryResults( air, solid, fluid );
 	}
 
 }

@@ -3,6 +3,7 @@ package mod.chiselsandbits.debug;
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
+import mod.chiselsandbits.api.BitQueryResults;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.IBitLocation;
@@ -42,7 +43,8 @@ public abstract class DebugAction
 		ItemTests( new DebugAction.ItemTests() ),
 		Randomize( new DebugAction.Randomize() ),
 		getTileClass( new DebugAction.getTileClass() ),
-		occusionTest( new DebugAction.occlusionTest() );
+		occusionTest( new DebugAction.occlusionTest() ),
+		queryTest( new DebugAction.queryTest() );
 
 		final DebugAction which;
 
@@ -225,6 +227,46 @@ public abstract class DebugAction
 			{
 				Log.logError( "FAIL", e );
 			}
+		}
+
+	};
+
+	static class queryTest extends DebugAction
+	{
+
+		@Override
+		public void run(
+				final World w,
+				final BlockPos pos,
+				final EnumFacing side,
+				final float hitX,
+				final float hitY,
+				final float hitZ,
+				final EntityPlayer player )
+		{
+			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
+
+			try
+			{
+				final IBitAccess access = api.getBitAccess( w, loc.getBlockPos() );
+
+				output( player, access.queryBitRange( new BlockPos( -1, -1, -1 ), new BlockPos( 16, 16, 16 ) ) );
+				output( player, access.queryBitRange( new BlockPos( 1, 1, 1 ), new BlockPos( 14, 14, 14 ) ) );
+				output( player, access.queryBitRange( new BlockPos( 0, 15, 0 ), new BlockPos( 15, 15, 15 ) ) );
+				output( player, access.queryBitRange( new BlockPos( 0, 15, 15 ), new BlockPos( 15, 15, 15 ) ) );
+				output( player, access.queryBitRange( new BlockPos( 0, 0, 0 ), new BlockPos( 15, 15, 0 ) ) );
+			}
+			catch ( final CannotBeChiseled e )
+			{
+				Log.logError( "FAIL", e );
+			}
+		}
+
+		private void output(
+				final EntityPlayer player,
+				final BitQueryResults queryBitRange )
+		{
+			Msg( player, queryBitRange.total + " = e" + queryBitRange.empty + " + s" + queryBitRange.solid + " + f" + queryBitRange.fluid );
 		}
 
 	};

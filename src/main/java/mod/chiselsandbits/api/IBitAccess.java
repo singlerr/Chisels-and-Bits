@@ -3,12 +3,25 @@ package mod.chiselsandbits.api;
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 
 /**
  * Do not implement, acquire from {@link IChiselAndBitsAPI}
  */
 public interface IBitAccess
 {
+
+	/**
+	 * Request a summary of the contents of a range of bits, all range values
+	 * are clamped to 0 - 15.
+	 * 
+	 * @param a
+	 * @param b
+	 * @return summary of the contents of the range.
+	 */
+	BitQueryResults queryBitRange(
+			BlockPos a,
+			BlockPos b );
 
 	/**
 	 * Process each bit in the {@link IBitAccess} and return a new bit in its
