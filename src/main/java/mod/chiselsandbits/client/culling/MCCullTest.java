@@ -1,5 +1,6 @@
 package mod.chiselsandbits.client.culling;
 
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
@@ -21,7 +22,7 @@ public class MCCullTest implements ICullTest, IBlockAccess
 	private IBlockState a;
 	private IBlockState b;
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings( "deprecation" )
 	@Override
 	public boolean isVisible(
 			final int mySpot,
@@ -33,16 +34,30 @@ public class MCCullTest implements ICullTest, IBlockAccess
 		}
 
 		a = net.minecraft.block.Block.BLOCK_STATE_IDS.getByValue( mySpot );
-		if (a == null) a = Blocks.AIR.getDefaultState();
+		if ( a == null )
+		{
+			a = Blocks.AIR.getDefaultState();
+		}
 		b = net.minecraft.block.Block.BLOCK_STATE_IDS.getByValue( secondSpot );
-		if (b == null) b = Blocks.AIR.getDefaultState();
+		if ( b == null )
+		{
+			b = Blocks.AIR.getDefaultState();
+		}
 
 		if ( a.getBlock() == Blocks.STAINED_GLASS && a.getBlock() == b.getBlock() )
 		{
 			return false;
 		}
 
-		return a.shouldSideBeRendered( this, BlockPos.ORIGIN, EnumFacing.NORTH );
+		try
+		{
+			return a.shouldSideBeRendered( this, BlockPos.ORIGIN, EnumFacing.NORTH );
+		}
+		catch ( final Throwable t )
+		{
+			// revert to older logic in the event of some sort of issue.
+			return BlockBitInfo.getTypeFromStateID( mySpot ).shouldShow( BlockBitInfo.getTypeFromStateID( secondSpot ) );
+		}
 	}
 
 	@Override
