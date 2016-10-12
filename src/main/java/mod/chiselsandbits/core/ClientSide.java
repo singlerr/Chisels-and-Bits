@@ -577,7 +577,7 @@ public class ClientSide
 
 						GlStateManager.color( 1, 1, 1, 1.0f );
 						Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
-						final TextureAtlasSprite sprite = chiselModeIcons.get( mode ).sprite;
+						final TextureAtlasSprite sprite = chiselModeIcons.get( mode ) == null ? getMissingIcon() : chiselModeIcons.get( mode ).sprite;
 
 						GlStateManager.enableBlend();
 						sc.drawTexturedModalRect( x + 1, y + 1, sprite, 8, 8 );
