@@ -126,7 +126,7 @@ public final class VoxelBlob implements IVoxelSrc
 
 				final int id = blockId | meta << 12;
 				final IBlockState state = Block.getStateById( id );
-				if ( state == null )
+				if ( state == null || state.getBlock() != block )
 				{
 					// reverse mapping is broken, so just skip over this state.
 					continue;
