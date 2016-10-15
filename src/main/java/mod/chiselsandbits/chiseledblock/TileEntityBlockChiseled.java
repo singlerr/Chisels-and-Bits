@@ -29,6 +29,8 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -373,6 +375,47 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	{
 		super.readFromNBT( compound );
 		readChisleData( compound );
+	}
+
+	@Override
+	public void func_189668_a(
+			final Mirror p_189668_1_ )
+	{
+		switch ( p_189668_1_ )
+		{
+			case FRONT_BACK:
+				setBlob( getBlob().mirror( Axis.X ), true );
+				break;
+			case LEFT_RIGHT:
+				setBlob( getBlob().mirror( Axis.Z ), true );
+				break;
+			case NONE:
+			default:
+				break;
+
+		}
+	}
+
+	@Override
+	public void func_189667_a(
+			final Rotation p_189667_1_ )
+	{
+		switch ( p_189667_1_ )
+		{
+			case CLOCKWISE_90:
+				setBlob( getBlob().spin( Axis.Y ).spin( Axis.Y ).spin( Axis.Y ), true );
+				break;
+			case CLOCKWISE_180:
+				setBlob( getBlob().spin( Axis.Y ).spin( Axis.Y ), true );
+				break;
+			case COUNTERCLOCKWISE_90:
+				setBlob( getBlob().spin( Axis.Y ), true );
+				break;
+			case NONE:
+			default:
+				break;
+
+		}
 	}
 
 	public void fillWith(
