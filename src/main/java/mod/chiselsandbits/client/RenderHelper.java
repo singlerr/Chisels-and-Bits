@@ -141,8 +141,10 @@ public class RenderHelper
 			final int blue,
 			final int alpha )
 	{
+		GlStateManager.pushAttrib(); // glShadeMode( GL_LIGHTING_BIT );
 		final Tessellator tess = Tessellator.getInstance();
 		final VertexBuffer buffer = tess.getBuffer();
+		GlStateManager.shadeModel( GL11.GL_FLAT );
 		buffer.begin( GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR );
 
 		final double minX = boundingBox.minX;
@@ -186,6 +188,7 @@ public class RenderHelper
 		buffer.pos( maxX, maxY, maxZ ).color( red, green, blue, alpha ).endVertex();
 
 		tess.draw();
+		GlStateManager.popAttrib();
 	}
 
 	public static void renderLine(
