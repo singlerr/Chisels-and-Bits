@@ -773,6 +773,19 @@ public class ClientSide
 				}
 			}
 		}
+
+		for ( final TapeMeasureModes mode : TapeMeasureModes.values() )
+		{
+			final KeyBinding kb = (KeyBinding) mode.binding;
+			if ( kb.isKeyDown() )
+			{
+				final ChiselToolType tool = getHeldToolType( lastHand );
+				if ( tool == ChiselToolType.TAPEMEASURE )
+				{
+					ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool, lastHand ), mode );
+				}
+			}
+		}
 	}
 
 	boolean wasDrawing = false;
