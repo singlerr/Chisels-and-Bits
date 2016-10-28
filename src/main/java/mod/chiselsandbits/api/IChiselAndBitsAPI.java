@@ -85,7 +85,7 @@ public interface IChiselAndBitsAPI
 			ItemStack bitItem ) throws InvalidBitItem;
 
 	/**
-	 * Create a brush from an state, once created you can use it many times.
+	 * Create a brush from a state, once created you can use it many times.
 	 *
 	 * @param state
 	 * @return A brush for the specified state, if null is passed for the item
