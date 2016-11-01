@@ -12,6 +12,7 @@ import mod.chiselsandbits.network.packets.PacketBagGuiStack;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -334,11 +335,16 @@ public class BagContainer extends Container
 
 				for ( int crafterIndex = 0; crafterIndex < listeners.size(); ++crafterIndex )
 				{
-					final PacketBagGuiStack pbgs = new PacketBagGuiStack();
-					pbgs.is = clientstack;
-					pbgs.index = slotIdx;
+					final IContainerListener cl = listeners.get( crafterIndex );
 
-					NetworkRouter.instance.sendTo( pbgs, (EntityPlayerMP) listeners.get( crafterIndex ) );
+					if ( cl instanceof EntityPlayerMP )
+					{
+						final PacketBagGuiStack pbgs = new PacketBagGuiStack();
+						pbgs.is = clientstack;
+						pbgs.index = slotIdx;
+
+						NetworkRouter.instance.sendTo( pbgs, (EntityPlayerMP) cl );
+					}
 				}
 			}
 		}
