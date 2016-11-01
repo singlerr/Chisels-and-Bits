@@ -133,6 +133,19 @@ public class NBTBlobConverter
 	public final boolean readChisleData(
 			final NBTTagCompound compound )
 	{
+		if ( compound == null )
+		{
+			voxelBlobRef = new VoxelBlobStateReference( 0, 0 );
+			format = voxelBlobRef.getFormat();
+
+			if ( tile != null )
+			{
+				return tile.updateBlob( this, triggerUpdates );
+			}
+
+			return false;
+		}
+
 		sideState = compound.getInteger( NBT_SIDE_FLAGS );
 		primaryBlockState = compound.getInteger( NBT_PRIMARY_STATE );
 		lightValue = compound.getInteger( NBT_LIGHTVALUE );
