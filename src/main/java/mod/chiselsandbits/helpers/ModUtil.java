@@ -317,7 +317,22 @@ public class ModUtil
 			final BlockPos pos )
 	{
 		// not going to lie, this is really stupid.
-		return world instanceof ChunkCache ? ( (ChunkCache) world ).func_190300_a( pos, Chunk.EnumCreateEntityType.CHECK ) : world.getTileEntity( pos );
+		if ( world instanceof ChunkCache )
+		{
+			return ( (ChunkCache) world ).func_190300_a( pos, Chunk.EnumCreateEntityType.CHECK );
+		}
+
+		// also stupid...
+		else if ( world instanceof World )
+		{
+			return ( (World) world ).getChunkFromBlockCoords( pos ).getTileEntity( pos, Chunk.EnumCreateEntityType.CHECK );
+		}
+
+		// yep... stupid.
+		else
+		{
+			return world.getTileEntity( pos );
+		}
 	}
 
 	public static TileEntityBlockChiseled getChiseledTileEntity(
