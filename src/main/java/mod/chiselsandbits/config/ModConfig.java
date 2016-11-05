@@ -258,6 +258,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public boolean enableSetBitCommand;
 
+	@Configured( category = "Balance Settings" )
+	public boolean fullBlockCrafting;
+
 	public boolean deobfuscatedEnvironment()
 	{
 		final Object deObf = Launch.blackboard.get( "fml.deobfuscatedEnvironment" );
@@ -304,6 +307,7 @@ public class ModConfig extends Configuration
 		enableTapeMeasure_Distance = !TapeMeasureModes.DISTANCE.isDisabled;
 		displayMeasuringTapeInChat = false;
 		perChiselMode = true;
+		fullBlockCrafting = true;
 		chatModeNotification = false;
 		itemNameModeDisplay = true;
 		enableToolbarIcons = true;

@@ -7,6 +7,7 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
@@ -234,6 +235,33 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		// Detect and provide full blocks if pattern solid full and solid.
 		final NBTBlobConverter conv = new NBTBlobConverter();
 		conv.readChisleData( tag );
+
+		if ( ChiselsAndBits.getConfig().fullBlockCrafting )
+		{
+			final BlobStats stats = conv.getBlob().getVoxelStats();
+			if ( stats.isFullBlock )
+			{
+				final IBlockState state = Block.getStateById( stats.mostCommonState );
+
+				try
+				{
+					// for an unknown reason its possible to generate mod blocks
+					// without
+					// proper state here...
+					final Block blk = state.getBlock();
+
+					final Item item = Item.getItemFromBlock( blk );
+					if ( item != null )
+					{
+						return new ItemStack( blk, 1, blk.damageDropped( state ) );
+					}
+				}
+				catch ( final IllegalArgumentException e )
+				{
+					// derp!
+				}
+			}
+		}
 
 		final IBlockState state = conv.getPrimaryBlockState();
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( state ), 1 );
