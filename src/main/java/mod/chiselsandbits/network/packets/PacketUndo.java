@@ -156,6 +156,19 @@ public class PacketUndo extends ModPacket
 						}
 						else if ( inAfter != 0 )
 						{
+							if ( inBefore != 0 )
+							{
+								if ( selected.isValid() )
+								{
+									spawnedItem = ItemChisel.chiselBlock( selected, player, target, world, pos, side, bi.x, bi.y, bi.z, spawnedItem, spawnlist );
+								}
+								else
+								{
+									successful = false;
+									break;
+								}
+							}
+
 							final ItemStackSlot bit = ModUtil.findBit( player, pos, inAfter );
 							if ( ModUtil.consumeBagBit( bags, inAfter, 1 ) == 1 )
 							{
