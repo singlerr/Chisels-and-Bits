@@ -223,7 +223,8 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 	@Override
 	public ItemStack getPatternedItem(
-			final ItemStack stack )
+			final ItemStack stack,
+			final boolean craftingBlocks )
 	{
 		if ( !isWritten( stack ) )
 		{
@@ -236,29 +237,17 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		final NBTBlobConverter conv = new NBTBlobConverter();
 		conv.readChisleData( tag );
 
-		if ( ChiselsAndBits.getConfig().fullBlockCrafting )
+		if ( craftingBlocks && ChiselsAndBits.getConfig().fullBlockCrafting )
 		{
 			final BlobStats stats = conv.getBlob().getVoxelStats();
 			if ( stats.isFullBlock )
 			{
 				final IBlockState state = Block.getStateById( stats.mostCommonState );
+				final ItemStack is = ModUtil.getItemFromBlock( state );
 
-				try
+				if ( is != null )
 				{
-					// for an unknown reason its possible to generate mod blocks
-					// without
-					// proper state here...
-					final Block blk = state.getBlock();
-
-					final Item item = Item.getItemFromBlock( blk );
-					if ( item != null )
-					{
-						return new ItemStack( blk, 1, blk.damageDropped( state ) );
-					}
-				}
-				catch ( final IllegalArgumentException e )
-				{
-					// derp!
+					return is;
 				}
 			}
 		}

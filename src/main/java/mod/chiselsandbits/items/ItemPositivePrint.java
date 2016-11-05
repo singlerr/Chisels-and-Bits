@@ -157,7 +157,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 	{
 		if ( PositivePatternMode.getMode( stack ) == PositivePatternMode.PLACEMENT )
 		{
-			final ItemStack output = getPatternedItem( stack );
+			final ItemStack output = getPatternedItem( stack, false );
 			if ( output != null )
 			{
 				final VoxelBlob pattern = ModUtil.getBlobFromStack( stack, player );

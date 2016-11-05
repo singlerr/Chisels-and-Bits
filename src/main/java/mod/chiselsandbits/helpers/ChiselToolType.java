@@ -65,7 +65,7 @@ public enum ChiselToolType
 		{
 			final List<IToolMode> modes = new ArrayList<IToolMode>();
 			final EnumSet<ChiselMode> used = EnumSet.noneOf( ChiselMode.class );
-			final ChiselMode[] orderedModes = { ChiselMode.SINGLE, ChiselMode.LINE, ChiselMode.PLANE, ChiselMode.CONNECTED_PLANE, ChiselMode.DRAWN_REGION };
+			final ChiselMode[] orderedModes = { ChiselMode.SINGLE, ChiselMode.LINE, ChiselMode.PLANE, ChiselMode.CONNECTED_PLANE, ChiselMode.CONNECTED_MATERIAL, ChiselMode.DRAWN_REGION, ChiselMode.SAME_MATERIAL };
 
 			for ( final ChiselMode mode : orderedModes )
 			{

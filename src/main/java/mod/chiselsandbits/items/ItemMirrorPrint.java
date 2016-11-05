@@ -6,14 +6,12 @@ import java.util.List;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -138,7 +136,8 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 
 	@Override
 	public ItemStack getPatternedItem(
-			final ItemStack stack )
+			final ItemStack stack,
+			final boolean wantRealItems )
 	{
 		if ( !isWritten( stack ) )
 		{
@@ -150,13 +149,6 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 		// Detect and provide full blocks if pattern solid full and solid.
 		final NBTBlobConverter conv = new NBTBlobConverter();
 		conv.readChisleData( tag );
-
-		final BlobStats common = conv.getBlob().getVoxelStats();
-		if ( common.isFullBlock )
-		{
-			final IBlockState state = Block.getStateById( common.mostCommonState );
-			return new ItemStack( state.getBlock(), 1, state.getBlock().getMetaFromState( state ) );
-		}
 
 		final IBlockState blk = conv.getPrimaryBlockState();
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk ), 1 );

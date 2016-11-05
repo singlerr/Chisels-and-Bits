@@ -24,6 +24,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
@@ -543,6 +544,12 @@ public class ModUtil
 		final int meta = blk.getMetaFromState( state );
 		final int damage = blk.damageDropped( state );
 		final Item blockVarient = Item.getItemFromBlock( blk );
+
+		// darn conversions...
+		if ( blk == Blocks.GRASS )
+		{
+			return new ItemStack( Blocks.GRASS );
+		}
 
 		if ( i == null )
 		{

@@ -6,7 +6,8 @@ public interface IPatternItem
 {
 
 	ItemStack getPatternedItem(
-			ItemStack stack );
+			ItemStack stack,
+			final boolean wantRealBlocks );
 
 	boolean isWritten(
 			ItemStack stack );

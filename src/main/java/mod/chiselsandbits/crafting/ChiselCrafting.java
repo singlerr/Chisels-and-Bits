@@ -80,7 +80,7 @@ public class ChiselCrafting implements IRecipe
 
 		if ( req != null )
 		{
-			return ChiselsAndBits.getItems().itemPositiveprint.getPatternedItem( req.pattern );
+			return ChiselsAndBits.getItems().itemPositiveprint.getPatternedItem( req.pattern, true );
 		}
 
 		return null;

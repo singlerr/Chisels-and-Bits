@@ -21,7 +21,7 @@ public class PrintBaked extends BaseBakedItemModel
 	{
 		itemName = itname;
 
-		final ItemStack blockItem = item.getPatternedItem( stack );
+		final ItemStack blockItem = item.getPatternedItem( stack, false );
 		IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( blockItem );
 
 		model = model.getOverrides().handleItemState( model, blockItem, null, null );
