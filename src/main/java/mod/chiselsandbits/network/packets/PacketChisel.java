@@ -174,7 +174,10 @@ public class PacketChisel extends ModPacket
 							{
 								if ( place.usesChisels() && chisels.isValid() )
 								{
-									extracted = ItemChisel.chiselBlock( chisels, player, vb, world, pos, i.side(), i.x(), i.y(), i.z(), extracted, spawnlist );
+									if ( !place.usesBits() || vb.get( i.x(), i.y(), i.z() ) != placeStateID )
+									{
+										extracted = ItemChisel.chiselBlock( chisels, player, vb, world, pos, i.side(), i.x(), i.y(), i.z(), extracted, spawnlist );
+									}
 								}
 
 								if ( place.usesBits() && bits.isValid() )
