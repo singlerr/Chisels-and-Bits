@@ -55,7 +55,13 @@ public class ModConfig extends Configuration
 	public boolean enableChiselMode_Plane;
 
 	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_SameMaterial;
+
+	@Configured( category = "Client Settings" )
 	public boolean enableChiselMode_ConnectedPlane;
+
+	@Configured( category = "Client Settings" )
+	public boolean enableChiselMode_ConnectedMatrial;
 
 	@Configured( category = "Client Settings" )
 	public boolean enableChiselMode_Line;
@@ -134,6 +140,12 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Client Settings" )
 	public boolean displayMeasuringTapeInChat;
+
+	@Configured( category = "Client Settings" )
+	public boolean replaceingBits;
+
+	@Configured( category = "Client Settings" )
+	public float radialMenuVolume;
 
 	@Configured( category = "Client Performance Settings" )
 	public static UseVBO useVBO;
@@ -288,6 +300,8 @@ public class ModConfig extends Configuration
 		logTileErrors = false;
 		enableAPITestingItem = deobfuscatedEnvironment();
 		lowMemoryMode = mem < 1200;
+		enableChiselMode_SameMaterial = !ChiselMode.SAME_MATERIAL.isDisabled;
+		enableChiselMode_ConnectedMatrial = !ChiselMode.CONNECTED_MATERIAL.isDisabled;
 		enableChiselMode_ConnectedPlane = !ChiselMode.CONNECTED_PLANE.isDisabled;
 		enableChiselMode_LargeCube = !ChiselMode.CUBE_LARGE.isDisabled;
 		enableChiselMode_MediumCube = !ChiselMode.CUBE_MEDIUM.isDisabled;
@@ -308,6 +322,8 @@ public class ModConfig extends Configuration
 		displayMeasuringTapeInChat = false;
 		perChiselMode = true;
 		fullBlockCrafting = true;
+		replaceingBits = false;
+		radialMenuVolume = 0.1f;
 		chatModeNotification = false;
 		itemNameModeDisplay = true;
 		enableToolbarIcons = true;
@@ -525,6 +541,8 @@ public class ModConfig extends Configuration
 		}
 
 		// configure mode enums..
+		ChiselMode.SAME_MATERIAL.isDisabled = !enableChiselMode_SameMaterial;
+		ChiselMode.CONNECTED_MATERIAL.isDisabled = !enableChiselMode_ConnectedMatrial;
 		ChiselMode.CONNECTED_PLANE.isDisabled = !enableChiselMode_ConnectedPlane;
 		ChiselMode.CUBE_LARGE.isDisabled = !enableChiselMode_LargeCube;
 		ChiselMode.CUBE_MEDIUM.isDisabled = !enableChiselMode_MediumCube;

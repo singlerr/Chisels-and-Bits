@@ -7,9 +7,11 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Stopwatch;
 
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.DeprecationHelper;
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.modes.IToolMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -184,6 +186,18 @@ public class ChiselsAndBitsMenu extends GuiScreen
 
 		final ArrayList<MenuRegion> modes = new ArrayList<MenuRegion>();
 		final ArrayList<MenuButton> btns = new ArrayList<MenuButton>();
+
+		if ( getTool() == ChiselToolType.BIT )
+		{
+			if ( ChiselsAndBits.getConfig().replaceingBits )
+			{
+				btns.add( new MenuButton( LocalStrings.BitOptionReplace.toString(), ButtonAction.REPLACE_TOGGLE, text_distnace, -44, ClientSide.swapIcon, EnumFacing.EAST ) );
+			}
+			else
+			{
+				btns.add( new MenuButton( LocalStrings.BitOptionPlace.toString(), ButtonAction.REPLACE_TOGGLE, text_distnace, -44, ClientSide.placeIcon, EnumFacing.EAST ) );
+			}
+		}
 
 		btns.add( new MenuButton( "mod.chiselsandbits.other.undo", ButtonAction.UNDO, text_distnace, -20, ClientSide.undoIcon, EnumFacing.EAST ) );
 		btns.add( new MenuButton( "mod.chiselsandbits.other.redo", ButtonAction.REDO, text_distnace, 4, ClientSide.redoIcon, EnumFacing.EAST ) );

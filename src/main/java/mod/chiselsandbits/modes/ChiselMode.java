@@ -18,7 +18,9 @@ public enum ChiselMode implements IToolMode
 	CUBE_SMALL( LocalStrings.ChiselModeCubeSmall ),
 	CUBE_MEDIUM( LocalStrings.ChiselModeCubeMedium ),
 	CUBE_LARGE( LocalStrings.ChiselModeCubeLarge ),
-	DRAWN_REGION( LocalStrings.ChiselModeDrawnRegion );
+	SAME_MATERIAL( LocalStrings.ChiselModeSameMaterial ),
+	DRAWN_REGION( LocalStrings.ChiselModeDrawnRegion ),
+	CONNECTED_MATERIAL( LocalStrings.ChiselModeConnectedMaterial );
 
 	public final LocalStrings string;
 

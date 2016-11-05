@@ -10,7 +10,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
-import mod.chiselsandbits.helpers.ChiselToolType;
+import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -180,6 +180,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		return doItemUse( stack, playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ );
 	}
 
+	@Override
 	public EnumActionResult doItemUse(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
@@ -264,7 +265,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	{
 		if ( player.isSneaking() )
 		{
-			final BitLocation bl = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos ), false, ChiselToolType.BIT );
+			final BitLocation bl = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos ), false, BitOperation.PLACE );
 			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, EnumHand.MAIN_HAND, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );
 		}
 		else

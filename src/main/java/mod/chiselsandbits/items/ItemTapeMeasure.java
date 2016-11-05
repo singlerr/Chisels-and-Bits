@@ -8,6 +8,7 @@ import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.ReflectionWrapper;
+import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -92,7 +93,7 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 			final RayTraceResult mop = playerIn.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( playerIn.getEntityWorld().getBlockState( pos ), playerIn.worldObj, pos, ray_from, ray_to );
 			if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
 			{
-				final BitLocation loc = new BitLocation( mop, true, ChiselToolType.CHISEL );
+				final BitLocation loc = new BitLocation( mop, true, BitOperation.CHISEL );
 				ClientSide.instance.pointAt( ChiselToolType.TAPEMEASURE, loc, hand );
 			}
 		}

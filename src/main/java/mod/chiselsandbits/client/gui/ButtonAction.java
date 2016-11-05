@@ -5,6 +5,8 @@ public enum ButtonAction
 	UNDO,
 	REDO,
 
+	REPLACE_TOGGLE,
+
 	WHITE,
 	BLACK,
 	CYAN,
@@ -20,5 +22,5 @@ public enum ButtonAction
 	LIME,
 	PURPLE,
 	BLUE,
-	GREEN
+	GREEN,
 }

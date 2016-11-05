@@ -17,6 +17,46 @@ import net.minecraft.util.EnumFacing.AxisDirection;
 
 public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselIterator
 {
+	public static class ChiselExtrudeMaterialIterator extends ChiselExtrudeIterator
+	{
+
+		int material = 0;
+
+		public ChiselExtrudeMaterialIterator(
+				final int dim,
+				final int sx,
+				final int sy,
+				final int sz,
+				final IVoxelSrc source,
+				final ChiselMode mode,
+				final EnumFacing side,
+				final boolean place )
+		{
+			super( dim, sx, sy, sz, source, mode, side, place );
+		}
+
+		@Override
+		protected void readyMatching(
+				final IVoxelSrc source,
+				final int x,
+				final int y,
+				final int z )
+		{
+			material = source.getSafe( x, y, z );
+		}
+
+		@Override
+		protected boolean isMatch(
+				final IVoxelSrc source,
+				final int x,
+				final int y,
+				final int z )
+		{
+			return source.getSafe( x, y, z ) == material;
+		}
+
+	};
+
 	final int INDEX_X = 0;
 	final int INDEX_Y = 8;
 	final int INDEX_Z = 16;
@@ -78,6 +118,8 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
 			placeoffset = side.getAxisDirection() == AxisDirection.POSITIVE ? 1 : -1;
 		}
 
+		readyMatching( source, x, y, z );
+
 		for ( int b = 0; b < dim; ++b )
 		{
 			for ( int a = 0; a < dim; ++a )
@@ -86,21 +128,21 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
 				{
 					case DOWN:
 					case UP:
-						if ( source.getSafe( a, y, b ) != 0 && source.getSafe( a + tx, y + ty, b + tz ) == 0 )
+						if ( isMatch( source, a, y, b ) && source.getSafe( a + tx, y + ty, b + tz ) == 0 )
 						{
 							possiblepositions.add( createPos( a, y + placeoffset, b ) );
 						}
 						break;
 					case EAST:
 					case WEST:
-						if ( source.getSafe( x, a, b ) != 0 && source.getSafe( x + tx, a + ty, b + tz ) == 0 )
+						if ( isMatch( source, x, a, b ) && source.getSafe( x + tx, a + ty, b + tz ) == 0 )
 						{
 							possiblepositions.add( createPos( x + placeoffset, a, b ) );
 						}
 						break;
 					case NORTH:
 					case SOUTH:
-						if ( source.getSafe( a, b, z ) != 0 && source.getSafe( a + tx, b + ty, z + tz ) == 0 )
+						if ( isMatch( source, a, b, z ) && source.getSafe( a + tx, b + ty, z + tz ) == 0 )
 						{
 							possiblepositions.add( createPos( a, b, z + placeoffset ) );
 						}
@@ -142,6 +184,24 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
 
 		// we are done, drop the list and keep an iterator.
 		list = selectedpositions.iterator();
+	}
+
+	protected void readyMatching(
+			final IVoxelSrc source,
+			final int x,
+			final int y,
+			final int z )
+	{
+
+	}
+
+	protected boolean isMatch(
+			final IVoxelSrc source,
+			final int x,
+			final int y,
+			final int z )
+	{
+		return source.getSafe( x, y, z ) != 0;
 	}
 
 	private void floodFill(

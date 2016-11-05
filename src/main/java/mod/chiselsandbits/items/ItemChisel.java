@@ -17,6 +17,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
+import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.IContinuousInventory;
@@ -139,7 +140,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 					final RayTraceResult mop = player.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( player.getEntityWorld().getBlockState( pos ), player.worldObj, pos, ray_from, ray_to );
 					if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
 					{
-						final BitLocation loc = new BitLocation( mop, true, ChiselToolType.CHISEL );
+						final BitLocation loc = new BitLocation( mop, true, BitOperation.CHISEL );
 						ClientSide.instance.pointAt( ChiselToolType.CHISEL, loc, hand );
 						return true;
 					}
@@ -259,9 +260,9 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final float hitZ,
 			final EnumHand hand )
 	{
-		final BitLocation location = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos ), false, ChiselToolType.CHISEL );
+		final BitLocation location = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos ), false, BitOperation.CHISEL );
 
-		final PacketChisel pc = new PacketChisel( false, location, side, mode, hand );
+		final PacketChisel pc = new PacketChisel( BitOperation.CHISEL, location, side, mode, hand );
 
 		final int extractedState = pc.doAction( player );
 		if ( extractedState != 0 )

@@ -17,6 +17,7 @@ import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -457,7 +458,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			{
 				final VoxelBlob vb = te.getBlob();
 
-				final BitLocation bitLoc = new BitLocation( target, true, ChiselToolType.CHISEL );
+				final BitLocation bitLoc = new BitLocation( target, true, BitOperation.CHISEL );
 
 				final int itemBlock = vb.get( bitLoc.bitX, bitLoc.bitY, bitLoc.bitZ );
 				if ( itemBlock == 0 )

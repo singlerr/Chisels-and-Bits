@@ -1,5 +1,6 @@
 package mod.chiselsandbits.chiseledblock.iterators;
 
+import mod.chiselsandbits.chiseledblock.iterators.ChiselExtrudeIterator.ChiselExtrudeMaterialIterator;
 import mod.chiselsandbits.helpers.IVoxelSrc;
 import mod.chiselsandbits.modes.ChiselMode;
 import net.minecraft.util.EnumFacing;
@@ -60,9 +61,19 @@ public class ChiselTypeIterator extends BaseChiselIterator implements ChiselIter
 			final EnumFacing side,
 			final boolean place )
 	{
+		if ( mode == ChiselMode.CONNECTED_MATERIAL )
+		{
+			return new ChiselExtrudeMaterialIterator( dim, x, y, z, source, mode, side, place );
+		}
+
 		if ( mode == ChiselMode.CONNECTED_PLANE )
 		{
 			return new ChiselExtrudeIterator( dim, x, y, z, source, mode, side, place );
+		}
+
+		if ( mode == ChiselMode.SAME_MATERIAL )
+		{
+			return new ChiselMaterialIterator( dim, x, y, z, source, mode, side, place );
 		}
 
 		return new ChiselTypeIterator( dim, x, y, z, source, mode, side );

@@ -15,6 +15,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ActingPlayer;
+import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.DeprecationHelper;
@@ -82,7 +83,13 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	{
 		if ( ChiselsAndBits.getConfig().itemNameModeDisplay && FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT )
 		{
-			return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.BIT, EnumHand.MAIN_HAND ).getName().getLocal();
+			String extra = "";
+			if ( getBitOperation( ClientSide.instance.getPlayer(), EnumHand.MAIN_HAND, item ) == BitOperation.REPLACE )
+			{
+				extra = " - " + LocalStrings.BitOptionReplace.getLocal();
+			}
+
+			return displayName + " - " + ChiselModeManager.getChiselMode( ClientSide.instance.getPlayer(), ChiselToolType.BIT, EnumHand.MAIN_HAND ).getName().getLocal() + extra;
 		}
 
 		return displayName;
@@ -237,7 +244,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		if ( world.isRemote )
 		{
 			final IToolMode mode = ChiselModeManager.getChiselMode( player, ClientSide.instance.getHeldToolType( hand ), hand );
-			final BitLocation bitLocation = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, usedBlock ), false, ChiselToolType.BIT );
+			final BitLocation bitLocation = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, usedBlock ), false, getBitOperation( player, hand, stack ) );
 
 			IBlockState blkstate = world.getBlockState( bitLocation.blockPos );
 			TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );
@@ -254,13 +261,13 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				{
 					if ( world.isRemote )
 					{
-						ClientSide.instance.pointAt( ChiselToolType.BIT, bitLocation, hand );
+						ClientSide.instance.pointAt( getBitOperation( player, hand, stack ).getToolType(), bitLocation, hand );
 					}
 					return EnumActionResult.FAIL;
 				}
 				else
 				{
-					pc = new PacketChisel( true, bitLocation, side, ChiselMode.castMode( mode ), hand );
+					pc = new PacketChisel( getBitOperation( player, hand, stack ), bitLocation, side, ChiselMode.castMode( mode ), hand );
 				}
 
 				final int result = pc.doAction( player );
@@ -274,6 +281,14 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 		return EnumActionResult.SUCCESS;
 
+	}
+
+	public static BitOperation getBitOperation(
+			final EntityPlayer player,
+			final EnumHand hand,
+			final ItemStack stack )
+	{
+		return ChiselsAndBits.getConfig().replaceingBits ? BitOperation.REPLACE : BitOperation.PLACE;
 	}
 
 	@Override

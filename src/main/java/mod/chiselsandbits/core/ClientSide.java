@@ -43,6 +43,7 @@ import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.client.gui.ChiselsAndBitsMenu;
 import mod.chiselsandbits.client.gui.SpriteIconPositioning;
 import mod.chiselsandbits.commands.JsonModelExport;
+import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -68,6 +69,7 @@ import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.particle.Particle;
@@ -84,6 +86,7 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -310,11 +313,16 @@ public class ClientSide
 	public static TextureAtlasSprite redoIcon;
 	public static TextureAtlasSprite trashIcon;
 
+	public static TextureAtlasSprite swapIcon;
+	public static TextureAtlasSprite placeIcon;
+
 	@SubscribeEvent
 	void registerIconTextures(
 			final TextureStitchEvent.Pre ev )
 	{
 		final TextureMap map = ev.getMap();
+		swapIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/swap" ) );
+		placeIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/place" ) );
 		undoIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/undo" ) );
 		redoIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/redo" ) );
 		trashIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/trash" ) );
@@ -419,13 +427,20 @@ public class ClientSide
 				{
 					if ( ChiselsAndBitsMenu.instance.switchTo != null )
 					{
+						ClientSide.instance.playRadialMenu();
 						ChiselModeManager.changeChiselMode( tool, ChiselModeManager.getChiselMode( getPlayer(), tool, EnumHand.MAIN_HAND ), ChiselsAndBitsMenu.instance.switchTo );
 					}
 
 					if ( ChiselsAndBitsMenu.instance.doAction != null )
 					{
+						ClientSide.instance.playRadialMenu();
 						switch ( ChiselsAndBitsMenu.instance.doAction )
 						{
+							case REPLACE_TOGGLE:
+								ChiselsAndBits.getConfig().replaceingBits = !ChiselsAndBits.getConfig().replaceingBits;
+								ReflectionWrapper.instance.setHighlightStack( null );
+								break;
+
 							case UNDO:
 								UndoTracker.getInstance().undo();
 								break;
@@ -534,7 +549,7 @@ public class ClientSide
 			{
 				try
 				{
-					final BitLocation bl = new BitLocation( mc.objectMouseOver, true, ChiselToolType.CHISEL );
+					final BitLocation bl = new BitLocation( mc.objectMouseOver, true, BitOperation.CHISEL );
 					final IBitAccess access = ChiselsAndBits.getApi().getBitAccess( mc.theWorld, bl.getBlockPos() );
 					final IBitBrush brush = access.getBitAt( bl.getBitX(), bl.getBitY(), bl.getBitZ() );
 					if ( brush != null )
@@ -585,6 +600,16 @@ public class ClientSide
 					}
 				}
 			}
+		}
+	}
+
+	public void playRadialMenu()
+	{
+		final float volume = ChiselsAndBits.getConfig().radialMenuVolume;
+		if ( volume >= 0.0001f )
+		{
+			final PositionedSoundRecord psr = new PositionedSoundRecord( SoundEvents.UI_BUTTON_CLICK, SoundCategory.MASTER, volume, 1.0f, getPlayer().getPosition() );
+			Minecraft.getMinecraft().getSoundHandler().playSound( psr );
 		}
 	}
 
@@ -812,7 +837,7 @@ public class ClientSide
 
 			if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
 			{
-				final BitLocation location = new BitLocation( mop, true, ChiselToolType.CHISEL );
+				final BitLocation location = new BitLocation( mop, true, BitOperation.CHISEL );
 				if ( theWorld.getWorldBorder().contains( location.blockPos ) )
 				{
 					final BitLocation other = getStartPos();
@@ -870,7 +895,7 @@ public class ClientSide
 			boolean showBox = false;
 			if ( mop.typeOfHit == RayTraceResult.Type.BLOCK )
 			{
-				final BitLocation location = new BitLocation( mop, true, getDrawnTool() );
+				final BitLocation location = new BitLocation( mop, true, getLastBitOperation( player, lastHand, getPlayer().getHeldItem( lastHand ) ) );
 				if ( theWorld.getWorldBorder().contains( location.blockPos ) )
 				{
 					// this logic originated in the vanilla bounding box...
@@ -907,7 +932,9 @@ public class ClientSide
 
 							if ( !getToolKey().isKeyDown() )
 							{
-								final PacketChisel pc = new PacketChisel( lastTool == ChiselToolType.BIT, location, other, EnumFacing.UP, ChiselMode.DRAWN_REGION, lastHand );
+								final PacketChisel pc = new PacketChisel( getLastBitOperation( player, lastHand, player.getHeldItem( lastHand ) ), location, other,
+										EnumFacing.UP,
+										ChiselMode.DRAWN_REGION, lastHand );
 
 								if ( pc.doAction( getPlayer() ) > 0 )
 								{
@@ -966,6 +993,14 @@ public class ClientSide
 			}
 		}
 
+	}
+
+	private BitOperation getLastBitOperation(
+			final EntityPlayer player,
+			final EnumHand lastHand2,
+			final ItemStack heldItem )
+	{
+		return lastTool == ChiselToolType.BIT ? ItemChiseledBit.getBitOperation( player, lastHand, player.getHeldItem( lastHand ) ) : BitOperation.CHISEL;
 	}
 
 	private AxisAlignedBB snapToSide(
@@ -1048,7 +1083,7 @@ public class ClientSide
 				return;
 			}
 
-			final ItemStack item = ChiselsAndBits.getItems().itemNegativeprint.getPatternedItem( currentItem );
+			final ItemStack item = ChiselsAndBits.getItems().itemNegativeprint.getPatternedItem( currentItem, false );
 			if ( item == null || !item.hasTagCompound() )
 			{
 				return;
@@ -1109,7 +1144,7 @@ public class ClientSide
 
 		if ( player.isSneaking() )
 		{
-			final BitLocation bl = new BitLocation( mop, true, ChiselToolType.BIT );
+			final BitLocation bl = new BitLocation( mop, true, BitOperation.PLACE );
 			showGhost( currentItem, item, bl.blockPos, player, rotations, x, y, z, mop.sideHit, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), null );
 		}
 		else

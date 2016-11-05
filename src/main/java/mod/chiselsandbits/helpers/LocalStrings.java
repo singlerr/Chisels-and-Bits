@@ -10,9 +10,11 @@ public enum LocalStrings
 	ChiselModeLine( "chiselmode.line" ),
 	ChiselModePlane( "chiselmode.plane" ),
 	ChiselModeConnectedPlane( "chiselmode.connected_plane" ),
+	ChiselModeConnectedMaterial( "chiselmode.connected_material" ),
 	ChiselModeCubeSmall( "chiselmode.cube_small" ),
 	ChiselModeCubeMedium( "chiselmode.cube_medium" ),
 	ChiselModeCubeLarge( "chiselmode.cube_large" ),
+	ChiselModeSameMaterial( "chiselmode.same_material" ),
 	ChiselModeDrawnRegion( "chiselmode.drawn_region" ),
 
 	ShiftDetails( "help.shiftdetails" ),
@@ -67,7 +69,10 @@ public enum LocalStrings
 	LongHelpTapeMeasure( "help.tape_measure.long" ),
 	TapeMeasureBit( "tapemeasure.bit" ),
 	TapeMeasureBlock( "tapemeasure.block" ),
-	TapeMeasureDistance( "tapemeasure.distance" );
+	TapeMeasureDistance( "tapemeasure.distance" ),
+
+	BitOptionPlace( "bitoption.place" ),
+	BitOptionReplace( "bitoption.replace" );
 
 	private final String string;
 

@@ -12,6 +12,7 @@ import mod.chiselsandbits.chiseledblock.iterators.ChiselTypeIterator;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ActingPlayer;
+import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ContinousBits;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
@@ -42,7 +43,7 @@ public class PacketChisel extends ModPacket
 	BitLocation from;
 	BitLocation to;
 
-	boolean place;
+	BitOperation place;
 	EnumFacing side;
 	ChiselMode mode;
 	EnumHand hand;
@@ -54,7 +55,7 @@ public class PacketChisel extends ModPacket
 	}
 
 	public PacketChisel(
-			final boolean place,
+			final BitOperation place,
 			final BitLocation from,
 			final BitLocation to,
 			final EnumFacing side,
@@ -70,7 +71,7 @@ public class PacketChisel extends ModPacket
 	}
 
 	public PacketChisel(
-			final boolean place,
+			final BitOperation place,
 			final BitLocation location,
 			final EnumFacing side,
 			final ChiselMode mode,
@@ -123,18 +124,30 @@ public class PacketChisel extends ModPacket
 					{
 						final BlockPos pos = new BlockPos( xOff, yOff, zOff );
 
-						final int placeStateID = place ? ItemChiseledBit.getStackState( who.getHeldItem( hand ) ) : 0;
-						final IContinuousInventory chisel = place ? new ContinousBits( player, pos, placeStateID ) : new ContinousChisels( player, pos, side );
+						final int placeStateID = place.usesBits() ? ItemChiseledBit.getStackState( who.getHeldItem( hand ) ) : 0;
+						final IContinuousInventory chisels = new ContinousChisels( player, pos, side );
+						final IContinuousInventory bits = new ContinousBits( player, pos, placeStateID );
 
 						IBlockState blkstate = world.getBlockState( pos );
 						Block blkObj = blkstate.getBlock();
 
-						if ( !chisel.isValid() || blkObj == null || blkstate == null || !place && !ItemChisel.canMine( chisel, blkstate, who, world, pos ) )
+						if ( place.usesChisels() )
 						{
-							continue;
+							if ( !chisels.isValid() || blkObj == null || blkstate == null || !ItemChisel.canMine( chisels, blkstate, who, world, pos ) )
+							{
+								continue;
+							}
 						}
 
-						if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) && place )
+						if ( place.usesBits() )
+						{
+							if ( !bits.isValid() || blkObj == null || blkstate == null )
+							{
+								continue;
+							}
+						}
+
+						if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) && place.usesBits() )
 						{
 							world.setBlockToAir( pos );
 						}
@@ -145,8 +158,8 @@ public class PacketChisel extends ModPacket
 							blkObj = blkstate.getBlock();
 						}
 
-						final TileEntity te = ModUtil.getChiseledTileEntity( world, pos, place );
-						if ( te instanceof TileEntityBlockChiseled && chisel.isValid() )
+						final TileEntity te = ModUtil.getChiseledTileEntity( world, pos, place.usesBits() );
+						if ( te instanceof TileEntityBlockChiseled )
 						{
 							final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
 
@@ -157,19 +170,20 @@ public class PacketChisel extends ModPacket
 							final VoxelBlob vb = tec.getBlob();
 
 							final ChiselIterator i = getIterator( new VoxelRegionSrc( world, pos, 1 ), pos, place );
-							while ( i.hasNext() && chisel.isValid() )
+							while ( i.hasNext() )
 							{
-								if ( place )
+								if ( place.usesChisels() && chisels.isValid() )
+								{
+									extracted = ItemChisel.chiselBlock( chisels, player, vb, world, pos, i.side(), i.x(), i.y(), i.z(), extracted, spawnlist );
+								}
+
+								if ( place.usesBits() && bits.isValid() )
 								{
 									if ( mask.get( i.x(), i.y(), i.z() ) == 0 )
 									{
-										bitPlaced = chisel.getItem( 0 ).getStack();
-										update = ItemChiseledBit.placeBit( chisel, player, vb, i.x(), i.y(), i.z() ) || update;
+										bitPlaced = bits.getItem( 0 ).getStack();
+										update = ItemChiseledBit.placeBit( bits, player, vb, i.x(), i.y(), i.z() ) || update;
 									}
-								}
-								else
-								{
-									extracted = ItemChisel.chiselBlock( chisel, player, vb, world, pos, i.side(), i.x(), i.y(), i.z(), extracted, spawnlist );
 								}
 							}
 
@@ -196,7 +210,7 @@ public class PacketChisel extends ModPacket
 				ItemBitBag.cleanupInventory( who, ei.getEntityItem() );
 			}
 
-			if ( place )
+			if ( place.usesBits() )
 			{
 				ItemBitBag.cleanupInventory( who, bitPlaced != null ? bitPlaced : new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
 			}
@@ -213,7 +227,7 @@ public class PacketChisel extends ModPacket
 	private ChiselIterator getIterator(
 			final VoxelRegionSrc vb,
 			final BlockPos pos,
-			final boolean place )
+			final BitOperation place )
 	{
 		if ( mode == ChiselMode.DRAWN_REGION )
 		{
@@ -228,7 +242,7 @@ public class PacketChisel extends ModPacket
 			return new ChiselTypeIterator( VoxelBlob.dim, bitX, bitY, bitZ, scaleX, scaleY, scaleZ, side );
 		}
 
-		return ChiselTypeIterator.create( VoxelBlob.dim, from.bitX, from.bitY, from.bitZ, vb, mode, side, place );
+		return ChiselTypeIterator.create( VoxelBlob.dim, from.bitX, from.bitY, from.bitZ, vb, mode, side, place.usePlacementOffset() );
 	}
 
 	@Override
@@ -238,7 +252,7 @@ public class PacketChisel extends ModPacket
 		from = readBitLoc( buffer );
 		to = readBitLoc( buffer );
 
-		place = buffer.readBoolean();
+		place = buffer.readEnumValue( BitOperation.class );
 		side = EnumFacing.VALUES[buffer.readVarIntFromBuffer()];
 		mode = ChiselMode.values()[buffer.readVarIntFromBuffer()];
 		hand = EnumHand.values()[buffer.readVarIntFromBuffer()];
@@ -251,7 +265,7 @@ public class PacketChisel extends ModPacket
 		writeBitLoc( from, buffer );
 		writeBitLoc( to, buffer );
 
-		buffer.writeVarIntToBuffer( place ? 1 : 0 );
+		buffer.writeEnumValue( place );
 		buffer.writeVarIntToBuffer( side.ordinal() );
 		buffer.writeVarIntToBuffer( mode.ordinal() );
 		buffer.writeVarIntToBuffer( hand.ordinal() );
