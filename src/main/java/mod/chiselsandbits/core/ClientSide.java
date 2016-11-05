@@ -36,6 +36,7 @@ import mod.chiselsandbits.client.BlockColorChisled;
 import mod.chiselsandbits.client.CreativeClipboardTab;
 import mod.chiselsandbits.client.ItemColorBits;
 import mod.chiselsandbits.client.ItemColorChisled;
+import mod.chiselsandbits.client.ItemColorPatterns;
 import mod.chiselsandbits.client.ModConflictContext;
 import mod.chiselsandbits.client.RenderHelper;
 import mod.chiselsandbits.client.TapeMeasures;
@@ -199,6 +200,21 @@ public class ClientSide
 		if ( modItems.itemBlockBit != null )
 		{
 			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorBits(), modItems.itemBlockBit );
+		}
+
+		if ( modItems.itemPositiveprint != null )
+		{
+			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorPatterns(), modItems.itemPositiveprint );
+		}
+
+		if ( modItems.itemNegativeprint != null )
+		{
+			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorPatterns(), modItems.itemNegativeprint );
+		}
+
+		if ( modItems.itemMirrorprint != null )
+		{
+			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorPatterns(), modItems.itemMirrorprint );
 		}
 
 		for ( final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
