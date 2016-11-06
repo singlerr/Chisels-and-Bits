@@ -454,7 +454,6 @@ public class ClientSide
 						{
 							case REPLACE_TOGGLE:
 								ChiselsAndBits.getConfig().replaceingBits = !ChiselsAndBits.getConfig().replaceingBits;
-								ChiselsAndBits.getConfig().save();
 								ReflectionWrapper.instance.setHighlightStack( null );
 								break;
 
