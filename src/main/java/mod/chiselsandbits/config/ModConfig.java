@@ -142,9 +142,6 @@ public class ModConfig extends Configuration
 	public boolean displayMeasuringTapeInChat;
 
 	@Configured( category = "Client Settings" )
-	public boolean replaceingBits;
-
-	@Configured( category = "Client Settings" )
 	public float radialMenuVolume;
 
 	@Configured( category = "Client Performance Settings" )
@@ -273,6 +270,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public boolean fullBlockCrafting;
 
+	// in game state
+	public boolean replaceingBits = false;
+
 	public boolean deobfuscatedEnvironment()
 	{
 		final Object deObf = Launch.blackboard.get( "fml.deobfuscatedEnvironment" );
@@ -322,7 +322,6 @@ public class ModConfig extends Configuration
 		displayMeasuringTapeInChat = false;
 		perChiselMode = true;
 		fullBlockCrafting = true;
-		replaceingBits = false;
 		radialMenuVolume = 0.1f;
 		chatModeNotification = false;
 		itemNameModeDisplay = true;
