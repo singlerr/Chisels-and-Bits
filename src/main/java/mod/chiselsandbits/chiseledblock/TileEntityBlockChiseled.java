@@ -660,6 +660,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		final ItemStack out;
 		final VoxelBlobStateReference ref;
 		final int rotations;
+
+		public ItemStack getItemStack()
+		{
+			return out == null ? null : out.copy();
+		}
 	};
 
 	/**
@@ -680,7 +685,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 			if ( cache != null && cache.rotations == rotations && cache.ref == getBlobStateReference() && cache.out != null )
 			{
-				return cache.out.copy();
+				return cache.getItemStack();
 			}
 
 			VoxelBlob vb = getBlob();
@@ -703,7 +708,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		{
 			if ( cache != null && cache.rotations == 0 && cache.ref == getBlobStateReference() )
 			{
-				return cache.out.copy();
+				return cache.getItemStack();
 			}
 
 			final BitAccess ba = new BitAccess( null, null, getBlob(), VoxelBlob.NULL_BLOB );
