@@ -3,6 +3,7 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.Collection;
 import java.util.Collections;
 
+import mod.chiselsandbits.api.EventBlockBitPostModification;
 import mod.chiselsandbits.api.EventFullBlockRestoration;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -242,6 +243,15 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public void setState(
 			final IExtendedBlockState state )
 	{
+		final VoxelBlobStateReference originalRef = getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob );
+		final VoxelBlobStateReference newRef = state.getValue( BlockChiseled.UProperty_VoxelBlob );
+
+		if ( originalRef != null && newRef != null && !newRef.equals( originalRef ) )
+		{
+			final EventBlockBitPostModification bmm = new EventBlockBitPostModification( getWorld(), getPos() );
+			MinecraftForge.EVENT_BUS.post( bmm );
+		}
+
 		this.state = state;
 	}
 
