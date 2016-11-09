@@ -246,13 +246,13 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		final VoxelBlobStateReference originalRef = getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob );
 		final VoxelBlobStateReference newRef = state.getValue( BlockChiseled.UProperty_VoxelBlob );
 
+		this.state = state;
+
 		if ( originalRef != null && newRef != null && !newRef.equals( originalRef ) )
 		{
 			final EventBlockBitPostModification bmm = new EventBlockBitPostModification( getWorld(), getPos() );
 			MinecraftForge.EVENT_BUS.post( bmm );
 		}
-
-		this.state = state;
 	}
 
 	@Override
