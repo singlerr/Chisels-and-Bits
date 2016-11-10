@@ -416,15 +416,15 @@ public class ChiselsAndBitsMenu extends GuiScreen
 
 				if ( btn.textSide == EnumFacing.EAST )
 				{
-					fontRendererObj.drawString( text, (int) ( middle_x + btn.x2 + 8 ), (int) ( middle_y + btn.y1 + 6 ), 0xffffffff );
+					fontRendererObj.drawStringWithShadow( text, (int) ( middle_x + btn.x2 + 8 ), (int) ( middle_y + btn.y1 + 6 ), 0xffffffff );
 				}
 				else if ( btn.textSide == EnumFacing.UP )
 				{
-					fontRendererObj.drawString( text, (int) ( middle_x + ( btn.x1 + btn.x2 ) * 0.5 - fontRendererObj.getStringWidth( text ) * 0.5 ), (int) ( middle_y + btn.y1 - 14 ), 0xffffffff );
+					fontRendererObj.drawStringWithShadow( text, (int) ( middle_x + ( btn.x1 + btn.x2 ) * 0.5 - fontRendererObj.getStringWidth( text ) * 0.5 ), (int) ( middle_y + btn.y1 - 14 ), 0xffffffff );
 				}
 				else if ( btn.textSide == EnumFacing.DOWN )
 				{
-					fontRendererObj.drawString( text, (int) ( middle_x + ( btn.x1 + btn.x2 ) * 0.5 - fontRendererObj.getStringWidth( text ) * 0.5 ), (int) ( middle_y + btn.y1 + 24 ), 0xffffffff );
+					fontRendererObj.drawStringWithShadow( text, (int) ( middle_x + ( btn.x1 + btn.x2 ) * 0.5 - fontRendererObj.getStringWidth( text ) * 0.5 ), (int) ( middle_y + btn.y1 + 24 ), 0xffffffff );
 				}
 
 			}
