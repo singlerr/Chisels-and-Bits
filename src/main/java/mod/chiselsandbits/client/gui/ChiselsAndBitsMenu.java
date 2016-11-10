@@ -37,11 +37,6 @@ public class ChiselsAndBitsMenu extends GuiScreen
 	public ButtonAction doAction = null;
 	public boolean actionUsed = false;
 
-	private ChiselToolType getTool()
-	{
-		return ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND );
-	}
-
 	private float clampVis(
 			final float f )
 	{
@@ -149,6 +144,13 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			final int mouseY,
 			final float partialTicks )
 	{
+		final ChiselToolType tool = ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND );
+
+		if ( tool == null )
+		{
+			return;
+		}
+
 		GlStateManager.pushMatrix();
 		GlStateManager.translate( 0.0F, 0.0F, 200.0F );
 
@@ -187,7 +189,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		final ArrayList<MenuRegion> modes = new ArrayList<MenuRegion>();
 		final ArrayList<MenuButton> btns = new ArrayList<MenuButton>();
 
-		if ( getTool() == ChiselToolType.BIT )
+		if ( tool == ChiselToolType.BIT )
 		{
 			if ( ChiselsAndBits.getConfig().replaceingBits )
 			{
@@ -202,7 +204,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		btns.add( new MenuButton( "mod.chiselsandbits.other.undo", ButtonAction.UNDO, text_distnace, -20, ClientSide.undoIcon, EnumFacing.EAST ) );
 		btns.add( new MenuButton( "mod.chiselsandbits.other.redo", ButtonAction.REDO, text_distnace, 4, ClientSide.redoIcon, EnumFacing.EAST ) );
 
-		if ( getTool() == ChiselToolType.TAPEMEASURE )
+		if ( tool == ChiselToolType.TAPEMEASURE )
 		{
 			final int colorSize = EnumDyeColor.values().length / 4 * 24 - 4;
 			double underring = -ring_outer_edge - 34;
@@ -224,7 +226,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			}
 		}
 
-		for ( final IToolMode mode : getTool().getAvailableModes() )
+		for ( final IToolMode mode : tool.getAvailableModes() )
 		{
 			if ( !mode.isDisabled() )
 			{
