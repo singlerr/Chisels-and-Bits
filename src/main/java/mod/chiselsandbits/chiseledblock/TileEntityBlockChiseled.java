@@ -12,6 +12,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -522,11 +523,30 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 		final VoxelBlobStateReference originalRef = getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob );
 
+		VoxelBlobStateReference voxelRef = null;
+
 		sideState = converter.getSideState();
 		final int b = converter.getPrimaryBlockStateID();
 		lightlevel = converter.getLightValue();
 		isNormalCube = converter.isNormalCube();
-		final VoxelBlobStateReference voxelRef = converter.getVoxelRef( VoxelBlob.VERSION_COMPACT, getPositionRandom( pos ) );
+
+		try
+		{
+			voxelRef = converter.getVoxelRef( VoxelBlob.VERSION_COMPACT, getPositionRandom( pos ) );
+		}
+		catch ( final Exception e )
+		{
+			if ( getPos() != null )
+			{
+				Log.logError( "Unable to read blob at " + getPos(), e );
+			}
+			else
+			{
+				Log.logError( "Unable to read blob.", e );
+			}
+
+			voxelRef = new VoxelBlobStateReference( 0, getPositionRandom( pos ) );
+		}
 
 		IExtendedBlockState newstate = getBasicState()
 				.withProperty( BlockChiseled.UProperty_Primary_BlockState, b )

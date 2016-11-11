@@ -86,22 +86,27 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
 	{
 		try
 		{
-			VoxelBlob vb = blob == null ? null : blob.get();
-
-			if ( vb == null )
-			{
-				vb = new VoxelBlob();
-				vb.blobFromBytes( voxelBytes );
-				blob = new SoftReference<VoxelBlob>( vb );
-			}
-
-			return new VoxelBlob( vb );
+			return getBlobCatchable();
 		}
 		catch ( final Exception e )
 		{
 			Log.logError( "Unable to read blob.", e );
 			return new VoxelBlob();
 		}
+	}
+
+	public VoxelBlob getBlobCatchable() throws Exception
+	{
+		VoxelBlob vb = blob == null ? null : blob.get();
+
+		if ( vb == null )
+		{
+			vb = new VoxelBlob();
+			vb.blobFromBytes( voxelBytes );
+			blob = new SoftReference<VoxelBlob>( vb );
+		}
+
+		return new VoxelBlob( vb );
 	}
 
 	private AxisAlignedBB[] getBoxType(

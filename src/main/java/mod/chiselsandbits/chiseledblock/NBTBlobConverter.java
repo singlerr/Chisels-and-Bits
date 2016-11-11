@@ -62,7 +62,7 @@ public class NBTBlobConverter
 
 	public VoxelBlobStateReference getVoxelRef(
 			final int version,
-			final long weight )
+			final long weight ) throws Exception
 	{
 		final VoxelBlobStateReference voxelRef = getRef();
 
@@ -71,7 +71,7 @@ public class NBTBlobConverter
 			return new VoxelBlobStateReference( voxelRef.getByteArray(), weight );
 		}
 
-		return new VoxelBlobStateReference( voxelRef.getVoxelBlob().blobToBytes( version ), weight );
+		return new VoxelBlobStateReference( voxelRef.getVoxelBlobCatchable().blobToBytes( version ), weight );
 	}
 
 	public NBTBlobConverter()

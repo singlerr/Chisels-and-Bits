@@ -103,6 +103,11 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 		return data.getBlob();
 	}
 
+	public VoxelBlob getVoxelBlobCatchable() throws Exception
+	{
+		return data.getBlobCatchable();
+	}
+
 	public VoxelBlobStateReference(
 			final VoxelBlob blob,
 			final long weight )
