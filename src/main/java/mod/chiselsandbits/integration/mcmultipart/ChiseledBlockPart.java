@@ -37,6 +37,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class ChiseledBlockPart extends Multipart implements INormallyOccludingPart, ISolidPart, IMicroblock
@@ -182,9 +183,11 @@ public class ChiseledBlockPart extends Multipart implements INormallyOccludingPa
 
 	@Override
 	public IBlockState getExtendedState(
-			final IBlockState state )
+			final IBlockState state,
+			final IBlockAccess world,
+			final BlockPos pos )
 	{
-		return getTile().getRenderState( getWorld() ); // THIS IS PROBOBLY BAD
+		return getTile().getRenderState( world );
 	}
 
 	@Override
