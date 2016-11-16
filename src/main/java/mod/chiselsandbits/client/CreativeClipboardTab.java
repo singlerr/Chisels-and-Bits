@@ -108,7 +108,7 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 			for ( final ItemStack is : myCrossItems )
 			{
 				final NBTBlobConverter c = new NBTBlobConverter();
-				c.readChisleData( is.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, true ) );
+				c.readChisleData( ModUtil.getSubCompound( is, ModUtil.NBT_BLOCKENTITYTAG, true ) );
 
 				// recalculate.
 				c.updateFromBlob();

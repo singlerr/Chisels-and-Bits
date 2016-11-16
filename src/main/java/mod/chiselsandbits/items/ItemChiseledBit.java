@@ -42,6 +42,7 @@ import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -302,13 +303,13 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	public void getSubItems(
 			final Item itemIn,
 			final CreativeTabs tab,
-			final List subItems )
+			final NonNullList subItems )
 	{
 		if ( bits == null )
 		{
 			bits = new ArrayList<ItemStack>();
 
-			final ArrayList<ItemStack> List = new ArrayList<ItemStack>();
+			final NonNullList<ItemStack> List = NonNullList.func_191196_a();
 			final HashSet<IBlockState> used = new HashSet();
 
 			for ( final Object obj : Item.REGISTRY )

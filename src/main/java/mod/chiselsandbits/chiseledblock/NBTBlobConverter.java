@@ -210,7 +210,7 @@ public class NBTBlobConverter
 		if ( blk != null )
 		{
 			final ItemStack is = new ItemStack( blk );
-			final NBTTagCompound compound = is.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, true );
+			final NBTTagCompound compound = ModUtil.getSubCompound( is, ModUtil.NBT_BLOCKENTITYTAG, true );
 			writeChisleData( compound, crossWorld );
 
 			if ( !compound.hasNoTags() )

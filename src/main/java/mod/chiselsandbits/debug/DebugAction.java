@@ -60,7 +60,7 @@ public abstract class DebugAction
 			final String msg )
 	{
 		final String side = FMLCommonHandler.instance().getEffectiveSide().name() + ": ";
-		player.addChatComponentMessage( new TextComponentString( side + msg ) );
+		player.addChatComponentMessage( new TextComponentString( side + msg ), true );
 	}
 
 	private static void apiAssert(
@@ -428,11 +428,11 @@ public abstract class DebugAction
 			final VoxelBlob out = new VoxelBlob();
 			MCMultipartProxy.proxyMCMultiPart.addFiller( w, loc.getBlockPos(), out );
 
-			player.addChatComponentMessage( new TextComponentString( out.filled() + " blocked" ) );
-			player.addChatComponentMessage( new TextComponentString( out.air() + " not-blocked" ) );
+			player.addChatComponentMessage( new TextComponentString( out.filled() + " blocked" ), true );
+			player.addChatComponentMessage( new TextComponentString( out.air() + " not-blocked" ), true );
 
 			final boolean isMultiPart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( w, loc.getBlockPos() );
-			player.addChatComponentMessage( new TextComponentString( isMultiPart ? "Multipart" : "Not-Multipart" ) );
+			player.addChatComponentMessage( new TextComponentString( isMultiPart ? "Multipart" : "Not-Multipart" ), true );
 		}
 
 	};

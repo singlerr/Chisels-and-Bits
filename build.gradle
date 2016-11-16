@@ -13,6 +13,11 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
+sourceCompatibility = targetCompatibility = "1.6" // Need this here so eclipse task generates correctly.
+compileJava {
+    sourceCompatibility = targetCompatibility = "1.6"
+}
+
 group= "mod.chiselsandbits"
 archivesBaseName = "chiselsandbits"
 if (System.getenv().BUILD_NUMBER != null) {//adds the build number to the end of the version string if on a build server
@@ -33,7 +38,7 @@ dependencies {
 minecraft {
     version = "${mc_version}-${forge_version}"
     runDir = "eclipse"
-    mappings = "snapshot_20160518"
+    mappings = "snapshot_20161111"
     replaceIn "ChiselsAndBits.java"
     replace "@VERSION@", project.version
 }

@@ -2,6 +2,7 @@ package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.bitbag.BagContainer;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.inventory.Container;
@@ -35,7 +36,7 @@ public class PacketBagGuiStack extends ModPacket
 		}
 		else
 		{
-			buffer.writeVarIntToBuffer( is.stackSize );
+			buffer.writeVarIntToBuffer( ModUtil.getStackSize( is ) );
 			buffer.writeVarIntToBuffer( ItemChiseledBit.getStackState( is ) );
 		}
 	}

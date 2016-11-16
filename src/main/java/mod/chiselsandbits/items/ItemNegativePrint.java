@@ -120,7 +120,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	{
 		if ( stack != null && stack.hasTagCompound() )
 		{
-			final boolean a = stack.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, false ) != null;
+			final boolean a = ModUtil.getSubCompound( stack, ModUtil.NBT_BLOCKENTITYTAG, false ) != null;
 			final boolean b = stack.getTagCompound().hasKey( NBTBlobConverter.NBT_LEGACY_VOXEL );
 			final boolean c = stack.getTagCompound().hasKey( NBTBlobConverter.NBT_VERSIONED_VOXEL );
 			return a || b || c;
@@ -129,6 +129,20 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	}
 
 	@Override
+	public EnumActionResult onItemUse(
+			final EntityPlayer player,
+			final World world,
+			final BlockPos pos,
+			final EnumHand hand,
+			final EnumFacing side,
+			final float hitX,
+			final float hitY,
+			final float hitZ )
+	{
+		return onItemUse( player.getHeldItem( hand ), player, world, pos, hand, side, hitX, hitY, hitZ );
+	}
+
+	// @Override - 1.10.2
 	public EnumActionResult onItemUse(
 			final ItemStack stack,
 			final EntityPlayer player,

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.NullInventory;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -155,10 +156,10 @@ public class BagContainer extends Container
 			someReturnValue = transferStack.copy();
 
 			int extraItems = 0;
-			if ( transferStack.stackSize > transferStack.getMaxStackSize() )
+			if ( ModUtil.getStackSize( transferStack ) > transferStack.getMaxStackSize() )
 			{
-				extraItems = transferStack.stackSize - transferStack.getMaxStackSize();
-				transferStack.stackSize = transferStack.getMaxStackSize();
+				extraItems = ModUtil.getStackSize( transferStack ) - transferStack.getMaxStackSize();
+				ModUtil.setStackSize( transferStack, transferStack.getMaxStackSize() );
 			}
 
 			if ( normalToBag )
@@ -181,11 +182,11 @@ public class BagContainer extends Container
 			finally
 			{
 				// add the extra items back on...
-				transferStack.stackSize += extraItems;
+				ModUtil.adjustStackSize( transferStack, extraItems );
 				ItemChiseledBit.bitBagStackLimitHack = false;
 			}
 
-			if ( transferStack.stackSize == 0 )
+			if ( ModUtil.getStackSize( transferStack ) == 0 )
 			{
 				slot.putStack( (ItemStack) null );
 			}
@@ -219,7 +220,7 @@ public class BagContainer extends Container
 			if ( slot.getHasStack() && held == null )
 			{
 				final ItemStack is = slot.getStack().copy();
-				is.stackSize = is.getMaxStackSize();
+				ModUtil.setStackSize( is, is.getMaxStackSize() );
 				thePlayer.inventory.setItemStack( is );
 			}
 		}

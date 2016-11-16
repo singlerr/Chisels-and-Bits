@@ -115,7 +115,7 @@ public class ModUtil
 
 		public boolean isValid()
 		{
-			return isEditable && ( isCreative || stack != null && stack.stackSize > 0 );
+			return isEditable && ( isCreative || stack != null && getStackSize( stack ) > 0 );
 		}
 
 		public void damage(
@@ -127,7 +127,7 @@ public class ModUtil
 			}
 
 			who.damageItem( stack, 1 );
-			if ( stack.stackSize <= 0 )
+			if ( getStackSize( stack ) <= 0 )
 			{
 				who.playerDestroyItem( stack, who.getHand() );
 				inv.setInventorySlotContents( slot, null );
@@ -141,8 +141,8 @@ public class ModUtil
 				return;
 			}
 
-			stack.stackSize--;
-			if ( stack.stackSize <= 0 )
+			adjustStackSize( stack, -1 );
+			if ( getStackSize( stack ) <= 0 )
 			{
 				inv.setInventorySlotContents( slot, null );
 			}
@@ -170,7 +170,7 @@ public class ModUtil
 		final IInventory inv = who.getInventory();
 		final boolean canEdit = who.canPlayerManipulate( pos, EnumFacing.UP, inHand, true );
 
-		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChiseledBit.getStackState( inHand ) == StateID )
+		if ( inHand != null && getStackSize( inHand ) > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChiseledBit.getStackState( inHand ) == StateID )
 		{
 			return new ItemStackSlot( inv, who.getCurrentItem(), inHand, who, canEdit );
 		}
@@ -178,7 +178,7 @@ public class ModUtil
 		for ( int x = 0; x < inv.getSizeInventory(); x++ )
 		{
 			final ItemStack is = inv.getStackInSlot( x );
-			if ( is != null && is.stackSize > 0 && is.getItem() instanceof ItemChiseledBit && ItemChiseledBit.sameBit( is, StateID ) )
+			if ( is != null && getStackSize( is ) > 0 && is.getItem() instanceof ItemChiseledBit && ItemChiseledBit.sameBit( is, StateID ) )
 			{
 				return new ItemStackSlot( inv, x, is, who, canEdit );
 			}
@@ -320,7 +320,7 @@ public class ModUtil
 		// not going to lie, this is really stupid.
 		if ( world instanceof ChunkCache )
 		{
-			return ( (ChunkCache) world ).func_190300_a( pos, Chunk.EnumCreateEntityType.CHECK );
+			return ( (ChunkCache) world ).getTileEntity( pos, Chunk.EnumCreateEntityType.CHECK );
 		}
 
 		// also stupid...
@@ -397,14 +397,14 @@ public class ModUtil
 		{
 			final ItemStack minSize = is.copy();
 
-			if ( minSize.stackSize > minSize.getMaxStackSize() )
+			if ( getStackSize( minSize ) > minSize.getMaxStackSize() )
 			{
-				minSize.stackSize = minSize.getMaxStackSize();
+				setStackSize( minSize, minSize.getMaxStackSize() );
 			}
 
-			is.stackSize -= minSize.stackSize;
+			adjustStackSize( is, -getStackSize( minSize ) );
 			player.inventory.addItemStackToInventory( minSize );
-			is.stackSize += minSize.stackSize;
+			adjustStackSize( is, getStackSize( minSize ) );
 		}
 
 		for ( final BagPos bp : bags )
@@ -502,7 +502,7 @@ public class ModUtil
 		{
 			final NBTBlobConverter tmp = new NBTBlobConverter();
 
-			NBTTagCompound cData = stack.getSubCompound( NBT_BLOCKENTITYTAG, false );
+			NBTTagCompound cData = getSubCompound( stack, NBT_BLOCKENTITYTAG, false );
 
 			if ( cData == null )
 			{
@@ -651,6 +651,41 @@ public class ModUtil
 			blueprintTag.setInteger( NBT_SIDE, +side.ordinal() );
 
 			stack.setTagCompound( blueprintTag );
+		}
+	}
+
+	public static int getStackSize(
+			final ItemStack stack )
+	{
+		return stack.func_190916_E();
+	}
+
+	public static void setStackSize(
+			final ItemStack stack,
+			final int stackSize )
+	{
+		stack.func_190920_e( stackSize );
+	}
+
+	public static void adjustStackSize(
+			final ItemStack is,
+			final int sizeDelta )
+	{
+		setStackSize( is, getStackSize( is ) + sizeDelta );
+	}
+
+	public static NBTTagCompound getSubCompound(
+			final ItemStack stack,
+			final String tag,
+			final boolean create )
+	{
+		if ( create )
+		{
+			return stack.getSubCompound( tag );
+		}
+		else
+		{
+			return stack.func_190925_c( tag );
 		}
 	}
 

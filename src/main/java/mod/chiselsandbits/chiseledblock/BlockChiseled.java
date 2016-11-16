@@ -43,6 +43,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -575,10 +576,19 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		}
 	}
 
-	@Override
+	// @Override - 1.10.2
 	public AxisAlignedBB getCollisionBoundingBox(
 			final IBlockState state,
 			final World worldIn,
+			final BlockPos pos )
+	{
+		return getCollisionBoundingBox( state, (IBlockAccess) worldIn, pos );
+	}
+
+	@Override
+	public AxisAlignedBB getCollisionBoundingBox(
+			final IBlockState blockState,
+			final IBlockAccess worldIn,
 			final BlockPos pos )
 	{
 		AxisAlignedBB r = null;
@@ -1121,6 +1131,15 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	}
 
 	@Override
+	public void getSubBlocks(
+			final Item itemIn,
+			final CreativeTabs tab,
+			final NonNullList<ItemStack> list )
+	{
+		// no items.
+	}
+
+	// @Override - 1.10.2
 	public void getSubBlocks(
 			final Item itemIn,
 			final CreativeTabs tab,
