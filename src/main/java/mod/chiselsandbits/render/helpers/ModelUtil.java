@@ -398,7 +398,7 @@ public class ModelUtil implements ICacheClearable
 		{
 			try
 			{
-				if ( texture == null )
+				if ( texture == null && model != null )
 				{
 					texture = model.getParticleTexture();
 				}

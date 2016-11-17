@@ -143,4 +143,10 @@ public class TargetedInventory implements IInventory
 		src.clear();
 	}
 
+	@Override
+	public boolean func_191420_l()
+	{
+		return src.func_191420_l();
+	}
+
 }

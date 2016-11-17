@@ -67,7 +67,7 @@ public class PlayerCopiedInventory implements IInventory
 	{
 		if ( slots[index] != null )
 		{
-			if ( slots[index].stackSize <= count )
+			if ( ModUtil.getStackSize( slots[index] ) <= count )
 			{
 				return removeStackFromSlot( index );
 			}
@@ -85,7 +85,7 @@ public class PlayerCopiedInventory implements IInventory
 			final int index )
 	{
 		final ItemStack r = slots[index];
-		slots[index] = null;
+		slots[index] = ModUtil.getEmptyStack();
 		return r;
 	}
 
@@ -160,7 +160,22 @@ public class PlayerCopiedInventory implements IInventory
 	{
 		for ( int x = 0; x < slots.length; ++x )
 		{
-			slots[x] = null;
+			slots[x] = ModUtil.getEmptyStack();
 		}
 	}
+
+	@Override
+	public boolean func_191420_l()
+	{
+		for ( final ItemStack itemstack : slots )
+		{
+			if ( !itemstack.func_190926_b() )
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 }

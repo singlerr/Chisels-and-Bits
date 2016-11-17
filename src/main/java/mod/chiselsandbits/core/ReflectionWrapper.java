@@ -3,6 +3,7 @@ package mod.chiselsandbits.core;
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -86,7 +87,7 @@ public class ReflectionWrapper
 	@SideOnly( Side.CLIENT )
 	public void clearHighlightedStack()
 	{
-		setHighlightStack( null );
+		setHighlightStack( ModUtil.getEmptyStack() );
 	}
 
 	@SideOnly( Side.CLIENT )

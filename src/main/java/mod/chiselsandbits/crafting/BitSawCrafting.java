@@ -12,6 +12,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.TypeRef;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.api.BitAccess;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitSaw;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.state.IBlockState;
@@ -20,6 +21,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
@@ -257,7 +259,7 @@ public class BitSawCrafting implements IRecipe
 
 			if ( out != null )
 			{
-				out.stackSize = 2;
+				ModUtil.setStackSize( out, 2 );
 				return out;
 			}
 		}
@@ -274,19 +276,19 @@ public class BitSawCrafting implements IRecipe
 	@Override
 	public ItemStack getRecipeOutput()
 	{
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
 	@Override
-	public ItemStack[] getRemainingItems(
+	public NonNullList<ItemStack> getRemainingItems(
 			final InventoryCrafting inv )
 	{
-		final ItemStack[] aitemstack = new ItemStack[inv.getSizeInventory()];
+		final NonNullList<ItemStack> aitemstack = NonNullList.func_191197_a( inv.getSizeInventory(), ItemStack.field_190927_a );
 
-		for ( int i = 0; i < aitemstack.length; ++i )
+		for ( int i = 0; i < aitemstack.size(); ++i )
 		{
 			final ItemStack itemstack = inv.getStackInSlot( i );
-			aitemstack[i] = net.minecraftforge.common.ForgeHooks.getContainerItem( itemstack );
+			aitemstack.set( i, net.minecraftforge.common.ForgeHooks.getContainerItem( itemstack ) );
 		}
 
 		return aitemstack;

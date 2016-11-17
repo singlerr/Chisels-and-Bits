@@ -94,6 +94,7 @@ public class ModUtil
 		private final IInventory inv;
 		private final int slot;
 		private final ItemStack stack;
+		private final ItemStack originalStack;
 		private final boolean isCreative;
 		private final boolean isEditable;
 		private final int toolSlot;
@@ -108,6 +109,7 @@ public class ModUtil
 			inv = i;
 			slot = s;
 			stack = st;
+			originalStack = st.copy();
 			toolSlot = player.getCurrentItem();
 			isCreative = player.isCreative();
 			isEditable = canEdit;
@@ -158,6 +160,11 @@ public class ModUtil
 			final ItemStack it = inv.getStackInSlot( toolSlot );
 			inv.setInventorySlotContents( toolSlot, inv.getStackInSlot( slot ) );
 			inv.setInventorySlotContents( slot, it );
+		}
+
+		public ItemStack getStackType()
+		{
+			return originalStack;
 		}
 	};
 
@@ -681,12 +688,29 @@ public class ModUtil
 	{
 		if ( create )
 		{
-			return stack.getSubCompound( tag );
+			return stack.func_190925_c( tag );
 		}
 		else
 		{
-			return stack.func_190925_c( tag );
+			return stack.getSubCompound( tag );
 		}
+	}
+
+	public static ItemStack getEmptyStack()
+	{
+		return ItemStack.field_190927_a;
+	}
+
+	public static boolean notEmpty(
+			final ItemStack itemStack )
+	{
+		return itemStack != null && !itemStack.func_190926_b();
+	}
+
+	public static boolean isEmpty(
+			final ItemStack itemStack )
+	{
+		return itemStack == null || itemStack.func_190926_b();
 	}
 
 }

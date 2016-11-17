@@ -48,8 +48,8 @@ import net.minecraftforge.oredict.RecipeSorter.Category;
 		name = ChiselsAndBits.MODNAME,
 		modid = ChiselsAndBits.MODID,
 		version = ChiselsAndBits.VERSION,
-		acceptedMinecraftVersions = "[1.10.2,1.11)",
-		dependencies = ChiselsAndBits.DEPENDENCIES,
+		acceptedMinecraftVersions = "[1.11,1.12)",
+		// dependencies = ChiselsAndBits.DEPENDENCIES,
 		guiFactory = "mod.chiselsandbits.client.gui.ModConfigGuiFactory" )
 public class ChiselsAndBits
 {

@@ -139,21 +139,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final float hitY,
 			final float hitZ )
 	{
-		return onItemUse( player.getHeldItem( hand ), player, world, pos, hand, side, hitX, hitY, hitZ );
-	}
-
-	// @Override - 1.10.2
-	public EnumActionResult onItemUse(
-			final ItemStack stack,
-			final EntityPlayer player,
-			final World world,
-			final BlockPos pos,
-			final EnumHand hand,
-			final EnumFacing side,
-			final float hitX,
-			final float hitY,
-			final float hitZ )
-	{
+		final ItemStack stack = player.getHeldItem( hand );
 		final IBlockState blkstate = world.getBlockState( pos );
 
 		if ( !player.canPlayerEdit( pos, side, stack ) || !world.isBlockModifiable( player, pos ) )

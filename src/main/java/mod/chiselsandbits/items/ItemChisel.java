@@ -200,11 +200,12 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(
-			final ItemStack itemStackIn,
 			final World worldIn,
 			final EntityPlayer playerIn,
 			final EnumHand hand )
 	{
+		final ItemStack itemStackIn = playerIn.getHeldItem( hand );
+
 		if ( worldIn.isRemote && ChiselsAndBits.getConfig().enableRightClickModeChange )
 		{
 			final IToolMode mode = ChiselModeManager.getChiselMode( playerIn, ChiselToolType.CHISEL, hand );
@@ -212,12 +213,11 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemStackIn );
 		}
 
-		return super.onItemRightClick( itemStackIn, worldIn, playerIn, hand );
+		return super.onItemRightClick( worldIn, playerIn, hand );
 	}
 
 	@Override
 	public EnumActionResult onItemUseFirst(
-			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
 			final BlockPos pos,
@@ -229,7 +229,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	{
 		if ( world.isRemote && ChiselsAndBits.getConfig().enableRightClickModeChange )
 		{
-			onItemRightClick( stack, world, player, hand );
+			onItemRightClick( world, player, hand );
 			return EnumActionResult.SUCCESS;
 		}
 
@@ -329,7 +329,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			hitY += side.getFrontOffsetY() * offset;
 			hitZ += side.getFrontOffsetZ() * offset;
 
-			if ( output == null || !ItemChiseledBit.sameBit( output, blk ) || output.stackSize == 64 )
+			if ( output == null || !ItemChiseledBit.sameBit( output, blk ) || ModUtil.getStackSize( output ) == 64 )
 			{
 				output = ItemChiseledBit.createStack( blk, 1, true );
 
@@ -340,7 +340,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			}
 			else
 			{
-				output.stackSize++;
+				ModUtil.adjustStackSize( output, 1 );
 			}
 		}
 		else

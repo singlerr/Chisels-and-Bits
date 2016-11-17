@@ -7,6 +7,7 @@ import java.util.List;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketBagGui;
 import mod.chiselsandbits.network.packets.PacketClearBagGui;
@@ -180,8 +181,8 @@ public class BagGui extends GuiContainer
 		{
 			if ( isValidBitItem() )
 			{
-				final String msgNotConfirm = getInHandItem() != null ? LocalStrings.TrashItem.getLocal( getInHandItem().getDisplayName() ) : LocalStrings.Trash.getLocal();
-				final String msgConfirm = getInHandItem() != null ? LocalStrings.ReallyTrashItem.getLocal( getInHandItem().getDisplayName() ) : LocalStrings.ReallyTrash.getLocal();
+				final String msgNotConfirm = ModUtil.notEmpty( getInHandItem() ) ? LocalStrings.TrashItem.getLocal( getInHandItem().getDisplayName() ) : LocalStrings.Trash.getLocal();
+				final String msgConfirm = ModUtil.notEmpty( getInHandItem() ) ? LocalStrings.ReallyTrashItem.getLocal( getInHandItem().getDisplayName() ) : LocalStrings.ReallyTrash.getLocal();
 
 				final List<String> text = Arrays
 						.asList( new String[] { requireConfirm ? msgNotConfirm : msgConfirm } );
@@ -234,7 +235,7 @@ public class BagGui extends GuiContainer
 
 	private boolean isValidBitItem()
 	{
-		return getInHandItem() == null || getInHandItem().getItem() == ChiselsAndBits.getItems().itemBlockBit;
+		return ModUtil.isEmpty( getInHandItem() ) || getInHandItem().getItem() == ChiselsAndBits.getItems().itemBlockBit;
 	}
 
 	@Override

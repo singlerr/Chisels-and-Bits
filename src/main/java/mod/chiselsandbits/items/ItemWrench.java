@@ -39,7 +39,6 @@ public class ItemWrench extends Item
 
 	@Override
 	public EnumActionResult onItemUse(
-			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
 			final BlockPos pos,
@@ -49,6 +48,8 @@ public class ItemWrench extends Item
 			final float hitY,
 			final float hitZ )
 	{
+		final ItemStack stack = player.getHeldItem( hand );
+
 		if ( !player.canPlayerEdit( pos, side, stack ) || !world.isBlockModifiable( player, pos ) )
 		{
 			return EnumActionResult.FAIL;
@@ -68,7 +69,7 @@ public class ItemWrench extends Item
 			if ( b.getBlock().rotateBlock( world, pos, side ) )
 			{
 				stack.damageItem( 1, player );
-				world.notifyNeighborsOfStateChange( pos, b.getBlock() );
+				world.notifyNeighborsOfStateChange( pos, b.getBlock(), false );
 				player.swingArm( hand );
 				return EnumActionResult.SUCCESS;
 			}

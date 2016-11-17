@@ -78,11 +78,11 @@ public class ContinousBits implements IContinuousInventory
 	{
 		final ItemStackSlot slot = options.get( 0 );
 
-		if ( slot.getStack().stackSize <= 1 )
+		if ( ModUtil.getStackSize( slot.getStack() ) <= 1 )
 		{
 			for ( final BagInventory bag : bags )
 			{
-				bag.restockItem( slot.getStack() );
+				bag.restockItem( slot.getStackType() );
 			}
 		}
 
@@ -92,7 +92,7 @@ public class ContinousBits implements IContinuousInventory
 		{
 			for ( final BagInventory bag : bags )
 			{
-				bag.restockItem( slot.getStack() );
+				bag.restockItem( slot.getStackType() );
 			}
 		}
 		else

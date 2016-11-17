@@ -25,7 +25,7 @@ public class BagCapabilityProvider extends BagStorage implements ICapabilityProv
 	 * @param size
 	 * @return a usable int[] for the bag storage.
 	 */
-	private static int[] getStorageArray(
+	static int[] getStorageArray(
 			final ItemStack stack,
 			final int size )
 	{
@@ -45,7 +45,7 @@ public class BagCapabilityProvider extends BagStorage implements ICapabilityProv
 			compound.setIntArray( "contents", out );
 		}
 
-		if ( out.length != size )
+		if ( out.length != size && compound != null )
 		{
 			final int[] tmp = out;
 			out = new int[size];

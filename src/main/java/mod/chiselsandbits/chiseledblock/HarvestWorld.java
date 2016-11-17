@@ -62,13 +62,6 @@ public class HarvestWorld implements IBlockAccess
 		return Biomes.PLAINS;
 	}
 
-	// @Override - 1.10.2
-	public Biome getBiomeGenForCoords(
-			final BlockPos pos )
-	{
-		return Biomes.PLAINS;
-	}
-
 	@Override
 	public int getStrongPower(
 			final BlockPos pos,

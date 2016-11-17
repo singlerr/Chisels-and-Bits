@@ -184,7 +184,6 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 			final IBlockState state,
 			final EntityPlayer playerIn,
 			final EnumHand hand,
-			final ItemStack heldItem,
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,

@@ -1,5 +1,6 @@
 package mod.chiselsandbits.bitbag;
 
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -21,7 +22,7 @@ public class SlotBit extends Slot
 	public boolean isItemValid(
 			final ItemStack stack )
 	{
-		return stack != null && stack.getItem() instanceof ItemChiseledBit;
+		return ModUtil.notEmpty( stack ) && stack.getItem() instanceof ItemChiseledBit;
 	}
 
 }

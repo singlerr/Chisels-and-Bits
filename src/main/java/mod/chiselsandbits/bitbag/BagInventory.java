@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
@@ -36,6 +37,19 @@ public class BagInventory implements IInventory
 	{
 		inv = (BagStorage) is.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null );
 		stackSlots = new ItemStack[BagStorage.BAG_STORAGE_SLOTS];
+
+		// the cap is missing? then just make and load it ourselves.
+		if ( inv == null )
+		{
+			inv = new BagStorage();
+			inv.stack = is;
+			inv.setStorage( BagCapabilityProvider.getStorageArray( is, BagStorage.BAG_STORAGE_SLOTS * ItemBitBag.INTS_PER_BIT_TYPE ) );
+		}
+
+		for ( int x = 0; x < stackSlots.length; ++x )
+		{
+			stackSlots[x] = ModUtil.getEmptyStack();
+		}
 	}
 
 	public ItemStack getItemStack()
@@ -74,15 +88,15 @@ public class BagInventory implements IInventory
 		final int qty = inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY];
 		final int id = inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_STATE_ID];
 
-		if ( stackSlots[index] != null )
+		if ( ModUtil.notEmpty( stackSlots[index] ) )
 		{
-			stackSlots[index].stackSize = qty;
+			ModUtil.setStackSize( stackSlots[index], qty );
 			return stackSlots[index];
 		}
 
 		if ( qty == 0 || id == 0 )
 		{
-			return null;
+			return ModUtil.getEmptyStack();
 		}
 
 		return stackSlots[index] = ItemChiseledBit.createStack( id, qty, false );
@@ -98,7 +112,7 @@ public class BagInventory implements IInventory
 
 		if ( qty == 0 || id == 0 )
 		{
-			return null;
+			return ModUtil.getEmptyStack();
 		}
 
 		if ( count > qty )
@@ -109,9 +123,9 @@ public class BagInventory implements IInventory
 		inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY] -= count;
 		inv.onChange();
 
-		if ( stackSlots[index] != null )
+		if ( ModUtil.notEmpty( stackSlots[index] ) )
 		{
-			stackSlots[index].stackSize -= count;
+			ModUtil.adjustStackSize( stackSlots[index], -count );
 		}
 
 		return ItemChiseledBit.createStack( id, count, false );
@@ -121,7 +135,7 @@ public class BagInventory implements IInventory
 	public ItemStack removeStackFromSlot(
 			final int index )
 	{
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
 	@Override
@@ -129,11 +143,11 @@ public class BagInventory implements IInventory
 			final int index,
 			final ItemStack stack )
 	{
-		stackSlots[index] = null;
+		stackSlots[index] = ModUtil.getEmptyStack();
 
 		if ( stack != null && stack.getItem() instanceof ItemChiseledBit )
 		{
-			inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY] = stack.stackSize;
+			inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY] = ModUtil.getStackSize( stack );
 			inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_STATE_ID] = ItemChiseledBit.getStackState( stack );
 		}
 		else
@@ -156,10 +170,10 @@ public class BagInventory implements IInventory
 	{
 		for ( int x = 0; x < getSizeInventory(); x++ )
 		{
-			if ( stackSlots[x] != null )
+			if ( ModUtil.notEmpty( stackSlots[x] ) )
 			{
-				inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * x + ItemBitBag.OFFSET_QUANTITY] = stackSlots[x].stackSize;
-				stackSlots[x] = null;
+				inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * x + ItemBitBag.OFFSET_QUANTITY] = ModUtil.getStackSize( stackSlots[x] );
+				stackSlots[x] = ModUtil.getEmptyStack();
 				inv.onChange();
 			}
 		}
@@ -220,7 +234,7 @@ public class BagInventory implements IInventory
 		{
 			if ( matches( stack, stackSlots[x] ) )
 			{
-				stackSlots[x] = null;
+				stackSlots[x] = ModUtil.getEmptyStack();
 				inv.contents[x * ItemBitBag.INTS_PER_BIT_TYPE + ItemBitBag.OFFSET_STATE_ID] = 0;
 				inv.contents[x * ItemBitBag.INTS_PER_BIT_TYPE + ItemBitBag.OFFSET_QUANTITY] = 0;
 			}
@@ -233,7 +247,7 @@ public class BagInventory implements IInventory
 			final ItemStack cmpStack,
 			final ItemStack invStack )
 	{
-		if ( cmpStack == null || invStack == null )
+		if ( ModUtil.isEmpty( cmpStack ) || invStack == null )
 		{
 			return true;
 		}
@@ -249,18 +263,18 @@ public class BagInventory implements IInventory
 			final ItemStack is = getStackInSlot( x );
 			if ( is != null && is.getItem() == target.getItem() && ItemChiseledBit.sameBit( target, ItemChiseledBit.getStackState( is ) ) )
 			{
-				target.stackSize += is.stackSize;
-				final int total = target.stackSize;
-				target.stackSize = Math.min( is.getMaxStackSize(), target.stackSize );
-				final int overage = total - target.stackSize;
+				ModUtil.adjustStackSize( target, ModUtil.getStackSize( is ) );
+				final int total = ModUtil.getStackSize( target );
+				ModUtil.setStackSize( target, Math.min( is.getMaxStackSize(), ModUtil.getStackSize( target ) ) );
+				final int overage = total - ModUtil.getStackSize( target );
 
 				if ( overage > 0 )
 				{
-					is.stackSize = overage;
+					ModUtil.setStackSize( is, overage );
 				}
 				else
 				{
-					setInventorySlotContents( x, null );
+					setInventorySlotContents( x, ModUtil.getEmptyStack() );
 				}
 
 				markDirty();
@@ -276,26 +290,26 @@ public class BagInventory implements IInventory
 			final ItemStack is = getStackInSlot( x );
 			if ( is != null && ItemChiseledBit.getStackState( which ) == ItemChiseledBit.getStackState( is ) )
 			{
-				is.stackSize += which.stackSize;
-				final int total = is.stackSize;
-				is.stackSize = Math.min( getInventoryStackLimit(), is.stackSize );
-				final int overage = total - is.stackSize;
+				ModUtil.adjustStackSize( is, ModUtil.getStackSize( which ) );
+				final int total = ModUtil.getStackSize( is );
+				ModUtil.setStackSize( is, Math.min( getInventoryStackLimit(), ModUtil.getStackSize( is ) ) );
+				final int overage = total - ModUtil.getStackSize( is );
 				if ( overage > 0 )
 				{
-					which.stackSize = overage;
+					ModUtil.setStackSize( which, overage );
 					markDirty();
 				}
 				else
 				{
 					markDirty();
-					return null;
+					return ModUtil.getEmptyStack();
 				}
 			}
 			else if ( is == null )
 			{
 				setInventorySlotContents( x, which );
 				markDirty();
-				return null;
+				return ModUtil.getEmptyStack();
 			}
 		}
 
@@ -364,11 +378,11 @@ public class BagInventory implements IInventory
 					Integer count = contents.get( name );
 					if ( count == null )
 					{
-						count = is.stackSize;
+						count = ModUtil.getStackSize( is );
 					}
 					else
 					{
-						count += is.stackSize;
+						count += ModUtil.getStackSize( is );
 					}
 
 					contents.put( name, count );
@@ -411,5 +425,19 @@ public class BagInventory implements IInventory
 	public void clear()
 	{
 		clear( null );
+	}
+
+	@Override
+	public boolean func_191420_l()
+	{
+		for ( final ItemStack itemstack : stackSlots )
+		{
+			if ( !itemstack.func_190926_b() )
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

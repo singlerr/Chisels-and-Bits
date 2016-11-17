@@ -53,7 +53,6 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(
-			final ItemStack itemStackIn,
 			final World worldIn,
 			final EntityPlayer playerIn,
 			final EnumHand hand )
@@ -63,12 +62,12 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 			ClientSide.instance.tapeMeasures.clear();
 		}
 
-		return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemStackIn );
+		final ItemStack itemstack = playerIn.getHeldItem( hand );
+		return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemstack );
 	}
 
 	@Override
 	public EnumActionResult onItemUse(
-			final ItemStack stack,
 			final EntityPlayer playerIn,
 			final World worldIn,
 			final BlockPos pos,

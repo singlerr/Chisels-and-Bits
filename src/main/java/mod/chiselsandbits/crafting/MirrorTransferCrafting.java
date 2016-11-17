@@ -3,6 +3,7 @@ package mod.chiselsandbits.crafting;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryCrafting;
@@ -10,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 
 public class MirrorTransferCrafting implements IRecipe
@@ -145,21 +147,21 @@ public class MirrorTransferCrafting implements IRecipe
 	@Override
 	public ItemStack getRecipeOutput()
 	{
-		return null; // nope
+		return ModUtil.getEmptyStack(); // nope
 	}
 
 	@Override
-	public ItemStack[] getRemainingItems(
+	public NonNullList<ItemStack> getRemainingItems(
 			final InventoryCrafting craftingInv )
 	{
-		final ItemStack[] aitemstack = new ItemStack[craftingInv.getSizeInventory()];
+		final NonNullList<ItemStack> aitemstack = NonNullList.func_191197_a( craftingInv.getSizeInventory(), ItemStack.field_190927_a );
 
-		for ( int i = 0; i < aitemstack.length; ++i )
+		for ( int i = 0; i < aitemstack.size(); ++i )
 		{
 			final ItemStack itemstack = craftingInv.getStackInSlot( i );
 			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.getItems().itemMirrorprint && itemstack.hasTagCompound() )
 			{
-				itemstack.stackSize++;
+				ModUtil.adjustStackSize( itemstack, 1 );
 			}
 		}
 

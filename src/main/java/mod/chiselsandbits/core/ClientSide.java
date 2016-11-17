@@ -454,7 +454,7 @@ public class ClientSide
 						{
 							case REPLACE_TOGGLE:
 								ChiselsAndBits.getConfig().replaceingBits = !ChiselsAndBits.getConfig().replaceingBits;
-								ReflectionWrapper.instance.setHighlightStack( null );
+								ReflectionWrapper.instance.clearHighlightedStack();
 								break;
 
 							case UNDO:
@@ -592,7 +592,7 @@ public class ClientSide
 
 				for ( int slot = 0; slot < 9; ++slot )
 				{
-					final ItemStack stack = mc.thePlayer.inventory.mainInventory[slot];
+					final ItemStack stack = mc.thePlayer.inventory.mainInventory.get( slot );
 					if ( stack != null && stack.getItem() instanceof ItemChisel )
 					{
 						final ChiselToolType toolType = getToolTypeForItemm( stack );
@@ -1235,7 +1235,7 @@ public class ClientSide
 			lastPartial = partial;
 
 			final NBTBlobConverter c = new NBTBlobConverter();
-			c.readChisleData( item.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, false ) );
+			c.readChisleData( ModUtil.getSubCompound( item, ModUtil.NBT_BLOCKENTITYTAG, false ) );
 			VoxelBlob blob = c.getBlob();
 
 			while ( rotations-- > 0 )

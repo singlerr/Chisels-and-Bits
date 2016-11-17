@@ -389,7 +389,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	@Override
-	public void func_189668_a(
+	public void mirror(
 			final Mirror p_189668_1_ )
 	{
 		switch ( p_189668_1_ )
@@ -408,7 +408,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	@Override
-	public void func_189667_a(
+	public void rotate(
 			final Rotation p_189667_1_ )
 	{
 		switch ( p_189667_1_ )
@@ -574,7 +574,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 			if ( oldSides != sideState )
 			{
-				worldObj.notifyNeighborsOfStateChange( pos, worldObj.getBlockState( pos ).getBlock() );
+				worldObj.notifyNeighborsOfStateChange( pos, worldObj.getBlockState( pos ).getBlock(), false );
 			}
 		}
 
@@ -654,11 +654,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			// since its possible for bits to occlude parts.. update every time.
 			final Block blk = worldObj.getBlockState( pos ).getBlock();
 			MCMultipartProxy.proxyMCMultiPart.triggerPartChange( worldObj.getTileEntity( pos ) );
-			worldObj.notifyBlockOfStateChange( pos, blk );
+			// worldObj.notifyBlockOfStateChange( pos, blk, false );
 
 			if ( triggerUpdates )
 			{
-				worldObj.notifyNeighborsOfStateChange( pos, blk );
+				worldObj.notifyNeighborsOfStateChange( pos, blk, false );
 			}
 		}
 		else

@@ -8,6 +8,7 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 
 public class StackableCrafting implements IRecipe
@@ -143,19 +144,19 @@ public class StackableCrafting implements IRecipe
 	@Override
 	public ItemStack getRecipeOutput()
 	{
-		return null; // nope
+		return ModUtil.getEmptyStack(); // nope
 	}
 
 	@Override
-	public ItemStack[] getRemainingItems(
-			final InventoryCrafting p_179532_1_ )
+	public NonNullList<ItemStack> getRemainingItems(
+			final InventoryCrafting inv )
 	{
-		final ItemStack[] aitemstack = new ItemStack[p_179532_1_.getSizeInventory()];
+		final NonNullList<ItemStack> aitemstack = NonNullList.func_191197_a( inv.getSizeInventory(), ItemStack.field_190927_a );
 
-		for ( int i = 0; i < aitemstack.length; ++i )
+		for ( int i = 0; i < aitemstack.size(); ++i )
 		{
-			final ItemStack itemstack = p_179532_1_.getStackInSlot( i );
-			aitemstack[i] = net.minecraftforge.common.ForgeHooks.getContainerItem( itemstack );
+			final ItemStack itemstack = inv.getStackInSlot( i );
+			aitemstack.set( i, net.minecraftforge.common.ForgeHooks.getContainerItem( itemstack ) );
 		}
 
 		return aitemstack;

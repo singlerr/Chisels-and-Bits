@@ -36,7 +36,7 @@ public class ContinousChisels implements IContinuousInventory
 		// test can edit...
 		canEdit = who.canPlayerManipulate( pos, side, new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond, 1 ), false );
 
-		if ( inHand != null && inHand.stackSize > 0 && inHand.getItem() instanceof ItemChisel )
+		if ( inHand != null && ModUtil.notEmpty( inHand ) && inHand.getItem() instanceof ItemChisel )
 		{
 			if ( who.canPlayerManipulate( pos, side, inHand, false ) )
 			{
@@ -61,7 +61,7 @@ public class ContinousChisels implements IContinuousInventory
 					continue;
 				}
 
-				if ( is != null && is.stackSize > 0 && is.getItem() instanceof ItemChisel )
+				if ( is != null && ModUtil.notEmpty( is ) && is.getItem() instanceof ItemChisel )
 				{
 					final ToolMaterial newMat = ( (ItemChisel) is.getItem() ).whatMaterial();
 					discovered.put( newMat.getHarvestLevel(), new ItemStackSlot( inv, x, is, who, canEdit ) );

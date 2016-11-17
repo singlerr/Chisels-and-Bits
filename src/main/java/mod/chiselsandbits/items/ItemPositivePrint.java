@@ -102,7 +102,6 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 
 	@Override
 	public EnumActionResult onItemUse(
-			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
 			final BlockPos pos,
@@ -112,6 +111,8 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			final float hitY,
 			final float hitZ )
 	{
+		final ItemStack stack = player.getHeldItem( hand );
+
 		if ( PositivePatternMode.getMode( stack ) == PositivePatternMode.PLACEMENT )
 		{
 			if ( player.isSneaking() )
@@ -180,7 +181,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			}
 		}
 
-		return super.onItemUse( stack, player, world, pos, hand, side, hitX, hitY, hitZ );
+		return super.onItemUse( player, world, pos, hand, side, hitX, hitY, hitZ );
 	}
 
 	private boolean consumeEntirePattern(

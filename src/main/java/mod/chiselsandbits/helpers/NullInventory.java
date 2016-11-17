@@ -44,7 +44,7 @@ public class NullInventory implements IInventory
 	public ItemStack getStackInSlot(
 			final int index )
 	{
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
 	@Override
@@ -52,14 +52,14 @@ public class NullInventory implements IInventory
 			final int index,
 			final int count )
 	{
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
 	@Override
 	public ItemStack removeStackFromSlot(
 			final int index )
 	{
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
 	@Override
@@ -136,6 +136,12 @@ public class NullInventory implements IInventory
 	public void clear()
 	{
 
+	}
+
+	@Override
+	public boolean func_191420_l()
+	{
+		return true;
 	}
 
 }

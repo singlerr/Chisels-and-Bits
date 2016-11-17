@@ -215,7 +215,6 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 	@Override
 	public EnumActionResult onItemUse(
-			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
 			final BlockPos usedBlock,
@@ -225,6 +224,8 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final float hitY,
 			final float hitZ )
 	{
+		final ItemStack stack = player.getHeldItem( hand );
+
 		if ( !player.canPlayerEdit( usedBlock, side, stack ) )
 		{
 			return EnumActionResult.FAIL;
@@ -235,7 +236,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		final Block blk = usedState.getBlock();
 		if ( blk instanceof BlockBitTank )
 		{
-			if ( blk.onBlockActivated( world, usedBlock, usedState, player, hand, player.getHeldItem( hand ), side, hitX, hitY, hitZ ) )
+			if ( blk.onBlockActivated( world, usedBlock, usedState, player, hand, side, hitX, hitY, hitZ ) )
 			{
 				return EnumActionResult.SUCCESS;
 			}
@@ -384,7 +385,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		{
 			if ( !RequireStack )
 			{
-				return null;
+				return ModUtil.getEmptyStack();
 			}
 		}
 

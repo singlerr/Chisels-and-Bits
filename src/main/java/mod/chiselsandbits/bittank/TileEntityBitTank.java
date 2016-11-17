@@ -198,7 +198,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 
 			if ( canInsert )
 			{
-				final int merged = bits + stack.stackSize;
+				final int merged = bits + ModUtil.getStackSize( stack );
 				final int amount = Math.min( merged, MAX_CONTENTS );
 
 				if ( !simulate )
@@ -218,7 +218,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 				if ( amount < merged )
 				{
 					final ItemStack out = stack.copy();
-					out.stackSize = merged - amount;
+					ModUtil.setStackSize( out, merged - amount );
 					return out;
 				}
 
@@ -259,14 +259,14 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 		if ( contents != null && amount > 0 )
 		{
 			// how many to extract?
-			contents.stackSize = Math.min( amount, contents.stackSize );
+			ModUtil.setStackSize( contents, Math.min( amount, ModUtil.getStackSize( contents ) ) );
 
 			// modulate?
 			if ( !simulate )
 			{
 				final int oldBits = bits;
 
-				bits -= contents.stackSize;
+				bits -= ModUtil.getStackSize( contents );
 				if ( bits == 0 )
 				{
 					myFluid = null;
@@ -436,7 +436,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 				return possibleAmount;
 			}
 
-			int mbUsedUp = leftOver.stackSize;
+			int mbUsedUp = ModUtil.getStackSize( leftOver );
 
 			// round up...
 			mbUsedUp *= TileEntityBitTank.MB_PER_BIT_CONVERSION;
@@ -460,9 +460,8 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 		}
 
 		final FluidStack a = getAccessableFluid();
-		final boolean rightType = a != null && resource.containsFluid( a );
 
-		if ( rightType )
+		if ( a != null && resource.containsFluid( a ) ) // right type of fluid.
 		{
 			final int aboutHowMuch = resource.amount;
 
@@ -492,7 +491,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 		final FluidStack a = getAccessableFluid();
 
 		final int mbThatCanBeRemoved = Math.min( a == null ? 0 : a.amount, maxDrain - maxDrain % TileEntityBitTank.MB_PER_BIT_CONVERSION );
-		if ( mbThatCanBeRemoved > 0 )
+		if ( mbThatCanBeRemoved > 0 && a != null )
 		{
 			a.amount = mbThatCanBeRemoved;
 

@@ -2,6 +2,7 @@ package mod.chiselsandbits.network.packets;
 
 import java.io.IOException;
 
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -57,7 +58,7 @@ public class PacketAccurateSneakPlace extends ModPacket
 				final IItemBlockAccurate ibc = (IItemBlockAccurate) stack.getItem();
 				ibc.doItemUse( inHand, playerEntity, playerEntity.worldObj, pos, hand, side, hitX, hitY, hitZ );
 
-				if ( !playerEntity.capabilities.isCreativeMode && inHand.stackSize <= 0 )
+				if ( !playerEntity.capabilities.isCreativeMode && ModUtil.getStackSize( inHand ) <= 0 )
 				{
 					playerEntity.setHeldItem( hand, null );
 				}

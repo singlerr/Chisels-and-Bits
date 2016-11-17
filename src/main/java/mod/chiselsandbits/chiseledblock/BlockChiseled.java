@@ -576,15 +576,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		}
 	}
 
-	// @Override - 1.10.2
-	public AxisAlignedBB getCollisionBoundingBox(
-			final IBlockState state,
-			final World worldIn,
-			final BlockPos pos )
-	{
-		return getCollisionBoundingBox( state, (IBlockAccess) worldIn, pos );
-	}
-
 	@Override
 	public AxisAlignedBB getCollisionBoundingBox(
 			final IBlockState blockState,
@@ -1135,15 +1126,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			final Item itemIn,
 			final CreativeTabs tab,
 			final NonNullList<ItemStack> list )
-	{
-		// no items.
-	}
-
-	// @Override - 1.10.2
-	public void getSubBlocks(
-			final Item itemIn,
-			final CreativeTabs tab,
-			final List<ItemStack> list )
 	{
 		// no items.
 	}

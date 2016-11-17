@@ -2,7 +2,7 @@ package mod.chiselsandbits.render.chiseledblock.tesr;
 
 import org.lwjgl.opengl.GL11;
 
-import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.Log;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GLAllocation;
@@ -41,12 +41,12 @@ public abstract class GfxRenderState
 
 	static public boolean useVBO()
 	{
-		if ( ChiselsAndBits.getConfig().useVBO == UseVBO.AUTOMATIC )
+		if ( ModConfig.useVBO == UseVBO.AUTOMATIC )
 		{
 			return Minecraft.getMinecraft().gameSettings.useVbo;
 		}
 
-		return ChiselsAndBits.getConfig().useVBO == UseVBO.YES;
+		return ModConfig.useVBO == UseVBO.YES;
 	}
 
 	private static class displayListCleanup implements Runnable

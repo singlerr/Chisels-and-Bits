@@ -78,11 +78,11 @@ class ChiselCraftingRequirements
 
 				for ( final ItemStack is : stacks )
 				{
-					if ( ItemChiseledBit.getStackState( is ) == ref.stateId && is.stackSize > 0 )
+					if ( ItemChiseledBit.getStackState( is ) == ref.stateId && ModUtil.notEmpty( is ) )
 					{
-						final int original = is.stackSize;
-						is.stackSize = Math.max( 0, is.stackSize - ref.quantity );
-						ref.quantity -= original - is.stackSize;
+						final int original = ModUtil.getStackSize( is );
+						ModUtil.setStackSize( is, Math.max( 0, ModUtil.getStackSize( is ) - ref.quantity ) );
+						ref.quantity -= original - ModUtil.getStackSize( is );
 					}
 				}
 

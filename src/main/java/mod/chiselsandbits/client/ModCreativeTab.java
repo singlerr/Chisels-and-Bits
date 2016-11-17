@@ -4,7 +4,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 
 public class ModCreativeTab extends CreativeTabs
 {
@@ -22,10 +22,10 @@ public class ModCreativeTab extends CreativeTabs
 	}
 
 	@Override
-	public Item getTabIconItem()
+	public ItemStack getTabIconItem()
 	{
 		final ModItems cbitems = ChiselsAndBits.getItems();
-		return ModUtil.firstNonNull(
+		return new ItemStack( ModUtil.firstNonNull(
 				cbitems.itemChiselDiamond,
 				cbitems.itemChiselGold,
 				cbitems.itemChiselIron,
@@ -33,7 +33,7 @@ public class ModCreativeTab extends CreativeTabs
 				cbitems.itemBitBag,
 				cbitems.itemPositiveprint,
 				cbitems.itemNegativeprint,
-				cbitems.itemWrench );
+				cbitems.itemWrench ) );
 	}
 
 }

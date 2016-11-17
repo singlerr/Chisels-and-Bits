@@ -1,11 +1,13 @@
 package mod.chiselsandbits.crafting;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
 
 public class ChiselCrafting implements IRecipe
@@ -96,14 +98,14 @@ public class ChiselCrafting implements IRecipe
 	public ItemStack getRecipeOutput()
 	{
 		// no inputs, means no output.
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
 	@Override
-	public ItemStack[] getRemainingItems(
+	public NonNullList<ItemStack> getRemainingItems(
 			final InventoryCrafting inv )
 	{
-		final ItemStack[] out = new ItemStack[inv.getSizeInventory()];
+		final NonNullList<ItemStack> out = NonNullList.func_191197_a( inv.getSizeInventory(), ItemStack.field_190927_a );
 
 		// just getting this will alter the stacks..
 		final ChiselCraftingRequirements r = getCraftingReqs( inv, false );
@@ -115,11 +117,10 @@ public class ChiselCrafting implements IRecipe
 
 		for ( int x = 0; x < r.pile.length; x++ )
 		{
-			out[x] = r.pile[x];
 
-			if ( out[x] != null && out[x].stackSize <= 0 )
+			if ( r.pile[x] != null && ModUtil.getStackSize( r.pile[x] ) > 0 )
 			{
-				out[x] = null;
+				out.set( x, r.pile[x] );
 			}
 		}
 

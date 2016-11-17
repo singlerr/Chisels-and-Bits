@@ -25,7 +25,6 @@ import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
@@ -113,7 +112,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			pos = pos.offset( side );
 		}
 
-		return worldIn.canBlockBePlaced( this.block, pos, false, side, (Entity) null, stack );
+		return worldIn.func_190527_a( this.block, pos, false, side, null );
 	}
 
 	public boolean canPlaceBlockHere(
@@ -143,7 +142,6 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 	@Override
 	public EnumActionResult onItemUse(
-			final ItemStack stack,
 			final EntityPlayer playerIn,
 			final World worldIn,
 			final BlockPos pos,
@@ -153,6 +151,8 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final float hitY,
 			final float hitZ )
 	{
+		final ItemStack stack = playerIn.getHeldItem( hand );
+
 		if ( playerIn.isSneaking() )
 		{
 			if ( !worldIn.isRemote )
@@ -219,7 +219,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			}
 		}
 
-		if ( stack.stackSize == 0 )
+		if ( ModUtil.isEmpty( stack ) )
 		{
 			return EnumActionResult.FAIL;
 		}
@@ -240,7 +240,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			{
 				worldIn.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, this.block.getSoundType().getPlaceSound(), SoundCategory.BLOCKS, ( this.block.getSoundType().getVolume() + 1.0F ) / 2.0F,
 						this.block.getSoundType().getPitch() * 0.8F, false );
-				--stack.stackSize;
+				ModUtil.adjustStackSize( stack, -1 );
 			}
 
 			return EnumActionResult.SUCCESS;

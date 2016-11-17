@@ -85,11 +85,12 @@ public class ItemBitBag extends Item
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(
-			final ItemStack itemStackIn,
 			final World worldIn,
 			final EntityPlayer playerIn,
 			final EnumHand hand )
 	{
+		final ItemStack itemStackIn = playerIn.getHeldItem( hand );
+
 		if ( worldIn.isRemote )
 		{
 			NetworkRouter.instance.sendToServer( new PacketOpenBagGui() );
@@ -122,7 +123,7 @@ public class ItemBitBag extends Item
 			final EntityPlayer player = event.getEntityPlayer();
 			if ( is != null && is.getItem() instanceof ItemChiseledBit )
 			{
-				final int originalSize = is.stackSize;
+				final int originalSize = ModUtil.getStackSize( is );
 				final IInventory inv = player.inventory;
 				final List<BagPos> bags = getBags( inv );
 
@@ -141,14 +142,14 @@ public class ItemBitBag extends Item
 				}
 				else
 				{
-					if ( is.stackSize > is.getMaxStackSize() && !entityItem.isDead )
+					if ( ModUtil.getStackSize( is ) > is.getMaxStackSize() && !entityItem.isDead )
 					{
 						final ItemStack singleStack = is.copy();
-						singleStack.stackSize = singleStack.getMaxStackSize();
+						ModUtil.setStackSize( singleStack, singleStack.getMaxStackSize() );
 
 						if ( player.inventory.addItemStackToInventory( singleStack ) == false )
 						{
-							is.stackSize -= singleStack.getMaxStackSize() - is.stackSize;
+							ModUtil.adjustStackSize( is, -( singleStack.getMaxStackSize() - ModUtil.getStackSize( is ) ) );
 						}
 
 						modified = updateEntity( player, entityItem, is, originalSize ) || modified;
@@ -203,7 +204,7 @@ public class ItemBitBag extends Item
 		}
 		else
 		{
-			final int changed = is.stackSize - ei.getEntityItem().stackSize;
+			final int changed = ModUtil.getStackSize( is ) - ModUtil.getStackSize( ei.getEntityItem() );
 			ei.setEntityItemStack( is );
 			return changed != 0;
 		}

@@ -35,7 +35,6 @@ public class ItemApiDebug extends Item
 
 	@Override
 	public EnumActionResult onItemUse(
-			final ItemStack stack,
 			final EntityPlayer playerIn,
 			final World worldIn,
 			final BlockPos pos,
@@ -45,6 +44,8 @@ public class ItemApiDebug extends Item
 			final float hitY,
 			final float hitZ )
 	{
+		final ItemStack stack = playerIn.getHeldItem( hand );
+
 		if ( playerIn.isSneaking() )
 		{
 			final int newDamage = getActionID( stack ) + 1;

@@ -8,6 +8,7 @@ import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.item.ItemStack;
@@ -95,7 +96,7 @@ public class BagStorage implements IBitBag
 					final IBitBrush brush = ChiselsAndBits.getApi().createBrush( stack );
 					if ( brush.getStateID() == slotId || slotId == 0 )
 					{
-						int newTotal = slotQty + stack.stackSize;
+						int newTotal = slotQty + ModUtil.getStackSize( stack );
 						final int overFlow = newTotal > getBitbagStackSize() ? newTotal - getBitbagStackSize() : 0;
 						newTotal -= overFlow;
 

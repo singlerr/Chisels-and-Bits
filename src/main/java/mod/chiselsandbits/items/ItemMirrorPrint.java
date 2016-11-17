@@ -77,7 +77,6 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 
 	@Override
 	public EnumActionResult onItemUse(
-			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
 			final BlockPos pos,
@@ -87,6 +86,8 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			final float hitY,
 			final float hitZ )
 	{
+		final ItemStack stack = player.getHeldItem( hand );
+
 		if ( !player.canPlayerEdit( pos, side, stack ) )
 		{
 			return EnumActionResult.SUCCESS;

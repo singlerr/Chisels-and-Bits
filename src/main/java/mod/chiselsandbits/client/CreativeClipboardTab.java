@@ -12,8 +12,8 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public class CreativeClipboardTab extends CreativeTabs implements ICacheClearable
@@ -82,10 +82,10 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 	}
 
 	@Override
-	public Item getTabIconItem()
+	public ItemStack getTabIconItem()
 	{
 		final ModItems cbitems = ChiselsAndBits.getItems();
-		return ModUtil.firstNonNull(
+		return new ItemStack( ModUtil.firstNonNull(
 				cbitems.itemPositiveprint,
 				cbitems.itemNegativeprint,
 				cbitems.itemBitBag,
@@ -93,12 +93,12 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 				cbitems.itemChiselGold,
 				cbitems.itemChiselIron,
 				cbitems.itemChiselStone,
-				cbitems.itemWrench );
+				cbitems.itemWrench ) );
 	}
 
 	@Override
 	public void displayAllRelevantItems(
-			final List<ItemStack> itemList )
+			final NonNullList<ItemStack> itemList )
 	{
 		if ( renewMappings )
 		{

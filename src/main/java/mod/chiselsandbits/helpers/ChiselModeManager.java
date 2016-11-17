@@ -54,7 +54,7 @@ public class ChiselModeManager
 
 			if ( originalMode != newClientChiselMode && chatNotification )
 			{
-				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new TextComponentTranslation( newClientChiselMode.getName().toString() ) );
+				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new TextComponentTranslation( newClientChiselMode.getName().toString() ), true );
 			}
 
 			ReflectionWrapper.instance.clearHighlightedStack();
