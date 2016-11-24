@@ -105,27 +105,10 @@ public final class VoxelBlob implements IVoxelSrc
 		for ( final Iterator<Block> it = Block.REGISTRY.iterator(); it.hasNext(); )
 		{
 			final Block block = it.next();
-			final int blockId = Block.REGISTRY.getIDForObject( block );
-			int validMetas = 0;
 
 			for ( final IBlockState state : block.getBlockState().getValidStates() )
 			{
-				final int meta = block.getMetaFromState( state );
-				if ( meta == -1 )
-				{
-					continue;
-				}
-
-				validMetas |= 1 << meta;
-			}
-
-			while ( validMetas != 0 )
-			{
-				final int meta = Integer.numberOfTrailingZeros( validMetas );
-				validMetas &= ~( 1 << meta );
-
-				final int id = blockId | meta << 12;
-				final IBlockState state = Block.getStateById( id );
+				int id = Block.getStateId( state );
 				if ( state == null || state.getBlock() != block )
 				{
 					// reverse mapping is broken, so just skip over this state.
