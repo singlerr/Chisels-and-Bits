@@ -1,6 +1,7 @@
 package mod.chiselsandbits.items;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -309,7 +310,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			bits = new ArrayList<ItemStack>();
 
 			final ArrayList<ItemStack> List = new ArrayList<ItemStack>();
-			final HashSet<IBlockState> used = new HashSet();
+			final BitSet used = new BitSet( 4096 );
 
 			for ( final Object obj : Item.REGISTRY )
 			{
@@ -335,7 +336,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 						final IBlockState state = DeprecationHelper.getStateFromItem( out );
 						if ( state != null && BlockBitInfo.supportsBlock( state ) )
 						{
-							used.add( state );
+							used.set( Block.getStateId( state ) );
 							bits.add( ItemChiseledBit.createStack( Block.getStateId( state ), 1, false ) );
 						}
 					}
@@ -354,7 +355,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			{
 				if ( o.canBePlacedInWorld() && o.getBlock() != null )
 				{
-					if ( used.contains( o.getBlock().getDefaultState() ) )
+					if ( used.get( Block.getStateId( o.getBlock().getDefaultState() ) ) )
 					{
 						continue;
 					}
