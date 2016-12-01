@@ -273,17 +273,27 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		return true;
 	}
 
-	public TileEntityBlockChiseled getTileEntity(
+	static ExceptionNoTileEntity noTileEntity = new ExceptionNoTileEntity();
+
+	public static TileEntityBlockChiseled getTileEntity(
 			final TileEntity te ) throws ExceptionNoTileEntity
 	{
-		if ( te instanceof TileEntityBlockChiseled )
+		if ( te == null )
+		{
+			throw noTileEntity;
+		}
+
+		try
 		{
 			return (TileEntityBlockChiseled) te;
 		}
-		throw new ExceptionNoTileEntity();
+		catch ( final ClassCastException e )
+		{
+			throw noTileEntity;
+		}
 	}
 
-	public TileEntityBlockChiseled getTileEntity(
+	public static TileEntityBlockChiseled getTileEntity(
 			final IBlockAccess world,
 			final BlockPos pos ) throws ExceptionNoTileEntity
 	{
@@ -525,7 +535,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		try
 		{
 			final IBlockState texture = getTileEntity( worldObj, blockPosition ).getBlockState( Blocks.STONE );
-			worldObj.spawnParticle( EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getStateId( texture ) } );
+			worldObj.spawnParticle( EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { ModUtil.getStateId( texture ) } );
 			return true;
 		}
 		catch ( final ExceptionNoTileEntity e )
@@ -941,13 +951,13 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		{
 			BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( originalState );
 
-			int BlockID = Block.getStateId( actingState );
+			int BlockID = ModUtil.getStateId( actingState );
 
 			if ( isAir )
 			{
-				actingState = Block.getStateById( fragmentBlockStateID );
+				actingState = ModUtil.getStateById( fragmentBlockStateID );
 				target = actingState.getBlock();
-				BlockID = Block.getStateId( actingState );
+				BlockID = ModUtil.getStateId( actingState );
 				blk = ChiselsAndBits.getBlocks().getConversion( actingState );
 				// its still air tho..
 				actingState = Blocks.AIR.getDefaultState();
@@ -994,7 +1004,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			final VoxelBlob vb = data.getVoxelBlob();
 			if ( vb != null )
 			{
-				return Block.getStateById( vb.getVoxelStats().mostCommonState );
+				return ModUtil.getStateById( vb.getVoxelStats().mostCommonState );
 			}
 		}
 

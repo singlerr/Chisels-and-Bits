@@ -14,7 +14,6 @@ import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -73,7 +72,7 @@ public class ModelUtil implements ICacheClearable
 			return mpc;
 		}
 
-		final IBlockState state = Block.getStateById( stateID );
+		final IBlockState state = ModUtil.getStateById( stateID );
 		final IBakedModel model = ModelUtil.solveModel( state, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ) );
 
 		final Fluid fluid = BlockBitInfo.getFluidFromBlock( state.getBlock() );
@@ -370,7 +369,7 @@ public class ModelUtil implements ICacheClearable
 		}
 
 		TextureAtlasSprite texture = null;
-		final IBlockState state = Block.getStateById( BlockRef );
+		final IBlockState state = ModUtil.getStateById( BlockRef );
 
 		if ( model != null )
 		{

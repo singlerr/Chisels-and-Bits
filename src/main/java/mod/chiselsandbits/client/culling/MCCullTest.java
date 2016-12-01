@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client.culling;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
@@ -22,7 +23,6 @@ public class MCCullTest implements ICullTest, IBlockAccess
 	private IBlockState a;
 	private IBlockState b;
 
-	@SuppressWarnings( "deprecation" )
 	@Override
 	public boolean isVisible(
 			final int mySpot,
@@ -33,12 +33,12 @@ public class MCCullTest implements ICullTest, IBlockAccess
 			return false;
 		}
 
-		a = net.minecraft.block.Block.BLOCK_STATE_IDS.getByValue( mySpot );
+		a = ModUtil.getStateById( mySpot );
 		if ( a == null )
 		{
 			a = Blocks.AIR.getDefaultState();
 		}
-		b = net.minecraft.block.Block.BLOCK_STATE_IDS.getByValue( secondSpot );
+		b = ModUtil.getStateById( secondSpot );
 		if ( b == null )
 		{
 			b = Blocks.AIR.getDefaultState();

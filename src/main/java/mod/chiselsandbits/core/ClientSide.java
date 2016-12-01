@@ -1256,7 +1256,7 @@ public class ClientSide
 				else if ( cacheRef instanceof IBlockState )
 				{
 					blob = new VoxelBlob();
-					blob.fill( Block.getStateId( (IBlockState) cacheRef ) );
+					blob.fill( ModUtil.getStateId( (IBlockState) cacheRef ) );
 				}
 				else
 				{
@@ -1391,7 +1391,7 @@ public class ClientSide
 
 		}
 
-		final Particle fx = effectRenderer.spawnEffectParticle( EnumParticleTypes.BLOCK_DUST.getParticleID(), x, y, z, 0.0D, 0.0D, 0.0D, new int[] { Block.getStateId( state ) } );
+		final Particle fx = effectRenderer.spawnEffectParticle( EnumParticleTypes.BLOCK_DUST.getParticleID(), x, y, z, 0.0D, 0.0D, 0.0D, new int[] { ModUtil.getStateId( state ) } );
 
 		if ( fx != null )
 		{
@@ -1426,7 +1426,7 @@ public class ClientSide
 			final BlockPos pos,
 			final int stateID )
 	{
-		final IBlockState state = Block.getStateById( stateID );
+		final IBlockState state = ModUtil.getStateById( stateID );
 		final Block block = state.getBlock();
 		world.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, block.getSoundType().getPlaceSound(), SoundCategory.BLOCKS, ( block.getSoundType().getVolume() + 1.0F ) / 16.0F, block.getSoundType().getPitch() * 0.9F, false );
 	}
@@ -1436,7 +1436,7 @@ public class ClientSide
 			final BlockPos pos,
 			final int extractedState )
 	{
-		final IBlockState state = Block.getStateById( extractedState );
+		final IBlockState state = ModUtil.getStateById( extractedState );
 		final Block block = state.getBlock();
 		world.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, block.getSoundType().getBreakSound(), SoundCategory.BLOCKS, ( block.getSoundType().getVolume() + 1.0F ) / 16.0F, block.getSoundType().getPitch() * 0.9F, false );
 	}
@@ -1492,7 +1492,7 @@ public class ClientSide
 		if ( !state.getBlock().isAir( state, world, pos ) )
 		{
 			state = state.getBlock().getActualState( state, world, pos );
-			final int StateID = Block.getStateId( state );
+			final int StateID = ModUtil.getStateId( state );
 
 			final int i = 4;
 

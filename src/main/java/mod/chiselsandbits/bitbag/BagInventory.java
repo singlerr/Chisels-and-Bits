@@ -13,7 +13,6 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -365,7 +364,7 @@ public class BagInventory implements IInventory
 			final ItemStack is = getStackInSlot( x );
 			if ( is != null )
 			{
-				final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( is ) );
+				final IBlockState state = ModUtil.getStateById( ItemChiseledBit.getStackState( is ) );
 				if ( state == null )
 				{
 					continue;

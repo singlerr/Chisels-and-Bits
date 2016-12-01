@@ -26,7 +26,6 @@ import mod.chiselsandbits.items.ItemMirrorPrint;
 import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.items.ItemPositivePrint;
 import mod.chiselsandbits.items.ItemWrench;
-import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
@@ -93,7 +92,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		if ( BlockBitInfo.supportsBlock( state ) )
 		{
 			final VoxelBlob blob = new VoxelBlob();
-			blob.fill( Block.getStateId( state ) );
+			blob.fill( ModUtil.getStateId( state ) );
 			return new BitAccess( world, pos, blob, VoxelBlob.NULL_BLOB );
 		}
 
@@ -127,7 +126,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		if ( bitItem.getItem() == null || getItemType( bitItem ) == ItemType.CHISLED_BIT )
 		{
 			final int stateID = ItemChiseledBit.getStackState( bitItem );
-			final IBlockState state = Block.getStateById( stateID );
+			final IBlockState state = ModUtil.getStateById( stateID );
 
 			if ( state != null && BlockBitInfo.supportsBlock( state ) )
 			{
@@ -226,7 +225,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			if ( BlockBitInfo.supportsBlock( state ) )
 			{
 				final VoxelBlob blob = new VoxelBlob();
-				blob.fill( Block.getStateId( state ) );
+				blob.fill( ModUtil.getStateId( state ) );
 				return new BitAccess( null, null, blob, VoxelBlob.NULL_BLOB );
 			}
 		}
@@ -248,7 +247,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			throw new InvalidBitItem();
 		}
 
-		return new BitBrush( Block.getStateId( state ) );
+		return new BitBrush( ModUtil.getStateId( state ) );
 	}
 
 	@Override
@@ -260,7 +259,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			throw new InvalidBitItem();
 		}
 
-		return ItemChiseledBit.createStack( Block.getStateId( state ), 1, true );
+		return ItemChiseledBit.createStack( ModUtil.getStateId( state ), 1, true );
 	}
 
 	@Override

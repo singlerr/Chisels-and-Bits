@@ -19,7 +19,6 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -160,7 +159,7 @@ public class BitAccess implements IBitAccess
 
 		if ( type == ItemType.CHISLED_BLOCK )
 		{
-			final IBlockState state = Block.getStateById( cb.mostCommonState );
+			final IBlockState state = ModUtil.getStateById( cb.mostCommonState );
 			final BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( state );
 
 			if ( blk == null )

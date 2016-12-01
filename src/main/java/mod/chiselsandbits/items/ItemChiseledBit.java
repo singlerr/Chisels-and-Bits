@@ -1,6 +1,7 @@
 package mod.chiselsandbits.items;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -189,7 +190,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	public static String getBitTypeName(
 			final ItemStack stack )
 	{
-		return getBitStateName( Block.getStateById( ItemChiseledBit.getStackState( stack ) ) );
+		return getBitStateName( ModUtil.getStateById( ItemChiseledBit.getStackState( stack ) ) );
 	}
 
 	@Override
@@ -311,7 +312,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			bits = new ArrayList<ItemStack>();
 
 			final NonNullList<ItemStack> List = NonNullList.func_191196_a();
-			final HashSet<IBlockState> used = new HashSet();
+			final BitSet used = new BitSet( 4096 );
 
 			for ( final Object obj : Item.REGISTRY )
 			{
@@ -337,8 +338,8 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 						final IBlockState state = DeprecationHelper.getStateFromItem( out );
 						if ( state != null && BlockBitInfo.supportsBlock( state ) )
 						{
-							used.add( state );
-							bits.add( ItemChiseledBit.createStack( Block.getStateId( state ), 1, false ) );
+							used.set( ModUtil.getStateId( state ) );
+							bits.add( ItemChiseledBit.createStack( ModUtil.getStateId( state ), 1, false ) );
 						}
 					}
 
@@ -356,7 +357,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			{
 				if ( o.canBePlacedInWorld() && o.getBlock() != null )
 				{
-					if ( used.contains( o.getBlock().getDefaultState() ) )
+					if ( used.get( Block.getStateId( o.getBlock().getDefaultState() ) ) )
 					{
 						continue;
 					}

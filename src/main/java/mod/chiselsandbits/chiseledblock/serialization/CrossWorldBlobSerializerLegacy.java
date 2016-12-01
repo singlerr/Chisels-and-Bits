@@ -2,6 +2,7 @@ package mod.chiselsandbits.chiseledblock.serialization;
 
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.DeprecationHelper;
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.network.PacketBuffer;
@@ -42,7 +43,7 @@ public class CrossWorldBlobSerializerLegacy extends BlobSerializer
 			return 0;
 		}
 
-		return Block.getStateId( state );
+		return ModUtil.getStateId( state );
 	}
 
 	@Override
@@ -50,7 +51,7 @@ public class CrossWorldBlobSerializerLegacy extends BlobSerializer
 			final PacketBuffer buffer,
 			final int key )
 	{
-		final IBlockState state = Block.getStateById( key );
+		final IBlockState state = ModUtil.getStateById( key );
 		final Block blk = state.getBlock();
 
 		final String name = Block.REGISTRY.getNameForObject( blk ).toString();
