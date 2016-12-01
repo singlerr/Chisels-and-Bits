@@ -5,7 +5,6 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -164,7 +163,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			return null;
 		}
 
-		return ItemChiseledBit.createStack( Block.getStateId( liquid.getBlock().getDefaultState() ), amount, false );
+		return ItemChiseledBit.createStack( ModUtil.getStateId( liquid.getBlock().getDefaultState() ), amount, false );
 	}
 
 	@Override
@@ -176,7 +175,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 		if ( stack != null && stack.getItem() instanceof ItemChiseledBit )
 		{
 			final int state = ItemChiseledBit.getStackState( stack );
-			final IBlockState blk = Block.getStateById( state );
+			final IBlockState blk = ModUtil.getStateById( state );
 
 			Fluid f = null;
 			for ( final Fluid fl : FluidRegistry.getRegisteredFluids().values() )

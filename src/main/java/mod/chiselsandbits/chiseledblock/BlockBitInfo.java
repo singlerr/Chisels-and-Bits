@@ -100,7 +100,7 @@ public class BlockBitInfo
 		{
 			try
 			{
-				fluidStates.put( Block.getStateId( state ), fluid );
+				fluidStates.put( ModUtil.getStateId( state ), fluid );
 			}
 			catch ( final Throwable t )
 			{
@@ -328,7 +328,7 @@ public class BlockBitInfo
 			reflectBlock.getExplosionResistance( null, null, null, null );
 			final boolean test_d = getDeclaringClass( blkClass, reflectBlock.MethodName, World.class, BlockPos.class, Entity.class, Explosion.class ) == Block.class;
 
-			final boolean isFluid = fluidStates.containsKey( Block.getStateId( state ) );
+			final boolean isFluid = fluidStates.containsKey( ModUtil.getStateId( state ) );
 
 			// is it perfect?
 			if ( test_a && test_b && test_c && test_d && !isFluid )

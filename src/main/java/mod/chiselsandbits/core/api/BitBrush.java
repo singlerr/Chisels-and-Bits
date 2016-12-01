@@ -1,8 +1,8 @@
 package mod.chiselsandbits.core.api;
 
 import mod.chiselsandbits.api.IBitBrush;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 
@@ -43,7 +43,7 @@ public class BitBrush implements IBitBrush
 			return null;
 		}
 
-		return Block.getStateById( stateID );
+		return ModUtil.getStateById( stateID );
 	}
 
 	@Override

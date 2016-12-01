@@ -189,7 +189,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	public static String getBitTypeName(
 			final ItemStack stack )
 	{
-		return getBitStateName( Block.getStateById( ItemChiseledBit.getStackState( stack ) ) );
+		return getBitStateName( ModUtil.getStateById( ItemChiseledBit.getStackState( stack ) ) );
 	}
 
 	@Override
@@ -336,8 +336,8 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 						final IBlockState state = DeprecationHelper.getStateFromItem( out );
 						if ( state != null && BlockBitInfo.supportsBlock( state ) )
 						{
-							used.set( Block.getStateId( state ) );
-							bits.add( ItemChiseledBit.createStack( Block.getStateId( state ), 1, false ) );
+							used.set( ModUtil.getStateId( state ) );
+							bits.add( ItemChiseledBit.createStack( ModUtil.getStateId( state ), 1, false ) );
 						}
 					}
 

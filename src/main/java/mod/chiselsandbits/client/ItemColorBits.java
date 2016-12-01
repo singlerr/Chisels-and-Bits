@@ -2,6 +2,7 @@ package mod.chiselsandbits.client;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.Block;
@@ -20,7 +21,7 @@ public class ItemColorBits implements IItemColor
 	{
 		if ( ClientSide.instance.holdingShift() )
 		{
-			final IBlockState state = Block.getStateById( tint );
+			final IBlockState state = ModUtil.getStateById( tint );
 			final Block blk = state.getBlock();
 			final Item i = Item.getItemFromBlock( blk );
 
@@ -32,7 +33,7 @@ public class ItemColorBits implements IItemColor
 			return 0xffffff;
 		}
 
-		final IBlockState state = Block.getStateById( ItemChiseledBit.getStackState( stack ) );
+		final IBlockState state = ModUtil.getStateById( ItemChiseledBit.getStackState( stack ) );
 		return state == null ? 0xffffffff : BlockBitInfo.getColorFor( state, tint );
 	}
 

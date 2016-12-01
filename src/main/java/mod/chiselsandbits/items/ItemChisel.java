@@ -310,7 +310,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			return output;
 		}
 
-		if ( !canMine( selected, Block.getStateById( blk ), player.getPlayer(), world, pos ) )
+		if ( !canMine( selected, ModUtil.getStateById( blk ), player.getPlayer(), world, pos ) )
 		{
 			return output;
 		}
@@ -362,7 +362,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final World world,
 			final BlockPos pos )
 	{
-		final int targetState = Block.getStateId( state );
+		final int targetState = ModUtil.getStateId( state );
 		ItemStackSlot chiselSlot = chiselInv.getItem( targetState );
 		ItemStack chisel = chiselSlot.getStack();
 

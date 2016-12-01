@@ -8,6 +8,7 @@ import com.google.common.base.Optional;
 
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
@@ -86,7 +87,7 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 			}
 		}
 
-		return Block.getStateId( state );
+		return ModUtil.getStateId( state );
 	}
 
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
@@ -119,7 +120,7 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 			final PacketBuffer buffer,
 			final int key )
 	{
-		final IBlockState state = Block.getStateById( key );
+		final IBlockState state = ModUtil.getStateById( key );
 		final Block blk = state.getBlock();
 
 		String sname = "air?";

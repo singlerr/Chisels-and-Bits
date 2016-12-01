@@ -3,7 +3,7 @@ package mod.chiselsandbits.crafting;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import net.minecraft.block.Block;
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
@@ -111,7 +111,7 @@ public class MirrorTransferCrafting implements IRecipe
 
 			if ( isNegative )
 			{
-				bestBlob.binaryReplacement( 0, Block.getStateId( Blocks.STONE.getDefaultState() ) );
+				bestBlob.binaryReplacement( 0, ModUtil.getStateId( Blocks.STONE.getDefaultState() ) );
 			}
 
 			tmp.setBlob( bestBlob );

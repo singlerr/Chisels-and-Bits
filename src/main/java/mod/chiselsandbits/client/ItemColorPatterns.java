@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client;
 
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -18,7 +19,7 @@ public class ItemColorPatterns implements IItemColor
 	{
 		if ( ClientSide.instance.holdingShift() )
 		{
-			final IBlockState state = Block.getStateById( tint );
+			final IBlockState state = ModUtil.getStateById( tint );
 			final Block blk = state.getBlock();
 			final Item i = Item.getItemFromBlock( blk );
 

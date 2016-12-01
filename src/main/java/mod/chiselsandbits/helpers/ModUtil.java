@@ -12,6 +12,8 @@ import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.StateLookup.CachedStateLookup;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemBitBag.BagPos;
@@ -651,6 +653,29 @@ public class ModUtil
 			blueprintTag.setInteger( NBT_SIDE, +side.ordinal() );
 
 			stack.setTagCompound( blueprintTag );
+		}
+	}
+
+	private static StateLookup IDRelay = new StateLookup();
+
+	public static IBlockState getStateById(
+			final int blockStateID )
+	{
+		return IDRelay.getStateById( blockStateID );
+	}
+
+	public static int getStateId(
+			final IBlockState state )
+	{
+		return IDRelay.getStateId( state );
+	}
+
+	public static void cacheFastStates()
+	{
+		if ( !ChiselsAndBits.getConfig().lowMemoryMode )
+		{
+			// cache id -> state table as an array for faster rendering lookups.
+			IDRelay = new CachedStateLookup();
 		}
 	}
 

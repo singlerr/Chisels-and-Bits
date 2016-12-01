@@ -5,7 +5,18 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraft.block.Block;
+import org.lwjgl.util.vector.Vector3f;
+
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.client.culling.ICullTest;
+import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.render.BaseBakedBlockModel;
+import mod.chiselsandbits.render.helpers.ModelQuadLayer;
+import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -20,17 +31,6 @@ import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3i;
-
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
-import mod.chiselsandbits.client.culling.ICullTest;
-import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.core.ClientSide;
-import mod.chiselsandbits.render.BaseBakedBlockModel;
-import mod.chiselsandbits.render.helpers.ModelQuadLayer;
-import mod.chiselsandbits.render.helpers.ModelUtil;
-import org.lwjgl.util.vector.Vector3f;
 
 public class ChiseledBlockBaked extends BaseBakedBlockModel
 {
@@ -179,7 +179,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	{
 		myLayer = layer;
 		this.format = format;
-		final IBlockState state = Block.getStateById( blockReference );
+		final IBlockState state = ModUtil.getStateById( blockReference );
 
 		IBakedModel originalModel = null;
 
@@ -214,8 +214,8 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	{
 		final ChiseledBlockBaked out = new ChiseledBlockBaked();
 
-		final IBlockState state = Block.getStateById( blockStateID );
-		final IBakedModel model = ModelUtil.solveModel( state, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( Block.getStateById( blockStateID ) ) );
+		final IBlockState state = ModUtil.getStateById( blockStateID );
+		final IBakedModel model = ModelUtil.solveModel( state, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( ModUtil.getStateById( blockStateID ) ) );
 		if ( model != null )
 		{
 			out.sprite = ModelUtil.findTexture( blockStateID, model, EnumFacing.UP, layer.layer );
@@ -699,7 +699,9 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	static private void offsetVec(
 			final int[] result,
-			final int toX, final int toY, final int toZ,
+			final int toX,
+			final int toY,
+			final int toZ,
 			final EnumFacing f,
 			final int d )
 	{
@@ -714,32 +716,32 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		switch ( f )
 		{
-		case DOWN:
-			leftX = 1;
-			upZ = 1;
-			break;
-		case EAST:
-			leftZ = 1;
-			upY = 1;
-			break;
-		case NORTH:
-			leftX = 1;
-			upY = 1;
-			break;
-		case SOUTH:
-			leftX = 1;
-			upY = 1;
-			break;
-		case UP:
-			leftX = 1;
-			upZ = 1;
-			break;
-		case WEST:
-			leftZ = 1;
-			upY = 1;
-			break;
-		default:
-			break;
+			case DOWN:
+				leftX = 1;
+				upZ = 1;
+				break;
+			case EAST:
+				leftZ = 1;
+				upY = 1;
+				break;
+			case NORTH:
+				leftX = 1;
+				upY = 1;
+				break;
+			case SOUTH:
+				leftX = 1;
+				upY = 1;
+				break;
+			case UP:
+				leftX = 1;
+				upZ = 1;
+				break;
+			case WEST:
+				leftZ = 1;
+				upY = 1;
+				break;
+			default:
+				break;
 		}
 
 		result[0] = ( toX + leftX * d + upX * d ) / 2;

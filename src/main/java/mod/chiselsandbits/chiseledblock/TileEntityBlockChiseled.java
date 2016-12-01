@@ -231,7 +231,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 		if ( stateID != null )
 		{
-			final IBlockState state = Block.getStateById( stateID );
+			final IBlockState state = ModUtil.getStateById( stateID );
 			if ( state != null )
 			{
 				return state;
@@ -432,14 +432,14 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public void fillWith(
 			final IBlockState blockType )
 	{
-		final int ref = Block.getStateId( blockType );
+		final int ref = ModUtil.getStateId( blockType );
 
 		sideState = 0xff;
 		lightlevel = DeprecationHelper.getLightValue( blockType );
 		isNormalCube = ModUtil.isNormalCube( blockType );
 
 		IExtendedBlockState state = getBasicState()
-				.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( Block.getStateId( blockType ), getPositionRandom( pos ) ) );
+				.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( ModUtil.getStateId( blockType ), getPositionRandom( pos ) ) );
 
 		final VoxelNeighborRenderTracker tracker = state.getValue( BlockChiseled.UProperty_VoxelNeighborState );
 
@@ -491,7 +491,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			if ( vb == null )
 			{
 				vb = new VoxelBlob();
-				vb.fill( Block.getStateId( Blocks.COBBLESTONE.getDefaultState() ) );
+				vb.fill( ModUtil.getStateId( Blocks.COBBLESTONE.getDefaultState() ) );
 			}
 		}
 		else
@@ -632,7 +632,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			setState( getBasicState()
 					.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( common.mostCommonState, getPositionRandom( pos ) ) ) );
 
-			final IBlockState newState = Block.getStateById( common.mostCommonState );
+			final IBlockState newState = ModUtil.getStateById( common.mostCommonState );
 			if ( !MinecraftForge.EVENT_BUS.post( new EventFullBlockRestoration( worldObj, pos, newState ) ) )
 			{
 				worldObj.setBlockState( pos, newState, triggerUpdates ? 3 : 0 );

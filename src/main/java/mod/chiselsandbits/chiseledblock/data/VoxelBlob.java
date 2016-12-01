@@ -87,6 +87,7 @@ public final class VoxelBlob implements IVoxelSrc
 		if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
 		{
 			updateCacheClient();
+			ModUtil.cacheFastStates();
 		}
 	}
 
@@ -108,7 +109,7 @@ public final class VoxelBlob implements IVoxelSrc
 
 			for ( final IBlockState state : block.getBlockState().getValidStates() )
 			{
-				int id = Block.getStateId( state );
+				final int id = ModUtil.getStateId( state );
 				if ( state == null || state.getBlock() != block )
 				{
 					// reverse mapping is broken, so just skip over this state.
@@ -670,7 +671,7 @@ public final class VoxelBlob implements IVoxelSrc
 				cb.mostCommonStateTotal = quantity;
 			}
 
-			final IBlockState state = Block.getStateById( r );
+			final IBlockState state = ModUtil.getStateById( r );
 			if ( state != null && r != 0 )
 			{
 				nonAirBits += quantity;

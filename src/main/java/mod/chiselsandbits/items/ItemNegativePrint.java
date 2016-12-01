@@ -22,7 +22,6 @@ import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -208,7 +207,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 				tmp.readChisleData( comp );
 
 				final VoxelBlob bestBlob = tmp.getBlob();
-				bestBlob.binaryReplacement( 0, Block.getStateId( Blocks.STONE.getDefaultState() ) );
+				bestBlob.binaryReplacement( 0, ModUtil.getStateId( Blocks.STONE.getDefaultState() ) );
 
 				tmp.setBlob( bestBlob );
 				tmp.writeChisleData( comp );
@@ -242,7 +241,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final BlobStats stats = conv.getBlob().getVoxelStats();
 			if ( stats.isFullBlock )
 			{
-				final IBlockState state = Block.getStateById( stats.mostCommonState );
+				final IBlockState state = ModUtil.getStateById( stats.mostCommonState );
 				final ItemStack is = ModUtil.getItemFromBlock( state );
 
 				if ( is != null )
