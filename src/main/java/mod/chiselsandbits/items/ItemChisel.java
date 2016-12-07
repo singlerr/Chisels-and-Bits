@@ -486,7 +486,9 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	@Override
 	public int getHarvestLevel(
 			final ItemStack stack,
-			final String toolClass )
+			final String toolClass,
+			final EntityPlayer player,
+			final IBlockState blockState )
 	{
 		if ( testingChisel && stack.getItem() instanceof ItemChisel )
 		{
@@ -502,7 +504,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			}
 		}
 
-		return super.getHarvestLevel( stack, toolClass );
+		return super.getHarvestLevel( stack, toolClass, player, blockState );
 	}
 
 	@Override

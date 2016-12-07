@@ -3,7 +3,6 @@ package mod.chiselsandbits.bittank;
 import com.google.common.base.Predicate;
 
 import mod.chiselsandbits.core.Log;
-import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
@@ -197,12 +196,7 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 			if ( current != null )
 			{
 				final IFluidHandler wrappedTank = tank;
-				if ( FluidUtil.interactWithFluidHandler( current, wrappedTank, playerIn ) )
-				{
-					return true;
-				}
-
-				if ( DeprecationHelper.isBucketRegisteryTest( current ) )
+				if ( FluidUtil.interactWithFluidHandler( current, wrappedTank, playerIn ).isSuccess() )
 				{
 					return true;
 				}

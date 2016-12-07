@@ -185,4 +185,11 @@ public class BagStorage implements IBitBag
 		return used;
 	}
 
+	@Override
+	public int getSlotLimit(
+			final int slot )
+	{
+		return getBitbagStackSize();
+	}
+
 }

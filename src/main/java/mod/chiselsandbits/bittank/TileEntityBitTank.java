@@ -506,4 +506,11 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 		return null;
 	}
 
+	@Override
+	public int getSlotLimit(
+			final int slot )
+	{
+		return TileEntityBitTank.BITS_PER_MB_CONVERSION;
+	}
+
 }

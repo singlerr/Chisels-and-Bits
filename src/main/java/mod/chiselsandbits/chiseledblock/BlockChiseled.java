@@ -268,6 +268,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 
 	@Override
 	public boolean canRenderInLayer(
+			final IBlockState state,
 			final BlockRenderLayer layer )
 	{
 		return true;

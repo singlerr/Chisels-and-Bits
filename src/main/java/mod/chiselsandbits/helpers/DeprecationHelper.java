@@ -5,8 +5,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.translation.I18n;
-import net.minecraftforge.fluids.FluidContainerRegistry;
-import net.minecraftforge.fluids.IFluidContainerItem;
 
 @SuppressWarnings( "deprecation" )
 public class DeprecationHelper
@@ -41,12 +39,6 @@ public class DeprecationHelper
 			final String string )
 	{
 		return I18n.translateToLocal( string );
-	}
-
-	public static boolean isBucketRegisteryTest(
-			final ItemStack current )
-	{
-		return FluidContainerRegistry.isBucket( current ) || FluidContainerRegistry.isFilledContainer( current ) || current.getItem() instanceof IFluidContainerItem;
 	}
 
 	public static String translateToLocal(
