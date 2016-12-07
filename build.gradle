@@ -32,7 +32,6 @@ repositories {
 
 dependencies {
 	deobfCompile "mezz.jei:${jei_version}"
-	deobfCompile "MCMultiPart:${mcmp_version}"
 }
 
 minecraft {
