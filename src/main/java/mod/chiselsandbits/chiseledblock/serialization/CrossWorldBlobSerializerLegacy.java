@@ -5,6 +5,7 @@ import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
 
@@ -32,7 +33,7 @@ public class CrossWorldBlobSerializerLegacy extends BlobSerializer
 
 		final Block blk = Block.REGISTRY.getObject( new ResourceLocation( name ) );
 
-		if ( blk == null )
+		if ( blk == null || blk == Blocks.AIR )
 		{
 			return 0;
 		}

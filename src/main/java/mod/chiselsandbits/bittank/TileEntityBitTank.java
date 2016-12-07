@@ -1,5 +1,7 @@
 package mod.chiselsandbits.bittank;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.DeprecationHelper;
@@ -151,16 +153,16 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			return getFluidBitStack( myFluid, bits );
 		}
 
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
-	public ItemStack getFluidBitStack(
+	public @Nonnull ItemStack getFluidBitStack(
 			final Fluid liquid,
 			final int amount )
 	{
 		if ( liquid == null || liquid.getBlock() == null )
 		{
-			return null;
+			return ModUtil.getEmptyStack();
 		}
 
 		return ItemChiseledBit.createStack( ModUtil.getStateId( liquid.getBlock().getDefaultState() ), amount, false );
@@ -221,7 +223,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 					return out;
 				}
 
-				return null;
+				return ModUtil.getEmptyStack();
 			}
 		}
 		return stack;
@@ -389,7 +391,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 	}
 
 	boolean addHeldBits(
-			final ItemStack current,
+			final @Nonnull ItemStack current,
 			final EntityPlayer playerIn )
 	{
 		if ( playerIn.isSneaking() )
@@ -425,7 +427,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 
 			final ItemStack leftOver = insertItem( 0, bitItems, true );
 
-			if ( leftOver == null )
+			if ( ModUtil.isEmpty( leftOver ) )
 			{
 				if ( doFill )
 				{

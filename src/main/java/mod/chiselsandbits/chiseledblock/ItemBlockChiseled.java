@@ -299,7 +299,6 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 			final IntegerBox modelBounds = source.getBounds();
 			BlockPos offset = partial == null ? new BlockPos( 0, 0, 0 ) : ModUtil.getPartialOffset( side, partial, modelBounds );
-			final BlockChiseled myBlock = (BlockChiseled) block;
 
 			if ( offset.getX() < 0 )
 			{
@@ -387,7 +386,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 									final int commonBlock = blobs[x][y][z].getVoxelStats().mostCommonState;
 									if ( BlockChiseled.replaceWithChisled( world, bp, state, commonBlock, true ) )
 									{
-										final TileEntityBlockChiseled target = myBlock.getTileEntity( world, bp );
+										final TileEntityBlockChiseled target = BlockChiseled.getTileEntity( world, bp );
 										target.completeEditOperation( blobs[x][y][z] );
 									}
 

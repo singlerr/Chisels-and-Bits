@@ -11,6 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
@@ -44,7 +45,14 @@ public class ClipboardStorage extends Configuration
 				final NBTTagCompound nbt = i.getTagCompound();
 				final PacketBuffer b = new PacketBuffer( Unpooled.buffer() );
 
-				b.writeString( Item.REGISTRY.getNameForObject( i.getItem() ).toString() );
+				final ResourceLocation resLoc = Item.REGISTRY.getNameForObject( i.getItem() );
+
+				if ( resLoc == null )
+				{
+					continue;
+				}
+
+				b.writeString( resLoc.toString() );
 				b.writeNBTTagCompoundToBuffer( nbt );
 
 				final int[] o = new int[b.writerIndex()];

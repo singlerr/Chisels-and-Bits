@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import mod.chiselsandbits.bitbag.BagInventory;
@@ -104,7 +106,7 @@ public class ModUtil
 		ItemStackSlot(
 				final IInventory i,
 				final int s,
-				final ItemStack st,
+				final @Nonnull ItemStack st,
 				final ActingPlayer player,
 				final boolean canEdit )
 		{
@@ -193,7 +195,7 @@ public class ModUtil
 			}
 		}
 
-		return new ItemStackSlot( null, -1, null, who, canEdit );
+		return new ItemStackSlot( null, -1, ModUtil.getEmptyStack(), who, canEdit );
 	}
 
 	public static boolean isHoldingPattern(
@@ -689,25 +691,25 @@ public class ModUtil
 	public static int getStackSize(
 			final ItemStack stack )
 	{
-		return stack.func_190916_E();
+		return stack == null ? 0 : stack.func_190916_E();
 	}
 
 	public static void setStackSize(
-			final ItemStack stack,
+			final @Nonnull ItemStack stack,
 			final int stackSize )
 	{
 		stack.func_190920_e( stackSize );
 	}
 
 	public static void adjustStackSize(
-			final ItemStack is,
+			final @Nonnull ItemStack is,
 			final int sizeDelta )
 	{
 		setStackSize( is, getStackSize( is ) + sizeDelta );
 	}
 
 	public static NBTTagCompound getSubCompound(
-			final ItemStack stack,
+			final @Nonnull ItemStack stack,
 			final String tag,
 			final boolean create )
 	{
@@ -721,7 +723,8 @@ public class ModUtil
 		}
 	}
 
-	public static ItemStack getEmptyStack()
+	@SuppressWarnings( "null" )
+	public static @Nonnull ItemStack getEmptyStack()
 	{
 		return ItemStack.field_190927_a;
 	}

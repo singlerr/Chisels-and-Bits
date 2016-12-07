@@ -71,7 +71,7 @@ public class BagStorage implements IBitBag
 			}
 		}
 
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class BagStorage implements IBitBag
 							return ItemChiseledBit.createStack( brush.getStateID(), overFlow, false );
 						}
 
-						return null;
+						return ModUtil.getEmptyStack();
 					}
 				}
 				catch ( final InvalidBitItem e )
@@ -164,7 +164,7 @@ public class BagStorage implements IBitBag
 			}
 		}
 
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
 	@Override

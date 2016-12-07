@@ -3,6 +3,8 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.api.IMultiStateBlock;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
@@ -276,7 +278,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 
 	static ExceptionNoTileEntity noTileEntity = new ExceptionNoTileEntity();
 
-	public static TileEntityBlockChiseled getTileEntity(
+	public static @Nonnull TileEntityBlockChiseled getTileEntity(
 			final TileEntity te ) throws ExceptionNoTileEntity
 	{
 		if ( te == null )
@@ -294,7 +296,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		}
 	}
 
-	public static TileEntityBlockChiseled getTileEntity(
+	public static @Nonnull TileEntityBlockChiseled getTileEntity(
 			final IBlockAccess world,
 			final BlockPos pos ) throws ExceptionNoTileEntity
 	{
@@ -985,8 +987,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 					tec = (TileEntityBlockChiseled) te;
 				}
 
-				tec.fillWith( actingState );
-				tec.setState( tec.getBasicState().withProperty( BlockChiseled.UProperty_Primary_BlockState, BlockID ) );
+				if ( tec != null )
+				{
+					tec.fillWith( actingState );
+					tec.setState( tec.getBasicState().withProperty( BlockChiseled.UProperty_Primary_BlockState, BlockID ) );
+				}
 
 				return true;
 			}

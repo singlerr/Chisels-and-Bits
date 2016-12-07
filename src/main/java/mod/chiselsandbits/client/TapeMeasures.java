@@ -424,11 +424,14 @@ public class TapeMeasures
 			final float partialTicks )
 	{
 		final Entity view = Minecraft.getMinecraft().getRenderViewEntity();
-		final float yaw = view.prevRotationYaw + ( view.rotationYaw - view.prevRotationYaw ) * partialTicks;
-		GlStateManager.rotate( 180 + -yaw, 0f, 1f, 0f );
+		if ( view != null )
+		{
+			final float yaw = view.prevRotationYaw + ( view.rotationYaw - view.prevRotationYaw ) * partialTicks;
+			GlStateManager.rotate( 180 + -yaw, 0f, 1f, 0f );
 
-		final float pitch = view.prevRotationPitch + ( view.rotationPitch - view.prevRotationPitch ) * partialTicks;
-		GlStateManager.rotate( -pitch, 1f, 0f, 0f );
+			final float pitch = view.prevRotationPitch + ( view.rotationPitch - view.prevRotationPitch ) * partialTicks;
+			GlStateManager.rotate( -pitch, 1f, 0f, 0f );
+		}
 	}
 
 	private String getSize(

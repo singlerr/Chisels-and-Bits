@@ -34,7 +34,7 @@ public abstract class BaseModelReader implements IVertexConsumer
 
 	}
 
-	// @Override
+	@Override
 	public void setTexture(
 			final TextureAtlasSprite texture )
 	{

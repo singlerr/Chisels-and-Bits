@@ -3,6 +3,7 @@ package mod.chiselsandbits.core.api;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.Log;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 
@@ -26,7 +27,7 @@ public class IMCHandlerIgnoreLogic implements IMCMessageHandler
 				blk = Block.REGISTRY.getObject( new ResourceLocation( name ) );
 
 				// try finding the block in the mod instead...
-				if ( blk == null )
+				if ( blk == null || blk == Blocks.AIR )
 				{
 					errorName = message.getSender() + ":" + name;
 					blk = Block.REGISTRY.getObject( new ResourceLocation( message.getSender(), name ) );
@@ -43,7 +44,7 @@ public class IMCHandlerIgnoreLogic implements IMCMessageHandler
 				return;
 			}
 
-			if ( blk != null )
+			if ( blk != null && blk != Blocks.AIR )
 			{
 				BlockBitInfo.ignoreBlockLogic( blk );
 			}
