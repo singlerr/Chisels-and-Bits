@@ -48,7 +48,7 @@ public class BitSawCrafting implements IRecipe
 			{
 				final ItemStack is = inv.getStackInRowAndColumn( x, y );
 
-				if ( is != null )
+				if ( !ModUtil.isEmpty( is ) )
 				{
 					if ( is.getItem() instanceof ItemBitSaw )
 					{

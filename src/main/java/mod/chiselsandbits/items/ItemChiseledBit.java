@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.bittank.BlockBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
@@ -377,7 +379,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		return output.hasTagCompound() ? getStackState( output ) == blk : false;
 	}
 
-	public static ItemStack createStack(
+	public static @Nonnull ItemStack createStack(
 			final int id,
 			final int count,
 			final boolean RequireStack )
@@ -408,7 +410,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	public static int getStackState(
 			final ItemStack inHand )
 	{
-		return inHand != null && inHand.hasTagCompound() ? inHand.getTagCompound().getInteger( "id" ) : 0;
+		return inHand != null && inHand.hasTagCompound() ? ModUtil.getTagCompound( inHand ).getInteger( "id" ) : 0;
 	}
 
 	public static boolean placeBit(

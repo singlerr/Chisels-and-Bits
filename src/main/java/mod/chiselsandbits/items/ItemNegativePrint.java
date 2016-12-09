@@ -120,8 +120,8 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		if ( stack != null && stack.hasTagCompound() )
 		{
 			final boolean a = ModUtil.getSubCompound( stack, ModUtil.NBT_BLOCKENTITYTAG, false ) != null;
-			final boolean b = stack.getTagCompound().hasKey( NBTBlobConverter.NBT_LEGACY_VOXEL );
-			final boolean c = stack.getTagCompound().hasKey( NBTBlobConverter.NBT_VERSIONED_VOXEL );
+			final boolean b = ModUtil.getTagCompound( stack ).hasKey( NBTBlobConverter.NBT_LEGACY_VOXEL );
+			final boolean c = ModUtil.getTagCompound( stack ).hasKey( NBTBlobConverter.NBT_VERSIONED_VOXEL );
 			return a || b || c;
 		}
 		return false;

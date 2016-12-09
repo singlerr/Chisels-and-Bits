@@ -1,5 +1,7 @@
 package mod.chiselsandbits.crafting;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -24,7 +26,7 @@ public class StackableCrafting implements IRecipe
 		for ( int x = 0; x < craftingInv.getSizeInventory(); x++ )
 		{
 			final ItemStack f = craftingInv.getStackInSlot( x );
-			if ( f == null )
+			if ( ModUtil.isEmpty( f ) )
 			{
 				continue;
 			}
@@ -56,7 +58,7 @@ public class StackableCrafting implements IRecipe
 		for ( int x = 0; x < craftingInv.getSizeInventory(); x++ )
 		{
 			final ItemStack f = craftingInv.getStackInSlot( x );
-			if ( f == null )
+			if ( ModUtil.isEmpty( f ) )
 			{
 				continue;
 			}
@@ -67,20 +69,20 @@ public class StackableCrafting implements IRecipe
 			}
 			else
 			{
-				return null;
+				return ModUtil.getEmptyStack();
 			}
 		}
 
 		if ( target == null || !target.hasTagCompound() || !( target.getItem() instanceof ItemBlockChiseled ) )
 		{
-			return null;
+			return ModUtil.getEmptyStack();
 		}
 
 		return getSortedVersion( target );
 	}
 
 	private ItemStack getSortedVersion(
-			final ItemStack stack )
+			final @Nonnull ItemStack stack )
 	{
 		final NBTBlobConverter tmp = new NBTBlobConverter();
 		tmp.readChisleData( ModUtil.getSubCompound( stack, ModUtil.NBT_BLOCKENTITYTAG, false ) );
@@ -155,7 +157,7 @@ public class StackableCrafting implements IRecipe
 
 		for ( int i = 0; i < aitemstack.size(); ++i )
 		{
-			final ItemStack itemstack = inv.getStackInSlot( i );
+			final ItemStack itemstack = ModUtil.nonNull( inv.getStackInSlot( i ) );
 			aitemstack.set( i, net.minecraftforge.common.ForgeHooks.getContainerItem( itemstack ) );
 		}
 

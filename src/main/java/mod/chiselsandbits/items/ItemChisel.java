@@ -371,7 +371,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			return world.isBlockModifiable( player, pos );
 		}
 
-		if ( chisel == null )
+		if ( ModUtil.isEmpty( chisel ) )
 		{
 			return false;
 		}
@@ -406,7 +406,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 				chiselSlot = chiselInv.getItem( targetState );
 				chisel = chiselSlot.getStack();
 			}
-			while ( chisel != null );
+			while ( !ModUtil.isEmpty( chisel ) );
 
 			return false;
 		}

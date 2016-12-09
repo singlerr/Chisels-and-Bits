@@ -1,6 +1,7 @@
 package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.helpers.ChiselToolType;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.client.Minecraft;
@@ -52,7 +53,7 @@ public class PacketSetColor extends ModPacket
 		{
 			if ( ei != null && ei.hasTagCompound() )
 			{
-				return EnumDyeColor.valueOf( ei.getTagCompound().getString( "color" ) );
+				return EnumDyeColor.valueOf( ModUtil.getTagCompound( ei ).getString( "color" ) );
 			}
 		}
 		catch ( final IllegalArgumentException e )

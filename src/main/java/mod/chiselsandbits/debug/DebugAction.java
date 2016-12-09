@@ -391,16 +391,19 @@ public abstract class DebugAction
 				else
 				{
 					final IBlockState state = brush.getState();
-					final Block blk = state.getBlock();
-
-					final ItemStack it = brush.getItemStack( 1 );
-
-					if ( it.getItem() != null )
+					if ( state != null )
 					{
-						player.inventory.addItemStackToInventory( it );
-					}
+						final Block blk = state.getBlock();
 
-					player.inventory.addItemStackToInventory( new ItemStack( blk, 1, blk.getMetaFromState( state ) ) );
+						final ItemStack it = brush.getItemStack( 1 );
+
+						if ( it != null && it.getItem() != null )
+						{
+							player.inventory.addItemStackToInventory( it );
+						}
+
+						player.inventory.addItemStackToInventory( new ItemStack( blk, 1, blk.getMetaFromState( state ) ) );
+					}
 				}
 			}
 			catch ( final CannotBeChiseled e )

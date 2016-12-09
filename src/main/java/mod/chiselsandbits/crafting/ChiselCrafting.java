@@ -46,7 +46,7 @@ public class ChiselCrafting implements IRecipe
 			{
 				continue;
 			}
-			else
+			else if ( !ModUtil.isEmpty( is ) )
 			{
 				return null;
 			}
@@ -85,7 +85,7 @@ public class ChiselCrafting implements IRecipe
 			return ChiselsAndBits.getItems().itemPositiveprint.getPatternedItem( req.pattern, true );
 		}
 
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
 	@Override

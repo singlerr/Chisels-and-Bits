@@ -59,7 +59,7 @@ public class NegativeInversionCrafting implements IRecipe
 					targetB = f;
 				}
 			}
-			else
+			else if ( !ModUtil.isEmpty( f ) )
 			{
 				return null;
 			}
@@ -80,7 +80,7 @@ public class NegativeInversionCrafting implements IRecipe
 
 			tmp.setBlob( bestBlob );
 
-			final NBTTagCompound comp = targetA.getTagCompound().copy();
+			final NBTTagCompound comp = ModUtil.getTagCompound( targetA ).copy();
 			tmp.writeChisleData( comp, false );
 
 			final ItemStack outputPattern = new ItemStack( targetA.getItem() );

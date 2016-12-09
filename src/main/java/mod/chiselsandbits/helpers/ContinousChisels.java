@@ -89,7 +89,7 @@ public class ContinousChisels implements IContinuousInventory
 
 		if ( choices.isEmpty() )
 		{
-			return new ItemStackSlot( null, -1, ModUtil.getEmptyStack(), who, canEdit );
+			return new ItemStackSlot( who.getInventory(), -1, ModUtil.getEmptyStack(), who, canEdit );
 		}
 
 		final ItemStackSlot slot = choices.get( choices.size() - 1 );

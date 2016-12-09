@@ -92,7 +92,7 @@ public class MirrorTransferCrafting implements IRecipe
 					return null;
 				}
 			}
-			else
+			else if ( !ModUtil.isEmpty( f ) )
 			{
 				return null;
 			}
@@ -117,7 +117,7 @@ public class MirrorTransferCrafting implements IRecipe
 
 			tmp.setBlob( bestBlob );
 
-			final NBTBase copied = targetA.getTagCompound().copy();
+			final NBTBase copied = ModUtil.getTagCompound( targetA ).copy();
 			final NBTTagCompound comp = (NBTTagCompound) copied;
 			tmp.writeChisleData( comp, false );
 

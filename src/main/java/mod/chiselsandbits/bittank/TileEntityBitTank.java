@@ -169,7 +169,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 	}
 
 	@Override
-	public ItemStack insertItem(
+	public @Nonnull ItemStack insertItem(
 			final int slot,
 			final ItemStack stack,
 			final boolean simulate )
@@ -218,7 +218,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 
 				if ( amount < merged )
 				{
-					final ItemStack out = stack.copy();
+					final ItemStack out = ModUtil.copy( stack );
 					ModUtil.setStackSize( out, merged - amount );
 					return out;
 				}
@@ -250,7 +250,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 	 * @param simulate
 	 * @return
 	 */
-	public ItemStack extractBits(
+	public @Nonnull ItemStack extractBits(
 			final int slot,
 			final int amount,
 			final boolean simulate )
@@ -282,7 +282,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			return contents;
 		}
 
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
 	@Override
@@ -371,7 +371,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			boolean change = false;
 			for ( int x = 0; x < playerIn.inventory.getSizeInventory(); x++ )
 			{
-				final ItemStack stackInSlot = playerIn.inventory.getStackInSlot( x );
+				final ItemStack stackInSlot = ModUtil.nonNull( playerIn.inventory.getStackInSlot( x ) );
 				if ( ChiselsAndBits.getApi().getItemType( stackInSlot ) == ItemType.CHISLED_BIT )
 				{
 					playerIn.inventory.setInventorySlotContents( x, insertItem( 0, stackInSlot, false ) );

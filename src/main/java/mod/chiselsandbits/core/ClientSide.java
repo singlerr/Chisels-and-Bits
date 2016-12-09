@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nonnull;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -571,7 +573,10 @@ public class ClientSide
 					if ( brush != null )
 					{
 						final ItemStack is = brush.getItemStack( 1 );
-						doPick( is );
+						if ( is != null )
+						{
+							doPick( is );
+						}
 					}
 				}
 				catch ( final CannotBeChiseled e )
@@ -630,7 +635,7 @@ public class ClientSide
 	}
 
 	private boolean doPick(
-			final ItemStack result )
+			final @Nonnull ItemStack result )
 	{
 		final EntityPlayer player = getPlayer();
 

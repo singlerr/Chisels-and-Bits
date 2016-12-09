@@ -1,6 +1,7 @@
 package mod.chiselsandbits.debug;
 
 import mod.chiselsandbits.debug.DebugAction.Tests;
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -72,7 +73,7 @@ public class ItemApiDebug extends Item
 	{
 		if ( stack.hasTagCompound() )
 		{
-			return stack.getTagCompound().getInteger( "id" );
+			return ModUtil.getTagCompound( stack ).getInteger( "id" );
 		}
 
 		return 0;

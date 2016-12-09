@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -81,7 +83,7 @@ public class BagInventory implements IInventory
 	}
 
 	@Override
-	public ItemStack getStackInSlot(
+	public @Nonnull ItemStack getStackInSlot(
 			final int index )
 	{
 		final int qty = inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY];
@@ -89,8 +91,9 @@ public class BagInventory implements IInventory
 
 		if ( ModUtil.notEmpty( stackSlots[index] ) )
 		{
-			ModUtil.setStackSize( stackSlots[index], qty );
-			return stackSlots[index];
+			final ItemStack which = ModUtil.nonNull( stackSlots[index] );
+			ModUtil.setStackSize( which, qty );
+			return which;
 		}
 
 		if ( qty == 0 || id == 0 )
@@ -124,7 +127,7 @@ public class BagInventory implements IInventory
 
 		if ( ModUtil.notEmpty( stackSlots[index] ) )
 		{
-			ModUtil.adjustStackSize( stackSlots[index], -count );
+			ModUtil.adjustStackSize( ModUtil.nonNull( stackSlots[index] ), -count );
 		}
 
 		return ItemChiseledBit.createStack( id, count, false );
@@ -254,18 +257,22 @@ public class BagInventory implements IInventory
 		return cmpStack.getItem() == invStack.getItem() && ItemStack.areItemStackTagsEqual( cmpStack, invStack );
 	}
 
-	public void restockItem(
-			final ItemStack target )
+	public ItemStack restockItem(
+			final ItemStack target,
+			final ItemStack targetType )
 	{
+		int outSize = ModUtil.getStackSize( target );
+
 		for ( int x = getSizeInventory() - 1; x >= 0; x-- )
 		{
 			final ItemStack is = getStackInSlot( x );
-			if ( is != null && is.getItem() == target.getItem() && ItemChiseledBit.sameBit( target, ItemChiseledBit.getStackState( is ) ) )
+
+			if ( ItemChiseledBit.sameBit( targetType, ItemChiseledBit.getStackState( is ) ) )
 			{
-				ModUtil.adjustStackSize( target, ModUtil.getStackSize( is ) );
-				final int total = ModUtil.getStackSize( target );
-				ModUtil.setStackSize( target, Math.min( is.getMaxStackSize(), ModUtil.getStackSize( target ) ) );
-				final int overage = total - ModUtil.getStackSize( target );
+				outSize += ModUtil.getStackSize( is );
+				final int total = outSize;
+				outSize = Math.min( is.getMaxStackSize(), outSize );
+				final int overage = total - outSize;
 
 				if ( overage > 0 )
 				{
@@ -279,15 +286,19 @@ public class BagInventory implements IInventory
 				markDirty();
 			}
 		}
+
+		final ItemStack out = ModUtil.copy( targetType );
+		ModUtil.setStackSize( out, outSize );
+		return out;
 	}
 
-	public ItemStack insertItem(
-			final ItemStack which )
+	public @Nonnull ItemStack insertItem(
+			final @Nonnull ItemStack which )
 	{
 		for ( int x = 0; x < getSizeInventory(); x++ )
 		{
 			final ItemStack is = getStackInSlot( x );
-			if ( is != null && ItemChiseledBit.getStackState( which ) == ItemChiseledBit.getStackState( is ) )
+			if ( !ModUtil.isEmpty( is ) && ItemChiseledBit.getStackState( which ) == ItemChiseledBit.getStackState( is ) )
 			{
 				ModUtil.adjustStackSize( is, ModUtil.getStackSize( which ) );
 				final int total = ModUtil.getStackSize( is );
@@ -304,7 +315,7 @@ public class BagInventory implements IInventory
 					return ModUtil.getEmptyStack();
 				}
 			}
-			else if ( is == null )
+			else if ( ModUtil.isEmpty( is ) )
 			{
 				setInventorySlotContents( x, which );
 				markDirty();

@@ -97,8 +97,8 @@ public class ModUtil
 	{
 		private final IInventory inv;
 		private final int slot;
-		private final ItemStack stack;
-		private final ItemStack originalStack;
+		private @Nonnull ItemStack stack;
+		private final @Nonnull ItemStack originalStack;
 		private final boolean isCreative;
 		private final boolean isEditable;
 		private final int toolSlot;
@@ -113,7 +113,7 @@ public class ModUtil
 			inv = i;
 			slot = s;
 			stack = st;
-			originalStack = st.copy();
+			originalStack = ModUtil.copy( st );
 			toolSlot = player.getCurrentItem();
 			isCreative = player.isCreative();
 			isEditable = canEdit;
@@ -121,7 +121,7 @@ public class ModUtil
 
 		public boolean isValid()
 		{
-			return isEditable && ( isCreative || stack != null && getStackSize( stack ) > 0 );
+			return isEditable && ( isCreative || !ModUtil.isEmpty( stack ) && getStackSize( stack ) > 0 );
 		}
 
 		public void damage(
@@ -136,7 +136,7 @@ public class ModUtil
 			if ( getStackSize( stack ) <= 0 )
 			{
 				who.playerDestroyItem( stack, who.getHand() );
-				inv.setInventorySlotContents( slot, null );
+				inv.setInventorySlotContents( slot, ModUtil.getEmptyStack() );
 			}
 		}
 
@@ -150,7 +150,7 @@ public class ModUtil
 			adjustStackSize( stack, -1 );
 			if ( getStackSize( stack ) <= 0 )
 			{
-				inv.setInventorySlotContents( slot, null );
+				inv.setInventorySlotContents( slot, ModUtil.getEmptyStack() );
 			}
 		}
 
@@ -169,6 +169,13 @@ public class ModUtil
 		public ItemStack getStackType()
 		{
 			return originalStack;
+		}
+
+		public void replaceStack(
+				final @Nonnull ItemStack restockItem )
+		{
+			stack = restockItem;
+			inv.setInventorySlotContents( slot, restockItem );
 		}
 	};
 
@@ -195,7 +202,29 @@ public class ModUtil
 			}
 		}
 
-		return new ItemStackSlot( null, -1, ModUtil.getEmptyStack(), who, canEdit );
+		return new ItemStackSlot( inv, -1, ModUtil.getEmptyStack(), who, canEdit );
+	}
+
+	public static @Nonnull ItemStack copy(
+			final ItemStack st )
+	{
+		if ( st == null )
+		{
+			return ModUtil.getEmptyStack();
+		}
+
+		return nonNull( st.copy() );
+	}
+
+	public static @Nonnull ItemStack nonNull(
+			final ItemStack st )
+	{
+		if ( st == null )
+		{
+			return ModUtil.getEmptyStack();
+		}
+
+		return st;
 	}
 
 	public static boolean isHoldingPattern(
@@ -400,7 +429,7 @@ public class ModUtil
 			final EntityPlayer player,
 			final EntityItem ei )
 	{
-		ItemStack is = ei.getEntityItem();
+		ItemStack is = ModUtil.nonNull( ei.getEntityItem() );
 
 		final List<BagPos> bags = ItemBitBag.getBags( player.inventory );
 
@@ -709,7 +738,7 @@ public class ModUtil
 	}
 
 	public static NBTTagCompound getSubCompound(
-			final @Nonnull ItemStack stack,
+			final ItemStack stack,
 			final String tag,
 			final boolean create )
 	{
@@ -739,6 +768,19 @@ public class ModUtil
 			final ItemStack itemStack )
 	{
 		return itemStack == null || itemStack.func_190926_b();
+	}
+
+	public static @Nonnull NBTTagCompound getTagCompound(
+			final ItemStack ei )
+	{
+		final NBTTagCompound c = ei.getTagCompound();
+
+		if ( c == null )
+		{
+			return new NBTTagCompound();
+		}
+
+		return c;
 	}
 
 }

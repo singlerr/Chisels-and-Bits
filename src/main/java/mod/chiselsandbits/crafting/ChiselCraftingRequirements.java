@@ -39,7 +39,7 @@ class ChiselCraftingRequirements
 			if ( !copy )
 			{
 				// if we are not copying.. then we remove it...
-				inv.setInventorySlotContents( x, null );
+				inv.setInventorySlotContents( x, ModUtil.getEmptyStack() );
 			}
 
 			if ( is == null )

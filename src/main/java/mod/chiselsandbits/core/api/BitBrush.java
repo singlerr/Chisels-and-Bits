@@ -1,5 +1,7 @@
 package mod.chiselsandbits.core.api;
 
+import javax.annotation.Nullable;
+
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -18,7 +20,7 @@ public class BitBrush implements IBitBrush
 	}
 
 	@Override
-	public ItemStack getItemStack(
+	public @Nullable ItemStack getItemStack(
 			final int count )
 	{
 		if ( stateID == 0 )
@@ -36,7 +38,7 @@ public class BitBrush implements IBitBrush
 	}
 
 	@Override
-	public IBlockState getState()
+	public @Nullable IBlockState getState()
 	{
 		if ( stateID == 0 )
 		{

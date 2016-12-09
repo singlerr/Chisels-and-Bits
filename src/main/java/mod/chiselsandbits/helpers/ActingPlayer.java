@@ -1,5 +1,7 @@
 package mod.chiselsandbits.helpers;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.api.EventBlockBitModification;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -100,7 +102,7 @@ public class ActingPlayer
 	}
 
 	public void playerDestroyItem(
-			final ItemStack stack,
+			final @Nonnull ItemStack stack,
 			final EnumHand hand )
 	{
 		if ( realPlayer )

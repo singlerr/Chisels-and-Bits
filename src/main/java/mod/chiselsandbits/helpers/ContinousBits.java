@@ -82,7 +82,7 @@ public class ContinousBits implements IContinuousInventory
 		{
 			for ( final BagInventory bag : bags )
 			{
-				bag.restockItem( slot.getStackType() );
+				slot.replaceStack( bag.restockItem( slot.getStack(), slot.getStackType() ) );
 			}
 		}
 
@@ -92,7 +92,7 @@ public class ContinousBits implements IContinuousInventory
 		{
 			for ( final BagInventory bag : bags )
 			{
-				bag.restockItem( slot.getStackType() );
+				slot.replaceStack( bag.restockItem( slot.getStack(), slot.getStackType() ) );
 			}
 		}
 		else

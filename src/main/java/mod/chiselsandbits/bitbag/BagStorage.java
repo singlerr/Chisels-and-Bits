@@ -80,7 +80,7 @@ public class BagStorage implements IBitBag
 			final ItemStack stack,
 			final boolean simulate )
 	{
-		if ( slot >= 0 && slot < BAG_STORAGE_SLOTS && stack != null )
+		if ( slot >= 0 && slot < BAG_STORAGE_SLOTS && !ModUtil.isEmpty( stack ) )
 		{
 			final int indexId = ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_STATE_ID;
 			final int indexQty = ItemBitBag.INTS_PER_BIT_TYPE * slot + ItemBitBag.OFFSET_QUANTITY;

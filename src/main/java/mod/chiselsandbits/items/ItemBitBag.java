@@ -3,6 +3,8 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.bitbag.BagCapabilityProvider;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.bitbag.BagStorage;
@@ -136,7 +138,7 @@ public class ItemBitBag extends Item
 					{
 						if ( !entityItem.isDead )
 						{
-							modified = updateEntity( player, entityItem, i.inv.insertItem( entityItem.getEntityItem() ), originalSize ) || modified;
+							modified = updateEntity( player, entityItem, i.inv.insertItem( ModUtil.nonNull( entityItem.getEntityItem() ) ), originalSize ) || modified;
 						}
 					}
 				}
@@ -164,7 +166,7 @@ public class ItemBitBag extends Item
 
 						if ( !entityItem.isDead )
 						{
-							modified = updateEntity( player, entityItem, i.inv.insertItem( entityItem.getEntityItem() ), originalSize ) || modified;
+							modified = updateEntity( player, entityItem, i.inv.insertItem( ModUtil.nonNull( entityItem.getEntityItem() ) ), originalSize ) || modified;
 						}
 					}
 				}
@@ -235,7 +237,8 @@ public class ItemBitBag extends Item
 			for ( int slot = 0; slot < inv.getSizeInventory(); slot++ )
 			{
 				int actingSlot = slot;
-				ItemStack which = inv.getStackInSlot( actingSlot );
+				@Nonnull
+				ItemStack which = ModUtil.nonNull( inv.getStackInSlot( actingSlot ) );
 
 				if ( which != null && which.getItem() == is.getItem() && ( ItemChiseledBit.sameBit( which, ItemChiseledBit.getStackState( is ) ) || is.getItemDamage() == OreDictionary.WILDCARD_VALUE ) )
 				{
@@ -251,7 +254,7 @@ public class ItemBitBag extends Item
 						}
 					}
 
-					which = inv.getStackInSlot( actingSlot );
+					which = ModUtil.nonNull( inv.getStackInSlot( actingSlot ) );
 
 					if ( firstSeen == -1 )
 					{
@@ -262,7 +265,7 @@ public class ItemBitBag extends Item
 						for ( final BagPos i : bags )
 						{
 							which = i.inv.insertItem( which );
-							if ( which == null )
+							if ( ModUtil.isEmpty( which ) )
 							{
 								inv.setInventorySlotContents( actingSlot, which );
 								break;
