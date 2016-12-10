@@ -17,7 +17,6 @@ import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
@@ -370,7 +369,6 @@ public class BagInventory implements IInventory
 			final List<String> details )
 	{
 		final TreeMap<String, Integer> contents = new TreeMap<String, Integer>();
-		final IBlockState air = Blocks.AIR.getDefaultState();
 
 		for ( int x = 0; x < getSizeInventory(); x++ )
 		{
