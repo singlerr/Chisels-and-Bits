@@ -243,3 +243,4 @@ mod.chiselsandbits.config.forceDynamicRenderer.tooltip=Debug Setting, that disab
 mod.chiselsandbits.config.useVBO.tooltip=By Default uses the same setting as MC, but can be overridden.
 mod.chiselsandbits.config.radialMenuVolume='Click' volume for radial menu.
 mod.chiselsandbits.config.radialMenuVolume.tooltip=Setting to Zero will disable it.
+mod.chiselsandbits.config.enableChiselCrafting=Enable Chiseling Blocks in Crafting Table

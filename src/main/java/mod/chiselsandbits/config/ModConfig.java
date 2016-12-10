@@ -183,6 +183,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Crafting" )
 	public boolean enableNegativePrintInversionCrafting;
 
+	@Configured( category = "Crafting" )
+	public boolean enableChiselCrafting;
+
 	@Configured( category = "Items" )
 	public boolean enableBitTank;
 
@@ -269,9 +272,6 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Balance Settings" )
 	public boolean fullBlockCrafting;
-
-	@Configured( category = "Balance Settings" )
-	public boolean enableChiselCrafting;
 
 	// in game state
 	public boolean replaceingBits = false;
