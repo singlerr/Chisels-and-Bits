@@ -47,6 +47,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class TileEntityBlockChiseled extends TileEntity implements IChiseledTileContainer
 {
 
+	public static class TileEntityBlockChiseledDummy extends TileEntityBlockChiseled
+	{
+
+	};
+
 	private IExtendedBlockState state;
 	public IChiseledTileContainer occlusionState;
 

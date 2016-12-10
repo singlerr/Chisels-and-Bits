@@ -11,6 +11,7 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.MaterialType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled.TileEntityBlockChiseledDummy;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.config.ModConfig;
 import net.minecraft.block.material.Material;
@@ -65,7 +66,7 @@ public class ModBlocks extends ModRegistry
 		}
 		else
 		{
-			GameRegistry.registerTileEntity( TileEntityBlockChiseled.class, TE_CHISELEDBLOCK_TESR );
+			GameRegistry.registerTileEntity( TileEntityBlockChiseledDummy.class, TE_CHISELEDBLOCK_TESR );
 		}
 
 		if ( config.enableBitTank )
