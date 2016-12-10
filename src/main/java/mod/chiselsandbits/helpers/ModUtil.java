@@ -783,4 +783,42 @@ public class ModUtil
 		return c;
 	}
 
+	public static IBlockState getStateFromItem(
+			final ItemStack is )
+	{
+		try
+		{
+			if ( !ModUtil.isEmpty( is ) && is.getItem() instanceof ItemBlock )
+			{
+				final ItemBlock iblk = (ItemBlock) is.getItem();
+				final IBlockState state = iblk.getBlock().getStateFromMeta( iblk.getMetadata( is.getItemDamage() ) );
+				final ItemStack out = ModUtil.getItemFromBlock( state );
+
+				if ( out.getItem() == is.getItem() && is.getItemDamage() == out.getItemDamage() )
+				{
+					return state;
+				}
+			}
+		}
+		catch ( final Throwable t )
+		{
+			// : (
+		}
+
+		return Blocks.AIR.getDefaultState();
+	}
+
+	public static void damageItem(
+			final ItemStack is,
+			final Random r )
+	{
+		if ( is.isItemStackDamageable() )
+		{
+			if ( is.attemptDamageItem( 1, r ) )
+			{
+				is.func_190918_g( 1 );
+			}
+		}
+	}
+
 }

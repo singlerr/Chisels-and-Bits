@@ -15,6 +15,7 @@ import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.api.ChiselAndBitsAPI;
 import mod.chiselsandbits.core.api.IMCHandler;
 import mod.chiselsandbits.crafting.BitSawCrafting;
+import mod.chiselsandbits.crafting.ChiselBlockCrafting;
 import mod.chiselsandbits.crafting.ChiselCrafting;
 import mod.chiselsandbits.crafting.MirrorTransferCrafting;
 import mod.chiselsandbits.crafting.NegativeInversionCrafting;
@@ -165,7 +166,13 @@ public class ChiselsAndBits
 		if ( getConfig().enablePositivePrintCrafting )
 		{
 			GameRegistry.addRecipe( new ChiselCrafting() );
-			RecipeSorter.register( MODID + ":chiselcrafting", ChiselCrafting.class, Category.SHAPELESS, craftingOrder );
+			RecipeSorter.register( MODID + ":positiveprintcrafting", ChiselCrafting.class, Category.SHAPELESS, craftingOrder );
+		}
+
+		if ( getConfig().enableChiselCrafting )
+		{
+			GameRegistry.addRecipe( new ChiselBlockCrafting() );
+			RecipeSorter.register( MODID + ":chiselcrafting", ChiselBlockCrafting.class, Category.SHAPELESS, craftingOrder );
 		}
 
 		if ( getConfig().enableStackableCrafting )

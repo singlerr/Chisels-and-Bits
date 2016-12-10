@@ -270,6 +270,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public boolean fullBlockCrafting;
 
+	@Configured( category = "Balance Settings" )
+	public boolean enableChiselCrafting;
+
 	// in game state
 	public boolean replaceingBits = false;
 
@@ -321,6 +324,7 @@ public class ModConfig extends Configuration
 		enableTapeMeasure_Distance = !TapeMeasureModes.DISTANCE.isDisabled;
 		displayMeasuringTapeInChat = false;
 		perChiselMode = true;
+		enableChiselCrafting = true;
 		fullBlockCrafting = true;
 		radialMenuVolume = 0.1f;
 		chatModeNotification = false;
