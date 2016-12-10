@@ -243,6 +243,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		}
 
 		final Stopwatch w = Stopwatch.createStarted();
+		final boolean dynamicRenderFullChunksOnly = ChiselsAndBits.getConfig().dynamicRenderFullChunksOnly;
 		final int maxMillisecondsPerBlock = ChiselsAndBits.getConfig().maxMillisecondsPerBlock;
 		final int maxMillisecondsUploadingPerFrame = ChiselsAndBits.getConfig().maxMillisecondsUploadingPerFrame;
 
@@ -260,7 +261,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 				final Stopwatch sw = Stopwatch.createStarted();
 				uploadDisplayList( t );
 
-				if ( sw.elapsed( TimeUnit.MILLISECONDS ) > maxMillisecondsPerBlock )
+				if ( !dynamicRenderFullChunksOnly && sw.elapsed( TimeUnit.MILLISECONDS ) > maxMillisecondsPerBlock )
 				{
 					( (TileRenderChunk) t.trc ).singleInstanceMode = true;
 				}

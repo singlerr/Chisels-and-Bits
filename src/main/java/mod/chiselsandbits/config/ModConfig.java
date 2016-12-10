@@ -171,6 +171,9 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Performance Settings" )
 	public boolean defaultToDynamicRenderer;
 
+	@Configured( category = "Client Performance Settings" )
+	public boolean dynamicRenderFullChunksOnly;
+
 	@Configured( category = "Balance Settings" )
 	public boolean damageTools;
 
@@ -343,6 +346,7 @@ public class ModConfig extends Configuration
 		dynamicMaxConcurrentTessalators = 32; // in low memory this acts as 2.
 		forceDynamicRenderer = false;
 		defaultToDynamicRenderer = false;
+		dynamicRenderFullChunksOnly = true;
 		useVBO = UseVBO.AUTOMATIC;
 
 		showUsage = true;
