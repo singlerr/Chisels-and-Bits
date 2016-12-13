@@ -2,6 +2,7 @@ package mod.chiselsandbits.bittank;
 
 import javax.annotation.Nonnull;
 
+import mod.chiselsandbits.api.IBitBag;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.DeprecationHelper;
@@ -174,7 +175,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			final ItemStack stack,
 			final boolean simulate )
 	{
-		if ( stack != null && stack.getItem() instanceof ItemChiseledBit )
+		if ( !ModUtil.isEmpty( stack ) && stack.getItem() instanceof ItemChiseledBit )
 		{
 			final int state = ItemChiseledBit.getStackState( stack );
 			final IBlockState blk = ModUtil.getStateById( state );
@@ -195,7 +196,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			}
 
 			final ItemStack bitItem = getFluidBitStack( myFluid, bits );
-			final boolean canInsert = bitItem == null || ItemStack.areItemStackTagsEqual( bitItem, stack ) && bitItem.getItem() == stack.getItem();
+			final boolean canInsert = ModUtil.isEmpty( bitItem ) || ItemStack.areItemStackTagsEqual( bitItem, stack ) && bitItem.getItem() == stack.getItem();
 
 			if ( canInsert )
 			{
@@ -377,6 +378,16 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 					playerIn.inventory.setInventorySlotContents( x, insertItem( 0, stackInSlot, false ) );
 					change = true;
 				}
+
+				if ( ChiselsAndBits.getApi().getItemType( stackInSlot ) == ItemType.BIT_BAG )
+				{
+					final IBitBag bag = ChiselsAndBits.getApi().getBitbag( stackInSlot );
+					for ( int y = 0; y < bag.getSlots(); ++y )
+					{
+						bag.insertItem( y, insertItem( 0, bag.extractItem( y, bag.getSlotLimit( y ), false ), false ), false );
+						change = true;
+					}
+				}
 			}
 
 			if ( change )
@@ -424,16 +435,10 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 		{
 			final int bitCount = possibleAmount * TileEntityBitTank.BITS_PER_MB_CONVERSION / TileEntityBitTank.MB_PER_BIT_CONVERSION;
 			final ItemStack bitItems = getFluidBitStack( resource.getFluid(), bitCount );
-
-			final ItemStack leftOver = insertItem( 0, bitItems, true );
+			final ItemStack leftOver = insertItem( 0, bitItems, !doFill );
 
 			if ( ModUtil.isEmpty( leftOver ) )
 			{
-				if ( doFill )
-				{
-					insertItem( 0, bitItems, false );
-				}
-
 				return possibleAmount;
 			}
 
@@ -444,7 +449,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			mbUsedUp += TileEntityBitTank.BITS_PER_MB_CONVERSION - 1;
 			mbUsedUp /= TileEntityBitTank.BITS_PER_MB_CONVERSION;
 
-			return mbUsedUp;
+			return resource.amount - mbUsedUp;
 		}
 
 		return 0;

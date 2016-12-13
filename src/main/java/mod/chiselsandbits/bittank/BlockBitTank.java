@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.SoundType;
@@ -21,6 +22,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
@@ -191,13 +193,15 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 		try
 		{
 			final TileEntityBitTank tank = getTileEntity( worldIn, pos );
-			final ItemStack current = playerIn.inventory.getCurrentItem();
+			final ItemStack current = ModUtil.nonNull( playerIn.inventory.getCurrentItem() );
 
-			if ( current != null )
+			if ( !ModUtil.isEmpty( current ) )
 			{
 				final IFluidHandler wrappedTank = tank;
-				if ( FluidUtil.interactWithFluidHandler( current, wrappedTank, playerIn ).isSuccess() )
+				final FluidActionResult far = FluidUtil.interactWithFluidHandler( current, wrappedTank, playerIn );
+				if ( far.isSuccess() )
 				{
+					playerIn.setHeldItem( hand, far.getResult() );
 					return true;
 				}
 
