@@ -449,7 +449,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		catch ( final ExceptionNoTileEntity e )
 		{
 			Log.noTileError( e );
-			return null;
+			return ModUtil.getEmptyStack();
 		}
 	}
 
@@ -477,7 +477,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 				final int itemBlock = vb.get( bitLoc.bitX, bitLoc.bitY, bitLoc.bitZ );
 				if ( itemBlock == 0 )
 				{
-					return null;
+					return ModUtil.getEmptyStack();
 				}
 
 				return ItemChiseledBit.createStack( itemBlock, 1, false );
