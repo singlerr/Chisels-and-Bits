@@ -255,7 +255,7 @@ public class BagContainer extends Container
 					if ( ModUtil.getStackSize( newStackSlot ) > slot.getSlotStackLimit() )
 					{
 						held_stackSize = ModUtil.getStackSize( newStackSlot ) - slot.getSlotStackLimit();
-						ModUtil.adjustStackSize( newStackSlot, held_stackSize );
+						ModUtil.adjustStackSize( newStackSlot, -held_stackSize );
 					}
 
 					slot.putStack( newStackSlot );
@@ -296,15 +296,17 @@ public class BagContainer extends Container
 				{
 					final ItemStack newStackSlot = ModUtil.copy( slotStack );
 					ModUtil.adjustStackSize( newStackSlot, 1 );
-					ModUtil.adjustStackSize( held, -1 );
+					int held_quantity = ModUtil.getStackSize( held ) - 1;
 
 					if ( ModUtil.getStackSize( newStackSlot ) > slot.getSlotStackLimit() )
 					{
-						ModUtil.setStackSize( held, ModUtil.getStackSize( newStackSlot ) - slot.getSlotStackLimit() );
-						ModUtil.adjustStackSize( newStackSlot, -ModUtil.getStackSize( held ) );
+						final int diff = ModUtil.getStackSize( newStackSlot ) - slot.getSlotStackLimit();
+						held_quantity += diff;
+						ModUtil.adjustStackSize( newStackSlot, -diff );
 					}
 
 					slot.putStack( newStackSlot );
+					ModUtil.setStackSize( held, held_quantity );
 					thePlayer.inventory.setItemStack( ModUtil.notEmpty( held ) ? held : ModUtil.getEmptyStack() );
 				}
 			}
