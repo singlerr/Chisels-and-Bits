@@ -23,6 +23,7 @@ import com.google.common.base.Stopwatch;
 import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
@@ -220,6 +221,8 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		}
 	}
 
+	int lastFancy = -1;
+
 	@SubscribeEvent
 	public void nextFrame(
 			final RenderWorldLastEvent e )
@@ -227,6 +230,15 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		runJobs( getTracker().nextFrameTasks );
 
 		uploadDisplaylists();
+
+		// this seemingly stupid check fixes leaves, other wise we use fast
+		// until the atlas refreshes.
+		final int currentFancy = Minecraft.getMinecraft().gameSettings.fancyGraphics ? 1 : 0;
+		if ( currentFancy != lastFancy )
+		{
+			lastFancy = currentFancy;
+			VoxelBlob.clearCache();
+		}
 	}
 
 	private void uploadDisplaylists()

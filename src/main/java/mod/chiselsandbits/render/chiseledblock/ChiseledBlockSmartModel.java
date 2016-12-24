@@ -317,6 +317,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 			modelCache[l.ordinal()].clear();
 		}
 
+		sideCache.clear();
 		solidCache.clear();
 		itemToModel.clear();
 	}
