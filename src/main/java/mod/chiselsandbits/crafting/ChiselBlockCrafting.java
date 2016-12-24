@@ -101,6 +101,11 @@ public class ChiselBlockCrafting implements IRecipe
 				final IBitAccess ba = ChiselsAndBits.getApi().createBitItem( block );
 				final Chiseler c = new Chiseler( chisel, ChiselsAndBits.getApi().getBitbag( bag ) );
 
+				if ( ba == null )
+				{
+					return;
+				}
+
 				ba.visitBits( c );
 
 				modified = c.modified;
@@ -181,7 +186,8 @@ public class ChiselBlockCrafting implements IRecipe
 					try
 					{
 						final IBitBrush state = ChiselsAndBits.getApi().createBrushFromState( actingState );
-						final IBitAccess item = ChiselsAndBits.getApi().createBitItem( null );
+						final IBitAccess item = ChiselsAndBits.getApi().createBitItem( ModUtil.getEmptyStack() );
+						assert item != null;
 
 						item.visitBits( new IBitVisitor() {
 

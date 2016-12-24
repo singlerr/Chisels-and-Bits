@@ -1,5 +1,7 @@
 package mod.chiselsandbits.debug;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
@@ -76,13 +78,13 @@ public abstract class DebugAction
 	}
 
 	public abstract void run(
-			final World w,
-			final BlockPos pos,
-			final EnumFacing side,
+			final @Nonnull World w,
+			final @Nonnull BlockPos pos,
+			final @Nonnull EnumFacing side,
 			final float hitX,
 			final float hitY,
 			final float hitZ,
-			EntityPlayer player );
+			@Nonnull EntityPlayer player );
 
 	static class ItemTests extends DebugAction
 	{
@@ -97,7 +99,8 @@ public abstract class DebugAction
 				final float hitZ,
 				final EntityPlayer player )
 		{
-			final IBitAccess access = api.createBitItem( null );
+			final IBitAccess access = api.createBitItem( ModUtil.getEmptyStack() );
+			assert access != null;
 
 			apiAssert( "BIT_BAG", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemBitBag ) ) == ItemType.BIT_BAG );
 			apiAssert( "CHISEL", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond ) ) == ItemType.CHISEL );
@@ -106,7 +109,7 @@ public abstract class DebugAction
 			apiAssert( "POSITIVE_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemPositiveprint ) ) == ItemType.POSITIVE_DESIGN );
 			apiAssert( "WRENCH", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemWrench ) ) == ItemType.WRENCH );
 			apiAssert( "CHISLED_BIT-cobblestone", player, api.getItemType( ItemChiseledBit.createStack( ModUtil.getStateId( Blocks.COBBLESTONE.getDefaultState() ), 1, true ) ) == ItemType.CHISLED_BIT );
-			apiAssert( "CHISLED_BLOCK", player, api.getItemType( access.getBitsAsItem( null, ItemType.CHISLED_BLOCK, false ) ) == null );
+			apiAssert( "CHISLED_BLOCK", player, api.getItemType( access.getBitsAsItem( EnumFacing.UP, ItemType.CHISLED_BLOCK, false ) ) == null );
 			apiAssert( "MIRROR_DESIGN 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.MIRROR_DESIGN, false ) ) == null );
 			apiAssert( "NEGATIVE_DESIGN 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.NEGATIVE_DESIGN, false ) ) == null );
 			apiAssert( "POSITIVE_DESIGN 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.POSITIVE_DESIGN, false ) ) == null );
@@ -290,7 +293,7 @@ public abstract class DebugAction
 			try
 			{
 				final IBitAccess access = api.getBitAccess( w, loc.getBlockPos() );
-				final IBitBrush brush = api.createBrush( null );
+				final IBitBrush brush = api.createBrush( ModUtil.getEmptyStack() );
 
 				access.setBitAt( loc.getBitX(), loc.getBitY(), loc.getBitZ(), brush );
 				access.commitChanges( true );
@@ -339,7 +342,7 @@ public abstract class DebugAction
 							final int z,
 							final IBitBrush currentValue )
 					{
-						IBitBrush bit = null;
+						IBitBrush bit = currentValue;
 						final IBlockState state = Blocks.WOOL.getDefaultState();
 
 						try

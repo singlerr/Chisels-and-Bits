@@ -4,6 +4,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 
 public class NullInventory implements IInventory
 {
@@ -19,7 +21,7 @@ public class NullInventory implements IInventory
 	@Override
 	public String getName()
 	{
-		return null;
+		return "container.inventory";
 	}
 
 	@Override
@@ -31,7 +33,7 @@ public class NullInventory implements IInventory
 	@Override
 	public ITextComponent getDisplayName()
 	{
-		return null;
+		return hasCustomName() ? new TextComponentString( getName() ) : new TextComponentTranslation( getName(), new Object[0] );
 	}
 
 	@Override

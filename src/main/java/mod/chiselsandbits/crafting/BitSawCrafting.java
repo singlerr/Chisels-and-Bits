@@ -120,13 +120,13 @@ public class BitSawCrafting implements IRecipe
 
 		if ( sc == null )
 		{
-			return null;
+			return ModUtil.getEmptyStack();
 		}
 
 		final IBitAccess contents = ChiselsAndBits.getApi().createBitItem( sc.chisledBlock );
 		if ( contents == null )
 		{
-			return null;
+			return ModUtil.getEmptyStack();
 		}
 
 		final VoxelBlob blob = ( (BitAccess) contents ).getNativeBlob();
@@ -264,7 +264,7 @@ public class BitSawCrafting implements IRecipe
 			}
 		}
 
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
 	@Override

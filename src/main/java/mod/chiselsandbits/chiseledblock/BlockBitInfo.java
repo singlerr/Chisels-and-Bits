@@ -333,8 +333,8 @@ public class BlockBitInfo
 			// is it perfect?
 			if ( test_a && test_b && test_c && test_d && !isFluid )
 			{
-				final float blockHardness = blk.getBlockHardness( null, null, null );
-				final float resistance = blk.getExplosionResistance( null );
+				final float blockHardness = blk.blockHardness;
+				final float resistance = blk.blockResistance;
 
 				return new BlockBitInfo( true, blockHardness, resistance );
 			}
@@ -344,7 +344,7 @@ public class BlockBitInfo
 				// hardness... say like stone?
 
 				final Block stone = Blocks.STONE;
-				return new BlockBitInfo( ChiselsAndBits.getConfig().compatabilityMode, stone.getBlockHardness( null, null, null ), stone.getExplosionResistance( null ) );
+				return new BlockBitInfo( ChiselsAndBits.getConfig().compatabilityMode, blk.blockHardness, blk.blockResistance );
 			}
 		}
 		catch ( final Exception err )

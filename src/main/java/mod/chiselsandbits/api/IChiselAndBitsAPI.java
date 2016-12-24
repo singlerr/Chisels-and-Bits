@@ -1,5 +1,7 @@
 package mod.chiselsandbits.api;
 
+import javax.annotation.Nullable;
+
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import net.minecraft.block.material.Material;
@@ -24,6 +26,7 @@ public interface IChiselAndBitsAPI
 	 * @param stack
 	 * @return ItemType of the item, or null if it is not any of them.
 	 */
+	@Nullable
 	ItemType getItemType(
 			ItemStack stack );
 
@@ -65,11 +68,12 @@ public interface IChiselAndBitsAPI
 			BlockPos pos ) throws CannotBeChiseled;
 
 	/**
-	 * Create a bit access from an ItemStack, passing an empty ItemStack creates an empty bit access,
-	 * passing an invalid item returns null.
+	 * Create a bit access from an ItemStack, passing an empty ItemStack creates
+	 * an empty bit access, passing an invalid item returns null.
 	 *
 	 * @return a {@link IBitAccess} for an ItemStack.
 	 */
+	@Nullable
 	IBitAccess createBitItem(
 			ItemStack stack );
 
@@ -77,8 +81,8 @@ public interface IChiselAndBitsAPI
 	 * Create a brush from an ItemStack, once created you can use it many times.
 	 *
 	 * @param bitItem
-	 * @return A brush for the specified ItemStack, if passed an empty ItemStack an
-	 *         air brush is created.
+	 * @return A brush for the specified ItemStack, if passed an empty ItemStack
+	 *         an air brush is created.
 	 * @throws InvalidBitItem
 	 */
 	IBitBrush createBrush(
@@ -93,7 +97,7 @@ public interface IChiselAndBitsAPI
 	 * @throws InvalidBitItem
 	 */
 	IBitBrush createBrushFromState(
-			IBlockState state ) throws InvalidBitItem;
+			@Nullable IBlockState state ) throws InvalidBitItem;
 
 	/**
 	 * Convert ray trace information into bit location information, note that
@@ -105,8 +109,7 @@ public interface IChiselAndBitsAPI
 	 * @param side
 	 * @param pos
 	 * @param placement
-	 * @return details about the target bit, if any parameters are missing will
-	 *         return null.
+	 * @return details about the target bit, no arguments should be null.
 	 */
 	IBitLocation getBitPos(
 			float hitX,
@@ -120,8 +123,7 @@ public interface IChiselAndBitsAPI
 	 * Get an ItemStack for the bit type of the state...
 	 *
 	 * VERY IMPORTANT: C&B lets you disable bits, if this happens the Item in
-	 * this ItemStack WILL BE NULL, if you put this item in an inventory, drop
-	 * it on the ground, or anything else.. CHECK THIS!!!!!
+	 * this ItemStack WILL BE empty.
 	 *
 	 * @param defaultState
 	 * @return the bit.
@@ -157,6 +159,7 @@ public interface IChiselAndBitsAPI
 	 *
 	 * @return internal object to manipulate bag.
 	 */
+	@Nullable
 	IBitBag getBitbag(
 			ItemStack stack );
 
@@ -166,17 +169,10 @@ public interface IChiselAndBitsAPI
 	 *
 	 * @formatter:off
 	 *
-	 * Example:
+	 * 				Example:
 	 *
-	 * try
-	 * {
-	 *     api.beginUndoGroup();
-	 *     this.manipulateAllTheBlocks();
-	 * }
-	 * finally
-	 * {
-	 *     api.endUndoGroup();
-	 * }
+	 *                try { api.beginUndoGroup(); this.manipulateAllTheBlocks();
+	 *                } finally { api.endUndoGroup(); }
 	 *
 	 */
 	void beginUndoGroup(
@@ -193,11 +189,14 @@ public interface IChiselAndBitsAPI
 	/**
 	 * Register a custom material as equivalent to another material.
 	 *
-	 * @param newMaterial your custom material
-	 * @param target default MC Material C&B knows about.
+	 * @param newMaterial
+	 *            your custom material
+	 * @param target
+	 *            default MC Material C&B knows about.
 	 */
 	void addEquivilantMaterial(
 			Material newMaterial,
-			Material target ); // this should be a material C&B understands, other wise you'll get stone anyway.
+			Material target ); // this should be a material C&B understands,
+								// other wise you'll get stone anyway.
 
 }

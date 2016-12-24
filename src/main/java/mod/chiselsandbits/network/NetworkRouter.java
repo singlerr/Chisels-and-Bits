@@ -9,6 +9,7 @@ import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.PacketThreadUtil;
 import net.minecraft.network.ThreadQuickExitException;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.FMLEventChannel;
@@ -55,7 +56,13 @@ public class NetworkRouter
 			final ModPacket innerPacket = parsePacket( buffer );
 			innerPacket.serverEntity = playerEntity;
 
-			PacketThreadUtil.checkThreadAndEnqueue( innerPacket, handler, playerEntity.getServer() );
+			final MinecraftServer serv = playerEntity.getServer();
+
+			if ( serv != null )
+			{
+				PacketThreadUtil.checkThreadAndEnqueue( innerPacket, handler, serv );
+			}
+
 			innerPacket.server( playerEntity );
 		}
 	};

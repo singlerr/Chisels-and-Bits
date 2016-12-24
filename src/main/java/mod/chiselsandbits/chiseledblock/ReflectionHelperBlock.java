@@ -3,6 +3,8 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.List;
 import java.util.Random;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -29,9 +31,9 @@ class ReflectionHelperBlock extends Block
 
 	@Override
 	public float getBlockHardness(
-			final IBlockState state,
-			final World world,
-			final BlockPos pos )
+			final @Nullable IBlockState state,
+			final @Nullable World world,
+			final @Nullable BlockPos pos )
 	{
 		markMethod();
 		return 0;
@@ -39,22 +41,22 @@ class ReflectionHelperBlock extends Block
 
 	@Override
 	public void addCollisionBoxToList(
-			final IBlockState state,
-			final World worldIn,
-			final BlockPos pos,
-			final AxisAlignedBB p_185477_4_,
-			final List<AxisAlignedBB> p_185477_5_,
-			final Entity p_185477_6_ )
+			final @Nullable IBlockState state,
+			final @Nullable World worldIn,
+			final @Nullable BlockPos pos,
+			final @Nullable AxisAlignedBB p_185477_4_,
+			final @Nullable List<AxisAlignedBB> p_185477_5_,
+			final @Nullable Entity p_185477_6_ )
 	{
 		markMethod();
 	}
 
 	@Override
 	public float getPlayerRelativeBlockHardness(
-			final IBlockState state,
-			final EntityPlayer player,
-			final World world,
-			final BlockPos pos )
+			final @Nullable IBlockState state,
+			final @Nullable EntityPlayer player,
+			final @Nullable World world,
+			final @Nullable BlockPos pos )
 	{
 		markMethod();
 		return 0;
@@ -62,7 +64,7 @@ class ReflectionHelperBlock extends Block
 
 	@Override
 	public float getExplosionResistance(
-			final Entity exploder )
+			final @Nullable Entity exploder )
 	{
 		markMethod();
 		return 0;
@@ -70,10 +72,10 @@ class ReflectionHelperBlock extends Block
 
 	@Override
 	public float getExplosionResistance(
-			final World world,
-			final BlockPos pos,
-			final Entity exploder,
-			final Explosion explosion )
+			final @Nullable World world,
+			final @Nullable BlockPos pos,
+			final @Nullable Entity exploder,
+			final @Nullable Explosion explosion )
 	{
 		markMethod();
 		return 0;
@@ -81,9 +83,9 @@ class ReflectionHelperBlock extends Block
 
 	@Override
 	public int quantityDropped(
-			final IBlockState state,
+			final @Nullable IBlockState state,
 			final int fortune,
-			final Random random )
+			final @Nullable Random random )
 	{
 
 		markMethod();
@@ -92,7 +94,7 @@ class ReflectionHelperBlock extends Block
 
 	@Override
 	public int quantityDropped(
-			final Random random )
+			final @Nullable Random random )
 	{
 		markMethod();
 		return 0;
@@ -101,7 +103,7 @@ class ReflectionHelperBlock extends Block
 	@Override
 	public int quantityDroppedWithBonus(
 			final int fortune,
-			final Random random )
+			final @Nullable Random random )
 	{
 		markMethod();
 		return 0;
@@ -109,10 +111,10 @@ class ReflectionHelperBlock extends Block
 
 	@Override
 	public void onEntityCollidedWithBlock(
-			final World worldIn,
-			final BlockPos pos,
-			final IBlockState state,
-			final Entity entityIn )
+			final @Nullable World worldIn,
+			final @Nullable BlockPos pos,
+			final @Nullable IBlockState state,
+			final @Nullable Entity entityIn )
 	{
 		markMethod();
 	}

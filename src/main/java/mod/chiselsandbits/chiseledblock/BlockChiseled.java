@@ -1224,6 +1224,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
+			Log.noTileError( e );
 			return Blocks.STONE.getDefaultState();
 		}
 	}

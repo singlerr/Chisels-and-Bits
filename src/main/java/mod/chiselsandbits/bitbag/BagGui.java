@@ -65,7 +65,12 @@ public class BagGui extends GuiContainer
 	{
 		if ( theSlot instanceof SlotBit )
 		{
-			theSlot = null;
+			final Slot s = inventorySlots.getSlotFromInventory( getBagContainer().thePlayer.inventory, 0 );
+
+			if ( s != null )
+			{
+				theSlot = s;
+			}
 		}
 
 		return super.checkHotbarKeys( keyCode );
@@ -135,7 +140,7 @@ public class BagGui extends GuiContainer
 			final int mouseX,
 			final int mouseY )
 	{
-		fontRendererObj.drawString( ChiselsAndBits.getItems().itemBitBag.getItemStackDisplayName( null ), 8, 6, 0x404040 );
+		fontRendererObj.drawString( ChiselsAndBits.getItems().itemBitBag.getItemStackDisplayName( ModUtil.getEmptyStack() ), 8, 6, 0x404040 );
 		fontRendererObj.drawString( I18n.format( "container.inventory", new Object[0] ), 8, ySize - 93, 0x404040 );
 
 		RenderHelper.enableGUIStandardItemLighting();

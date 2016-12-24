@@ -339,6 +339,7 @@ public class ModUtil
 		return new BlockPos( t_x, t_y, t_z );
 	}
 
+	@SafeVarargs
 	static public <T> T firstNonNull(
 			final T... options )
 	{
@@ -783,6 +784,7 @@ public class ModUtil
 		return c;
 	}
 
+	@SuppressWarnings( "deprecation" )
 	public static IBlockState getStateFromItem(
 			final ItemStack is )
 	{

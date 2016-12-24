@@ -36,7 +36,7 @@ public class Log
 	{
 		if ( ChiselsAndBits.getConfig().logTileErrors )
 		{
-			getLogger().error( "Unable to find TileEntity while interacting with block.", e );
+			getLogger().error( "Unable to find TileEntity while interacting with block.", new Exception() );
 		}
 	}
 

@@ -60,7 +60,7 @@ public class PacketAccurateSneakPlace extends ModPacket
 
 				if ( !playerEntity.capabilities.isCreativeMode && ModUtil.getStackSize( inHand ) <= 0 )
 				{
-					playerEntity.setHeldItem( hand, null );
+					playerEntity.setHeldItem( hand, ModUtil.getEmptyStack() );
 				}
 			}
 		}

@@ -60,8 +60,8 @@ public class SmartModelManager
 			clearable.add( (ICacheClearable) modelGen );
 		}
 
-		res.add( new ModelResourceLocation( modelLocation, null ) );
-		res.add( new ModelResourceLocation( second, null ) );
+		res.add( new ModelResourceLocation( modelLocation, "normal" ) );
+		res.add( new ModelResourceLocation( second, "normal" ) );
 
 		res.add( new ModelResourceLocation( modelLocation, "inventory" ) );
 		res.add( new ModelResourceLocation( second, "inventory" ) );
@@ -72,8 +72,8 @@ public class SmartModelManager
 		models.put( modelLocation, modelGen );
 		models.put( second, modelGen );
 
-		models.put( new ModelResourceLocation( modelLocation, null ), modelGen );
-		models.put( new ModelResourceLocation( second, null ), modelGen );
+		models.put( new ModelResourceLocation( modelLocation, "normal" ), modelGen );
+		models.put( new ModelResourceLocation( second, "normal" ), modelGen );
 
 		models.put( new ModelResourceLocation( modelLocation, "inventory" ), modelGen );
 		models.put( new ModelResourceLocation( second, "inventory" ), modelGen );

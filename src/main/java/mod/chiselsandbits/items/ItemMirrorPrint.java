@@ -145,7 +145,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			return null;
 		}
 
-		final NBTTagCompound tag = stack.getTagCompound();
+		final NBTTagCompound tag = ModUtil.getTagCompound( stack );
 
 		// Detect and provide full blocks if pattern solid full and solid.
 		final NBTBlobConverter conv = new NBTBlobConverter();

@@ -3,6 +3,8 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.Collection;
 import java.util.Collections;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.api.EventBlockBitPostModification;
 import mod.chiselsandbits.api.EventFullBlockRestoration;
 import mod.chiselsandbits.api.ItemType;
@@ -113,6 +115,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return getState( true, 1, access );
 	}
 
+	@Nonnull
 	protected IExtendedBlockState getState(
 			final boolean updateNeightbors,
 			final int updateCost,
@@ -601,7 +604,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		// are most of the bits in the center solid?
 		final int sideFlags = vb.getSideFlags( 5, 11, 4 * 4 );
 
-		if ( worldObj == null )
+		if ( !hasWorldObj() )
 		{
 			if ( common.mostCommonState == 0 )
 			{

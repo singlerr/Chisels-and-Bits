@@ -5,6 +5,8 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 
 public class PlayerCopiedInventory implements IInventory
 {
@@ -32,7 +34,7 @@ public class PlayerCopiedInventory implements IInventory
 	@Override
 	public String getName()
 	{
-		return "NULL";
+		return "container.inventory";
 	}
 
 	@Override
@@ -44,7 +46,7 @@ public class PlayerCopiedInventory implements IInventory
 	@Override
 	public ITextComponent getDisplayName()
 	{
-		return null;
+		return hasCustomName() ? new TextComponentString( getName() ) : new TextComponentTranslation( getName(), new Object[0] );
 	}
 
 	@Override
@@ -77,7 +79,7 @@ public class PlayerCopiedInventory implements IInventory
 			}
 		}
 
-		return null;
+		return ModUtil.getEmptyStack();
 	}
 
 	@Override

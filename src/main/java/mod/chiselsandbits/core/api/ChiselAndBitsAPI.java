@@ -118,12 +118,12 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	public IBitBrush createBrush(
 			final ItemStack stack ) throws InvalidBitItem
 	{
-		if ( ModUtil.isEmpty(stack) )
+		if ( ModUtil.isEmpty( stack ) )
 		{
 			return new BitBrush( 0 );
 		}
 
-		if ( stack.getItem() == null || getItemType( stack ) == ItemType.CHISLED_BIT )
+		if ( getItemType( stack ) == ItemType.CHISLED_BIT )
 		{
 			final int stateID = ItemChiseledBit.getStackState( stack );
 			final IBlockState state = ModUtil.getStateById( stateID );
@@ -146,11 +146,6 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			final BlockPos pos,
 			final boolean placement )
 	{
-		if ( side == null || pos == null )
-		{
-			return null;
-		}
-
 		final RayTraceResult mop = new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos );
 		return new BitLocation( mop, false, placement ? BitOperation.PLACE : BitOperation.CHISEL );
 	}
@@ -206,7 +201,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	public IBitAccess createBitItem(
 			final ItemStack stack )
 	{
-		if ( ModUtil.isEmpty(stack) )
+		if ( ModUtil.isEmpty( stack ) )
 		{
 			return new BitAccess( null, null, new VoxelBlob(), VoxelBlob.NULL_BLOB );
 		}
@@ -268,7 +263,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			final ItemStack stack,
 			Vec3d spawnPos )
 	{
-		if ( ModUtil.isEmpty(stack) )
+		if ( ModUtil.isEmpty( stack ) )
 		{
 			return;
 		}
@@ -301,7 +296,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	public IBitBag getBitbag(
 			final ItemStack stack )
 	{
-		if ( !ModUtil.isEmpty(stack) )
+		if ( !ModUtil.isEmpty( stack ) )
 		{
 			final Object o = stack.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP );
 			if ( o instanceof IBitBag )

@@ -3,6 +3,8 @@ package mod.chiselsandbits.core.api;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
 import mod.chiselsandbits.api.BitQueryResults;
 import mod.chiselsandbits.api.IBitAccess;
@@ -127,15 +129,9 @@ public class BitAccess implements IBitAccess
 	}
 
 	@Override
-	public void commitChanges()
-	{
-		commitChanges( true );
-	}
-
-	@Override
 	public ItemStack getBitsAsItem(
-			final EnumFacing side,
-			final ItemType type,
+			final @Nullable EnumFacing side,
+			final @Nullable ItemType type,
 			final boolean crossWorld )
 	{
 		if ( type == null )
@@ -196,14 +192,6 @@ public class BitAccess implements IBitAccess
 		}
 
 		return stack;
-	}
-
-	@Override
-	public ItemStack getBitsAsItem(
-			final EnumFacing side,
-			final ItemType type )
-	{
-		return getBitsAsItem( side, type, false );
 	}
 
 	@Override

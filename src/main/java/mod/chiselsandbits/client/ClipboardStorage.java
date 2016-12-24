@@ -94,10 +94,14 @@ public class ClipboardStorage extends Configuration
 				final String item = b.readStringFromBuffer( 127 );
 				final NBTTagCompound c = b.readNBTTagCompoundFromBuffer();
 
-				final ItemStack stack = new ItemStack( Item.getByNameOrId( item ) );
-				stack.setTagCompound( c );
+				final Item it = Item.getByNameOrId( item );
+				if ( it != null )
+				{
+					final ItemStack stack = new ItemStack( it );
+					stack.setTagCompound( c );
 
-				myItems.add( stack );
+					myItems.add( stack );
+				}
 			}
 			catch ( final IOException e )
 			{

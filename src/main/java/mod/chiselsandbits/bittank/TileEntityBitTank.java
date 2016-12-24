@@ -382,6 +382,12 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 				if ( ChiselsAndBits.getApi().getItemType( stackInSlot ) == ItemType.BIT_BAG )
 				{
 					final IBitBag bag = ChiselsAndBits.getApi().getBitbag( stackInSlot );
+
+					if ( bag == null )
+					{
+						continue;
+					}
+
 					for ( int y = 0; y < bag.getSlots(); ++y )
 					{
 						bag.insertItem( y, insertItem( 0, bag.extractItem( y, bag.getSlotLimit( y ), false ), false ), false );

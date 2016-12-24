@@ -326,7 +326,12 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				try
 				{
 					Item it = (Item) obj;
-					it.getSubItems( it, it.getCreativeTab(), List );
+					final CreativeTabs ctab = it.getCreativeTab();
+
+					if ( ctab != null )
+					{
+						it.getSubItems( it, ctab, List );
+					}
 
 					for ( final ItemStack out : List )
 					{

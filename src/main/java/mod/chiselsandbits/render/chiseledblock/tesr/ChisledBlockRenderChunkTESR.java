@@ -388,8 +388,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		return;
 	}
 
-	@Override
-	public void renderTileEntityFast(
+	private void renderTileEntityInner(
 			final TileEntityBlockChiseledTESR te,
 			final double x,
 			final double y,
@@ -649,6 +648,19 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	}
 
 	@Override
+	public void renderTileEntityFast(
+			final TileEntityBlockChiseledTESR te,
+			final double x,
+			final double y,
+			final double z,
+			final float partialTicks,
+			final int destroyStage,
+			final VertexBuffer worldRenderer )
+	{
+		renderTileEntityInner( te, x, y, z, partialTicks, destroyStage, worldRenderer );
+	}
+
+	@Override
 	public void renderTileEntityAt(
 			final TileEntityBlockChiseledTESR te,
 			final double x,
@@ -659,7 +671,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	{
 		if ( destroyStage > 0 )
 		{
-			renderTileEntityFast( te, x, y, z, partialTicks, destroyStage, null );
+			renderTileEntityInner( te, x, y, z, partialTicks, destroyStage, null );
 		}
 	}
 
