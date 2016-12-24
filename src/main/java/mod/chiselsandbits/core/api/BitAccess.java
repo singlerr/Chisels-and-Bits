@@ -140,13 +140,13 @@ public class BitAccess implements IBitAccess
 	{
 		if ( type == null )
 		{
-			return null;
+			return ModUtil.getEmptyStack();
 		}
 
 		final BlobStats cb = blob.getVoxelStats();
 		if ( cb.mostCommonState == 0 )
 		{
-			return null;
+			return ModUtil.getEmptyStack();
 		}
 
 		final NBTBlobConverter c = new NBTBlobConverter();
@@ -164,7 +164,7 @@ public class BitAccess implements IBitAccess
 
 			if ( blk == null )
 			{
-				return null;
+				return ModUtil.getEmptyStack();
 			}
 
 			itemstack = new ItemStack( blk, 1 );

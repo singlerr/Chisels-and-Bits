@@ -98,7 +98,7 @@ public interface IBitAccess
 	 *            or if it is portable, cross world NBT is larger and slower,
 	 *            you should only request cross world NBT if you specifically
 	 *            need it.
-	 * @return an Item for bits, null if there are no bits.
+	 * @return an Item for bits, which is empty if there are no bits.
 	 */
 	ItemStack getBitsAsItem(
 			EnumFacing side,
@@ -116,7 +116,7 @@ public interface IBitAccess
 	 *            angle the player is looking at, can be null.
 	 * @param type
 	 *            what type of item to give.
-	 * @return an Item for bits, null if there are no bits.
+	 * @return an Item for bits, which is empty if there are no bits.
 	 */
 	@Deprecated
 	ItemStack getBitsAsItem(

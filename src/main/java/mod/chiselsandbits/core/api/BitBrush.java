@@ -20,12 +20,12 @@ public class BitBrush implements IBitBrush
 	}
 
 	@Override
-	public @Nullable ItemStack getItemStack(
+	public ItemStack getItemStack(
 			final int count )
 	{
 		if ( stateID == 0 )
 		{
-			return null;
+			return ModUtil.getEmptyStack();
 		}
 
 		return ItemChiseledBit.createStack( stateID, count, true );
