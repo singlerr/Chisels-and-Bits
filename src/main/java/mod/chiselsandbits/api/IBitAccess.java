@@ -85,7 +85,7 @@ public interface IBitAccess
 	void commitChanges();
 
 	/**
-	 * Returns an item for the {@link IBitAccess}
+	 * Returns an ItemStack for the {@link IBitAccess}
 	 *
 	 * Usable for any {@link IBitAccess}
 	 *
@@ -94,11 +94,11 @@ public interface IBitAccess
 	 * @param type
 	 *            what type of item to give.
 	 * @param crossWorld
-	 *            determines if the NBT for the item is specific to this world
+	 *            determines if the NBT for the ItemStack is specific to this world
 	 *            or if it is portable, cross world NBT is larger and slower,
 	 *            you should only request cross world NBT if you specifically
 	 *            need it.
-	 * @return an Item for bits, which is empty if there are no bits.
+	 * @return an ItemStack for bits, which is empty if there are no bits.
 	 */
 	ItemStack getBitsAsItem(
 			EnumFacing side,
@@ -106,7 +106,7 @@ public interface IBitAccess
 			boolean crossWorld );
 
 	/**
-	 * Returns an item for the {@link IBitAccess}, this method all ways returns
+	 * Returns an ItemStack for the {@link IBitAccess}, this method all ways returns
 	 * non-cross world NBT, please move to the above method and specify false to
 	 * prepare for future removal.
 	 *
@@ -116,7 +116,7 @@ public interface IBitAccess
 	 *            angle the player is looking at, can be null.
 	 * @param type
 	 *            what type of item to give.
-	 * @return an Item for bits, which is empty if there are no bits.
+	 * @return an ItemStack for bits, which is empty if there are no bits.
 	 */
 	@Deprecated
 	ItemStack getBitsAsItem(

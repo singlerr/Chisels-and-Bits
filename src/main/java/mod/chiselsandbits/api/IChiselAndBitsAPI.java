@@ -19,13 +19,13 @@ public interface IChiselAndBitsAPI
 {
 
 	/**
-	 * Determine the Item Type and return it.
+	 * Determine the Item Type of the item in an ItemStack and return it.
 	 *
-	 * @param item
+	 * @param stack
 	 * @return ItemType of the item, or null if it is not any of them.
 	 */
 	ItemType getItemType(
-			ItemStack item );
+			ItemStack stack );
 
 	/**
 	 * Check if a block can support {@link IBitAccess}
@@ -65,24 +65,24 @@ public interface IChiselAndBitsAPI
 			BlockPos pos ) throws CannotBeChiseled;
 
 	/**
-	 * Create a bit access from an item, passing an empty ItemStack creates an empty bit access,
+	 * Create a bit access from an ItemStack, passing an empty ItemStack creates an empty bit access,
 	 * passing an invalid item returns null.
 	 *
-	 * @return a {@link IBitAccess} for an item.
+	 * @return a {@link IBitAccess} for an ItemStack.
 	 */
 	IBitAccess createBitItem(
-			ItemStack BitItemStack );
+			ItemStack stack );
 
 	/**
-	 * Create a brush from an item, once created you can use it many times.
+	 * Create a brush from an ItemStack, once created you can use it many times.
 	 *
 	 * @param bitItem
-	 * @return A brush for the specified item, if passed an empty ItemStack an
+	 * @return A brush for the specified ItemStack, if passed an empty ItemStack an
 	 *         air brush is created.
 	 * @throws InvalidBitItem
 	 */
 	IBitBrush createBrush(
-			ItemStack bitItem ) throws InvalidBitItem;
+			ItemStack stack ) throws InvalidBitItem;
 
 	/**
 	 * Create a brush from a state, once created you can use it many times.
@@ -135,7 +135,7 @@ public interface IChiselAndBitsAPI
 	 *
 	 * CLIENT: destroys the item.
 	 *
-	 * SERVER: adds item to inv/bag/spawns entity.
+	 * SERVER: adds ItemStack to inv/bag/spawns entity.
 	 *
 	 * @param player
 	 *            player to give bits to.
@@ -148,7 +148,7 @@ public interface IChiselAndBitsAPI
 	 */
 	void giveBitToPlayer(
 			EntityPlayer player,
-			ItemStack itemstack,
+			ItemStack stack,
 			Vec3d spawnPos );
 
 	/**
@@ -158,7 +158,7 @@ public interface IChiselAndBitsAPI
 	 * @return internal object to manipulate bag.
 	 */
 	IBitBag getBitbag(
-			ItemStack itemstack );
+			ItemStack stack );
 
 	/**
 	 * Begins an undo operation, starting two operations without ending the

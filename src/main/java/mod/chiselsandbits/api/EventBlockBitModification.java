@@ -16,7 +16,7 @@ public class EventBlockBitModification extends Event
 	private final BlockPos pos;
 	private final EntityPlayer player;
 	private final EnumHand hand;
-	private final ItemStack itemUsed;
+	private final ItemStack stackUsed;
 	private final boolean placement;
 
 	public EventBlockBitModification(
@@ -24,7 +24,7 @@ public class EventBlockBitModification extends Event
 			final BlockPos pos,
 			final EntityPlayer player,
 			final EnumHand hand,
-			final ItemStack itemUsed,
+			final ItemStack stackUsed,
 			final boolean placement )
 	{
 
@@ -32,7 +32,7 @@ public class EventBlockBitModification extends Event
 		this.pos = pos;
 		this.player = player;
 		this.hand = hand;
-		this.itemUsed = itemUsed;
+		this.stackUsed = stackUsed;
 		this.placement = placement;
 	}
 
@@ -58,7 +58,7 @@ public class EventBlockBitModification extends Event
 
 	public ItemStack getItemUsed()
 	{
-		return itemUsed;
+		return stackUsed;
 	}
 
 	public boolean isPlacing()

@@ -155,7 +155,7 @@ public class BitAccess implements IBitAccess
 		final NBTTagCompound nbttagcompound = new NBTTagCompound();
 		c.writeChisleData( nbttagcompound, crossWorld );
 
-		final ItemStack itemstack;
+		final ItemStack stack;
 
 		if ( type == ItemType.CHISLED_BLOCK )
 		{
@@ -167,35 +167,35 @@ public class BitAccess implements IBitAccess
 				return ModUtil.getEmptyStack();
 			}
 
-			itemstack = new ItemStack( blk, 1 );
-			itemstack.setTagInfo( ModUtil.NBT_BLOCKENTITYTAG, nbttagcompound );
+			stack = new ItemStack( blk, 1 );
+			stack.setTagInfo( ModUtil.NBT_BLOCKENTITYTAG, nbttagcompound );
 		}
 		else
 		{
 			switch ( type )
 			{
 				case MIRROR_DESIGN:
-					itemstack = new ItemStack( ChiselsAndBits.getItems().itemMirrorprint );
+					stack = new ItemStack( ChiselsAndBits.getItems().itemMirrorprint );
 					break;
 				case NEGATIVE_DESIGN:
-					itemstack = new ItemStack( ChiselsAndBits.getItems().itemNegativeprint );
+					stack = new ItemStack( ChiselsAndBits.getItems().itemNegativeprint );
 					break;
 				case POSITIVE_DESIGN:
-					itemstack = new ItemStack( ChiselsAndBits.getItems().itemPositiveprint );
+					stack = new ItemStack( ChiselsAndBits.getItems().itemPositiveprint );
 					break;
 				default:
 					return ModUtil.getEmptyStack();
 			}
 
-			itemstack.setTagCompound( nbttagcompound );
+			stack.setTagCompound( nbttagcompound );
 		}
 
 		if ( side != null )
 		{
-			ModUtil.setSide( itemstack, side );
+			ModUtil.setSide( stack, side );
 		}
 
-		return itemstack;
+		return stack;
 	}
 
 	@Override

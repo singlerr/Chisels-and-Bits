@@ -116,16 +116,16 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public IBitBrush createBrush(
-			final ItemStack bitItem ) throws InvalidBitItem
+			final ItemStack stack ) throws InvalidBitItem
 	{
-		if ( ModUtil.isEmpty(bitItem) )
+		if ( ModUtil.isEmpty(stack) )
 		{
 			return new BitBrush( 0 );
 		}
 
-		if ( bitItem.getItem() == null || getItemType( bitItem ) == ItemType.CHISLED_BIT )
+		if ( stack.getItem() == null || getItemType( stack ) == ItemType.CHISLED_BIT )
 		{
-			final int stateID = ItemChiseledBit.getStackState( bitItem );
+			final int stateID = ItemChiseledBit.getStackState( stack );
 			final IBlockState state = ModUtil.getStateById( stateID );
 
 			if ( state != null && BlockBitInfo.supportsBlock( state ) )
@@ -157,44 +157,44 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public ItemType getItemType(
-			final ItemStack item )
+			final ItemStack stack )
 	{
-		if ( item.getItem() instanceof ItemChiseledBit )
+		if ( stack.getItem() instanceof ItemChiseledBit )
 		{
 			return ItemType.CHISLED_BIT;
 		}
 
-		if ( item.getItem() instanceof ItemBitBag )
+		if ( stack.getItem() instanceof ItemBitBag )
 		{
 			return ItemType.BIT_BAG;
 		}
 
-		if ( item.getItem() instanceof ItemChisel )
+		if ( stack.getItem() instanceof ItemChisel )
 		{
 			return ItemType.CHISEL;
 		}
 
-		if ( item.getItem() instanceof ItemBlockChiseled )
+		if ( stack.getItem() instanceof ItemBlockChiseled )
 		{
 			return ItemType.CHISLED_BLOCK;
 		}
 
-		if ( item.getItem() instanceof ItemMirrorPrint )
+		if ( stack.getItem() instanceof ItemMirrorPrint )
 		{
 			return ItemType.MIRROR_DESIGN;
 		}
 
-		if ( item.getItem() instanceof ItemPositivePrint )
+		if ( stack.getItem() instanceof ItemPositivePrint )
 		{
 			return ItemType.POSITIVE_DESIGN;
 		}
 
-		if ( item.getItem() instanceof ItemNegativePrint )
+		if ( stack.getItem() instanceof ItemNegativePrint )
 		{
 			return ItemType.NEGATIVE_DESIGN;
 		}
 
-		if ( item.getItem() instanceof ItemWrench )
+		if ( stack.getItem() instanceof ItemWrench )
 		{
 			return ItemType.WRENCH;
 		}
@@ -204,23 +204,23 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public IBitAccess createBitItem(
-			final ItemStack bitItemStack )
+			final ItemStack stack )
 	{
-		if ( ModUtil.isEmpty(bitItemStack) )
+		if ( ModUtil.isEmpty(stack) )
 		{
 			return new BitAccess( null, null, new VoxelBlob(), VoxelBlob.NULL_BLOB );
 		}
 
-		final ItemType type = getItemType( bitItemStack );
+		final ItemType type = getItemType( stack );
 		if ( type != null && type.isBitAccess )
 		{
-			final VoxelBlob blob = ModUtil.getBlobFromStack( bitItemStack, null );
+			final VoxelBlob blob = ModUtil.getBlobFromStack( stack, null );
 			return new BitAccess( null, null, blob, VoxelBlob.NULL_BLOB );
 		}
 
-		if ( bitItemStack != null && bitItemStack.getItem() instanceof ItemBlock )
+		if ( stack.getItem() instanceof ItemBlock )
 		{
-			final IBlockState state = DeprecationHelper.getStateFromItem( bitItemStack );
+			final IBlockState state = DeprecationHelper.getStateFromItem( stack );
 
 			if ( BlockBitInfo.supportsBlock( state ) )
 			{
@@ -265,10 +265,10 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	@Override
 	public void giveBitToPlayer(
 			final EntityPlayer player,
-			final ItemStack is,
+			final ItemStack stack,
 			Vec3d spawnPos )
 	{
-		if ( ModUtil.isEmpty(is) )
+		if ( ModUtil.isEmpty(stack) )
 		{
 			return;
 		}
@@ -278,9 +278,9 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			spawnPos = new Vec3d( player.posX, player.posY, player.posZ );
 		}
 
-		final EntityItem ei = new EntityItem( player.getEntityWorld(), spawnPos.xCoord, spawnPos.yCoord, spawnPos.zCoord, is );
+		final EntityItem ei = new EntityItem( player.getEntityWorld(), spawnPos.xCoord, spawnPos.yCoord, spawnPos.zCoord, stack );
 
-		if ( is.getItem() == ChiselsAndBits.getItems().itemBlockBit )
+		if ( stack.getItem() == ChiselsAndBits.getItems().itemBlockBit )
 		{
 			if ( player.getEntityWorld().isRemote )
 			{
@@ -290,20 +290,20 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			ModUtil.feedPlayer( player.getEntityWorld(), player, ei );
 			return;
 		}
-		else if ( !player.inventory.addItemStackToInventory( is ) )
+		else if ( !player.inventory.addItemStackToInventory( stack ) )
 		{
-			ei.setEntityItemStack( is );
+			ei.setEntityItemStack( stack );
 			player.getEntityWorld().spawnEntityInWorld( ei );
 		}
 	}
 
 	@Override
 	public IBitBag getBitbag(
-			final ItemStack itemstack )
+			final ItemStack stack )
 	{
-		if ( !ModUtil.isEmpty(itemstack) )
+		if ( !ModUtil.isEmpty(stack) )
 		{
-			final Object o = itemstack.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP );
+			final Object o = stack.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP );
 			if ( o instanceof IBitBag )
 			{
 				return (IBitBag) o;
