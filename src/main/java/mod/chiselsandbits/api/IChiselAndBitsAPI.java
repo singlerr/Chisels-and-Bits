@@ -65,7 +65,7 @@ public interface IChiselAndBitsAPI
 			BlockPos pos ) throws CannotBeChiseled;
 
 	/**
-	 * Create a bit access from an item, passing null creates an empty item,
+	 * Create a bit access from an item, passing an empty ItemStack creates an empty bit access,
 	 * passing an invalid item returns null.
 	 *
 	 * @return a {@link IBitAccess} for an item.
@@ -77,7 +77,7 @@ public interface IChiselAndBitsAPI
 	 * Create a brush from an item, once created you can use it many times.
 	 *
 	 * @param bitItem
-	 * @return A brush for the specified item, if null is passed for the item an
+	 * @return A brush for the specified item, if passed an empty ItemStack an
 	 *         air brush is created.
 	 * @throws InvalidBitItem
 	 */

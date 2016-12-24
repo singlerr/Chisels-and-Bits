@@ -184,7 +184,7 @@ public class BitAccess implements IBitAccess
 					itemstack = new ItemStack( ChiselsAndBits.getItems().itemPositiveprint );
 					break;
 				default:
-					return null;
+					return ModUtil.getEmptyStack();
 			}
 
 			itemstack.setTagCompound( nbttagcompound );
