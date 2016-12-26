@@ -898,9 +898,10 @@ public final class VoxelBlob implements IVoxelSrc
 		return hasValues;
 	}
 
-	public static int VERSION_COMPACT = 0;
-	public static int VERSION_CROSSWORLD_LEGACY = 1; // stored meta.
-	public static int VERSION_CROSSWORLD = 2;
+	public static final int VERSION_ANY = -1;
+	public static final int VERSION_COMPACT = 0;
+	public static final int VERSION_CROSSWORLD_LEGACY = 1; // stored meta.
+	public static final int VERSION_CROSSWORLD = 2;
 
 	public void blobFromBytes(
 			final byte[] bytes ) throws IOException
