@@ -69,7 +69,7 @@ public class BlockBitInfo
 			{
 				final ItemStack target = ModUtil.getItemFromBlock( state );
 
-				if ( target == null )
+				if ( ModUtil.isEmpty( target ) )
 				{
 					out = 0xffffff;
 				}
