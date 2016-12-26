@@ -110,21 +110,27 @@ public class BitAccess implements IBitAccess
 	public void commitChanges(
 			final boolean triggerUpdates )
 	{
-		TileEntityBlockChiseled tile = ModUtil.getChiseledTileEntity( world, pos, true );
-		final BlobStats cb = blob.getVoxelStats();
+		final World w = world;
+		final BlockPos p = pos;
 
-		if ( tile == null && BlockChiseled.replaceWithChisled( world, pos, world.getBlockState( pos ), cb.mostCommonState, false ) )
+		if ( w != null && p != null )
 		{
-			tile = ModUtil.getChiseledTileEntity( world, pos, true );
-		}
+			TileEntityBlockChiseled tile = ModUtil.getChiseledTileEntity( w, p, true );
+			final BlobStats cb = blob.getVoxelStats();
 
-		if ( tile != null )
-		{
-			final VoxelBlobStateReference before = tile.getBlobStateReference();
-			tile.setBlob( blob, triggerUpdates );
-			final VoxelBlobStateReference after = tile.getBlobStateReference();
+			if ( tile == null && BlockChiseled.replaceWithChisled( w, p, world.getBlockState( p ), cb.mostCommonState, false ) )
+			{
+				tile = ModUtil.getChiseledTileEntity( w, p, true );
+			}
 
-			UndoTracker.getInstance().add( world, pos, before, after );
+			if ( tile != null )
+			{
+				final VoxelBlobStateReference before = tile.getBlobStateReference();
+				tile.setBlob( blob, triggerUpdates );
+				final VoxelBlobStateReference after = tile.getBlobStateReference();
+
+				UndoTracker.getInstance().add( w, p, before, after );
+			}
 		}
 	}
 
@@ -171,13 +177,13 @@ public class BitAccess implements IBitAccess
 			switch ( type )
 			{
 				case MIRROR_DESIGN:
-					stack = new ItemStack( ChiselsAndBits.getItems().itemMirrorprint );
+					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemMirrorprint );
 					break;
 				case NEGATIVE_DESIGN:
-					stack = new ItemStack( ChiselsAndBits.getItems().itemNegativeprint );
+					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemNegativeprint );
 					break;
 				case POSITIVE_DESIGN:
-					stack = new ItemStack( ChiselsAndBits.getItems().itemPositiveprint );
+					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemPositiveprint );
 					break;
 				default:
 					return ModUtil.getEmptyStack();

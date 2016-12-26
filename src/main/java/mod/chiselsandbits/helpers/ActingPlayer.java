@@ -59,9 +59,9 @@ public class ActingPlayer
 	Boolean permissionResult = null;
 
 	public boolean canPlayerManipulate(
-			final BlockPos pos,
-			final EnumFacing side,
-			final ItemStack is,
+			final @Nonnull BlockPos pos,
+			final @Nonnull EnumFacing side,
+			final @Nonnull ItemStack is,
 			final boolean placement )
 	{
 		// only re-test if something changes.
@@ -111,6 +111,7 @@ public class ActingPlayer
 		}
 	}
 
+	@Nonnull
 	public static ActingPlayer actingAs(
 			final EntityPlayer player,
 			final EnumHand hand )
@@ -118,6 +119,7 @@ public class ActingPlayer
 		return new ActingPlayer( player, true, hand );
 	}
 
+	@Nonnull
 	public static ActingPlayer testingAs(
 			final EntityPlayer player,
 			final EnumHand hand )

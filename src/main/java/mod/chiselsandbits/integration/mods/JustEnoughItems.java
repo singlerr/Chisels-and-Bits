@@ -8,6 +8,7 @@ import mezz.jei.api.BlankModPlugin;
 import mezz.jei.api.IModRegistry;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,7 +24,7 @@ public class JustEnoughItems extends BlankModPlugin
 	{
 		if ( !ChiselsAndBits.getConfig().ShowBitsInJEI )
 		{
-			registry.getJeiHelpers().getItemBlacklist().addItemToBlacklist( new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
+			registry.getJeiHelpers().getItemBlacklist().addItemToBlacklist( ModUtil.makeStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
 		}
 
 		for ( final Block blk : ChiselsAndBits.getBlocks().getConversions().values() )

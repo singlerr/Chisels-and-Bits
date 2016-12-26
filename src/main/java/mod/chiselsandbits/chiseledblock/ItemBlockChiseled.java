@@ -3,6 +3,8 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.api.EventBlockBitModification;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
@@ -95,9 +97,9 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	}
 
 	public boolean vanillaStylePlacementTest(
-			final World worldIn,
-			BlockPos pos,
-			EnumFacing side,
+			final @Nonnull World worldIn,
+			@Nonnull BlockPos pos,
+			@Nonnull EnumFacing side,
 			final EntityPlayer player,
 			final ItemStack stack )
 	{
@@ -116,9 +118,9 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	}
 
 	public boolean canPlaceBlockHere(
-			final World worldIn,
-			final BlockPos pos,
-			final EnumFacing side,
+			final @Nonnull World worldIn,
+			final @Nonnull BlockPos pos,
+			final @Nonnull EnumFacing side,
 			final EntityPlayer player,
 			final ItemStack stack )
 	{
@@ -275,13 +277,13 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	}
 
 	static public boolean tryPlaceBlockAt(
-			final Block block,
-			final ItemStack stack,
-			final EntityPlayer player,
-			final World world,
-			BlockPos pos,
-			final EnumFacing side,
-			final EnumHand hand,
+			final @Nonnull Block block,
+			final @Nonnull ItemStack stack,
+			final @Nonnull EntityPlayer player,
+			final @Nonnull World world,
+			@Nonnull BlockPos pos,
+			final @Nonnull EnumFacing side,
+			final @Nonnull EnumHand hand,
 			final BlockPos partial,
 			final boolean modulateWorld )
 	{

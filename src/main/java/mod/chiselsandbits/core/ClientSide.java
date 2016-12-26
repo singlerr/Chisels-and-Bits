@@ -1461,9 +1461,9 @@ public class ClientSide
 	}
 
 	public void pointAt(
-			final ChiselToolType type,
-			final BitLocation pos,
-			final EnumHand hand )
+			@Nonnull final ChiselToolType type,
+			@Nonnull final BitLocation pos,
+			@Nonnull final EnumHand hand )
 	{
 		if ( drawStart == null )
 		{
@@ -1473,7 +1473,10 @@ public class ClientSide
 		}
 	}
 
+	@Nonnull
 	ChiselToolType lastTool = ChiselToolType.CHISEL;
+
+	@Nonnull
 	EnumHand lastHand = EnumHand.MAIN_HAND;
 
 	KeyBinding getToolKey()
@@ -1489,8 +1492,8 @@ public class ClientSide
 	}
 
 	public boolean addBlockDestroyEffects(
-			final World world,
-			final BlockPos pos,
+			@Nonnull final World world,
+			@Nonnull final BlockPos pos,
 			IBlockState state,
 			final ParticleManager effectRenderer )
 	{

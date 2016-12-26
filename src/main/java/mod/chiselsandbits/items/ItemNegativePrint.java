@@ -3,6 +3,8 @@ package mod.chiselsandbits.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -244,7 +246,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 				final IBlockState state = ModUtil.getStateById( stats.mostCommonState );
 				final ItemStack is = ModUtil.getItemFromBlock( state );
 
-				if ( is != null )
+				if ( !ModUtil.isEmpty( is ) )
 				{
 					return is;
 				}
@@ -259,14 +261,14 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	}
 
 	protected void applyPrint(
-			final ItemStack stack,
-			final World world,
-			final BlockPos pos,
-			final EnumFacing side,
-			final VoxelBlob vb,
-			final VoxelBlob pattern,
-			final EntityPlayer who,
-			final EnumHand hand )
+			@Nonnull final ItemStack stack,
+			@Nonnull final World world,
+			@Nonnull final BlockPos pos,
+			@Nonnull final EnumFacing side,
+			@Nonnull final VoxelBlob vb,
+			@Nonnull final VoxelBlob pattern,
+			@Nonnull final EntityPlayer who,
+			@Nonnull final EnumHand hand )
 	{
 		// snag a tool...
 		final ActingPlayer player = ActingPlayer.actingAs( who, hand );

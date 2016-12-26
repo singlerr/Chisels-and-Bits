@@ -297,8 +297,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	}
 
 	public static @Nonnull TileEntityBlockChiseled getTileEntity(
-			final IBlockAccess world,
-			final BlockPos pos ) throws ExceptionNoTileEntity
+			final @Nonnull IBlockAccess world,
+			final @Nonnull BlockPos pos ) throws ExceptionNoTileEntity
 	{
 		return getTileEntity( ModUtil.getTileEntitySafely( world, pos ) );
 	}
@@ -671,6 +671,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	 *
 	 * @return if the method results in a non-full cube box.
 	 */
+	@Nonnull
 	private AxisAlignedBB setBounds(
 			final TileEntityBlockChiseled tec,
 			final BlockPos pos,
@@ -782,6 +783,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		return super.getSelectedBoundingBox( state, worldIn, pos );
 	}
 
+	@Nonnull
 	public AxisAlignedBB getSelectedBoundingBox(
 			final TileEntityBlockChiseled tec,
 			final BlockPos pos )
@@ -940,8 +942,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	}
 
 	public static boolean replaceWithChisled(
-			final World world,
-			final BlockPos pos,
+			final @Nonnull World world,
+			final @Nonnull BlockPos pos,
 			final IBlockState originalState,
 			final int fragmentBlockStateID,
 			final boolean triggerUpdate )

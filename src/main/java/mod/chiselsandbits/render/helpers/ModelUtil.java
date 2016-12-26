@@ -177,19 +177,23 @@ public class ModelUtil implements ICacheClearable
 
 		}
 
-		final IBakedModel secondModel = model.getOverrides().handleItemState( model, ModUtil.getItemFromBlock( state ), Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer );
-
-		if ( secondModel != null )
+		final ItemStack is = ModUtil.getItemFromBlock( state );
+		if ( !ModUtil.isEmpty( is ) )
 		{
-			try
+			final IBakedModel secondModel = model.getOverrides().handleItemState( model, is, Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer );
+
+			if ( secondModel != null )
 			{
-				return secondModel.getQuads( null, f, rand );
-			}
-			catch ( final Throwable t )
-			{
+				try
+				{
+					return secondModel.getQuads( null, f, rand );
+				}
+				catch ( final Throwable t )
+				{
+
+				}
 
 			}
-
 		}
 
 		// try to not crash...
@@ -321,7 +325,7 @@ public class ModelUtil implements ICacheClearable
 		{
 			// if the model is empty then lets grab an item and try that...
 			final ItemStack is = ModUtil.getItemFromBlock( state );
-			if ( is != null )
+			if ( !ModUtil.isEmpty( is ) )
 			{
 				final IBakedModel itemModel = Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides( is, Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer );
 				return itemModel;

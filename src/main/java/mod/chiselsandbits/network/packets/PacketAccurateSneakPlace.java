@@ -2,6 +2,8 @@ package mod.chiselsandbits.network.packets;
 
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,12 +23,12 @@ public class PacketAccurateSneakPlace extends ModPacket
 	{
 
 		EnumActionResult doItemUse(
-				ItemStack inHand,
-				EntityPlayer playerEntity,
-				World worldObj,
-				BlockPos pos,
-				EnumHand hand,
-				EnumFacing side,
+				@Nonnull ItemStack inHand,
+				@Nonnull EntityPlayer playerEntity,
+				@Nonnull World worldObj,
+				@Nonnull BlockPos pos,
+				@Nonnull EnumHand hand,
+				@Nonnull EnumFacing side,
 				float hitX,
 				float hitY,
 				float hitZ );

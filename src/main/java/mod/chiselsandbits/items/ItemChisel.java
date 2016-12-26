@@ -6,6 +6,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.base.Stopwatch;
@@ -121,7 +123,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	static public boolean fromBreakToChisel(
 			final ChiselMode mode,
 			final ItemStack itemstack,
-			final BlockPos pos,
+			final @Nonnull BlockPos pos,
 			final EntityPlayer player,
 			final EnumHand hand )
 	{
@@ -253,7 +255,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final ChiselMode mode,
 			final EntityPlayer player,
 			final World world,
-			final BlockPos pos,
+			final @Nonnull BlockPos pos,
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,
@@ -360,7 +362,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final IBlockState state,
 			final EntityPlayer player,
 			final World world,
-			final BlockPos pos )
+			final @Nonnull BlockPos pos )
 	{
 		final int targetState = ModUtil.getStateId( state );
 		ItemStackSlot chiselSlot = chiselInv.getItem( targetState );

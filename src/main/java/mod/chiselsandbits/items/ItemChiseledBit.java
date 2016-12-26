@@ -218,11 +218,11 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 	@Override
 	public EnumActionResult onItemUse(
-			final EntityPlayer player,
-			final World world,
-			final BlockPos usedBlock,
-			final EnumHand hand,
-			final EnumFacing side,
+			final @Nonnull EntityPlayer player,
+			final @Nonnull World world,
+			final @Nonnull BlockPos usedBlock,
+			final @Nonnull EnumHand hand,
+			final @Nonnull EnumFacing side,
 			final float hitX,
 			final float hitY,
 			final float hitZ )

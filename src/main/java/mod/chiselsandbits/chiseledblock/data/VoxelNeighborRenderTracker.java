@@ -111,6 +111,8 @@ public final class VoxelNeighborRenderTracker
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
+			assert f != null;
+
 			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( access, pos.offset( f ) );
 			if ( tebc != null )
 			{

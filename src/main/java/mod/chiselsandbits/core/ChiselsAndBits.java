@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -54,9 +56,9 @@ import net.minecraftforge.oredict.RecipeSorter.Category;
 		guiFactory = "mod.chiselsandbits.client.gui.ModConfigGuiFactory" )
 public class ChiselsAndBits
 {
-	public static final String MODNAME = "Chisels & Bits";
-	public static final String MODID = "chiselsandbits";
-	public static final String VERSION = "@VERSION@";
+	public static final @Nonnull String MODNAME = "Chisels & Bits";
+	public static final @Nonnull String MODID = "chiselsandbits";
+	public static final @Nonnull String VERSION = "@VERSION@";
 
 	public static final String DEPENDENCIES = "required-after:Forge@[12.17.0.1909,);after:mcmultipart;after:JEI@[3.7.8.234,)"; // buildVersion
 

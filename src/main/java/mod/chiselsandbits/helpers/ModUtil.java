@@ -50,7 +50,10 @@ import net.minecraft.world.chunk.Chunk;
 public class ModUtil
 {
 
+	@Nonnull
 	public static final String NBT_SIDE = "side";
+
+	@Nonnull
 	public static final String NBT_BLOCKENTITYTAG = "BlockEntityTag";
 
 	private final static Random RAND = new Random();
@@ -355,8 +358,8 @@ public class ModUtil
 	}
 
 	public static TileEntity getTileEntitySafely(
-			final IBlockAccess world,
-			final BlockPos pos )
+			final @Nonnull IBlockAccess world,
+			final @Nonnull BlockPos pos )
 	{
 		// not going to lie, this is really stupid.
 		if ( world instanceof ChunkCache )
@@ -378,8 +381,8 @@ public class ModUtil
 	}
 
 	public static TileEntityBlockChiseled getChiseledTileEntity(
-			final IBlockAccess world,
-			final BlockPos pos )
+			@Nonnull final IBlockAccess world,
+			@Nonnull final BlockPos pos )
 	{
 		final TileEntity te = getTileEntitySafely( world, pos );
 		if ( te instanceof TileEntityBlockChiseled )
@@ -391,8 +394,8 @@ public class ModUtil
 	}
 
 	public static TileEntityBlockChiseled getChiseledTileEntity(
-			final World world,
-			final BlockPos pos,
+			@Nonnull final World world,
+			@Nonnull final BlockPos pos,
 			final boolean create )
 	{
 		if ( world.isBlockLoaded( pos ) )
@@ -409,8 +412,8 @@ public class ModUtil
 	}
 
 	public static void removeChisledBlock(
-			final World world,
-			final BlockPos pos )
+			@Nonnull final World world,
+			@Nonnull final BlockPos pos )
 	{
 		final TileEntity te = world.getTileEntity( pos );
 
@@ -550,7 +553,7 @@ public class ModUtil
 				cData = stack.getTagCompound();
 			}
 
-			tmp.readChisleData( cData );
+			tmp.readChisleData( cData, VoxelBlob.VERSION_ANY );
 			VoxelBlob blob = tmp.getBlob();
 
 			if ( rotationPlayer != null )
@@ -569,15 +572,15 @@ public class ModUtil
 	}
 
 	public static void sendUpdate(
-			final World worldObj,
-			final BlockPos pos )
+			@Nonnull final World worldObj,
+			@Nonnull final BlockPos pos )
 	{
 		final IBlockState state = worldObj.getBlockState( pos );
 		worldObj.notifyBlockUpdate( pos, state, state, 0 );
 	}
 
 	public static ItemStack getItemFromBlock(
-			final IBlockState state )
+			@Nonnull final IBlockState state )
 	{
 		final Block blk = state.getBlock();
 
@@ -592,19 +595,9 @@ public class ModUtil
 			return new ItemStack( Blocks.GRASS );
 		}
 
-		if ( i == null )
+		if ( i == null || blockVarient == null || blockVarient != i )
 		{
-			return null;
-		}
-
-		if ( blockVarient == null )
-		{
-			return null;
-		}
-
-		if ( blockVarient != i )
-		{
-			return null;
+			return ModUtil.getEmptyStack();
 		}
 
 		if ( blockVarient instanceof ItemBlock )
@@ -613,7 +606,7 @@ public class ModUtil
 			if ( meta != ib.getMetadata( damage ) )
 			{
 				// this item dosn't drop itself... BAIL!
-				return null;
+				return ModUtil.getEmptyStack();
 			}
 		}
 
@@ -796,7 +789,7 @@ public class ModUtil
 				final IBlockState state = iblk.getBlock().getStateFromMeta( iblk.getMetadata( is.getItemDamage() ) );
 				final ItemStack out = ModUtil.getItemFromBlock( state );
 
-				if ( out.getItem() == is.getItem() && is.getItemDamage() == out.getItemDamage() )
+				if ( !ModUtil.isEmpty( out ) && out.getItem() == is.getItem() && is.getItemDamage() == out.getItemDamage() )
 				{
 					return state;
 				}
@@ -811,8 +804,8 @@ public class ModUtil
 	}
 
 	public static void damageItem(
-			final ItemStack is,
-			final Random r )
+			@Nonnull final ItemStack is,
+			@Nonnull final Random r )
 	{
 		if ( is.isItemStackDamageable() )
 		{
@@ -821,6 +814,35 @@ public class ModUtil
 				is.func_190918_g( 1 );
 			}
 		}
+	}
+
+	@Nonnull
+	public static ItemStack makeStack(
+			final Item item )
+	{
+		return makeStack( item, 1 );
+	}
+
+	@Nonnull
+	public static ItemStack makeStack(
+			final Item item,
+			final int stackSize )
+	{
+		return makeStack( item, 1, 0 );
+	}
+
+	@Nonnull
+	public static ItemStack makeStack(
+			final Item item,
+			final int stackSize,
+			final int damage )
+	{
+		if ( item == null || stackSize < 1 )
+		{
+			return ModUtil.getEmptyStack();
+		}
+
+		return new ItemStack( item, stackSize, damage );
 	}
 
 }

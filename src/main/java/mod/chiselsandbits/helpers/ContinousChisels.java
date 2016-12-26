@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 
@@ -25,9 +27,9 @@ public class ContinousChisels implements IContinuousInventory
 	private final boolean canEdit;
 
 	public ContinousChisels(
-			final ActingPlayer who,
-			final BlockPos pos,
-			final EnumFacing side )
+			final @Nonnull ActingPlayer who,
+			final @Nonnull BlockPos pos,
+			final @Nonnull EnumFacing side )
 	{
 		this.who = who;
 		final ItemStack inHand = who.getCurrentEquippedItem();
