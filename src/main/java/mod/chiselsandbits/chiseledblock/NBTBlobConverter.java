@@ -131,7 +131,8 @@ public class NBTBlobConverter
 	}
 
 	public final boolean readChisleData(
-			final NBTTagCompound compound )
+			final NBTTagCompound compound,
+			final int preferedFormat )
 	{
 		if ( compound == null )
 		{
@@ -181,8 +182,25 @@ public class NBTBlobConverter
 		voxelBlobRef = new VoxelBlobStateReference( v, 0 );
 		format = voxelBlobRef.getFormat();
 
+		boolean formatChanged = false;
+
+		if ( preferedFormat != format && preferedFormat != VoxelBlob.VERSION_ANY )
+		{
+			formatChanged = true;
+			v = voxelBlobRef.getVoxelBlob().blobToBytes( preferedFormat );
+			voxelBlobRef = new VoxelBlobStateReference( v, 0 );
+			format = voxelBlobRef.getFormat();
+		}
+
 		if ( tile != null )
 		{
+			if ( formatChanged )
+			{
+				// this only works on already loaded tiles, so i'm not sure
+				// there is much point in it.
+				tile.markDirty();
+			}
+
 			return tile.updateBlob( this, triggerUpdates );
 		}
 

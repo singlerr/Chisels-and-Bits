@@ -7,6 +7,7 @@ import java.util.List;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
@@ -108,7 +109,7 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 			for ( final ItemStack is : myCrossItems )
 			{
 				final NBTBlobConverter c = new NBTBlobConverter();
-				c.readChisleData( is.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, true ) );
+				c.readChisleData( is.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, true ), VoxelBlob.VERSION_ANY );
 
 				// recalculate.
 				c.updateFromBlob();

@@ -82,7 +82,7 @@ public class StackableCrafting implements IRecipe
 			final ItemStack stack )
 	{
 		final NBTBlobConverter tmp = new NBTBlobConverter();
-		tmp.readChisleData( stack.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, false ) );
+		tmp.readChisleData( stack.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, false ), VoxelBlob.VERSION_ANY );
 
 		VoxelBlob bestBlob = tmp.getBlob();
 		byte[] bestValue = bestBlob.toLegacyByteArray();

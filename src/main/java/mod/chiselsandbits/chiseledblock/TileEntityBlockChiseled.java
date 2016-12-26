@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import mod.chiselsandbits.api.EventBlockBitPostModification;
 import mod.chiselsandbits.api.EventFullBlockRestoration;
+import mod.chiselsandbits.api.IChiseledBlockTileEntity;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
@@ -44,7 +45,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TileEntityBlockChiseled extends TileEntity implements IChiseledTileContainer
+public class TileEntityBlockChiseled extends TileEntity implements IChiseledTileContainer, IChiseledBlockTileEntity
 {
 
 	private IExtendedBlockState state;
@@ -353,7 +354,8 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public boolean readChisleData(
 			final NBTTagCompound tag )
 	{
-		final boolean changed = new NBTBlobConverter( false, this ).readChisleData( tag );
+		final NBTBlobConverter converter = new NBTBlobConverter( false, this );
+		final boolean changed = converter.readChisleData( tag, VoxelBlob.VERSION_COMPACT );
 
 		final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.UProperty_VoxelNeighborState );
 
@@ -386,6 +388,17 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	{
 		super.readFromNBT( compound );
 		readChisleData( compound );
+	}
+
+	@Override
+	public NBTTagCompound writeTileEntityToTag(
+			final NBTTagCompound tag,
+			final boolean crossWorld )
+	{
+		super.writeToNBT( tag );
+		new NBTBlobConverter( false, this ).writeChisleData( tag, crossWorld );
+		tag.setBoolean( "cw", crossWorld );
+		return tag;
 	}
 
 	@Override

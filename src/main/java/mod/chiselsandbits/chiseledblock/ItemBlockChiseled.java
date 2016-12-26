@@ -430,7 +430,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			if ( BlockEntityTag != null )
 			{
 				final NBTBlobConverter c = new NBTBlobConverter();
-				c.readChisleData( BlockEntityTag );
+				c.readChisleData( BlockEntityTag, VoxelBlob.VERSION_ANY );
 
 				final IBlockState state = c.getPrimaryBlockState();
 				final Block blk = state.getBlock();

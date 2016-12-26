@@ -1235,7 +1235,7 @@ public class ClientSide
 			lastPartial = partial;
 
 			final NBTBlobConverter c = new NBTBlobConverter();
-			c.readChisleData( item.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, false ) );
+			c.readChisleData( item.getSubCompound( ModUtil.NBT_BLOCKENTITYTAG, false ), VoxelBlob.VERSION_ANY );
 			VoxelBlob blob = c.getBlob();
 
 			while ( rotations-- > 0 )

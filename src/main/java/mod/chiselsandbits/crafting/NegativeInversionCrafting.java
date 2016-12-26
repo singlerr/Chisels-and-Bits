@@ -72,7 +72,7 @@ public class NegativeInversionCrafting implements IRecipe
 			}
 
 			final NBTBlobConverter tmp = new NBTBlobConverter();
-			tmp.readChisleData( targetA.getTagCompound() );
+			tmp.readChisleData( targetA.getTagCompound(), VoxelBlob.VERSION_ANY );
 
 			final VoxelBlob bestBlob = tmp.getBlob();
 			bestBlob.binaryReplacement( ModUtil.getStateId( Blocks.STONE.getDefaultState() ), 0 );

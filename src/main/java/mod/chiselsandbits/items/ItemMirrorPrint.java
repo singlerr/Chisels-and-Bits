@@ -148,7 +148,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 
 		// Detect and provide full blocks if pattern solid full and solid.
 		final NBTBlobConverter conv = new NBTBlobConverter();
-		conv.readChisleData( tag );
+		conv.readChisleData( tag, VoxelBlob.VERSION_ANY );
 
 		final IBlockState blk = conv.getPrimaryBlockState();
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk ), 1 );

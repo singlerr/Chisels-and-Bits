@@ -511,7 +511,7 @@ public class ModUtil
 				cData = stack.getTagCompound();
 			}
 
-			tmp.readChisleData( cData );
+			tmp.readChisleData( cData, VoxelBlob.VERSION_ANY );
 			VoxelBlob blob = tmp.getBlob();
 
 			if ( rotationPlayer != null )
