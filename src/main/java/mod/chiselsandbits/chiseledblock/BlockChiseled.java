@@ -462,7 +462,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			final BlockPos pos,
 			final TileEntityBlockChiseled te )
 	{
-		if ( te.getWorld().isRemote )
+		if ( te.getWorld() != null && te.getWorld().isRemote )
 		{
 			if ( getClientHeldTool() != null )
 			{
