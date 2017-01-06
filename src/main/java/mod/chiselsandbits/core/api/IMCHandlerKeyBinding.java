@@ -2,7 +2,6 @@ package mod.chiselsandbits.core.api;
 
 import mod.chiselsandbits.client.ModConflictContext;
 import mod.chiselsandbits.core.Log;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
@@ -27,7 +26,7 @@ public class IMCHandlerKeyBinding implements IMCMessageHandler
 				item = Item.REGISTRY.getObject( new ResourceLocation( name ) );
 
 				// try finding the item in the mod instead...
-				if ( item == null || item == Items.field_190931_a )
+				if ( item == null )
 				{
 					errorName = message.getSender() + ":" + name;
 					item = Item.REGISTRY.getObject( new ResourceLocation( message.getSender(), name ) );
@@ -44,12 +43,12 @@ public class IMCHandlerKeyBinding implements IMCMessageHandler
 				return;
 			}
 
-			if ( item == null || item == Items.field_190931_a )
+			if ( item == null )
 			{
 				throw new RuntimeException( "Unable to locate item " + errorName );
 			}
 
-			for ( ModConflictContext conflictContext : ModConflictContext.values() )
+			for ( final ModConflictContext conflictContext : ModConflictContext.values() )
 			{
 				if ( conflictContext.getName().equals( message.key ) )
 				{

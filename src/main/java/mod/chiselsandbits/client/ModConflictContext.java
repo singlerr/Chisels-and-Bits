@@ -7,7 +7,6 @@ import java.util.Set;
 import mod.chiselsandbits.api.KeyBindingContext;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ChiselToolType;
-import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -29,7 +28,7 @@ public enum ModConflictContext implements IKeyConflictContext
 			}
 
 			final ItemStack held = ClientSide.instance.getPlayer().getHeldItemMainhand();
-			return !ModUtil.isEmpty( held ) && held.getItem() instanceof IVoxelBlobItem;
+			return held != null && held.getItem() instanceof IVoxelBlobItem;
 		}
 
 		@Override
@@ -115,7 +114,7 @@ public enum ModConflictContext implements IKeyConflictContext
 		}
 	};
 
-	private Set<Class<? extends Item>> activeItemClasses = new HashSet<Class<? extends Item>>();
+	private final Set<Class<? extends Item>> activeItemClasses = new HashSet<Class<? extends Item>>();
 
 	public void setItemActive(
 			final Item item )
@@ -128,12 +127,12 @@ public enum ModConflictContext implements IKeyConflictContext
 	{
 		final ItemStack held = ClientSide.instance.getPlayer().getHeldItemMainhand();
 
-		if ( ModUtil.isEmpty( held ) )
+		if ( held == null )
 		{
 			return false;
 		}
 
-		for ( Class<? extends Item> itemClass : activeItemClasses )
+		for ( final Class<? extends Item> itemClass : activeItemClasses )
 		{
 			if ( itemClass.isInstance( held.getItem() ) )
 			{
@@ -147,7 +146,7 @@ public enum ModConflictContext implements IKeyConflictContext
 
 			if ( annotation instanceof KeyBindingContext )
 			{
-				for ( String name : ( (KeyBindingContext) annotation ).value() )
+				for ( final String name : ( (KeyBindingContext) annotation ).value() )
 				{
 					if ( name.equals( getName() ) )
 					{
