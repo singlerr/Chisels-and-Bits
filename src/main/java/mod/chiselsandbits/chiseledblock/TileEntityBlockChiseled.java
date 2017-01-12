@@ -887,4 +887,9 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		}
 	}
 
+	public void finishUpdate()
+	{
+		// nothin.
+	}
+
 }

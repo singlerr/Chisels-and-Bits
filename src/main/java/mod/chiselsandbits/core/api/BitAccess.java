@@ -127,6 +127,7 @@ public class BitAccess implements IBitAccess
 			{
 				final VoxelBlobStateReference before = tile.getBlobStateReference();
 				tile.setBlob( blob, triggerUpdates );
+				tile.finishUpdate();
 				final VoxelBlobStateReference after = tile.getBlobStateReference();
 
 				UndoTracker.getInstance().add( w, p, before, after );
