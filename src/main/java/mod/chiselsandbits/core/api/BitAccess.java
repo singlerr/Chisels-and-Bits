@@ -109,22 +109,23 @@ public class BitAccess implements IBitAccess
 			final boolean triggerUpdates )
 	{
 		TileEntityBlockChiseled tile = ModUtil.getChiseledTileEntity( world, pos, true );
-		final BlobStats cb = blob.getVoxelStats();
+			final BlobStats cb = blob.getVoxelStats();
 
 		if ( tile == null && BlockChiseled.replaceWithChisled( world, pos, world.getBlockState( pos ), cb.mostCommonState, false ) )
-		{
+			{
 			tile = ModUtil.getChiseledTileEntity( world, pos, true );
-		}
+			}
 
-		if ( tile != null )
-		{
-			final VoxelBlobStateReference before = tile.getBlobStateReference();
-			tile.setBlob( blob, triggerUpdates );
-			final VoxelBlobStateReference after = tile.getBlobStateReference();
+			if ( tile != null )
+			{
+				final VoxelBlobStateReference before = tile.getBlobStateReference();
+				tile.setBlob( blob, triggerUpdates );
+				tile.finishUpdate();
+				final VoxelBlobStateReference after = tile.getBlobStateReference();
 
 			UndoTracker.getInstance().add( world, pos, before, after );
+			}
 		}
-	}
 
 	@Override
 	public void commitChanges()

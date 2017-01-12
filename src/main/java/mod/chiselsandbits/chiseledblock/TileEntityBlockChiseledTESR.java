@@ -191,7 +191,12 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			final VoxelBlob vb )
 	{
 		super.completeEditOperation( vb );
+		finishUpdate();
+	}
 
+	@Override
+	public void finishUpdate()
+	{
 		if ( renderChunk != null )
 		{
 			if ( renderChunk.singleInstanceMode )
