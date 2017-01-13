@@ -163,6 +163,9 @@ public class ModConfig extends Configuration
 	public boolean dynamicModelMinimizeLatancy;
 
 	@Configured( category = "Client Performance Settings" )
+	public long minimizeLatancyMaxTime;
+
+	@Configured( category = "Client Performance Settings" )
 	public int dynamicMaxConcurrentTessalators;
 
 	@Configured( category = "Client Performance Settings" )
@@ -343,6 +346,7 @@ public class ModConfig extends Configuration
 		dynamicModelFaceCount = 40;
 		dynamicModelRange = 128;
 		dynamicModelMinimizeLatancy = true;
+		minimizeLatancyMaxTime = 100;
 		dynamicMaxConcurrentTessalators = 32; // in low memory this acts as 2.
 		forceDynamicRenderer = false;
 		defaultToDynamicRenderer = false;

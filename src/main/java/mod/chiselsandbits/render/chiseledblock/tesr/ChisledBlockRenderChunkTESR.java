@@ -530,7 +530,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		{
 			try
 			{
-				final Tessellator tess = tlrc.future.get( 2, TimeUnit.MILLISECONDS );
+				final Tessellator tess = tlrc.future.get( ChiselsAndBits.getConfig().minimizeLatancyMaxTime, TimeUnit.MILLISECONDS );
 				tlrc.future = null;
 				pendingTess.decrementAndGet();
 
