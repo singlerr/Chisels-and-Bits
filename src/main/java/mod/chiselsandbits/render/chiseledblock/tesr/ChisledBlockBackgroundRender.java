@@ -33,25 +33,86 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 	private final List<TileEntityBlockChiseledTESR> myPrivateList;
 	private final BlockRenderLayer layer;
 	private final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
-	private final static Queue<SoftReference<Tessellator>> previousTessellators = new LinkedBlockingQueue<SoftReference<Tessellator>>();
+	private final static Queue<CBTessellatorRefHold> previousTessellators = new LinkedBlockingQueue<CBTessellatorRefHold>();
 
 	private final ChunkCache cache;
 	private final BlockPos chunkOffset;
 
-	static class CBTessellator extends Tessellator
+	static class CBTessellatorRefNode
 	{
 
-		public CBTessellator(
-				final int bufferSize )
+		boolean done = false;
+
+		public CBTessellatorRefNode()
 		{
-			super( bufferSize );
 			ChisledBlockRenderChunkTESR.activeTess.incrementAndGet();
+		}
+
+		public void dispose()
+		{
+			if ( !done )
+			{
+				ChisledBlockRenderChunkTESR.activeTess.decrementAndGet();
+				done = true;
+			}
 		}
 
 		@Override
 		protected void finalize() throws Throwable
 		{
-			ChisledBlockRenderChunkTESR.activeTess.decrementAndGet();
+			dispose();
+		}
+
+	};
+
+	static class CBTessellatorRefHold
+	{
+		SoftReference<Tessellator> myTess;
+		CBTessellatorRefNode node;
+
+		public CBTessellatorRefHold(
+				final CBTessellator cbTessellator )
+		{
+			myTess = new SoftReference<Tessellator>( cbTessellator );
+			node = cbTessellator.node;
+		}
+
+		public Tessellator get()
+		{
+			if ( myTess != null )
+			{
+				return myTess.get();
+			}
+
+			return null;
+		}
+
+		public void dispose()
+		{
+			if ( myTess != null )
+			{
+				node.dispose();
+				myTess = null;
+			}
+		}
+
+		@Override
+		protected void finalize() throws Throwable
+		{
+			dispose();
+		}
+
+	};
+
+	static class CBTessellator extends Tessellator
+	{
+
+		CBTessellatorRefNode node = new CBTessellatorRefNode();
+
+		public CBTessellator(
+				final int bufferSize )
+		{
+			super( bufferSize );
 		}
 
 	};
@@ -71,7 +132,14 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 	public static void submitTessellator(
 			final Tessellator t )
 	{
-		previousTessellators.add( new SoftReference<Tessellator>( t ) );
+		if ( t instanceof CBTessellator )
+		{
+			previousTessellators.add( new CBTessellatorRefHold( (CBTessellator) t ) );
+		}
+		else
+		{
+			throw new RuntimeException( "Invalid TESS submtied for re-use." );
+		}
 	}
 
 	@Override
@@ -83,11 +151,16 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 		{
 			do
 			{
-				final SoftReference<Tessellator> softTessellator = previousTessellators.poll();
+				final CBTessellatorRefHold holder = previousTessellators.poll();
 
-				if ( softTessellator != null )
+				if ( holder != null )
 				{
-					tessellator = softTessellator.get();
+					tessellator = holder.get();
+
+					if ( tessellator == null )
+					{
+						holder.dispose();
+					}
 				}
 			}
 			while ( tessellator == null && !previousTessellators.isEmpty() );
