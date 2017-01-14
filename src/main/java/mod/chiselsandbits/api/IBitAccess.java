@@ -69,6 +69,12 @@ public interface IBitAccess
 	 * affect, optionally you can trigger updates or not.
 	 *
 	 * If the {@link IBitAccess} is not in the world this method does nothing.
+	 * 
+	 * All changes made by a player should be committed on the client and the
+	 * server, failure to commit changes on the client will cause corruption of
+	 * the Undo Pipeline, causing 'Block Has Changed' errors when trying to undo
+	 * blocks that have been modified only on the server, doing so also
+	 * increases responsiveness in those changes for the player making them.
 	 *
 	 * @param triggerUpdates
 	 *            normally true, only use false if your doing something special.

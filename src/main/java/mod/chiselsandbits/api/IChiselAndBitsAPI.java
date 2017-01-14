@@ -167,8 +167,13 @@ public interface IChiselAndBitsAPI
 			ItemStack stack );
 
 	/**
-	 * Begins an undo operation, starting two operations without ending the
-	 * previous operation will throw a runtime exception.
+	 * Begins an undo group, starting two operations without ending the previous
+	 * operation will throw a runtime exception.
+	 * 
+	 * This is used to merge multiple blocks into a single operation, undo steps
+	 * will be recorded regardless of usage of this method, however its
+	 * suggested to use groups in any case where a change well affect more then
+	 * one block.
 	 *
 	 * @formatter:off
 	 *
@@ -182,9 +187,9 @@ public interface IChiselAndBitsAPI
 			EntityPlayer player );
 
 	/**
-	 * Ends a previously running undo operation, must be called after starting
-	 * an undo operation, closing a group without opening one will result in a
-	 * runtime exception.
+	 * Ends a previously running undo group, must be called after starting an
+	 * undo group, closing a group without opening one will result in a runtime
+	 * exception.
 	 */
 	void endUndoGroup(
 			EntityPlayer player );
