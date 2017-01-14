@@ -624,6 +624,26 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		return r.offset( pos.getX(), pos.getY(), pos.getZ() );
 	}
 
+	// @Override - this is 1.11.2
+	public void func_185477_a(
+			final IBlockState state,
+			final World worldIn,
+			final BlockPos pos,
+			final AxisAlignedBB mask,
+			final List<AxisAlignedBB> list,
+			final Entity collidingEntity,
+			final boolean p_185477_7_ )
+	{
+		try
+		{
+			addCollisionBoxesToList( getTileEntity( worldIn, pos ), pos, mask, list, collidingEntity );
+		}
+		catch ( final ExceptionNoTileEntity e )
+		{
+			Log.noTileError( e );
+		}
+	}
+
 	@Override
 	public void addCollisionBoxToList(
 			final IBlockState state,
