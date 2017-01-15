@@ -8,10 +8,11 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import mod.chiselsandbits.chiseledblock.BoxType;
+import mod.chiselsandbits.helpers.IStateRef;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
-public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateReference>
+public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateReference>, IStateRef
 {
 
 	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> serverRefs = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>>() );
@@ -98,6 +99,7 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 		return data.voxelBytes;
 	}
 
+	@Override
 	public VoxelBlob getVoxelBlob()
 	{
 		return data.getBlob();
