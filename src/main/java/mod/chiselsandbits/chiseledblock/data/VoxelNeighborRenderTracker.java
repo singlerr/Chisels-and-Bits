@@ -5,7 +5,9 @@ import java.lang.ref.WeakReference;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.IStateRef;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.render.chiseledblock.BlockStateRef;
 import mod.chiselsandbits.render.chiseledblock.ModelRenderState;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -111,23 +113,34 @@ public final class VoxelNeighborRenderTracker
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
-			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( access, pos.offset( f ) );
+			final BlockPos oPos = pos.offset( f );
+
+			final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( access, oPos );
 			if ( tebc != null )
 			{
 				update( f, tebc.getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob ) );
 			}
 			else
 			{
-				update( f, null );
+				final int stateid = ModUtil.getStateId( access.getBlockState( oPos ) );
+
+				if ( stateid == 0 )
+				{
+					update( f, null );
+				}
+				else
+				{
+					update( f, new BlockStateRef( stateid ) );
+				}
 			}
 		}
 	}
 
 	private void update(
 			final EnumFacing f,
-			final VoxelBlobStateReference value )
+			final IStateRef value )
 	{
-		if ( sides.get( f ) == value )
+		if ( sameValue( sides.get( f ), value ) )
 		{
 			return;
 		}
@@ -136,7 +149,25 @@ public final class VoxelNeighborRenderTracker
 		{
 			sides.put( f, value );
 			lrs = null;
+			triggerUpdate();
 		}
+	}
+
+	private boolean sameValue(
+			final IStateRef iStateRef,
+			final IStateRef value )
+	{
+		if ( iStateRef == value )
+		{
+			return true;
+		}
+
+		if ( iStateRef == null || value == null )
+		{
+			return false;
+		}
+
+		return value.equals( iStateRef );
 	}
 
 	public ModelRenderState getRenderState(

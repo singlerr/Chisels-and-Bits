@@ -13,6 +13,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.IStateRef;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer;
@@ -392,7 +393,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : X_Faces )
 		{
-			final VoxelBlobStateReference nextToState = mrs != null && myLayer != ChiselLayer.SOLID ? mrs.get( myFace ) : null;
+			final IStateRef nextToState = mrs != null && myLayer != ChiselLayer.SOLID ? mrs.get( myFace ) : null;
 			VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 
 			if ( !myLayer.filter( nextTo ) )
@@ -454,7 +455,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : Y_Faces )
 		{
-			final VoxelBlobStateReference nextToState = mrs != null && myLayer != ChiselLayer.SOLID ? mrs.get( myFace ) : null;
+			final IStateRef nextToState = mrs != null && myLayer != ChiselLayer.SOLID ? mrs.get( myFace ) : null;
 			VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 
 			if ( !myLayer.filter( nextTo ) )
@@ -516,7 +517,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		for ( final EnumFacing myFace : Z_Faces )
 		{
-			final VoxelBlobStateReference nextToState = mrs != null && myLayer != ChiselLayer.SOLID ? mrs.get( myFace ) : null;
+			final IStateRef nextToState = mrs != null && myLayer != ChiselLayer.SOLID ? mrs.get( myFace ) : null;
 			VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
 
 			if ( !myLayer.filter( nextTo ) )

@@ -1,14 +1,15 @@
 package mod.chiselsandbits.render.chiseledblock;
 
-import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.helpers.IStateRef;
 import net.minecraft.util.EnumFacing;
 
 public class ModelRenderState
 {
-	// less objects/garbage to clean up, and less memory usage.
-	private VoxelBlobStateReference north, south, east, west, up, down;
 
-	public VoxelBlobStateReference get(
+	// less objects/garbage to clean up, and less memory usage.
+	private IStateRef north, south, east, west, up, down;
+
+	public IStateRef get(
 			final EnumFacing side )
 	{
 		switch ( side )
@@ -33,7 +34,7 @@ public class ModelRenderState
 
 	public void put(
 			final EnumFacing side,
-			final VoxelBlobStateReference value )
+			final IStateRef value )
 	{
 		switch ( side )
 		{
