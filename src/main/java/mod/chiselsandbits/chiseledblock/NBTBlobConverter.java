@@ -5,6 +5,7 @@ import java.io.IOException;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.chiseledblock.serialization.StringStates;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
@@ -12,6 +13,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagString;
 
 public class NBTBlobConverter
 {
@@ -124,7 +126,16 @@ public class NBTBlobConverter
 		final byte[] voxelBytes = newFormat == format ? voxelRef.getByteArray() : voxelRef.getVoxelBlob().blobToBytes( newFormat );
 
 		compound.setInteger( NBT_LIGHTVALUE, lightValue );
-		compound.setInteger( NBT_PRIMARY_STATE, primaryBlockState );
+
+		if ( crossWorld )
+		{
+			compound.setString( NBT_PRIMARY_STATE, StringStates.getNameFromStateID( primaryBlockState ) );
+		}
+		else
+		{
+			compound.setInteger( NBT_PRIMARY_STATE, primaryBlockState );
+		}
+
 		compound.setInteger( NBT_SIDE_FLAGS, sideState );
 		compound.setBoolean( NBT_NORMALCUBE_FLAG, isNormalCube );
 		compound.setByteArray( NBT_VERSIONED_VOXEL, voxelBytes );
@@ -148,7 +159,15 @@ public class NBTBlobConverter
 		}
 
 		sideState = compound.getInteger( NBT_SIDE_FLAGS );
-		primaryBlockState = compound.getInteger( NBT_PRIMARY_STATE );
+
+		if ( compound.getTag( NBT_PRIMARY_STATE ) instanceof NBTTagString )
+		{
+			primaryBlockState = StringStates.getStateIDFromName( compound.getString( NBT_PRIMARY_STATE ) );
+		}
+		{
+			primaryBlockState = compound.getInteger( NBT_PRIMARY_STATE );
+		}
+
 		lightValue = compound.getInteger( NBT_LIGHTVALUE );
 		isNormalCube = compound.getBoolean( NBT_NORMALCUBE_FLAG );
 		byte[] v = compound.getByteArray( NBT_VERSIONED_VOXEL );
