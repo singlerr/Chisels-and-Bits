@@ -19,6 +19,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.init.Blocks;
@@ -180,7 +181,7 @@ public class ModelUtil implements ICacheClearable
 		final ItemStack is = ModUtil.getItemFromBlock( state );
 		if ( !ModUtil.isEmpty( is ) )
 		{
-			final IBakedModel secondModel = model.getOverrides().handleItemState( model, is, Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer );
+			final IBakedModel secondModel = getOverrides( model ).handleItemState( model, is, Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer );
 
 			if ( secondModel != null )
 			{
@@ -192,12 +193,22 @@ public class ModelUtil implements ICacheClearable
 				{
 
 				}
-
 			}
 		}
 
 		// try to not crash...
 		return Collections.emptyList();
+	}
+
+	private static ItemOverrideList getOverrides(
+			final IBakedModel model )
+	{
+		if ( model != null )
+		{
+			final ItemOverrideList modelOverrides = model.getOverrides();
+			return modelOverrides == null ? ItemOverrideList.NONE : modelOverrides;
+		}
+		return ItemOverrideList.NONE;
 	}
 
 	private static void processFaces(
