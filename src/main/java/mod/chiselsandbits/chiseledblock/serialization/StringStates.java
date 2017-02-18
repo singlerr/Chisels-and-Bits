@@ -88,7 +88,7 @@ public class StringStates
 		final Optional pv = prop.parseValue( nameval[1] );
 		if ( pv.isPresent() )
 		{
-			return state.withProperty( prop, pv.get() );
+			return state.withProperty( prop, (Comparable) pv.get() );
 		}
 		else
 		{

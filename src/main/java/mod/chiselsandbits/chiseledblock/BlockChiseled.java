@@ -23,6 +23,7 @@ import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
@@ -300,7 +301,14 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			final @Nonnull IBlockAccess world,
 			final @Nonnull BlockPos pos ) throws ExceptionNoTileEntity
 	{
-		return getTileEntity( ModUtil.getTileEntitySafely( world, pos ) );
+		final TileEntity te = ModUtil.getTileEntitySafely( world, pos );
+
+		if ( te instanceof TileEntityBlockChiseled )
+		{
+			return (TileEntityBlockChiseled) te;
+		}
+
+		return getTileEntity( MCMultipartProxy.proxyMCMultiPart.getPartFromBlockAccess( world, pos ) );
 	}
 
 	@Override
@@ -624,34 +632,15 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		return r.offset( pos.getX(), pos.getY(), pos.getZ() );
 	}
 
-	// @Override - this is 1.11.2
-	public void func_185477_a(
-			final IBlockState state,
-			final World worldIn,
-			final BlockPos pos,
-			final AxisAlignedBB mask,
-			final List<AxisAlignedBB> list,
-			final Entity collidingEntity,
-			final boolean p_185477_7_ )
-	{
-		try
-		{
-			addCollisionBoxesToList( getTileEntity( worldIn, pos ), pos, mask, list, collidingEntity );
-		}
-		catch ( final ExceptionNoTileEntity e )
-		{
-			Log.noTileError( e );
-		}
-	}
-
 	@Override
 	public void addCollisionBoxToList(
-			final IBlockState state,
-			final World worldIn,
-			final BlockPos pos,
-			final AxisAlignedBB mask,
-			final List<AxisAlignedBB> list,
-			final Entity collidingEntity )
+			IBlockState state,
+			World worldIn,
+			BlockPos pos,
+			AxisAlignedBB mask,
+			List<AxisAlignedBB> list,
+			Entity collidingEntity,
+			boolean p_185477_7_ )
 	{
 		try
 		{

@@ -39,18 +39,11 @@ class ReflectionHelperBlock extends Block
 		return 0;
 	}
 
-	@Override
-	public void addCollisionBoxToList(
-			final @Nullable IBlockState state,
-			final @Nullable World worldIn,
-			final @Nullable BlockPos pos,
-			final @Nullable AxisAlignedBB p_185477_4_,
-			final @Nullable List<AxisAlignedBB> p_185477_5_,
-			final @Nullable Entity p_185477_6_ )
-	{
-		markMethod();
-	}
-
+@Override
+public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
+		List<AxisAlignedBB> collidingBoxes, Entity entityIn, boolean p_185477_7_) {
+	markMethod();
+}
 	@Override
 	public float getPlayerRelativeBlockHardness(
 			final @Nullable IBlockState state,

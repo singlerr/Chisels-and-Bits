@@ -13,9 +13,9 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle.forge'
 
-sourceCompatibility = targetCompatibility = "1.6" // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = "1.8" // Need this here so eclipse task generates correctly.
 compileJava {
-    sourceCompatibility = targetCompatibility = "1.6"
+    sourceCompatibility = targetCompatibility = "1.8"
 }
 
 group= "mod.chiselsandbits"
@@ -32,6 +32,7 @@ repositories {
 
 dependencies {
 	deobfCompile "mezz.jei:${jei_version}"
+	deobfCompile "${mcmp2_version}"
 }
 
 minecraft {
