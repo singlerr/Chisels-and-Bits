@@ -130,7 +130,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			blk = state.getBlock();
 
 			final Item item = Item.getItemFromBlock( blk );
-			if ( item == null )
+			if ( ModUtil.isEmpty( item ) )
 			{
 				final Fluid f = BlockBitInfo.getFluidFromBlock( blk );
 				if ( f != null )

@@ -12,6 +12,12 @@ public class ChiseledBlockPart extends TileEntityBlockChiseled implements IMulti
 		// required for loading.
 	}
 
+	@Override
+	protected boolean supportsSwapping()
+	{
+		return false;
+	}
+
 	public ChiseledBlockPart(
 			TileEntity tileEntity )
 	{

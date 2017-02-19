@@ -116,6 +116,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return getState( true, 1, access );
 	}
 
+	protected boolean supportsSwapping()
+	{
+		return true;
+	}
+
 	@Nonnull
 	protected IExtendedBlockState getState(
 			final boolean updateNeightbors,
@@ -141,7 +146,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			tesrUpdate( access, vns );
 
 			final TileEntityBlockChiseled self = this;
-			if ( vns.isAboveLimit() && !isDyanmic )
+			if ( supportsSwapping() && vns.isAboveLimit() && !isDyanmic )
 			{
 				ChisledBlockRenderChunkTESR.addNextFrameTask( new Runnable() {
 
@@ -178,7 +183,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 				} );
 			}
-			else if ( !vns.isAboveLimit() && isDyanmic )
+			else if ( supportsSwapping() && !vns.isAboveLimit() && isDyanmic )
 			{
 				ChisledBlockRenderChunkTESR.addNextFrameTask( new Runnable() {
 
