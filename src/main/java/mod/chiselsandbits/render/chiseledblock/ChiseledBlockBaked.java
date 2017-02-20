@@ -216,7 +216,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		final ChiseledBlockBaked out = new ChiseledBlockBaked();
 
 		final IBlockState state = ModUtil.getStateById( blockStateID );
-		final IBakedModel model = ModelUtil.solveModel( state, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( ModUtil.getStateById( blockStateID ) ) );
+		final IBakedModel model = ModelUtil.solveModel( state, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( ModUtil.getStateById( blockStateID ) ), layer.layer );
 		if ( model != null )
 		{
 			out.sprite = ModelUtil.findTexture( blockStateID, model, EnumFacing.UP, layer.layer );
@@ -275,67 +275,70 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				offsetVec( from, region.getMinX(), region.getMinY(), region.getMinZ(), myFace, -1 );
 				final ModelQuadLayer[] mpc = ModelUtil.getCachedFace( region.blockStateID, weight, myFace, myLayer.layer );
 
-				for ( final ModelQuadLayer pc : mpc )
+				if ( mpc != null )
 				{
-					faceBuilder.begin( format );
-					faceBuilder.setFace( myFace, pc.tint );
-
-					final float maxLightmap = 32.0f / 0xffff;
-					getFaceUvs( uvs, myFace, from, to, pc.uvs );
-
-					// build it.
-					for ( int vertNum = 0; vertNum < 4; vertNum++ )
+					for ( final ModelQuadLayer pc : mpc )
 					{
-						for ( int elementIndex = 0; elementIndex < format.getElementCount(); elementIndex++ )
+						faceBuilder.begin( format );
+						faceBuilder.setFace( myFace, pc.tint );
+
+						final float maxLightmap = 32.0f / 0xffff;
+						getFaceUvs( uvs, myFace, from, to, pc.uvs );
+
+						// build it.
+						for ( int vertNum = 0; vertNum < 4; vertNum++ )
 						{
-							final VertexFormatElement element = format.getElement( elementIndex );
-							switch ( element.getUsage() )
+							for ( int elementIndex = 0; elementIndex < format.getElementCount(); elementIndex++ )
 							{
-								case POSITION:
-									getVertexPos( pos, myFace, vertNum, to, from );
-									faceBuilder.put( elementIndex, pos[0], pos[1], pos[2] );
-									break;
+								final VertexFormatElement element = format.getElement( elementIndex );
+								switch ( element.getUsage() )
+								{
+									case POSITION:
+										getVertexPos( pos, myFace, vertNum, to, from );
+										faceBuilder.put( elementIndex, pos[0], pos[1], pos[2] );
+										break;
 
-								case COLOR:
-									final int cb = pc.color;
-									faceBuilder.put( elementIndex, byteToFloat( cb >> 16 ), byteToFloat( cb >> 8 ), byteToFloat( cb ), byteToFloat( cb >> 24 ) );
-									break;
+									case COLOR:
+										final int cb = pc.color;
+										faceBuilder.put( elementIndex, byteToFloat( cb >> 16 ), byteToFloat( cb >> 8 ), byteToFloat( cb ), byteToFloat( cb >> 24 ) );
+										break;
 
-								case NORMAL:
-									// this fixes a bug with Forge AO?? and
-									// solid blocks.. I have no idea why...
-									final float normalShift = 0.999f;
-									faceBuilder.put( elementIndex, normalShift * myFace.getFrontOffsetX(), normalShift * myFace.getFrontOffsetY(), normalShift * myFace.getFrontOffsetZ() );
-									break;
+									case NORMAL:
+										// this fixes a bug with Forge AO?? and
+										// solid blocks.. I have no idea why...
+										final float normalShift = 0.999f;
+										faceBuilder.put( elementIndex, normalShift * myFace.getFrontOffsetX(), normalShift * myFace.getFrontOffsetY(), normalShift * myFace.getFrontOffsetZ() );
+										break;
 
-								case UV:
-									if ( element.getIndex() == 1 )
-									{
-										final float v = maxLightmap * Math.max( 0, Math.min( 15, pc.light ) );
-										faceBuilder.put( elementIndex, v, v );
-									}
-									else
-									{
-										final float u = uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 0];
-										final float v = uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1];
-										faceBuilder.put( elementIndex, pc.sprite.getInterpolatedU( u ), pc.sprite.getInterpolatedV( v ) );
-									}
-									break;
+									case UV:
+										if ( element.getIndex() == 1 )
+										{
+											final float v = maxLightmap * Math.max( 0, Math.min( 15, pc.light ) );
+											faceBuilder.put( elementIndex, v, v );
+										}
+										else
+										{
+											final float u = uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 0];
+											final float v = uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1];
+											faceBuilder.put( elementIndex, pc.sprite.getInterpolatedU( u ), pc.sprite.getInterpolatedV( v ) );
+										}
+										break;
 
-								default:
-									faceBuilder.put( elementIndex );
-									break;
+									default:
+										faceBuilder.put( elementIndex );
+										break;
+								}
 							}
 						}
-					}
 
-					if ( region.isEdge )
-					{
-						builder.getList( myFace ).add( faceBuilder.create( pc.sprite ) );
-					}
-					else
-					{
-						builder.getList( null ).add( faceBuilder.create( pc.sprite ) );
+						if ( region.isEdge )
+						{
+							builder.getList( myFace ).add( faceBuilder.create( pc.sprite ) );
+						}
+						else
+						{
+							builder.getList( null ).add( faceBuilder.create( pc.sprite ) );
+						}
 					}
 				}
 			}

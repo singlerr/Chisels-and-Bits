@@ -128,7 +128,7 @@ public class JsonModelExport extends CommandBase
 		{
 			try
 			{
-				final TextureAtlasSprite sprite = ModelUtil.findQuadTexture( quad );
+				final TextureAtlasSprite sprite = ModelUtil.findQuadTexture( quad, null );
 
 				final ModelQuadReader mqr = new ModelQuadReader( "#" + System.identityHashCode( sprite ), sprite, quad.getFace(), cullFace );
 				quad.pipe( mqr );
