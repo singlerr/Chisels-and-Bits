@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.multipart.MultipartHelper;
-import mcmultipart.api.multipart.OcclusionHelper;
+import mcmultipart.api.multipart.MultipartOcclusionHelper;
 import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -46,7 +46,9 @@ class MultipartContainerBuilder implements IChiseledTileContainer
 		MultipartHelper.getPartTile( world, pos, MultiPartSlots.BITS ).ifPresent( stuff ->
 		{
 			if ( stuff instanceof TileEntityBlockChiseled )
+			{
 				( (TileEntityBlockChiseled) stuff ).copyFrom( container );
+			}
 		} );
 	}
 
@@ -60,7 +62,7 @@ class MultipartContainerBuilder implements IChiseledTileContainer
 		// get new occlusion...
 		final Collection<AxisAlignedBB> selfBoxes = part.getBoxes( BoxType.OCCLUSION );
 
-		return OcclusionHelper.testContainerBoxIntersection( targetContainer, selfBoxes );
+		return MultipartOcclusionHelper.testContainerBoxIntersection( targetContainer, selfBoxes );
 	}
 
 }

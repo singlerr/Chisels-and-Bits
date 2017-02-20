@@ -7,6 +7,7 @@ import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipart;
 import mcmultipart.api.multipart.IMultipartTile;
 import mcmultipart.api.slot.IPartSlot;
+import mcmultipart.api.world.IWorldView;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -26,22 +27,29 @@ public class ChiseledBlockMultiPart implements IMultipart
 	BlockChiseled blk;
 
 	public ChiseledBlockMultiPart(
-			BlockChiseled myBlock )
+			final BlockChiseled myBlock )
 	{
 		blk = myBlock;
 	}
 
 	@Override
-	public List<AxisAlignedBB> getOcclusionBoxes(
-			IBlockAccess world,
-			BlockPos pos,
-			IPartInfo part )
+	public IWorldView getWorldView(
+			final IPartInfo part )
 	{
-		List<AxisAlignedBB> l = new ArrayList<AxisAlignedBB>();
+		return null;
+	}
 
-		TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos );
+	@Override
+	public List<AxisAlignedBB> getOcclusionBoxes(
+			final IPartInfo part )
+	{
+		final List<AxisAlignedBB> l = new ArrayList<AxisAlignedBB>();
+
+		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( part.getWorld(), part.getPos() );
 		if ( te != null )
+		{
 			l.addAll( te.getBoxes( BoxType.OCCLUSION ) );
+		}
 
 		return l;
 	}
@@ -54,30 +62,30 @@ public class ChiseledBlockMultiPart implements IMultipart
 
 	@Override
 	public IMultipartTile convertToMultipartTile(
-			TileEntity tileEntity )
+			final TileEntity tileEntity )
 	{
 		return new ChiseledBlockPart( tileEntity );
 	}
 
 	@Override
 	public IPartSlot getSlotForPlacement(
-			World world,
-			BlockPos pos,
-			IBlockState state,
-			EnumFacing facing,
-			float hitX,
-			float hitY,
-			float hitZ,
-			EntityLivingBase placer )
+			final World world,
+			final BlockPos pos,
+			final IBlockState state,
+			final EnumFacing facing,
+			final float hitX,
+			final float hitY,
+			final float hitZ,
+			final EntityLivingBase placer )
 	{
 		return MultiPartSlots.BITS;
 	}
 
 	@Override
 	public IPartSlot getSlotFromWorld(
-			IBlockAccess world,
-			BlockPos pos,
-			IBlockState state )
+			final IBlockAccess world,
+			final BlockPos pos,
+			final IBlockState state )
 	{
 		return MultiPartSlots.BITS;
 	}

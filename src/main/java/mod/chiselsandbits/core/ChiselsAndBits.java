@@ -60,7 +60,7 @@ public class ChiselsAndBits
 	public static final @Nonnull String MODID = "chiselsandbits";
 	public static final @Nonnull String VERSION = "@VERSION@";
 
-	public static final String DEPENDENCIES = "required-after:Forge@[12.17.0.1909,);after:mcmultipart;after:JEI@[3.7.8.234,)"; // buildVersion
+	public static final String DEPENDENCIES = "required-after:Forge@[12.17.0.1909,);before:mcmultipart;after:JEI@[3.7.8.234,)"; // buildVersion
 
 	private static ChiselsAndBits instance;
 	private ModConfig config;

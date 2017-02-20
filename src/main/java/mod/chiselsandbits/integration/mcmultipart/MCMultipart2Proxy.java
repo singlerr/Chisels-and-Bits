@@ -10,8 +10,9 @@ import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipartTile;
 import mcmultipart.api.multipart.MultipartHelper;
-import mcmultipart.api.multipart.OcclusionHelper;
+import mcmultipart.api.multipart.MultipartOcclusionHelper;
 import mcmultipart.multipart.PartInfo;
+import mcmultipart.util.MCMPWorldWrapper;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -33,8 +34,8 @@ public class MCMultipart2Proxy implements IMCMultiPart
 
 	@Override
 	public void swapRenderIfPossible(
-			TileEntity current,
-			TileEntityBlockChiseled newTileEntity )
+			final TileEntity current,
+			final TileEntityBlockChiseled newTileEntity )
 	{
 		// TODO Auto-generated method stub
 	}
@@ -43,6 +44,12 @@ public class MCMultipart2Proxy implements IMCMultiPart
 	public void removePartIfPossible(
 			TileEntity te )
 	{
+		if ( te.getWorld() instanceof MCMPWorldWrapper )
+		{
+			final MCMPWorldWrapper wrapper = (MCMPWorldWrapper) te.getWorld();
+			te = ModUtil.getTileEntitySafely( wrapper.getActualWorld(), te.getPos() );
+		}
+
 		if ( te instanceof IMultipartContainer && !te.getWorld().isRemote )
 		{
 			final IMultipartContainer container = (IMultipartContainer) te;
@@ -52,17 +59,19 @@ public class MCMultipart2Proxy implements IMCMultiPart
 
 	@Override
 	public TileEntityBlockChiseled getPartIfPossible(
-			World w,
-			BlockPos pos,
-			boolean create )
+			final World w,
+			final BlockPos pos,
+			final boolean create )
 	{
 		final Optional<IMultipartContainer> container = MultipartHelper.getOrConvertContainer( w, pos );
 
 		if ( container.isPresent() )
 		{
-			Optional<IMultipartTile> part = container.get().getPartTile( MultiPartSlots.BITS );
+			final Optional<IMultipartTile> part = container.get().getPartTile( MultiPartSlots.BITS );
 			if ( part.isPresent() && part.get() instanceof TileEntityBlockChiseled )
+			{
 				return (TileEntityBlockChiseled) part.get();
+			}
 
 			if ( MultipartHelper.addPart( w, pos, MultiPartSlots.BITS, ChiselsAndBits.getBlocks().getChiseledDefaultState(), true ) )
 			{
@@ -89,20 +98,22 @@ public class MCMultipart2Proxy implements IMCMultiPart
 
 	@Override
 	public void triggerPartChange(
-			TileEntity te )
+			final TileEntity te )
 	{
 		if ( te instanceof IMultipartContainer && !te.getWorld().isRemote )
 		{
-			Optional<IPartInfo> part = ( (IMultipartContainer) te ).get( MultiPartSlots.BITS );
+			final Optional<IPartInfo> part = ( (IMultipartContainer) te ).get( MultiPartSlots.BITS );
 			if ( part.isPresent() )
+			{
 				part.get().notifyChange();
+			}
 		}
 	}
 
 	@Override
 	public boolean isMultiPart(
-			World w,
-			BlockPos pos )
+			final World w,
+			final BlockPos pos )
 	{
 		return MultipartHelper.getContainer( w, pos ) != null ||
 				MultipartHelper.addPart( w, pos, MultiPartSlots.BITS, ChiselsAndBits.getBlocks().getChiseledDefaultState(), true );
@@ -110,23 +121,23 @@ public class MCMultipart2Proxy implements IMCMultiPart
 
 	@Override
 	public void populateBlobWithUsedSpace(
-			World w,
-			BlockPos pos,
-			VoxelBlob vb )
+			final World w,
+			final BlockPos pos,
+			final VoxelBlob vb )
 	{
 		if ( isMultiPart( w, pos ) )
 		{
 			final Optional<IMultipartContainer> mc = MultipartHelper.getOrConvertContainer( w, pos );
 			if ( mc.isPresent() )
 			{
-				IMultipartContainer mcc = mc.get();
+				final IMultipartContainer mcc = mc.get();
 
 				final BitCollisionIterator bci = new BitCollisionIterator();
 				while ( bci.hasNext() )
 				{
 					final AxisAlignedBB aabb = new AxisAlignedBB( bci.physicalX, bci.physicalY, bci.physicalZ, bci.physicalX + BitCollisionIterator.One16thf, bci.physicalYp1, bci.physicalZp1 );
 
-					if ( OcclusionHelper.testContainerBoxIntersection( mcc, Collections.singleton( aabb ), which -> MultiPartSlots.BITS == which ) )
+					if ( MultipartOcclusionHelper.testContainerBoxIntersection( mcc, Collections.singleton( aabb ), which -> MultiPartSlots.BITS == which ) )
 					{
 						bci.setNext( vb, 1 );
 					}
@@ -137,9 +148,9 @@ public class MCMultipart2Proxy implements IMCMultiPart
 
 	@Override
 	public boolean rotate(
-			World world,
-			BlockPos pos,
-			EntityPlayer player )
+			final World world,
+			final BlockPos pos,
+			final EntityPlayer player )
 	{
 		final IMultipartContainer container = MultipartHelper.getContainer( world, pos ).orElse( null );
 		if ( container != null )
@@ -163,8 +174,8 @@ public class MCMultipart2Proxy implements IMCMultiPart
 
 	@Override
 	public TileEntityBlockChiseled getPartFromBlockAccess(
-			IBlockAccess w,
-			BlockPos pos )
+			final IBlockAccess w,
+			final BlockPos pos )
 	{
 		final TileEntity te = ModUtil.getTileEntitySafely( w, pos );
 		IMultipartContainer container = null;
