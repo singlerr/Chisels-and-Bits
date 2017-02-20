@@ -16,7 +16,6 @@ import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.StateLookup.CachedStateLookup;
-import mod.chiselsandbits.integration.mcmultipart.ChiseledBlockPart;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemBitBag.BagPos;
@@ -418,14 +417,14 @@ public class ModUtil
 	{
 		final TileEntity te = world.getTileEntity( pos );
 
-		if ( te instanceof ChiseledBlockPart )
+		if ( te instanceof TileEntityBlockChiseled )
 		{
-			MCMultipartProxy.proxyMCMultiPart.removeChisledBlock( te );
-			world.markBlockRangeForRenderUpdate( pos, pos );
+			world.setBlockToAir( pos ); // no physical matter left...
 			return;
 		}
 
-		world.setBlockToAir( pos ); // no physical matter left...
+		MCMultipartProxy.proxyMCMultiPart.removeChisledBlock( te );
+		world.markBlockRangeForRenderUpdate( pos, pos );
 	}
 
 	private final static Random itemRand = new Random();
@@ -848,7 +847,7 @@ public class ModUtil
 	}
 
 	public static boolean isEmpty(
-			Item item )
+			final Item item )
 	{
 		return item == Item.REGISTRY.getObjectById( 0 );
 	}
