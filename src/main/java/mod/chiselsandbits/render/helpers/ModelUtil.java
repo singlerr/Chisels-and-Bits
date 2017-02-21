@@ -136,7 +136,7 @@ public class ModelUtil implements ICacheClearable
 
 				mp[0].tint = 0;
 
-				final int cacheV = stateID << 6 | layer.ordinal() << 4 | face.ordinal();
+				final int cacheV = stateID << 6 | layer.ordinal() << 4 | xf.ordinal();
 				cache.put( cacheV, mp );
 			}
 
@@ -164,7 +164,7 @@ public class ModelUtil implements ICacheClearable
 
 		for ( final EnumFacing f : EnumFacing.VALUES )
 		{
-			final int cacheV = stateID << 6 | layer.ordinal() << 4 | face.ordinal();
+			final int cacheV = stateID << 6 | layer.ordinal() << 4 | f.ordinal();
 			final ArrayList<ModelQuadLayerBuilder> x = tmp.get( f );
 			final ModelQuadLayer[] mp = new ModelQuadLayer[x.size()];
 
