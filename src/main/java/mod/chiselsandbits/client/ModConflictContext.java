@@ -9,6 +9,7 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -28,8 +29,17 @@ public enum ModConflictContext implements IKeyConflictContext
 				return true;
 			}
 
-			final ItemStack held = ClientSide.instance.getPlayer().getHeldItemMainhand();
-			return !ModUtil.isEmpty( held ) && held.getItem() instanceof IVoxelBlobItem;
+			try
+			{
+				final ItemStack held = getPlayer().getHeldItemMainhand();
+				return !ModUtil.isEmpty( held ) && held.getItem() instanceof IVoxelBlobItem;
+			}
+			catch ( final NoPlayerException e )
+			{
+				// just fail.
+			}
+
+			return false;
 		}
 
 		@Override
@@ -115,7 +125,7 @@ public enum ModConflictContext implements IKeyConflictContext
 		}
 	};
 
-	private Set<Class<? extends Item>> activeItemClasses = new HashSet<Class<? extends Item>>();
+	private final Set<Class<? extends Item>> activeItemClasses = new HashSet<Class<? extends Item>>();
 
 	public void setItemActive(
 			final Item item )
@@ -126,38 +136,57 @@ public enum ModConflictContext implements IKeyConflictContext
 	@Override
 	public boolean isActive()
 	{
-		final ItemStack held = ClientSide.instance.getPlayer().getHeldItemMainhand();
-
-		if ( ModUtil.isEmpty( held ) )
+		try
 		{
-			return false;
-		}
+			final ItemStack held = getPlayer().getHeldItemMainhand();
 
-		for ( Class<? extends Item> itemClass : activeItemClasses )
-		{
-			if ( itemClass.isInstance( held.getItem() ) )
+			if ( ModUtil.isEmpty( held ) )
 			{
-				return true;
+				return false;
 			}
-		}
 
-		if ( held.getItem().getClass().isAnnotationPresent( KeyBindingContext.class ) )
-		{
-			final Annotation annotation = held.getItem().getClass().getAnnotation( KeyBindingContext.class );
-
-			if ( annotation instanceof KeyBindingContext )
+			for ( final Class<? extends Item> itemClass : activeItemClasses )
 			{
-				for ( String name : ( (KeyBindingContext) annotation ).value() )
+				if ( itemClass.isInstance( held.getItem() ) )
 				{
-					if ( name.equals( getName() ) )
+					return true;
+				}
+			}
+
+			if ( held.getItem().getClass().isAnnotationPresent( KeyBindingContext.class ) )
+			{
+				final Annotation annotation = held.getItem().getClass().getAnnotation( KeyBindingContext.class );
+
+				if ( annotation instanceof KeyBindingContext )
+				{
+					for ( final String name : ( (KeyBindingContext) annotation ).value() )
 					{
-						return true;
+						if ( name.equals( getName() ) )
+						{
+							return true;
+						}
 					}
 				}
 			}
 		}
+		catch ( final NoPlayerException e )
+		{
+			// just fail.
+		}
 
 		return false;
+	}
+
+	private static EntityPlayer getPlayer() throws NoPlayerException
+	{
+		final EntityPlayer player = ClientSide.instance.getPlayer();
+
+		if ( player == null )
+		{
+			throw new NoPlayerException();
+		}
+
+		return player;
 	}
 
 	public String getName()
