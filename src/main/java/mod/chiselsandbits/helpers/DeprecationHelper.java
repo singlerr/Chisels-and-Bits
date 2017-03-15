@@ -1,9 +1,11 @@
 package mod.chiselsandbits.helpers;
 
+import mod.chiselsandbits.chiseledblock.HarvestWorld;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.translation.I18n;
 
 @SuppressWarnings( "deprecation" )
@@ -13,7 +15,7 @@ public class DeprecationHelper
 	public static int getLightValue(
 			final IBlockState state )
 	{
-		return state.getBlock().getLightValue( state );
+		return state.getBlock().getLightValue( state, new HarvestWorld( state ), BlockPos.ORIGIN );
 	}
 
 	public static IBlockState getStateFromItem(
