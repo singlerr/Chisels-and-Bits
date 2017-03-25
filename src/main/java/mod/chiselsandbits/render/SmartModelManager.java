@@ -26,22 +26,9 @@ public class SmartModelManager
 
 	public SmartModelManager()
 	{
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_iron" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_clay" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_cloth" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_packedIce" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_ice" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_wood" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_rock" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_glass" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_ground" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_sand" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_grass" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_fluid" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_snow" ), new ChiseledBlockSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_leaves" ), new ChiseledBlockSmartModel() );
-
-		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_chiseled" ), new ChiseledBlockSmartModel() );
+		ChiseledBlockSmartModel smartModel = new ChiseledBlockSmartModel();
+		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_chiseled" ), smartModel );
+		ChiselsAndBits.getInstance().addClearable( smartModel );
 
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_bit" ), new BitItemSmartModel() );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/positiveprint_written_preview" ), new PrintSmartModel( "positiveprint", ChiselsAndBits.getItems().itemPositiveprint ) );
