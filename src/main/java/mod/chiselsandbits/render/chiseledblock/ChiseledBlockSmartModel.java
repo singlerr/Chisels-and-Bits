@@ -27,6 +27,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.property.IExtendedBlockState;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
@@ -103,12 +104,12 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 
 	private static VertexFormat getModelFormat()
 	{
-		return hasOptifine() ? DefaultVertexFormats.ITEM : ChiselsAndBitsBakedQuad.VERTEX_FORMAT;
+		return ForgePipelineDisabled() ? DefaultVertexFormats.ITEM : ChiselsAndBitsBakedQuad.VERTEX_FORMAT;
 	}
 
-	private static boolean hasOptifine()
+	private static boolean ForgePipelineDisabled()
 	{
-		return FMLClientHandler.instance().hasOptifine();
+		return FMLClientHandler.instance().hasOptifine() || !ForgeModContainer.forgeLightPipelineEnabled;
 	}
 
 	private static ChiseledBlockBaked getCachedModel(
