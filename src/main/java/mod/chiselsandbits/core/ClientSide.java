@@ -3,6 +3,7 @@ package mod.chiselsandbits.core;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -81,6 +82,7 @@ import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.statemap.IStateMapper;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
@@ -328,6 +330,7 @@ public class ClientSide
 		{
 			final Item item = Item.getItemFromBlock( blk );
 			registerMesh( item, 0, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "inventory" ) );
+			registerMesh( blk, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "" ) );
 		}
 
 		final BlockBitTank bitTank = ChiselsAndBits.getBlocks().blockBitTank;
@@ -345,6 +348,29 @@ public class ClientSide
 		if ( item != null )
 		{
 			ModelLoader.setCustomModelResourceLocation( item, meta, loctaion );
+		}
+	}
+
+	private void registerMesh(
+			final Block blk,
+			final ModelResourceLocation loctaion )
+	{
+		if ( blk != null )
+		{
+			ModelLoader.setCustomStateMapper( blk, new IStateMapper() {
+				
+				@Override
+				public Map<IBlockState, ModelResourceLocation> putStateModelLocations(
+						Block blockIn )
+				{
+					Map<IBlockState,ModelResourceLocation> map = new HashMap<IBlockState,ModelResourceLocation>();
+					
+					for ( IBlockState o : blk.getBlockState().getValidStates() )
+						map.put( o, loctaion );
+					
+					return map;
+				}
+			});
 		}
 	}
 
