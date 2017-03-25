@@ -23,7 +23,6 @@ import com.google.common.base.Stopwatch;
 import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
@@ -237,7 +236,14 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		if ( currentFancy != lastFancy )
 		{
 			lastFancy = currentFancy;
-			VoxelBlob.clearCache();
+
+			// destroy the cache, and start over.
+			ChiselsAndBits.getInstance().clearCache();
+
+			// another dumb thing, MC has probobly already tried reloading
+			// things, so we need to tell it to start that over again.
+			Minecraft mc = Minecraft.getMinecraft();
+			mc.renderGlobal.loadRenderers();
 		}
 	}
 
