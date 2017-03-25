@@ -30,6 +30,7 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.ParticleManager;
@@ -73,6 +74,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	public static final IUnlistedProperty<VoxelNeighborRenderTracker> UProperty_VoxelNeighborState = new UnlistedVoxelNeighborState();
 	public static final IUnlistedProperty<VoxelBlobStateReference> UProperty_VoxelBlob = new UnlistedVoxelBlob();
 	public static final IUnlistedProperty<Integer> UProperty_Primary_BlockState = new UnlistedBlockStateID();
+	public static final PropertyBool LProperty_FullBlock = PropertyBool.create( "full_block" );
 
 	public final String name;
 
@@ -230,6 +232,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		setHardness( 1 );
 		setHarvestLevel( "pickaxe", 0 );
 		name = BlockName;
+
+		setDefaultState( getDefaultState().withProperty( LProperty_FullBlock, false ) );
 	}
 
 	private void configureSound(
@@ -267,6 +271,20 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		{
 			setSoundType( SoundType.GLASS );
 		}
+	}
+
+	@Override
+	public int getMetaFromState(
+			IBlockState state )
+	{
+		return state.getValue( LProperty_FullBlock ) ? 1 : 0;
+	}
+
+	@Override
+	public IBlockState getStateFromMeta(
+			int meta )
+	{
+		return getDefaultState().withProperty( LProperty_FullBlock, meta == 1 );
 	}
 
 	@Override
@@ -322,14 +340,14 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	public boolean isOpaqueCube(
 			final IBlockState state )
 	{
-		return false;
+		return state.getValue( LProperty_FullBlock );
 	}
 
 	@Override
 	public boolean isFullCube(
 			final IBlockState state )
 	{
-		return false;
+		return state.getValue( LProperty_FullBlock );
 	}
 
 	@Override
@@ -500,7 +518,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	@Override
 	protected BlockStateContainer createBlockState()
 	{
-		return new ExtendedBlockState( this, new IProperty[0], new IUnlistedProperty[] { UProperty_VoxelBlob, UProperty_Primary_BlockState, UProperty_VoxelNeighborState } );
+		return new ExtendedBlockState( this, new IProperty[] { LProperty_FullBlock }, new IUnlistedProperty[] { UProperty_VoxelBlob, UProperty_Primary_BlockState, UProperty_VoxelNeighborState } );
 	}
 
 	@Override

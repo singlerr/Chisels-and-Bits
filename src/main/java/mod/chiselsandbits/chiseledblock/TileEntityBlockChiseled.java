@@ -596,6 +596,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			if ( oldLV != getLightValue() || oldNC != isNormalCube() )
 			{
 				worldObj.checkLight( pos );
+
+				// update block state to reflect lighting characteristics
+				IBlockState state = worldObj.getBlockState( pos );
+				if ( state.isFullCube() != isNormalCube && state.getBlock() instanceof BlockChiseled )
+					worldObj.setBlockState( pos, state.withProperty( BlockChiseled.LProperty_FullBlock, isNormalCube ) );
 			}
 
 			if ( oldSides != sideState )
@@ -698,6 +703,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		if ( olv != lv || oldNC != nc )
 		{
 			worldObj.checkLight( pos );
+
+			// update block state to reflect lighting characteristics
+			IBlockState state = worldObj.getBlockState( pos );
+			if ( state.isFullCube() != isNormalCube && state.getBlock() instanceof BlockChiseled )
+				worldObj.setBlockState( pos, state.withProperty( BlockChiseled.LProperty_FullBlock, isNormalCube ) );
 		}
 	}
 
