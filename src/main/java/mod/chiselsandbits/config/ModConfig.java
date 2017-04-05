@@ -178,6 +178,9 @@ public class ModConfig extends Configuration
 	public boolean dynamicRenderFullChunksOnly;
 
 	@Configured( category = "Balance Settings" )
+	public boolean blacklistTickingBlocks;
+
+	@Configured( category = "Balance Settings" )
 	public boolean damageTools;
 
 	@Configured( category = "Crafting" )
@@ -358,6 +361,7 @@ public class ModConfig extends Configuration
 		enableSetBitCommand = false;
 
 		damageTools = true;
+		blacklistTickingBlocks = true;
 		stoneChiselUses = 8384;
 		ironChiselUses = 293440;
 		diamondChiselUses = 796480;
