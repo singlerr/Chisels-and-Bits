@@ -209,7 +209,8 @@ public class BlockBitInfo
 
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
-			boolean hasBehavior = ( blk.hasTileEntity( state ) || blk.getTickRandomly() ) && blkClass != BlockGrass.class && blkClass != BlockIce.class;
+			final boolean tickingBehavior = blk.getTickRandomly() && ChiselsAndBits.getConfig().blacklistTickingBlocks;
+			boolean hasBehavior = ( blk.hasTileEntity( state ) || tickingBehavior ) && blkClass != BlockGrass.class && blkClass != BlockIce.class;
 			final boolean hasItem = Item.getItemFromBlock( blk ) != null;
 
 			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( state ) != null;

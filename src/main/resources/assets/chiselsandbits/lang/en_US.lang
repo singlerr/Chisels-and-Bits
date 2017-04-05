@@ -241,5 +241,6 @@ mod.chiselsandbits.config.useVBO=Use VBOs
 mod.chiselsandbits.config.defaultToDynamicRenderer.tooltip=By default C&B uses the static renderer, and changes to the Dynamic Renderer on update, This setting reverse that; After determining the detail of the model it will decide to revert to the static renderer, helpful for more complicated scenes that cause stalls when using the static renderer.
 mod.chiselsandbits.config.forceDynamicRenderer.tooltip=Debug Setting, that disable the static render entirely.
 mod.chiselsandbits.config.useVBO.tooltip=By Default uses the same setting as MC, but can be overridden.
+mod.chiselsandbits.config.blacklistTickingBlocks=Black List Ticking Blocks
 mod.chiselsandbits.config.radialMenuVolume='Click' volume for radial menu.
 mod.chiselsandbits.config.radialMenuVolume.tooltip=Setting to Zero will disable it.
