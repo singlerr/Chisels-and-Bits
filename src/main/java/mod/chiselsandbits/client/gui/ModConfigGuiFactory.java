@@ -7,9 +7,10 @@ public class ModConfigGuiFactory extends FMLConfigGuiFactory
 {
 
 	@Override
-	public Class<? extends GuiScreen> mainConfigGuiClass()
+	public GuiScreen createConfigGui(
+			final GuiScreen parentScreen )
 	{
-		return ModConfigGui.class;
+		return new ModConfigGui( parentScreen );
 	}
 
 }
