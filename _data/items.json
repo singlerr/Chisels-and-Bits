@@ -29,7 +29,7 @@
 		"url": "diamond-bit-saw",
 		"features": [
 			"Cut symmetrical blocks in half.",
-			"Quickly and easily but blocks into slabs, panels, or other cuboid shapes."
+			"Quickly and easily cut blocks into slabs, panels, or other cuboid shapes."
 		],
 		"controls": [],
 		"version": "8.0",
