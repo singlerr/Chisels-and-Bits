@@ -244,6 +244,7 @@ mod.chiselsandbits.config.useVBO.tooltip=By Default uses the same setting as MC,
 mod.chiselsandbits.config.blacklistTickingBlocks=Black List Ticking Blocks
 mod.chiselsandbits.config.radialMenuVolume='Click' volume for radial menu.
 mod.chiselsandbits.config.radialMenuVolume.tooltip=Setting to Zero will disable it.
+mod.chiselsandbits.config.enableVivecraftCompatibility=Enable Vivecraft Compatibility
 mod.chiselsandbits.config.enableChiselCrafting=Enable Chiseling Blocks in Crafting Table
 mod.chiselsandbits.config.dynamicRenderFullChunksOnly=Dynamic Renderer Full Chunks Only
 mod.chiselsandbits.config.dynamicRenderFullChunksOnly.tooltip=Prevents Subdividing of dynamically rendered chunks into single blocks. This increases performance for most common cases ( chunks with a handful of complicated blocks ), but decreases performance for the worst cases ( chunks full of super complicated designs ).
