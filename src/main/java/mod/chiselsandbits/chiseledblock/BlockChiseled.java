@@ -370,7 +370,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	{
 		try
 		{
-			spawnAsEntity( worldIn, pos, getTileEntity( worldIn, pos ).getItemStack( null ) );
+			spawnItemEntity( worldIn, pos, getTileEntity( worldIn, pos ).getItemStack( null ) );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
@@ -389,13 +389,23 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	{
 		try
 		{
-			spawnAsEntity( worldIn, pos, getTileEntity( te ).getItemStack( player ) );
-
+			spawnItemEntity( worldIn, pos, getTileEntity( te ).getItemStack( player ) );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
 			Log.noTileError( e );
 			super.harvestBlock( worldIn, player, pos, state, (TileEntity) null, stack );
+		}
+	}
+
+	private void spawnItemEntity(
+			World worldIn,
+			BlockPos pos,
+			ItemStack itemStack )
+	{
+		if ( itemStack != null )
+		{
+			spawnAsEntity( worldIn, pos, itemStack );
 		}
 	}
 
