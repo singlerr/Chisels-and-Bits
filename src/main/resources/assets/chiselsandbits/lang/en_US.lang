@@ -244,3 +244,4 @@ mod.chiselsandbits.config.useVBO.tooltip=By Default uses the same setting as MC,
 mod.chiselsandbits.config.blacklistTickingBlocks=Black List Ticking Blocks
 mod.chiselsandbits.config.radialMenuVolume='Click' volume for radial menu.
 mod.chiselsandbits.config.radialMenuVolume.tooltip=Setting to Zero will disable it.
+mod.chiselsandbits.config.enableVivecraftCompatibility=Enable Vivecraft Compatibility
