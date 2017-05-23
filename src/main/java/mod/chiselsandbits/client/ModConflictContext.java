@@ -8,6 +8,7 @@ import mod.chiselsandbits.api.KeyBindingContext;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -125,7 +126,14 @@ public enum ModConflictContext implements IKeyConflictContext
 	@Override
 	public boolean isActive()
 	{
-		final ItemStack held = ClientSide.instance.getPlayer().getHeldItemMainhand();
+		EntityPlayer player = ClientSide.instance.getPlayer();
+
+		if ( player == null )
+		{
+			return false;
+		}
+
+		final ItemStack held = player.getHeldItemMainhand();
 
 		if ( held == null )
 		{
