@@ -45,7 +45,7 @@ public class ChiseledBlockMultiPart implements IMultipart
 	{
 		final List<AxisAlignedBB> l = new ArrayList<AxisAlignedBB>();
 
-		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( part.getWorld(), part.getPos() );
+		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( part.getActualWorld(), part.getPartPos() );
 		if ( te != null )
 		{
 			l.addAll( te.getBoxes( BoxType.OCCLUSION ) );
