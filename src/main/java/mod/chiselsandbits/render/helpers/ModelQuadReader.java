@@ -81,23 +81,36 @@ public class ModelQuadReader extends BaseModelReader
 		}
 	}
 
-	@Override
-	public String toString()
+	public String toString(
+			EnumFacing faceQuad )
 	{
-		int U1 = 0, V1 = 0, U2 = 16, V2 = 16;
+		int U1 = 0, V1 = 16, U2 = 16, V2 = 0;
 
 		for ( int idx = 0; idx < 4; idx++ )
 		{
 			if ( matches( minX, minY, minZ, pos_uv[idx] ) )
 			{
 				U1 = pos_uv[idx][3];
-				V1 = pos_uv[idx][4];
+				V2 = pos_uv[idx][4];
 			}
 			else if ( matches( maxX, maxY, maxZ, pos_uv[idx] ) )
 			{
 				U2 = pos_uv[idx][3];
-				V2 = pos_uv[idx][4];
+				V1 = pos_uv[idx][4];
 			}
+		}
+
+		if ( faceQuad.getHorizontalIndex() > 1 )
+		{
+			final int tempU = U1;
+			U1 = U2;
+			U2 = tempU;
+		}
+		else if ( faceQuad == EnumFacing.UP )
+		{
+			final int tempV = V1;
+			V1 = V2;
+			V2 = tempV;
 		}
 
 		if ( cull == null )
