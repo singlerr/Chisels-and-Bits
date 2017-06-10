@@ -345,7 +345,7 @@ public class BlockBitInfo
 				// hardness... say like stone?
 
 				final Block stone = Blocks.STONE;
-				return new BlockBitInfo( ChiselsAndBits.getConfig().compatabilityMode, blk.blockHardness, blk.blockResistance );
+				return new BlockBitInfo( ChiselsAndBits.getConfig().compatabilityMode, stone.blockHardness, stone.blockResistance );
 			}
 		}
 		catch ( final Exception err )
