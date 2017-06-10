@@ -132,7 +132,7 @@ public class JsonModelExport extends CommandBase
 
 				final ModelQuadReader mqr = new ModelQuadReader( "#" + System.identityHashCode( sprite ), sprite, quad.getFace(), cullFace );
 				quad.pipe( mqr );
-				final String newJSON = mqr.toString();
+				final String newJSON = mqr.toString( quad.getFace() );
 
 				String old = textures.get( sprite );
 				if ( old == null )
