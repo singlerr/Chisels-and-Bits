@@ -27,8 +27,24 @@ public class SmartModelManager
 	public SmartModelManager()
 	{
 		ChiseledBlockSmartModel smartModel = new ChiseledBlockSmartModel();
-		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_chiseled" ), smartModel );
 		ChiselsAndBits.getInstance().addClearable( smartModel );
+
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_iron" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_clay" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_cloth" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_packedIce" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_ice" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_wood" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_rock" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_glass" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_ground" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_sand" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_grass" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_fluid" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_snow" ), smartModel );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_leaves" ), smartModel );
+
+		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_chiseled" ), smartModel );
 
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_bit" ), new BitItemSmartModel() );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/positiveprint_written_preview" ), new PrintSmartModel( "positiveprint", ChiselsAndBits.getItems().itemPositiveprint ) );
