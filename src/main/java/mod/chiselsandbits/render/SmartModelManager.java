@@ -29,20 +29,24 @@ public class SmartModelManager
 		ChiseledBlockSmartModel smartModel = new ChiseledBlockSmartModel();
 		ChiselsAndBits.getInstance().addClearable( smartModel );
 
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_iron" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_clay" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_cloth" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_packedIce" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_ice" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_wood" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_rock" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_glass" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_ground" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_sand" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_grass" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_fluid" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_snow" ), smartModel );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_leaves" ), smartModel );
+		String[] additions = { "normal", "full_block=false", "full_block=true" };
+		for ( String ad : additions )
+		{
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_iron" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_clay" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_cloth" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_packedIce" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_ice" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_wood" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_rock" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_glass" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_ground" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_sand" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_grass" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_fluid" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_snow" ), ad ), smartModel );
+			add( new ModelResourceLocation( new ResourceLocation( ChiselsAndBits.MODID, "chiseled_leaves" ), ad ), smartModel );
+		}
 
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_chiseled" ), smartModel );
 
@@ -61,6 +65,11 @@ public class SmartModelManager
 		if ( modelGen instanceof ICacheClearable )
 		{
 			clearable.add( (ICacheClearable) modelGen );
+		}
+
+		if ( modelLocation instanceof ModelResourceLocation )
+		{
+			res.add( (ModelResourceLocation) modelLocation );
 		}
 
 		res.add( new ModelResourceLocation( modelLocation, null ) );
