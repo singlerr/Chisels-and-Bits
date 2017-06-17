@@ -304,7 +304,6 @@ public class BlockBitInfo
 		this.explosionResistance = explosionResistance;
 	}
 
-	@SuppressWarnings( "deprecation" )
 	public static BlockBitInfo createFromState(
 			final IBlockState state )
 	{

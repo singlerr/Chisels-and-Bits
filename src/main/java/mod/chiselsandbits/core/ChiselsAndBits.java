@@ -30,6 +30,7 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.material.Material;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
@@ -44,14 +45,12 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.oredict.RecipeSorter;
-import net.minecraftforge.oredict.RecipeSorter.Category;
 
 @Mod(
 		name = ChiselsAndBits.MODNAME,
 		modid = ChiselsAndBits.MODID,
 		version = ChiselsAndBits.VERSION,
-		acceptedMinecraftVersions = "[1.11,1.12)",
+		acceptedMinecraftVersions = "[1.12]",
 		// dependencies = ChiselsAndBits.DEPENDENCIES,
 		guiFactory = "mod.chiselsandbits.client.gui.ModConfigGuiFactory" )
 public class ChiselsAndBits
@@ -158,47 +157,35 @@ public class ChiselsAndBits
 		registerWithBus( new EventPlayerInteract() );
 		registerWithBus( new VaporizeWater() );
 
-		// add recipes to game...
-		getBlocks().addRecipes();
-		getItems().addRecipes();
-
-		final String craftingOrder = "after:minecraft:shapeless";
-
 		// add special recipes...
 		if ( getConfig().enablePositivePrintCrafting )
 		{
-			GameRegistry.addRecipe( new ChiselCrafting() );
-			RecipeSorter.register( MODID + ":positiveprintcrafting", ChiselCrafting.class, Category.SHAPELESS, craftingOrder );
+			GameRegistry.register( new ChiselCrafting( new ResourceLocation( MODID, "positiveprintcrafting" ) ) );
 		}
 
 		if ( getConfig().enableChiselCrafting )
 		{
-			GameRegistry.addRecipe( new ChiselBlockCrafting() );
-			RecipeSorter.register( MODID + ":chiselcrafting", ChiselBlockCrafting.class, Category.SHAPELESS, craftingOrder );
+			GameRegistry.register( new ChiselBlockCrafting( new ResourceLocation( MODID, "chiselcrafting" ) ) );
 		}
 
 		if ( getConfig().enableStackableCrafting )
 		{
-			GameRegistry.addRecipe( new StackableCrafting() );
-			RecipeSorter.register( MODID + ":stackablecrafting", StackableCrafting.class, Category.SHAPELESS, craftingOrder );
+			GameRegistry.register( new StackableCrafting( new ResourceLocation( MODID, "stackablecrafting" ) ) );
 		}
 
 		if ( getConfig().enableNegativePrintInversionCrafting )
 		{
-			GameRegistry.addRecipe( new NegativeInversionCrafting() );
-			RecipeSorter.register( MODID + ":negativepatterncrafting", NegativeInversionCrafting.class, Category.SHAPELESS, craftingOrder );
+			GameRegistry.register( new NegativeInversionCrafting( new ResourceLocation( MODID, "negativepatterncrafting" ) ) );
 		}
 
 		if ( getConfig().enableMirrorPrint )
 		{
-			GameRegistry.addRecipe( new MirrorTransferCrafting() );
-			RecipeSorter.register( MODID + ":mirrorpatterncrafting", MirrorTransferCrafting.class, Category.SHAPELESS, craftingOrder );
+			GameRegistry.register( new MirrorTransferCrafting( new ResourceLocation( MODID, "mirrorpatterncrafting" ) ) );
 		}
 
 		if ( getConfig().enableBitSaw )
 		{
-			GameRegistry.addRecipe( new BitSawCrafting() );
-			RecipeSorter.register( MODID + ":bitsawcrafting", BitSawCrafting.class, Category.SHAPELESS, craftingOrder );
+			GameRegistry.register( new BitSawCrafting( new ResourceLocation( MODID, "bitsawcrafting" ) ) );
 		}
 	}
 

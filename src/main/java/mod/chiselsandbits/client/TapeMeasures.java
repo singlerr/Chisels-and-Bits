@@ -288,7 +288,7 @@ public class TapeMeasures
 		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
 		final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
 
-		final int val = m.color.getMapColor().colorValue;
+		final int val = m.color.func_193350_e();
 		final int red = val >> 16 & 0xff;
 		final int green = val >> 8 & 0xff;
 		final int blue = val & 0xff;

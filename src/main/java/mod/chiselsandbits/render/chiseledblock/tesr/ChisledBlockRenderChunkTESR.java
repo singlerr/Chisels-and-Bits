@@ -31,11 +31,11 @@ import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.SimpleBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -379,10 +379,10 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		GlStateManager.translate( x - cp.getX(), y - cp.getY(), z - cp.getZ() );
 
 		final Tessellator tessellator = Tessellator.getInstance();
-		final VertexBuffer worldrenderer = tessellator.getBuffer();
+		final BufferBuilder buffer = tessellator.getBuffer();
 
-		worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
-		worldrenderer.setTranslation( 0, 0, 0 );
+		buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
+		buffer.setTranslation( 0, 0, 0 );
 
 		final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
 		final IExtendedBlockState estate = te.getRenderState( te.getWorld() );
@@ -394,12 +394,12 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			if ( !model.isEmpty() )
 			{
 				final IBakedModel damageModel = new SimpleBakedModel.Builder( estate, model, damageTexture, cp ).makeBakedModel();
-				blockRenderer.getBlockModelRenderer().renderModel( te.getWorld(), damageModel, estate, te.getPos(), worldrenderer, false );
+				blockRenderer.getBlockModelRenderer().renderModel( te.getWorld(), damageModel, estate, te.getPos(), buffer, false );
 			}
 		}
 
 		tessellator.draw();
-		worldrenderer.setTranslation( 0.0D, 0.0D, 0.0D );
+		buffer.setTranslation( 0.0D, 0.0D, 0.0D );
 
 		GlStateManager.resetColor();
 		GlStateManager.popMatrix();
@@ -413,7 +413,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			final double z,
 			final float partialTicks,
 			final int destroyStage,
-			final VertexBuffer worldRenderer )
+			final BufferBuilder worldRenderer )
 	{
 		if ( destroyStage > 0 )
 		{
@@ -673,19 +673,21 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			final double z,
 			final float partialTicks,
 			final int destroyStage,
-			final VertexBuffer worldRenderer )
+			final float partial,
+			final BufferBuilder buffer )
 	{
-		renderTileEntityInner( te, x, y, z, partialTicks, destroyStage, worldRenderer );
+		renderTileEntityInner( te, x, y, z, partialTicks, destroyStage, buffer );
 	}
 
 	@Override
-	public void renderTileEntityAt(
+	public void func_192841_a(
 			final TileEntityBlockChiseledTESR te,
 			final double x,
 			final double y,
 			final double z,
 			final float partialTicks,
-			final int destroyStage )
+			final int destroyStage,
+			float partial )
 	{
 		if ( destroyStage > 0 )
 		{

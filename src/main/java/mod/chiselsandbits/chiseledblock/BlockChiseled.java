@@ -39,7 +39,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -1168,7 +1167,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 
 	@Override
 	public void getSubBlocks(
-			final Item itemIn,
 			final CreativeTabs tab,
 			final NonNullList<ItemStack> list )
 	{

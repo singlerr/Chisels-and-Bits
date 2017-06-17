@@ -27,6 +27,7 @@ import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
@@ -58,11 +59,11 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	@Override
 	public void addInformation(
 			final ItemStack stack,
-			final EntityPlayer playerIn,
+			final World worldIn,
 			final List<String> tooltip,
-			final boolean advanced )
+			final ITooltipFlag advanced )
 	{
-		super.addInformation( stack, playerIn, tooltip, advanced );
+		super.addInformation( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChiseledBlock, tooltip );
 
 		if ( stack.hasTagCompound() )
@@ -236,12 +237,13 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		else if ( canPlaceBlockHere( worldIn, pos, side, playerIn, stack ) )
 		{
 			final int i = this.getMetadata( stack.getMetadata() );
-			final IBlockState iblockstate1 = this.block.onBlockPlaced( worldIn, pos, side, hitX, hitY, hitZ, i, playerIn );
+			final IBlockState iblockstate1 = this.block.getStateForPlacement( worldIn, pos, side, hitX, hitY, hitZ, i, playerIn, hand );
 
 			if ( placeBlockAt( stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, iblockstate1 ) )
 			{
-				worldIn.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, this.block.getSoundType().getPlaceSound(), SoundCategory.BLOCKS, ( this.block.getSoundType().getVolume() + 1.0F ) / 2.0F,
-						this.block.getSoundType().getPitch() * 0.8F, false );
+				worldIn.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, DeprecationHelper.getSoundType( this.block ).getPlaceSound(), SoundCategory.BLOCKS,
+						( DeprecationHelper.getSoundType( this.block ).getVolume() + 1.0F ) / 2.0F,
+						DeprecationHelper.getSoundType( this.block ).getPitch() * 0.8F, false );
 				ModUtil.adjustStackSize( stack, -1 );
 			}
 

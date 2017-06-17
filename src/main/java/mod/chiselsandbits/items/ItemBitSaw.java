@@ -4,9 +4,10 @@ import java.util.List;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 
 public class ItemBitSaw extends Item
 {
@@ -19,15 +20,14 @@ public class ItemBitSaw extends Item
 		setMaxDamage( ChiselsAndBits.getConfig().damageTools ? (int) Math.max( 0, uses ) : 0 );
 	}
 
-	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
-			final EntityPlayer playerIn,
-			final List tooltip,
-			final boolean advanced )
+			final World worldIn,
+			final List<String> tooltip,
+			final ITooltipFlag advanced )
 	{
-		super.addInformation( stack, playerIn, tooltip, advanced );
+		super.addInformation( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBitSaw, tooltip );
 	}
 

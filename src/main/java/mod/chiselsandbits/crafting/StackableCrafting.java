@@ -8,13 +8,19 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class StackableCrafting implements IRecipe
+public class StackableCrafting extends CustomRecipe
 {
+
+	public StackableCrafting(
+			ResourceLocation name )
+	{
+		super( name );
+	}
 
 	@Override
 	public boolean matches(
@@ -138,9 +144,11 @@ public class StackableCrafting implements IRecipe
 	}
 
 	@Override
-	public int getRecipeSize()
+	public boolean func_194133_a(
+			final int width,
+			final int height )
 	{
-		return 1;
+		return true;
 	}
 
 	@Override

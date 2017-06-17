@@ -25,6 +25,7 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -48,25 +49,24 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 	protected void defaultAddInfo(
 			final ItemStack stack,
-			final EntityPlayer playerIn,
+			final World worldIn,
 			final List<String> tooltip,
-			final boolean advanced )
+			final ITooltipFlag advanced )
 	{
-		super.addInformation( stack, playerIn, tooltip, advanced );
+		super.addInformation( stack, worldIn, tooltip, advanced );
 	}
 
 	// add info cached info
 	SimpleInstanceCache<ItemStack, List<String>> toolTipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
 
-	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
-			final EntityPlayer playerIn,
-			final List tooltip,
-			final boolean advanced )
+			final World worldIn,
+			final List<String> tooltip,
+			final ITooltipFlag advanced )
 	{
-		defaultAddInfo( stack, playerIn, tooltip, advanced );
+		defaultAddInfo( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpNegativePrint, tooltip );
 
 		if ( isWritten( stack ) )

@@ -51,6 +51,7 @@ import mod.chiselsandbits.commands.JsonModelExport;
 import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.VoxelRegionSrc;
@@ -76,8 +77,8 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiIngame;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.GlStateManager;
@@ -361,19 +362,19 @@ public class ClientSide
 		if ( blk != null )
 		{
 			ModelLoader.setCustomStateMapper( blk, new IStateMapper() {
-				
+
 				@Override
 				public Map<IBlockState, ModelResourceLocation> putStateModelLocations(
 						Block blockIn )
 				{
-					Map<IBlockState,ModelResourceLocation> map = new HashMap<IBlockState,ModelResourceLocation>();
-					
+					Map<IBlockState, ModelResourceLocation> map = new HashMap<IBlockState, ModelResourceLocation>();
+
 					for ( IBlockState o : blk.getBlockState().getValidStates() )
 						map.put( o, loctaion );
-					
+
 					return map;
 				}
-			});
+			} );
 		}
 	}
 
@@ -560,7 +561,7 @@ public class ClientSide
 				{
 					if ( ChiselsAndBits.getConfig().enableVivecraftCompatibility )
 					{
-						ChiselsAndBitsMenu.instance.mc.currentScreen = (GuiScreen)ChiselsAndBitsMenu.instance;
+						ChiselsAndBitsMenu.instance.mc.currentScreen = (GuiScreen) ChiselsAndBitsMenu.instance;
 					}
 					ChiselsAndBitsMenu.instance.mc.inGameHasFocus = false;
 					ChiselsAndBitsMenu.instance.mc.mouseHelper.ungrabMouseCursor();
@@ -1487,7 +1488,8 @@ public class ClientSide
 	{
 		final IBlockState state = ModUtil.getStateById( stateID );
 		final Block block = state.getBlock();
-		world.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, block.getSoundType().getPlaceSound(), SoundCategory.BLOCKS, ( block.getSoundType().getVolume() + 1.0F ) / 16.0F, block.getSoundType().getPitch() * 0.9F, false );
+		world.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, DeprecationHelper.getSoundType( block ).getPlaceSound(), SoundCategory.BLOCKS, ( DeprecationHelper.getSoundType( block ).getVolume() + 1.0F ) / 16.0F,
+				DeprecationHelper.getSoundType( block ).getPitch() * 0.9F, false );
 	}
 
 	public static void breakSound(
@@ -1497,7 +1499,8 @@ public class ClientSide
 	{
 		final IBlockState state = ModUtil.getStateById( extractedState );
 		final Block block = state.getBlock();
-		world.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, block.getSoundType().getBreakSound(), SoundCategory.BLOCKS, ( block.getSoundType().getVolume() + 1.0F ) / 16.0F, block.getSoundType().getPitch() * 0.9F, false );
+		world.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, DeprecationHelper.getSoundType( block ).getBreakSound(), SoundCategory.BLOCKS, ( DeprecationHelper.getSoundType( block ).getVolume() + 1.0F ) / 16.0F,
+				DeprecationHelper.getSoundType( block ).getPitch() * 0.9F, false );
 	}
 
 	private BitLocation drawStart;
@@ -1583,6 +1586,11 @@ public class ClientSide
 
 	public String getModeKey()
 	{
+		if ( modeMenu == null )
+		{
+			return "NULL";
+		}
+
 		return GameSettings.getKeyDisplayString( modeMenu.getKeyCode() ).replace( "LMENU", LocalStrings.leftAlt.getLocal() ).replace( "RMENU", LocalStrings.rightAlt.getLocal() );
 	}
 

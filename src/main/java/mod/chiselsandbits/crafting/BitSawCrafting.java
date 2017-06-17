@@ -19,14 +19,20 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-public class BitSawCrafting implements IRecipe
+public class BitSawCrafting extends CustomRecipe
 {
+
+	public BitSawCrafting(
+			ResourceLocation name )
+	{
+		super( name );
+	}
 
 	private static class SawCraft
 	{
@@ -268,9 +274,11 @@ public class BitSawCrafting implements IRecipe
 	}
 
 	@Override
-	public int getRecipeSize()
+	public boolean func_194133_a(
+			final int width,
+			final int height )
 	{
-		return 3;
+		return width * height > 3;
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -33,15 +34,14 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 
 	SimpleInstanceCache<ItemStack, List<String>> toolTipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
 
-	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
-			final EntityPlayer playerIn,
-			final List tooltip,
-			final boolean advanced )
+			final World worldIn,
+			final List<String> tooltip,
+			final ITooltipFlag advanced )
 	{
-		super.addInformation( stack, playerIn, tooltip, advanced );
+		super.addInformation( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpMirrorPrint, tooltip );
 
 		if ( isWritten( stack ) )

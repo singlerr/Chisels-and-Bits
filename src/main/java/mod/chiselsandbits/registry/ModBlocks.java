@@ -89,11 +89,6 @@ public class ModBlocks extends ModRegistry
 		}
 	}
 
-	public void addRecipes()
-	{
-		ShapedOreRecipe( blockBitTank, " G ", "GOG", " I ", 'G', "blockGlass", 'O', "logWood", 'I', "ingotIron" );
-	}
-
 	public IBlockState getChiseledDefaultState()
 	{
 		for ( final BlockChiseled bc : getConversions().values() )

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import mezz.jei.api.BlankModPlugin;
+import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -15,7 +15,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 @mezz.jei.api.JEIPlugin
-public class JustEnoughItems extends BlankModPlugin
+public class JustEnoughItems implements IModPlugin
 {
 
 	@Override
@@ -24,12 +24,12 @@ public class JustEnoughItems extends BlankModPlugin
 	{
 		if ( !ChiselsAndBits.getConfig().ShowBitsInJEI )
 		{
-			registry.getJeiHelpers().getItemBlacklist().addItemToBlacklist( ModUtil.makeStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
+			registry.getJeiHelpers().getIngredientBlacklist().addIngredientToBlacklist( ModUtil.makeStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
 		}
 
 		for ( final Block blk : ChiselsAndBits.getBlocks().getConversions().values() )
 		{
-			registry.getJeiHelpers().getItemBlacklist().addItemToBlacklist( new ItemStack( blk, 1, OreDictionary.WILDCARD_VALUE ) );
+			registry.getJeiHelpers().getIngredientBlacklist().addIngredientToBlacklist( new ItemStack( blk, 1, OreDictionary.WILDCARD_VALUE ) );
 		}
 
 		final ArrayList<ItemStack> chiseles = new ArrayList<ItemStack>();
@@ -65,7 +65,7 @@ public class JustEnoughItems extends BlankModPlugin
 	{
 		if ( iscol != null && iscol.size() > 0 )
 		{
-			registry.addDescription( iscol, local.toString() );
+			registry.addIngredientInfo( iscol, ItemStack.class, local.toString() );
 		}
 	}
 

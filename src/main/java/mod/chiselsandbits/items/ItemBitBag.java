@@ -15,6 +15,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketOpenBagGui;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -57,15 +58,14 @@ public class ItemBitBag extends Item
 		return new BagCapabilityProvider( stack, nbt );
 	}
 
-	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
-			final EntityPlayer playerIn,
-			final List tooltip,
-			final boolean advanced )
+			final World worldIn,
+			final List<String> tooltip,
+			final ITooltipFlag advanced )
 	{
-		super.addInformation( stack, playerIn, tooltip, advanced );
+		super.addInformation( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBitBag, tooltip );
 
 		if ( tooltipCache.needsUpdate( stack ) )

@@ -18,6 +18,7 @@ import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketSetColor;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
@@ -43,11 +44,11 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 	@Override
 	public void addInformation(
 			final ItemStack stack,
-			final EntityPlayer playerIn,
+			final World worldIn,
 			final List<String> tooltip,
-			final boolean advanced )
+			final ITooltipFlag advanced )
 	{
-		super.addInformation( stack, playerIn, tooltip, advanced );
+		super.addInformation( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpTapeMeasure, tooltip, ClientSide.instance.getModeKey() );
 	}
 

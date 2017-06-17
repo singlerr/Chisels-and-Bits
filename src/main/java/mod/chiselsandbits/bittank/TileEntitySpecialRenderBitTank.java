@@ -1,7 +1,7 @@
 package mod.chiselsandbits.bittank;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.BlockRenderLayer;
@@ -58,7 +58,8 @@ public class TileEntitySpecialRenderBitTank extends FastTESR<TileEntityBitTank>
 			final double z,
 			final float partialTicks,
 			final int destroyStage,
-			final VertexBuffer worldRenderer )
+			final float partial,
+			final BufferBuilder buffer )
 	{
 		if ( destroyStage > 0 )
 		{
@@ -93,23 +94,23 @@ public class TileEntitySpecialRenderBitTank extends FastTESR<TileEntityBitTank>
 			final int bColor = rgbaColor & 0xff;
 			final int aColor = rgbaColor >> 24 & 0xff;
 
-			worldRenderer.setTranslation( x - pos.getX(), y - pos.getY(), z - pos.getZ() );
+			buffer.setTranslation( x - pos.getX(), y - pos.getY(), z - pos.getZ() );
 
 			for ( final FluidModelVertex vert : model )
 			{
 				final EnumFacing face = vert.face;
 				final TextureAtlasSprite sprite = face.getFrontOffsetY() != 0 ? still : flowing;
 
-				for ( final VertexFormatElement e : worldRenderer.getVertexFormat().getElements() )
+				for ( final VertexFormatElement e : buffer.getVertexFormat().getElements() )
 				{
 					switch ( e.getUsage() )
 					{
 						case COLOR:
-							worldRenderer.color( rColor, gColor, bColor, aColor );
+							buffer.color( rColor, gColor, bColor, aColor );
 							break;
 
 						case NORMAL:
-							worldRenderer.normal( face.getFrontOffsetX(), face.getFrontOffsetY(), face.getFrontOffsetZ() );
+							buffer.normal( face.getFrontOffsetX(), face.getFrontOffsetY(), face.getFrontOffsetZ() );
 							break;
 
 						case POSITION:
@@ -117,17 +118,17 @@ public class TileEntitySpecialRenderBitTank extends FastTESR<TileEntityBitTank>
 							final double vertY = pos.getY() + vert.yMultiplier * fullness * 0.756 + 0.122;
 							final double vertZ = pos.getZ() + vert.z * 0.756 + 0.122;
 
-							worldRenderer.pos( vertX, vertY, vertZ );
+							buffer.pos( vertX, vertY, vertZ );
 							break;
 
 						case UV:
 							if ( e.getIndex() == 1 )
 							{
-								worldRenderer.lightmap( skyLight, blockLight );
+								buffer.lightmap( skyLight, blockLight );
 							}
 							else
 							{
-								worldRenderer.tex( sprite.getInterpolatedU( vert.u + vert.uMultiplier * fullness ), sprite.getInterpolatedV( 16.0 - ( vert.v + vert.vMultiplier * fullness ) ) );
+								buffer.tex( sprite.getInterpolatedU( vert.u + vert.uMultiplier * fullness ), sprite.getInterpolatedV( 16.0 - ( vert.v + vert.vMultiplier * fullness ) ) );
 							}
 							break;
 
@@ -135,7 +136,7 @@ public class TileEntitySpecialRenderBitTank extends FastTESR<TileEntityBitTank>
 							break;
 					}
 				}
-				worldRenderer.endVertex();
+				buffer.endVertex();
 			}
 		}
 	}

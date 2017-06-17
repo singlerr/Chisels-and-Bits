@@ -36,6 +36,7 @@ import mod.chiselsandbits.network.packets.PacketChisel;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -72,11 +73,11 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	@Override
 	public void addInformation(
 			final ItemStack stack,
-			final EntityPlayer playerIn,
+			final World worldIn,
 			final List<String> tooltip,
-			final boolean advanced )
+			final ITooltipFlag advanced )
 	{
-		super.addInformation( stack, playerIn, tooltip, advanced );
+		super.addInformation( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBit, tooltip, ClientSide.instance.getModeKey() );
 	}
 
@@ -305,7 +306,6 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public void getSubItems(
-			final Item itemIn,
 			final CreativeTabs tab,
 			final NonNullList subItems )
 	{
@@ -330,7 +330,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 					if ( ctab != null )
 					{
-						it.getSubItems( it, ctab, List );
+						it.getSubItems( ctab, List );
 					}
 
 					for ( final ItemStack out : List )

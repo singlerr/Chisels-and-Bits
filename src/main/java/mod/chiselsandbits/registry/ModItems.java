@@ -11,11 +11,7 @@ import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.items.ItemPositivePrint;
 import mod.chiselsandbits.items.ItemTapeMeasure;
 import mod.chiselsandbits.items.ItemWrench;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item.ToolMaterial;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
 
 public class ModItems extends ModRegistry
 {
@@ -52,31 +48,6 @@ public class ModItems extends ModRegistry
 		itemBlockBit = registerItem( config.enableChisledBits, new ItemChiseledBit(), "block_bit" );
 		itemTapeMeasure = registerItem( config.enableTapeMeasure, new ItemTapeMeasure(), "tape_measure" );
 		registerItem( config.enableAPITestingItem, new ItemApiDebug(), "debug" );
-	}
-
-	public void addRecipes()
-	{
-		// tools..
-		ShapedOreRecipe( itemChiselDiamond, "TS", 'T', "gemDiamond", 'S', "stickWood" );
-		ShapedOreRecipe( itemChiselGold, "TS", 'T', "ingotGold", 'S', "stickWood" );
-		ShapedOreRecipe( itemChiselIron, "TS", 'T', "ingotIron", 'S', "stickWood" );
-		ShapedOreRecipe( itemChiselStone, "TS", 'T', "cobblestone", 'S', "stickWood" );
-		ShapedOreRecipe( itemBitSawDiamond, "SSS", "STT", 'T', "gemDiamond", 'S', "stickWood" );
-		ShapedOreRecipe( itemWrench, " W ", "WS ", "  S", 'W', "plankWood", 'S', "stickWood" );
-		ShapedOreRecipe( itemTapeMeasure, "  S", "ISY", "II ", 'I', "ingotIron", 'S', "string", 'Y', "dyeYellow" );
-
-		// create prints...
-		ShapelessOreRecipe( itemPositiveprint, Items.WATER_BUCKET, Items.PAPER, "gemLapis" );
-		ShapelessOreRecipe( itemNegativeprint, Items.WATER_BUCKET, Items.PAPER, "dustRedstone" );
-		ShapelessOreRecipe( itemMirrorprint, Items.WATER_BUCKET, Items.PAPER, "dustGlowstone" );
-
-		// clean patterns...
-		ShapelessOreRecipe( itemPositiveprint, new ItemStack( itemPositiveprint, 1, OreDictionary.WILDCARD_VALUE ) );
-		ShapelessOreRecipe( itemNegativeprint, new ItemStack( itemNegativeprint, 1, OreDictionary.WILDCARD_VALUE ) );
-		ShapelessOreRecipe( itemMirrorprint, new ItemStack( itemMirrorprint, 1, OreDictionary.WILDCARD_VALUE ) );
-
-		// make a bit bag..
-		ShapedOreRecipe( itemBitBag, "WWW", "WbW", "WWW", 'W', new ItemStack( Blocks.WOOL, 1, OreDictionary.WILDCARD_VALUE ), 'b', new ItemStack( itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
 	}
 
 }

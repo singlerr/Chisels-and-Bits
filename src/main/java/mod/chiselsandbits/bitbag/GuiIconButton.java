@@ -22,12 +22,14 @@ public class GuiIconButton extends GuiButton
 	}
 
 	@Override
-	public void drawButton(
+	public void func_191745_a(
 			final Minecraft mc,
 			final int mouseX,
-			final int mouseY )
+			final int mouseY,
+			final float partial )
 	{
-		super.drawButton( mc, mouseX, mouseY );
+		// drawButton
+		super.func_191745_a( mc, mouseX, mouseY, partial );
 
 		mc.getTextureMapBlocks();
 		mc.getTextureManager().bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );

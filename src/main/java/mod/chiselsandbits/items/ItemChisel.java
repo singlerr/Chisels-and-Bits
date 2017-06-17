@@ -35,6 +35,7 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -92,11 +93,11 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	@Override
 	public void addInformation(
 			final ItemStack stack,
-			final EntityPlayer playerIn,
+			final World worldIn,
 			final List<String> tooltip,
-			final boolean advanced )
+			final ITooltipFlag advanced )
 	{
-		super.addInformation( stack, playerIn, tooltip, advanced );
+		super.addInformation( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChisel, tooltip, ClientSide.instance.getModeKey() );
 	}
 
@@ -462,22 +463,22 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	{
 		Item it;
 
-		switch ( getToolMaterial() )
+		switch ( getToolMaterialName() )
 		{
-			case DIAMOND:
+			case "DIAMOND":
 				it = Items.DIAMOND_PICKAXE;
 				break;
-			case GOLD:
+			case "GOLD":
 				it = Items.GOLDEN_PICKAXE;
 				break;
-			case IRON:
+			case "IRON":
 				it = Items.IRON_PICKAXE;
 				break;
 			default:
-			case STONE:
+			case "STONE":
 				it = Items.STONE_PICKAXE;
 				break;
-			case WOOD:
+			case "WOOD":
 				it = Items.WOODEN_PICKAXE;
 				break;
 		}

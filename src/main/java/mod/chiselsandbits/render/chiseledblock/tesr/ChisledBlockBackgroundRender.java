@@ -19,8 +19,8 @@ import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
@@ -183,12 +183,12 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 		}
 		while ( tessellator == null );
 
-		final VertexBuffer worldrenderer = tessellator.getBuffer();
+		final BufferBuilder buffer = tessellator.getBuffer();
 
 		try
 		{
-			worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
-			worldrenderer.setTranslation( -chunkOffset.getX(), -chunkOffset.getY(), -chunkOffset.getZ() );
+			buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
+			buffer.setTranslation( -chunkOffset.getX(), -chunkOffset.getY(), -chunkOffset.getZ() );
 		}
 		catch ( final IllegalStateException e )
 		{
@@ -214,11 +214,11 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 
 					if ( !model.isEmpty() )
 					{
-						blockRenderer.getBlockModelRenderer().renderModel( cache, model, estate, tx.getPos(), worldrenderer, true );
+						blockRenderer.getBlockModelRenderer().renderModel( cache, model, estate, tx.getPos(), buffer, true );
 
 						if ( Thread.interrupted() )
 						{
-							worldrenderer.finishDrawing();
+							buffer.finishDrawing();
 							submitTessellator( tessellator );
 							return null;
 						}
@@ -239,7 +239,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 
 		if ( Thread.interrupted() )
 		{
-			worldrenderer.finishDrawing();
+			buffer.finishDrawing();
 			submitTessellator( tessellator );
 			return null;
 		}

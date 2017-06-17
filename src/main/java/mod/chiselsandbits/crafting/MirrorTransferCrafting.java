@@ -7,14 +7,20 @@ import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class MirrorTransferCrafting implements IRecipe
+public class MirrorTransferCrafting extends CustomRecipe
 {
+
+	public MirrorTransferCrafting(
+			ResourceLocation name )
+	{
+		super( name );
+	}
 
 	@Override
 	public boolean matches(
@@ -138,9 +144,11 @@ public class MirrorTransferCrafting implements IRecipe
 	}
 
 	@Override
-	public int getRecipeSize()
+	public boolean func_194133_a(
+			final int width,
+			final int height )
 	{
-		return 2;
+		return width > 1 || height > 1;
 	}
 
 	@Override

@@ -747,7 +747,6 @@ public class ModUtil
 		}
 	}
 
-	@SuppressWarnings( "null" )
 	public static @Nonnull ItemStack getEmptyStack()
 	{
 		return ItemStack.field_190927_a;
@@ -810,7 +809,7 @@ public class ModUtil
 	{
 		if ( is.isItemStackDamageable() )
 		{
-			if ( is.attemptDamageItem( 1, r ) )
+			if ( is.attemptDamageItem( 1, r, null ) )
 			{
 				is.func_190918_g( 1 );
 			}

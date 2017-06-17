@@ -301,6 +301,8 @@ public abstract class GfxRenderState
 						case COLOR:
 							GlStateManager.glDisableClientState( 32886 );
 							GlStateManager.resetColor();
+						default:
+							break;
 					}
 				}
 

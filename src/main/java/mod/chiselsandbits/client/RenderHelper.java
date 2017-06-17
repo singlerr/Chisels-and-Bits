@@ -6,9 +6,9 @@ import org.lwjgl.opengl.GL11;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -119,7 +119,7 @@ public class RenderHelper
 
 	public static void renderQuads(
 			final int alpha,
-			final VertexBuffer renderer,
+			final BufferBuilder renderer,
 			final List<BakedQuad> quads,
 			final World worldObj,
 			final BlockPos blockPos )
@@ -143,7 +143,7 @@ public class RenderHelper
 	{
 		GlStateManager.pushAttrib(); // glShadeMode( GL_LIGHTING_BIT );
 		final Tessellator tess = Tessellator.getInstance();
-		final VertexBuffer buffer = tess.getBuffer();
+		final BufferBuilder buffer = tess.getBuffer();
 		GlStateManager.shadeModel( GL11.GL_FLAT );
 		buffer.begin( GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR );
 
@@ -200,7 +200,7 @@ public class RenderHelper
 			final int alpha )
 	{
 		final Tessellator tess = Tessellator.getInstance();
-		final VertexBuffer buffer = tess.getBuffer();
+		final BufferBuilder buffer = tess.getBuffer();
 		buffer.begin( GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR );
 		buffer.pos( a.xCoord, a.yCoord, a.zCoord ).color( red, green, blue, alpha ).endVertex();
 		buffer.pos( b.xCoord, b.yCoord, b.zCoord ).color( red, green, blue, alpha ).endVertex();
@@ -223,15 +223,15 @@ public class RenderHelper
 			final int alpha )
 	{
 		final Tessellator tessellator = Tessellator.getInstance();
-		final VertexBuffer worldrenderer = tessellator.getBuffer();
-		worldrenderer.begin( GL11.GL_QUADS, DefaultVertexFormats.ITEM );
+		final BufferBuilder buffer = tessellator.getBuffer();
+		buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.ITEM );
 
 		for ( final EnumFacing enumfacing : EnumFacing.values() )
 		{
-			renderQuads( alpha, worldrenderer, model.getQuads( null, enumfacing, 0 ), worldObj, blockPos );
+			renderQuads( alpha, buffer, model.getQuads( null, enumfacing, 0 ), worldObj, blockPos );
 		}
 
-		renderQuads( alpha, worldrenderer, model.getQuads( null, null, 0 ), worldObj, blockPos );
+		renderQuads( alpha, buffer, model.getQuads( null, null, 0 ), worldObj, blockPos );
 		tessellator.draw();
 	}
 

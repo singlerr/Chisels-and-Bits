@@ -6,12 +6,18 @@ import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class ChiselCrafting implements IRecipe
+public class ChiselCrafting extends CustomRecipe
 {
+
+	public ChiselCrafting(
+			ResourceLocation name )
+	{
+		super( name );
+	}
 
 	/**
 	 * Find the bag and pattern...
@@ -89,9 +95,11 @@ public class ChiselCrafting implements IRecipe
 	}
 
 	@Override
-	public int getRecipeSize()
+	public boolean func_194133_a(
+			final int width,
+			final int height )
 	{
-		return 9;
+		return width * height > 3;
 	}
 
 	@Override

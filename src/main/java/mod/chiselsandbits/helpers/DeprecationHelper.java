@@ -2,6 +2,7 @@ package mod.chiselsandbits.helpers;
 
 import mod.chiselsandbits.chiseledblock.HarvestWorld;
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -49,5 +50,11 @@ public class DeprecationHelper
 	{
 		return I18n.translateToLocalFormatted( string, args );
 
+	}
+
+	public static SoundType getSoundType(
+			Block block )
+	{
+		return block.getSoundType();
 	}
 }

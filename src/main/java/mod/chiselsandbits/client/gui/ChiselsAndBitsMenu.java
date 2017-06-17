@@ -15,14 +15,12 @@ import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.modes.IToolMode;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.inventory.ClickType;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -168,9 +166,9 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		GlStateManager.tryBlendFuncSeparate( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0 );
 		GlStateManager.shadeModel( GL11.GL_SMOOTH );
 		final Tessellator tessellator = Tessellator.getInstance();
-		final VertexBuffer renderBuffer = tessellator.getBuffer();
+		final BufferBuilder buffer = tessellator.getBuffer();
 
-		renderBuffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
+		buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
 
 		final double vecX = mouseX - width / 2;
 		final double vecY = mouseY - height / 2;
@@ -224,7 +222,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 					textSide = EnumFacing.DOWN;
 				}
 
-				btns.add( new MenuButton( "chiselsandbits.color." + color.getUnlocalizedName(), action, bntPos, underring, color.getMapColor().colorValue, textSide ) );
+				btns.add( new MenuButton( "chiselsandbits.color." + color.getUnlocalizedName(), action, bntPos, underring, color.func_193350_e(), textSide ) );
 				bntPos += bntSize;
 			}
 		}
@@ -288,10 +286,10 @@ public class ChiselsAndBitsMenu extends GuiScreen
 					switchTo = mnuRgn.mode;
 				}
 
-				renderBuffer.pos( middle_x + x1m1, middle_y + y1m1, zLevel ).color( f, f, f, a ).endVertex();
-				renderBuffer.pos( middle_x + x2m1, middle_y + y2m1, zLevel ).color( f, f, f, a ).endVertex();
-				renderBuffer.pos( middle_x + x2m2, middle_y + y2m2, zLevel ).color( f, f, f, a ).endVertex();
-				renderBuffer.pos( middle_x + x1m2, middle_y + y1m2, zLevel ).color( f, f, f, a ).endVertex();
+				buffer.pos( middle_x + x1m1, middle_y + y1m1, zLevel ).color( f, f, f, a ).endVertex();
+				buffer.pos( middle_x + x2m1, middle_y + y2m1, zLevel ).color( f, f, f, a ).endVertex();
+				buffer.pos( middle_x + x2m2, middle_y + y2m2, zLevel ).color( f, f, f, a ).endVertex();
+				buffer.pos( middle_x + x1m2, middle_y + y1m2, zLevel ).color( f, f, f, a ).endVertex();
 
 				currentMode++;
 			}
@@ -309,10 +307,10 @@ public class ChiselsAndBitsMenu extends GuiScreen
 				doAction = btn.action;
 			}
 
-			renderBuffer.pos( middle_x + btn.x1, middle_y + btn.y1, zLevel ).color( f, f, f, a ).endVertex();
-			renderBuffer.pos( middle_x + btn.x1, middle_y + btn.y2, zLevel ).color( f, f, f, a ).endVertex();
-			renderBuffer.pos( middle_x + btn.x2, middle_y + btn.y2, zLevel ).color( f, f, f, a ).endVertex();
-			renderBuffer.pos( middle_x + btn.x2, middle_y + btn.y1, zLevel ).color( f, f, f, a ).endVertex();
+			buffer.pos( middle_x + btn.x1, middle_y + btn.y1, zLevel ).color( f, f, f, a ).endVertex();
+			buffer.pos( middle_x + btn.x1, middle_y + btn.y2, zLevel ).color( f, f, f, a ).endVertex();
+			buffer.pos( middle_x + btn.x2, middle_y + btn.y2, zLevel ).color( f, f, f, a ).endVertex();
+			buffer.pos( middle_x + btn.x2, middle_y + btn.y1, zLevel ).color( f, f, f, a ).endVertex();
 		}
 
 		tessellator.draw();
@@ -326,7 +324,7 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		GlStateManager.enableAlpha();
 		GlStateManager.bindTexture( Minecraft.getMinecraft().getTextureMapBlocks().getGlTextureId() );
 
-		renderBuffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR );
+		buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX_COLOR );
 
 		for ( final MenuRegion mnuRgn : modes )
 		{
@@ -352,10 +350,10 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			final double v1 = sip.top * 16.0;
 			final double v2 = ( sip.top + sip.height ) * 16.0;
 
-			renderBuffer.pos( middle_x + x1, middle_y + y1, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
-			renderBuffer.pos( middle_x + x1, middle_y + y2, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
-			renderBuffer.pos( middle_x + x2, middle_y + y2, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
-			renderBuffer.pos( middle_x + x2, middle_y + y1, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
+			buffer.pos( middle_x + x1, middle_y + y1, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
+			buffer.pos( middle_x + x1, middle_y + y2, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
+			buffer.pos( middle_x + x2, middle_y + y2, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v2 ) ).color( f, f, f, a ).endVertex();
+			buffer.pos( middle_x + x2, middle_y + y1, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v1 ) ).color( f, f, f, a ).endVertex();
 		}
 
 		for ( final MenuButton btn : btns )
@@ -379,10 +377,10 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			final float green = f * ( ( btn.color >> 8 & 0xff ) / 255.0f );
 			final float blue = f * ( ( btn.color & 0xff ) / 255.0f );
 
-			renderBuffer.pos( middle_x + btnx1, middle_y + btny1, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v1 ) ).color( red, green, blue, a ).endVertex();
-			renderBuffer.pos( middle_x + btnx1, middle_y + btny2, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v2 ) ).color( red, green, blue, a ).endVertex();
-			renderBuffer.pos( middle_x + btnx2, middle_y + btny2, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v2 ) ).color( red, green, blue, a ).endVertex();
-			renderBuffer.pos( middle_x + btnx2, middle_y + btny1, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v1 ) ).color( red, green, blue, a ).endVertex();
+			buffer.pos( middle_x + btnx1, middle_y + btny1, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v1 ) ).color( red, green, blue, a ).endVertex();
+			buffer.pos( middle_x + btnx1, middle_y + btny2, zLevel ).tex( sprite.getInterpolatedU( u1 ), sprite.getInterpolatedV( v2 ) ).color( red, green, blue, a ).endVertex();
+			buffer.pos( middle_x + btnx2, middle_y + btny2, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v2 ) ).color( red, green, blue, a ).endVertex();
+			buffer.pos( middle_x + btnx2, middle_y + btny1, zLevel ).tex( sprite.getInterpolatedU( u2 ), sprite.getInterpolatedV( v1 ) ).color( red, green, blue, a ).endVertex();
 		}
 
 		tessellator.draw();
@@ -458,22 +456,22 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		return n > 0 ? 1 : -1;
 	}
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
-    protected void mouseClicked(
-    		int mouseX,
-    		int mouseY,
-    		int mouseButton ) throws IOException
-    {
-        if ( mouseButton == 0 && ChiselsAndBits.getConfig().enableVivecraftCompatibility )
-        {
-            this.mc.displayGuiScreen( (GuiScreen) null );
+	/**
+	 * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+	 */
+	protected void mouseClicked(
+			int mouseX,
+			int mouseY,
+			int mouseButton ) throws IOException
+	{
+		if ( mouseButton == 0 && ChiselsAndBits.getConfig().enableVivecraftCompatibility )
+		{
+			this.mc.displayGuiScreen( (GuiScreen) null );
 
-            if ( this.mc.currentScreen == null )
-            {
-                this.mc.setIngameFocus();
-            }
-        }
-    }
+			if ( this.mc.currentScreen == null )
+			{
+				this.mc.setIngameFocus();
+			}
+		}
+	}
 }

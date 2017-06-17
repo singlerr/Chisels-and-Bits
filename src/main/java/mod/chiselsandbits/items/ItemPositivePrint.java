@@ -27,6 +27,7 @@ import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace.IItemBlockAccurate;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -40,15 +41,14 @@ import net.minecraft.world.World;
 public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeItem, IItemBlockAccurate
 {
 
-	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	@Override
 	public void addInformation(
 			final ItemStack stack,
-			final EntityPlayer playerIn,
-			final List tooltip,
-			final boolean advanced )
+			final World worldIn,
+			final List<String> tooltip,
+			final ITooltipFlag advanced )
 	{
-		defaultAddInfo( stack, playerIn, tooltip, advanced );
+		defaultAddInfo( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpPositivePrint, tooltip, ClientSide.instance.getModeKey() );
 
 		if ( stack.hasTagCompound() )
