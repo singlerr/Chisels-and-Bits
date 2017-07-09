@@ -80,6 +80,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -1263,6 +1264,7 @@ public class ClientSide
 	private boolean isUnplaceable = true;
 	private BlockPos lastPartial;
 	private BlockPos lastPos;
+	int displayStatus = 0;
 
 	private void showGhost(
 			final ItemStack refItem,
@@ -1346,6 +1348,11 @@ public class ClientSide
 				baked = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( is );
 				previousModel = baked = baked.getOverrides().handleItemState( baked, is, player.getEntityWorld(), player );
 
+				if ( displayStatus != 0 )
+				{
+					GlStateManager.glDeleteLists( displayStatus, 1 );
+				}
+
 				if ( refItem.getItem() instanceof IPatternItem )
 				{
 					isVisible = true;
@@ -1372,7 +1379,18 @@ public class ClientSide
 			GlStateManager.translate( t.getX() * fullScale, t.getY() * fullScale, t.getZ() * fullScale );
 		}
 
-		RenderHelper.renderGhostModel( baked, player.worldObj, blockPos, isUnplaceable );
+		if ( displayStatus != 0 )
+		{
+			displayStatus = GLAllocation.generateDisplayLists( 1 );
+			GlStateManager.glNewList( displayStatus, GL11.GL_COMPILE_AND_EXECUTE );
+			RenderHelper.renderGhostModel( baked, player.worldObj, blockPos, isUnplaceable );
+			GlStateManager.glEndList();
+		}
+		else
+		{
+			GlStateManager.callList( displayStatus );
+		}
+
 		GlStateManager.popMatrix();
 	}
 
