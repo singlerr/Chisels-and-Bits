@@ -1351,6 +1351,7 @@ public class ClientSide
 				if ( displayStatus != 0 )
 				{
 					GlStateManager.glDeleteLists( displayStatus, 1 );
+					displayStatus = 0;
 				}
 
 				if ( refItem.getItem() instanceof IPatternItem )
@@ -1379,7 +1380,7 @@ public class ClientSide
 			GlStateManager.translate( t.getX() * fullScale, t.getY() * fullScale, t.getZ() * fullScale );
 		}
 
-		if ( displayStatus != 0 )
+		if ( displayStatus == 0 )
 		{
 			displayStatus = GLAllocation.generateDisplayLists( 1 );
 			GlStateManager.glNewList( displayStatus, GL11.GL_COMPILE_AND_EXECUTE );
