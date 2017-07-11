@@ -53,7 +53,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	boolean isNormalCube = false;
 	int sideState = 0;
-	int lightlevel = 0;
+	int lightlevel = -1;
+
+	// used to initialize light level before I can properly feed things into the
+	// tile entity, half 2 of fixing inital lighting issues.
+	private static ThreadLocal<Integer> localLightLevel = new ThreadLocal<Integer>();
 
 	public TileEntityBlockChiseled()
 	{
@@ -307,12 +311,19 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			final NetworkManager net,
 			final SPacketUpdateTileEntity pkt )
 	{
+		final int oldLight = lightlevel;
 		final boolean changed = readChisleData( pkt.getNbtCompound() );
 
 		if ( worldObj != null && changed )
 		{
 			worldObj.markBlockRangeForRenderUpdate( pos, pos );
 			triggerDynamicUpdates();
+
+			// fixes lighting on placement when tile packet arrives.
+			if ( oldLight != lightlevel )
+			{
+				worldObj.checkLight( pos );
+			}
 		}
 	}
 
@@ -585,9 +596,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				worldObj.checkLight( pos );
 
 				// update block state to reflect lighting characteristics
-				IBlockState state = worldObj.getBlockState( pos );
+				final IBlockState state = worldObj.getBlockState( pos );
 				if ( state.isFullCube() != isNormalCube && state.getBlock() instanceof BlockChiseled )
+				{
 					worldObj.setBlockState( pos, state.withProperty( BlockChiseled.LProperty_FullBlock, isNormalCube ) );
+				}
 			}
 
 			if ( oldSides != sideState )
@@ -692,9 +705,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			worldObj.checkLight( pos );
 
 			// update block state to reflect lighting characteristics
-			IBlockState state = worldObj.getBlockState( pos );
+			final IBlockState state = worldObj.getBlockState( pos );
 			if ( state.isFullCube() != isNormalCube && state.getBlock() instanceof BlockChiseled )
+			{
 				worldObj.setBlockState( pos, state.withProperty( BlockChiseled.LProperty_FullBlock, isNormalCube ) );
+			}
 		}
 	}
 
@@ -875,8 +890,28 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		isNormalCube = b;
 	}
 
+	public static void setLightFromBlock(
+			final IBlockState defaultState )
+	{
+		if ( defaultState == null )
+		{
+			localLightLevel.remove();
+		}
+		else
+		{
+			localLightLevel.set( DeprecationHelper.getLightValue( defaultState ) );
+		}
+	}
+
 	public int getLightValue()
 	{
+		// first time requested, pull from local, or default to 0
+		if ( lightlevel < 0 )
+		{
+			final Integer tmp = localLightLevel.get();
+			lightlevel = tmp == null ? 0 : tmp;
+		}
+
 		return lightlevel;
 	}
 

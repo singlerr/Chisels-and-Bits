@@ -997,7 +997,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 
 			if ( blk != null && blk != target )
 			{
+				TileEntityBlockChiseled.setLightFromBlock( actingState );
 				world.setBlockState( pos, blk.getDefaultState(), triggerUpdate ? 3 : 0 );
+				TileEntityBlockChiseled.setLightFromBlock( null );
 				final TileEntity te = world.getTileEntity( pos );
 
 				TileEntityBlockChiseled tec;
