@@ -1,12 +1,17 @@
 package mod.chiselsandbits.registry;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import mod.chiselsandbits.client.CreativeClipboardTab;
 import mod.chiselsandbits.client.ModCreativeTab;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModRegistry
 {
@@ -16,11 +21,41 @@ public class ModRegistry
 	static ModCreativeTab creativeTab = new ModCreativeTab();
 	static CreativeClipboardTab creativeClipboard = null;
 
+	public ModRegistry()
+	{
+		ChiselsAndBits.registerWithBus( this );
+	}
+
 	static
 	{
 		if ( ChiselsAndBits.getConfig().creativeClipboardSize > 0 )
 		{
 			creativeClipboard = new CreativeClipboardTab();
+		}
+	}
+
+	List<Item> registeredItems = new ArrayList<Item>();
+	List<Block> registeredBlocks = new ArrayList<Block>();
+
+	@SubscribeEvent
+	public void registerItems(
+			RegistryEvent.Register<Item> e )
+	{
+		IForgeRegistry<Item> r = e.getRegistry();
+		for ( Item b : registeredItems )
+		{
+			r.register( b );
+		}
+	}
+
+	@SubscribeEvent
+	public void registerBlocks(
+			RegistryEvent.Register<Block> e )
+	{
+		IForgeRegistry<Block> r = e.getRegistry();
+		for ( Block b : registeredBlocks )
+		{
+			r.register( b );
 		}
 	}
 
@@ -36,7 +71,7 @@ public class ModRegistry
 			item.setUnlocalizedName( unlocalizedPrefix + name );
 			item.setRegistryName( ChiselsAndBits.MODID, name );
 
-			GameRegistry.register( item );
+			registeredItems.add( item );
 			return item;
 		}
 
@@ -69,7 +104,7 @@ public class ModRegistry
 		block.setUnlocalizedName( unlocalizedPrefix + name );
 		item.setUnlocalizedName( unlocalizedPrefix + name );
 
-		GameRegistry.register( block );
-		GameRegistry.register( item );
+		registeredBlocks.add( block );
+		registeredItems.add( item );
 	}
 }

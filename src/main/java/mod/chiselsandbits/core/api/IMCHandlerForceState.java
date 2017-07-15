@@ -2,9 +2,8 @@ package mod.chiselsandbits.core.api;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
+import java.util.function.Function;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.Log;

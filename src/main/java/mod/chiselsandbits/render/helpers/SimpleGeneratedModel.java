@@ -56,11 +56,6 @@ public class SimpleGeneratedModel implements IBakedModel
 		final BlockPartRotation bpr = null;
 		final ModelRotation mr = ModelRotation.X0_Y0;
 
-		final float maxLightmap = 32.0f / 0xffff;
-		final int lightValue = 0;
-
-		final float lightMap = maxLightmap * Math.max( 0, Math.min( 15, lightValue ) );
-
 		for ( final EnumFacing side : EnumFacing.VALUES )
 		{
 			final BlockPartFace bpf = new BlockPartFace( side, 1, "", uv );

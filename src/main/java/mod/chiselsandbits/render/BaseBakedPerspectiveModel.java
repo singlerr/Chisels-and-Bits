@@ -8,10 +8,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.common.model.TRSRTransformation;
 
-public abstract class BaseBakedPerspectiveModel implements IPerspectiveAwareModel
+public abstract class BaseBakedPerspectiveModel implements IBakedModel
 {
 
 	private static final Matrix4f ground;

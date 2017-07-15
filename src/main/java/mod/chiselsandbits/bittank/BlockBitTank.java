@@ -22,7 +22,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
@@ -198,10 +197,8 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 			if ( !ModUtil.isEmpty( current ) )
 			{
 				final IFluidHandler wrappedTank = tank;
-				final FluidActionResult far = FluidUtil.interactWithFluidHandler( current, wrappedTank, playerIn );
-				if ( far.isSuccess() )
+				if ( FluidUtil.interactWithFluidHandler( playerIn, hand, wrappedTank ) )
 				{
-					playerIn.setHeldItem( hand, far.getResult() );
 					return true;
 				}
 

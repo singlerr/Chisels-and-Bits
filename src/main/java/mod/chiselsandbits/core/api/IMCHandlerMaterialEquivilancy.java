@@ -3,9 +3,8 @@ package mod.chiselsandbits.core.api;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
+import java.util.Optional;
+import java.util.function.Function;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
