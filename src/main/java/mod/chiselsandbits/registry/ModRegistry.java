@@ -6,6 +6,7 @@ import java.util.List;
 import mod.chiselsandbits.client.CreativeClipboardTab;
 import mod.chiselsandbits.client.ModCreativeTab;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -46,6 +47,11 @@ public class ModRegistry
 		{
 			r.register( b );
 		}
+
+		if ( ChiselsAndBits.getInstance().loadClientAssets() )
+		{
+			ClientSide.instance.registerItemModels();
+		}
 	}
 
 	@SubscribeEvent
@@ -56,6 +62,11 @@ public class ModRegistry
 		for ( Block b : registeredBlocks )
 		{
 			r.register( b );
+		}
+
+		if ( ChiselsAndBits.getInstance().loadClientAssets() )
+		{
+			ClientSide.instance.registerBlockModels();
 		}
 	}
 
@@ -80,24 +91,11 @@ public class ModRegistry
 
 	protected void registerBlock(
 			final Block block,
-			final Class<? extends ItemBlock> itemBlock,
+			final ItemBlock item,
 			final String name )
 	{
 		block.setCreativeTab( creativeTab );
-		final Class<? extends ItemBlock> itemClz = itemBlock == null ? ItemBlock.class : itemBlock;
-
-		Item item;
-
-		try
-		{
-			item = itemClz.getConstructor( Block.class ).newInstance( block );
-		}
-		catch ( final Throwable e )
-		{
-			// just re-throw it...
-			throw new RuntimeException( e );
-		}
-
+		
 		item.setRegistryName( ChiselsAndBits.MODID, name );
 		block.setRegistryName( ChiselsAndBits.MODID, name );
 

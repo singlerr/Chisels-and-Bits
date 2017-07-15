@@ -70,6 +70,7 @@ public class ChiselsAndBits
 	private ModBlocks blocks;
 	private final Integration integration = new Integration();
 	private final IChiselAndBitsAPI api = new ChiselAndBitsAPI();
+	private boolean loadClientAssets = false;
 
 	List<ICacheClearable> cacheClearables = new ArrayList<ICacheClearable>();
 
@@ -139,6 +140,8 @@ public class ChiselsAndBits
 		// model/textures must be configured later.
 		if ( event.getSide() == Side.CLIENT )
 		{
+			loadClientAssets = true;
+
 			// load this after items are created...
 			CreativeClipboardTab.load( new File( configFile.getParent(), MODID + "_clipboard.cfg" ) );
 
@@ -270,6 +273,11 @@ public class ChiselsAndBits
 		{
 			cacheClearables.add( cache );
 		}
+	}
+
+	public boolean loadClientAssets()
+	{
+		return loadClientAssets;
 	}
 
 }

@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import mod.chiselsandbits.bittank.BlockBitTank;
-import mod.chiselsandbits.bittank.ItemBlockBitTank;
 import mod.chiselsandbits.bittank.TileEntityBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
@@ -16,6 +15,8 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.config.ModConfig;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -29,7 +30,9 @@ public class ModBlocks extends ModRegistry
 	private static String TE_CHISELEDBLOCK_TESR = "mod.chiselsandbits.TileEntityChiseled.tesr";
 
 	private final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();
+	private final HashMap<Material, Item> itemConversions = new HashMap<Material, Item>();
 
+	public final ItemBlock itemBitTank;
 	public final BlockBitTank blockBitTank;
 
 	public static final MaterialType[] validMaterials = new MaterialType[] {
@@ -72,20 +75,26 @@ public class ModBlocks extends ModRegistry
 		if ( config.enableBitTank )
 		{
 			blockBitTank = new BlockBitTank();
-			registerBlock( blockBitTank, ItemBlockBitTank.class, "bittank" );
+			itemBitTank = new ItemBlock( blockBitTank );
+			registerBlock( blockBitTank, itemBitTank, "bittank" );
 			GameRegistry.registerTileEntity( TileEntityBitTank.class, TE_BIT_TANK );
 		}
 		else
 		{
 			blockBitTank = null;
+			itemBitTank = null;
 		}
 
 		// register blocks...
 		for ( final MaterialType mat : validMaterials )
 		{
 			final BlockChiseled blk = new BlockChiseled( mat.type, "chiseled_" + mat.name );
+			final ItemBlockChiseled item = new ItemBlockChiseled( blk );
+
 			getConversions().put( mat.type, blk );
-			registerBlock( blk, ItemBlockChiseled.class, blk.name );
+			getItemConversions().put( mat.type, item );
+
+			registerBlock( blk, item, blk.name );
 		}
 	}
 
@@ -133,6 +142,11 @@ public class ModBlocks extends ModRegistry
 		}
 
 		return bcX;
+	}
+
+	public Map<Material, Item> getItemConversions()
+	{
+		return itemConversions;
 	}
 
 	public Map<Material, BlockChiseled> getConversions()

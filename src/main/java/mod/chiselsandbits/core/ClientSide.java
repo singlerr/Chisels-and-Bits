@@ -20,7 +20,6 @@ import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.api.ModKeyBinding;
-import mod.chiselsandbits.bittank.BlockBitTank;
 import mod.chiselsandbits.bittank.TileEntityBitTank;
 import mod.chiselsandbits.bittank.TileEntitySpecialRenderBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
@@ -172,8 +171,7 @@ public class ClientSide
 			final ChiselsAndBits mod )
 	{
 		ChiselsAndBits.registerWithBus( new SmartModelManager() );
-
-		registerModels();
+		ChiselsAndBits.registerWithBus( instance );
 	}
 
 	public void init(
@@ -204,8 +202,6 @@ public class ClientSide
 		undo = registerKeybind( "mod.chiselsandbits.other.undo", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
 		redo = registerKeybind( "mod.chiselsandbits.other.redo", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
 		addToClipboard = registerKeybind( "mod.chiselsandbits.other.add_to_clipboard", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
-
-		ChiselsAndBits.registerWithBus( instance );
 
 		ClientCommandHandler.instance.registerCommand( new JsonModelExport() );
 	}
@@ -252,13 +248,21 @@ public class ClientSide
 			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorChisled(), item );
 			Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler( new BlockColorChisled(), blk );
 		}
-
 	}
 
-	public void registerModels()
+	public void registerBlockModels()
 	{
 		final String modId = ChiselsAndBits.MODID;
 
+		for ( final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
+		{
+			registerMesh( blk, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "" ) );
+		}
+	}
+
+	public void registerItemModels()
+	{
+		final String modId = ChiselsAndBits.MODID;
 		final ModItems modItems = ChiselsAndBits.getItems();
 
 		registerMesh( modItems.itemChiselStone, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_stone" ), "inventory" ) );
@@ -316,7 +320,6 @@ public class ClientSide
 		}
 
 		if ( modItems.itemBlockBit != null )
-
 		{
 			ModelLoader.setCustomMeshDefinition( modItems.itemBlockBit, new ItemMeshDefinition() {
 
@@ -330,18 +333,10 @@ public class ClientSide
 			} );
 		}
 
-		for ( final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
+		for ( final Item item : ChiselsAndBits.getBlocks().getItemConversions().values() )
 		{
-			final Item item = Item.getItemFromBlock( blk );
 			registerMesh( item, 0, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "inventory" ) );
-			registerMesh( blk, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "" ) );
 		}
-
-		final BlockBitTank bitTank = ChiselsAndBits.getBlocks().blockBitTank;
-		final Item bitTankItem = Item.getItemFromBlock( bitTank );
-		final ModelResourceLocation bittank_item = new ModelResourceLocation( new ResourceLocation( modId, "bittank" ), "inventory" );
-
-		registerMesh( bitTankItem, 0, bittank_item );
 	}
 
 	private void registerMesh(
