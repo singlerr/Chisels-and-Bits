@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.bit.BitItemSmartModel;
@@ -28,6 +29,12 @@ public class SmartModelManager
 	{
 		ChiseledBlockSmartModel smartModel = new ChiseledBlockSmartModel();
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_chiseled" ), smartModel );
+
+		for ( BlockChiseled bc : ChiselsAndBits.getBlocks().getConversions().values() )
+		{
+			add( new ResourceLocation( ChiselsAndBits.MODID, bc.name ), smartModel );
+		}
+
 		ChiselsAndBits.getInstance().addClearable( smartModel );
 
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_bit" ), new BitItemSmartModel() );
