@@ -3,6 +3,7 @@ package mod.chiselsandbits.core;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -255,9 +256,9 @@ public class ClientSide
 	{
 		final String modId = ChiselsAndBits.MODID;
 
-		for ( final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
+		for ( final BlockChiseled blk : new HashSet<BlockChiseled>( ChiselsAndBits.getBlocks().getConversions().values() ) )
 		{
-			registerMesh( blk, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "" ) );
+			registerMesh( blk, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "normal" ) );
 		}
 	}
 
@@ -345,7 +346,7 @@ public class ClientSide
 			} );
 		}
 
-		for ( final Item item : ChiselsAndBits.getBlocks().getItemConversions().values() )
+		for ( final Item item : new HashSet<Item>( ChiselsAndBits.getBlocks().getItemConversions().values() ) )
 		{
 			registerMesh( item, 0, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "inventory" ) );
 		}
