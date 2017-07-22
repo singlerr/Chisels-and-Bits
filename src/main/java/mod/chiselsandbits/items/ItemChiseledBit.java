@@ -311,6 +311,11 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final CreativeTabs tab,
 			final NonNullList subItems )
 	{
+		if ( !this.func_194125_a( tab ) ) // is this my creative tab?
+		{
+			return;
+		}
+
 		if ( bits == null )
 		{
 			bits = new ArrayList<ItemStack>();
