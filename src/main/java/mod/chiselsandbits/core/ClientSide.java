@@ -274,6 +274,17 @@ public class ClientSide
 		registerMesh( modItems.itemBitSawDiamond, 0, new ModelResourceLocation( new ResourceLocation( modId, "bitsaw_diamond" ), "inventory" ) );
 		registerMesh( modItems.itemTapeMeasure, 0, new ModelResourceLocation( new ResourceLocation( modId, "tape_measure" ), "inventory" ) );
 
+		ModelLoader.setCustomMeshDefinition( ChiselsAndBits.getBlocks().itemBitTank, new ItemMeshDefinition() {
+
+			@Override
+			public ModelResourceLocation getModelLocation(
+					ItemStack stack )
+			{
+				return new ModelResourceLocation( new ResourceLocation( modId, "bittank" ), "inventory" );
+			}
+
+		} );
+
 		if ( modItems.itemPositiveprint != null )
 		{
 			ModelBakery.registerItemVariants( modItems.itemPositiveprint, new ResourceLocation( modId, "positiveprint" ), new ResourceLocation( modId, "positiveprint_written" ) );
