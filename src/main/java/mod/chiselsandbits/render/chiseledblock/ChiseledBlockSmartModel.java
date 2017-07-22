@@ -3,7 +3,10 @@ package mod.chiselsandbits.render.chiseledblock;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.WeakHashMap;
+
+import com.google.common.base.Optional;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
@@ -29,6 +32,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.property.IExtendedBlockState;
+import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.client.FMLClientHandler;
 
 public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheClearable
@@ -174,10 +178,29 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 		}
 
 		final IExtendedBlockState myState = (IExtendedBlockState) state;
+		
+		// This seems silly, but it proves to be faster in practice.
+		VoxelBlobStateReference data = null;
+		VoxelNeighborRenderTracker rTracker = null;
+		Integer blockP = null;
 
-		final VoxelBlobStateReference data = myState.getValue( BlockChiseled.UProperty_VoxelBlob );
-		final VoxelNeighborRenderTracker rTracker = myState.getValue( BlockChiseled.UProperty_VoxelNeighborState );
-		Integer blockP = myState.getValue( BlockChiseled.UProperty_Primary_BlockState );
+		for ( final Entry<IUnlistedProperty<?>, Optional<?>> p : myState.getUnlistedProperties().entrySet() )
+		{
+			if ( p.getKey() == BlockChiseled.UProperty_VoxelBlob )
+			{
+				data = (VoxelBlobStateReference) p.getValue().orNull();
+			}
+
+			if ( p.getKey() == BlockChiseled.UProperty_VoxelNeighborState )
+			{
+				rTracker = (VoxelNeighborRenderTracker) p.getValue().orNull();
+			}
+
+			if ( p.getKey() == BlockChiseled.UProperty_Primary_BlockState )
+			{
+				blockP = (Integer) p.getValue().orNull();
+			}
+		}
 
 		blockP = blockP == null ? 0 : blockP;
 
