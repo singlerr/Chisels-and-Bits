@@ -33,6 +33,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrollWheel
 {
@@ -42,6 +44,7 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 	}
 
 	@Override
+	@SideOnly( Side.CLIENT )
 	public void addInformation(
 			final ItemStack stack,
 			final World worldIn,

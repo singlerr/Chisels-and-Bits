@@ -57,6 +57,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	}
 
 	@Override
+	@SideOnly( Side.CLIENT )
 	public void addInformation(
 			final ItemStack stack,
 			final World worldIn,

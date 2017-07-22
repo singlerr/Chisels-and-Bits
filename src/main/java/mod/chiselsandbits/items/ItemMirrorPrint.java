@@ -23,6 +23,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemMirrorPrint extends Item implements IPatternItem
 {
@@ -35,6 +37,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 	SimpleInstanceCache<ItemStack, List<String>> toolTipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
 
 	@Override
+	@SideOnly( Side.CLIENT )
 	public void addInformation(
 			final ItemStack stack,
 			final World worldIn,

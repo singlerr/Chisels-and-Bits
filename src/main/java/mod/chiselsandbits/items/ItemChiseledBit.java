@@ -56,6 +56,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselModeItem, ICacheClearable
 {
@@ -71,6 +72,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	}
 
 	@Override
+	@SideOnly( Side.CLIENT )
 	public void addInformation(
 			final ItemStack stack,
 			final World worldIn,

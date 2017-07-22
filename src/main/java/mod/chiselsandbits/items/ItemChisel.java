@@ -53,6 +53,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselModeItem
 {
@@ -91,6 +92,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	}
 
 	@Override
+	@SideOnly( Side.CLIENT )
 	public void addInformation(
 			final ItemStack stack,
 			final World worldIn,

@@ -38,6 +38,8 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScrollWheel, IPatternItem
 {
@@ -47,6 +49,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 	}
 
+	@SideOnly( Side.CLIENT )
 	protected void defaultAddInfo(
 			final ItemStack stack,
 			final World worldIn,
@@ -60,6 +63,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	SimpleInstanceCache<ItemStack, List<String>> toolTipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
 
 	@Override
+	@SideOnly( Side.CLIENT )
 	public void addInformation(
 			final ItemStack stack,
 			final World worldIn,
