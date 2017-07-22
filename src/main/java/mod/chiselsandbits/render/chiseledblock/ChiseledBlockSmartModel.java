@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.WeakHashMap;
-
-import com.google.common.base.Optional;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
@@ -178,7 +177,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 		}
 
 		final IExtendedBlockState myState = (IExtendedBlockState) state;
-		
+
 		// This seems silly, but it proves to be faster in practice.
 		VoxelBlobStateReference data = null;
 		VoxelNeighborRenderTracker rTracker = null;
@@ -188,17 +187,17 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 		{
 			if ( p.getKey() == BlockChiseled.UProperty_VoxelBlob )
 			{
-				data = (VoxelBlobStateReference) p.getValue().orNull();
+				data = (VoxelBlobStateReference) p.getValue().orElse( null );
 			}
 
 			if ( p.getKey() == BlockChiseled.UProperty_VoxelNeighborState )
 			{
-				rTracker = (VoxelNeighborRenderTracker) p.getValue().orNull();
+				rTracker = (VoxelNeighborRenderTracker) p.getValue().orElse( null );
 			}
 
 			if ( p.getKey() == BlockChiseled.UProperty_Primary_BlockState )
 			{
-				blockP = (Integer) p.getValue().orNull();
+				blockP = (Integer) p.getValue().orElse( null );
 			}
 		}
 
