@@ -213,17 +213,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final ChiselLayer layer,
 			final Integer blockStateID )
 	{
-		final ChiseledBlockBaked out = new ChiseledBlockBaked();
-
-		final IBlockState state = ModUtil.getStateById( blockStateID );
-		final IBakedModel model = ModelUtil.solveModel( state, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( ModUtil.getStateById( blockStateID ) ), layer.layer );
-		if ( model != null )
-		{
-			out.sprite = ModelUtil.findTexture( blockStateID, model, EnumFacing.UP, layer.layer );
-			out.myLayer = layer;
-		}
-
-		return out;
+		return ModelUtil.getBreakingModel( layer, blockStateID );
 	}
 
 	public boolean isEmpty()
@@ -783,6 +773,16 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	public boolean isAboveLimit()
 	{
 		return faceCount() >= ChiselsAndBits.getConfig().dynamicModelFaceCount;
+	}
+
+	public static ChiseledBlockBaked createFromTexture(
+			TextureAtlasSprite findTexture,
+			ChiselLayer layer )
+	{
+		ChiseledBlockBaked out = new ChiseledBlockBaked();
+		out.sprite = findTexture;
+		out.myLayer = layer;
+		return out;
 	}
 
 }
