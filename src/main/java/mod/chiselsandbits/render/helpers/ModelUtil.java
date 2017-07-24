@@ -13,6 +13,8 @@ import mod.chiselsandbits.core.ReflectionWrapper;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
+import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLeaves;
@@ -36,6 +38,7 @@ public class ModelUtil implements ICacheClearable
 {
 	private final static HashMap<Integer, String> blockToTexture[];
 	private static HashMap<Integer, ModelQuadLayer[]> cache = new HashMap<Integer, ModelQuadLayer[]>();
+	private static HashMap<Integer, ChiseledBlockBaked> breakCache = new HashMap<Integer, ChiseledBlockBaked>();
 
 	@SuppressWarnings( "unused" )
 	private static ModelUtil instance = new ModelUtil();
@@ -59,6 +62,7 @@ public class ModelUtil implements ICacheClearable
 		}
 
 		cache.clear();
+		breakCache.clear();
 	}
 
 	public static ModelQuadLayer[] getCachedFace(
@@ -569,6 +573,33 @@ public class ModelUtil implements ICacheClearable
 			final int tint )
 	{
 		return Minecraft.getMinecraft().getItemColors().getColorFromItemstack( target, tint );
+	}
+
+	public static ChiseledBlockBaked getBreakingModel(
+			ChiselLayer layer,
+			Integer blockStateID )
+	{
+		int key = layer.layer.ordinal() + ( blockStateID << 2 );
+		ChiseledBlockBaked out = breakCache.get( key );
+
+		if ( out == null )
+		{
+			final IBlockState state = ModUtil.getStateById( blockStateID );
+			final IBakedModel model = ModelUtil.solveModel( state, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( ModUtil.getStateById( blockStateID ) ), layer.layer );
+
+			if ( model != null )
+			{
+				out = ChiseledBlockBaked.createFromTexture( ModelUtil.findTexture( blockStateID, model, EnumFacing.UP, layer.layer ), layer );
+			}
+			else
+			{
+				out = ChiseledBlockBaked.createFromTexture( null, null );
+			}
+
+			breakCache.put( key, out );
+		}
+
+		return out;
 	}
 
 }
