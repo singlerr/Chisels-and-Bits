@@ -48,7 +48,7 @@ public class ModRegistry
 			r.register( b );
 		}
 
-		if ( ChiselsAndBits.getInstance().loadClientAssets() )
+		if ( !registeredItems.isEmpty() && ChiselsAndBits.getInstance().loadClientAssets() )
 		{
 			ClientSide.instance.registerItemModels();
 		}
@@ -64,7 +64,7 @@ public class ModRegistry
 			r.register( b );
 		}
 
-		if ( ChiselsAndBits.getInstance().loadClientAssets() )
+		if ( !registeredBlocks.isEmpty() && ChiselsAndBits.getInstance().loadClientAssets() )
 		{
 			ClientSide.instance.registerBlockModels();
 		}
@@ -95,7 +95,7 @@ public class ModRegistry
 			final String name )
 	{
 		block.setCreativeTab( creativeTab );
-		
+
 		item.setRegistryName( ChiselsAndBits.MODID, name );
 		block.setRegistryName( ChiselsAndBits.MODID, name );
 
