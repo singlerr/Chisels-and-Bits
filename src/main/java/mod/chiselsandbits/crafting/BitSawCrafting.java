@@ -91,6 +91,11 @@ public class BitSawCrafting extends CustomRecipe
 							return null;
 						}
 
+						if ( r.blockPosX != -1 )
+						{
+							return null;
+						}
+
 						r.chisledBlock = is;
 						r.blockPosX = x;
 						r.blockPosY = y;
