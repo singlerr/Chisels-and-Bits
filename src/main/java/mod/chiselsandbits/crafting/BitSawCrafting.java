@@ -83,6 +83,11 @@ public class BitSawCrafting implements IRecipe
 							return null;
 						}
 
+						if ( r.blockPosX != -1 )
+						{
+							return null;
+						}
+
 						r.chisledBlock = is;
 						r.blockPosX = x;
 						r.blockPosY = y;
