@@ -16,12 +16,7 @@ import mod.chiselsandbits.commands.SetBit;
 import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.api.ChiselAndBitsAPI;
 import mod.chiselsandbits.core.api.IMCHandler;
-import mod.chiselsandbits.crafting.BitSawCrafting;
-import mod.chiselsandbits.crafting.ChiselBlockCrafting;
-import mod.chiselsandbits.crafting.ChiselCrafting;
-import mod.chiselsandbits.crafting.MirrorTransferCrafting;
-import mod.chiselsandbits.crafting.NegativeInversionCrafting;
-import mod.chiselsandbits.crafting.StackableCrafting;
+import mod.chiselsandbits.crafting.ModRecipes;
 import mod.chiselsandbits.events.EventPlayerInteract;
 import mod.chiselsandbits.events.VaporizeWater;
 import mod.chiselsandbits.integration.Integration;
@@ -30,10 +25,7 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.material.Material;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -44,10 +36,8 @@ import net.minecraftforge.fml.common.event.FMLModIdMappingEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.registries.IForgeRegistry;
 
 @Mod(
 		name = ChiselsAndBits.MODNAME,
@@ -122,6 +112,7 @@ public class ChiselsAndBits
 
 		items = new ModItems( getConfig() );
 		blocks = new ModBlocks( getConfig(), event.getSide() );
+		registerWithBus( new ModRecipes( getConfig() ) );
 
 		integration.preinit( event );
 
@@ -162,44 +153,6 @@ public class ChiselsAndBits
 
 		registerWithBus( new EventPlayerInteract() );
 		registerWithBus( new VaporizeWater() );
-	}
-
-	@SubscribeEvent
-	void registerRecipes(
-			RegistryEvent.Register<IRecipe> e )
-	{
-		IForgeRegistry<IRecipe> r = e.getRegistry();
-
-		// add special recipes...
-		if ( getConfig().enablePositivePrintCrafting )
-		{
-			r.register( new ChiselCrafting( new ResourceLocation( MODID, "positiveprintcrafting" ) ) );
-		}
-
-		if ( getConfig().enableChiselCrafting )
-		{
-			r.register( new ChiselBlockCrafting( new ResourceLocation( MODID, "chiselcrafting" ) ) );
-		}
-
-		if ( getConfig().enableStackableCrafting )
-		{
-			r.register( new StackableCrafting( new ResourceLocation( MODID, "stackablecrafting" ) ) );
-		}
-
-		if ( getConfig().enableNegativePrintInversionCrafting )
-		{
-			r.register( new NegativeInversionCrafting( new ResourceLocation( MODID, "negativepatterncrafting" ) ) );
-		}
-
-		if ( getConfig().enableMirrorPrint )
-		{
-			r.register( new MirrorTransferCrafting( new ResourceLocation( MODID, "mirrorpatterncrafting" ) ) );
-		}
-
-		if ( getConfig().enableBitSaw )
-		{
-			r.register( new BitSawCrafting( new ResourceLocation( MODID, "bitsawcrafting" ) ) );
-		}
 	}
 
 	@EventHandler

@@ -34,4 +34,10 @@ public abstract class CustomRecipe implements IRecipe
 		return IRecipe.class;
 	}
 
+	@Override
+	public boolean func_192399_d()
+	{
+		return true; // hide recipe
+	}
+
 }
