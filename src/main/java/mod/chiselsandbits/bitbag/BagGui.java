@@ -77,6 +77,17 @@ public class BagGui extends GuiContainer
 	}
 
 	@Override
+	public void drawScreen(
+			final int mouseX,
+			final int mouseY,
+			final float partialTicks )
+	{
+		drawDefaultBackground();
+		super.drawScreen( mouseX, mouseY, partialTicks );
+		func_191948_b( mouseX, mouseY );
+	}
+
+	@Override
 	protected void drawGuiContainerBackgroundLayer(
 			final float partialTicks,
 			final int mouseX,
