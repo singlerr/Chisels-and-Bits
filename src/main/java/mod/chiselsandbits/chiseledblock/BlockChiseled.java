@@ -31,6 +31,7 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.ParticleManager;
@@ -76,6 +77,24 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	public static final PropertyBool LProperty_FullBlock = PropertyBool.create( "full_block" );
 
 	public final String name;
+
+	@Override
+	public BlockFaceShape func_193383_a(
+			IBlockAccess world,
+			IBlockState state,
+			BlockPos pos,
+			EnumFacing facing ) // getBlockFaceShape
+	{
+		try
+		{
+			TileEntityBlockChiseled te = getTileEntity( world, pos );
+			return te.isSideSolid( facing ) ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
+		}
+		catch ( ExceptionNoTileEntity e )
+		{
+			return BlockFaceShape.UNDEFINED;
+		}
+	}
 
 	@Override
 	public Boolean isAABBInsideMaterial(
