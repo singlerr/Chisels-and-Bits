@@ -1,5 +1,5 @@
 {
-    "parent":"item/handheld",
+    "parent":"chiselsandbits:item/tool",
     "textures": {
         "layer0":"chiselsandbits:items/chisel_iron"
     }

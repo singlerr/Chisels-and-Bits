@@ -24,62 +24,29 @@ public abstract class BaseBakedPerspectiveModel implements IPerspectiveAwareMode
 
 	static
 	{
-		// for some reason these are not identical to vanilla's Block.json, I
-		// don't know why.. but its close.
+		gui = getMatrix( 0, 0, 0, 30, 225, 0, 0.625f );
+		ground = getMatrix( 0, 3 / 16.0f, 0, 0, 0, 0, 0.25f );
+		fixed = getMatrix( 0, 0, 0, 0, 0, 0, 0.5f );
+		thirdPerson_lefthand = thirdPerson_righthand = getMatrix( 0, 2.5f / 16.0f, 0, 75, 45, 0, 0.375f );
+		firstPerson_righthand = getMatrix( 0, 0, 0, 0, 45, 0, 0.40f );
+		firstPerson_lefthand = getMatrix( 0, 0, 0, 0, 0, 225, 0.40f );
+	}
 
-		{
-			final javax.vecmath.Vector3f translation = new javax.vecmath.Vector3f( 0, 0, 0 );
-			final javax.vecmath.Vector3f scale = new javax.vecmath.Vector3f( 0.625f, 0.625f, 0.625f );
-			final Quat4f rotation = TRSRTransformation.quatFromXYZDegrees( new javax.vecmath.Vector3f( 30, 225, 0 ) );
+	private static Matrix4f getMatrix(
+			final float transX,
+			final float transY,
+			final float transZ,
+			final float rotX,
+			final float rotY,
+			final float rotZ,
+			final float scaleXYZ )
+	{
+		final javax.vecmath.Vector3f translation = new javax.vecmath.Vector3f( transX, transY, transZ );
+		final javax.vecmath.Vector3f scale = new javax.vecmath.Vector3f( scaleXYZ, scaleXYZ, scaleXYZ );
+		final Quat4f rotation = TRSRTransformation.quatFromXYZDegrees( new javax.vecmath.Vector3f( rotX, rotY, rotZ ) );
 
-			final TRSRTransformation transform = new TRSRTransformation( translation, rotation, scale, null );
-			gui = transform.getMatrix();
-		}
-
-		{
-			final javax.vecmath.Vector3f translation = new javax.vecmath.Vector3f( 0, 0, 0 );
-			final javax.vecmath.Vector3f scale = new javax.vecmath.Vector3f( 0.25f, 0.25f, 0.25f );
-			final Quat4f rotation = TRSRTransformation.quatFromXYZDegrees( new javax.vecmath.Vector3f( 0, 0, 0 ) );
-
-			final TRSRTransformation transform = new TRSRTransformation( translation, rotation, scale, null );
-			ground = transform.getMatrix();
-		}
-
-		{
-			final javax.vecmath.Vector3f translation = new javax.vecmath.Vector3f( 0, 0, 0 );
-			final javax.vecmath.Vector3f scale = new javax.vecmath.Vector3f( 0.5f, 0.5f, 0.5f );
-			final Quat4f rotation = TRSRTransformation.quatFromXYZDegrees( new javax.vecmath.Vector3f( 0, 0, 0 ) );
-
-			final TRSRTransformation transform = new TRSRTransformation( translation, rotation, scale, null );
-			fixed = transform.getMatrix();
-		}
-
-		{
-			final javax.vecmath.Vector3f translation = new javax.vecmath.Vector3f( 0, 0, 0 );
-			final javax.vecmath.Vector3f scale = new javax.vecmath.Vector3f( 0.375f, 0.375f, 0.375f );
-			final Quat4f rotation = TRSRTransformation.quatFromXYZDegrees( new javax.vecmath.Vector3f( 75, 45, 0 ) );
-
-			final TRSRTransformation transform = new TRSRTransformation( translation, rotation, scale, null );
-			thirdPerson_lefthand = thirdPerson_righthand = transform.getMatrix();
-		}
-
-		{
-			final javax.vecmath.Vector3f translation = new javax.vecmath.Vector3f( 0, 0, 0 );
-			final javax.vecmath.Vector3f scale = new javax.vecmath.Vector3f( 0.40f, 0.40f, 0.40f );
-			final Quat4f rotation = TRSRTransformation.quatFromXYZDegrees( new javax.vecmath.Vector3f( 0, 45, 0 ) );
-
-			final TRSRTransformation transform = new TRSRTransformation( translation, rotation, scale, null );
-			firstPerson_righthand = transform.getMatrix();
-		}
-
-		{
-			final javax.vecmath.Vector3f translation = new javax.vecmath.Vector3f( 0, 0, 0 );
-			final javax.vecmath.Vector3f scale = new javax.vecmath.Vector3f( 0.40f, 0.40f, 0.40f );
-			final Quat4f rotation = TRSRTransformation.quatFromXYZDegrees( new javax.vecmath.Vector3f( 0, 225, 0 ) );
-
-			final TRSRTransformation transform = new TRSRTransformation( translation, rotation, scale, null );
-			firstPerson_lefthand = transform.getMatrix();
-		}
+		final TRSRTransformation transform = new TRSRTransformation( translation, rotation, scale, null );
+		return transform.getMatrix();
 	}
 
 	@Override
