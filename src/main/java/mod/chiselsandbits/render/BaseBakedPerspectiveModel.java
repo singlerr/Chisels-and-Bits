@@ -27,8 +27,7 @@ public abstract class BaseBakedPerspectiveModel implements IBakedModel
 		ground = getMatrix( 0, 3 / 16.0f, 0, 0, 0, 0, 0.25f );
 		fixed = getMatrix( 0, 0, 0, 0, 0, 0, 0.5f );
 		thirdPerson_lefthand = thirdPerson_righthand = getMatrix( 0, 2.5f / 16.0f, 0, 75, 45, 0, 0.375f );
-		firstPerson_righthand = getMatrix( 0, 0, 0, 0, 45, 0, 0.40f );
-		firstPerson_lefthand = getMatrix( 0, 0, 0, 0, 0, 225, 0.40f );
+		firstPerson_righthand = firstPerson_lefthand = getMatrix( 0, 0, 0, 0, 45, 0, 0.40f );
 	}
 
 	private static Matrix4f getMatrix(
