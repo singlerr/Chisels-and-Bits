@@ -54,6 +54,7 @@ import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.helpers.ReadyState;
 import mod.chiselsandbits.helpers.VoxelRegionSrc;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
@@ -135,6 +136,8 @@ public class ClientSide
 	private static final Random RANDOM = new Random();
 	public static final ClientSide instance = new ClientSide();
 
+	ReadyState readyState = ReadyState.PENDING_PRE;
+
 	private final HashMap<IToolMode, SpriteIconPositioning> chiselModeIcons = new HashMap<IToolMode, SpriteIconPositioning>();
 	private KeyBinding rotateCCW;
 	private KeyBinding rotateCW;
@@ -172,6 +175,8 @@ public class ClientSide
 	public void preinit(
 			final ChiselsAndBits mod )
 	{
+		readyState = readyState.updateState( ReadyState.TRIGGER_PRE );
+
 		ChiselsAndBits.registerWithBus( new SmartModelManager() );
 		ChiselsAndBits.registerWithBus( instance );
 	}
@@ -179,6 +184,8 @@ public class ClientSide
 	public void init(
 			final ChiselsAndBits chiselsandbits )
 	{
+		readyState = readyState.updateState( ReadyState.TRIGGER_INIT );
+
 		ClientRegistry.bindTileEntitySpecialRenderer( TileEntityBlockChiseledTESR.class, new ChisledBlockRenderChunkTESR() );
 		ClientRegistry.bindTileEntitySpecialRenderer( TileEntityBitTank.class, new TileEntitySpecialRenderBitTank() );
 
@@ -222,6 +229,8 @@ public class ClientSide
 	public void postinit(
 			final ChiselsAndBits mod )
 	{
+		readyState = readyState.updateState( ReadyState.TRIGGER_POST );
+
 		final ModItems modItems = ChiselsAndBits.getItems();
 
 		if ( modItems.itemBlockBit != null )
@@ -806,6 +815,9 @@ public class ClientSide
 	public void interaction(
 			final TickEvent.ClientTickEvent event )
 	{
+		if ( !readyState.isReady() )
+			return;
+
 		// used to prevent hyper chisels.. its actually far worse then you might
 		// think...
 		if ( event.side == Side.CLIENT && event.type == Type.CLIENT && event.phase == Phase.START && !Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown() )
