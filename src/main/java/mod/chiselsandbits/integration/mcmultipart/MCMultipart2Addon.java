@@ -16,28 +16,42 @@ public class MCMultipart2Addon implements IMCMPAddon
 
 	private static String TE_CHISELEDPART = ChiselsAndBits.MODID + ":mod.chiselsandbits.TileEntityChiseled";
 
+	private boolean isEnabled()
+	{
+		return ChiselsAndBits.getConfig().enableMCMultipart;
+	}
+
 	public MCMultipart2Addon()
 	{
-		ChiselsAndBits.registerWithBus( this );
+		if ( isEnabled() )
+		{
+			ChiselsAndBits.registerWithBus( this );
+		}
 	}
 
 	@SubscribeEvent
 	public void registerSlot(
 			RegistryEvent.Register<IPartSlot> e )
 	{
-		e.getRegistry().register( MultiPartSlots.BITS );
+		if ( isEnabled() )
+		{
+			e.getRegistry().register( MultiPartSlots.BITS );
+		}
 	}
 
 	@Override
 	public void registerParts(
 			IMultipartRegistry registry )
 	{
-		GameRegistry.registerTileEntity( ChiseledBlockPart.class, TE_CHISELEDPART );
-
-		MCMultipartProxy.proxyMCMultiPart.relay = new MCMultipart2Proxy();
-		for ( BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
+		if ( isEnabled() )
 		{
-			registry.registerPartWrapper( blk, new ChiseledBlockMultiPart( blk ) );
+			GameRegistry.registerTileEntity( ChiseledBlockPart.class, TE_CHISELEDPART );
+
+			MCMultipartProxy.proxyMCMultiPart.relay = new MCMultipart2Proxy();
+			for ( BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
+			{
+				registry.registerPartWrapper( blk, new ChiseledBlockMultiPart( blk ) );
+			}
 		}
 	}
 

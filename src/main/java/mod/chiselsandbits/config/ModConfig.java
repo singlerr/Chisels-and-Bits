@@ -35,9 +35,12 @@ public class ModConfig extends Configuration
 	// mod settings...
 	@Configured( category = "Integration Settings" )
 	public boolean ShowBitsInJEI;
-	
+
 	@Configured( category = "Integration Settings" )
 	public boolean enableVivecraftCompatibility;
+
+	@Configured( category = "Integration Settings" )
+	public boolean enableMCMultipart;
 
 	@Configured( category = "Troubleshooting" )
 	public boolean enableAPITestingItem;
@@ -403,6 +406,7 @@ public class ModConfig extends Configuration
 		enableBitSaw = true;
 		ShowBitsInJEI = false;
 		enableVivecraftCompatibility = false;
+		enableMCMultipart = false;
 	}
 
 	public ModConfig(
