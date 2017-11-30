@@ -36,6 +36,7 @@ import mod.chiselsandbits.network.packets.PacketChisel;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -80,7 +81,10 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ITooltipFlag advanced )
 	{
 		super.addInformation( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBit, tooltip, ClientSide.instance.getModeKey() );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBit, tooltip,
+				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindAttack ),
+				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ),
+				ClientSide.instance.getModeKey() );
 	}
 
 	@Override

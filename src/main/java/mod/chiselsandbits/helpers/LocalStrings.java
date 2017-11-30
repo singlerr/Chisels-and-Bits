@@ -51,6 +51,11 @@ public enum LocalStrings
 	HelpChisel( "help.chisel" ),
 	LongHelpChisel( "help.chisel.long" ),
 
+	noBind( "help.nobind" ),
+
+	leftShift( "help.leftshift" ),
+	rightShift( "help.rightshift" ),
+
 	leftAlt( "help.leftalt" ),
 	rightAlt( "help.rightalt" ),
 

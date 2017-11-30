@@ -27,6 +27,7 @@ import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -65,7 +66,9 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final ITooltipFlag advanced )
 	{
 		super.addInformation( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChiseledBlock, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChiseledBlock, tooltip,
+				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ),
+				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindSneak ) );
 
 		if ( stack.hasTagCompound() )
 		{

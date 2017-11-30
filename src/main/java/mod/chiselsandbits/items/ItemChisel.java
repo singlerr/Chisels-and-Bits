@@ -35,6 +35,7 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -100,7 +101,9 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final ITooltipFlag advanced )
 	{
 		super.addInformation( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChisel, tooltip, ClientSide.instance.getModeKey() );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChisel, tooltip,
+				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindAttack ),
+				ClientSide.instance.getModeKey() );
 	}
 
 	private static Stopwatch timer;

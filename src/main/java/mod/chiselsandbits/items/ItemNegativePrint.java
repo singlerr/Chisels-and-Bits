@@ -25,6 +25,7 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -71,7 +72,9 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final ITooltipFlag advanced )
 	{
 		defaultAddInfo( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpNegativePrint, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpNegativePrint, tooltip,
+				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ),
+				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ) );
 
 		if ( isWritten( stack ) )
 		{

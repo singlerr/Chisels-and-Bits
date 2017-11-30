@@ -1624,12 +1624,8 @@ public class ClientSide
 
 	public String getModeKey()
 	{
-		if ( modeMenu == null )
-		{
-			return "NULL";
-		}
+		return getKeyName( modeMenu );
 
-		return GameSettings.getKeyDisplayString( modeMenu.getKeyCode() ).replace( "LMENU", LocalStrings.leftAlt.getLocal() ).replace( "RMENU", LocalStrings.rightAlt.getLocal() );
 	}
 
 	public ChiselToolType getDrawnTool()
@@ -1640,6 +1636,37 @@ public class ClientSide
 	public boolean holdingShift()
 	{
 		return Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT );
+	}
+
+	public String getKeyName(
+			KeyBinding bind )
+	{
+		if ( bind == null )
+		{
+			return LocalStrings.noBind.getLocal();
+		}
+
+		if ( bind.getKeyCode() == 0 && bind.getKeyCodeDefault() != 0 )
+		{
+			return makeMoreFrendly( GameSettings.getKeyDisplayString( bind.getKeyCodeDefault() ) );
+		}
+
+		if ( bind.getKeyCode() == 0 )
+		{
+			return '"' + DeprecationHelper.translateToLocal( bind.getKeyDescription() );
+		}
+
+		return makeMoreFrendly( bind.getDisplayName() );
+	}
+
+	private String makeMoreFrendly(
+			String displayName )
+	{
+		return displayName
+				.replace( "LMENU", LocalStrings.leftAlt.getLocal() )
+				.replace( "RMENU", LocalStrings.rightAlt.getLocal() )
+				.replace( "LSHIFT", LocalStrings.leftShift.getLocal() )
+				.replace( "RSHIFT", LocalStrings.rightShift.getLocal() );
 	}
 
 }

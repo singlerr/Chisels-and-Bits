@@ -27,6 +27,7 @@ import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace.IItemBlockAccurate;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -52,7 +53,10 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			final ITooltipFlag advanced )
 	{
 		defaultAddInfo( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpPositivePrint, tooltip, ClientSide.instance.getModeKey() );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpPositivePrint, tooltip,
+				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ),
+				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ),
+				ClientSide.instance.getModeKey() );
 
 		if ( stack.hasTagCompound() )
 		{
