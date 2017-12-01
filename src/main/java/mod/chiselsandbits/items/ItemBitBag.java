@@ -31,7 +31,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemPickupEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -212,17 +211,6 @@ public class ItemBitBag extends Item
 			final int changed = ModUtil.getStackSize( is ) - ModUtil.getStackSize( ei.getEntityItem() );
 			ei.setEntityItemStack( is );
 			return changed != 0;
-		}
-	}
-
-	@SubscribeEvent
-	public void pickupItems(
-			final ItemPickupEvent event )
-	{
-		final EntityItem ei = event.pickedUp;
-		if ( ei != null )
-		{
-			cleanupInventory( event.player, ei.getEntityItem() );
 		}
 	}
 
