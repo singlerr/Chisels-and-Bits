@@ -4,11 +4,13 @@ import java.util.Collection;
 
 import mcmultipart.api.multipart.IMultipartTile;
 import mcmultipart.api.multipart.MultipartOcclusionHelper;
+import mcmultipart.api.world.IMultipartWorld;
 import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.World;
 
 public class ChiseledBlockPart extends TileEntityBlockChiseled implements IMultipartTile
 {
@@ -16,6 +18,19 @@ public class ChiseledBlockPart extends TileEntityBlockChiseled implements IMulti
 	public ChiseledBlockPart()
 	{
 		// required for loading.
+	}
+
+	@Override
+	public void setPartWorld(
+			World world )
+	{
+		if ( world instanceof IMultipartWorld )
+		{
+			getTileEntity().setWorldObj( ( (IMultipartWorld) world ).getActualWorld() );
+			return;
+		}
+
+		getTileEntity().setWorldObj( world );
 	}
 
 	@Override
@@ -43,6 +58,10 @@ public class ChiseledBlockPart extends TileEntityBlockChiseled implements IMulti
 		if ( tileEntity != null )
 		{
 			copyFrom( (TileEntityBlockChiseled) tileEntity );
+
+			// copy pos and world data.
+			setWorldObj( tileEntity.getWorld() );
+			setPos( tileEntity.getPos() );
 		}
 	}
 

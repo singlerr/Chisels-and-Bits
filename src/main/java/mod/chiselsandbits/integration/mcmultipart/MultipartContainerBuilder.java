@@ -9,6 +9,7 @@ import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IChiseledTileContainer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -37,6 +38,7 @@ class MultipartContainerBuilder implements IChiseledTileContainer
 	@Override
 	public void sendUpdate()
 	{
+		ModUtil.sendUpdate( world, pos );
 	}
 
 	@Override

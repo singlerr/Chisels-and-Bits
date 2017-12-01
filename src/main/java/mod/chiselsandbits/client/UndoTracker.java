@@ -59,7 +59,7 @@ public class UndoTracker implements ICacheClearable
 			final VoxelBlobStateReference after )
 	{
 		// servers don't track undo's
-		if ( world.isRemote && recording )
+		if ( pos != null && world != null && world.isRemote && recording )
 		{
 			if ( undoLevels.size() > level && !undoLevels.isEmpty() )
 			{

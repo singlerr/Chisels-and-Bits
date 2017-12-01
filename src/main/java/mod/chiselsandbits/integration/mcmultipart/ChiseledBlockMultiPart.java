@@ -7,7 +7,6 @@ import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipart;
 import mcmultipart.api.multipart.IMultipartTile;
 import mcmultipart.api.slot.IPartSlot;
-import mcmultipart.api.world.IWorldView;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -30,13 +29,6 @@ public class ChiseledBlockMultiPart implements IMultipart
 			final BlockChiseled myBlock )
 	{
 		blk = myBlock;
-	}
-
-	@Override
-	public IWorldView getWorldView(
-			final IPartInfo part )
-	{
-		return null;
 	}
 
 	@Override
