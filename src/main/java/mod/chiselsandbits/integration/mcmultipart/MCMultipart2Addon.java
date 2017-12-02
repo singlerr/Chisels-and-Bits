@@ -18,7 +18,7 @@ public class MCMultipart2Addon implements IMCMPAddon
 
 	private boolean isEnabled()
 	{
-		return true; // ChiselsAndBits.getConfig().enableMCMultipart;
+		return ChiselsAndBits.getConfig().enableMCMultipart;
 	}
 
 	public MCMultipart2Addon()
