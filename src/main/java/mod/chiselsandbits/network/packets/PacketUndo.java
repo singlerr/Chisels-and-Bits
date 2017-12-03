@@ -1,9 +1,9 @@
 package mod.chiselsandbits.network.packets;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
+import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -14,15 +14,13 @@ import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
+import mod.chiselsandbits.helpers.InfiniteBitStorage;
 import mod.chiselsandbits.helpers.InventoryBackup;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
-import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.network.ModPacket;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -31,6 +29,8 @@ import net.minecraft.world.World;
 
 public class PacketUndo extends ModPacket
 {
+
+	public boolean verbose = true;
 
 	BlockPos pos;
 	VoxelBlobStateReference before;
@@ -55,6 +55,7 @@ public class PacketUndo extends ModPacket
 	public void server(
 			final EntityPlayerMP player )
 	{
+		verbose = false;
 		preformAction( ActingPlayer.actingAs( player, EnumHand.MAIN_HAND ), true );
 	}
 
@@ -99,6 +100,8 @@ public class PacketUndo extends ModPacket
 		{
 			return apply( player, spawnItemsAndCommitWorldChanges );
 		}
+		else
+			addError( player, "mod.chiselsandbits.result.out_of_range" );
 
 		return false;
 	}
@@ -129,10 +132,11 @@ public class PacketUndo extends ModPacket
 				boolean successful = true;
 
 				final IContinuousInventory selected = new ContinousChisels( player, pos, side );
-				ItemStack spawnedItem = null;
-
+				InfiniteBitStorage infiniteStorage = new InfiniteBitStorage();
 				final List<BagInventory> bags = ModUtil.getBags( player );
-				final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
+
+				boolean noMoreChisels = false;
+				String whichBit = "NO_SUCH_BIT";
 
 				final BitIterator bi = new BitIterator();
 				while ( bi.hasNext() )
@@ -146,10 +150,11 @@ public class PacketUndo extends ModPacket
 						{
 							if ( selected.isValid() )
 							{
-								spawnedItem = ItemChisel.chiselBlock( selected, player, target, world, pos, side, bi.x, bi.y, bi.z, spawnedItem, spawnlist );
+								ItemChisel.chiselBlock( selected, player, target, world, pos, side, bi.x, bi.y, bi.z, infiniteStorage );
 							}
 							else
 							{
+								noMoreChisels = true;
 								successful = false;
 								break;
 							}
@@ -160,7 +165,7 @@ public class PacketUndo extends ModPacket
 							{
 								if ( selected.isValid() )
 								{
-									spawnedItem = ItemChisel.chiselBlock( selected, player, target, world, pos, side, bi.x, bi.y, bi.z, spawnedItem, spawnlist );
+									ItemChisel.chiselBlock( selected, player, target, world, pos, side, bi.x, bi.y, bi.z, infiniteStorage );
 								}
 								else
 								{
@@ -169,23 +174,47 @@ public class PacketUndo extends ModPacket
 								}
 							}
 
-							final ItemStackSlot bit = ModUtil.findBit( player, pos, inAfter );
-							if ( ModUtil.consumeBagBit( bags, inAfter, 1 ) == 1 )
+							if ( infiniteStorage.dec( inAfter ) )
 							{
 								bi.setNext( target, inAfter );
 							}
-							else if ( bit.isValid() )
+							else if ( ModUtil.consumeBagBit( bags, inAfter, 1 ) == 1 )
 							{
 								bi.setNext( target, inAfter );
-								if ( !player.isCreative() )
-								{
-									bit.consume();
-								}
 							}
 							else
 							{
-								successful = false;
-								break;
+								final ItemStackSlot bit = ModUtil.findBit( player, pos, inAfter );
+								if ( bit.isValid() )
+								{
+									bi.setNext( target, inAfter );
+									if ( !player.isCreative() )
+									{
+										bit.consume();
+									}
+								}
+								else
+								{
+									if ( infiniteStorage.chiselBlock( inAfter, player, selected ) )
+									{
+										infiniteStorage.dec( inAfter );
+										bi.setNext( target, inAfter );
+									}
+									else
+									{
+										try
+										{
+											whichBit = ChiselsAndBits.getApi().getBitItem( ModUtil.getStateById( inAfter ) ).getDisplayName();
+										}
+										catch ( InvalidBitItem e )
+										{
+											// hmm...
+										}
+
+										successful = false;
+										break;
+									}
+								}
 							}
 						}
 					}
@@ -196,11 +225,7 @@ public class PacketUndo extends ModPacket
 					if ( spawnItemsAndCommitWorldChanges )
 					{
 						ba.commitChanges( true );
-						for ( final EntityItem ei : spawnlist )
-						{
-							ModUtil.feedPlayer( player.getWorld(), player.getPlayer(), ei );
-							ItemBitBag.cleanupInventory( player.getPlayer(), ei.getEntityItem() );
-						}
+						infiniteStorage.give( player );
 					}
 
 					return true;
@@ -208,7 +233,12 @@ public class PacketUndo extends ModPacket
 				else
 				{
 					backup.rollback();
-					UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.missing_bits" );
+
+					if ( noMoreChisels )
+						addError( player, "mod.chiselsandbits.result.missing_chisels" );
+					else if ( whichBit != null )
+						addError( player, "mod.chiselsandbits.result.missing_bits", whichBit );
+
 					return false;
 				}
 			}
@@ -218,12 +248,11 @@ public class PacketUndo extends ModPacket
 			// error message below.
 		}
 
-		UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.has_changed" );
+		addError( player, "mod.chiselsandbits.result.has_changed" );
 		return false;
-
 	}
 
-	private boolean inRange(
+	public boolean inRange(
 			final ActingPlayer player,
 			final BlockPos pos )
 	{
@@ -243,8 +272,18 @@ public class PacketUndo extends ModPacket
 			return true;
 		}
 
-		UndoTracker.getInstance().addError( player, "mod.chiselsandbits.result.out_of_range" );
 		return false;
+	}
+
+	private void addError(
+			final ActingPlayer player,
+			final String string,
+			String... args )
+	{
+		if ( verbose )
+		{
+			UndoTracker.getInstance().addError( player, string, args );
+		}
 	}
 
 }

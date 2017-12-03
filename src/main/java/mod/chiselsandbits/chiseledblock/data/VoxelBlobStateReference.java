@@ -12,7 +12,7 @@ import mod.chiselsandbits.helpers.IStateRef;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
-public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateReference>, IStateRef
+public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateReference>, IVoxelAccess, IStateRef
 {
 
 	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> serverRefs = Collections.synchronizedMap( new WeakHashMap<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>>() );
@@ -99,10 +99,21 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 		return data.voxelBytes;
 	}
 
+	public IVoxelAccess clearVoxelBlob()
+	{
+		data.clearBlob();
+		return this;
+	}
+
 	@Override
 	public VoxelBlob getVoxelBlob()
 	{
 		return data.getBlob();
+	}
+
+	public IVoxelAccess getReadonlyVoxelBlob()
+	{
+		return data.getReadonlyBlob();
 	}
 
 	public VoxelBlob getVoxelBlobCatchable() throws Exception
@@ -178,6 +189,15 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 	public int getFormat()
 	{
 		return data.getFormat();
+	}
+
+	@Override
+	public int get(
+			final int bitPosX,
+			final int bitPosY,
+			final int bitPosZ )
+	{
+		return getReadonlyVoxelBlob().get( bitPosX, bitPosY, bitPosZ );
 	}
 
 }

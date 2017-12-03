@@ -25,6 +25,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -44,12 +45,12 @@ public class BitAccess implements IBitAccess
 	}
 
 	public BitAccess(
-			final World worldIn,
+			final IBlockAccess access,
 			final BlockPos pos,
 			final VoxelBlob blob,
 			final VoxelBlob filler )
 	{
-		world = worldIn;
+		world = access instanceof World ? (World) access : null;
 		this.pos = pos;
 		this.blob = blob;
 		this.filler = filler;

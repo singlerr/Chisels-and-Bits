@@ -60,11 +60,11 @@ public enum TapeMeasureModes implements IToolMode
 	}
 
 	public static TapeMeasureModes castMode(
-			final IToolMode chiselMode )
+			final IToolMode mode )
 	{
-		if ( chiselMode instanceof TapeMeasureModes )
+		if ( mode instanceof TapeMeasureModes )
 		{
-			return (TapeMeasureModes) chiselMode;
+			return (TapeMeasureModes) mode;
 		}
 
 		return TapeMeasureModes.BIT;

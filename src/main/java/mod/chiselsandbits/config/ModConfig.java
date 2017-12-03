@@ -145,6 +145,9 @@ public class ModConfig extends Configuration
 	public int maxTapeMeasures;
 
 	@Configured( category = "Client Settings" )
+	public String[] blueprintHosts;
+
+	@Configured( category = "Client Settings" )
 	public boolean displayMeasuringTapeInChat;
 
 	@Configured( category = "Client Settings" )
@@ -238,6 +241,9 @@ public class ModConfig extends Configuration
 	public boolean enableTapeMeasure;
 
 	@Configured( category = "Items" )
+	public boolean enableBlueprints;
+
+	@Configured( category = "Items" )
 	public boolean enableBitSaw;
 
 	@Configured( category = "Balance Settings" )
@@ -282,8 +288,14 @@ public class ModConfig extends Configuration
 	@Configured( category = "Balance Settings" )
 	public int diamondSawUses;
 
+	// Not sure if this needs to be configurable yet.
+	public long blueprintExpireTime = 360000; // 6 minutes.
+
 	@Configured( category = "Balance Settings" )
 	public boolean enableSetBitCommand;
+
+	@Configured( category = "Balance Settings" )
+	public boolean enableSurvivalWrenchBlockNudging;
 
 	@Configured( category = "Balance Settings" )
 	public boolean fullBlockCrafting;
@@ -350,6 +362,11 @@ public class ModConfig extends Configuration
 		bagStackSize = 512;
 		maxUndoLevel = 32;
 		maxTapeMeasures = 5;
+		blueprintHosts = new String[] {
+				"http://pastebin.com/",
+				"https://pastebin.com/",
+				"https://gist.github.com/",
+		};
 
 		// Dynamic models..
 		dynamicModelFaceCount = 40;
@@ -378,6 +395,7 @@ public class ModConfig extends Configuration
 		enablePositivePrintCrafting = true;
 		enableStackableCrafting = true;
 		enableNegativePrintInversionCrafting = true;
+		enableSurvivalWrenchBlockNudging = false;
 
 		enableChiselToolHarvestCheck = true;
 		enableToolHarvestLevels = true;
@@ -403,6 +421,7 @@ public class ModConfig extends Configuration
 		enableDiamondChisel = true;
 		enableWoodenWrench = true;
 		enableTapeMeasure = true;
+		enableBlueprints = true;
 		enableBitSaw = true;
 		ShowBitsInJEI = false;
 		enableVivecraftCompatibility = false;
@@ -440,6 +459,13 @@ public class ModConfig extends Configuration
 						final long defaultValue = f.getLong( this );
 						p = get( c.category(), f.getName(), (int) defaultValue );
 						final long value = p.getInt();
+						f.set( this, value );
+					}
+					else if ( f.getType() == String[].class )
+					{
+						final String[] defaultValue = (String[]) f.get( this );
+						p = get( c.category(), f.getName(), defaultValue );
+						final String[] value = p.getStringList();
 						f.set( this, value );
 					}
 					else if ( f.getType() == String.class )
@@ -654,6 +680,25 @@ public class ModConfig extends Configuration
 	public String getFilePath()
 	{
 		return myPath.getAbsolutePath();
+	}
+
+	public boolean canDownload(
+			final String url )
+	{
+		if ( blueprintHosts == null )
+		{
+			return false;
+		}
+
+		for ( final String h : blueprintHosts )
+		{
+			if ( url.length() > 0 && url.indexOf( h ) == 0 )
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 }

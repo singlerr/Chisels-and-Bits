@@ -6,6 +6,7 @@ import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
+import mod.chiselsandbits.modes.WrenchModes;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -64,6 +65,10 @@ public class PacketSetChiselMode extends ModPacket
 		else if ( type == ChiselToolType.TAPEMEASURE )
 		{
 			mode = buffer.readEnumValue( TapeMeasureModes.class );
+		}
+		else if ( type == ChiselToolType.WRENCH )
+		{
+			mode = buffer.readEnumValue( WrenchModes.class );
 		}
 	}
 

@@ -1,0 +1,10 @@
+{
+	"result": {
+		"item": "chiselsandbits:blueprint"
+	},
+	"ingredients": [{
+		"item": "chiselsandbits:blueprint",
+		"data": 32767
+	}],
+	"type": "minecraft:crafting_shapeless"
+}

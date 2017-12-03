@@ -452,4 +452,20 @@ public class BagInventory implements IInventory
 
 		return true;
 	}
+
+	public int countItems(
+			int blk )
+	{
+		int count = 0;
+
+		for ( int x = 0; x < stackSlots.length; ++x )
+		{
+			if ( inv.contents[x * ItemBitBag.INTS_PER_BIT_TYPE + ItemBitBag.OFFSET_STATE_ID] == blk )
+			{
+				count += inv.contents[x * ItemBitBag.INTS_PER_BIT_TYPE + ItemBitBag.OFFSET_QUANTITY] = 0;
+			}
+		}
+
+		return count;
+	}
 }

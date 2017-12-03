@@ -10,6 +10,7 @@ import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
+import mod.chiselsandbits.modes.WrenchModes;
 import net.minecraft.item.ItemStack;
 
 public enum ChiselToolType
@@ -20,7 +21,9 @@ public enum ChiselToolType
 	POSITIVEPATTERN( true, true ),
 	TAPEMEASURE( true, true ),
 	NEGATIVEPATTERN( false, false ),
-	MIRRORPATTERN( false, false );
+	MIRRORPATTERN( false, false ),
+
+	WRENCH( true, true );
 
 	final private boolean hasMenu;
 	final private boolean hasItemSettings;
@@ -46,9 +49,14 @@ public enum ChiselToolType
 			return PositivePatternMode.getMode( ei );
 		}
 
-		if ( this == ChiselToolType.TAPEMEASURE )
+		if ( this == TAPEMEASURE )
 		{
 			return TapeMeasureModes.getMode( ei );
+		}
+
+		if ( this == WRENCH )
+		{
+			return WrenchModes.getMode( ei );
 		}
 
 		throw new NullPointerException();
@@ -94,6 +102,10 @@ public enum ChiselToolType
 		{
 			return asArray( TapeMeasureModes.values() );
 		}
+		else if ( this == ChiselToolType.WRENCH )
+		{
+			return asArray( WrenchModes.values() );
+		}
 		else
 		{
 			return Collections.emptyList();
@@ -118,6 +130,6 @@ public enum ChiselToolType
 
 	public boolean requiresPerToolSettings()
 	{
-		return this == ChiselToolType.POSITIVEPATTERN || this == ChiselToolType.TAPEMEASURE;
+		return this == ChiselToolType.POSITIVEPATTERN || this == ChiselToolType.TAPEMEASURE || this == ChiselToolType.WRENCH;
 	}
 }

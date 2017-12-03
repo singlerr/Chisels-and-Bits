@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import mod.chiselsandbits.helpers.IVoxelSrc;
 import mod.chiselsandbits.modes.ChiselMode;
+import mod.chiselsandbits.voxelspace.IVoxelSrc;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.AxisDirection;
 

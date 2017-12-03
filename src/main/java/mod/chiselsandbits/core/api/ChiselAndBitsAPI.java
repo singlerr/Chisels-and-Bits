@@ -43,6 +43,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -88,7 +89,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public IBitAccess getBitAccess(
-			final World world,
+			final IBlockAccess world,
 			final BlockPos pos ) throws CannotBeChiseled
 	{
 		if ( world == null || pos == null )
@@ -110,7 +111,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			return new BitAccess( world, pos, blob, VoxelBlob.NULL_BLOB );
 		}
 
-		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, true );
+		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos );
 		if ( te != null )
 		{
 			final VoxelBlob mask = new VoxelBlob();
@@ -120,6 +121,14 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		}
 
 		throw new CannotBeChiseled();
+	}
+
+	@Override
+	public IBitAccess getBitAccess(
+			final World world,
+			final BlockPos pos ) throws CannotBeChiseled
+	{
+		return getBitAccess( (IBlockAccess) world, pos );
 	}
 
 	@Override
@@ -329,7 +338,6 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	{
 		UndoTracker.getInstance().endGroup( player );
 	}
-
 	@Override
 	@SideOnly( Side.CLIENT )
 	public KeyBinding getKeyBinding(

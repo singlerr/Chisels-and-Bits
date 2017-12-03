@@ -1,4 +1,4 @@
-package mod.chiselsandbits.helpers;
+package mod.chiselsandbits.voxelspace;
 
 public interface IVoxelSrc
 {

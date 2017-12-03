@@ -15,6 +15,7 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
+import mod.chiselsandbits.helpers.InfiniteBitStorage;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
@@ -27,7 +28,6 @@ import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -280,9 +280,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		// snag a tool...
 		final ActingPlayer player = ActingPlayer.actingAs( who, hand );
 		final IContinuousInventory selected = new ContinousChisels( player, pos, side );
-		ItemStack spawnedItem = null;
-
-		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
+		InfiniteBitStorage infiniteStorage = new InfiniteBitStorage();
 
 		for ( int z = 0; z < vb.detail && selected.isValid(); z++ )
 		{
@@ -293,16 +291,13 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 					final int blkID = vb.get( x, y, z );
 					if ( blkID != 0 && pattern.get( x, y, z ) == 0 )
 					{
-						spawnedItem = ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
+						ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, infiniteStorage );
 					}
 				}
 			}
 		}
 
-		for ( final EntityItem ei : spawnlist )
-		{
-			ModUtil.feedPlayer( world, who, ei );
-		}
+		infiniteStorage.give( player );
 	}
 
 	@Override

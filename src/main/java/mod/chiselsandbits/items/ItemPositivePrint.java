@@ -16,6 +16,7 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
+import mod.chiselsandbits.helpers.InfiniteBitStorage;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
@@ -29,7 +30,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -198,6 +198,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			final ActingPlayer player )
 	{
 		final List<BagInventory> bags = ModUtil.getBags( player );
+		InfiniteBitStorage infiniteStorage = new InfiniteBitStorage();
 
 		for ( final Entry<Integer, Integer> type : stats.entrySet() )
 		{
@@ -208,8 +209,10 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 				continue;
 			}
 
+			ContinousChisels cc = new ContinousChisels( player, pos, EnumFacing.UP );
 			ItemStackSlot bit = ModUtil.findBit( player, pos, inPattern );
 			int stillNeeded = type.getValue() - ModUtil.consumeBagBit( bags, inPattern, type.getValue() );
+			stillNeeded = stillNeeded - infiniteStorage.attempToConsume( inPattern, stillNeeded );
 			if ( stillNeeded != 0 )
 			{
 				for ( int x = stillNeeded; x > 0 && bit.isValid(); --x )
@@ -219,12 +222,20 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 					bit = ModUtil.findBit( player, pos, inPattern );
 				}
 
+				// start smashing blocks.
+				while ( stillNeeded != 0 && infiniteStorage.chiselBlock( inPattern, player, cc ) )
+				{
+					stillNeeded = stillNeeded - infiniteStorage.attempToConsume( inPattern, stillNeeded );
+				}
+
 				if ( stillNeeded != 0 )
 				{
 					return false;
 				}
 			}
 		}
+
+		infiniteStorage.give( player );
 
 		return true;
 	}
@@ -242,14 +253,15 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 	{
 		// snag a tool...
 		final ActingPlayer player = ActingPlayer.actingAs( who, hand );
-		final IContinuousInventory selected = new ContinousChisels( player, pos, side );
+		final IContinuousInventory chisels = new ContinousChisels( player, pos, side );
+		InfiniteBitStorage infiniteStorage = new InfiniteBitStorage();
+
 		ItemStack spawnedItem = null;
 
 		final VoxelBlob filled = new VoxelBlob();
 		MCMultipartProxy.proxyMCMultiPart.addFiller( world, pos, filled );
 
 		final List<BagInventory> bags = ModUtil.getBags( player );
-		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
 
 		final PositivePatternMode chiselMode = PositivePatternMode.getMode( stack );
 		final boolean chisel_bits = chiselMode == PositivePatternMode.IMPOSE || chiselMode == PositivePatternMode.REPLACE;
@@ -265,11 +277,11 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 					final int inPattern = pattern.get( x, y, z );
 					if ( inPlace != inPattern )
 					{
-						if ( inPlace != 0 && chisel_bits && selected.isValid() )
+						if ( inPlace != 0 && chisel_bits && chisels.isValid() )
 						{
 							if ( chisel_to_air || inPattern != 0 )
 							{
-								spawnedItem = ItemChisel.chiselBlock( selected, player, vb, world, pos, side, x, y, z, spawnedItem, spawnlist );
+								ItemChisel.chiselBlock( chisels, player, vb, world, pos, side, x, y, z, infiniteStorage );
 
 								if ( spawnedItem != null )
 								{
@@ -280,18 +292,30 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 
 						if ( inPlace == 0 && inPattern != 0 && filled.get( x, y, z ) == 0 )
 						{
-							final ItemStackSlot bit = ModUtil.findBit( player, pos, inPattern );
-							if ( ModUtil.consumeBagBit( bags, inPattern, 1 ) == 1 )
+							if ( infiniteStorage.dec( inPattern ) )
 							{
 								vb.set( x, y, z, inPattern );
 							}
-							else if ( bit.isValid() )
+							else if ( ModUtil.consumeBagBit( bags, inPattern, 1 ) == 1 )
 							{
 								vb.set( x, y, z, inPattern );
-
-								if ( !player.isCreative() )
+							}
+							else
+							{
+								final ItemStackSlot bit = ModUtil.findBit( player, pos, inPattern );
+								if ( bit.isValid() )
 								{
-									bit.consume();
+									vb.set( x, y, z, inPattern );
+
+									if ( !player.isCreative() )
+									{
+										bit.consume();
+									}
+								}
+								else if ( infiniteStorage.chiselBlock( inPattern, player, chisels ) )
+								{
+									infiniteStorage.dec( 1 );
+									vb.set( x, y, z, inPattern );
 								}
 							}
 						}
@@ -300,12 +324,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			}
 		}
 
-		for ( final EntityItem ei : spawnlist )
-		{
-			ModUtil.feedPlayer( world, who, ei );
-			ItemBitBag.cleanupInventory( who, ei.getEntityItem() );
-		}
-
+		infiniteStorage.give( player );
 	}
 
 	@Override

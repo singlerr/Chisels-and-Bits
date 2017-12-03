@@ -96,11 +96,6 @@ public class MCCullTest implements ICullTest, IBlockAccess
 		return Biomes.PLAINS;
 	}
 
-	public boolean extendedLevelsInChunkCache()
-	{
-		return false;
-	}
-
 	@Override
 	public int getStrongPower(
 			final BlockPos pos,

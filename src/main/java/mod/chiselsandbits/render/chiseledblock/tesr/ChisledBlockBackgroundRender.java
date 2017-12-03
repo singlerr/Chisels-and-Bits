@@ -209,7 +209,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 				for ( final ChiselLayer lx : layers )
 				{
 					mcLayers.add( lx.layer );
-					final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( tx, lx );
+					final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( tx, lx, null );
 					faceCount[lx.layer.ordinal()] += model.faceCount();
 
 					if ( !model.isEmpty() )

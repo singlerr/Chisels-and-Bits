@@ -39,6 +39,14 @@ public enum LocalStrings
 	HelpBitTank( "help.bittank" ),
 	LongHelpBitTank( "help.bittank.long" ),
 
+	ShareStart( "help.share.start" ),
+	ShareComplete( "help.share.complete" ),
+	ShareClipboard( "help.share.clipboard" ),
+	ShareFile( "help.share.file" ),
+	ShareNoFile( "help.share.nofile" ),
+	ShareInvalidData( "help.share.invaliddata" ),
+	ShareNoUrl( "help.share.badurl" ),
+
 	HelpPositivePrint( "help.positiveprint" ),
 	LongHelpPositivePrint( "help.positiveprint.long" ),
 
@@ -76,8 +84,19 @@ public enum LocalStrings
 	TapeMeasureBlock( "tapemeasure.block" ),
 	TapeMeasureDistance( "tapemeasure.distance" ),
 
+	WrenchNudgeBit( "wrench.nudge_bit" ),
+	WrenchNudgeBlock( "wrench.nudge_block" ),
+	WrenchRotateBlock( "wrench.rotate_block" ),
+	WrenchOnlyGhosts( "wrenge.nudge_block_disabled" ),
+
+	BlueprintBeginPlace( "blueprint.placement" ),
+	BlueprintCannotMove( "blueprint.cannotmove" ),
+	BlueprintFinished( "blueprint.finished" ),
+
 	BitOptionPlace( "bitoption.place" ),
-	BitOptionReplace( "bitoption.replace" );
+	BitOptionReplace( "bitoption.replace" ),
+
+	HelpHammer( "help.hammer" );
 
 	private final String string;
 

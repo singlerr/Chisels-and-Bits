@@ -133,4 +133,22 @@ public class ContinousChisels implements IContinuousInventory
 		getItem( blk ).damage( who );
 	}
 
+	@Override
+	public boolean hasUses(
+			int state,
+			int fullSize )
+	{
+		if ( who.isCreative() )
+			return true;
+
+		int total = 0;
+
+		for ( ItemStackSlot slot : options )
+		{
+			total += slot.usesLeft();
+		}
+
+		return total >= fullSize;
+	}
+
 }

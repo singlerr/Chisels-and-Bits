@@ -1,11 +1,13 @@
 package mod.chiselsandbits.registry;
 
+import mod.chiselsandbits.blueprints.ItemBlueprint;
 import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.debug.ItemApiDebug;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemBitSaw;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.items.ItemHammer;
 import mod.chiselsandbits.items.ItemMirrorPrint;
 import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.items.ItemPositivePrint;
@@ -25,6 +27,9 @@ public class ModItems extends ModRegistry
 	final public ItemMirrorPrint itemMirrorprint;
 	final public ItemPositivePrint itemPositiveprint;
 	final public ItemNegativePrint itemNegativeprint;
+
+	final public ItemBlueprint itemBlueprint;
+	final public ItemHammer itemHammer;
 
 	final public ItemBitBag itemBitBag;
 	final public ItemWrench itemWrench;
@@ -46,6 +51,8 @@ public class ModItems extends ModRegistry
 		itemWrench = registerItem( config.enableWoodenWrench, new ItemWrench(), "wrench_wood" );
 		itemBitSawDiamond = registerItem( config.enableBitSaw, new ItemBitSaw(), "bitsaw_diamond" );
 		itemBlockBit = registerItem( config.enableChisledBits, new ItemChiseledBit(), "block_bit" );
+		itemBlueprint = registerItem( config.enableBlueprints, new ItemBlueprint(), "blueprint" );
+		itemHammer = registerItem( config.enableBlueprints, new ItemHammer(), "hammer" );
 		itemTapeMeasure = registerItem( config.enableTapeMeasure, new ItemTapeMeasure(), "tape_measure" );
 		registerItem( config.enableAPITestingItem, new ItemApiDebug(), "debug" );
 	}

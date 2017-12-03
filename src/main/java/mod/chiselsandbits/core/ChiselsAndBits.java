@@ -23,6 +23,7 @@ import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.registry.ModBlocks;
+import mod.chiselsandbits.registry.ModEntities;
 import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.material.Material;
 import net.minecraftforge.common.MinecraftForge;
@@ -58,6 +59,7 @@ public class ChiselsAndBits
 	private ModConfig config;
 	private ModItems items;
 	private ModBlocks blocks;
+	private ModEntities entities;
 	private final Integration integration = new Integration();
 	private final IChiselAndBitsAPI api = new ChiselAndBitsAPI();
 	private boolean loadClientAssets = false;
@@ -82,6 +84,11 @@ public class ChiselsAndBits
 	public static ModItems getItems()
 	{
 		return instance.items;
+	}
+
+	public static ModEntities getEntities()
+	{
+		return instance.entities;
 	}
 
 	public static ModConfig getConfig()
@@ -112,6 +119,8 @@ public class ChiselsAndBits
 
 		items = new ModItems( getConfig() );
 		blocks = new ModBlocks( getConfig(), event.getSide() );
+		entities = new ModEntities( getConfig(), event.getSide() );
+
 		registerWithBus( new ModRecipes( getConfig() ) );
 
 		integration.preinit( event );

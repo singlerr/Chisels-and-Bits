@@ -1,8 +1,5 @@
 package mod.chiselsandbits.network.packets;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
@@ -16,17 +13,17 @@ import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ContinousBits;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
+import mod.chiselsandbits.helpers.InfiniteBitStorage;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.helpers.VoxelRegionSrc;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.network.ModPacket;
+import mod.chiselsandbits.voxelspace.VoxelRegionSrc;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -107,12 +104,12 @@ public class PacketChisel extends ModPacket
 		int returnVal = 0;
 
 		boolean update = false;
-		ItemStack extracted = null;
 		ItemStack bitPlaced = null;
 
-		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
-
 		UndoTracker.getInstance().beginGroup( who );
+		InfiniteBitStorage storage = new InfiniteBitStorage();
+
+		final int placeStateID = place.usesBits() ? ItemChiseledBit.getStackState( who.getHeldItem( hand ) ) : 0;
 
 		try
 		{
@@ -124,9 +121,8 @@ public class PacketChisel extends ModPacket
 					{
 						final BlockPos pos = new BlockPos( xOff, yOff, zOff );
 
-						final int placeStateID = place.usesBits() ? ItemChiseledBit.getStackState( who.getHeldItem( hand ) ) : 0;
 						final IContinuousInventory chisels = new ContinousChisels( player, pos, side );
-						final IContinuousInventory bits = new ContinousBits( player, pos, placeStateID );
+						final IContinuousInventory bits = new ContinousBits( player, pos, placeStateID, chisels, storage );
 
 						IBlockState blkstate = world.getBlockState( pos );
 						Block blkObj = blkstate.getBlock();
@@ -176,7 +172,7 @@ public class PacketChisel extends ModPacket
 								{
 									if ( !place.usesBits() || vb.get( i.x(), i.y(), i.z() ) != placeStateID )
 									{
-										extracted = ItemChisel.chiselBlock( chisels, player, vb, world, pos, i.side(), i.x(), i.y(), i.z(), extracted, spawnlist );
+										ItemChisel.chiselBlock( chisels, player, vb, world, pos, i.side(), i.x(), i.y(), i.z(), storage );
 									}
 								}
 
@@ -195,7 +191,7 @@ public class PacketChisel extends ModPacket
 								tec.completeEditOperation( vb );
 								returnVal++;
 							}
-							else if ( extracted != null )
+							else if ( storage.hasExtracted() )
 							{
 								tec.completeEditOperation( vb );
 								returnVal++;
@@ -207,11 +203,7 @@ public class PacketChisel extends ModPacket
 				}
 			}
 
-			for ( final EntityItem ei : spawnlist )
-			{
-				ModUtil.feedPlayer( world, who, ei );
-				ItemBitBag.cleanupInventory( who, ei.getEntityItem() );
-			}
+			storage.give( player );
 
 			if ( place.usesBits() )
 			{

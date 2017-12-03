@@ -1,0 +1,16 @@
+{
+	"result": {
+		"item": "chiselsandbits:blueprint"
+	},
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [{
+			"item": "chiselsandbits:positiveprint"
+		},
+		{
+			"item": "chiselsandbits:positiveprint"
+		},
+		{
+			"item": "chiselsandbits:positiveprint"
+		}
+	]
+}

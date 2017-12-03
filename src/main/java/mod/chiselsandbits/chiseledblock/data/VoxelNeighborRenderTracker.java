@@ -2,10 +2,12 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import java.lang.ref.WeakReference;
 
+import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.IStateRef;
+import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.BlockStateRef;
 import mod.chiselsandbits.render.chiseledblock.ModelRenderState;
@@ -99,7 +101,8 @@ public final class VoxelNeighborRenderTracker
 	public void update(
 			final boolean isDynamic,
 			final IBlockAccess access,
-			final BlockPos pos )
+			final BlockPos pos,
+			final boolean convertToChiseledBlocks )
 	{
 		if ( access == null || pos == null )
 		{
@@ -120,6 +123,18 @@ public final class VoxelNeighborRenderTracker
 			if ( tebc != null )
 			{
 				update( f, tebc.getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob ) );
+			}
+			else if ( convertToChiseledBlocks )
+			{
+				try
+				{
+					final BitAccess ba = (BitAccess) ChiselsAndBits.getApi().getBitAccess( access, pos );
+					update( f, new VoxelBlobStateReference( ba.getNativeBlob(), 0 ) );
+				}
+				catch ( final CannotBeChiseled e )
+				{
+					update( f, null );
+				}
 			}
 			else
 			{

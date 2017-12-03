@@ -121,4 +121,51 @@ public class BitStream
 		return Math.max( firstLiveInt * 4, 0 );
 	}
 
+	public int readBits(
+			int howmany )
+	{
+		int assemble = 0;
+		int offset = 0;
+
+		while ( howmany-- > 0 )
+		{
+			assemble = assemble | ( get() ? 1 << offset : 0 );
+			++offset;
+		}
+
+		return assemble;
+	}
+
+	public void writeBits(
+			int integerValue,
+			final int howmany )
+	{
+		for ( int x = 0; x < howmany; ++x )
+		{
+			add( ( integerValue & 0x1 ) != 0 );
+			integerValue = integerValue >>> 1;
+		}
+	}
+
+	public void readSnapToByte()
+	{
+		while ( bit % 8 != 0 )
+		{
+			readBits( 1 );
+		}
+	}
+
+	public void writeSnapToByte()
+	{
+		while ( bit % 8 != 0 )
+		{
+			add( false );
+		}
+	}
+
+	public int consumedBytes()
+	{
+		return 4 * offset + ( bit + 7 ) / 8;
+	}
+
 }

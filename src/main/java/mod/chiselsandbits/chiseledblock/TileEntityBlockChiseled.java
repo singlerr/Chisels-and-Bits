@@ -146,7 +146,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				return state;
 			}
 
-			vns.update( isDyanmic, access, pos );
+			vns.update( isDyanmic, access, pos, false );
 			tesrUpdate( access, vns );
 
 			final TileEntityBlockChiseled self = this;

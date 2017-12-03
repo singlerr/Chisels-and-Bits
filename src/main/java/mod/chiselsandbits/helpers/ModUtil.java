@@ -122,6 +122,17 @@ public class ModUtil
 			isEditable = canEdit;
 		}
 
+		public ItemStackSlot(
+				ItemStack createStack )
+		{
+			inv = new NullInventory( 1 );
+			slot = 0;
+			toolSlot = 0;
+			stack = originalStack = createStack;
+			isEditable = true;
+			isCreative = false;
+		}
+
 		public boolean isValid()
 		{
 			return isEditable && ( isCreative || !ModUtil.isEmpty( stack ) && getStackSize( stack ) > 0 );
@@ -179,6 +190,11 @@ public class ModUtil
 		{
 			stack = restockItem;
 			inv.setInventorySlotContents( slot, restockItem );
+		}
+
+		public int usesLeft()
+		{
+			return stack.getMaxDamage() - stack.getItemDamage();
 		}
 	};
 
@@ -457,7 +473,7 @@ public class ModUtil
 			is = bp.inv.insertItem( is );
 		}
 
-		if ( is != null && !player.inventory.addItemStackToInventory( is ) )
+		if ( ModUtil.notEmpty( is ) && !player.inventory.addItemStackToInventory( is ) )
 		{
 			ei.setEntityItemStack( is );
 			world.spawnEntityInWorld( ei );
@@ -849,6 +865,28 @@ public class ModUtil
 			final Item item )
 	{
 		return item == Item.REGISTRY.getObjectById( 0 );
+	}
+
+	public static String localizeAndInsertVars(
+			String stringName,
+			final String... variables )
+	{
+		stringName = DeprecationHelper.translateToLocal( stringName );
+
+		int varOffset = 0;
+
+		while ( stringName.contains( "{}" ) && variables.length > varOffset )
+		{
+			final int offset = stringName.indexOf( "{}" );
+			if ( offset >= 0 )
+			{
+				final String pre = stringName.substring( 0, offset );
+				final String post = stringName.substring( offset + 2 );
+				stringName = new StringBuilder( pre ).append( variables[varOffset++] ).append( post ).toString();
+			}
+		}
+
+		return stringName;
 	}
 
 }

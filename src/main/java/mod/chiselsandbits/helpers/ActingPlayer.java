@@ -20,6 +20,7 @@ public class ActingPlayer
 	private final EntityPlayer innerPlayer;
 	private final boolean realPlayer; // are we a real player?
 	private final EnumHand hand;
+	private final boolean isCreativeMode;
 
 	private ActingPlayer(
 			final EntityPlayer player,
@@ -29,6 +30,7 @@ public class ActingPlayer
 		innerPlayer = player;
 		this.hand = hand;
 		this.realPlayer = realPlayer;
+		isCreativeMode = player.capabilities.isCreativeMode;
 		storage = realPlayer ? player.inventory : new PlayerCopiedInventory( player.inventory );
 	}
 
@@ -44,7 +46,7 @@ public class ActingPlayer
 
 	public boolean isCreative()
 	{
-		return innerPlayer.capabilities.isCreativeMode;
+		return isCreativeMode;
 	}
 
 	public ItemStack getCurrentEquippedItem()
@@ -151,6 +153,11 @@ public class ActingPlayer
 	public EnumHand getHand()
 	{
 		return hand;
+	}
+
+	public BlockPos getPosition()
+	{
+		return getPlayer().getPosition();
 	}
 
 }

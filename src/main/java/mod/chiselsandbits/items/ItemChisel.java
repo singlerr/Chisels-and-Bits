@@ -23,6 +23,7 @@ import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.IContinuousInventory;
+import mod.chiselsandbits.helpers.InfiniteBitStorage;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
@@ -37,7 +38,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -297,7 +297,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	 * @param output
 	 * @return
 	 */
-	static public ItemStack chiselBlock(
+	static public void chiselBlock(
 			final IContinuousInventory selected,
 			final ActingPlayer player,
 			final VoxelBlob vb,
@@ -307,25 +307,23 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final int x,
 			final int y,
 			final int z,
-			ItemStack output,
-			final List<EntityItem> spawnlist )
+			InfiniteBitStorage storage )
 	{
 		final boolean isCreative = player.isCreative();
 
 		final int blk = vb.get( x, y, z );
 		if ( blk == 0 )
 		{
-			return output;
+			return;
 		}
 
 		if ( !canMine( selected, ModUtil.getStateById( blk ), player.getPlayer(), world, pos ) )
 		{
-			return output;
+			return;
 		}
 
 		selected.useItem( blk );
 
-		final boolean spawnBit = ChiselsAndBits.getItems().itemBlockBit != null;
 		if ( !world.isRemote && !isCreative )
 		{
 			double hitX = x * one_16th;
@@ -337,28 +335,14 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			hitY += side.getFrontOffsetY() * offset;
 			hitZ += side.getFrontOffsetZ() * offset;
 
-			if ( output == null || !ItemChiseledBit.sameBit( output, blk ) || ModUtil.getStackSize( output ) == 64 )
-			{
-				output = ItemChiseledBit.createStack( blk, 1, true );
-
-				if ( spawnBit )
-				{
-					spawnlist.add( new EntityItem( world, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ, output ) );
-				}
-			}
-			else
-			{
-				ModUtil.adjustStackSize( output, 1 );
-			}
+			storage.insert( blk, 1, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ );
 		}
 		else
 		{
-			// return value...
-			output = ItemChiseledBit.createStack( blk, 1, true );
+			storage.setExtracted();
 		}
 
 		vb.clear( x, y, z );
-		return output;
 	}
 
 	private static boolean testingChisel = false;

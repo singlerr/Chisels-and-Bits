@@ -48,6 +48,7 @@ import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.client.gui.ChiselsAndBitsMenu;
 import mod.chiselsandbits.client.gui.SpriteIconPositioning;
 import mod.chiselsandbits.commands.JsonModelExport;
+import mod.chiselsandbits.commands.Share;
 import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
@@ -55,7 +56,6 @@ import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ReadyState;
-import mod.chiselsandbits.helpers.VoxelRegionSrc;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IPatternItem;
@@ -65,6 +65,7 @@ import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
+import mod.chiselsandbits.modes.WrenchModes;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
@@ -73,6 +74,7 @@ import mod.chiselsandbits.network.packets.PacketSuppressInteraction;
 import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.SmartModelManager;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
+import mod.chiselsandbits.voxelspace.VoxelRegionSrc;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -213,6 +215,7 @@ public class ClientSide
 		addToClipboard = registerKeybind( "mod.chiselsandbits.other.add_to_clipboard", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
 
 		ClientCommandHandler.instance.registerCommand( new JsonModelExport() );
+		ClientCommandHandler.instance.registerCommand( new Share() );
 	}
 
 	private KeyBinding registerKeybind(
@@ -295,6 +298,21 @@ public class ClientSide
 			}
 
 		} );
+
+		if ( modItems.itemBlueprint != null )
+		{
+			ModelBakery.registerItemVariants( modItems.itemBlueprint, new ResourceLocation( modId, "blueprint" ), new ResourceLocation( modId, "blueprint_written" ) );
+			ModelLoader.setCustomMeshDefinition( modItems.itemBlueprint, new ItemMeshDefinition() {
+
+				@Override
+				public ModelResourceLocation getModelLocation(
+						final ItemStack stack )
+				{
+					return new ModelResourceLocation( new ResourceLocation( modId, modItems.itemBlueprint.isWritten( stack ) ? "blueprint_written" : "blueprint" ), "inventory" );
+				}
+
+			} );
+		}
 
 		if ( modItems.itemPositiveprint != null )
 		{
@@ -424,6 +442,11 @@ public class ClientSide
 		}
 
 		for ( final TapeMeasureModes mode : TapeMeasureModes.values() )
+		{
+			loadIcon( map, mode );
+		}
+
+		for ( final WrenchModes mode : WrenchModes.values() )
 		{
 			loadIcon( map, mode );
 		}
@@ -787,6 +810,11 @@ public class ClientSide
 		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemMirrorprint )
 		{
 			return ChiselToolType.MIRRORPATTERN;
+		}
+
+		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemWrench )
+		{
+			return ChiselToolType.WRENCH;
 		}
 
 		return null;
@@ -1667,6 +1695,11 @@ public class ClientSide
 				.replace( "RMENU", LocalStrings.rightAlt.getLocal() )
 				.replace( "LSHIFT", LocalStrings.leftShift.getLocal() )
 				.replace( "RSHIFT", LocalStrings.rightShift.getLocal() );
+	}
+
+	public String getLocalName()
+	{
+		return getPlayer().getGameProfile().getId().toString();
 	}
 
 }

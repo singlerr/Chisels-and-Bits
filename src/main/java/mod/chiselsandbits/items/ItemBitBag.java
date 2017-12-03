@@ -8,12 +8,13 @@ import javax.annotation.Nonnull;
 import mod.chiselsandbits.bitbag.BagCapabilityProvider;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.bitbag.BagStorage;
+import mod.chiselsandbits.client.gui.ModGuiTypes;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.NetworkRouter;
-import mod.chiselsandbits.network.packets.PacketOpenBagGui;
+import mod.chiselsandbits.network.packets.PacketOpenGui;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
@@ -97,7 +98,7 @@ public class ItemBitBag extends Item
 
 		if ( worldIn.isRemote )
 		{
-			NetworkRouter.instance.sendToServer( new PacketOpenBagGui() );
+			NetworkRouter.instance.sendToServer( new PacketOpenGui( ModGuiTypes.BitBag ) );
 		}
 
 		return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemStackIn );

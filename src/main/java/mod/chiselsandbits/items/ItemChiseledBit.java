@@ -451,6 +451,8 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 					bits.useItem( stateID );
 				}
 			}
+			else
+				return false;
 
 			return true;
 		}

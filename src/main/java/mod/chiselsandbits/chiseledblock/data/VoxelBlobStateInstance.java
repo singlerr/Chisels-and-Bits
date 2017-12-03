@@ -82,6 +82,13 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
 		return r;
 	}
 
+	// normally a waste of everyones time... required to prevent gc lockups on
+	// large operations..
+	public void clearBlob()
+	{
+		blob.clear();
+	}
+
 	public VoxelBlob getBlob()
 	{
 		try
@@ -91,7 +98,31 @@ public final class VoxelBlobStateInstance implements Comparable<VoxelBlobStateIn
 		catch ( final Exception e )
 		{
 			Log.logError( "Unable to read blob.", e );
-			return new VoxelBlob();
+			blob = new SoftReference<VoxelBlob>( new VoxelBlob() );
+			return blob.get();
+		}
+	}
+
+	public IVoxelAccess getReadonlyBlob()
+	{
+		try
+		{
+			VoxelBlob vb = blob == null ? null : blob.get();
+
+			if ( vb == null )
+			{
+				vb = new VoxelBlob();
+				vb.blobFromBytes( voxelBytes );
+				blob = new SoftReference<VoxelBlob>( vb );
+			}
+
+			return vb;
+		}
+		catch ( final Exception e )
+		{
+			Log.logError( "Unable to read blob.", e );
+			blob = new SoftReference<VoxelBlob>( new VoxelBlob() );
+			return blob.get();
 		}
 	}
 

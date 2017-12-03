@@ -22,6 +22,8 @@ tile.mod.chiselsandbits.bittank.name=Chiseled Fluid Bit Tank
 item.mod.chiselsandbits.block_bit.name=Chiseled Bit
 item.mod.chiselsandbits.bit_bag.name=Chiseled Bit Bag
 item.mod.chiselsandbits.wrench_wood.name=Wooden Wrench
+item.mod.chiselsandbits.blueprint.name=Blueprint
+item.mod.chiselsandbits.blueprint_written.name=Blueprint - Written
 
 item.mod.chiselsandbits.positiveprint.name=Positive Chisel Design
 item.mod.chiselsandbits.positiveprint_written.name=Positive Chisel Design - Written
@@ -60,6 +62,11 @@ mod.chiselsandbits.positivepatternmode.additive=Additive
 mod.chiselsandbits.positivepatternmode.placement=Placement
 mod.chiselsandbits.positivepatternmode.impose=Impose
 
+mod.chiselsandbits.wrench.nudge_bit=Nudge Bit
+mod.chiselsandbits.wrench.nudge_block=Nudge Block
+mod.chiselsandbits.wrench.rotate_block=Rotate Block
+mod.chiselsandbits.wrenge.nudge_block_disabled=You can only use this mode to nudge blueprints.
+
 mod.chiselsandbits.tapemeasure.chatmsg=x: %s,  y: %s,  z: %s
 mod.chiselsandbits.tapemeasure.bit=Bit
 mod.chiselsandbits.tapemeasure.block=Block
@@ -67,7 +74,8 @@ mod.chiselsandbits.tapemeasure.distance=Distance
 
 mod.chiselsandbits.result.out_of_range=Not close enough
 mod.chiselsandbits.result.has_changed=Block has changed
-mod.chiselsandbits.result.missing_bits=Not enough bits or chisel durability!
+mod.chiselsandbits.result.missing_chisels=Not enough chisels.
+mod.chiselsandbits.result.missing_bits=Not enough {}
 mod.chiselsandbits.result.nothing_to_undo=Nothing to Undo
 mod.chiselsandbits.result.nothing_to_redo=Nothing to Redo
 
@@ -78,6 +86,10 @@ mod.chiselsandbits.other.undo=Undo
 mod.chiselsandbits.other.redo=Redo
 mod.chiselsandbits.other.pickbit=Pick Bit
 mod.chiselsandbits.other.add_to_clipboard=Pick Block to Clipboard
+
+mod.chiselsandbits.blueprint.local=Load From File
+mod.chiselsandbits.blueprint.url=Load From URL
+mod.chiselsandbits.blueprint.create=Create New Blueprint
 
 mod.chiselsandbits.help.shiftdetails=<Hold Shift For Details>
 mod.chiselsandbits.help.empty=Empty
@@ -153,6 +165,14 @@ commands.setbit.success=Bit placed
 commands.setbit.cannotChiselBlock=Block cannot be chiseled.
 commands.setbit.invalidState=Invalid Bit Type
 commands.setbit.spaceOccupied=Bit cannot be placed space is occupied
+
+mod.chiselsandbits.help.share.start=Blueprint Generation Starting
+mod.chiselsandbits.help.share.complete=Blueprint Generation Complete
+mod.chiselsandbits.help.share.clipboard=The data has been copied to your clipboard.
+mod.chiselsandbits.help.share.file=The file has been saved successfully.
+mod.chiselsandbits.help.share.nofile=Unable to load selected file.
+mod.chiselsandbits.help.share.invaliddata=File was invalid and could not be loaded.
+mod.chiselsandbits.help.share.badurl=Unable to download file at the provided url.
 
 mod.chiselsandbits.config.maxUndoLevel=Max Undo Level
 mod.chiselsandbits.config.persistCreativeClipboard=Save/Load Creative Clipboard Contents
@@ -237,6 +257,8 @@ mod.chiselsandbits.config.enableSetBitCommand=Enable /setbit Command
 mod.chiselsandbits.config.maxMillisecondsPerBlock=Max Milliseconds Per Block
 mod.chiselsandbits.config.maxMillisecondsUploadingPerFrame=Max Milliseconds Uploading/Cycle
 mod.chiselsandbits.config.maxTapeMeasures=Max Tape Measures
+mod.chiselsandbits.config.blueprintHosts=Hosts that C&B can download blueprints from, add "http://" and "https://" for any, not recommended.
+mod.chiselsandbits.config.displayMeasuringTapeInChat=Display Measuring Tape In Chat
 mod.chiselsandbits.config.displayMeasuringTapeInChat=Display Measuring Tape In Chat
 mod.chiselsandbits.config.defaultToDynamicRenderer=Default To Dynamic Renderer
 mod.chiselsandbits.config.forceDynamicRenderer=Disable Static Renderer

@@ -6,8 +6,8 @@ import java.util.List;
 
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.helpers.IVoxelSrc;
 import mod.chiselsandbits.modes.ChiselMode;
+import mod.chiselsandbits.voxelspace.IVoxelSrc;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;

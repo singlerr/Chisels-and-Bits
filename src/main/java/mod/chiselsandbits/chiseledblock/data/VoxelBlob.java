@@ -31,10 +31,10 @@ import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.DeprecationHelper;
-import mod.chiselsandbits.helpers.IVoxelSrc;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.voxelspace.IVoxelSrc;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.network.PacketBuffer;
@@ -47,7 +47,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public final class VoxelBlob implements IVoxelSrc
+public final class VoxelBlob implements IVoxelSrc, IVoxelAccess
 {
 
 	private static final BitSet fluidFilterState;
@@ -906,7 +906,15 @@ public final class VoxelBlob implements IVoxelSrc
 	public void blobFromBytes(
 			final byte[] bytes ) throws IOException
 	{
-		final ByteArrayInputStream out = new ByteArrayInputStream( bytes );
+		blobFromBytes( bytes, 0, bytes.length );
+	}
+
+	public void blobFromBytes(
+			final byte[] bytes,
+			final int offset,
+			final int length ) throws IOException
+	{
+		final ByteArrayInputStream out = new ByteArrayInputStream( bytes, offset, length );
 		read( out );
 	}
 
@@ -1040,5 +1048,24 @@ public final class VoxelBlob implements IVoxelSrc
 		{
 			throw new RuntimeException( e );
 		}
+	}
+
+	public static VoxelBlob getBlobAt(
+			final IVoxelSrc source,
+			final BlockPos srcOffset )
+	{
+		final int offsetX = srcOffset.getX() * dim;
+		final int offsetY = srcOffset.getY() * dim;
+		final int offsetZ = srcOffset.getZ() * dim;
+
+		final VoxelBlob blob = new VoxelBlob();
+
+		final BitIterator bi = new BitIterator();
+		while ( bi.hasNext() )
+		{
+			bi.setNext( blob, source.getSafe( offsetX + bi.x, offsetY + bi.y, offsetZ + bi.z ) );
+		}
+
+		return blob;
 	}
 }
