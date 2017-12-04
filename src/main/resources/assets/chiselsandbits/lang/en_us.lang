@@ -56,6 +56,7 @@ mod.chiselsandbits.chiselmode.same_material=Same Material
 
 mod.chiselsandbits.bitoption.place=Place
 mod.chiselsandbits.bitoption.replace=Replace
+mod.chiselsandbits.bitoption.pick=Pick Bit
 
 mod.chiselsandbits.positivepatternmode.replace=Replace
 mod.chiselsandbits.positivepatternmode.additive=Additive

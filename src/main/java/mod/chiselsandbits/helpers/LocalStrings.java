@@ -93,6 +93,7 @@ public enum LocalStrings
 	BlueprintCannotMove( "blueprint.cannotmove" ),
 	BlueprintFinished( "blueprint.finished" ),
 
+	BitPickBit( "bitoption.pick" ),
 	BitOptionPlace( "bitoption.place" ),
 	BitOptionReplace( "bitoption.replace" ),
 

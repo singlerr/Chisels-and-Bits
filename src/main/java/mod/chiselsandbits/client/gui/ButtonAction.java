@@ -4,6 +4,7 @@ public enum ButtonAction
 {
 	UNDO,
 	REDO,
+	PICK_BIT,
 
 	REPLACE_TOGGLE,
 

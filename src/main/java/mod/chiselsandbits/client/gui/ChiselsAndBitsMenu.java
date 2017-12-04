@@ -190,6 +190,11 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		final ArrayList<MenuRegion> modes = new ArrayList<MenuRegion>();
 		final ArrayList<MenuButton> btns = new ArrayList<MenuButton>();
 
+		if ( tool == ChiselToolType.BIT || tool == ChiselToolType.CHISEL )
+		{
+			btns.add( new MenuButton( LocalStrings.BitPickBit.toString(), ButtonAction.PICK_BIT, text_distnace, 28, ClientSide.pickIcon, EnumFacing.EAST ) );
+		}
+
 		if ( tool == ChiselToolType.BIT )
 		{
 			if ( ChiselsAndBits.getConfig().replaceingBits )

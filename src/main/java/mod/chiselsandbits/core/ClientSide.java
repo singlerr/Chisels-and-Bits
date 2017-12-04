@@ -98,6 +98,7 @@ import net.minecraft.client.resources.IResource;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
@@ -417,6 +418,7 @@ public class ClientSide
 	public static TextureAtlasSprite redoIcon;
 	public static TextureAtlasSprite trashIcon;
 
+	public static TextureAtlasSprite pickIcon;
 	public static TextureAtlasSprite swapIcon;
 	public static TextureAtlasSprite placeIcon;
 
@@ -425,6 +427,7 @@ public class ClientSide
 			final TextureStitchEvent.Pre ev )
 	{
 		final TextureMap map = ev.getMap();
+		pickIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/pick_bit" ) );
 		swapIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/swap" ) );
 		placeIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/place" ) );
 		undoIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/undo" ) );
@@ -545,6 +548,10 @@ public class ClientSide
 						ClientSide.instance.playRadialMenu();
 						switch ( ChiselsAndBitsMenu.instance.doAction )
 						{
+							case PICK_BIT:
+								doPickPit();
+								break;
+
 							case REPLACE_TOGGLE:
 								ChiselsAndBits.getConfig().replaceingBits = !ChiselsAndBits.getConfig().replaceingBits;
 								ReflectionWrapper.instance.clearHighlightedStack();
@@ -657,28 +664,7 @@ public class ClientSide
 
 		if ( pickBit.isPressed() )
 		{
-			final Minecraft mc = Minecraft.getMinecraft();
-			if ( mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK )
-			{
-				try
-				{
-					final BitLocation bl = new BitLocation( mc.objectMouseOver, true, BitOperation.CHISEL );
-					final IBitAccess access = ChiselsAndBits.getApi().getBitAccess( mc.theWorld, bl.getBlockPos() );
-					final IBitBrush brush = access.getBitAt( bl.getBitX(), bl.getBitY(), bl.getBitZ() );
-					if ( brush != null )
-					{
-						final ItemStack is = brush.getItemStack( 1 );
-						if ( is != null )
-						{
-							doPick( is );
-						}
-					}
-				}
-				catch ( final CannotBeChiseled e )
-				{
-					// nope.
-				}
-			}
+			doPickPit();
 		}
 
 		if ( type == ElementType.HOTBAR && ChiselsAndBits.getConfig().enableToolbarIcons )
@@ -719,6 +705,32 @@ public class ClientSide
 		}
 	}
 
+	public void doPickPit()
+	{
+		final Minecraft mc = Minecraft.getMinecraft();
+		if ( mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK )
+		{
+			try
+			{
+				final BitLocation bl = new BitLocation( mc.objectMouseOver, true, BitOperation.CHISEL );
+				final IBitAccess access = ChiselsAndBits.getApi().getBitAccess( mc.theWorld, bl.getBlockPos() );
+				final IBitBrush brush = access.getBitAt( bl.getBitX(), bl.getBitY(), bl.getBitZ() );
+				if ( brush != null )
+				{
+					final ItemStack is = brush.getItemStack( 1 );
+					if ( is != null )
+					{
+						doPick( is );
+					}
+				}
+			}
+			catch ( final CannotBeChiseled e )
+			{
+				// nope.
+			}
+		}
+	}
+
 	public void playRadialMenu()
 	{
 		final float volume = ChiselsAndBits.getConfig().radialMenuVolume;
@@ -734,35 +746,25 @@ public class ClientSide
 	{
 		final EntityPlayer player = getPlayer();
 
-		for ( int x = 0; x < 9; x++ )
+		if ( player.capabilities.isCreativeMode )
 		{
-			final ItemStack stack = player.inventory.getStackInSlot( x );
-			if ( stack != null && stack.isItemEqual( result ) && ItemStack.areItemStackTagsEqual( stack, result ) )
-			{
-				player.inventory.currentItem = x;
-				return true;
-			}
+			player.inventory.setPickedItemStack( result );
+			Minecraft.getMinecraft().playerController.sendSlotPacket( player.getHeldItem( EnumHand.MAIN_HAND ), 36 + player.inventory.currentItem );
+			return true;
 		}
 
-		if ( !player.capabilities.isCreativeMode )
+		int slot = player.inventory.getSlotFor( result );
+		if ( slot != -1 )
 		{
-			return false;
+			if ( InventoryPlayer.isHotbar( slot ) )
+				player.inventory.currentItem = slot;
+			else
+				Minecraft.getMinecraft().playerController.pickItem( slot );
+
+			return true;
 		}
 
-		int slot = player.inventory.getFirstEmptyStack();
-		if ( slot < 0 || slot >= 9 )
-		{
-			slot = player.inventory.currentItem;
-		}
-
-		// update inventory..
-		player.inventory.setInventorySlotContents( slot, result );
-		player.inventory.currentItem = slot;
-
-		// update server...
-		final int j = player.inventoryContainer.inventorySlots.size() - 9 + player.inventory.currentItem;
-		Minecraft.getMinecraft().playerController.sendSlotPacket( player.inventory.getStackInSlot( player.inventory.currentItem ), j );
-		return true;
+		return false;
 	}
 
 	public ChiselToolType getHeldToolType(
