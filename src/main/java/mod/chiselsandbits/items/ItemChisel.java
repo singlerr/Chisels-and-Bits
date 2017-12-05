@@ -20,6 +20,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.BitOperation;
+import mod.chiselsandbits.helpers.ChiselErrors;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.IContinuousInventory;
@@ -317,7 +318,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			return;
 		}
 
-		if ( !canMine( selected, ModUtil.getStateById( blk ), player.getPlayer(), world, pos ) )
+		if ( !canMine( selected, ModUtil.getStateById( blk ), player, world, pos ) )
 		{
 			return;
 		}
@@ -350,7 +351,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 	public static boolean canMine(
 			final IContinuousInventory chiselInv,
 			final IBlockState state,
-			final EntityPlayer player,
+			final ActingPlayer player,
 			final World world,
 			final @Nonnull BlockPos pos )
 	{
@@ -358,13 +359,14 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 		ItemStackSlot chiselSlot = chiselInv.getItem( targetState );
 		ItemStack chisel = chiselSlot.getStack();
 
-		if ( player.capabilities.isCreativeMode )
+		if ( player.isCreative() )
 		{
-			return world.isBlockModifiable( player, pos );
+			return world.isBlockModifiable( player.getPlayer(), pos );
 		}
 
 		if ( ModUtil.isEmpty( chisel ) )
 		{
+			player.report( ChiselErrors.NO_CHISELS );
 			return false;
 		}
 
@@ -383,7 +385,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 				BlockChiseled.setActingAs( state );
 				testingChisel = true;
 				chiselSlot.swapWithWeapon();
-				final boolean canHarvest = blk.canHarvestBlock( world, pos, player );
+				final boolean canHarvest = blk.canHarvestBlock( world, pos, player.getPlayer() );
 				chiselSlot.swapWithWeapon();
 				testingChisel = false;
 				BlockChiseled.setActingAs( null );

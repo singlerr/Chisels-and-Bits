@@ -6,7 +6,6 @@ import java.util.List;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
-import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -64,7 +63,7 @@ public class ContinousBits implements IContinuousInventory
 				}
 			}
 
-			if ( which != null && which.getItem() instanceof ItemBitBag )
+			if ( BagInventory.isBag( which ) )
 			{
 				bags.add( new BagInventory( which ) );
 			}

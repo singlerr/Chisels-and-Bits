@@ -14,6 +14,8 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
+import mod.chiselsandbits.helpers.BitName;
+import mod.chiselsandbits.helpers.ChiselErrors;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.InfiniteBitStorage;
@@ -200,6 +202,8 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 		final List<BagInventory> bags = ModUtil.getBags( player );
 		InfiniteBitStorage infiniteStorage = new InfiniteBitStorage();
 
+		boolean missing = false;
+
 		for ( final Entry<Integer, Integer> type : stats.entrySet() )
 		{
 			final int inPattern = type.getKey();
@@ -230,13 +234,19 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 
 				if ( stillNeeded != 0 )
 				{
-					return false;
+					player.report( ChiselErrors.NO_BITS, new BitName( inPattern ) );
+					missing = true;
 				}
 			}
 		}
 
-		infiniteStorage.give( player );
+		if ( missing )
+		{
+			player.displayError();
+			return false;
+		}
 
+		infiniteStorage.give( player );
 		return true;
 	}
 
@@ -324,6 +334,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			}
 		}
 
+		player.displayError();
 		infiniteStorage.give( player );
 	}
 

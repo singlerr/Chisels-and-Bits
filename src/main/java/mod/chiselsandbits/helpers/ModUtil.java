@@ -869,7 +869,7 @@ public class ModUtil
 
 	public static String localizeAndInsertVars(
 			String stringName,
-			final String... variables )
+			final Object... variables )
 	{
 		stringName = DeprecationHelper.translateToLocal( stringName );
 
@@ -882,7 +882,7 @@ public class ModUtil
 			{
 				final String pre = stringName.substring( 0, offset );
 				final String post = stringName.substring( offset + 2 );
-				stringName = new StringBuilder( pre ).append( variables[varOffset++] ).append( post ).toString();
+				stringName = new StringBuilder( pre ).append( variables[varOffset++].toString() ).append( post ).toString();
 			}
 		}
 

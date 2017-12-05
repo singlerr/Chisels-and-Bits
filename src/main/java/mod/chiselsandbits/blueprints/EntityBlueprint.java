@@ -9,7 +9,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import mod.chiselsandbits.blueprints.BlueprintData.EnumLoadState;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
-import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -458,7 +457,7 @@ public class EntityBlueprint extends Entity
 									}
 									else
 									{
-										UndoTracker.getInstance().displayError();
+										testPlayer.displayError();
 										break;
 									}
 								}

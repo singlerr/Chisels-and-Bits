@@ -122,16 +122,26 @@ public class InfiniteBitStorage
 
 			if ( item_state != null && ModUtil.getStateId( item_state ) == state )
 			{
-				if ( chisels.useItem( state, VoxelBlob.full_size ) )
+				// I know this isn't perfect, but it seems better then just
+				// throwing three inventories worth of bits on the ground
+				// without warning.
+				if ( player.hasBagWithRoom( state, VoxelBlob.full_size ) )
 				{
-					ItemStack post = is.copy();
-					ModUtil.adjustStackSize( post, -1 );
+					if ( chisels.useItem( state, VoxelBlob.full_size ) )
+					{
+						ItemStack post = is.copy();
+						ModUtil.adjustStackSize( post, -1 );
 
-					inv.setInventorySlotContents( x, post );
-					BlockPos p = player.getPosition();
-					this.insert( state, VoxelBlob.full_size, p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5 );
-					return true;
+						inv.setInventorySlotContents( x, post );
+						BlockPos p = player.getPosition();
+						this.insert( state, VoxelBlob.full_size, p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5 );
+						return true;
+					}
+					else
+						player.report( ChiselErrors.NO_CHISELS );
 				}
+				else
+					player.report( ChiselErrors.NO_BAG_SPACE );
 			}
 		}
 

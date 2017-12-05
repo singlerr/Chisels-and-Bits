@@ -3,15 +3,15 @@ package mod.chiselsandbits.network.packets;
 import java.util.List;
 
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
-import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
-import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ActingPlayer;
+import mod.chiselsandbits.helpers.BitName;
+import mod.chiselsandbits.helpers.ChiselErrors;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.InfiniteBitStorage;
@@ -101,7 +101,7 @@ public class PacketUndo extends ModPacket
 			return apply( player, spawnItemsAndCommitWorldChanges );
 		}
 		else
-			addError( player, "mod.chiselsandbits.result.out_of_range" );
+			addError( player, ChiselErrors.OUT_OF_RANGE );
 
 		return false;
 	}
@@ -135,9 +135,6 @@ public class PacketUndo extends ModPacket
 				InfiniteBitStorage infiniteStorage = new InfiniteBitStorage();
 				final List<BagInventory> bags = ModUtil.getBags( player );
 
-				boolean noMoreChisels = false;
-				String whichBit = "NO_SUCH_BIT";
-
 				final BitIterator bi = new BitIterator();
 				while ( bi.hasNext() )
 				{
@@ -154,7 +151,7 @@ public class PacketUndo extends ModPacket
 							}
 							else
 							{
-								noMoreChisels = true;
+								addError( player, ChiselErrors.NO_CHISELS );
 								successful = false;
 								break;
 							}
@@ -169,6 +166,7 @@ public class PacketUndo extends ModPacket
 								}
 								else
 								{
+									addError( player, ChiselErrors.NO_CHISELS );
 									successful = false;
 									break;
 								}
@@ -202,15 +200,7 @@ public class PacketUndo extends ModPacket
 									}
 									else
 									{
-										try
-										{
-											whichBit = ChiselsAndBits.getApi().getBitItem( ModUtil.getStateById( inAfter ) ).getDisplayName();
-										}
-										catch ( InvalidBitItem e )
-										{
-											// hmm...
-										}
-
+										addError( player, ChiselErrors.NO_BITS, new BitName( inAfter ) );
 										successful = false;
 										break;
 									}
@@ -234,11 +224,6 @@ public class PacketUndo extends ModPacket
 				{
 					backup.rollback();
 
-					if ( noMoreChisels )
-						addError( player, "mod.chiselsandbits.result.missing_chisels" );
-					else if ( whichBit != null )
-						addError( player, "mod.chiselsandbits.result.missing_bits", whichBit );
-
 					return false;
 				}
 			}
@@ -248,7 +233,7 @@ public class PacketUndo extends ModPacket
 			// error message below.
 		}
 
-		addError( player, "mod.chiselsandbits.result.has_changed" );
+		addError( player, ChiselErrors.HAS_CHANGED );
 		return false;
 	}
 
@@ -277,12 +262,12 @@ public class PacketUndo extends ModPacket
 
 	private void addError(
 			final ActingPlayer player,
-			final String string,
-			String... args )
+			final ChiselErrors err,
+			Object... args )
 	{
 		if ( verbose )
 		{
-			UndoTracker.getInstance().addError( player, string, args );
+			player.report( err, args );
 		}
 	}
 

@@ -297,6 +297,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			}
 		}
 
+		player.displayError();
 		infiniteStorage.give( player );
 	}
 

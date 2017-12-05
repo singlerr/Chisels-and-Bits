@@ -9,7 +9,9 @@ import mod.chiselsandbits.chiseledblock.iterators.ChiselTypeIterator;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ActingPlayer;
+import mod.chiselsandbits.helpers.BitName;
 import mod.chiselsandbits.helpers.BitOperation;
+import mod.chiselsandbits.helpers.ChiselErrors;
 import mod.chiselsandbits.helpers.ContinousBits;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
@@ -129,7 +131,7 @@ public class PacketChisel extends ModPacket
 
 						if ( place.usesChisels() )
 						{
-							if ( !chisels.isValid() || blkObj == null || blkstate == null || !ItemChisel.canMine( chisels, blkstate, who, world, pos ) )
+							if ( !chisels.isValid() || blkObj == null || blkstate == null || !ItemChisel.canMine( chisels, blkstate, player, world, pos ) )
 							{
 								continue;
 							}
@@ -168,20 +170,32 @@ public class PacketChisel extends ModPacket
 							final ChiselIterator i = getIterator( new VoxelRegionSrc( world, pos, 1 ), pos, place );
 							while ( i.hasNext() )
 							{
-								if ( place.usesChisels() && chisels.isValid() )
+								if ( place.usesChisels() )
 								{
 									if ( !place.usesBits() || vb.get( i.x(), i.y(), i.z() ) != placeStateID )
 									{
-										ItemChisel.chiselBlock( chisels, player, vb, world, pos, i.side(), i.x(), i.y(), i.z(), storage );
+										if ( chisels.isValid() )
+										{
+											ItemChisel.chiselBlock( chisels, player, vb, world, pos, i.side(), i.x(), i.y(), i.z(), storage );
+										}
+										else
+										{
+											player.report( ChiselErrors.NO_CHISELS );
+										}
 									}
 								}
 
-								if ( place.usesBits() && bits.isValid() )
+								if ( place.usesBits() )
 								{
 									if ( mask.get( i.x(), i.y(), i.z() ) == 0 )
 									{
-										bitPlaced = bits.getItem( 0 ).getStack();
-										update = ItemChiseledBit.placeBit( bits, player, vb, i.x(), i.y(), i.z() ) || update;
+										if ( bits.isValid() )
+										{
+											bitPlaced = bits.getItem( 0 ).getStack();
+											update = ItemChiseledBit.placeBit( bits, player, vb, i.x(), i.y(), i.z() ) || update;
+										}
+										else
+											player.report( ChiselErrors.NO_BITS, new BitName( placeStateID ) );
 									}
 								}
 							}
@@ -203,6 +217,7 @@ public class PacketChisel extends ModPacket
 				}
 			}
 
+			player.displayError();
 			storage.give( player );
 
 			if ( place.usesBits() )

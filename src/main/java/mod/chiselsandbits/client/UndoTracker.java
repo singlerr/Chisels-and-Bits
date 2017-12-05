@@ -1,27 +1,22 @@
 package mod.chiselsandbits.client;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
-import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketUndo;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class UndoTracker implements ICacheClearable
 {
@@ -44,15 +39,6 @@ public class UndoTracker implements ICacheClearable
 	private boolean hasCreatedGroup = false; // did we add an item yet?
 
 	private final List<UndoStep> undoLevels = new ArrayList<UndoStep>();
-
-	class TrackerError
-	{
-		String msg;
-		String[] args;
-	};
-
-	// errors produced by operations are accumulated for display.
-	private final Set<TrackerError> errors = new HashSet<TrackerError>();
 
 	/**
 	 * capture stack trace from whoever opened the undo group, for display
@@ -124,7 +110,7 @@ public class UndoTracker implements ICacheClearable
 					}
 				}
 
-				displayError();
+				testPlayer.displayError();
 			}
 		}
 		else
@@ -154,7 +140,7 @@ public class UndoTracker implements ICacheClearable
 					}
 				}
 
-				displayError();
+				testPlayer.displayError();
 			}
 		}
 		else
@@ -259,32 +245,6 @@ public class UndoTracker implements ICacheClearable
 
 		groupStarted = null;
 		grouping = false;
-	}
-
-	@SideOnly( Side.CLIENT )
-	public void displayError()
-	{
-		for ( final TrackerError err : errors )
-		{
-			ClientSide.instance.getPlayer().addChatMessage( new TextComponentString( ModUtil.localizeAndInsertVars( err.msg, err.args ) ) );
-		}
-
-		errors.clear();
-	}
-
-	public void addError(
-			final ActingPlayer player,
-			final String string,
-			String... vars )
-	{
-		// servers don't care about this...
-		if ( !player.isReal() && player.getWorld().isRemote )
-		{
-			TrackerError trackerErr = new TrackerError();
-			trackerErr.msg = string;
-			trackerErr.args = vars;
-			errors.add( trackerErr );
-		}
 	}
 
 	@Override

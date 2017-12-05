@@ -123,6 +123,9 @@ public class ChiselModeManager
 				return setting.getMode( ei );
 			}
 
+			if ( setting.getAvailableModes().isEmpty() )
+				return ChiselMode.SINGLE;
+
 			return setting.getAvailableModes().get( 0 );
 		}
 		else if ( setting == ChiselToolType.CHISEL )

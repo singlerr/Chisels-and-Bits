@@ -77,6 +77,7 @@ mod.chiselsandbits.tapemeasure.block=Block
 mod.chiselsandbits.tapemeasure.distance=Distance
 
 mod.chiselsandbits.result.out_of_range=Not close enough
+mod.chiselsandbits.result.no_bag_space=No Bag Space to Chisel Block
 mod.chiselsandbits.result.has_changed=Block has changed
 mod.chiselsandbits.result.missing_chisels=Not enough chisels.
 mod.chiselsandbits.result.missing_bits=Not enough {}

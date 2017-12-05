@@ -468,4 +468,10 @@ public class BagInventory implements IInventory
 
 		return count;
 	}
+
+	public static boolean isBag(
+			ItemStack which )
+	{
+		return which != null && which.getItem() instanceof ItemBitBag;
+	}
 }

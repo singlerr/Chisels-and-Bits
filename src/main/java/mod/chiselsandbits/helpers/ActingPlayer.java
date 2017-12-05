@@ -1,16 +1,27 @@
 package mod.chiselsandbits.helpers;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.annotation.Nonnull;
 
 import mod.chiselsandbits.api.EventBlockBitModification;
+import mod.chiselsandbits.bitbag.BagInventory;
+import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ActingPlayer
 {
@@ -158,6 +169,96 @@ public class ActingPlayer
 	public BlockPos getPosition()
 	{
 		return getPlayer().getPosition();
+	}
+
+	class TrackerError
+	{
+		ChiselErrors msg;
+		Object[] args;
+
+		@Override
+		public int hashCode()
+		{
+			return msg.hashCode() ^ Arrays.hashCode( args );
+		}
+
+		@Override
+		public boolean equals(
+				Object obj )
+		{
+			TrackerError a = (TrackerError) obj;
+
+			if ( a.msg == this.msg )
+			{
+				return Arrays.equals( args, a.args );
+			}
+
+			return false;
+		}
+	};
+
+	// errors produced by operations are accumulated for display.
+	private final Set<TrackerError> errors = new HashSet<TrackerError>();
+
+	@SideOnly( Side.CLIENT )
+	private void innerDisplayError()
+	{
+		for ( final TrackerError err : errors )
+		{
+			ClientSide.instance.getPlayer().addChatMessage( new TextComponentString( err.msg.getLocal( err.args ) ) );
+		}
+	}
+
+	public void displayError()
+	{
+		if ( FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT )
+		{
+			this.innerDisplayError();
+		}
+
+		errors.clear();
+	}
+
+	public void report(
+			ChiselErrors string,
+			Object... vars )
+	{
+		if ( this.getWorld().isRemote )
+		{
+			TrackerError trackerErr = new TrackerError();
+			trackerErr.msg = string;
+			trackerErr.args = vars;
+			errors.add( trackerErr );
+		}
+	}
+
+	public boolean hasBagWithRoom(
+			int state,
+			int requiredRoom )
+	{
+		IInventory inv = getInventory();
+		int emptyRoom = 0;
+
+		for ( int zz = 0; zz < inv.getSizeInventory(); zz++ )
+		{
+			final ItemStack which = inv.getStackInSlot( zz );
+
+			if ( BagInventory.isBag( which ) )
+			{
+				BagInventory bi = new BagInventory( which );
+
+				for ( int x = 0; x < bi.getSizeInventory(); x++ )
+				{
+					ItemStack g = bi.getStackInSlot( x );
+					if ( ModUtil.isEmpty( g ) )
+						emptyRoom += bi.getInventoryStackLimit();
+					else if ( ItemChiseledBit.sameBit( g, state ) )
+						emptyRoom += bi.getInventoryStackLimit() - ModUtil.getStackSize( g );
+				}
+			}
+		}
+
+		return emptyRoom >= requiredRoom;
 	}
 
 }
