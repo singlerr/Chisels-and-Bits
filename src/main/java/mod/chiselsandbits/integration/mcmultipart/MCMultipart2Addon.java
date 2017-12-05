@@ -23,10 +23,7 @@ public class MCMultipart2Addon implements IMCMPAddon
 
 	public MCMultipart2Addon()
 	{
-		if ( isEnabled() )
-		{
-			ChiselsAndBits.registerWithBus( this );
-		}
+		ChiselsAndBits.registerWithBus( this );
 	}
 
 	@SubscribeEvent
