@@ -8,14 +8,12 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
-import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.modes.IToolMode;
-import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.modes.WrenchModes;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.state.IBlockState;
@@ -57,7 +55,7 @@ public class ItemWrench extends Item implements IItemScrollWheel, IChiselModeIte
 	{
 		if ( ChiselsAndBits.getConfig().itemNameModeDisplay )
 		{
-			return displayName + " - " + TapeMeasureModes.getMode( item ).string.getLocal() + " - " + DeprecationHelper.translateToLocal( "chiselsandbits.color." + WrenchModes.getMode( item ).string.getLocal() );
+			return displayName + " - " + WrenchModes.getMode( item ).string.getLocal();
 		}
 
 		return displayName;

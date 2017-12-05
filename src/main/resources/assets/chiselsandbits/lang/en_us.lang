@@ -63,6 +63,9 @@ mod.chiselsandbits.positivepatternmode.additive=Additive
 mod.chiselsandbits.positivepatternmode.placement=Placement
 mod.chiselsandbits.positivepatternmode.impose=Impose
 
+mod.chiselsandbits.blueprint.placement=Blueprint construction begun.
+mod.chiselsandbits.blueprint.finished=Blueprint construction finished.
+
 mod.chiselsandbits.wrench.nudge_bit=Nudge Bit
 mod.chiselsandbits.wrench.nudge_block=Nudge Block
 mod.chiselsandbits.wrench.rotate_block=Rotate Block
