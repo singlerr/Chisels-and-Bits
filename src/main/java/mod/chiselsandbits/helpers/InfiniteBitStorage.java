@@ -82,7 +82,7 @@ public class InfiniteBitStorage
 		if ( player.isReal() )
 		{
 			final boolean spawnBit = ChiselsAndBits.getItems().itemBlockBit != null;
-			if ( spawnBit )
+			if ( spawnBit && !player.getWorld().isRemote )
 			{
 				World w = player.getWorld();
 				for ( Entry<Integer, Integer> p : storage.entrySet() )
