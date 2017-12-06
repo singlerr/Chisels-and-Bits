@@ -22,6 +22,8 @@ tile.mod.chiselsandbits.bittank.name=Chiseled Fluid Bit Tank
 item.mod.chiselsandbits.block_bit.name=Chiseled Bit
 item.mod.chiselsandbits.bit_bag.name=Chiseled Bit Bag
 item.mod.chiselsandbits.wrench_wood.name=Wooden Wrench
+
+item.mod.chiselsandbits.mallet_wood.name=Mallet
 item.mod.chiselsandbits.blueprint.name=Blueprint
 item.mod.chiselsandbits.blueprint_written.name=Blueprint - Written
 
@@ -103,6 +105,7 @@ mod.chiselsandbits.help.filled=Filled
 mod.chiselsandbits.help.chiseled_block={} to place;{} to ignore block grid;Mouse Wheel to cycle placement rotation.
 mod.chiselsandbits.help.bit_bag=Automatically re-stock, and store bits.
 mod.chiselsandbits.help.wrench={} blocks to rotate.
+mod.chiselsandbits.help.mallet={} to write/construct blue prints.
 mod.chiselsandbits.help.bit={} to chisel;{} to place;Use {} to display menu.
 mod.chiselsandbits.help.positiveprint={} to write;{} to chisel/place or Craft with bits/bags.;Mouse Wheel to cycle rotation;Use {} to display menu.
 mod.chiselsandbits.help.negativeprint={} to write;{} to chisel.;Mouse Wheel to cycle rotation.

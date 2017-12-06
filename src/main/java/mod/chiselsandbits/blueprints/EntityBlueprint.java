@@ -123,7 +123,7 @@ public class EntityBlueprint extends Entity
 		{
 			// deployment
 
-			if ( usingHammer( handStack ) )
+			if ( usingMallet( handStack ) )
 			{
 				beginPlacement( player );
 				return EnumActionResult.SUCCESS;
@@ -198,7 +198,7 @@ public class EntityBlueprint extends Entity
 		{
 			// capture
 
-			if ( usingHammer( handStack ) )
+			if ( usingMallet( handStack ) )
 			{
 				beginCapture( player );
 				return EnumActionResult.SUCCESS;
@@ -279,10 +279,10 @@ public class EntityBlueprint extends Entity
 			NetworkRouter.instance.sendToServer( getConfiguration() );
 	}
 
-	private boolean usingHammer(
+	private boolean usingMallet(
 			ItemStack handStack )
 	{
-		return ModUtil.notEmpty( handStack ) && handStack.getItem() == ChiselsAndBits.getItems().itemHammer;
+		return ModUtil.notEmpty( handStack ) && handStack.getItem() == ChiselsAndBits.getItems().itemMallet;
 	}
 
 	private void adjustSize(

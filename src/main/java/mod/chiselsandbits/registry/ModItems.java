@@ -7,7 +7,7 @@ import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemBitSaw;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import mod.chiselsandbits.items.ItemHammer;
+import mod.chiselsandbits.items.ItemMallet;
 import mod.chiselsandbits.items.ItemMirrorPrint;
 import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.items.ItemPositivePrint;
@@ -29,7 +29,7 @@ public class ModItems extends ModRegistry
 	final public ItemNegativePrint itemNegativeprint;
 
 	final public ItemBlueprint itemBlueprint;
-	final public ItemHammer itemHammer;
+	final public ItemMallet itemMallet;
 
 	final public ItemBitBag itemBitBag;
 	final public ItemWrench itemWrench;
@@ -52,7 +52,7 @@ public class ModItems extends ModRegistry
 		itemBitSawDiamond = registerItem( config.enableBitSaw, new ItemBitSaw(), "bitsaw_diamond" );
 		itemBlockBit = registerItem( config.enableChisledBits, new ItemChiseledBit(), "block_bit" );
 		itemBlueprint = registerItem( config.enableBlueprints, new ItemBlueprint(), "blueprint" );
-		itemHammer = registerItem( config.enableBlueprints, new ItemHammer(), "hammer" );
+		itemMallet = registerItem( config.enableBlueprints, new ItemMallet(), "mallet_wood" );
 		itemTapeMeasure = registerItem( config.enableTapeMeasure, new ItemTapeMeasure(), "tape_measure" );
 		registerItem( config.enableAPITestingItem, new ItemApiDebug(), "debug" );
 	}

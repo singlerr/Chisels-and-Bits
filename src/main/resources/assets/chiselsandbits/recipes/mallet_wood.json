@@ -1,0 +1,19 @@
+{
+	"result": {
+		"item": "chiselsandbits:mallet_wood"
+	},
+	"pattern": [
+		"WS"
+	],
+	"type": "minecraft:crafting_shaped",
+	"key": {
+		"S": {
+			"type": "forge:ore_dict",
+			"ore": "stickWood"
+		},
+		"W": {
+			"type": "forge:ore_dict",
+			"ore": "plankWood"
+		}
+	}
+}

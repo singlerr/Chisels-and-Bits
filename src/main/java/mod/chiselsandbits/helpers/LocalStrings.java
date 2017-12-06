@@ -97,7 +97,7 @@ public enum LocalStrings
 	BitOptionPlace( "bitoption.place" ),
 	BitOptionReplace( "bitoption.replace" ),
 
-	HelpHammer( "help.hammer" );
+	HelpMallet( "help.mallet" );
 
 	private final String string;
 

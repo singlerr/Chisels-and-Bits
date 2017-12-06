@@ -4,7 +4,9 @@ import java.util.List;
 
 import mod.chiselsandbits.blueprints.EntityBlueprint;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.LocalStrings;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -18,10 +20,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemHammer extends Item
+public class ItemMallet extends Item
 {
 
-	public ItemHammer()
+	public ItemMallet()
 	{
 		setMaxStackSize( 1 );
 	}
@@ -77,7 +79,7 @@ public class ItemHammer extends Item
 			final ITooltipFlag advanced )
 	{
 		super.addInformation( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpHammer, tooltip );
+		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpMallet, tooltip, ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ) );
 	}
 
 }
