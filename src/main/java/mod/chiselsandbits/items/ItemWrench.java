@@ -4,10 +4,13 @@ import java.util.List;
 
 import mod.chiselsandbits.blueprints.EntityBlueprint;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
+import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
@@ -156,6 +159,38 @@ public class ItemWrench extends Item implements IItemScrollWheel, IChiselModeIte
 		return found;
 	}
 
+	private boolean canNudge(
+			World world,
+			BlockPos pos,
+			EntityPlayer player,
+			IBlockState state,
+			boolean whichSetting )
+	{
+		if ( state.getBlockHardness( world, pos ) == -1.0F || state.getMobilityFlag() == EnumPushReaction.BLOCK )
+		{
+			return false;
+		}
+
+		if ( state.getMobilityFlag() == EnumPushReaction.DESTROY )
+		{
+			return false;
+		}
+
+		if ( whichSetting || player.isCreative() )
+		{
+			return true;
+		}
+		else
+		{
+			if ( !world.isRemote )
+			{
+				player.addChatMessage( new TextComponentTranslation( LocalStrings.WrenchOnlyGhosts.toString() ) );
+			}
+		}
+
+		return false;
+	}
+
 	private EnumActionResult nudgeBit(
 			final EntityPlayer player,
 			final EnumHand hand,
@@ -170,25 +205,30 @@ public class ItemWrench extends Item implements IItemScrollWheel, IChiselModeIte
 			side = side.getOpposite();
 		}
 
-		if ( state.getBlockHardness( world, pos ) == -1.0F || state.getMobilityFlag() == EnumPushReaction.BLOCK )
+		if ( canNudge( world, pos, player, state, ChiselsAndBits.getConfig().enableSurvivalWrenchBitNudging ) )
 		{
-			return EnumActionResult.FAIL;
-		}
-
-		if ( state.getMobilityFlag() == EnumPushReaction.DESTROY )
-		{
-			return EnumActionResult.FAIL;
-		}
-
-		if ( ChiselsAndBits.getConfig().enableSurvivalWrenchBlockNudging || player.isCreative() )
-		{
-			// TODO IMPLEMENT BIT NUDGE.
-		}
-		else
-		{
-			if ( !world.isRemote )
+			if ( state.getBlock() instanceof BlockChiseled )
 			{
-				player.addChatMessage( new TextComponentTranslation( LocalStrings.WrenchOnlyGhosts.toString() ) );
+				try
+				{
+					TileEntityBlockChiseled te = BlockChiseled.getTileEntity( world, pos );
+
+					VoxelBlob o = te.getBlob();
+
+					int edgeOffset = ( VoxelBlob.dim - 1 );
+					VoxelBlob overflow = o.offset( edgeOffset * side.getFrontOffsetX(), edgeOffset * side.getFrontOffsetY(), edgeOffset * side.getFrontOffsetZ() );
+
+					if ( overflow.filled() == 0 )
+					{
+						te.setBlob( o.offset( -side.getFrontOffsetX(), -side.getFrontOffsetY(), -side.getFrontOffsetZ() ), true );
+						stack.damageItem( 1, player );
+						return EnumActionResult.SUCCESS;
+					}
+				}
+				catch ( ExceptionNoTileEntity no_te )
+				{
+					// strange, no?
+				}
 			}
 		}
 
@@ -209,17 +249,7 @@ public class ItemWrench extends Item implements IItemScrollWheel, IChiselModeIte
 			side = side.getOpposite();
 		}
 
-		if ( state.getBlockHardness( world, pos ) == -1.0F || state.getMobilityFlag() == EnumPushReaction.BLOCK )
-		{
-			return EnumActionResult.FAIL;
-		}
-
-		if ( state.getMobilityFlag() == EnumPushReaction.DESTROY )
-		{
-			return EnumActionResult.FAIL;
-		}
-
-		if ( ChiselsAndBits.getConfig().enableSurvivalWrenchBlockNudging || player.isCreative() )
+		if ( canNudge( world, pos, player, state, ChiselsAndBits.getConfig().enableSurvivalWrenchBlockNudging ) )
 		{
 			final BlockPos target = pos.offset( side.getOpposite() );
 			final IBlockState targetState = world.getBlockState( target );
@@ -244,13 +274,6 @@ public class ItemWrench extends Item implements IItemScrollWheel, IChiselModeIte
 					world.setBlockToAir( pos );
 					return EnumActionResult.SUCCESS;
 				}
-			}
-		}
-		else
-		{
-			if ( !world.isRemote )
-			{
-				player.addChatMessage( new TextComponentTranslation( LocalStrings.WrenchOnlyGhosts.toString() ) );
 			}
 		}
 

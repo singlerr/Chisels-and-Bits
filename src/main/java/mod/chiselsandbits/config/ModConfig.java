@@ -298,6 +298,9 @@ public class ModConfig extends Configuration
 	public boolean enableSurvivalWrenchBlockNudging;
 
 	@Configured( category = "Balance Settings" )
+	public boolean enableSurvivalWrenchBitNudging;
+
+	@Configured( category = "Balance Settings" )
 	public boolean fullBlockCrafting;
 
 	// in game state
@@ -396,6 +399,7 @@ public class ModConfig extends Configuration
 		enableStackableCrafting = true;
 		enableNegativePrintInversionCrafting = true;
 		enableSurvivalWrenchBlockNudging = false;
+		enableSurvivalWrenchBitNudging = true;
 
 		enableChiselToolHarvestCheck = true;
 		enableToolHarvestLevels = true;
