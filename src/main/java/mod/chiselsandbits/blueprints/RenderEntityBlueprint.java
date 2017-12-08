@@ -145,7 +145,7 @@ public class RenderEntityBlueprint extends Render<EntityBlueprint>
 		if ( entity.renderData == null )
 		{
 			final BlueprintData data = ChiselsAndBits.getItems().itemBlueprint.getStackData( entity.getItemStack() );
-			if ( data.getState() == EnumLoadState.LOADED )
+			if ( data != null && data.getState() == EnumLoadState.LOADED )
 			{
 				entity.renderData = new BlueprintRenderData( data );
 			}

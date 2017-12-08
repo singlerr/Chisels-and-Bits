@@ -2,11 +2,13 @@ package mod.chiselsandbits.share.output;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
+import mod.chiselsandbits.blueprints.BlueprintData;
 import mod.chiselsandbits.helpers.LocalStrings;
 
 public class LocalTextFile implements IShareOutput
@@ -33,6 +35,24 @@ public class LocalTextFile implements IShareOutput
 		o.close();
 
 		return LocalStrings.ShareFile.toString();
+	}
+
+	@Override
+	public BlueprintData getData()
+	{
+		BlueprintData bpd = new BlueprintData( null );
+
+		try
+		{
+			bpd.setLocalSource( outFile.getAbsolutePath() );
+			bpd.loadData( new FileInputStream( outFile ) );
+		}
+		catch ( IOException e )
+		{
+
+		}
+
+		return bpd;
 	}
 
 }

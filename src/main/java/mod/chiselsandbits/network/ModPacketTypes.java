@@ -16,6 +16,7 @@ import mod.chiselsandbits.network.packets.PacketSetColor;
 import mod.chiselsandbits.network.packets.PacketShiftBluePrint;
 import mod.chiselsandbits.network.packets.PacketSuppressInteraction;
 import mod.chiselsandbits.network.packets.PacketUndo;
+import mod.chiselsandbits.network.packets.WriteBlueprintPacket;
 
 public enum ModPacketTypes
 {
@@ -32,7 +33,8 @@ public enum ModPacketTypes
 	ACCURATE_PLACEMENT( PacketAccurateSneakPlace.class ),
 	BLUEPRINT_SET( PacketBlueprintSet.class ),
 	BLUEPRINT_COMPLETE( PacketCompleteBlueprint.class ),
-	BLUEPRINT_SHIFT( PacketShiftBluePrint.class );
+	BLUEPRINT_SHIFT( PacketShiftBluePrint.class ),
+	BLUEPRINT_WRITE( WriteBlueprintPacket.class );
 
 	private final Class<? extends ModPacket> packetClass;
 

@@ -65,8 +65,13 @@ mod.chiselsandbits.positivepatternmode.additive=Additive
 mod.chiselsandbits.positivepatternmode.placement=Placement
 mod.chiselsandbits.positivepatternmode.impose=Impose
 
+mod.chiselsandbits.blueprint.cannotmove=Blueprint cannot be move once process has begun.
+mod.chiselsandbits.blueprint.capture=Blueprint recording begun.
 mod.chiselsandbits.blueprint.placement=Blueprint construction begun.
 mod.chiselsandbits.blueprint.finished=Blueprint construction finished.
+mod.chiselsandbits.blueprint.bitplacementonly=Recording a blueprint must be done on block bounds.
+mod.chiselsandbits.blueprint.nosuchpath=Unable to create path, please check configured share folder or use clipboard.
+mod.chiselsandbits.blueprint.failedtowrite=Failed to write final blueprint.
 
 mod.chiselsandbits.wrench.nudge_bit=Nudge Bit
 mod.chiselsandbits.wrench.nudge_block=Nudge Block

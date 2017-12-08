@@ -90,8 +90,12 @@ public enum LocalStrings
 	WrenchOnlyGhosts( "wrenge.nudge_block_disabled" ),
 
 	BlueprintBeginPlace( "blueprint.placement" ),
+	BlueprintBeginCapture( "blueprint.capture" ),
 	BlueprintCannotMove( "blueprint.cannotmove" ),
 	BlueprintFinished( "blueprint.finished" ),
+	BlueprintBlockOnly( "blueprint.bitplacementonly" ),
+	BlueprintNoSuchPath( "blueprint.nosuchpath" ),
+	BlueprintFailedToWrite( "blueprint.failedtowrite" ),
 
 	BitPickBit( "bitoption.pick" ),
 	BitOptionPlace( "bitoption.place" ),

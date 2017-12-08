@@ -66,6 +66,22 @@ public class ShareGenerator implements Runnable
 	final BufferedImage screenshot;
 	IShareOutput output;
 
+	public String message = "N/A";
+	Runnable onComplete;
+	Runnable onError;
+
+	public void start(
+			Runnable complete,
+			Runnable error )
+	{
+		this.onComplete = complete == null ? new RunnableSuccessMessage() : complete;
+		this.onError = error == null ? new RunnableErrorMessage() : error;
+
+		ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( LocalStrings.ShareStart.toString() ) );
+
+		new Thread( this ).start();
+	}
+
 	public ShareGenerator(
 			final World clientWorld,
 			final BlockPos start,
@@ -83,9 +99,6 @@ public class ShareGenerator implements Runnable
 
 		w = new ShareCache( clientWorld, min, max, 0 );
 
-		ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( LocalStrings.ShareStart.toString() ) );
-
-		new Thread( this ).start();
 	}
 
 	private byte[] preFixByteArray(
@@ -372,33 +385,37 @@ public class ShareGenerator implements Runnable
 
 		try
 		{
-			final String msg = output.handleOutput( byteStream.toByteArray(), screenshot );
-
-			Minecraft.getMinecraft().addScheduledTask( new Runnable() {
-
-				@Override
-				public void run()
-				{
-					ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( LocalStrings.ShareComplete.toString() ) );
-					ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( msg ) );
-				}
-
-			} );
+			message = output.handleOutput( byteStream.toByteArray(), screenshot );
+			Minecraft.getMinecraft().addScheduledTask( onComplete );
 		}
 		catch ( final Exception e )
 		{
-			Minecraft.getMinecraft().addScheduledTask( new Runnable() {
-
-				@Override
-				public void run()
-				{
-					ClientSide.instance.getPlayer().addChatMessage( new TextComponentString( e.getLocalizedMessage() ) );
-				}
-
-			} );
+			message = e.getLocalizedMessage();
 		}
 
 	}
+
+	private class RunnableErrorMessage implements Runnable
+	{
+
+		@Override
+		public void run()
+		{
+			ClientSide.instance.getPlayer().addChatMessage( new TextComponentString( message ) );
+		}
+
+	};
+
+	private class RunnableSuccessMessage implements Runnable
+	{
+		@Override
+		public void run()
+		{
+			ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( LocalStrings.ShareComplete.toString() ) );
+			ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( message ) );
+		}
+
+	};
 
 	/**
 	 * 0 - solid 1 - alpha 2 - translucent

@@ -1,5 +1,11 @@
 package mod.chiselsandbits.blueprints;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.NoSuchFileException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -18,11 +24,19 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketCompleteBlueprint;
 import mod.chiselsandbits.network.packets.PacketShiftBluePrint;
 import mod.chiselsandbits.network.packets.PacketUndo;
+import mod.chiselsandbits.network.packets.WriteBlueprintPacket;
+import mod.chiselsandbits.share.ShareGenerator;
+import mod.chiselsandbits.share.output.ClipBoardText;
+import mod.chiselsandbits.share.output.ClipboardImage;
+import mod.chiselsandbits.share.output.IShareOutput;
+import mod.chiselsandbits.share.output.LocalPNGFile;
+import mod.chiselsandbits.share.output.LocalTextFile;
 import mod.chiselsandbits.voxelspace.IVoxelSrc;
 import mod.chiselsandbits.voxelspace.VoxelCompressedProviderWorld;
 import mod.chiselsandbits.voxelspace.VoxelOffsetRegion;
 import mod.chiselsandbits.voxelspace.VoxelRegionSrc;
 import mod.chiselsandbits.voxelspace.VoxelTransformedRegion;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -94,7 +108,7 @@ public class EntityBlueprint extends Entity
 	@Override
 	public boolean canBeCollidedWith()
 	{
-		return false;
+		return true;
 	}
 
 	@Override
@@ -212,7 +226,11 @@ public class EntityBlueprint extends Entity
 
 				if ( getDataManager().get( BLUEPRINT_PLACING ) == true )
 				{
-					player.addChatMessage( new TextComponentTranslation( LocalStrings.BlueprintCannotMove.toString() ) );
+					if ( player.getEntityWorld().isRemote )
+					{
+						player.addChatMessage( new TextComponentTranslation( LocalStrings.BlueprintCannotMove.toString() ) );
+					}
+
 					return EnumActionResult.FAIL;
 				}
 
@@ -238,6 +256,15 @@ public class EntityBlueprint extends Entity
 					if ( mode == WrenchModes.NUDGE_BLOCK )
 					{
 						direction *= 16;
+					}
+					else
+					{
+						if ( player.getEntityWorld().isRemote )
+						{
+							player.addChatMessage( new TextComponentTranslation( LocalStrings.BlueprintBlockOnly.toString() ) );
+						}
+
+						return EnumActionResult.FAIL;
 					}
 
 					switch ( rtr.sideHit )
@@ -368,9 +395,87 @@ public class EntityBlueprint extends Entity
 	{
 		if ( player.getEntityWorld().isRemote )
 		{
+			getDataManager().set( BLUEPRINT_PLACING, true );
 			sendUpdate();
+			player.addChatMessage( new TextComponentTranslation( LocalStrings.BlueprintBeginCapture.toString() ) );
 
+			final World clientWorld = Minecraft.getMinecraft().theWorld;
+
+			IShareOutput out = null;
+
+			try
+			{
+				switch ( ChiselsAndBits.getConfig().shareOutput )
+				{
+					case IMAGE_CLIPBOARD:
+						out = new ClipboardImage();
+						break;
+					case IMAGE_FILE_WITH_SCREENSHOT:
+						out = new LocalPNGFile( newFileName( ChiselsAndBits.getConfig().getShareFileOutputFolder(), ".png" ) );
+						break;
+					default:
+					case TEXT_CLIPBOARD:
+						out = new ClipBoardText();
+						break;
+					case TEXT_FILE:
+						out = new LocalTextFile( newFileName( ChiselsAndBits.getConfig().getShareFileOutputFolder(), ".txt" ) );
+						break;
+				}
+
+				BlueprintPosition bpos = getBlueprintPos();
+
+				final IShareOutput sout = out;
+				final ShareGenerator sg = new ShareGenerator( clientWorld, bpos.min, bpos.max, out );
+
+				sg.start( new Runnable() {
+
+					@Override
+					public void run()
+					{
+						try
+						{
+							WriteBlueprintPacket wp = new WriteBlueprintPacket();
+
+							BlueprintData data = sout.getData();
+							wp.setFrom( getEntityId(), data );
+
+							NetworkRouter.instance.sendToServer( wp );
+							player.addChatMessage( new TextComponentTranslation( sg.message ) );
+						}
+						catch ( IOException ioe )
+						{
+							player.addChatMessage( new TextComponentTranslation( LocalStrings.BlueprintFailedToWrite.toString() ) );
+						}
+					}
+
+				}, null );
+			}
+			catch ( NoSuchFileException e )
+			{
+				player.addChatMessage( new TextComponentTranslation( LocalStrings.BlueprintNoSuchPath.toString() ) );
+			}
 		}
+	}
+
+	private File newFileName(
+			String shareFileOutputFolder,
+			String type ) throws NoSuchFileException
+	{
+		DateFormat dateFormat = new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" );
+		Calendar cal = Calendar.getInstance();
+		String extra = "";
+
+		int loops = 0;
+		while ( loops++ < 1000 )
+		{
+			File o = new File( shareFileOutputFolder, dateFormat.format( cal ) + extra + type );
+			if ( !o.exists() )
+				return o;
+
+			extra = "" + loops;
+		}
+
+		throw new NoSuchFileException( shareFileOutputFolder );
 	}
 
 	int completed = 0;
@@ -496,11 +601,8 @@ public class EntityBlueprint extends Entity
 	IVoxelSrc application;
 	Map<BlockPos, QueuedChanges> calculatedSpace = null;
 
-	private void calculateSpace(
-			final BlueprintData bd )
+	BlueprintPosition getBlueprintPos()
 	{
-		calculatedSpace = new HashMap<BlockPos, QueuedChanges>();
-
 		final int bitsPerBlock = 16;
 		final int bitsPerBlock_Minus1 = bitsPerBlock - 1;
 
@@ -531,15 +633,24 @@ public class EntityBlueprint extends Entity
 		final BlockPos min = center.add( -minX, -minY, -minZ );
 		final BlockPos max = center.add( maxX, maxY, maxZ );
 
-		source = new VoxelRegionSrc( new VoxelCompressedProviderWorld( worldObj ), min, max, min );
+		return new BlueprintPosition( center, min, max, bitOffset, axisX, axisY, axisZ, afterOffset );
+	}
+
+	private void calculateSpace(
+			final BlueprintData bd )
+	{
+		calculatedSpace = new HashMap<BlockPos, QueuedChanges>();
+
+		BlueprintPosition bpos = getBlueprintPos();
+		source = new VoxelRegionSrc( new VoxelCompressedProviderWorld( worldObj ), bpos.min, bpos.max, bpos.min );
 
 		final IVoxelSrc data = new VoxelRegionSrc( bd, BlockPos.ORIGIN, new BlockPos( bd.getXSize(), bd.getYSize(), bd.getZSize() ), BlockPos.ORIGIN );
-		final IVoxelSrc offset = new VoxelTransformedRegion( data, axisX, axisY, axisZ, afterOffset );
-		application = new VoxelOffsetRegion( offset, bitOffset );
+		final IVoxelSrc offset = new VoxelTransformedRegion( data, bpos.axisX, bpos.axisY, bpos.axisZ, bpos.afterOffset );
+		application = new VoxelOffsetRegion( offset, bpos.bitOffset );
 
-		for ( final BlockPos p : BlockPos.getAllInBox( min, max ) )
+		for ( final BlockPos p : BlockPos.getAllInBox( bpos.min, bpos.max ) )
 		{
-			calculatedSpace.put( p.toImmutable(), new QueuedChanges( p.subtract( min ) ) );
+			calculatedSpace.put( p.toImmutable(), new QueuedChanges( p.subtract( bpos.min ) ) );
 		}
 	}
 
@@ -571,7 +682,14 @@ public class EntityBlueprint extends Entity
 			final DataParameter<Integer> param,
 			final int direction )
 	{
-		getDataManager().set( param, getDataManager().get( param ) + direction );
+		int newValue = getDataManager().get( param ) + direction;
+
+		if ( newValue < 0 )
+		{
+			newValue = 0;
+		}
+
+		getDataManager().set( param, newValue );
 	}
 
 	@Override
@@ -768,6 +886,15 @@ public class EntityBlueprint extends Entity
 		getDataManager().set( BLUEPRINT_MAX_X, p.max_x );
 		getDataManager().set( BLUEPRINT_MAX_Y, p.max_y );
 		getDataManager().set( BLUEPRINT_MAX_Z, p.max_z );
+	}
+
+	public void dropItem(
+			NBTTagCompound tag )
+	{
+		ItemStack stack = getItem();
+		stack.setTagCompound( tag );
+		worldObj.spawnEntityInWorld( new EntityItem( worldObj, posX, posY, posZ, stack ) );
+		setDead();
 	}
 
 }

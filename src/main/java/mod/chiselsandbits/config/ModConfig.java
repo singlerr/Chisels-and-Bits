@@ -153,6 +153,22 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Settings" )
 	public float radialMenuVolume;
 
+	@Configured( category = "Client Settings" )
+	public EnumShareOutput shareOutput;
+
+	@Configured( category = "Client Settings" )
+	public String shareFileOutputFolder;
+
+	public String getShareFileOutputFolder()
+	{
+		File f = new File( shareFileOutputFolder );
+
+		if ( f.isDirectory() )
+			return shareFileOutputFolder;
+
+		return System.getProperty( "user.home" );
+	}
+
 	@Configured( category = "Client Performance Settings" )
 	public static UseVBO useVBO;
 
@@ -385,6 +401,9 @@ public class ModConfig extends Configuration
 		showUsage = true;
 		invertBitBagFullness = false;
 		enableSetBitCommand = false;
+
+		shareOutput = EnumShareOutput.TEXT_CLIPBOARD;
+		shareFileOutputFolder = System.getProperty( "user.home" );
 
 		damageTools = true;
 		blacklistTickingBlocks = true;
@@ -704,5 +723,4 @@ public class ModConfig extends Configuration
 
 		return false;
 	}
-
 }

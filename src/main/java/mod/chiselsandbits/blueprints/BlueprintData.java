@@ -196,7 +196,12 @@ public class BlueprintData implements Runnable, IVoxelProvider
 
 	public byte[] getStuctureData() throws IOException
 	{
-		return data.getStuctureData();
+		if ( getState() == EnumLoadState.LOADED )
+		{
+			return data.getStuctureData();
+		}
+
+		throw new IOException();
 	}
 
 	public int getXSize()

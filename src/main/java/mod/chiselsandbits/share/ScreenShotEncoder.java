@@ -2,8 +2,8 @@ package mod.chiselsandbits.share;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.IntBuffer;
 
 import javax.imageio.ImageIO;
@@ -80,7 +80,7 @@ public class ScreenShotEncoder
 	static public void encodeScreenshot(
 			final BufferedImage screenshot,
 			final byte[] modelData,
-			final File outfile ) throws IOException
+			final OutputStream outfile ) throws IOException
 	{
 		final int sizeOfData = 4 + modelData.length;
 
@@ -138,6 +138,7 @@ public class ScreenShotEncoder
 		}
 
 		ImageIO.write( output, "png", outfile );
+		outfile.close();
 	}
 
 	private static class ImageWriter

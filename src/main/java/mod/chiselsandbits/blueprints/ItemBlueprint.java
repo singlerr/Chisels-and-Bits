@@ -85,32 +85,32 @@ public class ItemBlueprint extends Item implements Runnable
 	{
 		ItemStack stack = playerIn.getHeldItem( hand );
 
-		if ( isWritten( stack ) )
+		if ( !worldIn.isRemote )
 		{
-			if ( !worldIn.isRemote )
+			final IBlockState state = worldIn.getBlockState( pos );
+			if ( !state.getBlock().isReplaceable( worldIn, pos ) )
 			{
-				final IBlockState state = worldIn.getBlockState( pos );
-				if ( !state.getBlock().isReplaceable( worldIn, pos ) )
-				{
-					pos = pos.offset( facing );
-				}
-
-				final EntityBlueprint e = new EntityBlueprint( worldIn );
-				e.posX = pos.getX() + 0.5;
-				e.posY = pos.getY() + 0.5;
-				e.posZ = pos.getZ() + 0.5;
-				e.setItemStack( stack.copy() );
-				final NBTTagCompound tag = stack.getTagCompound();
-				e.setSize( tag.getInteger( NBT_SIZE_X ), tag.getInteger( NBT_SIZE_Y ), tag.getInteger( NBT_SIZE_Z ) );
-				if ( !worldIn.spawnEntityInWorld( e ) )
-					return EnumActionResult.FAIL;
+				pos = pos.offset( facing );
 			}
 
-			ModUtil.adjustStackSize( stack, -1 );
-			return EnumActionResult.SUCCESS;
+			final EntityBlueprint e = new EntityBlueprint( worldIn );
+			e.setPosition( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5 );
+			e.setItemStack( stack.copy() );
+
+			if ( stack.hasTagCompound() )
+			{
+				final NBTTagCompound tag = stack.getTagCompound();
+				e.setSize( tag.getInteger( NBT_SIZE_X ), tag.getInteger( NBT_SIZE_Y ), tag.getInteger( NBT_SIZE_Z ) );
+			}
+			else
+				e.setSize( 1, 1, 1 );
+
+			if ( !worldIn.spawnEntityInWorld( e ) )
+				return EnumActionResult.FAIL;
 		}
 
-		return EnumActionResult.FAIL;
+		ModUtil.adjustStackSize( stack, -1 );
+		return EnumActionResult.SUCCESS;
 	}
 
 	public boolean isWritten(
@@ -235,16 +235,19 @@ public class ItemBlueprint extends Item implements Runnable
 	protected BlueprintData getStackData(
 			final ItemStack data )
 	{
-		final NBTTagCompound tagCompound = data.getTagCompound();
-
-		if ( tagCompound.hasKey( "data" ) )
+		if ( data.hasTagCompound() )
 		{
-			return getItemData( tagCompound.getByteArray( "data" ), data );
-		}
+			final NBTTagCompound tagCompound = data.getTagCompound();
 
-		if ( tagCompound.hasKey( "url" ) )
-		{
-			return getURLData( tagCompound.getString( "url" ) );
+			if ( tagCompound.hasKey( "data" ) )
+			{
+				return getItemData( tagCompound.getByteArray( "data" ), data );
+			}
+
+			if ( tagCompound.hasKey( "url" ) )
+			{
+				return getURLData( tagCompound.getString( "url" ) );
+			}
 		}
 
 		return null;
