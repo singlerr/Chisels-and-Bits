@@ -29,8 +29,9 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.core.api.BitAccess;
-import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.localization.LocalStrings;
+import mod.chiselsandbits.localization.LocalizedMessage;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.helpers.ModelQuadShare;
@@ -66,7 +67,7 @@ public class ShareGenerator implements Runnable
 	final BufferedImage screenshot;
 	IShareOutput output;
 
-	public String message = "N/A";
+	public LocalizedMessage message = null;
 	Runnable onComplete;
 	Runnable onError;
 
@@ -390,7 +391,8 @@ public class ShareGenerator implements Runnable
 		}
 		catch ( final Exception e )
 		{
-			message = e.getLocalizedMessage();
+			message = LocalizedMessage.PreLocalized( e.getLocalizedMessage() );
+			Minecraft.getMinecraft().addScheduledTask( onError );
 		}
 
 	}
@@ -401,7 +403,7 @@ public class ShareGenerator implements Runnable
 		@Override
 		public void run()
 		{
-			ClientSide.instance.getPlayer().addChatMessage( new TextComponentString( message ) );
+			ClientSide.instance.getPlayer().addChatMessage( new TextComponentString( message.toString() ) );
 		}
 
 	};
@@ -412,7 +414,7 @@ public class ShareGenerator implements Runnable
 		public void run()
 		{
 			ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( LocalStrings.ShareComplete.toString() ) );
-			ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( message ) );
+			ClientSide.instance.getPlayer().addChatMessage( new TextComponentString( message.toString() ) );
 		}
 
 	};

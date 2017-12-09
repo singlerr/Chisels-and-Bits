@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,8 +17,8 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ActingPlayer;
-import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.localization.LocalStrings;
 import mod.chiselsandbits.modes.WrenchModes;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketCompleteBlueprint;
@@ -27,7 +27,6 @@ import mod.chiselsandbits.network.packets.PacketUndo;
 import mod.chiselsandbits.network.packets.WriteBlueprintPacket;
 import mod.chiselsandbits.share.ShareGenerator;
 import mod.chiselsandbits.share.output.ClipBoardText;
-import mod.chiselsandbits.share.output.ClipboardImage;
 import mod.chiselsandbits.share.output.IShareOutput;
 import mod.chiselsandbits.share.output.LocalPNGFile;
 import mod.chiselsandbits.share.output.LocalTextFile;
@@ -53,6 +52,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
@@ -395,6 +395,9 @@ public class EntityBlueprint extends Entity
 	{
 		if ( player.getEntityWorld().isRemote )
 		{
+			if ( getDataManager().get( BLUEPRINT_PLACING ) )
+				return;
+
 			getDataManager().set( BLUEPRINT_PLACING, true );
 			sendUpdate();
 			player.addChatMessage( new TextComponentTranslation( LocalStrings.BlueprintBeginCapture.toString() ) );
@@ -407,9 +410,6 @@ public class EntityBlueprint extends Entity
 			{
 				switch ( ChiselsAndBits.getConfig().shareOutput )
 				{
-					case IMAGE_CLIPBOARD:
-						out = new ClipboardImage();
-						break;
 					case IMAGE_FILE_WITH_SCREENSHOT:
 						out = new LocalPNGFile( newFileName( ChiselsAndBits.getConfig().getShareFileOutputFolder(), ".png" ) );
 						break;
@@ -440,7 +440,7 @@ public class EntityBlueprint extends Entity
 							wp.setFrom( getEntityId(), data );
 
 							NetworkRouter.instance.sendToServer( wp );
-							player.addChatMessage( new TextComponentTranslation( sg.message ) );
+							player.addChatMessage( new TextComponentString( sg.message.toString() ) );
 						}
 						catch ( IOException ioe )
 						{
@@ -461,14 +461,13 @@ public class EntityBlueprint extends Entity
 			String shareFileOutputFolder,
 			String type ) throws NoSuchFileException
 	{
-		DateFormat dateFormat = new SimpleDateFormat( "yyyy/MM/dd HH:mm:ss" );
-		Calendar cal = Calendar.getInstance();
+		DateFormat dateFormat = new SimpleDateFormat( "yyyy-MM-dd-HH-mm-ss" );
 		String extra = "";
 
 		int loops = 0;
 		while ( loops++ < 1000 )
 		{
-			File o = new File( shareFileOutputFolder, dateFormat.format( cal ) + extra + type );
+			File o = new File( shareFileOutputFolder, dateFormat.format( new Date() ) + extra + type );
 			if ( !o.exists() )
 				return o;
 

@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.localization.LocalStrings;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;

@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import mod.chiselsandbits.blueprints.BlueprintData;
-import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.localization.LocalStrings;
+import mod.chiselsandbits.localization.LocalizedMessage;
 import mod.chiselsandbits.share.ScreenShotEncoder;
 
 public class LocalPNGFile implements IShareOutput
@@ -22,12 +23,12 @@ public class LocalPNGFile implements IShareOutput
 	}
 
 	@Override
-	public String handleOutput(
+	public LocalizedMessage handleOutput(
 			final byte[] compressedData,
 			final BufferedImage screenshot ) throws UnsupportedEncodingException, IOException
 	{
 		ScreenShotEncoder.encodeScreenshot( screenshot, compressedData, new FileOutputStream( outFile ) );
-		return LocalStrings.ShareFile.toString();
+		return new LocalizedMessage( LocalStrings.ShareFile, outFile );
 	}
 
 	@Override

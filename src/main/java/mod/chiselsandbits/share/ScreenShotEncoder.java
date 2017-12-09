@@ -82,6 +82,15 @@ public class ScreenShotEncoder
 			final byte[] modelData,
 			final OutputStream outfile ) throws IOException
 	{
+		BufferedImage output = encodeScreenshot( screenshot, modelData );
+		ImageIO.write( output, "png", outfile );
+		outfile.close();
+	}
+
+	static public BufferedImage encodeScreenshot(
+			final BufferedImage screenshot,
+			final byte[] modelData ) throws IOException
+	{
 		final int sizeOfData = 4 + modelData.length;
 
 		final int extraStoragePerPixel = 3;
@@ -137,8 +146,7 @@ public class ScreenShotEncoder
 			writer.writeByte( modelData[x] & 0xff );
 		}
 
-		ImageIO.write( output, "png", outfile );
-		outfile.close();
+		return output;
 	}
 
 	private static class ImageWriter

@@ -1,6 +1,6 @@
 package mod.chiselsandbits.modes;
 
-import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.localization.LocalStrings;
 import net.minecraft.item.ItemStack;
 
 public interface IToolMode

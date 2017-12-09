@@ -1,6 +1,6 @@
-package mod.chiselsandbits.helpers;
+package mod.chiselsandbits.localization;
 
-public enum ChiselErrors
+public enum ChiselErrors implements ILocalizeable
 {
 	OUT_OF_RANGE( "mod.chiselsandbits.result.out_of_range" ),
 	NO_BAG_SPACE( "mod.chiselsandbits.result.no_bag_space" ),
@@ -18,9 +18,10 @@ public enum ChiselErrors
 		msg = str;
 	}
 
-	public String getLocal(
-			Object... args )
+	@Override
+	public String toString()
 	{
-		return ModUtil.localizeAndInsertVars( msg, args );
+		return msg;
 	}
+
 }

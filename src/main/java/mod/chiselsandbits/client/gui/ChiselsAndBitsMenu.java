@@ -12,7 +12,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.DeprecationHelper;
-import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.localization.LocalStrings;
 import mod.chiselsandbits.modes.IToolMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;

@@ -3,6 +3,7 @@ package mod.chiselsandbits.network.packets;
 import java.io.IOException;
 
 import mod.chiselsandbits.blueprints.BlueprintData;
+import mod.chiselsandbits.blueprints.BlueprintData.EnumLoadState;
 import mod.chiselsandbits.blueprints.EntityBlueprint;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.entity.Entity;
@@ -85,18 +86,21 @@ public class WriteBlueprintPacket extends ModPacket
 		this.entityid = entityid;
 
 		data = new NBTTagCompound();
-		data.setInteger( "xSize", dat.getXSize() );
-		data.setInteger( "ySize", dat.getYSize() );
-		data.setInteger( "zSize", dat.getZSize() );
+		if ( dat.getState() == EnumLoadState.LOADED )
+		{
+			data.setInteger( "xSize", dat.getXSize() );
+			data.setInteger( "ySize", dat.getYSize() );
+			data.setInteger( "zSize", dat.getZSize() );
 
-		final byte[] blob = dat.getStuctureData();
-		if ( blob.length > 30000 )
-		{
-			data.setString( "url", dat.getURL() );
-		}
-		else
-		{
-			data.setByteArray( "data", blob );
+			final byte[] blob = dat.getStuctureData();
+			if ( blob.length > 30000 )
+			{
+				data.setString( "url", dat.getURL() );
+			}
+			else
+			{
+				data.setByteArray( "data", blob );
+			}
 		}
 	}
 }

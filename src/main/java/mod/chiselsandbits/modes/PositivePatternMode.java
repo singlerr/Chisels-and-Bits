@@ -1,7 +1,7 @@
 package mod.chiselsandbits.modes;
 
 import mod.chiselsandbits.core.Log;
-import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.localization.LocalStrings;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagString;

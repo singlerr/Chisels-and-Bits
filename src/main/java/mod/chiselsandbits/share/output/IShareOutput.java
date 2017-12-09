@@ -7,11 +7,12 @@ import java.io.UnsupportedEncodingException;
 import javax.annotation.Nonnull;
 
 import mod.chiselsandbits.blueprints.BlueprintData;
+import mod.chiselsandbits.localization.LocalizedMessage;
 
 public interface IShareOutput
 {
 
-	String handleOutput(
+	LocalizedMessage handleOutput(
 			byte[] compressedData,
 			BufferedImage screenshot ) throws UnsupportedEncodingException, IOException;
 

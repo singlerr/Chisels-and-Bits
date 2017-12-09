@@ -111,7 +111,7 @@ public class BlueprintData implements Runnable, IVoxelProvider
 			is.reset();
 
 			// load png? or is it text?
-			if ( peek[0] == 0x89 && peek[1] == 0x50 && peek[2] == 0x4E && peek[3] == 0x47 )
+			if ( peek[0] == (byte) 0x89 && peek[1] == 0x50 && peek[2] == 0x4E && peek[3] == 0x47 )
 			{
 				data = new ShareWorldData( ImageIO.read( is ) );
 			}

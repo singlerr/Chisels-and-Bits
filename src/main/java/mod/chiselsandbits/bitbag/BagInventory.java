@@ -11,10 +11,10 @@ import java.util.TreeMap;
 import javax.annotation.Nonnull;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.localization.LocalStrings;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;

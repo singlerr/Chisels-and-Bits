@@ -1,6 +1,6 @@
-package mod.chiselsandbits.helpers;
+package mod.chiselsandbits.localization;
 
-public enum LocalStrings
+public enum LocalStrings implements ILocalizeable
 {
 
 	ChiselModeSingle( "chiselmode.single" ),
@@ -115,17 +115,6 @@ public enum LocalStrings
 	public String toString()
 	{
 		return string;
-	}
-
-	public String getLocal()
-	{
-		return DeprecationHelper.translateToLocal( string );
-	}
-
-	public String getLocal(
-			final Object... args )
-	{
-		return DeprecationHelper.translateToLocal( string, args );
 	}
 
 }

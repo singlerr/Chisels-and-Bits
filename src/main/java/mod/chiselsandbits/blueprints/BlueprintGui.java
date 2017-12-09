@@ -12,7 +12,7 @@ import mod.chiselsandbits.blueprints.BlueprintData.EnumLoadState;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.DeprecationHelper;
-import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.localization.LocalStrings;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketBlueprintSet;
 import net.minecraft.client.gui.GuiButton;

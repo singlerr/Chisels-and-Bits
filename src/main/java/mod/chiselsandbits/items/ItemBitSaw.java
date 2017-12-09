@@ -3,7 +3,7 @@ package mod.chiselsandbits.items;
 import java.util.List;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.localization.LocalStrings;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

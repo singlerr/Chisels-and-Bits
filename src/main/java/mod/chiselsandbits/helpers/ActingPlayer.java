@@ -1,6 +1,5 @@
 package mod.chiselsandbits.helpers;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,6 +9,8 @@ import mod.chiselsandbits.api.EventBlockBitModification;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.localization.ChiselErrors;
+import mod.chiselsandbits.localization.LocalizedMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -171,41 +172,15 @@ public class ActingPlayer
 		return getPlayer().getPosition();
 	}
 
-	class TrackerError
-	{
-		ChiselErrors msg;
-		Object[] args;
-
-		@Override
-		public int hashCode()
-		{
-			return msg.hashCode() ^ Arrays.hashCode( args );
-		}
-
-		@Override
-		public boolean equals(
-				Object obj )
-		{
-			TrackerError a = (TrackerError) obj;
-
-			if ( a.msg == this.msg )
-			{
-				return Arrays.equals( args, a.args );
-			}
-
-			return false;
-		}
-	};
-
 	// errors produced by operations are accumulated for display.
-	private final Set<TrackerError> errors = new HashSet<TrackerError>();
+	private final Set<LocalizedMessage> errors = new HashSet<LocalizedMessage>();
 
 	@SideOnly( Side.CLIENT )
 	private void innerDisplayError()
 	{
-		for ( final TrackerError err : errors )
+		for ( final LocalizedMessage err : errors )
 		{
-			ClientSide.instance.getPlayer().addChatMessage( new TextComponentString( err.msg.getLocal( err.args ) ) );
+			ClientSide.instance.getPlayer().addChatMessage( new TextComponentString( err.toString() ) );
 		}
 	}
 
@@ -225,10 +200,7 @@ public class ActingPlayer
 	{
 		if ( this.getWorld().isRemote )
 		{
-			TrackerError trackerErr = new TrackerError();
-			trackerErr.msg = string;
-			trackerErr.args = vars;
-			errors.add( trackerErr );
+			errors.add( new LocalizedMessage( string, vars ) );
 		}
 	}
 

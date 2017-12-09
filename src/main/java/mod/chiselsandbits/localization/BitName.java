@@ -1,7 +1,8 @@
-package mod.chiselsandbits.helpers;
+package mod.chiselsandbits.localization;
 
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.ModUtil;
 
 public class BitName
 {

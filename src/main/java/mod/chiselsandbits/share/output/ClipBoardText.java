@@ -7,7 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
 import mod.chiselsandbits.blueprints.BlueprintData;
-import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.localization.LocalStrings;
+import mod.chiselsandbits.localization.LocalizedMessage;
 import net.minecraft.client.gui.GuiScreen;
 
 public class ClipBoardText implements IShareOutput
@@ -16,7 +17,7 @@ public class ClipBoardText implements IShareOutput
 	String text;
 
 	@Override
-	public String handleOutput(
+	public LocalizedMessage handleOutput(
 			final byte[] compressedData,
 			final BufferedImage screenshot ) throws UnsupportedEncodingException, IOException
 	{
@@ -26,7 +27,7 @@ public class ClipBoardText implements IShareOutput
 		o.append( ")[C&B]" );
 		GuiScreen.setClipboardString( text = o.toString() );
 
-		return LocalStrings.ShareClipboard.toString();
+		return new LocalizedMessage( LocalStrings.ShareClipboard );
 	}
 
 	@Override

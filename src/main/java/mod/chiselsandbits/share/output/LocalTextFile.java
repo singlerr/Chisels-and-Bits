@@ -9,7 +9,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
 import mod.chiselsandbits.blueprints.BlueprintData;
-import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.localization.LocalStrings;
+import mod.chiselsandbits.localization.LocalizedMessage;
 
 public class LocalTextFile implements IShareOutput
 {
@@ -24,7 +25,7 @@ public class LocalTextFile implements IShareOutput
 	}
 
 	@Override
-	public String handleOutput(
+	public LocalizedMessage handleOutput(
 			final byte[] compressedData,
 			final BufferedImage screenshot ) throws UnsupportedEncodingException, IOException
 	{
@@ -34,7 +35,7 @@ public class LocalTextFile implements IShareOutput
 		o.write( new String( ")[C&B]" ).getBytes( encoding ) );
 		o.close();
 
-		return LocalStrings.ShareFile.toString();
+		return new LocalizedMessage( LocalStrings.ShareFile, outFile );
 	}
 
 	@Override

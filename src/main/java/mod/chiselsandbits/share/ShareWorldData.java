@@ -1,6 +1,7 @@
 package mod.chiselsandbits.share;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -115,7 +116,7 @@ public class ShareWorldData
 	public ShareWorldData(
 			final BufferedImage img ) throws IOException
 	{
-		final byte[] data = new byte[img.getWidth() * img.getHeight() * 4];
+		final byte[] data = ( (DataBufferByte) img.getRaster().getDataBuffer() ).getData();
 
 		final ScreenshotDecoder sdecoder = new ScreenshotDecoder();
 		final byte[] compressed = sdecoder.imageDecode( data );
