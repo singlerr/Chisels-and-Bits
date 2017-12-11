@@ -11,7 +11,7 @@ import mod.chiselsandbits.localization.LocalStrings;
 import mod.chiselsandbits.localization.LocalizedMessage;
 import net.minecraft.client.gui.GuiScreen;
 
-public class ClipBoardText implements IShareOutput
+public class ClipboardText implements IShareOutput
 {
 
 	String text;
@@ -21,12 +21,7 @@ public class ClipBoardText implements IShareOutput
 			final byte[] compressedData,
 			final BufferedImage screenshot ) throws UnsupportedEncodingException, IOException
 	{
-		final StringBuilder o = new StringBuilder();
-		o.append( "[C&B](" );
-		o.append( Base64.getEncoder().encodeToString( compressedData ) );
-		o.append( ")[C&B]" );
-		GuiScreen.setClipboardString( text = o.toString() );
-
+		GuiScreen.setClipboardString( text = getShareString( compressedData ) );
 		return new LocalizedMessage( LocalStrings.ShareClipboard );
 	}
 
@@ -45,6 +40,16 @@ public class ClipBoardText implements IShareOutput
 		}
 
 		return bpd;
+	}
+
+	public static String getShareString(
+			byte[] compressedData )
+	{
+		final StringBuilder o = new StringBuilder();
+		o.append( "[C&B](" );
+		o.append( Base64.getEncoder().encodeToString( compressedData ) );
+		o.append( ")[C&B]" );
+		return o.toString();
 	}
 
 }

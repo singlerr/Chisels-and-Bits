@@ -186,6 +186,7 @@ mod.chiselsandbits.help.share.file=Saved blueprint as {}
 mod.chiselsandbits.help.share.nofile=Unable to load selected file.
 mod.chiselsandbits.help.share.invaliddata=File was invalid and could not be loaded.
 mod.chiselsandbits.help.share.badurl=Unable to download file at the provided url.
+mod.chiselsandbits.help.share.url=Copied {} to clipboard.
 
 mod.chiselsandbits.config.maxUndoLevel=Max Undo Level
 mod.chiselsandbits.config.persistCreativeClipboard=Save/Load Creative Clipboard Contents
@@ -218,6 +219,13 @@ mod.chiselsandbits.config.enablePositivePatternMode_Replace=Enable Mode - Replac
 mod.chiselsandbits.config.enableTapeMeasure_Bit=Enable Mode - Bit
 mod.chiselsandbits.config.enableTapeMeasure_Block=Enable Mode - Block
 mod.chiselsandbits.config.enableTapeMeasure_Distance=Enable Mode - Distance
+
+mod.chiselsandbits.config.shareOutput=Share Save Method
+mod.chiselsandbits.config.shareFileOutputFolder=Share Files Save To
+mod.chiselsandbits.config.pasteBinAPIKey=PasteBin - API Key
+mod.chiselsandbits.config.pasteBinUsername=PasteBin - Username
+mod.chiselsandbits.config.pasteBinPassword=PasteBin - Password
+mod.chiselsandbits.config.pasteBinPrivacyMode=PasteBin - Privacy Mode
 
 mod.chiselsandbits.config.enableToolbarIcons=Show mode icon for chisel in tool bar
 mod.chiselsandbits.config.perChiselMode=Store selected mode per chisel

@@ -46,6 +46,7 @@ public enum LocalStrings implements ILocalizeable
 	ShareNoFile( "help.share.nofile" ),
 	ShareInvalidData( "help.share.invaliddata" ),
 	ShareNoUrl( "help.share.badurl" ),
+	ShareURL( "help.share.url" ),
 
 	HelpPositivePrint( "help.positiveprint" ),
 	LongHelpPositivePrint( "help.positiveprint.long" ),

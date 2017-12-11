@@ -153,11 +153,23 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Settings" )
 	public float radialMenuVolume;
 
-	@Configured( category = "Client Settings" )
+	@Configured( category = "Blueprint Settings" )
 	public EnumShareOutput shareOutput;
 
-	@Configured( category = "Client Settings" )
+	@Configured( category = "Blueprint Settings" )
 	public String shareFileOutputFolder;
+
+	@Configured( category = "Blueprint Settings" )
+	public String pasteBinAPIKey;
+
+	@Configured( category = "Blueprint Settings" )
+	public String pasteBinUsername;
+
+	@Configured( category = "Blueprint Settings" )
+	public String pasteBinPassword;
+
+	@Configured( category = "Blueprint Settings" )
+	public EnumPasteBinPrivacyMode pasteBinPrivacyMode;
 
 	public String getShareFileOutputFolder()
 	{
@@ -449,6 +461,11 @@ public class ModConfig extends Configuration
 		ShowBitsInJEI = false;
 		enableVivecraftCompatibility = false;
 		enableMCMultipart = true;
+
+		pasteBinAPIKey = "";
+		pasteBinUsername = "";
+		pasteBinPassword = "";
+		pasteBinPrivacyMode = EnumPasteBinPrivacyMode.UNLISTED;
 	}
 
 	public ModConfig(

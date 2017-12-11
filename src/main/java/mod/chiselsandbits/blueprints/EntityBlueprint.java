@@ -26,10 +26,11 @@ import mod.chiselsandbits.network.packets.PacketShiftBluePrint;
 import mod.chiselsandbits.network.packets.PacketUndo;
 import mod.chiselsandbits.network.packets.WriteBlueprintPacket;
 import mod.chiselsandbits.share.ShareGenerator;
-import mod.chiselsandbits.share.output.ClipBoardText;
+import mod.chiselsandbits.share.output.ClipboardText;
 import mod.chiselsandbits.share.output.IShareOutput;
 import mod.chiselsandbits.share.output.LocalPNGFile;
 import mod.chiselsandbits.share.output.LocalTextFile;
+import mod.chiselsandbits.share.output.PasteBin;
 import mod.chiselsandbits.voxelspace.IVoxelSrc;
 import mod.chiselsandbits.voxelspace.VoxelCompressedProviderWorld;
 import mod.chiselsandbits.voxelspace.VoxelOffsetRegion;
@@ -413,9 +414,12 @@ public class EntityBlueprint extends Entity
 					case IMAGE_FILE_WITH_SCREENSHOT:
 						out = new LocalPNGFile( newFileName( ChiselsAndBits.getConfig().getShareFileOutputFolder(), ".png" ) );
 						break;
+					case TEXT_PASTEBIN:
+						out = new PasteBin();
+						break;
 					default:
 					case TEXT_CLIPBOARD:
-						out = new ClipBoardText();
+						out = new ClipboardText();
 						break;
 					case TEXT_FILE:
 						out = new LocalTextFile( newFileName( ChiselsAndBits.getConfig().getShareFileOutputFolder(), ".txt" ) );

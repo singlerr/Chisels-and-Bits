@@ -6,8 +6,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
@@ -92,9 +96,25 @@ public class ShareWorldData
 	{
 		final String header = "[C&B](";
 		final String footer = ")[C&B]";
+		final String htmlHeader = "[C&amp;B]";
 
-		int start = data.indexOf( header );
-		final int end = data.indexOf( footer );
+		// is it html encoded? if it is decode the page before moving on.
+		if ( data.indexOf( htmlHeader ) != -1 )
+		{
+			data = StringEscapeUtils.unescapeHtml4( data );
+		}
+
+		int start = -1;
+		int end = -1;
+
+		// find a valid pattern in side...
+		Pattern p = Pattern.compile( "\\[C&B\\]\\([A-Za-z0-9+/=\n\r ]+\\)\\[C&B\\]" );
+		Matcher m = p.matcher( data );
+		if ( m.find() )
+		{
+			start = m.start();
+			end = m.end();
+		}
 
 		if ( start == -1 || end == -1 )
 		{
@@ -102,7 +122,7 @@ public class ShareWorldData
 		}
 
 		start += header.length();
-		data = data.substring( start, end );
+		data = data.substring( start, end - footer.length() );
 		final byte[] compressed = Base64.getDecoder().decode( data );
 		readCompressed( compressed );
 	}

@@ -3,7 +3,7 @@ package mod.chiselsandbits.commands;
 import javax.swing.JFileChooser;
 
 import mod.chiselsandbits.share.ShareGenerator;
-import mod.chiselsandbits.share.output.ClipBoardText;
+import mod.chiselsandbits.share.output.ClipboardText;
 import mod.chiselsandbits.share.output.IShareOutput;
 import mod.chiselsandbits.share.output.LocalPNGFile;
 import mod.chiselsandbits.share.output.LocalTextFile;
@@ -80,7 +80,7 @@ public class Share extends CommandBase
 		else if ( start != null && end != null )
 		{
 			final World clientWorld = Minecraft.getMinecraft().theWorld;
-			IShareOutput out = new ClipBoardText();
+			IShareOutput out = new ClipboardText();
 
 			if ( args.length > 0 )
 			{
