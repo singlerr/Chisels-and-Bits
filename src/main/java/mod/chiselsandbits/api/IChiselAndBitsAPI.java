@@ -167,6 +167,17 @@ public interface IChiselAndBitsAPI
 			ItemStack stack );
 
 	/**
+	 * Example: int stackSize =
+	 * api.getParameter(IntegerParam.BIT_BAG_MAX_STACK_SIZE );
+	 * 
+	 * @param which
+	 *            - refer to ParameterType for list of possible values.
+	 * @return value of specified parameter.
+	 */
+	public <T extends Object> T getParameter(
+			ParameterType<T> which );
+
+	/**
 	 * Begins an undo group, starting two operations without ending the previous
 	 * operation will throw a runtime exception.
 	 * 
