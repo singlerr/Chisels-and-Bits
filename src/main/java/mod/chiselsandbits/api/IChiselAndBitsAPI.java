@@ -164,8 +164,24 @@ public interface IChiselAndBitsAPI
 			ItemStack itemstack );
 
 	/**
-	 * Begins an undo operation, starting two operations without ending the
-	 * previous operation will throw a runtime exception.
+	 * Example: int stackSize =
+	 * api.getParameter(IntegerParam.BIT_BAG_MAX_STACK_SIZE );
+	 * 
+	 * @param which
+	 *            - refer to ParameterType for list of possible values.
+	 * @return value of specified parameter.
+	 */
+	public <T extends Object> T getParameter(
+			ParameterType<T> which );
+
+	/**
+	 * Begins an undo group, starting two operations without ending the previous
+	 * operation will throw a runtime exception.
+	 * 
+	 * This is used to merge multiple blocks into a single operation, undo steps
+	 * will be recorded regardless of usage of this method, however its
+	 * suggested to use groups in any case where a change well affect more then
+	 * one block.
 	 *
 	 * @formatter:off
 	 *

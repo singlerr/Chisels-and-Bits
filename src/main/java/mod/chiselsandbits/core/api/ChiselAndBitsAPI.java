@@ -9,12 +9,17 @@ import mod.chiselsandbits.api.IBitLocation;
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.api.ModKeyBinding;
+import mod.chiselsandbits.api.ParameterType;
+import mod.chiselsandbits.api.ParameterType.DoubleParam;
+import mod.chiselsandbits.api.ParameterType.FloatParam;
+import mod.chiselsandbits.api.ParameterType.IntegerParam;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.client.UndoTracker;
+import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.BitOperation;
@@ -383,6 +388,56 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			default:
 				return ClientSide.instance.getKeyBinding( modKeyBinding );
 		}
+	}
+
+	@SuppressWarnings( { "rawtypes", "unchecked" } )
+	@Override
+	public Object getParameter(
+			ParameterType which )
+	{
+		ModConfig config = ChiselsAndBits.getConfig();
+
+		switch ( (ParameterType.ParamTypes) which.getType() )
+		{
+			case BOOLEAN:
+				switch ( (ParameterType.BooleanParam) which )
+				{
+					case ENABLE_MCMP:
+						return true;
+					case ENABLE_DAMAGE_TOOLS:
+						return config.damageTools;
+					case ENABLE_BIT_LIGHT_SOURCE:
+						return config.enableBitLightSource;
+				}
+				break;
+
+			case DOUBLE:
+				switch ( (DoubleParam) which )
+				{
+					case BIT_MAX_DRAWN_REGION_SIZE:
+						return config.maxDrawnRegionSize;
+				}
+				break;
+
+			case FLOAT:
+				switch ( (FloatParam) which )
+				{
+					case BLOCK_FULL_LIGHT_PERCENTAGE:
+						return config.bitLightPercentage;
+				}
+				break;
+
+			case INTEGER:
+				switch ( (IntegerParam) which )
+				{
+					case BIT_BAG_MAX_STACK_SIZE:
+						return config.bagStackSize;
+				}
+				break;
+
+		}
+
+		return null;
 	}
 
 }
