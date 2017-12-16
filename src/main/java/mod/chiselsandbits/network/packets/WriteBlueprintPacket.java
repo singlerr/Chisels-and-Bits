@@ -92,7 +92,7 @@ public class WriteBlueprintPacket extends ModPacket
 			data.setInteger( "ySize", dat.getYSize() );
 			data.setInteger( "zSize", dat.getZSize() );
 
-			final byte[] blob = dat.getStuctureData();
+			final byte[] blob = dat.getStructureData();
 			if ( blob.length > 30000 )
 			{
 				data.setString( "url", dat.getURL() );
