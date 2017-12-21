@@ -798,8 +798,19 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return ( sideState & 1 << side.ordinal() ) != 0;
 	}
 
-	@SideOnly( Side.CLIENT )
 	public boolean isSideOpaque(
+			final EnumFacing side )
+	{
+		if ( this.getWorld().isRemote )
+		{
+			return isInnerSideOpaque( side );
+		}
+
+		return false;
+	}
+
+	@SideOnly( Side.CLIENT )
+	public boolean isInnerSideOpaque(
 			final EnumFacing side )
 	{
 		final VoxelNeighborRenderTracker vns = state != null ? state.getValue( BlockChiseled.UProperty_VoxelNeighborState ) : null;
