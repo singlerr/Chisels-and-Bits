@@ -14,9 +14,9 @@ import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
+import mod.chiselsandbits.helpers.IItemInInventory;
 import mod.chiselsandbits.helpers.InventoryBackup;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.network.ModPacket;
@@ -169,18 +169,23 @@ public class PacketUndo extends ModPacket
 								}
 							}
 
-							final ItemStackSlot bit = ModUtil.findBit( player, pos, inAfter );
+							final IItemInInventory bit = ModUtil.findBit( player, pos, inAfter );
 							if ( ModUtil.consumeBagBit( bags, inAfter, 1 ) == 1 )
 							{
 								bi.setNext( target, inAfter );
 							}
 							else if ( bit.isValid() )
 							{
-								bi.setNext( target, inAfter );
 								if ( !player.isCreative() )
 								{
-									bit.consume();
+									if ( !bit.consume() )
+									{
+										successful = false;
+										break;
+									}
 								}
+
+								bi.setNext( target, inAfter );
 							}
 							else
 							{

@@ -23,9 +23,9 @@ import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.IContinuousInventory;
+import mod.chiselsandbits.helpers.IItemInInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
@@ -323,7 +323,10 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			return output;
 		}
 
-		selected.useItem( blk );
+		if ( !selected.useItem( blk ) )
+		{
+			return output;
+		}
 
 		final boolean spawnBit = ChiselsAndBits.getItems().itemBlockBit != null;
 		if ( !world.isRemote && !isCreative )
@@ -371,7 +374,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final @Nonnull BlockPos pos )
 	{
 		final int targetState = ModUtil.getStateId( state );
-		ItemStackSlot chiselSlot = chiselInv.getItem( targetState );
+		IItemInInventory chiselSlot = chiselInv.getItem( targetState );
 		ItemStack chisel = chiselSlot.getStack();
 
 		if ( player.capabilities.isCreativeMode )

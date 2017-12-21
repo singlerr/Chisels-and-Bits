@@ -5,19 +5,20 @@ import java.util.List;
 
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
-import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 
 public class ContinousBits implements IContinuousInventory
 {
 	final int stateID;
 	private final ActingPlayer who;
-	private final List<ItemStackSlot> options = new ArrayList<ItemStackSlot>();
+	private final List<IItemInInventory> options = new ArrayList<IItemInInventory>();
 	private final List<BagInventory> bags = new ArrayList<BagInventory>();
 	private final boolean canEdit;
 
@@ -38,24 +39,45 @@ public class ContinousBits implements IContinuousInventory
 		for ( int zz = 0; zz < inv.getSizeInventory(); zz++ )
 		{
 			final ItemStack which = inv.getStackInSlot( zz );
-			if ( which != null && which.getItem() instanceof ItemChiseledBit )
+			if ( which != null && which.getItem() != null )
 			{
-				if ( ItemChiseledBit.getStackState( which ) == stateID )
+				Item i = which.getItem();
+				if ( i instanceof ItemChiseledBit )
 				{
-					if ( zz == src.getCurrentItem() )
+					if ( ItemChiseledBit.getStackState( which ) == stateID )
 					{
-						handSlot = new ItemStackSlot( inv, zz, which, src, canEdit );
-					}
-					else
-					{
-						options.add( new ItemStackSlot( inv, zz, which, src, canEdit ) );
+						if ( zz == src.getCurrentItem() )
+						{
+							handSlot = new ItemStackSlot( inv, zz, which, src, canEdit );
+						}
+						else
+						{
+							options.add( new ItemStackSlot( inv, zz, which, src, canEdit ) );
+						}
 					}
 				}
-			}
 
-			if ( which != null && which.getItem() instanceof ItemBitBag )
-			{
-				bags.add( new BagInventory( which ) );
+				else if ( i instanceof ItemBitBag )
+				{
+					bags.add( new BagInventory( which ) );
+				}
+
+				else if ( which.hasCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null ) )
+				{
+					IItemHandler internal = which.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null );
+					for ( int x = 0; x < internal.getSlots(); x++ )
+					{
+						ItemStack is = internal.getStackInSlot( x );
+
+						if ( is.getItem() instanceof ItemChiseledBit )
+						{
+							if ( ItemChiseledBit.getStackState( is ) == stateID )
+							{
+								options.add( new IItemHandlerSlot( internal, x, is, src, canEdit ) );
+							}
+						}
+					}
+				}
 			}
 		}
 
@@ -66,39 +88,44 @@ public class ContinousBits implements IContinuousInventory
 	}
 
 	@Override
-	public ItemStackSlot getItem(
+	public IItemInInventory getItem(
 			final int BlockID )
 	{
 		return options.get( 0 );
 	}
 
 	@Override
-	public void useItem(
+	public boolean useItem(
 			final int blk )
 	{
-		final ItemStackSlot slot = options.get( 0 );
+		final IItemInInventory slot = options.get( 0 );
 
-		if ( ModUtil.getStackSize( slot.getStack() ) <= 1 )
+		if ( slot instanceof ItemStackSlot && ModUtil.getStackSize( slot.getStack() ) <= 1 )
 		{
 			for ( final BagInventory bag : bags )
 			{
-				slot.replaceStack( bag.restockItem( slot.getStack(), slot.getStackType() ) );
+				( (ItemStackSlot) slot ).replaceStack( bag.restockItem( slot.getStack(), slot.getStackType() ) );
 			}
 		}
 
-		slot.consume();
+		boolean worked = slot.consume();
 
 		if ( slot.isValid() )
 		{
-			for ( final BagInventory bag : bags )
+			if ( slot instanceof ItemStackSlot )
 			{
-				slot.replaceStack( bag.restockItem( slot.getStack(), slot.getStackType() ) );
+				for ( final BagInventory bag : bags )
+				{
+					( (ItemStackSlot) slot ).replaceStack( bag.restockItem( slot.getStack(), slot.getStackType() ) );
+				}
 			}
 		}
 		else
 		{
 			options.remove( 0 );
 		}
+
+		return worked;
 	}
 
 	@Override

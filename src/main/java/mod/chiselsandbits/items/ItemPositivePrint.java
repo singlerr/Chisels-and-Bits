@@ -16,9 +16,9 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
+import mod.chiselsandbits.helpers.IItemInInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.modes.PositivePatternMode;
@@ -208,15 +208,17 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 				continue;
 			}
 
-			ItemStackSlot bit = ModUtil.findBit( player, pos, inPattern );
+			IItemInInventory bit = ModUtil.findBit( player, pos, inPattern );
 			int stillNeeded = type.getValue() - ModUtil.consumeBagBit( bags, inPattern, type.getValue() );
 			if ( stillNeeded != 0 )
 			{
 				for ( int x = stillNeeded; x > 0 && bit.isValid(); --x )
 				{
-					bit.consume();
-					stillNeeded--;
-					bit = ModUtil.findBit( player, pos, inPattern );
+					if ( bit.consume() )
+					{
+						stillNeeded--;
+						bit = ModUtil.findBit( player, pos, inPattern );
+					}
 				}
 
 				if ( stillNeeded != 0 )
@@ -280,19 +282,20 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 
 						if ( inPlace == 0 && inPattern != 0 && filled.get( x, y, z ) == 0 )
 						{
-							final ItemStackSlot bit = ModUtil.findBit( player, pos, inPattern );
+							final IItemInInventory bit = ModUtil.findBit( player, pos, inPattern );
 							if ( ModUtil.consumeBagBit( bags, inPattern, 1 ) == 1 )
 							{
 								vb.set( x, y, z, inPattern );
 							}
 							else if ( bit.isValid() )
 							{
-								vb.set( x, y, z, inPattern );
-
 								if ( !player.isCreative() )
 								{
-									bit.consume();
+									if ( bit.consume() )
+										vb.set( x, y, z, inPattern );
 								}
+								else
+									vb.set( x, y, z, inPattern );
 							}
 						}
 					}

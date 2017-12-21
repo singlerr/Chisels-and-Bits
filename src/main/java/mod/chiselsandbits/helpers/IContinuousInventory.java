@@ -1,11 +1,9 @@
 package mod.chiselsandbits.helpers;
 
-import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
-
 public interface IContinuousInventory
 {
 
-	void useItem(
+	boolean useItem(
 			int blockId );
 
 	void fail(
@@ -13,7 +11,7 @@ public interface IContinuousInventory
 
 	boolean isValid();
 
-	ItemStackSlot getItem(
+	IItemInInventory getItem(
 			int blockId );
 
 }

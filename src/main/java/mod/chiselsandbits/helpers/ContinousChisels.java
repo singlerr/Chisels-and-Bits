@@ -10,7 +10,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.items.ItemChisel;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item.ToolMaterial;
@@ -79,7 +78,7 @@ public class ContinousChisels implements IContinuousInventory
 	}
 
 	@Override
-	public ItemStackSlot getItem(
+	public IItemInInventory getItem(
 			final int BlockID )
 	{
 		if ( !actionCache.containsKey( BlockID ) )
@@ -94,7 +93,7 @@ public class ContinousChisels implements IContinuousInventory
 			return new ItemStackSlot( who.getInventory(), -1, ModUtil.getEmptyStack(), who, canEdit );
 		}
 
-		final ItemStackSlot slot = choices.get( choices.size() - 1 );
+		final IItemInInventory slot = choices.get( choices.size() - 1 );
 
 		if ( slot.isValid() )
 		{
@@ -127,10 +126,11 @@ public class ContinousChisels implements IContinuousInventory
 	}
 
 	@Override
-	public void useItem(
+	public boolean useItem(
 			final int blk )
 	{
 		getItem( blk ).damage( who );
+		return true;
 	}
 
 }

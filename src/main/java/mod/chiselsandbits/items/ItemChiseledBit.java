@@ -23,9 +23,9 @@ import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.IContinuousInventory;
+import mod.chiselsandbits.helpers.IItemInInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.helpers.ModUtil.ItemStackSlot;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
@@ -439,17 +439,18 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	{
 		if ( vb.get( x, y, z ) == 0 )
 		{
-			final ItemStackSlot slot = bits.getItem( 0 );
+			final IItemInInventory slot = bits.getItem( 0 );
 			final int stateID = ItemChiseledBit.getStackState( slot.getStack() );
 
 			if ( slot.isValid() )
 			{
-				vb.set( x, y, z, stateID );
-
 				if ( !player.isCreative() )
 				{
-					bits.useItem( stateID );
+					if ( bits.useItem( stateID ) )
+						vb.set( x, y, z, stateID );
 				}
+				else
+					vb.set( x, y, z, stateID );
 			}
 
 			return true;
