@@ -46,6 +46,9 @@ import net.minecraft.world.ChunkCache;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.fml.common.eventhandler.Event.Result;
 
 public class ModUtil
 {
@@ -371,25 +374,58 @@ public class ModUtil
 			is = bp.inv.insertItem( is );
 		}
 
-		if ( is != null && !player.inventory.addItemStackToInventory( is ) )
+		if ( ModUtil.isEmpty( is ) )
+			return;
+
+		ei.setEntityItemStack( is );
+		EntityItemPickupEvent event = new EntityItemPickupEvent( player, ei );
+
+		if ( MinecraftForge.EVENT_BUS.post( event ) )
 		{
-			ei.setEntityItemStack( is );
-			world.spawnEntityInWorld( ei );
+			// canceled...
+			spawnItem( world, ei );
 		}
 		else
 		{
-			if ( !ei.isSilent() )
+			if ( event.getResult() != Result.DENY )
 			{
-				ei.worldObj.playSound( (EntityPlayer) null, ei.posX, ei.posY, ei.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
+				is = ei.getEntityItem();
+
+				if ( is != null && !player.inventory.addItemStackToInventory( is ) )
+				{
+					ei.setEntityItemStack( is );
+					spawnItem( world, ei );
+				}
+				else
+				{
+					if ( !ei.isSilent() )
+					{
+						ei.worldObj.playSound( (EntityPlayer) null, ei.posX, ei.posY, ei.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
+					}
+				}
+
+				player.inventory.markDirty();
+
+				if ( player.inventoryContainer != null )
+				{
+					player.inventoryContainer.detectAndSendChanges();
+				}
+
 			}
+			else
+				spawnItem( world, ei );
 		}
 
-		player.inventory.markDirty();
+	}
 
-		if ( player.inventoryContainer != null )
-		{
-			player.inventoryContainer.detectAndSendChanges();
-		}
+	private static void spawnItem(
+			World world,
+			EntityItem ei )
+	{
+		if ( world.isRemote ) // no spawning items on the client.
+			return;
+
+		world.spawnEntityInWorld( ei );
 	}
 
 	public static boolean containsAtLeastOneOf(
