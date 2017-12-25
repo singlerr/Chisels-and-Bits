@@ -500,7 +500,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		getTileContainer().saveData();
 	}
 
-	private long getPositionRandom(
+	public static long getPositionRandom(
 			final BlockPos pos )
 	{
 		if ( pos != null && FMLCommonHandler.instance().getSide() == Side.CLIENT )

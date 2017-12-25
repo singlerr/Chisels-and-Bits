@@ -17,6 +17,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.StateLookup.CachedStateLookup;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
+import mod.chiselsandbits.integration.mods.LittleTiles;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemBitBag.BagPos;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -321,6 +322,22 @@ public class ModUtil
 			if ( te instanceof TileEntityBlockChiseled )
 			{
 				return (TileEntityBlockChiseled) te;
+			}
+
+			if ( te != null )
+			{
+				try
+				{
+					TileEntityBlockChiseled converted = LittleTiles.getConvertedTE( te, false );
+					if ( converted != null )
+					{
+						return converted;
+					}
+				}
+				catch ( Exception e )
+				{
+					e.printStackTrace();
+				}
 			}
 
 			return MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( world, pos, create );
