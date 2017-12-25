@@ -18,7 +18,6 @@ import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -26,7 +25,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -191,19 +189,24 @@ public class ItemBitBag extends Item
 	{
 		if ( is == null )
 		{
-			is = new ItemStack( ei.getEntityItem().getItem(), 0 );
-			ei.setEntityItemStack( is );
 			ei.setDead();
-
-			net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerItemPickupEvent( player, ei );
-
-			if ( !ei.isSilent() )
-			{
-				ei.worldObj.playSound( (EntityPlayer) null, ei.posX, ei.posY, ei.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
-			}
-
-			player.onItemPickup( ei, originalSize );
-
+			// is = new ItemStack( ei.getEntityItem().getItem(), 0 );
+			// ei.setEntityItemStack( is );
+			// ei.setDead();
+			//
+			// net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerItemPickupEvent(
+			// player, ei );
+			//
+			// if ( !ei.isSilent() )
+			// {
+			// ei.worldObj.playSound( (EntityPlayer) null, ei.posX, ei.posY,
+			// ei.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS,
+			// 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F +
+			// 1.0F ) * 2.0F );
+			// }
+			//
+			// player.onItemPickup( ei, originalSize );
+			//
 			return true;
 		}
 		else
