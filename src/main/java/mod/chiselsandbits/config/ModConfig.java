@@ -154,6 +154,9 @@ public class ModConfig extends Configuration
 	public static UseVBO useVBO;
 
 	@Configured( category = "Client Performance Settings" )
+	public boolean disableCustomVertexFormats;
+
+	@Configured( category = "Client Performance Settings" )
 	public int maxMillisecondsPerBlock = 10;
 
 	@Configured( category = "Client Performance Settings" )
@@ -361,6 +364,7 @@ public class ModConfig extends Configuration
 		defaultToDynamicRenderer = false;
 		dynamicRenderFullChunksOnly = true;
 		useVBO = UseVBO.AUTOMATIC;
+		disableCustomVertexFormats = false;
 
 		showUsage = true;
 		invertBitBagFullness = false;

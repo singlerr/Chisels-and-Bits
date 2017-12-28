@@ -14,6 +14,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateInstance;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.BaseSmartModel;
@@ -112,7 +113,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 
 	private static boolean ForgePipelineDisabled()
 	{
-		return FMLClientHandler.instance().hasOptifine() || !ForgeModContainer.forgeLightPipelineEnabled;
+		return FMLClientHandler.instance().hasOptifine() || !ForgeModContainer.forgeLightPipelineEnabled || ChiselsAndBits.getConfig().disableCustomVertexFormats;
 	}
 
 	private static ChiseledBlockBaked getCachedModel(
