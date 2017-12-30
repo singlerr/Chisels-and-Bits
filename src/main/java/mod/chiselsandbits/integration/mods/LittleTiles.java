@@ -61,4 +61,26 @@ public class LittleTiles extends IntegrationBase
 
 		return null;
 	}
+
+	public static boolean isLittleTilesBlock(
+			TileEntity tileEntity )
+	{
+		try
+		{
+			if ( clz != null && getVoxelBlob != null && clz.isInstance( tileEntity ) )
+			{
+				VoxelBlob blob = (VoxelBlob) getVoxelBlob.invoke( tileEntity, false );
+				if ( blob != null )
+				{
+					return true;
+				}
+			}
+		}
+		catch ( Exception e )
+		{
+			// false!
+		}
+
+		return false;
+	}
 }

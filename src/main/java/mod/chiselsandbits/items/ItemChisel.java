@@ -27,6 +27,7 @@ import mod.chiselsandbits.helpers.IItemInInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
+import mod.chiselsandbits.integration.mods.LittleTiles;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.modes.ChiselMode;
@@ -134,7 +135,7 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final EnumHand hand )
 	{
 		final IBlockState state = player.getEntityWorld().getBlockState( pos );
-		if ( BlockBitInfo.canChisel( state ) || MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( player.getEntityWorld(), pos ) )
+		if ( BlockBitInfo.canChisel( state ) || MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( player.getEntityWorld(), pos ) || LittleTiles.isLittleTilesBlock( player.getEntityWorld().getTileEntity( pos ) ) )
 		{
 			if ( itemstack != null && ( timer == null || timer.elapsed( TimeUnit.MILLISECONDS ) > 150 ) )
 			{
