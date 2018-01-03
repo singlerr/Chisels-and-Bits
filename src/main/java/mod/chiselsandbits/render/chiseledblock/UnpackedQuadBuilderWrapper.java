@@ -8,12 +8,17 @@ import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
 public class UnpackedQuadBuilderWrapper implements IFaceBuilder
 {
+	private final VertexFormat format;
+	private UnpackedBakedQuad.Builder builder;
 
-	UnpackedBakedQuad.Builder builder;
+	public UnpackedQuadBuilderWrapper(
+			VertexFormat format )
+	{
+		this.format = format;
+	}
 
 	@Override
-	public void begin(
-			final VertexFormat format )
+	public void begin()
 	{
 		builder = new UnpackedBakedQuad.Builder( format );
 	}
@@ -41,6 +46,12 @@ public class UnpackedQuadBuilderWrapper implements IFaceBuilder
 			final float... args )
 	{
 		builder.put( element, args );
+	}
+
+	@Override
+	public VertexFormat getFormat()
+	{
+		return format;
 	}
 
 }

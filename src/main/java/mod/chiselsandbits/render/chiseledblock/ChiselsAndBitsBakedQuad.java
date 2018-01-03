@@ -78,10 +78,12 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 			final float[][][] unpackedData,
 			final int tint,
 			final EnumFacing orientation,
-			final TextureAtlasSprite sprite )
+			final TextureAtlasSprite sprite,
+			VertexFormat format,
+			boolean enableModelCompression )
 	{
-		super( OPTIFINE_WORKAROUND, tint, orientation, sprite, true, VERTEX_FORMAT );
-		rawVertData = inMemoryCompressor.compress( unpackedData );
+		super( OPTIFINE_WORKAROUND, tint, orientation, sprite, true, format );
+		rawVertData = enableModelCompression ? inMemoryCompressor.compress( unpackedData ) : unpackedData;
 	}
 
 	public static class Colored extends ChiselsAndBitsBakedQuad
@@ -90,9 +92,11 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 				final float[][][] unpackedData,
 				final int tint,
 				final EnumFacing orientation,
-				final TextureAtlasSprite sprite )
+				final TextureAtlasSprite sprite,
+				VertexFormat format,
+				boolean enableModelCompression )
 		{
-			super( unpackedData, tint, orientation, sprite );
+			super( unpackedData, tint, orientation, sprite, format, enableModelCompression );
 		}
 	}
 
@@ -106,10 +110,21 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		private int vertices = 0;
 		private int elements = 0;
 
+		private final VertexFormat format;
+		private final boolean enableModelCompression;
+
+		public Builder(
+				VertexFormat format,
+				boolean enableModelCompression )
+		{
+			this.format = format;
+			this.enableModelCompression = enableModelCompression;
+		}
+
 		@Override
 		public VertexFormat getVertexFormat()
 		{
-			return VERTEX_FORMAT;
+			return format;
 		}
 
 		@Override
@@ -153,8 +168,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		}
 
 		@Override
-		public void begin(
-				final VertexFormat format )
+		public void begin()
 		{
 			if ( format != getVertexFormat() )
 			{
@@ -175,10 +189,10 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		{
 			if ( isColored )
 			{
-				return new Colored( unpackedData, tint, orientation, sprite );
+				return new Colored( unpackedData, tint, orientation, sprite, getFormat(), enableModelCompression );
 			}
 
-			return new ChiselsAndBitsBakedQuad( unpackedData, tint, orientation, sprite );
+			return new ChiselsAndBitsBakedQuad( unpackedData, tint, orientation, sprite, getFormat(), enableModelCompression );
 		}
 
 		@Override
@@ -200,6 +214,12 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		public void setTexture(
 				final TextureAtlasSprite texture )
 		{
+		}
+
+		@Override
+		public VertexFormat getFormat()
+		{
+			return format;
 		}
 	}
 }

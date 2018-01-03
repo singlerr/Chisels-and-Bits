@@ -14,7 +14,7 @@ public class ModelQuadLayer
 	public static class ModelQuadLayerBuilder
 	{
 		public final ModelQuadLayer cache = new ModelQuadLayer();
-		public final ModelLightMapReader lv = new ModelLightMapReader( 0 );
+		public final ModelLightMapReader lv;
 		public ModelUVReader uvr;
 
 		public ModelQuadLayerBuilder(
@@ -23,6 +23,7 @@ public class ModelQuadLayer
 				final int vCoord )
 		{
 			cache.sprite = sprite;
+			lv = new ModelLightMapReader();
 			uvr = new ModelUVReader( sprite, uCoord, vCoord );
 		}
 

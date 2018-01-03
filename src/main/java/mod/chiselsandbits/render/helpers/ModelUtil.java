@@ -106,6 +106,7 @@ public class ModelUtil implements ICacheClearable
 	{
 		final IBlockState state = ModUtil.getStateById( stateID );
 		final IBakedModel model = ModelUtil.solveModel( state, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ), layer );
+		final int lv = ChiselsAndBits.getConfig().useGetLightValue ? DeprecationHelper.getLightValue( state ) : 0;
 
 		final Fluid fluid = BlockBitInfo.getFluidFromBlock( state.getBlock() );
 		if ( fluid != null )
@@ -115,7 +116,7 @@ public class ModelUtil implements ICacheClearable
 				final ModelQuadLayer[] mp = new ModelQuadLayer[1];
 				mp[0] = new ModelQuadLayer();
 				mp[0].color = fluid.getColor();
-				mp[0].light = DeprecationHelper.getLightValue( state );
+				mp[0].light = lv;
 
 				final float V = 0.5f;
 				final float Uf = 1.0f;
@@ -174,7 +175,7 @@ public class ModelUtil implements ICacheClearable
 
 			for ( int z = 0; z < x.size(); z++ )
 			{
-				mp[z] = x.get( z ).build( stateID, color, DeprecationHelper.getLightValue( state ), state.getBlock() == Blocks.GRASS || state.getBlock() instanceof BlockLeaves );
+				mp[z] = x.get( z ).build( stateID, color, lv, state.getBlock() == Blocks.GRASS || state.getBlock() instanceof BlockLeaves );
 			}
 
 			cache.put( cacheV, mp );
@@ -298,7 +299,12 @@ public class ModelUtil implements ICacheClearable
 				}
 
 				q.pipe( b.uvr );
-				q.pipe( b.lv );
+
+				if ( ChiselsAndBits.getConfig().enableFaceLightmapExtraction )
+				{
+					b.lv.setVertexFormat( q.getFormat() );
+					q.pipe( b.lv );
+				}
 			}
 			catch ( final Exception e )
 			{

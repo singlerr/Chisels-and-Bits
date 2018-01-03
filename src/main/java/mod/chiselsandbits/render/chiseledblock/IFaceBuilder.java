@@ -16,10 +16,11 @@ public interface IFaceBuilder
 			int element,
 			float... args );
 
-	void begin(
-			VertexFormat format );
+	void begin();
 
 	BakedQuad create(
 			TextureAtlasSprite sprite );
+
+	VertexFormat getFormat();
 
 }

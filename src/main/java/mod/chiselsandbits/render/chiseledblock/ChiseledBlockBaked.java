@@ -28,6 +28,7 @@ import net.minecraft.client.renderer.block.model.FaceBakery;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.EnumFacing;
@@ -228,6 +229,20 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		return trulyEmpty;
 	}
 
+	IFaceBuilder getBuilder(
+			VertexFormat format )
+	{
+		if ( ChiseledBlockSmartModel.ForgePipelineDisabled() )
+		{
+			if ( ChiselsAndBits.getConfig().enableModelCompression )
+				return new ChiselsAndBitsBakedQuad.Builder( DefaultVertexFormats.ITEM, true );
+			else
+				return new UnpackedQuadBuilderWrapper( DefaultVertexFormats.ITEM );
+		}
+
+		return new ChiselsAndBitsBakedQuad.Builder( format, ChiselsAndBits.getConfig().enableModelCompression );
+	}
+
 	private void generateFaces(
 			final ChiseledModelBuilder builder,
 			final VoxelBlob blob,
@@ -248,7 +263,8 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		final float[] pos = new float[3];
 
 		// single reusable face builder.
-		final IFaceBuilder faceBuilder = format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT ? new ChiselsAndBitsBakedQuad.Builder() : new UnpackedQuadBuilderWrapper();
+		final IFaceBuilder darkBuilder = getBuilder( DefaultVertexFormats.ITEM );
+		final IFaceBuilder litBuilder = format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT ? getBuilder( format ) : darkBuilder;
 
 		for ( final ArrayList<FaceRegion> src : rset )
 		{
@@ -269,7 +285,10 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				{
 					for ( final ModelQuadLayer pc : mpc )
 					{
-						faceBuilder.begin( format );
+						final IFaceBuilder faceBuilder = pc.light > 0 ? litBuilder : darkBuilder;
+						VertexFormat builderFormat = faceBuilder.getFormat();
+
+						faceBuilder.begin();
 						faceBuilder.setFace( myFace, pc.tint );
 
 						final float maxLightmap = 32.0f / 0xffff;
@@ -278,9 +297,9 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 						// build it.
 						for ( int vertNum = 0; vertNum < 4; vertNum++ )
 						{
-							for ( int elementIndex = 0; elementIndex < format.getElementCount(); elementIndex++ )
+							for ( int elementIndex = 0; elementIndex < builderFormat.getElementCount(); elementIndex++ )
 							{
-								final VertexFormatElement element = format.getElement( elementIndex );
+								final VertexFormatElement element = builderFormat.getElement( elementIndex );
 								switch ( element.getUsage() )
 								{
 									case POSITION:

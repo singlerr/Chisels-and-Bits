@@ -111,7 +111,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 		return ForgePipelineDisabled() ? DefaultVertexFormats.ITEM : ChiselsAndBitsBakedQuad.VERTEX_FORMAT;
 	}
 
-	private static boolean ForgePipelineDisabled()
+	public static boolean ForgePipelineDisabled()
 	{
 		return FMLClientHandler.instance().hasOptifine() || !ForgeModContainer.forgeLightPipelineEnabled || ChiselsAndBits.getConfig().disableCustomVertexFormats;
 	}

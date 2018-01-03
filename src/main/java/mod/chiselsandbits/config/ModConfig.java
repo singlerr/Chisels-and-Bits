@@ -153,7 +153,13 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Performance Settings" )
 	public static UseVBO useVBO;
 
-	@Configured( category = "Client Performance Settings" )
+	@Configured( category = "Troublershooting" )
+	public boolean useGetLightValue;
+
+	@Configured( category = "Troublershooting" )
+	public boolean enableFaceLightmapExtraction;
+
+	@Configured( category = "Troublershooting" )
 	public boolean disableCustomVertexFormats;
 
 	@Configured( category = "Client Performance Settings" )
@@ -185,6 +191,9 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Client Performance Settings" )
 	public boolean dynamicRenderFullChunksOnly;
+
+	@Configured( category = "Client Performance Settings" )
+	public boolean enableModelCompression;
 
 	@Configured( category = "Balance Settings" )
 	public boolean blacklistTickingBlocks;
@@ -365,6 +374,9 @@ public class ModConfig extends Configuration
 		dynamicRenderFullChunksOnly = true;
 		useVBO = UseVBO.AUTOMATIC;
 		disableCustomVertexFormats = false;
+		enableModelCompression = true;
+		enableFaceLightmapExtraction = true;
+		useGetLightValue = true;
 
 		showUsage = true;
 		invertBitBagFullness = false;
