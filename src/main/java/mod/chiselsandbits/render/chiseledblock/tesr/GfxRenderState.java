@@ -314,11 +314,11 @@ public abstract class GfxRenderState
 
 		private void setupArrayPointers()
 		{
-			GlStateManager.glVertexPointer( 3, 5126, 28, 0 );
-			GlStateManager.glColorPointer( 4, 5121, 28, 12 );
-			GlStateManager.glTexCoordPointer( 2, 5126, 28, 16 );
+			GlStateManager.glVertexPointer( 3, GL11.GL_FLOAT, 28, 0 );
+			GlStateManager.glColorPointer( 4, GL11.GL_UNSIGNED_BYTE, 28, 12 );
+			GlStateManager.glTexCoordPointer( 2, GL11.GL_FLOAT, 28, 16 );
 			OpenGlHelper.setClientActiveTexture( OpenGlHelper.lightmapTexUnit );
-			GlStateManager.glTexCoordPointer( 2, 5122, 28, 24 );
+			GlStateManager.glTexCoordPointer( 2, GL11.GL_SHORT, 28, 24 );
 			OpenGlHelper.setClientActiveTexture( OpenGlHelper.defaultTexUnit );
 		}
 
