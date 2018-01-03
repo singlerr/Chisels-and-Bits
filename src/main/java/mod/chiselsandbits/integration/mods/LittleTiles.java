@@ -6,7 +6,6 @@ import jline.internal.Log;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.integration.ChiselsAndBitsIntegration;
 import mod.chiselsandbits.integration.IntegrationBase;
@@ -46,9 +45,7 @@ public class LittleTiles extends IntegrationBase
 			if ( blob != null )
 			{
 				TileEntityBlockChiseled cte = new TileEntityBlockChiseled();
-				// cte.setBlob( blob, false );
 
-				BlobStats stats = blob.getVoxelStats();
 				cte.setState( cte.getBasicState()
 						.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( blob, TileEntityBlockChiseled.getPositionRandom( te.getPos() ) ) ) );
 
