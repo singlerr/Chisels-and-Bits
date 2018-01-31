@@ -17,6 +17,7 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
+import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace.IItemBlockAccurate;
@@ -433,13 +434,11 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 				c.readChisleData( BlockEntityTag, VoxelBlob.VERSION_ANY );
 
 				final IBlockState state = c.getPrimaryBlockState();
-				final Block blk = state.getBlock();
+				String name = ItemChiseledBit.getBitStateName( state );
 
-				final ItemStack target = new ItemStack( blk, 1, blk.getMetaFromState( state ) );
-
-				if ( target.getItem() != null )
+				if ( name != null )
 				{
-					return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( target.getDisplayName() ).toString();
+					return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( name ).toString();
 				}
 			}
 		}
