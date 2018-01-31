@@ -35,6 +35,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -206,13 +207,36 @@ public class PacketChisel extends ModPacket
 					}
 				}
 			}
-
+			
+			//The state id of the last item in spawnlist.
+			int entityItemState = 0;
+			
 			for ( final EntityItem ei : spawnlist )
 			{
 				ModUtil.feedPlayer( world, who, ei );
 				ItemBitBag.cleanupInventory( who, ei.getEntityItem() );
+				entityItemState = ItemChiseledBit.getStackState( ei.getEntityItem() );
 			}
 
+			//entityItemState is always 0 when remote
+			if ( !world.isRemote && entityItemState != 0 )
+			{
+				if( ChiselsAndBits.getConfig().requireBagSpace )
+				{
+					if ( !ItemBitBag.hasBagSpace( who, entityItemState ) )
+					{
+						who.addChatMessage( new TextComponentTranslation( "mod.chiselsandbits.result.require_bag_full" ) );
+					}
+				}
+				else if( ChiselsAndBits.getConfig().voidExcessBits )
+				{
+					if( !ItemChiseledBit.hasInventorySpace( who, entityItemState ) )
+					{
+						who.addChatMessage( new TextComponentTranslation( "mod.chiselsandbits.result.void_excess" ) );
+					}
+				}
+			}
+			
 			if ( place.usesBits() )
 			{
 				ItemBitBag.cleanupInventory( who, bitPlaced != null ? bitPlaced : new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );

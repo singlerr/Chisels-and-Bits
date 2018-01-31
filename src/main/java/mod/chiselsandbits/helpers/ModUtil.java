@@ -411,7 +411,11 @@ public class ModUtil
 				if ( is != null && !player.inventory.addItemStackToInventory( is ) )
 				{
 					ei.setEntityItemStack( is );
-					spawnItem( world, ei );
+					//Never spawn the items for dropped excess items if setting is enabled.
+					if ( !ChiselsAndBits.getConfig().voidExcessBits )
+					{
+						spawnItem( world, ei );
+					}
 				}
 				else
 				{
