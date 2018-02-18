@@ -309,7 +309,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 									case COLOR:
 										final int cb = pc.color;
-										faceBuilder.put( elementIndex, byteToFloat( cb >> 16 ), byteToFloat( cb >> 8 ), byteToFloat( cb ), byteToFloat( cb >> 24 ) );
+										faceBuilder.put( elementIndex, byteToFloat( cb >> 16 ), byteToFloat( cb >> 8 ), byteToFloat( cb ), NotZero( byteToFloat( cb >> 24 ) ) );
 										break;
 
 									case NORMAL:
@@ -352,6 +352,17 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				}
 			}
 		}
+	}
+
+	private float NotZero(
+			float byteToFloat )
+	{
+		if ( byteToFloat < 0.00001f )
+		{
+			return 1;
+		}
+
+		return byteToFloat;
 	}
 
 	private float byteToFloat(

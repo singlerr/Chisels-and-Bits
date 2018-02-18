@@ -25,6 +25,7 @@ import mod.chiselsandbits.bittank.TileEntityBitTank;
 import mod.chiselsandbits.bittank.TileEntitySpecialRenderBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.HarvestWorld;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -1594,7 +1595,7 @@ public class ClientSide
 	{
 		if ( !state.getBlock().isAir( state, world, pos ) )
 		{
-			state = state.getBlock().getActualState( state, world, pos );
+			state = state.getActualState( new HarvestWorld( state ), pos );
 			final int StateID = ModUtil.getStateId( state );
 
 			final int i = 4;
