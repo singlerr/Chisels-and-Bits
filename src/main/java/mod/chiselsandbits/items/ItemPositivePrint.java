@@ -14,6 +14,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
+import mod.chiselsandbits.helpers.BitInventoryFeeder;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.IItemInInventory;
@@ -119,6 +120,11 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			final float hitZ )
 	{
 		final ItemStack stack = player.getHeldItem( hand );
+		final IBlockState blkstate = world.getBlockState( pos );
+
+		if ( ItemChiseledBit.checkRequiredSpace( player, blkstate ) ) {
+			return EnumActionResult.FAIL;
+		}
 
 		if ( PositivePatternMode.getMode( stack ) == PositivePatternMode.PLACEMENT )
 		{
@@ -303,9 +309,10 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			}
 		}
 
+		BitInventoryFeeder feeder = new BitInventoryFeeder( who, world );
 		for ( final EntityItem ei : spawnlist )
 		{
-			ModUtil.feedPlayer( world, who, ei );
+			feeder.addItem(ei);
 			ItemBitBag.cleanupInventory( who, ei.getEntityItem() );
 		}
 

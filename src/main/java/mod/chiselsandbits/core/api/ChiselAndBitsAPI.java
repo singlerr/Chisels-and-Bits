@@ -25,6 +25,7 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.helpers.BitInventoryFeeder;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
@@ -295,7 +296,8 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 				return;
 			}
 
-			ModUtil.feedPlayer( player.getEntityWorld(), player, ei );
+			BitInventoryFeeder feeder = new BitInventoryFeeder( player, player.getEntityWorld() );
+			feeder.addItem(ei);
 			return;
 		}
 		else if ( !player.inventory.addItemStackToInventory( stack ) )

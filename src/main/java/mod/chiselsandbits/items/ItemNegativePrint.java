@@ -13,6 +13,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
+import mod.chiselsandbits.helpers.BitInventoryFeeder;
 import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
@@ -38,7 +39,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -150,6 +150,10 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	{
 		final ItemStack stack = player.getHeldItem( hand );
 		final IBlockState blkstate = world.getBlockState( pos );
+
+		if ( ItemChiseledBit.checkRequiredSpace( player, blkstate ) ) {
+			return EnumActionResult.FAIL;
+		}
 
 		if ( !player.canPlayerEdit( pos, side, stack ) || !world.isBlockModifiable( player, pos ) )
 		{
@@ -300,32 +304,10 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			}
 		}
 
-		//The state id of the last item in spawnlist.
-		int entityItemState = 0;
-
+		BitInventoryFeeder feeder = new BitInventoryFeeder( who, world );
 		for ( final EntityItem ei : spawnlist )
 		{
-			ModUtil.feedPlayer( world, who, ei );
-			entityItemState = ItemChiseledBit.getStackState( ei.getEntityItem() );
-		}
-
-		//entityItemState is always 0 when remote
-		if ( !world.isRemote && entityItemState != 0 )
-		{
-			if( ChiselsAndBits.getConfig().requireBagSpace )
-			{
-				if ( !ItemBitBag.hasBagSpace( who, entityItemState ) )
-				{
-					who.addChatMessage( new TextComponentTranslation( "mod.chiselsandbits.result.require_bag_full" ) );
-				}
-			}
-			else if( ChiselsAndBits.getConfig().voidExcessBits )
-			{
-				if( !ItemChiseledBit.hasInventorySpace( who, entityItemState ) )
-				{
-					who.addChatMessage( new TextComponentTranslation( "mod.chiselsandbits.result.void_excess" ) );
-				}
-			}
+			feeder.addItem(ei);
 		}
 	}
 

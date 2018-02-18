@@ -128,9 +128,6 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 		return ItemChisel.fromBreakToChisel( ChiselMode.castMode( ChiselModeManager.getChiselMode( player, ChiselToolType.CHISEL, EnumHand.MAIN_HAND ) ), itemstack, pos, player, EnumHand.MAIN_HAND );
 	}
 
-	//The previous stateId, avoids spamming the require_bag message.
-	private static BlockPos lastPos = new BlockPos(0, -1, 0);
-
 	static public boolean fromBreakToChisel(
 			final ChiselMode mode,
 			final ItemStack itemstack,
@@ -139,21 +136,8 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final EnumHand hand )
 	{
 		final IBlockState state = player.getEntityWorld().getBlockState( pos );
-		if ( ChiselsAndBits.getConfig().requireBagSpace && !player.isCreative() )
-		{
-			//Cycle every item in any bag, if the player can't store the clicked block then
-			//send them a message.
-			final int stateId = ModUtil.getStateId( state );
-			if ( !ItemBitBag.hasBagSpace( player, stateId ) )
-			{
-				if( player.worldObj.isRemote && !pos.equals( lastPos ) )
-				{
-					//Only client should handle messaging.
-					player.addChatMessage( new TextComponentTranslation( "mod.chiselsandbits.result.require_bag" ) );
-					lastPos = pos;
-				}
-				return false;
-			}
+		if ( ItemChiseledBit.checkRequiredSpace( player, state ) ) {
+			return false;
 		}
 		if ( BlockBitInfo.canChisel( state ) || MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( player.getEntityWorld(), pos ) || LittleTiles.isLittleTilesBlock( player.getEntityWorld().getTileEntity( pos ) ) )
 		{
