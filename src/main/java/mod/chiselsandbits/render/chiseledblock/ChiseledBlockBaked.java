@@ -234,13 +234,10 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	{
 		if ( ChiseledBlockSmartModel.ForgePipelineDisabled() )
 		{
-			if ( ChiselsAndBits.getConfig().enableModelCompression )
-				return new ChiselsAndBitsBakedQuad.Builder( DefaultVertexFormats.ITEM, true );
-			else
-				return new UnpackedQuadBuilderWrapper( DefaultVertexFormats.ITEM );
+			format = DefaultVertexFormats.ITEM;
 		}
 
-		return new ChiselsAndBitsBakedQuad.Builder( format, ChiselsAndBits.getConfig().enableModelCompression );
+		return new ChiselsAndBitsBakedQuad.Builder( format );
 	}
 
 	private void generateFaces(

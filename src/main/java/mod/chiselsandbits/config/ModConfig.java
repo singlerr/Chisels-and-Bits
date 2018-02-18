@@ -192,9 +192,6 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Performance Settings" )
 	public boolean dynamicRenderFullChunksOnly;
 
-	@Configured( category = "Client Performance Settings" )
-	public boolean enableModelCompression;
-
 	@Configured( category = "Balance Settings" )
 	public boolean blacklistTickingBlocks;
 
@@ -382,7 +379,6 @@ public class ModConfig extends Configuration
 		dynamicRenderFullChunksOnly = true;
 		useVBO = UseVBO.AUTOMATIC;
 		disableCustomVertexFormats = false;
-		enableModelCompression = true;
 		enableFaceLightmapExtraction = true;
 		useGetLightValue = true;
 

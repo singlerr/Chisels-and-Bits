@@ -1,6 +1,8 @@
 package mod.chiselsandbits.render.chiseledblock;
 
-import mod.chiselsandbits.render.cache.InMemoryQuadCompressor;
+import java.util.concurrent.ConcurrentHashMap;
+
+import mod.chiselsandbits.render.cache.FormatInfo;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -13,8 +15,7 @@ import net.minecraftforge.client.model.pipeline.LightUtil;
 public class ChiselsAndBitsBakedQuad extends BakedQuad
 {
 
-	private static InMemoryQuadCompressor inMemoryCompressor = new InMemoryQuadCompressor();
-
+	public static final ConcurrentHashMap<VertexFormat, FormatInfo> formatData = new ConcurrentHashMap<VertexFormat, FormatInfo>();
 	public static final VertexFormat VERTEX_FORMAT = new VertexFormat();
 
 	static
@@ -28,7 +29,20 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		VERTEX_FORMAT.addElement( DefaultVertexFormats.TEX_2S );
 	}
 
-	protected final float[][][] rawVertData;
+	private static int[] packData(
+			VertexFormat format,
+			float[][][] unpackedData )
+	{
+		FormatInfo fi = formatData.get( format );
+
+		if ( fi == null )
+		{
+			fi = new FormatInfo( format );
+			formatData.put( format, fi );
+		}
+
+		return fi.pack( unpackedData );
+	}
 
 	@Override
 	public void pipe(
@@ -46,7 +60,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 			{
 				if ( eMap[e] != format.getElementCount() )
 				{
-					consumer.put( e, rawVertData[v][eMap[e]] );
+					consumer.put( e, getRawPart( v, eMap[e] ) );
 				}
 				else
 				{
@@ -56,8 +70,15 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		}
 	}
 
+	private float[] getRawPart(
+			int v,
+			int i )
+	{
+		return formatData.get( this.format ).unpack( vertexData, v, i );
+	}
+
 	@Override
-	public int[] getVertexData() // anyone asking this will expect ITEM.
+	public int[] getVertexData()
 	{
 		final int[] tmpData = new int[format.getNextOffset() /* / 4 * 4 */];
 
@@ -65,25 +86,21 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		{
 			for ( int e = 0; e < format.getElementCount(); e++ )
 			{
-				LightUtil.pack( rawVertData[v][e], tmpData, format, v, e );
+				LightUtil.pack( getRawPart( v, e ), tmpData, format, v, e );
 			}
 		}
 
 		return tmpData;
 	}
 
-	static int[] OPTIFINE_WORKAROUND = new int[1];
-
 	public ChiselsAndBitsBakedQuad(
 			final float[][][] unpackedData,
 			final int tint,
 			final EnumFacing orientation,
 			final TextureAtlasSprite sprite,
-			VertexFormat format,
-			boolean enableModelCompression )
+			VertexFormat format )
 	{
-		super( OPTIFINE_WORKAROUND, tint, orientation, sprite, true, format );
-		rawVertData = enableModelCompression ? inMemoryCompressor.compress( unpackedData ) : unpackedData;
+		super( packData( format, unpackedData ), tint, orientation, sprite, true, format );
 	}
 
 	public static class Colored extends ChiselsAndBitsBakedQuad
@@ -93,10 +110,9 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 				final int tint,
 				final EnumFacing orientation,
 				final TextureAtlasSprite sprite,
-				VertexFormat format,
-				boolean enableModelCompression )
+				VertexFormat format )
 		{
-			super( unpackedData, tint, orientation, sprite, format, enableModelCompression );
+			super( unpackedData, tint, orientation, sprite, format );
 		}
 	}
 
@@ -111,14 +127,11 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		private int elements = 0;
 
 		private final VertexFormat format;
-		private final boolean enableModelCompression;
 
 		public Builder(
-				VertexFormat format,
-				boolean enableModelCompression )
+				VertexFormat format )
 		{
 			this.format = format;
-			this.enableModelCompression = enableModelCompression;
 		}
 
 		@Override
@@ -189,10 +202,10 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		{
 			if ( isColored )
 			{
-				return new Colored( unpackedData, tint, orientation, sprite, getFormat(), enableModelCompression );
+				return new Colored( unpackedData, tint, orientation, sprite, getFormat() );
 			}
 
-			return new ChiselsAndBitsBakedQuad( unpackedData, tint, orientation, sprite, getFormat(), enableModelCompression );
+			return new ChiselsAndBitsBakedQuad( unpackedData, tint, orientation, sprite, getFormat() );
 		}
 
 		@Override
