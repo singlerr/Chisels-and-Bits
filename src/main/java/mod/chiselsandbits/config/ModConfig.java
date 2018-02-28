@@ -9,13 +9,16 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import mod.chiselsandbits.chiseledblock.serialization.StringStates;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
+import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.registry.ModRegistry;
 import mod.chiselsandbits.render.chiseledblock.tesr.GfxRenderState.UseVBO;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
@@ -296,10 +299,10 @@ public class ModConfig extends Configuration
 
 	@Configured( category = "Balance Settings" )
 	public boolean fullBlockCrafting;
-		
+
 	@Configured( category = "Balance Settings" )
 	public boolean requireBagSpace;
-	
+
 	@Configured( category = "Balance Settings" )
 	public boolean voidExcessBits;
 
@@ -316,6 +319,20 @@ public class ModConfig extends Configuration
 			final String className )
 	{
 		final Property p = get( "Enabled Blocks", className, true );
+		final boolean out = p.getBoolean( true );
+
+		if ( hasChanged() )
+		{
+			save();
+		}
+
+		return out;
+	}
+
+	public boolean canRevertToBlock(
+			IBlockState newState )
+	{
+		final Property p = get( "Revertible States", StringStates.getNameFromStateID( ModUtil.getStateId( newState ) ), true );
 		final boolean out = p.getBoolean( true );
 
 		if ( hasChanged() )
@@ -547,6 +564,11 @@ public class ModConfig extends Configuration
 		for ( final String s : getCategoryNames() )
 		{
 			if ( s.equals( "enabled blocks" ) )
+			{
+				continue;
+			}
+
+			if ( s.equals( "revertible states" ) )
 			{
 				continue;
 			}

@@ -677,9 +677,12 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 					.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( common.mostCommonState, getPositionRandom( pos ) ) ) );
 
 			final IBlockState newState = ModUtil.getStateById( common.mostCommonState );
-			if ( !MinecraftForge.EVENT_BUS.post( new EventFullBlockRestoration( worldObj, pos, newState ) ) )
+			if ( ChiselsAndBits.getConfig().canRevertToBlock( newState ) )
 			{
-				worldObj.setBlockState( pos, newState, triggerUpdates ? 3 : 0 );
+				if ( !MinecraftForge.EVENT_BUS.post( new EventFullBlockRestoration( worldObj, pos, newState ) ) )
+				{
+					worldObj.setBlockState( pos, newState, triggerUpdates ? 3 : 0 );
+				}
 			}
 		}
 		else if ( common.mostCommonState != 0 )
