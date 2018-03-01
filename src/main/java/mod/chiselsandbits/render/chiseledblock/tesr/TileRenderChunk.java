@@ -89,16 +89,17 @@ public class TileRenderChunk extends TileRenderCache
 			{
 				return BlockPos.ORIGIN;
 			}
+
+			final int bitMask = ~0xf;
+			final Iterator<TileEntityBlockChiseledTESR> i = getTiles().iterator();
+			final BlockPos tilepos = i.hasNext() ? i.next().getPos() : BlockPos.ORIGIN;
+			return new BlockPos( tilepos.getX() & bitMask, tilepos.getY() & bitMask, tilepos.getZ() & bitMask );
 		}
 		finally
 		{
 			tiles.getReadLock().unlock();
 		}
 
-		final int bitMask = ~0xf;
-		final Iterator<TileEntityBlockChiseledTESR> i = getTiles().iterator();
-		final BlockPos tilepos = i.hasNext() ? i.next().getPos() : BlockPos.ORIGIN;
-		return new BlockPos( tilepos.getX() & bitMask, tilepos.getY() & bitMask, tilepos.getZ() & bitMask );
 	}
 
 	AxisAlignedBB renderBox = null;
