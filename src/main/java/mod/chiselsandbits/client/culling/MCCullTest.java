@@ -2,6 +2,7 @@ package mod.chiselsandbits.client.culling;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.helpers.ModUtil;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
@@ -47,6 +48,11 @@ public class MCCullTest implements ICullTest, IBlockAccess
 		if ( a.getBlock() == Blocks.STAINED_GLASS && a.getBlock() == b.getBlock() )
 		{
 			return false;
+		}
+
+		if ( a.getBlock() instanceof BlockLiquid )
+		{
+			return true;
 		}
 
 		try
