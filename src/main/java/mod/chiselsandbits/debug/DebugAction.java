@@ -1,5 +1,8 @@
 package mod.chiselsandbits.debug;
 
+import java.util.HashMap;
+import java.util.Map.Entry;
+
 import javax.annotation.Nonnull;
 
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
@@ -40,6 +43,7 @@ public abstract class DebugAction
 		canBeChiseled( new DebugAction.canBeChiseled() ),
 		createBitItem( new DebugAction.createBitItem() ),
 		getBit( new DebugAction.getBit() ),
+		listContents( new DebugAction.listContents() ),
 		getBitAccess( new DebugAction.getBitAccess() ),
 		setBitAccess( new DebugAction.setBitAccess() ),
 		isBlockChiseled( new DebugAction.isBlockChiseled() ),
@@ -358,6 +362,57 @@ public abstract class DebugAction
 				} );
 
 				access.commitChanges( true );
+			}
+			catch ( final CannotBeChiseled e )
+			{
+				Log.logError( "FAIL", e );
+			}
+		}
+
+	};
+
+	static class listContents extends DebugAction
+	{
+
+		@Override
+		public void run(
+				final World w,
+				final BlockPos pos,
+				final EnumFacing side,
+				final float hitX,
+				final float hitY,
+				final float hitZ,
+				final EntityPlayer player )
+		{
+			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
+
+			try
+			{
+				final HashMap<Integer, ItemStack> bucket = new HashMap<Integer, ItemStack>();
+				final IBitAccess access = api.getBitAccess( w, loc.getBlockPos() );
+
+				access.visitBits( new IBitVisitor() {
+
+					@Override
+					public IBitBrush visitBit(
+							final int x,
+							final int y,
+							final int z,
+							final IBitBrush currentValue )
+					{
+						if ( bucket.containsKey( currentValue.getStateID() ) )
+							ModUtil.adjustStackSize( bucket.get( currentValue.getStateID() ), 1 );
+						else
+							bucket.put( currentValue.getStateID(), currentValue.getItemStack( 1 ) );
+
+						return currentValue;
+					}
+				} );
+
+				for ( Entry<Integer, ItemStack> is : bucket.entrySet() )
+				{
+					player.inventory.addItemStackToInventory( is.getValue() );
+				}
 			}
 			catch ( final CannotBeChiseled e )
 			{
