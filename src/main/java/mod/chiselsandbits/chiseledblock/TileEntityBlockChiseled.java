@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 
 import mod.chiselsandbits.api.EventBlockBitPostModification;
 import mod.chiselsandbits.api.EventFullBlockRestoration;
+import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IChiseledBlockTileEntity;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -954,6 +955,20 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public void finishUpdate()
 	{
 		// nothin.
+	}
+
+	@Override
+	public IBitAccess getBlockAccess()
+	{
+		VoxelBlob mask = VoxelBlob.NULL_BLOB;
+
+		if ( worldObj != null )
+		{
+			mask = new VoxelBlob();
+			MCMultipartProxy.proxyMCMultiPart.addFiller( getWorld(), getPos(), mask );
+		}
+
+		return new BitAccess( worldObj, pos, getBlob(), mask );
 	}
 
 }
