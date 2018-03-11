@@ -958,7 +958,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	@Override
-	public IBitAccess getBlockAccess()
+	public IBitAccess getBitAccess()
 	{
 		VoxelBlob mask = VoxelBlob.NULL_BLOB;
 

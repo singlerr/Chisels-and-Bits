@@ -17,7 +17,7 @@ public interface IChiseledBlockTileEntity
 	 * 
 	 * @return {@link IBitAccess} for the tile entity.
 	 */
-	IBitAccess getBlockAccess();
+	IBitAccess getBitAccess();
 
 	/**
 	 * Used to write Tile Data into cross world format, can be invoked via
