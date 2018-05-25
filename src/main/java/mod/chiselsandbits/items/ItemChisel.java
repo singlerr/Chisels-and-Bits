@@ -52,7 +52,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -136,7 +135,8 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			final EnumHand hand )
 	{
 		final IBlockState state = player.getEntityWorld().getBlockState( pos );
-		if ( ItemChiseledBit.checkRequiredSpace( player, state ) ) {
+		if ( ItemChiseledBit.checkRequiredSpace( player, state ) )
+		{
 			return false;
 		}
 		if ( BlockBitInfo.canChisel( state ) || MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( player.getEntityWorld(), pos ) || LittleTiles.isLittleTilesBlock( player.getEntityWorld().getTileEntity( pos ) ) )
@@ -397,12 +397,11 @@ public class ItemChisel extends ItemTool implements IItemScrollWheel, IChiselMod
 			// this is the earily check.
 			if ( state.getBlock() instanceof BlockChiseled )
 			{
-				return true;
+				return ( (BlockChiseled) state.getBlock() ).basicHarvestBlockTest( world, pos, player );
 			}
 
 			do
 			{
-
 				final Block blk = world.getBlockState( pos ).getBlock();
 				BlockChiseled.setActingAs( state );
 				testingChisel = true;

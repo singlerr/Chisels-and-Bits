@@ -1277,4 +1277,12 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		}
 	}
 
+	public boolean basicHarvestBlockTest(
+			World world,
+			BlockPos pos,
+			EntityPlayer player )
+	{
+		return super.canHarvestBlock( world, pos, player );
+	}
+
 }
