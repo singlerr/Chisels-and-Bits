@@ -50,6 +50,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 	{
 		final int[] eMap = LightUtil.mapFormats( consumer.getVertexFormat(), format );
 
+		consumer.setTexture( sprite );
 		consumer.setQuadTint( getTintIndex() );
 		consumer.setQuadOrientation( getFace() );
 		consumer.setApplyDiffuseLighting( true );
