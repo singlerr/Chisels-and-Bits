@@ -148,6 +148,16 @@ public class PacketChisel extends ModPacket
 							}
 						}
 
+						if ( world.getMinecraftServer() != null && world.getMinecraftServer().isBlockProtected( world, pos, player.getPlayer() ) )
+						{
+							continue;
+						}
+
+						if ( !world.isBlockModifiable( player.getPlayer(), pos ) )
+						{
+							continue;
+						}
+
 						if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) && place.usesBits() )
 						{
 							world.setBlockToAir( pos );
@@ -211,10 +221,10 @@ public class PacketChisel extends ModPacket
 			BitInventoryFeeder feeder = new BitInventoryFeeder( who, world );
 			for ( final EntityItem ei : spawnlist )
 			{
-				feeder.addItem(ei);
+				feeder.addItem( ei );
 				ItemBitBag.cleanupInventory( who, ei.getEntityItem() );
 			}
-			
+
 			if ( place.usesBits() )
 			{
 				ItemBitBag.cleanupInventory( who, bitPlaced != null ? bitPlaced : new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
