@@ -69,7 +69,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		super.addInformation( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChiseledBlock, tooltip,
 				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ),
-				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindSneak ) );
+				ClientSide.instance.getKeyName( ClientSide.getOffGridPlacementKey() ) );
 
 		if ( stack.hasTagCompound() )
 		{
@@ -99,7 +99,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final EntityPlayer player,
 			final ItemStack stack )
 	{
-		return canPlaceBlockHere( worldIn, pos, side, player, stack );
+		return canPlaceBlockHere( worldIn, pos, side, player, stack, false );
 	}
 
 	public boolean vanillaStylePlacementTest(
@@ -128,14 +128,15 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final @Nonnull BlockPos pos,
 			final @Nonnull EnumFacing side,
 			final EntityPlayer player,
-			final ItemStack stack )
+			final ItemStack stack,
+			boolean offgrid )
 	{
 		if ( vanillaStylePlacementTest( worldIn, pos, side, player, stack ) )
 		{
 			return true;
 		}
 
-		if ( player.isSneaking() )
+		if ( offgrid )
 		{
 			return true;
 		}
@@ -150,8 +151,8 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 	@Override
 	public EnumActionResult onItemUse(
-			final EntityPlayer playerIn,
-			final World worldIn,
+			final EntityPlayer player,
+			final World world,
 			final BlockPos pos,
 			final EnumHand hand,
 			final EnumFacing side,
@@ -159,37 +160,32 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final float hitY,
 			final float hitZ )
 	{
-		final ItemStack stack = playerIn.getHeldItem( hand );
+		final ItemStack stack = player.getHeldItem( hand );
 
-		if ( playerIn.isSneaking() )
+		if ( !world.isRemote )
 		{
-			if ( !worldIn.isRemote )
-			{
-				// Say it "worked", Don't do anything we'll get a better packet.
-				return EnumActionResult.SUCCESS;
-			}
-			else
-			{
-				// send accurate packet.
-				final PacketAccurateSneakPlace pasp = new PacketAccurateSneakPlace();
-
-				pasp.hand = hand;
-				pasp.pos = pos;
-				pasp.side = side;
-				pasp.stack = stack;
-				pasp.hitX = hitX;
-				pasp.hitY = hitY;
-				pasp.hitZ = hitZ;
-
-				NetworkRouter.instance.sendToServer( pasp );
-			}
+			// Say it "worked", Don't do anything we'll get a better packet.
+			return EnumActionResult.SUCCESS;
 		}
 
-		return doItemUse( stack, playerIn, worldIn, pos, hand, side, hitX, hitY, hitZ );
+		// send accurate packet.
+		final PacketAccurateSneakPlace pasp = new PacketAccurateSneakPlace();
+
+		pasp.hand = hand;
+		pasp.pos = pos;
+		pasp.side = side;
+		pasp.stack = stack;
+		pasp.offgrid = ClientSide.offGridPlacement( player );
+		pasp.hitX = hitX;
+		pasp.hitY = hitY;
+		pasp.hitZ = hitZ;
+
+		NetworkRouter.instance.sendToServer( pasp );
+		return placeItem( stack, player, world, pos, hand, side, hitX, hitY, hitZ, ClientSide.offGridPlacement( player ) );
 	}
 
 	@Override
-	public EnumActionResult doItemUse(
+	public EnumActionResult placeItem(
 			final ItemStack stack,
 			final EntityPlayer playerIn,
 			final World worldIn,
@@ -198,7 +194,8 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			EnumFacing side,
 			final float hitX,
 			final float hitY,
-			final float hitZ )
+			final float hitZ,
+			boolean offgrid )
 	{
 		final IBlockState state = worldIn.getBlockState( pos );
 		final Block block = state.getBlock();
@@ -221,7 +218,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 				}
 			}
 
-			if ( !canMerge && !playerIn.isSneaking() && !block.isReplaceable( worldIn, pos ) )
+			if ( !canMerge && !offgrid && !block.isReplaceable( worldIn, pos ) )
 			{
 				pos = pos.offset( side );
 			}
@@ -239,12 +236,12 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		{
 			return EnumActionResult.FAIL;
 		}
-		else if ( canPlaceBlockHere( worldIn, pos, side, playerIn, stack ) )
+		else if ( canPlaceBlockHere( worldIn, pos, side, playerIn, stack, offgrid ) )
 		{
 			final int i = this.getMetadata( stack.getMetadata() );
 			final IBlockState iblockstate1 = this.block.getStateForPlacement( worldIn, pos, side, hitX, hitY, hitZ, i, playerIn, hand );
 
-			if ( placeBlockAt( stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, iblockstate1 ) )
+			if ( placeBitBlock( stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, iblockstate1, offgrid ) )
 			{
 				worldIn.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, DeprecationHelper.getSoundType( this.block ).getPlaceSound(), SoundCategory.BLOCKS,
 						( DeprecationHelper.getSoundType( this.block ).getVolume() + 1.0F ) / 2.0F,
@@ -272,7 +269,22 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final float hitZ,
 			final IBlockState newState )
 	{
-		if ( player.isSneaking() )
+		return placeBitBlock( stack, player, world, pos, side, hitX, hitY, hitZ, newState, false );
+	}
+
+	public boolean placeBitBlock(
+			final ItemStack stack,
+			final EntityPlayer player,
+			final World world,
+			final BlockPos pos,
+			final EnumFacing side,
+			final float hitX,
+			final float hitY,
+			final float hitZ,
+			final IBlockState newState,
+			boolean offgrid )
+	{
+		if ( offgrid )
 		{
 			final BitLocation bl = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos ), false, BitOperation.PLACE );
 			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, EnumHand.MAIN_HAND, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );

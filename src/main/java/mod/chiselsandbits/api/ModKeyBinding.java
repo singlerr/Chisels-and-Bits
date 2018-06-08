@@ -6,7 +6,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly( Side.CLIENT )
 public enum ModKeyBinding
 {
-	//Misc
+	// Misc
 	ROTATE_CCW,
 	ROTATE_CW,
 	UNDO,
@@ -14,8 +14,9 @@ public enum ModKeyBinding
 	MODE_MENU,
 	ADD_TO_CLIPBOARD,
 	PICK_BIT,
+	OFFGRID_PLACEMENT,
 
-	//Chisel Modes
+	// Chisel Modes
 	SINGLE,
 	SNAP2,
 	SNAP4,
@@ -30,13 +31,13 @@ public enum ModKeyBinding
 	DRAWN_REGION,
 	CONNECTED_MATERIAL,
 
-	//Positive Pattern Modes
+	// Positive Pattern Modes
 	REPLACE,
 	ADDITIVE,
 	PLACEMENT,
 	IMPOSE,
 
-	//Tape Measure Modes
+	// Tape Measure Modes
 	BIT,
 	BLOCK,
 	DISTANCE;

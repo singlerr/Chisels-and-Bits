@@ -122,43 +122,41 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 		final ItemStack stack = player.getHeldItem( hand );
 		final IBlockState blkstate = world.getBlockState( pos );
 
-		if ( ItemChiseledBit.checkRequiredSpace( player, blkstate ) ) {
+		if ( ItemChiseledBit.checkRequiredSpace( player, blkstate ) )
+		{
 			return EnumActionResult.FAIL;
 		}
 
+		boolean offgrid = false;
+
 		if ( PositivePatternMode.getMode( stack ) == PositivePatternMode.PLACEMENT )
 		{
-			if ( player.isSneaking() )
+			if ( !world.isRemote )
 			{
-				if ( !world.isRemote )
-				{
-					// Say it "worked", Don't do anything we'll get a better
-					// packet.
-					return EnumActionResult.SUCCESS;
-				}
-				else
-				{
-					// send accurate packet.
-					final PacketAccurateSneakPlace pasp = new PacketAccurateSneakPlace();
-
-					pasp.hand = hand;
-					pasp.pos = pos;
-					pasp.side = side;
-					pasp.stack = stack;
-					pasp.hitX = hitX;
-					pasp.hitY = hitY;
-					pasp.hitZ = hitZ;
-
-					NetworkRouter.instance.sendToServer( pasp );
-				}
+				// Say it "worked", Don't do anything we'll get a better
+				// packet.
+				return EnumActionResult.SUCCESS;
 			}
+
+			// send accurate packet.
+			final PacketAccurateSneakPlace pasp = new PacketAccurateSneakPlace();
+
+			pasp.hand = hand;
+			pasp.pos = pos;
+			pasp.side = side;
+			pasp.stack = stack;
+			pasp.hitX = hitX;
+			pasp.hitY = hitY;
+			pasp.hitZ = hitZ;
+			offgrid = pasp.offgrid = ClientSide.offGridPlacement( player );
+
+			NetworkRouter.instance.sendToServer( pasp );
 		}
 
-		return doItemUse( stack, player, world, pos, hand, side, hitX, hitY, hitZ );
+		return placeItem( stack, player, world, pos, hand, side, hitX, hitY, hitZ, offgrid );
 	}
 
-	@Override
-	public final EnumActionResult doItemUse(
+	public final EnumActionResult placeItem(
 			final ItemStack stack,
 			final EntityPlayer player,
 			final World world,
@@ -167,7 +165,8 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			final EnumFacing side,
 			final float hitX,
 			final float hitY,
-			final float hitZ )
+			final float hitZ,
+			boolean offgrid )
 	{
 		if ( PositivePatternMode.getMode( stack ) == PositivePatternMode.PLACEMENT )
 		{
@@ -180,7 +179,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 				if ( consumeEntirePattern( pattern, stats, pos, ActingPlayer.testingAs( player, hand ) ) && output.getItem() instanceof ItemBlockChiseled )
 				{
 					final ItemBlockChiseled ibc = (ItemBlockChiseled) output.getItem();
-					final EnumActionResult res = ibc.doItemUse( output, player, world, pos, hand, side, hitX, hitY, hitZ );
+					final EnumActionResult res = ibc.placeItem( output, player, world, pos, hand, side, hitX, hitY, hitZ, offgrid );
 
 					if ( res == EnumActionResult.SUCCESS )
 					{
@@ -312,7 +311,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 		BitInventoryFeeder feeder = new BitInventoryFeeder( who, world );
 		for ( final EntityItem ei : spawnlist )
 		{
-			feeder.addItem(ei);
+			feeder.addItem( ei );
 			ItemBitBag.cleanupInventory( who, ei.getEntityItem() );
 		}
 

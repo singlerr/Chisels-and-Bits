@@ -9,6 +9,7 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
+import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace.IItemBlockAccurate;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -18,6 +19,36 @@ import net.minecraftforge.client.settings.KeyConflictContext;
 
 public enum ModConflictContext implements IKeyConflictContext
 {
+	HOLDING_OFFGRID
+	{
+		@Override
+		public boolean isActive()
+		{
+			if ( super.isActive() )
+			{
+				return true;
+			}
+
+			try
+			{
+				final ItemStack held = getPlayer().getHeldItemMainhand();
+				return !ModUtil.isEmpty( held ) && held.getItem() instanceof IItemBlockAccurate;
+			}
+			catch ( final NoPlayerException e )
+			{
+				// just fail.
+			}
+
+			return false;
+		}
+
+		@Override
+		public boolean conflicts(
+				final IKeyConflictContext other )
+		{
+			return this == other || other == KeyConflictContext.IN_GAME;
+		}
+	},
 
 	HOLDING_ROTATEABLE
 	{

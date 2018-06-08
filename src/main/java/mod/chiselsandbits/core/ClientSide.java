@@ -147,6 +147,7 @@ public class ClientSide
 	private KeyBinding modeMenu;
 	private KeyBinding addToClipboard;
 	private KeyBinding pickBit;
+	private KeyBinding offgridPlacement;
 	private Stopwatch rotateTimer;
 
 	final public TapeMeasures tapeMeasures = new TapeMeasures();
@@ -168,6 +169,8 @@ public class ClientSide
 				return addToClipboard;
 			case PICK_BIT:
 				return pickBit;
+			case OFFGRID_PLACEMENT:
+				return ClientSide.getOffGridPlacementKey();
 			default:
 				return modeMenu;
 		}
@@ -209,6 +212,7 @@ public class ClientSide
 		rotateCCW = registerKeybind( "mod.chiselsandbits.other.rotate.ccw", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
 		rotateCW = registerKeybind( "mod.chiselsandbits.other.rotate.cw", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
 		pickBit = registerKeybind( "mod.chiselsandbits.other.pickbit", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
+		offgridPlacement = registerKeybind( "mod.chiselsandbits.other.offgrid", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_OFFGRID );
 		undo = registerKeybind( "mod.chiselsandbits.other.undo", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
 		redo = registerKeybind( "mod.chiselsandbits.other.redo", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
 		addToClipboard = registerKeybind( "mod.chiselsandbits.other.add_to_clipboard", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
@@ -1242,7 +1246,7 @@ public class ClientSide
 	{
 		final BlockPos offset = mop.getBlockPos();
 
-		if ( player.isSneaking() )
+		if ( ClientSide.offGridPlacement( player ) )
 		{
 			final BitLocation bl = new BitLocation( mop, true, BitOperation.PLACE );
 			showGhost( currentItem, item, bl.blockPos, player, rotations, x, y, z, mop.sideHit, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), null );
@@ -1263,7 +1267,7 @@ public class ClientSide
 
 			BlockPos newOffset = offset;
 			final Block block = theWorld.getBlockState( newOffset ).getBlock();
-			if ( !canMerge && !player.isSneaking() && !block.isReplaceable( theWorld, newOffset ) )
+			if ( !canMerge && !ClientSide.offGridPlacement( player ) && !block.isReplaceable( theWorld, newOffset ) )
 			{
 				newOffset = offset.offset( mop.sideHit );
 			}
@@ -1671,6 +1675,23 @@ public class ClientSide
 				.replace( "RMENU", LocalStrings.rightAlt.getLocal() )
 				.replace( "LSHIFT", LocalStrings.leftShift.getLocal() )
 				.replace( "RSHIFT", LocalStrings.rightShift.getLocal() );
+	}
+
+	public static boolean offGridPlacement(
+			EntityPlayer player )
+	{
+		if ( player.getEntityWorld().isRemote )
+			return getOffGridPlacementKey().isKeyDown();
+
+		throw new RuntimeException( "checking keybinds on server." );
+	}
+
+	public static KeyBinding getOffGridPlacementKey()
+	{
+		if ( ClientSide.instance.offgridPlacement.isSetToDefaultValue() )
+			return Minecraft.getMinecraft().gameSettings.keyBindSneak;
+
+		return ClientSide.instance.offgridPlacement;
 	}
 
 }

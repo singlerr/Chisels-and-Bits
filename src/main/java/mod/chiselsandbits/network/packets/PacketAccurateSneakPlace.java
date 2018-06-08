@@ -22,7 +22,7 @@ public class PacketAccurateSneakPlace extends ModPacket
 	public interface IItemBlockAccurate
 	{
 
-		EnumActionResult doItemUse(
+		EnumActionResult placeItem(
 				@Nonnull ItemStack inHand,
 				@Nonnull EntityPlayer playerEntity,
 				@Nonnull World worldObj,
@@ -31,7 +31,8 @@ public class PacketAccurateSneakPlace extends ModPacket
 				@Nonnull EnumFacing side,
 				float hitX,
 				float hitY,
-				float hitZ );
+				float hitZ,
+				boolean offgrid );
 
 	};
 
@@ -42,6 +43,7 @@ public class PacketAccurateSneakPlace extends ModPacket
 	public EnumHand hand;
 	public EnumFacing side;
 	public float hitX, hitY, hitZ;
+	public boolean offgrid;
 
 	@Override
 	public void server(
@@ -58,7 +60,7 @@ public class PacketAccurateSneakPlace extends ModPacket
 				}
 
 				final IItemBlockAccurate ibc = (IItemBlockAccurate) stack.getItem();
-				ibc.doItemUse( inHand, playerEntity, playerEntity.worldObj, pos, hand, side, hitX, hitY, hitZ );
+				ibc.placeItem( inHand, playerEntity, playerEntity.worldObj, pos, hand, side, hitX, hitY, hitZ, offgrid );
 
 				if ( !playerEntity.capabilities.isCreativeMode && ModUtil.getStackSize( inHand ) <= 0 )
 				{
@@ -79,6 +81,7 @@ public class PacketAccurateSneakPlace extends ModPacket
 		buffer.writeFloat( hitX );
 		buffer.writeFloat( hitY );
 		buffer.writeFloat( hitZ );
+		buffer.writeBoolean( offgrid );
 	}
 
 	@Override
@@ -94,6 +97,7 @@ public class PacketAccurateSneakPlace extends ModPacket
 			hitX = buffer.readFloat();
 			hitY = buffer.readFloat();
 			hitZ = buffer.readFloat();
+			offgrid = buffer.readBoolean();
 		}
 		catch ( final IOException e )
 		{
