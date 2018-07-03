@@ -1,7 +1,9 @@
 package mod.chiselsandbits.integration.mcmultipart;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -10,7 +12,7 @@ import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.container.IPartInfo;
 import mcmultipart.api.multipart.IMultipartTile;
 import mcmultipart.api.multipart.MultipartHelper;
-import mcmultipart.api.multipart.MultipartOcclusionHelper;
+import mcmultipart.api.slot.IPartSlot;
 import mcmultipart.multipart.PartInfo;
 import mcmultipart.util.MCMPWorldWrapper;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -131,15 +133,25 @@ public class MCMultipart2Proxy implements IMCMultiPart
 			if ( mc.isPresent() )
 			{
 				final IMultipartContainer mcc = mc.get();
+				Predicate<IPartSlot> ignoreMe = which -> MultiPartSlots.BITS == which;
+
+				List<AxisAlignedBB> partBoxes = mcc.getParts().values().stream().filter( i -> !ignoreMe.test( i.getSlot() ) ).map( i -> i.getPart().getOcclusionBoxes( i ) ).flatMap( List::stream ).collect( Collectors.toList() );
+
+				if ( partBoxes.isEmpty() )
+					return;
 
 				final BitCollisionIterator bci = new BitCollisionIterator();
 				while ( bci.hasNext() )
 				{
-					final AxisAlignedBB aabb = new AxisAlignedBB( bci.physicalX, bci.physicalY, bci.physicalZ, bci.physicalX + BitCollisionIterator.One16thf, bci.physicalYp1, bci.physicalZp1 );
+					AxisAlignedBB bitBox = bci.getBoundingBox();
 
-					if ( MultipartOcclusionHelper.testContainerBoxIntersection( mcc, Collections.singleton( aabb ), which -> MultiPartSlots.BITS == which ) )
+					for ( AxisAlignedBB b : partBoxes )
 					{
-						bci.setNext( vb, 1 );
+						if ( b.intersectsWith( bitBox ) )
+						{
+							bci.setNext( vb, 1 );
+							break;
+						}
 					}
 				}
 			}

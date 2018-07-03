@@ -20,7 +20,7 @@ public class BitIterator
 	private int yOffset = 0;
 	private int combined = 0;
 
-	private int bit;
+	protected int bit;
 
 	// read-only outputs.
 	public int x = -1;
