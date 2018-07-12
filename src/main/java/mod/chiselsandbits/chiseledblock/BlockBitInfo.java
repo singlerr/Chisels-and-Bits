@@ -16,6 +16,7 @@ import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockGlowstone;
 import net.minecraft.block.BlockGrass;
 import net.minecraft.block.BlockIce;
+import net.minecraft.block.BlockMycelium;
 import net.minecraft.block.BlockSlime;
 import net.minecraft.block.BlockSnowBlock;
 import net.minecraft.block.BlockStainedGlass;
@@ -210,7 +211,7 @@ public class BlockBitInfo
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
 			final boolean tickingBehavior = blk.getTickRandomly() && ChiselsAndBits.getConfig().blacklistTickingBlocks;
-			boolean hasBehavior = ( blk.hasTileEntity( state ) || tickingBehavior ) && blkClass != BlockGrass.class && blkClass != BlockIce.class;
+			boolean hasBehavior = ( blk.hasTileEntity( state ) || tickingBehavior ) && blkClass != BlockGrass.class && blkClass != BlockMycelium.class && blkClass != BlockIce.class;
 			final boolean hasItem = Item.getItemFromBlock( blk ) != null;
 
 			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( state ) != null;
