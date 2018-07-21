@@ -1146,13 +1146,18 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 				return 0.0F;
 			}
 
+			// since we can't call getDigSpeed on the acting state, we can just
+			// do some math to try and roughly estimate it.
+			float denom = player.inventory.getStrVsBlock( passedState );
+			float numer = player.inventory.getStrVsBlock( state );
+
 			if ( !state.getBlock().canHarvestBlock( new HarvestWorld( state ), pos, player ) )
 			{
-				return player.getDigSpeed( state, pos ) / hardness / 100F;
+				return player.getDigSpeed( passedState, pos ) / hardness / 100F * ( numer / denom );
 			}
 			else
 			{
-				return player.getDigSpeed( state, pos ) / hardness / 30F;
+				return player.getDigSpeed( passedState, pos ) / hardness / 30F * ( numer / denom );
 			}
 		}
 
