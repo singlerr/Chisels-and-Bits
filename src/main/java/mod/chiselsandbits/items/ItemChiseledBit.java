@@ -300,6 +300,21 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 	}
 
+	@Override
+	public boolean canHarvestBlock(
+			IBlockState blk,
+			ItemStack stack )
+	{
+		return blk.getBlock() instanceof BlockChiseled || super.canHarvestBlock( blk, stack );
+	}
+
+	@Override
+	public boolean canHarvestBlock(
+			final IBlockState blk )
+	{
+		return blk.getBlock() instanceof BlockChiseled || super.canHarvestBlock( blk );
+	}
+
 	public static BitOperation getBitOperation(
 			final EntityPlayer player,
 			final EnumHand hand,
