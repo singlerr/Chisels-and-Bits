@@ -645,7 +645,16 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		{
 			if ( common.mostCommonState == 0 )
 			{
-				common.mostCommonState = getBasicState().getValue( BlockChiseled.UProperty_Primary_BlockState );
+				Integer i = getBasicState().getValue( BlockChiseled.UProperty_Primary_BlockState );
+				if ( i != null )
+				{
+					common.mostCommonState = i;
+				}
+				else
+				{
+					// default to some other non-zero state.
+					common.mostCommonState = ModUtil.getStateId( Blocks.STONE.getDefaultState() );
+				}
 			}
 
 			sideState = sideFlags;
