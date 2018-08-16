@@ -1,6 +1,9 @@
 package mod.chiselsandbits.api;
 
+import java.util.Collection;
+
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.AxisAlignedBB;
 
 /**
  * This interface is implemented by Chiseled Block Tile Entities.
@@ -32,5 +35,15 @@ public interface IChiseledBlockTileEntity
 	public NBTTagCompound writeTileEntityToTag(
 			final NBTTagCompound tag,
 			final boolean crossWorld );
+
+	/**
+	 * Used for access to the collision, occlusion, and swimming boxes of the
+	 * chiseled block tile entity.
+	 * 
+	 * @param type the type of boxes to return
+	 * @return a collection of the boxes for the tile entity
+	 */
+	Collection<AxisAlignedBB> getBoxes(
+			final BoxType type );
 
 }

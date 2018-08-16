@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import javax.annotation.Nonnull;
 
+import mod.chiselsandbits.api.BoxType;
 import mod.chiselsandbits.api.EventBlockBitPostModification;
 import mod.chiselsandbits.api.EventFullBlockRestoration;
 import mod.chiselsandbits.api.IBitAccess;
@@ -899,6 +900,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return false;
 	}
 
+	@Override
 	public Collection<AxisAlignedBB> getBoxes(
 			final BoxType type )
 	{

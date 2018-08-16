@@ -5,7 +5,7 @@ import java.util.Collection;
 import mcmultipart.api.multipart.IMultipartTile;
 import mcmultipart.api.multipart.MultipartOcclusionHelper;
 import mcmultipart.api.world.IMultipartWorld;
-import mod.chiselsandbits.chiseledblock.BoxType;
+import mod.chiselsandbits.api.BoxType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import net.minecraft.tileentity.TileEntity;

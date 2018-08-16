@@ -5,7 +5,7 @@ import java.util.Collection;
 import mcmultipart.api.container.IMultipartContainer;
 import mcmultipart.api.multipart.MultipartHelper;
 import mcmultipart.api.multipart.MultipartOcclusionHelper;
-import mod.chiselsandbits.chiseledblock.BoxType;
+import mod.chiselsandbits.api.BoxType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;

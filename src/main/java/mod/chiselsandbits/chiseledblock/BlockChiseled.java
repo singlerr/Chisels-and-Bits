@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import mod.chiselsandbits.api.BoxType;
 import mod.chiselsandbits.api.IMultiStateBlock;
 import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;

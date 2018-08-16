@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import mod.chiselsandbits.chiseledblock.BoxType;
+import mod.chiselsandbits.api.BoxType;
 import mod.chiselsandbits.helpers.IStateRef;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.FMLCommonHandler;

@@ -1,4 +1,4 @@
-package mod.chiselsandbits.chiseledblock;
+package mod.chiselsandbits.api;
 
 public enum BoxType
 {

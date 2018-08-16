@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.zip.InflaterInputStream;
 
 import io.netty.buffer.Unpooled;
+import mod.chiselsandbits.api.BoxType;
 import mod.chiselsandbits.chiseledblock.BoxCollection;
-import mod.chiselsandbits.chiseledblock.BoxType;
 import mod.chiselsandbits.core.Log;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.AxisAlignedBB;
