@@ -32,7 +32,7 @@ public interface IChiseledBlockTileEntity
 	 * @param crossWorld
 	 * @return modified input tag.
 	 */
-	public NBTTagCompound writeTileEntityToTag(
+	NBTTagCompound writeTileEntityToTag(
 			final NBTTagCompound tag,
 			final boolean crossWorld );
 

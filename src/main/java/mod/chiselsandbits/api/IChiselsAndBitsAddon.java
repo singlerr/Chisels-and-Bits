@@ -19,7 +19,7 @@ public interface IChiselsAndBitsAddon
 	 * @param api
 	 *            C&B Api Object
 	 */
-	public void onReadyChiselsAndBits(
+	void onReadyChiselsAndBits(
 			final IChiselAndBitsAPI api );
 
 }

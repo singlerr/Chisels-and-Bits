@@ -174,7 +174,7 @@ public interface IChiselAndBitsAPI
 	 *            - refer to ParameterType for list of possible values.
 	 * @return value of specified parameter.
 	 */
-	public <T extends Object> T getParameter(
+	<T extends Object> T getParameter(
 			ParameterType<T> which );
 
 	/**
