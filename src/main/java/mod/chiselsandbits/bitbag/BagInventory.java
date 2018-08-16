@@ -84,6 +84,20 @@ public class BagInventory implements IInventory
 		return stackSlots.length;
 	}
 
+	private int getStateInSlot(
+			int index )
+	{
+		final int qty = inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY];
+		final int id = inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_STATE_ID];
+
+		if ( qty > 0 )
+		{
+			return id;
+		}
+
+		return 0;
+	}
+
 	@Override
 	public @Nonnull ItemStack getStackInSlot(
 			final int index )
@@ -267,10 +281,10 @@ public class BagInventory implements IInventory
 
 		for ( int x = getSizeInventory() - 1; x >= 0; x-- )
 		{
-			final ItemStack is = getStackInSlot( x );
-
-			if ( ItemChiseledBit.sameBit( targetType, ItemChiseledBit.getStackState( is ) ) )
+			if ( ItemChiseledBit.sameBit( targetType, getStateInSlot( x ) ) )
 			{
+				final ItemStack is = getStackInSlot( x );
+
 				outSize += ModUtil.getStackSize( is );
 				final int total = outSize;
 				outSize = Math.min( is.getMaxStackSize(), outSize );
@@ -286,6 +300,12 @@ public class BagInventory implements IInventory
 				}
 
 				markDirty();
+
+				if ( outSize == is.getMaxStackSize() )
+				{
+					// done!
+					break;
+				}
 			}
 		}
 
