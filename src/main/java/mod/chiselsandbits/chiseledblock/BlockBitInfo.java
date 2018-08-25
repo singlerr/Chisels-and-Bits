@@ -30,6 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidRegistry;
 
 public class BlockBitInfo
 {
@@ -84,6 +85,19 @@ public class BlockBitInfo
 		}
 
 		return out;
+	}
+
+	public static void recalculateFluidBlocks()
+	{
+		fluidBlocks.clear();
+
+		for ( final Fluid o : FluidRegistry.getRegisteredFluids().values() )
+		{
+			if ( o.canBePlacedInWorld() )
+			{
+				BlockBitInfo.addFluidBlock( o.getBlock(), o );
+			}
+		}
 	}
 
 	public static void addFluidBlock(

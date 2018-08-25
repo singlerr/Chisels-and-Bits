@@ -26,8 +26,6 @@ import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.material.Material;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -177,14 +175,6 @@ public class ChiselsAndBits
 
 		integration.postinit();
 
-		for ( final Fluid o : FluidRegistry.getRegisteredFluids().values() )
-		{
-			if ( o.canBePlacedInWorld() )
-			{
-				BlockBitInfo.addFluidBlock( o.getBlock(), o );
-			}
-		}
-
 		NetworkRouter.instance = new NetworkRouter();
 		NetworkRegistry.INSTANCE.registerGuiHandler( this, new ModGuiRouter() );
 	}
@@ -196,6 +186,7 @@ public class ChiselsAndBits
 			final FMLModIdMappingEvent event )
 	{
 		idsHaveBeenMapped = true;
+		BlockBitInfo.recalculateFluidBlocks();
 		clearCache();
 	}
 

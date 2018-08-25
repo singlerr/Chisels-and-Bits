@@ -842,7 +842,7 @@ public final class VoxelBlob implements IVoxelSrc
 	public static boolean isFluid(
 			final int ref )
 	{
-		return fluidFilterState.get( ref & 0xfff );
+		return fluidFilterState.get( ref & 0xffff );
 	}
 
 	public boolean filterFluids(
@@ -858,7 +858,7 @@ public final class VoxelBlob implements IVoxelSrc
 				continue;
 			}
 
-			if ( fluidFilterState.get( ref & 0xfff ) != wantsFluids )
+			if ( fluidFilterState.get( ref & 0xffff ) != wantsFluids )
 			{
 				values[x] = 0;
 			}
