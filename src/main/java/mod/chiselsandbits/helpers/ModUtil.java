@@ -576,7 +576,7 @@ public class ModUtil
 	public static int getStateId(
 			final IBlockState state )
 	{
-		return IDRelay.getStateId( state );
+		return Math.max( 0, IDRelay.getStateId( state ) );
 	}
 
 	public static void cacheFastStates()
