@@ -100,7 +100,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final EntityPlayer player,
 			final ItemStack stack )
 	{
-		return canPlaceBlockHere( worldIn, pos, side, player, stack, false );
+		return canPlaceBlockHere( worldIn, pos, side, player, stack, ClientSide.offGridPlacement( player ) );
 	}
 
 	public boolean vanillaStylePlacementTest(
