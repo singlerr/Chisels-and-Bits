@@ -241,18 +241,36 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 
 		configureSound( mat );
 
-		// slippery ice...
-		if ( mat == Material.ICE || mat == Material.PACKED_ICE )
-		{
-			slipperiness = 0.98F;
-		}
-
 		setLightOpacity( 0 );
 		setHardness( 1 );
 		setHarvestLevel( "pickaxe", 0 );
 		name = BlockName;
 
 		setDefaultState( getDefaultState().withProperty( LProperty_FullBlock, false ) );
+	}
+
+	@Override
+	public float getSlipperiness(
+			IBlockState state,
+			IBlockAccess world,
+			BlockPos pos,
+			Entity entity )
+	{
+		try
+		{
+			IBlockState texture = getTileEntity( world, pos ).getBlockState( Blocks.STONE );
+
+			if ( texture != null )
+			{
+				return texture.getBlock().getSlipperiness( texture, new HarvestWorld( texture ), pos, entity );
+			}
+		}
+		catch ( ExceptionNoTileEntity e )
+		{
+			Log.noTileError( e );
+		}
+
+		return super.getSlipperiness( state, world, pos, entity );
 	}
 
 	private void configureSound(
