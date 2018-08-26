@@ -30,21 +30,19 @@ public class ModelQuadLayer
 		public ModelQuadLayer build(
 				final int stateid,
 				final int color,
-				final int lightValue,
-				final boolean isGrass )
+				final int lightValue )
 		{
 			cache.light = Math.max( lightValue, lv.lv );
 			cache.uvs = uvr.quadUVs;
 			cache.color = cache.tint != -1 ? color : 0xffffffff;
 
-			if ( isGrass )
+			if ( 0x00 <= cache.tint && cache.tint <= 0xff )
 			{
 				cache.color = 0xffffffff;
-				cache.tint = cache.tint == -1 ? -1 : stateid;
+				cache.tint = ( stateid << 8 ) | cache.tint;
 			}
 			else
 			{
-				// remove tints, I'm only support grass for the time being.
 				cache.tint = -1;
 			}
 

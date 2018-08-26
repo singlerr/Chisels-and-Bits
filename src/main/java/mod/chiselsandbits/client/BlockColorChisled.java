@@ -17,8 +17,9 @@ public class BlockColorChisled implements IBlockColor
 			final BlockPos pos,
 			final int tint )
 	{
-		final IBlockState tstate = ModUtil.getStateById( tint );
-		return Minecraft.getMinecraft().getBlockColors().colorMultiplier( tstate, worldIn, pos, 0 );
+		final IBlockState tstate = ModUtil.getStateById( tint >> 8 );
+		int tintValue = tint & 0xff;
+		return Minecraft.getMinecraft().getBlockColors().colorMultiplier( tstate, worldIn, pos, tintValue );
 	}
 
 }
