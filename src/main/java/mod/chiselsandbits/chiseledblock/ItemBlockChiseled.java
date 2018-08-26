@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.EventBlockBitModification;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
@@ -385,47 +386,55 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 			if ( modulateWorld )
 			{
-				for ( int x = 0; x < 2; x++ )
+				UndoTracker.getInstance().beginGroup( player );
+				try
 				{
-					for ( int y = 0; y < 2; y++ )
+					for ( int x = 0; x < 2; x++ )
 					{
-						for ( int z = 0; z < 2; z++ )
+						for ( int y = 0; y < 2; y++ )
 						{
-							if ( blobs[x][y][z].filled() > 0 )
+							for ( int z = 0; z < 2; z++ )
 							{
-								final BlockPos bp = pos.add( x, y, z );
-								final IBlockState state = world.getBlockState( bp );
-
-								if ( world.getBlockState( bp ).getBlock().isReplaceable( world, bp ) )
+								if ( blobs[x][y][z].filled() > 0 )
 								{
-									// clear it...
-									world.setBlockToAir( bp );
-								}
+									final BlockPos bp = pos.add( x, y, z );
+									final IBlockState state = world.getBlockState( bp );
 
-								if ( world.isAirBlock( bp ) )
-								{
-									final int commonBlock = blobs[x][y][z].getVoxelStats().mostCommonState;
-									if ( BlockChiseled.replaceWithChisled( world, bp, state, commonBlock, true ) )
+									if ( world.getBlockState( bp ).getBlock().isReplaceable( world, bp ) )
 									{
-										final TileEntityBlockChiseled target = BlockChiseled.getTileEntity( world, bp );
-										target.completeEditOperation( blobs[x][y][z] );
+										// clear it...
+										world.setBlockToAir( bp );
 									}
 
-									continue;
+									if ( world.isAirBlock( bp ) )
+									{
+										final int commonBlock = blobs[x][y][z].getVoxelStats().mostCommonState;
+										if ( BlockChiseled.replaceWithChisled( world, bp, state, commonBlock, true ) )
+										{
+											final TileEntityBlockChiseled target = BlockChiseled.getTileEntity( world, bp );
+											target.completeEditOperation( blobs[x][y][z] );
+										}
+
+										continue;
+									}
+
+									final TileEntityBlockChiseled target = ModUtil.getChiseledTileEntity( world, bp, true );
+									if ( target != null )
+									{
+										target.completeEditOperation( blobs[x][y][z] );
+
+										continue;
+									}
+
+									return false;
 								}
-
-								final TileEntityBlockChiseled target = ModUtil.getChiseledTileEntity( world, bp, true );
-								if ( target != null )
-								{
-									target.completeEditOperation( blobs[x][y][z] );
-
-									continue;
-								}
-
-								return false;
 							}
 						}
 					}
+				}
+				finally
+				{
+					UndoTracker.getInstance().endGroup( player );
 				}
 			}
 
