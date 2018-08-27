@@ -16,13 +16,14 @@ public class ItemColorChisled implements IItemColor
 			final ItemStack stack,
 			final int tint )
 	{
-		final IBlockState state = ModUtil.getStateById( tint );
+		final IBlockState state = ModUtil.getStateById( tint >> BlockColorChisled.TINT_BITS );
 		final Block blk = state.getBlock();
 		final Item i = Item.getItemFromBlock( blk );
+		int tintValue = tint & BlockColorChisled.TINT_MASK;
 
 		if ( i != null )
 		{
-			return ModelUtil.getItemStackColor( new ItemStack( i, 1, blk.getMetaFromState( state ) ), 0 );
+			return ModelUtil.getItemStackColor( new ItemStack( i, 1, blk.getMetaFromState( state ) ), tintValue );
 		}
 
 		return 0xffffff;

@@ -10,6 +10,9 @@ import net.minecraft.world.IBlockAccess;
 public class BlockColorChisled implements IBlockColor
 {
 
+	public static final int TINT_MASK = 0xff;
+	public static final int TINT_BITS = 8;
+
 	@Override
 	public int colorMultiplier(
 			final IBlockState state,
@@ -17,8 +20,8 @@ public class BlockColorChisled implements IBlockColor
 			final BlockPos pos,
 			final int tint )
 	{
-		final IBlockState tstate = ModUtil.getStateById( tint >> 8 );
-		int tintValue = tint & 0xff;
+		final IBlockState tstate = ModUtil.getStateById( tint >> TINT_BITS );
+		int tintValue = tint & TINT_MASK;
 		return Minecraft.getMinecraft().getBlockColors().colorMultiplier( tstate, worldIn, pos, tintValue );
 	}
 
