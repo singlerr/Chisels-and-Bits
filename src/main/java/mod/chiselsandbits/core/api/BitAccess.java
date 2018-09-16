@@ -25,6 +25,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -266,6 +267,22 @@ public class BitAccess implements IBitAccess
 		}
 
 		return new BitQueryResults( air, solid, fluid );
+	}
+
+	@Override
+	public IBitAccess mirror(
+			final Axis axis )
+	{
+		blob.fill( blob.mirror( axis ) );
+		return this;
+	}
+
+	@Override
+	public IBitAccess rotate(
+			final Axis axis )
+	{
+		blob.fill( blob.spin( axis ) );
+		return this;
 	}
 
 }

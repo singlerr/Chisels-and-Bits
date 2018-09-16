@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 
 /**
@@ -101,5 +102,21 @@ public interface IBitAccess
 			@Nullable EnumFacing side,
 			ItemType type,
 			boolean crossWorld );
+
+	/**
+	 * Mirrors all bits in the {@link IBitAccess} in the passed axis.
+	 *
+	 * @param axis
+	 */
+	IBitAccess mirror(
+			Axis axis );
+
+	/**
+	 * Rotates all bits in the {@link IBitAccess} counter-clockwise around the passed axis.
+	 * 
+	 * @param axis
+	 */
+	IBitAccess rotate(
+			Axis axis );
 
 }
