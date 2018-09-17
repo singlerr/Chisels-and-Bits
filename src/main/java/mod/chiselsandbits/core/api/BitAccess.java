@@ -26,6 +26,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -270,19 +271,31 @@ public class BitAccess implements IBitAccess
 	}
 
 	@Override
-	public IBitAccess mirror(
+	public boolean mirror(
 			final Axis axis )
 	{
-		blob.fill( blob.mirror( axis ) );
-		return this;
+		VoxelBlob blobMirrored = blob.mirror( axis );
+		if ( filler.canMerge( blobMirrored ) )
+		{
+			blob.fill( blobMirrored );
+			return true;
+		}
+		return false;
 	}
 
 	@Override
-	public IBitAccess rotate(
-			final Axis axis )
+	public boolean rotate(
+			final Axis axis,
+			final Rotation rotation )
 	{
-		blob.fill( blob.spin( axis ) );
-		return this;
+        VoxelBlob blobRotated = ModUtil.rotate( blob, axis, rotation );
+        if ( blobRotated != null && filler.canMerge( blobRotated ) )
+        {
+            blob.fill( blobRotated );
+            return true;
+        }
+        return false;
+
 	}
 
 }

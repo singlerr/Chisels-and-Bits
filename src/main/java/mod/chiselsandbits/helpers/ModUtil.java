@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -36,6 +37,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -489,6 +491,28 @@ public class ModUtil
 
 		return new ItemStack( i, 1, damage );
 	}
+
+    @Nullable
+    public static VoxelBlob rotate(
+            final VoxelBlob blob,
+            final Axis axis,
+            final Rotation rotation )
+    {
+        switch ( rotation )
+        {
+            case CLOCKWISE_90:
+                return blob.spin( axis ).spin( axis ).spin( axis );
+            case CLOCKWISE_180:
+                return blob.spin( axis ).spin( axis );
+            case COUNTERCLOCKWISE_90:
+                return blob.spin( axis );
+            case NONE:
+            default:
+                break;
+
+        }
+        return null;
+    }
 
 	public static boolean isNormalCube(
 			final IBlockState blockType )

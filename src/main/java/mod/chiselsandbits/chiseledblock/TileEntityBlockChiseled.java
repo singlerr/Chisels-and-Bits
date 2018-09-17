@@ -450,22 +450,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public void rotate(
 			final Rotation p_189667_1_ )
 	{
-		switch ( p_189667_1_ )
-		{
-			case CLOCKWISE_90:
-				setBlob( getBlob().spin( Axis.Y ).spin( Axis.Y ).spin( Axis.Y ), true );
-				break;
-			case CLOCKWISE_180:
-				setBlob( getBlob().spin( Axis.Y ).spin( Axis.Y ), true );
-				break;
-			case COUNTERCLOCKWISE_90:
-				setBlob( getBlob().spin( Axis.Y ), true );
-				break;
-			case NONE:
-			default:
-				break;
-
-		}
+        VoxelBlob blob = ModUtil.rotate( getBlob(), Axis.Y, p_189667_1_ );
+        if ( blob != null )
+        {
+            setBlob( blob, true );
+        }
 	}
 
 	public void fillWith(
