@@ -28,6 +28,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
@@ -49,6 +50,8 @@ public abstract class DebugAction
 		isBlockChiseled( new DebugAction.isBlockChiseled() ),
 		ItemTests( new DebugAction.ItemTests() ),
 		Randomize( new DebugAction.Randomize() ),
+		Spin( new DebugAction.Spin() ),
+		Mirror( new DebugAction.Mirror() ),
 		getTileClass( new DebugAction.getTileClass() ),
 		occusionTest( new DebugAction.occlusionTest() ),
 		queryTest( new DebugAction.queryTest() );
@@ -360,6 +363,68 @@ public abstract class DebugAction
 						return y % 2 == 0 ? currentValue : bit;
 					}
 				} );
+
+				access.commitChanges( true );
+			}
+			catch ( final CannotBeChiseled e )
+			{
+				Log.logError( "FAIL", e );
+			}
+		}
+
+	};
+
+	static class Mirror extends DebugAction
+	{
+
+		@Override
+		public void run(
+				final World w,
+				final BlockPos pos,
+				final EnumFacing side,
+				final float hitX,
+				final float hitY,
+				final float hitZ,
+				final EntityPlayer player )
+		{
+			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
+
+			try
+			{
+				final IBitAccess access = api.getBitAccess( w, loc.getBlockPos() );
+
+				access.mirror( side.getAxis() );
+
+				access.commitChanges( true );
+			}
+			catch ( final CannotBeChiseled e )
+			{
+				Log.logError( "FAIL", e );
+			}
+		}
+
+	};
+
+	static class Spin extends DebugAction
+	{
+
+		@Override
+		public void run(
+				final World w,
+				final BlockPos pos,
+				final EnumFacing side,
+				final float hitX,
+				final float hitY,
+				final float hitZ,
+				final EntityPlayer player )
+		{
+			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
+
+			try
+			{
+				final IBitAccess access = api.getBitAccess( w, loc.getBlockPos() );
+
+				access.rotate( side.getAxis(), Rotation.CLOCKWISE_90 );
 
 				access.commitChanges( true );
 			}
