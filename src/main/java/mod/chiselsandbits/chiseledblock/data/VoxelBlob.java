@@ -21,6 +21,8 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.InflaterInputStream;
 
 import io.netty.buffer.Unpooled;
+import mod.chiselsandbits.api.StateCount;
+import mod.chiselsandbits.api.VoxelStats;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.serialization.BitStream;
 import mod.chiselsandbits.chiseledblock.serialization.BlobSerializer;
@@ -571,31 +573,6 @@ public final class VoxelBlob implements IVoxelSrc
 		}
 	}
 
-	public static class BlobStats
-	{
-		public int mostCommonState;
-		public int mostCommonStateTotal;
-
-		public boolean isFullBlock;
-
-		public float blockLight;
-		public boolean isNormalBlock;
-	};
-
-	public static class TypeRef
-	{
-		final public int stateId;
-		public int quantity;
-
-		public TypeRef(
-				final int id,
-				final int q )
-		{
-			stateId = id;
-			quantity = q;
-		}
-	};
-
 	public Map<Integer, Integer> getBlockSums()
 	{
 		final Map<Integer, Integer> counts = new HashMap<Integer, Integer>();
@@ -640,23 +617,23 @@ public final class VoxelBlob implements IVoxelSrc
 		return counts;
 	}
 
-	public List<TypeRef> getBlockCounts()
+	public List<StateCount> getStateCounts()
 	{
 		final Map<Integer, Integer> count = getBlockSums();
 
-		final List<TypeRef> out;
-		out = new ArrayList<TypeRef>( count.size() );
+		final List<StateCount> out;
+		out = new ArrayList<StateCount>( count.size() );
 
 		for ( final Entry<Integer, Integer> o : count.entrySet() )
 		{
-			out.add( new TypeRef( o.getKey(), o.getValue() ) );
+			out.add( new StateCount( o.getKey(), o.getValue() ) );
 		}
 		return out;
 	}
 
-	public BlobStats getVoxelStats()
+	public VoxelStats getVoxelStats()
 	{
-		final BlobStats cb = new BlobStats();
+		final VoxelStats cb = new VoxelStats();
 		cb.isNormalBlock = true;
 
 		int nonAirBits = 0;

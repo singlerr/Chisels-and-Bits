@@ -5,11 +5,11 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import mod.chiselsandbits.api.VoxelStats;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
@@ -252,7 +252,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 		if ( craftingBlocks && ChiselsAndBits.getConfig().fullBlockCrafting )
 		{
-			final BlobStats stats = conv.getBlob().getVoxelStats();
+			final VoxelStats stats = conv.getBlob().getVoxelStats();
 			if ( stats.isFullBlock )
 			{
 				final IBlockState state = ModUtil.getStateById( stats.mostCommonState );

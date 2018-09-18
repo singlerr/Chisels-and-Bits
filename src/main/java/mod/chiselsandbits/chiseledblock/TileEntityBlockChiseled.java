@@ -11,8 +11,8 @@ import mod.chiselsandbits.api.EventFullBlockRestoration;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IChiseledBlockTileEntity;
 import mod.chiselsandbits.api.ItemType;
+import mod.chiselsandbits.api.VoxelStats;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob.BlobStats;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.client.UndoTracker;
@@ -623,7 +623,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		final Integer olv = getLightValue();
 		final Boolean oldNC = isNormalCube();
 
-		final BlobStats common = vb.getVoxelStats();
+		final VoxelStats common = vb.getVoxelStats();
 		final float light = common.blockLight;
 		final boolean nc = common.isNormalBlock;
 		final int lv = Math.max( 0, Math.min( 15, (int) ( light * 15 ) ) );

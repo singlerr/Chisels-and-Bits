@@ -1,5 +1,7 @@
 package mod.chiselsandbits.api;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
@@ -123,5 +125,18 @@ public interface IBitAccess
 	boolean rotate(
 			Axis axis,
 			Rotation rotation );
+	/**
+	 * Returns the count of each state in the {@link IBitAccess}.
+	 * 
+	 * @return list of state counts
+	 */
+	List<StateCount> getStateCounts();
+
+	/**
+	 * Returns a variety of information about the {@link IBitAccess}, such as its most common state and its count.
+	 * 
+	 * @return voxel stats object
+	 */
+	VoxelStats getVoxelStats();
 
 }
