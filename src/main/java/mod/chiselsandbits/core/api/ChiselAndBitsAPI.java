@@ -18,6 +18,7 @@ import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.client.RenderHelper;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -39,6 +40,7 @@ import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -437,6 +439,26 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		}
 
 		return null;
+	}
+
+	@Override
+	public void renderModel(
+			final IBakedModel model,
+			final World world,
+			final BlockPos pos,
+			final int alpha )
+	{
+		RenderHelper.renderModel( model, world, pos, alpha << 24 );
+	}
+
+	@Override
+	public void renderGhostModel(
+			final IBakedModel model,
+			final World world,
+			final BlockPos pos,
+			final boolean isUnplaceable )
+	{
+		RenderHelper.renderGhostModel( model, world, pos, isUnplaceable );
 	}
 
 }

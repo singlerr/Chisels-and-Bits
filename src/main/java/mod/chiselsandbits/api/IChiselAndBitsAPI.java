@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -229,5 +230,37 @@ public interface IChiselAndBitsAPI
 	@SideOnly( Side.CLIENT )
 	KeyBinding getKeyBinding(
 			ModKeyBinding modKeyBinding );
+
+	/**
+	 * Renders a model with transparency.
+	 *
+	 * @param model
+	 * @param world
+	 * @param pos
+	 * @param alpha
+	 *            Should be 0-255.
+	 */
+	@SideOnly( Side.CLIENT )
+	void renderModel(
+			IBakedModel model,
+			World world,
+			BlockPos pos,
+			int alpha );
+
+	/**
+	 * Renders a ghost model in the same way that chiseled item blocks are rendered for placement.
+	 *
+	 * @param model
+	 * @param world
+	 * @param pos
+	 * @param isUnplaceable
+	 *            if true, the block will be rendered with a decreased alpha value.
+	 */
+	@SideOnly( Side.CLIENT )
+	void renderGhostModel(
+			IBakedModel model,
+			World world,
+			BlockPos pos,
+			boolean isUnplaceable );
 
 }
