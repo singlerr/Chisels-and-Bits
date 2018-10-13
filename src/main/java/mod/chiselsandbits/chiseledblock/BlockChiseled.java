@@ -170,7 +170,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			final BlockPos pos,
 			final EnumFacing side )
 	{
-		return isNormalCube( state, world, pos );
+		return isOpaqueCube( state );
 	}
 
 	@Override
@@ -179,7 +179,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			final IBlockAccess world,
 			final BlockPos pos )
 	{
-		return isNormalCube( state, world, pos ) ? 255 : 0;
+		return isOpaqueCube( state ) ? 255 : 0;
 	}
 
 	@Override
@@ -188,15 +188,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			final IBlockAccess world,
 			final BlockPos pos )
 	{
-		try
-		{
-			return getTileEntity( world, pos ).isNormalCube();
-		}
-		catch ( final ExceptionNoTileEntity e )
-		{
-			Log.noTileError( e );
-			return false;
-		}
+		return isFullCube( state );
 	}
 
 	@Override
@@ -370,7 +362,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	public float getAmbientOcclusionLightValue(
 			final IBlockState state )
 	{
-		return 1.0f;
+		return isFullCube( state ) ? 0.2F : 1.0F;
 	}
 
 	@Override
