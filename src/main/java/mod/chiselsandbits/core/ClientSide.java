@@ -292,16 +292,7 @@ public class ClientSide
 
 		if ( ChiselsAndBits.getBlocks().itemBitTank != null )
 		{
-			ModelLoader.setCustomMeshDefinition( ChiselsAndBits.getBlocks().itemBitTank, new ItemMeshDefinition() {
-
-				@Override
-				public ModelResourceLocation getModelLocation(
-						ItemStack stack )
-				{
-					return new ModelResourceLocation( new ResourceLocation( modId, "bittank" ), "inventory" );
-				}
-
-			} );
+			registerMesh( ChiselsAndBits.getBlocks().itemBitTank, 0, new ModelResourceLocation( new ResourceLocation( modId, "bittank" ), "inventory" ) );
 		}
 
 		if ( modItems.itemPositiveprint != null )
