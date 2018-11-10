@@ -11,6 +11,7 @@ import mod.chiselsandbits.network.packets.PacketOpenBagGui;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.network.packets.PacketSetChiselMode;
 import mod.chiselsandbits.network.packets.PacketSetColor;
+import mod.chiselsandbits.network.packets.PacketSortBagGui;
 import mod.chiselsandbits.network.packets.PacketSuppressInteraction;
 import mod.chiselsandbits.network.packets.PacketUndo;
 
@@ -26,7 +27,8 @@ public enum ModPacketTypes
 	CLEAR_BAG( PacketClearBagGui.class ),
 	SUPRESS_INTERACTION( PacketSuppressInteraction.class ),
 	SET_COLOR( PacketSetColor.class ),
-	ACCURATE_PLACEMENT( PacketAccurateSneakPlace.class );
+	ACCURATE_PLACEMENT( PacketAccurateSneakPlace.class ),
+	SORT_BAG_GUI( PacketSortBagGui.class );
 
 	private final Class<? extends ModPacket> packetClass;
 

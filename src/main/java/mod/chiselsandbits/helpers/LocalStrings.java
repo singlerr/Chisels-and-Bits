@@ -59,6 +59,7 @@ public enum LocalStrings
 	leftAlt( "help.leftalt" ),
 	rightAlt( "help.rightalt" ),
 
+	Sort( "help.sort" ),
 	Trash( "help.trash" ),
 	TrashItem( "help.trashitem" ),
 	ReallyTrash( "help.reallytrash" ),

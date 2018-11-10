@@ -399,6 +399,8 @@ public class ClientSide
 	public static TextureAtlasSprite redoIcon;
 	public static TextureAtlasSprite trashIcon;
 
+	public static TextureAtlasSprite sortIcon;
+
 	public static TextureAtlasSprite swapIcon;
 	public static TextureAtlasSprite placeIcon;
 
@@ -415,6 +417,7 @@ public class ClientSide
 		undoIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/undo" ) );
 		redoIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/redo" ) );
 		trashIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/trash" ) );
+		sortIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/sort" ) );
 		roll_x = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/roll_x" ) );
 		roll_z = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/roll_z" ) );
 

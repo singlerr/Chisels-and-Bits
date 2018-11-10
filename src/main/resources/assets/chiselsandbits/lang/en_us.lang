@@ -119,6 +119,7 @@ mod.chiselsandbits.help.rightshift=Right Shift
 mod.chiselsandbits.help.leftalt=Left Alt
 mod.chiselsandbits.help.rightalt=Right Alt
 mod.chiselsandbits.help.trash=Delete Bag Contents, Hold Item to filter.
+mod.chiselsandbits.help.sort=Condense and Combine
 mod.chiselsandbits.help.trashitem=Delete only %s
 mod.chiselsandbits.help.reallytrash=Click again to confirm deletion of all
 mod.chiselsandbits.help.reallytrash_blank=Click again to confirm deletion of %s

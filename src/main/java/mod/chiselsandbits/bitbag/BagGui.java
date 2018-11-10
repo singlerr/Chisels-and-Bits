@@ -11,6 +11,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketBagGui;
 import mod.chiselsandbits.network.packets.PacketClearBagGui;
+import mod.chiselsandbits.network.packets.PacketSortBagGui;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -32,6 +33,7 @@ public class BagGui extends GuiContainer
 
 	private static GuiBagFontRenderer specialFontRenderer = null;
 	private GuiIconButton trashBtn;
+	private GuiIconButton sortBtn;
 
 	public BagGui(
 			final EntityPlayer player,
@@ -52,6 +54,7 @@ public class BagGui extends GuiContainer
 		super.initGui();
 
 		buttonList.add( trashBtn = new GuiIconButton( 1, guiLeft - 18, guiTop + 0, "help.trash", ClientSide.trashIcon ) );
+		buttonList.add( sortBtn = new GuiIconButton( 1, guiLeft - 18, guiTop + 18, "help.sort", ClientSide.sortIcon ) );
 	}
 
 	BagContainer getBagContainer()
@@ -193,6 +196,13 @@ public class BagGui extends GuiContainer
 			}
 		}
 
+		if ( sortBtn.isMouseOver() )
+		{
+			final List<String> text = Arrays
+					.asList( new String[] { LocalStrings.Sort.getLocal() } );
+			drawHoveringText( text, mouseX - guiLeft, mouseY - guiTop, fontRendererObj );
+		}
+
 		if ( trashBtn.isMouseOver() )
 		{
 			if ( isValidBitItem() )
@@ -229,6 +239,11 @@ public class BagGui extends GuiContainer
 	protected void actionPerformed(
 			final GuiButton button ) throws IOException
 	{
+		if ( button == sortBtn )
+		{
+			NetworkRouter.instance.sendToServer( new PacketSortBagGui() );
+		}
+
 		if ( button == trashBtn )
 		{
 			if ( requireConfirm )

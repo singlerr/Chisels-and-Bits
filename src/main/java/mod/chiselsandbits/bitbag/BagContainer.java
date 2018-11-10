@@ -369,4 +369,10 @@ public class BagContainer extends Container
 		( (EntityPlayerMP) thePlayer ).sendContainerToPlayer( this );
 	}
 
+	public void sort()
+	{
+		bagInv.sort();
+		( (EntityPlayerMP) thePlayer ).sendContainerToPlayer( this );
+	}
+
 }

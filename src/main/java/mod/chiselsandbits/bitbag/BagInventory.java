@@ -245,6 +245,101 @@ public class BagInventory implements IInventory
 		return 0;
 	}
 
+	private static class StateQtyPair
+	{
+		public StateQtyPair(
+				int state,
+				int qty )
+		{
+			this.qty = qty;
+			this.state = state;
+		}
+
+		int qty;
+		int state;
+	};
+
+	public void sort()
+	{
+		List<StateQtyPair> stacks = new ArrayList<StateQtyPair>();
+
+		for ( int x = 0; x < stackSlots.length; ++x )
+		{
+			int state = inv.contents[x * ItemBitBag.INTS_PER_BIT_TYPE + ItemBitBag.OFFSET_STATE_ID];
+			int qty = inv.contents[x * ItemBitBag.INTS_PER_BIT_TYPE + ItemBitBag.OFFSET_QUANTITY];
+
+			if ( state > 0 && qty > 0 )
+			{
+				stacks.add( new StateQtyPair( state, qty ) );
+			}
+		}
+
+		stacks.sort( new Comparator<StateQtyPair>() {
+
+			@Override
+			public int compare(
+					StateQtyPair o1,
+					StateQtyPair o2 )
+			{
+				if ( o1.state < o2.state )
+					return 1;
+
+				if ( o1.state > o2.state )
+					return -1;
+
+				if ( o1.qty < o2.qty )
+					return 1;
+
+				if ( o1.qty > o2.qty )
+					return -1;
+
+				return 0;
+			}
+		} );
+
+		for ( int x = 0; x < stacks.size() - 1; x++ )
+		{
+			StateQtyPair a = stacks.get( x );
+			StateQtyPair b = stacks.get( x + 1 );
+
+			if ( a.state == b.state )
+			{
+				if ( a.qty < getInventoryStackLimit() )
+				{
+					int shiftSize = getInventoryStackLimit() - a.qty;
+					shiftSize = Math.min( shiftSize, b.qty );
+
+					a.qty += shiftSize;
+					b.qty -= shiftSize;
+
+					if ( b.qty <= 0 )
+						stacks.remove( x + 1 );
+
+					--x;
+				}
+			}
+		}
+
+		for ( int x = 0; x < stackSlots.length; ++x )
+		{
+			int state = 0;
+			int qty = 0;
+
+			if ( stacks.size() > x )
+			{
+				state = stacks.get( x ).state;
+				qty = stacks.get( x ).qty;
+			}
+
+			inv.contents[x * ItemBitBag.INTS_PER_BIT_TYPE + ItemBitBag.OFFSET_STATE_ID] = state;
+			inv.contents[x * ItemBitBag.INTS_PER_BIT_TYPE + ItemBitBag.OFFSET_QUANTITY] = qty;
+
+			stackSlots[x] = ModUtil.getEmptyStack();
+		}
+
+		inv.onChange();
+	}
+
 	public void clear(
 			final ItemStack stack )
 	{
@@ -472,4 +567,5 @@ public class BagInventory implements IInventory
 
 		return true;
 	}
+
 }
