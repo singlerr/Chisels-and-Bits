@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.VoxelStats;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
@@ -38,6 +39,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -151,7 +153,8 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		final ItemStack stack = player.getHeldItem( hand );
 		final IBlockState blkstate = world.getBlockState( pos );
 
-		if ( ItemChiseledBit.checkRequiredSpace( player, blkstate ) ) {
+		if ( ItemChiseledBit.checkRequiredSpace( player, blkstate ) )
+		{
 			return EnumActionResult.FAIL;
 		}
 
@@ -307,7 +310,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		BitInventoryFeeder feeder = new BitInventoryFeeder( who, world );
 		for ( final EntityItem ei : spawnlist )
 		{
-			feeder.addItem(ei);
+			feeder.addItem( ei );
 		}
 	}
 
@@ -318,23 +321,48 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final int dwheel )
 	{
 		final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-		p.rotationDirection = dwheel;
+		p.axis = Axis.Y;
+		p.rotation = dwheel > 0 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
 		NetworkRouter.instance.sendToServer( p );
 	}
 
 	@Override
 	public void rotate(
 			final ItemStack stack,
-			final int rotationDirection )
+			final Axis axis,
+			final Rotation rotation )
 	{
 		EnumFacing side = ModUtil.getSide( stack );
 
-		if ( side.getAxis() == Axis.Y )
+		if ( axis == Axis.Y )
 		{
-			side = EnumFacing.NORTH;
+			if ( side.getAxis() == Axis.Y )
+			{
+				side = EnumFacing.NORTH;
+			}
+
+			switch ( rotation )
+			{
+				case CLOCKWISE_180:
+					side = side.rotateY();
+				case CLOCKWISE_90:
+					side = side.rotateY();
+					break;
+				case COUNTERCLOCKWISE_90:
+					side = side.rotateYCCW();
+					break;
+				default:
+				case NONE:
+					break;
+			}
+		}
+		else
+		{
+			IBitAccess ba = ChiselsAndBits.getApi().createBitItem( stack );
+			ba.rotate( axis, rotation );
+			stack.setTagCompound( ba.getBitsAsItem( side, ChiselsAndBits.getApi().getItemType( stack ), false ).getTagCompound() );
 		}
 
-		side = rotationDirection > 0 ? side.rotateY() : side.rotateYCCW();
 		ModUtil.setSide( stack, side );
 	}
 

@@ -5,11 +5,14 @@ import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.Rotation;
 
 public class PacketRotateVoxelBlob extends ModPacket
 {
 
-	public int rotationDirection;
+	public Axis axis;
+	public Rotation rotation;
 
 	@Override
 	public void server(
@@ -18,7 +21,7 @@ public class PacketRotateVoxelBlob extends ModPacket
 		final ItemStack is = player.getHeldItemMainhand();
 		if ( is != null && is.getItem() instanceof IVoxelBlobItem )
 		{
-			( (IVoxelBlobItem) is.getItem() ).rotate( is, rotationDirection );
+			( (IVoxelBlobItem) is.getItem() ).rotate( is, axis, rotation );
 		}
 	}
 
@@ -26,14 +29,16 @@ public class PacketRotateVoxelBlob extends ModPacket
 	public void getPayload(
 			final PacketBuffer buffer )
 	{
-		buffer.writeInt( rotationDirection );
+		buffer.writeEnumValue( axis );
+		buffer.writeEnumValue( rotation );
 	}
 
 	@Override
 	public void readPayload(
 			final PacketBuffer buffer )
 	{
-		rotationDirection = buffer.readInt();
+		axis = buffer.readEnumValue( Axis.class );
+		rotation = buffer.readEnumValue( Rotation.class );
 	}
 
 }

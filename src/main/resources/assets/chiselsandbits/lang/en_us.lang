@@ -82,6 +82,9 @@ mod.chiselsandbits.other.pickbit=Pick Bit
 mod.chiselsandbits.other.offgrid=Place Off Grid
 mod.chiselsandbits.other.add_to_clipboard=Pick Block to Clipboard
 
+mod.chiselsandbits.other.roll_x=Rotate X Clockwise
+mod.chiselsandbits.other.roll_z=Rotate Z Clockwise
+
 mod.chiselsandbits.help.shiftdetails=<Hold Shift For Details>
 mod.chiselsandbits.help.empty=Empty
 mod.chiselsandbits.help.filled=Filled

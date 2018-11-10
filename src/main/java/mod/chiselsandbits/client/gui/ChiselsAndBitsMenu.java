@@ -205,6 +205,12 @@ public class ChiselsAndBitsMenu extends GuiScreen
 		btns.add( new MenuButton( "mod.chiselsandbits.other.undo", ButtonAction.UNDO, text_distnace, -20, ClientSide.undoIcon, EnumFacing.EAST ) );
 		btns.add( new MenuButton( "mod.chiselsandbits.other.redo", ButtonAction.REDO, text_distnace, 4, ClientSide.redoIcon, EnumFacing.EAST ) );
 
+		if ( tool == ChiselToolType.CHISELED_BLOCK || tool == ChiselToolType.NEGATIVEPATTERN || tool == ChiselToolType.POSITIVEPATTERN )
+		{
+			btns.add( new MenuButton( "mod.chiselsandbits.other.roll_x", ButtonAction.ROLL_X, -text_distnace - 18, -20, ClientSide.roll_x, EnumFacing.WEST ) );
+			btns.add( new MenuButton( "mod.chiselsandbits.other.roll_z", ButtonAction.ROLL_Z, -text_distnace - 18, 4, ClientSide.roll_z, EnumFacing.WEST ) );
+		}
+
 		if ( tool == ChiselToolType.TAPEMEASURE )
 		{
 			final int colorSize = EnumDyeColor.values().length / 4 * 24 - 4;
@@ -415,7 +421,11 @@ public class ChiselsAndBitsMenu extends GuiScreen
 			{
 				final String text = DeprecationHelper.translateToLocal( btn.name );
 
-				if ( btn.textSide == EnumFacing.EAST )
+				if ( btn.textSide == EnumFacing.WEST )
+				{
+					fontRendererObj.drawStringWithShadow( text, (int) ( middle_x + btn.x1 - 8 ) - fontRendererObj.getStringWidth( text ), (int) ( middle_y + btn.y1 + 6 ), 0xffffffff );
+				}
+				else if ( btn.textSide == EnumFacing.EAST )
 				{
 					fontRendererObj.drawStringWithShadow( text, (int) ( middle_x + btn.x2 + 8 ), (int) ( middle_y + btn.y1 + 6 ), 0xffffffff );
 				}

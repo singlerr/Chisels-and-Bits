@@ -5,6 +5,9 @@ public enum ButtonAction
 	UNDO,
 	REDO,
 
+	ROLL_X,
+	ROLL_Z,
+
 	REPLACE_TOGGLE,
 
 	WHITE,

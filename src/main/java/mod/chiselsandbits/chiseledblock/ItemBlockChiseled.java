@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 import mod.chiselsandbits.api.EventBlockBitModification;
+import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -38,7 +39,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -481,18 +484,42 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final int dwheel )
 	{
 		final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-		p.rotationDirection = dwheel;
+		p.axis = Axis.Y;
+		p.rotation = dwheel > 0 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
 		NetworkRouter.instance.sendToServer( p );
 	}
 
 	@Override
 	public void rotate(
 			final ItemStack stack,
-			final int rotationDirection )
+			final Axis axis,
+			final Rotation rotation )
 	{
 		EnumFacing side = ModUtil.getSide( stack );
 
-		side = rotationDirection > 0 ? side.rotateY() : side.rotateYCCW();
+		if ( axis == Axis.Y )
+		{
+			switch ( rotation )
+			{
+				case CLOCKWISE_180:
+					side = side.rotateY();
+				case CLOCKWISE_90:
+					side = side.rotateY();
+					break;
+				case COUNTERCLOCKWISE_90:
+					side = side.rotateYCCW();
+					break;
+				default:
+				case NONE:
+					break;
+			}
+		}
+		else
+		{
+			IBitAccess ba = ChiselsAndBits.getApi().createBitItem( stack );
+			ba.rotate( axis, rotation );
+			stack.setTagCompound( ba.getBitsAsItem( side, ChiselsAndBits.getApi().getItemType( stack ), false ).getTagCompound() );
+		}
 
 		ModUtil.setSide( stack, side );
 	}

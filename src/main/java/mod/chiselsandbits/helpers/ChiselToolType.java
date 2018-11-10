@@ -17,9 +17,11 @@ public enum ChiselToolType
 	CHISEL( true, true ),
 	BIT( true, false ),
 
+	CHISELED_BLOCK( true, false ),
+
 	POSITIVEPATTERN( true, true ),
 	TAPEMEASURE( true, true ),
-	NEGATIVEPATTERN( false, false ),
+	NEGATIVEPATTERN( true, false ),
 	MIRRORPATTERN( false, false );
 
 	final private boolean hasMenu;

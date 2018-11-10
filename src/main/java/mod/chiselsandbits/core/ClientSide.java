@@ -107,6 +107,7 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -401,6 +402,9 @@ public class ClientSide
 	public static TextureAtlasSprite swapIcon;
 	public static TextureAtlasSprite placeIcon;
 
+	public static TextureAtlasSprite roll_x;
+	public static TextureAtlasSprite roll_z;
+
 	@SubscribeEvent
 	void registerIconTextures(
 			final TextureStitchEvent.Pre ev )
@@ -411,6 +415,8 @@ public class ClientSide
 		undoIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/undo" ) );
 		redoIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/redo" ) );
 		trashIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/trash" ) );
+		roll_x = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/roll_x" ) );
+		roll_z = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/roll_z" ) );
 
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
@@ -521,6 +527,20 @@ public class ClientSide
 						ClientSide.instance.playRadialMenu();
 						switch ( ChiselsAndBitsMenu.instance.doAction )
 						{
+							case ROLL_X:
+								PacketRotateVoxelBlob pri = new PacketRotateVoxelBlob();
+								pri.axis = Axis.X;
+								pri.rotation = Rotation.CLOCKWISE_90;
+								NetworkRouter.instance.sendToServer( pri );
+								break;
+
+							case ROLL_Z:
+								PacketRotateVoxelBlob pri2 = new PacketRotateVoxelBlob();
+								pri2.axis = Axis.Z;
+								pri2.rotation = Rotation.CLOCKWISE_90;
+								NetworkRouter.instance.sendToServer( pri2 );
+								break;
+
 							case REPLACE_TOGGLE:
 								ChiselsAndBits.getConfig().replaceingBits = !ChiselsAndBits.getConfig().replaceingBits;
 								ReflectionWrapper.instance.clearHighlightedStack();
@@ -671,7 +691,7 @@ public class ClientSide
 					final ItemStack stack = mc.thePlayer.inventory.mainInventory.get( slot );
 					if ( stack != null && stack.getItem() instanceof ItemChisel )
 					{
-						final ChiselToolType toolType = getToolTypeForItemm( stack );
+						final ChiselToolType toolType = getToolTypeForItem( stack );
 						IToolMode mode = toolType.getMode( stack );
 
 						if ( !ChiselsAndBits.getConfig().perChiselMode && tool == ChiselToolType.CHISEL )
@@ -752,10 +772,10 @@ public class ClientSide
 		}
 
 		final ItemStack is = player.getHeldItem( enumHand );
-		return getToolTypeForItemm( is );
+		return getToolTypeForItem( is );
 	}
 
-	private ChiselToolType getToolTypeForItemm(
+	private ChiselToolType getToolTypeForItem(
 			final ItemStack is )
 	{
 		if ( is != null && is.getItem() instanceof ItemChisel )
@@ -766,6 +786,11 @@ public class ClientSide
 		if ( is != null && is.getItem() instanceof ItemChiseledBit )
 		{
 			return ChiselToolType.BIT;
+		}
+
+		if ( is != null && is.getItem() instanceof ItemBlockChiseled )
+		{
+			return ChiselToolType.CHISELED_BLOCK;
 		}
 
 		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemTapeMeasure )
@@ -852,7 +877,8 @@ public class ClientSide
 			{
 				rotateTimer = Stopwatch.createStarted();
 				final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-				p.rotationDirection = 1;
+				p.axis = Axis.Y;
+				p.rotation = Rotation.COUNTERCLOCKWISE_90;
 				NetworkRouter.instance.sendToServer( p );
 			}
 		}
@@ -863,7 +889,8 @@ public class ClientSide
 			{
 				rotateTimer = Stopwatch.createStarted();
 				final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-				p.rotationDirection = -1;
+				p.axis = Axis.Y;
+				p.rotation = Rotation.CLOCKWISE_90;
 				NetworkRouter.instance.sendToServer( p );
 			}
 		}
