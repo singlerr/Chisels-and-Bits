@@ -10,7 +10,9 @@
 			"Holds 63 stacks of bits inside of it.",
 			"Stores 512 ( by default ) bits per stack, instead of 64.",
 			"Has a button which allows you to clear the contents of the bag easily.",
-			"Drag a stack of bits over the delete button to delete only those bits. ( 11.4 / 10.12 and up )"
+			"Combine and sort its contents with a button. ( 14.28 and up )",
+			"Drag a stack of bits over the delete button to delete only those bits. ( 11.4 / 10.12 and up )",
+			"Craft with any dye to color the bag, craft a dyed bag with a water bucket to remove dye. ( 14.28 and up )"
 		],
 		"controls": [{
 			"button": "Right Click",
@@ -19,7 +21,7 @@
 		"version": "1.0",
 		"icon": "bit_bag.png",
 		"recipes": ["bitBag.png"],
-		"usages": []
+		"usages": ["dyed_bags.png"]
 	},
 
 
@@ -192,6 +194,7 @@
 			"Clone exact blocks in world.",
 			"Can be used to craft copies in a crafting table with bit bags and other bits.",
 			"Can be cleared and reused.",
+			"Use Menu to rotate around the X and Z axis. ( 14.28 and up )",
 			"Has 4 Modes of operation. ( 11.4 / 10.12 and up )",
 			"Replace: Classic mode the target block is replaced with the design.",
 			"Additive: Only add bits where they will fit.",
@@ -228,6 +231,7 @@
 		"features": [
 			"Transfer shapes between materials",
 			"Can be inverted in the crafting table.",
+			"Use Menu to rotate around the X and Z axis. ( 14.28 and up )",
 			"Can be cleared and reused."
 		],
 		"controls": [{
