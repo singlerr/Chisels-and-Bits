@@ -16,15 +16,19 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketOpenBagGui;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -55,6 +59,17 @@ public class ItemBitBag extends Item
 			final NBTTagCompound nbt )
 	{
 		return new BagCapabilityProvider( stack, nbt );
+	}
+
+	@Override
+	public String getItemStackDisplayName(
+			ItemStack stack )
+	{
+		EnumDyeColor color = getDyedColor( stack );
+		if ( color != null )
+			return super.getItemStackDisplayName( stack ) + " - " + I18n.translateToLocal( "chiselsandbits.color." + color.getName() );
+		else
+			return super.getItemStackDisplayName( stack );
 	}
 
 	@Override
@@ -317,5 +332,52 @@ public class ItemBitBag extends Item
 		}
 
 		return 0;
+	}
+
+	@Override
+	public void getSubItems(
+			CreativeTabs itemIn,
+			NonNullList<ItemStack> tab )
+	{
+		if ( this.func_194125_a( itemIn ) )
+		{
+			tab.add( new ItemStack( this ) );
+
+			for ( EnumDyeColor color : EnumDyeColor.values() )
+				tab.add( dyeBag( new ItemStack( this ), color ) );
+		}
+	}
+
+	public ItemStack dyeBag(
+			ItemStack bag,
+			EnumDyeColor color )
+	{
+		ItemStack copy = bag.copy();
+
+		if ( !copy.hasTagCompound() )
+			copy.setTagCompound( new NBTTagCompound() );
+
+		if ( color == null )
+			copy.getTagCompound().removeTag( "color" );
+		else
+			copy.getTagCompound().setString( "color", color.getName() );
+
+		return copy;
+	}
+
+	public EnumDyeColor getDyedColor(
+			ItemStack stack )
+	{
+		if ( stack.hasTagCompound() && stack.getTagCompound().hasKey( "color" ) )
+		{
+			String name = stack.getTagCompound().getString( "color" );
+			for ( EnumDyeColor color : EnumDyeColor.values() )
+			{
+				if ( name.equals( color.getName() ) )
+					return color;
+			}
+		}
+
+		return null;
 	}
 }

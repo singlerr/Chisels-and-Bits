@@ -32,14 +32,16 @@ public class BagCapabilityProvider extends BagStorage implements ICapabilityProv
 		int[] out = null;
 		NBTTagCompound compound = stack.getTagCompound();
 
-		if ( compound != null && compound.hasKey( "contents" ) )
+		if ( compound == null )
+			compound = new NBTTagCompound();
+
+		if ( compound.hasKey( "contents" ) )
 		{
 			out = compound.getIntArray( "contents" );
 		}
 
 		if ( out == null )
 		{
-			compound = new NBTTagCompound();
 			stack.setTagCompound( compound );
 			out = new int[size];
 			compound.setIntArray( "contents", out );

@@ -27,6 +27,11 @@ public class ModRecipes
 		String MODID = ChiselsAndBits.MODID;
 
 		// add special recipes...
+		if ( ChiselsAndBits.getItems().itemBitBag != null )
+		{
+			r.register( new BagDyeing( new ResourceLocation( MODID, "bitbagdyeing" ) ) );
+		}
+
 		if ( config.enablePositivePrintCrafting )
 		{
 			r.register( new ChiselCrafting( new ResourceLocation( MODID, "positiveprintcrafting" ) ) );

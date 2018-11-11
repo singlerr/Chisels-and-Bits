@@ -39,6 +39,7 @@ import mod.chiselsandbits.chiseledblock.iterators.ChiselIterator;
 import mod.chiselsandbits.chiseledblock.iterators.ChiselTypeIterator;
 import mod.chiselsandbits.client.BlockColorChisled;
 import mod.chiselsandbits.client.CreativeClipboardTab;
+import mod.chiselsandbits.client.ItemColorBitBag;
 import mod.chiselsandbits.client.ItemColorBits;
 import mod.chiselsandbits.client.ItemColorChisled;
 import mod.chiselsandbits.client.ItemColorPatterns;
@@ -239,6 +240,11 @@ public class ClientSide
 
 		final ModItems modItems = ChiselsAndBits.getItems();
 
+		if ( modItems.itemBitBag != null )
+		{
+			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorBitBag(), modItems.itemBitBag );
+		}
+
 		if ( modItems.itemBlockBit != null )
 		{
 			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorBits(), modItems.itemBlockBit );
@@ -286,7 +292,6 @@ public class ClientSide
 		registerMesh( modItems.itemChiselIron, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_iron" ), "inventory" ) );
 		registerMesh( modItems.itemChiselGold, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_gold" ), "inventory" ) );
 		registerMesh( modItems.itemChiselDiamond, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_diamond" ), "inventory" ) );
-		registerMesh( modItems.itemBitBag, 0, new ModelResourceLocation( new ResourceLocation( modId, "bit_bag" ), "inventory" ) );
 		registerMesh( modItems.itemWrench, 0, new ModelResourceLocation( new ResourceLocation( modId, "wrench_wood" ), "inventory" ) );
 		registerMesh( modItems.itemBitSawDiamond, 0, new ModelResourceLocation( new ResourceLocation( modId, "bitsaw_diamond" ), "inventory" ) );
 		registerMesh( modItems.itemTapeMeasure, 0, new ModelResourceLocation( new ResourceLocation( modId, "tape_measure" ), "inventory" ) );
@@ -294,6 +299,21 @@ public class ClientSide
 		if ( ChiselsAndBits.getBlocks().itemBitTank != null )
 		{
 			registerMesh( ChiselsAndBits.getBlocks().itemBitTank, 0, new ModelResourceLocation( new ResourceLocation( modId, "bittank" ), "inventory" ) );
+		}
+
+		if ( modItems.itemBitBag != null )
+		{
+			ModelBakery.registerItemVariants( modItems.itemBitBag, new ResourceLocation( modId, "bit_bag" ), new ResourceLocation( modId, "bit_bag_dyed" ) );
+			ModelLoader.setCustomMeshDefinition( modItems.itemBitBag, new ItemMeshDefinition() {
+
+				@Override
+				public ModelResourceLocation getModelLocation(
+						final ItemStack stack )
+				{
+					return new ModelResourceLocation( new ResourceLocation( modId, modItems.itemBitBag.getDyedColor( stack ) != null ? "bit_bag_dyed" : "bit_bag" ), "inventory" );
+				}
+
+			} );
 		}
 
 		if ( modItems.itemPositiveprint != null )
