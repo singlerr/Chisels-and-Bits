@@ -450,11 +450,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public void rotate(
 			final Rotation p_189667_1_ )
 	{
-        VoxelBlob blob = ModUtil.rotate( getBlob(), Axis.Y, p_189667_1_ );
-        if ( blob != null )
-        {
-            setBlob( blob, true );
-        }
+		VoxelBlob blob = ModUtil.rotate( getBlob(), Axis.Y, p_189667_1_ );
+		if ( blob != null )
+		{
+			setBlob( blob, true );
+		}
 	}
 
 	public void fillWith(
@@ -817,7 +817,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public boolean isSideOpaque(
 			final EnumFacing side )
 	{
-		if ( this.getWorld().isRemote )
+		if ( this.getWorld() != null && this.getWorld().isRemote )
 		{
 			return isInnerSideOpaque( side );
 		}
