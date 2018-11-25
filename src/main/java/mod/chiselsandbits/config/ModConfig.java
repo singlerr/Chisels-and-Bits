@@ -156,13 +156,13 @@ public class ModConfig extends Configuration
 	@Configured( category = "Client Performance Settings" )
 	public static UseVBO useVBO;
 
-	@Configured( category = "Troublershooting" )
+	@Configured( category = "Troubleshooting" )
 	public boolean useGetLightValue;
 
-	@Configured( category = "Troublershooting" )
+	@Configured( category = "Troubleshooting" )
 	public boolean enableFaceLightmapExtraction;
 
-	@Configured( category = "Troublershooting" )
+	@Configured( category = "troubleshooting" )
 	public boolean disableCustomVertexFormats;
 
 	@Configured( category = "Client Performance Settings" )
