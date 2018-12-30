@@ -435,6 +435,11 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			final FluidStack resource,
 			final boolean doFill )
 	{
+		if ( resource == null )
+		{
+			return 0;
+		}
+
 		final int possibleAmount = resource.amount - resource.amount % TileEntityBitTank.MB_PER_BIT_CONVERSION;
 
 		if ( possibleAmount > 0 )
