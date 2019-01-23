@@ -157,6 +157,9 @@ public class ModConfig extends Configuration
 	public static UseVBO useVBO;
 
 	@Configured( category = "Troubleshooting" )
+	public boolean logEligibilityErrors;
+
+	@Configured( category = "Troubleshooting" )
 	public boolean useGetLightValue;
 
 	@Configured( category = "Troubleshooting" )
@@ -398,6 +401,7 @@ public class ModConfig extends Configuration
 		disableCustomVertexFormats = false;
 		enableFaceLightmapExtraction = true;
 		useGetLightValue = true;
+		logEligibilityErrors = false;
 
 		showUsage = true;
 		invertBitBagFullness = false;

@@ -291,7 +291,7 @@ public class BlockBitInfo
 		}
 		catch ( final NoClassDefFoundError e )
 		{
-			Log.info( "Unable to determine blocks eligibility for chiseling, " + blkClass.getName() + " attempted to load " + e.getMessage() );
+			Log.eligibility( "Unable to determine blocks eligibility for chiseling, " + blkClass.getName() + " attempted to load " + e.getMessage() + " missing @SideOnly( Side.CLIENT ) or @Optional?" );
 			return blkClass;
 		}
 		catch ( final Throwable t )

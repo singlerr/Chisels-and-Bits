@@ -40,4 +40,13 @@ public class Log
 		}
 	}
 
+	public static void eligibility(
+			String message )
+	{
+		if ( ChiselsAndBits.getConfig().logEligibilityErrors )
+		{
+			getLogger().info( message );
+		}
+	}
+
 }
