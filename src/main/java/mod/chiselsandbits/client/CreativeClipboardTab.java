@@ -14,6 +14,7 @@ import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 
@@ -21,7 +22,7 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 {
 	static boolean renewMappings = true;
 	static private List<ItemStack> myWorldItems = new ArrayList<ItemStack>();
-	static private List<ItemStack> myCrossItems = new ArrayList<ItemStack>();
+	static private List<NBTTagCompound> myCrossItems = new ArrayList<NBTTagCompound>();
 	static private ClipboardStorage clipStorage = null;
 
 	public static void load(
@@ -52,9 +53,9 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 			}
 
 			// remove duplicates if they exist...
-			for ( final ItemStack isa : myCrossItems )
+			for ( final NBTTagCompound isa : myCrossItems )
 			{
-				if ( ItemStack.areItemStackTagsEqual( is, isa ) )
+				if ( isa.equals( is.getTagCompound() ) )
 				{
 					myCrossItems.remove( isa );
 					break;
@@ -62,7 +63,7 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 			}
 
 			// add item to front...
-			myCrossItems.add( 0, is );
+			myCrossItems.add( 0, is.getTagCompound() );
 
 			// remove extra items from back..
 			while ( myCrossItems.size() > ChiselsAndBits.getConfig().creativeClipboardSize && !myCrossItems.isEmpty() )
@@ -106,10 +107,10 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 			myWorldItems.clear();
 			renewMappings = false;
 
-			for ( final ItemStack is : myCrossItems )
+			for ( final NBTTagCompound nbt : myCrossItems )
 			{
 				final NBTBlobConverter c = new NBTBlobConverter();
-				c.readChisleData( ModUtil.getSubCompound( is, ModUtil.NBT_BLOCKENTITYTAG, true ), VoxelBlob.VERSION_ANY );
+				c.readChisleData( nbt.getCompoundTag( ModUtil.NBT_BLOCKENTITYTAG ), VoxelBlob.VERSION_ANY );
 
 				// recalculate.
 				c.updateFromBlob();

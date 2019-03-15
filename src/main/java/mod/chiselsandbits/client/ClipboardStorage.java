@@ -1,17 +1,16 @@
 package mod.chiselsandbits.client;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.EncoderException;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 
@@ -25,7 +24,7 @@ public class ClipboardStorage extends Configuration
 	}
 
 	public void write(
-			final List<ItemStack> myitems )
+			final List<NBTTagCompound> myitems )
 	{
 		if ( !ChiselsAndBits.getConfig().persistCreativeClipboard )
 		{
@@ -38,39 +37,26 @@ public class ClipboardStorage extends Configuration
 		}
 
 		int idx = 0;
-		for ( final ItemStack i : myitems )
+		for ( final NBTTagCompound nbt : myitems )
 		{
-			if ( i.hasTagCompound() )
+			final PacketBuffer b = new PacketBuffer( Unpooled.buffer() );
+			b.writeNBTTagCompoundToBuffer( nbt );
+
+			final int[] o = new int[b.writerIndex()];
+			for ( int x = 0; x < b.writerIndex(); x++ )
 			{
-				final NBTTagCompound nbt = i.getTagCompound();
-				final PacketBuffer b = new PacketBuffer( Unpooled.buffer() );
-
-				final ResourceLocation resLoc = Item.REGISTRY.getNameForObject( i.getItem() );
-
-				if ( resLoc == null )
-				{
-					continue;
-				}
-
-				b.writeString( resLoc.toString() );
-				b.writeNBTTagCompoundToBuffer( nbt );
-
-				final int[] o = new int[b.writerIndex()];
-				for ( int x = 0; x < b.writerIndex(); x++ )
-				{
-					o[x] = b.getByte( x );
-				}
-
-				get( "clipboard", "" + idx++, o ).set( o );
+				o[x] = b.getByte( x );
 			}
+
+			get( "clipboard", "" + idx++, o ).set( o );
 		}
 
 		save();
 	}
 
-	public List<ItemStack> read()
+	public List<NBTTagCompound> read()
 	{
-		final List<ItemStack> myItems = new ArrayList<ItemStack>();
+		final List<NBTTagCompound> myItems = new ArrayList<NBTTagCompound>();
 
 		if ( !ChiselsAndBits.getConfig().persistCreativeClipboard )
 		{
@@ -90,18 +76,17 @@ public class ClipboardStorage extends Configuration
 			try
 			{
 				final PacketBuffer b = new PacketBuffer( Unpooled.wrappedBuffer( o ) );
-
-				final String item = b.readStringFromBuffer( 127 );
 				final NBTTagCompound c = b.readNBTTagCompoundFromBuffer();
 
-				final Item it = Item.getByNameOrId( item );
-				if ( it != null )
-				{
-					final ItemStack stack = new ItemStack( it );
-					stack.setTagCompound( c );
-
-					myItems.add( stack );
-				}
+				myItems.add( c );
+			}
+			catch ( final EncoderException e )
+			{
+				// :_ (
+			}
+			catch ( final EOFException e )
+			{
+				// :_ (
 			}
 			catch ( final IOException e )
 			{
