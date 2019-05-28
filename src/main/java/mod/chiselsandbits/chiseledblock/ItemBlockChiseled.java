@@ -48,6 +48,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -166,7 +167,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	{
 		final ItemStack stack = player.getHeldItem( hand );
 
-		if ( !world.isRemote )
+		if ( !world.isRemote && !(player instanceof FakePlayer))
 		{
 			// Say it "worked", Don't do anything we'll get a better packet.
 			return EnumActionResult.SUCCESS;
@@ -179,7 +180,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 		pasp.pos = pos;
 		pasp.side = side;
 		pasp.stack = stack;
-		pasp.offgrid = ClientSide.offGridPlacement( player );
+		pasp.offgrid =  ClientSide.offGridPlacement( player );
 		pasp.hitX = hitX;
 		pasp.hitY = hitY;
 		pasp.hitZ = hitZ;

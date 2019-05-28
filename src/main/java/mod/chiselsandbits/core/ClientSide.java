@@ -124,6 +124,7 @@ import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -1721,6 +1722,9 @@ public class ClientSide
 	public static boolean offGridPlacement(
 			EntityPlayer player )
 	{
+		if ( player instanceof FakePlayer )
+			return false;
+		
 		if ( player.getEntityWorld().isRemote )
 			return getOffGridPlacementKey().isKeyDown();
 
