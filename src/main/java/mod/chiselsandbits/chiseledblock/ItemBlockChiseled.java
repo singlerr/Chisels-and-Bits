@@ -7,6 +7,7 @@ import javax.annotation.Nonnull;
 
 import mod.chiselsandbits.api.EventBlockBitModification;
 import mod.chiselsandbits.api.IBitAccess;
+import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChisledValue;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -252,9 +253,11 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 						( DeprecationHelper.getSoundType( this.block ).getVolume() + 1.0F ) / 2.0F,
 						DeprecationHelper.getSoundType( this.block ).getPitch() * 0.8F, false );
 				ModUtil.adjustStackSize( stack, -1 );
-			}
 
-			return EnumActionResult.SUCCESS;
+				return EnumActionResult.SUCCESS;
+			}
+			
+			return EnumActionResult.FAIL;
 		}
 		else
 		{
@@ -311,144 +314,135 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			final BlockPos partial,
 			final boolean modulateWorld )
 	{
-		try
+		final VoxelBlob[][][] blobs = new VoxelBlob[2][2][2];
+
+		// you can't place empty blocks...
+		if ( !stack.hasTagCompound() )
 		{
-			final VoxelBlob[][][] blobs = new VoxelBlob[2][2][2];
+			return false;
+		}
 
-			// you can't place empty blocks...
-			if ( !stack.hasTagCompound() )
+		final VoxelBlob source = ModUtil.getBlobFromStack( stack, player );
+
+		final IntegerBox modelBounds = source.getBounds();
+		BlockPos offset = partial == null ? new BlockPos( 0, 0, 0 ) : ModUtil.getPartialOffset( side, partial, modelBounds );
+
+		if ( offset.getX() < 0 )
+		{
+			pos = pos.add( -1, 0, 0 );
+			offset = offset.add( VoxelBlob.dim, 0, 0 );
+		}
+
+		if ( offset.getY() < 0 )
+		{
+			pos = pos.add( 0, -1, 0 );
+			offset = offset.add( 0, VoxelBlob.dim, 0 );
+		}
+
+		if ( offset.getZ() < 0 )
+		{
+			pos = pos.add( 0, 0, -1 );
+			offset = offset.add( 0, 0, VoxelBlob.dim );
+		}
+
+		for ( int x = 0; x < 2; x++ )
+		{
+			for ( int y = 0; y < 2; y++ )
 			{
-				return false;
-			}
-
-			final VoxelBlob source = ModUtil.getBlobFromStack( stack, player );
-
-			final IntegerBox modelBounds = source.getBounds();
-			BlockPos offset = partial == null ? new BlockPos( 0, 0, 0 ) : ModUtil.getPartialOffset( side, partial, modelBounds );
-
-			if ( offset.getX() < 0 )
-			{
-				pos = pos.add( -1, 0, 0 );
-				offset = offset.add( VoxelBlob.dim, 0, 0 );
-			}
-
-			if ( offset.getY() < 0 )
-			{
-				pos = pos.add( 0, -1, 0 );
-				offset = offset.add( 0, VoxelBlob.dim, 0 );
-			}
-
-			if ( offset.getZ() < 0 )
-			{
-				pos = pos.add( 0, 0, -1 );
-				offset = offset.add( 0, 0, VoxelBlob.dim );
-			}
-
-			for ( int x = 0; x < 2; x++ )
-			{
-				for ( int y = 0; y < 2; y++ )
+				for ( int z = 0; z < 2; z++ )
 				{
-					for ( int z = 0; z < 2; z++ )
+					blobs[x][y][z] = source.offset( offset.getX() - source.detail * x, offset.getY() - source.detail * y, offset.getZ() - source.detail * z );
+					final int solids = blobs[x][y][z].filled();
+					if ( solids > 0 )
 					{
-						blobs[x][y][z] = source.offset( offset.getX() - source.detail * x, offset.getY() - source.detail * y, offset.getZ() - source.detail * z );
-						final int solids = blobs[x][y][z].filled();
-						if ( solids > 0 )
+						final BlockPos bp = pos.add( x, y, z );
+
+						final EventBlockBitModification bmm = new EventBlockBitModification( world, bp, player, hand, stack, true );
+						MinecraftForge.EVENT_BUS.post( bmm );
+
+						// test permissions.
+						if ( !world.isBlockModifiable( player, bp ) || bmm.isCanceled() )
 						{
-							final BlockPos bp = pos.add( x, y, z );
+							return false;
+						}
 
-							final EventBlockBitModification bmm = new EventBlockBitModification( world, bp, player, hand, stack, true );
-							MinecraftForge.EVENT_BUS.post( bmm );
+						if ( world.isAirBlock( bp ) || world.getBlockState( bp ).getBlock().isReplaceable( world, bp ) )
+						{
+							continue;
+						}
 
-							// test permissions.
-							if ( !world.isBlockModifiable( player, bp ) || bmm.isCanceled() )
+						final TileEntityBlockChiseled target = ModUtil.getChiseledTileEntity( world, bp, true );
+						if ( target != null )
+						{
+							if ( !target.canMerge( blobs[x][y][z] ) )
 							{
 								return false;
 							}
 
-							if ( world.isAirBlock( bp ) || world.getBlockState( bp ).getBlock().isReplaceable( world, bp ) )
-							{
-								continue;
-							}
-
-							final TileEntityBlockChiseled target = ModUtil.getChiseledTileEntity( world, bp, true );
-							if ( target != null )
-							{
-								if ( !target.canMerge( blobs[x][y][z] ) )
-								{
-									return false;
-								}
-
-								blobs[x][y][z] = blobs[x][y][z].merge( target.getBlob() );
-								continue;
-							}
-
-							return false;
+							blobs[x][y][z] = blobs[x][y][z].merge( target.getBlob() );
+							continue;
 						}
+
+						return false;
 					}
 				}
 			}
-
-			if ( modulateWorld )
-			{
-				UndoTracker.getInstance().beginGroup( player );
-				try
-				{
-					for ( int x = 0; x < 2; x++ )
-					{
-						for ( int y = 0; y < 2; y++ )
-						{
-							for ( int z = 0; z < 2; z++ )
-							{
-								if ( blobs[x][y][z].filled() > 0 )
-								{
-									final BlockPos bp = pos.add( x, y, z );
-									final IBlockState state = world.getBlockState( bp );
-
-									if ( world.getBlockState( bp ).getBlock().isReplaceable( world, bp ) )
-									{
-										// clear it...
-										world.setBlockToAir( bp );
-									}
-
-									if ( world.isAirBlock( bp ) )
-									{
-										final int commonBlock = blobs[x][y][z].getVoxelStats().mostCommonState;
-										if ( BlockChiseled.replaceWithChisled( world, bp, state, commonBlock, true ) )
-										{
-											final TileEntityBlockChiseled target = BlockChiseled.getTileEntity( world, bp );
-											target.completeEditOperation( blobs[x][y][z] );
-										}
-
-										continue;
-									}
-
-									final TileEntityBlockChiseled target = ModUtil.getChiseledTileEntity( world, bp, true );
-									if ( target != null )
-									{
-										target.completeEditOperation( blobs[x][y][z] );
-
-										continue;
-									}
-
-									return false;
-								}
-							}
-						}
-					}
-				}
-				finally
-				{
-					UndoTracker.getInstance().endGroup( player );
-				}
-			}
-
-			return true;
 		}
-		catch ( final ExceptionNoTileEntity e )
+
+		if ( modulateWorld )
 		{
-			Log.noTileError( e );
-			return false;
+			UndoTracker.getInstance().beginGroup( player );
+			try
+			{
+				for ( int x = 0; x < 2; x++ )
+				{
+					for ( int y = 0; y < 2; y++ )
+					{
+						for ( int z = 0; z < 2; z++ )
+						{
+							if ( blobs[x][y][z].filled() > 0 )
+							{
+								final BlockPos bp = pos.add( x, y, z );
+								final IBlockState state = world.getBlockState( bp );
+
+								if ( world.getBlockState( bp ).getBlock().isReplaceable( world, bp ) )
+								{
+									// clear it...
+									world.setBlockToAir( bp );
+								}
+
+								if ( world.isAirBlock( bp ) )
+								{
+									final int commonBlock = blobs[x][y][z].getVoxelStats().mostCommonState;
+									ReplaceWithChisledValue rv =  BlockChiseled.replaceWithChisled( world, bp, state, commonBlock, true );
+									if ( rv.success && rv.te != null )
+									{
+										rv.te.completeEditOperation( blobs[x][y][z] );
+									}
+
+									continue;
+								}
+
+								final TileEntityBlockChiseled target = ModUtil.getChiseledTileEntity( world, bp, true );
+								if ( target != null )
+								{
+									target.completeEditOperation( blobs[x][y][z] );
+									continue;
+								}
+
+								return false;
+							}
+						}
+					}
+				}
+			}
+			finally
+			{
+				UndoTracker.getInstance().endGroup( player );
+			}
 		}
+
+		return true;
 	}
 
 	@Override

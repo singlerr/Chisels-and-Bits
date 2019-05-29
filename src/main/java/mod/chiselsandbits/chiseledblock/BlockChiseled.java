@@ -949,7 +949,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			final IBlockState originalState,
 			final boolean triggerUpdate )
 	{
-		return replaceWithChisled( world, pos, originalState, 0, triggerUpdate );
+		return replaceWithChisled( world, pos, originalState, 0, triggerUpdate ).success;
 	}
 
 	@Override
@@ -997,7 +997,12 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		}
 	}
 
-	public static boolean replaceWithChisled(
+	public static class ReplaceWithChisledValue {
+		public boolean success = false;
+		public TileEntityBlockChiseled te = null;
+	};
+	
+	public static ReplaceWithChisledValue replaceWithChisled(
 			final @Nonnull World world,
 			final @Nonnull BlockPos pos,
 			final IBlockState originalState,
@@ -1007,7 +1012,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		IBlockState actingState = originalState;
 		Block target = originalState.getBlock();
 		final boolean isAir = world.isAirBlock( pos ) || actingState.getBlock().isReplaceable( world, pos );
-
+		ReplaceWithChisledValue rv = new ReplaceWithChisledValue();
+		
 		if ( BlockBitInfo.supportsBlock( actingState ) || isAir )
 		{
 			BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( originalState );
@@ -1026,7 +1032,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 
 			if ( BlockID == 0 )
 			{
-				return false;
+				return rv;
 			}
 
 			if ( blk != null && blk != target )
@@ -1053,11 +1059,14 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 					tec.setState( tec.getBasicState().withProperty( BlockChiseled.UProperty_Primary_BlockState, BlockID ) );
 				}
 
-				return true;
+				rv.success = true;
+				rv.te = tec;
+				
+				return rv;
 			}
 		}
 
-		return false;
+		return rv;
 	}
 
 	public IBlockState getCommonState(

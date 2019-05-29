@@ -15,6 +15,7 @@ import mod.chiselsandbits.api.IBitVisitor;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.api.VoxelStats;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChisledValue;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
@@ -121,10 +122,11 @@ public class BitAccess implements IBitAccess
 		{
 			TileEntityBlockChiseled tile = ModUtil.getChiseledTileEntity( w, p, true );
 			final VoxelStats cb = blob.getVoxelStats();
+			ReplaceWithChisledValue rv = null;
 
-			if ( tile == null && BlockChiseled.replaceWithChisled( w, p, world.getBlockState( p ), cb.mostCommonState, false ) )
+			if ( tile == null && (rv=BlockChiseled.replaceWithChisled( w, p, world.getBlockState( p ), cb.mostCommonState, false )).success )
 			{
-				tile = ModUtil.getChiseledTileEntity( w, p, true );
+				tile = rv.te;
 			}
 
 			if ( tile != null )

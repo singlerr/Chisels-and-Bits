@@ -15,6 +15,7 @@ import mod.chiselsandbits.bittank.BlockBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChisledValue;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -265,10 +266,11 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 			IBlockState blkstate = world.getBlockState( bitLocation.blockPos );
 			TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );
-			if ( tebc == null && BlockChiseled.replaceWithChisled( world, bitLocation.blockPos, blkstate, ItemChiseledBit.getStackState( stack ), true ) )
+			ReplaceWithChisledValue rv = null;
+			if ( tebc == null && (rv=BlockChiseled.replaceWithChisled( world, bitLocation.blockPos, blkstate, ItemChiseledBit.getStackState( stack ), true )).success )
 			{
 				blkstate = world.getBlockState( bitLocation.blockPos );
-				tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );
+				tebc = rv.te;
 			}
 
 			if ( tebc != null )

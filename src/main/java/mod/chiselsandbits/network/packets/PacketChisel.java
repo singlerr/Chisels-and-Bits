@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChisledValue;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -163,13 +164,14 @@ public class PacketChisel extends ModPacket
 							world.setBlockToAir( pos );
 						}
 
-						if ( BlockChiseled.replaceWithChisled( world, pos, blkstate, placeStateID, true ) )
+						ReplaceWithChisledValue rv = null;
+						if ( (rv=BlockChiseled.replaceWithChisled( world, pos, blkstate, placeStateID, true )).success )
 						{
 							blkstate = world.getBlockState( pos );
 							blkObj = blkstate.getBlock();
 						}
 
-						final TileEntity te = ModUtil.getChiseledTileEntity( world, pos, place.usesBits() );
+						final TileEntity te = rv.te != null ? rv.te : ModUtil.getChiseledTileEntity( world, pos, place.usesBits() );
 						if ( te instanceof TileEntityBlockChiseled )
 						{
 							final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
