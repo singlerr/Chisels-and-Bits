@@ -52,7 +52,7 @@ public class ChiselBlockCrafting extends CustomRecipe
 			private final IBitBag bbag;
 			private final Random r = new Random();
 			final IBitBrush airBrush;
-			public boolean isSolid = false;
+			public boolean isAir = true;
 			public boolean modified = false;
 
 			public Chiseler(
@@ -73,10 +73,20 @@ public class ChiselBlockCrafting extends CustomRecipe
 					final int z,
 					final IBitBrush currentValue )
 			{
-				if ( chisel.getItemDamage() < chisel.getMaxDamage() )
+				if ( currentValue.isAir() )
 				{
-					ModUtil.damageItem( chisel, r );
-
+					return currentValue;
+				}
+				
+				boolean damageTools = ChiselsAndBits.getConfig().damageTools;
+				
+				if ( chisel.getItemDamage() < chisel.getMaxDamage() || ! damageTools )
+				{
+					if ( damageTools )
+					{
+						ModUtil.damageItem( chisel, r );
+					}
+					
 					final ItemStack is = currentValue.getItemStack( 1 );
 					if ( is != null )
 					{
@@ -91,7 +101,7 @@ public class ChiselBlockCrafting extends CustomRecipe
 					}
 				}
 
-				isSolid = true;
+				isAir = false;
 				return currentValue;
 			};
 		};
@@ -116,16 +126,9 @@ public class ChiselBlockCrafting extends CustomRecipe
 
 				modified = c.modified;
 
-				if ( c.isSolid )
+				if ( ! c.isAir )
 				{
-					if ( ModUtil.getStackSize( block ) == 1 )
-					{
-						block = ba.getBitsAsItem( EnumFacing.NORTH, ItemType.CHISLED_BLOCK, false );
-					}
-					else
-					{
-						modified = false;
-					}
+					block = ba.getBitsAsItem( EnumFacing.NORTH, ItemType.CHISLED_BLOCK, false );
 				}
 				else
 				{
@@ -289,15 +292,18 @@ public class ChiselBlockCrafting extends CustomRecipe
 		final ChiselBlockInfo cbc = getInfo( inv );
 		cbc.doLogic();
 
+		boolean damageTools = ChiselsAndBits.getConfig().damageTools;
 		for ( int x = 0; x < inv.getSizeInventory(); ++x )
 		{
-			if ( cbc.isValid && x == cbc.chisel_slot && !ModUtil.isEmpty( cbc.chisel ) && cbc.chisel.getItemDamage() < cbc.chisel.getMaxDamage() )
+			if ( cbc.isValid && x == cbc.chisel_slot && !ModUtil.isEmpty( cbc.chisel ) && ( !damageTools || cbc.chisel.getItemDamage() < cbc.chisel.getMaxDamage()) )
 			{
 				list.add( cbc.chisel );
 			}
-			else if ( cbc.isValid && x == cbc.block_slot && !ModUtil.isEmpty( cbc.block ) )
+			else if ( cbc.isValid && x == cbc.block_slot && ! ModUtil.isEmpty( cbc.block ) )
 			{
-				list.add( cbc.block );
+				ItemStack block = ModUtil.copy(cbc.block);
+				ModUtil.setStackSize(block, 1);
+				list.add(block);
 			}
 			else
 			{
