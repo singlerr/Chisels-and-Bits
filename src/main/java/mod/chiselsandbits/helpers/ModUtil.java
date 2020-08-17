@@ -2,11 +2,27 @@ package mod.chiselsandbits.helpers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.block.*;
+import net.minecraft.client.renderer.chunk.ChunkRenderCache;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.stats.Stats;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorldReader;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.IFluidBlock;
+import net.minecraftforge.registries.GameData;
 import org.apache.commons.lang3.tuple.Pair;
 
 import mod.chiselsandbits.bitbag.BagInventory;
@@ -17,34 +33,23 @@ import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.StateLookup.CachedStateLookup;
-import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.integration.mods.LittleTiles;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.items.ItemNegativePrint;
 import mod.chiselsandbits.items.ItemPositivePrint;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.ChunkCache;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import org.jetbrains.annotations.NotNull;
 
 public class ModUtil
 {
@@ -58,20 +63,20 @@ public class ModUtil
 	private final static Random RAND = new Random();
 	private final static float DEG_TO_RAD = 0.017453292f;
 
-	static public EnumFacing getPlaceFace(
-			final EntityLivingBase placer )
+	static public Direction getPlaceFace(
+			final LivingEntity placer )
 	{
-		return EnumFacing.getHorizontal( MathHelper.floor_double( placer.rotationYaw * 4.0F / 360.0F + 0.5D ) & 3 ).getOpposite();
+		return Direction.getFacingDirections(placer)[0].getOpposite();
 	}
 
-	static public Pair<Vec3d, Vec3d> getPlayerRay(
-			final EntityPlayer playerIn )
+	static public Pair<Vector3d, Vector3d> getPlayerRay(
+			final PlayerEntity playerIn )
 	{
 		double reachDistance = 5.0d;
 
-		final double x = playerIn.prevPosX + ( playerIn.posX - playerIn.prevPosX );
-		final double y = playerIn.prevPosY + ( playerIn.posY - playerIn.prevPosY ) + playerIn.getEyeHeight();
-		final double z = playerIn.prevPosZ + ( playerIn.posZ - playerIn.prevPosZ );
+		final double x = playerIn.prevPosX + ( playerIn.getPosX() - playerIn.prevPosX );
+		final double y = playerIn.prevPosY + ( playerIn.getPosY() - playerIn.prevPosY ) + playerIn.getEyeHeight();
+		final double z = playerIn.prevPosZ + ( playerIn.getPosY() - playerIn.prevPosZ );
 
 		final float playerPitch = playerIn.prevRotationPitch + ( playerIn.rotationPitch - playerIn.prevRotationPitch );
 		final float playerYaw = playerIn.prevRotationYaw + ( playerIn.rotationYaw - playerIn.prevRotationYaw );
@@ -84,13 +89,13 @@ public class ModUtil
 		final float eyeRayX = yawRayX * pitchMultiplier;
 		final float eyeRayZ = yawRayZ * pitchMultiplier;
 
-		if ( playerIn instanceof EntityPlayerMP )
+		if ( playerIn instanceof ServerPlayerEntity )
 		{
-			reachDistance = ( (EntityPlayerMP) playerIn ).interactionManager.getBlockReachDistance();
+			reachDistance = playerIn.getAttributeValue(net.minecraftforge.common.ForgeMod.REACH_DISTANCE.get());
 		}
 
-		final Vec3d from = new Vec3d( x, y, z );
-		final Vec3d to = from.addVector( eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance );
+		final Vector3d from = new Vector3d( x, y, z );
+		final Vector3d to = from.add( eyeRayX * reachDistance, eyeRayY * reachDistance, eyeRayZ * reachDistance );
 
 		return Pair.of( from, to );
 	}
@@ -102,9 +107,9 @@ public class ModUtil
 	{
 		final ItemStack inHand = who.getCurrentEquippedItem();
 		final IInventory inv = who.getInventory();
-		final boolean canEdit = who.canPlayerManipulate( pos, EnumFacing.UP, inHand, true );
+		final boolean canEdit = who.canPlayerManipulate( pos, Direction.UP, inHand, true );
 
-		if ( inHand != null && getStackSize( inHand ) > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChiseledBit.getStackState( inHand ) == StateID )
+		if (getStackSize(inHand) > 0 && inHand.getItem() instanceof ItemChiseledBit && ItemChiseledBit.getStackState(inHand) == StateID)
 		{
 			return new ItemStackSlot( inv, who.getCurrentItem(), inHand, who, canEdit );
 		}
@@ -112,7 +117,7 @@ public class ModUtil
 		for ( int x = 0; x < inv.getSizeInventory(); x++ )
 		{
 			final ItemStack is = inv.getStackInSlot( x );
-			if ( is != null && getStackSize( is ) > 0 && is.getItem() instanceof ItemChiseledBit && ItemChiseledBit.sameBit( is, StateID ) )
+			if (getStackSize(is) > 0 && is.getItem() instanceof ItemChiseledBit && ItemChiseledBit.sameBit(is, StateID))
 			{
 				return new ItemStackSlot( inv, x, is, who, canEdit );
 			}
@@ -144,7 +149,7 @@ public class ModUtil
 	}
 
 	public static boolean isHoldingPattern(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		final ItemStack inHand = player.getHeldItemMainhand();
 
@@ -162,7 +167,7 @@ public class ModUtil
 	}
 
 	public static boolean isHoldingChiseledBlock(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		final ItemStack inHand = player.getHeldItemMainhand();
 
@@ -175,16 +180,16 @@ public class ModUtil
 	}
 
 	public static int getRotationIndex(
-			final EnumFacing face )
+			final Direction face )
 	{
 		return face.getHorizontalIndex();
 	}
 
 	public static int getRotations(
-			final EntityLivingBase placer,
-			final EnumFacing oldYaw )
+			final LivingEntity placer,
+			final Direction oldYaw )
 	{
-		final EnumFacing newFace = ModUtil.getPlaceFace( placer );
+		final Direction newFace = ModUtil.getPlaceFace( placer );
 
 		int rotations = getRotationIndex( newFace ) - getRotationIndex( oldYaw );
 
@@ -202,7 +207,7 @@ public class ModUtil
 	}
 
 	public static BlockPos getPartialOffset(
-			final EnumFacing side,
+			final Direction side,
 			final BlockPos partial,
 			final IntegerBox modelBounds )
 	{
@@ -271,19 +276,14 @@ public class ModUtil
 	}
 
 	public static TileEntity getTileEntitySafely(
-			final @Nonnull IBlockAccess world,
+			final @Nonnull IBlockReader world,
 			final @Nonnull BlockPos pos )
 	{
-		// not going to lie, this is really stupid.
-		if ( world instanceof ChunkCache )
-		{
-			return ( (ChunkCache) world ).getTileEntity( pos, Chunk.EnumCreateEntityType.CHECK );
-		}
 
-		// also stupid...
-		else if ( world instanceof World )
+		// stupid...
+		if ( world instanceof World )
 		{
-			return ( (World) world ).getChunkFromBlockCoords( pos ).getTileEntity( pos, Chunk.EnumCreateEntityType.CHECK );
+			return ( (World) world ).getChunkAt( pos ).getTileEntity( pos, Chunk.CreateEntityType.CHECK );
 		}
 
 		// yep... stupid.
@@ -294,7 +294,7 @@ public class ModUtil
 	}
 
 	public static TileEntityBlockChiseled getChiseledTileEntity(
-			@Nonnull final IBlockAccess world,
+			@Nonnull final IBlockReader world,
 			@Nonnull final BlockPos pos )
 	{
 		final TileEntity te = getTileEntitySafely( world, pos );
@@ -303,7 +303,7 @@ public class ModUtil
 			return (TileEntityBlockChiseled) te;
 		}
 
-		return MCMultipartProxy.proxyMCMultiPart.getPartFromBlockAccess( world, pos );
+		return null;
 	}
 
 	public static TileEntityBlockChiseled getChiseledTileEntity(
@@ -335,25 +335,25 @@ public class ModUtil
 				}
 			}
 
-			return MCMultipartProxy.proxyMCMultiPart.getChiseledTileEntity( world, pos, create );
+			return null;
 		}
 		return null;
 	}
 
-	public static void removeChisledBlock(
+	public static void removeChiseledBlock(
 			@Nonnull final World world,
 			@Nonnull final BlockPos pos )
 	{
 		final TileEntity te = world.getTileEntity( pos );
+		final BlockState oldState = world.getBlockState(pos);
 
 		if ( te instanceof TileEntityBlockChiseled )
 		{
-			world.setBlockToAir( pos ); // no physical matter left...
+			world.setBlockState( pos, Blocks.AIR.getDefaultState() ); // no physical matter left...
 			return;
 		}
 
-		MCMultipartProxy.proxyMCMultiPart.removeChisledBlock( te );
-		world.markBlockRangeForRenderUpdate( pos, pos );
+		world.markBlockRangeForRenderUpdate( pos, oldState, Blocks.AIR.getDefaultState());
 	}
 
 	public static boolean containsAtLeastOneOf(
@@ -419,17 +419,17 @@ public class ModUtil
 
 	public static VoxelBlob getBlobFromStack(
 			final ItemStack stack,
-			final EntityLivingBase rotationPlayer )
+			final LivingEntity rotationPlayer )
 	{
-		if ( stack.hasTagCompound() )
+		if ( stack.hasTag() )
 		{
 			final NBTBlobConverter tmp = new NBTBlobConverter();
 
-			NBTTagCompound cData = getSubCompound( stack, NBT_BLOCKENTITYTAG, false );
+			CompoundNBT cData = getSubCompound( stack, NBT_BLOCKENTITYTAG, false );
 
 			if ( cData == null )
 			{
-				cData = stack.getTagCompound();
+				cData = stack.getTag();
 			}
 
 			tmp.readChisleData( cData, VoxelBlob.VERSION_ANY );
@@ -440,7 +440,7 @@ public class ModUtil
 				int xrotations = ModUtil.getRotations( rotationPlayer, ModUtil.getSide( stack ) );
 				while ( xrotations-- > 0 )
 				{
-					blob = blob.spin( Axis.Y );
+					blob = blob.spin( Direction.Axis.Y );
 				}
 			}
 
@@ -454,48 +454,80 @@ public class ModUtil
 			@Nonnull final World worldObj,
 			@Nonnull final BlockPos pos )
 	{
-		final IBlockState state = worldObj.getBlockState( pos );
+		final BlockState state = worldObj.getBlockState( pos );
 		worldObj.notifyBlockUpdate( pos, state, state, 0 );
 	}
 
-	public static ItemStack getItemFromBlock(
-			@Nonnull final IBlockState state )
-	{
-		final Block blk = state.getBlock();
+    private static Item getItem(@NotNull final BlockState blockState)
+    {
+        final Block block = blockState.getBlock();
+        if (block.equals(Blocks.LAVA))
+        {
+            return Items.LAVA_BUCKET;
+        }
+        else if (block instanceof CropsBlock)
+        {
+            final ItemStack stack = ((CropsBlock) block).getItem(null, null, blockState);
+            if (stack != null)
+            {
+                return stack.getItem();
+            }
 
-		final Item i = blk.getItemDropped( state, RAND, 0 );
-		final int meta = blk.getMetaFromState( state );
-		final int damage = blk.damageDropped( state );
-		final Item blockVarient = Item.getItemFromBlock( blk );
+            return Items.WHEAT_SEEDS;
+        }
+        // oh no...
+        else if (block instanceof FarmlandBlock || block instanceof GrassPathBlock)
+        {
+            return getItemFromBlock(Blocks.DIRT);
+        }
+        else if (block instanceof FireBlock)
+        {
+            return Items.FLINT_AND_STEEL;
+        }
+        else if (block instanceof FlowerPotBlock)
+        {
+            return Items.FLOWER_POT;
+        }
+        else if (block == Blocks.BAMBOO_SAPLING)
+        {
+            return Items.BAMBOO;
+        }
+        else
+        {
+            return getItemFromBlock(block);
+        }
+    }
 
-		// darn conversions...
-		if ( blk == Blocks.GRASS )
-		{
-			return new ItemStack( Blocks.GRASS );
-		}
+    private static Item getItemFromBlock(final Block block)
+    {
+        return GameData.getBlockItemMap().get(block);
+    }
 
-		if ( i == null || blockVarient == null || blockVarient != i )
-		{
-			return ModUtil.getEmptyStack();
-		}
+    /**
+     * Mimics pick block.
+     *
+     * @param blockState the block and state we are creating an ItemStack for.
+     * @return ItemStack fromt the BlockState.
+     */
+    public static ItemStack getItemStackFromBlockState(@NotNull final BlockState blockState)
+    {
+        if (blockState.getBlock() instanceof IFluidBlock)
+        {
+            return FluidUtil.getFilledBucket(new FluidStack(((IFluidBlock) blockState.getBlock()).getFluid(), 1000));
+        }
+        final Item item = getItem(blockState);
+        if (item != Items.AIR && item != null)
+        {
+            return new ItemStack(item, 1);
+        }
 
-		if ( blockVarient instanceof ItemBlock )
-		{
-			final ItemBlock ib = (ItemBlock) blockVarient;
-			if ( meta != ib.getMetadata( damage ) )
-			{
-				// this item dosn't drop itself... BAIL!
-				return ModUtil.getEmptyStack();
-			}
-		}
-
-		return new ItemStack( i, 1, damage );
-	}
+        return new ItemStack(blockState.getBlock(), 1);
+    }
 
     @Nullable
     public static VoxelBlob rotate(
             final VoxelBlob blob,
-            final Axis axis,
+            final Direction.Axis axis,
             final Rotation rotation )
     {
         switch ( rotation )
@@ -515,90 +547,92 @@ public class ModUtil
     }
 
 	public static boolean isNormalCube(
-			final IBlockState blockType )
+			final BlockState blockType,
+            final IWorldReader reader,
+            final BlockPos pos)
 	{
-		return blockType.isNormalCube();
+		return blockType.isNormalCube(reader, pos);
 	}
 
-	public static EnumFacing getSide(
+	public static Direction getSide(
 			final ItemStack stack )
 	{
 		if ( stack != null )
 		{
-			final NBTTagCompound blueprintTag = stack.getTagCompound();
+			final CompoundNBT blueprintTag = stack.getTag();
 
-			int byteValue = EnumFacing.NORTH.ordinal();
+			int byteValue = Direction.NORTH.ordinal();
 
 			if ( blueprintTag == null )
 			{
-				return EnumFacing.NORTH;
+				return Direction.NORTH;
 			}
 
-			if ( blueprintTag.hasKey( NBT_SIDE ) )
+			if ( blueprintTag.contains( NBT_SIDE ) )
 			{
 				byteValue = blueprintTag.getByte( NBT_SIDE );
 			}
 
-			if ( blueprintTag.hasKey( NBT_BLOCKENTITYTAG ) )
+			if ( blueprintTag.contains( NBT_BLOCKENTITYTAG ) )
 			{
-				final NBTTagCompound c = blueprintTag.getCompoundTag( NBT_BLOCKENTITYTAG );
-				if ( c.hasKey( NBT_SIDE ) )
+				final CompoundNBT c = blueprintTag.getCompound( NBT_BLOCKENTITYTAG );
+				if ( c.contains( NBT_SIDE ) )
 				{
 					byteValue = c.getByte( NBT_SIDE );
 				}
 			}
 
-			EnumFacing side = EnumFacing.NORTH;
+			Direction side = Direction.NORTH;
 
-			if ( byteValue >= 0 && byteValue < EnumFacing.values().length )
+			if ( byteValue >= 0 && byteValue < Direction.values().length )
 			{
-				side = EnumFacing.values()[byteValue];
+				side = Direction.values()[byteValue];
 			}
 
-			if ( side == EnumFacing.DOWN || side == EnumFacing.UP )
+			if ( side == Direction.DOWN || side == Direction.UP )
 			{
-				side = EnumFacing.NORTH;
+				side = Direction.NORTH;
 			}
 
 			return side;
 		}
 
-		return EnumFacing.NORTH;
+		return Direction.NORTH;
 	}
 
 	public static void setSide(
 			final ItemStack stack,
-			final EnumFacing side )
+			final Direction side )
 	{
 		if ( stack != null )
 		{
-			NBTTagCompound blueprintTag = stack.getTagCompound();
+			CompoundNBT blueprintTag = stack.getTag();
 
 			if ( blueprintTag == null )
 			{
-				blueprintTag = new NBTTagCompound();
+				blueprintTag = new CompoundNBT();
 			}
-			if ( blueprintTag.hasKey( NBT_BLOCKENTITYTAG ) )
+			if ( blueprintTag.contains( NBT_BLOCKENTITYTAG ) )
 			{
-				blueprintTag.getCompoundTag( NBT_BLOCKENTITYTAG ).setByte( NBT_SIDE, (byte) +side.ordinal() );
+				blueprintTag.getCompound( NBT_BLOCKENTITYTAG ).putByte( NBT_SIDE, (byte) +side.ordinal() );
 			}
 
-			blueprintTag.setInteger( NBT_SIDE, +side.ordinal() );
+			blueprintTag.putInt( NBT_SIDE, +side.ordinal() );
 
-			stack.setTagCompound( blueprintTag );
+			stack.setTag( blueprintTag );
 		}
 	}
 
 	private static StateLookup IDRelay = new StateLookup();
 
-	public static IBlockState getStateById(
+	public static BlockState getStateById(
 			final int blockStateID )
 	{
 		return IDRelay.getStateById( blockStateID );
 	}
 
 	public static int getStateId(
-			final IBlockState state )
+			final BlockState state )
 	{
 		return Math.max( 0, IDRelay.getStateId( state ) );
 	}
@@ -615,14 +649,14 @@ public class ModUtil
 	public static int getStackSize(
 			final ItemStack stack )
 	{
-		return stack == null ? 0 : stack.func_190916_E();
+		return stack == null ? 0 : stack.getCount();
 	}
 
 	public static void setStackSize(
 			final @Nonnull ItemStack stack,
 			final int stackSize )
 	{
-		stack.func_190920_e( stackSize );
+		stack.setCount( stackSize );
 	}
 
 	public static void adjustStackSize(
@@ -632,68 +666,56 @@ public class ModUtil
 		setStackSize( is, getStackSize( is ) + sizeDelta );
 	}
 
-	public static NBTTagCompound getSubCompound(
+	public static CompoundNBT getSubCompound(
 			final ItemStack stack,
 			final String tag,
 			final boolean create )
 	{
 		if ( create )
 		{
-			return stack.func_190925_c( tag );
+			if (!stack.getOrCreateTag().contains(tag))
+			    Objects.requireNonNull(stack.getTag()).put(tag, new CompoundNBT());
 		}
-		else
-		{
-			return stack.getSubCompound( tag );
-		}
+
+        return stack.getTag().getCompound(tag);
 	}
 
 	public static @Nonnull ItemStack getEmptyStack()
 	{
-		return ItemStack.field_190927_a;
+		return ItemStack.EMPTY;
 	}
 
 	public static boolean notEmpty(
 			final ItemStack itemStack )
 	{
-		return itemStack != null && !itemStack.func_190926_b();
+		return itemStack != null && !itemStack.isEmpty();
 	}
 
 	public static boolean isEmpty(
 			final ItemStack itemStack )
 	{
-		return itemStack == null || itemStack.func_190926_b();
+		return itemStack == null || itemStack.isEmpty();
 	}
 
-	public static @Nonnull NBTTagCompound getTagCompound(
+	public static @Nonnull CompoundNBT getTagCompound(
 			final ItemStack ei )
 	{
-		final NBTTagCompound c = ei.getTagCompound();
-
-		if ( c == null )
-		{
-			return new NBTTagCompound();
-		}
-
-		return c;
+		return ei.getOrCreateTag();
 	}
 
 	@SuppressWarnings( "deprecation" )
-	public static IBlockState getStateFromItem(
+	public static BlockState getStateFromItem(
 			final ItemStack is )
 	{
 		try
 		{
-			if ( !ModUtil.isEmpty( is ) && is.getItem() instanceof ItemBlock )
+			if ( !ModUtil.isEmpty( is ) && is.getItem() instanceof BlockItem)
 			{
-				final ItemBlock iblk = (ItemBlock) is.getItem();
-				final IBlockState state = iblk.getBlock().getStateFromMeta( iblk.getMetadata( is.getItemDamage() ) );
-				final ItemStack out = ModUtil.getItemFromBlock( state );
+				final BlockItem iblk = (BlockItem) is.getItem();
+				final BlockState state = iblk.getBlock().getDefaultState();
 
-				if ( !ModUtil.isEmpty( out ) && out.getItem() == is.getItem() && is.getItemDamage() == out.getItemDamage() )
-				{
-					return state;
-				}
-			}
+				return state;
+            }
 		}
 		catch ( final Throwable t )
 		{
@@ -707,11 +729,12 @@ public class ModUtil
 			@Nonnull final ItemStack is,
 			@Nonnull final Random r )
 	{
-		if ( is.isItemStackDamageable() )
+		if ( is.isDamageable() )
 		{
 			if ( is.attemptDamageItem( 1, r, null ) )
 			{
-				is.func_190918_g( 1 );
+                is.shrink(1);
+                is.setDamage(0);
 			}
 		}
 	}
@@ -728,27 +751,11 @@ public class ModUtil
 			final Item item,
 			final int stackSize )
 	{
-		return makeStack( item, 1, 0 );
+		return makeStack( item, 1);
 	}
 
-	@Nonnull
-	public static ItemStack makeStack(
-			final Item item,
-			final int stackSize,
-			final int damage )
-	{
-		if ( item == null || stackSize < 1 )
-		{
-			return ModUtil.getEmptyStack();
-		}
-
-		return new ItemStack( item, stackSize, damage );
-	}
-
-	public static boolean isEmpty(
-			final Item item )
-	{
-		return item == Item.REGISTRY.getObjectById( 0 );
-	}
-
+    public static boolean isEmpty(final Item item)
+    {
+        return item == Items.AIR;
+    }
 }

@@ -12,16 +12,16 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -82,11 +82,11 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 
 	@Override
 	public EnumActionResult onItemUse(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final World world,
 			final BlockPos pos,
-			final EnumHand hand,
-			final EnumFacing side,
+			final Hand hand,
+			final Direction side,
 			final float hitX,
 			final float hitY,
 			final float hitZ )
@@ -116,8 +116,8 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 	protected NBTTagCompound getCompoundFromBlock(
 			final World world,
 			final BlockPos pos,
-			final EntityPlayer player,
-			final EnumFacing face )
+			final PlayerEntity player,
+			final Direction face )
 	{
 		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, false );
 
@@ -156,7 +156,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 		final NBTBlobConverter conv = new NBTBlobConverter();
 		conv.readChisleData( tag, VoxelBlob.VERSION_ANY );
 
-		final IBlockState blk = conv.getPrimaryBlockState();
+		final BlockState blk = conv.getPrimaryBlockState();
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk ), 1 );
 
 		itemstack.setTagInfo( ModUtil.NBT_BLOCKENTITYTAG, tag );

@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.graph.Network;
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -21,6 +22,7 @@ import mod.chiselsandbits.events.EventPlayerInteract;
 import mod.chiselsandbits.events.VaporizeWater;
 import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.interfaces.ICacheClearable;
+import mod.chiselsandbits.network.NetworkChannel;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
@@ -36,21 +38,13 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+import sun.nio.ch.Net;
 
-@Mod(
-		name = ChiselsAndBits.MODNAME,
-		modid = ChiselsAndBits.MODID,
-		version = ChiselsAndBits.VERSION,
-		acceptedMinecraftVersions = "[1.12]",
-		// dependencies = ChiselsAndBits.DEPENDENCIES,
-		guiFactory = "mod.chiselsandbits.client.gui.ModConfigGuiFactory" )
+@Mod(ChiselsAndBits.MODID)
 public class ChiselsAndBits
 {
 	public static final @Nonnull String MODNAME = "Chisels & Bits";
 	public static final @Nonnull String MODID = "chiselsandbits";
-	public static final @Nonnull String VERSION = "@VERSION@";
-
-	public static final String DEPENDENCIES = "required-after:Forge@[12.17.0.1909,);before:mcmultipart;after:JEI@[3.7.8.234,)"; // buildVersion
 
 	private static ChiselsAndBits instance;
 	private ModConfig config;
@@ -58,6 +52,7 @@ public class ChiselsAndBits
 	private ModBlocks blocks;
 	private final Integration integration = new Integration();
 	private final IChiselAndBitsAPI api = new ChiselAndBitsAPI();
+	private final NetworkChannel networkChannel = new NetworkChannel(MODID);
 	private boolean loadClientAssets = false;
 
 	List<ICacheClearable> cacheClearables = new ArrayList<ICacheClearable>();
@@ -92,7 +87,11 @@ public class ChiselsAndBits
 		return instance.api;
 	}
 
-	@EventHandler
+	public static NetworkChannel getNetworkChannel() {
+	    return instance.networkChannel;
+    }
+
+
 	private void handleIMCEvent(
 			final FMLInterModComms.IMCEvent event )
 	{

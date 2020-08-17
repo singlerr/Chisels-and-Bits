@@ -2,27 +2,40 @@ package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.bitbag.BagContainer;
 import mod.chiselsandbits.network.ModPacket;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Container;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.network.PacketBuffer;
 
 public class PacketBagGui extends ModPacket
 {
-	public int slotNumber = -1;
-	public int mouseButton = -1;
-	public boolean duplicateButton = false;
-	public boolean holdingShift = false;
+	private int slotNumber = -1;
+	private int mouseButton = -1;
+	private boolean duplicateButton = false;
+	private boolean holdingShift = false;
 
-	@Override
+    public PacketBagGui(PacketBuffer buffer)
+    {
+        readPayload(buffer);
+    }
+
+    public PacketBagGui(final int slotNumber, final int mouseButton, final boolean duplicateButton, final boolean holdingShift)
+    {
+        this.slotNumber = slotNumber;
+        this.mouseButton = mouseButton;
+        this.duplicateButton = duplicateButton;
+        this.holdingShift = holdingShift;
+    }
+
+    @Override
 	public void server(
-			final EntityPlayerMP player )
+			final ServerPlayerEntity player )
 	{
 		doAction( player );
 	}
 
 	public void doAction(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		final Container c = player.openContainer;
 		if ( c instanceof BagContainer )

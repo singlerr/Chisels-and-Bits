@@ -3,7 +3,7 @@ package mod.chiselsandbits.render.chiseledblock;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 
 public class UnpackedQuadBuilderWrapper implements IFaceBuilder
@@ -33,7 +33,7 @@ public class UnpackedQuadBuilderWrapper implements IFaceBuilder
 
 	@Override
 	public void setFace(
-			final EnumFacing myFace,
+			final Direction myFace,
 			final int tintIndex )
 	{
 		builder.setQuadOrientation( myFace );

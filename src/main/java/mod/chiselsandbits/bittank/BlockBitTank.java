@@ -11,14 +11,14 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -28,13 +28,13 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 public class BlockBitTank extends Block implements ITileEntityProvider
 {
 
-	public static final PropertyDirection FACING = PropertyDirection.create( "facing", new Predicate<EnumFacing>() {
+	public static final PropertyDirection FACING = PropertyDirection.create( "facing", new Predicate<Direction>() {
 
 		@Override
 		public boolean apply(
-				final EnumFacing face )
+				final Direction face )
 		{
-			return face != EnumFacing.DOWN && face != EnumFacing.UP;
+			return face != Direction.DOWN && face != Direction.UP;
 		}
 
 	} );
@@ -51,7 +51,7 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 
 	@Override
 	public int getLightValue(
-			final IBlockState state,
+			final BlockState state,
 			final IBlockAccess world,
 			final BlockPos pos )
 	{
@@ -68,10 +68,10 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 	}
 
 	@Override
-	public IBlockState onBlockPlaced(
+	public BlockState onBlockPlaced(
 			final World worldIn,
 			final BlockPos pos,
-			final EnumFacing facing,
+			final Direction facing,
 			final float hitX,
 			final float hitY,
 			final float hitZ,
@@ -89,21 +89,21 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 
 	@Override
 	public boolean isFullBlock(
-			final IBlockState state )
+			final BlockState state )
 	{
 		return false;
 	}
 
 	@Override
 	public boolean isOpaqueCube(
-			final IBlockState state )
+			final BlockState state )
 	{
 		return false;
 	}
 
 	@Override
 	public float getAmbientOcclusionLightValue(
-			final IBlockState state )
+			final BlockState state )
 	{
 		return 1.0f;
 	}
@@ -116,7 +116,7 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 
 	@Override
 	public int getMetaFromState(
-			final IBlockState state )
+			final BlockState state )
 	{
 		switch ( state.getValue( FACING ) )
 		{
@@ -134,19 +134,19 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 	}
 
 	@Override
-	public IBlockState getStateFromMeta(
+	public BlockState getStateFromMeta(
 			final int meta )
 	{
 		switch ( meta )
 		{
 			case 0:
-				return getDefaultState().withProperty( FACING, EnumFacing.NORTH );
+				return getDefaultState().withProperty( FACING, Direction.NORTH );
 			case 1:
-				return getDefaultState().withProperty( FACING, EnumFacing.SOUTH );
+				return getDefaultState().withProperty( FACING, Direction.SOUTH );
 			case 2:
-				return getDefaultState().withProperty( FACING, EnumFacing.EAST );
+				return getDefaultState().withProperty( FACING, Direction.EAST );
 			case 3:
-				return getDefaultState().withProperty( FACING, EnumFacing.WEST );
+				return getDefaultState().withProperty( FACING, Direction.WEST );
 			default:
 				throw new RuntimeException( "Invalid State." );
 		}
@@ -181,10 +181,10 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 	public boolean onBlockActivated(
 			final World worldIn,
 			final BlockPos pos,
-			final IBlockState state,
-			final EntityPlayer playerIn,
-			final EnumHand hand,
-			final EnumFacing side,
+			final BlockState state,
+			final PlayerEntity playerIn,
+			final Hand hand,
+			final Direction side,
 			final float hitX,
 			final float hitY,
 			final float hitZ )

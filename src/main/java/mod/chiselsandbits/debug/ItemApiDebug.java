@@ -2,13 +2,13 @@ package mod.chiselsandbits.debug;
 
 import mod.chiselsandbits.debug.DebugAction.Tests;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -36,11 +36,11 @@ public class ItemApiDebug extends Item
 
 	@Override
 	public EnumActionResult onItemUse(
-			final EntityPlayer playerIn,
+			final PlayerEntity playerIn,
 			final World worldIn,
 			final BlockPos pos,
-			final EnumHand hand,
-			final EnumFacing side,
+			final Hand hand,
+			final Direction side,
 			final float hitX,
 			final float hitY,
 			final float hitZ )

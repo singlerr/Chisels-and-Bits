@@ -5,7 +5,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagString;
@@ -21,7 +21,7 @@ public class PacketSetColor extends ModPacket
 
 	@Override
 	public void server(
-			final EntityPlayerMP player )
+			final ServerPlayerEntity player )
 	{
 		final ItemStack ei = player.getHeldItemMainhand();
 		if ( ei != null && ei.getItem() instanceof IChiselModeItem )

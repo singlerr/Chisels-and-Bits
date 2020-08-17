@@ -1,7 +1,7 @@
 package mod.chiselsandbits.render.chiseledblock;
 
 import mod.chiselsandbits.helpers.IStateRef;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public class ModelRenderState
 {
@@ -10,7 +10,7 @@ public class ModelRenderState
 	private IStateRef north, south, east, west, up, down;
 
 	public IStateRef get(
-			final EnumFacing side )
+			final Direction side )
 	{
 		switch ( side )
 		{
@@ -33,7 +33,7 @@ public class ModelRenderState
 	}
 
 	public void put(
-			final EnumFacing side,
+			final Direction side,
 			final IStateRef value )
 	{
 		switch ( side )

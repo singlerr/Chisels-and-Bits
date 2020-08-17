@@ -3,57 +3,63 @@ package mod.chiselsandbits.chiseledblock;
 import java.util.HashMap;
 import java.util.Random;
 
-import gnu.trove.map.TIntObjectMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
+import com.google.common.collect.Lists;
+import io.netty.util.collection.IntObjectHashMap;
+import io.netty.util.collection.IntObjectMap;
 import mod.chiselsandbits.api.IgnoreBlockLogic;
 import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.helpers.ModelUtil;
+import mod.chiselsandbits.utils.SingleBlockBlockReader;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockGlass;
-import net.minecraft.block.BlockGlowstone;
-import net.minecraft.block.BlockGrass;
-import net.minecraft.block.BlockIce;
-import net.minecraft.block.BlockMycelium;
-import net.minecraft.block.BlockSlime;
-import net.minecraft.block.BlockSnowBlock;
-import net.minecraft.block.BlockStainedGlass;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.SlimeBlock;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.loot.LootContext;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.world.Explosion;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.Nullable;
 
 public class BlockBitInfo
 {
 	// imc api...
-	private static HashMap<Block, Boolean> ignoreLogicBlocks = new HashMap<Block, Boolean>();
+	private static HashMap<Block, Boolean> ignoreLogicBlocks = new HashMap<>();
 
 	static
 	{
-		ignoreLogicBlocks.put( Blocks.LEAVES, true );
-		ignoreLogicBlocks.put( Blocks.LEAVES2, true );
+		ignoreLogicBlocks.put( Blocks.ACACIA_LEAVES, true );
+        ignoreLogicBlocks.put( Blocks.BIRCH_LEAVES, true );
+        ignoreLogicBlocks.put( Blocks.DARK_OAK_LEAVES, true );
+        ignoreLogicBlocks.put( Blocks.JUNGLE_LEAVES, true );
+        ignoreLogicBlocks.put( Blocks.OAK_LEAVES, true );
+		ignoreLogicBlocks.put( Blocks.SPRUCE_LEAVES, true );
 		ignoreLogicBlocks.put( Blocks.SNOW, true );
 	}
 
 	// cache data..
-	private static HashMap<IBlockState, BlockBitInfo> stateBitInfo = new HashMap<IBlockState, BlockBitInfo>();
-	private static HashMap<Block, Boolean> supportedBlocks = new HashMap<Block, Boolean>();
-	private static HashMap<IBlockState, Boolean> forcedStates = new HashMap<IBlockState, Boolean>();
-	private static HashMap<Block, Fluid> fluidBlocks = new HashMap<Block, Fluid>();
-	private static TIntObjectMap<Fluid> fluidStates = new TIntObjectHashMap<Fluid>();
-	private static HashMap<IBlockState, Integer> bitColor = new HashMap<IBlockState, Integer>();
+	private static HashMap<BlockState, BlockBitInfo> stateBitInfo    = new HashMap<>();
+	private static HashMap<Block, Boolean>           supportedBlocks = new HashMap<>();
+	private static HashMap<BlockState, Boolean>      forcedStates    = new HashMap<>();
+	private static HashMap<BlockState, Fluid>        fluidBlocks     = new HashMap<>();
+	private static IntObjectMap<Fluid>               fluidStates     = new IntObjectHashMap<>();
+	private static HashMap<BlockState, Integer>      bitColor        = new HashMap<>();
 
 	public static int getColorFor(
-			final IBlockState state,
+			final BlockState state,
 			final int tint )
 	{
 		Integer out = bitColor.get( state );
@@ -65,11 +71,11 @@ public class BlockBitInfo
 			final Fluid fluid = BlockBitInfo.getFluidFromBlock( blk );
 			if ( fluid != null )
 			{
-				out = fluid.getColor();
+				out = fluid.getAttributes().getColor();
 			}
 			else
 			{
-				final ItemStack target = ModUtil.getItemFromBlock( state );
+				final ItemStack target = ModUtil.getItemStackFromBlockState( state );
 
 				if ( ModUtil.isEmpty( target ) )
 				{
@@ -91,27 +97,18 @@ public class BlockBitInfo
 	{
 		fluidBlocks.clear();
 
-		for ( final Fluid o : FluidRegistry.getRegisteredFluids().values() )
+		for ( final Fluid o : ForgeRegistries.FLUIDS )
 		{
-			if ( o.canBePlacedInWorld() )
-			{
-				BlockBitInfo.addFluidBlock( o.getBlock(), o );
-			}
-		}
+            BlockBitInfo.addFluidBlock( o );
+        }
 	}
 
 	public static void addFluidBlock(
-			final Block blk,
 			final Fluid fluid )
 	{
-		if ( blk == null )
-		{
-			return;
-		}
+		fluidBlocks.put( fluid.getDefaultState().getBlockState(), fluid );
 
-		fluidBlocks.put( blk, fluid );
-
-		for ( final IBlockState state : blk.getBlockState().getValidStates() )
+		for ( final BlockState state : fluid.getDefaultState().getBlockState().getBlock().getStateContainer().getValidStates() )
 		{
 			try
 			{
@@ -152,7 +149,7 @@ public class BlockBitInfo
 	}
 
 	public static void forceStateCompatibility(
-			final IBlockState which,
+			final BlockState which,
 			final boolean forceStatus )
 	{
 		forcedStates.put( which, forceStatus );
@@ -166,7 +163,7 @@ public class BlockBitInfo
 	}
 
 	public static BlockBitInfo getBlockInfo(
-			final IBlockState state )
+			final BlockState state )
 	{
 		BlockBitInfo bit = stateBitInfo.get( state );
 
@@ -181,7 +178,7 @@ public class BlockBitInfo
 
 	@SuppressWarnings( "deprecation" )
 	public static boolean supportsBlock(
-			final IBlockState state )
+			final BlockState state )
 	{
 		if ( forcedStates.containsKey( state ) )
 		{
@@ -201,31 +198,24 @@ public class BlockBitInfo
 			final Class<? extends Block> blkClass = blk.getClass();
 
 			// custom dropping behavior?
-			pb.quantityDropped( null );
-			final Class<?> wc = getDeclaringClass( blkClass, pb.MethodName, Random.class );
-			final boolean quantityDroppedTest = wc == Block.class || wc == BlockGlowstone.class || wc == BlockStainedGlass.class || wc == BlockGlass.class || wc == BlockSnowBlock.class;
-
-			pb.quantityDroppedWithBonus( 0, null );
-			final boolean quantityDroppedWithBonusTest = getDeclaringClass( blkClass, pb.MethodName, int.class, Random.class ) == Block.class || wc == BlockGlowstone.class;
-
-			pb.quantityDropped( null, 0, null );
-			final boolean quantityDropped2Test = getDeclaringClass( blkClass, pb.MethodName, IBlockState.class, int.class, Random.class ) == Block.class;
+			pb.getDrops(state, null);
+			final Class<?> wc = getDeclaringClass( blkClass, pb.MethodName, BlockState.class, LootContext.Builder.class );
+			final boolean quantityDroppedTest = wc == Block.class;
 
 			final boolean isNotSlab = Item.getItemFromBlock( blk ) != null;
-			boolean itemExistsOrNotSpecialDrops = quantityDroppedTest && quantityDroppedWithBonusTest && quantityDropped2Test || isNotSlab;
+			boolean itemExistsOrNotSpecialDrops = quantityDroppedTest || isNotSlab;
 
 			// ignore blocks with custom collision.
-			pb.onEntityCollidedWithBlock( null, null, null, null );
-			boolean noCustomCollision = getDeclaringClass( blkClass, pb.MethodName, World.class, BlockPos.class, IBlockState.class, Entity.class ) == Block.class || blkClass == BlockSlime.class;
+			pb.getShape( null, null, null, null );
+			boolean noCustomCollision = getDeclaringClass( blkClass, pb.MethodName, BlockState.class, IBlockReader.class, BlockPos.class, ISelectionContext.class ) == Block.class || blk.getClass() == SlimeBlock.class;
 
 			// full cube specifically is tied to lighting... so for glass
 			// Compatibility use isFullBlock which can be true for glass.
-			boolean isFullBlock = blk.isFullBlock( state ) || blkClass == BlockStainedGlass.class || blkClass == BlockGlass.class || blk == Blocks.SLIME_BLOCK || blk == Blocks.ICE;
-
+			boolean isFullBlock = state.isSolid();
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
-			final boolean tickingBehavior = blk.getTickRandomly() && ChiselsAndBits.getConfig().blacklistTickingBlocks;
-			boolean hasBehavior = ( blk.hasTileEntity( state ) || tickingBehavior ) && blkClass != BlockGrass.class && blkClass != BlockMycelium.class && blkClass != BlockIce.class;
+			final boolean tickingBehavior = blk.ticksRandomly(state) && ChiselsAndBits.getConfig().blacklistTickingBlocks;
+			boolean hasBehavior = ( blk.hasTileEntity( state ) || tickingBehavior );
 			final boolean hasItem = Item.getItemFromBlock( blk ) != null;
 
 			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( state ) != null;
@@ -320,7 +310,7 @@ public class BlockBitInfo
 	}
 
 	public static BlockBitInfo createFromState(
-			final IBlockState state )
+			final BlockState state )
 	{
 		try
 		{
@@ -329,27 +319,24 @@ public class BlockBitInfo
 			final Block blk = state.getBlock();
 			final Class<? extends Block> blkClass = blk.getClass();
 
-			reflectBlock.getBlockHardness( null, null, null );
-			final Class<?> hardnessMethodClass = getDeclaringClass( blkClass, reflectBlock.MethodName, IBlockState.class, World.class, BlockPos.class );
-			final boolean test_a = hardnessMethodClass == Block.class;
-
 			reflectBlock.getPlayerRelativeBlockHardness( null, null, null, null );
-			final boolean test_b = getDeclaringClass( blkClass, reflectBlock.MethodName, IBlockState.class, EntityPlayer.class, World.class, BlockPos.class ) == Block.class;
+			final boolean test_b = getDeclaringClass( blkClass, reflectBlock.MethodName, BlockState.class, PlayerEntity.class, IBlockReader.class, BlockPos.class ) == Block.class;
 
-			reflectBlock.getExplosionResistance( null );
-			final Class<?> exploResistanceClz = getDeclaringClass( blkClass, reflectBlock.MethodName, Entity.class );
+			reflectBlock.getExplosionResistance();
+			final Class<?> exploResistanceClz = getDeclaringClass( blkClass, reflectBlock.MethodName);
 			final boolean test_c = exploResistanceClz == Block.class;
 
 			reflectBlock.getExplosionResistance( null, null, null, null );
-			final boolean test_d = getDeclaringClass( blkClass, reflectBlock.MethodName, World.class, BlockPos.class, Entity.class, Explosion.class ) == Block.class;
+			final boolean test_d = getDeclaringClass( blkClass, reflectBlock.MethodName, BlockState.class, IBlockReader.class, BlockPos.class, Explosion.class ) == Block.class;
 
 			final boolean isFluid = fluidStates.containsKey( ModUtil.getStateId( state ) );
 
 			// is it perfect?
-			if ( test_a && test_b && test_c && test_d && !isFluid )
+			if ( test_b && test_c && test_d && !isFluid )
 			{
-				final float blockHardness = blk.blockHardness;
-				final float resistance = blk.blockResistance;
+				final float blockHardness = state.getBlockHardness(new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO);
+				final float resistance = blk.getExplosionResistance(state, new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO, new Explosion(null, null, 0,1,0, 10,
+                  Lists.newArrayList(BlockPos.ZERO)));
 
 				return new BlockBitInfo( true, blockHardness, resistance );
 			}
@@ -359,7 +346,7 @@ public class BlockBitInfo
 				// hardness... say like stone?
 
 				final Block stone = Blocks.STONE;
-				return new BlockBitInfo( ChiselsAndBits.getConfig().compatabilityMode, stone.blockHardness, stone.blockResistance );
+				return new BlockBitInfo( ChiselsAndBits.getConfig().compatabilityMode, 2f, 6f );
 			}
 		}
 		catch ( final Exception err )
@@ -369,7 +356,7 @@ public class BlockBitInfo
 	}
 
 	public static boolean canChisel(
-			final IBlockState state )
+			final BlockState state )
 	{
 		return state.getBlock() instanceof BlockChiseled || supportsBlock( state );
 	}

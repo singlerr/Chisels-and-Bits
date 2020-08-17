@@ -4,13 +4,13 @@ import java.util.Collections;
 import java.util.List;
 
 import mod.chiselsandbits.core.ClientSide;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public class NullBakedModel implements IBakedModel
 {
@@ -19,8 +19,8 @@ public class NullBakedModel implements IBakedModel
 
 	@Override
 	public List<BakedQuad> getQuads(
-			final IBlockState state,
-			final EnumFacing side,
+			final BlockState state,
+			final Direction side,
 			final long rand )
 	{
 		return Collections.emptyList();

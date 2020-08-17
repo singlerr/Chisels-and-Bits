@@ -18,15 +18,17 @@ import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
@@ -47,16 +49,16 @@ public class ItemBitBag extends Item
 
 	SimpleInstanceCache<ItemStack, List<String>> tooltipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
 
-	public ItemBitBag()
+	public ItemBitBag(Item.Properties properties)
 	{
-		setMaxStackSize( 1 );
+	    super(properties.maxStackSize(1));
 		ChiselsAndBits.registerWithBus( this );
 	}
 
 	@Override
 	public ICapabilityProvider initCapabilities(
 			final ItemStack stack,
-			final NBTTagCompound nbt )
+			final CompoundNBT nbt )
 	{
 		return new BagCapabilityProvider( stack, nbt );
 	}
@@ -65,7 +67,7 @@ public class ItemBitBag extends Item
 	public String getItemStackDisplayName(
 			ItemStack stack )
 	{
-		EnumDyeColor color = getDyedColor( stack );
+		DyeColor color = getDyedColor( stack );
 		if ( color != null )
 			return super.getItemStackDisplayName( stack ) + " - " + I18n.translateToLocal( "chiselsandbits.color." + color.getName() );
 		else
@@ -103,8 +105,8 @@ public class ItemBitBag extends Item
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(
 			final World worldIn,
-			final EntityPlayer playerIn,
-			final EnumHand hand )
+			final PlayerEntity playerIn,
+			final Hand hand )
 	{
 		final ItemStack itemStackIn = playerIn.getHeldItem( hand );
 
@@ -137,7 +139,7 @@ public class ItemBitBag extends Item
 		if ( entityItem != null )
 		{
 			final ItemStack is = entityItem.getEntityItem();
-			final EntityPlayer player = event.getEntityPlayer();
+			final PlayerEntity player = event.getPlayerEntity();
 			if ( is != null && is.getItem() instanceof ItemChiseledBit )
 			{
 				final int originalSize = ModUtil.getStackSize( is );
@@ -197,7 +199,7 @@ public class ItemBitBag extends Item
 	}
 
 	private boolean updateEntity(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final EntityItem ei,
 			ItemStack is,
 			final int originalSize )
@@ -214,7 +216,7 @@ public class ItemBitBag extends Item
 			//
 			// if ( !ei.isSilent() )
 			// {
-			// ei.worldObj.playSound( (EntityPlayer) null, ei.posX, ei.posY,
+			// ei.worldObj.playSound( (PlayerEntity) null, ei.posX, ei.posY,
 			// ei.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS,
 			// 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F +
 			// 1.0F ) * 2.0F );
@@ -233,7 +235,7 @@ public class ItemBitBag extends Item
 	}
 
 	static public void cleanupInventory(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final ItemStack is )
 	{
 		if ( is != null && is.getItem() instanceof ItemChiseledBit )
@@ -336,21 +338,21 @@ public class ItemBitBag extends Item
 
 	@Override
 	public void getSubItems(
-			CreativeTabs itemIn,
+			ItemGroup itemIn,
 			NonNullList<ItemStack> tab )
 	{
 		if ( this.func_194125_a( itemIn ) )
 		{
 			tab.add( new ItemStack( this ) );
 
-			for ( EnumDyeColor color : EnumDyeColor.values() )
+			for ( DyeColor color : DyeColor.values() )
 				tab.add( dyeBag( new ItemStack( this ), color ) );
 		}
 	}
 
 	public ItemStack dyeBag(
 			ItemStack bag,
-			EnumDyeColor color )
+			DyeColor color )
 	{
 		ItemStack copy = bag.copy();
 
@@ -365,13 +367,13 @@ public class ItemBitBag extends Item
 		return copy;
 	}
 
-	public EnumDyeColor getDyedColor(
+	public DyeColor getDyedColor(
 			ItemStack stack )
 	{
 		if ( stack.hasTagCompound() && stack.getTagCompound().hasKey( "color" ) )
 		{
 			String name = stack.getTagCompound().getString( "color" );
-			for ( EnumDyeColor color : EnumDyeColor.values() )
+			for ( DyeColor color : DyeColor.values() )
 			{
 				if ( name.equals( color.getName() ) )
 					return color;

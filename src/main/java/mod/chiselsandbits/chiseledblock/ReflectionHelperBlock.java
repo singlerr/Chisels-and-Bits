@@ -1,19 +1,19 @@
 package mod.chiselsandbits.chiseledblock;
 
-import java.util.List;
-import java.util.Random;
-
-import javax.annotation.Nullable;
-
+import com.google.common.collect.Lists;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.loot.LootContext;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.World;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.world.IBlockReader;
+
+import java.util.List;
 
 class ReflectionHelperBlock extends Block
 {
@@ -26,89 +26,55 @@ class ReflectionHelperBlock extends Block
 
 	protected ReflectionHelperBlock()
 	{
-		super( Material.AIR );
+		super( AbstractBlock.Properties.create(Material.AIR) );
 	}
 
-	@Override
-	public float getBlockHardness(
-			final @Nullable IBlockState state,
-			final @Nullable World world,
-			final @Nullable BlockPos pos )
-	{
-		markMethod();
-		return 0;
-	}
+    @Override
+    public VoxelShape getRenderShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos)
+    {
+        markMethod();
+        return null;
+    }
 
-@Override
-public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox,
-		List<AxisAlignedBB> collidingBoxes, Entity entityIn, boolean p_185477_7_) {
-	markMethod();
-}
-	@Override
-	public float getPlayerRelativeBlockHardness(
-			final @Nullable IBlockState state,
-			final @Nullable EntityPlayer player,
-			final @Nullable World world,
-			final @Nullable BlockPos pos )
-	{
-		markMethod();
-		return 0;
-	}
+    @Override
+    public VoxelShape getCollisionShape(final BlockState state, final IBlockReader reader, final BlockPos pos)
+    {
+        markMethod();
+        return null;
+    }
 
-	@Override
-	public float getExplosionResistance(
-			final @Nullable Entity exploder )
-	{
-		markMethod();
-		return 0;
-	}
+    @Override
+    public VoxelShape getShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final ISelectionContext context)
+    {
+        markMethod();
+        return null;
+    }
 
-	@Override
-	public float getExplosionResistance(
-			final @Nullable World world,
-			final @Nullable BlockPos pos,
-			final @Nullable Entity exploder,
-			final @Nullable Explosion explosion )
-	{
-		markMethod();
-		return 0;
-	}
+    @Override
+    public VoxelShape getCollisionShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final ISelectionContext context)
+    {
+        markMethod();
+        return null;
+    }
 
-	@Override
-	public int quantityDropped(
-			final @Nullable IBlockState state,
-			final int fortune,
-			final @Nullable Random random )
-	{
+    @Override
+    public float getPlayerRelativeBlockHardness(final BlockState state, final PlayerEntity player, final IBlockReader worldIn, final BlockPos pos)
+    {
+        markMethod();
+        return 0;
+    }
 
-		markMethod();
-		return 0;
-	}
+    @Override
+    public float getExplosionResistance()
+    {
+        markMethod();
+        return 0;
+    }
 
-	@Override
-	public int quantityDropped(
-			final @Nullable Random random )
-	{
-		markMethod();
-		return 0;
-	}
-
-	@Override
-	public int quantityDroppedWithBonus(
-			final int fortune,
-			final @Nullable Random random )
-	{
-		markMethod();
-		return 0;
-	}
-
-	@Override
-	public void onEntityCollidedWithBlock(
-			final @Nullable World worldIn,
-			final @Nullable BlockPos pos,
-			final @Nullable IBlockState state,
-			final @Nullable Entity entityIn )
-	{
-		markMethod();
-	}
+    @Override
+    public List<ItemStack> getDrops(final BlockState state, final LootContext.Builder builder)
+    {
+        markMethod();
+        return Lists.newArrayList();
+    }
 }

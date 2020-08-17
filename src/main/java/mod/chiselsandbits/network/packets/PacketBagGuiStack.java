@@ -5,16 +5,27 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.ModPacket;
-import net.minecraft.inventory.Container;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 
 public class PacketBagGuiStack extends ModPacket
 {
-	public int index = -1;
-	public ItemStack is;
+	private int index = -1;
+	private ItemStack is;
 
-	@Override
+    public PacketBagGuiStack(PacketBuffer buffer)
+    {
+        this.readPayload(buffer);
+    }
+
+    public PacketBagGuiStack(final int index, final ItemStack is)
+    {
+        this.index = index;
+        this.is = is;
+    }
+
+    @Override
 	public void client()
 	{
 		final Container cc = ClientSide.instance.getPlayer().openContainer;
@@ -28,16 +39,16 @@ public class PacketBagGuiStack extends ModPacket
 	public void getPayload(
 			final PacketBuffer buffer )
 	{
-		buffer.writeVarIntToBuffer( index );
+		buffer.writeInt( index );
 
 		if ( is == null )
 		{
-			buffer.writeVarIntToBuffer( 0 );
+			buffer.writeInt( 0 );
 		}
 		else
 		{
-			buffer.writeVarIntToBuffer( ModUtil.getStackSize( is ) );
-			buffer.writeVarIntToBuffer( ItemChiseledBit.getStackState( is ) );
+			buffer.writeInt( ModUtil.getStackSize( is ) );
+			buffer.writeInt( ItemChiseledBit.getStackState( is ) );
 		}
 	}
 
@@ -45,9 +56,9 @@ public class PacketBagGuiStack extends ModPacket
 	public void readPayload(
 			final PacketBuffer buffer )
 	{
-		index = buffer.readVarIntFromBuffer();
+		index = buffer.readInt();
 
-		final int size = buffer.readVarIntFromBuffer();
+		final int size = buffer.readInt();
 
 		if ( size <= 0 )
 		{
@@ -55,7 +66,7 @@ public class PacketBagGuiStack extends ModPacket
 		}
 		else
 		{
-			is = ItemChiseledBit.createStack( buffer.readVarIntFromBuffer(), size, false );
+			is = ItemChiseledBit.createStack( buffer.readInt(), size, false );
 		}
 	}
 

@@ -20,7 +20,7 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketSetColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -28,8 +28,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -63,8 +63,8 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(
 			final World worldIn,
-			final EntityPlayer playerIn,
-			final EnumHand hand )
+			final PlayerEntity playerIn,
+			final Hand hand )
 	{
 		if ( playerIn.isSneaking() && playerIn.getEntityWorld().isRemote )
 		{
@@ -77,11 +77,11 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 
 	@Override
 	public EnumActionResult onItemUse(
-			final EntityPlayer playerIn,
+			final PlayerEntity playerIn,
 			final World worldIn,
 			final BlockPos pos,
-			final EnumHand hand,
-			final EnumFacing facing,
+			final Hand hand,
+			final Direction facing,
 			final float hitX,
 			final float hitY,
 			final float hitZ )
@@ -143,7 +143,7 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 
 	@Override
 	public void scroll(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final ItemStack stack,
 			final int dwheel )
 	{

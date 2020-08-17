@@ -1,8 +1,5 @@
 package mod.chiselsandbits.network.packets;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChisledValue;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -12,14 +9,7 @@ import mod.chiselsandbits.chiseledblock.iterators.ChiselIterator;
 import mod.chiselsandbits.chiseledblock.iterators.ChiselTypeIterator;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.helpers.ActingPlayer;
-import mod.chiselsandbits.helpers.BitInventoryFeeder;
-import mod.chiselsandbits.helpers.BitOperation;
-import mod.chiselsandbits.helpers.ContinousBits;
-import mod.chiselsandbits.helpers.ContinousChisels;
-import mod.chiselsandbits.helpers.IContinuousInventory;
-import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.helpers.VoxelRegionSrc;
+import mod.chiselsandbits.helpers.*;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
@@ -27,18 +17,20 @@ import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.oredict.OreDictionary;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PacketChisel extends ModPacket
 {
@@ -46,23 +38,22 @@ public class PacketChisel extends ModPacket
 	BitLocation to;
 
 	BitOperation place;
-	EnumFacing side;
-	ChiselMode mode;
-	EnumHand hand;
+	Direction    side;
+	ChiselMode   mode;
+	Hand         hand;
 
-	@Deprecated
-	// never call this...
-	public PacketChisel()
+	public PacketChisel(PacketBuffer buffer)
 	{
+	    readPayload(buffer);
 	}
 
 	public PacketChisel(
 			final BitOperation place,
 			final BitLocation from,
 			final BitLocation to,
-			final EnumFacing side,
+			final Direction side,
 			final ChiselMode mode,
-			final EnumHand hand )
+			final Hand hand )
 	{
 		this.place = place;
 		this.from = BitLocation.min( from, to );
@@ -75,9 +66,9 @@ public class PacketChisel extends ModPacket
 	public PacketChisel(
 			final BitOperation place,
 			final BitLocation location,
-			final EnumFacing side,
+			final Direction side,
 			final ChiselMode mode,
-			final EnumHand hand )
+			final Hand hand )
 	{
 		this.place = place;
 		from = to = location;
@@ -88,15 +79,15 @@ public class PacketChisel extends ModPacket
 
 	@Override
 	public void server(
-			final EntityPlayerMP playerEntity )
+			final ServerPlayerEntity playerEntity )
 	{
 		doAction( playerEntity );
 	}
 
 	public int doAction(
-			final EntityPlayer who )
+			final PlayerEntity who )
 	{
-		final World world = who.worldObj;
+		final World world = who.getEntityWorld();
 		final ActingPlayer player = ActingPlayer.actingAs( who, hand );
 
 		final int minX = Math.min( from.blockPos.getX(), to.blockPos.getX() );
@@ -112,7 +103,7 @@ public class PacketChisel extends ModPacket
 		ItemStack extracted = null;
 		ItemStack bitPlaced = null;
 
-		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
+		final List<ItemEntity> spawnlist = new ArrayList<ItemEntity>();
 
 		UndoTracker.getInstance().beginGroup( who );
 
@@ -130,7 +121,7 @@ public class PacketChisel extends ModPacket
 						final IContinuousInventory chisels = new ContinousChisels( player, pos, side );
 						final IContinuousInventory bits = new ContinousBits( player, pos, placeStateID );
 
-						IBlockState blkstate = world.getBlockState( pos );
+						BlockState blkstate = world.getBlockState( pos );
 						Block blkObj = blkstate.getBlock();
 
 						if ( place.usesChisels() )
@@ -270,9 +261,9 @@ public class PacketChisel extends ModPacket
 		to = readBitLoc( buffer );
 
 		place = buffer.readEnumValue( BitOperation.class );
-		side = EnumFacing.VALUES[buffer.readVarIntFromBuffer()];
-		mode = ChiselMode.values()[buffer.readVarIntFromBuffer()];
-		hand = EnumHand.values()[buffer.readVarIntFromBuffer()];
+		side = Direction.values()[buffer.readInt()];
+		mode = ChiselMode.values()[buffer.readInt()];
+		hand = Hand.values()[buffer.readInt()];
 	}
 
 	@Override

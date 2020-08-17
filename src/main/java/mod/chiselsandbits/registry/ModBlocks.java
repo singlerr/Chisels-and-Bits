@@ -13,13 +13,12 @@ import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled.TileEntityBlockChiseledDummy;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.config.ModConfig;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class ModBlocks extends ModRegistry
 {
@@ -39,22 +38,22 @@ public class ModBlocks extends ModRegistry
 			new MaterialType( "wood", Material.WOOD ),
 			new MaterialType( "rock", Material.ROCK ),
 			new MaterialType( "iron", Material.IRON ),
-			new MaterialType( "cloth", Material.CLOTH ),
+			new MaterialType( "cloth", Material.CARPET ),
 			new MaterialType( "ice", Material.ICE ),
 			new MaterialType( "packedIce", Material.PACKED_ICE ),
 			new MaterialType( "clay", Material.CLAY ),
 			new MaterialType( "glass", Material.GLASS ),
 			new MaterialType( "sand", Material.SAND ),
-			new MaterialType( "ground", Material.GROUND ),
-			new MaterialType( "grass", Material.GRASS ),
-			new MaterialType( "snow", Material.CRAFTED_SNOW ),
+			new MaterialType( "ground", Material.EARTH ),
+			new MaterialType( "grass", Material.EARTH ),
+			new MaterialType( "snow", Material.SNOW_BLOCK ),
 			new MaterialType( "fluid", Material.WATER ),
 			new MaterialType( "leaves", Material.LEAVES ),
 	};
 
 	public ModBlocks(
 			final ModConfig config,
-			final Side side )
+			final Dist side )
 	{
 		// register tile entities.
 		GameRegistry.registerTileEntity( TileEntityBlockChiseled.class, TE_CHISELEDBLOCK );
@@ -98,7 +97,7 @@ public class ModBlocks extends ModRegistry
 		}
 	}
 
-	public IBlockState getChiseledDefaultState()
+	public BlockState getChiseledDefaultState()
 	{
 		for ( final BlockChiseled bc : getConversions().values() )
 		{
@@ -108,7 +107,7 @@ public class ModBlocks extends ModRegistry
 	}
 
 	public BlockChiseled getConversion(
-			final IBlockState material )
+			final BlockState material )
 	{
 		final Fluid f = BlockBitInfo.getFluidFromBlock( material.getBlock() );
 
@@ -129,7 +128,7 @@ public class ModBlocks extends ModRegistry
 	}
 
 	public BlockChiseled getConversionWithDefault(
-			final IBlockState material )
+			final BlockState material )
 	{
 		final BlockChiseled bcX = getConversion( material );
 

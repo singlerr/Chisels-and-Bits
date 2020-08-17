@@ -7,7 +7,7 @@ import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.items.ItemBitBag.BagPos;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
@@ -22,11 +22,11 @@ public class BitInventoryFeeder
 	private final static Random itemRand = new Random();
 	ArrayList<Integer> seenBits = new ArrayList<>();
 	boolean hasSentMessage = false;
-	final EntityPlayer player;
+	final PlayerEntity player;
 	final World world;
 
 	public BitInventoryFeeder(
-			final EntityPlayer p,
+			final PlayerEntity p,
 			final World w)
 	{
 		player = p;
@@ -89,7 +89,7 @@ public class BitInventoryFeeder
 				{
 					if ( !ei.isSilent() )
 					{
-						ei.worldObj.playSound( (EntityPlayer) null, ei.posX, ei.posY, ei.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
+						ei.worldObj.playSound( (PlayerEntity) null, ei.posX, ei.posY, ei.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F + 1.0F ) * 2.0F );
 					}
 				}
 

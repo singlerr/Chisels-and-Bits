@@ -7,22 +7,34 @@ import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.network.ModPacket;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.Util;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class PacketSetChiselMode extends ModPacket
 {
 
-	public IToolMode mode = ChiselMode.SINGLE;
-	public ChiselToolType type = ChiselToolType.CHISEL;
-	public boolean chatNotification = false;
+	private IToolMode mode = ChiselMode.SINGLE;
+    private ChiselToolType type = ChiselToolType.CHISEL;
+    private boolean chatNotification = false;
 
-	@Override
+    public PacketSetChiselMode(PacketBuffer buffer)
+    {
+        readPayload(buffer);
+    }
+
+    public PacketSetChiselMode(final IToolMode mode, final ChiselToolType type, final boolean chatNotification)
+    {
+        this.mode = mode;
+        this.type = type;
+        this.chatNotification = chatNotification;
+    }
+
+    @Override
 	public void server(
-			final EntityPlayerMP player )
+			final ServerPlayerEntity player )
 	{
 		final ItemStack ei = player.getHeldItemMainhand();
 		if ( ei != null && ei.getItem() instanceof IChiselModeItem )
@@ -32,9 +44,9 @@ public class PacketSetChiselMode extends ModPacket
 
 			if ( originalMode != mode && chatNotification )
 			{
-				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new TextComponentTranslation( mode.getName().toString() ), true );
+				player.sendMessage( new TranslationTextComponent( mode.getName().toString() ), Util.DUMMY_UUID);
 			}
-		}
+        }
 	}
 
 	@Override
@@ -67,4 +79,33 @@ public class PacketSetChiselMode extends ModPacket
 		}
 	}
 
+    public IToolMode getMode()
+    {
+        return mode;
+    }
+
+    public void setMode(final IToolMode mode)
+    {
+        this.mode = mode;
+    }
+
+    public ChiselToolType getType()
+    {
+        return type;
+    }
+
+    public void setType(final ChiselToolType type)
+    {
+        this.type = type;
+    }
+
+    public boolean isChatNotification()
+    {
+        return chatNotification;
+    }
+
+    public void setChatNotification(final boolean chatNotification)
+    {
+        this.chatNotification = chatNotification;
+    }
 }

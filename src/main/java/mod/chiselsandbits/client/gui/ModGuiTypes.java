@@ -3,7 +3,7 @@ package mod.chiselsandbits.client.gui;
 import java.lang.reflect.Constructor;
 
 import mod.chiselsandbits.bitbag.BagContainer;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Container;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -27,7 +27,7 @@ public enum ModGuiTypes
 		try
 		{
 			container = c;
-			container_construtor = container.getConstructor( EntityPlayer.class, World.class, int.class, int.class, int.class );
+			container_construtor = container.getConstructor( PlayerEntity.class, World.class, int.class, int.class, int.class );
 		}
 		catch ( final Exception e )
 		{
@@ -42,7 +42,7 @@ public enum ModGuiTypes
 		try
 		{
 			g = (Class<?>) container.getMethod( "getGuiClass" ).invoke( null );
-			g_construtor = g.getConstructor( EntityPlayer.class, World.class, int.class, int.class, int.class );
+			g_construtor = g.getConstructor( PlayerEntity.class, World.class, int.class, int.class, int.class );
 		}
 		catch ( final Exception e )
 		{

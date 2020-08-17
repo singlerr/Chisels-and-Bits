@@ -2,18 +2,24 @@ package mod.chiselsandbits.bitbag;
 
 import mod.chiselsandbits.items.ItemBitBag;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class BagCapabilityProvider extends BagStorage implements ICapabilityProvider
 {
 
+    private final LazyOptional<IItemHandler> capResult = LazyOptional.of(() -> this);
+
 	public BagCapabilityProvider(
 			final ItemStack stack,
-			final NBTTagCompound nbt )
+			final CompoundNBT nbt )
 	{
 		this.stack = stack;
 	}
@@ -30,21 +36,21 @@ public class BagCapabilityProvider extends BagStorage implements ICapabilityProv
 			final int size )
 	{
 		int[] out = null;
-		NBTTagCompound compound = stack.getTagCompound();
+		CompoundNBT compound = stack.getTag();
 
 		if ( compound == null )
-			compound = new NBTTagCompound();
+			compound = new CompoundNBT();
 
-		if ( compound.hasKey( "contents" ) )
+		if ( compound.contains( "contents" ) )
 		{
 			out = compound.getIntArray( "contents" );
 		}
 
 		if ( out == null )
 		{
-			stack.setTagCompound( compound );
+			stack.setTag( compound );
 			out = new int[size];
-			compound.setIntArray( "contents", out );
+			compound.putIntArray( "contents", out );
 		}
 
 		if ( out.length != size && compound != null )
@@ -52,38 +58,22 @@ public class BagCapabilityProvider extends BagStorage implements ICapabilityProv
 			final int[] tmp = out;
 			out = new int[size];
 			System.arraycopy( out, 0, tmp, 0, Math.min( size, tmp.length ) );
-			compound.setIntArray( "contents", out );
+			compound.putIntArray( "contents", out );
 		}
 
 		return out;
 	}
 
-	@Override
-	public boolean hasCapability(
-			final Capability<?> capability,
-			final EnumFacing facing )
-	{
-		if ( capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY )
-		{
-			return true;
-		}
+    @NotNull
+    @Override
+    public <T> LazyOptional<T> getCapability(@NotNull final Capability<T> cap, @Nullable final Direction side)
+    {
+        if ( cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY )
+        {
+            setStorage( getStorageArray( stack, BAG_STORAGE_SLOTS * ItemBitBag.INTS_PER_BIT_TYPE ) );
+            return capResult.cast();
+        }
 
-		return false;
-	}
-
-	@SuppressWarnings( "unchecked" )
-	@Override
-	public <T> T getCapability(
-			final Capability<T> capability,
-			final EnumFacing facing )
-	{
-		if ( capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY )
-		{
-			setStorage( getStorageArray( stack, BAG_STORAGE_SLOTS * ItemBitBag.INTS_PER_BIT_TYPE ) );
-			return (T) this;
-		}
-
-		return null;
-	}
-
+        return null;
+    }
 }

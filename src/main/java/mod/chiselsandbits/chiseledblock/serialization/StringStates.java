@@ -10,7 +10,7 @@ import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
@@ -39,7 +39,7 @@ public class StringStates
 			return 0;
 		}
 
-		IBlockState state = blk.getDefaultState();
+		BlockState state = blk.getDefaultState();
 
 		if ( state == null )
 		{
@@ -73,8 +73,8 @@ public class StringStates
 	}
 
 	@SuppressWarnings( { "unchecked", "rawtypes" } )
-	private static IBlockState withState(
-			final IBlockState state,
+	private static BlockState withState(
+			final BlockState state,
 			final Block blk,
 			final String[] nameval )
 	{
@@ -100,7 +100,7 @@ public class StringStates
 	public static String getNameFromStateID(
 			final int key )
 	{
-		final IBlockState state = ModUtil.getStateById( key );
+		final BlockState state = ModUtil.getStateById( key );
 		final Block blk = state.getBlock();
 
 		String sname = "air?";

@@ -9,7 +9,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderCache;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderChunk;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
@@ -175,7 +175,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 
 	@Override
 	public boolean isSideOpaque(
-			final EnumFacing side )
+			final Direction side )
 	{
 		return false; // since TESRs can blink out of existence never block..
 	}

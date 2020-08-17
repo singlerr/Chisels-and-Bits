@@ -19,10 +19,10 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.text.TextComponentString;
 
 public class JsonModelExport extends CommandBase
@@ -52,7 +52,7 @@ public class JsonModelExport extends CommandBase
 			final ICommandSender sender,
 			final String[] args ) throws CommandException
 	{
-		final EntityPlayer player = ClientSide.instance.getPlayer();
+		final PlayerEntity player = ClientSide.instance.getPlayer();
 		final ItemStack is = player.getHeldItemMainhand();
 		if ( is != null && is.getItem() != null )
 		{
@@ -63,7 +63,7 @@ public class JsonModelExport extends CommandBase
 
 			final Map<TextureAtlasSprite, String> textures = new HashMap<TextureAtlasSprite, String>();
 
-			for ( final EnumFacing face : EnumFacing.VALUES )
+			for ( final Direction face : Direction.VALUES )
 			{
 				outputFaces( model.getQuads( null, face, 0 ), face, textures );
 			}
@@ -121,7 +121,7 @@ public class JsonModelExport extends CommandBase
 
 	private void outputFaces(
 			final List<BakedQuad> faceQuads,
-			final EnumFacing cullFace,
+			final Direction cullFace,
 			final Map<TextureAtlasSprite, String> textures )
 	{
 		for ( final BakedQuad quad : faceQuads )

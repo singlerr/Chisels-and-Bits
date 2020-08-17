@@ -1,7 +1,5 @@
 package mod.chiselsandbits.chiseledblock;
 
-import java.io.IOException;
-
 import mod.chiselsandbits.api.VoxelStats;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
@@ -9,11 +7,13 @@ import mod.chiselsandbits.chiseledblock.serialization.StringStates;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.StringNBT;
+
+import java.io.IOException;
 
 public class NBTBlobConverter
 {
@@ -57,7 +57,7 @@ public class NBTBlobConverter
 		return primaryBlockState;
 	}
 
-	public IBlockState getPrimaryBlockState()
+	public BlockState getPrimaryBlockState()
 	{
 		return ModUtil.getStateById( primaryBlockState );
 	}
@@ -97,7 +97,7 @@ public class NBTBlobConverter
 	}
 
 	public void fillWith(
-			final IBlockState state )
+			final BlockState state )
 	{
 		voxelBlobRef = new VoxelBlobStateReference( ModUtil.getStateId( state ), 0 );
 		updateFromBlob();
@@ -112,7 +112,7 @@ public class NBTBlobConverter
 	}
 
 	public final void writeChisleData(
-			final NBTTagCompound compound,
+			final CompoundNBT compound,
 			final boolean crossWorld )
 	{
 		final VoxelBlobStateReference voxelRef = getRef();
@@ -125,24 +125,24 @@ public class NBTBlobConverter
 		final int newFormat = crossWorld ? VoxelBlob.VERSION_CROSSWORLD : VoxelBlob.VERSION_COMPACT;
 		final byte[] voxelBytes = newFormat == format ? voxelRef.getByteArray() : voxelRef.getVoxelBlob().blobToBytes( newFormat );
 
-		compound.setInteger( NBT_LIGHTVALUE, lightValue );
+		compound.putInt( NBT_LIGHTVALUE, lightValue );
 
 		if ( crossWorld )
 		{
-			compound.setString( NBT_PRIMARY_STATE, StringStates.getNameFromStateID( primaryBlockState ) );
+			compound.putString( NBT_PRIMARY_STATE, StringStates.getNameFromStateID( primaryBlockState ) );
 		}
 		else
 		{
-			compound.setInteger( NBT_PRIMARY_STATE, primaryBlockState );
+			compound.putInt( NBT_PRIMARY_STATE, primaryBlockState );
 		}
 
-		compound.setInteger( NBT_SIDE_FLAGS, sideState );
-		compound.setBoolean( NBT_NORMALCUBE_FLAG, isNormalCube );
-		compound.setByteArray( NBT_VERSIONED_VOXEL, voxelBytes );
+		compound.putInt( NBT_SIDE_FLAGS, sideState );
+		compound.putBoolean( NBT_NORMALCUBE_FLAG, isNormalCube );
+		compound.putByteArray( NBT_VERSIONED_VOXEL, voxelBytes );
 	}
 
 	public final boolean readChisleData(
-			final NBTTagCompound compound,
+			final CompoundNBT compound,
 			final int preferedFormat )
 	{
 		if ( compound == null )
@@ -158,17 +158,17 @@ public class NBTBlobConverter
 			return false;
 		}
 
-		sideState = compound.getInteger( NBT_SIDE_FLAGS );
+		sideState = compound.getInt( NBT_SIDE_FLAGS );
 
-		if ( compound.getTag( NBT_PRIMARY_STATE ) instanceof NBTTagString )
+		if ( compound.get( NBT_PRIMARY_STATE ) instanceof StringNBT)
 		{
 			primaryBlockState = StringStates.getStateIDFromName( compound.getString( NBT_PRIMARY_STATE ) );
 		}
 		{
-			primaryBlockState = compound.getInteger( NBT_PRIMARY_STATE );
+			primaryBlockState = compound.getInt( NBT_PRIMARY_STATE );
 		}
 
-		lightValue = compound.getInteger( NBT_LIGHTVALUE );
+		lightValue = compound.getInt( NBT_LIGHTVALUE );
 		isNormalCube = compound.getBoolean( NBT_NORMALCUBE_FLAG );
 		byte[] v = compound.getByteArray( NBT_VERSIONED_VOXEL );
 
@@ -247,10 +247,10 @@ public class NBTBlobConverter
 		if ( blk != null )
 		{
 			final ItemStack is = new ItemStack( blk );
-			final NBTTagCompound compound = ModUtil.getSubCompound( is, ModUtil.NBT_BLOCKENTITYTAG, true );
+			final CompoundNBT compound = ModUtil.getSubCompound( is, ModUtil.NBT_BLOCKENTITYTAG, true );
 			writeChisleData( compound, crossWorld );
 
-			if ( !compound.hasNoTags() )
+			if ( compound.size() > 0 )
 			{
 				return is;
 			}

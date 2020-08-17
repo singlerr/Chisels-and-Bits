@@ -6,13 +6,13 @@ import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
-import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketSetChiselMode;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Util;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class ChiselModeManager
 {
@@ -29,17 +29,14 @@ public class ChiselModeManager
 
 		if ( ChiselsAndBits.getConfig().perChiselMode && tool.hasPerToolSettings() || tool.requiresPerToolSettings() )
 		{
-			final PacketSetChiselMode packet = new PacketSetChiselMode();
-			packet.type = tool;
-			packet.mode = newClientChiselMode;
-			packet.chatNotification = chatNotification;
+			final PacketSetChiselMode packet = new PacketSetChiselMode(newClientChiselMode, tool, chatNotification);
 
 			if ( !itemNameModeDisplay )
 			{
-				newClientChiselMode.setMode( Minecraft.getMinecraft().thePlayer.getHeldItemMainhand() );
+				newClientChiselMode.setMode( Minecraft.getInstance().player.getHeldItemMainhand() );
 			}
 
-			NetworkRouter.instance.sendToServer( packet );
+			ChiselsAndBits.getNetworkChannel().sendToServer( packet );
 		}
 		else
 		{
@@ -54,7 +51,7 @@ public class ChiselModeManager
 
 			if ( originalMode != newClientChiselMode && chatNotification )
 			{
-				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new TextComponentTranslation( newClientChiselMode.getName().toString() ), true );
+				Minecraft.getInstance().player.sendMessage( new TranslationTextComponent( newClientChiselMode.getName().toString() ), Util.DUMMY_UUID );
 			}
 
 			ReflectionWrapper.instance.clearHighlightedStack();
@@ -98,9 +95,9 @@ public class ChiselModeManager
 	}
 
 	public static IToolMode getChiselMode(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final ChiselToolType setting,
-			final EnumHand hand )
+			final Hand hand )
 	{
 		if ( setting == ChiselToolType.TAPEMEASURE || setting == ChiselToolType.POSITIVEPATTERN )
 		{

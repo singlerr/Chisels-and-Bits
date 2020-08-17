@@ -3,11 +3,11 @@ package mod.chiselsandbits.client.culling;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.init.Biomes;
 import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.WorldType;
@@ -21,8 +21,8 @@ import net.minecraft.world.biome.Biome;
 public class MCCullTest implements ICullTest, IBlockAccess
 {
 
-	private IBlockState a;
-	private IBlockState b;
+	private BlockState a;
+	private BlockState b;
 
 	@Override
 	public boolean isVisible(
@@ -57,7 +57,7 @@ public class MCCullTest implements ICullTest, IBlockAccess
 
 		try
 		{
-			return a.shouldSideBeRendered( this, BlockPos.ORIGIN, EnumFacing.NORTH );
+			return a.shouldSideBeRendered( this, BlockPos.ORIGIN, Direction.NORTH );
 		}
 		catch ( final Throwable t )
 		{
@@ -82,7 +82,7 @@ public class MCCullTest implements ICullTest, IBlockAccess
 	}
 
 	@Override
-	public IBlockState getBlockState(
+	public BlockState getBlockState(
 			final BlockPos pos )
 	{
 		return pos.equals( BlockPos.ORIGIN ) ? a : b;
@@ -110,7 +110,7 @@ public class MCCullTest implements ICullTest, IBlockAccess
 	@Override
 	public int getStrongPower(
 			final BlockPos pos,
-			final EnumFacing direction )
+			final Direction direction )
 	{
 		return 0;
 	}
@@ -124,7 +124,7 @@ public class MCCullTest implements ICullTest, IBlockAccess
 	@Override
 	public boolean isSideSolid(
 			final BlockPos pos,
-			final EnumFacing side,
+			final Direction side,
 			final boolean _default )
 	{
 		return false;

@@ -26,19 +26,19 @@ import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.Axis;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -141,17 +141,17 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 	@Override
 	public EnumActionResult onItemUse(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final World world,
 			final BlockPos pos,
-			final EnumHand hand,
-			final EnumFacing side,
+			final Hand hand,
+			final Direction side,
 			final float hitX,
 			final float hitY,
 			final float hitZ )
 	{
 		final ItemStack stack = player.getHeldItem( hand );
-		final IBlockState blkstate = world.getBlockState( pos );
+		final BlockState blkstate = world.getBlockState( pos );
 
 		if ( ItemChiseledBit.checkRequiredSpace( player, blkstate ) )
 		{
@@ -209,7 +209,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	protected NBTTagCompound getCompoundFromBlock(
 			final World world,
 			final BlockPos pos,
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 
 		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, false );
@@ -258,8 +258,8 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final VoxelStats stats = conv.getBlob().getVoxelStats();
 			if ( stats.isFullBlock )
 			{
-				final IBlockState state = ModUtil.getStateById( stats.mostCommonState );
-				final ItemStack is = ModUtil.getItemFromBlock( state );
+				final BlockState state = ModUtil.getStateById( stats.mostCommonState );
+				final ItemStack is = ModUtil.getItemStackFromBlockState( state );
 
 				if ( !ModUtil.isEmpty( is ) )
 				{
@@ -268,7 +268,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			}
 		}
 
-		final IBlockState state = conv.getPrimaryBlockState();
+		final BlockState state = conv.getPrimaryBlockState();
 		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( state ), 1 );
 
 		itemstack.setTagInfo( ModUtil.NBT_BLOCKENTITYTAG, tag );
@@ -279,11 +279,11 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			@Nonnull final ItemStack stack,
 			@Nonnull final World world,
 			@Nonnull final BlockPos pos,
-			@Nonnull final EnumFacing side,
+			@Nonnull final Direction side,
 			@Nonnull final VoxelBlob vb,
 			@Nonnull final VoxelBlob pattern,
-			@Nonnull final EntityPlayer who,
-			@Nonnull final EnumHand hand )
+			@Nonnull final PlayerEntity who,
+			@Nonnull final Hand hand )
 	{
 		// snag a tool...
 		final ActingPlayer player = ActingPlayer.actingAs( who, hand );
@@ -316,7 +316,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 	@Override
 	public void scroll(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final ItemStack stack,
 			final int dwheel )
 	{
@@ -329,16 +329,16 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	@Override
 	public void rotate(
 			final ItemStack stack,
-			final Axis axis,
+			final Direction.Axis axis,
 			final Rotation rotation )
 	{
-		EnumFacing side = ModUtil.getSide( stack );
+		Direction side = ModUtil.getSide( stack );
 
 		if ( axis == Axis.Y )
 		{
 			if ( side.getAxis() == Axis.Y )
 			{
-				side = EnumFacing.NORTH;
+				side = Direction.NORTH;
 			}
 
 			switch ( rotation )

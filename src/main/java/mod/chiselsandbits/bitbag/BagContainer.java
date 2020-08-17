@@ -8,30 +8,31 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.NullInventory;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketBagGuiStack;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IContainerListener;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.container.Container;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.inventory.container.IContainerListener;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 
 public class BagContainer extends Container
 {
 	static final int OUTER_SLOT_SIZE = 18;
 
-	final EntityPlayer thePlayer;
+	final PlayerEntity      thePlayer;
 	final TargetedInventory visibleInventory = new TargetedInventory();
 
 	BagInventory bagInv;
 	SlotReadonly bagSlot;
 
-	final public List<Slot> customSlots = new ArrayList<Slot>();
+	final public List<Slot>      customSlots      = new ArrayList<Slot>();
 	final public List<ItemStack> customSlotsItems = new ArrayList<ItemStack>();
 
 	private void addCustomSlot(
@@ -42,48 +43,45 @@ public class BagContainer extends Container
 		customSlotsItems.add( ModUtil.getEmptyStack() );
 	}
 
-	public BagContainer(
-			final EntityPlayer player,
-			final World world,
-			final int x,
-			final int y,
-			final int z )
-	{
-		thePlayer = player;
+    protected BagContainer(@Nullable final ContainerType<?> type, final int id, final PlayerEntity entity)
+    {
+        super(type, id);
+        thePlayer = entity;
 
-		final int playerInventoryOffset = ( 7 - 4 ) * OUTER_SLOT_SIZE;
+        final int playerInventoryOffset = ( 7 - 4 ) * OUTER_SLOT_SIZE;
 
-		final ItemStack is = player.getHeldItemMainhand();
-		setBag( is );
+        final ItemStack is = entity.getHeldItemMainhand();
+        setBag( is );
 
-		for ( int yOffset = 0; yOffset < 7; ++yOffset )
-		{
-			for ( int xOffset = 0; xOffset < 9; ++xOffset )
-			{
-				addCustomSlot( new SlotBit( visibleInventory, xOffset + yOffset * 9, 8 + xOffset * OUTER_SLOT_SIZE, 18 + yOffset * OUTER_SLOT_SIZE ) );
-			}
-		}
+        for ( int yOffset = 0; yOffset < 7; ++yOffset )
+        {
+            for ( int xOffset = 0; xOffset < 9; ++xOffset )
+            {
+                addCustomSlot( new SlotBit( visibleInventory, xOffset + yOffset * 9, 8 + xOffset * OUTER_SLOT_SIZE, 18 + yOffset * OUTER_SLOT_SIZE ) );
+            }
+        }
 
-		for ( int xPlayerInventory = 0; xPlayerInventory < 3; ++xPlayerInventory )
-		{
-			for ( int yPlayerInventory = 0; yPlayerInventory < 9; ++yPlayerInventory )
-			{
-				addSlotToContainer( new Slot( thePlayer.inventory, yPlayerInventory + xPlayerInventory * 9 + 9, 8 + yPlayerInventory * OUTER_SLOT_SIZE, 104 + xPlayerInventory * OUTER_SLOT_SIZE + playerInventoryOffset ) );
-			}
-		}
+        for ( int xPlayerInventory = 0; xPlayerInventory < 3; ++xPlayerInventory )
+        {
+            for ( int yPlayerInventory = 0; yPlayerInventory < 9; ++yPlayerInventory )
+            {
+                addSlot( new Slot( thePlayer.inventory, yPlayerInventory + xPlayerInventory * 9 + 9, 8 + yPlayerInventory * OUTER_SLOT_SIZE, 104 + xPlayerInventory * OUTER_SLOT_SIZE + playerInventoryOffset ) );
+            }
+        }
 
-		for ( int xToolbar = 0; xToolbar < 9; ++xToolbar )
-		{
-			if ( thePlayer.inventory.currentItem == xToolbar )
-			{
-				addSlotToContainer( bagSlot = new SlotReadonly( thePlayer.inventory, xToolbar, 8 + xToolbar * OUTER_SLOT_SIZE, 162 + playerInventoryOffset ) );
-			}
-			else
-			{
-				addSlotToContainer( new Slot( thePlayer.inventory, xToolbar, 8 + xToolbar * OUTER_SLOT_SIZE, 162 + playerInventoryOffset ) );
-			}
-		}
-	}
+        for ( int xToolbar = 0; xToolbar < 9; ++xToolbar )
+        {
+            if ( thePlayer.inventory.currentItem == xToolbar )
+            {
+                addSlot( bagSlot = new SlotReadonly( thePlayer.inventory, xToolbar, 8 + xToolbar * OUTER_SLOT_SIZE, 162 + playerInventoryOffset ) );
+            }
+            else
+            {
+                addSlot( new Slot( thePlayer.inventory, xToolbar, 8 + xToolbar * OUTER_SLOT_SIZE, 162 + playerInventoryOffset ) );
+            }
+        }
+    }
+
 
 	private void setBag(
 			final ItemStack bagItem )
@@ -105,13 +103,13 @@ public class BagContainer extends Container
 
 	@Override
 	public boolean canInteractWith(
-			final EntityPlayer playerIn )
+			final PlayerEntity playerIn )
 	{
 		return bagInv != null && playerIn == thePlayer && hasBagInHand( thePlayer );
 	}
 
 	private boolean hasBagInHand(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		if ( bagInv.getItemStack() != player.getHeldItemMainhand() )
 		{
@@ -123,7 +121,7 @@ public class BagContainer extends Container
 
 	@Override
 	public ItemStack transferStackInSlot(
-			final EntityPlayer playerIn,
+			final PlayerEntity playerIn,
 			final int index )
 	{
 		return transferStack( index, true );
@@ -140,11 +138,13 @@ public class BagContainer extends Container
 
 		if ( !normalToBag )
 		{
-			helper.inventorySlots = customSlots;
+		    helper.inventorySlots.clear();
+		    helper.inventorySlots.addAll(customSlots);
 		}
 		else
 		{
-			helper.inventorySlots = inventorySlots;
+		    helper.inventorySlots.clear();
+		    helper.inventorySlots.addAll(inventorySlots);
 			reverse = false;
 		}
 
@@ -164,12 +164,14 @@ public class BagContainer extends Container
 
 			if ( normalToBag )
 			{
-				helper.inventorySlots = customSlots;
+                helper.inventorySlots.clear();
+                helper.inventorySlots.addAll(customSlots);
 				ItemChiseledBit.bitBagStackLimitHack = true;
 			}
 			else
 			{
-				helper.inventorySlots = inventorySlots;
+                helper.inventorySlots.clear();
+                helper.inventorySlots.addAll(inventorySlots);
 			}
 
 			try
@@ -199,7 +201,7 @@ public class BagContainer extends Container
 		return someReturnValue;
 	}
 
-	@SideOnly( Side.CLIENT )
+	@OnlyIn(Dist.CLIENT)
 	public static Object getGuiClass()
 	{
 		return BagGui.class;
@@ -215,7 +217,7 @@ public class BagContainer extends Container
 		final ItemStack held = thePlayer.inventory.getItemStack();
 		final ItemStack slotStack = slot.getStack();
 
-		if ( duplicateButton && thePlayer.capabilities.isCreativeMode )
+		if ( duplicateButton && thePlayer.isCreative() )
 		{
 			if ( slot.getHasStack() && ModUtil.isEmpty( held ) )
 			{
@@ -246,7 +248,7 @@ public class BagContainer extends Container
 			}
 			else if ( ModUtil.notEmpty( held ) && slot.getHasStack() && slot.isItemValid( held ) )
 			{
-				if ( held.getItem() == slotStack.getItem() && held.getMetadata() == slotStack.getMetadata() && ItemStack.areItemStackTagsEqual( held, slotStack ) )
+				if ( held.getItem() == slotStack.getItem() && held.getDamage() == slotStack.getDamage() && ItemStack.areItemStackTagsEqual( held, slotStack ) )
 				{
 					final ItemStack newStackSlot = ModUtil.copy( slotStack );
 					ModUtil.adjustStackSize( newStackSlot, ModUtil.getStackSize( held ) );
@@ -292,7 +294,7 @@ public class BagContainer extends Container
 			}
 			else if ( ModUtil.notEmpty( held ) && slot.getHasStack() && slot.isItemValid( held ) )
 			{
-				if ( held.getItem() == slotStack.getItem() && held.getMetadata() == slotStack.getMetadata() && ItemStack.areItemStackTagsEqual( held, slotStack ) )
+				if ( held.getItem() == slotStack.getItem() && held.getDamage() == slotStack.getDamage() && ItemStack.areItemStackTagsEqual( held, slotStack ) )
 				{
 					final ItemStack newStackSlot = ModUtil.copy( slotStack );
 					ModUtil.adjustStackSize( newStackSlot, 1 );
@@ -341,13 +343,10 @@ public class BagContainer extends Container
 				{
 					final IContainerListener cl = listeners.get( crafterIndex );
 
-					if ( cl instanceof EntityPlayerMP )
+					if ( cl instanceof ServerPlayerEntity)
 					{
-						final PacketBagGuiStack pbgs = new PacketBagGuiStack();
-						pbgs.is = clientstack;
-						pbgs.index = slotIdx;
-
-						NetworkRouter.instance.sendTo( pbgs, (EntityPlayerMP) cl );
+						final PacketBagGuiStack pbgs = new PacketBagGuiStack(slotIdx, clientstack);
+                        ChiselsAndBits.getNetworkChannel().sendToPlayer(pbgs, (ServerPlayerEntity) cl);
 					}
 				}
 			}
@@ -366,13 +365,13 @@ public class BagContainer extends Container
 		}
 
 		bagInv.clear( stack );
-		( (EntityPlayerMP) thePlayer ).sendContainerToPlayer( this );
+		( (ServerPlayerEntity) thePlayer ).sendContainerToPlayer( this );
 	}
 
 	public void sort()
 	{
 		bagInv.sort();
-		( (EntityPlayerMP) thePlayer ).sendContainerToPlayer( this );
+		( (ServerPlayerEntity) thePlayer ).sendContainerToPlayer( this );
 	}
 
 }

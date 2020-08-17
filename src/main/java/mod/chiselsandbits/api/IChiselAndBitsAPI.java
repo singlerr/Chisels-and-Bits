@@ -5,12 +5,12 @@ import javax.annotation.Nullable;
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -101,7 +101,7 @@ public interface IChiselAndBitsAPI
 	 * @throws InvalidBitItem
 	 */
 	IBitBrush createBrushFromState(
-			@Nullable IBlockState state ) throws InvalidBitItem;
+			@Nullable BlockState state ) throws InvalidBitItem;
 
 	/**
 	 * Convert ray trace information into bit location information, note that
@@ -119,7 +119,7 @@ public interface IChiselAndBitsAPI
 			float hitX,
 			float hitY,
 			float hitZ,
-			EnumFacing side,
+			Direction side,
 			BlockPos pos,
 			boolean placement );
 
@@ -133,7 +133,7 @@ public interface IChiselAndBitsAPI
 	 * @return the bit.
 	 */
 	ItemStack getBitItem(
-			IBlockState defaultState ) throws InvalidBitItem;
+			BlockState defaultState ) throws InvalidBitItem;
 
 	/**
 	 * Give a bit to a player, it will end up in their inventory, a bag, or if
@@ -153,7 +153,7 @@ public interface IChiselAndBitsAPI
 	 *            are being extracted from.
 	 */
 	void giveBitToPlayer(
-			EntityPlayer player,
+			PlayerEntity player,
 			ItemStack stack,
 			Vec3d spawnPos );
 
@@ -196,7 +196,7 @@ public interface IChiselAndBitsAPI
 	 *
 	 */
 	void beginUndoGroup(
-			EntityPlayer player );
+			PlayerEntity player );
 
 	/**
 	 * Ends a previously running undo group, must be called after starting an
@@ -204,7 +204,7 @@ public interface IChiselAndBitsAPI
 	 * exception.
 	 */
 	void endUndoGroup(
-			EntityPlayer player );
+			PlayerEntity player );
 
 	/**
 	 * Register a custom material as equivalent to another material.

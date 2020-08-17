@@ -30,79 +30,83 @@ import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockSnow;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.*;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.*;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.SoundCategory;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import org.jetbrains.annotations.Nullable;
 
-public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IItemScrollWheel, IItemBlockAccurate
+public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IItemScrollWheel, IItemBlockAccurate
 {
 
-	SimpleInstanceCache<ItemStack, List<String>> tooltipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
+	SimpleInstanceCache<ItemStack, List<ITextComponent>> tooltipCache = new SimpleInstanceCache<ItemStack, List<ITextComponent>>( null, new ArrayList<ITextComponent>() );
 
 	public ItemBlockChiseled(
-			final Block block )
+			final Block block, Item.Properties builder )
 	{
-		super( block );
+		super( block , builder);
 	}
 
-	@Override
-	@SideOnly( Side.CLIENT )
-	public void addInformation(
-			final ItemStack stack,
-			final World worldIn,
-			final List<String> tooltip,
-			final ITooltipFlag advanced )
-	{
-		super.addInformation( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChiseledBlock, tooltip,
-				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ),
-				ClientSide.instance.getKeyName( ClientSide.getOffGridPlacementKey() ) );
+	@OnlyIn(Dist.CLIENT)
+    @Override
+    public void addInformation(
+      final ItemStack stack, @Nullable final World worldIn, final List<ITextComponent> tooltip, final ITooltipFlag flagIn)
+    {
+        super.addInformation( stack, worldIn, tooltip, flagIn);
+        ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChiseledBlock, tooltip,
+          ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
+          ClientSide.instance.getKeyName( ClientSide.getOffGridPlacementKey() ) );
 
-		if ( stack.hasTagCompound() )
-		{
-			if ( ClientSide.instance.holdingShift() )
-			{
-				if ( tooltipCache.needsUpdate( stack ) )
-				{
-					final VoxelBlob blob = ModUtil.getBlobFromStack( stack, null );
-					tooltipCache.updateCachedValue( blob.listContents( new ArrayList<String>() ) );
-				}
+        if ( stack.hasTag() )
+        {
+            if ( ClientSide.instance.holdingShift() )
+            {
+                if ( tooltipCache.needsUpdate( stack ) )
+                {
+                    final VoxelBlob blob = ModUtil.getBlobFromStack( stack, null );
+                    tooltipCache.updateCachedValue( blob.listContents( new ArrayList<>() ) );
+                }
 
-				tooltip.addAll( tooltipCache.getCached() );
-			}
-			else
-			{
-				tooltip.add( LocalStrings.ShiftDetails.getLocal() );
-			}
-		}
-	}
+                tooltip.addAll( tooltipCache.getCached() );
+            }
+            else
+            {
+                tooltip.add( new StringTextComponent( LocalStrings.ShiftDetails.getLocal() ) );
+            }
+        }
+    }
 
+
+
+    
+    
 	@Override
 	@SideOnly( Side.CLIENT )
 	public boolean canPlaceBlockOnSide(
 			final World worldIn,
 			final BlockPos pos,
-			final EnumFacing side,
-			final EntityPlayer player,
+			final Direction side,
+			final PlayerEntity player,
 			final ItemStack stack )
 	{
 		return canPlaceBlockHere( worldIn, pos, side, player, stack, ClientSide.offGridPlacement( player ) );
@@ -111,29 +115,29 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 	public boolean vanillaStylePlacementTest(
 			final @Nonnull World worldIn,
 			@Nonnull BlockPos pos,
-			@Nonnull EnumFacing side,
-			final EntityPlayer player,
+			@Nonnull Direction side,
+			final PlayerEntity player,
 			final ItemStack stack )
 	{
 		final Block block = worldIn.getBlockState( pos ).getBlock();
 
-		if ( block == Blocks.SNOW_LAYER )
+		if ( block == Blocks.SNOW )
 		{
-			side = EnumFacing.UP;
+			side = Direction.UP;
 		}
-		else if ( !block.isReplaceable( worldIn, pos ) )
+		else if ( !block.isReplaceable(worldIn.getBlockState(pos), BlockItemUseContext.) )
 		{
 			pos = pos.offset( side );
 		}
 
-		return worldIn.func_190527_a( this.block, pos, false, side, null );
+		return worldIn.func_190527_a( this.getBlock(), pos, false, side, null );
 	}
 
 	public boolean canPlaceBlockHere(
 			final @Nonnull World worldIn,
 			final @Nonnull BlockPos pos,
-			final @Nonnull EnumFacing side,
-			final EntityPlayer player,
+			final @Nonnull Direction side,
+			final PlayerEntity player,
 			final ItemStack stack,
 			boolean offgrid )
 	{
@@ -147,177 +151,159 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 			return true;
 		}
 
-		if ( tryPlaceBlockAt( block, stack, player, worldIn, pos, side, EnumHand.MAIN_HAND, null, false ) )
+		if ( tryPlaceBlockAt( block, stack, player, worldIn, pos, side, Hand.MAIN_HAND, null, false ) )
 		{
 			return true;
 		}
 
-		return tryPlaceBlockAt( block, stack, player, worldIn, pos.offset( side ), side, EnumHand.MAIN_HAND, null, false );
+		return tryPlaceBlockAt( block, stack, player, worldIn, pos.offset( side ), side, Hand.MAIN_HAND, null, false );
 	}
 
-	@Override
-	public EnumActionResult onItemUse(
-			final EntityPlayer player,
-			final World world,
-			final BlockPos pos,
-			final EnumHand hand,
-			final EnumFacing side,
-			final float hitX,
-			final float hitY,
-			final float hitZ )
-	{
-		final ItemStack stack = player.getHeldItem( hand );
+    @Override
+    public ActionResultType onItemUse(final ItemUseContext context)
+    {
+        final ItemStack stack = context.getPlayer().getHeldItem( context.getHand() );
 
-		if ( !world.isRemote && !(player instanceof FakePlayer))
-		{
-			// Say it "worked", Don't do anything we'll get a better packet.
-			return EnumActionResult.SUCCESS;
-		}
+        if ( !context.getWorld().isRemote && !(context.getPlayer() instanceof FakePlayer))
+        {
+            // Say it "worked", Don't do anything we'll get a better packet.
+            return ActionResultType.SUCCESS;
+        }
 
-		// send accurate packet.
-		final PacketAccurateSneakPlace pasp = new PacketAccurateSneakPlace();
+        // send accurate packet.
+        final PacketAccurateSneakPlace pasp = new PacketAccurateSneakPlace(
+          context.getItem(),
+          context.getPos(),
+          context.getHand(),
+          context.getFace(),
+          context.getHitVec().x,
+          context.getHitVec().y,
+          context.getHitVec().z,
+          ClientSide.offGridPlacement(context.getPlayer())
+        );
 
-		pasp.hand = hand;
-		pasp.pos = pos;
-		pasp.side = side;
-		pasp.stack = stack;
-		pasp.offgrid =  ClientSide.offGridPlacement( player );
-		pasp.hitX = hitX;
-		pasp.hitY = hitY;
-		pasp.hitZ = hitZ;
+        ChiselsAndBits.getNetworkChannel().sendToServer(pasp);
+        return tryPlace( stack, player, world, pos, hand, side, hitX, hitY, hitZ, ClientSide.offGridPlacement( player ) );
+    }
 
-		NetworkRouter.instance.sendToServer( pasp );
-		return placeItem( stack, player, world, pos, hand, side, hitX, hitY, hitZ, ClientSide.offGridPlacement( player ) );
-	}
+    @Override
+    public ActionResultType tryPlace(final BlockItemUseContext context)
+    {
+        final BlockState state = worldIn.getBlockState( pos );
+        final Block block = state.getBlock();
 
-	@Override
-	public EnumActionResult placeItem(
-			final ItemStack stack,
-			final EntityPlayer playerIn,
-			final World worldIn,
-			BlockPos pos,
-			final EnumHand hand,
-			EnumFacing side,
-			final float hitX,
-			final float hitY,
-			final float hitZ,
-			boolean offgrid )
-	{
-		final IBlockState state = worldIn.getBlockState( pos );
-		final Block block = state.getBlock();
+        if ( block == Blocks.SNOW_LAYER && state.getValue( BlockSnow.LAYERS ).intValue() < 1 )
+        {
+            side = Direction.UP;
+        }
+        else
+        {
+            boolean canMerge = false;
+            if ( stack.hasTagCompound() )
+            {
+                final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( worldIn, pos, true );
 
-		if ( block == Blocks.SNOW_LAYER && state.getValue( BlockSnow.LAYERS ).intValue() < 1 )
-		{
-			side = EnumFacing.UP;
-		}
-		else
-		{
-			boolean canMerge = false;
-			if ( stack.hasTagCompound() )
-			{
-				final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( worldIn, pos, true );
+                if ( tebc != null )
+                {
+                    final VoxelBlob blob = ModUtil.getBlobFromStack( stack, playerIn );
+                    canMerge = tebc.canMerge( blob );
+                }
+            }
 
-				if ( tebc != null )
-				{
-					final VoxelBlob blob = ModUtil.getBlobFromStack( stack, playerIn );
-					canMerge = tebc.canMerge( blob );
-				}
-			}
+            if ( !canMerge && !offgrid && !block.isReplaceable( worldIn, pos ) )
+            {
+                pos = pos.offset( side );
+            }
+        }
 
-			if ( !canMerge && !offgrid && !block.isReplaceable( worldIn, pos ) )
-			{
-				pos = pos.offset( side );
-			}
-		}
+        if ( ModUtil.isEmpty( stack ) )
+        {
+            return EnumActionResult.FAIL;
+        }
+        else if ( !playerIn.canPlayerEdit( pos, side, stack ) )
+        {
+            return EnumActionResult.FAIL;
+        }
+        else if ( pos.getY() == 255 && DeprecationHelper.getStateFromItem( stack ).getMaterial().isSolid() )
+        {
+            return EnumActionResult.FAIL;
+        }
+        else if ( canPlaceBlockHere( worldIn, pos, side, playerIn, stack, offgrid ) )
+        {
+            final int i = this.getMetadata( stack.getMetadata() );
+            final BlockState BlockState1 = this.block.getStateForPlacement( worldIn, pos, side, hitX, hitY, hitZ, i, playerIn, hand );
 
-		if ( ModUtil.isEmpty( stack ) )
-		{
-			return EnumActionResult.FAIL;
-		}
-		else if ( !playerIn.canPlayerEdit( pos, side, stack ) )
-		{
-			return EnumActionResult.FAIL;
-		}
-		else if ( pos.getY() == 255 && DeprecationHelper.getStateFromItem( stack ).getMaterial().isSolid() )
-		{
-			return EnumActionResult.FAIL;
-		}
-		else if ( canPlaceBlockHere( worldIn, pos, side, playerIn, stack, offgrid ) )
-		{
-			final int i = this.getMetadata( stack.getMetadata() );
-			final IBlockState iblockstate1 = this.block.getStateForPlacement( worldIn, pos, side, hitX, hitY, hitZ, i, playerIn, hand );
+            if ( placeBitBlock( stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, BlockState1, offgrid ) )
+            {
+                worldIn.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, DeprecationHelper.getSoundType( this.block ).getPlaceSound(), SoundCategory.BLOCKS,
+                  ( DeprecationHelper.getSoundType( this.block ).getVolume() + 1.0F ) / 2.0F,
+                  DeprecationHelper.getSoundType( this.block ).getPitch() * 0.8F, false );
+                ModUtil.adjustStackSize( stack, -1 );
 
-			if ( placeBitBlock( stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, iblockstate1, offgrid ) )
-			{
-				worldIn.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, DeprecationHelper.getSoundType( this.block ).getPlaceSound(), SoundCategory.BLOCKS,
-						( DeprecationHelper.getSoundType( this.block ).getVolume() + 1.0F ) / 2.0F,
-						DeprecationHelper.getSoundType( this.block ).getPitch() * 0.8F, false );
-				ModUtil.adjustStackSize( stack, -1 );
+                return EnumActionResult.SUCCESS;
+            }
 
-				return EnumActionResult.SUCCESS;
-			}
-			
-			return EnumActionResult.FAIL;
-		}
-		else
-		{
-			return EnumActionResult.FAIL;
-		}
-	}
+            return EnumActionResult.FAIL;
+        }
+        else
+        {
+            return EnumActionResult.FAIL;
+        }
+    }
 
 	@Override
 	public boolean placeBlockAt(
 			final ItemStack stack,
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final World world,
 			final BlockPos pos,
-			final EnumFacing side,
+			final Direction side,
 			final float hitX,
 			final float hitY,
 			final float hitZ,
-			final IBlockState newState )
+			final BlockState newState )
 	{
 		return placeBitBlock( stack, player, world, pos, side, hitX, hitY, hitZ, newState, false );
 	}
 
 	public boolean placeBitBlock(
 			final ItemStack stack,
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final World world,
 			final BlockPos pos,
-			final EnumFacing side,
+			final Direction side,
 			final float hitX,
 			final float hitY,
 			final float hitZ,
-			final IBlockState newState,
+			final BlockState newState,
 			boolean offgrid )
 	{
 		if ( offgrid )
 		{
 			final BitLocation bl = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos ), false, BitOperation.PLACE );
-			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, EnumHand.MAIN_HAND, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );
+			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, Hand.MAIN_HAND, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );
 		}
 		else
 		{
-			return tryPlaceBlockAt( block, stack, player, world, pos, side, EnumHand.MAIN_HAND, null, true );
+			return tryPlaceBlockAt( block, stack, player, world, pos, side, Hand.MAIN_HAND, null, true );
 		}
 	}
 
 	static public boolean tryPlaceBlockAt(
 			final @Nonnull Block block,
 			final @Nonnull ItemStack stack,
-			final @Nonnull EntityPlayer player,
+			final @Nonnull PlayerEntity player,
 			final @Nonnull World world,
 			@Nonnull BlockPos pos,
-			final @Nonnull EnumFacing side,
-			final @Nonnull EnumHand hand,
+			final @Nonnull Direction side,
+			final @Nonnull Hand hand,
 			final BlockPos partial,
 			final boolean modulateWorld )
 	{
 		final VoxelBlob[][][] blobs = new VoxelBlob[2][2][2];
 
 		// you can't place empty blocks...
-		if ( !stack.hasTagCompound() )
+		if ( !stack.hasTag() )
 		{
 			return false;
 		}
@@ -366,7 +352,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 							return false;
 						}
 
-						if ( world.isAirBlock( bp ) || world.getBlockState( bp ).getBlock().isReplaceable( world, bp ) )
+						if ( world.isAirBlock( bp ) || world.getBlockState( bp ).getBlock().isReplaceable( world.getBlockState(bp), new BlockItemUseContext() ) )
 						{
 							continue;
 						}
@@ -403,7 +389,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 							if ( blobs[x][y][z].filled() > 0 )
 							{
 								final BlockPos bp = pos.add( x, y, z );
-								final IBlockState state = world.getBlockState( bp );
+								final BlockState state = world.getBlockState( bp );
 
 								if ( world.getBlockState( bp ).getBlock().isReplaceable( world, bp ) )
 								{
@@ -459,7 +445,7 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 				final NBTBlobConverter c = new NBTBlobConverter();
 				c.readChisleData( BlockEntityTag, VoxelBlob.VERSION_ANY );
 
-				final IBlockState state = c.getPrimaryBlockState();
+				final BlockState state = c.getPrimaryBlockState();
 				String name = ItemChiseledBit.getBitStateName( state );
 
 				if ( name != null )
@@ -474,23 +460,21 @@ public class ItemBlockChiseled extends ItemBlock implements IVoxelBlobItem, IIte
 
 	@Override
 	public void scroll(
-			final EntityPlayer player,
+			final ServerPlayerEntity player,
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-		p.axis = Axis.Y;
-		p.rotation = dwheel > 0 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
-		NetworkRouter.instance.sendToServer( p );
+		final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob(Direction.Axis.Y, dwheel > 0 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90);
+		ChiselsAndBits.getNetworkChannel().sendToServer( p );
 	}
 
 	@Override
 	public void rotate(
 			final ItemStack stack,
-			final Axis axis,
+			final Direction.Axis axis,
 			final Rotation rotation )
 	{
-		EnumFacing side = ModUtil.getSide( stack );
+		Direction side = ModUtil.getSide( stack );
 
 		if ( axis == Axis.Y )
 		{

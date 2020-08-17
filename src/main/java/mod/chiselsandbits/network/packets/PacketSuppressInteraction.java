@@ -2,7 +2,7 @@ package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.events.EventPlayerInteract;
 import mod.chiselsandbits.network.ModPacket;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 
 public class PacketSuppressInteraction extends ModPacket
@@ -12,7 +12,7 @@ public class PacketSuppressInteraction extends ModPacket
 
 	@Override
 	public void server(
-			final EntityPlayerMP player )
+			final ServerPlayerEntity player )
 	{
 		EventPlayerInteract.setPlayerSuppressionState( player, newSetting );
 	}

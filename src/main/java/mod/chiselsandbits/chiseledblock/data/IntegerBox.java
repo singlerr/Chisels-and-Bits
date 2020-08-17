@@ -1,6 +1,6 @@
 package mod.chiselsandbits.chiseledblock.data;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public final class IntegerBox
 {
@@ -30,7 +30,7 @@ public final class IntegerBox
 	public int maxZ;
 
 	public void move(
-			final EnumFacing side,
+			final Direction side,
 			final int scale )
 	{
 		minX += side.getFrontOffsetX() * scale;

@@ -12,6 +12,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class BagStorage implements IBitBag
 {
@@ -192,4 +193,9 @@ public class BagStorage implements IBitBag
 		return getBitbagStackSize();
 	}
 
+    @Override
+    public boolean isItemValid(final int slot, @NotNull final ItemStack stack)
+    {
+        return ChiselsAndBits.getApi().getItemType( stack ) == ItemType.CHISLED_BIT;
+    }
 }

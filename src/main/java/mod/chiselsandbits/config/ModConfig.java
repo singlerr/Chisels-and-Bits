@@ -14,12 +14,15 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.modes.ChiselMode;
+import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.registry.ModRegistry;
 import mod.chiselsandbits.render.chiseledblock.tesr.GfxRenderState.UseVBO;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -333,7 +336,7 @@ public class ModConfig extends Configuration
 	}
 
 	public boolean canRevertToBlock(
-			IBlockState newState )
+			BlockState newState )
 	{
 		final Property p = get( "Revertible States", StringStates.getNameFromStateID( ModUtil.getStateId( newState ) ), true );
 		final boolean out = p.getBoolean( true );
@@ -671,7 +674,7 @@ public class ModConfig extends Configuration
 
 	public void helpText(
 			final LocalStrings string,
-			final List<String> tooltip,
+			final List<ITextComponent> tooltip,
 			final String... variables )
 	{
 		if ( showUsage )
@@ -692,7 +695,7 @@ public class ModConfig extends Configuration
 					}
 				}
 
-				tooltip.add( a );
+				tooltip.add( new StringTextComponent(a));
 			}
 		}
 	}

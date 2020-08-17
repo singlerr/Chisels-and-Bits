@@ -6,15 +6,15 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -46,11 +46,11 @@ public class ItemWrench extends Item
 
 	@Override
 	public EnumActionResult onItemUse(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final World world,
 			final BlockPos pos,
-			final EnumHand hand,
-			final EnumFacing side,
+			final Hand hand,
+			final Direction side,
 			final float hitX,
 			final float hitY,
 			final float hitZ )
@@ -62,7 +62,7 @@ public class ItemWrench extends Item
 			return EnumActionResult.FAIL;
 		}
 
-		final IBlockState b = world.getBlockState( pos );
+		final BlockState b = world.getBlockState( pos );
 		if ( b != null && !player.isSneaking() )
 		{
 			if ( MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( world, pos ) )

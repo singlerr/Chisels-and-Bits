@@ -1,16 +1,16 @@
 package mod.chiselsandbits.bittank;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 class FluidModelVertex
 {
-	final EnumFacing face;
+	final Direction face;
 	final double x, yMultiplier, z;
 	final double u, v;
 	final double uMultiplier, vMultiplier;
 
 	public FluidModelVertex(
-			final EnumFacing side,
+			final Direction side,
 			final double x,
 			final double y,
 			final double z,

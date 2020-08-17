@@ -39,15 +39,15 @@ import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -77,7 +77,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			return false;
 		}
 
-		final IBlockState state = world.getBlockState( pos );
+		final BlockState state = world.getBlockState( pos );
 		return state.getBlock() == Blocks.AIR || BlockBitInfo.supportsBlock( state ) || ModUtil.getChiseledTileEntity( world, pos, false ) != null;
 	}
 
@@ -104,7 +104,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			throw new CannotBeChiseled();
 		}
 
-		final IBlockState state = world.getBlockState( pos );
+		final BlockState state = world.getBlockState( pos );
 		if ( BlockBitInfo.supportsBlock( state ) )
 		{
 			final VoxelBlob blob = new VoxelBlob();
@@ -142,7 +142,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		if ( getItemType( stack ) == ItemType.CHISLED_BIT )
 		{
 			final int stateID = ItemChiseledBit.getStackState( stack );
-			final IBlockState state = ModUtil.getStateById( stateID );
+			final BlockState state = ModUtil.getStateById( stateID );
 
 			if ( state != null && BlockBitInfo.supportsBlock( state ) )
 			{
@@ -158,7 +158,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			final float hitX,
 			final float hitY,
 			final float hitZ,
-			final EnumFacing side,
+			final Direction side,
 			final BlockPos pos,
 			final boolean placement )
 	{
@@ -231,7 +231,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 		if ( stack.getItem() instanceof ItemBlock )
 		{
-			final IBlockState state = DeprecationHelper.getStateFromItem( stack );
+			final BlockState state = DeprecationHelper.getStateFromItem( stack );
 
 			if ( BlockBitInfo.supportsBlock( state ) )
 			{
@@ -246,7 +246,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public IBitBrush createBrushFromState(
-			final IBlockState state ) throws InvalidBitItem
+			final BlockState state ) throws InvalidBitItem
 	{
 		if ( state == null || state.getBlock() == Blocks.AIR )
 		{
@@ -263,7 +263,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public ItemStack getBitItem(
-			final IBlockState state ) throws InvalidBitItem
+			final BlockState state ) throws InvalidBitItem
 	{
 		if ( !BlockBitInfo.supportsBlock( state ) )
 		{
@@ -275,7 +275,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public void giveBitToPlayer(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final ItemStack stack,
 			Vec3d spawnPos )
 	{
@@ -315,7 +315,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	{
 		if ( !ModUtil.isEmpty( stack ) )
 		{
-			final Object o = stack.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.UP );
+			final Object o = stack.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, Direction.UP );
 			if ( o instanceof IBitBag )
 			{
 				return (IBitBag) o;
@@ -327,14 +327,14 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public void beginUndoGroup(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		UndoTracker.getInstance().beginGroup( player );
 	}
 
 	@Override
 	public void endUndoGroup(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		UndoTracker.getInstance().endGroup( player );
 	}

@@ -5,7 +5,7 @@ import javax.annotation.Nullable;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.item.ItemStack;
 
 public class BitBrush implements IBitBrush
@@ -38,7 +38,7 @@ public class BitBrush implements IBitBrush
 	}
 
 	@Override
-	public @Nullable IBlockState getState()
+	public @Nullable BlockState getState()
 	{
 		if ( stateID == 0 )
 		{

@@ -10,10 +10,10 @@ import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace.IItemBlockAccurate;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Hand;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
 
@@ -91,7 +91,7 @@ public enum ModConflictContext implements IKeyConflictContext
 				return true;
 			}
 
-			final ChiselToolType tool = ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND );
+			final ChiselToolType tool = ClientSide.instance.getHeldToolType( Hand.MAIN_HAND );
 			return tool != null && tool.hasMenu();
 		}
 
@@ -107,7 +107,7 @@ public enum ModConflictContext implements IKeyConflictContext
 		@Override
 		public boolean isActive()
 		{
-			return super.isActive() || ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND ) == ChiselToolType.TAPEMEASURE;
+			return super.isActive() || ClientSide.instance.getHeldToolType( Hand.MAIN_HAND ) == ChiselToolType.TAPEMEASURE;
 		}
 
 		@Override
@@ -123,7 +123,7 @@ public enum ModConflictContext implements IKeyConflictContext
 		@Override
 		public boolean isActive()
 		{
-			return super.isActive() || ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND ) == ChiselToolType.POSITIVEPATTERN;
+			return super.isActive() || ClientSide.instance.getHeldToolType( Hand.MAIN_HAND ) == ChiselToolType.POSITIVEPATTERN;
 		}
 
 		@Override
@@ -144,7 +144,7 @@ public enum ModConflictContext implements IKeyConflictContext
 				return true;
 			}
 
-			final ChiselToolType tool = ClientSide.instance.getHeldToolType( EnumHand.MAIN_HAND );
+			final ChiselToolType tool = ClientSide.instance.getHeldToolType( Hand.MAIN_HAND );
 			return tool != null && tool.isBitOrChisel();
 		}
 
@@ -208,9 +208,9 @@ public enum ModConflictContext implements IKeyConflictContext
 		return false;
 	}
 
-	private static EntityPlayer getPlayer() throws NoPlayerException
+	private static PlayerEntity getPlayer() throws NoPlayerException
 	{
-		final EntityPlayer player = ClientSide.instance.getPlayer();
+		final PlayerEntity player = ClientSide.instance.getPlayer();
 
 		if ( player == null )
 		{

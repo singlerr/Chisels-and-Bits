@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.animation.FastTESR;
@@ -19,35 +19,35 @@ public class TileEntitySpecialRenderBitTank extends FastTESR<TileEntityBitTank>
 
 	public TileEntitySpecialRenderBitTank()
 	{
-		model[0] = new FluidModelVertex( EnumFacing.UP, 0, 1, 0, 0, 0, 0, 0 );
-		model[1] = new FluidModelVertex( EnumFacing.UP, 1, 1, 0, 1, 0, 0, 0 );
-		model[2] = new FluidModelVertex( EnumFacing.UP, 1, 1, 1, 1, 1, 0, 0 );
-		model[3] = new FluidModelVertex( EnumFacing.UP, 0, 1, 1, 0, 1, 0, 0 );
+		model[0] = new FluidModelVertex( Direction.UP, 0, 1, 0, 0, 0, 0, 0 );
+		model[1] = new FluidModelVertex( Direction.UP, 1, 1, 0, 1, 0, 0, 0 );
+		model[2] = new FluidModelVertex( Direction.UP, 1, 1, 1, 1, 1, 0, 0 );
+		model[3] = new FluidModelVertex( Direction.UP, 0, 1, 1, 0, 1, 0, 0 );
 
-		model[4] = new FluidModelVertex( EnumFacing.DOWN, 0, 0, 0, 0, 0, 0, 0 );
-		model[5] = new FluidModelVertex( EnumFacing.DOWN, 1, 0, 0, 1, 0, 0, 0 );
-		model[6] = new FluidModelVertex( EnumFacing.DOWN, 1, 0, 1, 1, 1, 0, 0 );
-		model[7] = new FluidModelVertex( EnumFacing.DOWN, 0, 0, 1, 0, 1, 0, 0 );
+		model[4] = new FluidModelVertex( Direction.DOWN, 0, 0, 0, 0, 0, 0, 0 );
+		model[5] = new FluidModelVertex( Direction.DOWN, 1, 0, 0, 1, 0, 0, 0 );
+		model[6] = new FluidModelVertex( Direction.DOWN, 1, 0, 1, 1, 1, 0, 0 );
+		model[7] = new FluidModelVertex( Direction.DOWN, 0, 0, 1, 0, 1, 0, 0 );
 
-		model[8] = new FluidModelVertex( EnumFacing.NORTH, 0, 0, 0, 0, 0, 0, 0 );
-		model[9] = new FluidModelVertex( EnumFacing.NORTH, 1, 0, 0, 1, 0, 0, 0 );
-		model[10] = new FluidModelVertex( EnumFacing.NORTH, 1, 1, 0, 1, 0, 0, 1 );
-		model[11] = new FluidModelVertex( EnumFacing.NORTH, 0, 1, 0, 0, 0, 0, 1 );
+		model[8] = new FluidModelVertex( Direction.NORTH, 0, 0, 0, 0, 0, 0, 0 );
+		model[9] = new FluidModelVertex( Direction.NORTH, 1, 0, 0, 1, 0, 0, 0 );
+		model[10] = new FluidModelVertex( Direction.NORTH, 1, 1, 0, 1, 0, 0, 1 );
+		model[11] = new FluidModelVertex( Direction.NORTH, 0, 1, 0, 0, 0, 0, 1 );
 
-		model[12] = new FluidModelVertex( EnumFacing.SOUTH, 0, 0, 1, 0, 0, 0, 0 );
-		model[13] = new FluidModelVertex( EnumFacing.SOUTH, 1, 0, 1, 1, 0, 0, 0 );
-		model[14] = new FluidModelVertex( EnumFacing.SOUTH, 1, 1, 1, 1, 0, 0, 1 );
-		model[15] = new FluidModelVertex( EnumFacing.SOUTH, 0, 1, 1, 0, 0, 0, 1 );
+		model[12] = new FluidModelVertex( Direction.SOUTH, 0, 0, 1, 0, 0, 0, 0 );
+		model[13] = new FluidModelVertex( Direction.SOUTH, 1, 0, 1, 1, 0, 0, 0 );
+		model[14] = new FluidModelVertex( Direction.SOUTH, 1, 1, 1, 1, 0, 0, 1 );
+		model[15] = new FluidModelVertex( Direction.SOUTH, 0, 1, 1, 0, 0, 0, 1 );
 
-		model[16] = new FluidModelVertex( EnumFacing.EAST, 1, 0, 0, 0, 0, 0, 0 );
-		model[17] = new FluidModelVertex( EnumFacing.EAST, 1, 0, 1, 1, 0, 0, 0 );
-		model[18] = new FluidModelVertex( EnumFacing.EAST, 1, 1, 1, 1, 0, 0, 1 );
-		model[19] = new FluidModelVertex( EnumFacing.EAST, 1, 1, 0, 0, 0, 0, 1 );
+		model[16] = new FluidModelVertex( Direction.EAST, 1, 0, 0, 0, 0, 0, 0 );
+		model[17] = new FluidModelVertex( Direction.EAST, 1, 0, 1, 1, 0, 0, 0 );
+		model[18] = new FluidModelVertex( Direction.EAST, 1, 1, 1, 1, 0, 0, 1 );
+		model[19] = new FluidModelVertex( Direction.EAST, 1, 1, 0, 0, 0, 0, 1 );
 
-		model[20] = new FluidModelVertex( EnumFacing.WEST, 0, 0, 0, 0, 0, 0, 0 );
-		model[21] = new FluidModelVertex( EnumFacing.WEST, 0, 0, 1, 1, 0, 0, 0 );
-		model[22] = new FluidModelVertex( EnumFacing.WEST, 0, 1, 1, 1, 0, 0, 1 );
-		model[23] = new FluidModelVertex( EnumFacing.WEST, 0, 1, 0, 0, 0, 0, 1 );
+		model[20] = new FluidModelVertex( Direction.WEST, 0, 0, 0, 0, 0, 0, 0 );
+		model[21] = new FluidModelVertex( Direction.WEST, 0, 0, 1, 1, 0, 0, 0 );
+		model[22] = new FluidModelVertex( Direction.WEST, 0, 1, 1, 1, 0, 0, 1 );
+		model[23] = new FluidModelVertex( Direction.WEST, 0, 1, 0, 0, 0, 0, 1 );
 	}
 
 	@Override
@@ -98,7 +98,7 @@ public class TileEntitySpecialRenderBitTank extends FastTESR<TileEntityBitTank>
 
 			for ( final FluidModelVertex vert : model )
 			{
-				final EnumFacing face = vert.face;
+				final Direction face = vert.face;
 				final TextureAtlasSprite sprite = face.getFrontOffsetY() != 0 ? still : flowing;
 
 				for ( final VertexFormatElement e : buffer.getVertexFormat().getElements() )

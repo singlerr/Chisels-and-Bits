@@ -1,118 +1,162 @@
 buildscript {
     repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
-        }
+        mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle.forge'
-
-sourceCompatibility = targetCompatibility = "1.8" // Need this here so eclipse task generates correctly.
-compileJava {
-    sourceCompatibility = targetCompatibility = "1.8"
-}
-
-group= "mod.chiselsandbits"
-archivesBaseName = "chiselsandbits"
-if (System.getenv().BUILD_NUMBER != null) {//adds the build number to the end of the version string if on a build server
-    project.version += ".${System.getenv().BUILD_NUMBER}"
+plugins {
+    id "com.matthewprenger.cursegradle" version "1.0.9"
 }
 
 repositories {
-	maven { url "http://dvs1.progwml6.com/files/maven" }
-	maven { url "http://maven.amadornes.com/" }
-	flatDir { dirs 'libs' }
+    maven {
+        name 'LDTTeam - Modding'
+        url 'https://ldtteam.jfrog.io/ldtteam/modding/'
+    }
+    repositories {
+        maven {
+            name = "CurseForge"
+            url = "https://minecraft.curseforge.com/api/maven/"
+        }
+    }
 }
 
-dependencies {
-	deobfCompile "mezz.jei:${jei_version}"
-	deobfCompile "${mcmp2_version}"
+apply plugin: 'net.minecraftforge.gradle'
+
+sourceSets {
+    api {
+        java {
+            srcDir 'src/api/java'
+        }
+        resources {
+            srcDir 'src/api/resources'
+        }
+        compileClasspath += configurations.getByName("minecraft")
+    }
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'src/main/resources'
+        }
+        compileClasspath += sourceSets.api.output
+        runtimeClasspath += sourceSets.api.output
+    }
+    test {
+        java {
+            srcDir 'src/test/java'
+        }
+        resources {
+            srcDir 'src/test/resources'
+        }
+        compileClasspath += sourceSets.api.output
+        runtimeClasspath += sourceSets.api.output
+    }
 }
+
+version = modVersion
+group = modGroup
+archivesBaseName = modBaseName
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-    version = "${mc_version}-${forge_version}"
-    runDir = "eclipse"
-    mappings = "snapshot_20161111"
-    replaceIn "ChiselsAndBits.java"
-    replace "@VERSION@", project.version
-}
+    mappings channel: "${project.mcpChannel}", version: "${project.mcpVersion}"
 
-task apiJar(type: Jar) {
-    from sourceSets.main.java
-    include "mod/chiselsandbits/api/**"
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
-    from sourceSets.main.output
-    include "mod/chiselsandbits/api/**"
+    runs {
+        client {
+            workingDirectory project.file('run')
 
-    classifier = 'api'
-}
-// prevent java 8's strict doclint for javadocs from failing builds
-    allprojects {
-      tasks.withType(Javadoc) {
-        options.addStringOption('Xdoclint:none', '-quiet')
-      }
-    }
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', ''
 
-jar {
-	manifest {
-		attributes 'FMLAT': 'chiselsandbits_at.cfg'
-	}
-}
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    from javadoc.destinationDir
-    classifier = 'javadoc'
-}
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'info'
 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allJava
-    classifier = 'sources'
-}
+            mods {
+                equivalency {
+                    source sourceSets.main
+                    source sourceSets.api
+                }
+            }
+        }
 
-artifacts {
-   archives javadocJar
-   archives sourcesJar
-   archives apiJar
-}
+        server {
+            workingDirectory project.file('run')
 
-processResources
-{
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', ''
 
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
-    }
-    
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-    
-    // Move access transformers to META-INF
-    rename '(.+_at.cfg)', 'META-INF/$1'
-}
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'info'
 
-task("uploadJars", dependsOn:"build") {
-    description = "uploads JARs"
-    if (project.hasProperty("local_maven")) {
-        apply plugin: 'maven'
-            uploadArchives {
-                repositories {
-                    mavenDeployer {
-                        repository(url: "file://${local_maven}")
+            mods {
+                equivalency {
+                    source sourceSets.main
+                    source sourceSets.api
+                }
+            }
+        }
+
+        data {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', ''
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'info'
+
+            args '--mod', 'equivalency', '--all', '--output', file('src/generated/resources/'), '--input', file('src/main/resources')
+
+            mods {
+                equivalency {
+                    source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
     }
+}
+
+dependencies {
+    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
+    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
+    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
+    minecraft "net.minecraftforge:forge:${project.exactMinecraftVersion}-${project.forgeVersion}"
+
+    // compile against the JEI API but do not include it at runtime
+    compileOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}:api")
+    // at runtime, use the full JEI jar
+    runtimeOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}")
+
+    // data generators.
+    apiImplementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
+    implementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
+
+    // unit testing
+    testCompile 'junit:junit:4.11'
+    testCompile "org.mockito:mockito-core:1.+"
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4', version: '1.6.5'
+    testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.6.5'
+    testCompile group: 'org.powermock', name: 'powermock-module-junit4-rule-agent', version: '1.6.5'
+
+    testCompile 'org.assertj:assertj-core:3.9.0'
+
+    testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+
+    //Utilities
+    apiCompile 'com.intellij:annotations:+@jar'
+    compile 'com.intellij:annotations:+@jar'
+    testCompile 'com.intellij:annotations:+@jar'
+    compile "org.jgrapht:jgrapht-core:${project.jgraphtVersion}"
+    compile "org.jgrapht:jgrapht-ext:${project.jgraphtVersion}"
 }

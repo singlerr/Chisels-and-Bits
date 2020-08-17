@@ -30,7 +30,7 @@ import java.lang.annotation.RetentionPolicy;
  * @SuppressWarnings( "rawtypes" ) public static class CompatTest implements
  * Function<List, Boolean> {
  * 
- * //Add IBlockState to input LIST, and return true to whitelist, or return
+ * //Add BlockState to input LIST, and return true to whitelist, or return
  * false to blacklist.
  * 
  * @Override public Boolean apply( final List input ) { input.add(

@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
 import net.minecraft.client.renderer.block.model.BlockPartFace;
@@ -20,7 +20,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
 import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad.Builder;
@@ -56,7 +56,7 @@ public class SimpleGeneratedModel implements IBakedModel
 		final BlockPartRotation bpr = null;
 		final ModelRotation mr = ModelRotation.X0_Y0;
 
-		for ( final EnumFacing side : EnumFacing.VALUES )
+		for ( final Direction side : Direction.VALUES )
 		{
 			final BlockPartFace bpf = new BlockPartFace( side, 1, "", uv );
 
@@ -99,7 +99,7 @@ public class SimpleGeneratedModel implements IBakedModel
 
 	private BakedQuad finishFace(
 			final BakedQuad g,
-			final EnumFacing myFace,
+			final Direction myFace,
 			final VertexFormat format )
 	{
 		final int[] vertData = g.getVertexData();
@@ -162,8 +162,8 @@ public class SimpleGeneratedModel implements IBakedModel
 
 	@Override
 	public List<BakedQuad> getQuads(
-			final IBlockState state,
-			final EnumFacing side,
+			final BlockState state,
+			final Direction side,
 			final long rand )
 	{
 		if ( side == null )

@@ -1,7 +1,7 @@
 package mod.chiselsandbits.client;
 
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.util.math.BlockPos;
@@ -15,12 +15,12 @@ public class BlockColorChisled implements IBlockColor
 
 	@Override
 	public int colorMultiplier(
-			final IBlockState state,
+			final BlockState state,
 			final IBlockAccess worldIn,
 			final BlockPos pos,
 			final int tint )
 	{
-		final IBlockState tstate = ModUtil.getStateById( tint >> TINT_BITS );
+		final BlockState tstate = ModUtil.getStateById( tint >> TINT_BITS );
 		int tintValue = tint & TINT_MASK;
 		return Minecraft.getMinecraft().getBlockColors().colorMultiplier( tstate, worldIn, pos, tintValue );
 	}

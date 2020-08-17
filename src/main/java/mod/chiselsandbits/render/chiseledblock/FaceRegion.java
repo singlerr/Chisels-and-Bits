@@ -1,11 +1,11 @@
 package mod.chiselsandbits.render.chiseledblock;
 
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 class FaceRegion
 {
 	public FaceRegion(
-			final EnumFacing myFace,
+			final Direction myFace,
 			final int centerX, final int centerY, final int centerZ,
 			final int blockStateID,
 			final boolean isEdgeFace )
@@ -21,7 +21,7 @@ class FaceRegion
 		maxZ = centerZ;
 	}
 
-	final public EnumFacing face;
+	final public Direction face;
 	final int blockStateID;
 	final boolean isEdge;
 

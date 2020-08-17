@@ -14,7 +14,7 @@ import mod.chiselsandbits.items.ItemChisel;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item.ToolMaterial;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 
 public class ContinousChisels implements IContinuousInventory
@@ -28,14 +28,14 @@ public class ContinousChisels implements IContinuousInventory
 	public ContinousChisels(
 			final @Nonnull ActingPlayer who,
 			final @Nonnull BlockPos pos,
-			final @Nonnull EnumFacing side )
+			final @Nonnull Direction side )
 	{
 		this.who = who;
 		final ItemStack inHand = who.getCurrentEquippedItem();
 		final IInventory inv = who.getInventory();
 
 		// test can edit...
-		canEdit = who.canPlayerManipulate( pos, side, new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond, 1 ), false );
+		canEdit = who.canPlayerManipulate( pos, side, new ItemStack( () -> ChiselsAndBits.getItems().itemChiselDiamond, 1 ), false );
 
 		if ( inHand != null && ModUtil.notEmpty( inHand ) && inHand.getItem() instanceof ItemChisel )
 		{

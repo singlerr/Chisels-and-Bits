@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
@@ -112,12 +112,12 @@ public class TapeMeasures
 			{
 				final Vec3d a = getVecA();
 				final Vec3d b = getVecB();
-				final EntityPlayer player = ClientSide.instance.getPlayer();
+				final PlayerEntity player = ClientSide.instance.getPlayer();
 				distance = getLineDistance( a, b, player, partialTicks );
 			}
 			else
 			{
-				final EntityPlayer player = ClientSide.instance.getPlayer();
+				final PlayerEntity player = ClientSide.instance.getPlayer();
 				final Vec3d eyes = player.getPositionEyes( partialTicks );
 				final AxisAlignedBB box = getBoundingBox();
 				if ( box.isVecInside( eyes ) )
@@ -147,7 +147,7 @@ public class TapeMeasures
 			final IToolMode chMode,
 			final ItemStack itemStack )
 	{
-		final EntityPlayer player = ClientSide.instance.getPlayer();
+		final PlayerEntity player = ClientSide.instance.getPlayer();
 
 		if ( a == null || b == null )
 		{
@@ -165,7 +165,7 @@ public class TapeMeasures
 			final IToolMode chMode,
 			final ItemStack itemStack )
 	{
-		final EntityPlayer player = ClientSide.instance.getPlayer();
+		final PlayerEntity player = ClientSide.instance.getPlayer();
 
 		while ( measures.size() > 0 && measures.size() >= ChiselsAndBits.getConfig().maxTapeMeasures )
 		{
@@ -203,7 +203,7 @@ public class TapeMeasures
 	}
 
 	private int getDimension(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		return player.getEntityWorld().provider.getDimension();
 	}
@@ -213,7 +213,7 @@ public class TapeMeasures
 	{
 		if ( !measures.isEmpty() || preview != null )
 		{
-			final EntityPlayer player = ClientSide.instance.getPlayer();
+			final PlayerEntity player = ClientSide.instance.getPlayer();
 
 			if ( hasTapeMeasure( player.inventory ) )
 			{
@@ -271,7 +271,7 @@ public class TapeMeasures
 			final double distance,
 			final float partialTicks )
 	{
-		final EntityPlayer player = ClientSide.instance.getPlayer();
+		final PlayerEntity player = ClientSide.instance.getPlayer();
 
 		if ( m.DimensionId != getDimension( player ) )
 		{
@@ -360,7 +360,7 @@ public class TapeMeasures
 	private static double getLineDistance(
 			final Vec3d v,
 			final Vec3d w,
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final float partialTicks )
 	{
 		final Vec3d p = player.getPositionEyes( partialTicks );
@@ -377,7 +377,7 @@ public class TapeMeasures
 	}
 
 	private void renderSize(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final float partialTicks,
 			final double x,
 			final double y,
@@ -420,7 +420,7 @@ public class TapeMeasures
 	}
 
 	private void billBoard(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final float partialTicks )
 	{
 		final Entity view = Minecraft.getMinecraft().getRenderViewEntity();

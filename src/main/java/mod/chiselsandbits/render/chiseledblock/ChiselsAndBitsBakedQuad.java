@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 
@@ -97,7 +97,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 	public ChiselsAndBitsBakedQuad(
 			final float[][][] unpackedData,
 			final int tint,
-			final EnumFacing orientation,
+			final Direction orientation,
 			final TextureAtlasSprite sprite,
 			VertexFormat format )
 	{
@@ -109,7 +109,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		public Colored(
 				final float[][][] unpackedData,
 				final int tint,
-				final EnumFacing orientation,
+				final Direction orientation,
 				final TextureAtlasSprite sprite,
 				VertexFormat format )
 		{
@@ -121,7 +121,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 	{
 		private float[][][] unpackedData;
 		private int tint = -1;
-		private EnumFacing orientation;
+		private Direction orientation;
 		private final boolean isColored = false;
 
 		private int vertices = 0;
@@ -150,7 +150,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 
 		@Override
 		public void setQuadOrientation(
-				final EnumFacing orientation )
+				final Direction orientation )
 		{
 			this.orientation = orientation;
 		}
@@ -211,7 +211,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 
 		@Override
 		public void setFace(
-				final EnumFacing myFace,
+				final Direction myFace,
 				final int tintIndex )
 		{
 			setQuadOrientation( myFace );

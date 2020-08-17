@@ -8,9 +8,9 @@ import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.IVoxelSrc;
 import mod.chiselsandbits.modes.ChiselMode;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.Axis;
+import net.minecraft.util.Direction.AxisDirection;
 
 public class ChiselMaterialIterator extends BaseChiselIterator implements ChiselIterator
 {
@@ -23,7 +23,7 @@ public class ChiselMaterialIterator extends BaseChiselIterator implements Chisel
 	Iterator<Integer> list;
 
 	// present state.
-	EnumFacing side;
+	Direction side;
 	int value;
 
 	private int setValue(
@@ -55,7 +55,7 @@ public class ChiselMaterialIterator extends BaseChiselIterator implements Chisel
 			final int sz,
 			final IVoxelSrc source,
 			final ChiselMode mode,
-			final EnumFacing side,
+			final Direction side,
 			final boolean place )
 	{
 		this.side = side;
@@ -130,7 +130,7 @@ public class ChiselMaterialIterator extends BaseChiselIterator implements Chisel
 	}
 
 	@Override
-	public EnumFacing side()
+	public Direction side()
 	{
 		return side;
 	}

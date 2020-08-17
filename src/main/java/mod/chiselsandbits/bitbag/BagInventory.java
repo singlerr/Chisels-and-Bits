@@ -15,15 +15,13 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 public class BagInventory implements IInventory
@@ -38,7 +36,7 @@ public class BagInventory implements IInventory
 	public BagInventory(
 			final ItemStack is )
 	{
-		inv = (BagStorage) is.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null );
+		inv = (BagStorage) is.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null ).orElseThrow(() -> new IllegalStateException("Failed to get IItemHandler from Bag!"));
 		stackSlots = new ItemStack[BagStorage.BAG_STORAGE_SLOTS];
 
 		// the cap is missing? then just make and load it ourselves.
@@ -58,24 +56,6 @@ public class BagInventory implements IInventory
 	public ItemStack getItemStack()
 	{
 		return inv.stack;
-	}
-
-	@Override
-	public String getName()
-	{
-		return "container.inventory";
-	}
-
-	@Override
-	public boolean hasCustomName()
-	{
-		return false;
-	}
-
-	@Override
-	public ITextComponent getDisplayName()
-	{
-		return hasCustomName() ? new TextComponentString( getName() ) : new TextComponentTranslation( getName(), new Object[0] );
 	}
 
 	@Override
@@ -198,21 +178,14 @@ public class BagInventory implements IInventory
 	}
 
 	@Override
-	public boolean isUseableByPlayer(
-			final EntityPlayer player )
-	{
-		return true;
-	}
-
-	@Override
 	public void openInventory(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 	}
 
 	@Override
 	public void closeInventory(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 	}
 
@@ -222,27 +195,6 @@ public class BagInventory implements IInventory
 			final ItemStack stack )
 	{
 		return stack != null && stack.getItem() instanceof ItemChiseledBit;
-	}
-
-	@Override
-	public int getField(
-			final int id )
-	{
-		return 0;
-	}
-
-	@Override
-	public void setField(
-			final int id,
-			final int value )
-	{
-
-	}
-
-	@Override
-	public int getFieldCount()
-	{
-		return 0;
 	}
 
 	private static class StateQtyPair
@@ -481,7 +433,7 @@ public class BagInventory implements IInventory
 		return used;
 	}
 
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public List<String> listContents(
 			final List<String> details )
 	{
@@ -492,7 +444,7 @@ public class BagInventory implements IInventory
 			final ItemStack is = getStackInSlot( x );
 			if ( !ModUtil.isEmpty( is ) )
 			{
-				final IBlockState state = ModUtil.getStateById( ItemChiseledBit.getStackState( is ) );
+				final BlockState state = ModUtil.getStateById( ItemChiseledBit.getStackState( is ) );
 				if ( state == null )
 				{
 					continue;

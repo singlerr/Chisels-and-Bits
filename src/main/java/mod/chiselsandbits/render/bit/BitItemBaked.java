@@ -10,7 +10,7 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer;
 import mod.chiselsandbits.render.helpers.ModelUtil;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
 import net.minecraft.client.renderer.block.model.BlockPartFace;
@@ -19,7 +19,7 @@ import net.minecraft.client.renderer.block.model.FaceBakery;
 import net.minecraft.client.renderer.block.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public class BitItemBaked extends BaseBakedBlockModel
 {
@@ -41,7 +41,7 @@ public class BitItemBaked extends BaseBakedBlockModel
 		final BlockPartRotation bpr = null;
 		final ModelRotation mr = ModelRotation.X0_Y0;
 
-		for ( final EnumFacing myFace : EnumFacing.VALUES )
+		for ( final Direction myFace : Direction.VALUES )
 		{
 			for ( final BlockRenderLayer layer : BlockRenderLayer.values() )
 			{
@@ -98,7 +98,7 @@ public class BitItemBaked extends BaseBakedBlockModel
 	}
 
 	private float[] getFaceUvs(
-			final EnumFacing face )
+			final Direction face )
 	{
 		float[] afloat;
 
@@ -133,8 +133,8 @@ public class BitItemBaked extends BaseBakedBlockModel
 
 	@Override
 	public List<BakedQuad> getQuads(
-			final IBlockState state,
-			final EnumFacing side,
+			final BlockState state,
+			final Direction side,
 			final long rand )
 	{
 		if ( side != null )

@@ -3,7 +3,7 @@ package mod.chiselsandbits.client.culling;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.util.BlockRenderLayer;
 
 /**
@@ -23,7 +23,7 @@ public class TransparentCullTest implements ICullTest
 		final VoxelType myType = BlockBitInfo.getTypeFromStateID( mySpot );
 		final VoxelType secondType = BlockBitInfo.getTypeFromStateID( secondSpot );
 
-		final IBlockState state = ModUtil.getStateById( secondSpot );
+		final BlockState state = ModUtil.getStateById( secondSpot );
 		final boolean isTranslusent = state.getBlock().canRenderInLayer( state, BlockRenderLayer.TRANSLUCENT ) || state.getBlock().canRenderInLayer( state, BlockRenderLayer.CUTOUT )
 				|| state.getBlock().canRenderInLayer( state, BlockRenderLayer.CUTOUT_MIPPED );
 

@@ -1,20 +1,21 @@
 package mod.chiselsandbits.network.packets;
 
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.ModPacket;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUseContext;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+
+import javax.annotation.Nonnull;
 
 public class PacketAccurateSneakPlace extends ModPacket
 {
@@ -22,47 +23,68 @@ public class PacketAccurateSneakPlace extends ModPacket
 	public interface IItemBlockAccurate
 	{
 
-		EnumActionResult placeItem(
-				@Nonnull ItemStack inHand,
-				@Nonnull EntityPlayer playerEntity,
-				@Nonnull World worldObj,
-				@Nonnull BlockPos pos,
-				@Nonnull EnumHand hand,
-				@Nonnull EnumFacing side,
-				float hitX,
-				float hitY,
-				float hitZ,
-				boolean offgrid );
+		ActionResultType tryPlace(
+		  ItemUseContext context,
+          boolean offGrid
+        );
 
 	};
 
-	boolean good = true;
+    public PacketAccurateSneakPlace(PacketBuffer buffer)
+    {
+        readPayload(buffer);
+    }
 
-	public ItemStack stack;
-	public BlockPos pos;
-	public EnumHand hand;
-	public EnumFacing side;
-	public float hitX, hitY, hitZ;
-	public boolean offgrid;
+    public PacketAccurateSneakPlace(
+      final ItemStack stack,
+      final BlockPos pos,
+      final Hand hand,
+      final Direction side,
+      final double hitX,
+      final double hitY,
+      final double hitZ,
+      final boolean offgrid)
+    {
+        this.stack = stack;
+        this.pos = pos;
+        this.hand = hand;
+        this.side = side;
+        this.hitX = hitX;
+        this.hitY = hitY;
+        this.hitZ = hitZ;
+        this.offgrid = offgrid;
+    }
+
+    private ItemStack stack;
+    private BlockPos  pos;
+    private Hand      hand;
+    private Direction side;
+    private double     hitX, hitY, hitZ;
+	private boolean offgrid;
 
 	@Override
 	public void server(
-			final EntityPlayerMP playerEntity )
+			final ServerPlayerEntity playerEntity )
 	{
-		if ( good && stack != null && stack.getItem() instanceof IItemBlockAccurate )
+		if ( stack != null && stack.getItem() instanceof IItemBlockAccurate )
 		{
 			ItemStack inHand = playerEntity.getHeldItem( hand );
 			if ( ItemStack.areItemStackTagsEqual( stack, inHand ) )
 			{
-				if ( playerEntity.capabilities.isCreativeMode )
+				if ( playerEntity.isCreative() )
 				{
 					inHand = stack;
 				}
 
 				final IItemBlockAccurate ibc = (IItemBlockAccurate) stack.getItem();
-				ibc.placeItem( inHand, playerEntity, playerEntity.worldObj, pos, hand, side, hitX, hitY, hitZ, offgrid );
+				final ItemUseContext context = new ItemUseContext(
+				  playerEntity,
+                  hand,
+                  new BlockRayTraceResult(new Vector3d(hitX, hitY, hitZ), side, pos, false)
+                );
+				ibc.tryPlace(context, offgrid);
 
-				if ( !playerEntity.capabilities.isCreativeMode && ModUtil.getStackSize( inHand ) <= 0 )
+				if ( !playerEntity.isCreative() && ModUtil.getStackSize( inHand ) <= 0 )
 				{
 					playerEntity.setHeldItem( hand, ModUtil.getEmptyStack() );
 				}
@@ -74,13 +96,13 @@ public class PacketAccurateSneakPlace extends ModPacket
 	public void getPayload(
 			final PacketBuffer buffer )
 	{
-		buffer.writeItemStackToBuffer( stack );
+		buffer.writeItemStack( stack );
 		buffer.writeBlockPos( pos );
 		buffer.writeEnumValue( side );
 		buffer.writeEnumValue( hand );
-		buffer.writeFloat( hitX );
-		buffer.writeFloat( hitY );
-		buffer.writeFloat( hitZ );
+		buffer.writeDouble( hitX );
+		buffer.writeDouble( hitY );
+		buffer.writeDouble( hitZ );
 		buffer.writeBoolean( offgrid );
 	}
 
@@ -88,21 +110,93 @@ public class PacketAccurateSneakPlace extends ModPacket
 	public void readPayload(
 			final PacketBuffer buffer )
 	{
-		try
-		{
-			stack = buffer.readItemStackFromBuffer();
-			pos = buffer.readBlockPos();
-			side = buffer.readEnumValue( EnumFacing.class );
-			hand = buffer.readEnumValue( EnumHand.class );
-			hitX = buffer.readFloat();
-			hitY = buffer.readFloat();
-			hitZ = buffer.readFloat();
-			offgrid = buffer.readBoolean();
-		}
-		catch ( final IOException e )
-		{
-			good = false;
-		}
-	}
+        stack = buffer.readItemStack();
+        pos = buffer.readBlockPos();
+        side = buffer.readEnumValue( Direction.class );
+        hand = buffer.readEnumValue( Hand.class );
+        hitX = buffer.readDouble();
+        hitY = buffer.readDouble();
+        hitZ = buffer.readDouble();
+        offgrid = buffer.readBoolean();
+    }
 
+    public ItemStack getStack()
+    {
+        return stack;
+    }
+
+    public void setStack(final ItemStack stack)
+    {
+        this.stack = stack;
+    }
+
+    public BlockPos getPos()
+    {
+        return pos;
+    }
+
+    public void setPos(final BlockPos pos)
+    {
+        this.pos = pos;
+    }
+
+    public Hand getHand()
+    {
+        return hand;
+    }
+
+    public void setHand(final Hand hand)
+    {
+        this.hand = hand;
+    }
+
+    public Direction getSide()
+    {
+        return side;
+    }
+
+    public void setSide(final Direction side)
+    {
+        this.side = side;
+    }
+
+    public double getHitX()
+    {
+        return hitX;
+    }
+
+    public void setHitX(final double hitX)
+    {
+        this.hitX = hitX;
+    }
+
+    public double getHitY()
+    {
+        return hitY;
+    }
+
+    public void setHitY(final double hitY)
+    {
+        this.hitY = hitY;
+    }
+
+    public double getHitZ()
+    {
+        return hitZ;
+    }
+
+    public void setHitZ(final double hitZ)
+    {
+        this.hitZ = hitZ;
+    }
+
+    public boolean isOffgrid()
+    {
+        return offgrid;
+    }
+
+    public void setOffgrid(final boolean offgrid)
+    {
+        this.offgrid = offgrid;
+    }
 }

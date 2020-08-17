@@ -10,16 +10,16 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ActingPlayer;
 import mod.chiselsandbits.interfaces.ICacheClearable;
-import mod.chiselsandbits.network.NetworkRouter;
+import mod.chiselsandbits.network.NetworkChannel;
 import mod.chiselsandbits.network.packets.PacketUndo;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumHand;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.LogicalSidedProvider;
 
 public class UndoTracker implements ICacheClearable
 {
@@ -83,13 +83,13 @@ public class UndoTracker implements ICacheClearable
 			if ( grouping && hasCreatedGroup )
 			{
 				final UndoStep current = undoLevels.get( undoLevels.size() - 1 );
-				final UndoStep newest = new UndoStep( world.provider.getDimension(), pos, before, after );
+				final UndoStep newest = new UndoStep( world.getDimensionKey().getRegistryName(), pos, before, after );
 				undoLevels.set( undoLevels.size() - 1, newest );
 				newest.next = current;
 				return;
 			}
 
-			undoLevels.add( new UndoStep( world.provider.getDimension(), pos, before, after ) );
+			undoLevels.add( new UndoStep( world.getDimensionKey().getRegistryName(), pos, before, after ) );
 			hasCreatedGroup = true;
 			level = undoLevels.size() - 1;
 		}
@@ -100,16 +100,16 @@ public class UndoTracker implements ICacheClearable
 		if ( level > -1 )
 		{
 			final UndoStep step = undoLevels.get( level );
-			final EntityPlayer who = ClientSide.instance.getPlayer();
+			final PlayerEntity who = ClientSide.instance.getPlayer();
 
 			if ( correctWorld( who, step ) && step.after != null && step.before != null )
 			{
-				final ActingPlayer testPlayer = ActingPlayer.testingAs( who, EnumHand.MAIN_HAND );
+				final ActingPlayer testPlayer = ActingPlayer.testingAs( who, Hand.MAIN_HAND );
 				final boolean result = replayChanges( testPlayer, step, true, false );
 
 				if ( result )
 				{
-					final ActingPlayer player = ActingPlayer.actingAs( who, EnumHand.MAIN_HAND );
+					final ActingPlayer player = ActingPlayer.actingAs( who, Hand.MAIN_HAND );
 					if ( replayChanges( player, step, true, true ) )
 					{
 						level--;
@@ -121,7 +121,7 @@ public class UndoTracker implements ICacheClearable
 		}
 		else
 		{
-			ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( "mod.chiselsandbits.result.nothing_to_undo" ) );
+            ClientSide.instance.getPlayer().sendMessage( new TranslationTextComponent( "mod.chiselsandbits.result.nothing_to_undo" ) , null);
 		}
 	}
 
@@ -130,16 +130,16 @@ public class UndoTracker implements ICacheClearable
 		if ( level + 1 < undoLevels.size() )
 		{
 			final UndoStep step = undoLevels.get( level + 1 );
-			final EntityPlayer who = ClientSide.instance.getPlayer();
+			final PlayerEntity who = ClientSide.instance.getPlayer();
 
 			if ( correctWorld( who, step ) )
 			{
-				final ActingPlayer testPlayer = ActingPlayer.testingAs( who, EnumHand.MAIN_HAND );
+				final ActingPlayer testPlayer = ActingPlayer.testingAs( who, Hand.MAIN_HAND );
 				final boolean result = replayChanges( testPlayer, step, false, false );
 
 				if ( result )
 				{
-					final ActingPlayer player = ActingPlayer.actingAs( who, EnumHand.MAIN_HAND );
+					final ActingPlayer player = ActingPlayer.actingAs( who, Hand.MAIN_HAND );
 					if ( replayChanges( player, step, false, true ) )
 					{
 						level++;
@@ -151,7 +151,7 @@ public class UndoTracker implements ICacheClearable
 		}
 		else
 		{
-			ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( "mod.chiselsandbits.result.nothing_to_redo" ) );
+			ClientSide.instance.getPlayer().sendMessage( new TranslationTextComponent( "mod.chiselsandbits.result.nothing_to_redo" ) , null);
 		}
 	}
 
@@ -176,10 +176,10 @@ public class UndoTracker implements ICacheClearable
 	}
 
 	private boolean correctWorld(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final UndoStep step )
 	{
-		return player.dimension == step.dimensionId;
+		return player.getEntityWorld().getDimensionKey().getRegistryName().equals(step.dimensionId);
 	}
 
 	private boolean replaySingleAction(
@@ -195,7 +195,7 @@ public class UndoTracker implements ICacheClearable
 			final PacketUndo packet = new PacketUndo( pos, before, after );
 			if ( packet.preformAction( player, spawnItemsAndCommitWorldChanges ) )
 			{
-				NetworkRouter.instance.sendToServer( packet );
+				ChiselsAndBits.getNetworkChannel().sendToServer( packet );
 				return true;
 			}
 
@@ -208,13 +208,13 @@ public class UndoTracker implements ICacheClearable
 	}
 
 	public boolean ignorePlayer(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
-		return player.worldObj == null || !player.worldObj.isRemote || FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER;
+		return player.getEntityWorld() == null || !player.getEntityWorld().isRemote;
 	}
 
 	public void beginGroup(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		if ( ignorePlayer( player ) )
 		{
@@ -236,7 +236,7 @@ public class UndoTracker implements ICacheClearable
 	}
 
 	public void endGroup(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		if ( ignorePlayer( player ) )
 		{
@@ -253,12 +253,12 @@ public class UndoTracker implements ICacheClearable
 		grouping = false;
 	}
 
-	@SideOnly( Side.CLIENT )
+    @OnlyIn(Dist.CLIENT)
 	private void displayError()
 	{
 		for ( final String err : errors )
 		{
-			ClientSide.instance.getPlayer().addChatMessage( new TextComponentTranslation( err ) );
+			ClientSide.instance.getPlayer().sendMessage( new TranslationTextComponent( err ), null );
 		}
 
 		errors.clear();

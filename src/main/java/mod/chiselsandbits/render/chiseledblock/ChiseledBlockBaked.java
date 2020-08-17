@@ -18,7 +18,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer;
 import mod.chiselsandbits.render.helpers.ModelUtil;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
@@ -31,7 +31,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.Vec3i;
 
 public class ChiseledBlockBaked extends BaseBakedBlockModel
@@ -40,9 +40,9 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	private final static int[][] faceVertMap = new int[6][4];
 	private final static float[][][] quadMapping = new float[6][4][6];
 
-	private static final EnumFacing[] X_Faces = new EnumFacing[] { EnumFacing.EAST, EnumFacing.WEST };
-	private static final EnumFacing[] Y_Faces = new EnumFacing[] { EnumFacing.UP, EnumFacing.DOWN };
-	private static final EnumFacing[] Z_Faces = new EnumFacing[] { EnumFacing.SOUTH, EnumFacing.NORTH };
+	private static final Direction[] X_Faces = new Direction[] { Direction.EAST, Direction.WEST };
+	private static final Direction[] Y_Faces = new Direction[] { Direction.UP, Direction.DOWN };
+	private static final Direction[] Z_Faces = new Direction[] { Direction.SOUTH, Direction.NORTH };
 
 	// Analyze FaceBakery / makeBakedQuad and prepare static data for face gen.
 	static
@@ -50,7 +50,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		final Vector3f to = new Vector3f( 0, 0, 0 );
 		final Vector3f from = new Vector3f( 16, 16, 16 );
 
-		for ( final EnumFacing myFace : EnumFacing.VALUES )
+		for ( final Direction myFace : Direction.VALUES )
 		{
 			final FaceBakery faceBakery = new FaceBakery();
 
@@ -132,7 +132,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	private BakedQuad[] generic;
 
 	public List<BakedQuad> getList(
-			final EnumFacing side )
+			final Direction side )
 	{
 		if ( side != null )
 		{
@@ -181,7 +181,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	{
 		myLayer = layer;
 		this.format = format;
-		final IBlockState state = ModUtil.getStateById( blockReference );
+		final BlockState state = ModUtil.getStateById( blockReference );
 
 		IBakedModel originalModel = null;
 
@@ -199,12 +199,12 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 				generateFaces( builder, vb, mrs, data.weight );
 
 				// convert from builder to final storage.
-				up = builder.getSide( EnumFacing.UP );
-				down = builder.getSide( EnumFacing.DOWN );
-				east = builder.getSide( EnumFacing.EAST );
-				west = builder.getSide( EnumFacing.WEST );
-				north = builder.getSide( EnumFacing.NORTH );
-				south = builder.getSide( EnumFacing.SOUTH );
+				up = builder.getSide( Direction.UP );
+				down = builder.getSide( Direction.DOWN );
+				east = builder.getSide( Direction.EAST );
+				west = builder.getSide( Direction.WEST );
+				north = builder.getSide( Direction.NORTH );
+				south = builder.getSide( Direction.SOUTH );
 				generic = builder.getSide( null );
 			}
 		}
@@ -221,7 +221,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	{
 		boolean trulyEmpty = getList( null ).isEmpty();
 
-		for ( final EnumFacing e : EnumFacing.VALUES )
+		for ( final Direction e : Direction.VALUES )
 		{
 			trulyEmpty = trulyEmpty && getList( e ).isEmpty();
 		}
@@ -269,7 +269,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 			for ( final FaceRegion region : src )
 			{
-				final EnumFacing myFace = region.face;
+				final Direction myFace = region.face;
 
 				// keep integers up until the last moment... ( note I tested
 				// snapping the floats after this stage, it made no
@@ -411,7 +411,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		ArrayList<FaceRegion> regions = null;
 		final ICullTest test = myLayer.getTest();
 
-		for ( final EnumFacing myFace : X_Faces )
+		for ( final Direction myFace : X_Faces )
 		{
 			final IStateRef nextToState = mrs != null && myLayer != ChiselLayer.SOLID ? mrs.get( myFace ) : null;
 			VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
@@ -473,7 +473,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		ArrayList<FaceRegion> regions = null;
 		final ICullTest test = myLayer.getTest();
 
-		for ( final EnumFacing myFace : Y_Faces )
+		for ( final Direction myFace : Y_Faces )
 		{
 			final IStateRef nextToState = mrs != null && myLayer != ChiselLayer.SOLID ? mrs.get( myFace ) : null;
 			VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
@@ -535,7 +535,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		ArrayList<FaceRegion> regions = null;
 		final ICullTest test = myLayer.getTest();
 
-		for ( final EnumFacing myFace : Z_Faces )
+		for ( final Direction myFace : Z_Faces )
 		{
 			final IStateRef nextToState = mrs != null && myLayer != ChiselLayer.SOLID ? mrs.get( myFace ) : null;
 			VoxelBlob nextTo = nextToState == null ? null : nextToState.getVoxelBlob();
@@ -590,7 +590,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	private FaceRegion getRegion(
 			final VoxelBlob blob,
-			final EnumFacing myFace,
+			final Direction myFace,
 			final int x,
 			final int y,
 			final int z,
@@ -618,7 +618,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	// generate final pos from static data.
 	private void getVertexPos(
 			final float[] pos,
-			final EnumFacing side,
+			final Direction side,
 			final int vertNum,
 			final int[] to,
 			final int[] from )
@@ -632,7 +632,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	private void getFaceUvs(
 			final float[] uvs,
-			final EnumFacing face,
+			final Direction face,
 			final int[] from,
 			final int[] to,
 			final float[] quadsUV )
@@ -723,7 +723,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final int toX,
 			final int toY,
 			final int toZ,
-			final EnumFacing f,
+			final Direction f,
 			final int d )
 	{
 
@@ -772,8 +772,8 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	@Override
 	public List<BakedQuad> getQuads(
-			final IBlockState state,
-			final EnumFacing side,
+			final BlockState state,
+			final Direction side,
 			final long rand )
 	{
 		return getList( side );
@@ -789,7 +789,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	{
 		int count = getList( null ).size();
 
-		for ( final EnumFacing f : EnumFacing.VALUES )
+		for ( final Direction f : Direction.VALUES )
 		{
 			count += getList( f ).size();
 		}

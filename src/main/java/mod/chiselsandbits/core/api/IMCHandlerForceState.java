@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.Log;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 
 public class IMCHandlerForceState implements IMCMessageHandler
@@ -36,13 +36,13 @@ public class IMCHandlerForceState implements IMCMessageHandler
 				{
 					for ( final Object x : o )
 					{
-						if ( x instanceof IBlockState )
+						if ( x instanceof BlockState )
 						{
-							BlockBitInfo.forceStateCompatibility( (IBlockState) x, result );
+							BlockBitInfo.forceStateCompatibility( (BlockState) x, result );
 						}
 						else
 						{
-							Log.info( message.getSender() + ", Your IMC provided a Object that was not an IBlockState : " + x.getClass().getName() );
+							Log.info( message.getSender() + ", Your IMC provided a Object that was not an BlockState : " + x.getClass().getName() );
 						}
 					}
 				}

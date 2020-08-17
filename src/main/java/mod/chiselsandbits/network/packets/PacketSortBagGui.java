@@ -2,18 +2,22 @@ package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.bitbag.BagContainer;
 import mod.chiselsandbits.network.ModPacket;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 
 public class PacketSortBagGui extends ModPacket
 {
+    public PacketSortBagGui(PacketBuffer buffer) {
+        readPayload(buffer);
+    }
+
 	public PacketSortBagGui()
 	{
 	}
 
 	@Override
 	public void server(
-			final EntityPlayerMP player )
+			final ServerPlayerEntity player )
 	{
 		if ( player.openContainer instanceof BagContainer )
 		{

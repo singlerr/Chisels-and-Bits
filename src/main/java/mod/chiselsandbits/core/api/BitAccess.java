@@ -24,11 +24,11 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -143,7 +143,7 @@ public class BitAccess implements IBitAccess
 
 	@Override
 	public ItemStack getBitsAsItem(
-			final @Nullable EnumFacing side,
+			final @Nullable Direction side,
 			final @Nullable ItemType type,
 			final boolean crossWorld )
 	{
@@ -168,7 +168,7 @@ public class BitAccess implements IBitAccess
 
 		if ( type == ItemType.CHISLED_BLOCK )
 		{
-			final IBlockState state = ModUtil.getStateById( cb.mostCommonState );
+			final BlockState state = ModUtil.getStateById( cb.mostCommonState );
 			final BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( state );
 
 			if ( blk == null )
@@ -276,7 +276,7 @@ public class BitAccess implements IBitAccess
 
 	@Override
 	public boolean mirror(
-			final Axis axis )
+			final Direction.Axis axis )
 	{
 		VoxelBlob blobMirrored = blob.mirror( axis );
 		if ( filler.canMerge( blobMirrored ) )
@@ -289,7 +289,7 @@ public class BitAccess implements IBitAccess
 
 	@Override
 	public boolean rotate(
-			final Axis axis,
+			final Direction.Axis axis,
 			final Rotation rotation )
 	{
         VoxelBlob blobRotated = ModUtil.rotate( blob, axis, rotation );

@@ -12,8 +12,8 @@ import java.util.Set;
 
 import mod.chiselsandbits.helpers.IVoxelSrc;
 import mod.chiselsandbits.modes.ChiselMode;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.AxisDirection;
 
 public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselIterator
 {
@@ -29,7 +29,7 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
 				final int sz,
 				final IVoxelSrc source,
 				final ChiselMode mode,
-				final EnumFacing side,
+				final Direction side,
 				final boolean place )
 		{
 			super( dim, sx, sy, sz, source, mode, side, place );
@@ -65,7 +65,7 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
 	Iterator<Integer> list;
 
 	// present state.
-	EnumFacing side;
+	Direction side;
 	int value;
 
 	private int setValue(
@@ -97,7 +97,7 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
 			final int sz,
 			final IVoxelSrc source,
 			final ChiselMode mode,
-			final EnumFacing side,
+			final Direction side,
 			final boolean place )
 	{
 		this.side = side;
@@ -259,7 +259,7 @@ public class ChiselExtrudeIterator extends BaseChiselIterator implements ChiselI
 	}
 
 	@Override
-	public EnumFacing side()
+	public Direction side()
 	{
 		return side;
 	}

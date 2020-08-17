@@ -6,9 +6,9 @@ import javax.annotation.Nullable;
 
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
-import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.math.BlockPos;
 
 /**
@@ -102,7 +102,7 @@ public interface IBitAccess
 	 * @return an ItemStack for bits, which is empty if there are no bits.
 	 */
 	ItemStack getBitsAsItem(
-			@Nullable EnumFacing side,
+			@Nullable Direction side,
 			ItemType type,
 			boolean crossWorld );
 

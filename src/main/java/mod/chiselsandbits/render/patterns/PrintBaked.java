@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public class PrintBaked extends BaseBakedItemModel
 {
@@ -26,7 +26,7 @@ public class PrintBaked extends BaseBakedItemModel
 
 		model = model.getOverrides().handleItemState( model, blockItem, null, null );
 
-		for ( final EnumFacing face : EnumFacing.VALUES )
+		for ( final Direction face : Direction.VALUES )
 		{
 			list.addAll( model.getQuads( null, face, 0 ) );
 		}

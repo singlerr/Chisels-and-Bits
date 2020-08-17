@@ -8,14 +8,14 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.capabilities.Capability;
@@ -111,7 +111,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 	@Override
 	public <T> T getCapability(
 			final Capability<T> capability,
-			final EnumFacing facing )
+			final Direction facing )
 	{
 		if ( capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY )
 		{
@@ -129,7 +129,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 	@Override
 	public boolean hasCapability(
 			final Capability<?> capability,
-			final EnumFacing facing )
+			final Direction facing )
 	{
 		if ( capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY )
 		{
@@ -178,7 +178,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 		if ( !ModUtil.isEmpty( stack ) && stack.getItem() instanceof ItemChiseledBit )
 		{
 			final int state = ItemChiseledBit.getStackState( stack );
-			final IBlockState blk = ModUtil.getStateById( state );
+			final BlockState blk = ModUtil.getStateById( state );
 
 			Fluid f = null;
 			for ( final Fluid fl : FluidRegistry.getRegisteredFluids().values() )
@@ -345,7 +345,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 	}
 
 	boolean extractBits(
-			final EntityPlayer playerIn,
+			final PlayerEntity playerIn,
 			final float hitX,
 			final float hitY,
 			final float hitZ,
@@ -365,7 +365,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 	}
 
 	boolean addAllPossibleBits(
-			final EntityPlayer playerIn )
+			final PlayerEntity playerIn )
 	{
 		if ( playerIn.isSneaking() )
 		{
@@ -409,7 +409,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 
 	boolean addHeldBits(
 			final @Nonnull ItemStack current,
-			final EntityPlayer playerIn )
+			final PlayerEntity playerIn )
 	{
 		if ( playerIn.isSneaking() )
 		{

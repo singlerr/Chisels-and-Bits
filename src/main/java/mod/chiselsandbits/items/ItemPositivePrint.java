@@ -27,16 +27,16 @@ import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace.IItemBlockAccurate;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -82,9 +82,9 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 	protected NBTTagCompound getCompoundFromBlock(
 			final World world,
 			final BlockPos pos,
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
-		final IBlockState state = world.getBlockState( pos );
+		final BlockState state = world.getBlockState( pos );
 		final Block blkObj = state.getBlock();
 
 		if ( !( blkObj instanceof BlockChiseled ) && BlockBitInfo.supportsBlock( state ) )
@@ -110,17 +110,17 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 
 	@Override
 	public EnumActionResult onItemUse(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final World world,
 			final BlockPos pos,
-			final EnumHand hand,
-			final EnumFacing side,
+			final Hand hand,
+			final Direction side,
 			final float hitX,
 			final float hitY,
 			final float hitZ )
 	{
 		final ItemStack stack = player.getHeldItem( hand );
-		final IBlockState blkstate = world.getBlockState( pos );
+		final BlockState blkstate = world.getBlockState( pos );
 
 		if ( ItemChiseledBit.checkRequiredSpace( player, blkstate ) )
 		{
@@ -158,11 +158,11 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 
 	public final EnumActionResult placeItem(
 			final ItemStack stack,
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final World world,
 			final BlockPos pos,
-			final EnumHand hand,
-			final EnumFacing side,
+			final Hand hand,
+			final Direction side,
 			final float hitX,
 			final float hitY,
 			final float hitZ,
@@ -241,11 +241,11 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			final ItemStack stack,
 			final World world,
 			final BlockPos pos,
-			final EnumFacing side,
+			final Direction side,
 			final VoxelBlob vb,
 			final VoxelBlob pattern,
-			final EntityPlayer who,
-			final EnumHand hand )
+			final PlayerEntity who,
+			final Hand hand )
 	{
 		// snag a tool...
 		final ActingPlayer player = ActingPlayer.actingAs( who, hand );

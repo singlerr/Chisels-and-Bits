@@ -2,7 +2,7 @@ package mod.chiselsandbits.chiseledblock.iterators;
 
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 
 public interface ChiselIterator
@@ -18,7 +18,7 @@ public interface ChiselIterator
 
 	boolean hasNext();
 
-	EnumFacing side();
+	Direction side();
 
 	int x();
 

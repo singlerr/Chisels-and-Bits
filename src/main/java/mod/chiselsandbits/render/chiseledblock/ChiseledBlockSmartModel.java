@@ -21,7 +21,7 @@ import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.NullBakedModel;
 import mod.chiselsandbits.render.cache.CacheMap;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -169,7 +169,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 
 	@Override
 	public IBakedModel handleBlockState(
-			final IBlockState state,
+			final BlockState state,
 			final long rand )
 	{
 		if ( state == null )

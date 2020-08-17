@@ -17,7 +17,7 @@ import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -26,8 +26,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.Axis;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fluids.Fluid;
 
@@ -43,7 +43,7 @@ public class ModelUtil implements ICacheClearable
 
 	static
 	{
-		blockToTexture = new HashMap[EnumFacing.VALUES.length * BlockRenderLayer.values().length];
+		blockToTexture = new HashMap[Direction.VALUES.length * BlockRenderLayer.values().length];
 
 		for ( int x = 0; x < blockToTexture.length; x++ )
 		{
@@ -66,7 +66,7 @@ public class ModelUtil implements ICacheClearable
 	public static ModelQuadLayer[] getCachedFace(
 			final int stateID,
 			final long weight,
-			final EnumFacing face,
+			final Direction face,
 			final BlockRenderLayer layer )
 	{
 		if ( layer == null )
@@ -99,17 +99,17 @@ public class ModelUtil implements ICacheClearable
 			final int cacheVal,
 			final int stateID,
 			final long weight,
-			final EnumFacing face,
+			final Direction face,
 			final BlockRenderLayer layer )
 	{
-		final IBlockState state = ModUtil.getStateById( stateID );
+		final BlockState state = ModUtil.getStateById( stateID );
 		final IBakedModel model = ModelUtil.solveModel( state, weight, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( state ), layer );
 		final int lv = ChiselsAndBits.getConfig().useGetLightValue ? DeprecationHelper.getLightValue( state ) : 0;
 
 		final Fluid fluid = BlockBitInfo.getFluidFromBlock( state.getBlock() );
 		if ( fluid != null )
 		{
-			for ( final EnumFacing xf : EnumFacing.VALUES )
+			for ( final Direction xf : Direction.VALUES )
 			{
 				final ModelQuadLayer[] mp = new ModelQuadLayer[1];
 				mp[0] = new ModelQuadLayer();
@@ -146,17 +146,17 @@ public class ModelUtil implements ICacheClearable
 			return cache.get( cacheVal );
 		}
 
-		final HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>> tmp = new HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>>();
+		final HashMap<Direction, ArrayList<ModelQuadLayerBuilder>> tmp = new HashMap<Direction, ArrayList<ModelQuadLayerBuilder>>();
 		final int color = BlockBitInfo.getColorFor( state, 0 );
 
-		for ( final EnumFacing f : EnumFacing.VALUES )
+		for ( final Direction f : Direction.VALUES )
 		{
 			tmp.put( f, new ArrayList<ModelQuadLayer.ModelQuadLayerBuilder>() );
 		}
 
 		if ( model != null )
 		{
-			for ( final EnumFacing f : EnumFacing.VALUES )
+			for ( final Direction f : Direction.VALUES )
 			{
 				final List<BakedQuad> quads = ModelUtil.getModelQuads( model, state, f, 0 );
 				processFaces( tmp, quads, state );
@@ -165,7 +165,7 @@ public class ModelUtil implements ICacheClearable
 			processFaces( tmp, ModelUtil.getModelQuads( model, state, null, 0 ), state );
 		}
 
-		for ( final EnumFacing f : EnumFacing.VALUES )
+		for ( final Direction f : Direction.VALUES )
 		{
 			final int cacheV = stateID << 6 | layer.ordinal() << 4 | f.ordinal();
 			final ArrayList<ModelQuadLayerBuilder> x = tmp.get( f );
@@ -184,8 +184,8 @@ public class ModelUtil implements ICacheClearable
 
 	private static List<BakedQuad> getModelQuads(
 			final IBakedModel model,
-			final IBlockState state,
-			final EnumFacing f,
+			final BlockState state,
+			final Direction f,
 			final long rand )
 	{
 		try
@@ -208,7 +208,7 @@ public class ModelUtil implements ICacheClearable
 
 		}
 
-		final ItemStack is = ModUtil.getItemFromBlock( state );
+		final ItemStack is = ModUtil.getItemStackFromBlockState( state );
 		if ( !ModUtil.isEmpty( is ) )
 		{
 			final IBakedModel secondModel = getOverrides( model ).handleItemState( model, is, Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer );
@@ -242,13 +242,13 @@ public class ModelUtil implements ICacheClearable
 	}
 
 	private static void processFaces(
-			final HashMap<EnumFacing, ArrayList<ModelQuadLayerBuilder>> tmp,
+			final HashMap<Direction, ArrayList<ModelQuadLayerBuilder>> tmp,
 			final List<BakedQuad> quads,
-			final IBlockState state )
+			final BlockState state )
 	{
 		for ( final BakedQuad q : quads )
 		{
-			final EnumFacing face = q.getFace();
+			final Direction face = q.getFace();
 
 			if ( face == null )
 			{
@@ -318,7 +318,7 @@ public class ModelUtil implements ICacheClearable
 
 	public static TextureAtlasSprite findQuadTexture(
 			final BakedQuad q,
-			final IBlockState state ) throws IllegalArgumentException, IllegalAccessException, NullPointerException
+			final BlockState state ) throws IllegalArgumentException, IllegalAccessException, NullPointerException
 	{
 		final TextureMap map = Minecraft.getMinecraft().getTextureMapBlocks();
 		final Map<String, TextureAtlasSprite> mapRegisteredSprites = ReflectionWrapper.instance.getRegSprite( map );
@@ -377,7 +377,7 @@ public class ModelUtil implements ICacheClearable
 	}
 
 	public static IBakedModel solveModel(
-			final IBlockState state,
+			final BlockState state,
 			final long weight,
 			final IBakedModel originalModel,
 			final BlockRenderLayer layer )
@@ -388,7 +388,7 @@ public class ModelUtil implements ICacheClearable
 		{
 			hasFaces = hasFaces( originalModel, state, null, weight );
 
-			for ( final EnumFacing f : EnumFacing.VALUES )
+			for ( final Direction f : Direction.VALUES )
 			{
 				hasFaces = hasFaces || hasFaces( originalModel, state, f, weight );
 			}
@@ -402,7 +402,7 @@ public class ModelUtil implements ICacheClearable
 		if ( !hasFaces )
 		{
 			// if the model is empty then lets grab an item and try that...
-			final ItemStack is = ModUtil.getItemFromBlock( state );
+			final ItemStack is = ModUtil.getItemStackFromBlockState( state );
 			if ( !ModUtil.isEmpty( is ) )
 			{
 				final IBakedModel itemModel = Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides( is, Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer );
@@ -411,7 +411,7 @@ public class ModelUtil implements ICacheClearable
 				{
 					hasFaces = hasFaces( originalModel, state, null, weight );
 
-					for ( final EnumFacing f : EnumFacing.VALUES )
+					for ( final Direction f : Direction.VALUES )
 					{
 						hasFaces = hasFaces || hasFaces( originalModel, state, f, weight );
 					}
@@ -428,7 +428,7 @@ public class ModelUtil implements ICacheClearable
 				}
 				else
 				{
-					return new SimpleGeneratedModel( findTexture( Block.getStateId( state ), originalModel, EnumFacing.UP, layer ) );
+					return new SimpleGeneratedModel( findTexture( Block.getStateId( state ), originalModel, Direction.UP, layer ) );
 				}
 			}
 		}
@@ -438,8 +438,8 @@ public class ModelUtil implements ICacheClearable
 
 	private static boolean hasFaces(
 			final IBakedModel model,
-			final IBlockState state,
-			final EnumFacing f,
+			final BlockState state,
+			final Direction f,
 			final long weight )
 	{
 		final List<BakedQuad> l = getModelQuads( model, state, f, weight );
@@ -477,10 +477,10 @@ public class ModelUtil implements ICacheClearable
 	public static TextureAtlasSprite findTexture(
 			final int BlockRef,
 			final IBakedModel model,
-			final EnumFacing myFace,
+			final Direction myFace,
 			final BlockRenderLayer layer )
 	{
-		final int blockToWork = layer.ordinal() * EnumFacing.VALUES.length + myFace.ordinal();
+		final int blockToWork = layer.ordinal() * Direction.VALUES.length + myFace.ordinal();
 
 		// didn't work? ok lets try scanning for the texture in the
 		if ( blockToTexture[blockToWork].containsKey( BlockRef ) )
@@ -490,7 +490,7 @@ public class ModelUtil implements ICacheClearable
 		}
 
 		TextureAtlasSprite texture = null;
-		final IBlockState state = ModUtil.getStateById( BlockRef );
+		final BlockState state = ModUtil.getStateById( BlockRef );
 
 		if ( model != null )
 		{
@@ -500,7 +500,7 @@ public class ModelUtil implements ICacheClearable
 
 				if ( texture == null )
 				{
-					for ( final EnumFacing side : EnumFacing.VALUES )
+					for ( final Direction side : Direction.VALUES )
 					{
 						texture = findTexture( texture, getModelQuads( model, state, side, 0 ), side );
 					}
@@ -551,7 +551,7 @@ public class ModelUtil implements ICacheClearable
 	private static TextureAtlasSprite findTexture(
 			TextureAtlasSprite texture,
 			final List<BakedQuad> faceQuads,
-			final EnumFacing myFace ) throws IllegalArgumentException, IllegalAccessException, NullPointerException
+			final Direction myFace ) throws IllegalArgumentException, IllegalAccessException, NullPointerException
 	{
 		for ( final BakedQuad q : faceQuads )
 		{
@@ -598,12 +598,12 @@ public class ModelUtil implements ICacheClearable
 
 		if ( out == null )
 		{
-			final IBlockState state = ModUtil.getStateById( blockStateID );
+			final BlockState state = ModUtil.getStateById( blockStateID );
 			final IBakedModel model = ModelUtil.solveModel( state, 0, Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getModelForState( ModUtil.getStateById( blockStateID ) ), layer.layer );
 
 			if ( model != null )
 			{
-				out = ChiseledBlockBaked.createFromTexture( ModelUtil.findTexture( blockStateID, model, EnumFacing.UP, layer.layer ), layer );
+				out = ChiseledBlockBaked.createFromTexture( ModelUtil.findTexture( blockStateID, model, Direction.UP, layer.layer ), layer );
 			}
 			else
 			{

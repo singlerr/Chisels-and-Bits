@@ -4,7 +4,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ResourceLocation;
@@ -38,7 +38,7 @@ public class CrossWorldBlobSerializerLegacy extends BlobSerializer
 			return 0;
 		}
 
-		final IBlockState state = DeprecationHelper.getStateFromMeta( blk, meta );
+		final BlockState state = DeprecationHelper.getStateFromMeta( blk, meta );
 		if ( state == null )
 		{
 			return 0;
@@ -52,7 +52,7 @@ public class CrossWorldBlobSerializerLegacy extends BlobSerializer
 			final PacketBuffer buffer,
 			final int key )
 	{
-		final IBlockState state = ModUtil.getStateById( key );
+		final BlockState state = ModUtil.getStateById( key );
 		final Block blk = state.getBlock();
 
 		final String name = Block.REGISTRY.getNameForObject( blk ).toString();

@@ -1,20 +1,22 @@
 package mod.chiselsandbits.network;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.INetHandler;
-import net.minecraft.network.Packet;
+import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
+import net.minecraftforge.fml.network.NetworkEvent;
 
 @SuppressWarnings( "rawtypes" )
-public abstract class ModPacket implements Packet
+public abstract class ModPacket
 {
 
-	EntityPlayerMP serverEntity = null;
+	ServerPlayerEntity serverEntity = null;
 
 	public void server(
-			final EntityPlayerMP playerEntity )
+			final ServerPlayerEntity playerEntity )
 	{
 		throw new RuntimeException( getClass().getName() + " is not a server packet." );
 	}
@@ -30,30 +32,17 @@ public abstract class ModPacket implements Packet
 	abstract public void readPayload(
 			PacketBuffer buffer );
 
-	@Override
-	public void readPacketData(
-			final PacketBuffer buf ) throws IOException
-	{
-		readPacketData( buf );
-	}
-
-	@Override
-	public void writePacketData(
-			final PacketBuffer buf ) throws IOException
-	{
-		getPayload( buf );
-	}
-
-	@Override
 	public void processPacket(
-			final INetHandler handler )
+			final NetworkEvent.Context context,
+            final Boolean onServer)
 	{
-		if ( serverEntity == null )
+		if (!onServer)
 		{
 			client();
 		}
 		else
 		{
+		    serverEntity = context.getSender();
 			server( serverEntity );
 		}
 	}

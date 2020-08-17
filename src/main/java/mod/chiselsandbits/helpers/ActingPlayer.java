@@ -3,28 +3,30 @@ package mod.chiselsandbits.helpers;
 import javax.annotation.Nonnull;
 
 import mod.chiselsandbits.api.EventBlockBitModification;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+
+import java.util.function.Consumer;
 
 public class ActingPlayer
 {
 	private final IInventory storage;
 
 	// used to test permission and stuff...
-	private final EntityPlayer innerPlayer;
+	private final PlayerEntity innerPlayer;
 	private final boolean realPlayer; // are we a real player?
-	private final EnumHand hand;
+	private final Hand hand;
 
 	private ActingPlayer(
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final boolean realPlayer,
-			final EnumHand hand )
+			final Hand hand )
 	{
 		innerPlayer = player;
 		this.hand = hand;
@@ -44,7 +46,7 @@ public class ActingPlayer
 
 	public boolean isCreative()
 	{
-		return innerPlayer.capabilities.isCreativeMode;
+		return innerPlayer.isCreative();
 	}
 
 	public ItemStack getCurrentEquippedItem()
@@ -60,7 +62,7 @@ public class ActingPlayer
 
 	public boolean canPlayerManipulate(
 			final @Nonnull BlockPos pos,
-			final @Nonnull EnumFacing side,
+			final @Nonnull Direction side,
 			final @Nonnull ItemStack is,
 			final boolean placement )
 	{
@@ -71,12 +73,10 @@ public class ActingPlayer
 			lastPlacement = placement;
 			lastPermissionBit = is;
 
-			if ( innerPlayer.canPlayerEdit( pos, side, is ) && innerPlayer.worldObj.isBlockModifiable( innerPlayer, pos ) )
+			if ( innerPlayer.canPlayerEdit( pos, side, is ) && innerPlayer.getEntityWorld().isBlockModifiable( innerPlayer, pos ) )
 			{
-				final EventBlockBitModification event = new EventBlockBitModification( innerPlayer.worldObj, pos, innerPlayer, hand, is, placement );
-				MinecraftForge.EVENT_BUS.post( event );
-
-				permissionResult = !event.isCanceled();
+				final EventBlockBitModification event = new EventBlockBitModification( innerPlayer.getEntityWorld(), pos, innerPlayer, hand, is, placement );
+				permissionResult = !MinecraftForge.EVENT_BUS.post( event );
 			}
 			else
 			{
@@ -93,17 +93,17 @@ public class ActingPlayer
 	{
 		if ( realPlayer )
 		{
-			stack.damageItem( amount, innerPlayer );
+			stack.damageItem(amount, innerPlayer, playerEntity -> {});
 		}
 		else
 		{
-			stack.setItemDamage( stack.getItemDamage() + amount );
+			stack.setDamage( stack.getDamage() + amount );
 		}
 	}
 
 	public void playerDestroyItem(
 			final @Nonnull ItemStack stack,
-			final EnumHand hand )
+			final Hand hand )
 	{
 		if ( realPlayer )
 		{
@@ -113,29 +113,29 @@ public class ActingPlayer
 
 	@Nonnull
 	public static ActingPlayer actingAs(
-			final EntityPlayer player,
-			final EnumHand hand )
+			final PlayerEntity player,
+			final Hand hand )
 	{
 		return new ActingPlayer( player, true, hand );
 	}
 
 	@Nonnull
 	public static ActingPlayer testingAs(
-			final EntityPlayer player,
-			final EnumHand hand )
+			final PlayerEntity player,
+			final Hand hand )
 	{
 		return new ActingPlayer( player, false, hand );
 	}
 
 	public World getWorld()
 	{
-		return innerPlayer.worldObj;
+		return innerPlayer.getEntityWorld();
 	}
 
 	/**
 	 * only call this is you require a player, and only as a last resort.
 	 */
-	public EntityPlayer getPlayer()
+	public PlayerEntity getPlayer()
 	{
 		return innerPlayer;
 	}
@@ -148,7 +148,7 @@ public class ActingPlayer
 	/**
 	 * @return the hand
 	 */
-	public EnumHand getHand()
+	public Hand getHand()
 	{
 		return hand;
 	}

@@ -10,7 +10,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.BlockStateRef;
 import mod.chiselsandbits.render.chiseledblock.ModelRenderState;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -111,7 +111,7 @@ public final class VoxelNeighborRenderTracker
 			this.isDynamic = (byte) ( isDynamic ? IS_DYNAMIC : IS_STATIC );
 		}
 
-		for ( final EnumFacing f : EnumFacing.VALUES )
+		for ( final Direction f : Direction.VALUES )
 		{
 			final BlockPos oPos = pos.offset( f );
 
@@ -138,7 +138,7 @@ public final class VoxelNeighborRenderTracker
 	}
 
 	private void update(
-			final EnumFacing f,
+			final Direction f,
 			final IStateRef value )
 	{
 		if ( sameValue( sides.get( f ), value ) )

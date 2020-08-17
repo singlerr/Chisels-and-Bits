@@ -15,17 +15,19 @@ import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitSaw;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.SpecialRecipe;
+import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-public class BitSawCrafting extends CustomRecipe
+public class BitSawCrafting extends SpecialRecipe
 {
 
 	public BitSawCrafting(
@@ -44,7 +46,7 @@ public class BitSawCrafting extends CustomRecipe
 	};
 
 	private SawCraft getSawCraft(
-			final InventoryCrafting inv )
+			final CraftingInventory inv )
 	{
 		final SawCraft r = new SawCraft();
 
@@ -52,7 +54,7 @@ public class BitSawCrafting extends CustomRecipe
 		{
 			for ( int y = 0; y < inv.getHeight(); ++y )
 			{
-				final ItemStack is = inv.getStackInRowAndColumn( x, y );
+				final ItemStack is = inv.getStackInSlot(x + y * inv.getWidth());
 
 				if ( !ModUtil.isEmpty( is ) )
 				{
@@ -81,10 +83,10 @@ public class BitSawCrafting extends CustomRecipe
 						continue;
 					}
 
-					if ( is != null && is.getItem() instanceof ItemBlock )
+					if ( is != null && is.getItem() instanceof BlockItem )
 					{
-						final ItemBlock blkItem = (ItemBlock) is.getItem();
-						final IBlockState state = blkItem.getBlock().getDefaultState();
+						final BlockItem blkItem = (BlockItem) is.getItem();
+						final BlockState state = blkItem.getBlock().getDefaultState();
 
 						if ( !BlockBitInfo.supportsBlock( state ) )
 						{
@@ -117,7 +119,7 @@ public class BitSawCrafting extends CustomRecipe
 
 	@Override
 	public boolean matches(
-			final InventoryCrafting inv,
+			final CraftingInventory inv,
 			final World worldIn )
 	{
 		return getSawCraft( inv ) != null;
@@ -125,7 +127,7 @@ public class BitSawCrafting extends CustomRecipe
 
 	@Override
 	public ItemStack getCraftingResult(
-			final InventoryCrafting inv )
+			final CraftingInventory inv )
 	{
 		final SawCraft sc = getSawCraft( inv );
 
@@ -169,20 +171,20 @@ public class BitSawCrafting extends CustomRecipe
 		switch ( direction )
 		{
 			case X:
-				split_pos = MathHelper.clamp_int( ( box.maxX + box.minX ) / 2, 0, 15 );
+				split_pos = MathHelper.clamp( ( box.maxX + box.minX ) / 2, 0, 15 );
 				scale = ( box.maxX - box.minX ) / 2;
 				break;
 			case Y:
-				split_pos = MathHelper.clamp_int( ( box.maxY + box.minY ) / 2, 0, 15 );
+				split_pos = MathHelper.clamp( ( box.maxY + box.minY ) / 2, 0, 15 );
 				scale = ( box.maxY - box.minY ) / 2;
 				break;
 			case Z:
-				split_pos = MathHelper.clamp_int( ( box.maxZ + box.minZ ) / 2, 0, 15 );
+				split_pos = MathHelper.clamp( ( box.maxZ + box.minZ ) / 2, 0, 15 );
 				scale = ( box.maxZ - box.minZ ) / 2;
 				break;
 		}
 
-		final int split_pos_plus_one = MathHelper.clamp_int( split_pos + 1, 0, 15 );
+		final int split_pos_plus_one = MathHelper.clamp( split_pos + 1, 0, 15 );
 
 		final BitIterator bi = new BitIterator();
 		while ( bi.hasNext() )
@@ -278,15 +280,13 @@ public class BitSawCrafting extends CustomRecipe
 		return ModUtil.getEmptyStack();
 	}
 
-	@Override
-	public boolean func_194133_a(
-			final int width,
-			final int height )
-	{
-		return width * height > 3;
-	}
+    @Override
+    public boolean canFit(final int width, final int height)
+    {
+        return false;
+    }
 
-	@Override
+    @Override
 	public ItemStack getRecipeOutput()
 	{
 		return ModUtil.getEmptyStack();
@@ -294,9 +294,9 @@ public class BitSawCrafting extends CustomRecipe
 
 	@Override
 	public NonNullList<ItemStack> getRemainingItems(
-			final InventoryCrafting inv )
+			final CraftingInventory inv )
 	{
-		final NonNullList<ItemStack> aitemstack = NonNullList.func_191197_a( inv.getSizeInventory(), ItemStack.field_190927_a );
+		final NonNullList<ItemStack> aitemstack = NonNullList.withSize( inv.getSizeInventory(), ItemStack.EMPTY );
 
 		for ( int i = 0; i < aitemstack.size(); ++i )
 		{
@@ -307,4 +307,9 @@ public class BitSawCrafting extends CustomRecipe
 		return aitemstack;
 	}
 
+    @Override
+    public IRecipeSerializer<?> getSerializer()
+    {
+        return null;
+    }
 }

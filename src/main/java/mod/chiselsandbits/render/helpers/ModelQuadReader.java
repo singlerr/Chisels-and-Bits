@@ -6,7 +6,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public class ModelQuadReader extends BaseModelReader
 {
@@ -25,14 +25,14 @@ public class ModelQuadReader extends BaseModelReader
 	TextureAtlasSprite sprite;
 	String texture;
 
-	EnumFacing face;
-	EnumFacing cull;
+	Direction face;
+	Direction cull;
 
 	public ModelQuadReader(
 			final String textureName,
 			final TextureAtlasSprite texture,
-			final EnumFacing face,
-			final EnumFacing cull )
+			final Direction face,
+			final Direction cull )
 	{
 		sprite = texture;
 		this.texture = textureName;
@@ -82,7 +82,7 @@ public class ModelQuadReader extends BaseModelReader
 	}
 
 	public String toString(
-			EnumFacing faceQuad )
+			Direction faceQuad )
 	{
 		int U1 = 0, V1 = 16, U2 = 16, V2 = 0;
 
@@ -106,7 +106,7 @@ public class ModelQuadReader extends BaseModelReader
 			U1 = U2;
 			U2 = tempU;
 		}
-		else if ( faceQuad == EnumFacing.UP )
+		else if ( faceQuad == Direction.UP )
 		{
 			final int tempV = V1;
 			V1 = V2;

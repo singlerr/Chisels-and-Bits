@@ -13,12 +13,8 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -80,7 +76,7 @@ public class ChiselBlockCrafting extends CustomRecipe
 				
 				boolean damageTools = ChiselsAndBits.getConfig().damageTools;
 				
-				if ( chisel.getItemDamage() < chisel.getMaxDamage() || ! damageTools )
+				if ( chisel.getDamage() < chisel.getMaxDamage() || ! damageTools )
 				{
 					if ( damageTools )
 					{
@@ -128,7 +124,7 @@ public class ChiselBlockCrafting extends CustomRecipe
 
 				if ( ! c.isAir )
 				{
-					block = ba.getBitsAsItem( EnumFacing.NORTH, ItemType.CHISLED_BLOCK, false );
+					block = ba.getBitsAsItem( Direction.NORTH, ItemType.CHISLED_BLOCK, false );
 				}
 				else
 				{
@@ -189,7 +185,7 @@ public class ChiselBlockCrafting extends CustomRecipe
 					noDuplicates = false;
 				}
 
-				final IBlockState actingState = ModUtil.getStateFromItem( is );
+				final BlockState actingState = ModUtil.getStateFromItem( is );
 				if ( actingState.getBlock() != Blocks.AIR )
 				{
 					try
@@ -211,7 +207,7 @@ public class ChiselBlockCrafting extends CustomRecipe
 							}
 						} );
 
-						i.block = item.getBitsAsItem( EnumFacing.EAST, ItemType.CHISLED_BLOCK, false );
+						i.block = item.getBitsAsItem( Direction.EAST, ItemType.CHISLED_BLOCK, false );
 						if ( i.block != null )
 						{
 							ModUtil.setStackSize( i.block, ModUtil.getStackSize( is ) );

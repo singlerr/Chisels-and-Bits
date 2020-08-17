@@ -3,15 +3,17 @@ package mod.chiselsandbits.crafting;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
-import net.minecraft.init.Items;
-import net.minecraft.inventory.InventoryCrafting;
-import net.minecraft.item.EnumDyeColor;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.SpecialRecipe;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.oredict.OreDictionary;
 
-public class BagDyeing extends CustomRecipe
+public class BagDyeing extends SpecialRecipe
 {
 
 	public BagDyeing(
@@ -23,11 +25,11 @@ public class BagDyeing extends CustomRecipe
 	private static class dyed_output
 	{
 		ItemStack bag;
-		EnumDyeColor color;
+		DyeColor  color;
 
 		public dyed_output(
 				ItemStack bag,
-				EnumDyeColor dye )
+          DyeColor dye )
 		{
 			this.bag = bag;
 			this.color = dye;
@@ -36,16 +38,8 @@ public class BagDyeing extends CustomRecipe
 	};
 
 	@Override
-	public boolean matches(
-			InventoryCrafting inv,
-			World worldIn )
-	{
-		return getOutput( inv ) != null;
-	}
-
-	@Override
 	public ItemStack getCraftingResult(
-			InventoryCrafting inv )
+			CraftingInventory inv )
 	{
 		dyed_output output = getOutput( inv );
 
@@ -58,7 +52,7 @@ public class BagDyeing extends CustomRecipe
 	}
 
 	private dyed_output getOutput(
-			InventoryCrafting inv )
+      CraftingInventory inv )
 	{
 		ItemStack bag = null;
 		ItemStack dye = null;
@@ -95,39 +89,39 @@ public class BagDyeing extends CustomRecipe
 		return null;
 	}
 
-	private EnumDyeColor getDye(
+	private DyeColor getDye(
 			ItemStack is )
 	{
 		if ( testDye( "dyeWhite", is ) )
-			return EnumDyeColor.WHITE;
+			return DyeColor.WHITE;
 		if ( testDye( "dyeOrange", is ) )
-			return EnumDyeColor.ORANGE;
+			return DyeColor.ORANGE;
 		if ( testDye( "dyeMagenta", is ) )
-			return EnumDyeColor.MAGENTA;
+			return DyeColor.MAGENTA;
 		if ( testDye( "dyeLightBlue", is ) )
-			return EnumDyeColor.LIGHT_BLUE;
+			return DyeColor.LIGHT_BLUE;
 		if ( testDye( "dyeLime", is ) )
-			return EnumDyeColor.LIME;
+			return DyeColor.LIME;
 		if ( testDye( "dyePink", is ) )
-			return EnumDyeColor.PINK;
+			return DyeColor.PINK;
 		if ( testDye( "dyeGray", is ) )
-			return EnumDyeColor.GRAY;
+			return DyeColor.GRAY;
 		if ( testDye( "dyeLightGray", is ) )
-			return EnumDyeColor.SILVER;
+			return DyeColor.LIGHT_GRAY;
 		if ( testDye( "dyeCyan", is ) )
-			return EnumDyeColor.CYAN;
+			return DyeColor.CYAN;
 		if ( testDye( "dyePurple", is ) )
-			return EnumDyeColor.PURPLE;
+			return DyeColor.PURPLE;
 		if ( testDye( "dyeBlue", is ) )
-			return EnumDyeColor.BLUE;
+			return DyeColor.BLUE;
 		if ( testDye( "dyeBrown", is ) )
-			return EnumDyeColor.BROWN;
+			return DyeColor.BROWN;
 		if ( testDye( "dyeGreen", is ) )
-			return EnumDyeColor.GREEN;
+			return DyeColor.GREEN;
 		if ( testDye( "dyeRed", is ) )
-			return EnumDyeColor.RED;
+			return DyeColor.RED;
 		if ( testDye( "dyeBlack", is ) )
-			return EnumDyeColor.BLACK;
+			return DyeColor.BLACK;
 
 		return null;
 	}
@@ -136,31 +130,25 @@ public class BagDyeing extends CustomRecipe
 			String string,
 			ItemStack is )
 	{
-		if ( OreDictionary.doesOreNameExist( string ) )
-		{
-			int ore = OreDictionary.getOreID( string );
-			int[] list = OreDictionary.getOreIDs( is );
-			for ( int x = 0; x < list.length; ++x )
-				if ( list[x] == ore )
-					return true;
-			return false;
-		}
-		else
-			throw new RuntimeException( "Invalid dye: " + string );
+	    return ItemTags.getCollection().getOrCreate(new ResourceLocation(string)).contains(is.getItem());
 	}
 
-	@Override
-	public boolean func_194133_a(
-			int p_194133_1_,
-			int p_194133_2_ )
-	{
-		return p_194133_1_ * p_194133_2_ >= 2;
-	}
 
-	@Override
-	public ItemStack getRecipeOutput()
-	{
-		return ModUtil.getEmptyStack();
-	}
+    @Override
+    public boolean matches(final CraftingInventory inv, final World worldIn)
+    {
+        return getOutput( inv ) != null;
+    }
 
+    @Override
+    public boolean canFit(final int width, final int height)
+    {
+        return width * height >= 2;
+    }
+
+    @Override
+    public IRecipeSerializer<?> getSerializer()
+    {
+        return null;
+    }
 }

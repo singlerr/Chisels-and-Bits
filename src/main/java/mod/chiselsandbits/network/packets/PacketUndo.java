@@ -22,11 +22,11 @@ import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -54,9 +54,9 @@ public class PacketUndo extends ModPacket
 
 	@Override
 	public void server(
-			final EntityPlayerMP player )
+			final ServerPlayerEntity player )
 	{
-		preformAction( ActingPlayer.actingAs( player, EnumHand.MAIN_HAND ), true );
+		preformAction( ActingPlayer.actingAs( player, Hand.MAIN_HAND ), true );
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public class PacketUndo extends ModPacket
 	{
 		try
 		{
-			final EnumFacing side = EnumFacing.UP;
+			final Direction side = Direction.UP;
 
 			final World world = player.getWorld();
 			final BitAccess ba = (BitAccess) ChiselsAndBits.getApi().getBitAccess( world, pos );

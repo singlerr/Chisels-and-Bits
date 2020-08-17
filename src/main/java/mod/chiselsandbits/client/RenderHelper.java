@@ -12,8 +12,8 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -25,7 +25,7 @@ public class RenderHelper
 	public static void drawSelectionBoundingBoxIfExists(
 			final AxisAlignedBB bb,
 			final BlockPos blockPos,
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final float partialTicks,
 			final boolean NormalBoundingBox )
 	{
@@ -35,7 +35,7 @@ public class RenderHelper
 	public static void drawSelectionBoundingBoxIfExistsWithColor(
 			final AxisAlignedBB bb,
 			final BlockPos blockPos,
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final float partialTicks,
 			final boolean NormalBoundingBox,
 			final int red,
@@ -76,7 +76,7 @@ public class RenderHelper
 			final Vec3d a,
 			final Vec3d b,
 			final BlockPos blockPos,
-			final EntityPlayer player,
+			final PlayerEntity player,
 			final float partialTicks,
 			final boolean NormalBoundingBox,
 			final int red,
@@ -226,7 +226,7 @@ public class RenderHelper
 		final BufferBuilder buffer = tessellator.getBuffer();
 		buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.ITEM );
 
-		for ( final EnumFacing enumfacing : EnumFacing.values() )
+		for ( final Direction enumfacing : Direction.values() )
 		{
 			renderQuads( alpha, buffer, model.getQuads( null, enumfacing, 0 ), worldObj, blockPos );
 		}

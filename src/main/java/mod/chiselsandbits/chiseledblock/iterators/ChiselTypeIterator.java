@@ -3,7 +3,7 @@ package mod.chiselsandbits.chiseledblock.iterators;
 import mod.chiselsandbits.chiseledblock.iterators.ChiselExtrudeIterator.ChiselExtrudeMaterialIterator;
 import mod.chiselsandbits.helpers.IVoxelSrc;
 import mod.chiselsandbits.modes.ChiselMode;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 
 public class ChiselTypeIterator extends BaseChiselIterator implements ChiselIterator
 {
@@ -20,7 +20,7 @@ public class ChiselTypeIterator extends BaseChiselIterator implements ChiselIter
 	private final int original_x;
 	private final int original_y;
 	private final int original_z;
-	public final EnumFacing side;
+	public final Direction side;
 	final ChiselMode mode;
 
 	private final int parts;
@@ -34,7 +34,7 @@ public class ChiselTypeIterator extends BaseChiselIterator implements ChiselIter
 			final int x_size,
 			final int y_size,
 			final int z_size,
-			final EnumFacing side )
+			final Direction side )
 	{
 		full_size = dim;
 		max_dim = dim - 1;
@@ -58,7 +58,7 @@ public class ChiselTypeIterator extends BaseChiselIterator implements ChiselIter
 			final int z,
 			final IVoxelSrc source,
 			final ChiselMode mode,
-			final EnumFacing side,
+			final Direction side,
 			final boolean place )
 	{
 		if ( mode == ChiselMode.CONNECTED_MATERIAL )
@@ -86,7 +86,7 @@ public class ChiselTypeIterator extends BaseChiselIterator implements ChiselIter
 			int z,
 			final IVoxelSrc source,
 			final ChiselMode mode,
-			final EnumFacing side )
+			final Direction side )
 	{
 		int offset = 0;
 		full_size = dim;
@@ -265,7 +265,7 @@ public class ChiselTypeIterator extends BaseChiselIterator implements ChiselIter
 	}
 
 	@Override
-	public EnumFacing side()
+	public Direction side()
 	{
 		return side;
 	}

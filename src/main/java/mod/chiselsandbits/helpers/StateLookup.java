@@ -1,10 +1,11 @@
 package mod.chiselsandbits.helpers;
 
-import java.util.ArrayList;
-
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import java.util.ArrayList;
 
 public class StateLookup
 {
@@ -12,15 +13,15 @@ public class StateLookup
 	public static class CachedStateLookup extends StateLookup
 	{
 
-		private final IBlockState[] states;
+		private final BlockState[] states;
 
 		public CachedStateLookup()
 		{
-			final ArrayList<IBlockState> list = new ArrayList<IBlockState>();
+			final ArrayList<BlockState> list = new ArrayList<>();
 
-			for ( final Block blk : Block.REGISTRY )
+			for ( final Block blk : ForgeRegistries.BLOCKS)
 			{
-				for ( final IBlockState state : blk.getBlockState().getValidStates() )
+				for ( final BlockState state : blk.getStateContainer().getValidStates() )
 				{
 					final int id = ModUtil.getStateId( state );
 
@@ -34,11 +35,11 @@ public class StateLookup
 				}
 			}
 
-			states = list.toArray( new IBlockState[list.size()] );
+			states = list.toArray( new BlockState[list.size()] );
 		}
 
 		@Override
-		public IBlockState getStateById(
+		public BlockState getStateById(
 				final int blockStateID )
 		{
 			return blockStateID >= 0 && blockStateID < states.length ? states[blockStateID] == null ? Blocks.AIR.getDefaultState() : states[blockStateID] : Blocks.AIR.getDefaultState();
@@ -47,12 +48,12 @@ public class StateLookup
 	}
 
 	public int getStateId(
-			final IBlockState state )
+			final BlockState state )
 	{
 		return Block.getStateId( state );
 	}
 
-	public IBlockState getStateById(
+	public BlockState getStateById(
 			final int blockStateID )
 	{
 		return Block.getStateById( blockStateID );

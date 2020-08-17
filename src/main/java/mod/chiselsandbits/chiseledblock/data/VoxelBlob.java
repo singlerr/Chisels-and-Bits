@@ -38,13 +38,18 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.Axis;
+import net.minecraft.util.Direction.AxisDirection;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -109,7 +114,7 @@ public final class VoxelBlob implements IVoxelSrc
 		{
 			final Block block = it.next();
 
-			for ( final IBlockState state : block.getBlockState().getValidStates() )
+			for ( final BlockState state : block.getBlockState().getValidStates() )
 			{
 				final int id = ModUtil.getStateId( state );
 				if ( state == null || state.getBlock() != block )
@@ -206,7 +211,7 @@ public final class VoxelBlob implements IVoxelSrc
 	}
 
 	public VoxelBlob mirror(
-			final Axis axis )
+			final Direction.Axis axis )
 	{
 		final VoxelBlob out = new VoxelBlob();
 
@@ -314,7 +319,7 @@ public final class VoxelBlob implements IVoxelSrc
 	}
 
 	public VoxelBlob spin(
-			final Axis axis )
+			final Direction.Axis axis )
 	{
 		final VoxelBlob d = new VoxelBlob();
 
@@ -541,7 +546,7 @@ public final class VoxelBlob implements IVoxelSrc
 	};
 
 	public void visibleFace(
-			final EnumFacing face,
+			final Direction face,
 			int x,
 			int y,
 			int z,
@@ -648,7 +653,7 @@ public final class VoxelBlob implements IVoxelSrc
 				cb.mostCommonStateTotal = quantity;
 			}
 
-			final IBlockState state = ModUtil.getStateById( r );
+			final BlockState state = ModUtil.getStateById( r );
 			if ( state != null && r != 0 )
 			{
 				nonAirBits += quantity;
@@ -687,9 +692,9 @@ public final class VoxelBlob implements IVoxelSrc
 		return out;
 	}
 
-	@SideOnly( Side.CLIENT )
-	public List<String> listContents(
-			final List<String> details )
+	@OnlyIn( Dist.CLIENT )
+	public List<ITextComponent> listContents(
+			final List<ITextComponent> details )
 	{
 		final HashMap<Integer, Integer> states = new HashMap<Integer, Integer>();
 		final HashMap<String, Integer> contents = new HashMap<String, Integer>();
@@ -742,12 +747,12 @@ public final class VoxelBlob implements IVoxelSrc
 
 		if ( contents.isEmpty() )
 		{
-			details.add( LocalStrings.Empty.getLocal() );
+			details.add(new StringTextComponent( LocalStrings.Empty.getLocal() ));
 		}
 
 		for ( final Entry<String, Integer> e : contents.entrySet() )
 		{
-			details.add( new StringBuilder().append( e.getValue() ).append( ' ' ).append( e.getKey() ).toString() );
+			details.add( new StringTextComponent( new StringBuilder().append( e.getValue() ).append( ' ' ).append( e.getKey() ).toString() ));
 		}
 
 		return details;
@@ -760,7 +765,7 @@ public final class VoxelBlob implements IVoxelSrc
 	{
 		int output = 0x00;
 
-		for ( final EnumFacing face : EnumFacing.VALUES )
+		for ( final Direction face : Direction.VALUES )
 		{
 			final int edge = face.getAxisDirection() == AxisDirection.POSITIVE ? 15 : 0;
 			int required = totalRequired;

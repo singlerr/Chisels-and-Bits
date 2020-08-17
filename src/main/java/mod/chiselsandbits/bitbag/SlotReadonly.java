@@ -1,8 +1,8 @@
 package mod.chiselsandbits.bitbag;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 
 public class SlotReadonly extends Slot
@@ -26,7 +26,7 @@ public class SlotReadonly extends Slot
 
 	@Override
 	public boolean canTakeStack(
-			final EntityPlayer playerIn )
+			final PlayerEntity playerIn )
 	{
 		return false;
 	}

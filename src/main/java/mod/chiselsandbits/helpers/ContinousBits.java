@@ -10,7 +10,7 @@ import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -33,7 +33,7 @@ public class ContinousBits implements IContinuousInventory
 		final IInventory inv = src.getInventory();
 
 		// test can edit...
-		canEdit = who.canPlayerManipulate( pos, EnumFacing.UP, new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond, 1 ), true );
+		canEdit = who.canPlayerManipulate( pos, Direction.UP, new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond, 1 ), true );
 
 		ItemStackSlot handSlot = null;
 

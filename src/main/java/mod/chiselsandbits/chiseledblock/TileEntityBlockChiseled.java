@@ -26,16 +26,16 @@ import mod.chiselsandbits.interfaces.IChiseledTileContainer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.Direction;
+import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -244,14 +244,14 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return BlockBitInfo.getBlockInfo( getBlockState( alternative ) );
 	}
 
-	public IBlockState getBlockState(
+	public BlockState getBlockState(
 			final Block alternative )
 	{
 		final Integer stateID = getBasicState().getValue( BlockChiseled.UProperty_Primary_BlockState );
 
 		if ( stateID != null )
 		{
-			final IBlockState state = ModUtil.getStateById( stateID );
+			final BlockState state = ModUtil.getStateById( stateID );
 			if ( state != null )
 			{
 				return state;
@@ -280,8 +280,8 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	public boolean shouldRefresh(
 			final World world,
 			final BlockPos pos,
-			final IBlockState oldState,
-			final IBlockState newState )
+			final BlockState oldState,
+			final BlockState newState )
 	{
 		return oldState.getBlock() != newState.getBlock();
 	}
@@ -357,7 +357,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				return;
 			}
 
-			for ( final EnumFacing f : EnumFacing.VALUES )
+			for ( final Direction f : Direction.VALUES )
 			{
 				final BlockPos p = getPos().offset( f );
 				if ( worldObj.isBlockLoaded( p ) )
@@ -458,7 +458,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	public void fillWith(
-			final IBlockState blockType )
+			final BlockState blockType )
 	{
 		final int ref = ModUtil.getStateId( blockType );
 
@@ -530,7 +530,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return vb;
 	}
 
-	public IBlockState getPreferedBlock()
+	public BlockState getPreferedBlock()
 	{
 		return ChiselsAndBits.getBlocks().getConversionWithDefault( getBlockState( Blocks.STONE ) ).getDefaultState();
 	}
@@ -600,7 +600,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				worldObj.checkLight( pos );
 
 				// update block state to reflect lighting characteristics
-				final IBlockState state = worldObj.getBlockState( pos );
+				final BlockState state = worldObj.getBlockState( pos );
 				if ( state.isFullCube() != isNormalCube && state.getBlock() instanceof BlockChiseled )
 				{
 					worldObj.setBlockState( pos, state.withProperty( BlockChiseled.LProperty_FullBlock, isNormalCube ) );
@@ -676,7 +676,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			setState( getBasicState()
 					.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( common.mostCommonState, getPositionRandom( pos ) ) ) );
 
-			final IBlockState newState = ModUtil.getStateById( common.mostCommonState );
+			final BlockState newState = ModUtil.getStateById( common.mostCommonState );
 			if ( ChiselsAndBits.getConfig().canRevertToBlock( newState ) )
 			{
 				if ( !MinecraftForge.EVENT_BUS.post( new EventFullBlockRestoration( worldObj, pos, newState ) ) )
@@ -713,7 +713,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			setState( getBasicState()
 					.withProperty( BlockChiseled.UProperty_VoxelBlob, new VoxelBlobStateReference( 0, getPositionRandom( pos ) ) ) );
 
-			ModUtil.removeChisledBlock( worldObj, pos );
+			ModUtil.removeChiseledBlock( worldObj, pos );
 		}
 
 		if ( olv != lv || oldNC != nc )
@@ -721,7 +721,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			worldObj.checkLight( pos );
 
 			// update block state to reflect lighting characteristics
-			final IBlockState state = worldObj.getBlockState( pos );
+			final BlockState state = worldObj.getBlockState( pos );
 			if ( state.isFullCube() != isNormalCube && state.getBlock() instanceof BlockChiseled )
 			{
 				worldObj.setBlockState( pos, state.withProperty( BlockChiseled.LProperty_FullBlock, isNormalCube ) );
@@ -758,13 +758,13 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	private ItemStackGeneratedCache pickcache = null;
 
 	public ItemStack getItemStack(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		final ItemStackGeneratedCache cache = pickcache;
 
 		if ( player != null )
 		{
-			EnumFacing enumfacing = ModUtil.getPlaceFace( player );
+			Direction enumfacing = ModUtil.getPlaceFace( player );
 			final int rotations = ModUtil.getRotationIndex( enumfacing );
 
 			if ( cache != null && cache.rotations == rotations && cache.ref == getBlobStateReference() && cache.out != null )
@@ -809,13 +809,13 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	public boolean isSideSolid(
-			final EnumFacing side )
+			final Direction side )
 	{
 		return ( sideState & 1 << side.ordinal() ) != 0;
 	}
 
 	public boolean isSideOpaque(
-			final EnumFacing side )
+			final Direction side )
 	{
 		if ( this.getWorld() != null && this.getWorld().isRemote )
 		{
@@ -827,7 +827,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	@SideOnly( Side.CLIENT )
 	public boolean isInnerSideOpaque(
-			final EnumFacing side )
+			final Direction side )
 	{
 		final VoxelNeighborRenderTracker vns = state != null ? state.getValue( BlockChiseled.UProperty_VoxelNeighborState ) : null;
 		if ( vns != null && vns.isDynamic() )
@@ -856,7 +856,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	public void rotateBlock(
-			final EnumFacing axis )
+			final Direction axis )
 	{
 		final VoxelBlob occluded = new VoxelBlob();
 		MCMultipartProxy.proxyMCMultiPart.addFiller( getWorld(), getPos(), occluded );
@@ -919,7 +919,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	public static void setLightFromBlock(
-			final IBlockState defaultState )
+			final BlockState defaultState )
 	{
 		if ( defaultState == null )
 		{

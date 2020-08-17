@@ -1,6 +1,6 @@
 package mod.chiselsandbits.bitbag;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
@@ -89,21 +89,21 @@ public class TargetedInventory implements IInventory
 
 	@Override
 	public boolean isUseableByPlayer(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		return src.isUseableByPlayer( player );
 	}
 
 	@Override
 	public void openInventory(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		src.openInventory( player );
 	}
 
 	@Override
 	public void closeInventory(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		src.closeInventory( player );
 	}

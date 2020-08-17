@@ -1,6 +1,6 @@
 package mod.chiselsandbits.helpers;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
@@ -86,21 +86,21 @@ public class NullInventory implements IInventory
 
 	@Override
 	public boolean isUseableByPlayer(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 		return false;
 	}
 
 	@Override
 	public void openInventory(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 
 	}
 
 	@Override
 	public void closeInventory(
-			final EntityPlayer player )
+			final PlayerEntity player )
 	{
 
 	}
