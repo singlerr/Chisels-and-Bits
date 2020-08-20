@@ -43,7 +43,7 @@ public abstract class GfxRenderState
 	{
 		if ( ModConfig.useVBO == UseVBO.AUTOMATIC )
 		{
-			return Minecraft.getMinecraft().gameSettings.useVbo;
+			return true;
 		}
 
 		return ModConfig.useVBO == UseVBO.YES;
@@ -82,7 +82,7 @@ public abstract class GfxRenderState
 		@Override
 		public void run()
 		{
-			vertBuffer.deleteGlBuffers();
+			vertBuffer.close();
 		}
 
 	};
@@ -130,7 +130,7 @@ public abstract class GfxRenderState
 		public GfxRenderState prepare(
 				final Tessellator t )
 		{
-			final int vc = t.getBuffer().getVertexCount();
+			final int vc = t.getBuffer().();
 
 			if ( vc > 0 )
 			{

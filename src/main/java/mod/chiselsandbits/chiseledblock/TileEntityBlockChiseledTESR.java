@@ -9,11 +9,15 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderCache;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderChunk;
+import net.minecraft.block.BlockState;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IBlockReader;
+import net.minecraft.world.LightType;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
 public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
@@ -22,7 +26,12 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	private TileRenderCache singleCache;
 	private int previousLightLevel = -1;
 
-	@Override
+    public TileEntityBlockChiseledTESR(final TileEntityType<?> tileEntityTypeIn)
+    {
+        super(tileEntityTypeIn);
+    }
+
+    @Override
 	public boolean canRenderBreaking()
 	{
 		return true;
@@ -41,7 +50,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 
 	@Override
 	protected void tesrUpdate(
-			final IBlockAccess access,
+			final IBlockReader access,
 			final VoxelNeighborRenderTracker vns )
 	{
 		if ( renderChunk == null )
@@ -53,7 +62,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 		renderChunk.update( null, 1 );
 
 		final int old = previousLightLevel;
-		previousLightLevel = worldObj.getLightFromNeighborsFor( EnumSkyBlock.BLOCK, getPos() );
+		previousLightLevel = getWorld().getLightFor( LightType.BLOCK, getPos() );
 
 		if ( previousLightLevel != old )
 		{
@@ -67,7 +76,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	}
 
 	private TileRenderChunk findRenderChunk(
-			final IBlockAccess access )
+			final IBlockReader access )
 	{
 		int chunkPosX = getPos().getX();
 		int chunkPosY = getPos().getY();
@@ -149,8 +158,8 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 		detatchRenderer();
 	}
 
-	public IExtendedBlockState getTileRenderState(
-			final IBlockAccess world )
+	public BlockState getBlockState(
+			final IBlockReader world )
 	{
 		return getState( true, 0, world );
 	}

@@ -1,7 +1,5 @@
 package mod.chiselsandbits.chiseledblock.data;
 
-import java.lang.ref.WeakReference;
-
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -9,11 +7,13 @@ import mod.chiselsandbits.helpers.IStateRef;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.BlockStateRef;
 import mod.chiselsandbits.render.chiseledblock.ModelRenderState;
-import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraft.world.IBlockReader;
+
+import java.lang.ref.WeakReference;
+import java.util.Arrays;
 
 public final class VoxelNeighborRenderTracker
 {
@@ -35,15 +35,12 @@ public final class VoxelNeighborRenderTracker
 
 	public VoxelNeighborRenderTracker()
 	{
-		faceCount = new Integer[BlockRenderLayer.values().length];
+		faceCount = new Integer[RenderType.getBlockRenderTypes().size()];
 
 		if ( ChiselsAndBits.getConfig().defaultToDynamicRenderer )
 		{
 			isDynamic = IS_DYNAMIC | IS_LOCKED;
-			for ( int x = 0; x < faceCount.length; ++x )
-			{
-				faceCount[x] = ChiselsAndBits.getConfig().dynamicModelFaceCount + 1;
-			}
+            Arrays.fill(faceCount, ChiselsAndBits.getConfig().dynamicModelFaceCount + 1);
 		}
 		else if ( ChiselsAndBits.getConfig().forceDynamicRenderer )
 		{
@@ -55,14 +52,15 @@ public final class VoxelNeighborRenderTracker
 
 	public boolean isAboveLimit()
 	{
-		if ( FMLClientHandler.instance().hasOptifine() )
+	    //TODO: Check for optifine compat.
+/*		if ( FMLClientHandler.instance().hasOptifine() )
 		{
 			// I simply cannot figure out why the displaylist uploads for the
 			// dynamic renderer don't work with optifine, so unless someone else
 			// can solve it; I'm just disabling the dynamic renderer pipeline.
 
 			return false;
-		}
+		}*/
 
 		if ( ChiselsAndBits.getConfig().forceDynamicRenderer )
 		{
@@ -85,10 +83,10 @@ public final class VoxelNeighborRenderTracker
 	}
 
 	public void setAbovelimit(
-			final BlockRenderLayer layer,
+			final RenderType layer,
 			final int fc )
 	{
-		faceCount[layer.ordinal()] = fc;
+		faceCount[RenderType.getBlockRenderTypes().indexOf(layer)] = fc;
 	}
 
 	public boolean isDynamic()
@@ -98,7 +96,7 @@ public final class VoxelNeighborRenderTracker
 
 	public void update(
 			final boolean isDynamic,
-			final IBlockAccess access,
+			final IBlockReader access,
 			final BlockPos pos )
 	{
 		if ( access == null || pos == null )
@@ -111,7 +109,7 @@ public final class VoxelNeighborRenderTracker
 			this.isDynamic = (byte) ( isDynamic ? IS_DYNAMIC : IS_STATIC );
 		}
 
-		for ( final Direction f : Direction.VALUES )
+		for ( final Direction f : Direction.values() )
 		{
 			final BlockPos oPos = pos.offset( f );
 
@@ -119,7 +117,7 @@ public final class VoxelNeighborRenderTracker
 			assert f != null;
 			if ( tebc != null )
 			{
-				update( f, tebc.getBasicState().getValue( BlockChiseled.UProperty_VoxelBlob ) );
+				update( f, tebc.getBasicState().get( BlockChiseled.UProperty_VoxelBlob ) );
 			}
 			else
 			{

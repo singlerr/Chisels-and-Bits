@@ -16,6 +16,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.chunk.ChunkRenderCache;
+import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Stopwatch;
@@ -30,30 +39,16 @@ import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.SimpleBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ChunkCache;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.property.IExtendedBlockState;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileEntityBlockChiseledTESR>
+public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBlockChiseledTESR>
 {
 	public final static AtomicInteger pendingTess = new AtomicInteger( 0 );
 	public final static AtomicInteger activeTess = new AtomicInteger( 0 );
@@ -93,7 +88,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 	private static WorldTracker getTracker()
 	{
-		final World w = ClientSide.instance.getPlayer().worldObj;
+		final World w = ClientSide.instance.getPlayer().getEntityWorld();
 		WorldTracker t = worldTrackers.get( w );
 
 		if ( t == null )
@@ -112,15 +107,15 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 	private static class FutureTracker
 	{
-		final TileLayerRenderCache tlrc;
-		final TileRenderCache renderCache;
-		final BlockRenderLayer layer;
+		final TileLayerRenderCache    tlrc;
+		final TileRenderCache         renderCache;
+		final RenderType              layer;
 		final FutureTask<Tessellator> future;
 
 		public FutureTracker(
 				final TileLayerRenderCache tlrc,
 				final TileRenderCache renderCache,
-				final BlockRenderLayer layer )
+				final RenderType layer )
 		{
 			this.tlrc = tlrc;
 			this.renderCache = renderCache;
@@ -137,7 +132,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	private void addFutureTracker(
 			final TileLayerRenderCache tlrc,
 			final TileRenderCache renderCache,
-			final BlockRenderLayer layer )
+			final RenderType layer )
 	{
 		getTracker().futureTrackers.add( new FutureTracker( tlrc, renderCache, layer ) );
 	}
@@ -204,7 +199,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	public void debugScreen(
 			final RenderGameOverlayEvent.Text t )
 	{
-		if ( Minecraft.getMinecraft().gameSettings.showDebugInfo )
+		if ( Minecraft.getInstance().gameSettings.showDebugInfo )
 		{
 			if ( TESR_Regions_rendered > 0 || TESR_SI_Regions_rendered > 0 )
 			{
@@ -232,7 +227,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 		// this seemingly stupid check fixes leaves, other wise we use fast
 		// until the atlas refreshes.
-		final int currentFancy = Minecraft.getMinecraft().gameSettings.fancyGraphics ? 1 : 0;
+		final int currentFancy = Minecraft.getInstance().gameSettings.graphicFanciness.func_238162_a_() > 0 ? 1 : 0;
 		if ( currentFancy != lastFancy )
 		{
 			lastFancy = currentFancy;
@@ -242,8 +237,8 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 
 			// another dumb thing, MC has probobly already tried reloading
 			// things, so we need to tell it to start that over again.
-			Minecraft mc = Minecraft.getMinecraft();
-			mc.renderGlobal.loadRenderers();
+			Minecraft mc = Minecraft.getInstance();
+			mc.worldRenderer.loadRenderers();
 		}
 	}
 
@@ -315,14 +310,14 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	private void uploadDisplayList(
 			final UploadTracker t )
 	{
-		final BlockRenderLayer layer = t.layer;
+		final RenderType layer = t.layer;
 		final TileLayerRenderCache tlrc = t.trc.getLayer( layer );
 
 		final Tessellator tx = t.getTessellator();
 
 		if ( tlrc.displayList == null )
 		{
-			tlrc.displayList = GfxRenderState.getNewState( tx.getBuffer().getVertexCount() );
+			tlrc.displayList = GfxRenderState.getNewState( tx.getBuffer().vertexCount );
 		}
 
 		tlrc.displayList = tlrc.displayList.prepare( tx );
@@ -361,96 +356,39 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 		pool.allowCoreThreadTimeOut( false );
 	}
 
-	public void renderBreakingEffects(
-			final TileEntityBlockChiseled te,
-			final double x,
-			final double y,
-			final double z,
-			final float partialTicks,
-			final int destroyStage )
-	{
-		bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
-		final String file = DESTROY_STAGES[destroyStage].toString().replace( "textures/", "" ).replace( ".png", "" );
-		final TextureAtlasSprite damageTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( file );
-
-		GlStateManager.pushMatrix();
-		GlStateManager.depthFunc( GL11.GL_LEQUAL );
-		final BlockPos cp = te.getPos();
-		GlStateManager.translate( x - cp.getX(), y - cp.getY(), z - cp.getZ() );
-
-		final Tessellator tessellator = Tessellator.getInstance();
-		final BufferBuilder buffer = tessellator.getBuffer();
-
-		buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
-		buffer.setTranslation( 0, 0, 0 );
-
-		final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
-		final IExtendedBlockState estate = te.getRenderState( te.getWorld() );
-
-		for ( final ChiselLayer lx : ChiselLayer.values() )
-		{
-			final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( te, lx );
-
-			if ( !model.isEmpty() )
-			{
-				final IBakedModel damageModel = new SimpleBakedModel.Builder( estate, model, damageTexture, cp ).makeBakedModel();
-				blockRenderer.getBlockModelRenderer().renderModel( te.getWorld(), damageModel, estate, te.getPos(), buffer, false );
-			}
-		}
-
-		tessellator.draw();
-		buffer.setTranslation( 0.0D, 0.0D, 0.0D );
-
-		GlStateManager.resetColor();
-		GlStateManager.popMatrix();
-		return;
-	}
+	public void bindTexture(
+	  ResourceLocation location
+    ) {
+	    Minecraft.getInstance().getTextureManager().bindTexture(location);
+    }
 
 	private void renderTileEntityInner(
-			final TileEntityBlockChiseledTESR te,
-			final double x,
-			final double y,
-			final double z,
-			final float partialTicks,
-			final int destroyStage,
-			final BufferBuilder worldRenderer )
+      final TileEntityBlockChiseledTESR tileEntityIn,
+      final float partialTicks,
+      final MatrixStack matrixStackIn,
+      final IRenderTypeBuffer bufferIn,
+      final int combinedLightIn,
+      final int combinedOverlayIn)
 	{
-		if ( destroyStage > 0 )
-		{
-			renderLogic( te, x, y, z, partialTicks, destroyStage, false );
-			return;
-		}
-
-		renderLogic( te, x, y, z, partialTicks, destroyStage, true );
+		renderLogic( tileEntityIn, partialTicks, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, true );
 	}
 
 	private void renderLogic(
-			final TileEntityBlockChiseledTESR te,
-			final double x,
-			final double y,
-			final double z,
-			final float partialTicks,
-			final int destroyStage,
-			final boolean groupLogic )
+      final TileEntityBlockChiseledTESR tileEntityIn,
+      final float partialTicks,
+      final MatrixStack matrixStackIn,
+      final IRenderTypeBuffer bufferIn,
+      final int combinedLightIn,
+      final int combinedOverlayIn,
+      final boolean groupLogic)
 	{
-		final BlockRenderLayer layer = MinecraftForgeClient.getRenderPass() == 0 ? BlockRenderLayer.SOLID : BlockRenderLayer.TRANSLUCENT;
-		final TileRenderChunk renderChunk = te.getRenderChunk();
+		final RenderType layer = MinecraftForgeClient.getRenderLayer();
+		final TileRenderChunk renderChunk = tileEntityIn.getRenderChunk();
 		TileRenderCache renderCache = renderChunk;
 
 		/// how????
 		if ( renderChunk == null )
 		{
-			return;
-		}
-
-		if ( destroyStage >= 0 )
-		{
-			if ( layer == BlockRenderLayer.SOLID )
-			{
-				return;
-			}
-
-			renderBreakingEffects( te, x, y, z, partialTicks, destroyStage );
 			return;
 		}
 
@@ -473,8 +411,8 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 					for ( final TileEntityBlockChiseledTESR e : tiles )
 					{
 						configureGLState( layer );
-						renderLogic( e, x, y, z, partialTicks, destroyStage, false );
-						unconfigureGLState();
+						renderLogic(tileEntityIn, partialTicks, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, false);
+						unconfigureGLState(layer);
 					}
 				}
 				finally
@@ -485,7 +423,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 				return;
 			}
 
-			renderCache = te.getCache();
+			renderCache = tileEntityIn.getCache();
 		}
 
 		final EnumTESRRenderState state = renderCache.update( layer, 0 );
@@ -507,7 +445,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			if ( pendingTess.get() < dynamicTess && tlrc.future == null && !tlrc.waiting || isNew )
 			{
 				// copy the tiles for the thread..
-				final ChunkCache cache = new ChunkCache( getWorld(), chunkOffset, chunkOffset.add( 16, 16, 16 ), 1 );
+				final ChunkRenderCache cache = ChunkRenderCache.generateCache( tileEntityIn.getWorld(), chunkOffset, chunkOffset.add( 16, 16, 16 ), 1 );
 				final FutureTask<Tessellator> newFuture = new FutureTask<Tessellator>( new ChisledBlockBackgroundRender( cache, chunkOffset, renderCache.getTileList(), layer ) );
 
 				try
@@ -573,6 +511,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 				return;
 			}
 
+			matrixStackIn.push();
 			GL11.glPushMatrix();
 			GL11.glTranslated( -TileEntityRendererDispatcher.staticPlayerX + chunkOffset.getX(),
 					-TileEntityRendererDispatcher.staticPlayerY + chunkOffset.getY(),
@@ -585,7 +524,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 				markRendered( renderChunk.singleInstanceMode );
 			}
 
-			unconfigureGLState();
+			unconfigureGLState( layer );
 
 			GL11.glPopMatrix();
 		}
@@ -606,47 +545,19 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 	int isConfigured = 0;
 
 	private void configureGLState(
-			final BlockRenderLayer layer )
+			final RenderType layer )
 	{
 		isConfigured++;
 
 		if ( isConfigured == 1 )
 		{
-			OpenGlHelper.setLightmapTextureCoords( OpenGlHelper.lightmapTexUnit, 0, 0 );
-
-			GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
-			bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
-
-			RenderHelper.disableStandardItemLighting();
-			GlStateManager.blendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
-			GlStateManager.color( 1.0f, 1.0f, 1.0f, 1.0f );
-
-			if ( layer == BlockRenderLayer.TRANSLUCENT )
-			{
-				GlStateManager.enableBlend();
-				GlStateManager.disableAlpha();
-			}
-			else
-			{
-				GlStateManager.disableBlend();
-				GlStateManager.enableAlpha();
-			}
-
-			GlStateManager.enableCull();
-			GlStateManager.enableTexture2D();
-
-			if ( Minecraft.isAmbientOcclusionEnabled() )
-			{
-				GlStateManager.shadeModel( GL11.GL_SMOOTH );
-			}
-			else
-			{
-				GlStateManager.shadeModel( GL11.GL_FLAT );
-			}
+		    layer.setupRenderState();
 		}
 	}
 
-	private void unconfigureGLState()
+	private void unconfigureGLState(
+	  final RenderType layer
+    )
 	{
 		isConfigured--;
 
@@ -655,44 +566,20 @@ public class ChisledBlockRenderChunkTESR extends TileEntitySpecialRenderer<TileE
 			return;
 		}
 
-		GlStateManager.resetColor(); // required to be called after drawing the
-										// display list cause the post render
-										// method usually calls it.
-
-		GlStateManager.enableAlpha();
-		GlStateManager.enableBlend();
-
-		RenderHelper.enableStandardItemLighting();
+        layer.clearRenderState();
 	}
 
-	@Override
-	public void renderTileEntityFast(
-			final TileEntityBlockChiseledTESR te,
-			final double x,
-			final double y,
-			final double z,
-			final float partialTicks,
-			final int destroyStage,
-			final float partial,
-			final BufferBuilder buffer )
-	{
-		renderTileEntityInner( te, x, y, z, partialTicks, destroyStage, buffer );
-	}
+    @Override
+    public void render(
+      final TileEntityBlockChiseledTESR tileEntityIn,
+      final float partialTicks,
+      final MatrixStack matrixStackIn,
+      final IRenderTypeBuffer bufferIn,
+      final int combinedLightIn,
+      final int combinedOverlayIn)
+    {
 
-	@Override
-	public void func_192841_a(
-			final TileEntityBlockChiseledTESR te,
-			final double x,
-			final double y,
-			final double z,
-			final float partialTicks,
-			final int destroyStage,
-			float partial )
-	{
-		if ( destroyStage > 0 )
-		{
-			renderTileEntityInner( te, x, y, z, partialTicks, destroyStage, null );
-		}
-	}
+    }
+
 
 }

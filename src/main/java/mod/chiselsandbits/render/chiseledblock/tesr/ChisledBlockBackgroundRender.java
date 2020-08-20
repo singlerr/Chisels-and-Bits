@@ -4,9 +4,14 @@ import java.lang.ref.SoftReference;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.google.common.collect.Sets;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.chunk.ChunkRenderCache;
 import org.lwjgl.opengl.GL11;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
@@ -31,11 +36,11 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 {
 
 	private final List<TileEntityBlockChiseledTESR> myPrivateList;
-	private final BlockRenderLayer layer;
-	private final BlockRendererDispatcher blockRenderer = Minecraft.getMinecraft().getBlockRendererDispatcher();
+	private final RenderType layer;
+	private final BlockRendererDispatcher blockRenderer = Minecraft.getInstance().getBlockRendererDispatcher();
 	private final static Queue<CBTessellatorRefHold> previousTessellators = new LinkedBlockingQueue<CBTessellatorRefHold>();
 
-	private final ChunkCache cache;
+	private final ChunkRenderCache cache;
 	private final BlockPos chunkOffset;
 
 	static class CBTessellatorRefNode
@@ -118,10 +123,10 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 	};
 
 	public ChisledBlockBackgroundRender(
-			final ChunkCache cache,
+			final ChunkRenderCache cache,
 			final BlockPos chunkOffset,
 			final List<TileEntityBlockChiseledTESR> myList,
-			final BlockRenderLayer layer )
+			final RenderType layer )
 	{
 		myPrivateList = myList;
 		this.layer = layer;
@@ -195,15 +200,15 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 			Log.logError( "Invalid Tessellator Behavior", e );
 		}
 
-		final int[] faceCount = new int[BlockRenderLayer.values().length];
+		final int[] faceCount = new int[RenderType.getBlockRenderTypes().size()];
 
-		final EnumSet<BlockRenderLayer> mcLayers = EnumSet.noneOf( BlockRenderLayer.class );
-		final EnumSet<ChiselLayer> layers = layer == BlockRenderLayer.TRANSLUCENT ? EnumSet.of( ChiselLayer.TRANSLUCENT ) : EnumSet.complementOf( EnumSet.of( ChiselLayer.TRANSLUCENT ) );
+		final Set<RenderType> mcLayers = Sets.newHashSet();
+		final EnumSet<ChiselLayer> layers = layer == RenderType.getTranslucent() ? EnumSet.of( ChiselLayer.TRANSLUCENT ) : EnumSet.complementOf( EnumSet.of( ChiselLayer.TRANSLUCENT ) );
 		for ( final TileEntityBlockChiseled tx : myPrivateList )
 		{
-			if ( tx instanceof TileEntityBlockChiseledTESR && !tx.isInvalid() )
+			if ( tx instanceof TileEntityBlockChiseledTESR && !tx.isRemoved() )
 			{
-				final IExtendedBlockState estate = ( (TileEntityBlockChiseledTESR) tx ).getTileRenderState( cache );
+				final BlockState estate = ( (TileEntityBlockChiseledTESR) tx ).getBlockState( cache );
 
 				mcLayers.clear();
 				for ( final ChiselLayer lx : layers )

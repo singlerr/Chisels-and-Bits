@@ -1,12 +1,12 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
-import java.util.List;
-
 import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.core.ClientSide;
-import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.client.MinecraftForgeClient;
+
+import java.util.List;
 
 public abstract class TileRenderCache
 {
@@ -15,9 +15,9 @@ public abstract class TileRenderCache
 	private final TileLayerRenderCache translucent = new TileLayerRenderCache();
 
 	public TileLayerRenderCache getLayer(
-			final BlockRenderLayer layer )
+			final RenderType layer )
 	{
-		if ( layer == BlockRenderLayer.TRANSLUCENT )
+		if ( layer == RenderType.getTranslucent() )
 		{
 			return translucent;
 		}
@@ -28,7 +28,7 @@ public abstract class TileRenderCache
 	abstract public List<TileEntityBlockChiseledTESR> getTileList();
 
 	public EnumTESRRenderState update(
-			final BlockRenderLayer layer,
+			final RenderType layer,
 			final int updateCost )
 	{
 		final int lastRF = ClientSide.instance.getLastRenderedFrame();
@@ -46,7 +46,7 @@ public abstract class TileRenderCache
 
 	public boolean hasRenderedThisFrame()
 	{
-		final BlockRenderLayer layer = MinecraftForgeClient.getRenderPass() == 0 ? BlockRenderLayer.SOLID : BlockRenderLayer.TRANSLUCENT;
+		final RenderType layer = MinecraftForgeClient.getRenderLayer();
 		final TileLayerRenderCache tlrc = getLayer( layer );
 
 		final int lastRF = ClientSide.instance.getLastRenderedFrame();

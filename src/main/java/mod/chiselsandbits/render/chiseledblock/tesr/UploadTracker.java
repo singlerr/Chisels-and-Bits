@@ -1,13 +1,13 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.util.BlockRenderLayer;
 
 class UploadTracker
 {
-	final TileRenderCache trc;
-	final BlockRenderLayer layer;
-	private Tessellator src;
+	final   TileRenderCache trc;
+	final   RenderType      layer;
+	private Tessellator     src;
 
 	public Tessellator getTessellator()
 	{
@@ -20,7 +20,7 @@ class UploadTracker
 
 	public UploadTracker(
 			final TileRenderCache t,
-			final BlockRenderLayer l,
+			final RenderType l,
 			final Tessellator tess )
 	{
 		trc = t;

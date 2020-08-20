@@ -10,7 +10,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.particles.ParticleTypes;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -1629,11 +1631,11 @@ public class ClientSide
 	{
 		if ( lastTool == ChiselToolType.CHISEL )
 		{
-			return Minecraft.getMinecraft().gameSettings.keyBindAttack;
+			return Minecraft.getInstance().gameSettings.keyBindAttack;
 		}
 		else
 		{
-			return Minecraft.getMinecraft().gameSettings.keyBindUseItem;
+			return Minecraft.getInstance().gameSettings.keyBindUseItem;
 		}
 	}
 
@@ -1645,7 +1647,6 @@ public class ClientSide
 	{
 		if ( !state.getBlock().isAir( state, world, pos ) )
 		{
-			state = state.getActualState( new HarvestWorld( state ), pos );
 			final int StateID = ModUtil.getStateId( state );
 
 			final int i = 4;
@@ -1659,7 +1660,7 @@ public class ClientSide
 						final double d0 = pos.getX() + ( j + 0.5D ) / i;
 						final double d1 = pos.getY() + ( k + 0.5D ) / i;
 						final double d2 = pos.getZ() + ( l + 0.5D ) / i;
-						effectRenderer.spawnEffectParticle( EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, StateID );
+						effectRenderer.addParticle(ParticleTypes., d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, StateID );
 					}
 				}
 			}
@@ -1670,7 +1671,7 @@ public class ClientSide
 
 	public TextureAtlasSprite getMissingIcon()
 	{
-		return Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
+		return Minecraft.getInstance().getTextureManager().getTexture(new ResourceLocation("missingno"));
 	}
 
 	public String getModeKey()

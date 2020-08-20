@@ -26,6 +26,7 @@ import mod.chiselsandbits.interfaces.IChiseledTileContainer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.init.Blocks;
@@ -34,6 +35,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Mirror;
@@ -42,6 +44,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.property.IExtendedBlockState;
@@ -52,28 +55,60 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class TileEntityBlockChiseled extends TileEntity implements IChiseledTileContainer, IChiseledBlockTileEntity
 {
 
-	public static class TileEntityBlockChiseledDummy extends TileEntityBlockChiseled
+    public TileEntityBlockChiseled(final TileEntityType<?> tileEntityTypeIn)
+    {
+        super(tileEntityTypeIn);
+    }
+
+    public static class TileEntityBlockChiseledDummy extends TileEntityBlockChiseled
 	{
+        public TileEntityBlockChiseledDummy(final TileEntityType<?> tileEntityTypeIn)
+        {
+            super(tileEntityTypeIn);
+        }
+    };
 
-	};
-
-	private IExtendedBlockState state;
+	private BlockState state;
 	public IChiseledTileContainer occlusionState;
 
 	boolean isNormalCube = false;
 	int sideState = 0;
 	int lightlevel = -1;
 
+	private VoxelNeighborRenderTracker neighborRenderTracker;
+	private VoxelBlobStateReference blobStateReference;
+	private int blockStateId;
+
 	// used to initialize light level before I can properly feed things into the
 	// tile entity, half 2 of fixing inital lighting issues.
 	private static ThreadLocal<Integer> localLightLevel = new ThreadLocal<Integer>();
 
-	public TileEntityBlockChiseled()
-	{
+    public VoxelNeighborRenderTracker getNeighborRenderTracker()
+    {
+        return neighborRenderTracker;
+    }
 
-	}
+    public void setNeighborRenderTracker(final VoxelNeighborRenderTracker neighborRenderTracker)
+    {
+        this.neighborRenderTracker = neighborRenderTracker;
+    }
 
-	public IChiseledTileContainer getTileContainer()
+    public void setBlobStateReference(final VoxelBlobStateReference blobStateReference)
+    {
+        this.blobStateReference = blobStateReference;
+    }
+
+    public int getBlockStateId()
+    {
+        return blockStateId;
+    }
+
+    public void setBlockStateId(final int blockStateId)
+    {
+        this.blockStateId = blockStateId;
+    }
+
+    public IChiseledTileContainer getTileContainer()
 	{
 		if ( occlusionState != null )
 		{
@@ -99,7 +134,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	@Override
 	public void sendUpdate()
 	{
-		ModUtil.sendUpdate( worldObj, pos );
+		ModUtil.sendUpdate( getWorld(), pos );
 	}
 
 	public void copyFrom(
@@ -111,13 +146,13 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		lightlevel = src.lightlevel;
 	}
 
-	public IExtendedBlockState getBasicState()
+	public BlockState getBasicState()
 	{
 		return getState( false, 0, worldObj );
 	}
 
-	public IExtendedBlockState getRenderState(
-			final IBlockAccess access )
+	public BlockState getRenderState(
+			final IBlockReader access )
 	{
 		return getState( true, 1, access );
 	}
@@ -128,21 +163,21 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	@Nonnull
-	protected IExtendedBlockState getState(
+	protected BlockState getState(
 			final boolean updateNeightbors,
 			final int updateCost,
-			final IBlockAccess access )
+			final IBlockReader access )
 	{
 		if ( state == null )
 		{
-			return (IExtendedBlockState) ChiselsAndBits.getBlocks().getChiseledDefaultState();
+			return ChiselsAndBits.getBlocks().getChiseledDefaultState();
 		}
 
 		if ( updateNeightbors )
 		{
 			final boolean isDyanmic = this instanceof TileEntityBlockChiseledTESR;
 
-			final VoxelNeighborRenderTracker vns = state.getValue( BlockChiseled.UProperty_VoxelNeighborState );
+			final VoxelNeighborRenderTracker vns = state.get( BlockChiseled.UProperty_VoxelNeighborState );
 			if ( vns == null )
 			{
 				return state;
@@ -232,7 +267,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 	}
 
 	protected void tesrUpdate(
-			final IBlockAccess access,
+			final IBlockReader access,
 			final VoxelNeighborRenderTracker vns )
 	{
 

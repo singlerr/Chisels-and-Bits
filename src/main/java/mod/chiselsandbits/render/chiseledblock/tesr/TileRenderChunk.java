@@ -87,12 +87,12 @@ public class TileRenderChunk extends TileRenderCache
 		{
 			if ( getTiles().isEmpty() )
 			{
-				return BlockPos.ORIGIN;
+				return BlockPos.ZERO;
 			}
 
 			final int bitMask = ~0xf;
 			final Iterator<TileEntityBlockChiseledTESR> i = getTiles().iterator();
-			final BlockPos tilepos = i.hasNext() ? i.next().getPos() : BlockPos.ORIGIN;
+			final BlockPos tilepos = i.hasNext() ? i.next().getPos() : BlockPos.ZERO;
 			return new BlockPos( tilepos.getX() & bitMask, tilepos.getY() & bitMask, tilepos.getZ() & bitMask );
 		}
 		finally
