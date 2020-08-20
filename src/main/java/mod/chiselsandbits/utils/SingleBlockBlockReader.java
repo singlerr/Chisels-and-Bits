@@ -22,6 +22,12 @@ public class SingleBlockBlockReader implements IBlockReader
         this.blk = blk;
     }
 
+    public SingleBlockBlockReader(final BlockState state)
+    {
+        this.state = state;
+        this.blk = state.getBlock();
+    }
+
     @Nullable
     @Override
     public TileEntity getTileEntity(final BlockPos pos)

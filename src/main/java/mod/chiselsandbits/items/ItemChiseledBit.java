@@ -260,7 +260,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		final Block blk = usedState.getBlock();
 		if ( blk instanceof BlockBitTank )
 		{
-			if ( blk.onBlockActivated( usedState, world, usedBlock, player, hand,  )
+			if ( blk.onBlockActivated( usedState, world, usedBlock, player, hand, rayTraceResult) == ActionResultType.SUCCESS)
 			{
 				return ActionResultType.SUCCESS;
 			}
@@ -294,7 +294,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				}
 				else
 				{
-					pc = new PacketChisel( getBitOperation( player, hand, stack ), bitLocation, side, ChiselMode.castMode( mode ), hand );
+					pc = new PacketChisel( getBitOperation( player, hand, stack ), bitLocation, rayTraceResult.getFace(), ChiselMode.castMode( mode ), hand );
 				}
 
 				final int result = pc.doAction( player );

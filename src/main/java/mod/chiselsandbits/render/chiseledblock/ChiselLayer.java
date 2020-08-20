@@ -6,21 +6,22 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.client.culling.MCCullTest;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.BlockRenderLayer;
 
 public enum ChiselLayer
 {
-	SOLID( BlockRenderLayer.SOLID, VoxelType.SOLID ),
-	SOLID_FLUID( BlockRenderLayer.SOLID, VoxelType.FLUID ),
-	CUTOUT( BlockRenderLayer.CUTOUT, null ),
-	CUTOUT_MIPPED( BlockRenderLayer.CUTOUT_MIPPED, null ),
-	TRANSLUCENT( BlockRenderLayer.TRANSLUCENT, null );
+	SOLID( RenderType.getSolid(), VoxelType.SOLID ),
+	SOLID_FLUID( RenderType.getSolid(), VoxelType.FLUID ),
+	CUTOUT( RenderType.getCutout(), null ),
+	CUTOUT_MIPPED( RenderType.getCutoutMipped(), null ),
+	TRANSLUCENT( RenderType.getTranslucent(), null );
 
-	public final BlockRenderLayer layer;
+	public final RenderType layer;
 	public final VoxelType type;
 
 	private ChiselLayer(
-			final BlockRenderLayer layer,
+			final RenderType layer,
 			final VoxelType type )
 	{
 		this.layer = layer;
@@ -48,20 +49,25 @@ public enum ChiselLayer
 	}
 
 	public static ChiselLayer fromLayer(
-			final BlockRenderLayer layerInfo,
+			final RenderType layerInfo,
 			final boolean isFluid )
 	{
-		switch ( layerInfo )
-		{
-			case CUTOUT:
-				return CUTOUT;
-			case CUTOUT_MIPPED:
-				return CUTOUT_MIPPED;
-			case SOLID:
-				return isFluid ? SOLID_FLUID : SOLID;
-			case TRANSLUCENT:
-				return TRANSLUCENT;
-		}
+        if (ChiselLayer.CUTOUT.layer.equals(layerInfo))
+        {
+            return CUTOUT;
+        }
+        else if (ChiselLayer.CUTOUT_MIPPED.layer.equals(layerInfo))
+        {
+            return CUTOUT_MIPPED;
+        }
+        else if (ChiselLayer.SOLID.layer.equals(layerInfo))
+        {
+            return isFluid ? SOLID_FLUID : SOLID;
+        }
+        else if (ChiselLayer.TRANSLUCENT.layer.equals(layerInfo))
+        {
+            return TRANSLUCENT;
+        }
 
 		throw new InvalidParameterException();
 	}

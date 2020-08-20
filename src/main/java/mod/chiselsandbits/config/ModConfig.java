@@ -19,8 +19,10 @@ import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.registry.ModRegistry;
 import mod.chiselsandbits.render.chiseledblock.tesr.GfxRenderState.UseVBO;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.launchwrapper.Launch;
+import net.minecraft.state.Property;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.config.ConfigCategory;
@@ -337,7 +339,7 @@ public class ModConfig extends Configuration
 
 	public boolean canRevertToBlock(
 			BlockState newState )
-	{
+	{/*
 		final Property p = get( "Revertible States", StringStates.getNameFromStateID( ModUtil.getStateId( newState ) ), true );
 		final boolean out = p.getBoolean( true );
 
@@ -346,7 +348,9 @@ public class ModConfig extends Configuration
 			save();
 		}
 
-		return out;
+		return out;*/
+
+        return true; //TODO Fix configuration.
 	}
 
 	private void setDefaults()
@@ -655,7 +659,7 @@ public class ModConfig extends Configuration
 	}
 
 	@Override
-	public Property get(
+	public Property<?> get(
 			final String category,
 			final String key,
 			final String defaultValue,

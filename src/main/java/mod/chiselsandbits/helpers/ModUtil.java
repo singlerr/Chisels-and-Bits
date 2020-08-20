@@ -8,6 +8,8 @@ import java.util.Random;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import mod.chiselsandbits.utils.SingleBlockBlockReader;
+import mod.chiselsandbits.utils.SingleBlockWorldReader;
 import net.minecraft.block.*;
 import net.minecraft.client.renderer.chunk.ChunkRenderCache;
 import net.minecraft.entity.LivingEntity;
@@ -548,11 +550,17 @@ public class ModUtil
 
 	public static boolean isNormalCube(
 			final BlockState blockType,
-            final IWorldReader reader,
+            final IBlockReader reader,
             final BlockPos pos)
 	{
 		return blockType.isNormalCube(reader, pos);
 	}
+
+	public static boolean isNormalCube(
+	  final BlockState blockState
+    ) {
+        return isNormalCube(blockState, new SingleBlockBlockReader(blockState, blockState.getBlock()), BlockPos.ZERO);
+    }
 
 	public static Direction getSide(
 			final ItemStack stack )

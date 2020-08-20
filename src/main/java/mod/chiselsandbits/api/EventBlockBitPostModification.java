@@ -2,7 +2,7 @@ package mod.chiselsandbits.api;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.eventhandler.Event;
+import net.minecraftforge.eventbus.api.Event;
 
 public class EventBlockBitPostModification extends Event
 {

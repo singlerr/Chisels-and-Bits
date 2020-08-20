@@ -17,31 +17,23 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.chunk.ChunkRenderCache;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.entity.Entity;
+import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Stopwatch;
 
 import mod.chiselsandbits.chiseledblock.EnumTESRRenderState;
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
-import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
-import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
-import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
@@ -325,9 +317,10 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
 		t.submitForReuse();
 	}
 
-	public ChisledBlockRenderChunkTESR()
+	public ChisledBlockRenderChunkTESR(final TileEntityRendererDispatcher dispatcher)
 	{
-		instance = this;
+        super(dispatcher);
+        instance = this;
 		ChiselsAndBits.registerWithBus( this );
 	}
 
@@ -512,21 +505,26 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
 			}
 
 			matrixStackIn.push();
-			GL11.glPushMatrix();
-			GL11.glTranslated( -TileEntityRendererDispatcher.staticPlayerX + chunkOffset.getX(),
-					-TileEntityRendererDispatcher.staticPlayerY + chunkOffset.getY(),
-					-TileEntityRendererDispatcher.staticPlayerZ + chunkOffset.getZ() );
+
+			final Entity entity = Minecraft.getInstance().getRenderViewEntity();
+            double x = entity.lastTickPosX + (entity.getPosX() - entity.lastTickPosX) * (double)partialTicks;
+            double y = entity.lastTickPosY + (entity.getPosY() - entity.lastTickPosY) * (double)partialTicks;
+            double z = entity.lastTickPosZ + (entity.getPosZ() - entity.lastTickPosZ) * (double)partialTicks;
+
+            matrixStackIn.translate( -x + chunkOffset.getX(),
+					-y + chunkOffset.getY(),
+					-z + chunkOffset.getZ() );
 
 			configureGLState( layer );
 
-			if ( dl.render() )
+			if ( dl.render(matrixStackIn.getLast().getMatrix()) )
 			{
 				markRendered( renderChunk.singleInstanceMode );
 			}
 
 			unconfigureGLState( layer );
 
-			GL11.glPopMatrix();
+			matrixStackIn.pop();
 		}
 	}
 

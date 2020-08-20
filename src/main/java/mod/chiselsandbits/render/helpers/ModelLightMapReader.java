@@ -3,8 +3,6 @@ package mod.chiselsandbits.render.helpers;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumType;
-import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
 
 public class ModelLightMapReader extends BaseModelReader
 {
@@ -22,11 +20,11 @@ public class ModelLightMapReader extends BaseModelReader
 	{
 		hasLightMap = false;
 
-		int eCount = format.getElementCount();
+		int eCount = format.getSize();
 		for ( int x = 0; x < eCount; x++ )
 		{
-			VertexFormatElement e = format.getElement( x );
-			if ( e.getUsage() == EnumUsage.UV && e.getIndex() == 1 && e.getType() == EnumType.SHORT )
+			VertexFormatElement e = format.getElements().get(x);
+			if ( e.getUsage() == VertexFormatElement.Usage.UV && e.getIndex() == 1 && e.getType() == VertexFormatElement.Type.SHORT )
 			{
 				hasLightMap = true;
 			}
@@ -46,9 +44,9 @@ public class ModelLightMapReader extends BaseModelReader
 			final int element,
 			final float... data )
 	{
-		final VertexFormatElement e = getVertexFormat().getElement( element );
+		final VertexFormatElement e = getVertexFormat().getElements().get(element);
 
-		if ( e.getUsage() == EnumUsage.UV && e.getIndex() == 1 && e.getType() == EnumType.SHORT && data.length >= 2 && hasLightMap )
+		if ( e.getUsage() == VertexFormatElement.Usage.UV && e.getIndex() == 1 && e.getType() == VertexFormatElement.Type.SHORT && data.length >= 2 && hasLightMap )
 		{
 			final int lvFromData_sky = (int) ( data[0] / maxLightmap ) & 0xf;
 			final int lvFromData_block = (int) ( data[1] / maxLightmap ) & 0xf;

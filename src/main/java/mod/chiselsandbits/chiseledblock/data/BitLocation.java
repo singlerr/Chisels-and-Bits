@@ -5,6 +5,7 @@ import javax.annotation.Nonnull;
 import mod.chiselsandbits.api.IBitLocation;
 import mod.chiselsandbits.helpers.BitOperation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 
 public class BitLocation implements IBitLocation
@@ -48,19 +49,19 @@ public class BitLocation implements IBitLocation
 	}
 
 	public BitLocation(
-			final RayTraceResult mop,
+			final BlockRayTraceResult mop,
 			final boolean absHit,
 			final BitOperation type )
 	{
-		final BlockPos absOffset = absHit ? mop.getBlockPos() : BlockPos.ORIGIN;
+		final BlockPos absOffset = absHit ? mop.getPos() : BlockPos.ZERO;
 
 		if ( !type.usePlacementOffset() )
 		{
-			blockPos = mop.getBlockPos();
+			blockPos = mop.getPos();
 
-			final double xCoord = mop.hitVec.xCoord - absOffset.getX() - mop.sideHit.getFrontOffsetX() * One32nd;
-			final double yCoord = mop.hitVec.yCoord - absOffset.getY() - mop.sideHit.getFrontOffsetY() * One32nd;
-			final double zCoord = mop.hitVec.zCoord - absOffset.getZ() - mop.sideHit.getFrontOffsetZ() * One32nd;
+			final double xCoord = mop.getHitVec().x - absOffset.getX() - mop.getFace().getXOffset() * One32nd;
+			final double yCoord = mop.getHitVec().y - absOffset.getY() - mop.getFace().getYOffset() * One32nd;
+			final double zCoord = mop.getHitVec().z - absOffset.getZ() - mop.getFace().getZOffset() * One32nd;
 
 			bitX = snapToValid( (int) Math.floor( xCoord * VoxelBlob.dim ) );
 			bitY = snapToValid( (int) Math.floor( yCoord * VoxelBlob.dim ) );
@@ -68,9 +69,9 @@ public class BitLocation implements IBitLocation
 		}
 		else
 		{
-			final double xCoord = mop.hitVec.xCoord - absOffset.getX() + mop.sideHit.getFrontOffsetX() * One32nd;
-			final double yCoord = mop.hitVec.yCoord - absOffset.getY() + mop.sideHit.getFrontOffsetY() * One32nd;
-			final double zCoord = mop.hitVec.zCoord - absOffset.getZ() + mop.sideHit.getFrontOffsetZ() * One32nd;
+            final double xCoord = mop.getHitVec().x - absOffset.getX() - mop.getFace().getXOffset() * One32nd;
+            final double yCoord = mop.getHitVec().y - absOffset.getY() - mop.getFace().getYOffset() * One32nd;
+            final double zCoord = mop.getHitVec().z - absOffset.getZ() - mop.getFace().getZOffset() * One32nd;
 
 			final int bitXi = (int) Math.floor( xCoord * VoxelBlob.dim );
 			final int bitYi = (int) Math.floor( yCoord * VoxelBlob.dim );
@@ -78,14 +79,14 @@ public class BitLocation implements IBitLocation
 
 			if ( bitXi < 0 || bitYi < 0 || bitZi < 0 || bitXi >= VoxelBlob.dim || bitYi >= VoxelBlob.dim || bitZi >= VoxelBlob.dim )
 			{
-				blockPos = mop.getBlockPos().offset( mop.sideHit );
-				bitX = snapToValid( bitXi - mop.sideHit.getFrontOffsetX() * VoxelBlob.dim );
-				bitY = snapToValid( bitYi - mop.sideHit.getFrontOffsetY() * VoxelBlob.dim );
-				bitZ = snapToValid( bitZi - mop.sideHit.getFrontOffsetZ() * VoxelBlob.dim );
+				blockPos = mop.getPos().offset( mop.getFace() );
+				bitX = snapToValid( bitXi - mop.getFace().getZOffset() * VoxelBlob.dim );
+				bitY = snapToValid( bitYi - mop.getFace().getYOffset() * VoxelBlob.dim );
+				bitZ = snapToValid( bitZi - mop.getFace().getZOffset() * VoxelBlob.dim );
 			}
 			else
 			{
-				blockPos = mop.getBlockPos();
+				blockPos = mop.getPos();
 				bitX = snapToValid( bitXi );
 				bitY = snapToValid( bitYi );
 				bitZ = snapToValid( bitZi );

@@ -4,22 +4,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.lwjgl.util.vector.Vector3f;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.model.BakedQuad;
 
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer;
 import mod.chiselsandbits.render.helpers.ModelUtil;
-import net.minecraft.block.state.BlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockFaceUV;
-import net.minecraft.client.renderer.block.model.BlockPartFace;
-import net.minecraft.client.renderer.block.model.BlockPartRotation;
-import net.minecraft.client.renderer.block.model.FaceBakery;
-import net.minecraft.client.renderer.block.model.ModelRotation;
+import net.minecraft.client.renderer.model.BlockPartRotation;
+import net.minecraft.client.renderer.model.FaceBakery;
+import net.minecraft.client.renderer.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.vector.Vector3f;
 
 public class BitItemBaked extends BaseBakedBlockModel
 {
@@ -41,9 +38,9 @@ public class BitItemBaked extends BaseBakedBlockModel
 		final BlockPartRotation bpr = null;
 		final ModelRotation mr = ModelRotation.X0_Y0;
 
-		for ( final Direction myFace : Direction.VALUES )
+		for ( final Direction myFace : Direction.values() )
 		{
-			for ( final BlockRenderLayer layer : BlockRenderLayer.values() )
+			for ( final RenderType layer : RenderType.getBlockRenderTypes() )
 			{
 				final ModelQuadLayer[] layers = ModelUtil.getCachedFace( BlockRef, 0, myFace, layer );
 

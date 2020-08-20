@@ -1,21 +1,21 @@
 package mod.chiselsandbits.render.chiseledblock;
 
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.util.Direction;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.util.Direction;
 
 public class ChiseledModelBuilder
 {
 
-	private final List<BakedQuad> up = new ArrayList<BakedQuad>();
-	private final List<BakedQuad> down = new ArrayList<BakedQuad>();
-	private final List<BakedQuad> north = new ArrayList<BakedQuad>();
-	private final List<BakedQuad> south = new ArrayList<BakedQuad>();
-	private final List<BakedQuad> east = new ArrayList<BakedQuad>();
-	private final List<BakedQuad> west = new ArrayList<BakedQuad>();
-	private final List<BakedQuad> generic = new ArrayList<BakedQuad>();
+	private final List<BakedQuad> up      = new ArrayList<>();
+	private final List<BakedQuad> down    = new ArrayList<>();
+	private final List<BakedQuad> north   = new ArrayList<>();
+	private final List<BakedQuad> south   = new ArrayList<>();
+	private final List<BakedQuad> east    = new ArrayList<>();
+	private final List<BakedQuad> west    = new ArrayList<>();
+	private final List<BakedQuad> generic = new ArrayList<>();
 
 	public List<BakedQuad> getList(
 			final Direction side )

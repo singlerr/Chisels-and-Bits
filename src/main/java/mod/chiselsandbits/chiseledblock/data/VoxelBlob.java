@@ -8,7 +8,6 @@ import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -38,41 +37,32 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Direction.AxisDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.ForgeRegistry;
 
 public final class VoxelBlob implements IVoxelSrc
 {
 
-	private static final BitSet fluidFilterState;
-	private static final Map<BlockRenderLayer, BitSet> layerFilters;
+	private static final BitSet                  fluidFilterState;
+
+	@OnlyIn(Dist.CLIENT)
+	private static final Map<RenderType, BitSet> layerFilters = new HashMap<>();
 
 	static
 	{
 		fluidFilterState = new BitSet( 256 );
-
-		if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
-		{
-			layerFilters = new EnumMap<BlockRenderLayer, BitSet>( BlockRenderLayer.class );
-		}
-		else
-		{
-			layerFilters = null;
-		}
-
 		clearCache();
 	}
 
@@ -80,10 +70,12 @@ public final class VoxelBlob implements IVoxelSrc
 	{
 		fluidFilterState.clear();
 
-		for ( final Iterator<Block> it = Block.REGISTRY.iterator(); it.hasNext(); )
+		final ForgeRegistry<Block> blockReg = (ForgeRegistry<Block>) ForgeRegistries.BLOCKS;
+
+		for ( final Iterator<Block> it = blockReg.iterator(); it.hasNext(); )
 		{
 			final Block block = it.next();
-			final int blockId = Block.REGISTRY.getIDForObject( block );
+			final int blockId = blockReg.getID(block);
 
 			if ( BlockBitInfo.getFluidFromBlock( block ) != null )
 			{
@@ -91,30 +83,30 @@ public final class VoxelBlob implements IVoxelSrc
 			}
 		}
 
-		if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
-		{
-			updateCacheClient();
-			ModUtil.cacheFastStates();
-		}
+		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+		    updateCacheClient();
+		    ModUtil.cacheFastStates();
+        });
 	}
 
+	@OnlyIn(Dist.CLIENT)
 	private static void updateCacheClient()
 	{
 		layerFilters.clear();
 
-		final Map<BlockRenderLayer, BitSet> layerFilters = VoxelBlob.layerFilters;
-		final BlockRenderLayer[] layers = BlockRenderLayer.values();
+		final Map<RenderType, BitSet> layerFilters = VoxelBlob.layerFilters;
 
-		for ( final BlockRenderLayer layer : layers )
+		for ( final RenderType layer : RenderType.getBlockRenderTypes() )
 		{
 			layerFilters.put( layer, new BitSet( 4096 ) );
 		}
 
-		for ( final Iterator<Block> it = Block.REGISTRY.iterator(); it.hasNext(); )
+        final ForgeRegistry<Block> blockReg = (ForgeRegistry<Block>) ForgeRegistries.BLOCKS;
+		for ( final Iterator<Block> it = blockReg.iterator(); it.hasNext(); )
 		{
 			final Block block = it.next();
 
-			for ( final BlockState state : block.getBlockState().getValidStates() )
+			for ( final BlockState state : block.getStateContainer().getValidStates() )
 			{
 				final int id = ModUtil.getStateId( state );
 				if ( state == null || state.getBlock() != block )
@@ -123,9 +115,9 @@ public final class VoxelBlob implements IVoxelSrc
 					continue;
 				}
 
-				for ( final BlockRenderLayer layer : layers )
+				for ( final RenderType layer : RenderType.getBlockRenderTypes() )
 				{
-					if ( block.canRenderInLayer( state, layer ) )
+					if (RenderTypeLookup.getChunkRenderType(state) == layer)
 					{
 						layerFilters.get( layer ).set( id );
 					}
@@ -557,9 +549,9 @@ public final class VoxelBlob implements IVoxelSrc
 		final int mySpot = get( x, y, z );
 		dest.state = mySpot;
 
-		x += face.getFrontOffsetX();
-		y += face.getFrontOffsetY();
-		z += face.getFrontOffsetZ();
+		x += face.getXOffset();
+		y += face.getYOffset();
+		z += face.getZOffset();
 
 		if ( x >= 0 && x < dim && y >= 0 && y < dim && z >= 0 && z < dim )
 		{
@@ -569,7 +561,7 @@ public final class VoxelBlob implements IVoxelSrc
 		else if ( secondBlob != null )
 		{
 			dest.isEdge = true;
-			dest.visibleFace = cullVisTest.isVisible( mySpot, secondBlob.get( x - face.getFrontOffsetX() * dim, y - face.getFrontOffsetY() * dim, z - face.getFrontOffsetZ() * dim ) );
+			dest.visibleFace = cullVisTest.isVisible( mySpot, secondBlob.get( x - face.getXOffset() * dim, y - face.getYOffset() * dim, z - face.getZOffset() * dim ) );
 		}
 		else
 		{
@@ -696,8 +688,8 @@ public final class VoxelBlob implements IVoxelSrc
 	public List<ITextComponent> listContents(
 			final List<ITextComponent> details )
 	{
-		final HashMap<Integer, Integer> states = new HashMap<Integer, Integer>();
-		final HashMap<String, Integer> contents = new HashMap<String, Integer>();
+		final HashMap<Integer, Integer> states = new HashMap<>();
+		final HashMap<ITextComponent, Integer> contents = new HashMap<>();
 
 		final BitIterator bi = new BitIterator();
 		while ( bi.hasNext() )
@@ -724,7 +716,7 @@ public final class VoxelBlob implements IVoxelSrc
 
 		for ( final Entry<Integer, Integer> e : states.entrySet() )
 		{
-			final String name = ItemChiseledBit.getBitTypeName( ItemChiseledBit.createStack( e.getKey(), 1, false ) );
+			final ITextComponent name = ItemChiseledBit.getBitTypeName( ItemChiseledBit.createStack( e.getKey(), 1, false ) );
 
 			if ( name == null )
 			{
@@ -750,9 +742,9 @@ public final class VoxelBlob implements IVoxelSrc
 			details.add(new StringTextComponent( LocalStrings.Empty.getLocal() ));
 		}
 
-		for ( final Entry<String, Integer> e : contents.entrySet() )
+		for ( final Entry<ITextComponent, Integer> e : contents.entrySet() )
 		{
-			details.add( new StringTextComponent( new StringBuilder().append( e.getValue() ).append( ' ' ).append( e.getKey() ).toString() ));
+			details.add( new StringTextComponent( new StringBuilder().append( e.getValue() ).append( ' ' ).toString()).append( e.getKey() ));
 		}
 
 		return details;
@@ -765,7 +757,7 @@ public final class VoxelBlob implements IVoxelSrc
 	{
 		int output = 0x00;
 
-		for ( final Direction face : Direction.VALUES )
+		for ( final Direction face : Direction.values() )
 		{
 			final int edge = face.getAxisDirection() == AxisDirection.POSITIVE ? 15 : 0;
 			int required = totalRequired;
@@ -854,7 +846,7 @@ public final class VoxelBlob implements IVoxelSrc
 	}
 
 	public boolean filter(
-			final BlockRenderLayer layer )
+			final RenderType layer )
 	{
 		final BitSet layerFilterState = layerFilters.get( layer );
 		boolean hasValues = false;
@@ -910,7 +902,7 @@ public final class VoxelBlob implements IVoxelSrc
 
 		final PacketBuffer header = new PacketBuffer( Unpooled.wrappedBuffer( bb ) );
 
-		final int version = header.readVarIntFromBuffer();
+		final int version = header.readInt();
 
 		BlobSerializer bs = null;
 
@@ -931,8 +923,8 @@ public final class VoxelBlob implements IVoxelSrc
 			throw new RuntimeException( "Invalid Version: " + version );
 		}
 
-		final int byteOffset = header.readVarIntFromBuffer();
-		final int bytesOfInterest = header.readVarIntFromBuffer();
+		final int byteOffset = header.readInt();
+		final int bytesOfInterest = header.readInt();
 
 		final BitStream bits = BitStream.valueOf( byteOffset, ByteBuffer.wrap( bb.array(), header.readerIndex(), bytesOfInterest ) );
 		for ( int x = 0; x < array_size; x++ )
@@ -991,7 +983,7 @@ public final class VoxelBlob implements IVoxelSrc
 			final DeflaterOutputStream w = new DeflaterOutputStream( o, def, bestBufferSize );
 
 			final PacketBuffer pb = BlobSerilizationCache.getCachePacketBuffer();
-			pb.writeVarIntToBuffer( bs.getVersion() );
+			pb.writeInt( bs.getVersion() );
 			bs.write( pb );
 
 			final BitStream set = BlobSerilizationCache.getCacheBitStream();
@@ -1004,8 +996,8 @@ public final class VoxelBlob implements IVoxelSrc
 			final int bytesToWrite = arrayContents.length;
 			final int byteOffset = set.byteOffset();
 
-			pb.writeVarIntToBuffer( byteOffset );
-			pb.writeVarIntToBuffer( bytesToWrite - byteOffset );
+			pb.writeInt( byteOffset );
+			pb.writeInt( bytesToWrite - byteOffset );
 
 			w.write( pb.array(), 0, pb.writerIndex() );
 

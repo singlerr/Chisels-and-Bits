@@ -12,7 +12,7 @@ public abstract class BaseModelReader implements IVertexConsumer
 	@Override
 	public VertexFormat getVertexFormat()
 	{
-		return DefaultVertexFormats.ITEM;
+		return DefaultVertexFormats.BLOCK;
 	}
 
 	@Override

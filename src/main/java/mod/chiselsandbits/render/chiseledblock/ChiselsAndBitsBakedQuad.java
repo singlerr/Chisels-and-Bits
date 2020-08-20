@@ -2,8 +2,9 @@ package mod.chiselsandbits.render.chiseledblock;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.google.common.collect.ImmutableList;
 import mod.chiselsandbits.render.cache.FormatInfo;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -16,18 +17,9 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 {
 
 	public static final ConcurrentHashMap<VertexFormat, FormatInfo> formatData = new ConcurrentHashMap<VertexFormat, FormatInfo>();
-	public static final VertexFormat VERTEX_FORMAT = new VertexFormat();
-
-	static
-	{
-		for ( final VertexFormatElement element : DefaultVertexFormats.ITEM.getElements() )
-		{
-			VERTEX_FORMAT.addElement( element );
-		}
-
-		// add lightmap ;)
-		VERTEX_FORMAT.addElement( DefaultVertexFormats.TEX_2S );
-	}
+	public static final VertexFormat VERTEX_FORMAT = new VertexFormat(
+	  new ImmutableList.Builder().addAll(DefaultVertexFormats.BLOCK.getElements())
+        .add(DefaultVertexFormats.TEX_2S).build());;
 
 	private static int[] packData(
 			VertexFormat format,
@@ -48,7 +40,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 	public void pipe(
 			final IVertexConsumer consumer )
 	{
-		final int[] eMap = LightUtil.mapFormats( consumer.getVertexFormat(), format );
+		final int[] eMap = LightUtil.mapFormats( consumer.getVertexFormat(), DefaultVertexFormats.BLOCK );
 
 		consumer.setTexture( sprite );
 		consumer.setQuadTint( getTintIndex() );
@@ -57,9 +49,9 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 
 		for ( int v = 0; v < 4; v++ )
 		{
-			for ( int e = 0; e < consumer.getVertexFormat().getElementCount(); e++ )
+			for ( int e = 0; e < consumer.getVertexFormat().getElements().size(); e++ )
 			{
-				if ( eMap[e] != format.getElementCount() )
+				if ( eMap[e] != consumer.getVertexFormat().getElements().size() )
 				{
 					consumer.put( e, getRawPart( v, eMap[e] ) );
 				}
@@ -75,33 +67,32 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 			int v,
 			int i )
 	{
-		return formatData.get( this.format ).unpack( vertexData, v, i );
+		return formatData.get( DefaultVertexFormats.BLOCK ).unpack( vertexData, v, i );
 	}
 
 	@Override
 	public int[] getVertexData()
 	{
-		final int[] tmpData = new int[format.getNextOffset() /* / 4 * 4 */];
+        int[] packed = new int[DefaultVertexFormats.BLOCK.getIntegerSize() * 4];
 
 		for ( int v = 0; v < 4; v++ )
 		{
-			for ( int e = 0; e < format.getElementCount(); e++ )
+			for ( int e = 0; e < DefaultVertexFormats.BLOCK.getElements().size(); e++ )
 			{
-				LightUtil.pack( getRawPart( v, e ), tmpData, format, v, e );
+				LightUtil.pack( getRawPart( v, e ), packed, DefaultVertexFormats.BLOCK, v, e );
 			}
 		}
 
-		return tmpData;
+		return packed;
 	}
 
 	public ChiselsAndBitsBakedQuad(
 			final float[][][] unpackedData,
 			final int tint,
 			final Direction orientation,
-			final TextureAtlasSprite sprite,
-			VertexFormat format )
+			final TextureAtlasSprite sprite)
 	{
-		super( packData( format, unpackedData ), tint, orientation, sprite, true, format );
+		super( packData( DefaultVertexFormats.BLOCK, unpackedData ), tint, orientation, sprite, true );
 	}
 
 	public static class Colored extends ChiselsAndBitsBakedQuad
@@ -110,10 +101,9 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 				final float[][][] unpackedData,
 				final int tint,
 				final Direction orientation,
-				final TextureAtlasSprite sprite,
-				VertexFormat format )
+				final TextureAtlasSprite sprite)
 		{
-			super( unpackedData, tint, orientation, sprite, format );
+			super( unpackedData, tint, orientation, sprite );
 		}
 	}
 
@@ -174,7 +164,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 
 			elements++;
 
-			if ( elements == getVertexFormat().getElementCount() )
+			if ( elements == getVertexFormat().getElements().size() )
 			{
 				vertices++;
 				elements = 0;
@@ -189,7 +179,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 				throw new RuntimeException( "Bad format, can only be CNB." );
 			}
 
-			unpackedData = new float[4][getVertexFormat().getElementCount()][4];
+			unpackedData = new float[4][getVertexFormat().getElements().size()][4];
 			tint = -1;
 			orientation = null;
 
@@ -203,10 +193,10 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		{
 			if ( isColored )
 			{
-				return new Colored( unpackedData, tint, orientation, sprite, getFormat() );
+				return new Colored( unpackedData, tint, orientation, sprite);
 			}
 
-			return new ChiselsAndBitsBakedQuad( unpackedData, tint, orientation, sprite, getFormat() );
+			return new ChiselsAndBitsBakedQuad( unpackedData, tint, orientation, sprite);
 		}
 
 		@Override

@@ -10,7 +10,6 @@ import mod.chiselsandbits.chiseledblock.iterators.ChiselTypeIterator;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.*;
-import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -18,16 +17,21 @@ import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -140,7 +144,7 @@ public class PacketChisel extends ModPacket
 							}
 						}
 
-						if ( world.getMinecraftServer() != null && world.getMinecraftServer().isBlockProtected( world, pos, player.getPlayer() ) )
+						if (world instanceof ServerWorld && world.getServer() != null && world.getServer().isBlockProtected((ServerWorld) world, pos, player.getPlayer() ) )
 						{
 							continue;
 						}
@@ -150,9 +154,9 @@ public class PacketChisel extends ModPacket
 							continue;
 						}
 
-						if ( world.getBlockState( pos ).getBlock().isReplaceable( world, pos ) && place.usesBits() )
+						if ( world.getBlockState( pos ).isReplaceable(new BlockItemUseContext(who, hand, ItemStack.EMPTY, new BlockRayTraceResult(Vector3d.ZERO, Direction.NORTH, pos, false))) && place.usesBits() )
 						{
-							world.setBlockToAir( pos );
+							world.setBlockState(pos, Blocks.AIR.getDefaultState());
 						}
 
 						ReplaceWithChisledValue rv = null;
@@ -168,7 +172,6 @@ public class PacketChisel extends ModPacket
 							final TileEntityBlockChiseled tec = (TileEntityBlockChiseled) te;
 
 							final VoxelBlob mask = new VoxelBlob();
-							MCMultipartProxy.proxyMCMultiPart.addFiller( world, pos, mask );
 
 							// adjust voxel state...
 							final VoxelBlob vb = tec.getBlob();
@@ -212,15 +215,15 @@ public class PacketChisel extends ModPacket
 			}
 
 			BitInventoryFeeder feeder = new BitInventoryFeeder( who, world );
-			for ( final EntityItem ei : spawnlist )
+			for ( final ItemEntity ei : spawnlist )
 			{
 				feeder.addItem( ei );
-				ItemBitBag.cleanupInventory( who, ei.getEntityItem() );
+				ItemBitBag.cleanupInventory( who, ei.getItem() );
 			}
 
 			if ( place.usesBits() )
 			{
-				ItemBitBag.cleanupInventory( who, bitPlaced != null ? bitPlaced : new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1, OreDictionary.WILDCARD_VALUE ) );
+				ItemBitBag.cleanupInventory( who, bitPlaced != null ? bitPlaced : new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1) );
 			}
 
 		}
@@ -274,9 +277,9 @@ public class PacketChisel extends ModPacket
 		writeBitLoc( to, buffer );
 
 		buffer.writeEnumValue( place );
-		buffer.writeVarIntToBuffer( side.ordinal() );
-		buffer.writeVarIntToBuffer( mode.ordinal() );
-		buffer.writeVarIntToBuffer( hand.ordinal() );
+		buffer.writeInt( side.ordinal() );
+		buffer.writeInt( mode.ordinal() );
+		buffer.writeInt( hand.ordinal() );
 	}
 
 	private BitLocation readBitLoc(

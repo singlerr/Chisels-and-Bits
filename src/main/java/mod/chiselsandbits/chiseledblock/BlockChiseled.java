@@ -21,6 +21,7 @@ import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.utils.SingleBlockBlockReader;
 import mod.chiselsandbits.utils.SingleBlockWorldReader;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
@@ -45,6 +46,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.Explosion;
@@ -153,7 +155,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     @Override
     public float getAmbientOcclusionLightValue(final BlockState state, final IBlockReader worldIn, final BlockPos pos)
     {
-        return isOpaqueCube( state ) ? 0.2F : 0;
+        return isFullCube( state ) ? 0.2F : 0;
     }
 
     @Override
@@ -289,9 +291,13 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
         }
     }
 
+
+
     @Override
     public ItemStack getPickBlock(final BlockState state, final RayTraceResult target, final IBlockReader world, final BlockPos pos, final PlayerEntity player)
     {
+        if (!(target instanceof Block)
+
         try
         {
             return getPickBlock( target, pos, getTileEntity( world, pos ) );
@@ -312,7 +318,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	}
 
 	public ItemStack getPickBlock(
-			final RayTraceResult target,
+			final BlockRayTraceResult target,
 			final BlockPos pos,
 			final TileEntityBlockChiseled te )
 	{
@@ -936,26 +942,23 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		actingAs.set( state );
 	}
 
-	@Override
-	public boolean canHarvestBlock(
-			final IBlockReader world,
-			final BlockPos pos,
-			final PlayerEntity player )
-	{
-		if ( ChiselsAndBits.getConfig().enableToolHarvestLevels )
-		{
-			BlockState state = actingAs.get();
+    @Override
+    public boolean canHarvestBlock(final BlockState state, final IBlockReader world, final BlockPos pos, final PlayerEntity player)
+    {
+        if ( ChiselsAndBits.getConfig().enableToolHarvestLevels )
+        {
+            BlockState state = actingAs.get();
 
-			if ( state == null )
-			{
-				state = getPrimaryState( world, pos );
-			}
+            if ( state == null )
+            {
+                state = getPrimaryState( world, pos );
+            }
 
-			return state.getBlock().canHarvestBlock( new HarvestWorld( state ), pos, player );
-		}
+            return state.canHarvestBlock( new SingleBlockBlockReader( state ), pos, player );
+        }
 
-		return true;
-	}
+        return true;
+    }
 
 	@Override
 	@Deprecated
@@ -982,8 +985,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 
 			// since we can't call getDigSpeed on the acting state, we can just
 			// do some math to try and roughly estimate it.
-			float denom = player.inventory.getStrVsBlock( passedState );
-			float numer = player.inventory.getStrVsBlock( state );
+			float denom = player.inventory.getDestroySpeed( passedState );
+			float numer = player.inventory.getDestroySpeed( state );
 
 			if ( !state.getBlock().canHarvestBlock( new HarvestWorld( state ), pos, player ) )
 			{

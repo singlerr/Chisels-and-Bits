@@ -1,9 +1,9 @@
 package mod.chiselsandbits.api;
 
-import java.util.Collection;
-
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.AxisAlignedBB;
+
+import java.util.Collection;
 
 /**
  * This interface is implemented by Chiseled Block Tile Entities.
@@ -32,8 +32,8 @@ public interface IChiseledBlockTileEntity
 	 * @param crossWorld
 	 * @return modified input tag.
 	 */
-	NBTTagCompound writeTileEntityToTag(
-			final NBTTagCompound tag,
+	CompoundNBT writeTileEntityToTag(
+			final CompoundNBT tag,
 			final boolean crossWorld );
 
 	/**

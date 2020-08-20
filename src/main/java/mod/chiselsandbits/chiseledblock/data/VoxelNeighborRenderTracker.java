@@ -117,7 +117,7 @@ public final class VoxelNeighborRenderTracker
 			assert f != null;
 			if ( tebc != null )
 			{
-				update( f, tebc.getBasicState().get( BlockChiseled.UProperty_VoxelBlob ) );
+				update( f, tebc.getBlobStateReference() );
 			}
 			else
 			{
