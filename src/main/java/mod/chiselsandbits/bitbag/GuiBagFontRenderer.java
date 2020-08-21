@@ -1,31 +1,29 @@
 package mod.chiselsandbits.bitbag;
 
-import net.minecraft.client.Minecraft;
+import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.ResourceLocation;
 
 public class GuiBagFontRenderer extends FontRenderer
 {
 	FontRenderer talkto;
 
 	int offsetX, offsetY;
-	double scale;
+	float scale;
 
 	public GuiBagFontRenderer(
 			final FontRenderer src,
 			final int bagStackSize )
 	{
-		super( Minecraft.getMinecraft().gameSettings, new ResourceLocation( "textures/font/ascii.png" ), Minecraft.getMinecraft().getTextureManager(), false );
+		super(src.font);
 		talkto = src;
 
 		if ( bagStackSize < 100 )
 		{
-			scale = 1.0;
+			scale = 1f;
 		}
 		else if ( bagStackSize >= 100 )
 		{
-			scale = 0.75;
+			scale = 0.75f;
 			offsetX = 3;
 			offsetY = 2;
 		}
@@ -39,34 +37,51 @@ public class GuiBagFontRenderer extends FontRenderer
 		return talkto.getStringWidth( text );
 	}
 
-	@Override
-	public int drawString(
-			String text,
-			float x,
-			float y,
-			final int color,
-			final boolean dropShadow )
-	{
-		try
-		{
-			text = convertText( text );
-			GlStateManager.pushMatrix();
-			GlStateManager.scale( scale, scale, scale );
+    @Override
+    public int drawString(MatrixStack matrixStack, String text, float x, float y, int color)
+    {
+        try
+        {
+            text = convertText( text );
+            matrixStack.push();
+            matrixStack.scale( scale, scale, scale );
 
-			x /= scale;
-			y /= scale;
-			x += offsetX;
-			y += offsetY;
+            x /= scale;
+            y /= scale;
+            x += offsetX;
+            y += offsetY;
 
-			return talkto.drawString( text, x, y, color, dropShadow );
-		}
-		finally
-		{
-			GlStateManager.popMatrix();
-		}
-	}
+            return talkto.drawString(matrixStack, text, x, y, color );
+        }
+        finally
+        {
+            matrixStack.pop();
+        }
+    }
 
-	private String convertText(
+    @Override
+    public int drawStringWithShadow(MatrixStack matrixStack, String text, float x, float y, int color)
+    {
+        try
+        {
+            text = convertText( text );
+            matrixStack.push();
+            matrixStack.scale( scale, scale, scale );
+
+            x /= scale;
+            y /= scale;
+            x += offsetX;
+            y += offsetY;
+
+            return talkto.drawStringWithShadow(matrixStack, text, x, y, color );
+        }
+        finally
+        {
+            matrixStack.pop();
+        }
+    }
+
+    private String convertText(
 			final String text )
 	{
 		try

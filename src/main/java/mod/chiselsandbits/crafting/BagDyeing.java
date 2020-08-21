@@ -45,7 +45,7 @@ public class BagDyeing extends SpecialRecipe
 
 		if ( output != null )
 		{
-			return ChiselsAndBits.getItems().itemBitBag.dyeBag( output.bag, output.color );
+			return ChiselsAndBits.getItems().itemBitBagDefault.dyeBag( output.bag, output.color );
 		}
 
 		return ModUtil.getEmptyStack();

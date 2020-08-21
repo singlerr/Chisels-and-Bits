@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockFaceUV;
 import net.minecraft.client.renderer.block.model.BlockPartFace;

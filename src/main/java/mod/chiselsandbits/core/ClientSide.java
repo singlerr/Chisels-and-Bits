@@ -4,17 +4,17 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.util.InputMappings;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particles.ParticleTypes;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Stopwatch;
@@ -28,7 +28,6 @@ import mod.chiselsandbits.bittank.TileEntityBitTank;
 import mod.chiselsandbits.bittank.TileEntitySpecialRenderBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.chiseledblock.HarvestWorld;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -52,7 +51,6 @@ import mod.chiselsandbits.client.TapeMeasures;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.client.gui.ChiselsAndBitsMenu;
 import mod.chiselsandbits.client.gui.SpriteIconPositioning;
-import mod.chiselsandbits.commands.JsonModelExport;
 import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.ChiselModeManager;
 import mod.chiselsandbits.helpers.ChiselToolType;
@@ -61,7 +59,6 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.helpers.ReadyState;
 import mod.chiselsandbits.helpers.VoxelRegionSrc;
-import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.items.ItemChisel;
@@ -70,7 +67,6 @@ import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
-import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.network.packets.PacketSetColor;
@@ -79,37 +75,19 @@ import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.SmartModelManager;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.GuiIngame;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.GLAllocation;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.ItemMeshDefinition;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelBakery;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.block.statemap.IStateMapper;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Hand;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.SoundCategory;
@@ -117,9 +95,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.client.ClientCommandHandler;
-import net.minecraftforge.client.event.DrawBlockHighlightEvent;
-import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -130,12 +105,6 @@ import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Type;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ClientSide
 {
@@ -201,34 +170,32 @@ public class ClientSide
 
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
-			mode.binding = registerKeybind( mode.string.toString(), 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_CHISEL );
+			mode.binding = registerKeybind( mode.string.toString(), InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_CHISEL );
 		}
 
 		for ( final PositivePatternMode mode : PositivePatternMode.values() )
 		{
-			mode.binding = registerKeybind( mode.string.toString(), 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_POSTIVEPATTERN );
+			mode.binding = registerKeybind( mode.string.toString(), InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_POSTIVEPATTERN );
 		}
 
 		for ( final TapeMeasureModes mode : TapeMeasureModes.values() )
 		{
-			mode.binding = registerKeybind( mode.string.toString(), 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_TAPEMEASURE );
+			mode.binding = registerKeybind( mode.string.toString(), InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_TAPEMEASURE );
 		}
 
-		modeMenu = registerKeybind( "mod.chiselsandbits.other.mode", 56, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_MENUITEM );
-		rotateCCW = registerKeybind( "mod.chiselsandbits.other.rotate.ccw", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
-		rotateCW = registerKeybind( "mod.chiselsandbits.other.rotate.cw", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
-		pickBit = registerKeybind( "mod.chiselsandbits.other.pickbit", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
-		offgridPlacement = registerKeybind( "mod.chiselsandbits.other.offgrid", 0, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_OFFGRID );
-		undo = registerKeybind( "mod.chiselsandbits.other.undo", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
-		redo = registerKeybind( "mod.chiselsandbits.other.redo", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
-		addToClipboard = registerKeybind( "mod.chiselsandbits.other.add_to_clipboard", 0, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
-
-		ClientCommandHandler.instance.registerCommand( new JsonModelExport() );
+		modeMenu = registerKeybind( "mod.chiselsandbits.other.mode", InputMappings.getInputByCode(56,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_MENUITEM );
+		rotateCCW = registerKeybind( "mod.chiselsandbits.other.rotate.ccw", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
+		rotateCW = registerKeybind( "mod.chiselsandbits.other.rotate.cw", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
+		pickBit = registerKeybind( "mod.chiselsandbits.other.pickbit", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
+		offgridPlacement = registerKeybind( "mod.chiselsandbits.other.offgrid", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_OFFGRID );
+		undo = registerKeybind( "mod.chiselsandbits.other.undo", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
+		redo = registerKeybind( "mod.chiselsandbits.other.redo", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
+		addToClipboard = registerKeybind( "mod.chiselsandbits.other.add_to_clipboard", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
 	}
 
 	private KeyBinding registerKeybind(
 			final String bindingName,
-			final int defaultKey,
+			final InputMappings.Input defaultKey,
 			final String groupName,
 			final IKeyConflictContext context )
 	{
@@ -244,36 +211,36 @@ public class ClientSide
 
 		final ModItems modItems = ChiselsAndBits.getItems();
 
-		if ( modItems.itemBitBag != null )
+		if ( modItems.itemBitBagDefault != null )
 		{
-			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorBitBag(), modItems.itemBitBag );
+			Minecraft.getInstance().getItemColors().register( new ItemColorBitBag(), modItems.itemBitBagDefault);
 		}
 
 		if ( modItems.itemBlockBit != null )
 		{
-			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorBits(), modItems.itemBlockBit );
+			Minecraft.getInstance().getItemColors().register( new ItemColorBits(), modItems.itemBlockBit );
 		}
 
 		if ( modItems.itemPositiveprint != null )
 		{
-			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorPatterns(), modItems.itemPositiveprint );
+			Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), modItems.itemPositiveprint );
 		}
 
-		if ( modItems.itemNegativeprint != null )
+		if ( modItems.itemNegativePrint != null )
 		{
-			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorPatterns(), modItems.itemNegativeprint );
+			Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), modItems.itemNegativePrint);
 		}
 
 		if ( modItems.itemMirrorprint != null )
 		{
-			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorPatterns(), modItems.itemMirrorprint );
+			Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), modItems.itemMirrorprint );
 		}
 
 		for ( final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
 		{
 			final Item item = Item.getItemFromBlock( blk );
-			Minecraft.getMinecraft().getItemColors().registerItemColorHandler( new ItemColorChisled(), item );
-			Minecraft.getMinecraft().getBlockColors().registerBlockColorHandler( new BlockColorChisled(), blk );
+			Minecraft.getInstance().getItemColors().register( new ItemColorChisled(), item );
+			Minecraft.getInstance().getBlockColors().register( new BlockColorChisled(), blk );
 		}
 	}
 
@@ -281,7 +248,7 @@ public class ClientSide
 	{
 		final String modId = ChiselsAndBits.MODID;
 
-		for ( final BlockChiseled blk : new HashSet<BlockChiseled>( ChiselsAndBits.getBlocks().getConversions().values() ) )
+		for ( final BlockChiseled blk : new HashSet<>(ChiselsAndBits.getBlocks().getConversions().values()) )
 		{
 			registerMesh( blk, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "normal" ) );
 		}
@@ -291,34 +258,6 @@ public class ClientSide
 	{
 		final String modId = ChiselsAndBits.MODID;
 		final ModItems modItems = ChiselsAndBits.getItems();
-
-		registerMesh( modItems.itemChiselStone, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_stone" ), "inventory" ) );
-		registerMesh( modItems.itemChiselIron, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_iron" ), "inventory" ) );
-		registerMesh( modItems.itemChiselGold, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_gold" ), "inventory" ) );
-		registerMesh( modItems.itemChiselDiamond, 0, new ModelResourceLocation( new ResourceLocation( modId, "chisel_diamond" ), "inventory" ) );
-		registerMesh( modItems.itemWrench, 0, new ModelResourceLocation( new ResourceLocation( modId, "wrench_wood" ), "inventory" ) );
-		registerMesh( modItems.itemBitSawDiamond, 0, new ModelResourceLocation( new ResourceLocation( modId, "bitsaw_diamond" ), "inventory" ) );
-		registerMesh( modItems.itemTapeMeasure, 0, new ModelResourceLocation( new ResourceLocation( modId, "tape_measure" ), "inventory" ) );
-
-		if ( ChiselsAndBits.getBlocks().itemBitTank != null )
-		{
-			registerMesh( ChiselsAndBits.getBlocks().itemBitTank, 0, new ModelResourceLocation( new ResourceLocation( modId, "bittank" ), "inventory" ) );
-		}
-
-		if ( modItems.itemBitBag != null )
-		{
-			ModelBakery.registerItemVariants( modItems.itemBitBag, new ResourceLocation( modId, "bit_bag" ), new ResourceLocation( modId, "bit_bag_dyed" ) );
-			ModelLoader.setCustomMeshDefinition( modItems.itemBitBag, new ItemMeshDefinition() {
-
-				@Override
-				public ModelResourceLocation getModelLocation(
-						final ItemStack stack )
-				{
-					return new ModelResourceLocation( new ResourceLocation( modId, modItems.itemBitBag.getDyedColor( stack ) != null ? "bit_bag_dyed" : "bit_bag" ), "inventory" );
-				}
-
-			} );
-		}
 
 		if ( modItems.itemPositiveprint != null )
 		{
@@ -335,16 +274,16 @@ public class ClientSide
 			} );
 		}
 
-		if ( modItems.itemNegativeprint != null )
+		if ( modItems.itemNegativePrint != null )
 		{
-			ModelBakery.registerItemVariants( modItems.itemNegativeprint, new ResourceLocation( modId, "negativeprint" ), new ResourceLocation( modId, "negativeprint_written" ) );
-			ModelLoader.setCustomMeshDefinition( modItems.itemNegativeprint, new ItemMeshDefinition() {
+			ModelBakery.registerItemVariants( modItems.itemNegativePrint, new ResourceLocation( modId, "negativeprint" ), new ResourceLocation( modId, "negativeprint_written" ) );
+			ModelLoader.setCustomMeshDefinition( modItems.itemNegativePrint, new ItemMeshDefinition() {
 
 				@Override
 				public ModelResourceLocation getModelLocation(
 						final ItemStack stack )
 				{
-					return new ModelResourceLocation( new ResourceLocation( modId, modItems.itemNegativeprint.isWritten( stack ) ? "negativeprint_written_preview" : "negativeprint" ), "inventory" );
+					return new ModelResourceLocation( new ResourceLocation( modId, modItems.itemNegativePrint.isWritten( stack ) ? "negativeprint_written_preview" : "negativeprint" ), "inventory" );
 				}
 
 			} );
@@ -830,7 +769,7 @@ public class ClientSide
 			return ChiselToolType.POSITIVEPATTERN;
 		}
 
-		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemNegativeprint )
+		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemNegativePrint)
 		{
 			return ChiselToolType.NEGATIVEPATTERN;
 		}
@@ -965,7 +904,7 @@ public class ClientSide
 	boolean wasDrawing = false;
 
 	@SubscribeEvent
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public void drawHighlight(
 			final RenderWorldLastEvent event )
 	{
@@ -1018,7 +957,7 @@ public class ClientSide
 	}
 
 	@SubscribeEvent
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public void drawHighlight(
 			final DrawBlockHighlightEvent event )
 	{
@@ -1181,7 +1120,7 @@ public class ClientSide
 	}
 
 	@SubscribeEvent
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public void drawLast(
 			final RenderWorldLastEvent event )
 	{
@@ -1227,12 +1166,12 @@ public class ClientSide
 				return;
 			}
 
-			if ( !ChiselsAndBits.getItems().itemNegativeprint.isWritten( currentItem ) )
+			if ( !ChiselsAndBits.getItems().itemNegativePrint.isWritten( currentItem ) )
 			{
 				return;
 			}
 
-			final ItemStack item = ChiselsAndBits.getItems().itemNegativeprint.getPatternedItem( currentItem, false );
+			final ItemStack item = ChiselsAndBits.getItems().itemNegativePrint.getPatternedItem( currentItem, false );
 			if ( item == null || !item.hasTagCompound() )
 			{
 				return;
@@ -1379,7 +1318,7 @@ public class ClientSide
 
 			modelBounds = blob.getBounds();
 
-			fail: if ( refItem.getItem() == ChiselsAndBits.getItems().itemNegativeprint )
+			fail: if ( refItem.getItem() == ChiselsAndBits.getItems().itemNegativePrint)
 			{
 				final VoxelBlob pattern = blob;
 

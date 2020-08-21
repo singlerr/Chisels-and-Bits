@@ -1,62 +1,58 @@
 package mod.chiselsandbits.items;
 
-import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
-
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.ReflectionWrapper;
-import mod.chiselsandbits.helpers.BitOperation;
-import mod.chiselsandbits.helpers.ChiselToolType;
-import mod.chiselsandbits.helpers.DeprecationHelper;
-import mod.chiselsandbits.helpers.LocalStrings;
-import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.helpers.*;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.modes.TapeMeasureModes;
-import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketSetColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.item.ItemUseContext;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.StringNBT;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.Direction;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.List;
 
 public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrollWheel
 {
-	public ItemTapeMeasure()
+	public ItemTapeMeasure(Item.Properties properties)
 	{
-		setMaxStackSize( 1 );
+	    super(properties.maxStackSize(1));
 	}
 
 	@Override
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public void addInformation(
 			final ItemStack stack,
 			final World worldIn,
-			final List<String> tooltip,
+			final List<ITextComponent> tooltip,
 			final ITooltipFlag advanced )
 	{
 		super.addInformation( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpTapeMeasure, tooltip,
-				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ),
-				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ),
-				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindSneak ),
+				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
+				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
+				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindSneak ),
 				ClientSide.instance.getModeKey() );
 	}
 
@@ -72,65 +68,55 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 		}
 
 		final ItemStack itemstack = playerIn.getHeldItem( hand );
-		return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemstack );
+		return new ActionResult<>(ActionResultType.SUCCESS, itemstack);
 	}
 
-	@Override
-	public EnumActionResult onItemUse(
-			final PlayerEntity playerIn,
-			final World worldIn,
-			final BlockPos pos,
-			final Hand hand,
-			final Direction facing,
-			final float hitX,
-			final float hitY,
-			final float hitZ )
-	{
-		if ( worldIn.isRemote )
-		{
-			if ( playerIn.isSneaking() )
-			{
-				ClientSide.instance.tapeMeasures.clear();
-				return EnumActionResult.SUCCESS;
-			}
+    @Override
+    public ActionResultType onItemUse(final ItemUseContext context)
+    {
+        if ( context.getWorld().isRemote )
+        {
+            if ( context.getPlayer().isSneaking() )
+            {
+                ClientSide.instance.tapeMeasures.clear();
+                return ActionResultType.SUCCESS;
+            }
 
-			final Pair<Vec3d, Vec3d> PlayerRay = ModUtil.getPlayerRay( playerIn );
-			final Vec3d ray_from = PlayerRay.getLeft();
-			final Vec3d ray_to = PlayerRay.getRight();
+            final Pair<Vector3d, Vector3d> PlayerRay = ModUtil.getPlayerRay( context.getPlayer() );
+            final Vector3d ray_from = PlayerRay.getLeft();
+            final Vector3d ray_to = PlayerRay.getRight();
 
-			final RayTraceResult mop = playerIn.worldObj.getBlockState( pos ).getBlock().collisionRayTrace( playerIn.getEntityWorld().getBlockState( pos ), playerIn.worldObj, pos, ray_from, ray_to );
-			if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
-			{
-				final BitLocation loc = new BitLocation( mop, true, BitOperation.CHISEL );
-				ClientSide.instance.pointAt( ChiselToolType.TAPEMEASURE, loc, hand );
-			}
-		}
+            final RayTraceContext rayTraceContext = new RayTraceContext(ray_from, ray_to, RayTraceContext.BlockMode.VISUAL, RayTraceContext.FluidMode.NONE, context.getPlayer());
 
-		return EnumActionResult.SUCCESS;
-	}
+            final BlockRayTraceResult mop = context.getPlayer().getEntityWorld().rayTraceBlocks(rayTraceContext);
+            final BitLocation loc = new BitLocation( mop, true, BitOperation.CHISEL );
+            ClientSide.instance.pointAt( ChiselToolType.TAPEMEASURE, loc, context.getHand() );
+        }
 
-	@Override
-	public String getHighlightTip(
-			final ItemStack item,
-			final String displayName )
-	{
-		if ( ChiselsAndBits.getConfig().itemNameModeDisplay )
-		{
-			return displayName + " - " + TapeMeasureModes.getMode( item ).string.getLocal() + " - " + DeprecationHelper.translateToLocal( "chiselsandbits.color." + getTapeColor( item ).getUnlocalizedName() );
-		}
+        return ActionResultType.SUCCESS;
+    }
 
-		return displayName;
-	}
+    @Override
+    public ITextComponent getHighlightTip(final ItemStack item, final ITextComponent displayName)
+    {
+        if ( displayName instanceof IFormattableTextComponent && ChiselsAndBits.getConfig().itemNameModeDisplay )
+        {
+            final IFormattableTextComponent formattableTextComponent = (IFormattableTextComponent) displayName;
+            return formattableTextComponent.appendString(" - ").appendString(TapeMeasureModes.getMode( item ).string.getLocal()).appendString(" - ").appendString(DeprecationHelper.translateToLocal( "chiselsandbits.color." + getTapeColor( item ).getTranslationKey()) );
+        }
 
-	public EnumDyeColor getTapeColor(
+        return displayName;
+    }
+
+	public DyeColor getTapeColor(
 			final ItemStack item )
 	{
-		final NBTTagCompound compound = item.getTagCompound();
-		if ( compound != null && compound.hasKey( "color" ) )
+		final CompoundNBT compound = item.getTag();
+		if ( compound != null && compound.contains( "color" ) )
 		{
 			try
 			{
-				return EnumDyeColor.valueOf( compound.getString( "color" ) );
+				return DyeColor.valueOf( compound.getString( "color" ) );
 			}
 			catch ( final IllegalArgumentException iae )
 			{
@@ -138,7 +124,7 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 			}
 		}
 
-		return EnumDyeColor.WHITE;
+		return DyeColor.WHITE;
 	}
 
 	@Override
@@ -147,36 +133,33 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final EnumDyeColor color = getTapeColor( stack );
+		final DyeColor color = getTapeColor( stack );
 		int next = color.ordinal() + ( dwheel < 0 ? -1 : 1 );
 
 		if ( next < 0 )
 		{
-			next = EnumDyeColor.values().length - 1;
+			next = DyeColor.values().length - 1;
 		}
 
-		if ( next >= EnumDyeColor.values().length )
+		if ( next >= DyeColor.values().length )
 		{
 			next = 0;
 		}
 
-		final EnumDyeColor col = EnumDyeColor.values()[next];
+		final DyeColor col = DyeColor.values()[next];
 		setTapeColor( stack, col );
 
-		final PacketSetColor setColor = new PacketSetColor();
-		setColor.chatNotification = ChiselsAndBits.getConfig().chatModeNotification;
-		setColor.newColor = col;
-		setColor.type = ChiselToolType.TAPEMEASURE;
+		final PacketSetColor setColor = new PacketSetColor(col, ChiselToolType.TAPEMEASURE, ChiselsAndBits.getConfig().chatModeNotification);
 
-		NetworkRouter.instance.sendToServer( setColor );
+		ChiselsAndBits.getNetworkChannel().sendToServer(setColor);
 		ReflectionWrapper.instance.clearHighlightedStack();
 	}
 
 	public void setTapeColor(
 			final ItemStack stack,
-			final EnumDyeColor color )
+			final DyeColor color )
 	{
-		stack.setTagInfo( "color", new NBTTagString( color.name() ) );
+		stack.setTagInfo( "color", StringNBT.valueOf(color.getString()) );
 	}
 
 }

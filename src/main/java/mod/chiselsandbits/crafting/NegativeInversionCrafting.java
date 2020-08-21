@@ -44,7 +44,7 @@ public class NegativeInversionCrafting extends CustomRecipe
 				continue;
 			}
 
-			if ( f.getItem() == ChiselsAndBits.getItems().itemNegativeprint )
+			if ( f.getItem() == ChiselsAndBits.getItems().itemNegativePrint)
 			{
 				if ( f.hasTagCompound() )
 				{
@@ -128,7 +128,7 @@ public class NegativeInversionCrafting extends CustomRecipe
 		for ( int i = 0; i < aitemstack.size(); ++i )
 		{
 			final ItemStack itemstack = craftingInv.getStackInSlot( i );
-			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.getItems().itemNegativeprint && itemstack.hasTagCompound() )
+			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.getItems().itemNegativePrint && itemstack.hasTagCompound() )
 			{
 				ModUtil.adjustStackSize( itemstack, 1 );
 			}

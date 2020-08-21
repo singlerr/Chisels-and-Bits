@@ -1,16 +1,16 @@
 package mod.chiselsandbits.chiseledblock.data;
 
+import mod.chiselsandbits.api.BoxType;
+import mod.chiselsandbits.helpers.IStateRef;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
+
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import mod.chiselsandbits.api.BoxType;
-import mod.chiselsandbits.helpers.IStateRef;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 
 public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateReference>, IStateRef
 {
@@ -23,7 +23,7 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 
 	private static Map<VoxelBlobStateInstance, WeakReference<VoxelBlobStateInstance>> getRefs()
 	{
-		if ( FMLCommonHandler.instance().getEffectiveSide().isClient() )
+		if (EffectiveSide.get().isClient())
 		{
 			return clientRefs;
 		}

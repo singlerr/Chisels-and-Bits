@@ -21,7 +21,7 @@ import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.NullBakedModel;
 import mod.chiselsandbits.render.cache.CacheMap;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;

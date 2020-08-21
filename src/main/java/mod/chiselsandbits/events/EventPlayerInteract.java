@@ -8,7 +8,7 @@ import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.integration.mods.LittleTiles;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;

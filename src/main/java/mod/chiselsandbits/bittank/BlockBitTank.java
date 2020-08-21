@@ -1,164 +1,55 @@
 package mod.chiselsandbits.bittank;
 
-import com.google.common.base.Predicate;
-
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyDirection;
-import net.minecraft.block.state.BlockStateContainer;
-import net.minecraft.block.state.BlockState;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.state.Property;
+import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
+import org.jetbrains.annotations.Nullable;
 
 public class BlockBitTank extends Block implements ITileEntityProvider
 {
 
-	public static final PropertyDirection FACING = PropertyDirection.create( "facing", new Predicate<Direction>() {
+	public Property<Direction> FACING = HorizontalBlock.HORIZONTAL_FACING;
 
-		@Override
-		public boolean apply(
-				final Direction face )
-		{
-			return face != Direction.DOWN && face != Direction.UP;
-		}
-
-	} );
-
-	public BlockBitTank()
+	public BlockBitTank(AbstractBlock.Properties properties)
 	{
-		super( Material.IRON );
-		setSoundType( SoundType.GLASS );
-		translucent = true;
-		setLightOpacity( 0 );
-		setHardness( 1 );
-		setHarvestLevel( "pickaxe", 0 );
+		super( properties );
 	}
 
-	@Override
-	public int getLightValue(
-			final BlockState state,
-			final IBlockAccess world,
-			final BlockPos pos )
-	{
-		try
-		{
-			return getTileEntity( world, pos ).getLightValue();
-		}
-		catch ( final ExceptionNoTileEntity e )
-		{
-			Log.noTileError( e );
-		}
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(final BlockItemUseContext context)
+    {
+        return getDefaultState().with(FACING, context.getPlacementHorizontalFacing());
+    }
 
-		return 0;
-	}
+    @Override
+    protected void fillStateContainer(final StateContainer.Builder<Block, BlockState> builder)
+    {
+        builder.add(FACING);
+    }
 
-	@Override
-	public BlockState onBlockPlaced(
-			final World worldIn,
-			final BlockPos pos,
-			final Direction facing,
-			final float hitX,
-			final float hitY,
-			final float hitZ,
-			final int meta,
-			final EntityLivingBase placer )
-	{
-		return getDefaultState().withProperty( FACING, placer.getHorizontalFacing() );
-	}
-
-	@Override
-	public BlockRenderLayer getBlockLayer()
-	{
-		return BlockRenderLayer.CUTOUT;
-	}
-
-	@Override
-	public boolean isFullBlock(
-			final BlockState state )
-	{
-		return false;
-	}
-
-	@Override
-	public boolean isOpaqueCube(
-			final BlockState state )
-	{
-		return false;
-	}
-
-	@Override
-	public float getAmbientOcclusionLightValue(
-			final BlockState state )
-	{
-		return 1.0f;
-	}
-
-	@Override
-	protected BlockStateContainer createBlockState()
-	{
-		return new BlockStateContainer( this, FACING );
-	}
-
-	@Override
-	public int getMetaFromState(
-			final BlockState state )
-	{
-		switch ( state.getValue( FACING ) )
-		{
-			case NORTH:
-				return 0;
-			case SOUTH:
-				return 1;
-			case EAST:
-				return 2;
-			case WEST:
-				return 3;
-			default:
-				throw new RuntimeException( "Invalid State." );
-		}
-	}
-
-	@Override
-	public BlockState getStateFromMeta(
-			final int meta )
-	{
-		switch ( meta )
-		{
-			case 0:
-				return getDefaultState().withProperty( FACING, Direction.NORTH );
-			case 1:
-				return getDefaultState().withProperty( FACING, Direction.SOUTH );
-			case 2:
-				return getDefaultState().withProperty( FACING, Direction.EAST );
-			case 3:
-				return getDefaultState().withProperty( FACING, Direction.WEST );
-			default:
-				throw new RuntimeException( "Invalid State." );
-		}
-	}
-
-	@Override
-	public TileEntity createNewTileEntity(
-			final World worldIn,
-			final int meta )
-	{
-		return new TileEntityBitTank();
-	}
+    @Nullable
+    @Override
+    public TileEntity createNewTileEntity(final IBlockReader worldIn)
+    {
+        return new TileEntityBitTank();
+    }
 
 	public TileEntityBitTank getTileEntity(
 			final TileEntity te ) throws ExceptionNoTileEntity
@@ -171,61 +62,52 @@ public class BlockBitTank extends Block implements ITileEntityProvider
 	}
 
 	public TileEntityBitTank getTileEntity(
-			final IBlockAccess world,
+			final IBlockReader world,
 			final BlockPos pos ) throws ExceptionNoTileEntity
 	{
 		return getTileEntity( world.getTileEntity( pos ) );
 	}
 
-	@Override
-	public boolean onBlockActivated(
-			final World worldIn,
-			final BlockPos pos,
-			final BlockState state,
-			final PlayerEntity playerIn,
-			final Hand hand,
-			final Direction side,
-			final float hitX,
-			final float hitY,
-			final float hitZ )
-	{
-		try
-		{
-			final TileEntityBitTank tank = getTileEntity( worldIn, pos );
-			final ItemStack current = ModUtil.nonNull( playerIn.inventory.getCurrentItem() );
+    @Override
+    public ActionResultType onBlockActivated(
+      final BlockState state, final World worldIn, final BlockPos pos, final PlayerEntity player, final Hand handIn, final BlockRayTraceResult hit)
+    {
+        try
+        {
+            final TileEntityBitTank tank = getTileEntity( worldIn, pos );
+            final ItemStack current = ModUtil.nonNull( player.inventory.getCurrentItem() );
 
-			if ( !ModUtil.isEmpty( current ) )
-			{
-				final IFluidHandler wrappedTank = tank;
-				if ( FluidUtil.interactWithFluidHandler( playerIn, hand, wrappedTank ) )
-				{
-					return true;
-				}
+            if ( !ModUtil.isEmpty( current ) )
+            {
+                final IFluidHandler wrappedTank = tank;
+                if ( FluidUtil.interactWithFluidHandler( player, handIn, wrappedTank ) )
+                {
+                    return ActionResultType.SUCCESS;
+                }
 
-				if ( tank.addHeldBits( current, playerIn ) )
-				{
-					return true;
-				}
-			}
-			else
-			{
-				if ( tank.addAllPossibleBits( playerIn ) )
-				{
-					return true;
-				}
-			}
+                if ( tank.addHeldBits( current, player ) )
+                {
+                    return ActionResultType.SUCCESS;
+                }
+            }
+            else
+            {
+                if ( tank.addAllPossibleBits( player ) )
+                {
+                    return ActionResultType.SUCCESS;
+                }
+            }
 
-			if ( tank.extractBits( playerIn, hitX, hitY, hitZ, pos ) )
-			{
-				return true;
-			}
-		}
-		catch ( final ExceptionNoTileEntity e )
-		{
-			Log.noTileError( e );
-		}
+            if ( tank.extractBits( player, hit.getHitVec().x, hit.getHitVec().y, hit.getHitVec().z, pos ) )
+            {
+                return ActionResultType.SUCCESS;
+            }
+        }
+        catch ( final ExceptionNoTileEntity e )
+        {
+            Log.noTileError( e );
+        }
 
-		return false;
-	}
-
+        return ActionResultType.FAIL;
+    }
 }

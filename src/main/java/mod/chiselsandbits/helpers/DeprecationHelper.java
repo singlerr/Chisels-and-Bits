@@ -1,6 +1,5 @@
 package mod.chiselsandbits.helpers;
 
-import mod.chiselsandbits.chiseledblock.HarvestWorld;
 import mod.chiselsandbits.utils.SingleBlockBlockReader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -53,6 +52,12 @@ public class DeprecationHelper
 	public static SoundType getSoundType(
 			BlockState block )
 	{
-		return block.getSoundType();
+		return block.getBlock().soundType;
 	}
+
+    public static SoundType getSoundType(
+      Block block )
+    {
+        return block.getBlock().soundType;
+    }
 }

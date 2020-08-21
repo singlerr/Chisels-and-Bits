@@ -64,9 +64,9 @@ public class MirrorTransferCrafting extends CustomRecipe
 				}
 			}
 
-			else if ( f.getItem() == ChiselsAndBits.getItems().itemNegativeprint )
+			else if ( f.getItem() == ChiselsAndBits.getItems().itemNegativePrint)
 			{
-				if ( !ChiselsAndBits.getItems().itemNegativeprint.isWritten( f ) )
+				if ( !ChiselsAndBits.getItems().itemNegativePrint.isWritten( f ) )
 				{
 					if ( targetB != null )
 					{

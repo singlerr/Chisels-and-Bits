@@ -1,10 +1,12 @@
 package mod.chiselsandbits.items;
 
+import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import com.sun.org.apache.xpath.internal.operations.String;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.VoxelStats;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
@@ -19,71 +21,72 @@ import mod.chiselsandbits.helpers.ContinousChisels;
 import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
-import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumActionResult;
+import net.minecraft.item.ItemUseContext;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScrollWheel, IPatternItem
 {
 
-	public ItemNegativePrint()
+	public ItemNegativePrint(Item.Properties properties)
 	{
-
+        super(properties);
 	}
 
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	protected void defaultAddInfo(
 			final ItemStack stack,
 			final World worldIn,
-			final List<String> tooltip,
+			final List<ITextComponent> tooltip,
 			final ITooltipFlag advanced )
 	{
 		super.addInformation( stack, worldIn, tooltip, advanced );
 	}
 
 	// add info cached info
-	SimpleInstanceCache<ItemStack, List<String>> toolTipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
+	SimpleInstanceCache<ItemStack, List<ITextComponent>> toolTipCache = new SimpleInstanceCache<>(null, new ArrayList<>());
 
 	@Override
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public void addInformation(
 			final ItemStack stack,
 			final World worldIn,
-			final List<String> tooltip,
+			final List<ITextComponent> tooltip,
 			final ITooltipFlag advanced )
 	{
 		defaultAddInfo( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpNegativePrint, tooltip,
-				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ),
-				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ) );
+				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
+				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ) );
 
 		if ( isWritten( stack ) )
 		{
 			if ( ClientSide.instance.holdingShift() )
 			{
-				final List<String> details = toolTipCache.getCached();
+				final List<ITextComponent> details = toolTipCache.getCached();
 
 				if ( toolTipCache.needsUpdate( stack ) )
 				{
@@ -96,12 +99,12 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 
 					if ( solid > 0 )
 					{
-						details.add( solid + " " + LocalStrings.Filled.getLocal() );
+                        details.add( new StringTextComponent(Integer.valueOf(solid).toString()).appendString(" ").append(new StringTextComponent(LocalStrings.Filled.getLocal()) ));
 					}
 
 					if ( air > 0 )
 					{
-						details.add( air + " " + LocalStrings.Empty.getLocal() );
+						details.add( new StringTextComponent(Integer.valueOf(air).toString()).appendString(" ").append(new StringTextComponent(LocalStrings.Empty.getLocal()) ));
 					}
 				}
 
@@ -109,104 +112,110 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			}
 			else
 			{
-				tooltip.add( LocalStrings.ShiftDetails.getLocal() );
+				tooltip.add( new StringTextComponent(LocalStrings.ShiftDetails.getLocal()) );
 			}
 		}
-	}
-
-	@Override
-	public String getUnlocalizedName(
-			final ItemStack stack )
-	{
-		if ( isWritten( stack ) )
-		{
-			return super.getUnlocalizedName( stack ) + "_written";
-		}
-		return super.getUnlocalizedName( stack );
 	}
 
 	@Override
 	public boolean isWritten(
 			final ItemStack stack )
 	{
-		if ( stack != null && stack.hasTagCompound() )
+	    if (stack.getItem() == ChiselsAndBits.getItems().itemNegativePrint || stack.getItem() == ChiselsAndBits.getItems().itemPositiveprint)
+	        return false;
+
+		if ( stack != null && stack.hasTag() )
 		{
 			final boolean a = ModUtil.getSubCompound( stack, ModUtil.NBT_BLOCKENTITYTAG, false ) != null;
-			final boolean b = ModUtil.getTagCompound( stack ).hasKey( NBTBlobConverter.NBT_LEGACY_VOXEL );
-			final boolean c = ModUtil.getTagCompound( stack ).hasKey( NBTBlobConverter.NBT_VERSIONED_VOXEL );
+			final boolean b = ModUtil.getTagCompound( stack ).contains( NBTBlobConverter.NBT_LEGACY_VOXEL );
+			final boolean c = ModUtil.getTagCompound( stack ).contains( NBTBlobConverter.NBT_VERSIONED_VOXEL );
 			return a || b || c;
 		}
 		return false;
 	}
 
-	@Override
-	public EnumActionResult onItemUse(
-			final PlayerEntity player,
-			final World world,
-			final BlockPos pos,
-			final Hand hand,
-			final Direction side,
-			final float hitX,
-			final float hitY,
-			final float hitZ )
-	{
-		final ItemStack stack = player.getHeldItem( hand );
-		final BlockState blkstate = world.getBlockState( pos );
+    protected Item getWrittenItem() {
+	    return ChiselsAndBits.getItems().itemNegativePrintWritten;
+    }
 
-		if ( ItemChiseledBit.checkRequiredSpace( player, blkstate ) )
-		{
-			return EnumActionResult.FAIL;
-		}
+    @Override
+    public ActionResultType onItemUse(final ItemUseContext context)
+    {
+        final PlayerEntity player = context.getPlayer();
+        final Hand hand = context.getHand();
+        final World world = context.getWorld();
+        final BlockPos pos = context.getPos();
+        final Direction side = context.getFace();
 
-		if ( !player.canPlayerEdit( pos, side, stack ) || !world.isBlockModifiable( player, pos ) )
-		{
-			return EnumActionResult.FAIL;
-		}
+        final ItemStack stack = player.getHeldItem( hand );
+        final BlockState blkstate = world.getBlockState( pos );
 
-		if ( !isWritten( stack ) )
-		{
-			final NBTTagCompound comp = getCompoundFromBlock( world, pos, player );
-			if ( comp != null )
-			{
-				stack.setTagCompound( comp );
-				return EnumActionResult.SUCCESS;
-			}
+        if ( ItemChiseledBit.checkRequiredSpace( player, blkstate ) )
+        {
+            return ActionResultType.FAIL;
+        }
 
-			return EnumActionResult.FAIL;
-		}
+        if ( !player.canPlayerEdit( pos, side, stack ) || !world.isBlockModifiable( player, pos ) )
+        {
+            return ActionResultType.FAIL;
+        }
 
-		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, false );
-		if ( te != null )
-		{
-			// we can do this!
-		}
-		else if ( !BlockChiseled.replaceWithChisled( world, pos, blkstate, true ) && !MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( world, pos ) )
-		{
-			return EnumActionResult.FAIL;
-		}
+        if ( !isWritten( stack ) )
+        {
+            final CompoundNBT comp = getCompoundFromBlock( world, pos, player );
+            if ( comp != null )
+            {
+                stack.shrink(stack.getCount());
 
-		final TileEntityBlockChiseled tec = ModUtil.getChiseledTileEntity( world, pos, true );
-		if ( tec != null )
-		{
-			final VoxelBlob vb = tec.getBlob();
+                final ItemStack newStack = new ItemStack(
+                  this::getWrittenItem,
+                  stack.getCount()
+                );
+                newStack.setTag(comp);
 
-			final VoxelBlob pattern = ModUtil.getBlobFromStack( stack, player );
+                ItemEntity itementity = player.dropItem(newStack, false);
+                if (itementity != null) {
+                    itementity.setNoPickupDelay();
+                    itementity.setOwnerId(player.getUniqueID());
+                }
+                return ActionResultType.SUCCESS;
+            }
 
-			applyPrint( stack, world, pos, side, vb, pattern, player, hand );
+            return ActionResultType.FAIL;
+        }
 
-			tec.completeEditOperation( vb );
-			return EnumActionResult.SUCCESS;
-		}
+        final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, false );
+        if ( te != null )
+        {
+            // we can do this!
+        }
+        else if ( !BlockChiseled.replaceWithChisled( world, pos, blkstate, true ) )
+        {
+            return ActionResultType.FAIL;
+        }
 
-		return EnumActionResult.FAIL;
-	}
+        final TileEntityBlockChiseled tec = ModUtil.getChiseledTileEntity( world, pos, true );
+        if ( tec != null )
+        {
+            final VoxelBlob vb = tec.getBlob();
+
+            final VoxelBlob pattern = ModUtil.getBlobFromStack( stack, player );
+
+            applyPrint( stack, world, pos, side, vb, pattern, player, hand );
+
+            tec.completeEditOperation( vb );
+            return ActionResultType.SUCCESS;
+        }
+
+        return ActionResultType.FAIL;
+    }
 
 	protected boolean convertToStone()
 	{
 		return true;
 	}
 
-	protected NBTTagCompound getCompoundFromBlock(
+	protected CompoundNBT getCompoundFromBlock(
 			final World world,
 			final BlockPos pos,
 			final PlayerEntity player )
@@ -215,7 +224,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		final TileEntityBlockChiseled te = ModUtil.getChiseledTileEntity( world, pos, false );
 		if ( te != null )
 		{
-			final NBTTagCompound comp = new NBTTagCompound();
+			final CompoundNBT comp = new CompoundNBT();
 			te.writeChisleData( comp );
 
 			if ( convertToStone() )
@@ -230,7 +239,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 				tmp.writeChisleData( comp );
 			}
 
-			comp.setByte( ModUtil.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
+			comp.putByte( ModUtil.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
 			return comp;
 		}
 
@@ -247,7 +256,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			return null;
 		}
 
-		final NBTTagCompound tag = ModUtil.getTagCompound( stack );
+		final CompoundNBT tag = ModUtil.getTagCompound( stack );
 
 		// Detect and provide full blocks if pattern solid full and solid.
 		final NBTBlobConverter conv = new NBTBlobConverter();
@@ -290,7 +299,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		final IContinuousInventory selected = new ContinousChisels( player, pos, side );
 		ItemStack spawnedItem = null;
 
-		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
+		final List<ItemEntity> spawnlist = new ArrayList<ItemEntity>();
 
 		for ( int z = 0; z < vb.detail && selected.isValid(); z++ )
 		{
@@ -308,7 +317,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		}
 
 		BitInventoryFeeder feeder = new BitInventoryFeeder( who, world );
-		for ( final EntityItem ei : spawnlist )
+		for ( final ItemEntity ei : spawnlist )
 		{
 			feeder.addItem( ei );
 		}
@@ -320,10 +329,8 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final ItemStack stack,
 			final int dwheel )
 	{
-		final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-		p.axis = Axis.Y;
-		p.rotation = dwheel > 0 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90;
-		NetworkRouter.instance.sendToServer( p );
+		final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob(Axis.Y, dwheel > 0 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90);
+		ChiselsAndBits.getNetworkChannel().sendToServer(p);
 	}
 
 	@Override
@@ -360,7 +367,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		{
 			IBitAccess ba = ChiselsAndBits.getApi().createBitItem( stack );
 			ba.rotate( axis, rotation );
-			stack.setTagCompound( ba.getBitsAsItem( side, ChiselsAndBits.getApi().getItemType( stack ), false ).getTagCompound() );
+			stack.setTag( ba.getBitsAsItem( side, ChiselsAndBits.getApi().getItemType( stack ), false ).getTag() );
 		}
 
 		ModUtil.setSide( stack, side );

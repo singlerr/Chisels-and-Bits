@@ -2,23 +2,26 @@ package mod.chiselsandbits.client.culling;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.state.BlockState;
-import net.minecraft.init.Biomes;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.GlassBlock;
+import net.minecraft.block.StainedGlassBlock;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.WorldType;
+import net.minecraft.world.IBlockReader;
 import net.minecraft.world.biome.Biome;
+import net.minecraftforge.fluids.IFluidBlock;
 
 /**
  * Determine Culling using Block's Native Check.
  *
  * hardcode vanilla stained glass because that looks horrible.
  */
-public class MCCullTest implements ICullTest, IBlockAccess
+public class MCCullTest implements ICullTest, IBlockReader
 {
 
 	private BlockState a;
@@ -45,19 +48,19 @@ public class MCCullTest implements ICullTest, IBlockAccess
 			b = Blocks.AIR.getDefaultState();
 		}
 
-		if ( a.getBlock() == Blocks.STAINED_GLASS && a.getBlock() == b.getBlock() )
+		if ( a.getBlock().getClass() == StainedGlassBlock.class && a.getBlock() == b.getBlock() )
 		{
 			return false;
 		}
 
-		if ( a.getBlock() instanceof BlockLiquid )
+		if ( a.getBlock() instanceof IFluidBlock)
 		{
 			return true;
 		}
 
 		try
 		{
-			return a.shouldSideBeRendered( this, BlockPos.ORIGIN, Direction.NORTH );
+			return a.isSideInvisible( a, Direction.NORTH );
 		}
 		catch ( final Throwable t )
 		{
@@ -74,60 +77,15 @@ public class MCCullTest implements ICullTest, IBlockAccess
 	}
 
 	@Override
-	public int getCombinedLight(
-			final BlockPos pos,
-			final int lightValue )
-	{
-		return 0;
-	}
-
-	@Override
 	public BlockState getBlockState(
 			final BlockPos pos )
 	{
-		return pos.equals( BlockPos.ORIGIN ) ? a : b;
+		return pos.equals( BlockPos.ZERO ) ? a : b;
 	}
 
-	@Override
-	public boolean isAirBlock(
-			final BlockPos pos )
-	{
-		return getBlockState( pos ) == Blocks.AIR;
-	}
-
-	@Override
-	public Biome getBiome(
-			final BlockPos pos )
-	{
-		return Biomes.PLAINS;
-	}
-
-	public boolean extendedLevelsInChunkCache()
-	{
-		return false;
-	}
-
-	@Override
-	public int getStrongPower(
-			final BlockPos pos,
-			final Direction direction )
-	{
-		return 0;
-	}
-
-	@Override
-	public WorldType getWorldType()
-	{
-		return WorldType.DEFAULT;
-	}
-
-	@Override
-	public boolean isSideSolid(
-			final BlockPos pos,
-			final Direction side,
-			final boolean _default )
-	{
-		return false;
-	}
-
+    @Override
+    public FluidState getFluidState(final BlockPos pos)
+    {
+        return Fluids.EMPTY.getDefaultState();
+    }
 }

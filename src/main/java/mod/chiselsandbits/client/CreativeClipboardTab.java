@@ -1,9 +1,5 @@
 package mod.chiselsandbits.client;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
@@ -12,18 +8,22 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.registry.ModItems;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
 
-public class CreativeClipboardTab extends CreativeTabs implements ICacheClearable
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CreativeClipboardTab extends ItemGroup implements ICacheClearable
 {
-	static boolean renewMappings = true;
-	static private List<ItemStack> myWorldItems = new ArrayList<ItemStack>();
-	static private List<NBTTagCompound> myCrossItems = new ArrayList<NBTTagCompound>();
-	static private ClipboardStorage clipStorage = null;
+	static boolean                   renewMappings = true;
+	static private List<ItemStack>   myWorldItems  = new ArrayList<ItemStack>();
+	static private List<CompoundNBT> myCrossItems  = new ArrayList<CompoundNBT>();
+	static private ClipboardStorage  clipStorage   = null;
 
 	public static void load(
 			final File file )
@@ -36,7 +36,7 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 			final ItemStack iss )
 	{
 		// this is a client side things.
-		if ( FMLCommonHandler.instance().getEffectiveSide().isClient() )
+		if (EffectiveSide.get().isClient())
 		{
 			final IBitAccess bitData = ChiselsAndBits.getApi().createBitItem( iss );
 
@@ -53,9 +53,9 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 			}
 
 			// remove duplicates if they exist...
-			for ( final NBTTagCompound isa : myCrossItems )
+			for ( final CompoundNBT isa : myCrossItems )
 			{
-				if ( isa.equals( is.getTagCompound() ) )
+				if ( isa.equals( is.getTag() ) )
 				{
 					myCrossItems.remove( isa );
 					break;
@@ -63,7 +63,7 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 			}
 
 			// add item to front...
-			myCrossItems.add( 0, is.getTagCompound() );
+			myCrossItems.add( 0, is.getTag() );
 
 			// remove extra items from back..
 			while ( myCrossItems.size() > ChiselsAndBits.getConfig().creativeClipboardSize && !myCrossItems.isEmpty() )
@@ -83,49 +83,48 @@ public class CreativeClipboardTab extends CreativeTabs implements ICacheClearabl
 		ChiselsAndBits.getInstance().addClearable( this );
 	}
 
-	@Override
-	public ItemStack getTabIconItem()
-	{
-		final ModItems cbitems = ChiselsAndBits.getItems();
-		return new ItemStack( ModUtil.firstNonNull(
-				cbitems.itemPositiveprint,
-				cbitems.itemNegativeprint,
-				cbitems.itemBitBag,
-				cbitems.itemChiselDiamond,
-				cbitems.itemChiselGold,
-				cbitems.itemChiselIron,
-				cbitems.itemChiselStone,
-				cbitems.itemWrench ) );
-	}
+    @Override
+    public ItemStack createIcon()
+    {
+        final ModItems cbitems = ChiselsAndBits.getItems();
+        return new ItemStack( ModUtil.firstNonNull(
+          cbitems.itemPositiveprint,
+          cbitems.itemNegativePrint,
+          cbitems.itemBitBagDefault,
+          cbitems.itemChiselDiamond,
+          cbitems.itemChiselGold,
+          cbitems.itemChiselIron,
+          cbitems.itemChiselStone,
+          cbitems.itemWrench ) );
+    }
 
-	@Override
-	public void displayAllRelevantItems(
-			final NonNullList<ItemStack> itemList )
-	{
-		if ( renewMappings )
-		{
-			myWorldItems.clear();
-			renewMappings = false;
+    @Override
+    public void fill(final NonNullList<ItemStack> items)
+    {
+        if ( renewMappings )
+        {
+            myWorldItems.clear();
+            renewMappings = false;
 
-			for ( final NBTTagCompound nbt : myCrossItems )
-			{
-				final NBTBlobConverter c = new NBTBlobConverter();
-				c.readChisleData( nbt.getCompoundTag( ModUtil.NBT_BLOCKENTITYTAG ), VoxelBlob.VERSION_ANY );
+            for ( final CompoundNBT nbt : myCrossItems )
+            {
+                final NBTBlobConverter c = new NBTBlobConverter();
+                c.readChisleData( nbt.getCompound( ModUtil.NBT_BLOCKENTITYTAG ), VoxelBlob.VERSION_ANY );
 
-				// recalculate.
-				c.updateFromBlob();
+                // recalculate.
+                c.updateFromBlob();
 
-				final ItemStack worldItem = c.getItemStack( false );
+                final ItemStack worldItem = c.getItemStack( false );
 
-				if ( worldItem != null )
-				{
-					myWorldItems.add( worldItem );
-				}
-			}
-		}
+                if ( worldItem != null )
+                {
+                    myWorldItems.add( worldItem );
+                }
+            }
+        }
 
-		itemList.addAll( myWorldItems );
-	}
+        items.addAll( myWorldItems );
+    }
 
 	@Override
 	public void clearCache()

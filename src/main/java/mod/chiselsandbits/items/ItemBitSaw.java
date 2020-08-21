@@ -23,7 +23,7 @@ public class ItemBitSaw extends Item
 	}
 
 	@Override
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public void addInformation(
 			final ItemStack stack,
 			final World worldIn,

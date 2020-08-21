@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -20,6 +19,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -64,7 +64,7 @@ public class BagInventory implements IInventory
 		return stackSlots.length;
 	}
 
-	private int getStateInSlot(
+    private int getStateInSlot(
 			int index )
 	{
 		final int qty = inv.contents[ItemBitBag.INTS_PER_BIT_TYPE * index + ItemBitBag.OFFSET_QUANTITY];
@@ -177,7 +177,13 @@ public class BagInventory implements IInventory
 		}
 	}
 
-	@Override
+    @Override
+    public boolean isUsableByPlayer(final PlayerEntity player)
+    {
+        return true;
+    }
+
+    @Override
 	public void openInventory(
 			final PlayerEntity player )
 	{
@@ -434,10 +440,10 @@ public class BagInventory implements IInventory
 	}
 
 	@OnlyIn( Dist.CLIENT )
-	public List<String> listContents(
-			final List<String> details )
+	public List<ITextComponent> listContents(
+			final List<ITextComponent> details )
 	{
-		final TreeMap<String, Integer> contents = new TreeMap<String, Integer>();
+		final TreeMap<ITextComponent, Integer> contents = new TreeMap<>();
 
 		for ( int x = 0; x < getSizeInventory(); x++ )
 		{
@@ -450,7 +456,7 @@ public class BagInventory implements IInventory
 					continue;
 				}
 
-				final String name = ItemChiseledBit.getBitStateName( state );
+				final ITextComponent name = ItemChiseledBit.getBitStateName( state );
 
 				if ( name != null )
 				{
@@ -471,30 +477,22 @@ public class BagInventory implements IInventory
 
 		if ( contents.isEmpty() )
 		{
-			details.add( LocalStrings.Empty.getLocal() );
+			details.add( new StringTextComponent( LocalStrings.Empty.getLocal() ) );
 		}
 
-		final List<Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>();
+		final List<Entry<ITextComponent, Integer>> list = new ArrayList<>();
 		list.addAll( contents.entrySet() );
 
-		Collections.sort( list, new Comparator<Entry<String, Integer>>() {
+		Collections.sort( list, (o1, o2) -> {
+            final int y = o1.getValue();
+            final int x = o2.getValue();
 
-			@Override
-			public int compare(
-					final Entry<String, Integer> o1,
-					final Entry<String, Integer> o2 )
-			{
-				final int y = o1.getValue();
-				final int x = o2.getValue();
+            return Integer.compare(x, y);
+        });
 
-				return x < y ? -1 : x == y ? 0 : 1;
-			}
-
-		} );
-
-		for ( final Entry<String, Integer> e : list )
+		for ( final Entry<ITextComponent, Integer> e : list )
 		{
-			details.add( new StringBuilder().append( e.getValue() ).append( ' ' ).append( e.getKey() ).toString() );
+            details.add( new StringTextComponent(e.getValue().toString()).appendString( " " ).append( e.getKey() ) );
 		}
 
 		return details;
@@ -507,11 +505,11 @@ public class BagInventory implements IInventory
 	}
 
 	@Override
-	public boolean func_191420_l()
+	public boolean isEmpty()
 	{
 		for ( final ItemStack itemstack : stackSlots )
 		{
-			if ( !itemstack.func_190926_b() )
+			if ( !itemstack.isEmpty() )
 			{
 				return false;
 			}

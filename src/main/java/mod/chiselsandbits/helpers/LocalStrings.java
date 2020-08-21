@@ -1,5 +1,7 @@
 package mod.chiselsandbits.helpers;
 
+import net.minecraft.util.text.StringTextComponent;
+
 public enum LocalStrings
 {
 

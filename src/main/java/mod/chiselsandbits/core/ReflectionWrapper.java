@@ -61,7 +61,7 @@ public class ReflectionWrapper
 	 *
 	 * NAME: highlightingItemStack
 	 */
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public void setHighlightStack(
 			final ItemStack is )
 	{
@@ -84,13 +84,13 @@ public class ReflectionWrapper
 		}
 	}
 
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public void clearHighlightedStack()
 	{
 		setHighlightStack( ModUtil.getEmptyStack() );
 	}
 
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public void endHighlightedStack()
 	{
 		setHighlightStack( Minecraft.getMinecraft().thePlayer.getHeldItemMainhand() );
@@ -104,7 +104,7 @@ public class ReflectionWrapper
 	 * NAME: mapRegisteredSprites
 	 */
 	@SuppressWarnings( "unchecked" )
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public Map<String, TextureAtlasSprite> getRegSprite(
 			final TextureMap map )
 	{

@@ -47,10 +47,10 @@ public class JustEnoughItems implements IModPlugin
 		addDescription( registry, chiseles, LocalStrings.LongHelpChisel );
 		addDescription( registry, blocks, LocalStrings.LongHelpChiseledBlock );
 
-		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemBitBag ), LocalStrings.LongHelpBitBag );
+		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemBitBagDefault), LocalStrings.LongHelpBitBag );
 		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemBlockBit ), LocalStrings.LongHelpBit );
 		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemMirrorprint ), LocalStrings.LongHelpMirrorPrint );
-		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemNegativeprint ), LocalStrings.LongHelpNegativePrint );
+		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemNegativePrint), LocalStrings.LongHelpNegativePrint );
 		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemPositiveprint ), LocalStrings.LongHelpPositivePrint );
 		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemBitSawDiamond ), LocalStrings.LongHelpBitSaw );
 		addDescription( registry, stackCollection( ChiselsAndBits.getItems().itemTapeMeasure ), LocalStrings.LongHelpTapeMeasure );

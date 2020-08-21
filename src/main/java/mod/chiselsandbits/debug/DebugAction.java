@@ -22,7 +22,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -109,10 +109,10 @@ public abstract class DebugAction
 			final IBitAccess access = api.createBitItem( ModUtil.getEmptyStack() );
 			assert access != null;
 
-			apiAssert( "BIT_BAG", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemBitBag ) ) == ItemType.BIT_BAG );
+			apiAssert( "BIT_BAG", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemBitBagDefault) ) == ItemType.BIT_BAG );
 			apiAssert( "CHISEL", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond ) ) == ItemType.CHISEL );
 			apiAssert( "MIRROR_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemMirrorprint ) ) == ItemType.MIRROR_DESIGN );
-			apiAssert( "NEGATIVE_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemNegativeprint ) ) == ItemType.NEGATIVE_DESIGN );
+			apiAssert( "NEGATIVE_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemNegativePrint) ) == ItemType.NEGATIVE_DESIGN );
 			apiAssert( "POSITIVE_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemPositiveprint ) ) == ItemType.POSITIVE_DESIGN );
 			apiAssert( "WRENCH", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemWrench ) ) == ItemType.WRENCH );
 			apiAssert( "CHISLED_BIT-cobblestone", player, api.getItemType( ItemChiseledBit.createStack( ModUtil.getStateId( Blocks.COBBLESTONE.getDefaultState() ), 1, true ) ) == ItemType.CHISLED_BIT );

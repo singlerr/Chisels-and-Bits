@@ -22,24 +22,6 @@ public class TargetedInventory implements IInventory
 	}
 
 	@Override
-	public String getName()
-	{
-		return src.getName();
-	}
-
-	@Override
-	public boolean hasCustomName()
-	{
-		return src.hasCustomName();
-	}
-
-	@Override
-	public ITextComponent getDisplayName()
-	{
-		return src.getDisplayName();
-	}
-
-	@Override
 	public int getSizeInventory()
 	{
 		return src.getSizeInventory();
@@ -87,12 +69,11 @@ public class TargetedInventory implements IInventory
 		src.markDirty();
 	}
 
-	@Override
-	public boolean isUseableByPlayer(
-			final PlayerEntity player )
-	{
-		return src.isUseableByPlayer( player );
-	}
+    @Override
+    public boolean isUsableByPlayer(final PlayerEntity player)
+    {
+        return src.isUsableByPlayer( player );
+    }
 
 	@Override
 	public void openInventory(
@@ -117,36 +98,15 @@ public class TargetedInventory implements IInventory
 	}
 
 	@Override
-	public int getField(
-			final int id )
-	{
-		return src.getField( id );
-	}
-
-	@Override
-	public void setField(
-			final int id,
-			final int value )
-	{
-		src.setField( id, value );
-	}
-
-	@Override
-	public int getFieldCount()
-	{
-		return src.getFieldCount();
-	}
-
-	@Override
 	public void clear()
 	{
 		src.clear();
 	}
 
 	@Override
-	public boolean func_191420_l()
+	public boolean isEmpty()
 	{
-		return src.func_191420_l();
+		return src.isEmpty();
 	}
 
 }

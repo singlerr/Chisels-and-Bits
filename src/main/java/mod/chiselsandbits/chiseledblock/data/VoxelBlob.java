@@ -27,7 +27,6 @@ import mod.chiselsandbits.chiseledblock.serialization.BitStream;
 import mod.chiselsandbits.chiseledblock.serialization.BlobSerializer;
 import mod.chiselsandbits.chiseledblock.serialization.BlobSerilizationCache;
 import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializer;
-import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializerLegacy;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
@@ -910,10 +909,6 @@ public final class VoxelBlob implements IVoxelSrc
 		{
 			bs = new BlobSerializer( header );
 		}
-		else if ( version == VERSION_CROSSWORLD_LEGACY )
-		{
-			bs = new CrossWorldBlobSerializerLegacy( header );
-		}
 		else if ( version == VERSION_CROSSWORLD )
 		{
 			bs = new CrossWorldBlobSerializer( header );
@@ -958,11 +953,6 @@ public final class VoxelBlob implements IVoxelSrc
 		if ( version == VERSION_COMPACT )
 		{
 			return new BlobSerializer( this );
-		}
-
-		if ( version == VERSION_CROSSWORLD_LEGACY )
-		{
-			return new CrossWorldBlobSerializerLegacy( this );
 		}
 
 		if ( version == VERSION_CROSSWORLD )

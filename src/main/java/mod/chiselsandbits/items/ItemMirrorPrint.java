@@ -12,7 +12,7 @@ import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
@@ -38,7 +38,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 	SimpleInstanceCache<ItemStack, List<String>> toolTipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
 
 	@Override
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public void addInformation(
 			final ItemStack stack,
 			final World worldIn,

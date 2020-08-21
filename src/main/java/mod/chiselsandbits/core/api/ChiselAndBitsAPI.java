@@ -39,7 +39,7 @@ import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.item.EntityItem;
@@ -340,7 +340,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	}
 
 	@Override
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	public KeyBinding getKeyBinding(
 			ModKeyBinding modKeyBinding )
 	{

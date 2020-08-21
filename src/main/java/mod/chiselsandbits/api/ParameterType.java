@@ -7,9 +7,9 @@ package mod.chiselsandbits.api;
 public interface ParameterType<T extends Object>
 {
 
-	public ParamTypes getType();
+	ParamTypes getType();
 
-	public static enum ParamTypes
+	enum ParamTypes
 	{
 		BOOLEAN,
 		FLOAT,
@@ -17,7 +17,7 @@ public interface ParameterType<T extends Object>
 		INTEGER
 	};
 
-	public static enum BooleanParam implements ParameterType<Boolean>
+	enum BooleanParam implements ParameterType<Boolean>
 	{
 		ENABLE_MCMP(/* enableMCMultipart */),
 		ENABLE_DAMAGE_TOOLS(/* damageTools */),
@@ -30,7 +30,7 @@ public interface ParameterType<T extends Object>
 		}
 	};
 
-	public static enum FloatParam implements ParameterType<Float>
+	enum FloatParam implements ParameterType<Float>
 	{
 		BLOCK_FULL_LIGHT_PERCENTAGE(/* bitLightPercentage */);
 
@@ -41,7 +41,7 @@ public interface ParameterType<T extends Object>
 		}
 	}
 
-	public static enum DoubleParam implements ParameterType<Double>
+	enum DoubleParam implements ParameterType<Double>
 	{
 		BIT_MAX_DRAWN_REGION_SIZE(/* maxDrawnRegionSize */);
 
@@ -52,7 +52,7 @@ public interface ParameterType<T extends Object>
 		}
 	}
 
-	public static enum IntegerParam implements ParameterType<Integer>
+	enum IntegerParam implements ParameterType<Integer>
 	{
 		BIT_BAG_MAX_STACK_SIZE(/* bagStackSize */);
 

@@ -4,56 +4,68 @@ import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.network.ModPacket;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.StringNBT;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.util.Util;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class PacketSetColor extends ModPacket
 {
 
-	public EnumDyeColor newColor = EnumDyeColor.WHITE;
-	public ChiselToolType type = ChiselToolType.TAPEMEASURE;
-	public boolean chatNotification = false;
+	private DyeColor       newColor         = DyeColor.WHITE;
+    private ChiselToolType type             = ChiselToolType.TAPEMEASURE;
+    private boolean        chatNotification = false;
 
-	@Override
+    public PacketSetColor(final PacketBuffer buffer)
+    {
+        readPayload(buffer);
+    }
+
+    public PacketSetColor(final DyeColor newColor, final ChiselToolType type, final boolean chatNotification)
+    {
+        this.newColor = newColor;
+        this.type = type;
+        this.chatNotification = chatNotification;
+    }
+
+    @Override
 	public void server(
 			final ServerPlayerEntity player )
 	{
 		final ItemStack ei = player.getHeldItemMainhand();
 		if ( ei != null && ei.getItem() instanceof IChiselModeItem )
 		{
-			final EnumDyeColor originalMode = getColor( ei );
+			final DyeColor originalMode = getColor( ei );
 			setColor( ei, newColor );
 
 			if ( originalMode != newColor && chatNotification )
 			{
-				Minecraft.getMinecraft().thePlayer.addChatComponentMessage( new TextComponentTranslation( "chiselsandbits.color." + newColor.getUnlocalizedName().toString() ), true );
+				player.sendMessage( new TranslationTextComponent( "chiselsandbits.color." + newColor.getTranslationKey() ), Util.DUMMY_UUID );
 			}
 		}
 	}
 
 	private void setColor(
 			final ItemStack ei,
-			final EnumDyeColor newColor2 )
+			final DyeColor newColor2 )
 	{
 		if ( ei != null )
 		{
-			ei.setTagInfo( "color", new NBTTagString( newColor2.name() ) );
+			ei.setTagInfo( "color", StringNBT.valueOf( newColor2.name() ) );
 		}
 	}
 
-	private EnumDyeColor getColor(
+	private DyeColor getColor(
 			final ItemStack ei )
 	{
 		try
 		{
-			if ( ei != null && ei.hasTagCompound() )
+			if ( ei != null && ei.hasTag() )
 			{
-				return EnumDyeColor.valueOf( ModUtil.getTagCompound( ei ).getString( "color" ) );
+				return DyeColor.valueOf( ModUtil.getTagCompound( ei ).getString( "color" ) );
 			}
 		}
 		catch ( final IllegalArgumentException e )
@@ -61,7 +73,7 @@ public class PacketSetColor extends ModPacket
 			// nope!
 		}
 
-		return EnumDyeColor.WHITE;
+		return DyeColor.WHITE;
 	}
 
 	@Override
@@ -79,7 +91,7 @@ public class PacketSetColor extends ModPacket
 	{
 		chatNotification = buffer.readBoolean();
 		type = buffer.readEnumValue( ChiselToolType.class );
-		newColor = buffer.readEnumValue( EnumDyeColor.class );
+		newColor = buffer.readEnumValue( DyeColor.class );
 	}
 
 }

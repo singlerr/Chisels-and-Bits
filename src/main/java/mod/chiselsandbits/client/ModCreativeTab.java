@@ -3,10 +3,10 @@ package mod.chiselsandbits.client;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.registry.ModItems;
-import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
-public class ModCreativeTab extends CreativeTabs
+public class ModCreativeTab extends ItemGroup
 {
 
 	public ModCreativeTab()
@@ -22,7 +22,7 @@ public class ModCreativeTab extends CreativeTabs
 	}
 
 	@Override
-	public ItemStack getTabIconItem()
+	public ItemStack createIcon()
 	{
 		final ModItems cbitems = ChiselsAndBits.getItems();
 		return new ItemStack( ModUtil.firstNonNull(
@@ -30,9 +30,9 @@ public class ModCreativeTab extends CreativeTabs
 				cbitems.itemChiselGold,
 				cbitems.itemChiselIron,
 				cbitems.itemChiselStone,
-				cbitems.itemBitBag,
+				cbitems.itemBitBagDefault,
 				cbitems.itemPositiveprint,
-				cbitems.itemNegativeprint,
+				cbitems.itemNegativePrint,
 				cbitems.itemWrench ) );
 	}
 

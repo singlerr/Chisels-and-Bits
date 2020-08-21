@@ -1,11 +1,13 @@
 package mod.chiselsandbits.client;
 
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IBlockColor;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.IBlockDisplayReader;
+import net.minecraft.world.IBlockReader;
+import org.jetbrains.annotations.Nullable;
 
 public class BlockColorChisled implements IBlockColor
 {
@@ -13,16 +15,13 @@ public class BlockColorChisled implements IBlockColor
 	public static final int TINT_MASK = 0xff;
 	public static final int TINT_BITS = 8;
 
-	@Override
-	public int colorMultiplier(
-			final BlockState state,
-			final IBlockAccess worldIn,
-			final BlockPos pos,
-			final int tint )
-	{
-		final BlockState tstate = ModUtil.getStateById( tint >> TINT_BITS );
-		int tintValue = tint & TINT_MASK;
-		return Minecraft.getMinecraft().getBlockColors().colorMultiplier( tstate, worldIn, pos, tintValue );
-	}
+    @Override
+    public int getColor(
+      final BlockState p_getColor_1_, @Nullable final IBlockDisplayReader p_getColor_2_, @Nullable final BlockPos p_getColor_3_, final int p_getColor_4_)
+    {
 
+        final BlockState tstate = ModUtil.getStateById( p_getColor_4_ >> TINT_BITS );
+        int tintValue = p_getColor_4_ & TINT_MASK;
+        return Minecraft.getInstance().getBlockColors().getColor( tstate, p_getColor_2_, p_getColor_3_, tintValue );
+    }
 }

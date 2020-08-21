@@ -20,66 +20,80 @@ import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.IItemInInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.modes.PositivePatternMode;
-import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace.IItemBlockAccurate;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumActionResult;
+import net.minecraft.item.ItemUseContext;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeItem, IItemBlockAccurate
 {
 
-	@Override
-	@SideOnly( Side.CLIENT )
+    public ItemPositivePrint(final Properties properties)
+    {
+        super(properties);
+    }
+
+    @Override
+    protected Item getWrittenItem()
+    {
+        return ChiselsAndBits.getItems().itemPositiveprint;
+    }
+
+    @Override
+	@OnlyIn( Dist.CLIENT )
 	public void addInformation(
 			final ItemStack stack,
 			final World worldIn,
-			final List<String> tooltip,
+			final List<ITextComponent> tooltip,
 			final ITooltipFlag advanced )
 	{
 		defaultAddInfo( stack, worldIn, tooltip, advanced );
 		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpPositivePrint, tooltip,
-				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ),
-				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ),
+				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
+				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
 				ClientSide.instance.getModeKey() );
 
-		if ( stack.hasTagCompound() )
+		if ( stack.hasTag() )
 		{
 			if ( ClientSide.instance.holdingShift() )
 			{
 				if ( toolTipCache.needsUpdate( stack ) )
 				{
 					final VoxelBlob blob = ModUtil.getBlobFromStack( stack, null );
-					toolTipCache.updateCachedValue( blob.listContents( new ArrayList<String>() ) );
+					toolTipCache.updateCachedValue( blob.listContents( new ArrayList<ITextComponent>() ) );
 				}
 
 				tooltip.addAll( toolTipCache.getCached() );
 			}
 			else
 			{
-				tooltip.add( LocalStrings.ShiftDetails.getLocal() );
+				tooltip.add( new StringTextComponent(LocalStrings.ShiftDetails.getLocal()) );
 			}
 		}
 	}
 
 	@Override
-	protected NBTTagCompound getCompoundFromBlock(
+	protected CompoundNBT getCompoundFromBlock(
 			final World world,
 			final BlockPos pos,
 			final PlayerEntity player )
@@ -92,10 +106,10 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			final NBTBlobConverter tmp = new NBTBlobConverter();
 
 			tmp.fillWith( state );
-			final NBTTagCompound comp = new NBTTagCompound();
+			final CompoundNBT comp = new CompoundNBT();
 			tmp.writeChisleData( comp, false );
 
-			comp.setByte( ModUtil.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
+			comp.putByte( ModUtil.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
 			return comp;
 		}
 
@@ -108,66 +122,60 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 		return false;
 	}
 
-	@Override
-	public EnumActionResult onItemUse(
-			final PlayerEntity player,
-			final World world,
-			final BlockPos pos,
-			final Hand hand,
-			final Direction side,
-			final float hitX,
-			final float hitY,
-			final float hitZ )
-	{
-		final ItemStack stack = player.getHeldItem( hand );
-		final BlockState blkstate = world.getBlockState( pos );
+    @Override
+    public ActionResultType onItemUse(final ItemUseContext context)
+    {
+        PlayerEntity player = context.getPlayer();
+        World world = context.getWorld();
+        Hand hand = context.getHand();
+        BlockPos pos = context.getPos();
 
-		if ( ItemChiseledBit.checkRequiredSpace( player, blkstate ) )
-		{
-			return EnumActionResult.FAIL;
-		}
+        final ItemStack stack = player.getHeldItem( hand );
+        final BlockState blkstate = world.getBlockState( pos );
 
-		boolean offgrid = false;
+        if ( ItemChiseledBit.checkRequiredSpace( player, blkstate ) )
+        {
+            return ActionResultType.FAIL;
+        }
 
-		if ( PositivePatternMode.getMode( stack ) == PositivePatternMode.PLACEMENT )
-		{
-			if ( !world.isRemote )
-			{
-				// Say it "worked", Don't do anything we'll get a better
-				// packet.
-				return EnumActionResult.SUCCESS;
-			}
+        boolean offgrid = false;
 
-			// send accurate packet.
-			final PacketAccurateSneakPlace pasp = new PacketAccurateSneakPlace();
+        if ( PositivePatternMode.getMode( stack ) == PositivePatternMode.PLACEMENT )
+        {
+            if ( !world.isRemote )
+            {
+                // Say it "worked", Don't do anything we'll get a better
+                // packet.
+                return ActionResultType.SUCCESS;
+            }
 
-			pasp.hand = hand;
-			pasp.pos = pos;
-			pasp.side = side;
-			pasp.stack = stack;
-			pasp.hitX = hitX;
-			pasp.hitY = hitY;
-			pasp.hitZ = hitZ;
-			offgrid = pasp.offgrid = ClientSide.offGridPlacement( player );
+            // send accurate packet.
+            final PacketAccurateSneakPlace pasp = new PacketAccurateSneakPlace(
+              context.getItem(),
+              pos,
+              hand,
+              context.getFace(),
+              context.getHitVec().x,
+              context.getHitVec().y,
+              context.getHitVec().z,
+              false
+            );
 
-			NetworkRouter.instance.sendToServer( pasp );
-		}
+            ChiselsAndBits.getNetworkChannel().sendToServer(pasp);
+        }
 
-		return placeItem( stack, player, world, pos, hand, side, hitX, hitY, hitZ, offgrid );
-	}
+        return placeItem(context , offgrid );
+    }
 
-	public final EnumActionResult placeItem(
-			final ItemStack stack,
-			final PlayerEntity player,
-			final World world,
-			final BlockPos pos,
-			final Hand hand,
-			final Direction side,
-			final float hitX,
-			final float hitY,
-			final float hitZ,
+	public final ActionResultType placeItem(
+			final ItemUseContext context,
 			boolean offgrid )
 	{
+        ItemStack stack = context.getItem();
+        PlayerEntity player = context.getPlayer();
+        Hand hand = context.getHand();
+        BlockPos pos = context.getPos();
+
 		if ( PositivePatternMode.getMode( stack ) == PositivePatternMode.PLACEMENT )
 		{
 			final ItemStack output = getPatternedItem( stack, false );
@@ -179,9 +187,9 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 				if ( consumeEntirePattern( pattern, stats, pos, ActingPlayer.testingAs( player, hand ) ) && output.getItem() instanceof ItemBlockChiseled )
 				{
 					final ItemBlockChiseled ibc = (ItemBlockChiseled) output.getItem();
-					final EnumActionResult res = ibc.placeItem( output, player, world, pos, hand, side, hitX, hitY, hitZ, offgrid );
+					final ActionResultType res = ibc.tryPlace( context, offgrid );
 
-					if ( res == EnumActionResult.SUCCESS )
+					if ( res == ActionResultType.SUCCESS )
 					{
 						consumeEntirePattern( pattern, stats, pos, ActingPlayer.actingAs( player, hand ) );
 					}
@@ -189,11 +197,11 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 					return res;
 				}
 
-				return EnumActionResult.FAIL;
+				return ActionResultType.FAIL;
 			}
 		}
 
-		return super.onItemUse( player, world, pos, hand, side, hitX, hitY, hitZ );
+		return super.onItemUse( context );
 	}
 
 	private boolean consumeEntirePattern(
@@ -253,10 +261,9 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 		ItemStack spawnedItem = null;
 
 		final VoxelBlob filled = new VoxelBlob();
-		MCMultipartProxy.proxyMCMultiPart.addFiller( world, pos, filled );
 
 		final List<BagInventory> bags = ModUtil.getBags( player );
-		final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
+		final List<ItemEntity> spawnlist = new ArrayList<>();
 
 		final PositivePatternMode chiselMode = PositivePatternMode.getMode( stack );
 		final boolean chisel_bits = chiselMode == PositivePatternMode.IMPOSE || chiselMode == PositivePatternMode.REPLACE;
@@ -309,25 +316,29 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 		}
 
 		BitInventoryFeeder feeder = new BitInventoryFeeder( who, world );
-		for ( final EntityItem ei : spawnlist )
+		for ( final ItemEntity ei : spawnlist )
 		{
 			feeder.addItem( ei );
-			ItemBitBag.cleanupInventory( who, ei.getEntityItem() );
+			ItemBitBag.cleanupInventory( who, ei.getItem() );
 		}
 
 	}
 
-	@Override
-	public String getHighlightTip(
-			final ItemStack item,
-			final String displayName )
-	{
-		if ( ChiselsAndBits.getConfig().itemNameModeDisplay )
-		{
-			return displayName + " - " + PositivePatternMode.getMode( item ).string.getLocal();
-		}
+    @Override
+    public ITextComponent getHighlightTip(final ItemStack item, final ITextComponent displayName)
+    {
+        if (displayName instanceof IFormattableTextComponent && ChiselsAndBits.getConfig().itemNameModeDisplay )
+        {
+            IFormattableTextComponent formattableTextComponent = (IFormattableTextComponent) displayName;
+            return formattableTextComponent.appendString(" - ").appendString(PositivePatternMode.getMode( item ).string.getLocal());
+        }
 
-		return displayName;
-	}
+        return displayName;
+    }
 
+    @Override
+    public ActionResultType tryPlace(final ItemUseContext context, final boolean offGrid)
+    {
+        return null;
+    }
 }

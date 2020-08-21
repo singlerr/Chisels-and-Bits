@@ -1,10 +1,5 @@
 package mod.chiselsandbits.chiseledblock;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-
 import mod.chiselsandbits.api.EventBlockBitModification;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChisledValue;
@@ -14,39 +9,32 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
-import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.DeprecationHelper;
-import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace.IItemBlockAccurate;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockSnow;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.SnowBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.*;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.*;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.Direction;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
@@ -55,6 +43,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.Nullable;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IItemScrollWheel, IItemBlockAccurate
 {
@@ -96,27 +88,19 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
         }
     }
 
-
-
-    
-    
-	@Override
-	@SideOnly( Side.CLIENT )
-	public boolean canPlaceBlockOnSide(
-			final World worldIn,
-			final BlockPos pos,
-			final Direction side,
-			final PlayerEntity player,
-			final ItemStack stack )
-	{
-		return canPlaceBlockHere( worldIn, pos, side, player, stack, ClientSide.offGridPlacement( player ) );
-	}
+    @Override
+    protected boolean canPlace(final BlockItemUseContext p_195944_1_, final BlockState p_195944_2_)
+    {
+        //TODO: Check for offgrid logic.
+        return canPlaceBlockHere(p_195944_1_.getWorld(), p_195944_1_.getPos(), p_195944_1_.getFace(), p_195944_1_.getPlayer(), p_195944_1_.getHand(), p_195944_1_.getItem(), p_195944_1_.getHitVec().x, p_195944_1_.getHitVec().y, p_195944_1_.getHitVec().z, false);
+    }
 
 	public boolean vanillaStylePlacementTest(
 			final @Nonnull World worldIn,
 			@Nonnull BlockPos pos,
 			@Nonnull Direction side,
 			final PlayerEntity player,
+			final Hand hand,
 			final ItemStack stack )
 	{
 		final Block block = worldIn.getBlockState( pos ).getBlock();
@@ -125,12 +109,12 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 		{
 			side = Direction.UP;
 		}
-		else if ( !block.isReplaceable(worldIn.getBlockState(pos), BlockItemUseContext.) )
+		else if ( !block.isReplaceable(worldIn.getBlockState(pos), new BlockItemUseContext(player, hand, stack, new BlockRayTraceResult(new Vector3d(0.5, 0.5, 0.5), side, pos, false))) )
 		{
 			pos = pos.offset( side );
 		}
 
-		return worldIn.func_190527_a( this.getBlock(), pos, false, side, null );
+		return true;
 	}
 
 	public boolean canPlaceBlockHere(
@@ -138,10 +122,14 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 			final @Nonnull BlockPos pos,
 			final @Nonnull Direction side,
 			final PlayerEntity player,
+			final Hand hand,
 			final ItemStack stack,
+            final double hitX,
+            final double hitY,
+            final double hitZ,
 			boolean offgrid )
 	{
-		if ( vanillaStylePlacementTest( worldIn, pos, side, player, stack ) )
+		if ( vanillaStylePlacementTest( worldIn, pos, side, player, hand, stack ) )
 		{
 			return true;
 		}
@@ -151,12 +139,12 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 			return true;
 		}
 
-		if ( tryPlaceBlockAt( block, stack, player, worldIn, pos, side, Hand.MAIN_HAND, null, false ) )
+		if ( tryPlaceBlockAt( getBlock(), stack, player, worldIn, pos, side, Hand.MAIN_HAND, hitX, hitY, hitZ, null, false ) )
 		{
 			return true;
 		}
 
-		return tryPlaceBlockAt( block, stack, player, worldIn, pos.offset( side ), side, Hand.MAIN_HAND, null, false );
+		return tryPlaceBlockAt( getBlock(), stack, player, worldIn, pos.offset( side ), side, Hand.MAIN_HAND, hitX, hitY, hitZ, null, false );
 	}
 
     @Override
@@ -179,92 +167,36 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
           context.getHitVec().x,
           context.getHitVec().y,
           context.getHitVec().z,
-          ClientSide.offGridPlacement(context.getPlayer())
+          false //TODO: Figure out the placement logic.
         );
 
         ChiselsAndBits.getNetworkChannel().sendToServer(pasp);
-        return tryPlace( stack, player, world, pos, hand, side, hitX, hitY, hitZ, ClientSide.offGridPlacement( player ) );
+        //TODO: Figure out the placement logic.
+        return tryPlace( context, false );
     }
 
     @Override
     public ActionResultType tryPlace(final BlockItemUseContext context)
     {
-        final BlockState state = worldIn.getBlockState( pos );
-        final Block block = state.getBlock();
-
-        if ( block == Blocks.SNOW_LAYER && state.getValue( BlockSnow.LAYERS ).intValue() < 1 )
-        {
-            side = Direction.UP;
-        }
-        else
-        {
-            boolean canMerge = false;
-            if ( stack.hasTagCompound() )
-            {
-                final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( worldIn, pos, true );
-
-                if ( tebc != null )
-                {
-                    final VoxelBlob blob = ModUtil.getBlobFromStack( stack, playerIn );
-                    canMerge = tebc.canMerge( blob );
-                }
-            }
-
-            if ( !canMerge && !offgrid && !block.isReplaceable( worldIn, pos ) )
-            {
-                pos = pos.offset( side );
-            }
-        }
-
-        if ( ModUtil.isEmpty( stack ) )
-        {
-            return EnumActionResult.FAIL;
-        }
-        else if ( !playerIn.canPlayerEdit( pos, side, stack ) )
-        {
-            return EnumActionResult.FAIL;
-        }
-        else if ( pos.getY() == 255 && DeprecationHelper.getStateFromItem( stack ).getMaterial().isSolid() )
-        {
-            return EnumActionResult.FAIL;
-        }
-        else if ( canPlaceBlockHere( worldIn, pos, side, playerIn, stack, offgrid ) )
-        {
-            final int i = this.getMetadata( stack.getMetadata() );
-            final BlockState BlockState1 = this.block.getStateForPlacement( worldIn, pos, side, hitX, hitY, hitZ, i, playerIn, hand );
-
-            if ( placeBitBlock( stack, playerIn, worldIn, pos, side, hitX, hitY, hitZ, BlockState1, offgrid ) )
-            {
-                worldIn.playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, DeprecationHelper.getSoundType( this.block ).getPlaceSound(), SoundCategory.BLOCKS,
-                  ( DeprecationHelper.getSoundType( this.block ).getVolume() + 1.0F ) / 2.0F,
-                  DeprecationHelper.getSoundType( this.block ).getPitch() * 0.8F, false );
-                ModUtil.adjustStackSize( stack, -1 );
-
-                return EnumActionResult.SUCCESS;
-            }
-
-            return EnumActionResult.FAIL;
-        }
-        else
-        {
-            return EnumActionResult.FAIL;
-        }
+        return tryPlace(context, false);
     }
 
-	@Override
-	public boolean placeBlockAt(
-			final ItemStack stack,
-			final PlayerEntity player,
-			final World world,
-			final BlockPos pos,
-			final Direction side,
-			final float hitX,
-			final float hitY,
-			final float hitZ,
-			final BlockState newState )
-	{
-		return placeBitBlock( stack, player, world, pos, side, hitX, hitY, hitZ, newState, false );
-	}
+    @Override
+    protected boolean placeBlock(final BlockItemUseContext context, final BlockState state)
+    {
+        return placeBitBlock(
+          context.getItem(),
+          context.getPlayer(),
+          context.getWorld(),
+          context.getPos(),
+          context.getFace(),
+          context.getHitVec().x,
+          context.getHitVec().y,
+          context.getHitVec().z,
+          state,
+          false
+        );
+    }
 
 	public boolean placeBitBlock(
 			final ItemStack stack,
@@ -272,20 +204,20 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 			final World world,
 			final BlockPos pos,
 			final Direction side,
-			final float hitX,
-			final float hitY,
-			final float hitZ,
+			final double hitX,
+			final double hitY,
+			final double hitZ,
 			final BlockState newState,
 			boolean offgrid )
 	{
 		if ( offgrid )
 		{
-			final BitLocation bl = new BitLocation( new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos ), false, BitOperation.PLACE );
-			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, Hand.MAIN_HAND, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );
+			final BitLocation bl = new BitLocation( new BlockRayTraceResult( new Vector3d( hitX, hitY, hitZ ), side, pos , false), false, BitOperation.PLACE );
+			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, Hand.MAIN_HAND, hitX, hitY, hitZ, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );
 		}
 		else
 		{
-			return tryPlaceBlockAt( block, stack, player, world, pos, side, Hand.MAIN_HAND, null, true );
+			return tryPlaceBlockAt( block, stack, player, world, pos, side, Hand.MAIN_HAND, hitX, hitY, hitZ, null, true );
 		}
 	}
 
@@ -297,6 +229,9 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 			@Nonnull BlockPos pos,
 			final @Nonnull Direction side,
 			final @Nonnull Hand hand,
+            final double hitX,
+            final double hitY,
+            final double hitZ,
 			final BlockPos partial,
 			final boolean modulateWorld )
 	{
@@ -352,7 +287,12 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 							return false;
 						}
 
-						if ( world.isAirBlock( bp ) || world.getBlockState( bp ).getBlock().isReplaceable( world.getBlockState(bp), new BlockItemUseContext() ) )
+						if ( world.isAirBlock( bp ) || world.getBlockState( bp ).isReplaceable(new BlockItemUseContext(
+						  player,
+                          hand,
+                          stack,
+                          new BlockRayTraceResult(new Vector3d(hitX, hitY, hitZ), side, pos, false)
+                        )) )
 						{
 							continue;
 						}
@@ -391,10 +331,15 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 								final BlockPos bp = pos.add( x, y, z );
 								final BlockState state = world.getBlockState( bp );
 
-								if ( world.getBlockState( bp ).getBlock().isReplaceable( world, bp ) )
+								if ( world.getBlockState( bp ).isReplaceable(new BlockItemUseContext(
+                                  player,
+                                  hand,
+                                  stack,
+                                  new BlockRayTraceResult(new Vector3d(hitX, hitY, hitZ), side, bp, false) //TODO: Figure is a recalc of the hit vector is needed here.
+                                )) )
 								{
 									// clear it...
-									world.setBlockToAir( bp );
+									world.setBlockState(bp, Blocks.AIR.getDefaultState());
 								}
 
 								if ( world.isAirBlock( bp ) )
@@ -431,42 +376,43 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 		return true;
 	}
 
-	@Override
-	public String getItemStackDisplayName(
-			final ItemStack stack )
-	{
-		final NBTTagCompound comp = stack.getTagCompound();
+    @Override
+    public ITextComponent getDisplayName(final ItemStack stack)
+    {
+        final CompoundNBT comp = stack.getTag();
 
-		if ( comp != null )
-		{
-			final NBTTagCompound BlockEntityTag = comp.getCompoundTag( ModUtil.NBT_BLOCKENTITYTAG );
-			if ( BlockEntityTag != null )
-			{
-				final NBTBlobConverter c = new NBTBlobConverter();
-				c.readChisleData( BlockEntityTag, VoxelBlob.VERSION_ANY );
+        if ( comp != null )
+        {
+            final CompoundNBT BlockEntityTag = comp.getCompound( ModUtil.NBT_BLOCKENTITYTAG );
+            if ( BlockEntityTag != null )
+            {
+                final NBTBlobConverter c = new NBTBlobConverter();
+                c.readChisleData( BlockEntityTag, VoxelBlob.VERSION_ANY );
 
-				final BlockState state = c.getPrimaryBlockState();
-				String name = ItemChiseledBit.getBitStateName( state );
+                final BlockState state = c.getPrimaryBlockState();
+                ITextComponent name = ItemChiseledBit.getBitStateName( state );
 
-				if ( name != null )
-				{
-					return new StringBuilder().append( super.getItemStackDisplayName( stack ) ).append( " - " ).append( name ).toString();
-				}
-			}
-		}
+                if ( name != null )
+                {
+                    final ITextComponent parent = super.getDisplayName(stack);
+                    if (!(parent instanceof IFormattableTextComponent))
+                        return parent;
 
-		return super.getItemStackDisplayName( stack );
-	}
+                    final IFormattableTextComponent formattedParent = (IFormattableTextComponent) parent;
+                    return formattedParent.appendString( " - " ).append( name );
+                }
+            }
+        }
 
-	@Override
-	public void scroll(
-			final ServerPlayerEntity player,
-			final ItemStack stack,
-			final int dwheel )
-	{
-		final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob(Direction.Axis.Y, dwheel > 0 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90);
-		ChiselsAndBits.getNetworkChannel().sendToServer( p );
-	}
+        return super.getDisplayName( stack );
+    }
+
+    @Override
+    public void scroll(final PlayerEntity player, final ItemStack stack, final int dwheel)
+    {
+        final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob(Direction.Axis.Y, dwheel > 0 ? Rotation.CLOCKWISE_90 : Rotation.COUNTERCLOCKWISE_90);
+        ChiselsAndBits.getNetworkChannel().sendToServer( p );
+    }
 
 	@Override
 	public void rotate(
@@ -497,10 +443,77 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 		{
 			IBitAccess ba = ChiselsAndBits.getApi().createBitItem( stack );
 			ba.rotate( axis, rotation );
-			stack.setTagCompound( ba.getBitsAsItem( side, ChiselsAndBits.getApi().getItemType( stack ), false ).getTagCompound() );
+			stack.setTag( ba.getBitsAsItem( side, ChiselsAndBits.getApi().getItemType( stack ), false ).getTag() );
 		}
 
 		ModUtil.setSide( stack, side );
 	}
 
+    @Override
+    public ActionResultType tryPlace(final ItemUseContext context, final boolean offgrid)
+    {
+        final BlockState state = context.getWorld().getBlockState( context.getPos() );
+        final Block block = state.getBlock();
+
+        Direction side = context.getFace();
+        BlockPos pos = context.getPos();
+
+        if ( block == Blocks.SNOW && state.get(SnowBlock.LAYERS).intValue() < 1 )
+        {
+            side = Direction.UP;
+        }
+        else
+        {
+            boolean canMerge = false;
+            if ( context.getItem().hasTag() )
+            {
+                final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( context.getWorld(), context.getPos(), true );
+
+                if ( tebc != null )
+                {
+                    final VoxelBlob blob = ModUtil.getBlobFromStack( context.getItem(), context.getPlayer() );
+                    canMerge = tebc.canMerge( blob );
+                }
+            }
+
+            if (context instanceof BlockItemUseContext && !canMerge && !offgrid && !state.isReplaceable((BlockItemUseContext) context) )
+            {
+                pos = pos.offset( side );
+            }
+        }
+
+        if ( ModUtil.isEmpty( context.getItem() ) )
+        {
+            return ActionResultType.FAIL;
+        }
+        else if ( !context.getPlayer().canPlayerEdit( pos, side, context.getItem() ) )
+        {
+            return ActionResultType.FAIL;
+        }
+        else if ( pos.getY() == 255 && DeprecationHelper.getStateFromItem( context.getItem() ).getMaterial().isSolid() )
+        {
+            return ActionResultType.FAIL;
+        }
+        else if (context instanceof BlockItemUseContext && canPlaceBlockHere( context.getWorld(), pos, side, context.getPlayer(), context.getHand(), context.getItem(), context.getHitVec().x, context.getHitVec().y, context.getHitVec().z, offgrid ) )
+        {
+            final int i = context.getItem().getDamage();
+            final BlockState BlockState1 = getStateForPlacement((BlockItemUseContext) context);
+
+            if ( placeBitBlock( context.getItem(), context.getPlayer(), context.getWorld(), pos, side, context.getHitVec().x, context.getHitVec().y, context.getHitVec().z, BlockState1, offgrid ) )
+            {
+                context.getWorld().playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, DeprecationHelper.getSoundType( this.getBlock() ).getPlaceSound(), SoundCategory.BLOCKS,
+                  ( DeprecationHelper.getSoundType( this.block ).getVolume() + 1.0F ) / 2.0F,
+                  DeprecationHelper.getSoundType( this.block ).getPitch() * 0.8F, false );
+                ModUtil.adjustStackSize( context.getItem(), -1 );
+
+                return ActionResultType.SUCCESS;
+            }
+
+            return ActionResultType.FAIL;
+        }
+        else
+        {
+            return ActionResultType.FAIL;
+        }
+    }
 }

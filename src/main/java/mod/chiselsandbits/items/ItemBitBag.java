@@ -12,12 +12,11 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.network.NetworkRouter;
 import mod.chiselsandbits.network.packets.PacketOpenBagGui;
+import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.DyeColor;
@@ -25,20 +24,20 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.translation.I18n;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.oredict.OreDictionary;
+import org.jetbrains.annotations.Nullable;
 
 public class ItemBitBag extends Item
 {
@@ -47,7 +46,7 @@ public class ItemBitBag extends Item
 	public static final int OFFSET_STATE_ID = 0;
 	public static final int OFFSET_QUANTITY = 1;
 
-	SimpleInstanceCache<ItemStack, List<String>> tooltipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
+	SimpleInstanceCache<ItemStack, List<ITextComponent>> tooltipCache = new SimpleInstanceCache<>(null, new ArrayList<>());
 
 	public ItemBitBag(Item.Properties properties)
 	{
@@ -63,44 +62,39 @@ public class ItemBitBag extends Item
 		return new BagCapabilityProvider( stack, nbt );
 	}
 
-	@Override
-	public String getItemStackDisplayName(
-			ItemStack stack )
-	{
-		DyeColor color = getDyedColor( stack );
-		if ( color != null )
-			return super.getItemStackDisplayName( stack ) + " - " + I18n.translateToLocal( "chiselsandbits.color." + color.getName() );
-		else
-			return super.getItemStackDisplayName( stack );
-	}
+    @Override
+    public ITextComponent getDisplayName(final ItemStack stack)
+    {
+        DyeColor color = getDyedColor( stack );
+        final ITextComponent parent = super.getDisplayName(stack);
+        if ( parent instanceof IFormattableTextComponent && color != null )
+            return ((IFormattableTextComponent) parent).appendString(" - ").append(new TranslationTextComponent("chiselsandbits.color." + color.getTranslationKey() ));
+        else
+            return super.getDisplayName( stack );
+    }
 
-	@Override
-	@SideOnly( Side.CLIENT )
-	public void addInformation(
-			final ItemStack stack,
-			final World worldIn,
-			final List<String> tooltip,
-			final ITooltipFlag advanced )
-	{
-		super.addInformation( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBitBag, tooltip );
+    @Override
+    public void addInformation(final ItemStack stack, @Nullable final World worldIn, final List<ITextComponent> tooltip, final ITooltipFlag flagIn)
+    {
+        super.addInformation( stack, worldIn, tooltip, flagIn );
+        ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBitBag, tooltip );
 
-		if ( tooltipCache.needsUpdate( stack ) )
-		{
-			final BagInventory bi = new BagInventory( stack );
-			tooltipCache.updateCachedValue( bi.listContents( new ArrayList<String>() ) );
-		}
+        if ( tooltipCache.needsUpdate( stack ) )
+        {
+            final BagInventory bi = new BagInventory( stack );
+            tooltipCache.updateCachedValue( bi.listContents(new ArrayList<>() ) );
+        }
 
-		final List<String> details = tooltipCache.getCached();
-		if ( details.size() <= 2 || ClientSide.instance.holdingShift() )
-		{
-			tooltip.addAll( details );
-		}
-		else
-		{
-			tooltip.add( LocalStrings.ShiftDetails.getLocal() );
-		}
-	}
+        final List<ITextComponent> details = tooltipCache.getCached();
+        if ( details.size() <= 2 || ClientSide.instance.holdingShift() )
+        {
+            tooltip.addAll( details );
+        }
+        else
+        {
+            tooltip.add( new StringTextComponent(LocalStrings.ShiftDetails.getLocal()) );
+        }
+    }
 
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(
@@ -112,10 +106,10 @@ public class ItemBitBag extends Item
 
 		if ( worldIn.isRemote )
 		{
-			NetworkRouter.instance.sendToServer( new PacketOpenBagGui() );
+			ChiselsAndBits.getNetworkChannel().sendToServer( new PacketOpenBagGui() );
 		}
 
-		return new ActionResult<ItemStack>( EnumActionResult.SUCCESS, itemStackIn );
+		return new ActionResult<ItemStack>( ActionResultType.SUCCESS, itemStackIn );
 	}
 
 	public static class BagPos
@@ -135,11 +129,11 @@ public class ItemBitBag extends Item
 	{
 		boolean modified = false;
 
-		final EntityItem entityItem = event.getItem();
+		final ItemEntity entityItem = event.getItem();
 		if ( entityItem != null )
 		{
-			final ItemStack is = entityItem.getEntityItem();
-			final PlayerEntity player = event.getPlayerEntity();
+			final ItemStack is = entityItem.getItem();
+			final PlayerEntity player = event.getPlayer();
 			if ( is != null && is.getItem() instanceof ItemChiseledBit )
 			{
 				final int originalSize = ModUtil.getStackSize( is );
@@ -153,15 +147,15 @@ public class ItemBitBag extends Item
 				{
 					for ( final BagPos i : bags )
 					{
-						if ( !entityItem.isDead )
+						if ( entityItem.isAlive() )
 						{
-							modified = updateEntity( player, entityItem, i.inv.insertItem( ModUtil.nonNull( entityItem.getEntityItem() ) ), originalSize ) || modified;
+							modified = updateEntity( player, entityItem, i.inv.insertItem( ModUtil.nonNull( entityItem.getItem() ) ), originalSize ) || modified;
 						}
 					}
 				}
 				else
 				{
-					if ( ModUtil.getStackSize( is ) > is.getMaxStackSize() && !entityItem.isDead )
+					if ( ModUtil.getStackSize( is ) > is.getMaxStackSize() && entityItem.isAlive() )
 					{
 						final ItemStack singleStack = is.copy();
 						ModUtil.setStackSize( singleStack, singleStack.getMaxStackSize() );
@@ -181,9 +175,9 @@ public class ItemBitBag extends Item
 					for ( final BagPos i : bags )
 					{
 
-						if ( !entityItem.isDead )
+						if ( entityItem.isAlive() )
 						{
-							modified = updateEntity( player, entityItem, i.inv.insertItem( ModUtil.nonNull( entityItem.getEntityItem() ) ), originalSize ) || modified;
+							modified = updateEntity( player, entityItem, i.inv.insertItem( ModUtil.nonNull( entityItem.getItem() ) ), originalSize ) || modified;
 						}
 					}
 				}
@@ -200,36 +194,19 @@ public class ItemBitBag extends Item
 
 	private boolean updateEntity(
 			final PlayerEntity player,
-			final EntityItem ei,
+			final ItemEntity ei,
 			ItemStack is,
 			final int originalSize )
 	{
 		if ( is == null )
 		{
-			ei.setDead();
-			// is = new ItemStack( ei.getEntityItem().getItem(), 0 );
-			// ei.setEntityItemStack( is );
-			// ei.setDead();
-			//
-			// net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerItemPickupEvent(
-			// player, ei );
-			//
-			// if ( !ei.isSilent() )
-			// {
-			// ei.worldObj.playSound( (PlayerEntity) null, ei.posX, ei.posY,
-			// ei.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS,
-			// 0.2F, ( ( itemRand.nextFloat() - itemRand.nextFloat() ) * 0.7F +
-			// 1.0F ) * 2.0F );
-			// }
-			//
-			// player.onItemPickup( ei, originalSize );
-			//
+			ei.remove();
 			return true;
 		}
 		else
 		{
-			final int changed = ModUtil.getStackSize( is ) - ModUtil.getStackSize( ei.getEntityItem() );
-			ei.setEntityItemStack( is );
+			final int changed = ModUtil.getStackSize( is ) - ModUtil.getStackSize( ei.getItem() );
+			ei.setItem( is );
 			return changed != 0;
 		}
 	}
@@ -251,7 +228,7 @@ public class ItemBitBag extends Item
 				@Nonnull
 				ItemStack which = ModUtil.nonNull( inv.getStackInSlot( actingSlot ) );
 
-				if ( which != null && which.getItem() == is.getItem() && ( ItemChiseledBit.sameBit( which, ItemChiseledBit.getStackState( is ) ) || is.getItemDamage() == OreDictionary.WILDCARD_VALUE ) )
+				if ( which != null && which.getItem() == is.getItem() && ( ItemChiseledBit.sameBit( which, ItemChiseledBit.getStackState( is ) ) ) )
 				{
 					if ( actingSlot == player.inventory.currentItem )
 					{
@@ -336,19 +313,19 @@ public class ItemBitBag extends Item
 		return 0;
 	}
 
-	@Override
-	public void getSubItems(
-			ItemGroup itemIn,
-			NonNullList<ItemStack> tab )
-	{
-		if ( this.func_194125_a( itemIn ) )
-		{
-			tab.add( new ItemStack( this ) );
+    @Override
+    public void fillItemGroup(final ItemGroup group, final NonNullList<ItemStack> items)
+    {
+        if ( this.isInGroup( group ) )
+        {
+            if (this == ChiselsAndBits.getItems().itemBitBagDefault)
+                items.add( new ItemStack( this ) );
+            else
+                for ( DyeColor color : DyeColor.values() )
+                    items.add( dyeBag( new ItemStack( this ), color ) );
+        }
+    }
 
-			for ( DyeColor color : DyeColor.values() )
-				tab.add( dyeBag( new ItemStack( this ), color ) );
-		}
-	}
 
 	public ItemStack dyeBag(
 			ItemStack bag,
@@ -356,13 +333,13 @@ public class ItemBitBag extends Item
 	{
 		ItemStack copy = bag.copy();
 
-		if ( !copy.hasTagCompound() )
-			copy.setTagCompound( new NBTTagCompound() );
+		if ( !copy.hasTag() )
+			copy.setTag( new CompoundNBT() );
 
-		if ( color == null )
-			copy.getTagCompound().removeTag( "color" );
-		else
-			copy.getTagCompound().setString( "color", color.getName() );
+		if ( color == null && this == ChiselsAndBits.getItems().itemBitBagDyed )
+			copy.getTag().remove( "color" );
+		else if (color != null)
+			copy.getTag().putString( "color", color.getTranslationKey() );
 
 		return copy;
 	}
@@ -370,12 +347,15 @@ public class ItemBitBag extends Item
 	public DyeColor getDyedColor(
 			ItemStack stack )
 	{
-		if ( stack.hasTagCompound() && stack.getTagCompound().hasKey( "color" ) )
+	    if (stack.getItem() != ChiselsAndBits.getItems().itemBitBagDyed)
+	        return null;
+
+		if ( stack.getOrCreateTag().contains( "color" ) )
 		{
-			String name = stack.getTagCompound().getString( "color" );
+			String name = stack.getTag().getString( "color" );
 			for ( DyeColor color : DyeColor.values() )
 			{
-				if ( name.equals( color.getName() ) )
+				if ( name.equals( color.getString() ) )
 					return color;
 			}
 		}

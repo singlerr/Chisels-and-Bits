@@ -4,10 +4,9 @@ import java.lang.reflect.Constructor;
 
 import mod.chiselsandbits.bitbag.BagContainer;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Container;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
 
 @SuppressWarnings( "unused" )
 public enum ModGuiTypes
@@ -16,7 +15,7 @@ public enum ModGuiTypes
 	BitBag( BagContainer.class );
 
 	private final Class<? extends Container> container;
-	private final Class<?> gui;
+	private final Class<?>                   gui;
 
 	public final Constructor<?> container_construtor;
 	public final Constructor<?> gui_construtor;
@@ -47,7 +46,7 @@ public enum ModGuiTypes
 		catch ( final Exception e )
 		{
 			// Only throw error if this is a client...
-			if ( FMLCommonHandler.instance().getSide() == Side.CLIENT )
+			if (EffectiveSide.get().isClient())
 			{
 				throw new RuntimeException( e );
 			}

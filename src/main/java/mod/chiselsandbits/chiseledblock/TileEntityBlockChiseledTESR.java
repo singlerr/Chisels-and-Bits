@@ -1,8 +1,5 @@
 package mod.chiselsandbits.chiseledblock;
 
-import java.util.Collections;
-import java.util.List;
-
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -14,11 +11,11 @@ import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EnumSkyBlock;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.LightType;
-import net.minecraftforge.common.property.IExtendedBlockState;
+
+import java.util.Collections;
+import java.util.List;
 
 public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 {
@@ -31,21 +28,9 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
         super(tileEntityTypeIn);
     }
 
-    @Override
-	public boolean canRenderBreaking()
-	{
-		return true;
-	}
-
 	public TileRenderChunk getRenderChunk()
 	{
 		return renderChunk;
-	}
-
-	@Override
-	public boolean hasFastRenderer()
-	{
-		return true;
 	}
 
 	@Override
@@ -138,18 +123,18 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 		}
 	}
 
-	@Override
-	public void invalidate()
-	{
-		super.invalidate();
-		detatchRenderer();
-	}
+    @Override
+    public void remove()
+    {
+        super.remove();
+        detatchRenderer();
+    }
 
-	@Override
-	public void onChunkUnload()
-	{
-		detatchRenderer();
-	}
+    @Override
+    public void onChunkUnloaded()
+    {
+        detatchRenderer();
+    }
 
 	@Override
 	protected void finalize() throws Throwable
@@ -162,13 +147,6 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 			final IBlockReader world )
 	{
 		return getState( true, 0, world );
-	}
-
-	@Override
-	public boolean shouldRenderInPass(
-			final int pass )
-	{
-		return true;
 	}
 
 	@Override

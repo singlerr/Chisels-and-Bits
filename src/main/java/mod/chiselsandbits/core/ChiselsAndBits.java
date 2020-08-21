@@ -6,13 +6,11 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.graph.Network;
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.client.CreativeClipboardTab;
 import mod.chiselsandbits.client.UndoTracker;
-import mod.chiselsandbits.client.gui.ModGuiRouter;
 import mod.chiselsandbits.commands.SetBit;
 import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.api.ChiselAndBitsAPI;
@@ -38,7 +36,6 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
-import sun.nio.ch.Net;
 
 @Mod(ChiselsAndBits.MODID)
 public class ChiselsAndBits

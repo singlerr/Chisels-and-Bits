@@ -2,25 +2,22 @@ package mod.chiselsandbits.client;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
 
 public class ItemColorBitBag implements IItemColor
 {
 
-	@Override
-	public int getColorFromItemstack(
-			ItemStack stack,
-			int tintIndex )
-	{
-		if ( tintIndex == 1 )
-		{
-			EnumDyeColor color = ChiselsAndBits.getItems().itemBitBag.getDyedColor( stack );
-			if ( color != null )
-				return color.func_193350_e();
-		}
+    @Override
+    public int getColor(final ItemStack p_getColor_1_, final int p_getColor_2_)
+    {
+        if ( p_getColor_2_ == 1 )
+        {
+            DyeColor color = ChiselsAndBits.getItems().itemBitBagDefault.getDyedColor( p_getColor_1_ );
+            if ( color != null )
+                return color.getColorValue();
+        }
 
-		return -1;
-	}
-
+        return -1;
+    }
 }

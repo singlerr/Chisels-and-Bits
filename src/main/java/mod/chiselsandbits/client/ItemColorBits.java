@@ -6,7 +6,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -15,7 +15,7 @@ public class ItemColorBits implements IItemColor
 {
 
 	@Override
-	public int getColorFromItemstack(
+	public int getColor(
 			final ItemStack stack,
 			final int tint )
 	{
@@ -28,7 +28,7 @@ public class ItemColorBits implements IItemColor
 
 			if ( i != null )
 			{
-				return ModelUtil.getItemStackColor( new ItemStack( i, 1, blk.getMetaFromState( state ) ), tintValue );
+				return ModelUtil.getItemStackColor( new ItemStack( i, 1 ), tintValue );
 			}
 
 			return 0xffffff;

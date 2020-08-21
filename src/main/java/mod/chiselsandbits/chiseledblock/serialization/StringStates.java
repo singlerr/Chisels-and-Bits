@@ -3,17 +3,18 @@ package mod.chiselsandbits.chiseledblock.serialization;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-
-import com.google.common.base.Optional;
+import java.util.Objects;
+import java.util.Optional;
 
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
-import net.minecraft.block.state.BlockState;
-import net.minecraft.init.Blocks;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.state.Property;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class StringStates
 {
@@ -32,7 +33,7 @@ public class StringStates
 			Log.logError( "Failed to reload Property from store data : " + name, e );
 		}
 
-		final Block blk = Block.REGISTRY.getObject( new ResourceLocation( parts[0] ) );
+		final Block blk = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(parts[0]));
 
 		if ( blk == null || blk == Blocks.AIR )
 		{
@@ -78,21 +79,21 @@ public class StringStates
 			final Block blk,
 			final String[] nameval )
 	{
-		final IProperty prop = blk.getBlockState().getProperty( nameval[0] );
+		final Property<?> prop = blk.getStateContainer().getProperty(nameval[0]);
 		if ( prop == null )
 		{
-			Log.info( nameval[0] + " is not a valid property for " + Block.REGISTRY.getNameForObject( blk ) );
+			Log.info( nameval[0] + " is not a valid property for " + blk.getRegistryName() );
 			return state;
 		}
 
-		final Optional pv = prop.parseValue( nameval[1] );
+		final Optional<?> pv = prop.parseValue( nameval[1] );
 		if ( pv.isPresent() )
 		{
-			return state.withProperty( prop, (Comparable) pv.get() );
+			return state.with( prop, (Comparable) pv.get() );
 		}
 		else
 		{
-			Log.info( nameval[1] + " is not a valid value of " + nameval[0] + " for " + Block.REGISTRY.getNameForObject( blk ) );
+			Log.info( nameval[1] + " is not a valid value of " + nameval[0] + " for " + blk.getRegistryName() );
 			return state;
 		}
 	}
@@ -107,11 +108,11 @@ public class StringStates
 
 		try
 		{
-			final StringBuilder stateName = new StringBuilder( URLEncoder.encode( Block.REGISTRY.getNameForObject( blk ).toString(), "UTF-8" ) );
+			final StringBuilder stateName = new StringBuilder( URLEncoder.encode( Objects.requireNonNull(blk.getRegistryName()).toString(), "UTF-8" ) );
 			stateName.append( '?' );
 
 			boolean first = true;
-			for ( final IProperty<?> P : state.getPropertyNames() )
+			for ( final Property<?> p : state.getBlock().getStateContainer().getProperties() )
 			{
 				if ( !first )
 				{
@@ -120,19 +121,19 @@ public class StringStates
 
 				first = false;
 
-				final Comparable<?> propVal = state.getProperties().get( P );
+				final Comparable<?> propVal = state.get(p);
 
 				String saveAs;
 				if ( propVal instanceof IStringSerializable )
 				{
-					saveAs = ( (IStringSerializable) propVal ).getName();
+					saveAs = ( (IStringSerializable) propVal ).getString();
 				}
 				else
 				{
 					saveAs = propVal.toString();
 				}
 
-				stateName.append( URLEncoder.encode( P.getName(), "UTF-8" ) );
+				stateName.append( URLEncoder.encode( p.getName(), "UTF-8" ) );
 				stateName.append( '=' );
 				stateName.append( URLEncoder.encode( saveAs, "UTF-8" ) );
 			}

@@ -1,22 +1,22 @@
 package mod.chiselsandbits.api;
 
-import javax.annotation.Nullable;
-
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.BlockState;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.IItemHandler;
+
+import javax.annotation.Nullable;
 
 /**
  * Do not implement, is passed to your {@link IChiselsAndBitsAddon}
@@ -84,7 +84,7 @@ public interface IChiselAndBitsAPI
 	/**
 	 * Create a brush from an ItemStack, once created you can use it many times.
 	 *
-	 * @param bitItem
+	 * @param stack the stack.
 	 * @return A brush for the specified ItemStack, if passed an empty ItemStack
 	 *         an air brush is created.
 	 * @throws InvalidBitItem
@@ -145,7 +145,7 @@ public interface IChiselAndBitsAPI
 	 *
 	 * @param player
 	 *            player to give bits to.
-	 * @param itemstack
+	 * @param stack
 	 *            bits to store.
 	 * @param spawnPos
 	 *            if null defaults to the players position, absolute position of
@@ -155,7 +155,7 @@ public interface IChiselAndBitsAPI
 	void giveBitToPlayer(
 			PlayerEntity player,
 			ItemStack stack,
-			Vec3d spawnPos );
+			Vector3d spawnPos );
 
 	/**
 	 * Access the contents of a bitbag as if it was a normal
@@ -227,7 +227,7 @@ public interface IChiselAndBitsAPI
 	 *            binding to return.
 	 * @return a C&B {@link KeyBinding}.
 	 */
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	KeyBinding getKeyBinding(
 			ModKeyBinding modKeyBinding );
 
@@ -240,7 +240,7 @@ public interface IChiselAndBitsAPI
 	 * @param alpha
 	 *            Should be 0-255.
 	 */
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	void renderModel(
 			IBakedModel model,
 			World world,
@@ -256,7 +256,7 @@ public interface IChiselAndBitsAPI
 	 * @param isUnplaceable
 	 *            if true, the block will be rendered with a decreased alpha value.
 	 */
-	@SideOnly( Side.CLIENT )
+	@OnlyIn( Dist.CLIENT )
 	void renderGhostModel(
 			IBakedModel model,
 			World world,

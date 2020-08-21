@@ -1,32 +1,23 @@
 package mod.chiselsandbits.client;
 
-import java.io.EOFException;
+import com.google.common.collect.Lists;
+import net.minecraft.nbt.CompoundNBT;
+
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.EncoderException;
-import mod.chiselsandbits.core.ChiselsAndBits;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.config.Property;
-
-public class ClipboardStorage extends Configuration
+public class ClipboardStorage
 {
 
 	public ClipboardStorage(
 			final File file )
 	{
-		super( file );
 	}
 
 	public void write(
-			final List<NBTTagCompound> myitems )
+			final List<CompoundNBT> myitems )
 	{
-		if ( !ChiselsAndBits.getConfig().persistCreativeClipboard )
+		/*if ( !ChiselsAndBits.getConfig().persistCreativeClipboard )
 		{
 			return;
 		}
@@ -51,12 +42,12 @@ public class ClipboardStorage extends Configuration
 			get( "clipboard", "" + idx++, o ).set( o );
 		}
 
-		save();
+		save();*/
 	}
 
-	public List<NBTTagCompound> read()
+	public List<CompoundNBT> read()
 	{
-		final List<NBTTagCompound> myItems = new ArrayList<NBTTagCompound>();
+		/*final List<NBTTagCompound> myItems = new ArrayList<NBTTagCompound>();
 
 		if ( !ChiselsAndBits.getConfig().persistCreativeClipboard )
 		{
@@ -95,6 +86,7 @@ public class ClipboardStorage extends Configuration
 
 		}
 
-		return myItems;
+		return myItems;*/
+        return Lists.newArrayList();
 	}
 }

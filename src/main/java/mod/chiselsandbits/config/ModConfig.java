@@ -20,7 +20,7 @@ import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.registry.ModRegistry;
 import mod.chiselsandbits.render.chiseledblock.tesr.GfxRenderState.UseVBO;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.launchwrapper.Launch;
 import net.minecraft.state.Property;
 import net.minecraft.util.text.ITextComponent;

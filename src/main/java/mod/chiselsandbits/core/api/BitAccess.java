@@ -24,11 +24,10 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -187,7 +186,7 @@ public class BitAccess implements IBitAccess
 					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemMirrorprint );
 					break;
 				case NEGATIVE_DESIGN:
-					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemNegativeprint );
+					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemNegativePrint);
 					break;
 				case POSITIVE_DESIGN:
 					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemPositiveprint );

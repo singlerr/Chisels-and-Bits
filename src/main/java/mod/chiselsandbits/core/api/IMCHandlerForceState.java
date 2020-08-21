@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.Log;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 
 public class IMCHandlerForceState implements IMCMessageHandler

@@ -2,7 +2,7 @@ package mod.chiselsandbits.api;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 
 /**
@@ -22,7 +22,7 @@ public interface IBitBrush
 	 * @return BlockState of brush, null for air.
 	 */
 	@Nullable
-	BlockState getState();
+    BlockState getState();
 
 	/**
 	 * Get the ItemStack for a bit, which is empty for air.
