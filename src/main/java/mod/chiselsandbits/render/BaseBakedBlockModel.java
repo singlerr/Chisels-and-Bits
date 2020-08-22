@@ -1,8 +1,8 @@
 package mod.chiselsandbits.render;
 
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 
 public abstract class BaseBakedBlockModel extends BaseBakedPerspectiveModel implements IBakedModel
 {
@@ -34,7 +34,7 @@ public abstract class BaseBakedBlockModel extends BaseBakedPerspectiveModel impl
 	@Override
 	public ItemOverrideList getOverrides()
 	{
-		return ItemOverrideList.NONE;
+		return ItemOverrideList.EMPTY;
 	}
 
 }

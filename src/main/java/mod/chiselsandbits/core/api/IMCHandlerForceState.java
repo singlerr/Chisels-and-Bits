@@ -1,14 +1,15 @@
 package mod.chiselsandbits.core.api;
 
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
+import mod.chiselsandbits.core.Log;
+import net.minecraft.block.BlockState;
+import net.minecraftforge.fml.InterModComms;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-
-import mod.chiselsandbits.chiseledblock.BlockBitInfo;
-import mod.chiselsandbits.core.Log;
-import net.minecraft.block.BlockState;
-import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
+import java.util.function.Supplier;
 
 public class IMCHandlerForceState implements IMCMessageHandler
 {
@@ -16,11 +17,13 @@ public class IMCHandlerForceState implements IMCMessageHandler
 	@SuppressWarnings( "rawtypes" )
 	@Override
 	public void excuteIMC(
-			final IMCMessage message )
+			final InterModComms.IMCMessage message )
 	{
 		try
 		{
-			final Optional<Function<List, Boolean>> method = message.getFunctionValue( List.class, Boolean.class );
+
+		    final Supplier<Optional<Function<List, Boolean>>> methodSupplier = message.getMessageSupplier();
+			final Optional<Function<List, Boolean>> method = methodSupplier.get();
 
 			if ( method.isPresent() )
 			{
@@ -30,7 +33,7 @@ public class IMCHandlerForceState implements IMCMessageHandler
 
 				if ( result == null )
 				{
-					Log.info( message.getSender() + ", Your IMC returns null, must be true or false for " + message.getMessageType().getName() );
+					Log.info( message.getSenderModId() + ", Your IMC returns null, must be true or false for " + message.getMethod() );
 				}
 				else
 				{
@@ -42,19 +45,19 @@ public class IMCHandlerForceState implements IMCMessageHandler
 						}
 						else
 						{
-							Log.info( message.getSender() + ", Your IMC provided a Object that was not an BlockState : " + x.getClass().getName() );
+							Log.info( message.getSenderModId() + ", Your IMC provided a Object that was not an BlockState : " + x.getClass().getName() );
 						}
 					}
 				}
 			}
 			else
 			{
-				Log.info( message.getSender() + ", Your IMC must be a functional message, 'Boolean apply( List )'." );
+				Log.info( message.getSenderModId() + ", Your IMC must be a functional message, 'Boolean apply( List )'." );
 			}
 		}
 		catch ( final Throwable e )
 		{
-			Log.logError( "IMC forcestatecompatibility From " + message.getSender(), e );
+			Log.logError( "IMC forcestatecompatibility From " + message.getMethod(), e );
 		}
 	}
 }

@@ -24,10 +24,10 @@ public class ChiselModeManager
 			final IToolMode originalMode,
 			final IToolMode newClientChiselMode )
 	{
-		final boolean chatNotification = ChiselsAndBits.getConfig().chatModeNotification;
-		final boolean itemNameModeDisplay = ChiselsAndBits.getConfig().itemNameModeDisplay;
+		final boolean chatNotification = ChiselsAndBits.getConfig().getClient().chatModeNotification.get();
+		final boolean itemNameModeDisplay = ChiselsAndBits.getConfig().getClient().itemNameModeDisplay.get();
 
-		if ( ChiselsAndBits.getConfig().perChiselMode && tool.hasPerToolSettings() || tool.requiresPerToolSettings() )
+		if ( ChiselsAndBits.getConfig().getClient().perChiselMode.get() && tool.hasPerToolSettings() || tool.requiresPerToolSettings() )
 		{
 			final PacketSetChiselMode packet = new PacketSetChiselMode(newClientChiselMode, tool, chatNotification);
 
@@ -111,7 +111,7 @@ public class ChiselModeManager
 		}
 		else if ( setting == ChiselToolType.CHISEL )
 		{
-			if ( ChiselsAndBits.getConfig().perChiselMode )
+			if ( ChiselsAndBits.getConfig().getClient().perChiselMode.get() )
 			{
 				final ItemStack ei = player.getHeldItemMainhand();
 				if ( ei != null && ei.getItem() instanceof IChiselModeItem )

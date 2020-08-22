@@ -15,7 +15,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
-import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
@@ -39,7 +38,6 @@ import mod.chiselsandbits.helpers.IContinuousInventory;
 import mod.chiselsandbits.helpers.IItemInInventory;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.integration.mods.LittleTiles;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.modes.ChiselMode;
@@ -72,22 +70,22 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 		long uses = 1;
         if (DIAMOND.equals(material))
         {
-            uses = ChiselsAndBits.getConfig().diamondChiselUses;
+            uses = ChiselsAndBits.getConfig().getServer().diamondChiselUses.get();
         }
         else if (GOLD.equals(material))
         {
-            uses = ChiselsAndBits.getConfig().goldChiselUses;
+            uses = ChiselsAndBits.getConfig().getServer().goldChiselUses.get();
         }
         else if (IRON.equals(material))
         {
-            uses = ChiselsAndBits.getConfig().ironChiselUses;
+            uses = ChiselsAndBits.getConfig().getServer().ironChiselUses.get();
         }
         else if (STONE.equals(material))
         {
-            uses = ChiselsAndBits.getConfig().stoneChiselUses;
+            uses = ChiselsAndBits.getConfig().getServer().stoneChiselUses.get();
         }
 
-        properties.maxDamage(ChiselsAndBits.getConfig().damageTools ? (int) Math.max( 0, uses ) : 0);
+        properties.maxDamage(ChiselsAndBits.getConfig().getServer().damageTools.get() ? (int) Math.max( 0, uses ) : 0);
 	}
 
     @Override
@@ -95,7 +93,7 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
       final ItemStack stack, @Nullable final World worldIn, final List<ITextComponent> tooltip, final ITooltipFlag flagIn)
     {
         super.addInformation( stack, worldIn, tooltip, flagIn );
-        ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChisel, tooltip,
+        ChiselsAndBits.getConfig().getCommon().helpText( LocalStrings.HelpChisel, tooltip,
           ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindAttack ),
           ClientSide.instance.getModeKey() );
     }
@@ -132,7 +130,7 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 		{
 			return false;
 		}
-		if ( BlockBitInfo.canChisel( state ) || LittleTiles.isLittleTilesBlock( player.getEntityWorld().getTileEntity( pos ) ) )
+		if ( BlockBitInfo.canChisel( state ) )
 		{
 			if ( itemstack != null && ( timer == null || timer.elapsed( TimeUnit.MILLISECONDS ) > 150 ) )
 			{
@@ -192,10 +190,10 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
     @Override
     public ITextComponent getHighlightTip(final ItemStack item, final ITextComponent displayName)
     {
-        if ( ChiselsAndBits.getConfig().itemNameModeDisplay && displayName instanceof IFormattableTextComponent)
+        if (EffectiveSide.get().isClient() && ChiselsAndBits.getConfig().getClient().itemNameModeDisplay.get() && displayName instanceof IFormattableTextComponent)
         {
             final IFormattableTextComponent formattableTextComponent = (IFormattableTextComponent) displayName;
-            if ( ChiselsAndBits.getConfig().perChiselMode || EffectiveSide.get().isServer())
+            if ( ChiselsAndBits.getConfig().getClient().perChiselMode.get() || EffectiveSide.get().isServer())
             {
                 return formattableTextComponent.appendString(" - ").appendString(ChiselMode.getMode( item ).string.getLocal());
             }
@@ -216,7 +214,7 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 	{
 		final ItemStack itemStackIn = playerIn.getHeldItem( hand );
 
-		if ( worldIn.isRemote && ChiselsAndBits.getConfig().enableRightClickModeChange )
+		if ( worldIn.isRemote && ChiselsAndBits.getConfig().getClient().enableRightClickModeChange.get() )
 		{
 			final IToolMode mode = ChiselModeManager.getChiselMode( playerIn, ChiselToolType.CHISEL, hand );
 			ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, playerIn.isSneaking() ? -1 : 1 );
@@ -229,7 +227,7 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
     @Override
     public ActionResultType onItemUseFirst(final ItemStack stack, final ItemUseContext context)
     {
-        if ( context.getWorld().isRemote && ChiselsAndBits.getConfig().enableRightClickModeChange )
+        if ( context.getWorld().isRemote && ChiselsAndBits.getConfig().getClient().enableRightClickModeChange.get() )
         {
             onItemRightClick( context.getWorld(), context.getPlayer(), context.getHand() );
             return ActionResultType.SUCCESS;
@@ -368,7 +366,7 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 			return false;
 		}
 
-		if ( ChiselsAndBits.getConfig().enableChiselToolHarvestCheck )
+		if ( ChiselsAndBits.getConfig().getServer().enableChiselToolHarvestCheck.get() )
 		{
 			// this is the earily check.
 			if ( state.getBlock() instanceof BlockChiseled )
@@ -479,7 +477,7 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
             final String pattern = "(^|,)" + Pattern.quote( tool.getName() ) + "(,|$)";
 
             final Pattern p = Pattern.compile( pattern );
-            final Matcher m = p.matcher( ChiselsAndBits.getConfig().enableChiselToolHarvestCheckTools );
+            final Matcher m = p.matcher( ChiselsAndBits.getConfig().getServer().enableChiselToolHarvestCheckTools.get() );
 
             if ( m.find() )
             {

@@ -77,7 +77,7 @@ public class ItemBitBag extends Item
     public void addInformation(final ItemStack stack, @Nullable final World worldIn, final List<ITextComponent> tooltip, final ITooltipFlag flagIn)
     {
         super.addInformation( stack, worldIn, tooltip, flagIn );
-        ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBitBag, tooltip );
+        ChiselsAndBits.getConfig().getCommon().helpText( LocalStrings.HelpBitBag, tooltip );
 
         if ( tooltipCache.needsUpdate( stack ) )
         {
@@ -307,7 +307,7 @@ public class ItemBitBag extends Item
 			final int qty = ( (BagStorage) o ).getSlotsUsed();
 
 			final double value = qty / (float) BagStorage.BAG_STORAGE_SLOTS;
-			return Math.min( 1.0d, Math.max( 0.0d, ChiselsAndBits.getConfig().invertBitBagFullness ? value : 1.0 - value ) );
+			return Math.min( 1.0d, Math.max( 0.0d, ChiselsAndBits.getConfig().getClient().invertBitBagFullness.get() ? value : 1.0 - value ) );
 		}
 
 		return 0;

@@ -4,10 +4,14 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.render.BaseBakedItemModel;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+
+import java.util.Random;
 
 public class PrintBaked extends BaseBakedItemModel
 {
@@ -22,21 +26,27 @@ public class PrintBaked extends BaseBakedItemModel
 		itemName = itname;
 
 		final ItemStack blockItem = item.getPatternedItem( stack, false );
-		IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( blockItem );
+		IBakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel( blockItem );
 
-		model = model.getOverrides().handleItemState( model, blockItem, null, null );
+		model = model.getOverrides().func_239290_a_( model, blockItem, null, null );
 
-		for ( final Direction face : Direction.VALUES )
+		for ( final Direction face : Direction.values() )
 		{
-			list.addAll( model.getQuads( null, face, 0 ) );
+			list.addAll( model.getQuads( null, face, RANDOM ) );
 		}
 
-		list.addAll( model.getQuads( null, null, 0 ) );
+		list.addAll( model.getQuads( null, null, RANDOM) );
 	}
 
-	@Override
+    @Override
+    public boolean func_230044_c_()
+    {
+        return false;
+    }
+
+    @Override
 	public TextureAtlasSprite getParticleTexture()
 	{
-		return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite( ChiselsAndBits.MODID + ":item/" + itemName );
+		return Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply( new ResourceLocation(ChiselsAndBits.MODID,"item/" + itemName ));
 	}
 }

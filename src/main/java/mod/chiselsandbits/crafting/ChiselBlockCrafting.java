@@ -13,13 +13,19 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.SpecialRecipe;
 import net.minecraft.util.Direction;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class ChiselBlockCrafting extends CustomRecipe
+public class ChiselBlockCrafting extends SpecialRecipe
 {
 
 	public ChiselBlockCrafting(
@@ -74,7 +80,7 @@ public class ChiselBlockCrafting extends CustomRecipe
 					return currentValue;
 				}
 				
-				boolean damageTools = ChiselsAndBits.getConfig().damageTools;
+				boolean damageTools = ChiselsAndBits.getConfig().getServer().damageTools.get();
 				
 				if ( chisel.getDamage() < chisel.getMaxDamage() || ! damageTools )
 				{
@@ -139,7 +145,7 @@ public class ChiselBlockCrafting extends CustomRecipe
 	};
 
 	private ChiselBlockInfo getInfo(
-			final InventoryCrafting inv )
+			final CraftingInventory inv )
 	{
 		final ChiselBlockInfo i = new ChiselBlockInfo();
 		boolean noDuplicates = true;
@@ -178,7 +184,7 @@ public class ChiselBlockCrafting extends CustomRecipe
 				continue;
 			}
 
-			if ( is.getItem() instanceof ItemBlock )
+			if ( is.getItem() instanceof BlockItem)
 			{
 				if ( i.block_slot != -1 )
 				{
@@ -244,7 +250,7 @@ public class ChiselBlockCrafting extends CustomRecipe
 
 	@Override
 	public boolean matches(
-			final InventoryCrafting inv,
+			final CraftingInventory inv,
 			final World worldIn )
 	{
 		return getInfo( inv ).isValid;
@@ -252,7 +258,7 @@ public class ChiselBlockCrafting extends CustomRecipe
 
 	@Override
 	public ItemStack getCraftingResult(
-			final InventoryCrafting inv )
+			final CraftingInventory inv )
 	{
 		final ChiselBlockInfo cbc = getInfo( inv );
 		cbc.doLogic();
@@ -266,7 +272,7 @@ public class ChiselBlockCrafting extends CustomRecipe
 	}
 
 	@Override
-	public boolean func_194133_a(
+	public boolean canFit(
 			final int width,
 			final int height )
 	{
@@ -281,17 +287,17 @@ public class ChiselBlockCrafting extends CustomRecipe
 
 	@Override
 	public NonNullList<ItemStack> getRemainingItems(
-			final InventoryCrafting inv )
+			final CraftingInventory inv )
 	{
-		final NonNullList<ItemStack> list = NonNullList.func_191196_a();
+		final NonNullList<ItemStack> list = NonNullList.create();
 
 		final ChiselBlockInfo cbc = getInfo( inv );
 		cbc.doLogic();
 
-		boolean damageTools = ChiselsAndBits.getConfig().damageTools;
+		boolean damageTools = ChiselsAndBits.getConfig().getServer().damageTools.get();
 		for ( int x = 0; x < inv.getSizeInventory(); ++x )
 		{
-			if ( cbc.isValid && x == cbc.chisel_slot && !ModUtil.isEmpty( cbc.chisel ) && ( !damageTools || cbc.chisel.getItemDamage() < cbc.chisel.getMaxDamage()) )
+			if ( cbc.isValid && x == cbc.chisel_slot && !ModUtil.isEmpty( cbc.chisel ) && ( !damageTools || cbc.chisel.getDamage() < cbc.chisel.getMaxDamage()) )
 			{
 				list.add( cbc.chisel );
 			}
@@ -310,4 +316,9 @@ public class ChiselBlockCrafting extends CustomRecipe
 		return list;
 	}
 
+    @Override
+    public IRecipeSerializer<?> getSerializer()
+    {
+        return ModRecipes.CHISEL_BLOCK_CRAFTING;
+    }
 }

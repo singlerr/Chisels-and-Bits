@@ -8,9 +8,18 @@ import net.minecraft.network.PacketBuffer;
 public class PacketSuppressInteraction extends ModPacket
 {
 
-	public boolean newSetting = false;
+	private boolean newSetting = false;
 
-	@Override
+	public PacketSuppressInteraction(final PacketBuffer buffer) {
+	    readPayload(buffer);
+    }
+
+    public PacketSuppressInteraction(final boolean newSetting)
+    {
+        this.newSetting = newSetting;
+    }
+
+    @Override
 	public void server(
 			final ServerPlayerEntity player )
 	{

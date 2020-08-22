@@ -1,13 +1,12 @@
 package mod.chiselsandbits.render.chiseledblock;
 
-import java.security.InvalidParameterException;
-
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.client.culling.MCCullTest;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.BlockRenderLayer;
+
+import java.security.InvalidParameterException;
 
 public enum ChiselLayer
 {
@@ -17,7 +16,7 @@ public enum ChiselLayer
 	CUTOUT_MIPPED( RenderType.getCutoutMipped(), null ),
 	TRANSLUCENT( RenderType.getTranslucent(), null );
 
-	public final RenderType layer;
+    public final RenderType layer;
 	public final VoxelType type;
 
 	private ChiselLayer(

@@ -3,46 +3,24 @@ package mod.chiselsandbits.core.api;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.Log;
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
+import net.minecraft.block.Blocks;
+import net.minecraftforge.fml.InterModComms;
+
+import java.util.function.Supplier;
 
 public class IMCHandlerIgnoreLogic implements IMCMessageHandler
 {
 
 	@Override
 	public void excuteIMC(
-			final IMCMessage message )
+			final InterModComms.IMCMessage message )
 	{
 		try
 		{
-			String errorName = "UNKNOWN";
-			Block blk = null;
 
-			if ( message.isStringMessage() )
-			{
-				final String name = message.getStringValue();
+		    final Supplier<Block> blockSupplier = message.getMessageSupplier();
+		    final Block blk = blockSupplier.get();
 
-				errorName = name;
-				blk = Block.REGISTRY.getObject( new ResourceLocation( name ) );
-
-				// try finding the block in the mod instead...
-				if ( blk == null || blk == Blocks.AIR )
-				{
-					errorName = message.getSender() + ":" + name;
-					blk = Block.REGISTRY.getObject( new ResourceLocation( message.getSender(), name ) );
-				}
-			}
-			else if ( message.isResourceLocationMessage() )
-			{
-				errorName = message.getResourceLocationValue().toString();
-				blk = Block.REGISTRY.getObject( message.getResourceLocationValue() );
-			}
-			else
-			{
-				Log.info( "Invalid Type for IMC: " + message.getMessageType().getName() );
-				return;
-			}
 
 			if ( blk != null && blk != Blocks.AIR )
 			{
@@ -50,12 +28,12 @@ public class IMCHandlerIgnoreLogic implements IMCMessageHandler
 			}
 			else
 			{
-				throw new RuntimeException( "Unable to locate block " + errorName );
+				throw new RuntimeException( "Unable to locate block " + blk.getRegistryName() );
 			}
 		}
 		catch ( final Throwable e )
 		{
-			Log.logError( "IMC ignoreblocklogic From " + message.getSender(), e );
+			Log.logError( "IMC ignoreblocklogic From " + message.getSenderModId(), e );
 		}
 	}
 }

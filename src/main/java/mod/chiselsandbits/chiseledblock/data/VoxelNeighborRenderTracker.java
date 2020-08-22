@@ -37,12 +37,12 @@ public final class VoxelNeighborRenderTracker
 	{
 		faceCount = new Integer[RenderType.getBlockRenderTypes().size()];
 
-		if ( ChiselsAndBits.getConfig().defaultToDynamicRenderer )
+		if ( ChiselsAndBits.getConfig().getClient().defaultToDynamicRenderer.get() )
 		{
 			isDynamic = IS_DYNAMIC | IS_LOCKED;
-            Arrays.fill(faceCount, ChiselsAndBits.getConfig().dynamicModelFaceCount + 1);
+            Arrays.fill(faceCount, ChiselsAndBits.getConfig().getClient().dynamicModelFaceCount.get() + 1);
 		}
-		else if ( ChiselsAndBits.getConfig().forceDynamicRenderer )
+		else if ( ChiselsAndBits.getConfig().getClient().forceDynamicRenderer.get() )
 		{
 			isDynamic = IS_DYNAMIC | IS_LOCKED;
 		}
@@ -62,7 +62,7 @@ public final class VoxelNeighborRenderTracker
 			return false;
 		}*/
 
-		if ( ChiselsAndBits.getConfig().forceDynamicRenderer )
+		if ( ChiselsAndBits.getConfig().getClient().forceDynamicRenderer.get() )
 		{
 			return true;
 		}
@@ -79,7 +79,7 @@ public final class VoxelNeighborRenderTracker
 			faces += faceCount[x];
 		}
 
-		return faces >= ChiselsAndBits.getConfig().dynamicModelFaceCount;
+		return faces >= ChiselsAndBits.getConfig().getClient().dynamicModelFaceCount.get();
 	}
 
 	public void setAbovelimit(

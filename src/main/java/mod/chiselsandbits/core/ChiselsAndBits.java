@@ -12,13 +12,12 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.client.CreativeClipboardTab;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.commands.SetBit;
-import mod.chiselsandbits.config.ModConfig;
+import mod.chiselsandbits.config.Configuration;
 import mod.chiselsandbits.core.api.ChiselAndBitsAPI;
 import mod.chiselsandbits.core.api.IMCHandler;
 import mod.chiselsandbits.crafting.ModRecipes;
 import mod.chiselsandbits.events.EventPlayerInteract;
 import mod.chiselsandbits.events.VaporizeWater;
-import mod.chiselsandbits.integration.Integration;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkChannel;
 import mod.chiselsandbits.network.NetworkRouter;
@@ -26,6 +25,7 @@ import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.material.Material;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -35,6 +35,8 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
 @Mod(ChiselsAndBits.MODID)
@@ -43,20 +45,21 @@ public class ChiselsAndBits
 	public static final @Nonnull String MODNAME = "Chisels & Bits";
 	public static final @Nonnull String MODID = "chiselsandbits";
 
-	private static ChiselsAndBits instance;
-	private ModConfig config;
-	private ModItems items;
-	private ModBlocks blocks;
-	private final Integration integration = new Integration();
-	private final IChiselAndBitsAPI api = new ChiselAndBitsAPI();
-	private final NetworkChannel networkChannel = new NetworkChannel(MODID);
-	private boolean loadClientAssets = false;
+	private static ChiselsAndBits    instance;
+	private        Configuration     config;
+	private        ModItems          items;
+	private        ModBlocks         blocks;
+	private final  Integration       integration = new Integration();
+	private final  IChiselAndBitsAPI api = new ChiselAndBitsAPI();
+	private final  NetworkChannel    networkChannel = new NetworkChannel(MODID);
+	private        boolean           loadClientAssets = false;
 
 	List<ICacheClearable> cacheClearables = new ArrayList<ICacheClearable>();
 
 	public ChiselsAndBits()
 	{
-		instance = this;
+	    instance = this;
+        config = new Configuration(ModLoadingContext.get().getActiveContainer());
 	}
 
 	public static ChiselsAndBits getInstance()
@@ -74,7 +77,7 @@ public class ChiselsAndBits
 		return instance.items;
 	}
 
-	public static ModConfig getConfig()
+	public static Configuration getConfig()
 	{
 		return instance.config;
 	}
@@ -90,22 +93,16 @@ public class ChiselsAndBits
 
 
 	private void handleIMCEvent(
-			final FMLInterModComms.IMCEvent event )
+			final InterModProcessEvent event )
 	{
 		final IMCHandler imcHandler = new IMCHandler();
-		imcHandler.handleIMCEvent( event );
+		imcHandler.handleIMCEvent();
 	}
 
-	@EventHandler
-	public void preinit(
-			final FMLPreInitializationEvent event )
+	public void commonSetup(
+			final FMLCommonSetupEvent event )
 	{
-		// load config...
-		final File configFile = event.getSuggestedConfigurationFile();
-		config = new ModConfig( configFile );
 
-		items = new ModItems( getConfig() );
-		blocks = new ModBlocks( getConfig(), event.getSide() );
 		registerWithBus( new ModRecipes( getConfig() ) );
 
 		integration.preinit( event );
@@ -219,5 +216,7 @@ public class ChiselsAndBits
 	{
 		return loadClientAssets;
 	}
+
+
 
 }

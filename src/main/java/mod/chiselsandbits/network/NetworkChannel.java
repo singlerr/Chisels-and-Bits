@@ -45,7 +45,7 @@ public class NetworkChannel
      */
     public void registerCommonMessages()
     {
-        ModPacketTypes.init();
+        ModPacketTypes.init(this);
     }
 
     /**

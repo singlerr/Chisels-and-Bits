@@ -3,13 +3,17 @@ package mod.chiselsandbits.render;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.util.Direction;
+import net.minecraftforge.client.model.data.IModelData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class BaseBakedItemModel extends BaseBakedPerspectiveModel implements IBakedModel
 {
@@ -33,19 +37,16 @@ public abstract class BaseBakedItemModel extends BaseBakedPerspectiveModel imple
 		return false;
 	}
 
-	@Override
-	public List<BakedQuad> getQuads(
-			final BlockState state,
-			final Direction side,
-			final long rand )
-	{
-		if ( side != null )
-		{
-			return Collections.emptyList();
-		}
+    @Override
+    public List<BakedQuad> getQuads(@Nullable final BlockState state, @Nullable final Direction side, final Random rand)
+    {
+        if ( side != null )
+        {
+            return Collections.emptyList();
+        }
 
-		return list;
-	}
+        return list;
+    }
 
 	@Override
 	final public ItemCameraTransforms getItemCameraTransforms()
@@ -56,6 +57,6 @@ public abstract class BaseBakedItemModel extends BaseBakedPerspectiveModel imple
 	@Override
 	public ItemOverrideList getOverrides()
 	{
-		return ItemOverrideList.NONE;
+		return ItemOverrideList.EMPTY;
 	}
 }

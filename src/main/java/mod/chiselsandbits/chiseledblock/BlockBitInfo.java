@@ -214,9 +214,10 @@ public class BlockBitInfo
 			boolean isFullBlock = state.isSolid();
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
-			final boolean tickingBehavior = blk.ticksRandomly(state) && ChiselsAndBits.getConfig().blacklistTickingBlocks;
+			final boolean tickingBehavior = blk.ticksRandomly(state) && ChiselsAndBits.getConfig().getServer().blacklistTickingBlocks.get();
 			boolean hasBehavior = ( blk.hasTileEntity( state ) || tickingBehavior );
-			final boolean hasItem = Item.getItemFromBlock( blk ) != null;
+            Item.getItemFromBlock(blk);
+            final boolean hasItem = true;
 
 			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( state ) != null;
 
@@ -231,15 +232,9 @@ public class BlockBitInfo
 
 			if ( info.isCompatiable && noCustomCollision && info.hardness >= -0.01f && isFullBlock && supportedMaterial && !hasBehavior && itemExistsOrNotSpecialDrops )
 			{
-				final boolean result = hasItem && ChiselsAndBits.getConfig().isEnabled( blkClass.getName() );
-				supportedBlocks.put( blk, result );
-
-				if ( result )
-				{
-					stateBitInfo.put( state, info );
-				}
-
-				return result;
+                supportedBlocks.put( blk, hasItem);
+                stateBitInfo.put( state, info );
+                return hasItem;
 			}
 
 			if ( fluidBlocks.containsKey( blk ) )
@@ -346,7 +341,7 @@ public class BlockBitInfo
 				// hardness... say like stone?
 
 				final Block stone = Blocks.STONE;
-				return new BlockBitInfo( ChiselsAndBits.getConfig().compatabilityMode, 2f, 6f );
+				return new BlockBitInfo( ChiselsAndBits.getConfig().getServer().compatabilityMode.get(), 2f, 6f );
 			}
 		}
 		catch ( final Exception err )

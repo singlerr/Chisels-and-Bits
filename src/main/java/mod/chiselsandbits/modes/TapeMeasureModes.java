@@ -3,8 +3,8 @@ package mod.chiselsandbits.modes;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagString;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.StringNBT;
 
 public enum TapeMeasureModes implements IToolMode
 {
@@ -30,8 +30,8 @@ public enum TapeMeasureModes implements IToolMode
 		{
 			try
 			{
-				final NBTTagCompound nbt = stack.getTagCompound();
-				if ( nbt != null && nbt.hasKey( "mode" ) )
+				final CompoundNBT nbt = stack.getTag();
+				if ( nbt != null && nbt.contains( "mode" ) )
 				{
 					return valueOf( nbt.getString( "mode" ) );
 				}
@@ -55,7 +55,7 @@ public enum TapeMeasureModes implements IToolMode
 	{
 		if ( stack != null )
 		{
-			stack.setTagInfo( "mode", new NBTTagString( name() ) );
+			stack.setTagInfo( "mode", StringNBT.valueOf( name() ) );
 		}
 	}
 

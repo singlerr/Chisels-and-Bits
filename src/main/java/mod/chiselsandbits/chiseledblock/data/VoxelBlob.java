@@ -656,7 +656,7 @@ public final class VoxelBlob implements IVoxelSrc
 		cb.isFullBlock = cb.mostCommonStateTotal == array_size;
 		cb.isNormalBlock = cb.isNormalBlock && array_size == nonAirBits;
 
-		final float light_size = ChiselsAndBits.getConfig().bitLightPercentage * array_size * 15.0f / 100.0f;
+		final float light_size = (float) (ChiselsAndBits.getConfig().getServer().bitLightPercentage.get() * array_size * 15.0f / 100.0f);
 		cb.blockLight = cb.blockLight / light_size;
 
 		return cb;

@@ -149,6 +149,6 @@ public class BagDyeing extends SpecialRecipe
     @Override
     public IRecipeSerializer<?> getSerializer()
     {
-        return null;
+        return ModRecipes.BAG_DYEING;
     }
 }

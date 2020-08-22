@@ -1,12 +1,11 @@
 package mod.chiselsandbits.render.helpers;
 
-import java.util.Arrays;
-
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
 import net.minecraft.util.Direction;
+
+import java.util.Arrays;
 
 public class ModelQuadReader extends BaseModelReader
 {
@@ -50,19 +49,19 @@ public class ModelQuadReader extends BaseModelReader
 			final float... data )
 	{
 		final VertexFormat format = getVertexFormat();
-		final VertexFormatElement ele = format.getElement( element );
+		final VertexFormatElement ele = format.getElements().get(element);
 
-		if ( ele.getUsage() == EnumUsage.UV && ele.getIndex() != 1 )
+		if ( ele.getUsage() == VertexFormatElement.Usage.UV && ele.getIndex() != 1 )
 		{
 			uv = Arrays.copyOf( data, data.length );
 		}
 
-		else if ( ele.getUsage() == EnumUsage.POSITION )
+		else if ( ele.getUsage() == VertexFormatElement.Usage.POSITION )
 		{
 			pos = Arrays.copyOf( data, data.length );
 		}
 
-		if ( element == format.getElementCount() - 1 )
+		if ( element == format.getElements().size() - 1 )
 		{
 			pos_uv[index][0] = Math.round( pos[0] * 16 );
 			pos_uv[index][1] = Math.round( pos[1] * 16 );
@@ -116,14 +115,14 @@ public class ModelQuadReader extends BaseModelReader
 		if ( cull == null )
 		{
 			return new StringBuilder( "{ \"from\": [" ).append( minX ).append( "," ).append( minY ).append( "," ).append( minZ ).append( "], \"to\": [" ).append( maxX ).append( "," ).append( maxY ).append( "," ).append( maxZ )
-					.append( "], \"faces\": { \"" ).append( face.getName() ).append( "\":  { \"uv\": [" ).append( U1 ).append( "," ).append( V1 ).append( "," ).append( U2 ).append( "," ).append( V2 ).append( "], \"texture\": \"" )
+					.append( "], \"faces\": { \"" ).append( face.getString() ).append( "\":  { \"uv\": [" ).append( U1 ).append( "," ).append( V1 ).append( "," ).append( U2 ).append( "," ).append( V2 ).append( "], \"texture\": \"" )
 					.append( texture ).append( "\" } } },\n" ).toString();
 		}
 		else
 		{
 			return new StringBuilder( "{ \"from\": [" ).append( minX ).append( "," ).append( minY ).append( "," ).append( minZ ).append( "], \"to\": [" ).append( maxX ).append( "," ).append( maxY ).append( "," ).append( maxZ )
-					.append( "], \"faces\": { \"" ).append( face.getName() ).append( "\":  { \"uv\": [" ).append( U1 ).append( "," ).append( V1 ).append( "," ).append( U2 ).append( "," ).append( V2 ).append( "], \"texture\": \"" )
-					.append( texture ).append( "\", \"cullface\": \"" ).append( cull.getName() ).append( "\" } } },\n" ).toString();
+					.append( "], \"faces\": { \"" ).append( face.getString() ).append( "\":  { \"uv\": [" ).append( U1 ).append( "," ).append( V1 ).append( "," ).append( U2 ).append( "," ).append( V2 ).append( "], \"texture\": \"" )
+					.append( texture ).append( "\", \"cullface\": \"" ).append( cull.getString() ).append( "\" } } },\n" ).toString();
 		}
 	}
 

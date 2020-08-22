@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import mod.chiselsandbits.api.ReplacementStateHandler;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.DyeColor;
@@ -196,7 +197,7 @@ public class ChiselsAndBitsMenu extends Screen
 
         if ( tool == ChiselToolType.BIT )
         {
-            if ( ChiselsAndBits.getConfig().replaceingBits )
+            if (ReplacementStateHandler.getInstance().isReplacing())
             {
                 btns.add( new MenuButton( LocalStrings.BitOptionReplace.toString(), ButtonAction.REPLACE_TOGGLE, text_distnace, -44, ClientSide.swapIcon, Direction.EAST ) );
             }
@@ -477,7 +478,7 @@ public class ChiselsAndBitsMenu extends Screen
 			int mouseY,
 			int mouseButton ) throws IOException
 	{
-		if ( mouseButton == 0 && ChiselsAndBits.getConfig().enableVivecraftCompatibility )
+		if ( mouseButton == 0 && ChiselsAndBits.getConfig().getServer().enableVivecraftCompatibility.get() )
 		{
 			this.minecraft.displayGuiScreen( null );
 

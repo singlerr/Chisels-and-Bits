@@ -160,7 +160,7 @@ public class BagInventory implements IInventory
 	@Override
 	public int getInventoryStackLimit()
 	{
-		return ChiselsAndBits.getConfig().bagStackSize;
+		return ChiselsAndBits.getConfig().getServer().bagStackSize.get();
 	}
 
 	@Override

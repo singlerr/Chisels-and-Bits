@@ -1,9 +1,6 @@
 package mod.chiselsandbits.render.chiseledblock;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import com.sun.org.apache.regexp.internal.RE;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -28,6 +25,10 @@ import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.math.vector.Vector3i;
+import net.minecraftforge.client.model.data.IModelData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ChiseledBlockBaked extends BaseBakedBlockModel
 {
@@ -207,9 +208,10 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	public static ChiseledBlockBaked breakingParticleModel(
 			final ChiselLayer layer,
-			final Integer blockStateID )
+			final Integer blockStateID,
+      final Random random)
 	{
-		return ModelUtil.getBreakingModel( layer, blockStateID );
+		return ModelUtil.getBreakingModel( layer, blockStateID, random );
 	}
 
 	public boolean isEmpty()
@@ -597,7 +599,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		if ( visFace.visibleFace )
 		{
-			final Vec3i off = myFace.getDirectionVec();
+			final Vector3i off = myFace.getDirectionVec();
 
 			return new FaceRegion( myFace,
 					x * 2 + 1 + off.getX(),
@@ -765,16 +767,27 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 		result[2] = ( toZ + leftZ * d + upZ * d ) / 2;
 	}
 
-	@Override
-	public List<BakedQuad> getQuads(
-			final BlockState state,
-			final Direction side,
-			final long rand )
-	{
-		return getList( side );
-	}
+    @NotNull
+    @Override
+    public List<BakedQuad> getQuads(
+      @Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand, @NotNull final IModelData extraData)
+    {
+        return getList( side );
+    }
 
-	@Override
+    @Override
+    public List<BakedQuad> getQuads(@Nullable final BlockState state, @Nullable final Direction side, final Random rand)
+    {
+        return getList( side );
+    }
+
+    @Override
+    public boolean func_230044_c_()
+    {
+        return true;
+    }
+
+    @Override
 	public TextureAtlasSprite getParticleTexture()
 	{
 		return sprite != null ? sprite : ClientSide.instance.getMissingIcon();
@@ -784,7 +797,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	{
 		int count = getList( null ).size();
 
-		for ( final Direction f : Direction.VALUES )
+		for ( final Direction f : Direction.values() )
 		{
 			count += getList( f ).size();
 		}
@@ -794,7 +807,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 	public boolean isAboveLimit()
 	{
-		return faceCount() >= ChiselsAndBits.getConfig().dynamicModelFaceCount;
+		return faceCount() >= ChiselsAndBits.getConfig().getClient().dynamicModelFaceCount.get();
 	}
 
 	public static ChiseledBlockBaked createFromTexture(

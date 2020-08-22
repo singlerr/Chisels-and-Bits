@@ -1,17 +1,21 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
 import java.lang.ref.SoftReference;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderCache;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.util.math.vector.Matrix3f;
+import net.minecraft.util.math.vector.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
@@ -27,10 +31,7 @@ import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ChunkCache;
-import net.minecraftforge.common.property.IExtendedBlockState;
 
 public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 {
@@ -42,6 +43,8 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 
 	private final ChunkRenderCache cache;
 	private final BlockPos chunkOffset;
+
+	private final static ThreadLocal<Random> BACKGROUND_RANDOM = ThreadLocal.withInitial(Random::new);
 
 	static class CBTessellatorRefNode
 	{
@@ -189,18 +192,17 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 		while ( tessellator == null );
 
 		final BufferBuilder buffer = tessellator.getBuffer();
-
+        final IVertexBuilder transformBuilder = new MatrixApplyingVertexBuilder(buffer, Matrix4f.makeTranslate(-chunkOffset.getX(), -chunkOffset.getY(), -chunkOffset.getZ()), new Matrix3f());
 		try
 		{
 			buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
-			buffer.setTranslation( -chunkOffset.getX(), -chunkOffset.getY(), -chunkOffset.getZ() );
 		}
 		catch ( final IllegalStateException e )
 		{
 			Log.logError( "Invalid Tessellator Behavior", e );
 		}
 
-		final int[] faceCount = new int[RenderType.getBlockRenderTypes().size()];
+		final Map<RenderType, Integer> faceCount = Maps.newHashMap();
 
 		final Set<RenderType> mcLayers = Sets.newHashSet();
 		final EnumSet<ChiselLayer> layers = layer == RenderType.getTranslucent() ? EnumSet.of( ChiselLayer.TRANSLUCENT ) : EnumSet.complementOf( EnumSet.of( ChiselLayer.TRANSLUCENT ) );
@@ -215,11 +217,12 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 				{
 					mcLayers.add( lx.layer );
 					final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel( tx, lx );
-					faceCount[lx.layer.ordinal()] += model.faceCount();
+					faceCount.put(lx.layer, faceCount.getOrDefault(lx.layer, 0) + model.faceCount());
 
 					if ( !model.isEmpty() )
 					{
-						blockRenderer.getBlockModelRenderer().renderModel( cache, model, estate, tx.getPos(), buffer, true );
+						blockRenderer.getBlockModelRenderer().renderModel( cache, model, estate, tx.getPos(), new MatrixStack(), transformBuilder, true, BACKGROUND_RANDOM.get(), BACKGROUND_RANDOM.get().nextLong(),
+                          OverlayTexture.NO_OVERLAY);
 
 						if ( Thread.interrupted() )
 						{
@@ -230,13 +233,13 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 					}
 				}
 
-				final VoxelNeighborRenderTracker rTracker = estate.getValue( BlockChiseled.UProperty_VoxelNeighborState );
+				final VoxelNeighborRenderTracker rTracker = tx.getNeighborRenderTracker();
 				if ( rTracker != null )
 				{
-					for ( final BlockRenderLayer brl : mcLayers )
+					for ( final RenderType brl : mcLayers )
 					{
-						rTracker.setAbovelimit( brl, faceCount[brl.ordinal()] );
-						faceCount[brl.ordinal()] = 0;
+						rTracker.setAbovelimit( brl, faceCount.get(brl) );
+						faceCount.remove(brl);
 					}
 				}
 			}

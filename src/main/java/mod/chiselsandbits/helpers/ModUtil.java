@@ -9,18 +9,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import mod.chiselsandbits.utils.SingleBlockBlockReader;
-import mod.chiselsandbits.utils.SingleBlockWorldReader;
 import net.minecraft.block.*;
-import net.minecraft.client.renderer.chunk.ChunkRenderCache;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.stats.Stats;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorldReader;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.IFluidBlock;
@@ -35,7 +31,6 @@ import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.StateLookup.CachedStateLookup;
-import mod.chiselsandbits.integration.mods.LittleTiles;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.items.ItemNegativePrint;
@@ -647,7 +642,7 @@ public class ModUtil
 
 	public static void cacheFastStates()
 	{
-		if ( !ChiselsAndBits.getConfig().lowMemoryMode )
+		if ( !ChiselsAndBits.getConfig().getServer().lowMemoryMode.get() )
 		{
 			// cache id -> state table as an array for faster rendering lookups.
 			IDRelay = new CachedStateLookup();

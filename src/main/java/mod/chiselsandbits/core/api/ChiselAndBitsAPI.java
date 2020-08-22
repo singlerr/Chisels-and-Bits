@@ -2,14 +2,7 @@ package mod.chiselsandbits.core.api;
 
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
-import mod.chiselsandbits.api.IBitAccess;
-import mod.chiselsandbits.api.IBitBag;
-import mod.chiselsandbits.api.IBitBrush;
-import mod.chiselsandbits.api.IBitLocation;
-import mod.chiselsandbits.api.IChiselAndBitsAPI;
-import mod.chiselsandbits.api.ItemType;
-import mod.chiselsandbits.api.ModKeyBinding;
-import mod.chiselsandbits.api.ParameterType;
+import mod.chiselsandbits.api.*;
 import mod.chiselsandbits.api.ParameterType.DoubleParam;
 import mod.chiselsandbits.api.ParameterType.FloatParam;
 import mod.chiselsandbits.api.ParameterType.IntegerParam;
@@ -20,40 +13,32 @@ import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.client.RenderHelper;
 import mod.chiselsandbits.client.UndoTracker;
-import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.helpers.BitInventoryFeeder;
 import mod.chiselsandbits.helpers.BitOperation;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.helpers.BitInventoryFeeder;
-import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
-import mod.chiselsandbits.items.ItemBitBag;
-import mod.chiselsandbits.items.ItemChisel;
-import mod.chiselsandbits.items.ItemChiseledBit;
-import mod.chiselsandbits.items.ItemMirrorPrint;
-import mod.chiselsandbits.items.ItemNegativePrint;
-import mod.chiselsandbits.items.ItemPositivePrint;
-import mod.chiselsandbits.items.ItemWrench;
+import mod.chiselsandbits.items.*;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemBlock;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.CapabilityItemHandler;
 
 public class ChiselAndBitsAPI implements IChiselAndBitsAPI
@@ -122,8 +107,6 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		if ( te != null )
 		{
 			final VoxelBlob mask = new VoxelBlob();
-			MCMultipartProxy.proxyMCMultiPart.addFiller( world, pos, mask );
-
 			return new BitAccess( world, pos, te.getBlob(), mask );
 		}
 
@@ -155,14 +138,14 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public IBitLocation getBitPos(
-			final float hitX,
-			final float hitY,
-			final float hitZ,
+			final double hitX,
+			final double hitY,
+			final double hitZ,
 			final Direction side,
 			final BlockPos pos,
 			final boolean placement )
 	{
-		final RayTraceResult mop = new RayTraceResult( RayTraceResult.Type.BLOCK, new Vec3d( hitX, hitY, hitZ ), side, pos );
+		final BlockRayTraceResult mop = new BlockRayTraceResult(new Vector3d(hitX, hitY, hitZ), side, pos, false);
 		return new BitLocation( mop, false, placement ? BitOperation.PLACE : BitOperation.CHISEL );
 	}
 
@@ -229,7 +212,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			return new BitAccess( null, null, blob, VoxelBlob.NULL_BLOB );
 		}
 
-		if ( stack.getItem() instanceof ItemBlock )
+		if ( stack.getItem() instanceof BlockItem)
 		{
 			final BlockState state = DeprecationHelper.getStateFromItem( stack );
 
@@ -277,7 +260,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	public void giveBitToPlayer(
 			final PlayerEntity player,
 			final ItemStack stack,
-			Vec3d spawnPos )
+			Vector3d spawnPos )
 	{
 		if ( ModUtil.isEmpty( stack ) )
 		{
@@ -286,10 +269,10 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 		if ( spawnPos == null )
 		{
-			spawnPos = new Vec3d( player.posX, player.posY, player.posZ );
+			spawnPos = new Vector3d( player.getPosX(), player.getPosY(), player.getPosZ() );
 		}
 
-		final EntityItem ei = new EntityItem( player.getEntityWorld(), spawnPos.xCoord, spawnPos.yCoord, spawnPos.zCoord, stack );
+		final ItemEntity ei = new ItemEntity( player.getEntityWorld(), spawnPos.x, spawnPos.y, spawnPos.z, stack );
 
 		if ( stack.getItem() == ChiselsAndBits.getItems().itemBlockBit )
 		{
@@ -304,8 +287,8 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		}
 		else if ( !player.inventory.addItemStackToInventory( stack ) )
 		{
-			ei.setEntityItemStack( stack );
-			player.getEntityWorld().spawnEntityInWorld( ei );
+			ei.setItem( stack );
+			player.getEntityWorld().addEntity( ei );
 		}
 	}
 
@@ -396,19 +379,15 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	public Object getParameter(
 			ParameterType which )
 	{
-		ModConfig config = ChiselsAndBits.getConfig();
-
-		switch ( (ParameterType.ParamTypes) which.getType() )
+		switch (which.getType())
 		{
 			case BOOLEAN:
 				switch ( (ParameterType.BooleanParam) which )
 				{
-					case ENABLE_MCMP:
-						return config.enableMCMultipart;
 					case ENABLE_DAMAGE_TOOLS:
-						return config.damageTools;
+						return ChiselsAndBits.getConfig().getServer().damageTools.get();
 					case ENABLE_BIT_LIGHT_SOURCE:
-						return config.enableBitLightSource;
+						return ChiselsAndBits.getConfig().getServer().enableBitLightSource.get();
 				}
 				break;
 
@@ -416,7 +395,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 				switch ( (DoubleParam) which )
 				{
 					case BIT_MAX_DRAWN_REGION_SIZE:
-						return config.maxDrawnRegionSize;
+						return ChiselsAndBits.getConfig().getServer().maxDrawnRegionSize.get();
 				}
 				break;
 
@@ -424,7 +403,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 				switch ( (FloatParam) which )
 				{
 					case BLOCK_FULL_LIGHT_PERCENTAGE:
-						return config.bitLightPercentage;
+						return ChiselsAndBits.getConfig().getServer().bitLightPercentage.get();
 				}
 				break;
 
@@ -432,7 +411,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 				switch ( (IntegerParam) which )
 				{
 					case BIT_BAG_MAX_STACK_SIZE:
-						return config.bagStackSize;
+						return ChiselsAndBits.getConfig().getServer().bagStackSize.get();
 				}
 				break;
 
@@ -441,6 +420,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		return null;
 	}
 
+	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void renderModel(
 			final IBakedModel model,
@@ -452,6 +432,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	}
 
 	@Override
+    @OnlyIn(Dist.CLIENT)
 	public void renderGhostModel(
 			final IBakedModel model,
 			final World world,

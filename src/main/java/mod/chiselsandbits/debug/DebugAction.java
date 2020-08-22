@@ -19,20 +19,20 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
 
 public abstract class DebugAction
 {
@@ -69,8 +69,8 @@ public abstract class DebugAction
 			final PlayerEntity player,
 			final String msg )
 	{
-		final String side = FMLCommonHandler.instance().getEffectiveSide().name() + ": ";
-		player.addChatComponentMessage( new TextComponentString( side + msg ), true );
+		final String side = EffectiveSide.get().name() + ": ";
+		player.sendMessage( new StringTextComponent( side + msg ), Util.DUMMY_UUID );
 	}
 
 	private static void apiAssert(
@@ -88,9 +88,9 @@ public abstract class DebugAction
 			final @Nonnull World w,
 			final @Nonnull BlockPos pos,
 			final @Nonnull Direction side,
-			final float hitX,
-			final float hitY,
-			final float hitZ,
+			final double hitX,
+			final double hitY,
+			final double hitZ,
 			@Nonnull PlayerEntity player );
 
 	static class ItemTests extends DebugAction
@@ -101,9 +101,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			final IBitAccess access = api.createBitItem( ModUtil.getEmptyStack() );
@@ -111,9 +111,9 @@ public abstract class DebugAction
 
 			apiAssert( "BIT_BAG", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemBitBagDefault) ) == ItemType.BIT_BAG );
 			apiAssert( "CHISEL", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond ) ) == ItemType.CHISEL );
-			apiAssert( "MIRROR_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemMirrorprint ) ) == ItemType.MIRROR_DESIGN );
+			apiAssert( "MIRROR_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemMirrorPrint) ) == ItemType.MIRROR_DESIGN );
 			apiAssert( "NEGATIVE_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemNegativePrint) ) == ItemType.NEGATIVE_DESIGN );
-			apiAssert( "POSITIVE_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemPositiveprint ) ) == ItemType.POSITIVE_DESIGN );
+			apiAssert( "POSITIVE_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemPositivePrint) ) == ItemType.POSITIVE_DESIGN );
 			apiAssert( "WRENCH", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemWrench ) ) == ItemType.WRENCH );
 			apiAssert( "CHISLED_BIT-cobblestone", player, api.getItemType( ItemChiseledBit.createStack( ModUtil.getStateId( Blocks.COBBLESTONE.getDefaultState() ), 1, true ) ) == ItemType.CHISLED_BIT );
 			apiAssert( "CHISLED_BLOCK", player, api.getItemType( access.getBitsAsItem( Direction.UP, ItemType.CHISLED_BLOCK, false ) ) == null );
@@ -153,9 +153,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			final TileEntity te = w.getTileEntity( pos );
@@ -175,9 +175,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			Msg( player, "canBeChiseled = " + ( api.canBeChiseled( w, pos ) ? "true" : "false" ) );
@@ -193,9 +193,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			Msg( player, "isBlockChiseled = " + ( api.isBlockChiseled( w, pos ) ? "true" : "false" ) );
@@ -211,9 +211,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, true );
@@ -250,9 +250,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
@@ -290,9 +290,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
@@ -329,9 +329,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
@@ -350,7 +350,7 @@ public abstract class DebugAction
 							final IBitBrush currentValue )
 					{
 						IBitBrush bit = currentValue;
-						final BlockState state = Blocks.WOOL.getDefaultState();
+						final BlockState state = Blocks.BLACK_WOOL.getDefaultState();
 
 						try
 						{
@@ -382,9 +382,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
@@ -413,9 +413,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
@@ -444,9 +444,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
@@ -495,9 +495,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
@@ -525,7 +525,7 @@ public abstract class DebugAction
 							player.inventory.addItemStackToInventory( it );
 						}
 
-						player.inventory.addItemStackToInventory( new ItemStack( blk, 1, blk.getMetaFromState( state ) ) );
+						player.inventory.addItemStackToInventory( new ItemStack( blk, 1 ) );
 					}
 				}
 			}
@@ -545,21 +545,17 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );
 
 			final VoxelBlob out = new VoxelBlob();
-			MCMultipartProxy.proxyMCMultiPart.addFiller( w, loc.getBlockPos(), out );
 
-			player.addChatComponentMessage( new TextComponentString( out.filled() + " blocked" ), true );
-			player.addChatComponentMessage( new TextComponentString( out.air() + " not-blocked" ), true );
-
-			final boolean isMultiPart = MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( w, loc.getBlockPos() );
-			player.addChatComponentMessage( new TextComponentString( isMultiPart ? "Multipart" : "Not-Multipart" ), true );
+			player.sendMessage( new StringTextComponent( out.filled() + " blocked" ), Util.DUMMY_UUID );
+			player.sendMessage( new StringTextComponent( out.air() + " not-blocked" ), Util.DUMMY_UUID );
 		}
 
 	};
@@ -572,9 +568,9 @@ public abstract class DebugAction
 				final World w,
 				final BlockPos pos,
 				final Direction side,
-				final float hitX,
-				final float hitY,
-				final float hitZ,
+				final double hitX,
+				final double hitY,
+				final double hitZ,
 				final PlayerEntity player )
 		{
 			final IBitLocation loc = api.getBitPos( hitX, hitY, hitZ, side, pos, false );

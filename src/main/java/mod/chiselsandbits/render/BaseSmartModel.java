@@ -1,22 +1,23 @@
 package mod.chiselsandbits.render;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mod.chiselsandbits.core.ClientSide;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemOverride;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.init.Blocks;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.data.IModelData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public abstract class BaseSmartModel implements IBakedModel
 {
@@ -30,19 +31,17 @@ public abstract class BaseSmartModel implements IBakedModel
 		public OverrideHelper(
 				final BaseSmartModel p )
 		{
-			super( new ArrayList<ItemOverride>() );
+			super();
 			parent = p;
 		}
 
-		@Override
-		public IBakedModel handleItemState(
-				final IBakedModel originalModel,
-				final ItemStack stack,
-				final World world,
-				final EntityLivingBase entity )
-		{
-			return parent.handleItemState( originalModel, stack, world, entity );
-		}
+        @Nullable
+        @Override
+        public IBakedModel func_239290_a_(
+          final IBakedModel p_239290_1_, final ItemStack p_239290_2_, @Nullable final ClientWorld p_239290_3_, @Nullable final LivingEntity p_239290_4_)
+        {
+            return parent.func_239290_a_( p_239290_1_, p_239290_2_, p_239290_3_, p_239290_4_ );
+        }
 
 	};
 
@@ -72,7 +71,7 @@ public abstract class BaseSmartModel implements IBakedModel
 	@Override
 	public TextureAtlasSprite getParticleTexture()
 	{
-		final TextureAtlasSprite sprite = Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture( Blocks.STONE.getDefaultState() );
+		final TextureAtlasSprite sprite = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getTexture( Blocks.STONE.getDefaultState() );
 
 		if ( sprite == null )
 		{
@@ -88,22 +87,37 @@ public abstract class BaseSmartModel implements IBakedModel
 		return ItemCameraTransforms.DEFAULT;
 	}
 
-	@Override
-	public List<BakedQuad> getQuads(
-			final BlockState state,
-			final Direction side,
-			final long rand )
-	{
-		final IBakedModel model = handleBlockState( state, rand );
-		return model.getQuads( state, side, rand );
-	}
+    @NotNull
+    @Override
+    public List<BakedQuad> getQuads(
+      @Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand, @NotNull final IModelData extraData)
+    {
+        final IBakedModel model = handleBlockState( state, rand, extraData );
+        return model.getQuads( state, side, rand );
+    }
+
+    @Override
+    public List<BakedQuad> getQuads(@Nullable final BlockState state, @Nullable final Direction side, final Random rand)
+    {
+        final IBakedModel model = handleBlockState( state, rand );
+        return model.getQuads( state, side, rand );
+    }
 
 	public IBakedModel handleBlockState(
 			final BlockState state,
-			final long rand )
+			final Random rand )
 	{
 		return NullBakedModel.instance;
 	}
+
+	public IBakedModel handleBlockState(
+	  final BlockState state,
+      final Random random,
+      final IModelData modelData
+    )
+    {
+        return NullBakedModel.instance;
+    }
 
 	@Override
 	public ItemOverrideList getOverrides()
@@ -111,11 +125,11 @@ public abstract class BaseSmartModel implements IBakedModel
 		return overrides;
 	}
 
-	public IBakedModel handleItemState(
+	public IBakedModel func_239290_a_(
 			final IBakedModel originalModel,
 			final ItemStack stack,
 			final World world,
-			final EntityLivingBase entity )
+			final LivingEntity entity )
 	{
 		return originalModel;
 	}

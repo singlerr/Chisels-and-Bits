@@ -3,27 +3,23 @@ package mod.chiselsandbits.render.helpers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
-import org.lwjgl.util.vector.Vector3f;
-
+import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockFaceUV;
-import net.minecraft.client.renderer.block.model.BlockPartFace;
-import net.minecraft.client.renderer.block.model.BlockPartRotation;
-import net.minecraft.client.renderer.block.model.FaceBakery;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
-import net.minecraft.client.renderer.block.model.ModelRotation;
+import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import net.minecraftforge.client.model.pipeline.LightUtil;
-import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad;
-import net.minecraftforge.client.model.pipeline.UnpackedBakedQuad.Builder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SimpleGeneratedModel implements IBakedModel
 {
@@ -56,7 +52,7 @@ public class SimpleGeneratedModel implements IBakedModel
 		final BlockPartRotation bpr = null;
 		final ModelRotation mr = ModelRotation.X0_Y0;
 
-		for ( final Direction side : Direction.VALUES )
+		for ( final Direction side : Direction.values() )
 		{
 			final BlockPartFace bpf = new BlockPartFace( side, 1, "", uv );
 
@@ -65,34 +61,34 @@ public class SimpleGeneratedModel implements IBakedModel
 			switch ( side )
 			{
 				case UP:
-					toB = new Vector3f( to.x, from.y, to.z );
-					fromB = new Vector3f( from.x, from.y, from.z );
+					toB = new Vector3f( to.getX(), from.getY(), to.getZ() );
+					fromB = new Vector3f( from.getX(), from.getY(), from.getZ() );
 					break;
 				case EAST:
-					toB = new Vector3f( from.x, to.y, to.z );
-					fromB = new Vector3f( from.x, from.y, from.z );
+					toB = new Vector3f( from.getX(), to.getY(), to.getZ() );
+					fromB = new Vector3f( from.getX(), from.getY(), from.getZ() );
 					break;
 				case NORTH:
-					toB = new Vector3f( to.x, to.y, to.z );
-					fromB = new Vector3f( from.x, from.y, to.z );
+					toB = new Vector3f( to.getX(), to.getY(), to.getZ() );
+					fromB = new Vector3f( from.getX(), from.getY(), to.getZ() );
 					break;
 				case SOUTH:
-					toB = new Vector3f( to.x, to.y, from.z );
-					fromB = new Vector3f( from.x, from.y, from.z );
+					toB = new Vector3f( to.getX(), to.getY(), from.getZ() );
+					fromB = new Vector3f( from.getX(), from.getY(), from.getZ() );
 					break;
 				case DOWN:
-					toB = new Vector3f( to.x, to.y, to.z );
-					fromB = new Vector3f( from.x, to.y, from.z );
+					toB = new Vector3f( to.getX(), to.getY(), to.getZ() );
+					fromB = new Vector3f( from.getX(), to.getY(), from.getZ() );
 					break;
 				case WEST:
-					toB = new Vector3f( to.x, to.y, to.z );
-					fromB = new Vector3f( to.x, from.y, from.z );
+					toB = new Vector3f( to.getX(), to.getY(), to.getZ() );
+					fromB = new Vector3f( to.getX(), from.getY(), from.getZ() );
 					break;
 				default:
 					throw new NullPointerException();
 			}
 
-			final BakedQuad g = faceBakery.makeBakedQuad( toB, fromB, bpf, texture, side, mr, bpr, false, true );
+			final BakedQuad g = faceBakery.bakeQuad( toB, fromB, bpf, texture, side, mr, bpr, false, new ResourceLocation(ChiselsAndBits.MODID, "simple"));
 			face[side.ordinal()].add( finishFace( g, side, DefaultVertexFormats.BLOCK ) );
 		}
 	}
@@ -105,16 +101,15 @@ public class SimpleGeneratedModel implements IBakedModel
 		final int[] vertData = g.getVertexData();
 		final int wrapAt = vertData.length / 4;
 
-		final UnpackedBakedQuad.Builder b = new Builder( format );
+		final BakedQuadBuilder b = new BakedQuadBuilder( g.sprite );
 		b.setQuadOrientation( myFace );
 		b.setQuadTint( 1 );
-		b.setTexture( g.getSprite() );
 
 		for ( int vertNum = 0; vertNum < 4; vertNum++ )
 		{
-			for ( int elementIndex = 0; elementIndex < format.getElementCount(); elementIndex++ )
+			for ( int elementIndex = 0; elementIndex < format.getElements().size(); elementIndex++ )
 			{
-				final VertexFormatElement element = format.getElement( elementIndex );
+				final VertexFormatElement element = format.getElements().get(elementIndex);
 				switch ( element.getUsage() )
 				{
 					case POSITION:
@@ -127,7 +122,7 @@ public class SimpleGeneratedModel implements IBakedModel
 						break;
 
 					case NORMAL:
-						b.put( elementIndex, myFace.getFrontOffsetX(), myFace.getFrontOffsetY(), myFace.getFrontOffsetZ() );
+						b.put( elementIndex, myFace.getXOffset(), myFace.getYOffset(), myFace.getZOffset() );
 						break;
 
 					case UV:
@@ -164,7 +159,7 @@ public class SimpleGeneratedModel implements IBakedModel
 	public List<BakedQuad> getQuads(
 			final BlockState state,
 			final Direction side,
-			final long rand )
+			final Random rand )
 	{
 		if ( side == null )
 		{
@@ -174,7 +169,20 @@ public class SimpleGeneratedModel implements IBakedModel
 		return face[side.ordinal()];
 	}
 
-	@Override
+    @NotNull
+    @Override
+    public List<BakedQuad> getQuads(
+      @Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand, @NotNull final IModelData extraData)
+    {
+        if ( side == null )
+        {
+            return Collections.emptyList();
+        }
+
+        return face[side.ordinal()];
+    }
+
+    @Override
 	public boolean isAmbientOcclusion()
 	{
 		return true;
@@ -186,7 +194,13 @@ public class SimpleGeneratedModel implements IBakedModel
 		return true;
 	}
 
-	@Override
+    @Override
+    public boolean func_230044_c_()
+    {
+        return false;
+    }
+
+    @Override
 	public ItemCameraTransforms getItemCameraTransforms()
 	{
 		return ItemCameraTransforms.DEFAULT;
@@ -207,6 +221,6 @@ public class SimpleGeneratedModel implements IBakedModel
 	@Override
 	public ItemOverrideList getOverrides()
 	{
-		return ItemOverrideList.NONE;
+		return ItemOverrideList.EMPTY;
 	}
 }

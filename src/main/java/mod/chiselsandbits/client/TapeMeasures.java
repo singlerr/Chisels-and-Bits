@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
@@ -12,17 +14,21 @@ import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.item.EnumDyeColor;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.text.Color;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextComponentString;
 
 public class TapeMeasures
 {
@@ -36,8 +42,8 @@ public class TapeMeasures
 				final BitLocation a2,
 				final BitLocation b2,
 				final IToolMode chMode,
-				final int dimentionid,
-				final EnumDyeColor color )
+				final ResourceLocation dimentionid,
+				final DyeColor color )
 		{
 			a = a2;
 			b = b2;
@@ -46,12 +52,12 @@ public class TapeMeasures
 			this.color = color;
 		}
 
-		public final IToolMode mode;
-		public final BitLocation a;
-		public final BitLocation b;
-		public final EnumDyeColor color;
-		public final int DimensionId;
-		public double distance = 1;
+		public final IToolMode        mode;
+		public final BitLocation      a;
+		public final BitLocation      b;
+		public final DyeColor         color;
+		public final ResourceLocation DimensionId;
+		public       double           distance = 1;
 
 		public AxisAlignedBB getBoundingBox()
 		{
@@ -89,20 +95,20 @@ public class TapeMeasures
 					Math.max( az, bz ) + bitSize );
 		}
 
-		public Vec3d getVecA()
+		public Vector3d getVecA()
 		{
 			final double ax = a.blockPos.getX() + bitSize * a.bitX + halfBit;
 			final double ay = a.blockPos.getY() + bitSize * a.bitY + halfBit;
 			final double az = a.blockPos.getZ() + bitSize * a.bitZ + halfBit;
-			return new Vec3d( ax, ay, az );
+			return new Vector3d( ax, ay, az );
 		}
 
-		public Vec3d getVecB()
+		public Vector3d getVecB()
 		{
 			final double bx = b.blockPos.getX() + bitSize * b.bitX + halfBit;
 			final double by = b.blockPos.getY() + bitSize * b.bitY + halfBit;
 			final double bz = b.blockPos.getZ() + bitSize * b.bitZ + halfBit;
-			return new Vec3d( bx, by, bz );
+			return new Vector3d( bx, by, bz );
 		}
 
 		public void calcDistance(
@@ -110,17 +116,17 @@ public class TapeMeasures
 		{
 			if ( mode == TapeMeasureModes.DISTANCE )
 			{
-				final Vec3d a = getVecA();
-				final Vec3d b = getVecB();
+				final Vector3d a = getVecA();
+				final Vector3d b = getVecB();
 				final PlayerEntity player = ClientSide.instance.getPlayer();
 				distance = getLineDistance( a, b, player, partialTicks );
 			}
 			else
 			{
 				final PlayerEntity player = ClientSide.instance.getPlayer();
-				final Vec3d eyes = player.getPositionEyes( partialTicks );
+				final Vector3d eyes = player.getEyePosition( partialTicks );
 				final AxisAlignedBB box = getBoundingBox();
-				if ( box.isVecInside( eyes ) )
+				if ( box.contains( eyes ) )
 				{
 					distance = 0.0;
 				}
@@ -167,14 +173,14 @@ public class TapeMeasures
 	{
 		final PlayerEntity player = ClientSide.instance.getPlayer();
 
-		while ( measures.size() > 0 && measures.size() >= ChiselsAndBits.getConfig().maxTapeMeasures )
+		while ( measures.size() > 0 && measures.size() >= ChiselsAndBits.getConfig().getClient().maxTapeMeasures.get() )
 		{
 			measures.remove( 0 );
 		}
 
 		final Measure newMeasure = new Measure( a, b, chMode, getDimension( player ), getColor( itemStack ) );
 
-		if ( ChiselsAndBits.getConfig().displayMeasuringTapeInChat )
+		if ( ChiselsAndBits.getConfig().getClient().displayMeasuringTapeInChat.get() )
 		{
 			final AxisAlignedBB box = newMeasure.getBoundingBox();
 
@@ -185,31 +191,31 @@ public class TapeMeasures
 
 			final String out = chMode == TapeMeasureModes.DISTANCE ? getSize( Len ) : DeprecationHelper.translateToLocal( "mod.chiselsandbits.tapemeasure.chatmsg", getSize( LenX ), getSize( LenY ), getSize( LenZ ) );
 
-			final TextComponentString chatMsg = new TextComponentString( out );
+			final StringTextComponent chatMsg = new StringTextComponent( out );
 
 			// NOT 100% Accurate, if anyone wants to try and resolve this, yay
-			chatMsg.setStyle( new Style().setColor( newMeasure.color.chatColor ) );
+			chatMsg.setStyle( Style.EMPTY.setColor(Color.func_240743_a_(newMeasure.color.getTextColor())) );
 
-			player.addChatComponentMessage( chatMsg, true );
+			player.sendMessage( chatMsg, Util.DUMMY_UUID );
 		}
 
 		measures.add( newMeasure );
 	}
 
-	private EnumDyeColor getColor(
+	private DyeColor getColor(
 			final ItemStack itemStack )
 	{
 		return ChiselsAndBits.getItems().itemTapeMeasure.getTapeColor( itemStack );
 	}
 
-	private int getDimension(
+	private ResourceLocation getDimension(
 			final PlayerEntity player )
 	{
-		return player.getEntityWorld().provider.getDimension();
+		return player.getEntityWorld().getDimensionKey().getRegistryName();
 	}
 
 	public void render(
-			final float partialTicks )
+      final MatrixStack matrixStack, final float partialTicks)
 	{
 		if ( !measures.isEmpty() || preview != null )
 		{
@@ -245,14 +251,14 @@ public class TapeMeasures
 
 				for ( final Measure m : sortList )
 				{
-					renderMeasure( m, m.distance, partialTicks );
+					renderMeasure( m, m.distance, matrixStack, partialTicks );
 				}
 			}
 		}
 	}
 
 	private boolean hasTapeMeasure(
-			final InventoryPlayer inventory )
+			final PlayerInventory inventory )
 	{
 		for ( int x = 0; x < inventory.getSizeInventory(); x++ )
 		{
@@ -267,9 +273,10 @@ public class TapeMeasures
 	}
 
 	private void renderMeasure(
-			final Measure m,
-			final double distance,
-			final float partialTicks )
+      final Measure m,
+      final double distance,
+      final MatrixStack matrixStack,
+      final float partialTicks)
 	{
 		final PlayerEntity player = ClientSide.instance.getPlayer();
 
@@ -284,38 +291,38 @@ public class TapeMeasures
 			return;
 		}
 
-		final double x = player.lastTickPosX + ( player.posX - player.lastTickPosX ) * partialTicks;
-		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
-		final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
+		final double x = player.lastTickPosX + ( player.getPosX() - player.lastTickPosX ) * partialTicks;
+		final double y = player.lastTickPosY + ( player.getPosY() - player.lastTickPosY ) * partialTicks;
+		final double z = player.lastTickPosZ + ( player.getPosZ() - player.lastTickPosZ ) * partialTicks;
 
-		final int val = m.color.func_193350_e();
+		final int val = m.color.getTextColor();
 		final int red = val >> 16 & 0xff;
 		final int green = val >> 8 & 0xff;
 		final int blue = val & 0xff;
 		if ( m.mode == TapeMeasureModes.DISTANCE )
 		{
-			final Vec3d a = m.getVecA();
-			final Vec3d b = m.getVecB();
+			final Vector3d a = m.getVecA();
+			final Vector3d b = m.getVecB();
 
-			RenderHelper.drawLineWithColor( a, b, BlockPos.ORIGIN, player, partialTicks, false, red, green, blue, alpha, (int) ( alpha / 3.4 ) );
+			RenderHelper.drawLineWithColor( a, b, BlockPos.ZERO, player, partialTicks, false, red, green, blue, alpha, (int) ( alpha / 3.4 ) );
 
-			GlStateManager.disableDepth();
-			GlStateManager.disableCull();
+			RenderSystem.disableDepthTest();
+			RenderSystem.disableCull();
 
 			final double Len = a.distanceTo( b ) + bitSize;
 
-			renderSize( player, partialTicks, ( a.xCoord + b.xCoord ) * 0.5 - x, ( a.yCoord + b.yCoord ) * 0.5 - y, ( a.zCoord + b.zCoord ) * 0.5 - z, Len, red, green, blue );
+			renderSize(matrixStack, player, partialTicks, ( a.x + b.x ) * 0.5 - x, ( a.y + b.y ) * 0.5 - y, ( a.z + b.z ) * 0.5 - z, Len, red, green, blue );
 
-			GlStateManager.enableDepth();
-			GlStateManager.enableCull();
+			RenderSystem.enableDepthTest();
+			RenderSystem.enableCull();
 			return;
 		}
 
 		final AxisAlignedBB box = m.getBoundingBox();
-		RenderHelper.drawSelectionBoundingBoxIfExistsWithColor( box.expand( -0.001, -0.001, -0.001 ), BlockPos.ORIGIN, player, partialTicks, false, red, green, blue, alpha, (int) ( alpha / 3.4 ) );
+		RenderHelper.drawSelectionBoundingBoxIfExistsWithColor( box.expand( -0.001, -0.001, -0.001 ), BlockPos.ZERO, player, partialTicks, false, red, green, blue, alpha, (int) ( alpha / 3.4 ) );
 
-		GlStateManager.disableDepth();
-		GlStateManager.disableCull();
+		RenderSystem.disableDepthTest();
+		RenderSystem.disableCull();
 
 		final double LenX = box.maxX - box.minX;
 		final double LenY = box.maxY - box.minY;
@@ -325,12 +332,12 @@ public class TapeMeasures
 		 * TODO: Figure out some better logic for which lines to display the
 		 * numbers on.
 		 **/
-		renderSize( player, partialTicks, box.minX - x, ( box.maxY + box.minY ) * 0.5 - y, box.minZ - z, LenY, red, green, blue );
-		renderSize( player, partialTicks, ( box.minX + box.maxX ) * 0.5 - x, box.minY - y, box.minZ - z, LenX, red, green, blue );
-		renderSize( player, partialTicks, box.minX - x, box.minY - y, ( box.minZ + box.maxZ ) * 0.5 - z, LenZ, red, green, blue );
+		renderSize(matrixStack, player, partialTicks, box.minX - x, ( box.maxY + box.minY ) * 0.5 - y, box.minZ - z, LenY, red, green, blue );
+		renderSize(matrixStack, player, partialTicks, ( box.minX + box.maxX ) * 0.5 - x, box.minY - y, box.minZ - z, LenX, red, green, blue );
+		renderSize(matrixStack, player, partialTicks, box.minX - x, box.minY - y, ( box.minZ + box.maxZ ) * 0.5 - z, LenZ, red, green, blue );
 
-		GlStateManager.enableDepth();
-		GlStateManager.enableCull();
+		RenderSystem.enableDepthTest();
+		RenderSystem.enableCull();
 	}
 
 	private int getAlphaFromRange(
@@ -345,25 +352,25 @@ public class TapeMeasures
 	}
 
 	private static double AABBDistnace(
-			final Vec3d eyes,
+			final Vector3d eyes,
 			final AxisAlignedBB box )
 	{
 		// snap eyes into the box...
-		final double boxPointX = Math.min( box.maxX, Math.max( box.minX, eyes.xCoord ) );
-		final double boxPointY = Math.min( box.maxY, Math.max( box.minY, eyes.yCoord ) );
-		final double boxPointZ = Math.min( box.maxZ, Math.max( box.minZ, eyes.zCoord ) );
+		final double boxPointX = Math.min( box.maxX, Math.max( box.minX, eyes.x ) );
+		final double boxPointY = Math.min( box.maxY, Math.max( box.minY, eyes.y ) );
+		final double boxPointZ = Math.min( box.maxZ, Math.max( box.minZ, eyes.z ) );
 
 		// then get the distance to it.
 		return Math.sqrt( eyes.squareDistanceTo( boxPointX, boxPointY, boxPointZ ) );
 	}
 
 	private static double getLineDistance(
-			final Vec3d v,
-			final Vec3d w,
+			final Vector3d v,
+			final Vector3d w,
 			final PlayerEntity player,
 			final float partialTicks )
 	{
-		final Vec3d p = player.getPositionEyes( partialTicks );
+		final Vector3d p = player.getEyePosition( partialTicks );
 		final double segmentLength = v.squareDistanceTo( w );
 
 		if ( segmentLength == 0.0 )
@@ -372,37 +379,37 @@ public class TapeMeasures
 		}
 
 		final double t = Math.max( 0, Math.min( 1, p.subtract( v ).dotProduct( w.subtract( v ) ) / segmentLength ) );
-		final Vec3d projection = v.add( w.subtract( v ).scale( t ) );
+		final Vector3d projection = v.add( w.subtract( v ).scale( t ) );
 		return p.distanceTo( projection );
 	}
 
 	private void renderSize(
-			final PlayerEntity player,
-			final float partialTicks,
-			final double x,
-			final double y,
-			final double z,
-			final double len,
-			final int red,
-			final int green,
-			final int blue )
+      final MatrixStack matrixStack, final PlayerEntity player,
+      final float partialTicks,
+      final double x,
+      final double y,
+      final double z,
+      final double len,
+      final int red,
+      final int green,
+      final int blue)
 	{
 		final double letterSize = 5.0;
 		final double zScale = 0.001;
 
-		final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRendererObj;
+		final FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
 		final String size = getSize( len );
 
-		GlStateManager.pushMatrix();
-		GlStateManager.translate( x, y + getScale( len ) * letterSize, z );
-		billBoard( player, partialTicks );
-		GlStateManager.scale( getScale( len ), -getScale( len ), zScale );
-		GlStateManager.translate( -fontRenderer.getStringWidth( size ) * 0.5, 0, 0 );
-		fontRenderer.drawString( size, 0, 0, red << 16 | green << 8 | blue, true );
-		GlStateManager.popMatrix();
+		matrixStack.push();
+		matrixStack.translate( x, y + getScale( len ) * letterSize, z );
+		billBoard(matrixStack, player, partialTicks );
+		matrixStack.scale( getScale( len ), -getScale( len ), (float) zScale);
+		matrixStack.translate( -fontRenderer.getStringWidth( size ) * 0.5, 0, 0 );
+		fontRenderer.drawStringWithShadow(matrixStack, size, 0, 0, red << 16 | green << 8 | blue );
+		matrixStack.pop();
 	}
 
-	private double getScale(
+	private float getScale(
 			final double maxLen )
 	{
 		final double maxFontSize = 0.04;
@@ -416,21 +423,22 @@ public class TapeMeasures
 			scale = minFontSize;
 		}
 
-		return Math.min( maxFontSize, scale );
+		return (float) Math.min( maxFontSize, scale );
 	}
 
 	private void billBoard(
+	        final MatrixStack matrixStack,
 			final PlayerEntity player,
 			final float partialTicks )
 	{
-		final Entity view = Minecraft.getMinecraft().getRenderViewEntity();
+		final Entity view = Minecraft.getInstance().renderViewEntity;
 		if ( view != null )
 		{
 			final float yaw = view.prevRotationYaw + ( view.rotationYaw - view.prevRotationYaw ) * partialTicks;
-			GlStateManager.rotate( 180 + -yaw, 0f, 1f, 0f );
+			matrixStack.rotate(new Quaternion(Vector3f.YP, 180 + -yaw, true ));
 
 			final float pitch = view.prevRotationPitch + ( view.rotationPitch - view.prevRotationPitch ) * partialTicks;
-			GlStateManager.rotate( -pitch, 1f, 0f, 0f );
+			matrixStack.rotate(new Quaternion(Vector3f.XP, -pitch, true));
 		}
 	}
 

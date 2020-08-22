@@ -19,7 +19,6 @@ public interface ParameterType<T extends Object>
 
 	enum BooleanParam implements ParameterType<Boolean>
 	{
-		ENABLE_MCMP(/* enableMCMultipart */),
 		ENABLE_DAMAGE_TOOLS(/* damageTools */),
 		ENABLE_BIT_LIGHT_SOURCE(/* enableBitLightSource */);
 

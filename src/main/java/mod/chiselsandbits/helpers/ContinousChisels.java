@@ -1,21 +1,19 @@
 package mod.chiselsandbits.helpers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.items.ItemChisel;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item.ToolMaterial;
+import net.minecraft.item.IItemTier;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class ContinousChisels implements IContinuousInventory
 {
@@ -64,7 +62,7 @@ public class ContinousChisels implements IContinuousInventory
 
 				if ( is != null && ModUtil.notEmpty( is ) && is.getItem() instanceof ItemChisel )
 				{
-					final ToolMaterial newMat = ( (ItemChisel) is.getItem() ).whatMaterial();
+					final IItemTier newMat = ( (ItemChisel) is.getItem() ).getTier();
 					discovered.put( newMat.getHarvestLevel(), new ItemStackSlot( inv, x, is, who, canEdit ) );
 				}
 			}

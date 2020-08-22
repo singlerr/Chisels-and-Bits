@@ -1,11 +1,10 @@
 package mod.chiselsandbits.render.helpers;
 
-import java.util.Arrays;
-
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
+
+import java.util.Arrays;
 
 public class ModelUVReader extends BaseModelReader
 {
@@ -45,19 +44,19 @@ public class ModelUVReader extends BaseModelReader
 			final float... data )
 	{
 		final VertexFormat format = getVertexFormat();
-		final VertexFormatElement ele = format.getElement( element );
+		final VertexFormatElement ele = format.getElements().get(element);
 
-		if ( ele.getUsage() == EnumUsage.UV && ele.getIndex() != 1 )
+		if ( ele.getUsage() == VertexFormatElement.Usage.UV && ele.getIndex() != 1 )
 		{
 			uv = Arrays.copyOf( data, data.length );
 		}
 
-		else if ( ele.getUsage() == EnumUsage.POSITION )
+		else if ( ele.getUsage() == VertexFormatElement.Usage.POSITION )
 		{
 			pos = Arrays.copyOf( data, data.length );
 		}
 
-		if ( element == format.getElementCount() - 1 )
+		if ( element == format.getElements().size() - 1 )
 		{
 			if ( ModelUtil.isZero( pos[uCoord] ) && ModelUtil.isZero( pos[vCoord] ) )
 			{

@@ -3,20 +3,22 @@ package mod.chiselsandbits.render.bit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
+import mod.chiselsandbits.core.ChiselsAndBits;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.*;
 
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.render.BaseBakedBlockModel;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer;
 import mod.chiselsandbits.render.helpers.ModelUtil;
-import net.minecraft.client.renderer.model.BlockPartRotation;
-import net.minecraft.client.renderer.model.FaceBakery;
-import net.minecraft.client.renderer.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3f;
+import org.jetbrains.annotations.Nullable;
 
 public class BitItemBaked extends BaseBakedBlockModel
 {
@@ -26,6 +28,8 @@ public class BitItemBaked extends BaseBakedBlockModel
 	private static final float BIT_END = 10.0f;
 
 	final ArrayList<BakedQuad> generic = new ArrayList<BakedQuad>( 6 );
+
+	private static final Random RANDOM = new Random();
 
 	public BitItemBaked(
 			final int BlockRef )
@@ -42,7 +46,7 @@ public class BitItemBaked extends BaseBakedBlockModel
 		{
 			for ( final RenderType layer : RenderType.getBlockRenderTypes() )
 			{
-				final ModelQuadLayer[] layers = ModelUtil.getCachedFace( BlockRef, 0, myFace, layer );
+				final ModelQuadLayer[] layers = ModelUtil.getCachedFace( BlockRef, RANDOM, myFace, layer );
 
 				if ( layers == null || layers.length == 0 )
 				{
@@ -59,34 +63,34 @@ public class BitItemBaked extends BaseBakedBlockModel
 					switch ( myFace )
 					{
 						case UP:
-							toB = new Vector3f( to.x, from.y, to.z );
-							fromB = new Vector3f( from.x, from.y, from.z );
+							toB = new Vector3f( to.getX(), from.getY(), to.getZ() );
+							fromB = new Vector3f( from.getX(), from.getY(), from.getZ() );
 							break;
 						case EAST:
-							toB = new Vector3f( from.x, to.y, to.z );
-							fromB = new Vector3f( from.x, from.y, from.z );
+							toB = new Vector3f( from.getX(), to.getY(), to.getZ() );
+							fromB = new Vector3f( from.getX(), from.getY(), from.getZ() );
 							break;
 						case NORTH:
-							toB = new Vector3f( to.x, to.y, to.z );
-							fromB = new Vector3f( from.x, from.y, to.z );
+							toB = new Vector3f( to.getX(), to.getY(), to.getZ() );
+							fromB = new Vector3f( from.getX(), from.getY(), to.getZ() );
 							break;
 						case SOUTH:
-							toB = new Vector3f( to.x, to.y, from.z );
-							fromB = new Vector3f( from.x, from.y, from.z );
+							toB = new Vector3f( to.getX(), to.getY(), from.getZ() );
+							fromB = new Vector3f( from.getX(), from.getY(), from.getZ() );
 							break;
 						case DOWN:
-							toB = new Vector3f( to.x, to.y, to.z );
-							fromB = new Vector3f( from.x, to.y, from.z );
+							toB = new Vector3f( to.getX(), to.getY(), to.getZ() );
+							fromB = new Vector3f( from.getX(), to.getY(), from.getZ() );
 							break;
 						case WEST:
-							toB = new Vector3f( to.x, to.y, to.z );
-							fromB = new Vector3f( to.x, from.y, from.z );
+							toB = new Vector3f( to.getX(), to.getY(), to.getZ() );
+							fromB = new Vector3f( to.getX(), from.getY(), from.getZ() );
 							break;
 						default:
 							throw new NullPointerException();
 					}
 
-					generic.add( faceBakery.makeBakedQuad( toB, fromB, bpf, clayer.sprite, myFace, mr, bpr, false, true ) );
+					generic.add( faceBakery.bakeQuad( toB, fromB, bpf, clayer.sprite, myFace, mr, bpr, false, new ResourceLocation(ChiselsAndBits.MODID, "bit")));
 				}
 			}
 		}
@@ -128,21 +132,24 @@ public class BitItemBaked extends BaseBakedBlockModel
 		return afloat;
 	}
 
-	@Override
-	public List<BakedQuad> getQuads(
-			final BlockState state,
-			final Direction side,
-			final long rand )
-	{
-		if ( side != null )
-		{
-			return Collections.emptyList();
-		}
+    @Override
+    public List<BakedQuad> getQuads(@Nullable final BlockState state, @Nullable final Direction side, final Random rand)
+    {
+        if ( side != null )
+        {
+            return Collections.emptyList();
+        }
 
-		return generic;
-	}
+        return generic;
+    }
 
-	@Override
+    @Override
+    public boolean func_230044_c_()
+    {
+        return true;
+    }
+
+    @Override
 	public TextureAtlasSprite getParticleTexture()
 	{
 		return ClientSide.instance.getMissingIcon();

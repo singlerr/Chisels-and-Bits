@@ -130,7 +130,7 @@ public class BagStorage implements IBitBag
 	@Override
 	public int getBitbagStackSize()
 	{
-		return ChiselsAndBits.getConfig().bagStackSize;
+		return ChiselsAndBits.getConfig().getServer().bagStackSize.get();
 	}
 
 	@Override

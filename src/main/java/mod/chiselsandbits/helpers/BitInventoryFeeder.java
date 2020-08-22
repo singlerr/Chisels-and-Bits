@@ -81,7 +81,7 @@ public class BitInventoryFeeder
 				{
 					ei.setItem( is );
 					//Never spawn the items for dropped excess items if setting is enabled.
-					if ( !ChiselsAndBits.getConfig().voidExcessBits )
+					if ( !ChiselsAndBits.getConfig().getServer().voidExcessBits.get() )
 					{
 						spawnItem( world, ei );
 					}
@@ -107,7 +107,7 @@ public class BitInventoryFeeder
 		}
 
 		final int blk = ItemChiseledBit.getStackState( is );
-		if ( ChiselsAndBits.getConfig().voidExcessBits && !seenBits.contains(blk) && !hasSentMessage )
+		if ( ChiselsAndBits.getConfig().getServer().voidExcessBits.get() && !seenBits.contains(blk) && !hasSentMessage )
 		{
 			if ( !ItemChiseledBit.hasBitSpace( player, blk ) )
 			{

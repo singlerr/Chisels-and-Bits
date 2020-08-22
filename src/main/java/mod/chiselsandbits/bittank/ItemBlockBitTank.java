@@ -27,6 +27,6 @@ public class ItemBlockBitTank extends BlockItem
       final ItemStack stack, @Nullable final World worldIn, final List<ITextComponent> tooltip, final ITooltipFlag flagIn)
     {
         super.addInformation( stack, worldIn, tooltip, flagIn );
-        ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBitTank, tooltip );
+        ChiselsAndBits.getConfig().getCommon().helpText( LocalStrings.HelpBitTank, tooltip );
     }
 }

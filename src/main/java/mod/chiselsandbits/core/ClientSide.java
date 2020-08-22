@@ -8,22 +8,48 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
+import javax.imageio.ImageIO;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import mod.chiselsandbits.api.*;
+import mod.chiselsandbits.utils.TextureUtils;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.GameSettings;
+import net.minecraft.client.MainWindow;
+import net.minecraft.client.audio.ISound;
+import net.minecraft.client.audio.SimpleSound;
+import net.minecraft.client.gui.IngameGui;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.util.InputMappings;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.item.DyeColor;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.resources.IResource;
+import net.minecraft.util.*;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.*;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Stopwatch;
 
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
-import mod.chiselsandbits.api.IBitAccess;
-import mod.chiselsandbits.api.IBitBrush;
-import mod.chiselsandbits.api.ItemType;
-import mod.chiselsandbits.api.ModKeyBinding;
 import mod.chiselsandbits.bittank.TileEntityBitTank;
 import mod.chiselsandbits.bittank.TileEntitySpecialRenderBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
@@ -85,20 +111,12 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
 import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
@@ -165,7 +183,8 @@ public class ClientSide
 	{
 		readyState = readyState.updateState( ReadyState.TRIGGER_INIT );
 
-		ClientRegistry.bindTileEntityRenderer( TileEntityBlockChiseledTESR.class, new ChisledBlockRenderChunkTESR() );
+		//TODO: Inject tileentity types.
+		ClientRegistry.bindTileEntityRenderer( TileEntityBlockChiseledTESR.class, ChisledBlockRenderChunkTESR::new );
 		ClientRegistry.bindTileEntityRenderer( TileEntityBitTank.class, new TileEntitySpecialRenderBitTank() );
 
 		for ( final ChiselMode mode : ChiselMode.values() )
@@ -221,9 +240,9 @@ public class ClientSide
 			Minecraft.getInstance().getItemColors().register( new ItemColorBits(), modItems.itemBlockBit );
 		}
 
-		if ( modItems.itemPositiveprint != null )
+		if ( modItems.itemPositivePrint != null )
 		{
-			Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), modItems.itemPositiveprint );
+			Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), modItems.itemPositivePrint);
 		}
 
 		if ( modItems.itemNegativePrint != null )
@@ -231,9 +250,9 @@ public class ClientSide
 			Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), modItems.itemNegativePrint);
 		}
 
-		if ( modItems.itemMirrorprint != null )
+		if ( modItems.itemMirrorPrint != null )
 		{
-			Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), modItems.itemMirrorprint );
+			Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), modItems.itemMirrorPrint);
 		}
 
 		for ( final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
@@ -241,120 +260,6 @@ public class ClientSide
 			final Item item = Item.getItemFromBlock( blk );
 			Minecraft.getInstance().getItemColors().register( new ItemColorChisled(), item );
 			Minecraft.getInstance().getBlockColors().register( new BlockColorChisled(), blk );
-		}
-	}
-
-	public void registerBlockModels()
-	{
-		final String modId = ChiselsAndBits.MODID;
-
-		for ( final BlockChiseled blk : new HashSet<>(ChiselsAndBits.getBlocks().getConversions().values()) )
-		{
-			registerMesh( blk, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "normal" ) );
-		}
-	}
-
-	public void registerItemModels()
-	{
-		final String modId = ChiselsAndBits.MODID;
-		final ModItems modItems = ChiselsAndBits.getItems();
-
-		if ( modItems.itemPositiveprint != null )
-		{
-			ModelBakery.registerItemVariants( modItems.itemPositiveprint, new ResourceLocation( modId, "positiveprint" ), new ResourceLocation( modId, "positiveprint_written" ) );
-			ModelLoader.setCustomMeshDefinition( modItems.itemPositiveprint, new ItemMeshDefinition() {
-
-				@Override
-				public ModelResourceLocation getModelLocation(
-						final ItemStack stack )
-				{
-					return new ModelResourceLocation( new ResourceLocation( modId, modItems.itemPositiveprint.isWritten( stack ) ? "positiveprint_written_preview" : "positiveprint" ), "inventory" );
-				}
-
-			} );
-		}
-
-		if ( modItems.itemNegativePrint != null )
-		{
-			ModelBakery.registerItemVariants( modItems.itemNegativePrint, new ResourceLocation( modId, "negativeprint" ), new ResourceLocation( modId, "negativeprint_written" ) );
-			ModelLoader.setCustomMeshDefinition( modItems.itemNegativePrint, new ItemMeshDefinition() {
-
-				@Override
-				public ModelResourceLocation getModelLocation(
-						final ItemStack stack )
-				{
-					return new ModelResourceLocation( new ResourceLocation( modId, modItems.itemNegativePrint.isWritten( stack ) ? "negativeprint_written_preview" : "negativeprint" ), "inventory" );
-				}
-
-			} );
-		}
-
-		if ( modItems.itemMirrorprint != null )
-		{
-			ModelBakery.registerItemVariants( modItems.itemMirrorprint, new ResourceLocation( modId, "mirrorprint" ), new ResourceLocation( modId, "mirrorprint_written" ) );
-			ModelLoader.setCustomMeshDefinition( modItems.itemMirrorprint, new ItemMeshDefinition() {
-
-				@Override
-				public ModelResourceLocation getModelLocation(
-						final ItemStack stack )
-				{
-					return new ModelResourceLocation( new ResourceLocation( modId, modItems.itemMirrorprint.isWritten( stack ) ? "mirrorprint_written_preview" : "mirrorprint" ), "inventory" );
-				}
-
-			} );
-		}
-
-		if ( modItems.itemBlockBit != null )
-		{
-			ModelLoader.setCustomMeshDefinition( modItems.itemBlockBit, new ItemMeshDefinition() {
-
-				@Override
-				public ModelResourceLocation getModelLocation(
-						final ItemStack stack )
-				{
-					return new ModelResourceLocation( new ResourceLocation( modId, "block_bit" ), "inventory" );
-				}
-
-			} );
-		}
-
-		for ( final Item item : new HashSet<Item>( ChiselsAndBits.getBlocks().getItemConversions().values() ) )
-		{
-			registerMesh( item, 0, new ModelResourceLocation( new ResourceLocation( modId, "block_chiseled" ), "inventory" ) );
-		}
-	}
-
-	private void registerMesh(
-			final Item item,
-			final int meta,
-			final ModelResourceLocation loctaion )
-	{
-		if ( item != null )
-		{
-			ModelLoader.setCustomModelResourceLocation( item, meta, loctaion );
-		}
-	}
-
-	private void registerMesh(
-			final Block blk,
-			final ModelResourceLocation loctaion )
-	{
-		if ( blk != null )
-		{
-			ModelLoader.setCustomStateMapper( blk, new IStateMapper() {
-
-				@Override
-				public Map<BlockState, ModelResourceLocation> putStateModelLocations(
-						Block blockIn )
-				{
-					Map<BlockState, ModelResourceLocation> map = new HashMap<BlockState, ModelResourceLocation>();
-
-					for ( BlockState o : blk.getBlockState().getValidStates() )
-						map.put( o, loctaion );
-
-					return map;
-				}
-			} );
 		}
 	}
 
@@ -374,34 +279,71 @@ public class ClientSide
 	void registerIconTextures(
 			final TextureStitchEvent.Pre ev )
 	{
-		final TextureMap map = ev.getMap();
-		swapIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/swap" ) );
-		placeIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/place" ) );
-		undoIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/undo" ) );
-		redoIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/redo" ) );
-		trashIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/trash" ) );
-		sortIcon = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/sort" ) );
-		roll_x = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/roll_x" ) );
-		roll_z = map.registerSprite( new ResourceLocation( "chiselsandbits", "icons/roll_z" ) );
+		final AtlasTexture map = ev.getMap();
+		if (!map.getTextureLocation().equals(PlayerContainer.LOCATION_BLOCKS_TEXTURE))
+		    return;
+
+		ev.addSprite( new ResourceLocation( "chiselsandbits", "icons/swap" ) );
+        ev.addSprite( new ResourceLocation( "chiselsandbits", "icons/place" ) );
+        ev.addSprite( new ResourceLocation( "chiselsandbits", "icons/undo" ) );
+        ev.addSprite( new ResourceLocation( "chiselsandbits", "icons/redo" ) );
+        ev.addSprite( new ResourceLocation( "chiselsandbits", "icons/trash" ) );
+        ev.addSprite( new ResourceLocation( "chiselsandbits", "icons/sort" ) );
+        ev.addSprite( new ResourceLocation( "chiselsandbits", "icons/roll_x" ) );
+        ev.addSprite( new ResourceLocation( "chiselsandbits", "icons/roll_z" ) );
 
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
-			loadIcon( map, mode );
+		    ev.addSprite(new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() ));
 		}
 
 		for ( final PositivePatternMode mode : PositivePatternMode.values() )
 		{
-			loadIcon( map, mode );
+            ev.addSprite(new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() ));
 		}
 
 		for ( final TapeMeasureModes mode : TapeMeasureModes.values() )
 		{
-			loadIcon( map, mode );
+            ev.addSprite(new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() ));
 		}
 	}
 
+    @SubscribeEvent
+    void retrieveRegisteredIconSprites(
+      final TextureStitchEvent.Post ev )
+    {
+        final AtlasTexture map = ev.getMap();
+        if (!map.getTextureLocation().equals(PlayerContainer.LOCATION_BLOCKS_TEXTURE))
+            return;
+
+        swapIcon = map.getSprite( new ResourceLocation( "chiselsandbits", "icons/swap" ) );
+        placeIcon = map.getSprite( new ResourceLocation( "chiselsandbits", "icons/place" ) );
+        undoIcon = map.getSprite( new ResourceLocation( "chiselsandbits", "icons/undo" ) );
+        redoIcon = map.getSprite( new ResourceLocation( "chiselsandbits", "icons/redo" ) );
+        trashIcon = map.getSprite( new ResourceLocation( "chiselsandbits", "icons/trash" ) );
+        sortIcon = map.getSprite( new ResourceLocation( "chiselsandbits", "icons/sort" ) );
+        roll_x = map.getSprite( new ResourceLocation( "chiselsandbits", "icons/roll_x" ) );
+        roll_z = map.getSprite( new ResourceLocation( "chiselsandbits", "icons/roll_z" ) );
+
+        for ( final ChiselMode mode : ChiselMode.values() )
+        {
+            loadIcon( map, mode );
+        }
+
+        for ( final PositivePatternMode mode : PositivePatternMode.values() )
+        {
+            loadIcon( map, mode );
+        }
+
+        for ( final TapeMeasureModes mode : TapeMeasureModes.values() )
+        {
+            loadIcon( map, mode );
+        }
+    }
+
+
 	void loadIcon(
-			final TextureMap map,
+			final AtlasTexture map,
 			final IToolMode mode )
 	{
 		final SpriteIconPositioning sip = new SpriteIconPositioning();
@@ -409,12 +351,12 @@ public class ClientSide
 		final ResourceLocation sprite = new ResourceLocation( "chiselsandbits", "icons/" + mode.name().toLowerCase() );
 		final ResourceLocation png = new ResourceLocation( "chiselsandbits", "textures/icons/" + mode.name().toLowerCase() + ".png" );
 
-		sip.sprite = map.registerSprite( sprite );
+		sip.sprite = map.getSprite( sprite );
 
 		try
 		{
-			final IResource iresource = Minecraft.getMinecraft().getResourceManager().getResource( png );
-			final BufferedImage bi = TextureUtil.readBufferedImage( iresource.getInputStream() );
+			final IResource iresource = Minecraft.getInstance().getResourceManager().getResource( png );
+			final BufferedImage bi = TextureUtils.readBufferedImage( iresource.getInputStream() );
 
 			int bottom = 0;
 			int right = 0;
@@ -494,21 +436,17 @@ public class ClientSide
 						switch ( ChiselsAndBitsMenu.instance.doAction )
 						{
 							case ROLL_X:
-								PacketRotateVoxelBlob pri = new PacketRotateVoxelBlob();
-								pri.axis = Axis.X;
-								pri.rotation = Rotation.CLOCKWISE_90;
-								NetworkRouter.instance.sendToServer( pri );
+								PacketRotateVoxelBlob pri = new PacketRotateVoxelBlob(Axis.X, Rotation.CLOCKWISE_90);
+								ChiselsAndBits.getNetworkChannel().sendToServer( pri );
 								break;
 
 							case ROLL_Z:
-								PacketRotateVoxelBlob pri2 = new PacketRotateVoxelBlob();
-								pri2.axis = Axis.Z;
-								pri2.rotation = Rotation.CLOCKWISE_90;
-								NetworkRouter.instance.sendToServer( pri2 );
+								PacketRotateVoxelBlob pri2 = new PacketRotateVoxelBlob(Axis.Z, Rotation.CLOCKWISE_90);
+                                ChiselsAndBits.getNetworkChannel().sendToServer( pri2 );
 								break;
 
 							case REPLACE_TOGGLE:
-								ChiselsAndBits.getConfig().replaceingBits = !ChiselsAndBits.getConfig().replaceingBits;
+                                ReplacementStateHandler.getInstance().setReplacing(!ReplacementStateHandler.getInstance().isReplacing());
 								ReflectionWrapper.instance.clearHighlightedStack();
 								break;
 
@@ -537,11 +475,10 @@ public class ClientSide
 							case WHITE:
 							case YELLOW:
 
-								final PacketSetColor setColor = new PacketSetColor();
-								setColor.type = getHeldToolType( Hand.MAIN_HAND );
-								setColor.newColor = EnumDyeColor.valueOf( ChiselsAndBitsMenu.instance.doAction.name() );
-								setColor.chatNotification = ChiselsAndBits.getConfig().chatModeNotification;
-								NetworkRouter.instance.sendToServer( setColor );
+								final PacketSetColor setColor = new PacketSetColor(DyeColor.valueOf(ChiselsAndBitsMenu.instance.doAction.name()),
+                                  getHeldToolType(Hand.MAIN_HAND),
+                                  ChiselsAndBits.getConfig().getClient().chatModeNotification.get());
+								ChiselsAndBits.getNetworkChannel().sendToServer( setColor );
 								ReflectionWrapper.instance.clearHighlightedStack();
 
 								break;
@@ -556,34 +493,34 @@ public class ClientSide
 
 			if ( ChiselsAndBitsMenu.instance.isVisible() )
 			{
-				final ScaledResolution res = event.getResolution();
-				ChiselsAndBitsMenu.instance.configure( res.getScaledWidth(), res.getScaledHeight() );
+				final MainWindow window = event.getWindow();
+				ChiselsAndBitsMenu.instance.configure( window.getScaledWidth(), window.getScaledHeight() );
 
 				if ( wasVisible == false )
 				{
-					if ( ChiselsAndBits.getConfig().enableVivecraftCompatibility )
+					if ( ChiselsAndBits.getConfig().getServer().enableVivecraftCompatibility.get() )
 					{
-						ChiselsAndBitsMenu.instance.mc.currentScreen = (GuiScreen) ChiselsAndBitsMenu.instance;
+						ChiselsAndBitsMenu.instance.getMinecraft().currentScreen = (Screen) ChiselsAndBitsMenu.instance;
 					}
-					ChiselsAndBitsMenu.instance.mc.inGameHasFocus = false;
-					ChiselsAndBitsMenu.instance.mc.mouseHelper.ungrabMouseCursor();
+					ChiselsAndBitsMenu.instance.getMinecraft().setGameFocused(false);
+					ChiselsAndBitsMenu.instance.getMinecraft().mouseHelper.ungrabMouse();
 				}
 
-				if ( ChiselsAndBitsMenu.instance.mc.inGameHasFocus )
+				if ( ChiselsAndBitsMenu.instance.getMinecraft().isGameFocused() )
 				{
 					KeyBinding.unPressAllKeys();
 				}
 
-				final int k1 = Mouse.getX() * res.getScaledWidth() / ChiselsAndBitsMenu.instance.mc.displayWidth;
-				final int l1 = res.getScaledHeight() - Mouse.getY() * res.getScaledHeight() / ChiselsAndBitsMenu.instance.mc.displayHeight - 1;
+				final int k1 = (int) (Minecraft.getInstance().mouseHelper.getMouseX() * window.getScaledWidth() / window.getWidth());
+				final int l1 = (int) (window.getScaledHeight() - Minecraft.getInstance().mouseHelper.getMouseY() * window.getScaledHeight() / window.getHeight() - 1);
 
-				net.minecraftforge.client.ForgeHooksClient.drawScreen( ChiselsAndBitsMenu.instance, k1, l1, event.getPartialTicks() );
+				net.minecraftforge.client.ForgeHooksClient.drawScreen( ChiselsAndBitsMenu.instance, event.getMatrixStack(), k1, l1, event.getPartialTicks() );
 			}
 			else
 			{
 				if ( wasVisible )
 				{
-					ChiselsAndBitsMenu.instance.mc.setIngameFocus();
+					ChiselsAndBitsMenu.instance.getMinecraft().setGameFocused(true);
 				}
 			}
 		}
@@ -600,12 +537,14 @@ public class ClientSide
 
 		if ( addToClipboard.isPressed() )
 		{
-			final Minecraft mc = Minecraft.getMinecraft();
-			if ( mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK )
+			final Minecraft mc = Minecraft.getInstance();
+			if ( mc.objectMouseOver != null && mc.objectMouseOver.getType() == RayTraceResult.Type.BLOCK && mc.objectMouseOver instanceof BlockRayTraceResult)
 			{
+			    final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) mc.objectMouseOver;
+
 				try
 				{
-					final IBitAccess access = ChiselsAndBits.getApi().getBitAccess( mc.theWorld, mc.objectMouseOver.getBlockPos() );
+					final IBitAccess access = ChiselsAndBits.getApi().getBitAccess( mc.world, rayTraceResult.getPos() );
 					final ItemStack is = access.getBitsAsItem( null, ItemType.CHISLED_BLOCK, false );
 
 					CreativeClipboardTab.addItem( is );
@@ -619,23 +558,19 @@ public class ClientSide
 
 		if ( pickBit.isPressed() )
 		{
-			final Minecraft mc = Minecraft.getMinecraft();
-			if ( mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.BLOCK )
+			final Minecraft mc = Minecraft.getInstance();
+			if ( mc.objectMouseOver != null && mc.objectMouseOver.getType() == RayTraceResult.Type.BLOCK && mc.objectMouseOver instanceof BlockRayTraceResult )
 			{
+			    BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) mc.objectMouseOver;
+
 				try
 				{
-					final BitLocation bl = new BitLocation( mc.objectMouseOver, true, BitOperation.CHISEL );
-					final IBitAccess access = ChiselsAndBits.getApi().getBitAccess( mc.theWorld, bl.getBlockPos() );
+					final BitLocation bl = new BitLocation( rayTraceResult, true, BitOperation.CHISEL );
+					final IBitAccess access = ChiselsAndBits.getApi().getBitAccess( mc.world, bl.getBlockPos() );
 					final IBitBrush brush = access.getBitAt( bl.getBitX(), bl.getBitY(), bl.getBitZ() );
-					if ( brush != null )
-					{
-						final ItemStack is = brush.getItemStack( 1 );
-						if ( is != null )
-						{
-							doPick( is );
-						}
-					}
-				}
+                    final ItemStack is = brush.getItemStack( 1 );
+                    doPick( is );
+                }
 				catch ( final CannotBeChiseled e )
 				{
 					// nope.
@@ -643,38 +578,38 @@ public class ClientSide
 			}
 		}
 
-		if ( type == ElementType.HOTBAR && ChiselsAndBits.getConfig().enableToolbarIcons )
+		if ( type == ElementType.HOTBAR && ChiselsAndBits.getConfig().getClient().enableToolbarIcons.get() )
 		{
-			final Minecraft mc = Minecraft.getMinecraft();
-			final ScaledResolution res = event.getResolution();
+			final Minecraft mc = Minecraft.getInstance();
+			final MainWindow window = event.getWindow();
 
-			if ( !mc.thePlayer.isSpectator() )
+			if ( !mc.player.isSpectator() )
 			{
-				final GuiIngame sc = mc.ingameGUI;
+				final IngameGui sc = mc.ingameGUI;
 
 				for ( int slot = 0; slot < 9; ++slot )
 				{
-					final ItemStack stack = mc.thePlayer.inventory.mainInventory.get( slot );
-					if ( stack != null && stack.getItem() instanceof ItemChisel )
+					final ItemStack stack = mc.player.inventory.mainInventory.get( slot );
+					if (stack.getItem() instanceof ItemChisel)
 					{
 						final ChiselToolType toolType = getToolTypeForItem( stack );
 						IToolMode mode = toolType.getMode( stack );
 
-						if ( !ChiselsAndBits.getConfig().perChiselMode && tool == ChiselToolType.CHISEL )
+						if ( !ChiselsAndBits.getConfig().getClient().perChiselMode.get() && tool == ChiselToolType.CHISEL )
 						{
-							mode = ChiselModeManager.getChiselMode( mc.thePlayer, ChiselToolType.CHISEL, lastHand );
+							mode = ChiselModeManager.getChiselMode( mc.player, ChiselToolType.CHISEL, lastHand );
 						}
 
-						final int x = res.getScaledWidth() / 2 - 90 + slot * 20 + 2;
-						final int y = res.getScaledHeight() - 16 - 3;
+						final int x = window.getScaledWidth() / 2 - 90 + slot * 20 + 2;
+						final int y = window.getScaledHeight() - 16 - 3;
 
-						GlStateManager.color( 1, 1, 1, 1.0f );
-						Minecraft.getMinecraft().getTextureManager().bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
+						RenderSystem.color4f( 1, 1, 1, 1.0f );
+						Minecraft.getInstance().getTextureManager().bindTexture( PlayerContainer.LOCATION_BLOCKS_TEXTURE );
 						final TextureAtlasSprite sprite = chiselModeIcons.get( mode ) == null ? getMissingIcon() : chiselModeIcons.get( mode ).sprite;
 
-						GlStateManager.enableBlend();
-						sc.drawTexturedModalRect( x + 1, y + 1, sprite, 8, 8 );
-						GlStateManager.disableBlend();
+						RenderSystem.enableBlend();
+						sc.blit(event.getMatrixStack(), x + 1, y + 1, 0, 8, 8, sprite );
+						RenderSystem.disableBlend();
 					}
 				}
 			}
@@ -683,11 +618,11 @@ public class ClientSide
 
 	public void playRadialMenu()
 	{
-		final float volume = ChiselsAndBits.getConfig().radialMenuVolume;
+		final double volume = ChiselsAndBits.getConfig().getClient().radialMenuVolume.get();
 		if ( volume >= 0.0001f )
 		{
-			final PositionedSoundRecord psr = new PositionedSoundRecord( SoundEvents.UI_BUTTON_CLICK, SoundCategory.MASTER, volume, 1.0f, getPlayer().getPosition() );
-			Minecraft.getMinecraft().getSoundHandler().playSound( psr );
+			final ISound psr = new SimpleSound( SoundEvents.UI_BUTTON_CLICK, SoundCategory.MASTER, (float) volume, 1.0f, getPlayer().getPosition() );
+			Minecraft.getInstance().getSoundHandler().play( psr );
 		}
 	}
 
@@ -706,7 +641,7 @@ public class ClientSide
 			}
 		}
 
-		if ( !player.capabilities.isCreativeMode )
+		if ( !player.isCreative() )
 		{
 			return false;
 		}
@@ -722,8 +657,8 @@ public class ClientSide
 		player.inventory.currentItem = slot;
 
 		// update server...
-		final int j = player.inventoryContainer.inventorySlots.size() - 9 + player.inventory.currentItem;
-		Minecraft.getMinecraft().playerController.sendSlotPacket( player.inventory.getStackInSlot( player.inventory.currentItem ), j );
+		final int j = player.container.inventorySlots.size() - 9 + player.inventory.currentItem;
+		Minecraft.getInstance().playerController.sendSlotPacket( player.inventory.getStackInSlot( player.inventory.currentItem ), j );
 		return true;
 	}
 
@@ -764,7 +699,7 @@ public class ClientSide
 			return ChiselToolType.TAPEMEASURE;
 		}
 
-		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemPositiveprint )
+		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemPositivePrint)
 		{
 			return ChiselToolType.POSITIVEPATTERN;
 		}
@@ -774,7 +709,7 @@ public class ClientSide
 			return ChiselToolType.NEGATIVEPATTERN;
 		}
 
-		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemMirrorprint )
+		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemMirrorPrint)
 		{
 			return ChiselToolType.MIRRORPATTERN;
 		}
@@ -810,7 +745,7 @@ public class ClientSide
 
 		// used to prevent hyper chisels.. its actually far worse then you might
 		// think...
-		if ( event.side == Side.CLIENT && event.type == Type.CLIENT && event.phase == Phase.START && !Minecraft.getMinecraft().gameSettings.keyBindAttack.isKeyDown() )
+		if ( event.side == LogicalSide.CLIENT && event.type == TickEvent.Type.CLIENT && event.phase == TickEvent.Phase.START && !Minecraft.getInstance().gameSettings.keyBindAttack.isKeyDown() )
 		{
 			ItemChisel.resetDelay();
 		}
@@ -842,10 +777,8 @@ public class ClientSide
 			if ( rotateTimer == null || rotateTimer.elapsed( TimeUnit.MILLISECONDS ) > 200 )
 			{
 				rotateTimer = Stopwatch.createStarted();
-				final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-				p.axis = Axis.Y;
-				p.rotation = Rotation.COUNTERCLOCKWISE_90;
-				NetworkRouter.instance.sendToServer( p );
+				final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob(Axis.Y, Rotation.COUNTERCLOCKWISE_90);
+				ChiselsAndBits.getNetworkChannel().sendToServer(p);
 			}
 		}
 
@@ -854,10 +787,8 @@ public class ClientSide
 			if ( rotateTimer == null || rotateTimer.elapsed( TimeUnit.MILLISECONDS ) > 200 )
 			{
 				rotateTimer = Stopwatch.createStarted();
-				final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob();
-				p.axis = Axis.Y;
-				p.rotation = Rotation.CLOCKWISE_90;
-				NetworkRouter.instance.sendToServer( p );
+				final PacketRotateVoxelBlob p = new PacketRotateVoxelBlob(Axis.Y, Rotation.CLOCKWISE_90);
+				ChiselsAndBits.getNetworkChannel().sendToServer(p);
 			}
 		}
 
@@ -920,12 +851,13 @@ public class ClientSide
 		if ( tool != null && tool == ChiselToolType.TAPEMEASURE )
 		{
 			final PlayerEntity player = getPlayer();
-			final RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
-			final World theWorld = player.worldObj;
+			final RayTraceResult mop = Minecraft.getInstance().objectMouseOver;;
+			final World theWorld = player.world;
 
-			if ( mop != null && mop.typeOfHit == RayTraceResult.Type.BLOCK )
+			if ( mop != null && mop.getType() == RayTraceResult.Type.BLOCK )
 			{
-				final BitLocation location = new BitLocation( mop, true, BitOperation.CHISEL );
+			    final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) mop;
+				final BitLocation location = new BitLocation( blockRayTraceResult, true, BitOperation.CHISEL );
 				if ( theWorld.getWorldBorder().contains( location.blockPos ) )
 				{
 					final BitLocation other = getStartPos();
@@ -944,22 +876,21 @@ public class ClientSide
 			}
 		}
 
-		tapeMeasures.render( event.getPartialTicks() );
+		tapeMeasures.render(event.getMatrixStack(), event.getPartialTicks() );
 
 		final boolean isDrawing = ( chMode == ChiselMode.DRAWN_REGION || tool == ChiselToolType.TAPEMEASURE ) && getStartPos() != null;
 		if ( isDrawing != wasDrawing )
 		{
 			wasDrawing = isDrawing;
-			final PacketSuppressInteraction packet = new PacketSuppressInteraction();
-			packet.newSetting = isDrawing;
-			NetworkRouter.instance.sendToServer( packet );
+			final PacketSuppressInteraction packet = new PacketSuppressInteraction(isDrawing);
+			ChiselsAndBits.getNetworkChannel().sendToServer(packet);
 		}
 	}
 
 	@SubscribeEvent
 	@OnlyIn( Dist.CLIENT )
 	public void drawHighlight(
-			final DrawBlockHighlightEvent event )
+			final DrawHighlightEvent.HighlightBlock event )
 	{
 		ChiselToolType tool = getHeldToolType( lastHand );
 		final IToolMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool, lastHand );
@@ -970,20 +901,21 @@ public class ClientSide
 
 		if ( tool != null && tool.isBitOrChisel() && chMode != null )
 		{
-			final PlayerEntity player = event.getPlayer();
+			final PlayerEntity player = Minecraft.getInstance().player;
 			final float partialTicks = event.getPartialTicks();
-			final RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
-			final World theWorld = player.worldObj;
+			final RayTraceResult mop = Minecraft.getInstance().objectMouseOver;
+			final World theWorld = player.world;
 
-			if ( mop == null || mop.typeOfHit != RayTraceResult.Type.BLOCK )
+			if ( mop == null || mop.getType() != RayTraceResult.Type.BLOCK )
 			{
 				return;
 			}
 
 			boolean showBox = false;
-			if ( mop.typeOfHit == RayTraceResult.Type.BLOCK )
+			if ( mop.getType() == RayTraceResult.Type.BLOCK )
 			{
-				final BitLocation location = new BitLocation( mop, true, getLastBitOperation( player, lastHand, getPlayer().getHeldItem( lastHand ) ) );
+			    final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) mop;
+				final BitLocation location = new BitLocation( rayTraceResult, true, getLastBitOperation( player, lastHand, getPlayer().getHeldItem( lastHand ) ) );
 				if ( theWorld.getWorldBorder().contains( location.blockPos ) )
 				{
 					// this logic originated in the vanilla bounding box...
@@ -1013,10 +945,10 @@ public class ClientSide
 
 						final AxisAlignedBB bb = a.union( b );
 
-						final double maxChiseSize = ChiselsAndBits.getConfig().maxDrawnRegionSize + 0.001;
+						final double maxChiseSize = ChiselsAndBits.getConfig().getServer().maxDrawnRegionSize.get() + 0.001;
 						if ( bb.maxX - bb.minX <= maxChiseSize && bb.maxY - bb.minY <= maxChiseSize && bb.maxZ - bb.minZ <= maxChiseSize )
 						{
-							RenderHelper.drawSelectionBoundingBoxIfExists( bb, BlockPos.ORIGIN, player, partialTicks, false );
+							RenderHelper.drawSelectionBoundingBoxIfExists( bb, BlockPos.ZERO, player, partialTicks, false );
 
 							if ( !getToolKey().isKeyDown() )
 							{
@@ -1026,7 +958,7 @@ public class ClientSide
 
 								if ( pc.doAction( getPlayer() ) > 0 )
 								{
-									NetworkRouter.instance.sendToServer( pc );
+								    ChiselsAndBits.getNetworkChannel().sendToServer(pc);
 									ClientSide.placeSound( theWorld, location.blockPos, 0 );
 								}
 
@@ -1057,7 +989,7 @@ public class ClientSide
 
 						if ( theWorld.isAirBlock( location.blockPos ) || isBitBlock || isBlockSupported )
 						{
-							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, region, ChiselMode.castMode( chMode ), mop.sideHit, !isChisel );
+							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, region, ChiselMode.castMode( chMode ), rayTraceResult.getFace(), !isChisel );
 							final AxisAlignedBB bb = i.getBoundingBox( vb, isChisel );
 							RenderHelper.drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
 							showBox = false;
@@ -1066,8 +998,8 @@ public class ClientSide
 						{
 							final VoxelBlob j = new VoxelBlob();
 							j.fill( 1 );
-							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, j, ChiselMode.castMode( chMode ), mop.sideHit, !isChisel );
-							final AxisAlignedBB bb = snapToSide( i.getBoundingBox( j, isChisel ), mop.sideHit );
+							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, j, ChiselMode.castMode( chMode ), rayTraceResult.getFace(), !isChisel );
+							final AxisAlignedBB bb = snapToSide( i.getBoundingBox( j, isChisel ), rayTraceResult.getFace() );
 							RenderHelper.drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
 						}
 					}
@@ -1127,21 +1059,21 @@ public class ClientSide
 		// important and used for tesr / block rendering.
 		++lastRenderedFrame;
 
-		if ( Minecraft.getMinecraft().gameSettings.hideGUI )
+		if ( Minecraft.getInstance().gameSettings.hideGUI )
 		{
 			return;
 		}
 
 		// now render the ghosts...
-		final PlayerEntity player = Minecraft.getMinecraft().thePlayer;
+		final PlayerEntity player = Minecraft.getInstance().player;
 		final float partialTicks = event.getPartialTicks();
-		final RayTraceResult mop = Minecraft.getMinecraft().objectMouseOver;
-		final World theWorld = player.worldObj;
+		final RayTraceResult mop = Minecraft.getInstance().objectMouseOver;
+		final World theWorld = player.world;
 		final ItemStack currentItem = player.getHeldItemMainhand();
 
-		final double x = player.lastTickPosX + ( player.posX - player.lastTickPosX ) * partialTicks;
-		final double y = player.lastTickPosY + ( player.posY - player.lastTickPosY ) * partialTicks;
-		final double z = player.lastTickPosZ + ( player.posZ - player.lastTickPosZ ) * partialTicks;
+		final double x = player.lastTickPosX + ( player.getPosX() - player.lastTickPosX ) * partialTicks;
+		final double y = player.lastTickPosY + ( player.getPosY() - player.lastTickPosY ) * partialTicks;
+		final double z = player.lastTickPosZ + ( player.getPosZ() - player.lastTickPosZ ) * partialTicks;
 
 		if ( mop == null )
 		{
@@ -1150,18 +1082,19 @@ public class ClientSide
 
 		if ( ModUtil.isHoldingPattern( player ) )
 		{
-			if ( mop.typeOfHit != RayTraceResult.Type.BLOCK )
+			if ( mop.getType() != RayTraceResult.Type.BLOCK )
 			{
 				return;
 			}
 
+			final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) mop;
 			final IToolMode mode = ChiselModeManager.getChiselMode( player, ChiselToolType.POSITIVEPATTERN, Hand.MAIN_HAND );
 
-			final BlockPos pos = mop.getBlockPos();
+			final BlockPos pos = rayTraceResult.getPos();
 			final BlockPos partial = null;
 
 			final BlockState s = theWorld.getBlockState( pos );
-			if ( !( s.getBlock() instanceof BlockChiseled ) && !BlockBitInfo.supportsBlock( s ) && !MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( theWorld, mop.getBlockPos() ) )
+			if ( !( s.getBlock() instanceof BlockChiseled ) && !BlockBitInfo.supportsBlock( s ) )
 			{
 				return;
 			}
@@ -1172,7 +1105,7 @@ public class ClientSide
 			}
 
 			final ItemStack item = ChiselsAndBits.getItems().itemNegativePrint.getPatternedItem( currentItem, false );
-			if ( item == null || !item.hasTagCompound() )
+			if ( item == null || !item.hasTag() )
 			{
 				return;
 			}
@@ -1181,7 +1114,7 @@ public class ClientSide
 
 			if ( mode == PositivePatternMode.PLACEMENT )
 			{
-				doGhostForChiseledBlock( x, y, z, theWorld, player, mop, item, item, rotations );
+				doGhostForChiseledBlock(event.getMatrixStack(), x, y, z, theWorld, player, (BlockRayTraceResult) mop, item, item, rotations );
 				return;
 			}
 
@@ -1194,51 +1127,52 @@ public class ClientSide
 					cacheRef = ( (TileEntityBlockChiseled) cacheRef ).getBlobStateReference();
 				}
 
-				GlStateManager.depthFunc( GL11.GL_ALWAYS );
-				showGhost( currentItem, item, mop.getBlockPos(), player, rotations, x, y, z, mop.sideHit, partial, cacheRef );
-				GlStateManager.depthFunc( GL11.GL_LEQUAL );
+				RenderSystem.depthFunc( GL11.GL_ALWAYS );
+				showGhost(event.getMatrixStack(), currentItem, item, rayTraceResult.getPos(), player, rotations, x, y, z, rayTraceResult.getFace(), partial, cacheRef );
+				RenderSystem.depthFunc( GL11.GL_LEQUAL );
 			}
 		}
 		else if ( ModUtil.isHoldingChiseledBlock( player ) )
 		{
-			if ( mop.typeOfHit != RayTraceResult.Type.BLOCK )
+			if ( mop.getType() != RayTraceResult.Type.BLOCK )
 			{
 				return;
 			}
 
 			final ItemStack item = currentItem;
-			if ( !item.hasTagCompound() )
+			if ( !item.hasTag() )
 			{
 				return;
 			}
 
 			final int rotations = ModUtil.getRotations( player, ModUtil.getSide( item ) );
-			doGhostForChiseledBlock( x, y, z, theWorld, player, mop, currentItem, item, rotations );
+			doGhostForChiseledBlock(event.getMatrixStack(), x, y, z, theWorld, player, (BlockRayTraceResult) mop, currentItem, item, rotations );
 		}
 	}
 
 	private void doGhostForChiseledBlock(
+	        final MatrixStack matrixStack,
 			final double x,
 			final double y,
 			final double z,
 			final World theWorld,
 			final PlayerEntity player,
-			final RayTraceResult mop,
+			final BlockRayTraceResult mop,
 			final ItemStack currentItem,
 			final ItemStack item,
 			final int rotations )
 	{
-		final BlockPos offset = mop.getBlockPos();
+		final BlockPos offset = mop.getPos();
 
 		if ( ClientSide.offGridPlacement( player ) )
 		{
 			final BitLocation bl = new BitLocation( mop, true, BitOperation.PLACE );
-			showGhost( currentItem, item, bl.blockPos, player, rotations, x, y, z, mop.sideHit, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), null );
+			showGhost(matrixStack, currentItem, item, bl.blockPos, player, rotations, x, y, z, mop.getFace(), new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), null );
 		}
 		else
 		{
 			boolean canMerge = false;
-			if ( currentItem.hasTagCompound() )
+			if ( currentItem.hasTag() )
 			{
 				final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( theWorld, offset, true );
 
@@ -1251,18 +1185,18 @@ public class ClientSide
 
 			BlockPos newOffset = offset;
 			final Block block = theWorld.getBlockState( newOffset ).getBlock();
-			if ( !canMerge && !ClientSide.offGridPlacement( player ) && !block.isReplaceable( theWorld, newOffset ) )
+			if ( !canMerge && !ClientSide.offGridPlacement( player ) && !block.isReplaceable( theWorld.getBlockState(newOffset), new BlockItemUseContext(player, player.getActiveHand(), player.getHeldItem(player.getActiveHand()), mop)) )
 			{
-				newOffset = offset.offset( mop.sideHit );
+				newOffset = offset.offset( mop.getFace() );
 			}
 
 			final TileEntity newTarget = theWorld.getTileEntity( newOffset );
 
-			if ( theWorld.isAirBlock( newOffset ) || theWorld.getBlockState( newOffset ).getBlock().isReplaceable( theWorld, newOffset ) || newTarget instanceof TileEntityBlockChiseled
-					|| MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( theWorld, newOffset ) )
+			if ( theWorld.isAirBlock( newOffset ) || theWorld.getBlockState( newOffset ).getBlock().isReplaceable( theWorld.getBlockState(newOffset), new BlockItemUseContext(player, player.getActiveHand(), player.getHeldItem(player.getActiveHand()), mop)) || newTarget instanceof TileEntityBlockChiseled
+                    )
 			{
 				final TileEntityBlockChiseled test = ModUtil.getChiseledTileEntity( theWorld, newOffset, false );
-				showGhost( currentItem, item, newOffset, player, rotations, x, y, z, mop.sideHit, null, test == null ? null : test.getBlobStateReference() );
+				showGhost(matrixStack, currentItem, item, newOffset, player, rotations, x, y, z, mop.getFace(), null, test == null ? null : test.getBlobStateReference() );
 			}
 		}
 	}
@@ -1279,6 +1213,7 @@ public class ClientSide
 	int displayStatus = 0;
 
 	private void showGhost(
+	        final MatrixStack matrixStack,
 			final ItemStack refItem,
 			final ItemStack item,
 			final BlockPos blockPos,
@@ -1357,14 +1292,8 @@ public class ClientSide
 			}
 			else
 			{
-				baked = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel( is );
-				previousModel = baked = baked.getOverrides().handleItemState( baked, is, player.getEntityWorld(), player );
-
-				if ( displayStatus != 0 )
-				{
-					GlStateManager.glDeleteLists( displayStatus, 1 );
-					displayStatus = 0;
-				}
+				baked = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel( is );
+				previousModel = baked = baked.getOverrides().func_239290_a_( baked, is, (ClientWorld) player.getEntityWorld(), player );
 
 				if ( refItem.getItem() instanceof IPatternItem )
 				{
@@ -1373,7 +1302,8 @@ public class ClientSide
 				else
 				{
 					isVisible = true;
-					isUnplaceable = !ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, Hand.MAIN_HAND, partial, false );
+					//TODO: Figure out the hitvector here. Might need to pass that down stream.
+					isUnplaceable = !ItemBlockChiseled.tryPlaceBlockAt( blk, item, player, player.getEntityWorld(), blockPos, side, Hand.MAIN_HAND, 0.5, 0.5, 0.5, partial, false );
 				}
 			}
 		}
@@ -1383,28 +1313,19 @@ public class ClientSide
 			return;
 		}
 
-		GlStateManager.pushMatrix();
-		GlStateManager.translate( blockPos.getX() - x, blockPos.getY() - y, blockPos.getZ() - z );
+		matrixStack.push();
+		matrixStack.translate( blockPos.getX() - x, blockPos.getY() - y, blockPos.getZ() - z );
 		if ( partial != null )
 		{
 			final BlockPos t = ModUtil.getPartialOffset( side, partial, modelBounds );
 			final double fullScale = 1.0 / VoxelBlob.dim;
-			GlStateManager.translate( t.getX() * fullScale, t.getY() * fullScale, t.getZ() * fullScale );
+			matrixStack.translate( t.getX() * fullScale, t.getY() * fullScale, t.getZ() * fullScale );
 		}
 
-		if ( displayStatus == 0 )
-		{
-			displayStatus = GLAllocation.generateDisplayLists( 1 );
-			GlStateManager.glNewList( displayStatus, GL11.GL_COMPILE_AND_EXECUTE );
-			RenderHelper.renderGhostModel( baked, player.worldObj, blockPos, isUnplaceable );
-			GlStateManager.glEndList();
-		}
-		else
-		{
-			GlStateManager.callList( displayStatus );
-		}
+        RenderHelper.renderGhostModel(matrixStack, baked, player.getEntityWorld(), blockPos, isUnplaceable, WorldRenderer.getCombinedLight(player.getEntityWorld(), blockPos),
+          OverlayTexture.NO_OVERLAY);
 
-		GlStateManager.popMatrix();
+		matrixStack.pop();
 	}
 
 	private boolean samePos(
@@ -1431,7 +1352,7 @@ public class ClientSide
 
 	public boolean addHitEffects(
 			final World world,
-			final RayTraceResult target,
+			final BlockRayTraceResult target,
 			final BlockState state,
 			final ParticleManager effectRenderer )
 	{
@@ -1442,60 +1363,16 @@ public class ClientSide
 			// effects!
 		}
 
-		final BlockPos pos = target.getBlockPos();
-		final float boxOffset = 0.1F;
-
-		AxisAlignedBB bb = world.getBlockState( pos ).getBlock().getSelectedBoundingBox( state, world, pos );
-
-		if ( bb == null )
-		{
-			bb = new AxisAlignedBB( pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY() + 1, pos.getZ() + 1 );
-		}
-
-		double x = RANDOM.nextDouble() * ( bb.maxX - bb.minX - boxOffset * 2.0F ) + boxOffset + bb.minX;
-		double y = RANDOM.nextDouble() * ( bb.maxY - bb.minY - boxOffset * 2.0F ) + boxOffset + bb.minY;
-		double z = RANDOM.nextDouble() * ( bb.maxZ - bb.minZ - boxOffset * 2.0F ) + boxOffset + bb.minZ;
-
-		switch ( target.sideHit )
-		{
-			case DOWN:
-				y = bb.minY - boxOffset;
-				break;
-			case EAST:
-				x = bb.maxX + boxOffset;
-				break;
-			case NORTH:
-				z = bb.minZ - boxOffset;
-				break;
-			case SOUTH:
-				z = bb.maxZ + boxOffset;
-				break;
-			case UP:
-				y = bb.maxY + boxOffset;
-				break;
-			case WEST:
-				x = bb.minX - boxOffset;
-				break;
-			default:
-				break;
-
-		}
-
-		final Particle fx = effectRenderer.spawnEffectParticle( EnumParticleTypes.BLOCK_DUST.getParticleID(), x, y, z, 0.0D, 0.0D, 0.0D, new int[] { ModUtil.getStateId( state ) } );
-
-		if ( fx != null )
-		{
-			fx.multiplyVelocity( 0.2F ).multipleParticleScaleBy( 0.6F );
-		}
+		effectRenderer.addBlockHitEffects(target.getPos(), target);
 
 		return true;
 	}
 
 	@SubscribeEvent
 	public void wheelEvent(
-			final MouseEvent me )
+			final InputEvent.MouseScrollEvent me )
 	{
-		final int dwheel = me.getDwheel();
+		final int dwheel = (int) me.getScrollDelta();
 		if ( me.isCanceled() || dwheel == 0 )
 		{
 			return;
@@ -1586,23 +1463,7 @@ public class ClientSide
 	{
 		if ( !state.getBlock().isAir( state, world, pos ) )
 		{
-			final int StateID = ModUtil.getStateId( state );
-
-			final int i = 4;
-
-			for ( int j = 0; j < i; ++j )
-			{
-				for ( int k = 0; k < i; ++k )
-				{
-					for ( int l = 0; l < i; ++l )
-					{
-						final double d0 = pos.getX() + ( j + 0.5D ) / i;
-						final double d1 = pos.getY() + ( k + 0.5D ) / i;
-						final double d2 = pos.getZ() + ( l + 0.5D ) / i;
-						effectRenderer.addParticle(ParticleTypes., d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, StateID );
-					}
-				}
-			}
+			effectRenderer.addBlockDestroyEffects(pos,state);
 		}
 
 		return true;
@@ -1610,7 +1471,7 @@ public class ClientSide
 
 	public TextureAtlasSprite getMissingIcon()
 	{
-		return Minecraft.getInstance().getTextureManager().getTexture(new ResourceLocation("missingno"));
+		return Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation("missingno"));
 	}
 
 	public String getModeKey()
@@ -1626,7 +1487,7 @@ public class ClientSide
 
 	public boolean holdingShift()
 	{
-		return Keyboard.isKeyDown( Keyboard.KEY_LSHIFT ) || Keyboard.isKeyDown( Keyboard.KEY_RSHIFT );
+		return Minecraft.getInstance().gameSettings.keyBindSneak.isKeyDown();
 	}
 
 	public String getKeyName(
@@ -1637,17 +1498,18 @@ public class ClientSide
 			return LocalStrings.noBind.getLocal();
 		}
 
-		if ( bind.getKeyCode() == 0 && bind.getKeyCodeDefault() != 0 )
+		if ( bind.getKey().getKeyCode() == 0 && bind.getDefault().getKeyCode() != 0 )
 		{
-			return makeMoreFrendly( GameSettings.getKeyDisplayString( bind.getKeyCodeDefault() ) );
+		    //TODO: This previously changed the resulting string to something easier to understand. Not sure that is still needed.
+		    return DeprecationHelper.translateToLocal(bind.getTranslationKey());
 		}
 
-		if ( bind.getKeyCode() == 0 )
+		if ( bind.getKey().getKeyCode() == 0 )
 		{
 			return '"' + DeprecationHelper.translateToLocal( bind.getKeyDescription() );
 		}
 
-		return makeMoreFrendly( bind.getDisplayName() );
+		return makeMoreFrendly( bind.getTranslationKey() );
 	}
 
 	private String makeMoreFrendly(
@@ -1674,8 +1536,8 @@ public class ClientSide
 
 	public static KeyBinding getOffGridPlacementKey()
 	{
-		if ( ClientSide.instance.offgridPlacement.isSetToDefaultValue() )
-			return Minecraft.getMinecraft().gameSettings.keyBindSneak;
+		if ( ClientSide.instance.offgridPlacement.isDefault() )
+			return Minecraft.getInstance().gameSettings.keyBindSneak;
 
 		return ClientSide.instance.offgridPlacement;
 	}

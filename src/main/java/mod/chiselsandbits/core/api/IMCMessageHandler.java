@@ -1,11 +1,11 @@
 package mod.chiselsandbits.core.api;
 
-import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
+import net.minecraftforge.fml.InterModComms;
 
 public interface IMCMessageHandler
 {
 
 	public void excuteIMC(
-			IMCMessage message );
+			InterModComms.IMCMessage message );
 
 }

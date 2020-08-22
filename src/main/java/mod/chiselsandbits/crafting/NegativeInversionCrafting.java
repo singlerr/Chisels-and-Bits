@@ -4,15 +4,17 @@ import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.block.Blocks;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.SpecialRecipe;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class NegativeInversionCrafting extends CustomRecipe
+public class NegativeInversionCrafting extends SpecialRecipe
 {
 
 	public NegativeInversionCrafting(
@@ -23,14 +25,14 @@ public class NegativeInversionCrafting extends CustomRecipe
 
 	@Override
 	public boolean matches(
-			final InventoryCrafting craftingInv,
+			final CraftingInventory craftingInv,
 			final World worldIn )
 	{
 		return analzyeCraftingInventory( craftingInv, true ) != null;
 	}
 
 	public ItemStack analzyeCraftingInventory(
-			final InventoryCrafting craftingInv,
+			final CraftingInventory craftingInv,
 			final boolean generatePattern )
 	{
 		ItemStack targetA = null;
@@ -46,7 +48,7 @@ public class NegativeInversionCrafting extends CustomRecipe
 
 			if ( f.getItem() == ChiselsAndBits.getItems().itemNegativePrint)
 			{
-				if ( f.hasTagCompound() )
+				if ( f.hasTag() )
 				{
 					if ( targetA != null )
 					{
@@ -79,18 +81,18 @@ public class NegativeInversionCrafting extends CustomRecipe
 			}
 
 			final NBTBlobConverter tmp = new NBTBlobConverter();
-			tmp.readChisleData( targetA.getTagCompound(), VoxelBlob.VERSION_ANY );
+			tmp.readChisleData( targetA.getTag(), VoxelBlob.VERSION_ANY );
 
 			final VoxelBlob bestBlob = tmp.getBlob();
 			bestBlob.binaryReplacement( ModUtil.getStateId( Blocks.STONE.getDefaultState() ), 0 );
 
 			tmp.setBlob( bestBlob );
 
-			final NBTTagCompound comp = ModUtil.getTagCompound( targetA ).copy();
+			final CompoundNBT comp = ModUtil.getTagCompound( targetA ).copy();
 			tmp.writeChisleData( comp, false );
 
 			final ItemStack outputPattern = new ItemStack( targetA.getItem() );
-			outputPattern.setTagCompound( comp );
+			outputPattern.setTag( comp );
 
 			return outputPattern;
 		}
@@ -100,13 +102,13 @@ public class NegativeInversionCrafting extends CustomRecipe
 
 	@Override
 	public ItemStack getCraftingResult(
-			final InventoryCrafting craftingInv )
+			final CraftingInventory craftingInv )
 	{
 		return analzyeCraftingInventory( craftingInv, false );
 	}
 
 	@Override
-	public boolean func_194133_a(
+	public boolean canFit(
 			final int width,
 			final int height )
 	{
@@ -121,14 +123,14 @@ public class NegativeInversionCrafting extends CustomRecipe
 
 	@Override
 	public NonNullList<ItemStack> getRemainingItems(
-			final InventoryCrafting craftingInv )
+			final CraftingInventory craftingInv )
 	{
-		final NonNullList<ItemStack> aitemstack = NonNullList.func_191197_a( craftingInv.getSizeInventory(), ItemStack.field_190927_a );
+		final NonNullList<ItemStack> aitemstack = NonNullList.withSize( craftingInv.getSizeInventory(), ItemStack.EMPTY );
 
 		for ( int i = 0; i < aitemstack.size(); ++i )
 		{
 			final ItemStack itemstack = craftingInv.getStackInSlot( i );
-			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.getItems().itemNegativePrint && itemstack.hasTagCompound() )
+			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.getItems().itemNegativePrint && itemstack.hasTag() )
 			{
 				ModUtil.adjustStackSize( itemstack, 1 );
 			}
@@ -137,4 +139,9 @@ public class NegativeInversionCrafting extends CustomRecipe
 		return aitemstack;
 	}
 
+    @Override
+    public IRecipeSerializer<?> getSerializer()
+    {
+        return ModRecipes.NEGATIVE_INVERSION_CRAFTING;
+    }
 }

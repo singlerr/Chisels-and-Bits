@@ -1,13 +1,9 @@
 package mod.chiselsandbits.chiseledblock;
 
-import java.util.Collections;
-import java.util.List;
-
 import javax.annotation.Nonnull;
 
 import mod.chiselsandbits.api.BoxType;
 import mod.chiselsandbits.api.IMultiStateBlock;
-import mod.chiselsandbits.chiseledblock.data.BitCollisionIterator;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
@@ -34,9 +30,6 @@ import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.DirectionalPlaceContext;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.particles.RedstoneParticleData;
 import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
@@ -50,7 +43,6 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.*;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ToolType;
@@ -66,6 +58,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	public static final BooleanProperty                      LProperty_FullBlock          = BooleanProperty.create( "full_block" );
 
     public final String name;
+
+    public BlockChiseled(final String name, final AbstractBlock.Properties properties) {
+        super(properties);
+        this.name = name;
+    }
 
     @Override
     public VoxelShape getRenderShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos)
@@ -129,7 +126,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     @Override
     public boolean removedByPlayer(final BlockState state, final World world, final BlockPos pos, final PlayerEntity player, final boolean willHarvest, final FluidState fluid)
     {
-        if ( !willHarvest && ChiselsAndBits.getConfig().addBrokenBlocksToCreativeClipboard )
+        if ( !willHarvest && ChiselsAndBits.getConfig().getServer().addBrokenBlocksToCreativeClipboard.get() )
         {
 
             try
@@ -692,7 +689,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		boolean occlusion = true;
 		if ( FMLCommonHandler.instance().getEffectiveSide().isClient() && tec.getWorld() != null && tec.getWorld().isRemote )
 		{
-			occlusion = !ChiselsAndBits.getConfig().fluidBitsAreClickThrough || ClientSide.instance.getHeldToolType( Hand.MAIN_HAND ) != null;
+			occlusion = !ChiselsAndBits.getConfig().getServer().fluidBitsAreClickThrough.get() || ClientSide.instance.getHeldToolType( Hand.MAIN_HAND ) != null;
 		}
 
 		for ( final AxisAlignedBB box : tec.getBoxes( occlusion ? BoxType.OCCLUSION : BoxType.COLLISION ) )
@@ -847,7 +844,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		}
 
 		// enabled?
-		if ( ChiselsAndBits.getConfig().enableBitLightSource )
+		if ( ChiselsAndBits.getConfig().getServer().enableBitLightSource.get() )
 		{
 			try
 			{
@@ -871,7 +868,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     @Override
     public boolean canHarvestBlock(final BlockState state, final IBlockReader world, final BlockPos pos, final PlayerEntity player)
     {
-        if ( ChiselsAndBits.getConfig().enableToolHarvestLevels )
+        if ( ChiselsAndBits.getConfig().getServer().enableToolHarvestLevels.get() )
         {
             BlockState activeState = actingAs.get();
 
@@ -889,7 +886,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     @Override
     public float getPlayerRelativeBlockHardness(final BlockState state, final PlayerEntity player, final IBlockReader worldIn, final BlockPos pos)
     {
-        if ( ChiselsAndBits.getConfig().enableToolHarvestLevels )
+        if ( ChiselsAndBits.getConfig().getServer().enableToolHarvestLevels.get() )
         {
             BlockState actingState = actingAs.get();
 

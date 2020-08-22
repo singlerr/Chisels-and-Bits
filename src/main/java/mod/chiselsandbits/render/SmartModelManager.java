@@ -11,19 +11,19 @@ import mod.chiselsandbits.render.bit.BitItemSmartModel;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.chiseledblock.tesr.GfxRenderState;
 import mod.chiselsandbits.render.patterns.PrintSmartModel;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class SmartModelManager
 {
 
-	private final HashMap<ResourceLocation, IBakedModel> models = new HashMap<ResourceLocation, IBakedModel>();
-	private final List<ModelResourceLocation> res = new ArrayList<ModelResourceLocation>();
-	private final List<ICacheClearable> clearable = new ArrayList<ICacheClearable>();
+	private final HashMap<ResourceLocation, IBakedModel> models    = new HashMap<ResourceLocation, IBakedModel>();
+	private final List<ModelResourceLocation>            res       = new ArrayList<ModelResourceLocation>();
+	private final List<ICacheClearable>                  clearable = new ArrayList<ICacheClearable>();
 
 	public SmartModelManager()
 	{
@@ -38,16 +38,16 @@ public class SmartModelManager
 		ChiselsAndBits.getInstance().addClearable( smartModel );
 
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_bit" ), new BitItemSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/positiveprint_written_preview" ), new PrintSmartModel( "positiveprint", ChiselsAndBits.getItems().itemPositiveprint ) );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/positiveprint_written_preview" ), new PrintSmartModel( "positiveprint", ChiselsAndBits.getItems().itemPositivePrint) );
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/negativeprint_written_preview" ), new PrintSmartModel( "negativeprint", ChiselsAndBits.getItems().itemNegativePrint) );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/mirrorprint_written_preview" ), new PrintSmartModel( "mirrorprint", ChiselsAndBits.getItems().itemMirrorprint ) );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/mirrorprint_written_preview" ), new PrintSmartModel( "mirrorprint", ChiselsAndBits.getItems().itemMirrorPrint) );
 	}
 
 	private void add(
 			final ResourceLocation modelLocation,
 			final IBakedModel modelGen )
 	{
-		final ResourceLocation second = new ResourceLocation( modelLocation.getResourceDomain(), modelLocation.getResourcePath().substring( 1 + modelLocation.getResourcePath().lastIndexOf( '/' ) ) );
+		final ResourceLocation second = new ResourceLocation( modelLocation.getNamespace(), modelLocation.getPath().substring( 1 + modelLocation.getPath().lastIndexOf( '/' ) ) );
 
 		if ( modelGen instanceof ICacheClearable )
 		{
@@ -95,7 +95,7 @@ public class SmartModelManager
 
 		for ( final ModelResourceLocation rl : res )
 		{
-			event.getModelRegistry().putObject( rl, getModel( rl ) );
+			event.getModelRegistry().put( rl, getModel( rl ) );
 		}
 	}
 

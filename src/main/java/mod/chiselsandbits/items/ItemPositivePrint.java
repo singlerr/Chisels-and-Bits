@@ -44,6 +44,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
 
 public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeItem, IItemBlockAccurate
 {
@@ -56,7 +57,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
     @Override
     protected Item getWrittenItem()
     {
-        return ChiselsAndBits.getItems().itemPositiveprint;
+        return ChiselsAndBits.getItems().itemPositivePrint;
     }
 
     @Override
@@ -68,7 +69,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 			final ITooltipFlag advanced )
 	{
 		defaultAddInfo( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpPositivePrint, tooltip,
+		ChiselsAndBits.getConfig().getCommon().helpText( LocalStrings.HelpPositivePrint, tooltip,
 				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
 				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
 				ClientSide.instance.getModeKey() );
@@ -327,7 +328,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
     @Override
     public ITextComponent getHighlightTip(final ItemStack item, final ITextComponent displayName)
     {
-        if (displayName instanceof IFormattableTextComponent && ChiselsAndBits.getConfig().itemNameModeDisplay )
+        if (EffectiveSide.get().isClient() && displayName instanceof IFormattableTextComponent && ChiselsAndBits.getConfig().getClient().itemNameModeDisplay.get() )
         {
             IFormattableTextComponent formattableTextComponent = (IFormattableTextComponent) displayName;
             return formattableTextComponent.appendString(" - ").appendString(PositivePatternMode.getMode( item ).string.getLocal());

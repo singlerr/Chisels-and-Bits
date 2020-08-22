@@ -12,10 +12,11 @@ import mod.chiselsandbits.chiseledblock.MaterialType;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled.TileEntityBlockChiseledDummy;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
-import mod.chiselsandbits.config.ModConfig;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -31,7 +32,7 @@ public class ModBlocks extends ModRegistry
 	private final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();
 	private final HashMap<Material, Item> itemConversions = new HashMap<Material, Item>();
 
-	public final ItemBlock itemBitTank;
+	public final BlockItem itemBitTank;
 	public final BlockBitTank blockBitTank;
 
 	public static final MaterialType[] validMaterials = new MaterialType[] {
@@ -51,9 +52,7 @@ public class ModBlocks extends ModRegistry
 			new MaterialType( "leaves", Material.LEAVES ),
 	};
 
-	public ModBlocks(
-			final ModConfig config,
-			final Dist side )
+	public ModBlocks()
 	{
 		// register tile entities.
 		GameRegistry.registerTileEntity( TileEntityBlockChiseled.class, TE_CHISELEDBLOCK );
@@ -71,24 +70,16 @@ public class ModBlocks extends ModRegistry
 			GameRegistry.registerTileEntity( TileEntityBlockChiseledDummy.class, TE_CHISELEDBLOCK_TESR );
 		}
 
-		if ( config.enableBitTank )
-		{
-			blockBitTank = new BlockBitTank();
-			itemBitTank = new ItemBlock( blockBitTank );
-			registerBlock( blockBitTank, itemBitTank, "bittank" );
-			GameRegistry.registerTileEntity( TileEntityBitTank.class, TE_BIT_TANK );
-		}
-		else
-		{
-			blockBitTank = null;
-			itemBitTank = null;
-		}
+        blockBitTank = new BlockBitTank(AbstractBlock.Properties.create(Material.IRON));
+        itemBitTank = new BlockItem( blockBitTank, new Item.Properties() );
+        registerBlock( blockBitTank, itemBitTank, "bittank" );
+        GameRegistry.registerTileEntity( TileEntityBitTank.class, TE_BIT_TANK );
 
 		// register blocks...
 		for ( final MaterialType mat : validMaterials )
 		{
-			final BlockChiseled blk = new BlockChiseled( mat.type, "chiseled_" + mat.name );
-			final ItemBlockChiseled item = new ItemBlockChiseled( blk );
+			final BlockChiseled blk = new BlockChiseled("chiseled_" + mat.name, AbstractBlock.Properties.create(mat.type) );
+			final ItemBlockChiseled item = new ItemBlockChiseled( blk, new Item.Properties() );
 
 			getConversions().put( mat.type, blk );
 			getItemConversions().put( mat.type, item );

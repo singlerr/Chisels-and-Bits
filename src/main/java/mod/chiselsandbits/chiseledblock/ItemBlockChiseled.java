@@ -65,7 +65,7 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
       final ItemStack stack, @Nullable final World worldIn, final List<ITextComponent> tooltip, final ITooltipFlag flagIn)
     {
         super.addInformation( stack, worldIn, tooltip, flagIn);
-        ChiselsAndBits.getConfig().helpText( LocalStrings.HelpChiseledBlock, tooltip,
+        ChiselsAndBits.getConfig().getCommon().helpText(LocalStrings.HelpChiseledBlock, tooltip,
           ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
           ClientSide.instance.getKeyName( ClientSide.getOffGridPlacementKey() ) );
 

@@ -88,6 +88,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
     public void setNeighborRenderTracker(final VoxelNeighborRenderTracker neighborRenderTracker)
     {
         this.neighborRenderTracker = neighborRenderTracker;
+        onDataUpdate();
     }
 
     public VoxelBlobStateReference getBlobStateReference()
@@ -98,6 +99,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
     private void setBlobStateReference(final VoxelBlobStateReference blobStateReference)
     {
         this.blobStateReference = blobStateReference;
+        onDataUpdate();
     }
 
     public int getPrimaryBlockStateId()
@@ -108,6 +110,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
     public void setPrimaryBlockStateId(final int primaryBlockStateId)
     {
         this.primaryBlockStateId = primaryBlockStateId;
+        onDataUpdate();
     }
 
     public IChiseledTileContainer getTileContainer()
@@ -249,6 +252,10 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 		return state;
 	}
+
+	protected void onDataUpdate() {
+
+    }
 
 	protected void tesrUpdate(
 			final IBlockReader access,
@@ -655,7 +662,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			setState( getBasicState(), getBlobStateReference());
 
 			final BlockState newState = ModUtil.getStateById( common.mostCommonState );
-			if ( ChiselsAndBits.getConfig().canRevertToBlock( newState ) )
+			if ( ChiselsAndBits.getConfig().getServer().canRevertToBlock( newState ) )
 			{
 				if ( !MinecraftForge.EVENT_BUS.post( new EventFullBlockRestoration( world, pos, newState ) ) )
 				{

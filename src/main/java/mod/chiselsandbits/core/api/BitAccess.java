@@ -1,19 +1,7 @@
 package mod.chiselsandbits.core.api;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
-import mod.chiselsandbits.api.BitQueryResults;
-import mod.chiselsandbits.api.StateCount;
-import mod.chiselsandbits.api.IBitAccess;
-import mod.chiselsandbits.api.IBitBrush;
-import mod.chiselsandbits.api.IBitVisitor;
-import mod.chiselsandbits.api.ItemType;
-import mod.chiselsandbits.api.VoxelStats;
+import mod.chiselsandbits.api.*;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChisledValue;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
@@ -26,11 +14,16 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BitAccess implements IBitAccess
 {
@@ -160,7 +153,7 @@ public class BitAccess implements IBitAccess
 		final NBTBlobConverter c = new NBTBlobConverter();
 		c.setBlob( blob );
 
-		final NBTTagCompound nbttagcompound = new NBTTagCompound();
+		final CompoundNBT nbttagcompound = new CompoundNBT();
 		c.writeChisleData( nbttagcompound, crossWorld );
 
 		final ItemStack stack;
@@ -183,19 +176,19 @@ public class BitAccess implements IBitAccess
 			switch ( type )
 			{
 				case MIRROR_DESIGN:
-					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemMirrorprint );
+					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemMirrorPrint);
 					break;
 				case NEGATIVE_DESIGN:
 					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemNegativePrint);
 					break;
 				case POSITIVE_DESIGN:
-					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemPositiveprint );
+					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemPositivePrint);
 					break;
 				default:
 					return ModUtil.getEmptyStack();
 			}
 
-			stack.setTagCompound( nbttagcompound );
+			stack.setTag( nbttagcompound );
 		}
 
 		if ( side != null )

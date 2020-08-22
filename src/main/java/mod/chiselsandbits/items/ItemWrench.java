@@ -27,7 +27,7 @@ public class ItemWrench extends Item
 
 	public ItemWrench(Item.Properties properties)
 	{
-	    super(properties.maxStackSize(1).maxDamage(ChiselsAndBits.getConfig().damageTools ? (int) Math.max( 0, Math.min( Short.MAX_VALUE, ChiselsAndBits.getConfig().wrenchUses ) ) : 0));
+	    super(properties.maxStackSize(1).maxDamage(ChiselsAndBits.getConfig().getServer().damageTools.get() ? (int) Math.max( 0, Math.min( Short.MAX_VALUE, ChiselsAndBits.getConfig().getServer().wrenchUses.get() ) ) : 0));
 	}
 
 	@Override
@@ -39,7 +39,7 @@ public class ItemWrench extends Item
 			final ITooltipFlag advanced )
 	{
 		super.addInformation( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpWrench, tooltip,
+		ChiselsAndBits.getConfig().getCommon().helpText( LocalStrings.HelpWrench, tooltip,
 				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ) );
 	}
 

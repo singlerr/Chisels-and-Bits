@@ -15,39 +15,43 @@ import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumActionResult;
+import net.minecraft.item.ItemUseContext;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ItemMirrorPrint extends Item implements IPatternItem
 {
 
-	public ItemMirrorPrint()
+	public ItemMirrorPrint(Item.Properties properties)
 	{
-
+        super(properties);
 	}
 
-	SimpleInstanceCache<ItemStack, List<String>> toolTipCache = new SimpleInstanceCache<ItemStack, List<String>>( null, new ArrayList<String>() );
+	SimpleInstanceCache<ItemStack, List<ITextComponent>> toolTipCache = new SimpleInstanceCache<>(null, new ArrayList<>());
 
 	@Override
 	@OnlyIn( Dist.CLIENT )
 	public void addInformation(
 			final ItemStack stack,
 			final World worldIn,
-			final List<String> tooltip,
+			final List<ITextComponent> tooltip,
 			final ITooltipFlag advanced )
 	{
 		super.addInformation( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpMirrorPrint, tooltip,
-				ClientSide.instance.getKeyName( Minecraft.getMinecraft().gameSettings.keyBindUseItem ) );
+		ChiselsAndBits.getConfig().getCommon().helpText( LocalStrings.HelpMirrorPrint, tooltip,
+				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ) );
 
 		if ( isWritten( stack ) )
 		{
@@ -56,64 +60,63 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 				if ( toolTipCache.needsUpdate( stack ) )
 				{
 					final VoxelBlob blob = ModUtil.getBlobFromStack( stack, null );
-					toolTipCache.updateCachedValue( blob.listContents( new ArrayList<String>() ) );
+					toolTipCache.updateCachedValue( blob.listContents(new ArrayList<>() ) );
 				}
 
 				tooltip.addAll( toolTipCache.getCached() );
 			}
 			else
 			{
-				tooltip.add( LocalStrings.ShiftDetails.getLocal() );
+				tooltip.add( new StringTextComponent(LocalStrings.ShiftDetails.getLocal()) );
 			}
 		}
 	}
 
-	@Override
-	public String getUnlocalizedName(
-			final ItemStack stack )
-	{
-		if ( isWritten( stack ) )
-		{
-			return super.getUnlocalizedName( stack ) + "_written";
-		}
+    @Override
+    public String getTranslationKey(final ItemStack stack)
+    {
+        if ( isWritten( stack ) )
+        {
+            return super.getTranslationKey( stack ) + "_written";
+        }
 
-		return super.getUnlocalizedName( stack );
-	}
+        return super.getTranslationKey( stack );
+    }
 
-	@Override
-	public EnumActionResult onItemUse(
-			final PlayerEntity player,
-			final World world,
-			final BlockPos pos,
-			final Hand hand,
-			final Direction side,
-			final float hitX,
-			final float hitY,
-			final float hitZ )
-	{
-		final ItemStack stack = player.getHeldItem( hand );
+    @Override
+    public ActionResultType onItemUse(final ItemUseContext context)
+    {
+        final ItemStack stack = context.getPlayer().getHeldItem( context.getHand() );
 
-		if ( !player.canPlayerEdit( pos, side, stack ) )
-		{
-			return EnumActionResult.SUCCESS;
-		}
+        if ( !context.getPlayer().canPlayerEdit( context.getPos(), context.getFace(), stack ) )
+        {
+            return ActionResultType.SUCCESS;
+        }
 
-		if ( !isWritten( stack ) )
-		{
-			final NBTTagCompound comp = getCompoundFromBlock( world, pos, player, side );
-			if ( comp != null )
-			{
-				stack.setTagCompound( comp );
-				return EnumActionResult.SUCCESS;
-			}
+        if ( !isWritten( stack ) )
+        {
+            final CompoundNBT comp = getCompoundFromBlock( context.getWorld(), context.getPos(), context.getPlayer(), context.getFace() );
+            if ( comp != null )
+            {
+                stack.shrink(1);
 
-			return EnumActionResult.FAIL;
-		}
+                final ItemStack newStack = new ItemStack(ChiselsAndBits.getItems().itemMirrorPrintWritten, 1);
+                newStack.setTag(comp);
 
-		return EnumActionResult.FAIL;
-	}
+                final ItemEntity entity = context.getPlayer().dropItem(newStack, true);
+                entity.setPickupDelay(0);
+                entity.setThrowerId(context.getPlayer().getUniqueID());
 
-	protected NBTTagCompound getCompoundFromBlock(
+                return ActionResultType.SUCCESS;
+            }
+
+            return ActionResultType.FAIL;
+        }
+
+        return ActionResultType.FAIL;
+    }
+
+	protected CompoundNBT getCompoundFromBlock(
 			final World world,
 			final BlockPos pos,
 			final PlayerEntity player,
@@ -123,7 +126,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 
 		if ( te != null )
 		{
-			final NBTTagCompound comp = new NBTTagCompound();
+			final CompoundNBT comp = new CompoundNBT();
 			te.writeChisleData( comp );
 
 			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
@@ -133,7 +136,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			tmp.setBlob( bestBlob.mirror( face.getAxis() ) );
 			tmp.writeChisleData( comp );
 
-			comp.setByte( ModUtil.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
+			comp.putByte( ModUtil.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
 			return comp;
 		}
 
@@ -150,7 +153,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 			return null;
 		}
 
-		final NBTTagCompound tag = ModUtil.getTagCompound( stack );
+		final CompoundNBT tag = ModUtil.getTagCompound( stack );
 
 		// Detect and provide full blocks if pattern solid full and solid.
 		final NBTBlobConverter conv = new NBTBlobConverter();
@@ -167,7 +170,10 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 	public boolean isWritten(
 			final ItemStack stack )
 	{
-		return stack != null && stack.hasTagCompound();
+	    if (stack.getItem() == ChiselsAndBits.getItems().itemMirrorPrint)
+	        return false;
+
+		return stack.hasTag();
 	}
 
 }

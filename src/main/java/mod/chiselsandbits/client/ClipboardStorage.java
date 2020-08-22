@@ -17,7 +17,7 @@ public class ClipboardStorage
 	public void write(
 			final List<CompoundNBT> myitems )
 	{
-		/*if ( !ChiselsAndBits.getConfig().persistCreativeClipboard )
+		/*if ( !ChiselsAndBits.getConfig().getServer().persistCreativeClipboard.get() )
 		{
 			return;
 		}
@@ -49,7 +49,7 @@ public class ClipboardStorage
 	{
 		/*final List<NBTTagCompound> myItems = new ArrayList<NBTTagCompound>();
 
-		if ( !ChiselsAndBits.getConfig().persistCreativeClipboard )
+		if ( !ChiselsAndBits.getConfig().getServer().persistCreativeClipboard.get() )
 		{
 			return myItems;
 		}

@@ -10,10 +10,11 @@ import net.minecraft.network.PacketBuffer;
 
 public class PacketClearBagGui extends ModPacket
 {
-	ItemStack stack = null;
+	private ItemStack stack = null;
 
-	public PacketClearBagGui()
+	public PacketClearBagGui(final PacketBuffer buffer)
 	{
+	    readPayload(buffer);
 	}
 
 	public PacketClearBagGui(

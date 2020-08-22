@@ -6,14 +6,16 @@ import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.SpecialRecipe;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class StackableCrafting extends CustomRecipe
+public class StackableCrafting extends SpecialRecipe
 {
 
 	public StackableCrafting(
@@ -24,7 +26,7 @@ public class StackableCrafting extends CustomRecipe
 
 	@Override
 	public boolean matches(
-			final InventoryCrafting craftingInv,
+			final CraftingInventory craftingInv,
 			final World worldIn )
 	{
 		ItemStack target = null;
@@ -47,7 +49,7 @@ public class StackableCrafting extends CustomRecipe
 			}
 		}
 
-		if ( target == null || !target.hasTagCompound() || !( target.getItem() instanceof ItemBlockChiseled ) )
+		if ( target == null || !target.hasTag() || !( target.getItem() instanceof ItemBlockChiseled ) )
 		{
 			return false;
 		}
@@ -57,7 +59,7 @@ public class StackableCrafting extends CustomRecipe
 
 	@Override
 	public ItemStack getCraftingResult(
-			final InventoryCrafting craftingInv )
+			final CraftingInventory craftingInv )
 	{
 		ItemStack target = null;
 
@@ -79,7 +81,7 @@ public class StackableCrafting extends CustomRecipe
 			}
 		}
 
-		if ( target == null || !target.hasTagCompound() || !( target.getItem() instanceof ItemBlockChiseled ) )
+		if ( target == null || !target.hasTag() || !( target.getItem() instanceof ItemBlockChiseled ) )
 		{
 			return ModUtil.getEmptyStack();
 		}
@@ -144,7 +146,7 @@ public class StackableCrafting extends CustomRecipe
 	}
 
 	@Override
-	public boolean func_194133_a(
+	public boolean canFit(
 			final int width,
 			final int height )
 	{
@@ -159,9 +161,9 @@ public class StackableCrafting extends CustomRecipe
 
 	@Override
 	public NonNullList<ItemStack> getRemainingItems(
-			final InventoryCrafting inv )
+			final CraftingInventory inv )
 	{
-		final NonNullList<ItemStack> aitemstack = NonNullList.func_191197_a( inv.getSizeInventory(), ItemStack.field_190927_a );
+		final NonNullList<ItemStack> aitemstack = NonNullList.withSize( inv.getSizeInventory(), ItemStack.EMPTY );
 
 		for ( int i = 0; i < aitemstack.size(); ++i )
 		{
@@ -172,4 +174,9 @@ public class StackableCrafting extends CustomRecipe
 		return aitemstack;
 	}
 
+    @Override
+    public IRecipeSerializer<?> getSerializer()
+    {
+        return ModRecipes.STACKABLE_CRAFTING;
+    }
 }

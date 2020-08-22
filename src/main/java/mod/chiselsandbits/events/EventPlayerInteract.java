@@ -4,8 +4,6 @@ import java.util.WeakHashMap;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.ClientSide;
-import mod.chiselsandbits.integration.mcmultipart.MCMultipartProxy;
-import mod.chiselsandbits.integration.mods.LittleTiles;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.BlockState;
@@ -14,8 +12,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
-import net.minecraftforge.fml.common.eventhandler.Event.Result;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
  * Disable breaking blocks when using a chisel / bit, some items break too fast
@@ -50,20 +48,20 @@ public class EventPlayerInteract
 	public void interaction(
 			final LeftClickBlock event )
 	{
-		if ( event.getPlayerEntity() != null && event.getUseItem() != Result.DENY )
+		if ( event.getPlayer() != null && event.getUseItem() != Event.Result.DENY )
 		{
 			final ItemStack is = event.getItemStack();
 			final boolean validEvent = event.getPos() != null && event.getWorld() != null;
 			if ( is != null && ( is.getItem() instanceof ItemChisel || is.getItem() instanceof ItemChiseledBit ) && validEvent )
 			{
 				final BlockState state = event.getWorld().getBlockState( event.getPos() );
-				if ( BlockBitInfo.canChisel( state ) || MCMultipartProxy.proxyMCMultiPart.isMultiPartTileEntity( event.getWorld(), event.getPos() ) || LittleTiles.isLittleTilesBlock( event.getWorld().getTileEntity( event.getPos() ) ) )
+				if ( BlockBitInfo.canChisel( state ) || LittleTiles.isLittleTilesBlock( event.getWorld().getTileEntity( event.getPos() ) ) )
 				{
 					if ( event.getWorld().isRemote )
 					{
 						// this is called when the player is survival -
 						// client side.
-						is.getItem().onBlockStartBreak( is, event.getPos(), event.getPlayerEntity() );
+						is.getItem().onBlockStartBreak( is, event.getPos(), event.getPlayer() );
 					}
 
 					// cancel interactions vs chiseable blocks, creative is
@@ -85,7 +83,7 @@ public class EventPlayerInteract
 
 	private void testInteractionSupression(
 			final PlayerInteractEvent event,
-			final Result useItem )
+			final Event.Result useItem )
 	{
 		// client is dragging...
 		if ( event.getWorld().isRemote )
@@ -97,9 +95,9 @@ public class EventPlayerInteract
 		}
 
 		// server is supressed.
-		if ( !event.getWorld().isRemote && event.getPlayerEntity() != null && useItem != Result.DENY )
+		if ( !event.getWorld().isRemote && event.getEntity() != null && useItem != Event.Result.DENY )
 		{
-			if ( serverSuppressEvent.containsKey( event.getPlayerEntity() ) )
+			if ( serverSuppressEvent.containsKey( event.getPlayer() ) )
 			{
 				event.setCanceled( true );
 			}

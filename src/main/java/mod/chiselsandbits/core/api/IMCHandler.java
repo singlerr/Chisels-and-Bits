@@ -1,13 +1,12 @@
 package mod.chiselsandbits.core.api;
 
+import mod.chiselsandbits.client.ModConflictContext;
+import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.Log;
+import net.minecraftforge.fml.InterModComms;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import mod.chiselsandbits.client.ModConflictContext;
-import mod.chiselsandbits.core.Log;
-import net.minecraftforge.fml.common.event.FMLInterModComms;
-import net.minecraftforge.fml.common.event.FMLInterModComms.IMCEvent;
-import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
 
 public class IMCHandler
 {
@@ -28,19 +27,15 @@ public class IMCHandler
 		processors.put( "initkeybindingannotations", new IMCHandlerKeyBindingAnnotations() );
 	}
 
-	public void handleIMCEvent(
-			final IMCEvent event )
+	public void handleIMCEvent()
 	{
-		for ( final FMLInterModComms.IMCMessage message : event.getMessages() )
-		{
-			executeIMC( message );
-		}
+		InterModComms.getMessages(ChiselsAndBits.MODID).forEach(this::executeIMC);
 	}
 
 	private void executeIMC(
-			final IMCMessage message )
+			final InterModComms.IMCMessage message )
 	{
-		final IMCMessageHandler handler = processors.get( message.key );
+		final IMCMessageHandler handler = processors.get( message.getMethod() );
 
 		if ( handler != null )
 		{
@@ -48,7 +43,7 @@ public class IMCHandler
 		}
 		else
 		{
-			Log.logError( "Invalid IMC: " + message.key + " from " + message.getSender(), new RuntimeException( "Invalid IMC Type." ) );
+			Log.logError( "Invalid IMC: " + message.getMethod() + " from " + message.getSenderModId(), new RuntimeException( "Invalid IMC Type." ) );
 		}
 	}
 

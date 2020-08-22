@@ -1,65 +1,42 @@
 package mod.chiselsandbits.core.api;
 
+import com.mojang.datafixers.util.Pair;
 import mod.chiselsandbits.client.ModConflictContext;
 import mod.chiselsandbits.core.Log;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.event.FMLInterModComms.IMCMessage;
+import net.minecraft.item.Items;
+import net.minecraftforge.fml.InterModComms;
+
+import java.util.function.Supplier;
 
 public class IMCHandlerKeyBinding implements IMCMessageHandler
 {
 
 	@Override
 	public void excuteIMC(
-			final IMCMessage message )
+			final InterModComms.IMCMessage message )
 	{
 		try
 		{
-			String errorName = "UNKNOWN";
-			Item item = null;
+			final Supplier<Pair<String, Item>> itemSupplier = message.getMessageSupplier();
+			final Pair<String, Item> item = itemSupplier.get();
 
-			if ( message.isStringMessage() )
+			if ( item == null || item.getSecond() == Items.AIR )
 			{
-				final String name = message.getStringValue();
-
-				errorName = name;
-				item = Item.REGISTRY.getObject( new ResourceLocation( name ) );
-
-				// try finding the item in the mod instead...
-				if ( item == null || item == Items.field_190931_a )
-				{
-					errorName = message.getSender() + ":" + name;
-					item = Item.REGISTRY.getObject( new ResourceLocation( message.getSender(), name ) );
-				}
-			}
-			else if ( message.isResourceLocationMessage() )
-			{
-				errorName = message.getResourceLocationValue().toString();
-				item = Item.REGISTRY.getObject( message.getResourceLocationValue() );
-			}
-			else
-			{
-				Log.info( "Invalid Type for IMC: " + message.getMessageType().getName() );
-				return;
-			}
-
-			if ( item == null || item == Items.field_190931_a )
-			{
-				throw new RuntimeException( "Unable to locate item " + errorName );
+				throw new RuntimeException( "Unable to locate item " + item.getSecond().getRegistryName() );
 			}
 
 			for ( ModConflictContext conflictContext : ModConflictContext.values() )
 			{
-				if ( conflictContext.getName().equals( message.key ) )
+				if ( conflictContext.getName().equals( item.getFirst() ) )
 				{
-					conflictContext.setItemActive( item );
+					conflictContext.setItemActive( item.getSecond() );
 				}
 			}
 		}
 		catch ( final Throwable e )
 		{
-			Log.logError( "IMC registeritemwithkeybinding From " + message.getSender(), e );
+			Log.logError( "IMC registeritemwithkeybinding From " + message.getSenderModId(), e );
 		}
 	}
 }

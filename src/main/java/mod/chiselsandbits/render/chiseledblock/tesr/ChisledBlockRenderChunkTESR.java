@@ -248,9 +248,9 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
 		}
 
 		final Stopwatch w = Stopwatch.createStarted();
-		final boolean dynamicRenderFullChunksOnly = ChiselsAndBits.getConfig().dynamicRenderFullChunksOnly;
-		final int maxMillisecondsPerBlock = ChiselsAndBits.getConfig().maxMillisecondsPerBlock;
-		final int maxMillisecondsUploadingPerFrame = ChiselsAndBits.getConfig().maxMillisecondsUploadingPerFrame;
+		final boolean dynamicRenderFullChunksOnly = ChiselsAndBits.getConfig().getClient().dynamicRenderFullChunksOnly.get();
+		final int maxMillisecondsPerBlock = ChiselsAndBits.getConfig().getClient().maxMillisecondsPerBlock.get();
+		final int maxMillisecondsUploadingPerFrame = ChiselsAndBits.getConfig().getClient().maxMillisecondsUploadingPerFrame.get();
 
 		do
 		{
@@ -340,7 +340,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
 		};
 
 		int processors = Runtime.getRuntime().availableProcessors();
-		if ( ChiselsAndBits.getConfig().lowMemoryMode )
+		if ( ChiselsAndBits.getConfig().getServer().lowMemoryMode.get() )
 		{
 			processors = 1;
 		}
@@ -467,7 +467,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
 		{
 			try
 			{
-				final Tessellator tess = tlrc.future.get( ChiselsAndBits.getConfig().minimizeLatancyMaxTime, TimeUnit.MILLISECONDS );
+				final Tessellator tess = tlrc.future.get( ChiselsAndBits.getConfig().getClient().minimizeLatancyMaxTime.get(), TimeUnit.MILLISECONDS );
 				tlrc.future = null;
 				pendingTess.decrementAndGet();
 
@@ -530,9 +530,9 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
 
 	public static int getMaxTessalators()
 	{
-		int dynamicTess = ChiselsAndBits.getConfig().dynamicMaxConcurrentTessalators;
+		int dynamicTess = ChiselsAndBits.getConfig().getClient().dynamicMaxConcurrentTessalators.get();
 
-		if ( ChiselsAndBits.getConfig().lowMemoryMode )
+		if ( ChiselsAndBits.getConfig().getServer().lowMemoryMode.get() )
 		{
 			dynamicTess = Math.min( 2, dynamicTess );
 		}

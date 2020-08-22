@@ -2,31 +2,40 @@ package mod.chiselsandbits.render;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import mod.chiselsandbits.core.ClientSide;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Direction;
+import net.minecraftforge.client.model.data.IModelData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class NullBakedModel implements IBakedModel
 {
 
 	public static final NullBakedModel instance = new NullBakedModel();
 
-	@Override
-	public List<BakedQuad> getQuads(
-			final BlockState state,
-			final Direction side,
-			final long rand )
-	{
-		return Collections.emptyList();
-	}
+    @NotNull
+    @Override
+    public List<BakedQuad> getQuads(
+      @Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand, @NotNull final IModelData extraData)
+    {
+        return Collections.emptyList();
+    }
 
-	@Override
+    @Override
+    public List<BakedQuad> getQuads(@Nullable final BlockState state, @Nullable final Direction side, final Random rand)
+    {
+        return Collections.emptyList();
+    }
+
+    @Override
 	public boolean isAmbientOcclusion()
 	{
 		return false;
@@ -38,7 +47,13 @@ public class NullBakedModel implements IBakedModel
 		return false;
 	}
 
-	@Override
+    @Override
+    public boolean func_230044_c_()
+    {
+        return false;
+    }
+
+    @Override
 	public boolean isBuiltInRenderer()
 	{
 		return false;
@@ -59,7 +74,7 @@ public class NullBakedModel implements IBakedModel
 	@Override
 	public ItemOverrideList getOverrides()
 	{
-		return ItemOverrideList.NONE;
+		return ItemOverrideList.EMPTY;
 	}
 
 }

@@ -2,16 +2,21 @@ package mod.chiselsandbits.registry;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import mod.chiselsandbits.client.CreativeClipboardTab;
 import mod.chiselsandbits.client.ModCreativeTab;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.material.MaterialColor;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModRegistry
@@ -29,7 +34,7 @@ public class ModRegistry
 
 	static
 	{
-		if ( ChiselsAndBits.getConfig().creativeClipboardSize > 0 )
+		if ( ChiselsAndBits.getConfig().getServer().creativeClipboardSize.get() > 0 )
 		{
 			creativeClipboard = new CreativeClipboardTab();
 		}
@@ -71,36 +76,23 @@ public class ModRegistry
 	}
 
 	protected <T extends Item> T registerItem(
-			final boolean enabled,
-			final T item,
+			final Function<Item.Properties, T> itemProducer,
 			final String name )
 	{
-		if ( enabled )
-		{
-			item.setCreativeTab( creativeTab );
-
-			item.setUnlocalizedName( unlocalizedPrefix + name );
-			item.setRegistryName( ChiselsAndBits.MODID, name );
-
-			registeredItems.add( item );
-			return item;
-		}
-
-		return null;
+	    final T item = (T) itemProducer.apply(new Item.Properties().group(creativeTab)).setRegistryName(ChiselsAndBits.MODID, name);
+	    registeredItems.add(item);
+        return item;
 	}
 
 	protected void registerBlock(
-			final Block block,
-			final ItemBlock item,
+	        final Material blockMaterial,
+			final MaterialColor blockMaterialColor,
+			final Function<AbstractBlock.Properties, Block> blockProducer,
+			final BiFunction<Block, Item.Properties, BlockItem> blockItemProducer,
 			final String name )
 	{
-		block.setCreativeTab( creativeTab );
-
-		item.setRegistryName( ChiselsAndBits.MODID, name );
-		block.setRegistryName( ChiselsAndBits.MODID, name );
-
-		block.setUnlocalizedName( unlocalizedPrefix + name );
-		item.setUnlocalizedName( unlocalizedPrefix + name );
+	    final Block block = blockProducer.apply(AbstractBlock.Properties.create(blockMaterial, blockMaterialColor)).setRegistryName(ChiselsAndBits.MODID, name);
+	    final BlockItem item = (BlockItem) blockItemProducer.apply(block, new Item.Properties().group(creativeTab)).setRegistryName(ChiselsAndBits.MODID, name);
 
 		registeredBlocks.add( block );
 		registeredItems.add( item );

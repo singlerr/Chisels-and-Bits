@@ -1,66 +1,41 @@
 package mod.chiselsandbits.crafting;
 
-import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.SpecialRecipeSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 
 public class ModRecipes
 {
 
-	final ModConfig config;
+    public static SpecialRecipeSerializer<BagDyeing> BAG_DYEING = new SpecialRecipeSerializer<>(BagDyeing::new);
+    public static SpecialRecipeSerializer<ChiselCrafting> CHISEL_CRAFTING = new SpecialRecipeSerializer<>(ChiselCrafting::new);
+    public static SpecialRecipeSerializer<ChiselBlockCrafting> CHISEL_BLOCK_CRAFTING = new SpecialRecipeSerializer<>(ChiselBlockCrafting::new);
+    public static SpecialRecipeSerializer<StackableCrafting> STACKABLE_CRAFTING = new SpecialRecipeSerializer<>(StackableCrafting::new);
+    public static SpecialRecipeSerializer<NegativeInversionCrafting> NEGATIVE_INVERSION_CRAFTING = new SpecialRecipeSerializer<>(NegativeInversionCrafting::new);
+    public static SpecialRecipeSerializer<MirrorTransferCrafting> MIRROR_TRANSFER_CRAFTING = new SpecialRecipeSerializer<>(MirrorTransferCrafting::new);
+    public static SpecialRecipeSerializer<BitSawCrafting> BIT_SAW_CRAFTING = new SpecialRecipeSerializer<>(BitSawCrafting::new);
 
-	public ModRecipes(
-			ModConfig modConfig )
-	{
-		config = modConfig;
-	}
 
 	@SubscribeEvent
 	void registerRecipes(
-			RegistryEvent.Register<IRecipe> e )
+			RegistryEvent.Register<IRecipeSerializer<?>> e )
 	{
-		IForgeRegistry<IRecipe> r = e.getRegistry();
-		String MODID = ChiselsAndBits.MODID;
+		IForgeRegistry<IRecipeSerializer<?>> r = e.getRegistry();
 
-		// add special recipes...
-		if ( ChiselsAndBits.getItems().itemBitBagDefault != null )
-		{
-			r.register( new BagDyeing( new ResourceLocation( MODID, "bitbagdyeing" ) ) );
-		}
-
-		if ( config.enablePositivePrintCrafting )
-		{
-			r.register( new ChiselCrafting( new ResourceLocation( MODID, "positiveprintcrafting" ) ) );
-		}
-
-		if ( config.enableChiselCrafting )
-		{
-			r.register( new ChiselBlockCrafting( new ResourceLocation( MODID, "chiselcrafting" ) ) );
-		}
-
-		if ( config.enableStackableCrafting )
-		{
-			r.register( new StackableCrafting( new ResourceLocation( MODID, "stackablecrafting" ) ) );
-		}
-
-		if ( config.enableNegativePrintInversionCrafting )
-		{
-			r.register( new NegativeInversionCrafting( new ResourceLocation( MODID, "negativepatterncrafting" ) ) );
-		}
-
-		if ( config.enableMirrorPrint )
-		{
-			r.register( new MirrorTransferCrafting( new ResourceLocation( MODID, "mirrorpatterncrafting" ) ) );
-		}
-
-		if ( config.enableBitSaw )
-		{
-			r.register( new BitSawCrafting( new ResourceLocation( MODID, "bitsawcrafting" ) ) );
-		}
+		r.registerAll(
+		  BAG_DYEING,
+          CHISEL_CRAFTING,
+          CHISEL_BLOCK_CRAFTING,
+          STACKABLE_CRAFTING,
+          NEGATIVE_INVERSION_CRAFTING,
+          MIRROR_TRANSFER_CRAFTING,
+          BIT_SAW_CRAFTING
+        );
 	}
 
 }

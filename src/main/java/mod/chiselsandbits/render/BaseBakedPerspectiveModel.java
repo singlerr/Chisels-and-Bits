@@ -1,17 +1,19 @@
 package mod.chiselsandbits.render;
 
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Quat4f;
+import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.util.math.vector.Quaternion;
+import net.minecraft.util.math.vector.TransformationMatrix;
+import net.minecraft.util.math.vector.Vector3f;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
-
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraftforge.common.model.TRSRTransformation;
+import java.util.Random;
 
 public abstract class BaseBakedPerspectiveModel implements IBakedModel
 {
+
+    protected static final Random RANDOM = new Random();
 
 	private static final Matrix4f ground;
 	private static final Matrix4f gui;
@@ -39,38 +41,42 @@ public abstract class BaseBakedPerspectiveModel implements IBakedModel
 			final float rotZ,
 			final float scaleXYZ )
 	{
-		final javax.vecmath.Vector3f translation = new javax.vecmath.Vector3f( transX, transY, transZ );
-		final javax.vecmath.Vector3f scale = new javax.vecmath.Vector3f( scaleXYZ, scaleXYZ, scaleXYZ );
-		final Quat4f rotation = TRSRTransformation.quatFromXYZDegrees( new javax.vecmath.Vector3f( rotX, rotY, rotZ ) );
+		final Vector3f translation = new Vector3f( transX, transY, transZ );
+		final Vector3f scale = new Vector3f( scaleXYZ, scaleXYZ, scaleXYZ );
+		final Quaternion rotation = new Quaternion(rotX, rotY, rotZ, true);
 
-		final TRSRTransformation transform = new TRSRTransformation( translation, rotation, scale, null );
-		return transform.getMatrix();
+		return new TransformationMatrix(translation, rotation, scale, null).getMatrix();
 	}
 
-	@Override
-	public Pair<? extends IBakedModel, Matrix4f> handlePerspective(
-			final TransformType cameraTransformType )
-	{
-		switch ( cameraTransformType )
-		{
-			case FIRST_PERSON_LEFT_HAND:
-				return new ImmutablePair<IBakedModel, Matrix4f>( this, firstPerson_lefthand );
-			case FIRST_PERSON_RIGHT_HAND:
-				return new ImmutablePair<IBakedModel, Matrix4f>( this, firstPerson_righthand );
-			case THIRD_PERSON_LEFT_HAND:
-				return new ImmutablePair<IBakedModel, Matrix4f>( this, thirdPerson_lefthand );
-			case THIRD_PERSON_RIGHT_HAND:
-				return new ImmutablePair<IBakedModel, Matrix4f>( this, thirdPerson_righthand );
-			case FIXED:
-				return new ImmutablePair<IBakedModel, Matrix4f>( this, fixed );
-			case GROUND:
-				return new ImmutablePair<IBakedModel, Matrix4f>( this, ground );
-			case GUI:
-				return new ImmutablePair<IBakedModel, Matrix4f>( this, gui );
-			default:
-		}
+    @Override
+    public IBakedModel handlePerspective(final ItemCameraTransforms.TransformType cameraTransformType, final MatrixStack mat)
+    {
+        switch ( cameraTransformType )
+        {
+            case FIRST_PERSON_LEFT_HAND:
+                mat.getLast().getMatrix().mul(firstPerson_lefthand);
+                return this;
+            case FIRST_PERSON_RIGHT_HAND:
+                mat.getLast().getMatrix().mul(firstPerson_righthand);
+                return this;
+            case THIRD_PERSON_LEFT_HAND:
+                mat.getLast().getMatrix().mul(thirdPerson_lefthand);
+                return this;
+            case THIRD_PERSON_RIGHT_HAND:
+                mat.getLast().getMatrix().mul(thirdPerson_righthand);
+            case FIXED:
+                mat.getLast().getMatrix().mul(fixed);
+                return this;
+            case GROUND:
+                mat.getLast().getMatrix().mul(ground);
+                return null;
+            case GUI:
+                mat.getLast().getMatrix().mul(gui);
+                return this;
+            default:
+        }
 
-		return new ImmutablePair<IBakedModel, Matrix4f>( this, fixed );
-	}
-
+        mat.getLast().getMatrix().mul(fixed);
+        return this;
+    }
 }

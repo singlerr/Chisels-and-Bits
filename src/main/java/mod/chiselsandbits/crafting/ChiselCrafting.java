@@ -4,13 +4,15 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.SpecialRecipe;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class ChiselCrafting extends CustomRecipe
+public class ChiselCrafting extends SpecialRecipe
 {
 
 	public ChiselCrafting(
@@ -26,7 +28,7 @@ public class ChiselCrafting extends CustomRecipe
 	 * @return
 	 */
 	private ChiselCraftingRequirements getCraftingReqs(
-			final InventoryCrafting inv,
+			final CraftingInventory inv,
 			final boolean copy )
 	{
 		ItemStack pattern = null;
@@ -40,7 +42,7 @@ public class ChiselCrafting extends CustomRecipe
 				continue;
 			}
 
-			if ( is.getItem() == ChiselsAndBits.getItems().itemPositiveprint && pattern == null )
+			if ( is.getItem() == ChiselsAndBits.getItems().itemPositivePrint && pattern == null )
 			{
 				pattern = is;
 			}
@@ -58,7 +60,7 @@ public class ChiselCrafting extends CustomRecipe
 			}
 		}
 
-		if ( pattern == null || pattern.hasTagCompound() == false )
+		if ( pattern == null || pattern.hasTag() == false )
 		{
 			return null;
 		}
@@ -74,7 +76,7 @@ public class ChiselCrafting extends CustomRecipe
 
 	@Override
 	public boolean matches(
-			final InventoryCrafting inv,
+			final CraftingInventory inv,
 			final World worldIn )
 	{
 		return getCraftingReqs( inv, true ) != null;
@@ -82,20 +84,20 @@ public class ChiselCrafting extends CustomRecipe
 
 	@Override
 	public ItemStack getCraftingResult(
-			final InventoryCrafting inv )
+			final CraftingInventory inv )
 	{
 		final ChiselCraftingRequirements req = getCraftingReqs( inv, true );
 
 		if ( req != null )
 		{
-			return ChiselsAndBits.getItems().itemPositiveprint.getPatternedItem( req.pattern, true );
+			return ChiselsAndBits.getItems().itemPositivePrint.getPatternedItem( req.pattern, true );
 		}
 
 		return ModUtil.getEmptyStack();
 	}
 
 	@Override
-	public boolean func_194133_a(
+	public boolean canFit(
 			final int width,
 			final int height )
 	{
@@ -111,9 +113,9 @@ public class ChiselCrafting extends CustomRecipe
 
 	@Override
 	public NonNullList<ItemStack> getRemainingItems(
-			final InventoryCrafting inv )
+			final CraftingInventory inv )
 	{
-		final NonNullList<ItemStack> out = NonNullList.func_191197_a( inv.getSizeInventory(), ItemStack.field_190927_a );
+		final NonNullList<ItemStack> out = NonNullList.withSize( inv.getSizeInventory(), ItemStack.EMPTY );
 
 		// just getting this will alter the stacks..
 		final ChiselCraftingRequirements r = getCraftingReqs( inv, false );
@@ -135,4 +137,9 @@ public class ChiselCrafting extends CustomRecipe
 		return out;
 	}
 
+    @Override
+    public IRecipeSerializer<?> getSerializer()
+    {
+        return ModRecipes.CHISEL_CRAFTING;
+    }
 }

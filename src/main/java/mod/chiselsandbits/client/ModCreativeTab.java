@@ -31,7 +31,7 @@ public class ModCreativeTab extends ItemGroup
 				cbitems.itemChiselIron,
 				cbitems.itemChiselStone,
 				cbitems.itemBitBagDefault,
-				cbitems.itemPositiveprint,
+				cbitems.itemPositivePrint,
 				cbitems.itemNegativePrint,
 				cbitems.itemWrench ) );
 	}

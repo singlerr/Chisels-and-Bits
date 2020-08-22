@@ -1,16 +1,16 @@
 package mod.chiselsandbits.core;
 
-import java.lang.reflect.Field;
-import java.util.Map;
-
 import mod.chiselsandbits.helpers.ModUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
-import net.minecraft.launchwrapper.Launch;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLLoader;
+
+import java.lang.reflect.Field;
+import java.util.Map;
 
 public class ReflectionWrapper
 {
@@ -67,7 +67,7 @@ public class ReflectionWrapper
 	{
 		try
 		{
-			final Object o = Minecraft.getMinecraft().ingameGUI;
+			final Object o = Minecraft.getInstance().ingameGUI;
 
 			if ( highlightingItemStack == null )
 			{
@@ -93,7 +93,7 @@ public class ReflectionWrapper
 	@OnlyIn( Dist.CLIENT )
 	public void endHighlightedStack()
 	{
-		setHighlightStack( Minecraft.getMinecraft().thePlayer.getHeldItemMainhand() );
+		setHighlightStack( Minecraft.getInstance().player.getHeldItemMainhand() );
 	}
 
 	/**
@@ -106,13 +106,13 @@ public class ReflectionWrapper
 	@SuppressWarnings( "unchecked" )
 	@OnlyIn( Dist.CLIENT )
 	public Map<String, TextureAtlasSprite> getRegSprite(
-			final TextureMap map )
+			final AtlasTexture map )
 	{
 		try
 		{
 			if ( mapRegSprites == null )
 			{
-				mapRegSprites = findField( map.getClass(), "mapRegisteredSprites", "field_110574_e" );
+				mapRegSprites = findField( map.getClass(), "mapUploadedSprites", "field_94252_e" );
 			}
 
 			mapRegSprites.setAccessible( true );
@@ -138,8 +138,7 @@ public class ReflectionWrapper
 
 	private boolean deobfuscatedEnvironment()
 	{
-		final Object deObf = Launch.blackboard.get( "fml.deobfuscatedEnvironment" );
-		return Boolean.valueOf( String.valueOf( deObf ) );
+		return !FMLLoader.isProduction();
 	}
 
 }

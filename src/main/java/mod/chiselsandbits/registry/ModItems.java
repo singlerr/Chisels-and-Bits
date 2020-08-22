@@ -1,6 +1,5 @@
 package mod.chiselsandbits.registry;
 
-import mod.chiselsandbits.config.ModConfig;
 import mod.chiselsandbits.debug.ItemApiDebug;
 import mod.chiselsandbits.items.*;
 import net.minecraft.item.Item;
@@ -15,9 +14,10 @@ public class ModItems extends ModRegistry
 	final public ItemChisel itemChiselDiamond;
 
 	final public ItemChiseledBit   itemBlockBit;
-	final public ItemMirrorPrint   itemMirrorprint;
-    final public ItemPositivePrint itemPositiveprint;
-    final public ItemPositivePrint itemPositiveprintWritten;
+    final public ItemMirrorPrint   itemMirrorPrint;
+    final public ItemMirrorPrint   itemMirrorPrintWritten;
+    final public ItemPositivePrint itemPositivePrint;
+    final public ItemPositivePrint itemPositivePrintWritten;
 	final public ItemNegativePrint itemNegativePrint;
 	final public ItemNegativePrint itemNegativePrintWritten;
 
@@ -27,26 +27,26 @@ public class ModItems extends ModRegistry
 	final public ItemBitSaw      itemBitSawDiamond;
 	final public ItemTapeMeasure itemTapeMeasure;
 
-	public ModItems(
-			final ModConfig config )
+	public ModItems()
 	{
 		// register items...
-		itemChiselStone = registerItem( config.enableStoneChisel, new ItemChisel(ItemTier.STONE, new Item.Properties()), "chisel_stone" );
-		itemChiselIron = registerItem( config.enableIronChisel, new ItemChisel( ItemTier.IRON, new Item.Properties() ), "chisel_iron" );
-		itemChiselGold = registerItem( config.enableGoldChisel, new ItemChisel( ItemTier.GOLD, new Item.Properties() ), "chisel_gold" );
-		itemChiselDiamond = registerItem( config.enableDiamondChisel, new ItemChisel( ItemTier.DIAMOND, new Item.Properties() ), "chisel_diamond" );
-		itemPositiveprint = registerItem( config.enablePositivePrint, new ItemPositivePrint(new Item.Properties()), "positiveprint" );
-        itemPositiveprintWritten = registerItem( config.enablePositivePrint, new ItemPositivePrint(new Item.Properties()), "positiveprint_written" );
-		itemNegativePrint = registerItem( config.enableNegativePrint, new ItemNegativePrint(new Item.Properties()), "negativeprint" );
-        itemNegativePrintWritten = registerItem( config.enableNegativePrint, new ItemNegativePrint(new Item.Properties()), "negativeprint_written");
-		itemMirrorprint = registerItem( config.enableMirrorPrint, new ItemMirrorPrint(), "mirrorprint" );
-		itemBitBagDefault = registerItem( config.enableBitBag, new ItemBitBag(new Item.Properties()), "bit_bag" );
-        itemBitBagDyed = registerItem( config.enableBitBag, new ItemBitBag(new Item.Properties()), "bit_bag_dyed" );
-		itemWrench = registerItem( config.enableWoodenWrench, new ItemWrench(), "wrench_wood" );
-		itemBitSawDiamond = registerItem( config.enableBitSaw, new ItemBitSaw(), "bitsaw_diamond" );
-		itemBlockBit = registerItem( config.enableChisledBits, new ItemChiseledBit(new Item.Properties()), "block_bit" );
-		itemTapeMeasure = registerItem( config.enableTapeMeasure, new ItemTapeMeasure(), "tape_measure" );
-		registerItem( config.enableAPITestingItem, new ItemApiDebug(), "debug" );
+		itemChiselStone = registerItem((prop) -> new ItemChisel(ItemTier.STONE, prop), "chisel_stone" );
+		itemChiselIron = registerItem((prop) -> new ItemChisel( ItemTier.IRON, prop ), "chisel_iron" );
+		itemChiselGold = registerItem((prop) -> new ItemChisel( ItemTier.GOLD, prop), "chisel_gold" );
+		itemChiselDiamond = registerItem((prop) -> new ItemChisel( ItemTier.DIAMOND, prop ), "chisel_diamond" );
+		itemPositivePrint = registerItem(ItemPositivePrint::new, "positiveprint" );
+        itemPositivePrintWritten = registerItem(ItemPositivePrint::new, "positiveprint_written" );
+		itemNegativePrint = registerItem(ItemNegativePrint::new, "negativeprint" );
+        itemNegativePrintWritten = registerItem(ItemNegativePrint::new, "negativeprint_written");
+        itemMirrorPrint = registerItem(ItemMirrorPrint::new, "mirrorprint" );
+        itemMirrorPrintWritten = registerItem(ItemMirrorPrint::new, "mirrorprint_written" );
+		itemBitBagDefault = registerItem(ItemBitBag::new, "bit_bag" );
+        itemBitBagDyed = registerItem(ItemBitBag::new, "bit_bag_dyed" );
+		itemWrench = registerItem(ItemWrench::new, "wrench_wood" );
+		itemBitSawDiamond = registerItem(ItemBitSaw::new, "bitsaw_diamond" );
+		itemBlockBit = registerItem(ItemChiseledBit::new, "block_bit" );
+		itemTapeMeasure = registerItem(ItemTapeMeasure::new, "tape_measure" );
+		registerItem(ItemApiDebug::new, "debug" );
     }
 
 }

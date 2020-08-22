@@ -11,15 +11,15 @@ import mod.chiselsandbits.render.BaseSmartModel;
 import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
-import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
 public class BitItemSmartModel extends BaseSmartModel implements ICacheClearable
 {
-	static private final HashMap<Integer, IBakedModel> modelCache = new HashMap<Integer, IBakedModel>();
+	static private final HashMap<Integer, IBakedModel> modelCache      = new HashMap<Integer, IBakedModel>();
 	static private final HashMap<Integer, IBakedModel> largeModelCache = new HashMap<Integer, IBakedModel>();
 
 	private IBakedModel getCachedModel(
@@ -36,11 +36,11 @@ public class BitItemSmartModel extends BaseSmartModel implements ICacheClearable
 				final VoxelBlob blob = new VoxelBlob();
 				blob.fill( stateID );
 				final VoxelBlobStateReference ref = new VoxelBlobStateReference( blob, 0 );
-				final IBakedModel a = new ChiseledBlockBaked( stateID, ChiselLayer.SOLID, ref, null, DefaultVertexFormats.ITEM );
-				final IBakedModel b = new ChiseledBlockBaked( stateID, ChiselLayer.SOLID_FLUID, ref, null, DefaultVertexFormats.ITEM );
-				final IBakedModel c = new ChiseledBlockBaked( stateID, ChiselLayer.CUTOUT_MIPPED, ref, null, DefaultVertexFormats.ITEM );
-				final IBakedModel d = new ChiseledBlockBaked( stateID, ChiselLayer.CUTOUT, ref, null, DefaultVertexFormats.ITEM );
-				final IBakedModel e = new ChiseledBlockBaked( stateID, ChiselLayer.TRANSLUCENT, ref, null, DefaultVertexFormats.ITEM );
+				final IBakedModel a = new ChiseledBlockBaked( stateID, ChiselLayer.SOLID, ref, null, DefaultVertexFormats.BLOCK );
+				final IBakedModel b = new ChiseledBlockBaked( stateID, ChiselLayer.SOLID_FLUID, ref, null, DefaultVertexFormats.BLOCK );
+				final IBakedModel c = new ChiseledBlockBaked( stateID, ChiselLayer.CUTOUT_MIPPED, ref, null, DefaultVertexFormats.BLOCK );
+				final IBakedModel d = new ChiseledBlockBaked( stateID, ChiselLayer.CUTOUT, ref, null, DefaultVertexFormats.BLOCK );
+				final IBakedModel e = new ChiseledBlockBaked( stateID, ChiselLayer.TRANSLUCENT, ref, null, DefaultVertexFormats.BLOCK );
 				out = new ModelCombined( a, b, c, d, e );
 			}
 			else
@@ -54,15 +54,14 @@ public class BitItemSmartModel extends BaseSmartModel implements ICacheClearable
 		return out;
 	}
 
-	@Override
-	public IBakedModel handleItemState(
-			final IBakedModel originalModel,
-			final ItemStack stack,
-			final World world,
-			final EntityLivingBase entity )
-	{
-		return getCachedModel( ItemChiseledBit.getStackState( stack ), ClientSide.instance.holdingShift() );
-	}
+    public IBakedModel func_239290_a_(
+      final IBakedModel originalModel,
+      final ItemStack stack,
+      final World world,
+      final LivingEntity entity )
+    {
+        return getCachedModel( ItemChiseledBit.getStackState( stack ), ClientSide.instance.holdingShift() );
+    }
 
 	@Override
 	public void clearCache()
@@ -70,4 +69,10 @@ public class BitItemSmartModel extends BaseSmartModel implements ICacheClearable
 		modelCache.clear();
 		largeModelCache.clear();
 	}
+
+    @Override
+    public boolean func_230044_c_()
+    {
+        return false;
+    }
 }

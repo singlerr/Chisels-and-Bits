@@ -38,12 +38,24 @@ public enum ModPacketTypes
 	BAG_GUI_STACK( ((channel, integer) -> {
         channel.registerMessage(integer, PacketBagGuiStack.class, PacketBagGuiStack::new);
     }) ),
-	UNDO( PacketUndo.class ),
-	CLEAR_BAG( PacketClearBagGui.class ),
-	SUPRESS_INTERACTION( PacketSuppressInteraction.class ),
-	SET_COLOR( PacketSetColor.class ),
-	ACCURATE_PLACEMENT( PacketAccurateSneakPlace.class ),
-	SORT_BAG_GUI( PacketSortBagGui.class );
+	UNDO( ((channel, integer) -> {
+        channel.registerMessage(integer, PacketUndo.class, PacketUndo::new);
+    }) ),
+	CLEAR_BAG( ((channel, integer) -> {
+        channel.registerMessage(integer, PacketClearBagGui.class, PacketClearBagGui::new);
+    }) ),
+	SUPRESS_INTERACTION( ((channel, integer) -> {
+        channel.registerMessage(integer, PacketSuppressInteraction.class, PacketSuppressInteraction::new);
+    }) ),
+	SET_COLOR( ((channel, integer) -> {
+        channel.registerMessage(integer, PacketSetColor.class, PacketSetColor::new);
+    }) ),
+	ACCURATE_PLACEMENT( ((channel, integer) -> {
+        channel.registerMessage(integer, PacketAccurateSneakPlace.class, PacketAccurateSneakPlace::new);
+    }) ),
+	SORT_BAG_GUI( ((channel, integer) -> {
+        channel.registerMessage(integer, PacketSortBagGui.class, PacketSortBagGui::new);
+    }) );
 
 	private static final Logger LOGGER = LogManager.getLogger(ModPacketTypes.class);
 

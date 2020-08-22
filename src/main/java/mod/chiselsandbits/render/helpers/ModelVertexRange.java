@@ -1,7 +1,6 @@
 package mod.chiselsandbits.render.helpers;
 
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.client.renderer.vertex.VertexFormatElement.EnumUsage;
 
 public class ModelVertexRange extends BaseModelReader
 {
@@ -31,8 +30,8 @@ public class ModelVertexRange extends BaseModelReader
 			final int element,
 			final float... data )
 	{
-		final VertexFormatElement e = getVertexFormat().getElement( element );
-		if ( e.getUsage() == EnumUsage.POSITION )
+		final VertexFormatElement e = getVertexFormat().getElements().get(element);
+		if ( e.getUsage() == VertexFormatElement.Usage.POSITION )
 		{
 			if ( vertCount == 0 )
 			{

@@ -29,6 +29,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.List;
@@ -49,7 +50,7 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 			final ITooltipFlag advanced )
 	{
 		super.addInformation( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpTapeMeasure, tooltip,
+		ChiselsAndBits.getConfig().getCommon().helpText( LocalStrings.HelpTapeMeasure, tooltip,
 				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
 				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
 				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindSneak ),
@@ -99,7 +100,7 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
     @Override
     public ITextComponent getHighlightTip(final ItemStack item, final ITextComponent displayName)
     {
-        if ( displayName instanceof IFormattableTextComponent && ChiselsAndBits.getConfig().itemNameModeDisplay )
+        if (EffectiveSide.get().isClient() && displayName instanceof IFormattableTextComponent && ChiselsAndBits.getConfig().getClient().itemNameModeDisplay.get() )
         {
             final IFormattableTextComponent formattableTextComponent = (IFormattableTextComponent) displayName;
             return formattableTextComponent.appendString(" - ").appendString(TapeMeasureModes.getMode( item ).string.getLocal()).appendString(" - ").appendString(DeprecationHelper.translateToLocal( "chiselsandbits.color." + getTapeColor( item ).getTranslationKey()) );
@@ -149,7 +150,7 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
 		final DyeColor col = DyeColor.values()[next];
 		setTapeColor( stack, col );
 
-		final PacketSetColor setColor = new PacketSetColor(col, ChiselToolType.TAPEMEASURE, ChiselsAndBits.getConfig().chatModeNotification);
+		final PacketSetColor setColor = new PacketSetColor(col, ChiselToolType.TAPEMEASURE, ChiselsAndBits.getConfig().getClient().chatModeNotification.get());
 
 		ChiselsAndBits.getNetworkChannel().sendToServer(setColor);
 		ReflectionWrapper.instance.clearHighlightedStack();

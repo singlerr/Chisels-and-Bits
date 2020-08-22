@@ -1,6 +1,7 @@
 package mod.chiselsandbits.chiseledblock;
 
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -13,12 +14,21 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.LightType;
+import net.minecraftforge.client.model.ModelDataManager;
+import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelDataMap;
+import net.minecraftforge.client.model.data.ModelProperty;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
 
 public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 {
+    public static final ModelProperty<VoxelBlobStateReference> MP_VBSR = new ModelProperty<>();
+    public static final ModelProperty<VoxelNeighborRenderTracker> MP_VNRT = new ModelProperty<>();
+    public static final ModelProperty<Integer> MP_PBSI = new ModelProperty<>();
+
 	private TileRenderChunk renderChunk;
 	private TileRenderCache singleCache;
 	private int previousLightLevel = -1;
@@ -33,7 +43,13 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 		return renderChunk;
 	}
 
-	@Override
+    @Override
+    protected void onDataUpdate()
+    {
+        ModelDataManager.requestModelDataRefresh(this);
+    }
+
+    @Override
 	protected void tesrUpdate(
 			final IBlockReader access,
 			final VoxelNeighborRenderTracker vns )
@@ -170,7 +186,7 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	@Override
 	public double getMaxRenderDistanceSquared()
 	{
-		return ChiselsAndBits.getConfig().dynamicModelRange * ChiselsAndBits.getConfig().dynamicModelRange;
+		return ChiselsAndBits.getConfig().getClient().dynamicModelRange.get() * ChiselsAndBits.getConfig().getClient().dynamicModelRange.get();
 	}
 
 	@Override
@@ -197,4 +213,16 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 		}
 	}
 
+    @NotNull
+    @Override
+    public IModelData getModelData()
+    {
+        return new ModelDataMap.Builder().withInitial(
+          MP_PBSI, getPrimaryBlockStateId()
+        ).withInitial(
+          MP_VBSR, getBlobStateReference()
+        ).withInitial(
+          MP_VNRT, getNeighborRenderTracker()
+        ).build();
+    }
 }

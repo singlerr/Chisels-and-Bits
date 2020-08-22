@@ -1,35 +1,18 @@
 package mod.chiselsandbits.items;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nonnull;
-
 import com.google.common.base.Stopwatch;
-
+import mod.chiselsandbits.api.ReplacementStateHandler;
 import mod.chiselsandbits.bittank.BlockBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChisledValue;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
-import mod.chiselsandbits.helpers.ActingPlayer;
-import mod.chiselsandbits.helpers.BitOperation;
-import mod.chiselsandbits.helpers.ChiselModeManager;
-import mod.chiselsandbits.helpers.ChiselToolType;
-import mod.chiselsandbits.helpers.DeprecationHelper;
-import mod.chiselsandbits.helpers.IContinuousInventory;
-import mod.chiselsandbits.helpers.IItemInInventory;
-import mod.chiselsandbits.helpers.LocalStrings;
-import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.helpers.*;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.interfaces.IItemScrollWheel;
@@ -46,19 +29,25 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.item.*;
 import net.minecraft.nbt.IntNBT;
 import net.minecraft.state.Property;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.*;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.LogicalSidedProvider;
 import net.minecraftforge.registries.ForgeRegistries;
+
+import javax.annotation.Nonnull;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselModeItem, ICacheClearable
 {
@@ -82,7 +71,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final ITooltipFlag advanced )
 	{
 		super.addInformation( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpBit, tooltip,
+		ChiselsAndBits.getConfig().getCommon().helpText( LocalStrings.HelpBit, tooltip,
 				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindAttack ),
 				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
 				ClientSide.instance.getModeKey() );
@@ -92,7 +81,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
     public ITextComponent getHighlightTip(final ItemStack item, final ITextComponent displayName)
     {
         return DistExecutor.unsafeRunForDist(() -> () -> {
-            if ( ChiselsAndBits.getConfig().itemNameModeDisplay && displayName instanceof IFormattableTextComponent)
+            if ( ChiselsAndBits.getConfig().getClient().itemNameModeDisplay.get() && displayName instanceof IFormattableTextComponent)
             {
                 String extra = "";
                 if ( getBitOperation( ClientSide.instance.getPlayer(), Hand.MAIN_HAND, item ) == BitOperation.REPLACE )
@@ -232,7 +221,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	@Override
 	public int getItemStackLimit(ItemStack stack)
 	{
-		return bitBagStackLimitHack ? ChiselsAndBits.getConfig().bagStackSize : super.getItemStackLimit(stack);
+		return bitBagStackLimitHack ? ChiselsAndBits.getConfig().getServer().bagStackSize.get() : super.getItemStackLimit(stack);
 	}
 
     @Override
@@ -328,7 +317,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final Hand hand,
 			final ItemStack stack )
 	{
-		return ChiselsAndBits.getConfig().replaceingBits ? BitOperation.REPLACE : BitOperation.PLACE;
+		return ReplacementStateHandler.getInstance().isReplacing() ? BitOperation.REPLACE : BitOperation.PLACE;
 	}
 
 	@Override
@@ -513,7 +502,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 	public static boolean checkRequiredSpace(
 			final PlayerEntity player,
 			final BlockState blkstate) {
-		if ( ChiselsAndBits.getConfig().requireBagSpace && !player.isCreative() )
+		if ( ChiselsAndBits.getConfig().getServer().requireBagSpace.get() && !player.isCreative() )
 		{
 			//Cycle every item in any bag, if the player can't store the clicked block then
 			//send them a message.

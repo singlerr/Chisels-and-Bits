@@ -1,12 +1,10 @@
 package mod.chiselsandbits.items;
 
-import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import com.sun.org.apache.xpath.internal.operations.String;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.VoxelStats;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
@@ -78,7 +76,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 			final ITooltipFlag advanced )
 	{
 		defaultAddInfo( stack, worldIn, tooltip, advanced );
-		ChiselsAndBits.getConfig().helpText( LocalStrings.HelpNegativePrint, tooltip,
+		ChiselsAndBits.getConfig().getCommon().helpText( LocalStrings.HelpNegativePrint, tooltip,
 				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
 				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ) );
 
@@ -121,7 +119,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	public boolean isWritten(
 			final ItemStack stack )
 	{
-	    if (stack.getItem() == ChiselsAndBits.getItems().itemNegativePrint || stack.getItem() == ChiselsAndBits.getItems().itemPositiveprint)
+	    if (stack.getItem() == ChiselsAndBits.getItems().itemNegativePrint || stack.getItem() == ChiselsAndBits.getItems().itemPositivePrint)
 	        return false;
 
 		if ( stack != null && stack.hasTag() )
@@ -262,7 +260,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		final NBTBlobConverter conv = new NBTBlobConverter();
 		conv.readChisleData( tag, VoxelBlob.VERSION_ANY );
 
-		if ( craftingBlocks && ChiselsAndBits.getConfig().fullBlockCrafting )
+		if ( craftingBlocks && ChiselsAndBits.getConfig().getServer().fullBlockCrafting.get() )
 		{
 			final VoxelStats stats = conv.getBlob().getVoxelStats();
 			if ( stats.isFullBlock )

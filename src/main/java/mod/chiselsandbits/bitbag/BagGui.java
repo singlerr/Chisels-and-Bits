@@ -165,14 +165,14 @@ public class BagGui extends ContainerScreen<BagContainer>
 
     protected void drawDefaultBackground(final MatrixStack matrixStack, final float partialTicks, final int x, final int y)
     {
-        font.drawString(matrixStack, ChiselsAndBits.getItems().itemBitBagDefault.getItemStackDisplayName( ModUtil.getEmptyStack() ), 8, 6, 0x404040 );
+        font.func_238407_a_(matrixStack, ChiselsAndBits.getItems().itemBitBagDefault.getDisplayName( ModUtil.getEmptyStack() ), 8, 6, 0x404040 );
         font.drawString(matrixStack, I18n.format( "container.inventory" ), 8, ySize - 93, 0x404040 );
 
         RenderHelper.enableStandardItemLighting();
 
         if ( specialFontRenderer == null )
         {
-            specialFontRenderer = new GuiBagFontRenderer( font, ChiselsAndBits.getConfig().bagStackSize );
+            specialFontRenderer = new GuiBagFontRenderer( font, ChiselsAndBits.getConfig().getServer().bagStackSize.get() );
         }
 
         for ( int slotIdx = 0; slotIdx < getBagContainer().customSlots.size(); ++slotIdx )

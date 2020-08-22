@@ -66,7 +66,7 @@ public class CreativeClipboardTab extends ItemGroup implements ICacheClearable
 			myCrossItems.add( 0, is.getTag() );
 
 			// remove extra items from back..
-			while ( myCrossItems.size() > ChiselsAndBits.getConfig().creativeClipboardSize && !myCrossItems.isEmpty() )
+			while ( myCrossItems.size() > ChiselsAndBits.getConfig().getServer().creativeClipboardSize.get() && !myCrossItems.isEmpty() )
 			{
 				myCrossItems.remove( myCrossItems.size() - 1 );
 			}
@@ -88,7 +88,7 @@ public class CreativeClipboardTab extends ItemGroup implements ICacheClearable
     {
         final ModItems cbitems = ChiselsAndBits.getItems();
         return new ItemStack( ModUtil.firstNonNull(
-          cbitems.itemPositiveprint,
+          cbitems.itemPositivePrint,
           cbitems.itemNegativePrint,
           cbitems.itemBitBagDefault,
           cbitems.itemChiselDiamond,

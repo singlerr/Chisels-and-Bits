@@ -116,9 +116,9 @@ public interface IChiselAndBitsAPI
 	 * @return details about the target bit, no arguments should be null.
 	 */
 	IBitLocation getBitPos(
-			float hitX,
-			float hitY,
-			float hitZ,
+			double hitX,
+			double hitY,
+			double hitZ,
 			Direction side,
 			BlockPos pos,
 			boolean placement );

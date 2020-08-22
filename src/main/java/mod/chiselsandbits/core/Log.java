@@ -34,7 +34,7 @@ public class Log
 	public static void noTileError(
 			final ExceptionNoTileEntity e )
 	{
-		if ( ChiselsAndBits.getConfig().logTileErrors )
+		if ( ChiselsAndBits.getConfig().getServer().logTileErrors.get() )
 		{
 			getLogger().error( "Unable to find TileEntity while interacting with block.", new Exception() );
 		}
@@ -43,7 +43,7 @@ public class Log
 	public static void eligibility(
 			String message )
 	{
-		if ( ChiselsAndBits.getConfig().logEligibilityErrors )
+		if ( ChiselsAndBits.getConfig().getServer().logEligibilityErrors.get() )
 		{
 			getLogger().info( message );
 		}

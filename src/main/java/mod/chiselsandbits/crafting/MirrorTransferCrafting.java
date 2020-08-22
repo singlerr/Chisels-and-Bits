@@ -4,16 +4,18 @@ import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.InventoryCrafting;
+import net.minecraft.block.Blocks;
+import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.crafting.IRecipeSerializer;
+import net.minecraft.item.crafting.SpecialRecipe;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 
-public class MirrorTransferCrafting extends CustomRecipe
+public class MirrorTransferCrafting extends SpecialRecipe
 {
 
 	public MirrorTransferCrafting(
@@ -24,14 +26,14 @@ public class MirrorTransferCrafting extends CustomRecipe
 
 	@Override
 	public boolean matches(
-			final InventoryCrafting craftingInv,
+			final CraftingInventory craftingInv,
 			final World worldIn )
 	{
 		return analzyeCraftingInventory( craftingInv, true ) != null;
 	}
 
 	public ItemStack analzyeCraftingInventory(
-			final InventoryCrafting craftingInv,
+			final CraftingInventory craftingInv,
 			final boolean generatePattern )
 	{
 		ItemStack targetA = null;
@@ -47,9 +49,9 @@ public class MirrorTransferCrafting extends CustomRecipe
 				continue;
 			}
 
-			if ( f.getItem() == ChiselsAndBits.getItems().itemMirrorprint )
+			if ( f.getItem() == ChiselsAndBits.getItems().itemMirrorPrint)
 			{
-				if ( ChiselsAndBits.getItems().itemMirrorprint.isWritten( f ) )
+				if ( ChiselsAndBits.getItems().itemMirrorPrint.isWritten( f ) )
 				{
 					if ( targetA != null )
 					{
@@ -81,9 +83,9 @@ public class MirrorTransferCrafting extends CustomRecipe
 					return null;
 				}
 			}
-			else if ( f.getItem() == ChiselsAndBits.getItems().itemPositiveprint )
+			else if ( f.getItem() == ChiselsAndBits.getItems().itemPositivePrint)
 			{
-				if ( !ChiselsAndBits.getItems().itemPositiveprint.isWritten( f ) )
+				if ( !ChiselsAndBits.getItems().itemPositivePrint.isWritten( f ) )
 				{
 					if ( targetB != null )
 					{
@@ -112,7 +114,7 @@ public class MirrorTransferCrafting extends CustomRecipe
 			}
 
 			final NBTBlobConverter tmp = new NBTBlobConverter();
-			tmp.readChisleData( targetA.getTagCompound(), VoxelBlob.VERSION_ANY );
+			tmp.readChisleData( targetA.getTag(), VoxelBlob.VERSION_ANY );
 
 			final VoxelBlob bestBlob = tmp.getBlob();
 
@@ -123,12 +125,11 @@ public class MirrorTransferCrafting extends CustomRecipe
 
 			tmp.setBlob( bestBlob );
 
-			final NBTBase copied = ModUtil.getTagCompound( targetA ).copy();
-			final NBTTagCompound comp = (NBTTagCompound) copied;
+			final CompoundNBT comp = ModUtil.getTagCompound( targetA ).copy();
 			tmp.writeChisleData( comp, false );
 
 			final ItemStack outputPattern = new ItemStack( targetB.getItem() );
-			outputPattern.setTagCompound( comp );
+			outputPattern.setTag( comp );
 
 			return outputPattern;
 		}
@@ -138,13 +139,14 @@ public class MirrorTransferCrafting extends CustomRecipe
 
 	@Override
 	public ItemStack getCraftingResult(
-			final InventoryCrafting craftingInv )
+			final CraftingInventory craftingInv )
 	{
 		return analzyeCraftingInventory( craftingInv, false );
 	}
 
+
 	@Override
-	public boolean func_194133_a(
+	public boolean canFit (
 			final int width,
 			final int height )
 	{
@@ -159,14 +161,14 @@ public class MirrorTransferCrafting extends CustomRecipe
 
 	@Override
 	public NonNullList<ItemStack> getRemainingItems(
-			final InventoryCrafting craftingInv )
+			final CraftingInventory craftingInv )
 	{
-		final NonNullList<ItemStack> aitemstack = NonNullList.func_191197_a( craftingInv.getSizeInventory(), ItemStack.field_190927_a );
+		final NonNullList<ItemStack> aitemstack = NonNullList.withSize( craftingInv.getSizeInventory(), ItemStack.EMPTY );
 
 		for ( int i = 0; i < aitemstack.size(); ++i )
 		{
 			final ItemStack itemstack = craftingInv.getStackInSlot( i );
-			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.getItems().itemMirrorprint && itemstack.hasTagCompound() )
+			if (itemstack.getItem() == ChiselsAndBits.getItems().itemMirrorPrint && itemstack.hasTag())
 			{
 				ModUtil.adjustStackSize( itemstack, 1 );
 			}
@@ -175,4 +177,9 @@ public class MirrorTransferCrafting extends CustomRecipe
 		return aitemstack;
 	}
 
+    @Override
+    public IRecipeSerializer<?> getSerializer()
+    {
+        return ModRecipes.MIRROR_TRANSFER_CRAFTING;
+    }
 }

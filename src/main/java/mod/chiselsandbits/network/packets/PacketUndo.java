@@ -1,8 +1,5 @@
 package mod.chiselsandbits.network.packets;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
@@ -11,17 +8,11 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.api.BitAccess;
-import mod.chiselsandbits.helpers.ActingPlayer;
-import mod.chiselsandbits.helpers.ContinousChisels;
-import mod.chiselsandbits.helpers.IContinuousInventory;
-import mod.chiselsandbits.helpers.IItemInInventory;
-import mod.chiselsandbits.helpers.InventoryBackup;
-import mod.chiselsandbits.helpers.ModUtil;
-import mod.chiselsandbits.helpers.BitInventoryFeeder;
+import mod.chiselsandbits.helpers.*;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.network.ModPacket;
-import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
@@ -30,16 +21,20 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
+import java.awt.event.ItemEvent;
+import java.util.ArrayList;
+import java.util.List;
+
 public class PacketUndo extends ModPacket
 {
 
-	BlockPos pos;
-	VoxelBlobStateReference before;
-	VoxelBlobStateReference after;
+	private BlockPos pos;
+	private VoxelBlobStateReference before;
+	private VoxelBlobStateReference after;
 
-	public PacketUndo()
+	public PacketUndo(PacketBuffer buffer)
 	{
-		// walrus.
+	    readPayload(buffer);
 	}
 
 	public PacketUndo(
@@ -66,11 +61,11 @@ public class PacketUndo extends ModPacket
 		buffer.writeBlockPos( pos );
 
 		final byte[] bef = before.getByteArray();
-		buffer.writeVarIntToBuffer( bef.length );
+		buffer.writeInt( bef.length );
 		buffer.writeBytes( bef );
 
 		final byte[] aft = after.getByteArray();
-		buffer.writeVarIntToBuffer( aft.length );
+		buffer.writeInt( aft.length );
 		buffer.writeBytes( aft );
 	}
 
@@ -80,11 +75,11 @@ public class PacketUndo extends ModPacket
 	{
 		pos = buffer.readBlockPos();
 
-		final int lena = buffer.readVarIntFromBuffer();
+		final int lena = buffer.readInt();
 		final byte[] ta = new byte[lena];
 		buffer.readBytes( ta );
 
-		final int lenb = buffer.readVarIntFromBuffer();
+		final int lenb = buffer.readInt();
 		final byte[] tb = new byte[lenb];
 		buffer.readBytes( tb );
 
@@ -133,7 +128,7 @@ public class PacketUndo extends ModPacket
 				ItemStack spawnedItem = null;
 
 				final List<BagInventory> bags = ModUtil.getBags( player );
-				final List<EntityItem> spawnlist = new ArrayList<EntityItem>();
+				final List<ItemEntity> spawnlist = new ArrayList<ItemEntity>();
 
 				final BitIterator bi = new BitIterator();
 				while ( bi.hasNext() )
@@ -203,10 +198,10 @@ public class PacketUndo extends ModPacket
 					{
 						ba.commitChanges( true );
 						BitInventoryFeeder feeder = new BitInventoryFeeder( player.getPlayer(), player.getWorld() );
-						for ( final EntityItem ei : spawnlist )
+						for ( final ItemEntity ei : spawnlist )
 						{
 							feeder.addItem(ei);
-							ItemBitBag.cleanupInventory( player.getPlayer(), ei.getEntityItem() );
+							ItemBitBag.cleanupInventory( player.getPlayer(), ei.getItem() );
 						}
 					}
 
@@ -245,7 +240,7 @@ public class PacketUndo extends ModPacket
 			reach = 32;
 		}
 
-		if ( player.getPlayer().getDistanceSq( pos ) < reach * reach )
+		if ( player.getPlayer().getDistanceSq( pos.getX(), pos.getY(), pos.getZ() ) < reach * reach )
 		{
 			return true;
 		}

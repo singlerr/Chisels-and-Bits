@@ -310,6 +310,6 @@ public class BitSawCrafting extends SpecialRecipe
     @Override
     public IRecipeSerializer<?> getSerializer()
     {
-        return null;
+        return ModRecipes.BIT_SAW_CRAFTING;
     }
 }

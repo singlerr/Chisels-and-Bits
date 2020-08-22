@@ -1,13 +1,9 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.math.vector.Matrix4f;
 import org.lwjgl.opengl.*;
 
-import mod.chiselsandbits.config.ModConfig;
-import mod.chiselsandbits.core.Log;
-import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
@@ -41,12 +37,7 @@ public abstract class GfxRenderState
 
 	static public boolean useVBO()
 	{
-		if ( ModConfig.useVBO == UseVBO.AUTOMATIC )
-		{
-			return true;
-		}
-
-		return ModConfig.useVBO == UseVBO.YES;
+		return true;
 	}
 
 	private static class vertexBufferCleanup implements Runnable

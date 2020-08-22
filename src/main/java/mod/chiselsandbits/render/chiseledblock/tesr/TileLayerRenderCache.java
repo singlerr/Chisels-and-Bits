@@ -12,13 +12,13 @@ public class TileLayerRenderCache
 	public boolean rebuild = true;
 	public int lastRenderedFrame = Integer.MAX_VALUE;
 	public GfxRenderState displayList = null;
-	public boolean conversion = ChiselsAndBits.getConfig().dynamicModelMinimizeLatancy;
+	public boolean conversion = ChiselsAndBits.getConfig().getClient().dynamicModelMinimizeLatancy.get();
 
 	public boolean isNew()
 	{
 		final boolean wasConversion = conversion;
 		conversion = false;
-		return wasConversion && ChiselsAndBits.getConfig().dynamicModelMinimizeLatancy;
+		return wasConversion && ChiselsAndBits.getConfig().getClient().dynamicModelMinimizeLatancy.get();
 	}
 
 }

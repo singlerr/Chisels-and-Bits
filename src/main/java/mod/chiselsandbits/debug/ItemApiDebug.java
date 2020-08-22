@@ -2,31 +2,32 @@ package mod.chiselsandbits.debug;
 
 import mod.chiselsandbits.debug.DebugAction.Tests;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.item.ItemUseContext;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.util.text.ITextComponent;
 
 public class ItemApiDebug extends Item
 {
 
-	public ItemApiDebug()
+	public ItemApiDebug(Item.Properties properties)
 	{
-		setMaxStackSize( 1 );
-		setHasSubtypes( true );
+	    super(properties.maxDamage(1).maxStackSize(1));
 	}
 
-	@Override
-	public String getItemStackDisplayName(
-			final ItemStack stack )
-	{
-		return super.getItemStackDisplayName( stack ) + " - " + getAction( stack ).name();
-	}
+    @Override
+    public ITextComponent getDisplayName(final ItemStack stack)
+    {
+        final ITextComponent parent = super.getDisplayName(stack);
+        if (!(parent instanceof IFormattableTextComponent))
+            return parent;
+
+        final IFormattableTextComponent name = (IFormattableTextComponent) parent;
+        return name.appendString(" - " + getAction( stack ).name());
+    }
 
 	private Tests getAction(
 			final ItemStack stack )
@@ -34,46 +35,38 @@ public class ItemApiDebug extends Item
 		return Tests.values()[getActionID( stack )];
 	}
 
-	@Override
-	public EnumActionResult onItemUse(
-			final PlayerEntity playerIn,
-			final World worldIn,
-			final BlockPos pos,
-			final Hand hand,
-			final Direction side,
-			final float hitX,
-			final float hitY,
-			final float hitZ )
-	{
-		final ItemStack stack = playerIn.getHeldItem( hand );
+    @Override
+    public ActionResultType onItemUse(final ItemUseContext context)
+    {
+        final ItemStack stack = context.getPlayer().getHeldItem( context.getHand() );
 
-		if ( playerIn.isSneaking() )
-		{
-			final int newDamage = getActionID( stack ) + 1;
-			setActionID( stack, newDamage % Tests.values().length );
-			DebugAction.Msg( playerIn, getAction( stack ).name() );
-			return EnumActionResult.SUCCESS;
-		}
+        if ( context.getPlayer().isSneaking() )
+        {
+            final int newDamage = getActionID( stack ) + 1;
+            setActionID( stack, newDamage % Tests.values().length );
+            DebugAction.Msg( context.getPlayer(), getAction( stack ).name() );
+            return ActionResultType.SUCCESS;
+        }
 
-		getAction( stack ).which.run( worldIn, pos, side, hitX, hitY, hitZ, playerIn );
-		return EnumActionResult.SUCCESS;
-	}
+        getAction( stack ).which.run( context.getWorld(), context.getPos(), context.getFace(), context.getHitVec().x, context.getHitVec().y, context.getHitVec().z, context.getPlayer() );
+        return ActionResultType.SUCCESS;
+    }
 
 	private void setActionID(
 			final ItemStack stack,
 			final int i )
 	{
-		final NBTTagCompound o = new NBTTagCompound();
-		o.setInteger( "id", i );
-		stack.setTagCompound( o );
+		final CompoundNBT o = new CompoundNBT();
+		o.putInt( "id", i );
+		stack.setTag( o );
 	}
 
 	private int getActionID(
 			final ItemStack stack )
 	{
-		if ( stack.hasTagCompound() )
+		if ( stack.hasTag() )
 		{
-			return ModUtil.getTagCompound( stack ).getInteger( "id" );
+			return ModUtil.getTagCompound( stack ).getInt( "id" );
 		}
 
 		return 0;
