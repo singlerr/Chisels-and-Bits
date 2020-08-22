@@ -24,3 +24,9 @@
 /*.launch
 /eclipse2
 .project
+/out
+/.idea/*
+out/*
+run/*
+out
+run/
