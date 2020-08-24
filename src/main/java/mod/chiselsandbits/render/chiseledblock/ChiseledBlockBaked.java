@@ -58,7 +58,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final BlockPartFace bpf = new BlockPartFace( myFace, 0, "", uv );
 
 			final TextureAtlasSprite texture = Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation("missingno"));
-			final BakedQuad q = faceBakery.bakeQuad( to, from, bpf, texture, myFace, mr, bpr, true, new ResourceLocation(ChiselsAndBits.MODID, "ChiseledBlock"));
+			final BakedQuad q = faceBakery.bakeQuad( to, from, bpf, texture, myFace, mr, bpr, true, new ResourceLocation(ChiselsAndBits.MODID, "chiseled_block"));
 
 			final int[] vertData = q.getVertexData();
 
@@ -192,7 +192,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			if ( vb != null && layer.filter( vb ) )
 			{
 				final ChiseledModelBuilder builder = new ChiseledModelBuilder();
-				generateFaces( builder, vb, mrs, data.weight );
+				generateFaces( builder, vb, mrs, new Random(data.weight) );
 
 				// convert from builder to final storage.
 				up = builder.getSide( Direction.UP );
@@ -209,7 +209,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 	public static ChiseledBlockBaked breakingParticleModel(
 			final ChiselLayer layer,
 			final Integer blockStateID,
-      final Random random)
+            final Random random)
 	{
 		return ModelUtil.getBreakingModel( layer, blockStateID, random );
 	}
@@ -241,7 +241,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 			final ChiseledModelBuilder builder,
 			final VoxelBlob blob,
 			final ModelRenderState mrs,
-			final long weight )
+			final Random weight )
 	{
 		final ArrayList<ArrayList<FaceRegion>> rset = new ArrayList<ArrayList<FaceRegion>>();
 		final VisibleFace visFace = new VisibleFace();

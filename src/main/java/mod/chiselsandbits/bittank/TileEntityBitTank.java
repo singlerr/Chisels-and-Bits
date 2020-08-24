@@ -8,6 +8,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
@@ -275,7 +276,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			final int amount,
 			final boolean simulate )
 	{
-		return extractBits( slot, Math.min( amount, ChiselsAndBits.getItems().itemBlockBit.getItemStackLimit(ItemStack.EMPTY) ), simulate );
+		return extractBits( slot, Math.min( amount, ModItems.ITEM_BLOCK_BIT.get().getItemStackLimit(ItemStack.EMPTY) ), simulate );
 	}
 
 	public FluidStack getAccessableFluid()

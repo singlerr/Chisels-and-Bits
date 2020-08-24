@@ -6,6 +6,7 @@ import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.registry.ModRecipeSerializers;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -177,6 +178,6 @@ public class StackableCrafting extends SpecialRecipe
     @Override
     public IRecipeSerializer<?> getSerializer()
     {
-        return ModRecipes.STACKABLE_CRAFTING;
+        return ModRecipeSerializers.STACKABLE_CRAFTING.get();
     }
 }

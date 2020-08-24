@@ -20,6 +20,7 @@ import mod.chiselsandbits.items.ItemBitBag.BagPos;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.network.packets.PacketChisel;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -411,15 +412,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 			final int count,
 			final boolean RequireStack )
 	{
-		if ( ChiselsAndBits.getItems().itemBlockBit == null )
-		{
-			if ( !RequireStack )
-			{
-				return ModUtil.getEmptyStack();
-			}
-		}
-
-		final ItemStack out = new ItemStack( ChiselsAndBits.getItems().itemBlockBit, count );
+		final ItemStack out = new ItemStack( ModItems.ITEM_BLOCK_BIT.get(), count );
 		out.setTagInfo( "id", IntNBT.valueOf(id) );
 		return out;
 	}

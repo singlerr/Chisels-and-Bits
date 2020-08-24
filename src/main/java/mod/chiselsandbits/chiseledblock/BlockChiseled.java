@@ -17,6 +17,7 @@ import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.ExceptionNoTileEntity;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.utils.SingleBlockBlockReader;
 import mod.chiselsandbits.utils.SingleBlockWorldReader;
 import net.minecraft.block.*;
@@ -46,6 +47,8 @@ import net.minecraft.world.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ToolType;
+import net.minecraftforge.fml.LogicalSidedProvider;
+import net.minecraftforge.fml.common.thread.EffectiveSide;
 import org.jetbrains.annotations.Nullable;
 
 public class BlockChiseled extends Block implements ITileEntityProvider, IMultiStateBlock
@@ -67,7 +70,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     @Override
     public VoxelShape getRenderShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos)
     {
-        try
+/*        try
         {
             TileEntityBlockChiseled te = getTileEntity( worldIn, pos );
             return te.isSideSolid( facing ) ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
@@ -75,7 +78,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
         catch ( ExceptionNoTileEntity e )
         {
             return BlockFaceShape.UNDEFINED;
-        }
+        }*/
+
+        return VoxelShapes.fullCube();
     }
 
 
@@ -126,7 +131,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     @Override
     public boolean removedByPlayer(final BlockState state, final World world, final BlockPos pos, final PlayerEntity player, final boolean willHarvest, final FluidState fluid)
     {
-        if ( !willHarvest && ChiselsAndBits.getConfig().getServer().addBrokenBlocksToCreativeClipboard.get() )
+        if ( !willHarvest && ChiselsAndBits.getConfig().getClient().addBrokenBlocksToCreativeClipboard.get() )
         {
 
             try
@@ -222,13 +227,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 			final @Nonnull BlockPos pos ) throws ExceptionNoTileEntity
 	{
 		final TileEntity te = ModUtil.getTileEntitySafely( world, pos );
-
-		if ( te instanceof TileEntityBlockChiseled )
-		{
-			return (TileEntityBlockChiseled) te;
-		}
-
-		return null;
+        return getTileEntity(te);
 	}
 
     @Override
@@ -255,7 +254,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		try
 		{
 			spawnAsEntity( worldIn, pos, getTileEntity( te ).getItemStack( player ) );
-
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
@@ -269,12 +267,18 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     {
         try
         {
+
+
             if ( stack == null || placer == null || !stack.hasTag() )
             {
                 return;
             }
 
             final TileEntityBlockChiseled bc = getTileEntity( worldIn, pos );
+            if (worldIn.isRemote)
+            {
+                bc.getState(true, 1, worldIn);
+            }
             int rotations = ModUtil.getRotations( placer, ModUtil.getSide( stack ) );
 
             VoxelBlob blob = bc.getBlob();
@@ -356,11 +360,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     @Override
     public TileEntity createTileEntity(final BlockState state, final IBlockReader world)
     {
-        //TODO: Inject tileentity type.
-        return new TileEntityBlockChiseled();
+        return EffectiveSide.get().isClient() ? new TileEntityBlockChiseledTESR() : new TileEntityBlockChiseled();
     }
-
-
 
     /*
     TODO: Check if this is still needed.
@@ -449,7 +450,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		    final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) target;
 			final BlockPos pos = rayTraceResult.getPos();
 			final BlockState bs = getTileEntity( world, pos ).getBlockState( this );
-			return ClientSide.instance.addHitEffects( world, target, bs, effectRenderer );
+			return ClientSide.instance.addHitEffects( world, rayTraceResult, bs, effectRenderer );
 		}
 		catch ( final ExceptionNoTileEntity e )
 		{
@@ -479,7 +480,8 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
         }
         catch ( final ExceptionNoTileEntity e )
         {
-            Log.noTileError( e );
+            if (reader != EmptyBlockReader.INSTANCE)
+                Log.noTileError( e );
         }
 
         if ( r == null )
@@ -739,12 +741,28 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
         }
     }
 
-	public static class ReplaceWithChisledValue {
+    @Nullable
+    @Override
+    public TileEntity createNewTileEntity(final IBlockReader worldIn)
+    {
+        return new TileEntityBlockChiseled();
+    }
+
+    public static class ReplaceWithChisledValue {
 		public boolean success = false;
 		public TileEntityBlockChiseled te = null;
 	};
-	
-	public static ReplaceWithChisledValue replaceWithChisled(
+
+    @Override
+    public void onBlockAdded(final BlockState state, final World worldIn, final BlockPos pos, final BlockState oldState, final boolean isMoving)
+    {
+        final TileEntity tileEntity = worldIn.getTileEntity(pos);
+        if (tileEntity instanceof TileEntityBlockChiseled && worldIn.isRemote) {
+            ((TileEntityBlockChiseled) tileEntity).getState(true, 0, worldIn);
+        }
+    }
+
+    public static ReplaceWithChisledValue replaceWithChisled(
 			final @Nonnull World world,
 			final @Nonnull BlockPos pos,
 			final BlockState originalState,
@@ -758,7 +776,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		
 		if ( BlockBitInfo.supportsBlock( actingState ) || isAir )
 		{
-			BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( originalState );
+			BlockChiseled blk = ModBlocks.convertGivenStateToChiseledBlock( originalState );
 
 			int BlockID = ModUtil.getStateId( actingState );
 
@@ -767,7 +785,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 				actingState = ModUtil.getStateById( fragmentBlockStateID );
 				target = actingState.getBlock();
 				BlockID = ModUtil.getStateId( actingState );
-				blk = ChiselsAndBits.getBlocks().getConversion( actingState );
+				blk = ModBlocks.convertGivenStateToChiseledBlock( actingState );
 				// its still air tho..
 				actingState = Blocks.AIR.getDefaultState();
 			}

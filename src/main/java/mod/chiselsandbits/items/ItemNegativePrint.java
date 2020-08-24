@@ -23,6 +23,8 @@ import mod.chiselsandbits.interfaces.IItemScrollWheel;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.interfaces.IVoxelBlobItem;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
+import mod.chiselsandbits.registry.ModBlocks;
+import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -119,12 +121,12 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	public boolean isWritten(
 			final ItemStack stack )
 	{
-	    if (stack.getItem() == ChiselsAndBits.getItems().itemNegativePrint || stack.getItem() == ChiselsAndBits.getItems().itemPositivePrint)
+	    if (stack.getItem() != getWrittenItem())
 	        return false;
 
-		if ( stack != null && stack.hasTag() )
+		if (stack.hasTag())
 		{
-			final boolean a = ModUtil.getSubCompound( stack, ModUtil.NBT_BLOCKENTITYTAG, false ) != null;
+			final boolean a = ModUtil.getSubCompound( stack, ModUtil.NBT_BLOCKENTITYTAG, false ).size() != 0;
 			final boolean b = ModUtil.getTagCompound( stack ).contains( NBTBlobConverter.NBT_LEGACY_VOXEL );
 			final boolean c = ModUtil.getTagCompound( stack ).contains( NBTBlobConverter.NBT_VERSIONED_VOXEL );
 			return a || b || c;
@@ -133,7 +135,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 	}
 
     protected Item getWrittenItem() {
-	    return ChiselsAndBits.getItems().itemNegativePrintWritten;
+	    return ModItems.ITEM_NEGATIVE_PRINT_WRITTEN.get();
     }
 
     @Override
@@ -276,7 +278,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		}
 
 		final BlockState state = conv.getPrimaryBlockState();
-		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( state ), 1 );
+		final ItemStack itemstack = new ItemStack(ModBlocks.convertGivenStateToChiseledBlock(state), 1 );
 
 		itemstack.setTagInfo( ModUtil.NBT_BLOCKENTITYTAG, tag );
 		return itemstack;

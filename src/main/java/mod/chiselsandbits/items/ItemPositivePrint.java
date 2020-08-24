@@ -24,6 +24,7 @@ import mod.chiselsandbits.interfaces.IChiselModeItem;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace;
 import mod.chiselsandbits.network.packets.PacketAccurateSneakPlace.IItemBlockAccurate;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -57,7 +58,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
     @Override
     protected Item getWrittenItem()
     {
-        return ChiselsAndBits.getItems().itemPositivePrint;
+        return ModItems.ITEM_POSITIVE_PRINT_WRITTEN.get();
     }
 
     @Override

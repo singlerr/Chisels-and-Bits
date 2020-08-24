@@ -4,6 +4,9 @@ import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.items.ItemNegativePrint;
+import mod.chiselsandbits.registry.ModItems;
+import mod.chiselsandbits.registry.ModRecipeSerializers;
 import net.minecraft.block.Blocks;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
@@ -41,14 +44,14 @@ public class NegativeInversionCrafting extends SpecialRecipe
 		for ( int x = 0; x < craftingInv.getSizeInventory(); x++ )
 		{
 			final ItemStack f = craftingInv.getStackInSlot( x );
-			if ( f == null )
+			if ( f.isEmpty() )
 			{
 				continue;
 			}
 
-			if ( f.getItem() == ChiselsAndBits.getItems().itemNegativePrint)
+			if ( f.getItem() instanceof ItemNegativePrint)
 			{
-				if ( f.hasTag() )
+				if (ModItems.ITEM_NEGATIVE_PRINT.get().isWritten(f))
 				{
 					if ( targetA != null )
 					{
@@ -130,7 +133,7 @@ public class NegativeInversionCrafting extends SpecialRecipe
 		for ( int i = 0; i < aitemstack.size(); ++i )
 		{
 			final ItemStack itemstack = craftingInv.getStackInSlot( i );
-			if ( itemstack != null && itemstack.getItem() == ChiselsAndBits.getItems().itemNegativePrint && itemstack.hasTag() )
+			if ( itemstack != null && itemstack.getItem() == ModItems.ITEM_NEGATIVE_PRINT_WRITTEN.get() && itemstack.hasTag() )
 			{
 				ModUtil.adjustStackSize( itemstack, 1 );
 			}
@@ -142,6 +145,6 @@ public class NegativeInversionCrafting extends SpecialRecipe
     @Override
     public IRecipeSerializer<?> getSerializer()
     {
-        return ModRecipes.NEGATIVE_INVERSION_CRAFTING;
+        return ModRecipeSerializers.NEGATIVE_INVERSION_CRAFTING.get();
     }
 }

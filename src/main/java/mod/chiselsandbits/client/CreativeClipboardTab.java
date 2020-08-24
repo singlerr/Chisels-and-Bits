@@ -86,16 +86,7 @@ public class CreativeClipboardTab extends ItemGroup implements ICacheClearable
     @Override
     public ItemStack createIcon()
     {
-        final ModItems cbitems = ChiselsAndBits.getItems();
-        return new ItemStack( ModUtil.firstNonNull(
-          cbitems.itemPositivePrint,
-          cbitems.itemNegativePrint,
-          cbitems.itemBitBagDefault,
-          cbitems.itemChiselDiamond,
-          cbitems.itemChiselGold,
-          cbitems.itemChiselIron,
-          cbitems.itemChiselStone,
-          cbitems.itemWrench ) );
+        return new ItemStack(ModItems.ITEM_MIRROR_PRINT_WRITTEN.get() );
     }
 
     @Override

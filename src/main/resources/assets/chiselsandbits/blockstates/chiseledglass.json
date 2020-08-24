@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "full_block=false": {
+      "model": "chiselsandbits:models/item/block_chiseled"
+    },
+    "full_block=true": {
+      "model": "chiselsandbits:models/item/block_chiseled"
+    }
+  }
+}

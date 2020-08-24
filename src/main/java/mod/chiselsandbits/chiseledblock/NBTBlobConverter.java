@@ -6,6 +6,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.serialization.StringStates;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.registry.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -242,7 +243,7 @@ public class NBTBlobConverter
 	public ItemStack getItemStack(
 			final boolean crossWorld )
 	{
-		final Block blk = ChiselsAndBits.getBlocks().getConversion( getPrimaryBlockState() );
+		final Block blk = ModBlocks.convertGivenStateToChiseledBlock( getPrimaryBlockState() );
 
 		if ( blk != null )
 		{

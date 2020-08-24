@@ -55,7 +55,7 @@ public class EventPlayerInteract
 			if ( is != null && ( is.getItem() instanceof ItemChisel || is.getItem() instanceof ItemChiseledBit ) && validEvent )
 			{
 				final BlockState state = event.getWorld().getBlockState( event.getPos() );
-				if ( BlockBitInfo.canChisel( state ) || LittleTiles.isLittleTilesBlock( event.getWorld().getTileEntity( event.getPos() ) ) )
+				if ( BlockBitInfo.canChisel( state ) )
 				{
 					if ( event.getWorld().isRemote )
 					{

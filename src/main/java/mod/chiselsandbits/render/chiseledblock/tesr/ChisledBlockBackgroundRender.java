@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
+import mod.chiselsandbits.utils.ChuckRenderCacheWrapper;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.chunk.ChunkRenderCache;
@@ -221,7 +222,8 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 
 					if ( !model.isEmpty() )
 					{
-						blockRenderer.getBlockModelRenderer().renderModel( cache, model, estate, tx.getPos(), new MatrixStack(), transformBuilder, true, BACKGROUND_RANDOM.get(), BACKGROUND_RANDOM.get().nextLong(),
+						blockRenderer.getBlockModelRenderer().renderModel( new ChuckRenderCacheWrapper(cache),
+                          model, estate, tx.getPos(), new MatrixStack(), transformBuilder, true, BACKGROUND_RANDOM.get(), BACKGROUND_RANDOM.get().nextLong(),
                           OverlayTexture.NO_OVERLAY);
 
 						if ( Thread.interrupted() )

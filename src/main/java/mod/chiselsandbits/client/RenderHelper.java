@@ -2,7 +2,9 @@ package mod.chiselsandbits.client;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import mod.chiselsandbits.core.ChiselsAndBits;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.MatrixApplyingVertexBuilder;
+import mod.chiselsandbits.registry.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
@@ -27,16 +29,18 @@ public class RenderHelper
     public static Random RENDER_RANDOM = new Random();
 
     public static void drawSelectionBoundingBoxIfExists(
+      final MatrixStack matrixStack,
       final AxisAlignedBB bb,
       final BlockPos blockPos,
       final PlayerEntity player,
       final float partialTicks,
       final boolean NormalBoundingBox)
     {
-        drawSelectionBoundingBoxIfExistsWithColor(bb, blockPos, player, partialTicks, NormalBoundingBox, 0, 0, 0, 102, 32);
+        drawSelectionBoundingBoxIfExistsWithColor(matrixStack, bb, blockPos, player, partialTicks, NormalBoundingBox, 0, 0, 0, 102, 32);
     }
 
     public static void drawSelectionBoundingBoxIfExistsWithColor(
+      final MatrixStack matrixStack,
       final AxisAlignedBB bb,
       final BlockPos blockPos,
       final PlayerEntity player,
@@ -62,12 +66,12 @@ public class RenderHelper
 
             if (!NormalBoundingBox)
             {
-                RenderHelper.renderBoundingBox(bb.expand(0.002D, 0.002D, 0.002D).offset(-x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ()), red, green, blue, alpha);
+                RenderHelper.renderBoundingBox(matrixStack, bb.expand(0.002D, 0.002D, 0.002D).offset(blockPos.getX(), blockPos.getY(), blockPos.getZ()), red, green, blue, alpha);
             }
 
             RenderSystem.disableDepthTest();
 
-            RenderHelper.renderBoundingBox(bb.expand(0.002D, 0.002D, 0.002D).offset(-x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ()),
+            RenderHelper.renderBoundingBox(matrixStack, bb.expand(0.002D, 0.002D, 0.002D).offset(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
               red,
               green,
               blue,
@@ -81,6 +85,7 @@ public class RenderHelper
     }
 
     public static void drawLineWithColor(
+      final MatrixStack matrixStack,
       final Vector3d a,
       final Vector3d b,
       final BlockPos blockPos,
@@ -110,12 +115,12 @@ public class RenderHelper
             final Vector3d b2 = b.add(-x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ());
             if (!NormalBoundingBox)
             {
-                RenderHelper.renderLine(a2, b2, red, green, blue, alpha);
+                RenderHelper.renderLine(matrixStack, a2, b2, red, green, blue, alpha);
             }
 
             RenderSystem.disableDepthTest();
 
-            RenderHelper.renderLine(a2, b2, red, green, blue, seeThruAlpha);
+            RenderHelper.renderLine(matrixStack, a2, b2, red, green, blue, seeThruAlpha);
 
             RenderSystem.shadeModel(Minecraft.isAmbientOcclusionEnabled() ? GL11.GL_SMOOTH : GL11.GL_FLAT);
             RenderSystem.enableDepthTest();
@@ -152,7 +157,7 @@ public class RenderHelper
 
     // Custom replacement of 1.9.4 -> 1.10's method that changed.
     public static void renderBoundingBox(
-      final AxisAlignedBB boundingBox,
+      final MatrixStack matrixStack, final AxisAlignedBB boundingBox,
       final int red,
       final int green,
       final int blue,
@@ -160,32 +165,32 @@ public class RenderHelper
     {
         GL11.glPushAttrib(8256);
         final Tessellator tess = Tessellator.getInstance();
-        final BufferBuilder buffer = tess.getBuffer();
+        final BufferBuilder bufferBuilder = tess.getBuffer();
         RenderSystem.shadeModel(GL11.GL_FLAT);
-        buffer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
+        bufferBuilder.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
 
-        final double minX = boundingBox.minX;
-        final double minY = boundingBox.minY;
-        final double minZ = boundingBox.minZ;
-        final double maxX = boundingBox.maxX;
-        final double maxY = boundingBox.maxY;
-        final double maxZ = boundingBox.maxZ;
+        final float minX = (float) boundingBox.minX;
+        final float minY = (float) boundingBox.minY;
+        final float minZ = (float) boundingBox.minZ;
+        final float maxX = (float) boundingBox.maxX;
+        final float maxY = (float) boundingBox.maxY;
+        final float maxZ = (float) boundingBox.maxZ;
 
         // lower ring ( starts to 0 / 0 )
-        buffer.pos(minX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(minX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), minX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), maxX, minY, minZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), maxX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), minX, minY, maxZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), minX, minY, minZ).color(red, green, blue, alpha).endVertex();
 
         // Y line at 0 / 0
-        buffer.pos(minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
 
         // upper ring ( including previous point to draw 4 lines )
-        buffer.pos(maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
-        buffer.pos(minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), minX, maxY, minZ).color(red, green, blue, alpha).endVertex();
 
         /*
          * the next 3 Y Lines use flat shading to render invisible lines to
@@ -193,22 +198,23 @@ public class RenderHelper
          */
 
         // Y line at 1 / 0
-        buffer.pos(maxX, minY, minZ).color(red, green, blue, 0).endVertex();
-        buffer.pos(maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), maxX, minY, minZ).color(red, green, blue, 0).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), maxX, maxY, minZ).color(red, green, blue, alpha).endVertex();
 
         // Y line at 0 / 1
-        buffer.pos(minX, minY, maxZ).color(red, green, blue, 0).endVertex();
-        buffer.pos(minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), minX, minY, maxZ).color(red, green, blue, 0).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), minX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
 
         // Y line at 1 / 1
-        buffer.pos(maxX, minY, maxZ).color(red, green, blue, 0).endVertex();
-        buffer.pos(maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), maxX, minY, maxZ).color(red, green, blue, 0).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), maxX, maxY, maxZ).color(red, green, blue, alpha).endVertex();
 
         tess.draw();
         GL11.glPopAttrib();
     }
 
     public static void renderLine(
+      final MatrixStack matrixStack,
       final Vector3d a,
       final Vector3d b,
       final int red,
@@ -217,10 +223,11 @@ public class RenderHelper
       final int alpha)
     {
         final Tessellator tess = Tessellator.getInstance();
-        final BufferBuilder buffer = tess.getBuffer();
-        buffer.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
-        buffer.pos(a.x, a.y, a.z).color(red, green, blue, alpha).endVertex();
-        buffer.pos(b.x, b.y, b.z).color(red, green, blue, alpha).endVertex();
+        final BufferBuilder bufferBuilder = tess.getBuffer();
+        final IVertexBuilder vertexBuilder = new MatrixApplyingVertexBuilder(bufferBuilder, matrixStack.getLast().getMatrix(), matrixStack.getLast().getNormal());
+        bufferBuilder.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
+        vertexBuilder.pos(a.x, a.y, a.z).color(red, green, blue, alpha).endVertex();
+        vertexBuilder.pos(b.x, b.y, b.z).color(red, green, blue, alpha).endVertex();
         tess.draw();
     }
 
@@ -230,7 +237,7 @@ public class RenderHelper
       final World worldObj,
       final BlockPos blockPos)
     {
-        return alpha | Minecraft.getInstance().getBlockColors().getColor(ChiselsAndBits.getBlocks().getChiseledDefaultState(), worldObj, blockPos, tintIndex);
+        return alpha | Minecraft.getInstance().getBlockColors().getColor(ModBlocks.getChiseledDefaultState(), worldObj, blockPos, tintIndex);
     }
 
     public static void renderModel(

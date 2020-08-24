@@ -483,7 +483,9 @@ public class ModelUtil implements ICacheClearable
 			texture = Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation("missingno"));
 		}
 
-		blockToTexture.putIfAbsent(Pair.of(layer, myFace), Maps.newHashMap()).put( BlockRef, texture.getName().toString() );
+		blockToTexture.remove(Pair.of(layer, myFace), null);
+        blockToTexture.putIfAbsent(Pair.of(layer, myFace), Maps.newHashMap());
+        blockToTexture.get(Pair.of(layer, myFace)).put( BlockRef, texture.getName().toString() );
 		return texture;
 	}
 

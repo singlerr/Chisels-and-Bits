@@ -23,6 +23,7 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
@@ -87,11 +88,16 @@ public class ItemTapeMeasure extends Item implements IChiselModeItem, IItemScrol
             final Vector3d ray_from = PlayerRay.getLeft();
             final Vector3d ray_to = PlayerRay.getRight();
 
-            final RayTraceContext rayTraceContext = new RayTraceContext(ray_from, ray_to, RayTraceContext.BlockMode.VISUAL, RayTraceContext.FluidMode.NONE, context.getPlayer());
+            final RayTraceContext rayTraceContext = new RayTraceContext(ray_from, ray_to, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, context.getPlayer());
 
             final BlockRayTraceResult mop = context.getPlayer().getEntityWorld().rayTraceBlocks(rayTraceContext);
-            final BitLocation loc = new BitLocation( mop, true, BitOperation.CHISEL );
-            ClientSide.instance.pointAt( ChiselToolType.TAPEMEASURE, loc, context.getHand() );
+            if (mop.getType() == RayTraceResult.Type.BLOCK)
+            {
+                final BitLocation loc = new BitLocation( mop, true, BitOperation.CHISEL );
+                ClientSide.instance.pointAt( ChiselToolType.TAPEMEASURE, loc, context.getHand() );
+            }
+            else
+                return ActionResultType.FAIL;
         }
 
         return ActionResultType.SUCCESS;

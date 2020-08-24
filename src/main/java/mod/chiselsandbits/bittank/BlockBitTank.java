@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 public class BlockBitTank extends Block implements ITileEntityProvider
 {
 
-	public Property<Direction> FACING = HorizontalBlock.HORIZONTAL_FACING;
+	private static final Property<Direction> FACING = HorizontalBlock.HORIZONTAL_FACING;
 
 	public BlockBitTank(AbstractBlock.Properties properties)
 	{

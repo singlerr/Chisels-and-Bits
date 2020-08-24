@@ -5,10 +5,10 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.data.VoxelNeighborRenderTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.registry.ModTileEntityTypes;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderCache;
 import mod.chiselsandbits.render.chiseledblock.tesr.TileRenderChunk;
 import net.minecraft.block.BlockState;
-import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -33,9 +33,9 @@ public class TileEntityBlockChiseledTESR extends TileEntityBlockChiseled
 	private TileRenderCache singleCache;
 	private int previousLightLevel = -1;
 
-    public TileEntityBlockChiseledTESR(final TileEntityType<?> tileEntityTypeIn)
+    public TileEntityBlockChiseledTESR()
     {
-        super(tileEntityTypeIn);
+        super(ModTileEntityTypes.CHISELED_TESR.get());
     }
 
 	public TileRenderChunk getRenderChunk()

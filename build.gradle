@@ -115,7 +115,7 @@ minecraft {
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'info'
 
-            args '--mod', 'equivalency', '--all', '--output', file('src/generated/resources/'), '--input', file('src/main/resources')
+            args '--mod', 'chiselsandbits', '--all', '--output', file('src/generated/resources/'), '--input', file('src/main/resources')
 
             mods {
                 equivalency {

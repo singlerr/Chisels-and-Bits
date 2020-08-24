@@ -12,8 +12,11 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -27,6 +30,7 @@ import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.Color;
+import net.minecraft.util.text.LanguageMap;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
 
@@ -205,7 +209,7 @@ public class TapeMeasures
 	private DyeColor getColor(
 			final ItemStack itemStack )
 	{
-		return ChiselsAndBits.getItems().itemTapeMeasure.getTapeColor( itemStack );
+		return ModItems.ITEM_TAPE_MEASURE.get().getTapeColor( itemStack );
 	}
 
 	private ResourceLocation getDimension(
@@ -263,7 +267,7 @@ public class TapeMeasures
 		for ( int x = 0; x < inventory.getSizeInventory(); x++ )
 		{
 			final ItemStack is = inventory.getStackInSlot( x );
-			if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemTapeMeasure )
+			if ( !is.isEmpty() && is.getItem() == ModItems.ITEM_TAPE_MEASURE.get() )
 			{
 				return true;
 			}
@@ -291,10 +295,6 @@ public class TapeMeasures
 			return;
 		}
 
-		final double x = player.lastTickPosX + ( player.getPosX() - player.lastTickPosX ) * partialTicks;
-		final double y = player.lastTickPosY + ( player.getPosY() - player.lastTickPosY ) * partialTicks;
-		final double z = player.lastTickPosZ + ( player.getPosZ() - player.lastTickPosZ ) * partialTicks;
-
 		final int val = m.color.getTextColor();
 		final int red = val >> 16 & 0xff;
 		final int green = val >> 8 & 0xff;
@@ -304,14 +304,14 @@ public class TapeMeasures
 			final Vector3d a = m.getVecA();
 			final Vector3d b = m.getVecB();
 
-			RenderHelper.drawLineWithColor( a, b, BlockPos.ZERO, player, partialTicks, false, red, green, blue, alpha, (int) ( alpha / 3.4 ) );
+			RenderHelper.drawLineWithColor(matrixStack, a, b, BlockPos.ZERO, player, partialTicks, false, red, green, blue, alpha, (int) ( alpha / 3.4 ) );
 
 			RenderSystem.disableDepthTest();
 			RenderSystem.disableCull();
 
 			final double Len = a.distanceTo( b ) + bitSize;
 
-			renderSize(matrixStack, player, partialTicks, ( a.x + b.x ) * 0.5 - x, ( a.y + b.y ) * 0.5 - y, ( a.z + b.z ) * 0.5 - z, Len, red, green, blue );
+			renderSize(matrixStack, player, partialTicks, ( a.x + b.x ) * 0.5, ( a.y + b.y ) * 0.5, ( a.z + b.z ) * 0.5, Len, red, green, blue );
 
 			RenderSystem.enableDepthTest();
 			RenderSystem.enableCull();
@@ -319,7 +319,7 @@ public class TapeMeasures
 		}
 
 		final AxisAlignedBB box = m.getBoundingBox();
-		RenderHelper.drawSelectionBoundingBoxIfExistsWithColor( box.expand( -0.001, -0.001, -0.001 ), BlockPos.ZERO, player, partialTicks, false, red, green, blue, alpha, (int) ( alpha / 3.4 ) );
+		RenderHelper.drawSelectionBoundingBoxIfExistsWithColor(matrixStack, box.expand( -0.001, -0.001, -0.001 ), BlockPos.ZERO, player, partialTicks, false, red, green, blue, alpha, (int) ( alpha / 3.4 ) );
 
 		RenderSystem.disableDepthTest();
 		RenderSystem.disableCull();
@@ -332,9 +332,9 @@ public class TapeMeasures
 		 * TODO: Figure out some better logic for which lines to display the
 		 * numbers on.
 		 **/
-		renderSize(matrixStack, player, partialTicks, box.minX - x, ( box.maxY + box.minY ) * 0.5 - y, box.minZ - z, LenY, red, green, blue );
-		renderSize(matrixStack, player, partialTicks, ( box.minX + box.maxX ) * 0.5 - x, box.minY - y, box.minZ - z, LenX, red, green, blue );
-		renderSize(matrixStack, player, partialTicks, box.minX - x, box.minY - y, ( box.minZ + box.maxZ ) * 0.5 - z, LenZ, red, green, blue );
+		renderSize(matrixStack, player, partialTicks, box.minX, ( box.maxY + box.minY ) * 0.5, box.minZ, LenY, red, green, blue );
+		renderSize(matrixStack, player, partialTicks, ( box.minX + box.maxX ) * 0.5, box.minY, box.minZ, LenX, red, green, blue );
+		renderSize(matrixStack, player, partialTicks, box.minX, box.minY, ( box.minZ + box.maxZ ) * 0.5, LenZ, red, green, blue );
 
 		RenderSystem.enableDepthTest();
 		RenderSystem.enableCull();
@@ -384,7 +384,8 @@ public class TapeMeasures
 	}
 
 	private void renderSize(
-      final MatrixStack matrixStack, final PlayerEntity player,
+      final MatrixStack matrixStack,
+      final PlayerEntity player,
       final float partialTicks,
       final double x,
       final double y,
@@ -405,8 +406,12 @@ public class TapeMeasures
 		billBoard(matrixStack, player, partialTicks );
 		matrixStack.scale( getScale( len ), -getScale( len ), (float) zScale);
 		matrixStack.translate( -fontRenderer.getStringWidth( size ) * 0.5, 0, 0 );
-		fontRenderer.drawStringWithShadow(matrixStack, size, 0, 0, red << 16 | green << 8 | blue );
-		matrixStack.pop();
+        RenderSystem.disableDepthTest();
+        IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
+		fontRenderer.renderString(size, 0, 0, red << 16 | green << 8 | blue,true, matrixStack.getLast().getMatrix(), buffer, true, 0, 15728880);
+		buffer.finish();
+        RenderSystem.enableDepthTest();
+        matrixStack.pop();
 	}
 
 	private float getScale(

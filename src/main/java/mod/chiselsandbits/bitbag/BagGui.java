@@ -12,6 +12,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.packets.PacketBagGui;
 import mod.chiselsandbits.network.packets.PacketClearBagGui;
 import mod.chiselsandbits.network.packets.PacketSortBagGui;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
@@ -160,12 +161,12 @@ public class BagGui extends ContainerScreen<BagContainer>
 
 	private boolean isValidBitItem()
 	{
-		return ModUtil.isEmpty( getInHandItem() ) || getInHandItem().getItem() == ChiselsAndBits.getItems().itemBlockBit;
+		return ModUtil.isEmpty( getInHandItem() ) || getInHandItem().getItem() == ModItems.ITEM_BLOCK_BIT.get();
 	}
 
     protected void drawDefaultBackground(final MatrixStack matrixStack, final float partialTicks, final int x, final int y)
     {
-        font.func_238407_a_(matrixStack, ChiselsAndBits.getItems().itemBitBagDefault.getDisplayName( ModUtil.getEmptyStack() ), 8, 6, 0x404040 );
+        font.func_238407_a_(matrixStack, ModItems.ITEM_BIT_BAG_DEFAULT.get().getDisplayName( ModUtil.getEmptyStack() ), 8, 6, 0x404040 );
         font.drawString(matrixStack, I18n.format( "container.inventory" ), 8, ySize - 93, 0x404040 );
 
         RenderHelper.enableStandardItemLighting();

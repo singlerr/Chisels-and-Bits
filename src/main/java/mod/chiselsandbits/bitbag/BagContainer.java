@@ -9,7 +9,10 @@ import mod.chiselsandbits.helpers.NullInventory;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.network.packets.PacketBagGuiStack;
+import mod.chiselsandbits.registry.ModContainerTypes;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Container;
@@ -43,14 +46,14 @@ public class BagContainer extends Container
 		customSlotsItems.add( ModUtil.getEmptyStack() );
 	}
 
-    protected BagContainer(@Nullable final ContainerType<?> type, final int id, final PlayerEntity entity)
+    public BagContainer(final int id, final PlayerInventory playerInventory)
     {
-        super(type, id);
-        thePlayer = entity;
+        super(ModContainerTypes.BAG_CONTAINER.get(), id);
+        thePlayer = playerInventory.player;
 
         final int playerInventoryOffset = ( 7 - 4 ) * OUTER_SLOT_SIZE;
 
-        final ItemStack is = entity.getHeldItemMainhand();
+        final ItemStack is = thePlayer.getHeldItemMainhand();
         setBag( is );
 
         for ( int yOffset = 0; yOffset < 7; ++yOffset )
@@ -356,7 +359,7 @@ public class BagContainer extends Container
 	public void clear(
 			final ItemStack stack )
 	{
-		if ( ModUtil.notEmpty( stack ) && stack.getItem() == ChiselsAndBits.getItems().itemBlockBit )
+		if ( ModUtil.notEmpty( stack ) && stack.getItem() == ModItems.ITEM_BLOCK_BIT.get() )
 		{
 			if ( bagInv.matches( stack, thePlayer.inventory.getItemStack() ) )
 			{

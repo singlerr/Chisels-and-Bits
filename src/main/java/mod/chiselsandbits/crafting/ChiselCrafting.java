@@ -4,6 +4,8 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.registry.ModItems;
+import mod.chiselsandbits.registry.ModRecipeSerializers;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -42,7 +44,7 @@ public class ChiselCrafting extends SpecialRecipe
 				continue;
 			}
 
-			if ( is.getItem() == ChiselsAndBits.getItems().itemPositivePrint && pattern == null )
+			if ( is.getItem() == ModItems.ITEM_POSITIVE_PRINT_WRITTEN.get() && pattern == null )
 			{
 				pattern = is;
 			}
@@ -90,7 +92,7 @@ public class ChiselCrafting extends SpecialRecipe
 
 		if ( req != null )
 		{
-			return ChiselsAndBits.getItems().itemPositivePrint.getPatternedItem( req.pattern, true );
+			return ModItems.ITEM_POSITIVE_PRINT_WRITTEN.get().getPatternedItem( req.pattern, true );
 		}
 
 		return ModUtil.getEmptyStack();
@@ -140,6 +142,6 @@ public class ChiselCrafting extends SpecialRecipe
     @Override
     public IRecipeSerializer<?> getSerializer()
     {
-        return ModRecipes.CHISEL_CRAFTING;
+        return ModRecipeSerializers.CHISEL_CRAFTING.get();
     }
 }

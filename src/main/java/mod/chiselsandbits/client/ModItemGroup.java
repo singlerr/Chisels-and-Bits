@@ -6,10 +6,10 @@ import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
-public class ModCreativeTab extends ItemGroup
+public class ModItemGroup extends ItemGroup
 {
 
-	public ModCreativeTab()
+	public ModItemGroup()
 	{
 		super( ChiselsAndBits.MODID );
 		setBackgroundImageName( "item_search.png" );
@@ -24,16 +24,7 @@ public class ModCreativeTab extends ItemGroup
 	@Override
 	public ItemStack createIcon()
 	{
-		final ModItems cbitems = ChiselsAndBits.getItems();
-		return new ItemStack( ModUtil.firstNonNull(
-				cbitems.itemChiselDiamond,
-				cbitems.itemChiselGold,
-				cbitems.itemChiselIron,
-				cbitems.itemChiselStone,
-				cbitems.itemBitBagDefault,
-				cbitems.itemPositivePrint,
-				cbitems.itemNegativePrint,
-				cbitems.itemWrench ) );
+		return new ItemStack(ModItems.ITEM_BIT_BAG_DEFAULT.get());
 	}
 
 }

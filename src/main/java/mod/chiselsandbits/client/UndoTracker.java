@@ -70,7 +70,7 @@ public class UndoTracker implements ICacheClearable
 				}
 			}
 
-			if ( undoLevels.size() > ChiselsAndBits.getConfig().getServer().maxUndoLevel.get() )
+			if ( undoLevels.size() > ChiselsAndBits.getConfig().getClient().maxUndoLevel.get() )
 			{
 				undoLevels.remove( 0 );
 			}

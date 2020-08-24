@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import net.minecraft.block.BlockState;
@@ -242,10 +243,13 @@ public interface IChiselAndBitsAPI
 	 */
 	@OnlyIn( Dist.CLIENT )
 	void renderModel(
-			IBakedModel model,
-			World world,
-			BlockPos pos,
-			int alpha );
+      final MatrixStack stack,
+      final IBakedModel model,
+      final World world,
+      final BlockPos pos,
+      final int alpha,
+      final int combinedLight,
+      final int combinedOverlay);
 
 	/**
 	 * Renders a ghost model in the same way that chiseled item blocks are rendered for placement.
@@ -258,9 +262,12 @@ public interface IChiselAndBitsAPI
 	 */
 	@OnlyIn( Dist.CLIENT )
 	void renderGhostModel(
-			IBakedModel model,
-			World world,
-			BlockPos pos,
-			boolean isUnplaceable );
+      final MatrixStack stack,
+      final IBakedModel model,
+      final World world,
+      final BlockPos pos,
+      final boolean isUnplaceable,
+      final int combinedLight,
+      final int combinedOverlay);
 
 }

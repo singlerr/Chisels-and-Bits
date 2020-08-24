@@ -20,6 +20,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -109,12 +110,12 @@ public abstract class DebugAction
 			final IBitAccess access = api.createBitItem( ModUtil.getEmptyStack() );
 			assert access != null;
 
-			apiAssert( "BIT_BAG", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemBitBagDefault) ) == ItemType.BIT_BAG );
-			apiAssert( "CHISEL", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond ) ) == ItemType.CHISEL );
-			apiAssert( "MIRROR_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemMirrorPrint) ) == ItemType.MIRROR_DESIGN );
-			apiAssert( "NEGATIVE_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemNegativePrint) ) == ItemType.NEGATIVE_DESIGN );
-			apiAssert( "POSITIVE_DESIGN 1", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemPositivePrint) ) == ItemType.POSITIVE_DESIGN );
-			apiAssert( "WRENCH", player, api.getItemType( new ItemStack( ChiselsAndBits.getItems().itemWrench ) ) == ItemType.WRENCH );
+			apiAssert( "BIT_BAG", player, api.getItemType( new ItemStack(ModItems.ITEM_BIT_BAG_DEFAULT.get() ) ) == ItemType.BIT_BAG );
+			apiAssert( "CHISEL", player, api.getItemType( new ItemStack( ModItems.ITEM_CHISEL_DIAMOND.get() ) ) == ItemType.CHISEL );
+			apiAssert( "MIRROR_DESIGN 1", player, api.getItemType( new ItemStack( ModItems.ITEM_MIRROR_PRINT.get() ) ) == ItemType.MIRROR_DESIGN );
+			apiAssert( "NEGATIVE_DESIGN 1", player, api.getItemType( new ItemStack( ModItems.ITEM_NEGATIVE_PRINT.get()) ) == ItemType.NEGATIVE_DESIGN );
+			apiAssert( "POSITIVE_DESIGN 1", player, api.getItemType( new ItemStack( ModItems.ITEM_POSITIVE_PRINT.get()) ) == ItemType.POSITIVE_DESIGN );
+			apiAssert( "WRENCH", player, api.getItemType( new ItemStack( ModItems.ITEM_WRENCH.get() ) ) == ItemType.WRENCH );
 			apiAssert( "CHISLED_BIT-cobblestone", player, api.getItemType( ItemChiseledBit.createStack( ModUtil.getStateId( Blocks.COBBLESTONE.getDefaultState() ), 1, true ) ) == ItemType.CHISLED_BIT );
 			apiAssert( "CHISLED_BLOCK", player, api.getItemType( access.getBitsAsItem( Direction.UP, ItemType.CHISLED_BLOCK, false ) ) == null );
 			apiAssert( "MIRROR_DESIGN 2", player, api.getItemType( access.getBitsAsItem( null, ItemType.MIRROR_DESIGN, false ) ) == null );

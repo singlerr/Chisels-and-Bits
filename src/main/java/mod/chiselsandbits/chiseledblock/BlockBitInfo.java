@@ -11,12 +11,10 @@ import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import mod.chiselsandbits.utils.SingleBlockBlockReader;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SlimeBlock;
+import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
@@ -200,14 +198,15 @@ public class BlockBitInfo
 			// custom dropping behavior?
 			pb.getDrops(state, null);
 			final Class<?> wc = getDeclaringClass( blkClass, pb.MethodName, BlockState.class, LootContext.Builder.class );
-			final boolean quantityDroppedTest = wc == Block.class;
+			final boolean quantityDroppedTest = wc == Block.class || wc == AbstractBlock.class;
 
 			final boolean isNotSlab = Item.getItemFromBlock( blk ) != null;
 			boolean itemExistsOrNotSpecialDrops = quantityDroppedTest || isNotSlab;
 
 			// ignore blocks with custom collision.
 			pb.getShape( null, null, null, null );
-			boolean noCustomCollision = getDeclaringClass( blkClass, pb.MethodName, BlockState.class, IBlockReader.class, BlockPos.class, ISelectionContext.class ) == Block.class || blk.getClass() == SlimeBlock.class;
+			Class<?> collisionClass = getDeclaringClass( blkClass, pb.MethodName, BlockState.class, IBlockReader.class, BlockPos.class, ISelectionContext.class );
+			boolean noCustomCollision = collisionClass == Block.class || collisionClass == AbstractBlock.class || blk.getClass() == SlimeBlock.class;
 
 			// full cube specifically is tied to lighting... so for glass
 			// Compatibility use isFullBlock which can be true for glass.
@@ -219,7 +218,7 @@ public class BlockBitInfo
             Item.getItemFromBlock(blk);
             final boolean hasItem = true;
 
-			final boolean supportedMaterial = ChiselsAndBits.getBlocks().getConversion( state ) != null;
+			final boolean supportedMaterial = ModBlocks.convertGivenStateToChiseledBlock( state ) != null;
 
 			final Boolean IgnoredLogic = ignoreLogicBlocks.get( blk );
 			if ( blkClass.isAnnotationPresent( IgnoreBlockLogic.class ) || IgnoredLogic != null && IgnoredLogic )
@@ -315,14 +314,16 @@ public class BlockBitInfo
 			final Class<? extends Block> blkClass = blk.getClass();
 
 			reflectBlock.getPlayerRelativeBlockHardness( null, null, null, null );
-			final boolean test_b = getDeclaringClass( blkClass, reflectBlock.MethodName, BlockState.class, PlayerEntity.class, IBlockReader.class, BlockPos.class ) == Block.class;
+			final Class<?> b_Class = getDeclaringClass( blkClass, reflectBlock.MethodName, BlockState.class, PlayerEntity.class, IBlockReader.class, BlockPos.class );
+			final boolean test_b = b_Class == Block.class || b_Class == AbstractBlock.class;
 
 			reflectBlock.getExplosionResistance();
-			final Class<?> exploResistanceClz = getDeclaringClass( blkClass, reflectBlock.MethodName);
-			final boolean test_c = exploResistanceClz == Block.class;
+			Class<?> exploResistanceClz = getDeclaringClass( blkClass, reflectBlock.MethodName);
+			final boolean test_c = exploResistanceClz == Block.class || exploResistanceClz == AbstractBlock.class;
 
 			reflectBlock.getExplosionResistance( null, null, null, null );
-			final boolean test_d = getDeclaringClass( blkClass, reflectBlock.MethodName, BlockState.class, IBlockReader.class, BlockPos.class, Explosion.class ) == Block.class;
+			exploResistanceClz = getDeclaringClass( blkClass, reflectBlock.MethodName, BlockState.class, IBlockReader.class, BlockPos.class, Explosion.class );
+			final boolean test_d = exploResistanceClz == Block.class || exploResistanceClz == AbstractBlock.class || exploResistanceClz == null;
 
 			final boolean isFluid = fluidStates.containsKey( ModUtil.getStateId( state ) );
 

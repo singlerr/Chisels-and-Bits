@@ -4,13 +4,17 @@ import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.items.ItemMirrorPrint;
+import mod.chiselsandbits.items.ItemNegativePrint;
+import mod.chiselsandbits.items.ItemPositivePrint;
+import mod.chiselsandbits.registry.ModItems;
+import mod.chiselsandbits.registry.ModRecipeSerializers;
 import net.minecraft.block.Blocks;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.crafting.SpecialRecipe;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBT;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
@@ -49,9 +53,9 @@ public class MirrorTransferCrafting extends SpecialRecipe
 				continue;
 			}
 
-			if ( f.getItem() == ChiselsAndBits.getItems().itemMirrorPrint)
+			if ( f.getItem() instanceof ItemMirrorPrint)
 			{
-				if ( ChiselsAndBits.getItems().itemMirrorPrint.isWritten( f ) )
+				if ( ModItems.ITEM_MIRROR_PRINT.get().isWritten( f ) )
 				{
 					if ( targetA != null )
 					{
@@ -66,9 +70,9 @@ public class MirrorTransferCrafting extends SpecialRecipe
 				}
 			}
 
-			else if ( f.getItem() == ChiselsAndBits.getItems().itemNegativePrint)
+			else if ( f.getItem() instanceof ItemNegativePrint)
 			{
-				if ( !ChiselsAndBits.getItems().itemNegativePrint.isWritten( f ) )
+				if ( !ModItems.ITEM_NEGATIVE_PRINT.get().isWritten( f ) )
 				{
 					if ( targetB != null )
 					{
@@ -83,9 +87,9 @@ public class MirrorTransferCrafting extends SpecialRecipe
 					return null;
 				}
 			}
-			else if ( f.getItem() == ChiselsAndBits.getItems().itemPositivePrint)
+			else if ( f.getItem() instanceof ItemPositivePrint)
 			{
-				if ( !ChiselsAndBits.getItems().itemPositivePrint.isWritten( f ) )
+				if ( !ModItems.ITEM_POSITIVE_PRINT.get().isWritten( f ) )
 				{
 					if ( targetB != null )
 					{
@@ -168,7 +172,7 @@ public class MirrorTransferCrafting extends SpecialRecipe
 		for ( int i = 0; i < aitemstack.size(); ++i )
 		{
 			final ItemStack itemstack = craftingInv.getStackInSlot( i );
-			if (itemstack.getItem() == ChiselsAndBits.getItems().itemMirrorPrint && itemstack.hasTag())
+			if (itemstack.getItem() == ModItems.ITEM_MIRROR_PRINT_WRITTEN.get() && itemstack.hasTag())
 			{
 				ModUtil.adjustStackSize( itemstack, 1 );
 			}
@@ -180,6 +184,6 @@ public class MirrorTransferCrafting extends SpecialRecipe
     @Override
     public IRecipeSerializer<?> getSerializer()
     {
-        return ModRecipes.MIRROR_TRANSFER_CRAFTING;
+        return ModRecipeSerializers.MIRROR_TRANSFER_CRAFTING.get();
     }
 }

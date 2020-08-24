@@ -3,6 +3,8 @@ package mod.chiselsandbits.crafting;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
+import mod.chiselsandbits.registry.ModItems;
+import mod.chiselsandbits.registry.ModRecipeSerializers;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.ItemStack;
@@ -45,7 +47,7 @@ public class BagDyeing extends SpecialRecipe
 
 		if ( output != null )
 		{
-			return ChiselsAndBits.getItems().itemBitBagDefault.dyeBag( output.bag, output.color );
+			return ModItems.ITEM_BIT_BAG_DEFAULT.get().dyeBag( output.bag, output.color );
 		}
 
 		return ModUtil.getEmptyStack();
@@ -149,6 +151,6 @@ public class BagDyeing extends SpecialRecipe
     @Override
     public IRecipeSerializer<?> getSerializer()
     {
-        return ModRecipes.BAG_DYEING;
+        return ModRecipeSerializers.BAG_DYEING.get();
     }
 }

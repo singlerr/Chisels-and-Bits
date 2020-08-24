@@ -11,6 +11,8 @@ import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IPatternItem;
+import mod.chiselsandbits.registry.ModBlocks;
+import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
@@ -100,7 +102,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
             {
                 stack.shrink(1);
 
-                final ItemStack newStack = new ItemStack(ChiselsAndBits.getItems().itemMirrorPrintWritten, 1);
+                final ItemStack newStack = new ItemStack(ModItems.ITEM_MIRROR_PRINT_WRITTEN.get(), 1);
                 newStack.setTag(comp);
 
                 final ItemEntity entity = context.getPlayer().dropItem(newStack, true);
@@ -160,7 +162,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 		conv.readChisleData( tag, VoxelBlob.VERSION_ANY );
 
 		final BlockState blk = conv.getPrimaryBlockState();
-		final ItemStack itemstack = new ItemStack( ChiselsAndBits.getBlocks().getConversionWithDefault( blk ), 1 );
+		final ItemStack itemstack = new ItemStack(ModBlocks.convertGivenStateToChiseledBlock(blk), 1 );
 
 		itemstack.setTagInfo( ModUtil.NBT_BLOCKENTITYTAG, tag );
 		return itemstack;
@@ -170,10 +172,7 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 	public boolean isWritten(
 			final ItemStack stack )
 	{
-	    if (stack.getItem() == ChiselsAndBits.getItems().itemMirrorPrint)
-	        return false;
-
-		return stack.hasTag();
+	    return stack.getItem() == ModItems.ITEM_MIRROR_PRINT_WRITTEN.get() && stack.hasTag();
 	}
 
 }

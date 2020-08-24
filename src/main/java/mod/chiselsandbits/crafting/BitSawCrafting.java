@@ -15,6 +15,7 @@ import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitSaw;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.registry.ModRecipeSerializers;
 import net.minecraft.block.BlockState;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.BlockItem;
@@ -310,6 +311,6 @@ public class BitSawCrafting extends SpecialRecipe
     @Override
     public IRecipeSerializer<?> getSerializer()
     {
-        return ModRecipes.BIT_SAW_CRAFTING;
+        return ModRecipeSerializers.BIT_SAW_CRAFTING.get();
     }
 }

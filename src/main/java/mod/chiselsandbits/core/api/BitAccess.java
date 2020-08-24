@@ -12,6 +12,8 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.registry.ModBlocks;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -161,7 +163,7 @@ public class BitAccess implements IBitAccess
 		if ( type == ItemType.CHISLED_BLOCK )
 		{
 			final BlockState state = ModUtil.getStateById( cb.mostCommonState );
-			final BlockChiseled blk = ChiselsAndBits.getBlocks().getConversion( state );
+			final BlockChiseled blk = ModBlocks.convertGivenStateToChiseledBlock( state );
 
 			if ( blk == null )
 			{
@@ -176,13 +178,13 @@ public class BitAccess implements IBitAccess
 			switch ( type )
 			{
 				case MIRROR_DESIGN:
-					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemMirrorPrint);
+					stack = ModUtil.makeStack(ModItems.ITEM_MIRROR_PRINT_WRITTEN.get());
 					break;
 				case NEGATIVE_DESIGN:
-					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemNegativePrint);
+					stack = ModUtil.makeStack( ModItems.ITEM_NEGATIVE_PRINT_WRITTEN.get());
 					break;
 				case POSITIVE_DESIGN:
-					stack = ModUtil.makeStack( ChiselsAndBits.getItems().itemPositivePrint);
+					stack = ModUtil.makeStack( ModItems.ITEM_POSITIVE_PRINT_WRITTEN.get());
 					break;
 				default:
 					return ModUtil.getEmptyStack();

@@ -7,16 +7,20 @@ import java.util.List;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.interfaces.ICacheClearable;
+import mod.chiselsandbits.registry.ModBlocks;
+import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.bit.BitItemSmartModel;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.chiseledblock.tesr.GfxRenderState;
 import mod.chiselsandbits.render.patterns.PrintSmartModel;
+import mod.chiselsandbits.utils.Constants;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.RegistryObject;
 
 public class SmartModelManager
 {
@@ -28,19 +32,19 @@ public class SmartModelManager
 	public SmartModelManager()
 	{
 		ChiseledBlockSmartModel smartModel = new ChiseledBlockSmartModel();
-		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_chiseled" ), smartModel );
+		add(Constants.DataGenerator.CHISELED_BLOCK_MODEL, smartModel );
 
-		for ( BlockChiseled bc : ChiselsAndBits.getBlocks().getConversions().values() )
+		for ( RegistryObject<BlockChiseled> bc : ModBlocks.getMaterialToBlockConversions().values() )
 		{
-			add( new ResourceLocation( ChiselsAndBits.MODID, bc.name ), smartModel );
+			add( new ResourceLocation( ChiselsAndBits.MODID, bc.get().name ), smartModel );
 		}
 
 		ChiselsAndBits.getInstance().addClearable( smartModel );
 
 		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/block_bit" ), new BitItemSmartModel() );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/positiveprint_written_preview" ), new PrintSmartModel( "positiveprint", ChiselsAndBits.getItems().itemPositivePrint) );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/negativeprint_written_preview" ), new PrintSmartModel( "negativeprint", ChiselsAndBits.getItems().itemNegativePrint) );
-		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/mirrorprint_written_preview" ), new PrintSmartModel( "mirrorprint", ChiselsAndBits.getItems().itemMirrorPrint) );
+        add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/positiveprint_written_preview" ), new PrintSmartModel( "positiveprint", ModItems.ITEM_POSITIVE_PRINT_WRITTEN.get()) );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/negativeprint_written_preview" ), new PrintSmartModel( "negativeprint", ModItems.ITEM_NEGATIVE_PRINT_WRITTEN.get()) );
+		add( new ResourceLocation( ChiselsAndBits.MODID, "models/item/mirrorprint_written_preview" ), new PrintSmartModel( "mirrorprint", ModItems.ITEM_MIRROR_PRINT_WRITTEN.get()) );
 	}
 
 	private void add(

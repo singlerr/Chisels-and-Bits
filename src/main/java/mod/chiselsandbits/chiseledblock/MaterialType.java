@@ -5,8 +5,8 @@ import net.minecraft.block.material.Material;
 public class MaterialType
 {
 
-	public final String name;
-	public final Material type;
+	private final String name;
+	private final Material type;
 
 	public MaterialType(
 			final String n,
@@ -15,4 +15,14 @@ public class MaterialType
 		name = n;
 		type = t;
 	}
+
+    public String getName()
+    {
+        return name;
+    }
+
+    public Material getType()
+    {
+        return type;
+    }
 }

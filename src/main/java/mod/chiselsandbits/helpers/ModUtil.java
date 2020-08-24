@@ -73,7 +73,7 @@ public class ModUtil
 
 		final double x = playerIn.prevPosX + ( playerIn.getPosX() - playerIn.prevPosX );
 		final double y = playerIn.prevPosY + ( playerIn.getPosY() - playerIn.prevPosY ) + playerIn.getEyeHeight();
-		final double z = playerIn.prevPosZ + ( playerIn.getPosY() - playerIn.prevPosZ );
+		final double z = playerIn.prevPosZ + ( playerIn.getPosZ() - playerIn.prevPosZ );
 
 		final float playerPitch = playerIn.prevRotationPitch + ( playerIn.rotationPitch - playerIn.prevRotationPitch );
 		final float playerYaw = playerIn.prevRotationYaw + ( playerIn.rotationYaw - playerIn.prevRotationYaw );
@@ -314,22 +314,6 @@ public class ModUtil
 			if ( te instanceof TileEntityBlockChiseled )
 			{
 				return (TileEntityBlockChiseled) te;
-			}
-
-			if ( te != null )
-			{
-				try
-				{
-					TileEntityBlockChiseled converted = LittleTiles.getConvertedTE( te, false );
-					if ( converted != null )
-					{
-						return converted;
-					}
-				}
-				catch ( Exception e )
-				{
-					e.printStackTrace();
-				}
 			}
 
 			return null;
@@ -680,7 +664,7 @@ public class ModUtil
 			    Objects.requireNonNull(stack.getTag()).put(tag, new CompoundNBT());
 		}
 
-        return stack.getTag().getCompound(tag);
+        return stack.getOrCreateTag().getCompound(tag);
 	}
 
 	public static @Nonnull ItemStack getEmptyStack()

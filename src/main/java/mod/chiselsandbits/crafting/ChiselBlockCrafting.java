@@ -13,6 +13,7 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
+import mod.chiselsandbits.registry.ModRecipeSerializers;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.inventory.CraftingInventory;
@@ -319,6 +320,6 @@ public class ChiselBlockCrafting extends SpecialRecipe
     @Override
     public IRecipeSerializer<?> getSerializer()
     {
-        return ModRecipes.CHISEL_BLOCK_CRAFTING;
+        return ModRecipeSerializers.CHISEL_BLOCK_CRAFTING.get();
     }
 }

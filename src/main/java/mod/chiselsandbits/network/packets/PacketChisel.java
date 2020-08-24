@@ -15,6 +15,7 @@ import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.network.ModPacket;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -223,7 +224,7 @@ public class PacketChisel extends ModPacket
 
 			if ( place.usesBits() )
 			{
-				ItemBitBag.cleanupInventory( who, bitPlaced != null ? bitPlaced : new ItemStack( ChiselsAndBits.getItems().itemBlockBit, 1) );
+				ItemBitBag.cleanupInventory( who, bitPlaced != null ? bitPlaced : new ItemStack(ModItems.ITEM_BLOCK_BIT.get(), 1) );
 			}
 
 		}

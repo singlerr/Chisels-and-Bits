@@ -7,11 +7,13 @@ import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChiseledBit;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
@@ -33,7 +35,7 @@ public class ContinousBits implements IContinuousInventory
 		final IInventory inv = src.getInventory();
 
 		// test can edit...
-		canEdit = who.canPlayerManipulate( pos, Direction.UP, new ItemStack( ChiselsAndBits.getItems().itemChiselDiamond, 1 ), true );
+		canEdit = who.canPlayerManipulate( pos, Direction.UP, new ItemStack(ModItems.ITEM_CHISEL_DIAMOND.get(), 1 ), true );
 
 		ItemStackSlot handSlot = null;
 
@@ -43,6 +45,7 @@ public class ContinousBits implements IContinuousInventory
 			if ( which != null && which.getItem() != null )
 			{
 				Item i = which.getItem();
+                LazyOptional<IItemHandler> handler;
 				if ( i instanceof ItemChiseledBit )
 				{
 					if ( ItemChiseledBit.getStackState( which ) == stateID )
@@ -57,15 +60,13 @@ public class ContinousBits implements IContinuousInventory
 						}
 					}
 				}
-
 				else if ( i instanceof ItemBitBag )
 				{
 					bags.add( new BagInventory( which ) );
 				}
-
-				else if ( which.hasCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null ) )
+				else if ((handler = which.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY )).isPresent() )
 				{
-					IItemHandler internal = which.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null );
+					IItemHandler internal = handler.orElseThrow(() -> new IllegalStateException("Handler is supposed to be present!"));
 					for ( int x = 0; x < internal.getSlots(); x++ )
 					{
 						ItemStack is = internal.getStackInSlot( x );

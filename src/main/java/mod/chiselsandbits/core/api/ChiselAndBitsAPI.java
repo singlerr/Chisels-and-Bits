@@ -1,5 +1,6 @@
 package mod.chiselsandbits.core.api;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
 import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
 import mod.chiselsandbits.api.*;
@@ -11,6 +12,7 @@ import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.client.ModItemGroup;
 import mod.chiselsandbits.client.RenderHelper;
 import mod.chiselsandbits.client.UndoTracker;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -23,6 +25,8 @@ import mod.chiselsandbits.items.*;
 import mod.chiselsandbits.modes.ChiselMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
+import mod.chiselsandbits.registry.ModBlocks;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
@@ -49,7 +53,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			final Material newMaterial,
 			final Material target )
 	{
-		ChiselsAndBits.getBlocks().addConversion( newMaterial, target );
+		ModBlocks.convertMaterialTo( newMaterial, target);
 	}
 
 	@Override
@@ -274,7 +278,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 		final ItemEntity ei = new ItemEntity( player.getEntityWorld(), spawnPos.x, spawnPos.y, spawnPos.z, stack );
 
-		if ( stack.getItem() == ChiselsAndBits.getItems().itemBlockBit )
+		if ( stack.getItem() == ModItems.ITEM_BLOCK_BIT.get() )
 		{
 			if ( player.getEntityWorld().isRemote )
 			{
@@ -423,23 +427,29 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	@OnlyIn(Dist.CLIENT)
 	@Override
 	public void renderModel(
+	  final MatrixStack stack,
 			final IBakedModel model,
 			final World world,
 			final BlockPos pos,
-			final int alpha )
+			final int alpha,
+      final int combinedLight,
+      final int combinedOverlay)
 	{
-		RenderHelper.renderModel( model, world, pos, alpha << 24 );
+		RenderHelper.renderModel( stack, model, world, pos, alpha << 24, combinedLight, combinedOverlay );
 	}
 
 	@Override
     @OnlyIn(Dist.CLIENT)
 	public void renderGhostModel(
+	  final MatrixStack stack,
 			final IBakedModel model,
 			final World world,
 			final BlockPos pos,
-			final boolean isUnplaceable )
+			final boolean isUnplaceable,
+      final int combinedLight,
+      final int combinedOverlay)
 	{
-		RenderHelper.renderGhostModel( model, world, pos, isUnplaceable );
+		RenderHelper.renderGhostModel(stack, model, world, pos, isUnplaceable,combinedLight,combinedOverlay );
 	}
 
 }

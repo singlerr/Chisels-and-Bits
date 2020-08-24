@@ -3,19 +3,19 @@ package mod.chiselsandbits.core;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
-import javax.imageio.ImageIO;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.*;
+import mod.chiselsandbits.registry.ModBlocks;
+import mod.chiselsandbits.registry.ModItems;
+import mod.chiselsandbits.registry.ModTileEntityTypes;
 import mod.chiselsandbits.utils.TextureUtils;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.GameSettings;
 import net.minecraft.client.MainWindow;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SimpleSound;
@@ -23,28 +23,26 @@ import net.minecraft.client.gui.IngameGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelBakery;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.DyeColor;
-import net.minecraft.particles.ParticleTypes;
 import net.minecraft.resources.IResource;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.*;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fml.RegistryObject;
 import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Stopwatch;
@@ -97,16 +95,12 @@ import mod.chiselsandbits.network.packets.PacketChisel;
 import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.network.packets.PacketSetColor;
 import mod.chiselsandbits.network.packets.PacketSuppressInteraction;
-import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.SmartModelManager;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -117,7 +111,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.common.util.FakePlayer;
@@ -174,8 +167,8 @@ public class ClientSide
 	{
 		readyState = readyState.updateState( ReadyState.TRIGGER_PRE );
 
-		ChiselsAndBits.registerWithBus( new SmartModelManager() );
-		ChiselsAndBits.registerWithBus( instance );
+        MinecraftForge.EVENT_BUS.register(new SmartModelManager());
+        MinecraftForge.EVENT_BUS.register(instance);
 	}
 
 	public void init(
@@ -184,32 +177,32 @@ public class ClientSide
 		readyState = readyState.updateState( ReadyState.TRIGGER_INIT );
 
 		//TODO: Inject tileentity types.
-		ClientRegistry.bindTileEntityRenderer( TileEntityBlockChiseledTESR.class, ChisledBlockRenderChunkTESR::new );
-		ClientRegistry.bindTileEntityRenderer( TileEntityBitTank.class, new TileEntitySpecialRenderBitTank() );
+		ClientRegistry.bindTileEntityRenderer(ModTileEntityTypes.CHISELED_TESR.get(), ChisledBlockRenderChunkTESR::new );
+		ClientRegistry.bindTileEntityRenderer(ModTileEntityTypes.BIT_TANK.get(), TileEntitySpecialRenderBitTank::new );
 
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
-			mode.binding = registerKeybind( mode.string.toString(), InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_CHISEL );
+			mode.binding = registerKeybind( mode.string.toString(), InputMappings.INPUT_INVALID, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_CHISEL );
 		}
 
 		for ( final PositivePatternMode mode : PositivePatternMode.values() )
 		{
-			mode.binding = registerKeybind( mode.string.toString(), InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_POSTIVEPATTERN );
+			mode.binding = registerKeybind( mode.string.toString(), InputMappings.INPUT_INVALID, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_POSTIVEPATTERN );
 		}
 
 		for ( final TapeMeasureModes mode : TapeMeasureModes.values() )
 		{
-			mode.binding = registerKeybind( mode.string.toString(), InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_TAPEMEASURE );
+			mode.binding = registerKeybind( mode.string.toString(), InputMappings.INPUT_INVALID, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_TAPEMEASURE );
 		}
 
-		modeMenu = registerKeybind( "mod.chiselsandbits.other.mode", InputMappings.getInputByCode(56,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_MENUITEM );
-		rotateCCW = registerKeybind( "mod.chiselsandbits.other.rotate.ccw", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
-		rotateCW = registerKeybind( "mod.chiselsandbits.other.rotate.cw", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
-		pickBit = registerKeybind( "mod.chiselsandbits.other.pickbit", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
-		offgridPlacement = registerKeybind( "mod.chiselsandbits.other.offgrid", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", ModConflictContext.HOLDING_OFFGRID );
-		undo = registerKeybind( "mod.chiselsandbits.other.undo", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
-		redo = registerKeybind( "mod.chiselsandbits.other.redo", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
-		addToClipboard = registerKeybind( "mod.chiselsandbits.other.add_to_clipboard", InputMappings.getInputByCode(0,0), "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
+		modeMenu = registerKeybind( "mod.chiselsandbits.other.mode", InputMappings.INPUT_INVALID, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_MENUITEM );
+		rotateCCW = registerKeybind( "mod.chiselsandbits.other.rotate.ccw", InputMappings.INPUT_INVALID, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
+		rotateCW = registerKeybind( "mod.chiselsandbits.other.rotate.cw", InputMappings.INPUT_INVALID, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
+		pickBit = registerKeybind( "mod.chiselsandbits.other.pickbit", InputMappings.INPUT_INVALID, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_ROTATEABLE );
+		offgridPlacement = registerKeybind( "mod.chiselsandbits.other.offgrid", InputMappings.INPUT_INVALID, "itemGroup.chiselsandbits", ModConflictContext.HOLDING_OFFGRID );
+		undo = registerKeybind( "mod.chiselsandbits.other.undo", InputMappings.INPUT_INVALID, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
+		redo = registerKeybind( "mod.chiselsandbits.other.redo", InputMappings.INPUT_INVALID, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
+		addToClipboard = registerKeybind( "mod.chiselsandbits.other.add_to_clipboard", InputMappings.INPUT_INVALID, "itemGroup.chiselsandbits", KeyConflictContext.IN_GAME );
 	}
 
 	private KeyBinding registerKeybind(
@@ -228,39 +221,18 @@ public class ClientSide
 	{
 		readyState = readyState.updateState( ReadyState.TRIGGER_POST );
 
-		final ModItems modItems = ChiselsAndBits.getItems();
+        Minecraft.getInstance().getItemColors().register( new ItemColorBitBag(), ModItems.ITEM_BIT_BAG_DEFAULT.get());
+        Minecraft.getInstance().getItemColors().register( new ItemColorBitBag(), ModItems.ITEM_BIT_BAG_DYED.get());
+        Minecraft.getInstance().getItemColors().register( new ItemColorBits(), ModItems.ITEM_BLOCK_BIT.get() );
+        Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), ModItems.ITEM_POSITIVE_PRINT.get());
+        Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), ModItems.ITEM_POSITIVE_PRINT_WRITTEN.get());
+        Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), ModItems.ITEM_NEGATIVE_PRINT.get());
+        Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), ModItems.ITEM_NEGATIVE_PRINT_WRITTEN.get());
+        Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), ModItems.ITEM_MIRROR_PRINT.get());
+        Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), ModItems.ITEM_MIRROR_PRINT_WRITTEN.get());
 
-		if ( modItems.itemBitBagDefault != null )
-		{
-			Minecraft.getInstance().getItemColors().register( new ItemColorBitBag(), modItems.itemBitBagDefault);
-		}
-
-		if ( modItems.itemBlockBit != null )
-		{
-			Minecraft.getInstance().getItemColors().register( new ItemColorBits(), modItems.itemBlockBit );
-		}
-
-		if ( modItems.itemPositivePrint != null )
-		{
-			Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), modItems.itemPositivePrint);
-		}
-
-		if ( modItems.itemNegativePrint != null )
-		{
-			Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), modItems.itemNegativePrint);
-		}
-
-		if ( modItems.itemMirrorPrint != null )
-		{
-			Minecraft.getInstance().getItemColors().register( new ItemColorPatterns(), modItems.itemMirrorPrint);
-		}
-
-		for ( final BlockChiseled blk : ChiselsAndBits.getBlocks().getConversions().values() )
-		{
-			final Item item = Item.getItemFromBlock( blk );
-			Minecraft.getInstance().getItemColors().register( new ItemColorChisled(), item );
-			Minecraft.getInstance().getBlockColors().register( new BlockColorChisled(), blk );
-		}
+        Minecraft.getInstance().getBlockColors().register( new BlockColorChisled(), ModBlocks.getMaterialToBlockConversions().values().stream().map(RegistryObject::get).toArray(Block[]::new) );
+        Minecraft.getInstance().getItemColors().register( new ItemColorChisled(), ModBlocks.getMaterialToItemConversions().values().stream().map(RegistryObject::get).toArray(Item[]::new) );
 	}
 
 	public static TextureAtlasSprite undoIcon;
@@ -409,13 +381,13 @@ public class ClientSide
 	public void onRenderGUI(
 			final RenderGameOverlayEvent.Post event )
 	{
-		final ChiselToolType tool = getHeldToolType( lastHand );
+	    final ChiselToolType tool = getHeldToolType( lastHand );
 		final ElementType type = event.getType();
 		if ( type == ElementType.ALL && tool != null && tool.hasMenu() )
 		{
 			final boolean wasVisible = ChiselsAndBitsMenu.instance.isVisible();
 
-			if ( modeMenu.isKeyDown() )
+			if ( !modeMenu.isInvalid() && modeMenu.isKeyDown() )
 			{
 				ChiselsAndBitsMenu.instance.actionUsed = false;
 				ChiselsAndBitsMenu.instance.raiseVisibility();
@@ -525,17 +497,17 @@ public class ClientSide
 			}
 		}
 
-		if ( undo.isPressed() )
+		if ( !undo.isInvalid() && undo.isPressed() )
 		{
 			UndoTracker.getInstance().undo();
 		}
 
-		if ( redo.isPressed() )
+		if ( !redo.isInvalid() && redo.isPressed() )
 		{
 			UndoTracker.getInstance().redo();
 		}
 
-		if ( addToClipboard.isPressed() )
+		if ( !addToClipboard.isInvalid() && addToClipboard.isPressed() )
 		{
 			final Minecraft mc = Minecraft.getInstance();
 			if ( mc.objectMouseOver != null && mc.objectMouseOver.getType() == RayTraceResult.Type.BLOCK && mc.objectMouseOver instanceof BlockRayTraceResult)
@@ -556,7 +528,7 @@ public class ClientSide
 			}
 		}
 
-		if ( pickBit.isPressed() )
+		if ( !pickBit.isInvalid() && pickBit.isPressed() )
 		{
 			final Minecraft mc = Minecraft.getInstance();
 			if ( mc.objectMouseOver != null && mc.objectMouseOver.getType() == RayTraceResult.Type.BLOCK && mc.objectMouseOver instanceof BlockRayTraceResult )
@@ -694,25 +666,40 @@ public class ClientSide
 			return ChiselToolType.CHISELED_BLOCK;
 		}
 
-		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemTapeMeasure )
+		if ( is != null && is.getItem() == ModItems.ITEM_TAPE_MEASURE.get() )
 		{
 			return ChiselToolType.TAPEMEASURE;
 		}
 
-		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemPositivePrint)
-		{
-			return ChiselToolType.POSITIVEPATTERN;
-		}
+        if ( is != null && is.getItem() == ModItems.ITEM_POSITIVE_PRINT.get() )
+        {
+            return ChiselToolType.POSITIVEPATTERN;
+        }
 
-		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemNegativePrint)
-		{
-			return ChiselToolType.NEGATIVEPATTERN;
-		}
+        if ( is != null && is.getItem() == ModItems.ITEM_POSITIVE_PRINT_WRITTEN.get() )
+        {
+            return ChiselToolType.POSITIVEPATTERN;
+        }
 
-		if ( is != null && is.getItem() == ChiselsAndBits.getItems().itemMirrorPrint)
-		{
-			return ChiselToolType.MIRRORPATTERN;
-		}
+        if ( is != null && is.getItem() == ModItems.ITEM_NEGATIVE_PRINT.get() )
+        {
+            return ChiselToolType.NEGATIVEPATTERN;
+        }
+
+        if ( is != null && is.getItem() == ModItems.ITEM_NEGATIVE_PRINT_WRITTEN.get() )
+        {
+            return ChiselToolType.NEGATIVEPATTERN;
+        }
+
+        if ( is != null && is.getItem() == ModItems.ITEM_MIRROR_PRINT.get() )
+        {
+            return ChiselToolType.MIRRORPATTERN;
+        }
+
+        if ( is != null && is.getItem() == ModItems.ITEM_MIRROR_PRINT_WRITTEN.get() )
+        {
+            return ChiselToolType.MIRRORPATTERN;
+        }
 
 		return null;
 	}
@@ -745,12 +732,12 @@ public class ClientSide
 
 		// used to prevent hyper chisels.. its actually far worse then you might
 		// think...
-		if ( event.side == LogicalSide.CLIENT && event.type == TickEvent.Type.CLIENT && event.phase == TickEvent.Phase.START && !Minecraft.getInstance().gameSettings.keyBindAttack.isKeyDown() )
+		if ( event.side == LogicalSide.CLIENT && event.type == TickEvent.Type.CLIENT && event.phase == TickEvent.Phase.START && !Minecraft.getInstance().gameSettings.keyBindAttack.isInvalid() && !Minecraft.getInstance().gameSettings.keyBindAttack.isKeyDown() )
 		{
 			ItemChisel.resetDelay();
 		}
 
-		if ( !getToolKey().isKeyDown() )
+		if ( !getToolKey().isInvalid() && !getToolKey().isKeyDown() )
 		{
 			if ( loopDeath )
 			{
@@ -772,7 +759,7 @@ public class ClientSide
 			loopDeath = false;
 		}
 
-		if ( rotateCCW.isKeyDown() )
+		if ( !rotateCCW.isInvalid() && rotateCCW.isKeyDown() )
 		{
 			if ( rotateTimer == null || rotateTimer.elapsed( TimeUnit.MILLISECONDS ) > 200 )
 			{
@@ -782,7 +769,7 @@ public class ClientSide
 			}
 		}
 
-		if ( rotateCW.isKeyDown() )
+		if ( !rotateCW.isInvalid() && rotateCW.isKeyDown() )
 		{
 			if ( rotateTimer == null || rotateTimer.elapsed( TimeUnit.MILLISECONDS ) > 200 )
 			{
@@ -795,7 +782,7 @@ public class ClientSide
 		for ( final ChiselMode mode : ChiselMode.values() )
 		{
 			final KeyBinding kb = (KeyBinding) mode.binding;
-			if ( kb.isKeyDown() )
+			if ( !kb.isInvalid() && kb.isKeyDown() )
 			{
 				final ChiselToolType tool = getHeldToolType( lastHand );
 				if ( tool.isBitOrChisel() )
@@ -808,7 +795,7 @@ public class ClientSide
 		for ( final PositivePatternMode mode : PositivePatternMode.values() )
 		{
 			final KeyBinding kb = (KeyBinding) mode.binding;
-			if ( kb.isKeyDown() )
+			if ( !kb.isInvalid() && kb.isKeyDown() )
 			{
 				final ChiselToolType tool = getHeldToolType( lastHand );
 				if ( tool == ChiselToolType.POSITIVEPATTERN )
@@ -821,7 +808,7 @@ public class ClientSide
 		for ( final TapeMeasureModes mode : TapeMeasureModes.values() )
 		{
 			final KeyBinding kb = (KeyBinding) mode.binding;
-			if ( kb.isKeyDown() )
+			if ( !kb.isInvalid() && kb.isKeyDown() )
 			{
 				final ChiselToolType tool = getHeldToolType( lastHand );
 				if ( tool == ChiselToolType.TAPEMEASURE )
@@ -839,6 +826,12 @@ public class ClientSide
 	public void drawHighlight(
 			final RenderWorldLastEvent event )
 	{
+	    final MatrixStack stack = event.getMatrixStack();
+	    stack.push();
+
+        Vector3d renderView = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
+        stack.translate(-renderView.x, -renderView.y, -renderView.z);
+
 		ChiselToolType tool = getHeldToolType( lastHand );
 		final IToolMode chMode = ChiselModeManager.getChiselMode( getPlayer(), tool, lastHand );
 		if ( chMode == ChiselMode.DRAWN_REGION )
@@ -865,7 +858,7 @@ public class ClientSide
 					{
 						tapeMeasures.setPreviewMeasure( other, location, chMode, getPlayer().getHeldItem( lastHand ) );
 
-						if ( !getToolKey().isKeyDown() )
+						if ( !getToolKey().isInvalid() && !getToolKey().isKeyDown() )
 						{
 							tapeMeasures.addMeasure( other, location, chMode, getPlayer().getHeldItem( lastHand ) );
 							drawStart = null;
@@ -876,7 +869,7 @@ public class ClientSide
 			}
 		}
 
-		tapeMeasures.render(event.getMatrixStack(), event.getPartialTicks() );
+		tapeMeasures.render(stack, event.getPartialTicks() );
 
 		final boolean isDrawing = ( chMode == ChiselMode.DRAWN_REGION || tool == ChiselToolType.TAPEMEASURE ) && getStartPos() != null;
 		if ( isDrawing != wasDrawing )
@@ -885,6 +878,8 @@ public class ClientSide
 			final PacketSuppressInteraction packet = new PacketSuppressInteraction(isDrawing);
 			ChiselsAndBits.getNetworkChannel().sendToServer(packet);
 		}
+
+		stack.pop();
 	}
 
 	@SubscribeEvent
@@ -948,9 +943,9 @@ public class ClientSide
 						final double maxChiseSize = ChiselsAndBits.getConfig().getServer().maxDrawnRegionSize.get() + 0.001;
 						if ( bb.maxX - bb.minX <= maxChiseSize && bb.maxY - bb.minY <= maxChiseSize && bb.maxZ - bb.minZ <= maxChiseSize )
 						{
-							RenderHelper.drawSelectionBoundingBoxIfExists( bb, BlockPos.ZERO, player, partialTicks, false );
+							RenderHelper.drawSelectionBoundingBoxIfExists(event.getMatrix(), bb, BlockPos.ZERO, player, partialTicks, false );
 
-							if ( !getToolKey().isKeyDown() )
+							if ( !getToolKey().isInvalid() && !getToolKey().isKeyDown() )
 							{
 								final PacketChisel pc = new PacketChisel( getLastBitOperation( player, lastHand, player.getHeldItem( lastHand ) ), location, other,
 										Direction.UP,
@@ -991,7 +986,7 @@ public class ClientSide
 						{
 							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, region, ChiselMode.castMode( chMode ), rayTraceResult.getFace(), !isChisel );
 							final AxisAlignedBB bb = i.getBoundingBox( vb, isChisel );
-							RenderHelper.drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
+							RenderHelper.drawSelectionBoundingBoxIfExists(event.getMatrix(), bb, location.blockPos, player, partialTicks, false );
 							showBox = false;
 						}
 						else if ( isBit )
@@ -1000,7 +995,7 @@ public class ClientSide
 							j.fill( 1 );
 							final ChiselIterator i = ChiselTypeIterator.create( VoxelBlob.dim, location.bitX, location.bitY, location.bitZ, j, ChiselMode.castMode( chMode ), rayTraceResult.getFace(), !isChisel );
 							final AxisAlignedBB bb = snapToSide( i.getBoundingBox( j, isChisel ), rayTraceResult.getFace() );
-							RenderHelper.drawSelectionBoundingBoxIfExists( bb, location.blockPos, player, partialTicks, false );
+							RenderHelper.drawSelectionBoundingBoxIfExists(event.getMatrix(), bb, location.blockPos, player, partialTicks, false );
 						}
 					}
 				}
@@ -1099,12 +1094,12 @@ public class ClientSide
 				return;
 			}
 
-			if ( !ChiselsAndBits.getItems().itemNegativePrint.isWritten( currentItem ) )
+			if ( !ModItems.ITEM_NEGATIVE_PRINT.get().isWritten( currentItem ) )
 			{
 				return;
 			}
 
-			final ItemStack item = ChiselsAndBits.getItems().itemNegativePrint.getPatternedItem( currentItem, false );
+			final ItemStack item = ModItems.ITEM_NEGATIVE_PRINT.get().getPatternedItem( currentItem, false );
 			if ( item == null || !item.hasTag() )
 			{
 				return;
@@ -1253,7 +1248,7 @@ public class ClientSide
 
 			modelBounds = blob.getBounds();
 
-			fail: if ( refItem.getItem() == ChiselsAndBits.getItems().itemNegativePrint)
+			fail: if ( refItem.getItem() == ModItems.ITEM_NEGATIVE_PRINT.get())
 			{
 				final VoxelBlob pattern = blob;
 
@@ -1286,7 +1281,7 @@ public class ClientSide
 			final Block blk = Block.getBlockFromItem( item.getItem() );
 			final ItemStack is = c.getItemStack( false );
 
-			if ( is == null || is.getItem() == null )
+			if ( is == null || is.isEmpty() )
 			{
 				isVisible = false;
 			}
@@ -1487,7 +1482,7 @@ public class ClientSide
 
 	public boolean holdingShift()
 	{
-		return Minecraft.getInstance().gameSettings.keyBindSneak.isKeyDown();
+		return !Minecraft.getInstance().gameSettings.keyBindSneak.isInvalid() && Minecraft.getInstance().gameSettings.keyBindSneak.isKeyDown();
 	}
 
 	public String getKeyName(
@@ -1529,14 +1524,14 @@ public class ClientSide
 			return false;
 		
 		if ( player.getEntityWorld().isRemote )
-			return getOffGridPlacementKey().isKeyDown();
+			return !getOffGridPlacementKey().isInvalid() && getOffGridPlacementKey().isKeyDown();
 
 		throw new RuntimeException( "checking keybinds on server." );
 	}
 
 	public static KeyBinding getOffGridPlacementKey()
 	{
-		if ( ClientSide.instance.offgridPlacement.isDefault() )
+		if (!ClientSide.instance.offgridPlacement.isInvalid() && ClientSide.instance.offgridPlacement.isDefault() )
 			return Minecraft.getInstance().gameSettings.keyBindSneak;
 
 		return ClientSide.instance.offgridPlacement;

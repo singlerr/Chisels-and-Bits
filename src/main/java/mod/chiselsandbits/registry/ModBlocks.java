@@ -1,163 +1,137 @@
 package mod.chiselsandbits.registry;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.google.common.collect.Maps;
 import mod.chiselsandbits.bittank.BlockBitTank;
-import mod.chiselsandbits.bittank.TileEntityBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.MaterialType;
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled.TileEntityBlockChiseledDummy;
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.Material;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
-public class ModBlocks extends ModRegistry
+import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+
+public final class ModBlocks
 {
 
-	// TE Registration names.
-	private static String TE_BIT_TANK = "mod.chiselsandbits.TileEntityBitTank";
-	private static String TE_CHISELEDBLOCK = "mod.chiselsandbits.TileEntityChiseled";
-	private static String TE_CHISELEDBLOCK_TESR = "mod.chiselsandbits.TileEntityChiseled.tesr";
+    private static final DeferredRegister<Block> BLOCK_REGISTRAR = DeferredRegister.create(ForgeRegistries.BLOCKS, ChiselsAndBits.MODID);
+    private static final DeferredRegister<Item> ITEM_REGISTRAR = DeferredRegister.create(ForgeRegistries.ITEMS, ChiselsAndBits.MODID);
 
-	private final HashMap<Material, BlockChiseled> conversions = new HashMap<Material, BlockChiseled>();
-	private final HashMap<Material, Item> itemConversions = new HashMap<Material, Item>();
+    private static final Map<Material, RegistryObject<BlockChiseled>> MATERIAL_TO_BLOCK_CONVERSIONS = Maps.newHashMap();
+    private static final Map<Material, RegistryObject<ItemBlockChiseled>>  MATERIAL_TO_ITEM_CONVERSIONS = Maps.newHashMap();
 
-	public final BlockItem itemBitTank;
-	public final BlockBitTank blockBitTank;
+    public static final RegistryObject<BlockBitTank> BIT_TANK_BLOCK = BLOCK_REGISTRAR.register("bit_tank", () -> new BlockBitTank(AbstractBlock.Properties.create(Material.IRON)));
+    public static final RegistryObject<BlockItem> BIT_TANK_BLOCK_ITEM = ITEM_REGISTRAR.register("bit_tank", () -> new BlockItem(BIT_TANK_BLOCK.get(), new Item.Properties()));
 
-	public static final MaterialType[] validMaterials = new MaterialType[] {
-			new MaterialType( "wood", Material.WOOD ),
-			new MaterialType( "rock", Material.ROCK ),
-			new MaterialType( "iron", Material.IRON ),
-			new MaterialType( "cloth", Material.CARPET ),
-			new MaterialType( "ice", Material.ICE ),
-			new MaterialType( "packedIce", Material.PACKED_ICE ),
-			new MaterialType( "clay", Material.CLAY ),
-			new MaterialType( "glass", Material.GLASS ),
-			new MaterialType( "sand", Material.SAND ),
-			new MaterialType( "ground", Material.EARTH ),
-			new MaterialType( "grass", Material.EARTH ),
-			new MaterialType( "snow", Material.SNOW_BLOCK ),
-			new MaterialType( "fluid", Material.WATER ),
-			new MaterialType( "leaves", Material.LEAVES ),
-	};
+    private static final MaterialType[] VALID_CHISEL_MATERIALS = new MaterialType[] {
+      new MaterialType( "wood", Material.WOOD ),
+      new MaterialType( "rock", Material.ROCK ),
+      new MaterialType( "iron", Material.IRON ),
+      new MaterialType( "cloth", Material.CARPET ),
+      new MaterialType( "ice", Material.ICE ),
+      new MaterialType( "packed_ice", Material.PACKED_ICE ),
+      new MaterialType( "clay", Material.CLAY ),
+      new MaterialType( "glass", Material.GLASS ),
+      new MaterialType( "sand", Material.SAND ),
+      new MaterialType( "ground", Material.EARTH ),
+      new MaterialType( "grass", Material.EARTH ),
+      new MaterialType( "snow", Material.SNOW_BLOCK ),
+      new MaterialType( "fluid", Material.WATER ),
+      new MaterialType( "leaves", Material.LEAVES ),
+    };
 
-	public ModBlocks()
-	{
-		// register tile entities.
-		GameRegistry.registerTileEntity( TileEntityBlockChiseled.class, TE_CHISELEDBLOCK );
+    private ModBlocks()
+    {
+        throw new IllegalStateException("Tried to initialize: ModBlocks but this is a Utility class.");
+    }
 
-		/**
-		 * register the TESR name either way, but if its a dedicated server
-		 * register the normal class under the same name.
-		 */
-		if ( side == Side.CLIENT )
-		{
-			GameRegistry.registerTileEntity( TileEntityBlockChiseledTESR.class, TE_CHISELEDBLOCK_TESR );
-		}
-		else
-		{
-			GameRegistry.registerTileEntity( TileEntityBlockChiseledDummy.class, TE_CHISELEDBLOCK_TESR );
-		}
+    public static void onModConstruction() {
+        BLOCK_REGISTRAR.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ITEM_REGISTRAR.register(FMLJavaModLoadingContext.get().getModEventBus());
 
-        blockBitTank = new BlockBitTank(AbstractBlock.Properties.create(Material.IRON));
-        itemBitTank = new BlockItem( blockBitTank, new Item.Properties() );
-        registerBlock( blockBitTank, itemBitTank, "bittank" );
-        GameRegistry.registerTileEntity( TileEntityBitTank.class, TE_BIT_TANK );
+        Arrays.stream(VALID_CHISEL_MATERIALS).forEach(materialType -> {
+            MATERIAL_TO_BLOCK_CONVERSIONS.put(
+              materialType.getType(),
+              BLOCK_REGISTRAR.register("chiseled" + materialType.getName(), () -> new BlockChiseled("chiseled_" + materialType.getName(), AbstractBlock.Properties.create(materialType.getType())))
+            );
+            MATERIAL_TO_ITEM_CONVERSIONS.put(
+              materialType.getType(),
+              ITEM_REGISTRAR.register("chiseled" + materialType.getName(), () -> new ItemBlockChiseled(MATERIAL_TO_BLOCK_CONVERSIONS.get(materialType.getType()).get(), new Item.Properties()))
+            );
+          }
+        );
+    }
 
-		// register blocks...
-		for ( final MaterialType mat : validMaterials )
-		{
-			final BlockChiseled blk = new BlockChiseled("chiseled_" + mat.name, AbstractBlock.Properties.create(mat.type) );
-			final ItemBlockChiseled item = new ItemBlockChiseled( blk, new Item.Properties() );
+    public static Map<Material, RegistryObject<ItemBlockChiseled>> getMaterialToItemConversions()
+    {
+        return MATERIAL_TO_ITEM_CONVERSIONS;
+    }
 
-			getConversions().put( mat.type, blk );
-			getItemConversions().put( mat.type, item );
+    public static Map<Material, RegistryObject<BlockChiseled>> getMaterialToBlockConversions()
+    {
+        return MATERIAL_TO_BLOCK_CONVERSIONS;
+    }
 
-			registerBlock( blk, item, blk.name );
-		}
-	}
+    public static MaterialType[] getValidChiselMaterials()
+    {
+        return VALID_CHISEL_MATERIALS;
+    }
 
-	public BlockState getChiseledDefaultState()
-	{
-		for ( final BlockChiseled bc : getConversions().values() )
-		{
-			return bc.getDefaultState();
-		}
-		return null;
-	}
+    @Nullable
+    public static BlockState getChiseledDefaultState() {
+        final Iterator<RegistryObject<BlockChiseled>> blockIterator = getMaterialToBlockConversions().values().iterator();
+        if (blockIterator.hasNext())
+            return blockIterator.next().get().getDefaultState();
 
-	public BlockChiseled getConversion(
-			final BlockState material )
-	{
-		final Fluid f = BlockBitInfo.getFluidFromBlock( material.getBlock() );
+        return null;
+    }
 
-		if ( f != null )
-		{
-			return getConversions().get( Material.WATER );
-		}
+    public static BlockChiseled convertGivenStateToChiseledBlock(
+      final BlockState state )
+    {
+        final Fluid f = BlockBitInfo.getFluidFromBlock( state.getBlock() );
+        return convertGivenMaterialToChiseledBlock(f != null ? Material.WATER : state.getMaterial());
+    }
 
-		BlockChiseled out = getConversions().get( material.getMaterial() );
+    public static BlockChiseled convertGivenMaterialToChiseledBlock(
+      final Material material
+    ) {
+        final RegistryObject<BlockChiseled> materialBlock = getMaterialToBlockConversions().get( material );
+        return materialBlock != null ? materialBlock.get() : convertGivenMaterialToChiseledBlock(Material.ROCK);
+    }
 
-		if ( out == null )
-		{
-			// unknown material? just use stone.
-			out = getConversions().get( Material.ROCK );
-		}
+    public static RegistryObject<BlockChiseled> convertGivenStateToChiseledRegistryBlock(
+      final BlockState state )
+    {
+        final Fluid f = BlockBitInfo.getFluidFromBlock( state.getBlock() );
+        return convertGivenMaterialToChiseledRegistryBlock(f != null ? Material.WATER : state.getMaterial());
+    }
 
-		return out;
-	}
+    public static RegistryObject<BlockChiseled> convertGivenMaterialToChiseledRegistryBlock(
+      final Material material
+    ) {
+        final RegistryObject<BlockChiseled> materialBlock = getMaterialToBlockConversions().get( material );
+        return materialBlock != null ? materialBlock : convertGivenMaterialToChiseledRegistryBlock(Material.ROCK);
+    }
 
-	public BlockChiseled getConversionWithDefault(
-			final BlockState material )
-	{
-		final BlockChiseled bcX = getConversion( material );
-
-		if ( bcX == null )
-		{
-			for ( final BlockChiseled bc : getConversions().values() )
-			{
-				return bc;
-			}
-		}
-
-		return bcX;
-	}
-
-	public Map<Material, Item> getItemConversions()
-	{
-		return itemConversions;
-	}
-
-	public Map<Material, BlockChiseled> getConversions()
-	{
-		return conversions;
-	}
-
-	public boolean addConversion(
-			final Material newMaterial,
-			final Material target )
-	{
-		final BlockChiseled targ = conversions.get( target );
-
-		if ( targ != null && !conversions.containsKey( newMaterial ) )
-		{
-			BlockBitInfo.reset();
-			conversions.put( newMaterial, targ );
-			return true;
-		}
-
-		return false;
-	}
-
+    public static boolean convertMaterialTo(
+      final Material source,
+      final Material target
+    ) {
+        final RegistryObject<BlockChiseled> sourceRegisteredObject = convertGivenMaterialToChiseledRegistryBlock(source);
+        return getMaterialToBlockConversions().put(target, sourceRegisteredObject) != null;
+    }
 }

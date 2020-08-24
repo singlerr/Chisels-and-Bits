@@ -22,6 +22,8 @@ import mod.chiselsandbits.core.api.BitAccess;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IChiseledTileContainer;
+import mod.chiselsandbits.registry.ModBlocks;
+import mod.chiselsandbits.registry.ModTileEntityTypes;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.render.chiseledblock.tesr.ChisledBlockRenderChunkTESR;
 import mod.chiselsandbits.utils.SingleBlockBlockReader;
@@ -51,17 +53,21 @@ import net.minecraftforge.fml.common.thread.EffectiveSide;
 
 public class TileEntityBlockChiseled extends TileEntity implements IChiseledTileContainer, IChiseledBlockTileEntity
 {
+    public TileEntityBlockChiseled()
+    {
+        this(null);
+    }
 
     public TileEntityBlockChiseled(final TileEntityType<?> tileEntityTypeIn)
     {
-        super(tileEntityTypeIn);
+        super(tileEntityTypeIn == null ? ModTileEntityTypes.CHISELED.get() : tileEntityTypeIn);
     }
 
     public static class TileEntityBlockChiseledDummy extends TileEntityBlockChiseled
 	{
-        public TileEntityBlockChiseledDummy(final TileEntityType<?> tileEntityTypeIn)
+        public TileEntityBlockChiseledDummy()
         {
-            super(tileEntityTypeIn);
+            super(ModTileEntityTypes.CHISELED_TESR.get());
         }
     };
 
@@ -165,7 +171,14 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		return getState( true, 1, access );
 	}
 
-	protected boolean supportsSwapping()
+    @Override
+    public void setWorldAndPos(final World world, final BlockPos pos)
+    {
+        super.setWorldAndPos(world, pos);
+        getState(EffectiveSide.get().isClient(), 0, world);
+    }
+
+    protected boolean supportsSwapping()
 	{
 		return true;
 	}
@@ -176,11 +189,14 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 			final int updateCost,
 			final IBlockReader access )
 	{
-			return ChiselsAndBits.getBlocks().getChiseledDefaultState();
+	    if (state == null)
+        {
+            state = ModBlocks.getChiseledDefaultState();
+        }
 
 		if ( updateNeightbors )
 		{
-			final boolean isDyanmic = this instanceof TileEntityBlockChiseledTESR;
+			final boolean isDynamic = this instanceof TileEntityBlockChiseledTESR;
 
 			final VoxelNeighborRenderTracker vns = getNeighborRenderTracker();
 			if ( vns == null )
@@ -188,11 +204,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 				return state;
 			}
 
-			vns.update( isDyanmic, access, pos );
+			vns.update( isDynamic, access, pos );
 			tesrUpdate( access, vns );
 
 			final TileEntityBlockChiseled self = this;
-			if ( supportsSwapping() && vns.isAboveLimit() && !isDyanmic )
+/*			if ( supportsSwapping() && vns.isAboveLimit() && !isDynamic )
 			{
 				ChisledBlockRenderChunkTESR.addNextFrameTask(() -> {
                     if ( self.world != null && self.pos != null )
@@ -217,7 +233,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
                     }
                 });
 			}
-			else if ( supportsSwapping() && !vns.isAboveLimit() && isDyanmic )
+			else if ( supportsSwapping() && !vns.isAboveLimit() && isDynamic )
 			{
 				ChisledBlockRenderChunkTESR.addNextFrameTask( new Runnable() {
 
@@ -247,7 +263,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 					}
 
 				} );
-			}
+			}*/
 		}
 
 		return state;
@@ -295,7 +311,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 		this.state = blockState;
 
-		if ( originalRef != null && newRef != null && !newRef.equals( originalRef ) )
+		if (newRef != null && !newRef.equals( originalRef ) )
 		{
 			final EventBlockBitPostModification bmm = new EventBlockBitPostModification( getWorld(), getPos() );
 			MinecraftForge.EVENT_BUS.post( bmm );
@@ -348,6 +364,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 		if ( world != null && changed )
 		{
 			world.markBlockRangeForRenderUpdate( pos, world.getBlockState(pos), Blocks.AIR.getDefaultState());
+			getState(true, 0, getWorld());
 			triggerDynamicUpdates();
 
 			// fixes lighting on placement when tile packet arrives.
@@ -541,7 +558,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
 	public BlockState getPreferedBlock()
 	{
-		return ChiselsAndBits.getBlocks().getConversionWithDefault( getBlockState( Blocks.STONE ) ).getDefaultState();
+		return ModBlocks.convertGivenStateToChiseledBlock( getBlockState( Blocks.STONE ) ).getDefaultState();
 	}
 
 	public void setBlob(

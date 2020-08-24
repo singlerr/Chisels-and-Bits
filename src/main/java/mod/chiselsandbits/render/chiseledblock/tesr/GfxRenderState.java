@@ -1,6 +1,10 @@
 package mod.chiselsandbits.render.chiseledblock.tesr;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.util.math.vector.Matrix4f;
 import org.lwjgl.opengl.*;
 
@@ -156,59 +160,18 @@ public abstract class GfxRenderState
 		{
 			if ( vertexbuffer != null )
 			{
-
-
-				GlStateManager.enableClientState( 32884 );
-                ARBMultitexture.glActiveTextureARB(GL13.GL_TEXTURE0);
-				GlStateManager.enableClientState( 32888 );
-                ARBMultitexture.glActiveTextureARB(GL13.GL_TEXTURE1);
-				GlStateManager.enableClientState( 32888 );
-                ARBMultitexture.glActiveTextureARB(GL13.GL_TEXTURE2);
-				GlStateManager.enableClientState( 32886 );
-
 				vertexbuffer.bindBuffer();
-				setupArrayPointers();
-				vertexbuffer.draw(matrix4f, GL11.GL_QUADS );
-                ARBVertexBufferObject.glBindBufferARB(GL15.GL_ARRAY_BUFFER, 0);
-				GlStateManager.color4f(1f, 1f, 1f, 1f);
-
-				for ( final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements() )
-				{
-					final VertexFormatElement.Usage vertexformatelement$enumusage = vertexformatelement.getUsage();
-					final int i = vertexformatelement.getIndex();
-
-					switch ( vertexformatelement$enumusage )
-					{
-						case POSITION:
-							GlStateManager.disableClientState( 32884 );
-							break;
-						case UV:
-                            ARBMultitexture.glActiveTextureARB(GL13.GL_TEXTURE0 + i);
-							GlStateManager.disableClientState( 32888 );
-                            ARBMultitexture.glActiveTextureARB(GL13.GL_TEXTURE0);
-							break;
-						case COLOR:
-							GlStateManager.disableClientState( 32886 );
-							GlStateManager.color4f(1f, 1f, 1f ,1f);
-						default:
-							break;
-					}
-				}
+                Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
+				DefaultVertexFormats.BLOCK.setupBufferState(0L);
+                vertexbuffer.draw(matrix4f, GL11.GL_QUADS );
+                VertexBuffer.unbindBuffer();
+                RenderSystem.clearCurrentColor();
+                DefaultVertexFormats.BLOCK.clearBufferState();
 
 				return true;
 			}
 
 			return false;
-		}
-
-		private void setupArrayPointers()
-		{
-			GlStateManager.vertexPointer( 3, GL11.GL_FLOAT, 28, 0 );
-			GlStateManager.colorPointer( 4, GL11.GL_UNSIGNED_BYTE, 28, 12 );
-			GlStateManager.texCoordPointer( 2, GL11.GL_FLOAT, 28, 16 );
-            ARBMultitexture.glActiveTextureARB(GL13.GL_TEXTURE1);
-			GlStateManager.texCoordPointer( 2, GL11.GL_SHORT, 28, 24 );
-            ARBMultitexture.glActiveTextureARB(GL13.GL_TEXTURE0);
 		}
 
 		@Override

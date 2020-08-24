@@ -17,6 +17,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.client.RenderHelper;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.chunk.ChunkRenderCache;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
@@ -24,6 +26,9 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import com.google.common.base.Stopwatch;
@@ -40,7 +45,7 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 
-public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBlockChiseledTESR>
+public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBlockChiseled>
 {
 	public final static AtomicInteger pendingTess = new AtomicInteger( 0 );
 	public final static AtomicInteger activeTess = new AtomicInteger( 0 );
@@ -213,7 +218,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
 	public void nextFrame(
 			final RenderWorldLastEvent e )
 	{
-		runJobs( getTracker().nextFrameTasks );
+	    runJobs( getTracker().nextFrameTasks );
 
 		uploadDisplaylists();
 
@@ -321,7 +326,7 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
 	{
         super(dispatcher);
         instance = this;
-		ChiselsAndBits.registerWithBus( this );
+        MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	static
@@ -363,8 +368,12 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
       final int combinedLightIn,
       final int combinedOverlayIn)
 	{
+        ForgeHooksClient.setRenderLayer(RenderType.getSolid());
 		renderLogic( tileEntityIn, partialTicks, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, true );
-	}
+		ForgeHooksClient.setRenderLayer(RenderType.getTranslucent());
+        //renderLogic( tileEntityIn, partialTicks, matrixStackIn, bufferIn, combinedLightIn, combinedOverlayIn, true );
+        ForgeHooksClient.setRenderLayer(null);
+    }
 
 	private void renderLogic(
       final TileEntityBlockChiseledTESR tileEntityIn,
@@ -506,17 +515,10 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
 
 			matrixStackIn.push();
 
-			final Entity entity = Minecraft.getInstance().getRenderViewEntity();
-            double x = entity.lastTickPosX + (entity.getPosX() - entity.lastTickPosX) * (double)partialTicks;
-            double y = entity.lastTickPosY + (entity.getPosY() - entity.lastTickPosY) * (double)partialTicks;
-            double z = entity.lastTickPosZ + (entity.getPosZ() - entity.lastTickPosZ) * (double)partialTicks;
-
-            matrixStackIn.translate( -x + chunkOffset.getX(),
-					-y + chunkOffset.getY(),
-					-z + chunkOffset.getZ() );
 
 			configureGLState( layer );
 
+			System.out.println("Rendering: " + tileEntityIn.getPos());
 			if ( dl.render(matrixStackIn.getLast().getMatrix()) )
 			{
 				markRendered( renderChunk.singleInstanceMode );
@@ -569,15 +571,26 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
 
     @Override
     public void render(
-      final TileEntityBlockChiseledTESR tileEntityIn,
+      final TileEntityBlockChiseled tileEntityIn,
       final float partialTicks,
       final MatrixStack matrixStackIn,
       final IRenderTypeBuffer bufferIn,
       final int combinedLightIn,
       final int combinedOverlayIn)
     {
-
+        RenderHelper.renderBoundingBox(matrixStackIn, new AxisAlignedBB(tileEntityIn.getPos()), 255,0,0,255);
+        System.out.println("Attempt rendering: " + tileEntityIn.getPos());
+        if (tileEntityIn instanceof TileEntityBlockChiseledTESR)
+        {
+            renderTileEntityInner(
+              (TileEntityBlockChiseledTESR) tileEntityIn,
+              partialTicks,
+              matrixStackIn,
+              bufferIn,
+              combinedLightIn,
+              combinedOverlayIn
+            );
+        }
     }
-
 
 }

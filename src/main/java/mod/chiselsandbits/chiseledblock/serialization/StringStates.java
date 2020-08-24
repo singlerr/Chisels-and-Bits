@@ -86,17 +86,21 @@ public class StringStates
 			return state;
 		}
 
-		final Optional<?> pv = prop.parseValue( nameval[1] );
-		if ( pv.isPresent() )
-		{
-			return state.with( prop, (Comparable) pv.get() );
-		}
-		else
-		{
-			Log.info( nameval[1] + " is not a valid value of " + nameval[0] + " for " + blk.getRegistryName() );
-			return state;
-		}
+        return setPropValue(state, prop, nameval[1]);
 	}
+
+	public static <T extends Comparable<T>> BlockState setPropValue(BlockState blockState, Property<T> property, String value) {
+        final Optional<T> pv = property.parseValue( value );
+        if ( pv.isPresent() )
+        {
+            return blockState.with( property, pv.get());
+        }
+        else
+        {
+            Log.info( value + " is not a valid value of " + property.getName() + " for " + blockState.getBlock().getRegistryName() );
+            return blockState;
+        }
+    }
 
 	public static String getNameFromStateID(
 			final int key )

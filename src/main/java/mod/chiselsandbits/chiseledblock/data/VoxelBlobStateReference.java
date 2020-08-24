@@ -137,6 +137,9 @@ public final class VoxelBlobStateReference implements Comparable<VoxelBlobStateR
 	public boolean equals(
 			final Object obj )
 	{
+	    if (obj == null)
+	        return false;
+
 		if ( !( obj instanceof VoxelBlobStateReference ) )
 		{
 			return false;

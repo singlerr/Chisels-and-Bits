@@ -33,6 +33,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -51,7 +52,7 @@ public class ItemBitBag extends Item
 	public ItemBitBag(Item.Properties properties)
 	{
 	    super(properties.maxStackSize(1));
-		ChiselsAndBits.registerWithBus( this );
+        MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@Override
@@ -318,7 +319,7 @@ public class ItemBitBag extends Item
     {
         if ( this.isInGroup( group ) )
         {
-            if (this == ChiselsAndBits.getItems().itemBitBagDefault)
+            if (this == ModItems.ITEM_BIT_BAG_DEFAULT.get())
                 items.add( new ItemStack( this ) );
             else
                 for ( DyeColor color : DyeColor.values() )
@@ -336,7 +337,7 @@ public class ItemBitBag extends Item
 		if ( !copy.hasTag() )
 			copy.setTag( new CompoundNBT() );
 
-		if ( color == null && this == ChiselsAndBits.getItems().itemBitBagDyed )
+		if ( color == null && this == ModItems.ITEM_BIT_BAG_DYED.get() )
 			copy.getTag().remove( "color" );
 		else if (color != null)
 			copy.getTag().putString( "color", color.getTranslationKey() );
@@ -347,7 +348,7 @@ public class ItemBitBag extends Item
 	public DyeColor getDyedColor(
 			ItemStack stack )
 	{
-	    if (stack.getItem() != ChiselsAndBits.getItems().itemBitBagDyed)
+	    if (stack.getItem() != ModItems.ITEM_BIT_BAG_DYED.get())
 	        return null;
 
 		if ( stack.getOrCreateTag().contains( "color" ) )

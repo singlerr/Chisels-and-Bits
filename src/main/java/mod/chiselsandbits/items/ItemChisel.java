@@ -65,9 +65,11 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 			final IItemTier material,
             final Item.Properties properties)
 	{
-		super( 0.1F, -2.8F, material, new HashSet<Block>(), properties );
+		super( 0.1F, -2.8F, material, new HashSet<Block>(), setupDamageStack(material, properties) );
+	}
 
-		long uses = 1;
+	private static Item.Properties setupDamageStack(IItemTier material, Item.Properties properties) {
+        long uses = 1;
         if (DIAMOND.equals(material))
         {
             uses = ChiselsAndBits.getConfig().getServer().diamondChiselUses.get();
@@ -85,8 +87,8 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
             uses = ChiselsAndBits.getConfig().getServer().stoneChiselUses.get();
         }
 
-        properties.maxDamage(ChiselsAndBits.getConfig().getServer().damageTools.get() ? (int) Math.max( 0, uses ) : 0);
-	}
+        return properties.maxDamage(ChiselsAndBits.getConfig().getServer().damageTools.get() ? (int) Math.max( 0, uses ) : 0);
+    }
 
     @Override
     public void addInformation(
@@ -307,7 +309,6 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 			return output;
 		}
 
-		final boolean spawnBit = ChiselsAndBits.getItems().itemBlockBit != null;
 		if ( !world.isRemote && !isCreative )
 		{
 			double hitX = x * one_16th;
@@ -323,10 +324,7 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 			{
 				output = ItemChiseledBit.createStack( blk, 1, true );
 
-				if ( spawnBit )
-				{
-					spawnlist.add( new ItemEntity( world, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ, output ) );
-				}
+                spawnlist.add( new ItemEntity( world, pos.getX() + hitX, pos.getY() + hitY, pos.getZ() + hitZ, output ) );
 			}
 			else
 			{
@@ -401,41 +399,6 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 		}
 
 		return true;
-	}
-
-	private static final String DAMAGE_KEY = "damage";
-
-	@Override
-	public int getDamage(
-			final ItemStack stack )
-	{
-		return Math.max( stack.getDamage(), getNBT( stack ).getInt( DAMAGE_KEY ) );
-	}
-
-	@Override
-	public boolean isDamaged(
-			final ItemStack stack )
-	{
-		return getDamage( stack ) > 0;
-	}
-
-	@Override
-	public void setDamage(
-			final ItemStack stack,
-			int damage )
-	{
-		if ( damage < 0 )
-		{
-			damage = 0;
-		}
-
-		getNBT( stack ).putInt( DAMAGE_KEY, damage );
-	}
-
-	private CompoundNBT getNBT(
-			final ItemStack stack )
-	{
-		return stack.getOrCreateTag();
 	}
 
 	@Override

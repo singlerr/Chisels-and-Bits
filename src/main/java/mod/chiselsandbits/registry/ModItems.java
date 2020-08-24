@@ -1,52 +1,78 @@
 package mod.chiselsandbits.registry;
 
-import mod.chiselsandbits.debug.ItemApiDebug;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.items.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemTier;
+import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 
-public class ModItems extends ModRegistry
+import static mod.chiselsandbits.registry.ModItemGroups.CHISELS_AND_BITS;
+
+public final class ModItems
 {
 
-	final public ItemChisel itemChiselStone;
-	final public ItemChisel itemChiselIron;
-	final public ItemChisel itemChiselGold;
-	final public ItemChisel itemChiselDiamond;
+    private final static DeferredRegister<Item> ITEM_REGISTRAR = DeferredRegister.create(ForgeRegistries.ITEMS, ChiselsAndBits.MODID);
 
-	final public ItemChiseledBit   itemBlockBit;
-    final public ItemMirrorPrint   itemMirrorPrint;
-    final public ItemMirrorPrint   itemMirrorPrintWritten;
-    final public ItemPositivePrint itemPositivePrint;
-    final public ItemPositivePrint itemPositivePrintWritten;
-	final public ItemNegativePrint itemNegativePrint;
-	final public ItemNegativePrint itemNegativePrintWritten;
-
-	final public ItemBitBag      itemBitBagDefault;
-	final public ItemBitBag      itemBitBagDyed;
-	final public ItemWrench      itemWrench;
-	final public ItemBitSaw      itemBitSawDiamond;
-	final public ItemTapeMeasure itemTapeMeasure;
-
-	public ModItems()
-	{
-		// register items...
-		itemChiselStone = registerItem((prop) -> new ItemChisel(ItemTier.STONE, prop), "chisel_stone" );
-		itemChiselIron = registerItem((prop) -> new ItemChisel( ItemTier.IRON, prop ), "chisel_iron" );
-		itemChiselGold = registerItem((prop) -> new ItemChisel( ItemTier.GOLD, prop), "chisel_gold" );
-		itemChiselDiamond = registerItem((prop) -> new ItemChisel( ItemTier.DIAMOND, prop ), "chisel_diamond" );
-		itemPositivePrint = registerItem(ItemPositivePrint::new, "positiveprint" );
-        itemPositivePrintWritten = registerItem(ItemPositivePrint::new, "positiveprint_written" );
-		itemNegativePrint = registerItem(ItemNegativePrint::new, "negativeprint" );
-        itemNegativePrintWritten = registerItem(ItemNegativePrint::new, "negativeprint_written");
-        itemMirrorPrint = registerItem(ItemMirrorPrint::new, "mirrorprint" );
-        itemMirrorPrintWritten = registerItem(ItemMirrorPrint::new, "mirrorprint_written" );
-		itemBitBagDefault = registerItem(ItemBitBag::new, "bit_bag" );
-        itemBitBagDyed = registerItem(ItemBitBag::new, "bit_bag_dyed" );
-		itemWrench = registerItem(ItemWrench::new, "wrench_wood" );
-		itemBitSawDiamond = registerItem(ItemBitSaw::new, "bitsaw_diamond" );
-		itemBlockBit = registerItem(ItemChiseledBit::new, "block_bit" );
-		itemTapeMeasure = registerItem(ItemTapeMeasure::new, "tape_measure" );
-		registerItem(ItemApiDebug::new, "debug" );
+    private ModItems()
+    {
+        throw new IllegalStateException("Tried to initialize: ModItems but this is a Utility class.");
     }
 
+    public static final RegistryObject<ItemChisel> ITEM_CHISEL_STONE   =
+      ITEM_REGISTRAR.register("chisel_stone", () -> new ItemChisel(ItemTier.STONE, new Item.Properties().group(
+      CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemChisel> ITEM_CHISEL_IRON    =
+      ITEM_REGISTRAR.register("chisel_iron", () -> new ItemChisel(ItemTier.IRON, new Item.Properties().group(
+      CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemChisel> ITEM_CHISEL_GOLD    =
+      ITEM_REGISTRAR.register("chisel_gold", () -> new ItemChisel(ItemTier.GOLD, new Item.Properties().group(
+      CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemChisel> ITEM_CHISEL_DIAMOND =
+      ITEM_REGISTRAR.register("chisel_diamond", () -> new ItemChisel(ItemTier.DIAMOND, new Item.Properties().group(
+        CHISELS_AND_BITS)));
+
+    public static final RegistryObject<ItemChiseledBit>   ITEM_BLOCK_BIT              =
+      ITEM_REGISTRAR.register("block_bit", () -> new ItemChiseledBit(new Item.Properties().group(
+      CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemMirrorPrint>   ITEM_MIRROR_PRINT           =
+      ITEM_REGISTRAR.register("mirrorprint", () -> new ItemMirrorPrint(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemMirrorPrint>   ITEM_MIRROR_PRINT_WRITTEN   =
+      ITEM_REGISTRAR.register("mirrorprint_written", () -> new ItemMirrorPrint(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemPositivePrint> ITEM_POSITIVE_PRINT         =
+      ITEM_REGISTRAR.register("positiveprint", () -> new ItemPositivePrint(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemPositivePrint> ITEM_POSITIVE_PRINT_WRITTEN =
+      ITEM_REGISTRAR.register("positiveprint_written", () -> new ItemPositivePrint(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemNegativePrint> ITEM_NEGATIVE_PRINT         =
+      ITEM_REGISTRAR.register("negativeprint", () -> new ItemNegativePrint(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemNegativePrint> ITEM_NEGATIVE_PRINT_WRITTEN =
+      ITEM_REGISTRAR.register("negativeprint_written", () -> new ItemNegativePrint(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+
+    public static final RegistryObject<ItemBitBag>      ITEM_BIT_BAG_DEFAULT =
+      ITEM_REGISTRAR.register("bit_bag", () -> new ItemBitBag(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemBitBag>      ITEM_BIT_BAG_DYED =
+      ITEM_REGISTRAR.register("bit_bag_dyed", () -> new ItemBitBag(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemWrench>      ITEM_WRENCH =
+      ITEM_REGISTRAR.register("wrench_wood", () -> new ItemWrench(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemBitSaw>      ITEM_BIT_SAW_DIAMOND =
+      ITEM_REGISTRAR.register("bitsaw_diamond", () -> new ItemBitSaw(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemTapeMeasure> ITEM_TAPE_MEASURE =
+      ITEM_REGISTRAR.register("tape_measure", () -> new ItemTapeMeasure(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+
+    public static void onModConstruction() {
+        ITEM_REGISTRAR.register(FMLJavaModLoadingContext.get().getModEventBus());
+    }
 }

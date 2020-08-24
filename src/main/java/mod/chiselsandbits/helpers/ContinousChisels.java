@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.items.ItemChisel;
+import mod.chiselsandbits.registry.ModItems;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.IItemTier;
 import net.minecraft.item.ItemStack;
@@ -33,7 +34,7 @@ public class ContinousChisels implements IContinuousInventory
 		final IInventory inv = who.getInventory();
 
 		// test can edit...
-		canEdit = who.canPlayerManipulate( pos, side, new ItemStack( () -> ChiselsAndBits.getItems().itemChiselDiamond, 1 ), false );
+		canEdit = who.canPlayerManipulate( pos, side, new ItemStack(ModItems.ITEM_CHISEL_DIAMOND.get(), 1 ), false );
 
 		if ( inHand != null && ModUtil.notEmpty( inHand ) && inHand.getItem() instanceof ItemChisel )
 		{
