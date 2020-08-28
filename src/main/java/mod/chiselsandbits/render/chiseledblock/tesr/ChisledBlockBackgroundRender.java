@@ -193,7 +193,10 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 		while ( tessellator == null );
 
 		final BufferBuilder buffer = tessellator.getBuffer();
-        final IVertexBuilder transformBuilder = new MatrixApplyingVertexBuilder(buffer, Matrix4f.makeTranslate(-chunkOffset.getX(), -chunkOffset.getY(), -chunkOffset.getZ()), new Matrix3f());
+//        final IVertexBuilder transformBuilder = new MatrixApplyingVertexBuilder(buffer, Matrix4f.makeTranslate(-chunkOffset.getX(), -chunkOffset.getY(), -chunkOffset.getZ()), new Matrix3f());
+
+        //final MatrixStack stack = new MatrixStack();
+        //stack.translate(chunkOffset.getX(), chunkOffset.getY(), chunkOffset.getZ());
 		try
 		{
 			buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.BLOCK );
@@ -223,7 +226,7 @@ public class ChisledBlockBackgroundRender implements Callable<Tessellator>
 					if ( !model.isEmpty() )
 					{
 						blockRenderer.getBlockModelRenderer().renderModel( new ChuckRenderCacheWrapper(cache),
-                          model, estate, tx.getPos(), new MatrixStack(), transformBuilder, true, BACKGROUND_RANDOM.get(), BACKGROUND_RANDOM.get().nextLong(),
+                          model, estate, tx.getPos(), new MatrixStack(), buffer, true, BACKGROUND_RANDOM.get(), BACKGROUND_RANDOM.get().nextLong(),
                           OverlayTexture.NO_OVERLAY);
 
 						if ( Thread.interrupted() )

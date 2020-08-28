@@ -27,7 +27,7 @@ public abstract class GfxRenderState
 
 	public abstract boolean validForUse();
 
-	public abstract boolean render(Matrix4f matrix4f);
+	public abstract boolean render(Matrix4f matrix4f, Runnable stateEnabler, Runnable stateDisabler);
 
 	public abstract GfxRenderState prepare(
 			final Tessellator t );
@@ -86,7 +86,7 @@ public abstract class GfxRenderState
 		}
 
 		@Override
-		public boolean render(final Matrix4f matrix4f)
+		public boolean render(final Matrix4f matrix4f, Runnable stateEnabler, Runnable stateDisabler)
 		{
 			return false;
 		}
@@ -156,16 +156,18 @@ public abstract class GfxRenderState
 		}
 
 		@Override
-		public boolean render(final Matrix4f matrix4f)
+		public boolean render(final Matrix4f matrix4f, Runnable stateEnabler, Runnable stateDisabler)
 		{
 			if ( vertexbuffer != null )
 			{
 				vertexbuffer.bindBuffer();
                 Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
 				DefaultVertexFormats.BLOCK.setupBufferState(0L);
+				stateEnabler.run();
                 vertexbuffer.draw(matrix4f, GL11.GL_QUADS );
                 VertexBuffer.unbindBuffer();
                 RenderSystem.clearCurrentColor();
+                stateDisabler.run();
                 DefaultVertexFormats.BLOCK.clearBufferState();
 
 				return true;
@@ -179,7 +181,7 @@ public abstract class GfxRenderState
 		{
 			if ( vertexbuffer != null )
 			{
-				ChisledBlockRenderChunkTESR.addNextFrameTask( new vertexBufferCleanup( vertexbuffer ) );
+				ChisledBlockRenderChunkTESR.addNextFrameTask( () -> vertexbuffer.close() );
 			}
 		}
 

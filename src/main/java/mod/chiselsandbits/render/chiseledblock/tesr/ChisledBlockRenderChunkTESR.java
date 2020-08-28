@@ -515,16 +515,10 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
 
 			matrixStackIn.push();
 
-
-			configureGLState( layer );
-
-			System.out.println("Rendering: " + tileEntityIn.getPos());
-			if ( dl.render(matrixStackIn.getLast().getMatrix()) )
+			if ( dl.render(matrixStackIn.getLast().getMatrix(), () -> configureGLState(layer), () -> unconfigureGLState(layer)) )
 			{
 				markRendered( renderChunk.singleInstanceMode );
 			}
-
-			unconfigureGLState( layer );
 
 			matrixStackIn.pop();
 		}
@@ -578,8 +572,6 @@ public class ChisledBlockRenderChunkTESR extends TileEntityRenderer<TileEntityBl
       final int combinedLightIn,
       final int combinedOverlayIn)
     {
-        RenderHelper.renderBoundingBox(matrixStackIn, new AxisAlignedBB(tileEntityIn.getPos()), 255,0,0,255);
-        System.out.println("Attempt rendering: " + tileEntityIn.getPos());
         if (tileEntityIn instanceof TileEntityBlockChiseledTESR)
         {
             renderTileEntityInner(

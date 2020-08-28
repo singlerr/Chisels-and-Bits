@@ -46,7 +46,7 @@ public class ModelUVReader extends BaseModelReader
 		final VertexFormat format = getVertexFormat();
 		final VertexFormatElement ele = format.getElements().get(element);
 
-		if ( ele.getUsage() == VertexFormatElement.Usage.UV && ele.getIndex() != 1 )
+		if ( ele.getUsage() == VertexFormatElement.Usage.UV && ele.getIndex() == 0)
 		{
 			uv = Arrays.copyOf( data, data.length );
 		}

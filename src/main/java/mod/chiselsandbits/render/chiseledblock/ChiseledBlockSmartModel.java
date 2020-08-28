@@ -102,7 +102,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 
 	private static VertexFormat getModelFormat()
 	{
-		return ForgePipelineDisabled() ? DefaultVertexFormats.BLOCK : ChiselsAndBitsBakedQuad.VERTEX_FORMAT;
+	    return DefaultVertexFormats.BLOCK;
 	}
 
 	public static boolean ForgePipelineDisabled()

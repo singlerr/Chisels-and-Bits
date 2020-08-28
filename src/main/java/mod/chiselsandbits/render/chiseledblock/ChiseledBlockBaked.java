@@ -258,7 +258,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
 		// single reusable face builder.
 		final IFaceBuilder darkBuilder = getBuilder( DefaultVertexFormats.BLOCK );
-		final IFaceBuilder litBuilder = format == ChiselsAndBitsBakedQuad.VERTEX_FORMAT ? getBuilder( format ) : darkBuilder;
+		final IFaceBuilder litBuilder = darkBuilder;
 
 		for ( final ArrayList<FaceRegion> src : rset )
 		{

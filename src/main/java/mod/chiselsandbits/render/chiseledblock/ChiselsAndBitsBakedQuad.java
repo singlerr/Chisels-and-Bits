@@ -17,9 +17,6 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 {
 
 	public static final ConcurrentHashMap<VertexFormat, FormatInfo> formatData = new ConcurrentHashMap<VertexFormat, FormatInfo>();
-	public static final VertexFormat VERTEX_FORMAT = new VertexFormat(
-	  new ImmutableList.Builder().addAll(DefaultVertexFormats.BLOCK.getElements())
-        .add(DefaultVertexFormats.TEX_2S).build());;
 
 	private static int[] packData(
 			VertexFormat format,
