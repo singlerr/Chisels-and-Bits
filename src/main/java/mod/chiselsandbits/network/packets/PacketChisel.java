@@ -1,14 +1,13 @@
 package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChisledValue;
+import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChiseledValue;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.iterators.ChiselIterator;
 import mod.chiselsandbits.chiseledblock.iterators.ChiselTypeIterator;
 import mod.chiselsandbits.client.UndoTracker;
-import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.*;
 import mod.chiselsandbits.items.ItemBitBag;
 import mod.chiselsandbits.items.ItemChisel;
@@ -160,8 +159,8 @@ public class PacketChisel extends ModPacket
 							world.setBlockState(pos, Blocks.AIR.getDefaultState());
 						}
 
-						ReplaceWithChisledValue rv = null;
-						if ( (rv=BlockChiseled.replaceWithChisled( world, pos, blkstate, placeStateID, true )).success )
+						ReplaceWithChiseledValue rv = null;
+						if ( (rv=BlockChiseled.replaceWithChiseled( world, pos, blkstate, placeStateID, true )).success )
 						{
 							blkstate = world.getBlockState( pos );
 							blkObj = blkstate.getBlock();

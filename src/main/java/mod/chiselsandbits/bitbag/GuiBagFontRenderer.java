@@ -2,6 +2,8 @@ package mod.chiselsandbits.bitbag;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.util.math.vector.Matrix4f;
 
 public class GuiBagFontRenderer extends FontRenderer
 {
@@ -36,6 +38,62 @@ public class GuiBagFontRenderer extends FontRenderer
 		text = convertText( text );
 		return talkto.getStringWidth( text );
 	}
+
+    @Override
+    public int renderString(final String text, float x, float y, final int color, final Matrix4f matrix, final boolean dropShadow, final boolean p_228078_7_)
+    {
+        final MatrixStack stack = new MatrixStack();
+        final Matrix4f original = new Matrix4f(matrix);
+
+        try {
+            stack.getLast().getMatrix().mul(matrix);
+            stack.scale( scale, scale, scale );
+
+            x /= scale;
+            y /= scale;
+            x += offsetX;
+            y += offsetY;
+
+            return super.renderString(text, x, y, color, stack.getLast().getMatrix(), dropShadow, p_228078_7_);
+        }
+        finally
+        {
+            matrix.set(original);
+        }
+    }
+
+    @Override
+    public int renderString(
+      final String text,
+      float x,
+      float y,
+      final int color,
+      final boolean dropShadow,
+      final Matrix4f matrix,
+      final IRenderTypeBuffer buffer,
+      final boolean transparentIn,
+      final int colorBackgroundIn,
+      final int packedLight)
+    {
+        final MatrixStack stack = new MatrixStack();
+        final Matrix4f original = new Matrix4f(matrix);
+
+        try {
+            stack.getLast().getMatrix().mul(matrix);
+            stack.scale( scale, scale, scale );
+
+            x /= scale;
+            y /= scale;
+            x += offsetX;
+            y += offsetY;
+
+            return super.renderString(text, x, y, color, dropShadow, stack.getLast().getMatrix(), buffer, transparentIn, colorBackgroundIn, packedLight);
+        }
+        finally
+        {
+            matrix.set(original);
+        }
+    }
 
     @Override
     public int drawString(MatrixStack matrixStack, String text, float x, float y, int color)

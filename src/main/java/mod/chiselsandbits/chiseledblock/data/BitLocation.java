@@ -1,20 +1,20 @@
 package mod.chiselsandbits.chiseledblock.data;
 
-import javax.annotation.Nonnull;
-
 import mod.chiselsandbits.api.IBitLocation;
 import mod.chiselsandbits.helpers.BitOperation;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
+
+import javax.annotation.Nonnull;
 
 public class BitLocation implements IBitLocation
 {
 	private static final double One32nd = 0.5 / VoxelBlob.dim;
 
 	@Nonnull
-	public final BlockPos blockPos;
-	public final int bitX, bitY, bitZ;
+	public BlockPos blockPos;
+	public int bitX, bitY, bitZ;
 
 	@Override
 	public BlockPos getBlockPos()
@@ -40,7 +40,22 @@ public class BitLocation implements IBitLocation
 		return bitZ;
 	}
 
-	public int snapToValid(
+    @Override
+    public IBitLocation offSet(final Direction direction)
+    {
+        final int newBitX = bitX + direction.getXOffset();
+        final int newBitY = bitY + direction.getYOffset();
+        final int newBitZ = bitZ + direction.getZOffset();
+
+        return new BitLocation(
+          blockPos,
+          newBitX,
+          newBitY,
+          newBitZ
+        );
+    }
+
+    public int snapToValid(
 			final int x )
 	{
 		// rounding can sometimes create -1 or 16, just snap int to the nearest
@@ -92,6 +107,8 @@ public class BitLocation implements IBitLocation
 				bitZ = snapToValid( bitZi );
 			}
 		}
+
+		normalize();
 	}
 
 	public BitLocation(
@@ -104,6 +121,7 @@ public class BitLocation implements IBitLocation
 		bitX = x;
 		bitY = y;
 		bitZ = z;
+		normalize();
 	}
 
 	public static BitLocation min(
@@ -171,5 +189,21 @@ public class BitLocation implements IBitLocation
 
 		return bitX3;
 	}
+
+	private void normalize() {
+	    final double xOffset = Math.floor(bitX / 16d);
+	    final double yOffset = Math.floor(bitY / 16d);
+	    final double zOffset = Math.floor(bitZ / 16d);
+
+	    bitX = bitX % 16;
+	    bitY = bitY % 16;
+	    bitZ = bitZ % 16;
+
+	    this.blockPos = this.blockPos.add(
+	      xOffset,
+          yOffset,
+          zOffset
+        );
+    }
 
 }

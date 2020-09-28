@@ -36,7 +36,8 @@ public class BagInventory implements IInventory
 	public BagInventory(
 			final ItemStack is )
 	{
-		inv = (BagStorage) is.getCapability( CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null ).orElseThrow(() -> new IllegalStateException("Failed to get IItemHandler from Bag!"));
+		inv = CapabilityItemHandler.ITEM_HANDLER_CAPABILITY != null ? (BagStorage) is.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)
+                                                                                     .orElseThrow(() -> new IllegalStateException("Failed to get IItemHandler from Bag!")) : null;
 		stackSlots = new ItemStack[BagStorage.BAG_STORAGE_SLOTS];
 
 		// the cap is missing? then just make and load it ourselves.
@@ -443,7 +444,7 @@ public class BagInventory implements IInventory
 	public List<ITextComponent> listContents(
 			final List<ITextComponent> details )
 	{
-		final TreeMap<ITextComponent, Integer> contents = new TreeMap<>();
+		final TreeMap<String, Integer> contents = new TreeMap<>();
 
 		for ( int x = 0; x < getSizeInventory(); x++ )
 		{
@@ -460,7 +461,7 @@ public class BagInventory implements IInventory
 
 				if ( name != null )
 				{
-					Integer count = contents.get( name );
+					Integer count = contents.get( name.getString() );
 					if ( count == null )
 					{
 						count = ModUtil.getStackSize( is );
@@ -470,7 +471,7 @@ public class BagInventory implements IInventory
 						count += ModUtil.getStackSize( is );
 					}
 
-					contents.put( name, count );
+					contents.put( name.getString(), count );
 				}
 			}
 		}
@@ -480,7 +481,7 @@ public class BagInventory implements IInventory
 			details.add( new StringTextComponent( LocalStrings.Empty.getLocal() ) );
 		}
 
-		final List<Entry<ITextComponent, Integer>> list = new ArrayList<>();
+		final List<Entry<String, Integer>> list = new ArrayList<>();
 		list.addAll( contents.entrySet() );
 
 		Collections.sort( list, (o1, o2) -> {
@@ -490,9 +491,9 @@ public class BagInventory implements IInventory
             return Integer.compare(x, y);
         });
 
-		for ( final Entry<ITextComponent, Integer> e : list )
+		for ( final Entry<String, Integer> e : list )
 		{
-            details.add( new StringTextComponent(e.getValue().toString()).appendString( " " ).append( e.getKey() ) );
+            details.add( new StringTextComponent(e.getValue().toString()).appendString( " " ).appendString( e.getKey() ) );
 		}
 
 		return details;

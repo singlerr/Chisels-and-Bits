@@ -3,14 +3,13 @@ package mod.chiselsandbits.core.api;
 import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
 import mod.chiselsandbits.api.*;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChisledValue;
+import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChiseledValue;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.UndoTracker;
-import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
@@ -116,9 +115,9 @@ public class BitAccess implements IBitAccess
 		{
 			TileEntityBlockChiseled tile = ModUtil.getChiseledTileEntity( w, p, true );
 			final VoxelStats cb = blob.getVoxelStats();
-			ReplaceWithChisledValue rv = null;
+			ReplaceWithChiseledValue rv = null;
 
-			if ( tile == null && (rv=BlockChiseled.replaceWithChisled( w, p, world.getBlockState( p ), cb.mostCommonState, false )).success )
+			if ( tile == null && (rv=BlockChiseled.replaceWithChiseled( w, p, world.getBlockState( p ), cb.mostCommonState, false )).success )
 			{
 				tile = rv.te;
 			}
@@ -127,7 +126,6 @@ public class BitAccess implements IBitAccess
 			{
 				final VoxelBlobStateReference before = tile.getBlobStateReference();
 				tile.setBlob( blob, triggerUpdates );
-				tile.finishUpdate();
 				final VoxelBlobStateReference after = tile.getBlobStateReference();
 
 				UndoTracker.getInstance().add( w, p, before, after );

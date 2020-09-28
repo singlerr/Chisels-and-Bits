@@ -1,5 +1,6 @@
 package mod.chiselsandbits.helpers;
 
+import mod.chiselsandbits.utils.LanguageHandler;
 import mod.chiselsandbits.utils.SingleBlockBlockReader;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -8,8 +9,10 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.LanguageMap;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.DistExecutor;
 
 @SuppressWarnings( "deprecation" )
 public class DeprecationHelper
@@ -33,20 +36,20 @@ public class DeprecationHelper
 		return null;
 	}
 
-	@OnlyIn(Dist.CLIENT)
 	public static String translateToLocal(
 			final String string )
 	{
-		return I18n.format( string );
+	    return DistExecutor.unsafeRunForDist(
+          () -> () -> LanguageMap.getInstance().func_230503_a_(string),
+          () -> () -> LanguageHandler.translateKey(string)
+        );
 	}
 
-    @OnlyIn(Dist.CLIENT)
 	public static String translateToLocal(
 			final String string,
 			final Object... args )
 	{
-		return I18n.format( string, args );
-
+        return String.format(translateToLocal(string), args);
 	}
 
 	public static SoundType getSoundType(

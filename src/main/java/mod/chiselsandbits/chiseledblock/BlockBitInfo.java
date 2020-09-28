@@ -17,9 +17,7 @@ import mod.chiselsandbits.utils.SingleBlockBlockReader;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
+import net.minecraft.fluid.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
@@ -28,6 +26,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IExplosionContext;
 import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +51,7 @@ public class BlockBitInfo
 	private static HashMap<BlockState, BlockBitInfo> stateBitInfo    = new HashMap<>();
 	private static HashMap<Block, Boolean>           supportedBlocks = new HashMap<>();
 	private static HashMap<BlockState, Boolean>      forcedStates    = new HashMap<>();
-	private static HashMap<BlockState, Fluid>        fluidBlocks     = new HashMap<>();
+	private static HashMap<Block, Fluid>             fluidBlocks     = new HashMap<>();
 	private static IntObjectMap<Fluid>               fluidStates     = new IntObjectHashMap<>();
 	private static HashMap<BlockState, Integer>      bitColor        = new HashMap<>();
 
@@ -97,14 +96,15 @@ public class BlockBitInfo
 
 		for ( final Fluid o : ForgeRegistries.FLUIDS )
 		{
-            BlockBitInfo.addFluidBlock( o );
+		    if (o.getDefaultState().isSource())
+                BlockBitInfo.addFluidBlock( o );
         }
 	}
 
 	public static void addFluidBlock(
 			final Fluid fluid )
 	{
-		fluidBlocks.put( fluid.getDefaultState().getBlockState(), fluid );
+		fluidBlocks.put( fluid.getDefaultState().getBlockState().getBlock(), fluid );
 
 		for ( final BlockState state : fluid.getDefaultState().getBlockState().getBlock().getStateContainer().getValidStates() )
 		{
@@ -331,8 +331,8 @@ public class BlockBitInfo
 			if ( test_b && test_c && test_d && !isFluid )
 			{
 				final float blockHardness = state.getBlockHardness(new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO);
-				final float resistance = blk.getExplosionResistance(state, new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO, new Explosion(null, null, 0,1,0, 10,
-                  Lists.newArrayList(BlockPos.ZERO)));
+				final float resistance = blk.getExplosionResistance(state, new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO, new Explosion(null, null,null,
+                  null, 0,1,0, 10, false, Explosion.Mode.NONE));
 
 				return new BlockBitInfo( true, blockHardness, resistance );
 			}

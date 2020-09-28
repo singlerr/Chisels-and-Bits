@@ -1,14 +1,12 @@
 package mod.chiselsandbits.render.helpers;
 
 import com.google.common.collect.Maps;
-import com.sun.org.apache.regexp.internal.RE;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.core.ReflectionWrapper;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
-import mod.chiselsandbits.render.chiseledblock.ChiselLayer;
+import mod.chiselsandbits.render.chiseledblock.ChiselRenderType;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
 import net.minecraft.block.Block;
@@ -37,8 +35,8 @@ import java.util.*;
 public class ModelUtil implements ICacheClearable
 {
 	private final static HashMap<Pair<RenderType, Direction>, HashMap<Integer, String>> blockToTexture = new HashMap<>();
-	private static HashMap<Triple<Integer, RenderType, Direction>, ModelQuadLayer[]>             cache      = new HashMap<>();
-	private static HashMap<Pair<RenderType, Integer>, ChiseledBlockBaked>                                          breakCache = new HashMap<>();
+	private static HashMap<Triple<Integer, RenderType, Direction>, ModelQuadLayer[]>             cache = new HashMap<>();
+	private static HashMap<Pair<RenderType, Integer>, ChiseledBlockBaked>                   breakCache = new HashMap<>();
 
 	@SuppressWarnings( "unused" )
 	private static ModelUtil instance = new ModelUtil();
@@ -531,7 +529,7 @@ public class ModelUtil implements ICacheClearable
 	}
 
 	public static ChiseledBlockBaked getBreakingModel(
-			ChiselLayer layer,
+			ChiselRenderType layer,
 			Integer blockStateID,
             Random random)
 	{

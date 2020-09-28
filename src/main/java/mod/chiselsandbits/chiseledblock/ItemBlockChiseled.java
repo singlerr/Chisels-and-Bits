@@ -2,7 +2,7 @@ package mod.chiselsandbits.chiseledblock;
 
 import mod.chiselsandbits.api.EventBlockBitModification;
 import mod.chiselsandbits.api.IBitAccess;
-import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChisledValue;
+import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChiseledValue;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.IntegerBox;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -345,7 +345,7 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 								if ( world.isAirBlock( bp ) )
 								{
 									final int commonBlock = blobs[x][y][z].getVoxelStats().mostCommonState;
-									ReplaceWithChisledValue rv =  BlockChiseled.replaceWithChisled( world, bp, state, commonBlock, true );
+									ReplaceWithChiseledValue rv =  BlockChiseled.replaceWithChiseled( world, bp, state, commonBlock, true );
 									if ( rv.success && rv.te != null )
 									{
 										rv.te.completeEditOperation( blobs[x][y][z] );

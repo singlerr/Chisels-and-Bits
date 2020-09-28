@@ -2,7 +2,7 @@ package mod.chiselsandbits.render.patterns;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.interfaces.IPatternItem;
-import mod.chiselsandbits.render.BaseBakedItemModel;
+import mod.chiselsandbits.client.model.baked.BaseBakedItemModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -10,8 +10,6 @@ import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-
-import java.util.Random;
 
 public class PrintBaked extends BaseBakedItemModel
 {

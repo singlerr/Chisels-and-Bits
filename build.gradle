@@ -43,7 +43,13 @@ sourceSets {
             srcDir 'src/main/java'
         }
         resources {
-            srcDir 'src/main/resources'
+            include '**/**'
+            // copy everything else, but blender files.
+            exclude '**/*.blend'
+            //Add the generated main module resources
+            srcDirs += 'src/datagen/generated/chiselsandbits'
+            //But exclude the cache of the generated data from what gets built
+            exclude '.cache'
         }
         compileClasspath += sourceSets.api.output
         runtimeClasspath += sourceSets.api.output
@@ -60,7 +66,7 @@ sourceSets {
     }
 }
 
-version = modVersion
+version = System.getenv().containsKey("VERSION") ? System.getenv().get("VERSION") : modVersion
 group = modGroup
 archivesBaseName = modBaseName
 
@@ -82,9 +88,8 @@ minecraft {
             property 'forge.logging.console.level', 'info'
 
             mods {
-                equivalency {
+                chiselsandbits {
                     source sourceSets.main
-                    source sourceSets.api
                 }
             }
         }
@@ -99,9 +104,8 @@ minecraft {
             property 'forge.logging.console.level', 'info'
 
             mods {
-                equivalency {
+                chiselsandbits {
                     source sourceSets.main
-                    source sourceSets.api
                 }
             }
         }
@@ -115,12 +119,13 @@ minecraft {
             // Recommended logging level for the console
             property 'forge.logging.console.level', 'info'
 
-            args '--mod', 'chiselsandbits', '--all', '--output', file('src/generated/resources/'), '--input', file('src/main/resources')
+            args '--all', '--output', file('src/datagen/generated/chiselsandbits'),
+                    '--mod', 'chiselsandbits',
+                    '--existing', sourceSets.main.resources.srcDirs[0]
 
             mods {
-                equivalency {
+                chiselsandbits {
                     source sourceSets.main
-                    source sourceSets.api
                 }
             }
         }
@@ -157,6 +162,4 @@ dependencies {
     apiCompile 'com.intellij:annotations:+@jar'
     compile 'com.intellij:annotations:+@jar'
     testCompile 'com.intellij:annotations:+@jar'
-    compile "org.jgrapht:jgrapht-core:${project.jgraphtVersion}"
-    compile "org.jgrapht:jgrapht-ext:${project.jgraphtVersion}"
 }

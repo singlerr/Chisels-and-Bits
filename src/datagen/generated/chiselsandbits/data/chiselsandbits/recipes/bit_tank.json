@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "chiselsandbits",
+  "pattern": [
+    " g ",
+    "glg",
+    " i "
+  ],
+  "key": {
+    "g": {
+      "tag": "forge:glass"
+    },
+    "l": {
+      "tag": "minecraft:logs"
+    },
+    "i": {
+      "tag": "forge:ingots/iron"
+    }
+  },
+  "result": {
+    "count": 1,
+    "item": "chiselsandbits:bit_tank"
+  }
+}

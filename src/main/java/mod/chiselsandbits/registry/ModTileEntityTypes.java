@@ -2,11 +2,9 @@ package mod.chiselsandbits.registry;
 
 import mod.chiselsandbits.bittank.TileEntityBitTank;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseledTESR;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -28,17 +26,8 @@ public final class ModTileEntityTypes
       ).build(null)
     );
 
-    public static RegistryObject<TileEntityType<TileEntityBlockChiseled>> CHISELED_TESR = REGISTRAR.register("chiseled_tesr", () -> TileEntityType.Builder.create(
-      () -> DistExecutor.unsafeRunForDist(
-        () -> () -> new TileEntityBlockChiseledTESR(),
-        () -> () -> new TileEntityBlockChiseled.TileEntityBlockChiseledDummy()
-      ),
-      ModBlocks.getMaterialToBlockConversions().values().stream().map(RegistryObject::get).toArray(Block[]::new)
-      ).build(null)
-    );
-
     public static RegistryObject<TileEntityType<TileEntityBitTank>> BIT_TANK = REGISTRAR.register("bit_tank", () -> TileEntityType.Builder.create(
-      () -> new TileEntityBitTank(),
+      TileEntityBitTank::new,
       ModBlocks.BIT_TANK_BLOCK.get()
       ).build(null)
     );

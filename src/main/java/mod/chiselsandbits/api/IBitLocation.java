@@ -1,5 +1,7 @@
 package mod.chiselsandbits.api;
 
+import mod.chiselsandbits.chiseledblock.data.BitLocation;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 
 /**
@@ -36,4 +38,11 @@ public interface IBitLocation
 	 */
 	int getBitZ();
 
+    /**
+     * Offsets the bit location into the given direction by one.
+     * Possibly moving it to a new block if need be.
+     *
+     * @param direction The direction.
+     */
+	IBitLocation offSet(final Direction direction);
 }

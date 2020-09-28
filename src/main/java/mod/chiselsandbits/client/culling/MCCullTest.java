@@ -60,7 +60,7 @@ public class MCCullTest implements ICullTest, IBlockReader
 
 		try
 		{
-			return a.isSideInvisible( a, Direction.NORTH );
+			return !a.isSideInvisible( a, Direction.NORTH );
 		}
 		catch ( final Throwable t )
 		{

@@ -191,9 +191,9 @@ public class BoxCollection implements Collection<AxisAlignedBB>
 	@SuppressWarnings( "unchecked" )
 	@Override
 	public <T> T[] toArray(
-			final T[] a )
+			T[] a )
 	{
-		int s = 0;
+	    int s = 0;
 		for ( final AxisAlignedBB bb : this )
 		{
 			a[s++] = (T) bb;

@@ -10,10 +10,14 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -24,6 +28,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 
+import static mod.chiselsandbits.registry.ModItemGroups.CHISELS_AND_BITS;
+
 public final class ModBlocks
 {
 
@@ -33,8 +39,14 @@ public final class ModBlocks
     private static final Map<Material, RegistryObject<BlockChiseled>> MATERIAL_TO_BLOCK_CONVERSIONS = Maps.newHashMap();
     private static final Map<Material, RegistryObject<ItemBlockChiseled>>  MATERIAL_TO_ITEM_CONVERSIONS = Maps.newHashMap();
 
-    public static final RegistryObject<BlockBitTank> BIT_TANK_BLOCK = BLOCK_REGISTRAR.register("bit_tank", () -> new BlockBitTank(AbstractBlock.Properties.create(Material.IRON)));
-    public static final RegistryObject<BlockItem> BIT_TANK_BLOCK_ITEM = ITEM_REGISTRAR.register("bit_tank", () -> new BlockItem(BIT_TANK_BLOCK.get(), new Item.Properties()));
+    public static final RegistryObject<BlockBitTank> BIT_TANK_BLOCK = BLOCK_REGISTRAR.register("bit_tank", () -> new BlockBitTank(AbstractBlock.Properties.create(Material.IRON)
+                                                                                                                                    .notSolid()
+                                                                                                                                    .setAllowsSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
+                                                                                                                                    .setOpaque((p_test_1_, p_test_2_, p_test_3_) -> false)
+                                                                                                                                    .setSuffocates((p_test_1_, p_test_2_, p_test_3_) -> false)
+                                                                                                                                    .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false)));
+
+    public static final RegistryObject<BlockItem> BIT_TANK_BLOCK_ITEM = ITEM_REGISTRAR.register("bit_tank", () -> new BlockItem(BIT_TANK_BLOCK.get(), new Item.Properties().group(CHISELS_AND_BITS)));
 
     private static final MaterialType[] VALID_CHISEL_MATERIALS = new MaterialType[] {
       new MaterialType( "wood", Material.WOOD ),
@@ -65,7 +77,11 @@ public final class ModBlocks
         Arrays.stream(VALID_CHISEL_MATERIALS).forEach(materialType -> {
             MATERIAL_TO_BLOCK_CONVERSIONS.put(
               materialType.getType(),
-              BLOCK_REGISTRAR.register("chiseled" + materialType.getName(), () -> new BlockChiseled("chiseled_" + materialType.getName(), AbstractBlock.Properties.create(materialType.getType())))
+              BLOCK_REGISTRAR.register("chiseled" + materialType.getName(), () -> new BlockChiseled("chiseled_" + materialType.getName(), AbstractBlock.Properties
+                                                                                                                                            .create(materialType.getType())
+                                                                                                                                            .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false)
+                                                                                                                                            .setOpaque((p_test_1_, p_test_2_, p_test_3_) -> false)
+                                                                                                                                            .notSolid()))
             );
             MATERIAL_TO_ITEM_CONVERSIONS.put(
               materialType.getType(),

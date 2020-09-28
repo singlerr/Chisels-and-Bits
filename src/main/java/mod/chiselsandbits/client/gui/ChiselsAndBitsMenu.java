@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.ReplacementStateHandler;
+import mod.chiselsandbits.core.ChiselsAndBitsClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.DyeColor;
@@ -79,7 +80,13 @@ public class ChiselsAndBitsMenu extends Screen
 		height = scaledHeight;
 	}
 
-	private static class MenuButton
+    @Override
+    public Minecraft getMinecraft()
+    {
+        return Minecraft.getInstance();
+    }
+
+    private static class MenuButton
 	{
 
 		public double x1, x2;
@@ -158,12 +165,12 @@ public class ChiselsAndBitsMenu extends Screen
         }
 
         matrixStack.push();
-        matrixStack.translate( 0.0F, 0.0F, 200.0F );
+        //matrixStack.translate( 0.0F, 0.0F, 200.0F );
 
         final int start = (int) ( visibility * 98 ) << 24;
         final int end = (int) ( visibility * 128 ) << 24;
 
-        blit(matrixStack, 0, 0, width, height, start, end );
+        fillGradient(matrixStack, 0, 0, width, height, start, end );
 
         RenderSystem.disableTexture();
         RenderSystem.enableBlend();
@@ -176,7 +183,7 @@ public class ChiselsAndBitsMenu extends Screen
         buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
 
         final double vecX = mouseX - width / 2;
-        final double vecY = mouseY - height / 2;
+        final double vecY = -1 * (mouseY - height / 2);
         double radians = Math.atan2( vecY, vecX );
 
         final double ring_inner_edge = 20;
@@ -328,7 +335,7 @@ public class ChiselsAndBitsMenu extends Screen
 
         RenderSystem.shadeModel( GL11.GL_FLAT );
 
-        matrixStack.translate( 0.0F, 0.0F, 5.0F );
+        //matrixStack.translate( 0.0F, 0.0F, 5.0F );
         RenderSystem.enableTexture();
         RenderSystem.color4f( 1, 1, 1, 1.0f );
         RenderSystem.disableBlend();
@@ -377,7 +384,7 @@ public class ChiselsAndBitsMenu extends Screen
             final double v1 = 0;
             final double v2 = 16;
 
-            final TextureAtlasSprite sprite = btn.icon == null ? Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply( ModelLoader.White.LOCATION ) : btn.icon;
+            final TextureAtlasSprite sprite = btn.icon == null ? ClientSide.white : btn.icon;
 
             final double btnx1 = btn.x1 + 1;
             final double btnx2 = btn.x2 - 1;

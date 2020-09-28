@@ -4,7 +4,7 @@ import java.util.WeakHashMap;
 
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.interfaces.IPatternItem;
-import mod.chiselsandbits.render.BaseSmartModel;
+import mod.chiselsandbits.client.model.baked.BaseSmartModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;

@@ -109,4 +109,8 @@ public class TargetedInventory implements IInventory
 		return src.isEmpty();
 	}
 
+    public IInventory getSrc()
+    {
+        return src;
+    }
 }

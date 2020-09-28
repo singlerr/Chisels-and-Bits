@@ -7,6 +7,7 @@ import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.registry.ModRecipeSerializers;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.DyeColor;
+import net.minecraft.item.DyeItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.item.crafting.IRecipeSerializer;
@@ -94,47 +95,13 @@ public class BagDyeing extends SpecialRecipe
 	private DyeColor getDye(
 			ItemStack is )
 	{
-		if ( testDye( "dyeWhite", is ) )
-			return DyeColor.WHITE;
-		if ( testDye( "dyeOrange", is ) )
-			return DyeColor.ORANGE;
-		if ( testDye( "dyeMagenta", is ) )
-			return DyeColor.MAGENTA;
-		if ( testDye( "dyeLightBlue", is ) )
-			return DyeColor.LIGHT_BLUE;
-		if ( testDye( "dyeLime", is ) )
-			return DyeColor.LIME;
-		if ( testDye( "dyePink", is ) )
-			return DyeColor.PINK;
-		if ( testDye( "dyeGray", is ) )
-			return DyeColor.GRAY;
-		if ( testDye( "dyeLightGray", is ) )
-			return DyeColor.LIGHT_GRAY;
-		if ( testDye( "dyeCyan", is ) )
-			return DyeColor.CYAN;
-		if ( testDye( "dyePurple", is ) )
-			return DyeColor.PURPLE;
-		if ( testDye( "dyeBlue", is ) )
-			return DyeColor.BLUE;
-		if ( testDye( "dyeBrown", is ) )
-			return DyeColor.BROWN;
-		if ( testDye( "dyeGreen", is ) )
-			return DyeColor.GREEN;
-		if ( testDye( "dyeRed", is ) )
-			return DyeColor.RED;
-		if ( testDye( "dyeBlack", is ) )
-			return DyeColor.BLACK;
+		if (is.getItem() instanceof DyeItem) {
+		    final DyeItem item = (DyeItem) is.getItem();
+		    return item.getDyeColor();
+        }
 
 		return null;
 	}
-
-	private boolean testDye(
-			String string,
-			ItemStack is )
-	{
-	    return ItemTags.getCollection().getOrCreate(new ResourceLocation(string)).contains(is.getItem());
-	}
-
 
     @Override
     public boolean matches(final CraftingInventory inv, final World worldIn)

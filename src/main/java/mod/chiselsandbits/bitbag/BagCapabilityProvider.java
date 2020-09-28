@@ -74,6 +74,6 @@ public class BagCapabilityProvider extends BagStorage implements ICapabilityProv
             return capResult.cast();
         }
 
-        return null;
+        return LazyOptional.empty();
     }
 }

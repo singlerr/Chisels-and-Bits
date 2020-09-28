@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import mod.chiselsandbits.client.model.baked.BaseBakedBlockModel;
 import mod.chiselsandbits.core.ClientSide;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.model.BakedQuad;

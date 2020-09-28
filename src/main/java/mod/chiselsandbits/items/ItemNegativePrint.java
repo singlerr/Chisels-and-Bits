@@ -165,11 +165,12 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
             final CompoundNBT comp = getCompoundFromBlock( world, pos, player );
             if ( comp != null )
             {
-                stack.shrink(stack.getCount());
+                final int count = stack.getCount();
+                stack.shrink(count);
 
                 final ItemStack newStack = new ItemStack(
                   this::getWrittenItem,
-                  stack.getCount()
+                  count
                 );
                 newStack.setTag(comp);
 
@@ -189,7 +190,7 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
         {
             // we can do this!
         }
-        else if ( !BlockChiseled.replaceWithChisled( world, pos, blkstate, true ) )
+        else if ( !BlockChiseled.replaceWithChiseled( world, pos, blkstate, true ) )
         {
             return ActionResultType.FAIL;
         }
@@ -225,18 +226,18 @@ public class ItemNegativePrint extends Item implements IVoxelBlobItem, IItemScro
 		if ( te != null )
 		{
 			final CompoundNBT comp = new CompoundNBT();
-			te.writeChisleData( comp );
+			te.writeChiselData( comp );
 
 			if ( convertToStone() )
 			{
 				final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-				tmp.readChisleData( comp );
+				tmp.readChiselData( comp );
 
 				final VoxelBlob bestBlob = tmp.getBlob();
 				bestBlob.binaryReplacement( 0, ModUtil.getStateId( Blocks.STONE.getDefaultState() ) );
 
 				tmp.setBlob( bestBlob );
-				tmp.writeChisleData( comp );
+				tmp.writeChiselData( comp );
 			}
 
 			comp.putByte( ModUtil.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );

@@ -17,6 +17,7 @@ import mod.chiselsandbits.events.VaporizeWater;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkChannel;
 import mod.chiselsandbits.registry.*;
+import mod.chiselsandbits.render.SmartModelManager;
 import mod.chiselsandbits.utils.Constants;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.gui.ScreenManager;
@@ -42,7 +43,7 @@ public class ChiselsAndBits
 	private final  IChiselAndBitsAPI api = new ChiselAndBitsAPI();
 	private final  NetworkChannel    networkChannel = new NetworkChannel(MODID);
 
-	List<ICacheClearable> cacheClearables = new ArrayList<ICacheClearable>();
+	List<ICacheClearable> cacheClearables = new ArrayList<>();
 
 	public ChiselsAndBits()
 	{
@@ -53,6 +54,12 @@ public class ChiselsAndBits
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::handleIMCEvent);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(ChiselsAndBitsClient::onClientInit));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(ChiselsAndBitsClient::onModelRegistry));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MinecraftForge.EVENT_BUS.register(ClientSide.instance));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(ChiselsAndBitsClient::registerIconTextures));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(ChiselsAndBitsClient::retrieveRegisteredIconSprites));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(SmartModelManager.getInstance()::onModelBakeEvent));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(SmartModelManager.getInstance()::textureStichEvent));
 
         MinecraftForge.EVENT_BUS.addListener(this::handleIdMapping);
         MinecraftForge.EVENT_BUS.register(new VaporizeWater());
@@ -104,7 +111,6 @@ public class ChiselsAndBits
 		ChiselsAndBits.getApi().addEquivilantMaterial( Material.CORAL, Material.ROCK );
 		ChiselsAndBits.getApi().addEquivilantMaterial( Material.WEB, Material.PLANTS );
 		ChiselsAndBits.getApi().addEquivilantMaterial( Material.TNT, Material.ROCK );
-
 	}
 
 	boolean idsHaveBeenMapped = false;

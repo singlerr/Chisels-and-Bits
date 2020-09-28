@@ -1,8 +1,5 @@
 package mod.chiselsandbits.bitbag;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -17,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Slot;
@@ -25,6 +21,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class BagGui extends ContainerScreen<BagContainer>
 {
@@ -35,6 +34,8 @@ public class BagGui extends ContainerScreen<BagContainer>
 	private static GuiBagFontRenderer specialFontRenderer = null;
 	private GuiIconButton trashBtn;
 	private GuiIconButton sortBtn;
+
+	private Slot hoveredBitSlot = null;
 
 	public BagGui(
 			final BagContainer container,
@@ -48,7 +49,7 @@ public class BagGui extends ContainerScreen<BagContainer>
     protected void init()
     {
         super.init();
-        addButton(new GuiIconButton(guiLeft - 18, guiTop + 0, ClientSide.trashIcon, p_onPress_1_ -> {
+        trashBtn = addButton(new GuiIconButton(guiLeft - 18, guiTop + 0, ClientSide.trashIcon, p_onPress_1_ -> {
             if (requireConfirm)
             {
                 dontThrow = true;
@@ -67,23 +68,23 @@ public class BagGui extends ContainerScreen<BagContainer>
         }, (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
             if ( isValidBitItem() )
             {
-                final String msgNotConfirm = ModUtil.notEmpty( getInHandItem() ) ? LocalStrings.TrashItem.getLocal( getInHandItem().getDisplayName() ) : LocalStrings.Trash.getLocal();
-                final String msgConfirm = ModUtil.notEmpty( getInHandItem() ) ? LocalStrings.ReallyTrashItem.getLocal( getInHandItem().getDisplayName() ) : LocalStrings.ReallyTrash.getLocal();
+                final String msgNotConfirm = ModUtil.notEmpty( getInHandItem() ) ? LocalStrings.TrashItem.getLocal( getInHandItem().getDisplayName().getString() ) : LocalStrings.Trash.getLocal();
+                final String msgConfirm = ModUtil.notEmpty( getInHandItem() ) ? LocalStrings.ReallyTrashItem.getLocal( getInHandItem().getDisplayName().getString() ) : LocalStrings.ReallyTrash.getLocal();
 
 
                 final List<ITextComponent> text = Arrays
                                                     .asList( new ITextComponent[] { new StringTextComponent(requireConfirm ? msgNotConfirm : msgConfirm) } );
-                renderToolTip(p_onTooltip_2_, text, p_onTooltip_3_ - guiLeft, p_onTooltip_4_ - guiTop, Minecraft.getInstance().fontRenderer );
+                renderToolTip(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, Minecraft.getInstance().fontRenderer );
             }
             else
             {
                 final List<ITextComponent> text = Arrays
-                                                    .asList( new ITextComponent[] { new StringTextComponent(LocalStrings.TrashInvalidItem.getLocal( getInHandItem().getDisplayName() )) } );
-                renderToolTip(p_onTooltip_2_, text, p_onTooltip_3_ - guiLeft, p_onTooltip_4_ - guiTop, Minecraft.getInstance().fontRenderer );
+                                                    .asList( new ITextComponent[] { new StringTextComponent(LocalStrings.TrashInvalidItem.getLocal( getInHandItem().getDisplayName().getString() )) } );
+                renderToolTip(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_ , Minecraft.getInstance().fontRenderer );
             }
         }));
 
-        addButton(new GuiIconButton(guiLeft - 18, guiTop + 18, ClientSide.sortIcon, new Button.IPressable()
+        sortBtn = addButton(new GuiIconButton(guiLeft - 18, guiTop + 18, ClientSide.sortIcon, new Button.IPressable()
         {
             @Override
             public void onPress(final Button p_onPress_1_)
@@ -94,7 +95,7 @@ public class BagGui extends ContainerScreen<BagContainer>
           (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
               final List<ITextComponent> text = Arrays
                                           .asList( new ITextComponent[] { new StringTextComponent(LocalStrings.Sort.getLocal()) } );
-              renderToolTip(p_onTooltip_2_, text, p_onTooltip_3_ - guiLeft, p_onTooltip_4_ - guiTop, Minecraft.getInstance().fontRenderer );
+              renderToolTip(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, Minecraft.getInstance().fontRenderer );
           }));
     }
 
@@ -110,9 +111,9 @@ public class BagGui extends ContainerScreen<BagContainer>
       final int mouseY,
       final float partialTicks )
     {
+        this.renderBackground(stack);
         drawDefaultBackground(stack, partialTicks, mouseX, mouseY);
         super.render(stack, mouseX, mouseY, partialTicks );
-        drawGuiContainerForegroundLayer(stack, mouseX, mouseY );
     }
 
     @Override
@@ -128,6 +129,50 @@ public class BagGui extends ContainerScreen<BagContainer>
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
         Minecraft.getInstance().getTextureManager().bindTexture( BAG_GUI_TEXTURE );
         this.blit(stack, xOffset, yOffset, 0, 0, xSize, ySize );
+
+        if ( specialFontRenderer == null )
+        {
+            specialFontRenderer = new GuiBagFontRenderer( font, ChiselsAndBits.getConfig().getServer().bagStackSize.get() );
+        }
+
+        hoveredBitSlot = null;
+        for ( int slotIdx = 0; slotIdx < getBagContainer().customSlots.size(); ++slotIdx )
+        {
+            final Slot slot = getBagContainer().customSlots.get( slotIdx );
+
+            final FontRenderer defaultFontRenderer = font;
+
+            try
+            {
+                font = specialFontRenderer;
+                RenderSystem.pushMatrix();
+                RenderSystem.translatef(guiLeft, guiTop, 0f);
+                moveItems(stack, slot);
+                RenderSystem.popMatrix();
+            }
+            finally
+            {
+                font = defaultFontRenderer;
+            }
+
+            if ( isSlotSelected( slot, mouseX, mouseY ) && slot.isEnabled() )
+            {
+                final int xDisplayPos = this.guiLeft + slot.xPos;
+                final int yDisplayPos = this.guiTop + slot.yPos;
+                hoveredBitSlot = slot;
+
+                RenderSystem.disableDepthTest();
+                RenderSystem.colorMask( true, true, true, false );
+                fillGradient(stack, xDisplayPos, yDisplayPos, xDisplayPos + INNER_SLOT_SIZE, yDisplayPos + INNER_SLOT_SIZE, -2130706433, -2130706433 );
+                RenderSystem.colorMask( true, true, true, true );
+                RenderSystem.enableDepthTest();
+            }
+        }
+
+        if ( !trashBtn.isMouseOver(mouseX, mouseY) )
+        {
+            requireConfirm = true;
+        }
     }
 
     @Override
@@ -136,8 +181,10 @@ public class BagGui extends ContainerScreen<BagContainer>
         // This is what vanilla does...
         final boolean duplicateButton = button == Minecraft.getInstance().gameSettings.keyBindPickBlock.getKey().getKeyCode() + 100;
 
-        final Slot slot = getSlotUnderMouse();
-        if ( slot != null )
+        Slot slot = getSlotUnderMouse();
+        if (slot == null)
+            slot = hoveredBitSlot;
+        if ( slot != null && slot.inventory instanceof TargetedInventory)
         {
             final PacketBagGui bagGuiPacket = new PacketBagGui(slot.slotNumber, button, duplicateButton, ClientSide.instance.holdingShift());
             bagGuiPacket.doAction( ClientSide.instance.getPlayer() );
@@ -164,53 +211,14 @@ public class BagGui extends ContainerScreen<BagContainer>
 		return ModUtil.isEmpty( getInHandItem() ) || getInHandItem().getItem() == ModItems.ITEM_BLOCK_BIT.get();
 	}
 
-    protected void drawDefaultBackground(final MatrixStack matrixStack, final float partialTicks, final int x, final int y)
+    @Override
+    protected void drawGuiContainerForegroundLayer(final MatrixStack matrixStack, final int x, final int y)
     {
         font.func_238407_a_(matrixStack, ModItems.ITEM_BIT_BAG_DEFAULT.get().getDisplayName( ModUtil.getEmptyStack() ), 8, 6, 0x404040 );
         font.drawString(matrixStack, I18n.format( "container.inventory" ), 8, ySize - 93, 0x404040 );
+    }
 
-        RenderHelper.enableStandardItemLighting();
-
-        if ( specialFontRenderer == null )
-        {
-            specialFontRenderer = new GuiBagFontRenderer( font, ChiselsAndBits.getConfig().getServer().bagStackSize.get() );
-        }
-
-        for ( int slotIdx = 0; slotIdx < getBagContainer().customSlots.size(); ++slotIdx )
-        {
-            final Slot slot = getBagContainer().customSlots.get( slotIdx );
-
-            final FontRenderer defaultFontRenderer = font;
-
-            try
-            {
-                font = specialFontRenderer;
-                moveItems(matrixStack, slot);
-            }
-            finally
-            {
-                font = defaultFontRenderer;
-            }
-
-            if ( isSlotSelected( slot, x, y ) && slot.isEnabled() )
-            {
-                final int xDisplayPos = slot.xPos;
-                final int yDisplayPos = slot.yPos;
-                hoveredSlot = slot;
-
-                RenderSystem.disableLighting();
-                RenderSystem.disableDepthTest();
-                RenderSystem.colorMask( true, true, true, false );
-                fill(matrixStack, xDisplayPos, yDisplayPos, xDisplayPos + INNER_SLOT_SIZE, yDisplayPos + INNER_SLOT_SIZE, 0x80FFFFFF );
-                RenderSystem.colorMask( true, true, true, true );
-                RenderSystem.enableLighting();
-                RenderSystem.enableDepthTest();
-            }
-        }
-
-        if ( !trashBtn.isMouseOver(x, y) )
-        {
-            requireConfirm = true;
-        }
+    protected void drawDefaultBackground(final MatrixStack matrixStack, final float partialTicks, final int x, final int y)
+    {
     }
 }

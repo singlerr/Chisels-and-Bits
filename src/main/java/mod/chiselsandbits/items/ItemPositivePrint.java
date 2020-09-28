@@ -103,7 +103,7 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
 		final BlockState state = world.getBlockState( pos );
 		final Block blkObj = state.getBlock();
 
-		if ( !( blkObj instanceof BlockChiseled ) && BlockBitInfo.supportsBlock( state ) )
+		if ( !( blkObj instanceof BlockChiseled ) && BlockBitInfo.canChisel( state ) )
 		{
 			final NBTBlobConverter tmp = new NBTBlobConverter();
 

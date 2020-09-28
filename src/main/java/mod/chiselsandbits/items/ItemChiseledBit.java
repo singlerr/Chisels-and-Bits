@@ -5,13 +5,15 @@ import mod.chiselsandbits.api.ReplacementStateHandler;
 import mod.chiselsandbits.bittank.BlockBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChisledValue;
+import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChiseledValue;
+import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.events.TickHandler;
 import mod.chiselsandbits.helpers.*;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.interfaces.IChiselModeItem;
@@ -36,15 +38,16 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.*;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.commons.lang3.tuple.Pair;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -76,6 +79,11 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindAttack ),
 				ClientSide.instance.getKeyName( Minecraft.getInstance().gameSettings.keyBindUseItem ),
 				ClientSide.instance.getModeKey() );
+
+		final int stateId = ItemChiseledBit.getStackState(stack);
+		if (stateId == 0) {
+		    tooltip.add(new StringTextComponent(TextFormatting.RED.toString() + TextFormatting.ITALIC.toString() + LocalStrings.AnyHelpBit.getLocal() + TextFormatting.RESET.toString()));
+        }
 	}
 
     @Override
@@ -136,8 +144,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 				final Fluid f = BlockBitInfo.getFluidFromBlock( blk );
 				if ( f != null )
 				{
-				    //TODO: Fix this: I need a way to get the fluid name.
-					return new StringTextComponent(f.getRegistryName().getPath());
+					return new TranslationTextComponent(f.getAttributes().getTranslationKey());
 				}
 			}
 			else
@@ -193,10 +200,25 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		}
 	}
 
+    static private final NonNullList<ItemStack> alternativeStacks = NonNullList.create();
+
 	public static ITextComponent getBitTypeName(
 			final ItemStack stack )
 	{
-		return getBitStateName( ModUtil.getStateById( ItemChiseledBit.getStackState( stack ) ) );
+	    int stateID = ItemChiseledBit.getStackState( stack );
+        if (stateID == 0) {
+            //We are running an empty bit, for display purposes.
+            //Lets loop:
+            if (alternativeStacks.isEmpty())
+                ModItems.ITEM_BLOCK_BIT.get().fillItemGroup(Objects.requireNonNull(ModItems.ITEM_BLOCK_BIT.get().getGroup()), alternativeStacks);
+
+            stateID = ItemChiseledBit.getStackState( alternativeStacks.get  ((int) (TickHandler.getClientTicks() % ((alternativeStacks.size() * 20L)) / 20L)));
+
+            if (stateID == 0)
+                alternativeStacks.clear();
+        }
+
+		return getBitStateName( ModUtil.getStateById( stateID ) );
 	}
 
 	@Override
@@ -228,7 +250,30 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
     @Override
     public ActionResultType onItemUse(final ItemUseContext context)
     {
-        return super.onItemUse(context);
+        if ( !context.getWorld().isRemote )
+        {
+            return ActionResultType.PASS;
+        }
+
+        final Pair<Vector3d, Vector3d> PlayerRay = ModUtil.getPlayerRay( context.getPlayer() );
+        final Vector3d ray_from = PlayerRay.getLeft();
+        final Vector3d ray_to = PlayerRay.getRight();
+        final RayTraceContext rtc = new RayTraceContext(ray_from, ray_to, RayTraceContext.BlockMode.VISUAL, RayTraceContext.FluidMode.NONE, context.getPlayer());
+
+        final RayTraceResult mop = context.getWorld().rayTraceBlocks(rtc);
+        if (mop != null)
+        {
+            final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) mop;
+            return onItemUseInternal(
+              context.getPlayer(),
+              context.getWorld(),
+              context.getPos(),
+              context.getHand(),
+              rayTraceResult
+            );
+        }
+
+        return ActionResultType.FAIL;
     }
 
 	public ActionResultType onItemUseInternal (
@@ -260,12 +305,13 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		if ( world.isRemote )
 		{
 			final IToolMode mode = ChiselModeManager.getChiselMode( player, ClientSide.instance.getHeldToolType( hand ), hand );
-			final BitLocation bitLocation = new BitLocation( rayTraceResult, false, getBitOperation( player, hand, stack ) );
+			final BitLocation bitLocation = (BitLocation) new BitLocation( rayTraceResult, true, getBitOperation( player, hand, stack ) ).offSet(rayTraceResult.getFace());
+
 
 			BlockState blkstate = world.getBlockState( bitLocation.blockPos );
 			TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity( world, bitLocation.blockPos, true );
-			ReplaceWithChisledValue rv = null;
-			if ( tebc == null && (rv=BlockChiseled.replaceWithChisled( world, bitLocation.blockPos, blkstate, ItemChiseledBit.getStackState( stack ), true )).success )
+			ReplaceWithChiseledValue rv = null;
+			if ( tebc == null && (rv=BlockChiseled.replaceWithChiseled( world, bitLocation.blockPos, blkstate, ItemChiseledBit.getStackState( stack ), true )).success )
 			{
 				blkstate = world.getBlockState( bitLocation.blockPos );
 				tebc = rv.te;
@@ -369,7 +415,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
                         }
 
                         final BlockState state = DeprecationHelper.getStateFromItem( out );
-                        if ( state != null && BlockBitInfo.supportsBlock( state ) )
+                        if ( state != null && BlockBitInfo.canChisel( state ) )
                         {
                             used.set( ModUtil.getStateId( state ) );
                             bits.add( ItemChiseledBit.createStack( ModUtil.getStateId( state ), 1, false ) );
@@ -388,7 +434,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
             for ( final Fluid o : ForgeRegistries.FLUIDS )
             {
-                if ( used.get( Block.getStateId( o.getDefaultState().getBlockState() ) ) )
+                if ( !o.getDefaultState().isSource() )
                 {
                     continue;
                 }

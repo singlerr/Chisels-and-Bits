@@ -9,6 +9,7 @@ import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.registry.ModItems;
+import mod.chiselsandbits.registry.ModTileEntityTypes;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
@@ -50,8 +51,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 
     public TileEntityBitTank()
     {
-        //TODO: Insert tile entity type.
-        super(null);
+        super(ModTileEntityTypes.BIT_TANK.get());
     }
 
     @Override

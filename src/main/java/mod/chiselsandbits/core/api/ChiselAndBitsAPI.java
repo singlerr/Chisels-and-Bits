@@ -67,7 +67,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		}
 
 		final BlockState state = world.getBlockState( pos );
-		return state.getBlock() == Blocks.AIR || BlockBitInfo.supportsBlock( state ) || ModUtil.getChiseledTileEntity( world, pos, false ) != null;
+		return state.getBlock() == Blocks.AIR || BlockBitInfo.canChisel( state ) || ModUtil.getChiseledTileEntity( world, pos, false ) != null;
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		}
 
 		final BlockState state = world.getBlockState( pos );
-		if ( BlockBitInfo.supportsBlock( state ) )
+		if ( BlockBitInfo.canChisel( state ) )
 		{
 			final VoxelBlob blob = new VoxelBlob();
 			blob.fill( ModUtil.getStateId( state ) );
@@ -131,7 +131,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			final int stateID = ItemChiseledBit.getStackState( stack );
 			final BlockState state = ModUtil.getStateById( stateID );
 
-			if ( state != null && BlockBitInfo.supportsBlock( state ) )
+			if ( state != null && BlockBitInfo.canChisel( state ) )
 			{
 				return new BitBrush( stateID );
 			}
@@ -220,7 +220,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		{
 			final BlockState state = DeprecationHelper.getStateFromItem( stack );
 
-			if ( BlockBitInfo.supportsBlock( state ) )
+			if ( BlockBitInfo.canChisel( state ) )
 			{
 				final VoxelBlob blob = new VoxelBlob();
 				blob.fill( ModUtil.getStateId( state ) );
@@ -240,7 +240,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			return new BitBrush( 0 );
 		}
 
-		if ( !BlockBitInfo.supportsBlock( state ) )
+		if ( !BlockBitInfo.canChisel( state ) )
 		{
 			throw new InvalidBitItem();
 		}
@@ -252,7 +252,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	public ItemStack getBitItem(
 			final BlockState state ) throws InvalidBitItem
 	{
-		if ( !BlockBitInfo.supportsBlock( state ) )
+		if ( !BlockBitInfo.canChisel( state ) )
 		{
 			throw new InvalidBitItem();
 		}

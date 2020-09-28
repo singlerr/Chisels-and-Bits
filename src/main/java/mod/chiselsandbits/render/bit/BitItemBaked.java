@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.*;
 
 import mod.chiselsandbits.core.ClientSide;
-import mod.chiselsandbits.render.BaseBakedBlockModel;
+import mod.chiselsandbits.client.model.baked.BaseBakedBlockModel;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;

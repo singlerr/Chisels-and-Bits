@@ -310,7 +310,7 @@ public class ModUtil
 	{
 		if ( world.isBlockLoaded( pos ) )
 		{
-			final TileEntity te = world.getTileEntity( pos );
+			final TileEntity te = world.getChunkAt(pos).getTileEntity(pos, Chunk.CreateEntityType.CHECK);
 			if ( te instanceof TileEntityBlockChiseled )
 			{
 				return (TileEntityBlockChiseled) te;
@@ -408,7 +408,7 @@ public class ModUtil
 
 			CompoundNBT cData = getSubCompound( stack, NBT_BLOCKENTITYTAG, false );
 
-			if ( cData == null )
+			if ( cData.size() == 0 )
 			{
 				cData = stack.getTag();
 			}

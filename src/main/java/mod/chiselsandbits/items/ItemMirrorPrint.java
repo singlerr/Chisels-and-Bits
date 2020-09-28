@@ -25,7 +25,6 @@ import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -129,14 +128,14 @@ public class ItemMirrorPrint extends Item implements IPatternItem
 		if ( te != null )
 		{
 			final CompoundNBT comp = new CompoundNBT();
-			te.writeChisleData( comp );
+			te.writeChiselData( comp );
 
 			final TileEntityBlockChiseled tmp = new TileEntityBlockChiseled();
-			tmp.readChisleData( comp );
+			tmp.readChiselData( comp );
 
 			final VoxelBlob bestBlob = tmp.getBlob();
 			tmp.setBlob( bestBlob.mirror( face.getAxis() ) );
-			tmp.writeChisleData( comp );
+			tmp.writeChiselData( comp );
 
 			comp.putByte( ModUtil.NBT_SIDE, (byte) ModUtil.getPlaceFace( player ).ordinal() );
 			return comp;
