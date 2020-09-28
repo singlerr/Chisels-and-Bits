@@ -18,6 +18,9 @@ public class ModTags
     public static final class Items {
         private static void init () {}
 
+        public static ITag.INamedTag<Item> CHISEL = tag("chisel");
+        public static ITag.INamedTag<Item> BIT_BAG = tag("bit_bag");
+
         private static ITag.INamedTag<Item> tag(String name)
         {
             return ItemTags.makeWrapperTag(Constants.MOD_ID + ":" + name);

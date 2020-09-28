@@ -8,6 +8,7 @@ import mod.chiselsandbits.api.IgnoreBlockLogic;
 import mod.chiselsandbits.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
+import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModTags;
@@ -18,6 +19,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.loot.LootContext;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -43,7 +45,7 @@ public class BlockBitInfo
 
 	// cache data..
 	private static HashMap<BlockState, BlockBitInfo> stateBitInfo    = new HashMap<>();
-	private static HashMap<Block, Boolean> supportedBlocks = new HashMap<>();
+	private static HashMap<Block, SupportsAnalysisResult> supportedBlocks = new HashMap<>();
     private static HashMap<Block, Boolean> forcedBlocks    = new HashMap<>();
 	private static HashMap<Block, Fluid>   fluidBlocks  = new HashMap<>();
 	private static IntObjectMap<Fluid>               fluidStates     = new IntObjectHashMap<>();
@@ -174,12 +176,17 @@ public class BlockBitInfo
 	}
 
 	@SuppressWarnings( "deprecation" )
-	public static boolean supportsBlock(
+	public static SupportsAnalysisResult doSupportAnalysis(
 			final BlockState state )
 	{
 		if ( forcedBlocks.containsKey( state.getBlock() ) )
 		{
-			return forcedBlocks.get( state.getBlock() );
+			final boolean forcing = forcedBlocks.get( state.getBlock() );
+			return new SupportsAnalysisResult(
+			  forcing,
+              LocalStrings.ChiselSupportForcedUnsupported,
+              LocalStrings.ChiselSupportForcedSupported
+            );
 		}
 
 		final Block blk = state.getBlock();
@@ -190,17 +197,27 @@ public class BlockBitInfo
 
 		if (blk.isIn(ModTags.Blocks.BLOCKED_CHISELABLE))
         {
-            supportedBlocks.put(blk, false);
-            return false;
+            final SupportsAnalysisResult result = new SupportsAnalysisResult(
+              false,
+              LocalStrings.ChiselSupportTagBlackListed,
+              LocalStrings.ChiselSupportTagWhitelisted
+            );
+            supportedBlocks.put(blk, result);
+            return result;
         }
 
 		if (blk.isIn(ModTags.Blocks.FORCED_CHISELABLE)) {
-		    supportedBlocks.put(blk, true);
+            final SupportsAnalysisResult result = new SupportsAnalysisResult(
+              true,
+              LocalStrings.ChiselSupportTagBlackListed,
+              LocalStrings.ChiselSupportTagWhitelisted
+            );
+            supportedBlocks.put(blk, result);
 
 		    final BlockBitInfo info = BlockBitInfo.createFromState( state );
 		    stateBitInfo.put(state, info);
 
-		    return true;
+		    return result;
         }
 
 		try
@@ -214,7 +231,7 @@ public class BlockBitInfo
 			final Class<?> wc = getDeclaringClass( blkClass, pb.MethodName, BlockState.class, LootContext.Builder.class );
 			final boolean quantityDroppedTest = wc == Block.class || wc == AbstractBlock.class;
 
-			final boolean isNotSlab = Item.getItemFromBlock( blk ) != null;
+			final boolean isNotSlab = Item.getItemFromBlock( blk ) != Items.AIR;
 			boolean itemExistsOrNotSpecialDrops = quantityDroppedTest || isNotSlab;
 
 			// ignore blocks with custom collision.
@@ -227,10 +244,8 @@ public class BlockBitInfo
 			boolean isFullBlock = state.isSolid();
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
-			final boolean tickingBehavior = blk.ticksRandomly(state) && ChiselsAndBits.getConfig().getServer().blacklistTickingBlocks.get();
+			final boolean tickingBehavior = blk.ticksRandomly(state) && ChiselsAndBits.getConfig().getServer().blackListRandomTickingBlocks.get();
 			boolean hasBehavior = ( blk.hasTileEntity( state ) || tickingBehavior );
-            Item.getItemFromBlock(blk);
-            final boolean hasItem = true;
 
 			final boolean supportedMaterial = ModBlocks.convertGivenStateToChiseledBlock( state ) != null;
 
@@ -243,31 +258,133 @@ public class BlockBitInfo
 				itemExistsOrNotSpecialDrops = true;
 			}
 
-			if ( info.isCompatiable && noCustomCollision && info.hardness >= -0.01f && isFullBlock && supportedMaterial && !hasBehavior && itemExistsOrNotSpecialDrops )
+			if ( info.isCompatible && noCustomCollision && info.hardness >= -0.01f && isFullBlock && supportedMaterial && !hasBehavior && itemExistsOrNotSpecialDrops )
 			{
-                supportedBlocks.put( blk, hasItem);
+                final SupportsAnalysisResult result = new SupportsAnalysisResult(
+                  true,
+                  LocalStrings.ChiselSupportGenericNotSupported,
+                  (blkClass.isAnnotationPresent( IgnoreBlockLogic.class ) || IgnoredLogic != null && IgnoredLogic) ? LocalStrings.ChiselSupportLogicIgnored : LocalStrings.ChiselSupportGenericSupported
+                );
+
+                supportedBlocks.put( blk, result);
                 stateBitInfo.put( state, info );
-                return hasItem;
+                return result;
 			}
 
 			if ( fluidBlocks.containsKey( blk ) )
 			{
 				stateBitInfo.put( state, info );
-				supportedBlocks.put( blk, true );
-				return true;
+
+                final SupportsAnalysisResult result = new SupportsAnalysisResult(
+                  true,
+                  LocalStrings.ChiselSupportGenericNotSupported,
+                  LocalStrings.ChiselSupportGenericFluidSupport
+                );
+
+				supportedBlocks.put( blk, result );
+				return result;
 			}
 
-			supportedBlocks.put( blk, false );
-			return false;
+            SupportsAnalysisResult result = null;
+			if (!info.isCompatible) {
+			    result = new SupportsAnalysisResult(
+			      false,
+                  LocalStrings.ChiselSupportCompatDeactivated,
+                  LocalStrings.ChiselSupportGenericSupported
+                );
+            }
+            else if (!noCustomCollision) {
+                result = new SupportsAnalysisResult(
+                  false,
+                  LocalStrings.ChiselSupportCustomCollision,
+                  LocalStrings.ChiselSupportGenericSupported
+                );
+            }
+            else if (info.hardness < -0.01f) {
+                result = new SupportsAnalysisResult(
+                  false,
+                  LocalStrings.ChiselSupportNoHardness,
+                  LocalStrings.ChiselSupportGenericSupported
+                );
+            }
+            else if (!isNotSlab) {
+                result = new SupportsAnalysisResult(
+                  false,
+                  LocalStrings.ChiselSupportIsSlab,
+                  LocalStrings.ChiselSupportGenericSupported
+                );
+            }
+            else if (!isFullBlock) {
+                result = new SupportsAnalysisResult(
+                  false,
+                  LocalStrings.ChiselSupportNotFullBlock,
+                  LocalStrings.ChiselSupportGenericSupported
+                );
+            }
+            else if (hasBehavior) {
+                result = new SupportsAnalysisResult(
+                  false,
+                  LocalStrings.ChiselSupportHasBehaviour,
+                  LocalStrings.ChiselSupportGenericSupported
+                );
+            }
+            else if (!quantityDroppedTest) {
+                result = new SupportsAnalysisResult(
+                  false,
+                  LocalStrings.ChiselSupportHasCustomDrops,
+                  LocalStrings.ChiselSupportGenericSupported
+                );
+            }
+
+			supportedBlocks.put( blk, result );
+			return result;
 		}
 		catch ( final Throwable t )
 		{
+		    final SupportsAnalysisResult result = new SupportsAnalysisResult(
+              false,
+              LocalStrings.ChiselSupportFailureToAnalyze,
+              LocalStrings.ChiselSupportGenericSupported
+            );
 			// if the above test fails for any reason, then the block cannot be
 			// supported.
-			supportedBlocks.put( blk, false );
-			return false;
+			supportedBlocks.put( blk, result );
+			return result;
 		}
 	}
+
+    public static boolean isSupported(
+      final BlockState state )
+    {
+        return doSupportAnalysis(state).isSupported();
+    }
+
+    public static class SupportsAnalysisResult {
+	    private final boolean      supported;
+	    private final LocalStrings unsupportedReason;
+	    private final LocalStrings supportedReason;
+
+        public SupportsAnalysisResult(final boolean supported, final LocalStrings unsupportedReason, final LocalStrings supportedReason) {
+            this.supported = supported;
+            this.unsupportedReason = unsupportedReason;
+            this.supportedReason = supportedReason;
+        }
+
+        public boolean isSupported()
+        {
+            return supported;
+        }
+
+        public LocalStrings getUnsupportedReason()
+        {
+            return unsupportedReason;
+        }
+
+        public LocalStrings getSupportedReason()
+        {
+            return supportedReason;
+        }
+    }
 
 	private static Class<?> getDeclaringClass(
 			final Class<?> blkClass,
@@ -303,16 +420,16 @@ public class BlockBitInfo
 				args );
 	}
 
-	public final boolean isCompatiable;
-	public final float hardness;
-	public final float explosionResistance;
+	public final boolean isCompatible;
+	public final float   hardness;
+	public final float   explosionResistance;
 
 	private BlockBitInfo(
-			final boolean isCompatiable,
+			final boolean isCompatible,
 			final float hardness,
 			final float explosionResistance )
 	{
-		this.isCompatiable = isCompatiable;
+		this.isCompatible = isCompatible;
 		this.hardness = hardness;
 		this.explosionResistance = explosionResistance;
 	}
@@ -368,7 +485,7 @@ public class BlockBitInfo
 	public static boolean canChisel(
 			final BlockState state )
 	{
-		return state.getBlock() instanceof BlockChiseled || supportsBlock( state );
+		return state.getBlock() instanceof BlockChiseled || isSupported( state );
 	}
 
 }

@@ -28,6 +28,7 @@ public final class Constants
         public static final  String RECIPES_DIR                    = DATAPACK_DIR + "recipes/";
         public static final  String TAGS_DIR                       = DATAPACK_DIR + "tags/";
         public static final  String BLOCK_TAGS_DIR                 = TAGS_DIR + "blocks/";
+        public static final  String ITEM_TAGS_DIR                 = TAGS_DIR + "items/";
         public static final  String FORGE_TAGS_DIR                 = FORGE_DATAPACK_DIR + "tags/";
         public static final String  FORGE_ITEM_TAGS_DIR            = FORGE_TAGS_DIR + "items/";
         public static final  String LOOT_TABLES_DIR                = DATAPACK_DIR + "loot_tables/blocks";

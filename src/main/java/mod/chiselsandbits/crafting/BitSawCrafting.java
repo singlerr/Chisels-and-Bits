@@ -89,7 +89,7 @@ public class BitSawCrafting extends SpecialRecipe
 						final BlockItem blkItem = (BlockItem) is.getItem();
 						final BlockState state = blkItem.getBlock().getDefaultState();
 
-						if ( !BlockBitInfo.supportsBlock( state ) )
+						if ( !BlockBitInfo.isSupported( state ) )
 						{
 							return null;
 						}

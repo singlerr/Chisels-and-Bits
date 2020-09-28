@@ -11,12 +11,19 @@ public class CommonConfiguration extends AbstractConfiguration
 {
 
     public ForgeConfigSpec.BooleanValue enableHelp;
+    public ForgeConfigSpec.LongValue collisionBoxCacheSize;
 
     public CommonConfiguration(ForgeConfigSpec.Builder builder)
     {
         createCategory(builder, "help");
 
         enableHelp = defineBoolean(builder, "help.enabled", true);
+
+        finishCategory(builder);
+
+        createCategory(builder, "performance");
+
+        collisionBoxCacheSize = defineLong(builder, "performance.collisions.cache.size", 10000L);
 
         finishCategory(builder);
     }

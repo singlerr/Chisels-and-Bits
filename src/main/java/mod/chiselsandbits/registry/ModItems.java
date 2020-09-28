@@ -71,6 +71,9 @@ public final class ModItems
     public static final RegistryObject<ItemTapeMeasure> ITEM_TAPE_MEASURE =
       ITEM_REGISTRAR.register("tape_measure", () -> new ItemTapeMeasure(new Item.Properties().group(
         CHISELS_AND_BITS)));
+    public static final RegistryObject<ItemMagnifyingGlass>      ITEM_MAGNIFYING_GLASS =
+      ITEM_REGISTRAR.register("magnifying_glass", () -> new ItemMagnifyingGlass(new Item.Properties().group(
+        CHISELS_AND_BITS)));
 
     public static void onModConstruction() {
         ITEM_REGISTRAR.register(FMLJavaModLoadingContext.get().getModEventBus());

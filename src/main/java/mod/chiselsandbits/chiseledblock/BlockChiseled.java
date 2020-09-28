@@ -446,11 +446,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     {
         try
         {
-            final VoxelBlobStateReference blobStateReference = getTileEntity(reader, pos).getBlobStateReference();
-            if (blobStateReference == null)
+            final VoxelBlob blob = getTileEntity(reader, pos).getBlob();
+            if (blob == null)
                 return VoxelShapes.empty();
 
-            return VoxelShapeCache.getInstance().get(blobStateReference, BoxType.COLLISION);
+            return VoxelShapeCache.getInstance().get(blob, BoxType.COLLISION);
         }
         catch (ExceptionNoTileEntity exceptionNoTileEntity)
         {

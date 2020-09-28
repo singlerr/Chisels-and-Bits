@@ -1076,7 +1076,7 @@ public class ClientSide
             BlockPos newOffset = offset;
             final Block block = theWorld.getBlockState(newOffset).getBlock();
             if (!canMerge && !ClientSide.offGridPlacement(player) && !block.isReplaceable(theWorld.getBlockState(newOffset),
-              new BlockItemUseContext(player, player.getActiveHand(), player.getHeldItem(player.getActiveHand()), mop)))
+              new BlockItemUseContext(player, player.getActiveHand(), player.getHeldItem(player.getActiveHand() != null ? player.getActiveHand() : Hand.MAIN_HAND), mop)))
             {
                 newOffset = offset.offset(mop.getFace());
             }

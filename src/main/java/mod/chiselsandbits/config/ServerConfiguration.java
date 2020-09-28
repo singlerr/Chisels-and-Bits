@@ -19,7 +19,7 @@ public class ServerConfiguration extends AbstractConfiguration
     public ForgeConfigSpec.BooleanValue useGetLightValue;
     public ForgeConfigSpec.BooleanValue enableFaceLightmapExtraction;
     public ForgeConfigSpec.BooleanValue disableCustomVertexFormats;
-    public ForgeConfigSpec.BooleanValue blacklistTickingBlocks;
+    public ForgeConfigSpec.BooleanValue blackListRandomTickingBlocks;
     public ForgeConfigSpec.BooleanValue damageTools;
     public ForgeConfigSpec.BooleanValue enableChiselToolHarvestCheck;
     public ForgeConfigSpec.ConfigValue<String> enableChiselToolHarvestCheckTools;
@@ -63,7 +63,7 @@ public class ServerConfiguration extends AbstractConfiguration
         finishCategory(builder);
         createCategory(builder, "server.balancing");
 
-        blacklistTickingBlocks = defineBoolean(builder, "server.balancing.ticking-blocks.blacklisted", true);
+        blackListRandomTickingBlocks = defineBoolean(builder, "server.balancing.random-ticking-blocks.blacklisted", false);
         damageTools = defineBoolean(builder, "server.balancing.tools.damage", true);
         enableChiselToolHarvestCheck = defineBoolean(builder, "server.balancing.chisel-tool.harvest-check.enabled", true);
         enableChiselToolHarvestCheckTools = defineString(builder, "server.balancing.chisel-tool.harvest-check.tools", "");

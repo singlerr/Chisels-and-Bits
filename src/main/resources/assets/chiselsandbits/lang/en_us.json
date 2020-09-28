@@ -39,6 +39,7 @@
 
   "item.chiselsandbits.bitsaw_diamond": "Diamond Bit Saw",
   "item.chiselsandbits.tape_measure": "Tape Measure",
+  "item.chiselsandbits.magnifying_glass": "Magnifying Glass",
 
   "mod.chiselsandbits.chiselmode.single": "Single Bit",
   "mod.chiselsandbits.chiselmode.snap2": "Grid Snapped 1/8 Size Cube",
@@ -57,6 +58,23 @@
   "mod.chiselsandbits.bitoption.place": "Place",
   "mod.chiselsandbits.bitoption.replace": "Replace",
 
+  "mod.chiselsandbits.chisel.support.not.supported.generic":"Chiseling: Not supported - Unknown",
+  "mod.chiselsandbits.chisel.support.supported.code":"Chiseling: Supported - Via code",
+  "mod.chiselsandbits.chisel.support.supported.generic":"Chiseling: Supported",
+  "mod.chiselsandbits.chisel.support.supported.fluid":"Chiseling: Supported - Fluid",
+  "mod.chiselsandbits.chisel.support.not.supported.compatibility.deactivated":"Chiseling: Not supported - Compatibility deactivated",
+  "mod.chiselsandbits.chisel.support.not.supported.collision":"Chiseling: Not supported - Has custom collision",
+  "mod.chiselsandbits.chisel.support.not.supported.hardness":"Chiseling: Not supported - Has no hardness",
+  "mod.chiselsandbits.chisel.support.not.supported.shape":"Chiseling: Not supported - Is not a full block",
+  "mod.chiselsandbits.chisel.support.not.supported.entity":"Chiseling: Not supported - Has behaviour",
+  "mod.chiselsandbits.chisel.support.not.supported.slab":"Chiseling: Not supported - Is a slab",
+  "mod.chiselsandbits.chisel.support.not.supported.drops":"Chiseling: Not supported - Has custom drops",
+  "mod.chiselsandbits.chisel.support.not.supported.failure":"Chiseling: Not supported - Analysis failure. Check logs!",
+  "mod.chiselsandbits.chisel.support.not.supported.forced":"Chiseling: Not supported - Forced via IMC.",
+  "mod.chiselsandbits.chisel.support.supported.forced":"Chiseling: Supported - Forced via IMC",
+  "mod.chiselsandbits.chisel.support.not.supported.tag":"Chiseling: Not supported - Forced via tags",
+  "mod.chiselsandbits.chisel.support.supported.tag": "Chiseling: Supported - Forced via tags",
+  
   "mod.chiselsandbits.positivepatternmode.replace": "Replace",
   "mod.chiselsandbits.positivepatternmode.additive": "Additive",
   "mod.chiselsandbits.positivepatternmode.placement": "Placement",
@@ -102,11 +120,13 @@
   "mod.chiselsandbits.help.bitsaw": "Craft with Blocks or Chiseled blocks;Cut along any of the 3 axis.",
   "mod.chiselsandbits.help.bittank": "Fill with fluid and extract bits.",
   "mod.chiselsandbits.help.tape_measure": "{} and drag to measure;{} + {} to clear;Use {} to display menu.",
+  "mod.chiselsandbits.help.magnifying_glass": "Hover over block to check if compatible.",
 
   "mod.chiselsandbits.help.chiseled_block.long": "Left-click to place the block. Sneak while placing to ignore block grid. Shift + Mouse Wheel to cycle placement rotation.",
   "mod.chiselsandbits.help.bit_bag.long": "Automatically re-stocks, and store bits when you exceed or go under a stack in your inventory.\\n\\nCraft with any dye to color.",
   "mod.chiselsandbits.help.wrench.long": "Right-click blocks to rotate them around the axis of the face you click.",
   "mod.chiselsandbits.help.tape_measure.long": "Left-click to and drag to measure spaces. Sneak Use to remove previously created measurements. Use the menu to switch between measurement modes.",
+  "mod.chiselsandbits.help.magnifying_glass.long": "This item allows for the analysis of blocks in the world. It allows you by hovering over a block to see, why a block is supported by C&B or why not.",
   "mod.chiselsandbits.help.bit.long": "Left-click to chisel the highlighted area. Right-click to place at the designated area.",
   "mod.chiselsandbits.help.positiveprint.long": "Right-click on a chiseled block to write the design. Right-click on a block to chisel it adding and removing any bits that do not match the design. You can also place the design in a crafting table and Craft with bits/bags. Shift + Mouse Wheel can be used to cycle rotations without moving.",
   "mod.chiselsandbits.help.negativeprint.long": "Right-click on a chiseled block to write the design. Right-click on a block to chisel it removing any bits that are not in the negative design. Shift + Mouse Wheel can be used to cycle rotations without moving.",
@@ -271,5 +291,12 @@
   "mod.chiselsandbits.config.requireBagSpace": "Require Inventory/Bag Space",
   "mod.chiselsandbits.config.requireBagSpace.tooltip": "Requires there to be an empty slot in a bag or in the player's inventory before allowing them to use the chisel.",
   "mod.chiselsandbits.config.voidExcessBits": "Void Excess Bits",
-  "mod.chiselsandbits.config.voidExcessBits.tooltip": "Voids any bits that couldn't be fit into a bag or your inventory. Improves server performance. The undo action could have issues as some bits are voided."
+  "mod.chiselsandbits.config.voidExcessBits.tooltip": "Voids any bits that couldn't be fit into a bag or your inventory. Improves server performance. The undo action could have issues as some bits are voided.",
+
+  "mod.chiselsandbits.advancements.root.title": "Chisels & Bits!",
+  "mod.chiselsandbits.advancements.root.description": "Get yourself a chisel and start diving into the world of bits.",
+  "mod.chiselsandbits.advancements.find-chiselables.title": "Magnum opus",
+  "mod.chiselsandbits.advancements.find-chiselables.description": "A magnifying glass helps while discovering the world.",
+  "mod.chiselsandbits.advancements.collect-bits.title": "Itty bitty bits",
+  "mod.chiselsandbits.advancements.collect-bits.description": "All these little things have to go somewhere. These bags are useful!"
 }

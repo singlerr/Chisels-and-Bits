@@ -465,4 +465,15 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 		ChiselModeManager.scrollOption( ChiselToolType.CHISEL, mode, mode, dwheel );
 	}
 
+    @Override
+    public ItemStack getContainerItem(final ItemStack itemStack)
+    {
+        return itemStack;
+    }
+
+    @Override
+    public boolean hasContainerItem(final ItemStack stack)
+    {
+        return true;
+    }
 }

@@ -1,6 +1,10 @@
 package mod.chiselsandbits.chiseledblock.data;
 
+import com.google.common.collect.Lists;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import mod.chiselsandbits.api.BoxType;
+import mod.chiselsandbits.config.CommonConfiguration;
+import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -25,43 +29,38 @@ public final class VoxelShapeCache
     {
     }
 
-    public VoxelShape get(VoxelBlobStateReference blobStateReference, BoxType type) {
-        final Collection<AxisAlignedBB> boxes = blobStateReference.getBoxes(type);
-        //noinspection ToArrayCallWithZeroLengthArrayArgument -> Not possible due to the way the BoxCollection operates.
-        final AxisAlignedBB[] boxData = boxes.toArray(new AxisAlignedBB[boxes.size()]);
-        final CacheKey key = new CacheKey(type, Arrays.asList(boxData));
+    public VoxelShape get(VoxelBlob blob, BoxType type) {
+        final List<Boolean> keyList = new ArrayList<>(blob.noneAir.length);
+        for (final boolean b : blob.noneAir)
+        {
+            keyList.add(b);
+        }
+        final CacheKey key = new CacheKey(type, keyList);
 
         VoxelShape shape = cache.get(key);
         evictFromCacheIfNeeded();
         if (shape == null)
-            shape = calculateNewVoxelShape(key.getBbList());
+            shape = calculateNewVoxelShape(blob);
 
         cache.put(key, shape);
         return shape;
     }
 
-    private VoxelShape calculateNewVoxelShape(final List<AxisAlignedBB> data) {
-        return data.stream().reduce(
-          VoxelShapes.empty(),
-          (voxelShape, axisAlignedBB) -> {
-              final VoxelShape bbShape = VoxelShapes.create(axisAlignedBB);
-              return VoxelShapes.combine(voxelShape, bbShape, IBooleanFunction.OR);
-          },
-          (voxelShape, voxelShape2) -> VoxelShapes.combine(voxelShape, voxelShape2, IBooleanFunction.OR)
-        ).simplify();
+    private VoxelShape calculateNewVoxelShape(final VoxelBlob data) {
+        return VoxelShapeCalculator.calculate(data).simplify();
     }
 
     private void evictFromCacheIfNeeded() {
-        if (cache.size() == 100) {
+        if (cache.size() == ChiselsAndBits.getConfig().getCommon().collisionBoxCacheSize.get()) {
             cache.remove(cache.keySet().iterator().next());
         }
     }
 
     private static final class CacheKey {
         private final BoxType type;
-        private final List<AxisAlignedBB> bbList;
+        private final List<Boolean> bbList;
 
-        private CacheKey(final BoxType type, final List<AxisAlignedBB> bbList) {
+        private CacheKey(final BoxType type, final List<Boolean> bbList) {
             this.type = type;
             this.bbList = bbList;
         }
@@ -71,7 +70,7 @@ public final class VoxelShapeCache
             return type;
         }
 
-        public List<AxisAlignedBB> getBbList()
+        public List<Boolean> getBbList()
         {
             return bbList;
         }

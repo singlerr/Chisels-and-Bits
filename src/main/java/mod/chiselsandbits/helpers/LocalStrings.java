@@ -76,12 +76,35 @@ public enum LocalStrings
 
 	HelpTapeMeasure( "help.tape_measure" ),
 	LongHelpTapeMeasure( "help.tape_measure.long" ),
+
+
 	TapeMeasureBit( "tapemeasure.bit" ),
 	TapeMeasureBlock( "tapemeasure.block" ),
 	TapeMeasureDistance( "tapemeasure.distance" ),
 
 	BitOptionPlace( "bitoption.place" ),
-	BitOptionReplace( "bitoption.replace" );
+	BitOptionReplace( "bitoption.replace" ),
+
+    HelpMagnifyingGlass( "help.magnifying_glass" ),
+    LongHelpMagnifyingGlass( "help.magnifying_glass.long" ),
+
+
+    ChiselSupportGenericNotSupported("chisel.support.not.supported.generic"),
+    ChiselSupportLogicIgnored("chisel.support.supported.code"),
+    ChiselSupportGenericSupported("chisel.support.supported.generic"),
+    ChiselSupportGenericFluidSupport("chisel.support.supported.fluid"),
+    ChiselSupportCompatDeactivated("chisel.support.not.supported.compatibility.deactivated"),
+    ChiselSupportCustomCollision("chisel.support.not.supported.collision"),
+    ChiselSupportNoHardness("chisel.support.not.supported.hardness"),
+    ChiselSupportNotFullBlock("chisel.support.not.supported.shape"),
+    ChiselSupportHasBehaviour("chisel.support.not.supported.entity"),
+    ChiselSupportIsSlab("chisel.support.not.supported.slab"),
+    ChiselSupportHasCustomDrops("chisel.support.not.supported.drops"),
+    ChiselSupportFailureToAnalyze("chisel.support.not.supported.failure"),
+    ChiselSupportForcedUnsupported("chisel.support.not.supported.forced"),
+    ChiselSupportForcedSupported("chisel.support.supported.forced"),
+    ChiselSupportTagBlackListed("chisel.support.not.supported.tag"),
+    ChiselSupportTagWhitelisted("chisel.support.supported.tag");
 
 	private final String string;
 

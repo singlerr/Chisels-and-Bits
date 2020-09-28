@@ -122,6 +122,7 @@ public final class VoxelBlob implements IVoxelSrc
     public static VoxelBlob NULL_BLOB = new VoxelBlob();
 
     final int[] values = new int[array_size];
+    final boolean[] noneAir = new boolean[array_size];
 
     public int detail = dim;
 
@@ -149,6 +150,7 @@ public final class VoxelBlob implements IVoxelSrc
         for (int x = 0; x < values.length; ++x)
         {
             values[x] = vb.values[x];
+            noneAir[x] = vb.noneAir[x];
         }
     }
 
@@ -173,13 +175,16 @@ public final class VoxelBlob implements IVoxelSrc
     {
         final VoxelBlob out = new VoxelBlob();
 
-        final int secondValues[] = second.values;
+        final int[] secondValues = second.values;
+        final boolean[] secondNoneAir = second.noneAir;
         final int ov[] = out.values;
+        final boolean ona[] = out.noneAir;
 
         for (int x = 0; x < values.length; ++x)
         {
             final int firstValue = values[x];
             ov[x] = firstValue == 0 ? secondValues[x] : firstValue;
+            ona[x] = firstValue == 0 ? secondNoneAir[x] : noneAir[x];
         }
 
         return out;
@@ -330,6 +335,7 @@ public final class VoxelBlob implements IVoxelSrc
         for (int x = 0; x < array_size; x++)
         {
             values[x] = value;
+            noneAir[x] = value > 0;
         }
     }
 
@@ -339,6 +345,7 @@ public final class VoxelBlob implements IVoxelSrc
         for (int x = 0; x < array_size; x++)
         {
             values[x] = src.values[x];
+            noneAir[x] = src.noneAir[x];
         }
     }
 
@@ -369,6 +376,7 @@ public final class VoxelBlob implements IVoxelSrc
         for (int x = 0; x < array_size; x++)
         {
             values[x] = values[x] == 0 ? airReplacement : solidReplacement;
+            noneAir[x] = values[x] > 0;
         }
     }
 
@@ -398,6 +406,7 @@ public final class VoxelBlob implements IVoxelSrc
       final int newValue)
     {
         values[offset] = newValue;
+        noneAir[offset] = newValue > 0;
     }
 
     public int get(
@@ -454,6 +463,7 @@ public final class VoxelBlob implements IVoxelSrc
         for (int x = 0; x < array_size; x++)
         {
             values[x] = fixShorts(src.get());
+            noneAir[x] = values[x] > 0;
         }
 
         w.close();
@@ -823,6 +833,7 @@ public final class VoxelBlob implements IVoxelSrc
             if (fluidFilterState.get(ref & 0xffff) != wantsFluids)
             {
                 values[x] = 0;
+                noneAir[x] = false;
             }
             else
             {
@@ -850,6 +861,7 @@ public final class VoxelBlob implements IVoxelSrc
             if (!layerFilterState.get(ref))
             {
                 values[x] = 0;
+                noneAir[x] = false;
             }
             else
             {
@@ -914,6 +926,7 @@ public final class VoxelBlob implements IVoxelSrc
         for (int x = 0; x < array_size; x++)
         {
             values[x] = bs.readVoxelStateID(bits);// src.get();
+            noneAir[x] = values[x] > 0;
         }
 
         w.close();
