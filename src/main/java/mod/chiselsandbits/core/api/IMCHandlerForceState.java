@@ -2,6 +2,7 @@ package mod.chiselsandbits.core.api;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.Log;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraftforge.fml.InterModComms;
 
@@ -22,13 +23,13 @@ public class IMCHandlerForceState implements IMCMessageHandler
 		try
 		{
 
-		    final Supplier<Optional<Function<List, Boolean>>> methodSupplier = message.getMessageSupplier();
-			final Optional<Function<List, Boolean>> method = methodSupplier.get();
+		    final Supplier<Optional<Function<List<Block>, Boolean>>> methodSupplier = message.getMessageSupplier();
+			final Optional<Function<List<Block>, Boolean>> method = methodSupplier.get();
 
 			if ( method.isPresent() )
 			{
-				final Function<List, Boolean> targetMethod = method.get();
-				final ArrayList<?> o = new ArrayList<Object>();
+				final Function<List<Block>, Boolean> targetMethod = method.get();
+				final ArrayList<Block> o = new ArrayList<Block>();
 				final Boolean result = targetMethod.apply( o );
 
 				if ( result == null )
@@ -37,17 +38,7 @@ public class IMCHandlerForceState implements IMCMessageHandler
 				}
 				else
 				{
-					for ( final Object x : o )
-					{
-						if ( x instanceof BlockState )
-						{
-							BlockBitInfo.forceStateCompatibility( (BlockState) x, result );
-						}
-						else
-						{
-							Log.info( message.getSenderModId() + ", Your IMC provided a Object that was not an BlockState : " + x.getClass().getName() );
-						}
-					}
+                    o.forEach(x -> BlockBitInfo.forceStateCompatibility(x, result));
 				}
 			}
 			else

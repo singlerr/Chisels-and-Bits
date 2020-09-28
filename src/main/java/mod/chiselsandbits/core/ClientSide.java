@@ -1,5 +1,6 @@
 package mod.chiselsandbits.core;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -80,6 +81,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
@@ -148,6 +150,10 @@ public class ClientSide
 
         ClientRegistry.bindTileEntityRenderer(ModTileEntityTypes.BIT_TANK.get(), TileEntitySpecialRenderBitTank::new);
         RenderTypeLookup.setRenderLayer(ModBlocks.BIT_TANK_BLOCK.get(), RenderType.getTranslucent());
+
+        ModBlocks.getMaterialToBlockConversions().values()
+            .stream().map(RegistryObject::get)
+            .forEach(b -> RenderTypeLookup.setRenderLayer(b, (Predicate<RenderType>) input -> RenderType.getBlockRenderTypes().contains(input)));
 
         for (final ChiselMode mode : ChiselMode.values())
         {

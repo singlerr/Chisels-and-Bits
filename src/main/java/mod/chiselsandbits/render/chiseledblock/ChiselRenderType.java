@@ -14,7 +14,8 @@ public enum ChiselRenderType
 	SOLID_FLUID( RenderType.getSolid(), VoxelType.FLUID ),
 	CUTOUT( RenderType.getCutout(), null ),
 	CUTOUT_MIPPED( RenderType.getCutoutMipped(), null ),
-	TRANSLUCENT( RenderType.getTranslucent(), null );
+	TRANSLUCENT( RenderType.getTranslucent(), null ),
+	TRIPWIRE (RenderType.func_241715_r_(), null);
 
     public final RenderType layer;
 	public final VoxelType type;
@@ -66,6 +67,10 @@ public enum ChiselRenderType
         else if (ChiselRenderType.TRANSLUCENT.layer.equals(layerInfo))
         {
             return TRANSLUCENT;
+        }
+        else if (ChiselRenderType.TRIPWIRE.layer.equals(layerInfo))
+        {
+            return TRIPWIRE;
         }
 
 		throw new InvalidParameterException();

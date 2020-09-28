@@ -1,9 +1,7 @@
 package mod.chiselsandbits.chiseledblock;
 
 import java.util.HashMap;
-import java.util.Random;
 
-import com.google.common.collect.Lists;
 import io.netty.util.collection.IntObjectHashMap;
 import io.netty.util.collection.IntObjectMap;
 import mod.chiselsandbits.api.IgnoreBlockLogic;
@@ -12,24 +10,20 @@ import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.registry.ModBlocks;
+import mod.chiselsandbits.registry.ModTags;
 import mod.chiselsandbits.render.helpers.ModelUtil;
 import mod.chiselsandbits.utils.SingleBlockBlockReader;
 import net.minecraft.block.*;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.*;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IExplosionContext;
-import net.minecraft.world.World;
 import net.minecraftforge.registries.ForgeRegistries;
-import org.jetbrains.annotations.Nullable;
 
 public class BlockBitInfo
 {
@@ -49,9 +43,9 @@ public class BlockBitInfo
 
 	// cache data..
 	private static HashMap<BlockState, BlockBitInfo> stateBitInfo    = new HashMap<>();
-	private static HashMap<Block, Boolean>           supportedBlocks = new HashMap<>();
-	private static HashMap<BlockState, Boolean>      forcedStates    = new HashMap<>();
-	private static HashMap<Block, Fluid>             fluidBlocks     = new HashMap<>();
+	private static HashMap<Block, Boolean> supportedBlocks = new HashMap<>();
+    private static HashMap<Block, Boolean> forcedBlocks    = new HashMap<>();
+	private static HashMap<Block, Fluid>   fluidBlocks  = new HashMap<>();
 	private static IntObjectMap<Fluid>               fluidStates     = new IntObjectHashMap<>();
 	private static HashMap<BlockState, Integer>      bitColor        = new HashMap<>();
 
@@ -90,18 +84,23 @@ public class BlockBitInfo
 		return out;
 	}
 
-	public static void recalculateFluidBlocks()
+	public static void recalculate()
 	{
-		fluidBlocks.clear();
-
-		for ( final Fluid o : ForgeRegistries.FLUIDS )
-		{
-		    if (o.getDefaultState().isSource())
-                BlockBitInfo.addFluidBlock( o );
-        }
+		recalculateFluids();
 	}
 
-	public static void addFluidBlock(
+    public static void recalculateFluids()
+    {
+        fluidBlocks.clear();
+
+        for ( final Fluid o : ForgeRegistries.FLUIDS )
+        {
+            if (o.getDefaultState().isSource())
+                BlockBitInfo.addFluidBlock( o );
+        }
+    }
+
+    public static void addFluidBlock(
 			final Fluid fluid )
 	{
 		fluidBlocks.put( fluid.getDefaultState().getBlockState().getBlock(), fluid );
@@ -147,10 +146,10 @@ public class BlockBitInfo
 	}
 
 	public static void forceStateCompatibility(
-			final BlockState which,
+			final Block which,
 			final boolean forceStatus )
 	{
-		forcedStates.put( which, forceStatus );
+		forcedBlocks.put( which, forceStatus );
 		reset();
 	}
 
@@ -178,9 +177,9 @@ public class BlockBitInfo
 	public static boolean supportsBlock(
 			final BlockState state )
 	{
-		if ( forcedStates.containsKey( state ) )
+		if ( forcedBlocks.containsKey( state.getBlock() ) )
 		{
-			return forcedStates.get( state );
+			return forcedBlocks.get( state.getBlock() );
 		}
 
 		final Block blk = state.getBlock();
@@ -188,6 +187,21 @@ public class BlockBitInfo
 		{
 			return supportedBlocks.get( blk );
 		}
+
+		if (blk.isIn(ModTags.Blocks.BLOCKED_CHISELABLE))
+        {
+            supportedBlocks.put(blk, false);
+            return false;
+        }
+
+		if (blk.isIn(ModTags.Blocks.FORCED_CHISELABLE)) {
+		    supportedBlocks.put(blk, true);
+
+		    final BlockBitInfo info = BlockBitInfo.createFromState( state );
+		    stateBitInfo.put(state, info);
+
+		    return true;
+        }
 
 		try
 		{
