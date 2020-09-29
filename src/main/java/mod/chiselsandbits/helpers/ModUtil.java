@@ -432,9 +432,12 @@ public class ModUtil
 	}
 
 	public static void sendUpdate(
-			@Nonnull final World worldObj,
+			@Nullable final World worldObj,
 			@Nonnull final BlockPos pos )
 	{
+	    if (worldObj == null)
+	        return;
+
 		final BlockState state = worldObj.getBlockState( pos );
 		worldObj.notifyBlockUpdate( pos, state, state, 0 );
 	}

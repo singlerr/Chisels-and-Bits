@@ -2,6 +2,8 @@ package mod.chiselsandbits.registry;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.bittank.BlockBitTank;
+import mod.chiselsandbits.bittank.ItemBlockBitTank;
+import mod.chiselsandbits.bittank.ItemStackSpecialRendererBitTank;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
@@ -18,6 +20,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
+import net.minecraftforge.common.ToolType;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
@@ -40,13 +43,20 @@ public final class ModBlocks
     private static final Map<Material, RegistryObject<ItemBlockChiseled>>  MATERIAL_TO_ITEM_CONVERSIONS = Maps.newHashMap();
 
     public static final RegistryObject<BlockBitTank> BIT_TANK_BLOCK = BLOCK_REGISTRAR.register("bit_tank", () -> new BlockBitTank(AbstractBlock.Properties.create(Material.IRON)
+                                                                                                                                    .hardnessAndResistance(1.5F, 6.0F)
+                                                                                                                                    .harvestTool(ToolType.AXE)
+                                                                                                                                    .harvestLevel(1)
+                                                                                                                                    .setRequiresTool()
+                                                                                                                                    .variableOpacity()
                                                                                                                                     .notSolid()
                                                                                                                                     .setAllowsSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
                                                                                                                                     .setOpaque((p_test_1_, p_test_2_, p_test_3_) -> false)
                                                                                                                                     .setSuffocates((p_test_1_, p_test_2_, p_test_3_) -> false)
                                                                                                                                     .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false)));
 
-    public static final RegistryObject<BlockItem> BIT_TANK_BLOCK_ITEM = ITEM_REGISTRAR.register("bit_tank", () -> new BlockItem(BIT_TANK_BLOCK.get(), new Item.Properties().group(CHISELS_AND_BITS)));
+    public static final RegistryObject<BlockItem> BIT_TANK_BLOCK_ITEM = ITEM_REGISTRAR.register("bit_tank", () -> new ItemBlockBitTank(BIT_TANK_BLOCK.get(), new Item.Properties()
+                                                                                                                                                               .group(CHISELS_AND_BITS)
+                                                                                                                                                               .setISTER(() -> ItemStackSpecialRendererBitTank::new)));
 
     private static final MaterialType[] VALID_CHISEL_MATERIALS = new MaterialType[] {
       new MaterialType( "wood", Material.WOOD ),
@@ -79,6 +89,7 @@ public final class ModBlocks
               materialType.getType(),
               BLOCK_REGISTRAR.register("chiseled" + materialType.getName(), () -> new BlockChiseled("chiseled_" + materialType.getName(), AbstractBlock.Properties
                                                                                                                                             .create(materialType.getType())
+                                                                                                                                            .hardnessAndResistance(1.5f, 6f)
                                                                                                                                             .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false)
                                                                                                                                             .setOpaque((p_test_1_, p_test_2_, p_test_3_) -> false)
                                                                                                                                             .notSolid()))

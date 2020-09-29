@@ -216,6 +216,9 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 
 	private void saveAndUpdate()
 	{
+	    if (world == null || getWorld() == null)
+	        return;
+
 		markDirty();
 		ModUtil.sendUpdate( world, getPos() );
 
