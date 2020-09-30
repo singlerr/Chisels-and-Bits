@@ -39,7 +39,8 @@ public enum LocalStrings
 	LongHelpBit( "help.bit.long" ),
     AnyHelpBit("help.bit.any"),
 
-	HelpBitTank( "help.bittank" ),
+    HelpBitTankFilled( "help.bittank.full" ),
+    HelpBitTankEmpty( "help.bittank.empty" ),
 	LongHelpBitTank( "help.bittank.long" ),
 
 	HelpPositivePrint( "help.positiveprint" ),

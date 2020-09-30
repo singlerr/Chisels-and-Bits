@@ -9,6 +9,7 @@ import com.ldtteam.datagenerators.recipes.shaped.ShapedRecipeJson;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
+import mod.chiselsandbits.registry.ModTags;
 import mod.chiselsandbits.utils.Constants;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
@@ -40,15 +41,17 @@ public class BitTankRecipeGenerator extends AbstractRecipeGenerator
     protected void generate() throws IOException
     {
         addShapedRecipe(
-          " g ",
+          "igi",
           "glg",
-          " i ",
+          "ici",
           "g",
           new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.GLASS.getName().toString(), true)),
           "l",
           new RecipeIngredientKeyJson(new RecipeIngredientJson(ItemTags.LOGS.getName().toString(), true)),
           "i",
-          new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.INGOTS_IRON.getName().toString(), true))
+          new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.INGOTS_IRON.getName().toString(), true)),
+          "c",
+          new RecipeIngredientKeyJson(new RecipeIngredientJson(ModTags.Items.CHISEL.getName().toString(), true))
         );
     }
 }

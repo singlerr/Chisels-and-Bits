@@ -118,7 +118,8 @@
   "mod.chiselsandbits.help.mirrorprint": "{} the face you wish to mirror from;Craft with positive/negative design to transfer.",
   "mod.chiselsandbits.help.chisel": "{} to chisel;Use {} to display menu.",
   "mod.chiselsandbits.help.bitsaw": "Craft with Blocks or Chiseled blocks;Cut along any of the 3 axis.",
-  "mod.chiselsandbits.help.bittank": "Fill with fluid and extract bits.",
+  "mod.chiselsandbits.help.bittank.empty": "Fill with fluid and extract bits.;Currently empty.",
+  "mod.chiselsandbits.help.bittank.full": "Fill with fluid and extract bits.; Contains: {}.; {} Bits remaining.",
   "mod.chiselsandbits.help.tape_measure": "{} and drag to measure;{} + {} to clear;Use {} to display menu.",
   "mod.chiselsandbits.help.magnifying_glass": "Hover over block to check if compatible.",
 
@@ -298,5 +299,7 @@
   "mod.chiselsandbits.advancements.find-chiselables.title": "Magnum opus",
   "mod.chiselsandbits.advancements.find-chiselables.description": "A magnifying glass helps while discovering the world.",
   "mod.chiselsandbits.advancements.collect-bits.title": "Itty bitty bits",
-  "mod.chiselsandbits.advancements.collect-bits.description": "All these little things have to go somewhere. These bags are useful!"
+  "mod.chiselsandbits.advancements.collect-bits.description": "All these little things have to go somewhere. These bags are useful!",
+  "mod.chiselsandbits.advancements.make-tank.title": "Row row row the boat",
+  "mod.chiselsandbits.advancements.make-tank.description": "Get fluid bits by using a bit tank."
 }

@@ -2,6 +2,7 @@ package mod.chiselsandbits.data.advancement;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.data.blockstate.ChiseledBlockStateGenerator;
+import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.registry.ModTags;
 import mod.chiselsandbits.utils.Constants;
@@ -89,6 +90,19 @@ public class ChiselsAndBitsAdvancementGenerator extends AbstractAdvancementGener
                                             NBTPredicate.ANY
                                           )))
                                           .register(register, Constants.MOD_ID + ":chiselsandbits/collect_bits");
+
+        Advancement makeTank = Advancement.Builder.builder()
+                                    .withParent(root)
+                                    .withDisplay(ModBlocks.BIT_TANK_BLOCK_ITEM.get(),
+                                      new TranslationTextComponent("mod.chiselsandbits.advancements.make-tank.title"),
+                                      new TranslationTextComponent("mod.chiselsandbits.advancements.make-tank.description"),
+                                      new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"),
+                                      FrameType.TASK,
+                                      true,
+                                      true,
+                                      true)
+                                    .withCriterion("bit_tank", InventoryChangeTrigger.Instance.forItems(ModBlocks.BIT_TANK_BLOCK_ITEM.get()))
+                                    .register(register, Constants.MOD_ID + ":chiselsandbits/make_tank");
     }
 
     @Override

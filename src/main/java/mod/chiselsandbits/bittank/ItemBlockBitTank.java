@@ -1,11 +1,13 @@
 package mod.chiselsandbits.bittank;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -41,7 +43,21 @@ public class ItemBlockBitTank extends BlockItem
       final ItemStack stack, @Nullable final World worldIn, final List<ITextComponent> tooltip, final ITooltipFlag flagIn)
     {
         super.addInformation( stack, worldIn, tooltip, flagIn );
-        ChiselsAndBits.getConfig().getCommon().helpText( LocalStrings.HelpBitTank, tooltip );
+        if (CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY == null)
+            return;
+
+        FluidStack fluid = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)
+                        .map(h -> h.getFluidInTank(0))
+                        .orElse(FluidStack.EMPTY);
+
+        if (fluid.isEmpty()) {
+            ChiselsAndBits.getConfig().getCommon().helpText( LocalStrings.HelpBitTankEmpty, tooltip );
+        }
+        else
+        {
+            ChiselsAndBits.getConfig().getCommon().helpText( LocalStrings.HelpBitTankFilled, tooltip, DeprecationHelper.translateToLocal(fluid.getTranslationKey()),
+              String.valueOf((int) Math.floor(fluid.getAmount() * 4.096)));
+        }
     }
 
     @Nullable
