@@ -45,7 +45,7 @@ sourceSets {
         resources {
             include '**/**'
             // copy everything else, but blender files.
-            exclude '**/*.blend'
+            exclude '**/*.blend'1
             //Add the generated main module resources
             srcDirs += 'src/datagen/generated/chiselsandbits'
             //But exclude the cache of the generated data from what gets built
