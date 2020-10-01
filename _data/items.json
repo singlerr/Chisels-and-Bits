@@ -332,7 +332,7 @@
     "controls": [],
     "version": "1.16.1 / 0.0.4-ALPHA",
     "icon": "magnifying_glass.png",
-    "recipes": ["tapeMeasure.png"],
+    "recipes": ["magnifying_glass.png"],
     "usages": []
   }
 
