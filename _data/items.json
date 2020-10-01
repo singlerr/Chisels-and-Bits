@@ -319,7 +319,22 @@
 		"icon": "tape_measure.png",
 		"recipes": ["tapeMeasure.png"],
 		"usages": []
-	}
+	},
+
+
+  {
+    "id": "magnifying_glass",
+    "name": "Magnifying Glass",
+    "url": "magnifying-glass",
+    "features": [
+      "Allows you to easily figure out what block is chiselable."
+    ],
+    "controls": [],
+    "version": "1.16.1 / 0.0.4-ALPHA",
+    "icon": "magnifying_glass.png",
+    "recipes": ["tapeMeasure.png"],
+    "usages": []
+  }
 
 
 ]
