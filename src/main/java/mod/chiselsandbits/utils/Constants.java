@@ -35,5 +35,6 @@ public final class Constants
         private static final String RESOURCEPACK_DIR               = "assets/" + MOD_ID + "/";
         public static final  String BLOCKSTATE_DIR                 = RESOURCEPACK_DIR + "blockstates/";
         public static final ResourceLocation CHISELED_BLOCK_MODEL = new ResourceLocation( ChiselsAndBits.MODID, "block/chiseled" );
+        public static final ResourceLocation CHISEL_STATION_MODEL = new ResourceLocation( ChiselsAndBits.MODID, "block/chisel_station" );
     }
 }

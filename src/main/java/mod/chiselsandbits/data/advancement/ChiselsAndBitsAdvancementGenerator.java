@@ -1,7 +1,6 @@
 package mod.chiselsandbits.data.advancement;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.data.blockstate.ChiseledBlockStateGenerator;
 import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.registry.ModTags;

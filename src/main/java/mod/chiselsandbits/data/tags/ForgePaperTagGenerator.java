@@ -3,7 +3,6 @@ package mod.chiselsandbits.data.tags;
 import com.google.common.collect.Lists;
 import com.ldtteam.datagenerators.tags.TagJson;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.data.model.ChiseledBlockItemModelGenerator;
 import mod.chiselsandbits.utils.Constants;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;

@@ -9,6 +9,7 @@ import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.MaterialType;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.station.ChiselStationBlock;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -57,6 +58,16 @@ public final class ModBlocks
     public static final RegistryObject<BlockItem> BIT_TANK_BLOCK_ITEM = ITEM_REGISTRAR.register("bit_tank", () -> new ItemBlockBitTank(BIT_TANK_BLOCK.get(), new Item.Properties()
                                                                                                                                                                .group(CHISELS_AND_BITS)
                                                                                                                                                                .setISTER(() -> ItemStackSpecialRendererBitTank::new)));
+    public static final RegistryObject<ChiselStationBlock> CHISEL_STATION_BLOCK = BLOCK_REGISTRAR.register("chisel_station", () -> new ChiselStationBlock(AbstractBlock.Properties.create(Material.ROCK)
+      .hardnessAndResistance(1.5f, 6f)
+      .harvestLevel(1)
+      .harvestTool(ToolType.PICKAXE)
+      .notSolid()
+      .setOpaque((p_test_1_, p_test_2_, p_test_3_) -> false)
+      .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false)
+    ));
+
+    public static final RegistryObject<BlockItem> CHISEL_STATION_ITEM = ITEM_REGISTRAR.register("chisel_station", () -> new BlockItem(ModBlocks.CHISEL_STATION_BLOCK.get(), new Item.Properties().group(CHISELS_AND_BITS)));
 
     private static final MaterialType[] VALID_CHISEL_MATERIALS = new MaterialType[] {
       new MaterialType( "wood", Material.WOOD ),
