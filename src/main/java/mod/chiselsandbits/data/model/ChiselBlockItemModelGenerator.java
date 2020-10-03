@@ -38,10 +38,10 @@ public class ChiselBlockItemModelGenerator implements IDataProvider
         for (RegistryObject<BlockChiseled> blockChiseledRegistryObject : ModBlocks.getMaterialToBlockConversions().values())
         {
             BlockChiseled blockChiseled = blockChiseledRegistryObject.get();
-            actOnBlock(cache, blockChiseled, Constants.DataGenerator.CHISELED_BLOCK_MODEL);
+            actOnBlockWithLoader(cache, blockChiseled, new ResourceLocation(Constants.MOD_ID, "chiseled_block"));
         }
 
-        actOnBlock(cache, ModBlocks.CHISEL_STATION_BLOCK.get(), Constants.DataGenerator.CHISEL_STATION_MODEL);
+        actOnBlockWithParent(cache, ModBlocks.CHISEL_STATION_BLOCK.get(), Constants.DataGenerator.CHISEL_STATION_MODEL);
     }
 
     @Override
@@ -50,11 +50,25 @@ public class ChiselBlockItemModelGenerator implements IDataProvider
         return "Chisel block item model generator";
     }
 
-    public void actOnBlock(final DirectoryCache cache, final Block block, final ResourceLocation parent) throws IOException
+    public void actOnBlockWithParent(final DirectoryCache cache, final Block block, final ResourceLocation parent) throws IOException
     {
         final ItemModelJson json = new ItemModelJson();
         json.setParent(parent.toString());
 
+        saveBlockJson(cache, block, json);
+    }
+
+    public void actOnBlockWithLoader(final DirectoryCache cache, final Block block, final ResourceLocation loader) throws IOException
+    {
+        final ItemModelJson json = new ItemModelJson();
+        json.setParent("item/generated");
+        json.setLoader(loader.toString());
+
+        saveBlockJson(cache, block, json);
+    }
+
+    private void saveBlockJson(final DirectoryCache cache, final Block block, final ItemModelJson json) throws IOException
+    {
         final Path itemModelFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.ITEM_MODEL_DIR);
         final Path itemModelPath = itemModelFolder.resolve(Objects.requireNonNull(block.getRegistryName()).getPath() + ".json");
 

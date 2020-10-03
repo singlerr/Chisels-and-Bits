@@ -40,14 +40,14 @@ public final class VoxelShapeCache
         VoxelShape shape = cache.get(key);
         evictFromCacheIfNeeded();
         if (shape == null)
-            shape = calculateNewVoxelShape(blob);
+            shape = calculateNewVoxelShape(blob, keyList);
 
         cache.put(key, shape);
         return shape;
     }
 
-    private VoxelShape calculateNewVoxelShape(final VoxelBlob data) {
-        return VoxelShapeCalculator.calculate(data).simplify();
+    private VoxelShape calculateNewVoxelShape(final VoxelBlob data, final List<Boolean> noneAirList) {
+        return VoxelShapeCalculator.calculate(data, noneAirList).simplify();
     }
 
     private void evictFromCacheIfNeeded() {

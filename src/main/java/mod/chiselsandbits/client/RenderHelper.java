@@ -272,7 +272,7 @@ public class RenderHelper
       final int combinedOverlay)
     {
         final int alpha = isUnplaceable ? 0x22000000 : 0xaa000000;
-        RenderSystem.bindTexture(Minecraft.getInstance().getTextureManager().getTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE).getGlTextureId());
+        Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
         RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 
         RenderSystem.enableBlend();

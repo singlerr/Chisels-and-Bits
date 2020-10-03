@@ -7,6 +7,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateInstance;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.model.baked.BaseSmartModel;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.ModelCombined;
@@ -81,6 +82,18 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
         final VoxelBlobStateReference data = te.getBlobStateReference();
         Integer blockP = te.getPrimaryBlockStateId();
         return getCachedModel(blockP, data, layer, getModelFormat(), Objects.requireNonNull(te.getWorld()).rand);
+    }
+
+    public static ChiseledBlockBaked getCachedModel(
+      final ItemStack stack,
+      final ChiselRenderType layer)
+    {
+        final VoxelBlobStateReference data = new VoxelBlobStateReference(
+          ModUtil.getBlobFromStack(stack, null),
+          0L
+        );
+        Integer blockP = 0;
+        return getCachedModel(blockP, data, layer, getModelFormat(), new Random());
     }
 
     private static VertexFormat getModelFormat()

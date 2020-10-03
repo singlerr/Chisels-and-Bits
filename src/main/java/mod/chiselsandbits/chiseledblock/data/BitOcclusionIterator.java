@@ -7,7 +7,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 public class BitOcclusionIterator extends BitCollisionIterator
 {
 
-	private final double epsilon = 0.00001;
+	private final double epsilon = 0;
 	private final double epsilonGap = epsilon * 2.1;
 	private final double xFullMinusEpsilon = 1.0 - epsilon;
 

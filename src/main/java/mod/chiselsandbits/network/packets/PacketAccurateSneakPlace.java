@@ -4,6 +4,7 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.network.ModPacket;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.network.PacketBuffer;
@@ -82,7 +83,7 @@ public class PacketAccurateSneakPlace extends ModPacket
                   hand,
                   new BlockRayTraceResult(new Vector3d(hitX, hitY, hitZ), side, pos, false)
                 );
-				ibc.tryPlace(context, offgrid);
+				ibc.tryPlace(new BlockItemUseContext(context), offgrid);
 
 				if ( !playerEntity.isCreative() && ModUtil.getStackSize( inHand ) <= 0 )
 				{

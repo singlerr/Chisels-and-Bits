@@ -195,9 +195,9 @@ public class BitLocation implements IBitLocation
 	    final double yOffset = Math.floor(bitY / 16d);
 	    final double zOffset = Math.floor(bitZ / 16d);
 
-	    bitX = bitX % 16;
-	    bitY = bitY % 16;
-	    bitZ = bitZ % 16;
+	    bitX = (bitX + 16) % 16;
+	    bitY = (bitY + 16) % 16;
+	    bitZ = (bitZ + 16) % 16;
 
 	    this.blockPos = this.blockPos.add(
 	      xOffset,

@@ -1,7 +1,13 @@
 package mod.chiselsandbits.chiseledblock.data;
 
+import mod.chiselsandbits.api.BoxType;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Calculates the block shape of a VoxelBlob.
@@ -12,7 +18,23 @@ public class VoxelShapeCalculator {
     /**
      * Calculates both the selection shape and the collision shape for a voxel blob.
      */
-    public static VoxelShape calculate(final VoxelBlob blob) {
+    public static VoxelShape calculate(final VoxelBlob blob, final List<Boolean> noneAirList) {
+        final VoxelBlobStateReference reference = new VoxelBlobStateReference(blob, 0L);
+        return calculateFromBB(reference.getBoxes(BoxType.COLLISION));
+    }
+
+    private static VoxelShape calculateFromBB(final Collection<AxisAlignedBB> bbList) {
+        return bbList.stream().reduce(
+          VoxelShapes.empty(),
+          (voxelShape, axisAlignedBB) -> {
+              final VoxelShape bbShape = VoxelShapes.create(axisAlignedBB);
+              return VoxelShapes.combine(voxelShape, bbShape, IBooleanFunction.OR);
+          },
+          (voxelShape, voxelShape2) -> VoxelShapes.combine(voxelShape, voxelShape2, IBooleanFunction.OR)
+        ).simplify();
+    }
+
+    private static VoxelShape calculateFromBlob(final VoxelBlob blob) {
         VoxelShape collisionShape = VoxelShapes.empty();
         int x1 = 15, y1 = 15, z1 = 15, x2 = 0, y2 = 0, z2 = 0;
 

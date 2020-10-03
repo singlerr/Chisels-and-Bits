@@ -1090,8 +1090,9 @@ public class ClientSide
 
             BlockPos newOffset = offset;
             final Block block = theWorld.getBlockState(newOffset).getBlock();
+            final Hand hand = player.getActiveHand() != null ? player.getActiveHand() : Hand.MAIN_HAND;
             if (!canMerge && !ClientSide.offGridPlacement(player) && !block.isReplaceable(theWorld.getBlockState(newOffset),
-              new BlockItemUseContext(player, player.getActiveHand(), player.getHeldItem(player.getActiveHand() != null ? player.getActiveHand() : Hand.MAIN_HAND), mop)))
+              new BlockItemUseContext(player, hand, player.getHeldItem(hand), mop)))
             {
                 newOffset = offset.offset(mop.getFace());
             }
@@ -1101,7 +1102,7 @@ public class ClientSide
             if (theWorld.isAirBlock(newOffset) || theWorld.getBlockState(newOffset)
                                                     .getBlock()
                                                     .isReplaceable(theWorld.getBlockState(newOffset),
-                                                      new BlockItemUseContext(player, player.getActiveHand(), player.getHeldItem(player.getActiveHand()), mop))
+                                                      new BlockItemUseContext(player, hand,  player.getHeldItem(hand), mop))
                   || newTarget instanceof TileEntityBlockChiseled
             )
             {
@@ -1227,7 +1228,7 @@ public class ClientSide
         }
 
         matrixStack.push();
-        matrixStack.translate(blockPos.getX() - x, blockPos.getY() - y, blockPos.getZ() - z);
+        matrixStack.translate(blockPos.getX() - x, blockPos.getY() - y - player.getEyeHeight(), blockPos.getZ() - z);
         if (partial != null)
         {
             final BlockPos t = ModUtil.getPartialOffset(side, partial, modelBounds);

@@ -172,7 +172,7 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 
         ChiselsAndBits.getNetworkChannel().sendToServer(pasp);
         //TODO: Figure out the placement logic.
-        return tryPlace( context, false );
+        return tryPlace( new BlockItemUseContext(context), false );
     }
 
     @Override

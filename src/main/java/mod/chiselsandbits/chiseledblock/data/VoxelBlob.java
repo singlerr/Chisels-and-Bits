@@ -398,6 +398,9 @@ public final class VoxelBlob implements IVoxelSrc
     protected int getBit(
       final int offset)
     {
+        if (offset < 0 || offset >= values.length)
+            return 0;
+
         return values[offset];
     }
 

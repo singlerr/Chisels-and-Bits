@@ -54,9 +54,10 @@ import org.jetbrains.annotations.Nullable;
 public class BlockChiseled extends Block implements ITileEntityProvider, IMultiStateBlock
 {
 
-	private static final AxisAlignedBB BAD_AABB = new AxisAlignedBB( 0, Double.MIN_NORMAL, 0, 0, Double.MIN_NORMAL, 0 );
+    private static final AxisAlignedBB BAD_AABB = new AxisAlignedBB( 0, Double.MIN_NORMAL, 0, 0, Double.MIN_NORMAL, 0 );
+    public static final BlockPos ZERO = BlockPos.ZERO;
 
-	private static ThreadLocal<BlockState> actingAs = new ThreadLocal<BlockState>();
+    private static ThreadLocal<BlockState> actingAs = new ThreadLocal<BlockState>();
 
 	public static final BooleanProperty                      LProperty_FullBlock          = BooleanProperty.create( "full_block" );
 
@@ -888,7 +889,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
             float denom = player.inventory.getDestroySpeed( actingState );
             float numer = player.inventory.getDestroySpeed( state );
 
-            if ( !state.canHarvestBlock( new SingleBlockBlockReader( state ), pos, player ) )
+            if ( !state.canHarvestBlock( new SingleBlockBlockReader( state ), ZERO, player ) )
             {
                 return player.getDigSpeed( actingState, pos ) / hardness / 100F * ( numer / denom );
             }

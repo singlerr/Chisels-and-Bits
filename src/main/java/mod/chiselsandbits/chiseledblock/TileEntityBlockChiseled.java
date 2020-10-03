@@ -91,6 +91,10 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
     public void setPrimaryBlockStateId(final int primaryBlockStateId)
     {
         this.primaryBlockStateId = primaryBlockStateId;
+
+        setLightFromBlock(
+          ModUtil.getStateById(primaryBlockStateId)
+        );
     }
 
     public IChiseledTileContainer getTileContainer()

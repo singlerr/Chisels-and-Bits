@@ -9,11 +9,18 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import org.jetbrains.annotations.Nullable;
 
 public class ChiselStationBlock extends ContainerBlock
 {
+
+    protected static final VoxelShape BOTTOM_SHAPE = VoxelShapes.combine(Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 5.0D, 16.0D), Block.makeCuboidShape(1d, 5d, 15d, 2d, 8d, 15d), IBooleanFunction.OR);
     public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
 
     public ChiselStationBlock(final Properties builder)
@@ -40,6 +47,12 @@ public class ChiselStationBlock extends ContainerBlock
 
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
         builder.add(FACING);
+    }
+
+    @Override
+    public VoxelShape getShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final ISelectionContext context)
+    {
+        return BOTTOM_SHAPE;
     }
 
     @Nullable

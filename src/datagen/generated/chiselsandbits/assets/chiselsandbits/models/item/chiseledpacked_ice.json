@@ -1,3 +1,4 @@
 {
-  "parent": "chiselsandbits:block/chiseled"
+  "parent": "item/generated",
+  "loader": "chiselsandbits:chiseled_block"
 }
