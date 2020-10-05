@@ -964,7 +964,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		}
 		else if ( !testingHead && materialIn == Material.WATER )
 		{
-			AxisAlignedBB what = entity.getCollisionBoundingBox();
+			AxisAlignedBB what = entity.getBoundingBox();
 
 			if ( what == null )
 			{

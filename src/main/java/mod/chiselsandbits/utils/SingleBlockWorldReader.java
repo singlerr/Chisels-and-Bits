@@ -80,9 +80,9 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements IW
     }
 
     @Override
-    public DimensionType func_230315_m_()
+    public DimensionType getDimensionType()
     {
-        return this.reader.func_230315_m_();
+        return this.reader.getDimensionType();
     }
 
     @Override

@@ -14,7 +14,7 @@ public class VaporizeWater
 	public void handle(
 			final EventFullBlockRestoration e )
 	{
-		if ( e.getState().getBlock() == Blocks.WATER && e.getWorld().func_230315_m_().func_236040_e_() )
+		if ( e.getState().getBlock() == Blocks.WATER && e.getWorld().getDimensionType().isUltrawarm() )
 		{
             double i = e.getPos().getX();
             double j = e.getPos().getY();

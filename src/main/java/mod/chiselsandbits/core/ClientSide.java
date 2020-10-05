@@ -1207,7 +1207,7 @@ public class ClientSide
             else
             {
                 baked = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel(is);
-                previousModel = baked = baked.getOverrides().func_239290_a_(baked, is, (ClientWorld) player.getEntityWorld(), player);
+                previousModel = baked = baked.getOverrides().getOverrideModel(baked, is, (ClientWorld) player.getEntityWorld(), player);
 
                 if (refItem.getItem() instanceof IPatternItem)
                 {

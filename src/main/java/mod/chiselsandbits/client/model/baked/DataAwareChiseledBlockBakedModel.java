@@ -30,9 +30,9 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
     private final ModelProperty<ChiseledBlockBaked> MODEL_PROP = new ModelProperty<>();
 
     @Override
-    public boolean func_230044_c_()
+    public boolean isSideLit()
     {
-        return false;
+        return true;
     }
 
     @Override

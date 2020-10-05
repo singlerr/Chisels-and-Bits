@@ -199,7 +199,7 @@ public class ModelUtil implements ICacheClearable
 		final ItemStack is = ModUtil.getItemStackFromBlockState( state );
 		if ( !ModUtil.isEmpty( is ) )
 		{
-			final IBakedModel secondModel = getOverrides( model ).func_239290_a_( model, is, Minecraft.getInstance().world, Minecraft.getInstance().player );
+			final IBakedModel secondModel = getOverrides( model ).getOverrideModel( model, is, Minecraft.getInstance().world, Minecraft.getInstance().player );
 
 			if ( secondModel != null )
 			{

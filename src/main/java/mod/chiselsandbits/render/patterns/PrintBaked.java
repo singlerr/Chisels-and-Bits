@@ -26,7 +26,7 @@ public class PrintBaked extends BaseBakedItemModel
 		final ItemStack blockItem = item.getPatternedItem( stack, false );
 		IBakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getItemModel( blockItem );
 
-		model = model.getOverrides().func_239290_a_( model, blockItem, null, null );
+		model = model.getOverrides().getOverrideModel( model, blockItem, null, null );
 
 		for ( final Direction face : Direction.values() )
 		{
@@ -37,7 +37,7 @@ public class PrintBaked extends BaseBakedItemModel
 	}
 
     @Override
-    public boolean func_230044_c_()
+    public boolean isSideLit()
     {
         return false;
     }

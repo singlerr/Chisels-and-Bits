@@ -269,7 +269,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
     }
 
     @Override
-    public boolean func_230044_c_()
+    public boolean isSideLit()
     {
         return true;
     }

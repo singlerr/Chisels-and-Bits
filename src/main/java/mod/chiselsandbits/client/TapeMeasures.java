@@ -198,7 +198,7 @@ public class TapeMeasures
 			final StringTextComponent chatMsg = new StringTextComponent( out );
 
 			// NOT 100% Accurate, if anyone wants to try and resolve this, yay
-			chatMsg.setStyle( Style.EMPTY.setColor(Color.func_240743_a_(newMeasure.color.getTextColor())) );
+			chatMsg.setStyle( Style.EMPTY.setColor(Color.fromInt(newMeasure.color.getTextColor())) );
 
 			player.sendMessage( chatMsg, Util.DUMMY_UUID );
 		}

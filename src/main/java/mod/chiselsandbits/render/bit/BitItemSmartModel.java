@@ -90,7 +90,7 @@ public class BitItemSmartModel extends BaseSmartModel implements ICacheClearable
 	}
 
     @Override
-    public boolean func_230044_c_()
+    public boolean isSideLit()
     {
         return true;
     }

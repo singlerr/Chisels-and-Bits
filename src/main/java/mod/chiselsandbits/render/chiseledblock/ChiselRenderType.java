@@ -15,7 +15,7 @@ public enum ChiselRenderType
 	CUTOUT( RenderType.getCutout(), null ),
 	CUTOUT_MIPPED( RenderType.getCutoutMipped(), null ),
 	TRANSLUCENT( RenderType.getTranslucent(), null ),
-	TRIPWIRE (RenderType.func_241715_r_(), null);
+	TRIPWIRE (RenderType.getTripwire(), null);
 
     public final RenderType layer;
 	public final VoxelType type;

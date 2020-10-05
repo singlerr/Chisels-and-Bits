@@ -1,6 +1,7 @@
 package mod.chiselsandbits.render;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -25,6 +26,8 @@ public class ModelCombined extends BaseBakedBlockModel
 	List<BakedQuad>[] face;
 	List<BakedQuad>   generic;
 
+	boolean isSideLit;
+
 	@SuppressWarnings( "unchecked" )
 	public ModelCombined(
 			final IBakedModel... args )
@@ -47,6 +50,8 @@ public class ModelCombined extends BaseBakedBlockModel
 				face[f.ordinal()].addAll( m.getQuads( null, f, COMBINED_RANDOM_MODEL ) );
 			}
 		}
+
+		isSideLit = Arrays.stream(args).anyMatch(IBakedModel::isSideLit);
 	}
 
 	@Override
@@ -85,8 +90,8 @@ public class ModelCombined extends BaseBakedBlockModel
     }
 
     @Override
-    public boolean func_230044_c_()
+    public boolean isSideLit()
     {
-        return false;
+        return isSideLit;
     }
 }

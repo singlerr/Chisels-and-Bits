@@ -20,7 +20,9 @@ import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.LanguageMap;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraftforge.fml.client.gui.GuiUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -74,13 +76,13 @@ public class BagGui extends ContainerScreen<BagContainer>
 
                 final List<ITextComponent> text = Arrays
                                                     .asList( new ITextComponent[] { new StringTextComponent(requireConfirm ? msgNotConfirm : msgConfirm) } );
-                renderToolTip(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, Minecraft.getInstance().fontRenderer );
+                GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().fontRenderer );
             }
             else
             {
                 final List<ITextComponent> text = Arrays
                                                     .asList( new ITextComponent[] { new StringTextComponent(LocalStrings.TrashInvalidItem.getLocal( getInHandItem().getDisplayName().getString() )) } );
-                renderToolTip(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_ , Minecraft.getInstance().fontRenderer );
+                GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().fontRenderer );
             }
         }));
 
@@ -95,7 +97,7 @@ public class BagGui extends ContainerScreen<BagContainer>
           (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
               final List<ITextComponent> text = Arrays
                                           .asList( new ITextComponent[] { new StringTextComponent(LocalStrings.Sort.getLocal()) } );
-              renderToolTip(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, Minecraft.getInstance().fontRenderer );
+              GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().fontRenderer );
           }));
     }
 
@@ -214,7 +216,7 @@ public class BagGui extends ContainerScreen<BagContainer>
     @Override
     protected void drawGuiContainerForegroundLayer(final MatrixStack matrixStack, final int x, final int y)
     {
-        font.func_238407_a_(matrixStack, ModItems.ITEM_BIT_BAG_DEFAULT.get().getDisplayName( ModUtil.getEmptyStack() ), 8, 6, 0x404040 );
+        font.func_238407_a_(matrixStack, LanguageMap.getInstance().func_241870_a(ModItems.ITEM_BIT_BAG_DEFAULT.get().getDisplayName( ModUtil.getEmptyStack() )), 8, 6, 0x404040 );
         font.drawString(matrixStack, I18n.format( "container.inventory" ), 8, ySize - 93, 0x404040 );
     }
 

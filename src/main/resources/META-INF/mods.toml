@@ -1,5 +1,6 @@
 modLoader="javafml"
 loaderVersion="[28,)"
+license="GLGPLv3"
 [[mods]] #mandatory
 modId="chiselsandbits"
 version="${file.jarVersion}"

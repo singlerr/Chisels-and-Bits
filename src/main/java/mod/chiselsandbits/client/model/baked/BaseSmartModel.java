@@ -37,7 +37,7 @@ public abstract class BaseSmartModel implements IBakedModel
 
         @Nullable
         @Override
-        public IBakedModel func_239290_a_(
+        public IBakedModel getOverrideModel(
           final IBakedModel p_239290_1_, final ItemStack p_239290_2_, @Nullable final ClientWorld p_239290_3_, @Nullable final LivingEntity p_239290_4_)
         {
             return parent.func_239290_a_( p_239290_1_, p_239290_2_, p_239290_3_, p_239290_4_ );
