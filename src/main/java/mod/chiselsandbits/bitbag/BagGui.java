@@ -15,6 +15,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
@@ -41,9 +42,11 @@ public class BagGui extends ContainerScreen<BagContainer>
 
 	public BagGui(
 			final BagContainer container,
-            final PlayerInventory playerInventory)
+            final PlayerInventory playerInventory,
+            final ITextComponent title
+    )
 	{
-		super(container, playerInventory, new StringTextComponent("BitBag"));
+		super(container, playerInventory, title);
 		ySize = 239;
 	}
 

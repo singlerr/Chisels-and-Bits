@@ -17,12 +17,15 @@ import mod.chiselsandbits.utils.SingleBlockBlockReader;
 import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.*;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.loot.LootContext;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockReader;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -179,6 +182,14 @@ public class BlockBitInfo
 	public static SupportsAnalysisResult doSupportAnalysis(
 			final BlockState state )
 	{
+	    if (state.getBlock() instanceof BlockChiseled) {
+	        return new SupportsAnalysisResult(
+	          true,
+              LocalStrings.ChiselSupportGenericNotSupported,
+              LocalStrings.ChiselSupportIsAlreadyChiseled
+            );
+        }
+
 		if ( forcedBlocks.containsKey( state.getBlock() ) )
 		{
 			final boolean forcing = forcedBlocks.get( state.getBlock() );
@@ -488,4 +499,36 @@ public class BlockBitInfo
 		return state.getBlock() instanceof BlockChiseled || isSupported( state );
 	}
 
+    public static boolean canChisel(
+      final ItemStack stack )
+    {
+        if (stack.isEmpty())
+            return false;
+
+        if (stack.getItem() instanceof ItemBlockChiseled)
+            return true;
+
+        if (stack.getItem() instanceof BlockItem) {
+            final BlockItem blockItem = (BlockItem) stack.getItem();
+            final Block block = blockItem.getBlock();
+            final BlockState blockState = block.getDefaultState();
+            final BlockBitInfo.SupportsAnalysisResult result = BlockBitInfo.doSupportAnalysis(blockState);
+
+            return result.supported;
+        }
+
+        return false;
+    }
+
+    public static boolean isChiseled(
+      final ItemStack stack )
+    {
+        if (stack.isEmpty())
+            return false;
+
+        if (stack.getItem() instanceof ItemBlockChiseled)
+            return true;
+
+        return false;
+    }
 }

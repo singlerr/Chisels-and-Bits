@@ -3,6 +3,7 @@ package mod.chiselsandbits.registry;
 import mod.chiselsandbits.bittank.TileEntityBitTank;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.station.ChiselStationTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.fml.RegistryObject;
@@ -29,6 +30,12 @@ public final class ModTileEntityTypes
     public static RegistryObject<TileEntityType<TileEntityBitTank>> BIT_TANK = REGISTRAR.register("bit_tank", () -> TileEntityType.Builder.create(
       TileEntityBitTank::new,
       ModBlocks.BIT_TANK_BLOCK.get()
+      ).build(null)
+    );
+
+    public static RegistryObject<TileEntityType<ChiselStationTileEntity>> CHISEL_STATION = REGISTRAR.register("chisel_station", () -> TileEntityType.Builder.create(
+      ChiselStationTileEntity::new,
+      ModBlocks.CHISEL_STATION_BLOCK.get()
       ).build(null)
     );
 

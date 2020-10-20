@@ -57,6 +57,8 @@ public class JustEnoughItems implements IModPlugin
         addDescription(registration, LocalStrings.LongHelpWrench, ITEM_WRENCH.get());
         addDescription(registration, LocalStrings.LongHelpBitTank, ModBlocks.BIT_TANK_BLOCK_ITEM.get());
         addDescription(registration, LocalStrings.LongHelpMagnifyingGlass, ITEM_MAGNIFYING_GLASS.get());
+
+        //addDescription(registration, LocalStrings.LongChiselStationHelp, ModBlocks.CHISEL_STATION_ITEM.get());
     }
 
     private void addDescription(

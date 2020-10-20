@@ -18,8 +18,12 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.fluid.FlowingFluid;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Direction.AxisDirection;
@@ -31,6 +35,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistry;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -49,7 +54,7 @@ public final class VoxelBlob implements IVoxelSrc
     private static final Map<Object, BitSet> layerFilters = new HashMap<>();
     static
     {
-        fluidFilterState = new BitSet(256);
+        fluidFilterState = new BitSet(4096);
         clearCache();
     }
     public static synchronized void clearCache()
@@ -60,12 +65,13 @@ public final class VoxelBlob implements IVoxelSrc
 
         for (final Block block : blockReg)
         {
-            final int blockId = blockReg.getID(block);
-
-            if (BlockBitInfo.getFluidFromBlock(block) != null)
-            {
-                fluidFilterState.set(blockId);
-            }
+            block.getStateContainer().getValidStates().forEach(blockState -> {
+                final int stateId = ModUtil.getStateId(blockState);
+                if (BlockBitInfo.getTypeFromStateID(stateId) == VoxelType.FLUID)
+                {
+                    fluidFilterState.set(stateId);
+                }
+            });
         }
 
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
@@ -89,6 +95,10 @@ public final class VoxelBlob implements IVoxelSrc
         final ForgeRegistry<Block> blockReg = (ForgeRegistry<Block>) ForgeRegistries.BLOCKS;
         for (final Block block : blockReg)
         {
+            if (block instanceof FlowingFluidBlock) {
+                continue;
+            }
+
             for (final BlockState state : block.getStateContainer().getValidStates())
             {
                 final int id = ModUtil.getStateId(state);
@@ -100,7 +110,23 @@ public final class VoxelBlob implements IVoxelSrc
 
                 for (final RenderType layer : RenderType.getBlockRenderTypes())
                 {
-                    if (RenderTypeLookup.getChunkRenderType(state) == layer)
+                    if (RenderTypeLookup.canRenderInLayer(state, layer))
+                    {
+                        layerFilters.get(layer).set(id);
+                    }
+                }
+            }
+        }
+
+        for (final Fluid fluid : ForgeRegistries.FLUIDS)
+        {
+            for (final FluidState state : fluid.getStateContainer().getValidStates())
+            {
+                final int id = ModUtil.getStateId(state.getBlockState());
+
+                for (final RenderType layer : RenderType.getBlockRenderTypes())
+                {
+                    if (RenderTypeLookup.canRenderInLayer(state, layer))
                     {
                         layerFilters.get(layer).set(id);
                     }
@@ -346,6 +372,18 @@ public final class VoxelBlob implements IVoxelSrc
         {
             values[x] = src.values[x];
             noneAir[x] = src.noneAir[x];
+        }
+    }
+
+    public void fillNoneAir(
+      final int value)
+    {
+        for (int x = 0; x < array_size; x++)
+        {
+            if (values[x] != 0) {
+                values[x] = value;
+                noneAir[x] = value > 0;
+            }
         }
     }
 
@@ -833,7 +871,7 @@ public final class VoxelBlob implements IVoxelSrc
                 continue;
             }
 
-            if (fluidFilterState.get(ref & 0xffff) != wantsFluids)
+            if (fluidFilterState.get(ref) != wantsFluids)
             {
                 values[x] = 0;
                 noneAir[x] = false;

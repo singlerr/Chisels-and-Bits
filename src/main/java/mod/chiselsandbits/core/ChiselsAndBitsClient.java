@@ -9,6 +9,7 @@ import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.registry.ModContainerTypes;
+import mod.chiselsandbits.station.ChiselStationScreen;
 import mod.chiselsandbits.utils.Constants;
 import mod.chiselsandbits.utils.TextureUtils;
 import net.minecraft.client.Minecraft;
@@ -49,13 +50,11 @@ public class ChiselsAndBitsClient
         DeferredWorkQueue.runLater(() -> {
             ScreenManager.registerFactory(
               ModContainerTypes.BAG_CONTAINER.get(),
-              new ScreenManager.IScreenFactory<BagContainer, BagGui>() {
-                  @Override
-                  public BagGui create(final BagContainer p_create_1_, final PlayerInventory p_create_2_, final ITextComponent p_create_3_)
-                  {
-                      return new BagGui(p_create_1_, p_create_2_);
-                  }
-              }
+              BagGui::new
+            );
+            ScreenManager.registerFactory(
+              ModContainerTypes.CHISEL_STATION_CONTAINER.get(),
+              ChiselStationScreen::new
             );
         });
     }

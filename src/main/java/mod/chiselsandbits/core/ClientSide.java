@@ -28,8 +28,11 @@ import mod.chiselsandbits.network.packets.PacketRotateVoxelBlob;
 import mod.chiselsandbits.network.packets.PacketSetColor;
 import mod.chiselsandbits.network.packets.PacketSuppressInteraction;
 import mod.chiselsandbits.registry.ModBlocks;
+import mod.chiselsandbits.registry.ModContainerTypes;
 import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.registry.ModTileEntityTypes;
+import mod.chiselsandbits.station.ChiselStationContainer;
+import mod.chiselsandbits.station.ChiselStationScreen;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MainWindow;
@@ -37,6 +40,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.SimpleSound;
 import net.minecraft.client.gui.IngameGui;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.particle.DiggingParticle;
 import net.minecraft.client.particle.ParticleManager;
@@ -50,6 +54,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.DyeColor;
@@ -62,6 +67,7 @@ import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.api.distmarker.Dist;
@@ -78,6 +84,7 @@ import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -85,6 +92,7 @@ import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -1023,7 +1031,7 @@ public class ClientSide
                 return;
             }
 
-            if (item != null)
+            if (item != null && !item.isEmpty())
             {
                 final TileEntityBlockChiseled tebc = ModUtil.getChiseledTileEntity(theWorld, pos, false);
                 Object cacheRef = tebc != null ? tebc : s;

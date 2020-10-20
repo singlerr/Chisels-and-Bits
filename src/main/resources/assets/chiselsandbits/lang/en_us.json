@@ -58,6 +58,7 @@
   "mod.chiselsandbits.bitoption.place": "Place",
   "mod.chiselsandbits.bitoption.replace": "Replace",
 
+  "mod.chiselsandbits.chisel.support.already-chiseled":"Chiseling: Already Chiseled!",
   "mod.chiselsandbits.chisel.support.not.supported.generic":"Chiseling: Not supported - Unknown",
   "mod.chiselsandbits.chisel.support.supported.code":"Chiseling: Supported - Via code",
   "mod.chiselsandbits.chisel.support.supported.generic":"Chiseling: Supported",
@@ -293,6 +294,10 @@
   "mod.chiselsandbits.config.requireBagSpace.tooltip": "Requires there to be an empty slot in a bag or in the player's inventory before allowing them to use the chisel.",
   "mod.chiselsandbits.config.voidExcessBits": "Void Excess Bits",
   "mod.chiselsandbits.config.voidExcessBits.tooltip": "Voids any bits that couldn't be fit into a bag or your inventory. Improves server performance. The undo action could have issues as some bits are voided.",
+
+  "mod.chiselsandbits.chisel.station.name": "Chisel Station",
+  "mod.chiselsandbits.chisel.station.help": "Allows mass production of a single material chiseled pattern.",
+  "mod.chiselsandbits.chisel.station.help.long": "Allows you to mass produce a single pattern multiple times. However only allows a single material to be used, replacing any exiting material in the pattern.",
 
   "mod.chiselsandbits.advancements.root.title": "Chisels & Bits!",
   "mod.chiselsandbits.advancements.root.description": "Get yourself a chisel and start diving into the world of bits.",

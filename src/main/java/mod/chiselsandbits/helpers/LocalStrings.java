@@ -1,5 +1,6 @@
 package mod.chiselsandbits.helpers;
 
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
 public enum LocalStrings
@@ -89,7 +90,7 @@ public enum LocalStrings
     HelpMagnifyingGlass( "help.magnifying_glass" ),
     LongHelpMagnifyingGlass( "help.magnifying_glass.long" ),
 
-
+    ChiselSupportIsAlreadyChiseled("chisel.support.already-chiseled"),
     ChiselSupportGenericNotSupported("chisel.support.not.supported.generic"),
     ChiselSupportLogicIgnored("chisel.support.supported.code"),
     ChiselSupportGenericSupported("chisel.support.supported.generic"),
@@ -105,7 +106,11 @@ public enum LocalStrings
     ChiselSupportForcedUnsupported("chisel.support.not.supported.forced"),
     ChiselSupportForcedSupported("chisel.support.supported.forced"),
     ChiselSupportTagBlackListed("chisel.support.not.supported.tag"),
-    ChiselSupportTagWhitelisted("chisel.support.supported.tag");
+    ChiselSupportTagWhitelisted("chisel.support.supported.tag"),
+
+	ChiselStationName("chisel.station.name"),
+    ChiselStationHelp("chisel.station.help"),
+    LongChiselStationHelp("chisel.station.help.long");
 
 	private final String string;
 
@@ -132,4 +137,13 @@ public enum LocalStrings
 		return DeprecationHelper.translateToLocal( string, args );
 	}
 
+	public ITextComponent getLocalText() {
+	    return new StringTextComponent(getLocal());
+    }
+
+    public ITextComponent getLocalText(
+      final Object... args
+    ) {
+	    return new StringTextComponent(getLocal(args));
+	}
 }

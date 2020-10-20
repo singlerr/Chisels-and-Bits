@@ -7,6 +7,7 @@ import java.util.Objects;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.core.ClientSide;
+import mod.chiselsandbits.events.ClientTickHandler;
 import mod.chiselsandbits.events.TickHandler;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -42,7 +43,9 @@ public class BitItemSmartModel extends BaseSmartModel implements ICacheClearable
             if (alternativeStacks.isEmpty())
                 ModItems.ITEM_BLOCK_BIT.get().fillItemGroup(Objects.requireNonNull(ModItems.ITEM_BLOCK_BIT.get().getGroup()), alternativeStacks);
 
-            stateID = ItemChiseledBit.getStackState( alternativeStacks.get  ((int) (TickHandler.getClientTicks() % ((alternativeStacks.size() * 20L)) / 20L) + 1));
+            final int alternativeIndex = (int)((Math.floor(TickHandler.getClientTicks() / 20d)) % alternativeStacks.size());
+
+            stateID = ItemChiseledBit.getStackState( alternativeStacks.get(alternativeIndex));
         }
 
 		final HashMap<Integer, IBakedModel> target = large ? largeModelCache : modelCache;
