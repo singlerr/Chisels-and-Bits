@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import mod.chiselsandbits.utils.FluidCuboidHelper;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.fluid.Fluid;
@@ -31,20 +32,23 @@ public class TileEntitySpecialRenderBitTank extends TileEntityRenderer<TileEntit
         final FluidStack fluidStack = te.getBitsAsFluidStack();
         if (fluidStack != null)
         {
-            final RenderType renderType = RenderType.getTranslucent();
+            RenderType.getBlockRenderTypes().forEach(renderType -> {
+                if (!RenderTypeLookup.canRenderInLayer(fluidStack.getFluid().getDefaultState(), renderType))
+                    return;
 
-            final IVertexBuilder builder = buffer.getBuffer(renderType);
+                final IVertexBuilder builder = buffer.getBuffer(renderType);
 
-            final float fullness = (float) fluidStack.getAmount() / (float) TileEntityBitTank.MAX_CONTENTS;
+                final float fullness = (float) fluidStack.getAmount() / (float) TileEntityBitTank.MAX_CONTENTS;
 
-            FluidCuboidHelper.renderScaledFluidCuboid(
-              fluidStack,
-              matrixStackIn,
-              builder,
-              combinedLightIn,
-              2, 2, 2,
-              14, 14 * fullness, 14
-            );
+                FluidCuboidHelper.renderScaledFluidCuboid(
+                  fluidStack,
+                  matrixStackIn,
+                  builder,
+                  combinedLightIn,
+                  3, 3, 3,
+                  13, 13 * fullness, 13
+                );
+            });
         }
     }
 }

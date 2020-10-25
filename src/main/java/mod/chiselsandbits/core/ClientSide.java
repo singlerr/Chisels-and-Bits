@@ -44,6 +44,7 @@ import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.particle.DiggingParticle;
 import net.minecraft.client.particle.ParticleManager;
+import net.minecraft.client.renderer.Atlases;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.WorldRenderer;
@@ -156,7 +157,7 @@ public class ClientSide
         readyState = readyState.updateState(ReadyState.TRIGGER_INIT);
 
         ClientRegistry.bindTileEntityRenderer(ModTileEntityTypes.BIT_TANK.get(), TileEntitySpecialRenderBitTank::new);
-        RenderTypeLookup.setRenderLayer(ModBlocks.BIT_TANK_BLOCK.get(), RenderType.getTranslucent());
+        RenderTypeLookup.setRenderLayer(ModBlocks.BIT_TANK_BLOCK.get(), RenderType.getCutoutMipped());
 
         ModBlocks.getMaterialToBlockConversions().values()
             .stream().map(RegistryObject::get)

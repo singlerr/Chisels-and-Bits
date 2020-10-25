@@ -4,7 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import mod.chiselsandbits.registry.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
@@ -31,7 +31,7 @@ public class ItemStackSpecialRendererBitTank extends ItemStackTileEntityRenderer
 
         final IBakedModel model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(ModBlocks.BIT_TANK_BLOCK.getId(), "facing=east"));
 
-        Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelRenderer().renderModel(matrixStack.getLast(), buffer.getBuffer(RenderTypeLookup.func_239220_a_(ModBlocks.BIT_TANK_BLOCK.get().getDefaultState(), false)), ModBlocks.BIT_TANK_BLOCK.get().getDefaultState(), model, 1f,1f,1f, combinedLight, combinedOverlay,
+        Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelRenderer().renderModel(matrixStack.getLast(), buffer.getBuffer(RenderType.getTranslucent()), ModBlocks.BIT_TANK_BLOCK.get().getDefaultState(), model, 1f,1f,1f, combinedLight, combinedOverlay,
           EmptyModelData.INSTANCE);
 
         final TileEntityBitTank tileEntity = new TileEntityBitTank();

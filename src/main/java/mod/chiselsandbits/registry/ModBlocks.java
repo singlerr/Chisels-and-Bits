@@ -56,8 +56,8 @@ public final class ModBlocks
                                                                                                                                     .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false)));
 
     public static final RegistryObject<BlockItem> BIT_TANK_BLOCK_ITEM = ITEM_REGISTRAR.register("bit_tank", () -> new ItemBlockBitTank(BIT_TANK_BLOCK.get(), new Item.Properties()
-                                                                                                                                                               .group(CHISELS_AND_BITS)));
-                                                                                                                                                               //.setISTER(() -> ItemStackSpecialRendererBitTank::new));
+                                                                                                                                                               .group(CHISELS_AND_BITS)
+                                                                                                                                                               .setISTER(() -> ItemStackSpecialRendererBitTank::new)));
     public static final RegistryObject<ChiselStationBlock> CHISEL_STATION_BLOCK = BLOCK_REGISTRAR.register("chisel_station", () -> new ChiselStationBlock(AbstractBlock.Properties.create(Material.ROCK)
       .hardnessAndResistance(1.5f, 6f)
       .harvestLevel(1)

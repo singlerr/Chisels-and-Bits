@@ -18,6 +18,9 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,6 +32,8 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class BlockBitTank extends Block implements ITileEntityProvider
 {
@@ -135,7 +140,9 @@ public class BlockBitTank extends Block implements ITileEntityProvider
     public List<ItemStack> getDrops(final BlockState state, final LootContext.Builder builder)
     {
         if (builder.get(LootParameters.BLOCK_ENTITY) == null)
+        {
             return Lists.newArrayList();
+        }
 
         return Lists.newArrayList(getTankDrop((TileEntityBitTank) builder.get(LootParameters.BLOCK_ENTITY)));
     }
