@@ -1,17 +1,13 @@
 package mod.chiselsandbits.chiseledblock.data;
 
-import com.google.common.collect.Lists;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import mod.chiselsandbits.api.BoxType;
-import mod.chiselsandbits.config.CommonConfiguration;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import org.apache.commons.lang3.tuple.Pair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Objects;
 
 public final class VoxelShapeCache
 {
@@ -40,14 +36,14 @@ public final class VoxelShapeCache
         VoxelShape shape = cache.get(key);
         evictFromCacheIfNeeded();
         if (shape == null)
-            shape = calculateNewVoxelShape(blob, keyList);
+            shape = calculateNewVoxelShape(blob, type);
 
         cache.put(key, shape);
         return shape;
     }
 
-    private VoxelShape calculateNewVoxelShape(final VoxelBlob data, final List<Boolean> noneAirList) {
-        return VoxelShapeCalculator.calculate(data, noneAirList).simplify();
+    private VoxelShape calculateNewVoxelShape(final VoxelBlob data, final BoxType type) {
+        return VoxelShapeCalculator.calculate(data, type).simplify();
     }
 
     private void evictFromCacheIfNeeded() {

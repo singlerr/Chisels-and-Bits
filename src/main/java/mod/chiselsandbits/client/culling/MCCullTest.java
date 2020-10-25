@@ -2,10 +2,7 @@ package mod.chiselsandbits.client.culling;
 
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.helpers.ModUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.GlassBlock;
-import net.minecraft.block.StainedGlassBlock;
+import net.minecraft.block.*;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.tags.BlockTags;
@@ -53,14 +50,14 @@ public class MCCullTest implements ICullTest, IBlockReader
 			return false;
 		}
 
-		if ( a.getBlock() instanceof IFluidBlock)
+		if ( a.getBlock() instanceof IFluidBlock || a.getBlock() instanceof FlowingFluidBlock)
 		{
 			return true;
 		}
 
 		try
 		{
-			return !a.isSideInvisible( a, Direction.NORTH );
+			return !a.isSideInvisible( b, Direction.NORTH );
 		}
 		catch ( final Throwable t )
 		{

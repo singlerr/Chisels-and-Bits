@@ -1,33 +1,32 @@
 package mod.chiselsandbits.client.model.baked;
 
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.NullBakedModel;
 import mod.chiselsandbits.render.chiseledblock.ChiselRenderType;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.RenderTypeLookup;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockDisplayReader;
 import net.minecraft.world.World;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.ForgeRenderTypes;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Random;
 
 public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
 {
-    private final ModelProperty<ChiseledBlockBaked> MODEL_PROP = new ModelProperty<>();
+    private final ModelProperty<IBakedModel> MODEL_PROP = new ModelProperty<>();
 
     @Override
     public boolean isSideLit()
@@ -47,29 +46,98 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
     @NotNull
     @Override
     public IModelData getModelData(
-      @NotNull final IBlockDisplayReader world, @NotNull final BlockPos pos, @NotNull final BlockState state, @NotNull final IModelData tileData)
+      @NotNull final IBlockDisplayReader world, @NotNull final BlockPos pos, @NotNull final BlockState state, @NotNull final IModelData modelData)
     {
-        final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel(
+/*        final ChiseledBlockBaked model = ChiseledBlockSmartModel.getCachedModel(
           (TileEntityBlockChiseled) Objects.requireNonNull(world.getTileEntity(pos)),
           ChiselRenderType.fromLayer(
             MinecraftForgeClient.getRenderLayer(),
             false
           )
-        );
+        );*/
 
-        return new ModelDataMap.Builder().withInitial(MODEL_PROP, model).build();
+        if (state == null)
+        {
+            return new ModelDataMap.Builder().build();
+        }
+
+        // This seems silly, but it proves to be faster in practice.
+        VoxelBlobStateReference data = modelData.getData(TileEntityBlockChiseled.MP_VBSR);
+        Integer blockP = modelData.getData(TileEntityBlockChiseled.MP_PBSI);
+        blockP = blockP == null ? 0 : blockP;
+
+        final RenderType layer = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
+
+        if (layer == null)
+        {
+            final ChiseledBlockBaked[] models = new ChiseledBlockBaked[ChiselRenderType.values().length];
+            int o = 0;
+
+            for (final ChiselRenderType l : ChiselRenderType.values())
+            {
+                models[o++] = ChiseledBlockSmartModel.getCachedModel(
+                  (TileEntityBlockChiseled) Objects.requireNonNull(world.getTileEntity(pos)),
+                  l);
+            }
+
+            return new ModelDataMap.Builder().withInitial(MODEL_PROP, new ModelCombined(models)).build();
+        }
+
+        IBakedModel baked;
+        if (RenderType.getBlockRenderTypes().contains(layer) && ChiseledBlockSmartModel.FLUID_RENDER_TYPES.get(RenderType.getBlockRenderTypes().indexOf(layer)))
+        {
+            final ChiseledBlockBaked a = ChiseledBlockSmartModel.getCachedModel(
+              (TileEntityBlockChiseled) Objects.requireNonNull(world.getTileEntity(pos)),
+              ChiselRenderType.fromLayer(layer, false));
+            final ChiseledBlockBaked b = ChiseledBlockSmartModel.getCachedModel(
+              (TileEntityBlockChiseled) Objects.requireNonNull(world.getTileEntity(pos)),
+              ChiselRenderType.fromLayer(layer, true));
+
+            if (a.isEmpty())
+            {
+                baked = b;
+            }
+            else if (b.isEmpty())
+            {
+                baked = a;
+            }
+            else
+            {
+                baked = new ModelCombined(a, b);
+            }
+        }
+        else
+        {
+            baked = ChiseledBlockSmartModel.getCachedModel(
+              (TileEntityBlockChiseled) Objects.requireNonNull(world.getTileEntity(pos)),
+              ChiselRenderType.fromLayer(layer, false));
+        }
+
+        return new ModelDataMap.Builder().withInitial(MODEL_PROP, baked).build();
     }
 
     @Override
     public IBakedModel func_239290_a_(
       final IBakedModel originalModel, final ItemStack stack, final World world, final LivingEntity entity)
     {
-        return ChiseledBlockSmartModel.getCachedModel(
+        final ChiseledBlockBaked a = ChiseledBlockSmartModel.getCachedModel(
           stack,
-          ChiselRenderType.fromLayer(
-            MinecraftForgeClient.getRenderLayer(),
-            false
-          )
-        );
+          ChiselRenderType.fromLayer(MinecraftForgeClient.getRenderLayer(), false));
+        final ChiseledBlockBaked b = ChiseledBlockSmartModel.getCachedModel(
+          stack,
+          ChiselRenderType.fromLayer(MinecraftForgeClient.getRenderLayer(), true));
+
+        if (a.isEmpty())
+        {
+            return b;
+        }
+        else if (b.isEmpty())
+        {
+            return a;
+        }
+        else
+        {
+            return new ModelCombined(a, b);
+        }
     }
 }

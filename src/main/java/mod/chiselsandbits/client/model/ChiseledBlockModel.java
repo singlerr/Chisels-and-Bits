@@ -2,6 +2,7 @@ package mod.chiselsandbits.client.model;
 
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
+import mod.chiselsandbits.client.model.baked.DataAwareChiseledBlockBakedModel;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -24,7 +25,7 @@ public class ChiseledBlockModel implements IModelGeometry<ChiseledBlockModel>
       final ItemOverrideList overrides,
       final ResourceLocation modelLocation)
     {
-        return new ChiseledBlockSmartModel();
+        return new DataAwareChiseledBlockBakedModel();
     }
 
     @Override

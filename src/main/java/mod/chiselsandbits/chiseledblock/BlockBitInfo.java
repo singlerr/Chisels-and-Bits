@@ -28,6 +28,7 @@ import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockReader;
+import net.minecraftforge.common.extensions.IForgeBlock;
 import net.minecraftforge.registries.ForgeRegistries;
 
 public class BlockBitInfo
@@ -252,7 +253,7 @@ public class BlockBitInfo
 
 			// full cube specifically is tied to lighting... so for glass
 			// Compatibility use isFullBlock which can be true for glass.
-			boolean isFullBlock = state.isSolid();
+			boolean isFullBlock = state.isSolid() || blk instanceof AbstractGlassBlock;
 			final BlockBitInfo info = BlockBitInfo.createFromState( state );
 
 			final boolean tickingBehavior = blk.ticksRandomly(state) && ChiselsAndBits.getConfig().getServer().blackListRandomTickingBlocks.get();
@@ -404,8 +405,7 @@ public class BlockBitInfo
 	{
 		try
 		{
-			blkClass.getDeclaredMethod( methodName, args );
-			return blkClass;
+		    return blkClass.getMethod(methodName, args).getDeclaringClass();
 		}
 		catch ( final NoSuchMethodException e )
 		{
@@ -465,7 +465,7 @@ public class BlockBitInfo
 
 			reflectBlock.getExplosionResistance( null, null, null, null );
 			exploResistanceClz = getDeclaringClass( blkClass, reflectBlock.MethodName, BlockState.class, IBlockReader.class, BlockPos.class, Explosion.class );
-			final boolean test_d = exploResistanceClz == Block.class || exploResistanceClz == AbstractBlock.class || exploResistanceClz == null;
+			final boolean test_d = exploResistanceClz == Block.class || exploResistanceClz == AbstractBlock.class || exploResistanceClz == null || exploResistanceClz == IForgeBlock.class;
 
 			final boolean isFluid = fluidStates.containsKey( ModUtil.getStateId( state ) );
 

@@ -58,6 +58,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     public static final BlockPos ZERO = BlockPos.ZERO;
 
     private static ThreadLocal<BlockState> actingAs = new ThreadLocal<BlockState>();
+    public static ThreadLocal<BoxType> SHAPE_TYPE = new ThreadLocal<>();
 
 	public static final BooleanProperty                      LProperty_FullBlock          = BooleanProperty.create( "full_block" );
 
@@ -451,7 +452,39 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
             if (blob == null)
                 return VoxelShapes.empty();
 
+            return VoxelShapeCache.getInstance().get(blob, BoxType.OCCLUSION);
+        }
+        catch (ExceptionNoTileEntity exceptionNoTileEntity)
+        {
+            return VoxelShapes.empty();
+        }
+    }
+
+    @Deprecated
+    public VoxelShape getCollisionShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
+        try
+        {
+            final VoxelBlob blob = getTileEntity(worldIn, pos).getBlob();
+            if (blob == null)
+                return VoxelShapes.empty();
+
             return VoxelShapeCache.getInstance().get(blob, BoxType.COLLISION);
+        }
+        catch (ExceptionNoTileEntity exceptionNoTileEntity)
+        {
+            return VoxelShapes.empty();
+        }
+    }
+
+    @Deprecated
+    public VoxelShape getRayTraceShape(BlockState state, IBlockReader reader, BlockPos pos, ISelectionContext context) {
+        try
+        {
+            final VoxelBlob blob = getTileEntity(reader, pos).getBlob();
+            if (blob == null)
+                return VoxelShapes.empty();
+
+            return VoxelShapeCache.getInstance().get(blob, BoxType.OCCLUSION);
         }
         catch (ExceptionNoTileEntity exceptionNoTileEntity)
         {

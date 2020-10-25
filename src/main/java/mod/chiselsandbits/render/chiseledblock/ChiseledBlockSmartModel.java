@@ -7,13 +7,11 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateInstance;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.model.baked.BaseSmartModel;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.NullBakedModel;
 import mod.chiselsandbits.render.cache.CacheMap;
-import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
@@ -39,7 +37,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
     static final CacheMap<ItemStack, IBakedModel>                      itemToModel = new CacheMap<>();
     static final CacheMap<VoxelBlobStateInstance, Integer>             sideCache   = new CacheMap<>();
 
-    static final BitSet fluidRenderTypes = new BitSet(RenderType.getBlockRenderTypes().size());
+    public static final BitSet FLUID_RENDER_TYPES = new BitSet(RenderType.getBlockRenderTypes().size());
 
     @SuppressWarnings("unchecked")
     static private final Map<ModelRenderState, ChiseledBlockBaked>[] modelCache = new Map[ChiselRenderType.values().length];
@@ -184,7 +182,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
         }
 
         IBakedModel baked;
-        if (RenderType.getBlockRenderTypes().contains(layer) && fluidRenderTypes.get(RenderType.getBlockRenderTypes().indexOf(layer)))
+        if (RenderType.getBlockRenderTypes().contains(layer) && FLUID_RENDER_TYPES.get(RenderType.getBlockRenderTypes().indexOf(layer)))
         {
             final ChiseledBlockBaked a = getCachedModel(blockP, data, ChiselRenderType.fromLayer(layer, false), getModelFormat(), rand);
             final ChiseledBlockBaked b = getCachedModel(blockP, data, ChiselRenderType.fromLayer(layer, true), getModelFormat(), rand);
@@ -273,7 +271,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
         solidCache.clear();
         itemToModel.clear();
 
-        fluidRenderTypes.clear();
+        FLUID_RENDER_TYPES.clear();
         final List<RenderType> blockRenderTypes = RenderType.getBlockRenderTypes();
         for (int i = 0; i < blockRenderTypes.size(); i++)
         {
@@ -282,7 +280,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
             {
                 if (RenderTypeLookup.canRenderInLayer(fluid.getDefaultState(), renderType))
                 {
-                    fluidRenderTypes.set(i);
+                    FLUID_RENDER_TYPES.set(i);
                     break;
                 }
             }

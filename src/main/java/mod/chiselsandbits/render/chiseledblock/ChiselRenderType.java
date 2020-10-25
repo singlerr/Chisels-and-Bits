@@ -50,11 +50,11 @@ public enum ChiselRenderType
 	}
 
 	public static ChiselRenderType fromLayer(
-			final RenderType layerInfo,
+			RenderType layerInfo,
 			final boolean isFluid )
 	{
 	    if (layerInfo == null)
-	        return SOLID;
+	        layerInfo = RenderType.getSolid();
 
         if (ChiselRenderType.CUTOUT.layer.equals(layerInfo))
         {

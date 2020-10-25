@@ -18,9 +18,9 @@ public class VoxelShapeCalculator {
     /**
      * Calculates both the selection shape and the collision shape for a voxel blob.
      */
-    public static VoxelShape calculate(final VoxelBlob blob, final List<Boolean> noneAirList) {
+    public static VoxelShape calculate(final VoxelBlob blob, final BoxType type) {
         final VoxelBlobStateReference reference = new VoxelBlobStateReference(blob, 0L);
-        return calculateFromBB(reference.getBoxes(BoxType.COLLISION));
+        return calculateFromBB(reference.getBoxes(type));
     }
 
     private static VoxelShape calculateFromBB(final Collection<AxisAlignedBB> bbList) {
