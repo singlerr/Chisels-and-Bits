@@ -32,13 +32,11 @@ public class BagGui extends ContainerScreen<BagContainer>
 {
 
 	private static final ResourceLocation BAG_GUI_TEXTURE = new ResourceLocation( ChiselsAndBits.MODID, "textures/gui/container/bitbag.png" );
-	private static int INNER_SLOT_SIZE = 16;
 
-	private static GuiBagFontRenderer specialFontRenderer = null;
+    private static GuiBagFontRenderer specialFontRenderer = null;
 	private GuiIconButton trashBtn;
-	private GuiIconButton sortBtn;
 
-	private Slot hoveredBitSlot = null;
+    private Slot hoveredBitSlot = null;
 
 	public BagGui(
 			final BagContainer container,
@@ -89,7 +87,7 @@ public class BagGui extends ContainerScreen<BagContainer>
             }
         }));
 
-        sortBtn = addButton(new GuiIconButton(guiLeft - 18, guiTop + 18, ClientSide.sortIcon, new Button.IPressable()
+        final GuiIconButton sortBtn = addButton(new GuiIconButton(guiLeft - 18, guiTop + 18, ClientSide.sortIcon, new Button.IPressable()
         {
             @Override
             public void onPress(final Button p_onPress_1_)
@@ -99,8 +97,8 @@ public class BagGui extends ContainerScreen<BagContainer>
         },
           (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
               final List<ITextComponent> text = Arrays
-                                          .asList( new ITextComponent[] { new StringTextComponent(LocalStrings.Sort.getLocal()) } );
-              GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().fontRenderer );
+                                                  .asList(new ITextComponent[] {new StringTextComponent(LocalStrings.Sort.getLocal())});
+              GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().fontRenderer);
           }));
     }
 
@@ -121,6 +119,7 @@ public class BagGui extends ContainerScreen<BagContainer>
         super.render(stack, mouseX, mouseY, partialTicks );
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected void drawGuiContainerBackgroundLayer(
       final MatrixStack stack,
@@ -168,6 +167,7 @@ public class BagGui extends ContainerScreen<BagContainer>
 
                 RenderSystem.disableDepthTest();
                 RenderSystem.colorMask( true, true, true, false );
+                final int INNER_SLOT_SIZE = 16;
                 fillGradient(stack, xDisplayPos, yDisplayPos, xDisplayPos + INNER_SLOT_SIZE, yDisplayPos + INNER_SLOT_SIZE, -2130706433, -2130706433 );
                 RenderSystem.colorMask( true, true, true, true );
                 RenderSystem.enableDepthTest();

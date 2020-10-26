@@ -20,22 +20,19 @@ import net.minecraftforge.items.IItemHandler;
 public class ContinousBits implements IContinuousInventory
 {
 	final int stateID;
-	private final ActingPlayer who;
-	private final List<IItemInInventory> options = new ArrayList<IItemInInventory>();
+    private final List<IItemInInventory> options = new ArrayList<IItemInInventory>();
 	private final List<BagInventory> bags = new ArrayList<BagInventory>();
-	private final boolean canEdit;
 
-	public ContinousBits(
+    public ContinousBits(
 			final ActingPlayer src,
 			final BlockPos pos,
 			final int stateID )
 	{
-		who = src;
-		this.stateID = stateID;
+        this.stateID = stateID;
 		final IInventory inv = src.getInventory();
 
 		// test can edit...
-		canEdit = who.canPlayerManipulate( pos, Direction.UP, new ItemStack(ModItems.ITEM_CHISEL_DIAMOND.get(), 1 ), true );
+        final boolean canEdit = src.canPlayerManipulate(pos, Direction.UP, new ItemStack(ModItems.ITEM_CHISEL_DIAMOND.get(), 1), true);
 
 		ItemStackSlot handSlot = null;
 
@@ -52,11 +49,11 @@ public class ContinousBits implements IContinuousInventory
 					{
 						if ( zz == src.getCurrentItem() )
 						{
-							handSlot = new ItemStackSlot( inv, zz, which, src, canEdit );
+							handSlot = new ItemStackSlot( inv, zz, which, src, canEdit);
 						}
 						else
 						{
-							options.add( new ItemStackSlot( inv, zz, which, src, canEdit ) );
+							options.add( new ItemStackSlot( inv, zz, which, src, canEdit) );
 						}
 					}
 				}
@@ -75,7 +72,7 @@ public class ContinousBits implements IContinuousInventory
 						{
 							if ( ItemChiseledBit.getStackState( is ) == stateID )
 							{
-								options.add( new IItemHandlerSlot( internal, x, is, src, canEdit ) );
+								options.add( new IItemHandlerSlot( internal, x, is, src, canEdit) );
 							}
 						}
 					}

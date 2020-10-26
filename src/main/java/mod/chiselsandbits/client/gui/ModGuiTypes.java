@@ -14,16 +14,14 @@ public enum ModGuiTypes
 
 	BitBag( BagContainer.class );
 
-	private final Class<? extends Container> container;
-	private final Class<?>                   gui;
-
-	public final Constructor<?> container_construtor;
+    public final Constructor<?> container_construtor;
 	public final Constructor<?> gui_construtor;
 
 	private ModGuiTypes(
 			final Class<? extends Container> c )
 	{
-		try
+        Class<? extends Container> container;
+        try
 		{
 			container = c;
 			container_construtor = container.getConstructor( PlayerEntity.class, World.class, int.class, int.class, int.class );
@@ -53,7 +51,7 @@ public enum ModGuiTypes
 
 		}
 
-		gui = g;
+        final Class<?> gui = g;
 		gui_construtor = g_construtor;
 
 	}

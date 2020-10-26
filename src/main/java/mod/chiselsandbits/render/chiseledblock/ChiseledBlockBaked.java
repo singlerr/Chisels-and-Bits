@@ -112,7 +112,6 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
     }
 
     private ChiselRenderType   myLayer;
-    private VertexFormat       format;
     private TextureAtlasSprite sprite;
 
     // keep memory requirements low by using arrays.
@@ -172,7 +171,6 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
       final VertexFormat format)
     {
         myLayer = layer;
-        this.format = format;
         final BlockState state = ModUtil.getStateById(blockReference);
 
         IBakedModel originalModel = null;

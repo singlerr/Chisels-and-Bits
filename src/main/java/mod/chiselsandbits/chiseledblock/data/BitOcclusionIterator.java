@@ -8,10 +8,8 @@ public class BitOcclusionIterator extends BitCollisionIterator
 {
 
 	private final double epsilon = 0;
-	private final double epsilonGap = epsilon * 2.1;
-	private final double xFullMinusEpsilon = 1.0 - epsilon;
 
-	private float physicalStartX = 0.0f;
+    private float physicalStartX = 0.0f;
 	private boolean lastSetting = false;
 
 	final List<AxisAlignedBB> o;
@@ -55,7 +53,8 @@ public class BitOcclusionIterator extends BitCollisionIterator
 	private void addBox(
 			final double addition )
 	{
-		final AxisAlignedBB newBox = new AxisAlignedBB(
+        final double xFullMinusEpsilon = 1.0 - epsilon;
+        final AxisAlignedBB newBox = new AxisAlignedBB(
 				physicalStartX < epsilon ? physicalStartX : physicalStartX + epsilon,
 				y == 0 ? physicalY : physicalY + epsilon,
 				z == 0 ? physicalZ : physicalZ + epsilon,
@@ -101,7 +100,8 @@ public class BitOcclusionIterator extends BitCollisionIterator
 		final boolean sameX = newBox.minX == lastBox.minX && newBox.maxX == lastBox.maxX;
 		final boolean sameY = newBox.minY == lastBox.minY && newBox.maxY == lastBox.maxY;
 		final double touchingZ = newBox.minZ - lastBox.maxZ;
-		return sameX && sameY && touchingZ < epsilonGap;
+        final double epsilonGap = epsilon * 2.1;
+        return sameX && sameY && touchingZ < epsilonGap;
 	}
 
 	private boolean isBelow(

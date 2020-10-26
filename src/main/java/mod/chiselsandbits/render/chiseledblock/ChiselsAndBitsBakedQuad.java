@@ -109,9 +109,8 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		private float[][][] unpackedData;
 		private int tint = -1;
 		private Direction orientation;
-		private final boolean isColored = false;
 
-		private int vertices = 0;
+        private int vertices = 0;
 		private int elements = 0;
 
 		private final VertexFormat format;
@@ -188,7 +187,8 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 		public BakedQuad create(
 				final TextureAtlasSprite sprite )
 		{
-			if ( isColored )
+            final boolean isColored = false;
+            if (isColored)
 			{
 				return new Colored( unpackedData, tint, orientation, sprite);
 			}
