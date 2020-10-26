@@ -397,7 +397,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
                 final BlockState state = getWorld().getBlockState(pos);
                 if (state.isNormalCube(new SingleBlockBlockReader(state), BlockPos.ZERO) != isNormalCube && state.getBlock() instanceof BlockChiseled)
                 {
-                    getWorld().setBlockState(pos, state.with(BlockChiseled.LProperty_FullBlock, isNormalCube));
+                    getWorld().setBlockState(pos, state.with(BlockChiseled.FULL_BLOCK, isNormalCube));
                 }
             }
 
@@ -494,7 +494,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
             final BlockState state = world.getBlockState(pos);
             if (state.isNormalCube(new SingleBlockBlockReader(state), BlockPos.ZERO) != isNormalCube && state.getBlock() instanceof BlockChiseled)
             {
-                world.setBlockState(pos, state.with(BlockChiseled.LProperty_FullBlock, isNormalCube));
+                world.setBlockState(pos, state.with(BlockChiseled.FULL_BLOCK, isNormalCube));
             }
         }
     }

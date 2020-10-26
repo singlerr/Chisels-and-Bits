@@ -22,7 +22,6 @@ import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.utils.SingleBlockBlockReader;
 import mod.chiselsandbits.utils.SingleBlockWorldReader;
 import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -37,14 +36,12 @@ import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.Direction.Axis;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -54,64 +51,19 @@ import org.jetbrains.annotations.Nullable;
 public class BlockChiseled extends Block implements ITileEntityProvider, IMultiStateBlock
 {
 
-    private static final AxisAlignedBB BAD_AABB = new AxisAlignedBB( 0, Double.MIN_NORMAL, 0, 0, Double.MIN_NORMAL, 0 );
     public static final BlockPos ZERO = BlockPos.ZERO;
 
     private static ThreadLocal<BlockState> actingAs = new ThreadLocal<BlockState>();
-    public static ThreadLocal<BoxType> SHAPE_TYPE = new ThreadLocal<>();
 
-	public static final BooleanProperty                      LProperty_FullBlock          = BooleanProperty.create( "full_block" );
+	public static final BooleanProperty FULL_BLOCK = BooleanProperty.create( "full_block" );
 
     public final String name;
 
     public BlockChiseled(final String name, final AbstractBlock.Properties properties) {
         super(properties);
         this.name = name;
+        this.setDefaultState(this.stateContainer.getBaseState().with(FULL_BLOCK, false));
     }
-
-/*
-//TODO: Figure out how to handle this since materials are static objects nopw.
-
-    @Override
-	public Boolean isAABBInsideMaterial(
-			final World world,
-			final BlockPos pos,
-			final AxisAlignedBB bb,
-			final Material materialIn )
-	{
-		try
-		{
-			return sharedIsAABBInsideMaterial( getTileEntity( world, pos ), bb, materialIn );
-		}
-		catch ( final ExceptionNoTileEntity e )
-		{
-			Log.noTileError( e );
-			return null;
-		}
-	}
-
-
-
-	@Override
-	public Boolean isEntityInsideMaterial(
-			final IBlockReader world,
-			final BlockPos pos,
-			final BlockState BlockState,
-			final Entity entity,
-			final double yToTest,
-			final Material materialIn,
-			final boolean testingHead )
-	{
-		try
-		{
-			return sharedIsEntityInsideMaterial( getTileEntity( world, pos ), pos, entity, yToTest, materialIn, testingHead );
-		}
-		catch ( final ExceptionNoTileEntity e )
-		{
-			Log.noTileError( e );
-			return null;
-		}
-	}*/
 
     @Override
     public boolean removedByPlayer(final BlockState state, final World world, final BlockPos pos, final PlayerEntity player, final boolean willHarvest, final FluidState fluid)
@@ -141,10 +93,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
         return isFullCube( state );
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public float getAmbientOcclusionLightValue(final BlockState state, final IBlockReader worldIn, final BlockPos pos)
     {
-        return isFullCube( state ) ? 0.2F : 0;
+        return isFullCube( state ) ? 0.2F : 1F;
     }
 
     @Override
@@ -223,7 +176,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 	public static boolean isFullCube(
 			final BlockState state )
 	{
-		return state.get( LProperty_FullBlock );
+		return state.get(FULL_BLOCK);
 	}
 
 	@Override
@@ -251,8 +204,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     {
         try
         {
-
-
             if ( stack == null || placer == null || !stack.hasTag() )
             {
                 return;
@@ -337,7 +288,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     protected void fillStateContainer(final StateContainer.Builder<Block, BlockState> builder)
     {
         super.fillStateContainer(builder);
-        builder.add(LProperty_FullBlock);
+        builder.add(FULL_BLOCK);
     }
 
     @Nullable
@@ -346,61 +297,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     {
         return new TileEntityBlockChiseled();
     }
-
-    /*
-    TODO: Check if this is still needed.
-	@Override
-	public void breakBlock(
-			final World worldIn,
-			final BlockPos pos,
-			final BlockState state )
-	{
-		try
-		{
-			final TileEntityBlockChiseled tebc = getTileEntity( worldIn, pos );
-			tebc.setNormalCube( false );
-
-			worldIn.checkLight( pos );
-		}
-		catch ( final ExceptionNoTileEntity e )
-		{
-
-		}
-		finally
-		{
-			super.breakBlock( worldIn, pos, state );
-		}
-	}
-    */
-
-/*
-    TODO: Figure this out.
-
-    @Override
-    public boolean addLandingEffects(
-      final BlockState state1,
-      final ServerWorld worldserver,
-      final BlockPos pos,
-      final BlockState state2,
-      final LivingEntity entity,
-      final int numberOfParticles)
-    {
-        try
-        {
-            final BlockState texture = getTileEntity( worldserver, pos ).getBlockState( Blocks.STONE );
-
-
-            new RedstoneParticleData()
-
-            worldserver.spawnParticle( ParticleTypes.DUST, entity.getPosX(), entity.getPosY(), entity.getPosZ(), numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D );
-            return true;
-        }
-        catch ( final ExceptionNoTileEntity e )
-        {
-            Log.noTileError( e );
-            return false;
-        }
-    }*/
 
     @Override
     public boolean addDestroyEffects(final BlockState state, final World world, final BlockPos pos, final ParticleManager manager)
@@ -498,230 +394,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
         return true;
     }
 
-    /*
-
-	@Override
-	public void addCollisionBoxToList(
-			BlockState state,
-			World worldIn,
-			BlockPos pos,
-			AxisAlignedBB mask,
-			List<AxisAlignedBB> list,
-			Entity collidingEntity,
-			boolean p_185477_7_ )
-	{
-		try
-		{
-			addCollisionBoxesToList( getTileEntity( worldIn, pos ), pos, mask, list, collidingEntity );
-		}
-		catch ( final ExceptionNoTileEntity e )
-		{
-			Log.noTileError( e );
-		}
-	}
-
-	public void addCollisionBoxesToList(
-			final TileEntityBlockChiseled te,
-			final BlockPos pos,
-			final AxisAlignedBB mask,
-			final List<AxisAlignedBB> list,
-			final Entity collidingEntity )
-	{
-		final AxisAlignedBB localMask = mask.offset( -pos.getX(), -pos.getY(), -pos.getZ() );
-
-		for ( final AxisAlignedBB bb : te.getBoxes( BoxType.COLLISION ) )
-		{
-			if ( bb.intersectsWith( localMask ) )
-			{
-				list.add( bb.offset( pos.getX(), pos.getY(), pos.getZ() ) );
-			}
-		}
-	}
-
-	*/
-
-    /*
-	@Nonnull
-	private AxisAlignedBB setBounds(
-			final TileEntityBlockChiseled tec,
-			final BlockPos pos,
-			final AxisAlignedBB mask,
-			final List<AxisAlignedBB> list,
-			final boolean includePosition )
-	{
-		boolean started = false;
-
-		float minX = 0.0f;
-		float minY = 0.0f;
-		float minZ = 0.0f;
-
-		float maxX = 1.0f;
-		float maxY = 1.0f;
-		float maxZ = 1.0f;
-
-		final VoxelBlob vb = tec.getBlob();
-
-		final BitCollisionIterator bi = new BitCollisionIterator();
-		while ( bi.hasNext() )
-		{
-			if ( bi.getNext( vb ) != 0 )
-			{
-				if ( started )
-				{
-					minX = Math.min( minX, bi.physicalX );
-					minY = Math.min( minY, bi.physicalY );
-					minZ = Math.min( minZ, bi.physicalZ );
-					maxX = Math.max( maxX, bi.physicalX + BitCollisionIterator.One16thf );
-					maxY = Math.max( maxY, bi.physicalYp1 );
-					maxZ = Math.max( maxZ, bi.physicalZp1 );
-				}
-				else
-				{
-					started = true;
-					minX = bi.physicalX;
-					minY = bi.physicalY;
-					minZ = bi.physicalZ;
-					maxX = bi.physicalX + BitCollisionIterator.One16thf;
-					maxY = bi.physicalYp1;
-					maxZ = bi.physicalZp1;
-				}
-			}
-
-			// VERY hackey collision extraction to do 2 bounding boxes, one
-			// for top and one for the bottom.
-			if ( list != null && started && ( bi.y == 8 || bi.y == VoxelBlob.dim_minus_one ) )
-			{
-				final AxisAlignedBB bb = new AxisAlignedBB(
-						(double) minX + pos.getX(),
-						(double) minY + pos.getY(),
-						(double) minZ + pos.getZ(),
-						(double) maxX + pos.getX(),
-						(double) maxY + pos.getY(),
-						(double) maxZ + pos.getZ() );
-
-				if ( mask.intersectsWith( bb ) )
-				{
-					list.add( bb );
-				}
-
-				started = false;
-				minX = 0.0f;
-				minY = 0.0f;
-				minZ = 0.0f;
-				maxX = 1.0f;
-				maxY = 1.0f;
-				maxZ = 1.0f;
-			}
-		}
-
-		if ( includePosition )
-		{
-			return new AxisAlignedBB(
-					(double) minX + pos.getX(),
-					(double) minY + pos.getY(),
-					(double) minZ + pos.getZ(),
-					(double) maxX + pos.getX(),
-					(double) maxY + pos.getY(),
-					(double) maxZ + pos.getZ() );
-		}
-
-		return new AxisAlignedBB(
-				minX,
-				minY,
-				minZ,
-				maxX,
-				maxY,
-				maxZ );
-	}
-
-	@Override
-	@Deprecated
-	public AxisAlignedBB getSelectedBoundingBox(
-			final BlockState state,
-			final World worldIn,
-			final BlockPos pos )
-	{
-		try
-		{
-			return getSelectedBoundingBox( getTileEntity( worldIn, pos ), pos );
-		}
-		catch ( final ExceptionNoTileEntity e )
-		{
-			Log.noTileError( e );
-		}
-
-		return super.getSelectedBoundingBox( state, worldIn, pos );
-	}
-
-	@Nonnull
-	public AxisAlignedBB getSelectedBoundingBox(
-			final TileEntityBlockChiseled tec,
-			final BlockPos pos )
-	{
-		return setBounds( tec, pos, null, null, true );
-	}*/
-
-/*
-
-	@Override
-	@Deprecated
-	public RayTraceResult collisionRayTrace(
-			final BlockState blockState,
-			final World worldIn,
-			final BlockPos pos,
-			final Vec3d a,
-			final Vec3d b )
-	{
-		try
-		{
-			return collisionRayTrace( getTileEntity( worldIn, pos ), pos, a, b, worldIn.isRemote );
-		}
-		catch ( final ExceptionNoTileEntity e )
-		{
-			Log.noTileError( e );
-		}
-
-		return super.collisionRayTrace( blockState, worldIn, pos, a, b );
-	}
-
-	public RayTraceResult collisionRayTrace(
-			final TileEntityBlockChiseled tec,
-			final BlockPos pos,
-			final Vec3d a,
-			final Vec3d b,
-			final boolean realTest )
-	{
-		RayTraceResult br = null;
-		double lastDist = 0;
-
-		boolean occlusion = true;
-		if ( FMLCommonHandler.instance().getEffectiveSide().isClient() && tec.getWorld() != null && tec.getWorld().isRemote )
-		{
-			occlusion = !ChiselsAndBits.getConfig().getServer().fluidBitsAreClickThrough.get() || ClientSide.instance.getHeldToolType( Hand.MAIN_HAND ) != null;
-		}
-
-		for ( final AxisAlignedBB box : tec.getBoxes( occlusion ? BoxType.OCCLUSION : BoxType.COLLISION ) )
-		{
-			final RayTraceResult r = rayTrace( pos, a, b, box );
-
-			if ( r != null )
-			{
-				final double xLen = a.xCoord - r.hitVec.xCoord;
-				final double yLen = a.yCoord - r.hitVec.yCoord;
-				final double zLen = a.zCoord - r.hitVec.zCoord;
-
-				final double thisDist = xLen * xLen + yLen * yLen + zLen * zLen;
-				if ( br == null || lastDist > thisDist && r != null )
-				{
-					lastDist = thisDist;
-					br = r;
-				}
-
-			}
-		}
-
-		return br;
-	}*/
+    public boolean propagatesSkylightDown(BlockState state, IBlockReader reader, BlockPos pos) {
+        return true;
+    }
 
 	public static boolean replaceWithChiseled(
 			final World world,
@@ -951,74 +626,6 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     {
         //No items
     }
-
-
-	// shared for part and block.
-	public static Boolean sharedIsAABBInsideMaterial(
-			final TileEntityBlockChiseled tebc,
-			final AxisAlignedBB bx,
-			final Material materialIn )
-	{
-		if ( materialIn == Material.WATER )
-		{
-			for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
-			{
-				if ( b.intersects( bx ) )
-				{
-					return true;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	// shared for part and block.
-	public static Boolean sharedIsEntityInsideMaterial(
-			final TileEntityBlockChiseled tebc,
-			final BlockPos pos,
-			final Entity entity,
-			final double yToTest,
-			final Material materialIn,
-			final boolean testingHead )
-	{
-		if ( testingHead && materialIn == Material.WATER )
-		{
-			Vector3d head = entity.getPositionVec();
-			head = new Vector3d( head.x - pos.getX(), yToTest - pos.getY(), head.z - pos.getZ() );
-
-			for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
-			{
-				if ( b.contains( head ) )
-				{
-					return true;
-				}
-			}
-		}
-		else if ( !testingHead && materialIn == Material.WATER )
-		{
-			AxisAlignedBB what = entity.getBoundingBox();
-
-			if ( what == null )
-			{
-				what = entity.getBoundingBox();
-			}
-
-			if ( what != null )
-			{
-				what = what.offset( -pos.getX(), -pos.getY(), -pos.getZ() );
-				for ( final AxisAlignedBB b : tebc.getBoxes( BoxType.SWIMMING ) )
-				{
-					if ( b.intersects( what ) )
-					{
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
-	}
 
 	@Override
 	public BlockState getPrimaryState(
