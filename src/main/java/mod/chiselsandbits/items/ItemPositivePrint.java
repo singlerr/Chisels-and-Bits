@@ -31,6 +31,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
@@ -338,9 +339,36 @@ public class ItemPositivePrint extends ItemNegativePrint implements IChiselModeI
         return displayName;
     }
 
+
+
     @Override
     public ActionResultType tryPlace(final ItemUseContext context, final boolean offGrid)
     {
-        return null;
+        if ( PositivePatternMode.getMode( context.getItem() ) == PositivePatternMode.PLACEMENT )
+        {
+            final ItemStack output = getPatternedItem( context.getItem(), false );
+            if ( output != null )
+            {
+                final VoxelBlob pattern = ModUtil.getBlobFromStack( context.getItem(), context.getPlayer() );
+                final Map<Integer, Integer> stats = pattern.getBlockSums();
+
+                if ( consumeEntirePattern( pattern, stats, context.getPos(), ActingPlayer.testingAs( context.getPlayer(), context.getHand() ) ) && output.getItem() instanceof ItemBlockChiseled )
+                {
+                    final ItemBlockChiseled ibc = (ItemBlockChiseled) output.getItem();
+                    final ActionResultType res = ibc.tryPlace( new BlockItemUseContext(context), offGrid );
+
+                    if ( res == ActionResultType.SUCCESS )
+                    {
+                        consumeEntirePattern( pattern, stats, context.getPos(), ActingPlayer.actingAs( context.getPlayer(), context.getHand() ) );
+                    }
+
+                    return res;
+                }
+
+                return ActionResultType.FAIL;
+            }
+        }
+
+        return super.onItemUse( context );
     }
 }

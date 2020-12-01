@@ -2,12 +2,10 @@ package mod.chiselsandbits.chiseledblock.data;
 
 import mod.chiselsandbits.api.BoxType;
 import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.utils.SimpleMaxSizedCache;
 import net.minecraft.util.math.shapes.VoxelShape;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public final class VoxelShapeCache
 {
@@ -19,26 +17,22 @@ public final class VoxelShapeCache
         return INSTANCE;
     }
 
-    private final LinkedHashMap<CacheKey, VoxelShape> cache = new LinkedHashMap<>();
+    private final SimpleMaxSizedCache<VoxelShapeCache.CacheKey, VoxelShape> cache = new SimpleMaxSizedCache<>(ChiselsAndBits.getConfig().getCommon().collisionBoxCacheSize.get());
 
     private VoxelShapeCache()
     {
     }
 
     public VoxelShape get(VoxelBlob blob, BoxType type) {
-        final List<Boolean> keyList = new ArrayList<>(blob.noneAir.length);
-        for (final boolean b : blob.noneAir)
-        {
-            keyList.add(b);
-        }
-        final CacheKey key = new CacheKey(type, keyList);
+        final CacheKey key = new CacheKey(type, (BitSet) blob.noneAir.clone());
 
         VoxelShape shape = cache.get(key);
-        evictFromCacheIfNeeded();
         if (shape == null)
+        {
             shape = calculateNewVoxelShape(blob, type);
+            cache.put(key, shape);
+        }
 
-        cache.put(key, shape);
         return shape;
     }
 
@@ -46,29 +40,13 @@ public final class VoxelShapeCache
         return VoxelShapeCalculator.calculate(data, type).simplify();
     }
 
-    private void evictFromCacheIfNeeded() {
-        if (cache.size() == ChiselsAndBits.getConfig().getCommon().collisionBoxCacheSize.get()) {
-            cache.remove(cache.keySet().iterator().next());
-        }
-    }
-
     private static final class CacheKey {
         private final BoxType type;
-        private final List<Boolean> bbList;
+        private final BitSet  noneAirMap;
 
-        private CacheKey(final BoxType type, final List<Boolean> bbList) {
+        private CacheKey(final BoxType type, final BitSet noneAirMap) {
             this.type = type;
-            this.bbList = bbList;
-        }
-
-        public BoxType getType()
-        {
-            return type;
-        }
-
-        public List<Boolean> getBbList()
-        {
-            return bbList;
+            this.noneAirMap = noneAirMap;
         }
 
         @Override
@@ -78,19 +56,19 @@ public final class VoxelShapeCache
             {
                 return true;
             }
-            if (o == null || getClass() != o.getClass())
+            if (!(o instanceof CacheKey))
             {
                 return false;
             }
             final CacheKey cacheKey = (CacheKey) o;
-            return getType() == cacheKey.getType() &&
-                     getBbList().equals(cacheKey.getBbList());
+            return type == cacheKey.type &&
+                     noneAirMap.equals(cacheKey.noneAirMap);
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(getType(), getBbList());
+            return Objects.hash(type, noneAirMap);
         }
     }
 }

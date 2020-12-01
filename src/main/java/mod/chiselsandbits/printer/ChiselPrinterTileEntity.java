@@ -1,5 +1,6 @@
-package mod.chiselsandbits.station;
+package mod.chiselsandbits.printer;
 
+import mod.chiselsandbits.bitstorage.TileEntityBitStorage;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.NBTBlobConverter;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -8,69 +9,34 @@ import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.IPatternItem;
 import mod.chiselsandbits.items.ItemChisel;
 import mod.chiselsandbits.registry.ModBlocks;
-import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.registry.ModTileEntityTypes;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.IContainerProvider;
 import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.AbstractFurnaceTileEntity;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.IIntArray;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullLazy;
-import net.minecraftforge.common.util.NonNullSupplier;
 import net.minecraftforge.items.*;
 import net.minecraftforge.items.wrapper.EmptyHandler;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ChiselStationTileEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider
+import java.util.Objects;
+
+public class ChiselPrinterTileEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider
 {
     private final LazyOptional<EmptyHandler> empty_handler = LazyOptional.of(NonNullLazy.of(EmptyHandler::new));
-    private final LazyOptional<ItemStackHandler> input_handler = LazyOptional.of(NonNullLazy.of(() -> new ItemStackHandler(1) {
-        @Override
-        public boolean isItemValid(final int slot, @NotNull final ItemStack stack)
-        {
-            return BlockBitInfo.canChisel(stack);
-        }
-    }));
-    private final LazyOptional<ItemStackHandler> working_handler = LazyOptional.of(NonNullLazy.of(() -> new ItemStackHandler(1) {
-        @Override
-        public boolean isItemValid(final int slot, @NotNull final ItemStack stack)
-        {
-            return BlockBitInfo.canChisel(stack);
-        }
-
-        @Override
-        public int getSlotLimit(final int slot)
-        {
-            return 1;
-        }
-
-        @Override
-        protected void onContentsChanged(final int slot)
-        {
-            currentRealisedWorkingStack.setValue(ItemStack.EMPTY);
-        }
-    }));
     private final LazyOptional<ItemStackHandler> tool_handler   = LazyOptional.of(NonNullLazy.of(() -> new ItemStackHandler(1) {
         @Override
         public boolean isItemValid(final int slot, @NotNull final ItemStack stack)
@@ -115,7 +81,7 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
         public int get(int index) {
             if (index == 0)
             {
-                return ChiselStationTileEntity.this.progress;
+                return ChiselPrinterTileEntity.this.progress;
             }
             return 0;
         }
@@ -123,7 +89,7 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
         public void set(int index, int value) {
             if (index == 0)
             {
-                ChiselStationTileEntity.this.progress = value;
+                ChiselPrinterTileEntity.this.progress = value;
             }
         }
 
@@ -136,9 +102,9 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
     private long lastTickTime = 0L;
     private final MutableObject<ItemStack> currentRealisedWorkingStack = new MutableObject<>(ItemStack.EMPTY);
 
-    public ChiselStationTileEntity()
+    public ChiselPrinterTileEntity()
     {
-        super(ModTileEntityTypes.CHISEL_STATION.get());
+        super(ModTileEntityTypes.CHISEL_PRINTER.get());
     }
 
     @NotNull
@@ -148,20 +114,18 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
         if (cap != CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
             return super.getCapability(cap, side);
 
-        if (side == null) {
-            return working_handler.cast();
-        }
-
-        switch(side){
-            case DOWN:
-                return result_handler.cast();
-            case UP:
-                return input_handler.cast();
-            case NORTH:
-            case SOUTH:
-            case WEST:
-            case EAST:
-                return tool_handler.cast();
+        if (side != null)
+        {
+            switch(side){
+                case DOWN:
+                    return result_handler.cast();
+                case UP:
+                case NORTH:
+                case SOUTH:
+                case WEST:
+                case EAST:
+                    return tool_handler.cast();
+            }
         }
 
         return empty_handler.cast();
@@ -172,8 +136,6 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
     {
         super.read(state, nbt);
 
-        input_handler.ifPresent(h -> h.deserializeNBT(nbt.getCompound("input")));
-        working_handler.ifPresent(h -> h.deserializeNBT(nbt.getCompound("working")));
         tool_handler.ifPresent(h -> h.deserializeNBT(nbt.getCompound("tool")));
         pattern_handler.ifPresent(h -> h.deserializeNBT(nbt.getCompound("pattern")));
         result_handler.ifPresent(h -> h.deserializeNBT(nbt.getCompound("result")));
@@ -186,8 +148,6 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
     {
         super.write(compound);
 
-        input_handler.ifPresent(h -> compound.put("input", h.serializeNBT()));
-        working_handler.ifPresent(h -> compound.put("working", h.serializeNBT()));
         tool_handler.ifPresent(h -> compound.put("tool", h.serializeNBT()));
         pattern_handler.ifPresent(h -> compound.put("pattern", h.serializeNBT()));
         result_handler.ifPresent(h -> compound.put("result", h.serializeNBT()));
@@ -215,19 +175,10 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
         this.lastTickTime = getWorld().getGameTime();
 
         if (couldWork()) {
-            if (!hasWorkingStack() && hasInputStack() && hasMergeableInput()) {
-                final ItemStack newWorkingStack = input_handler.map(h -> h.extractItem(0, 1, false)).orElse(ItemStack.EMPTY);
-                if (!newWorkingStack.isEmpty()) {
-                    working_handler.ifPresent(h -> h.insertItem(0, newWorkingStack, false));
-                }
-            }
-
-            if (canWork()) {
+           if (canWork()) {
                 progress++;
-                if (progress == 100) {
-                    result_handler.ifPresent(h -> h.insertItem(0, getRealisedStack(), false));
-                    working_handler.ifPresent(h -> h.extractItem(0, Integer.MAX_VALUE, false));
-
+                if (progress >= 100) {
+                    result_handler.ifPresent(h -> h.insertItem(0, realisePattern(true), false));
                     currentRealisedWorkingStack.setValue(ItemStack.EMPTY);
                     progress = 0;
                     damageChisel();
@@ -248,24 +199,8 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
         return tool_handler.orElseThrow(() -> new IllegalStateException("Missing tool handler."));
     }
 
-    public IItemHandlerModifiable getWorkingHandler() {
-        return working_handler.orElseThrow(() -> new IllegalStateException("Missing working handler."));
-    }
-
-    public IItemHandlerModifiable getInputHandler() {
-        return input_handler.orElseThrow(() -> new IllegalStateException("Missing input handler."));
-    }
-
     public IItemHandlerModifiable getResultHandler() {
         return result_handler.orElseThrow(() -> new IllegalStateException("Missing result handler."));
-    }
-
-    public boolean hasInputStack() {
-        return !getInputStack().isEmpty();
-    }
-
-    public boolean hasWorkingStack() {
-        return !getWorkingStack().isEmpty();
     }
 
     public boolean hasPatternStack() {
@@ -295,7 +230,7 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
     }
 
     public boolean canWork() {
-        return hasWorkingStack() && hasPatternStack() && hasToolStack() && canMergeOutputs();
+        return hasPatternStack() && hasToolStack() && canMergeOutputs();
     }
 
     public boolean couldWork() {
@@ -306,15 +241,7 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
         if (!hasOutputStack())
             return true;
 
-        return ItemHandlerHelper.canItemStacksStack(getOutputStack(), realisePatternFromInput());
-    }
-
-    public ItemStack getInputStack() {
-        return input_handler.map(h -> h.getStackInSlot(0)).orElse(ItemStack.EMPTY);
-    }
-
-    public ItemStack getWorkingStack() {
-        return working_handler.map(h -> h.getStackInSlot(0)).orElse(ItemStack.EMPTY);
+        return ItemHandlerHelper.canItemStacksStack(getOutputStack(), realisePattern(false));
     }
 
     public ItemStack getPatternStack() {
@@ -328,7 +255,7 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
     public ItemStack getRealisedStack() {
         ItemStack realisedStack = currentRealisedWorkingStack.getValue();
         if (realisedStack.isEmpty()) {
-            realisedStack = realisePattern();
+            realisedStack = realisePattern(false);
             currentRealisedWorkingStack.setValue(realisedStack);
         }
 
@@ -339,23 +266,7 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
         return result_handler.map(h -> h.getStackInSlot(0)).orElse(ItemStack.EMPTY);
     }
 
-    public ItemStack realisePatternFromInput() {
-        if (!hasInputStack())
-            return ItemStack.EMPTY;
-
-        final ItemStack inputStack = getInputStack();
-        return realisePattern(inputStack);
-    }
-
-    private ItemStack realisePattern() {
-        if (!hasWorkingStack())
-            return ItemStack.EMPTY;
-
-        final ItemStack workingStack = getWorkingStack();
-        return realisePattern(workingStack);
-    }
-
-    private ItemStack realisePattern(final ItemStack source) {
+    private ItemStack realisePattern(final boolean consumeResources) {
         if (!hasPatternStack())
             return ItemStack.EMPTY;
 
@@ -368,15 +279,23 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
         if (realisedPattern == null || realisedPattern.isEmpty())
             return ItemStack.EMPTY;
 
-        final ItemStack workingStack = source.copy();
-        final Item workingItem = workingStack.getItem();
-        if (!(workingItem instanceof BlockItem))
-            return ItemStack.EMPTY;
+        BlockState firstState = getPrimaryBlockState();
+        BlockState secondState = getSecondaryBlockState();
+        BlockState thirdState = getTertiaryBlockState();
 
-        final BlockItem blockItem = (BlockItem) workingItem;
-        final Block block = blockItem.getBlock();
-        final BlockState blockState = block.getDefaultState();
-        if (!BlockBitInfo.isSupported(blockState))
+        if (firstState == null)
+            firstState = Blocks.AIR.getDefaultState();
+
+        if (secondState == null)
+            secondState = Blocks.AIR.getDefaultState();
+
+        if (thirdState == null)
+            thirdState = Blocks.AIR.getDefaultState();
+
+        if ((!BlockBitInfo.isSupported(firstState) && !firstState.isAir())
+                || (!BlockBitInfo.isSupported(secondState) && !secondState.isAir())
+                || (!BlockBitInfo.isSupported(thirdState) && !thirdState.isAir())
+        )
             return ItemStack.EMPTY;
 
         final NBTBlobConverter c = new NBTBlobConverter();
@@ -384,7 +303,26 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
         c.readChisleData(tag, VoxelBlob.VERSION_ANY);
         VoxelBlob blob = c.getBlob();
 
-        blob.fillNoneAir(ModUtil.getStateId(blockState));
+        final VoxelBlob.PartialFillResult fillResult = blob.clearAllBut(
+          ModUtil.getStateId(firstState),
+          ModUtil.getStateId(secondState),
+          ModUtil.getStateId(thirdState)
+        );
+
+        if (fillResult.getFirstStateUsedCount() == 0 && fillResult.getSecondStateUsedCount() == 0 && fillResult.getThirdStateUsedCount() == 0)
+            return ItemStack.EMPTY;
+
+        if (fillResult.getFirstStateUsedCount() > getAvailablePrimaryBlockState() ||
+                fillResult.getSecondStateUsedCount() > getAvailableSecondaryBlockState() ||
+                fillResult.getThirdStateUsedCount() > getAvailableTertiaryBlockState())
+            return ItemStack.EMPTY;
+
+        if (consumeResources) {
+            drainPrimaryStorage(fillResult.getFirstStateUsedCount());
+            drainSecondaryStorage(fillResult.getSecondStateUsedCount());
+            drainTertiaryStorage(fillResult.getThirdStateUsedCount());
+        }
+
         c.setBlob(blob);
 
         final BlockState state = c.getPrimaryBlockState();
@@ -408,12 +346,10 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
     @Override
     public Container createMenu(final int containerId, @NotNull final PlayerInventory playerInventory, @NotNull final PlayerEntity playerEntity)
     {
-        return new ChiselStationContainer(
+        return new ChiselPrinterContainer(
           containerId,
           playerInventory,
           getPatternHandler(),
-          getInputHandler(),
-          getWorkingHandler(),
           getToolHandler(),
           getResultHandler(),
           stationData);
@@ -423,5 +359,102 @@ public class ChiselStationTileEntity extends TileEntity implements ITickableTile
     public ITextComponent getDisplayName()
     {
         return LocalStrings.ChiselStationName.getLocalText();
+    }
+
+    public int getAvailablePrimaryBlockState() {
+        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiselPrinterBlock.FACING);
+        final Direction targetedFacing = facing.rotateY();
+
+        return getStorageContents(targetedFacing);
+    }
+
+    public int getAvailableSecondaryBlockState() {
+        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiselPrinterBlock.FACING);
+        final Direction targetedFacing = facing.rotateY().rotateY();
+
+        return getStorageContents(targetedFacing);
+    }
+
+    public int getAvailableTertiaryBlockState() {
+        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiselPrinterBlock.FACING);
+        final Direction targetedFacing = facing.rotateYCCW();
+
+        return getStorageContents(targetedFacing);
+    }
+
+    private int getStorageContents(final Direction targetedFacing)
+    {
+        final TileEntity targetedTileEntity = this.getWorld().getTileEntity(this.getPos().offset(targetedFacing));
+        if (targetedTileEntity instanceof TileEntityBitStorage)
+        {
+            final TileEntityBitStorage storage = (TileEntityBitStorage) targetedTileEntity;
+            return storage.getBits();
+        }
+
+        return 0;
+    }
+
+    public BlockState getPrimaryBlockState() {
+        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiselPrinterBlock.FACING);
+        final Direction targetedFacing = facing.rotateY();
+
+        return getStorage(targetedFacing);
+    }
+
+    public BlockState getSecondaryBlockState() {
+        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiselPrinterBlock.FACING);
+        final Direction targetedFacing = facing.rotateY().rotateY();
+
+        return getStorage(targetedFacing);
+    }
+
+    public BlockState getTertiaryBlockState() {
+        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiselPrinterBlock.FACING);
+        final Direction targetedFacing = facing.rotateYCCW();
+
+        return getStorage(targetedFacing);
+    }
+
+    private BlockState getStorage(final Direction targetedFacing)
+    {
+        final TileEntity targetedTileEntity = this.getWorld().getTileEntity(this.getPos().offset(targetedFacing));
+        if (targetedTileEntity instanceof TileEntityBitStorage)
+        {
+            final TileEntityBitStorage storage = (TileEntityBitStorage) targetedTileEntity;
+            return storage.getState();
+        }
+
+        return Blocks.AIR.getDefaultState();
+    }
+
+    public void drainPrimaryStorage(final int amount) {
+        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiselPrinterBlock.FACING);
+        final Direction targetedFacing = facing.rotateY();
+
+        drainStorage(amount, targetedFacing);
+    }
+
+    public void drainSecondaryStorage(final int amount) {
+        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiselPrinterBlock.FACING);
+        final Direction targetedFacing = facing.rotateY().rotateY();
+
+        drainStorage(amount, targetedFacing);
+    }
+
+    public void drainTertiaryStorage(final int amount) {
+        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiselPrinterBlock.FACING);
+        final Direction targetedFacing = facing.rotateYCCW();
+
+        drainStorage(amount, targetedFacing);
+    }
+
+    private void drainStorage(final int amount, final Direction targetedFacing)
+    {
+        final TileEntity targetedTileEntity = this.getWorld().getTileEntity(this.getPos().offset(targetedFacing));
+        if (targetedTileEntity instanceof TileEntityBitStorage)
+        {
+            final TileEntityBitStorage storage = (TileEntityBitStorage) targetedTileEntity;
+            storage.extractBits(0, amount, false);
+        }
     }
 }

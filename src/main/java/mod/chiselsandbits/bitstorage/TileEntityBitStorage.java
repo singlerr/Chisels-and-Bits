@@ -1,9 +1,10 @@
-package mod.chiselsandbits.bittank;
+package mod.chiselsandbits.bitstorage;
 
 import javax.annotation.Nonnull;
 
 import mod.chiselsandbits.api.IBitBag;
 import mod.chiselsandbits.api.ItemType;
+import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
@@ -11,6 +12,7 @@ import mod.chiselsandbits.items.ItemChiseledBit;
 import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.registry.ModTileEntityTypes;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.ItemStack;
@@ -18,7 +20,6 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -31,7 +32,9 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
-public class TileEntityBitTank extends TileEntity implements IItemHandler, IFluidHandler
+import java.util.Objects;
+
+public class TileEntityBitStorage extends TileEntity implements IItemHandler, IFluidHandler
 {
 
     public LazyOptional<IItemHandler> itemHandler = LazyOptional.of(() -> this);
@@ -44,14 +47,15 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 	public static final int MB_PER_BIT_CONVERSION = 125;
 	public static final int BITS_PER_MB_CONVERSION = 512;
 
+	private BlockState state = null;
 	private Fluid myFluid = null;
 	private int   bits    = 0;
 
 	private int oldLV = -1;
 
-    public TileEntityBitTank()
+    public TileEntityBitStorage()
     {
-        super(ModTileEntityTypes.BIT_TANK.get());
+        super(ModTileEntityTypes.BIT_STORAGE.get());
     }
 
     @Override
@@ -82,9 +86,17 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
         super.read(state, nbt);
         final String fluid = nbt.getString( "fluid" );
 
-        if ( fluid == null || fluid.equals( "" ) )
+        if (fluid.equals( "" ))
         {
-            myFluid = null;
+            final int rawState = nbt.getInt("blockstate");
+            if (rawState != -1)
+            {
+                this.state = ModUtil.getStateById(rawState);
+            }
+            else
+            {
+                this.state = null;
+            }
         }
         else
         {
@@ -98,7 +110,8 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
     public CompoundNBT write(final CompoundNBT compound)
     {
         final CompoundNBT nbt = super.write(compound);
-        nbt.putString( "fluid", myFluid == null ? "" : myFluid.getRegistryName().toString() );
+        nbt.putString( "fluid", myFluid == null ? "" : Objects.requireNonNull(myFluid.getRegistryName()).toString() );
+        nbt.putInt("blockstate", myFluid != null || state == null ? -1 : ModUtil.getStateId(state));
         nbt.putInt( "bits", bits );
         return nbt;
     }
@@ -133,9 +146,16 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 	public ItemStack getStackInSlot(
 			final int slot )
 	{
-		if ( bits > 0 && slot == 0 )
+		if ( bits > 0 && slot == 0 && (myFluid != null || state != null) )
 		{
-			return getFluidBitStack( myFluid, bits );
+		    if (myFluid != null)
+		    {
+                return getFluidBitStack( myFluid, bits );
+            }
+		    else
+            {
+                return getBlockBitStack( state, bits);
+            }
 		}
 
 		return ModUtil.getEmptyStack();
@@ -145,15 +165,28 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			final Fluid liquid,
 			final int amount )
 	{
-		if ( liquid == null || liquid.getDefaultState().getBlockState() == null )
+		if (liquid == null)
 		{
 			return ModUtil.getEmptyStack();
 		}
 
-		return ItemChiseledBit.createStack( ModUtil.getStateId( liquid.getDefaultState().getBlockState() ), amount, false );
+        return ItemChiseledBit.createStack( ModUtil.getStateId( liquid.getDefaultState().getBlockState() ), amount, false );
 	}
 
-	@Override
+    public @Nonnull ItemStack getBlockBitStack(
+      final BlockState blockState,
+      final int amount )
+    {
+        if ( blockState == null || blockState.getBlockState() == null )
+        {
+            return ModUtil.getEmptyStack();
+        }
+
+        return ItemChiseledBit.createStack( ModUtil.getStateId( blockState), amount, false );
+    }
+
+
+    @Override
 	public @Nonnull ItemStack insertItem(
 			final int slot,
 			final ItemStack stack,
@@ -164,57 +197,138 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			final int state = ItemChiseledBit.getStackState( stack );
 			final BlockState blk = ModUtil.getStateById( state );
 
-			Fluid f = null;
-			for ( final Fluid fl : ForgeRegistries.FLUIDS )
-			{
-				if ( fl.getDefaultState().getBlockState().getBlock() == blk.getBlock() )
-				{
-					f = fl;
-					break;
-				}
-			}
+            final ItemStack fluidInsertion = attemptFluidBitStackInsertion(stack, simulate, blk);
+            if (fluidInsertion != stack)
+            {
+                return fluidInsertion;
+            }
 
-			if ( f == null )
-			{
-				return stack;
-			}
+            return attemptSolidBitStackInsertion(stack, simulate, blk);
+        } else if (!ModUtil.isEmpty(stack) && BlockBitInfo.canChisel(stack) && myFluid == null) {
+		    final BlockState stackState = ModUtil.getStateFromItem(stack);
+		    if (stackState.getBlock() != Blocks.AIR) {
+                if (this.state == null)
+                {
+                    this.state = stackState;
+                    this.bits = 4096;
+                } else if (ModUtil.getStateId(this.state) == ModUtil.getStateId(stackState))
+                {
 
-			final ItemStack bitItem = getFluidBitStack( myFluid, bits );
-			final boolean canInsert = ModUtil.isEmpty( bitItem ) || ItemStack.areItemStackTagsEqual( bitItem, stack ) && bitItem.getItem() == stack.getItem();
-
-			if ( canInsert )
-			{
-				final int merged = bits + ModUtil.getStackSize( stack );
-				final int amount = Math.min( merged, MAX_CONTENTS );
-
-				if ( !simulate )
-				{
-					final Fluid oldFluid = myFluid;
-					final int oldBits = bits;
-
-					myFluid = f;
-					bits = amount;
-
-					if ( bits != oldBits || myFluid != oldFluid )
-					{
-						saveAndUpdate();
-					}
-				}
-
-				if ( amount < merged )
-				{
-					final ItemStack out = ModUtil.copy( stack );
-					ModUtil.setStackSize( out, merged - amount );
-					return out;
-				}
-
-				return ModUtil.getEmptyStack();
-			}
-		}
+                }
+            }
+        }
 		return stack;
 	}
 
-	private void saveAndUpdate()
+    @NotNull
+    private ItemStack attemptFluidBitStackInsertion(final ItemStack stack, final boolean simulate, final BlockState blk)
+    {
+        Fluid f = null;
+        for ( final Fluid fl : ForgeRegistries.FLUIDS )
+        {
+            if ( fl.getDefaultState().getBlockState().getBlock() == blk.getBlock() )
+            {
+                f = fl;
+                break;
+            }
+        }
+
+        if ( f == null )
+        {
+            return stack;
+        }
+
+        final ItemStack bitItem = getFluidBitStack( myFluid, bits );
+        final boolean canInsert = ModUtil.isEmpty( bitItem ) || ItemStack.areItemStackTagsEqual( bitItem, stack) && bitItem.getItem() == stack.getItem() || state == null;
+
+        if ( canInsert )
+        {
+            final int merged = bits + ModUtil.getStackSize(stack);
+            final int amount = Math.min( merged, MAX_CONTENTS );
+
+            if ( !simulate)
+            {
+                final Fluid oldFluid = myFluid;
+                final BlockState oldState = state;
+                final int oldBits = bits;
+
+                myFluid = f;
+                state = null;
+                bits = amount;
+
+                if ( bits != oldBits || myFluid != oldFluid || oldState != null)
+                {
+                    saveAndUpdate();
+                }
+            }
+
+            if ( amount < merged )
+            {
+                final ItemStack out = ModUtil.copy(stack);
+                ModUtil.setStackSize( out, merged - amount );
+                return out;
+            }
+
+            return ModUtil.getEmptyStack();
+        }
+        return stack;
+    }
+
+    @NotNull
+    private ItemStack attemptSolidBitStackInsertion(final ItemStack stack, final boolean simulate, final BlockState blk)
+    {
+        Fluid f = null;
+        for ( final Fluid fl : ForgeRegistries.FLUIDS )
+        {
+            if ( fl.getDefaultState().getBlockState().getBlock() == blk.getBlock() )
+            {
+                f = fl;
+                break;
+            }
+        }
+
+        if ( f != null )
+        {
+            return stack;
+        }
+
+        final ItemStack bitItem = getBlockBitStack( blk, bits );
+        final boolean canInsert = ModUtil.isEmpty( bitItem ) || ItemStack.areItemStackTagsEqual( bitItem, stack) && bitItem.getItem() == stack.getItem();
+
+        if ( canInsert )
+        {
+            final int merged = bits + ModUtil.getStackSize(stack);
+            final int amount = Math.min( merged, MAX_CONTENTS );
+
+            if ( !simulate)
+            {
+                final Fluid oldFluid = myFluid;
+                final BlockState oldBlockState = this.state;
+                final int oldBits = bits;
+
+                myFluid = null;
+                state = blk;
+                bits = amount;
+
+                if ( bits != oldBits || state != oldBlockState || oldFluid != null )
+                {
+                    saveAndUpdate();
+                }
+            }
+
+            if ( amount < merged )
+            {
+                final ItemStack out = ModUtil.copy(stack);
+                ModUtil.setStackSize( out, merged - amount );
+                return out;
+            }
+
+            return ModUtil.getEmptyStack();
+        }
+        return stack;
+    }
+
+    private void saveAndUpdate()
 	{
 	    if (world == null || getWorld() == null)
 	        return;
@@ -245,7 +359,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 	{
 		final ItemStack contents = getStackInSlot( slot );
 
-		if ( contents != null && amount > 0 )
+		if ( !contents.isEmpty() && amount > 0)
 		{
 			// how many to extract?
 			ModUtil.setStackSize( contents, Math.min( amount, ModUtil.getStackSize( contents ) ) );
@@ -256,8 +370,10 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 				final int oldBits = bits;
 
 				bits -= ModUtil.getStackSize( contents );
-				if ( bits == 0 )
+				if ( bits <= 0 )
 				{
+				    bits = 0;
+				    state = null;
 					myFluid = null;
 				}
 
@@ -284,6 +400,9 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 
 	public FluidStack getAccessableFluid()
 	{
+	    if (myFluid == null && state != null)
+	        return FluidStack.EMPTY;
+
 		int mb = ( bits - bits % BITS_PER_MB_CONVERSION ) / BITS_PER_MB_CONVERSION;
 		mb *= MB_PER_BIT_CONVERSION;
 
@@ -297,6 +416,9 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 
 	FluidStack getBitsAsFluidStack()
 	{
+        if (myFluid == null && state != null)
+            return FluidStack.EMPTY;
+
 		if ( bits > 0 && myFluid != null )
 		{
 			return new FluidStack( myFluid, bits );
@@ -307,18 +429,13 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 
 	public int getLightValue()
 	{
-		if (myFluid == null)
-		{
-			return 0;
-		}
-        else
+	    final BlockState workingState = myFluid == null ? state : myFluid.getDefaultState().getBlockState();
+		if (workingState == null)
         {
-            myFluid.getDefaultState().getBlockState();
+            return 0;
         }
 
-        final int lv = DeprecationHelper.getLightValue( myFluid.getDefaultState().getBlockState() );
-		return lv;
-
+        return DeprecationHelper.getLightValue( workingState );
 	}
 
 	boolean extractBits(
@@ -331,7 +448,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 		if ( !playerIn.isSneaking() )
 		{
 			final ItemStack is = extractItem( 0, 64, false );
-			if ( is != null )
+			if ( !is.isEmpty() )
 			{
 				ChiselsAndBits.getApi().giveBitToPlayer( playerIn, is, new Vector3d( hitX + pos.getX(), hitY + pos.getY(), hitZ + pos.getZ() ) );
 			}
@@ -388,12 +505,15 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 			final @Nonnull ItemStack current,
 			final PlayerEntity playerIn )
 	{
-		if ( playerIn.isSneaking() )
+		if ( playerIn.isSneaking() || this.bits == 0 )
 		{
-			if ( ChiselsAndBits.getApi().getItemType( current ) == ItemType.CHISLED_BIT )
+			if ( ChiselsAndBits.getApi().getItemType( current ) == ItemType.CHISLED_BIT || BlockBitInfo.canChisel(current) )
 			{
-				playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, insertItem( 0, current, false ) );
-				playerIn.inventory.markDirty();
+			    final ItemStack resultStack = insertItem( 0, current, false );
+                if (!playerIn.isCreative()) {
+                    playerIn.inventory.setInventorySlotContents( playerIn.inventory.currentItem, resultStack );
+                    playerIn.inventory.markDirty();
+                }
 				return true;
 			}
 		}
@@ -423,25 +543,28 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
     @Override
     public boolean isFluidValid(final int tank, @NotNull final FluidStack stack)
     {
-        if (getAccessableFluid().isEmpty())
+        if (getAccessableFluid().isEmpty() && state == null)
             return true;
 
-        return getAccessableFluid().getFluid().getRegistryName().equals(stack.getFluid().getRegistryName());
+        if (state != null)
+            return false;
+
+        return Objects.equals(getAccessableFluid().getFluid().getRegistryName(), stack.getFluid().getRegistryName());
     }
 
     @Override
     public int fill(final FluidStack resource, final FluidAction action)
     {
-        if ( resource == null )
+        if ( resource == null || state != null )
         {
             return 0;
         }
 
-        final int possibleAmount = resource.getAmount() - resource.getAmount() % TileEntityBitTank.MB_PER_BIT_CONVERSION;
+        final int possibleAmount = resource.getAmount() - resource.getAmount() % TileEntityBitStorage.MB_PER_BIT_CONVERSION;
 
         if ( possibleAmount > 0 )
         {
-            final int bitCount = possibleAmount * TileEntityBitTank.BITS_PER_MB_CONVERSION / TileEntityBitTank.MB_PER_BIT_CONVERSION;
+            final int bitCount = possibleAmount * TileEntityBitStorage.BITS_PER_MB_CONVERSION / TileEntityBitStorage.MB_PER_BIT_CONVERSION;
             final ItemStack bitItems = getFluidBitStack( resource.getFluid(), bitCount );
             final ItemStack leftOver = insertItem( 0, bitItems, action.simulate() );
 
@@ -453,9 +576,9 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
             int mbUsedUp = ModUtil.getStackSize( leftOver );
 
             // round up...
-            mbUsedUp *= TileEntityBitTank.MB_PER_BIT_CONVERSION;
-            mbUsedUp += TileEntityBitTank.BITS_PER_MB_CONVERSION - 1;
-            mbUsedUp /= TileEntityBitTank.BITS_PER_MB_CONVERSION;
+            mbUsedUp *= TileEntityBitStorage.MB_PER_BIT_CONVERSION;
+            mbUsedUp += TileEntityBitStorage.BITS_PER_MB_CONVERSION - 1;
+            mbUsedUp /= TileEntityBitStorage.BITS_PER_MB_CONVERSION;
 
             return resource.getAmount() - mbUsedUp;
         }
@@ -467,7 +590,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
     @Override
     public FluidStack drain(final FluidStack resource, final FluidAction action)
     {
-        if ( resource == null )
+        if ( resource == null || state != null )
         {
             return FluidStack.EMPTY;
         }
@@ -478,14 +601,14 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
         {
             final int aboutHowMuch = resource.getAmount();
 
-            final int mbThatCanBeRemoved = Math.min( a.getAmount(), aboutHowMuch - aboutHowMuch % TileEntityBitTank.MB_PER_BIT_CONVERSION );
+            final int mbThatCanBeRemoved = Math.min( a.getAmount(), aboutHowMuch - aboutHowMuch % TileEntityBitStorage.MB_PER_BIT_CONVERSION );
             if ( mbThatCanBeRemoved > 0 )
             {
                 a.setAmount(mbThatCanBeRemoved);
 
                 if ( action.execute() )
                 {
-                    final int bitCount = mbThatCanBeRemoved * TileEntityBitTank.BITS_PER_MB_CONVERSION / TileEntityBitTank.MB_PER_BIT_CONVERSION;
+                    final int bitCount = mbThatCanBeRemoved * TileEntityBitStorage.BITS_PER_MB_CONVERSION / TileEntityBitStorage.MB_PER_BIT_CONVERSION;
                     extractBits( 0, bitCount, false );
                 }
 
@@ -500,7 +623,7 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
     @Override
     public FluidStack drain(final int maxDrain, final FluidAction action)
     {
-        if ( maxDrain <= 0 )
+        if ( maxDrain <= 0 || state != null )
         {
             return FluidStack.EMPTY;
         }
@@ -511,14 +634,14 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
         {
             final int aboutHowMuch = maxDrain;
 
-            final int mbThatCanBeRemoved = Math.min( a.getAmount(), aboutHowMuch - aboutHowMuch % TileEntityBitTank.MB_PER_BIT_CONVERSION );
+            final int mbThatCanBeRemoved = Math.min( a.getAmount(), aboutHowMuch - aboutHowMuch % TileEntityBitStorage.MB_PER_BIT_CONVERSION );
             if ( mbThatCanBeRemoved > 0 )
             {
                 a.setAmount(mbThatCanBeRemoved);
 
                 if ( action.execute() )
                 {
-                    final int bitCount = mbThatCanBeRemoved * TileEntityBitTank.BITS_PER_MB_CONVERSION / TileEntityBitTank.MB_PER_BIT_CONVERSION;
+                    final int bitCount = mbThatCanBeRemoved * TileEntityBitStorage.BITS_PER_MB_CONVERSION / TileEntityBitStorage.MB_PER_BIT_CONVERSION;
                     extractBits( 0, bitCount, false );
                 }
 
@@ -533,12 +656,27 @@ public class TileEntityBitTank extends TileEntity implements IItemHandler, IFlui
 	public int getSlotLimit(
 			final int slot )
 	{
-		return TileEntityBitTank.BITS_PER_MB_CONVERSION;
+		return TileEntityBitStorage.BITS_PER_MB_CONVERSION;
 	}
 
     @Override
     public boolean isItemValid(final int slot, @NotNull final ItemStack stack)
     {
-        return !ModUtil.isEmpty( stack ) && stack.getItem() instanceof ItemChiseledBit;
+        return !ModUtil.isEmpty( stack ) && (stack.getItem() instanceof ItemChiseledBit || BlockBitInfo.canChisel(stack));
+    }
+
+    public BlockState getState()
+    {
+        return state;
+    }
+
+    public Fluid getMyFluid()
+    {
+        return myFluid;
+    }
+
+    public int getBits()
+    {
+        return bits;
     }
 }

@@ -2,7 +2,7 @@
   "parent": "chiselsandbits:chiselsandbits/root",
   "display": {
     "icon": {
-      "item": "chiselsandbits:bit_tank"
+      "item": "chiselsandbits:bit_storage"
     },
     "title": {
       "translate": "mod.chiselsandbits.advancements.make-tank.title"
@@ -22,7 +22,7 @@
       "conditions": {
         "items": [
           {
-            "item": "chiselsandbits:bit_tank"
+            "item": "chiselsandbits:bit_storage"
           }
         ]
       }

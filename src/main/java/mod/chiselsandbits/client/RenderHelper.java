@@ -54,10 +54,6 @@ public class RenderHelper
     {
         if (bb != null)
         {
-            final double x = player.lastTickPosX + (player.getPosX() - player.lastTickPosX) * partialTicks;
-            final double y = player.lastTickPosY + (player.getPosY() - player.lastTickPosY) * partialTicks;
-            final double z = player.lastTickPosZ + (player.getPosZ() - player.lastTickPosZ) * partialTicks;
-
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
             GL11.glLineWidth(2.0F);
@@ -100,10 +96,6 @@ public class RenderHelper
     {
         if (a != null && b != null)
         {
-            final double x = player.lastTickPosX + (player.getPosX() - player.lastTickPosX) * partialTicks;
-            final double y = player.lastTickPosY + (player.getPosY() - player.lastTickPosY) * partialTicks;
-            final double z = player.lastTickPosZ + (player.getPosZ() - player.lastTickPosZ) * partialTicks;
-
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
             GL11.glLineWidth(2.0F);
@@ -111,8 +103,8 @@ public class RenderHelper
             RenderSystem.depthMask(false);
             RenderSystem.shadeModel(GL11.GL_FLAT);
 
-            final Vector3d a2 = a.add(-x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ());
-            final Vector3d b2 = b.add(-x + blockPos.getX(), -y + blockPos.getY(), -z + blockPos.getZ());
+            final Vector3d a2 = a.add(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+            final Vector3d b2 = b.add(blockPos.getX(), blockPos.getY(), blockPos.getZ());
             if (!NormalBoundingBox)
             {
                 RenderHelper.renderLine(matrixStack, a2, b2, red, green, blue, alpha);
@@ -224,10 +216,10 @@ public class RenderHelper
     {
         final Tessellator tess = Tessellator.getInstance();
         final BufferBuilder bufferBuilder = tess.getBuffer();
-        final IVertexBuilder vertexBuilder = new MatrixApplyingVertexBuilder(bufferBuilder, matrixStack.getLast().getMatrix(), matrixStack.getLast().getNormal());
+        RenderSystem.shadeModel(GL11.GL_FLAT);
         bufferBuilder.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
-        vertexBuilder.pos(a.x, a.y, a.z).color(red, green, blue, alpha).endVertex();
-        vertexBuilder.pos(b.x, b.y, b.z).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), (float) a.x, (float) a.y, (float) a.z).color(red, green, blue, alpha).endVertex();
+        bufferBuilder.pos(matrixStack.getLast().getMatrix(), (float) b.x, (float) b.y, (float) b.z).color(red, green, blue, alpha).endVertex();
         tess.draw();
     }
 

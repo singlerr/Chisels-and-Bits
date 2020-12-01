@@ -21,7 +21,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.network.PacketBuffer;
@@ -35,7 +34,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistry;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -148,13 +146,14 @@ public final class VoxelBlob implements IVoxelSrc
     public static VoxelBlob NULL_BLOB = new VoxelBlob();
 
     final int[] values = new int[array_size];
-    final boolean[] noneAir = new boolean[array_size];
+    final BitSet noneAir;
 
     public int detail = dim;
 
     public VoxelBlob()
     {
         // nothing specific here...
+        noneAir = new BitSet(array_size);
     }
 
     @Override
@@ -176,8 +175,8 @@ public final class VoxelBlob implements IVoxelSrc
         for (int x = 0; x < values.length; ++x)
         {
             values[x] = vb.values[x];
-            noneAir[x] = vb.noneAir[x];
         }
+        noneAir = (BitSet) vb.noneAir.clone();
     }
 
     public boolean canMerge(
@@ -202,15 +201,15 @@ public final class VoxelBlob implements IVoxelSrc
         final VoxelBlob out = new VoxelBlob();
 
         final int[] secondValues = second.values;
-        final boolean[] secondNoneAir = second.noneAir;
+        final BitSet secondNoneAir = second.noneAir;
         final int ov[] = out.values;
-        final boolean ona[] = out.noneAir;
+        final BitSet ona = out.noneAir;
 
         for (int x = 0; x < values.length; ++x)
         {
             final int firstValue = values[x];
             ov[x] = firstValue == 0 ? secondValues[x] : firstValue;
-            ona[x] = firstValue == 0 ? secondNoneAir[x] : noneAir[x];
+            ona.set(x, firstValue == 0 ? secondNoneAir.get(x) : noneAir.get(x));
         }
 
         return out;
@@ -355,13 +354,58 @@ public final class VoxelBlob implements IVoxelSrc
         return d;
     }
 
+    public void fillAmount(
+      final int value,
+      final int amount)
+    {
+        final int loopCount = Math.max(0, Math.min(amount, array_size));
+        if (loopCount == 0)
+            return;
+
+        noneAir.clear();
+        for (int x = 0; x < loopCount; x++)
+        {
+            values[x] = value;
+            noneAir.set(x, value > 0);
+        }
+    }
+
+    public void fillAmountFromBottom(
+      final int value,
+      final int amount)
+    {
+        final int loopCount = Math.max(0, Math.min(amount, array_size));
+        if (loopCount == 0)
+            return;
+
+        noneAir.clear();
+        int count = 0;
+        for (int y = 0; y < dim; y++)
+        {
+            for (int x = 0; x < dim; x++)
+            {
+                for (int z = 0; z < dim; z++)
+                {
+                    final int i = getDataIndex(x, y, z);
+                    values[i] = value;
+                    noneAir.set(i, value > 0);
+
+                    count++;
+                    if (count == amount)
+                        return;
+                }
+            }
+        }
+    }
+
     public void fill(
       final int value)
     {
+        noneAir.clear();
         for (int x = 0; x < array_size; x++)
         {
             values[x] = value;
-            noneAir[x] = value > 0;
+            noneAir.set(x, value > 0);
         }
     }
 
@@ -371,8 +415,9 @@ public final class VoxelBlob implements IVoxelSrc
         for (int x = 0; x < array_size; x++)
         {
             values[x] = src.values[x];
-            noneAir[x] = src.noneAir[x];
         }
+        noneAir.clear();
+        noneAir.or(src.noneAir);
     }
 
     public void fillNoneAir(
@@ -382,9 +427,45 @@ public final class VoxelBlob implements IVoxelSrc
         {
             if (values[x] != 0) {
                 values[x] = value;
-                noneAir[x] = value > 0;
+                noneAir.set(x, value > 0);
             }
         }
+    }
+
+    public PartialFillResult clearAllBut(
+      final int firstState,
+      final int secondState,
+      final int thirdState
+    ) {
+        int firstStateUseCount = 0;
+        int secondStateUseCount = 0;
+        int thirdStateUseCount = 0;
+
+
+        for (int x = 0; x < array_size; x++)
+        {
+            if (values[x] != 0) {
+                if (
+                  (firstState == 0 || values[x] != firstState) &&
+                    (secondState == 0 || values[x] != secondState) &&
+                    (thirdState == 0 || values[x] != thirdState)
+                ) {
+                    values[x] = 0;
+                    noneAir.set(x, true);
+                }
+            }
+
+            if (values[x] == firstState && firstState != 0)
+                firstStateUseCount++;
+
+            if (values[x] == secondState && secondState != 0)
+                secondStateUseCount++;
+
+            if (values[x] == thirdState && thirdState != 0)
+                thirdStateUseCount++;
+        }
+
+        return new PartialFillResult(firstStateUseCount, secondStateUseCount, thirdStateUseCount);
     }
 
     public void clear()
@@ -411,10 +492,11 @@ public final class VoxelBlob implements IVoxelSrc
       final int airReplacement,
       final int solidReplacement)
     {
+        noneAir.clear();
         for (int x = 0; x < array_size; x++)
         {
             values[x] = values[x] == 0 ? airReplacement : solidReplacement;
-            noneAir[x] = values[x] > 0;
+            noneAir.set(x, values[x] > 0);
         }
     }
 
@@ -447,7 +529,7 @@ public final class VoxelBlob implements IVoxelSrc
       final int newValue)
     {
         values[offset] = newValue;
-        noneAir[offset] = newValue > 0;
+        noneAir.set(offset, newValue > 0);
     }
 
     public int get(
@@ -504,7 +586,7 @@ public final class VoxelBlob implements IVoxelSrc
         for (int x = 0; x < array_size; x++)
         {
             values[x] = fixShorts(src.get());
-            noneAir[x] = values[x] > 0;
+            noneAir.set(x, values[x] > 0);
         }
 
         w.close();
@@ -874,7 +956,7 @@ public final class VoxelBlob implements IVoxelSrc
             if (fluidFilterState.get(ref) != wantsFluids)
             {
                 values[x] = 0;
-                noneAir[x] = false;
+                noneAir.clear(x);
             }
             else
             {
@@ -902,7 +984,7 @@ public final class VoxelBlob implements IVoxelSrc
             if (!layerFilterState.get(ref))
             {
                 values[x] = 0;
-                noneAir[x] = false;
+                noneAir.clear(x);
             }
             else
             {
@@ -967,7 +1049,7 @@ public final class VoxelBlob implements IVoxelSrc
         for (int x = 0; x < array_size; x++)
         {
             values[x] = bs.readVoxelStateID(bits);// src.get();
-            noneAir[x] = values[x] > 0;
+            noneAir.set(x, values[x] > 0);
         }
 
         w.close();
@@ -1046,6 +1128,33 @@ public final class VoxelBlob implements IVoxelSrc
         catch (final IOException e)
         {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static class PartialFillResult {
+        private final int firstStateUsedCount;
+        private final int secondStateUsedCount;
+        private final int thirdStateUsedCount;
+
+        public PartialFillResult(final int firstStateUsedCount, final int secondStateUsedCount, final int thirdStateUsedCount) {
+            this.firstStateUsedCount = firstStateUsedCount;
+            this.secondStateUsedCount = secondStateUsedCount;
+            this.thirdStateUsedCount = thirdStateUsedCount;
+        }
+
+        public int getFirstStateUsedCount()
+        {
+            return firstStateUsedCount;
+        }
+
+        public int getSecondStateUsedCount()
+        {
+            return secondStateUsedCount;
+        }
+
+        public int getThirdStateUsedCount()
+        {
+            return thirdStateUsedCount;
         }
     }
 }

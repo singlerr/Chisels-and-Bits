@@ -80,7 +80,8 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
     private void setBlobStateReference(final VoxelBlobStateReference blobStateReference)
     {
-        this.blobStateReference = blobStateReference;
+        if (this.blobStateReference == null || !this.blobStateReference.equals(blobStateReference))
+            this.blobStateReference = blobStateReference;
     }
 
     public int getPrimaryBlockStateId()
@@ -213,6 +214,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
       final NetworkManager net,
       final SUpdateTileEntityPacket pkt)
     {
+        final VoxelBlobStateReference current = getBlobStateReference();
         final int oldLight = lightLevel;
         final boolean changed = readChiselData(pkt.getNbtCompound());
 
@@ -225,6 +227,10 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
             {
                 world.getLightManager().checkBlock(pos);
             }
+        }
+
+        if (world.isRemote()) {
+            UndoTracker.getInstance().onNetworkUpdate(current, getBlobStateReference());
         }
     }
 

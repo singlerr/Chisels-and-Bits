@@ -1,4 +1,4 @@
-package mod.chiselsandbits.station;
+package mod.chiselsandbits.printer;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -7,17 +7,16 @@ import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class ChiselStationScreen extends ContainerScreen<ChiselStationContainer>
+public class ChiselPrinterScreen extends ContainerScreen<ChiselPrinterContainer>
 {
 
-    private static final ResourceLocation GUI_TEXTURES = new ResourceLocation(Constants.MOD_ID, "textures/gui/container/chisel_station.png");
+    private static final ResourceLocation GUI_TEXTURES = new ResourceLocation(Constants.MOD_ID, "textures/gui/container/chisel_printer.png");
 
-    public ChiselStationScreen(final ChiselStationContainer screenContainer, final PlayerInventory inv, final ITextComponent titleIn)
+    public ChiselPrinterScreen(final ChiselPrinterContainer screenContainer, final PlayerInventory inv, final ITextComponent titleIn)
     {
         super(screenContainer, inv, titleIn);
     }
@@ -54,8 +53,5 @@ public class ChiselStationScreen extends ContainerScreen<ChiselStationContainer>
         matrixStack.translate(0,0,400);
         this.blit(matrixStack, this.guiLeft + 73 + 10 + scaledProgress, this.guiTop + 49, this.xSize + scaledProgress, 0, 16 - scaledProgress, 16);
         matrixStack.pop();
-
-        //
-        //
     }
 }

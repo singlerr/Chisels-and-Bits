@@ -741,7 +741,7 @@ public class ModUtil
 			final Item item,
 			final int stackSize )
 	{
-		return makeStack( item, 1);
+		return new ItemStack(item, stackSize);
 	}
 
     public static boolean isEmpty(final Item item)

@@ -8,6 +8,7 @@ import mod.chiselsandbits.api.ParameterType.DoubleParam;
 import mod.chiselsandbits.api.ParameterType.FloatParam;
 import mod.chiselsandbits.api.ParameterType.IntegerParam;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
+import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
@@ -94,7 +95,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 		}
 
 		final BlockState state = world.getBlockState( pos );
-		if ( BlockBitInfo.canChisel( state ) )
+		if ( BlockBitInfo.isSupported( state ) && !(state.getBlock() instanceof BlockChiseled))
 		{
 			final VoxelBlob blob = new VoxelBlob();
 			blob.fill( ModUtil.getStateId( state ) );

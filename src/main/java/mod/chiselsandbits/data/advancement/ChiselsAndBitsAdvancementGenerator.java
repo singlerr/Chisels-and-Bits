@@ -92,7 +92,7 @@ public class ChiselsAndBitsAdvancementGenerator extends AbstractAdvancementGener
 
         Advancement makeTank = Advancement.Builder.builder()
                                     .withParent(root)
-                                    .withDisplay(ModBlocks.BIT_TANK_BLOCK_ITEM.get(),
+                                    .withDisplay(ModBlocks.BIT_STORAGE_BLOCK_ITEM.get(),
                                       new TranslationTextComponent("mod.chiselsandbits.advancements.make-tank.title"),
                                       new TranslationTextComponent("mod.chiselsandbits.advancements.make-tank.description"),
                                       new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"),
@@ -100,7 +100,7 @@ public class ChiselsAndBitsAdvancementGenerator extends AbstractAdvancementGener
                                       true,
                                       true,
                                       true)
-                                    .withCriterion("bit_tank", InventoryChangeTrigger.Instance.forItems(ModBlocks.BIT_TANK_BLOCK_ITEM.get()))
+                                    .withCriterion("bit_tank", InventoryChangeTrigger.Instance.forItems(ModBlocks.BIT_STORAGE_BLOCK_ITEM.get()))
                                     .register(register, Constants.MOD_ID + ":chiselsandbits/make_tank");
     }
 

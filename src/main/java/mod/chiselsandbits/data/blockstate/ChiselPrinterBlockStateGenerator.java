@@ -6,7 +6,7 @@ import com.ldtteam.datagenerators.blockstate.BlockstateModelJson;
 import com.ldtteam.datagenerators.blockstate.BlockstateVariantJson;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.registry.ModBlocks;
-import mod.chiselsandbits.station.ChiselStationBlock;
+import mod.chiselsandbits.printer.ChiselPrinterBlock;
 import mod.chiselsandbits.utils.Constants;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
@@ -21,34 +21,32 @@ import java.nio.file.Path;
 import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = ChiselsAndBits.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ChiselStationBlockStateGenerator implements IDataProvider
+public class ChiselPrinterBlockStateGenerator implements IDataProvider
 {
-    public static final int INT = 90;
-
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
-        event.getGenerator().addProvider(new ChiselStationBlockStateGenerator(event.getGenerator()));
+        event.getGenerator().addProvider(new ChiselPrinterBlockStateGenerator(event.getGenerator()));
     }
 
     private final DataGenerator generator;
 
-    private ChiselStationBlockStateGenerator(final DataGenerator generator) {this.generator = generator;}
+    private ChiselPrinterBlockStateGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
     public void act(final DirectoryCache cache) throws IOException
     {
-        actOnBlock(cache, ModBlocks.CHISEL_STATION_BLOCK.get());
+        actOnBlock(cache, ModBlocks.CHISEL_PRINTER_BLOCK.get());
     }
 
     public void actOnBlock(final DirectoryCache cache, final Block block) throws IOException
     {
         final Map<String, BlockstateVariantJson> variants = Maps.newHashMap();
 
-        ChiselStationBlock.FACING.getAllowedValues().forEach(dir -> {
-            final String variantKey = String.format("%s=%s", ChiselStationBlock.FACING.getName(), dir);
-            String modelFile = Constants.DataGenerator.CHISEL_STATION_MODEL.toString();
-            final BlockstateModelJson model = new BlockstateModelJson(modelFile, 0, (int) dir.getHorizontalAngle()- INT);
+        ChiselPrinterBlock.FACING.getAllowedValues().forEach(dir -> {
+            final String variantKey = String.format("%s=%s", ChiselPrinterBlock.FACING.getName(), dir);
+            String modelFile = Constants.DataGenerator.CHISEL_PRINTER_MODEL.toString();
+            final BlockstateModelJson model = new BlockstateModelJson(modelFile, 0, (int) dir.getOpposite().getHorizontalAngle());
             variants.put(variantKey, new BlockstateVariantJson(model));
         });
 

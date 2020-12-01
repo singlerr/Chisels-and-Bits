@@ -1,6 +1,5 @@
 package mod.chiselsandbits.core;
 
-import mod.chiselsandbits.bitbag.BagContainer;
 import mod.chiselsandbits.bitbag.BagGui;
 import mod.chiselsandbits.client.gui.SpriteIconPositioning;
 import mod.chiselsandbits.client.model.loader.ChiseledBlockModelLoader;
@@ -9,18 +8,15 @@ import mod.chiselsandbits.modes.IToolMode;
 import mod.chiselsandbits.modes.PositivePatternMode;
 import mod.chiselsandbits.modes.TapeMeasureModes;
 import mod.chiselsandbits.registry.ModContainerTypes;
-import mod.chiselsandbits.station.ChiselStationScreen;
+import mod.chiselsandbits.printer.ChiselPrinterScreen;
 import mod.chiselsandbits.utils.Constants;
 import mod.chiselsandbits.utils.TextureUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.resources.IResource;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -54,7 +50,7 @@ public class ChiselsAndBitsClient
             );
             ScreenManager.registerFactory(
               ModContainerTypes.CHISEL_STATION_CONTAINER.get(),
-              ChiselStationScreen::new
+              ChiselPrinterScreen::new
             );
         });
     }

@@ -1,4 +1,4 @@
-package mod.chiselsandbits.bittank;
+package mod.chiselsandbits.bitstorage;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mod.chiselsandbits.registry.ModBlocks;
@@ -16,7 +16,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 
-public class ItemStackSpecialRendererBitTank extends ItemStackTileEntityRenderer
+public class ItemStackSpecialRendererBitStorage extends ItemStackTileEntityRenderer
 {
 
     @Override
@@ -29,12 +29,13 @@ public class ItemStackSpecialRendererBitTank extends ItemStackTileEntityRenderer
       final int combinedOverlay)
     {
 
-        final IBakedModel model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(ModBlocks.BIT_TANK_BLOCK.getId(), "facing=east"));
+        final IBakedModel model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(ModBlocks.BIT_STORAGE_BLOCK.getId(), "facing=east"));
 
-        Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelRenderer().renderModel(matrixStack.getLast(), buffer.getBuffer(RenderType.getTranslucent()), ModBlocks.BIT_TANK_BLOCK.get().getDefaultState(), model, 1f,1f,1f, combinedLight, combinedOverlay,
+        Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelRenderer().renderModel(matrixStack.getLast(), buffer.getBuffer(RenderType.getTranslucent()), ModBlocks.BIT_STORAGE_BLOCK
+                                                                                                                                                                         .get().getDefaultState(), model, 1f,1f,1f, combinedLight, combinedOverlay,
           EmptyModelData.INSTANCE);
 
-        final TileEntityBitTank tileEntity = new TileEntityBitTank();
+        final TileEntityBitStorage tileEntity = new TileEntityBitStorage();
         tileEntity
           .getCapability(
             CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY

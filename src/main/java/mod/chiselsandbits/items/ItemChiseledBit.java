@@ -2,11 +2,10 @@ package mod.chiselsandbits.items;
 
 import com.google.common.base.Stopwatch;
 import mod.chiselsandbits.api.ReplacementStateHandler;
-import mod.chiselsandbits.bittank.BlockBitTank;
+import mod.chiselsandbits.bitstorage.BlockBitStorage;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChiseledValue;
-import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -293,7 +292,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		// forward interactions to tank...
 		final BlockState usedState = world.getBlockState( usedBlock );
 		final Block blk = usedState.getBlock();
-		if ( blk instanceof BlockBitTank )
+		if ( blk instanceof BlockBitStorage)
 		{
 			if ( blk.onBlockActivated( usedState, world, usedBlock, player, hand, rayTraceResult) == ActionResultType.SUCCESS)
 			{

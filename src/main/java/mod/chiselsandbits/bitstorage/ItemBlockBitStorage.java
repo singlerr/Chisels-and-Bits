@@ -1,4 +1,4 @@
-package mod.chiselsandbits.bittank;
+package mod.chiselsandbits.bitstorage;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.DeprecationHelper;
@@ -7,7 +7,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluid;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -28,10 +27,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class ItemBlockBitTank extends BlockItem
+public class ItemBlockBitStorage extends BlockItem
 {
 
-	public ItemBlockBitTank(
+	public ItemBlockBitStorage(
 			final Block block , Item.Properties builder)
 	{
 		super( block, builder );
@@ -76,11 +75,11 @@ public class ItemBlockBitTank extends BlockItem
              return false;
 
          final TileEntity tileEntity = worldIn.getTileEntity(pos);
-         if (!(tileEntity instanceof TileEntityBitTank))
+         if (!(tileEntity instanceof TileEntityBitStorage))
              return false;
 
-         final TileEntityBitTank tileEntityBitTank = (TileEntityBitTank) tileEntity;
-         tileEntityBitTank
+         final TileEntityBitStorage tileEntityBitStorage = (TileEntityBitStorage) tileEntity;
+         tileEntityBitStorage
            .getCapability(
              CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY
            )

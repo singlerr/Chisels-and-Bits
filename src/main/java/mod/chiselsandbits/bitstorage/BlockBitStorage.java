@@ -1,4 +1,4 @@
-package mod.chiselsandbits.bittank;
+package mod.chiselsandbits.bitstorage;
 
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.core.Log;
@@ -18,9 +18,6 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,15 +29,13 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
-public class BlockBitTank extends Block implements ITileEntityProvider
+public class BlockBitStorage extends Block implements ITileEntityProvider
 {
 
     private static final Property<Direction> FACING = HorizontalBlock.HORIZONTAL_FACING;
 
-    public BlockBitTank(AbstractBlock.Properties properties)
+    public BlockBitStorage(AbstractBlock.Properties properties)
     {
         super(properties);
     }
@@ -62,20 +57,20 @@ public class BlockBitTank extends Block implements ITileEntityProvider
     @Override
     public TileEntity createNewTileEntity(final IBlockReader worldIn)
     {
-        return new TileEntityBitTank();
+        return new TileEntityBitStorage();
     }
 
-    public TileEntityBitTank getTileEntity(
+    public TileEntityBitStorage getTileEntity(
       final TileEntity te) throws ExceptionNoTileEntity
     {
-        if (te instanceof TileEntityBitTank)
+        if (te instanceof TileEntityBitStorage)
         {
-            return (TileEntityBitTank) te;
+            return (TileEntityBitStorage) te;
         }
         throw new ExceptionNoTileEntity();
     }
 
-    public TileEntityBitTank getTileEntity(
+    public TileEntityBitStorage getTileEntity(
       final IBlockReader world,
       final BlockPos pos) throws ExceptionNoTileEntity
     {
@@ -88,7 +83,7 @@ public class BlockBitTank extends Block implements ITileEntityProvider
     {
         try
         {
-            final TileEntityBitTank tank = getTileEntity(worldIn, pos);
+            final TileEntityBitStorage tank = getTileEntity(worldIn, pos);
             final ItemStack current = ModUtil.nonNull(player.inventory.getCurrentItem());
 
             if (!ModUtil.isEmpty(current))
@@ -144,10 +139,10 @@ public class BlockBitTank extends Block implements ITileEntityProvider
             return Lists.newArrayList();
         }
 
-        return Lists.newArrayList(getTankDrop((TileEntityBitTank) builder.get(LootParameters.BLOCK_ENTITY)));
+        return Lists.newArrayList(getTankDrop((TileEntityBitStorage) builder.get(LootParameters.BLOCK_ENTITY)));
     }
 
-    public ItemStack getTankDrop(final TileEntityBitTank bitTank)
+    public ItemStack getTankDrop(final TileEntityBitStorage bitTank)
     {
         final ItemStack tankStack = new ItemStack(this);
         tankStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)

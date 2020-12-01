@@ -1,9 +1,9 @@
 package mod.chiselsandbits.registry;
 
-import mod.chiselsandbits.bittank.TileEntityBitTank;
+import mod.chiselsandbits.bitstorage.TileEntityBitStorage;
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.station.ChiselStationTileEntity;
+import mod.chiselsandbits.printer.ChiselPrinterTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.fml.RegistryObject;
@@ -27,15 +27,15 @@ public final class ModTileEntityTypes
       ).build(null)
     );
 
-    public static RegistryObject<TileEntityType<TileEntityBitTank>> BIT_TANK = REGISTRAR.register("bit_tank", () -> TileEntityType.Builder.create(
-      TileEntityBitTank::new,
-      ModBlocks.BIT_TANK_BLOCK.get()
+    public static RegistryObject<TileEntityType<TileEntityBitStorage>> BIT_STORAGE = REGISTRAR.register("bit_storage", () -> TileEntityType.Builder.create(
+      TileEntityBitStorage::new,
+      ModBlocks.BIT_STORAGE_BLOCK.get()
       ).build(null)
     );
 
-    public static RegistryObject<TileEntityType<ChiselStationTileEntity>> CHISEL_STATION = REGISTRAR.register("chisel_station", () -> TileEntityType.Builder.create(
-      ChiselStationTileEntity::new,
-      ModBlocks.CHISEL_STATION_BLOCK.get()
+    public static RegistryObject<TileEntityType<ChiselPrinterTileEntity>> CHISEL_PRINTER = REGISTRAR.register("chisel_printer", () -> TileEntityType.Builder.create(
+      ChiselPrinterTileEntity::new,
+      ModBlocks.CHISEL_PRINTER_BLOCK.get()
       ).build(null)
     );
 

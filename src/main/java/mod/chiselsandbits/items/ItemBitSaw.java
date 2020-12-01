@@ -3,6 +3,7 @@ package mod.chiselsandbits.items;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.item.IItemTier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
@@ -12,13 +13,42 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.List;
 
+import static net.minecraft.item.ItemTier.*;
+
 public class ItemBitSaw extends Item
 {
 
-	public ItemBitSaw(Item.Properties properties)
+	public ItemBitSaw(IItemTier tier, Item.Properties properties)
 	{
-        super(properties.maxStackSize(1).maxDamage(ChiselsAndBits.getConfig().getServer().damageTools.get() ? (int) Math.max( 0, Math.min( Short.MAX_VALUE, ChiselsAndBits.getConfig().getServer().diamondSawUses.get() ) ) : 0));
+        super(setupDamageStack(tier, properties.maxStackSize(1)));
 	}
+
+
+    private static Item.Properties setupDamageStack(IItemTier material, Item.Properties properties) {
+        long uses = 1;
+        if (DIAMOND.equals(material))
+        {
+            uses = ChiselsAndBits.getConfig().getServer().diamondSawUses.get();
+        }
+        else if (GOLD.equals(material))
+        {
+            uses = ChiselsAndBits.getConfig().getServer().goldSawUses.get();
+        }
+        else if (IRON.equals(material))
+        {
+            uses = ChiselsAndBits.getConfig().getServer().ironSawUses.get();
+        }
+        else if (STONE.equals(material))
+        {
+            uses = ChiselsAndBits.getConfig().getServer().stoneSawUses.get();
+        }
+        else if (NETHERITE.equals(material))
+        {
+            uses = ChiselsAndBits.getConfig().getServer().netheriteSawUses.get();
+        }
+
+        return properties.maxDamage(ChiselsAndBits.getConfig().getServer().damageTools.get() ? (int) Math.max( 0, uses ) : 0);
+    }
 
 	@Override
 	@OnlyIn( Dist.CLIENT )

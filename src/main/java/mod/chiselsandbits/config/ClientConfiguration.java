@@ -55,6 +55,8 @@ public class ClientConfiguration extends AbstractConfiguration
     public ForgeConfigSpec.BooleanValue defaultToDynamicRenderer;
     public ForgeConfigSpec.BooleanValue dynamicRenderFullChunksOnly;
 
+    public ForgeConfigSpec.LongValue bitStorageContentCacheSize;
+
     /**
      * Builds client configuration.
      *
@@ -111,7 +113,9 @@ public class ClientConfiguration extends AbstractConfiguration
         forceDynamicRenderer = defineBoolean(builder, "client.performance.dynamic-rendering.force", false);
         defaultToDynamicRenderer = defineBoolean(builder, "client.performance.dynamic-rendering.default", false);
         dynamicRenderFullChunksOnly = defineBoolean(builder, "client.performance.dynamic-rendering.full-chunks-only", false);
+        bitStorageContentCacheSize = defineLong(builder, "client.performance.bit-storage.contents.cache.size", 100, 0, Long.MAX_VALUE);
 
         finishCategory(builder);
+
     }
 }

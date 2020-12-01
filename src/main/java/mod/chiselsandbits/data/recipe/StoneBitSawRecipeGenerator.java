@@ -3,47 +3,39 @@ package mod.chiselsandbits.data.recipe;
 import com.ldtteam.datagenerators.recipes.RecipeIngredientJson;
 import com.ldtteam.datagenerators.recipes.RecipeIngredientKeyJson;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.registry.ModItems;
-import mod.chiselsandbits.registry.ModTags;
-import net.minecraft.block.Blocks;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.tags.ItemTags;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
 import java.io.IOException;
-import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = ChiselsAndBits.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ChiselStationRecipeGenerator extends AbstractRecipeGenerator
+public class StoneBitSawRecipeGenerator extends AbstractRecipeGenerator
 {
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
-        event.getGenerator().addProvider(new ChiselStationRecipeGenerator(event.getGenerator()));
+        event.getGenerator().addProvider(new StoneBitSawRecipeGenerator(event.getGenerator()));
     }
 
-    private ChiselStationRecipeGenerator(final DataGenerator generator)
-    {
-        super(generator, ModBlocks.CHISEL_STATION_BLOCK.get());
+    private StoneBitSawRecipeGenerator(final DataGenerator generator) {
+        super(generator, ModItems.ITEM_BIT_SAW_STONE.get());
     }
 
     @Override
     protected void generate() throws IOException
     {
         addShapedRecipe(
-          " c ",
-          "t t",
           "sss",
+          "stt",
+          "   ",
           "s",
-          new RecipeIngredientKeyJson(new RecipeIngredientJson(Objects.requireNonNull(Blocks.SMOOTH_STONE_SLAB.getRegistryName()).toString(), false)),
-          "t",
           new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.RODS_WOODEN.getName().toString(), true)),
-          "c",
-          new RecipeIngredientKeyJson(new RecipeIngredientJson(ModTags.Items.CHISEL.getName().toString(), true))
+          "t",
+          new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.STONE.getName().toString(), true))
         );
     }
 }

@@ -2,23 +2,20 @@
   "type": "minecraft:crafting_shaped",
   "group": "chiselsandbits",
   "pattern": [
-    " c ",
-    "t t",
-    "sss"
+    "sss",
+    "stt",
+    "   "
   ],
   "key": {
     "s": {
-      "item": "minecraft:smooth_stone_slab"
-    },
-    "t": {
       "tag": "forge:rods/wooden"
     },
-    "c": {
-      "tag": "chiselsandbits:chisel"
+    "t": {
+      "tag": "forge:stone"
     }
   },
   "result": {
     "count": 1,
-    "item": "chiselsandbits:chisel_station"
+    "item": "chiselsandbits:bitsaw_stone"
   }
 }

@@ -1,14 +1,11 @@
-package mod.chiselsandbits.station;
+package mod.chiselsandbits.printer;
 
-import mod.chiselsandbits.bitbag.BagContainer;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.LocalStrings;
 import net.minecraft.block.*;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.IContainerProvider;
 import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.inventory.container.SimpleNamedContainerProvider;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.DirectionProperty;
@@ -22,7 +19,6 @@ import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -30,22 +26,24 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class ChiselStationBlock extends ContainerBlock
+public class ChiselPrinterBlock extends ContainerBlock
 {
 
-    public static final DirectionProperty FACING            = HorizontalBlock.HORIZONTAL_FACING;
-    private static final VoxelShape     NORTH_SOUTH_SHAPE = Stream.of(
+    public static final DirectionProperty FACING = HorizontalBlock.HORIZONTAL_FACING;
+    private static final VoxelShape       SHAPE  = Stream.of(
+      Block.makeCuboidShape(0, 5, 0, 2, 16, 2),
+      Block.makeCuboidShape(14, 5, 0, 16, 16, 2),
+      Block.makeCuboidShape(0, 5, 14, 2, 16, 16),
+      Block.makeCuboidShape(14, 5, 14, 16, 16, 16),
+      Block.makeCuboidShape(2, 14, 0, 14, 16, 2),
+      Block.makeCuboidShape(2, 14, 14, 14, 16, 16),
+      Block.makeCuboidShape(0, 14, 2, 2, 16, 14),
+      Block.makeCuboidShape(14, 14, 2, 16, 16, 14),
       Block.makeCuboidShape(0, 0, 0, 16, 5, 16),
-      VoxelShapes.combineAndSimplify(Block.makeCuboidShape(1.5, 5, 0.5, 14.5, 12.7, 2.5), Block.makeCuboidShape(6.950000000000001, 9.55, 2.5, 9.05, 11.65, 5.5), IBooleanFunction.OR),
-      VoxelShapes.combineAndSimplify(Block.makeCuboidShape(1.5, 5, 13.5, 14.5, 12.7, 15.5), Block.makeCuboidShape(6.950000000000001, 9.55, 10.5, 9.05, 11.65, 13.5), IBooleanFunction.OR)
-    ).reduce((v1, v2) -> VoxelShapes.combineAndSimplify(v1, v2, IBooleanFunction.OR)).orElse(VoxelShapes.empty());
-    private static final VoxelShape EAST_WEST_SHAPE = Stream.of(
-      Block.makeCuboidShape(0, 0, 0, 16, 5, 16),
-      VoxelShapes.combineAndSimplify(Block.makeCuboidShape(0.5, 5, 1.5, 2.5, 12.7, 14.5), Block.makeCuboidShape(2.5, 9.55, 6.949999999999999, 5.5, 11.65, 9.049999999999997), IBooleanFunction.OR),
-      VoxelShapes.combineAndSimplify(Block.makeCuboidShape(13.5, 5, 1.5, 15.5, 12.7, 14.5), Block.makeCuboidShape(10.5, 9.55, 6.949999999999999, 13.5, 11.65, 9.049999999999999), IBooleanFunction.OR)
-    ).reduce((v1, v2) -> VoxelShapes.combineAndSimplify(v1, v2, IBooleanFunction.OR)).orElse(VoxelShapes.empty());
+      Block.makeCuboidShape(7, 1, -0.5, 12, 4, 0)
+    ).reduce((v1, v2) -> {return VoxelShapes.combineAndSimplify(v1, v2, IBooleanFunction.OR);}).orElse(VoxelShapes.empty());
 
-    public ChiselStationBlock(final Properties builder)
+    public ChiselPrinterBlock(final Properties builder)
     {
         super(builder);
         this.setDefaultState(this.stateContainer.getBaseState().with(FACING, Direction.NORTH));
@@ -74,14 +72,14 @@ public class ChiselStationBlock extends ContainerBlock
     @Override
     public VoxelShape getShape(final BlockState state, final IBlockReader worldIn, final BlockPos pos, final ISelectionContext context)
     {
-        return state.get(FACING).getAxis() == Direction.Axis.X ? NORTH_SOUTH_SHAPE : EAST_WEST_SHAPE;
+        return SHAPE;
     }
 
     @Nullable
     @Override
     public TileEntity createNewTileEntity(final IBlockReader worldIn)
     {
-        return new ChiselStationTileEntity();
+        return new ChiselPrinterTileEntity();
     }
 
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {

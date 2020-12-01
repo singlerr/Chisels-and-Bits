@@ -1,35 +1,29 @@
 package mod.chiselsandbits.client.gui;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-
+import com.google.common.base.Stopwatch;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.ReplacementStateHandler;
-import mod.chiselsandbits.core.ChiselsAndBitsClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.item.DyeColor;
-import net.minecraft.util.text.StringTextComponent;
-import org.lwjgl.opengl.GL11;
-
-import com.google.common.base.Stopwatch;
-
-import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.ClientSide;
 import mod.chiselsandbits.helpers.ChiselToolType;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.LocalStrings;
 import mod.chiselsandbits.modes.IToolMode;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.item.DyeColor;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
-import net.minecraftforge.client.model.ModelLoader;
+import net.minecraft.util.text.StringTextComponent;
+import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class ChiselsAndBitsMenu extends Screen
 {
@@ -38,6 +32,7 @@ public class ChiselsAndBitsMenu extends Screen
 	public static final ChiselsAndBitsMenu instance = new ChiselsAndBitsMenu();
 
 	private float visibility = 0.0f;
+	private boolean canRaise = true;
 	private Stopwatch lastChange = Stopwatch.createStarted();
 	public IToolMode switchTo = null;
 	public ButtonAction doAction = null;
@@ -45,7 +40,6 @@ public class ChiselsAndBitsMenu extends Screen
 
     protected ChiselsAndBitsMenu()
     {
-        //TODO: Handle translation here.
         super(new StringTextComponent("Menu"));
     }
 
@@ -57,12 +51,16 @@ public class ChiselsAndBitsMenu extends Screen
 
 	public void raiseVisibility()
 	{
+	    if (!canRaise)
+	        return;
+
 		visibility = clampVis( visibility + lastChange.elapsed( TimeUnit.MILLISECONDS ) * TIME_SCALE );
 		lastChange = Stopwatch.createStarted();
 	}
 
 	public void decreaseVisibility()
 	{
+	    canRaise = true;
 		visibility = clampVis( visibility - lastChange.elapsed( TimeUnit.MILLISECONDS ) * TIME_SCALE );
 		lastChange = Stopwatch.createStarted();
 	}
@@ -183,7 +181,7 @@ public class ChiselsAndBitsMenu extends Screen
         buffer.begin( GL11.GL_QUADS, DefaultVertexFormats.POSITION_COLOR );
 
         final double vecX = mouseX - width / 2;
-        final double vecY = -1 * (mouseY - height / 2);
+        final double vecY = (mouseY - height / 2);
         double radians = Math.atan2( vecY, vecX );
 
         final double ring_inner_edge = 20;
@@ -195,6 +193,7 @@ public class ChiselsAndBitsMenu extends Screen
         {
             radians = radians + Math.PI * 2;
         }
+
 
         final double middle_x = width / 2;
         final double middle_y = height / 2;
@@ -477,22 +476,18 @@ public class ChiselsAndBitsMenu extends Screen
 		return n > 0 ? 1 : -1;
 	}
 
-	/**
-	 * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-	 */
-	protected void mouseClicked(
-			int mouseX,
-			int mouseY,
-			int mouseButton ) throws IOException
-	{
-		if ( mouseButton == 0 && ChiselsAndBits.getConfig().getServer().enableVivecraftCompatibility.get() )
-		{
-			this.minecraft.displayGuiScreen( null );
+    @Override
+    public boolean mouseClicked(final double mouseX, final double mouseY, final int button)
+    {
+        this.visibility = 0f;
+        canRaise = false;
+        this.minecraft.displayGuiScreen( null );
 
-			if ( this.minecraft.currentScreen == null )
-			{
-				this.minecraft.setGameFocused(true);
-			}
-		}
-	}
+        if ( this.minecraft.currentScreen == null )
+        {
+            this.minecraft.setGameFocused(true);
+        }
+        return true;
+    }
+
 }

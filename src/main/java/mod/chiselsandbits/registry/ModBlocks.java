@@ -1,26 +1,22 @@
 package mod.chiselsandbits.registry;
 
 import com.google.common.collect.Maps;
-import mod.chiselsandbits.bittank.BlockBitTank;
-import mod.chiselsandbits.bittank.ItemBlockBitTank;
-import mod.chiselsandbits.bittank.ItemStackSpecialRendererBitTank;
+import mod.chiselsandbits.bitstorage.BlockBitStorage;
+import mod.chiselsandbits.bitstorage.ItemBlockBitStorage;
+import mod.chiselsandbits.bitstorage.ItemStackSpecialRendererBitStorage;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.ItemBlockChiseled;
 import mod.chiselsandbits.chiseledblock.MaterialType;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.station.ChiselStationBlock;
+import mod.chiselsandbits.printer.ChiselPrinterBlock;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.EntityType;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
 import net.minecraftforge.common.ToolType;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -43,7 +39,7 @@ public final class ModBlocks
     private static final Map<Material, RegistryObject<BlockChiseled>> MATERIAL_TO_BLOCK_CONVERSIONS = Maps.newHashMap();
     private static final Map<Material, RegistryObject<ItemBlockChiseled>>  MATERIAL_TO_ITEM_CONVERSIONS = Maps.newHashMap();
 
-    public static final RegistryObject<BlockBitTank> BIT_TANK_BLOCK = BLOCK_REGISTRAR.register("bit_tank", () -> new BlockBitTank(AbstractBlock.Properties.create(Material.IRON)
+    public static final RegistryObject<BlockBitStorage> BIT_STORAGE_BLOCK = BLOCK_REGISTRAR.register("bit_storage", () -> new BlockBitStorage(AbstractBlock.Properties.create(Material.IRON)
                                                                                                                                     .hardnessAndResistance(1.5F, 6.0F)
                                                                                                                                     .harvestTool(ToolType.AXE)
                                                                                                                                     .harvestLevel(1)
@@ -55,10 +51,10 @@ public final class ModBlocks
                                                                                                                                     .setSuffocates((p_test_1_, p_test_2_, p_test_3_) -> false)
                                                                                                                                     .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false)));
 
-    public static final RegistryObject<BlockItem> BIT_TANK_BLOCK_ITEM = ITEM_REGISTRAR.register("bit_tank", () -> new ItemBlockBitTank(BIT_TANK_BLOCK.get(), new Item.Properties()
+    public static final RegistryObject<BlockItem>          BIT_STORAGE_BLOCK_ITEM = ITEM_REGISTRAR.register("bit_storage", () -> new ItemBlockBitStorage(BIT_STORAGE_BLOCK.get(), new Item.Properties()
                                                                                                                                                                .group(CHISELS_AND_BITS)
-                                                                                                                                                               .setISTER(() -> ItemStackSpecialRendererBitTank::new)));
-    public static final RegistryObject<ChiselStationBlock> CHISEL_STATION_BLOCK = BLOCK_REGISTRAR.register("chisel_station", () -> new ChiselStationBlock(AbstractBlock.Properties.create(Material.ROCK)
+                                                                                                                                                               .setISTER(() -> ItemStackSpecialRendererBitStorage::new)));
+    public static final RegistryObject<ChiselPrinterBlock> CHISEL_PRINTER_BLOCK   = BLOCK_REGISTRAR.register("chisel_printer", () -> new ChiselPrinterBlock(AbstractBlock.Properties.create(Material.ROCK)
       .hardnessAndResistance(1.5f, 6f)
       .harvestLevel(1)
       .harvestTool(ToolType.PICKAXE)
@@ -67,7 +63,7 @@ public final class ModBlocks
       .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false)
     ));
 
-    public static final RegistryObject<BlockItem> CHISEL_STATION_ITEM = ITEM_REGISTRAR.register("chisel_station", () -> new BlockItem(ModBlocks.CHISEL_STATION_BLOCK.get(), new Item.Properties().group(CHISELS_AND_BITS)));
+    public static final RegistryObject<BlockItem> CHISEL_PRINTER_ITEM = ITEM_REGISTRAR.register("chisel_printer", () -> new BlockItem(ModBlocks.CHISEL_PRINTER_BLOCK.get(), new Item.Properties().group(CHISELS_AND_BITS)));
 
     private static final MaterialType[] VALID_CHISEL_MATERIALS = new MaterialType[] {
       new MaterialType( "wood", Material.WOOD ),

@@ -275,6 +275,12 @@ public class UndoTracker implements ICacheClearable
 		}
 	}
 
+	public void onNetworkUpdate(final VoxelBlobStateReference beforeUpdate, final VoxelBlobStateReference afterUpdate) {
+	    this.undoLevels.forEach(step -> {
+	        step.onNetworkUpdate(beforeUpdate, afterUpdate);
+        });
+    }
+
 	@Override
 	public void clearCache()
 	{

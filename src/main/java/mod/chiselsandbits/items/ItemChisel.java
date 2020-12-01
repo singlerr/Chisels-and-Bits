@@ -88,6 +88,10 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
         {
             uses = ChiselsAndBits.getConfig().getServer().stoneChiselUses.get();
         }
+        else if (NETHERITE.equals(material))
+        {
+            uses = ChiselsAndBits.getConfig().getServer().netheriteChiselUses.get();
+        }
 
         return properties.maxDamage(ChiselsAndBits.getConfig().getServer().damageTools.get() ? (int) Math.max( 0, uses ) : 0);
     }
