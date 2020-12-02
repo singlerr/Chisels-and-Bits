@@ -19,6 +19,7 @@ import mod.chiselsandbits.network.NetworkChannel;
 import mod.chiselsandbits.registry.*;
 import mod.chiselsandbits.render.SmartModelManager;
 import mod.chiselsandbits.utils.Constants;
+import mod.chiselsandbits.utils.LanguageHandler;
 import net.minecraft.block.material.Material;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -45,6 +46,8 @@ public class ChiselsAndBits
 	public ChiselsAndBits()
 	{
 	    instance = this;
+
+        LanguageHandler.loadLangPath("assets/chiselsandbits/lang/%s.json"); // hotfix config comments, it's ugly bcs it's gonna be replaced
         config = new Configuration(ModLoadingContext.get().getActiveContainer());
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::handleIMCEvent);

@@ -107,7 +107,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
 
     public static boolean ForgePipelineDisabled()
     {
-        return !ForgeConfig.CLIENT.forgeLightPipelineEnabled.get() || ChiselsAndBits.getConfig().getServer().disableCustomVertexFormats.get();
+        return !ForgeConfig.CLIENT.forgeLightPipelineEnabled.get() || ChiselsAndBits.getConfig().getClient().disableCustomVertexFormats.get();
     }
 
     public static ChiseledBlockBaked  getCachedModel(

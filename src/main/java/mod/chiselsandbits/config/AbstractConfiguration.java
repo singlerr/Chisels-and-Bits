@@ -1,38 +1,65 @@
 package mod.chiselsandbits.config;
 
+import com.google.common.collect.Sets;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.DeprecationHelper;
 import net.minecraftforge.common.ForgeConfigSpec.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 public abstract class AbstractConfiguration
 {
-    protected void createCategory(final Builder builder, final String key)
+
+    public static final Set<String> LANG_KEYS = Sets.newLinkedHashSet();
+
+    private static String currentCategory = "";
+
+    protected static void createCategory(final Builder builder, final String key)
     {
         builder.comment(DeprecationHelper.translateToLocal(commentTKey(key))).push(key);
+        currentCategory = key;
     }
 
-    protected void swapToCategory(final Builder builder, final String key)
+    protected static void swapToCategory(final Builder builder, final String key)
     {
         finishCategory(builder);
         createCategory(builder, key);
     }
 
-    protected void finishCategory(final Builder builder)
+    protected static void finishCategory(final Builder builder)
     {
         builder.pop();
+        currentCategory = "";
     }
 
     private static String nameTKey(final String key)
     {
-        return ChiselsAndBits.MODID + ".config." + key;
+        final String tKey = currentCategory.isEmpty() ? String.format("mod.%s.config.%s", ChiselsAndBits.MODID, key) : String.format("mod.%s.config.%s.%s", ChiselsAndBits.MODID, currentCategory, key);
+
+        final String[] tKeyParts = tKey.split("\\.");
+        String workingKey = "";
+        for (int i = 0; i < tKeyParts.length; i++)
+        {
+            final String tKeyPart = tKeyParts[i];
+            workingKey = workingKey.isEmpty() ? tKeyPart : String.format("%s.%s", workingKey, tKeyPart);
+
+            if (i < 3)
+                continue;
+
+            LANG_KEYS.add(workingKey);
+            LANG_KEYS.add(String.format("%s.comment", workingKey));
+        }
+
+        return tKey;
     }
 
     private static String commentTKey(final String key)
     {
-        return nameTKey(key) + ".comment";
+        final String tComKey = String.format("%s.comment", nameTKey(key));
+        LANG_KEYS.add(tComKey);
+        return tComKey;
     }
 
     private static Builder buildBase(final Builder builder, final String key)

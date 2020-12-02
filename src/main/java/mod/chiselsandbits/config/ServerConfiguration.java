@@ -12,13 +12,8 @@ import java.util.Objects;
  */
 public class ServerConfiguration extends AbstractConfiguration
 {
-    public ForgeConfigSpec.BooleanValue showBitsInJEI;
-    public ForgeConfigSpec.BooleanValue enableVivecraftCompatibility;
     public ForgeConfigSpec.BooleanValue logTileErrors;
     public ForgeConfigSpec.BooleanValue logEligibilityErrors;
-    public ForgeConfigSpec.BooleanValue useGetLightValue;
-    public ForgeConfigSpec.BooleanValue enableFaceLightmapExtraction;
-    public ForgeConfigSpec.BooleanValue disableCustomVertexFormats;
     public ForgeConfigSpec.BooleanValue blackListRandomTickingBlocks;
     public ForgeConfigSpec.BooleanValue damageTools;
     public ForgeConfigSpec.BooleanValue enableChiselToolHarvestCheck;
@@ -27,7 +22,6 @@ public class ServerConfiguration extends AbstractConfiguration
     public ForgeConfigSpec.BooleanValue enableBitLightSource;
     public ForgeConfigSpec.DoubleValue bitLightPercentage;
     public ForgeConfigSpec.BooleanValue compatabilityMode;
-    public ForgeConfigSpec.DoubleValue maxDrawnRegionSize;
     public ForgeConfigSpec.IntValue bagStackSize;
     public ForgeConfigSpec.IntValue stoneChiselUses;
     public ForgeConfigSpec.IntValue ironChiselUses;
@@ -40,7 +34,6 @@ public class ServerConfiguration extends AbstractConfiguration
     public ForgeConfigSpec.IntValue goldSawUses;
     public ForgeConfigSpec.IntValue diamondSawUses;
     public ForgeConfigSpec.IntValue netheriteSawUses;
-    public ForgeConfigSpec.BooleanValue enableSetBitCommand;
     public ForgeConfigSpec.BooleanValue fullBlockCrafting;
     public ForgeConfigSpec.BooleanValue requireBagSpace;
     public ForgeConfigSpec.BooleanValue voidExcessBits;
@@ -51,19 +44,10 @@ public class ServerConfiguration extends AbstractConfiguration
 
     protected ServerConfiguration(final ForgeConfigSpec.Builder builder)
     {
-        createCategory(builder, "server.integration-settings");
-
-        showBitsInJEI = defineBoolean(builder, "server.integration-settings.jei.show-in-jei", false);
-        enableVivecraftCompatibility = defineBoolean(builder, "server.integrations-settings.vivecraft.enabled", false);
-
-        finishCategory(builder);
         createCategory(builder, "server.troubleshooting");
 
         logTileErrors = defineBoolean(builder, "server.troubleshooting.logging.tile-errors", true);
         logEligibilityErrors = defineBoolean(builder, "server.troubleshooting.logging.eligibility-errors", true);
-        useGetLightValue = defineBoolean(builder, "server.troubleshooting.lighting.use-value", true);
-        enableFaceLightmapExtraction = defineBoolean(builder, "server.troubleshooting.lighting.face-lightmap-extraction", true);
-        disableCustomVertexFormats = defineBoolean(builder, "server.troubleshooting.vertexformats.custom.disabled", true);;
 
         finishCategory(builder);
         createCategory(builder, "server.balancing");
@@ -76,7 +60,6 @@ public class ServerConfiguration extends AbstractConfiguration
         enableBitLightSource = defineBoolean(builder, "server.balancing.bits.act-as-light-source", true);
         bitLightPercentage = defineDouble(builder, "server.balancing.bits.light-percentage", 6.25);
         compatabilityMode = defineBoolean(builder, "server.balancing.compatibility-mode.enabled", false);
-        maxDrawnRegionSize = defineDouble(builder, "server.balancing.max-drawn-region.size", 4);
         bagStackSize = defineInteger(builder, "server.balancing.bag.stack-size", 512);
         stoneChiselUses = defineInteger(builder, "server.balancing.chisel-uses.stone", 12288);
         ironChiselUses = defineInteger(builder, "server.balancing.chisel-uses.iron", 110592);

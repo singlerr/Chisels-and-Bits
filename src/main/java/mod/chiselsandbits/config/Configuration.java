@@ -13,8 +13,11 @@ public class Configuration
 {
     private final ClientConfiguration clientConfig;
     private final ServerConfiguration serverConfig;
-
     private final CommonConfiguration commonConfig;
+
+    private final ForgeConfigSpec clientConfigSpec;
+    private final ForgeConfigSpec commonConfigSpec;
+    private final ForgeConfigSpec serverConfigSpec;
 
     /**
      * Builds configuration tree.
@@ -41,6 +44,11 @@ public class Configuration
         clientConfig = cli.getLeft();
         serverConfig = ser.getLeft();
         commonConfig = com.getLeft();
+
+        clientConfigSpec = cli.getRight();
+        serverConfigSpec = ser.getRight();
+        commonConfigSpec = com.getRight();
+
         modContainer.addConfig(client);
         modContainer.addConfig(server);
         modContainer.addConfig(common);
@@ -61,5 +69,18 @@ public class Configuration
         return commonConfig;
     }
 
+    public ForgeConfigSpec getClientConfigSpec()
+    {
+        return clientConfigSpec;
+    }
 
+    public ForgeConfigSpec getCommonConfigSpec()
+    {
+        return commonConfigSpec;
+    }
+
+    public ForgeConfigSpec getServerConfigSpec()
+    {
+        return serverConfigSpec;
+    }
 }

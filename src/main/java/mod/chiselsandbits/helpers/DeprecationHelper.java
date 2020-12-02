@@ -40,7 +40,13 @@ public class DeprecationHelper
 			final String string )
 	{
 	    return DistExecutor.unsafeRunForDist(
-          () -> () -> LanguageMap.getInstance().func_230503_a_(string),
+          () -> () -> {
+              final String translated = LanguageMap.getInstance().func_230503_a_(string);
+              if (translated.equals(string))
+                  return LanguageHandler.translateKey(string);
+
+              return translated;
+              },
           () -> () -> LanguageHandler.translateKey(string)
         );
 	}

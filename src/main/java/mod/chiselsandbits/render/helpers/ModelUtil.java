@@ -92,7 +92,7 @@ public class ModelUtil implements ICacheClearable
 	{
 		final BlockState state = ModUtil.getStateById( stateID );
 		final IBakedModel model = ModelUtil.solveModel( state, weight, Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getModel( state ), layer );
-		final int lv = ChiselsAndBits.getConfig().getServer().useGetLightValue.get() ? DeprecationHelper.getLightValue( state ) : 0;
+		final int lv = ChiselsAndBits.getConfig().getClient().useGetLightValue.get() ? DeprecationHelper.getLightValue( state ) : 0;
 
 		final Fluid fluid = BlockBitInfo.getFluidFromBlock( state.getBlock() );
 		if ( fluid != null )
@@ -286,7 +286,7 @@ public class ModelUtil implements ICacheClearable
 
 				q.pipe( b.uvr );
 
-				if ( ChiselsAndBits.getConfig().getServer().enableFaceLightmapExtraction.get() )
+				if ( ChiselsAndBits.getConfig().getClient().enableFaceLightmapExtraction.get() )
 				{
 				    //TODO: Check if this works.
 					b.lv.setVertexFormat(DefaultVertexFormats.BLOCK);

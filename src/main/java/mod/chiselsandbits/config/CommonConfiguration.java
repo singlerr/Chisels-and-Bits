@@ -15,15 +15,15 @@ public class CommonConfiguration extends AbstractConfiguration
 
     public CommonConfiguration(ForgeConfigSpec.Builder builder)
     {
-        createCategory(builder, "help");
+        createCategory(builder, "common.help");
 
-        enableHelp = defineBoolean(builder, "help.enabled", true);
+        enableHelp = defineBoolean(builder, "common.help.enabled", true);
 
         finishCategory(builder);
 
-        createCategory(builder, "performance");
+        createCategory(builder, "common.performance");
 
-        collisionBoxCacheSize = defineLong(builder, "performance.collisions.cache.size", 10000L);
+        collisionBoxCacheSize = defineLong(builder, "common.performance.collisions.cache.size", 10000L);
 
         finishCategory(builder);
     }
@@ -48,7 +48,7 @@ public class CommonConfiguration extends AbstractConfiguration
                     {
                         final String pre = a.substring( 0, offset );
                         final String post = a.substring( offset + 2 );
-                        a = new StringBuilder( pre ).append( variables[varOffset++] ).append( post ).toString();
+                        a = String.format("%s%s%s", pre, variables[varOffset++], post);
                     }
                 }
 

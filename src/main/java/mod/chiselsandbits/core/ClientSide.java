@@ -826,7 +826,7 @@ public class ClientSide
 
                             final AxisAlignedBB bb = a.union(b);
 
-                            final double maxChiseSize = ChiselsAndBits.getConfig().getServer().maxDrawnRegionSize.get() + 0.001;
+                            final double maxChiseSize = ChiselsAndBits.getConfig().getClient().maxDrawnRegionSize.get() + 0.001;
                             if (bb.maxX - bb.minX <= maxChiseSize && bb.maxY - bb.minY <= maxChiseSize && bb.maxZ - bb.minZ <= maxChiseSize)
                             {
                                 RenderHelper.drawSelectionBoundingBoxIfExists(event.getMatrix(), bb, BlockPos.ZERO, player, partialTicks, false);

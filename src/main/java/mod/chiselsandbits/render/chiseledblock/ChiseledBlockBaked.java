@@ -771,11 +771,6 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
         return count;
     }
 
-    public boolean isAboveLimit()
-    {
-        return faceCount() >= ChiselsAndBits.getConfig().getClient().dynamicModelFaceCount.get();
-    }
-
     public static ChiseledBlockBaked createFromTexture(
       TextureAtlasSprite findTexture,
       ChiselRenderType layer)

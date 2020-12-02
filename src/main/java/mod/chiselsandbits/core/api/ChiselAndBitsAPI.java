@@ -400,7 +400,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 				switch ( (DoubleParam) which )
 				{
 					case BIT_MAX_DRAWN_REGION_SIZE:
-						return ChiselsAndBits.getConfig().getServer().maxDrawnRegionSize.get();
+						return ChiselsAndBits.getConfig().getClient().maxDrawnRegionSize.get();
 				}
 				break;
 
