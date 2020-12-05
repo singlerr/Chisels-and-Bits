@@ -56,7 +56,7 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
           )
         );*/
 
-        if (state == null)
+        if (state == null || world.getTileEntity(pos) == null)
         {
             return new ModelDataMap.Builder().build();
         }
