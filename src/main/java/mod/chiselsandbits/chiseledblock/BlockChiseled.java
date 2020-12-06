@@ -22,6 +22,7 @@ import mod.chiselsandbits.registry.ModBlocks;
 import mod.chiselsandbits.utils.SingleBlockBlockReader;
 import mod.chiselsandbits.utils.SingleBlockWorldReader;
 import net.minecraft.block.*;
+import net.minecraft.block.material.PushReaction;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -651,4 +652,9 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
 		return super.canHarvestBlock(world.getBlockState(pos), world, pos, player );
 	}
 
+    @Override
+    public PushReaction getPushReaction(final BlockState state)
+    {
+        return PushReaction.BLOCK;
+    }
 }
