@@ -84,9 +84,9 @@ public class BitLocation implements IBitLocation
 		}
 		else
 		{
-            final double xCoord = mop.getHitVec().x - absOffset.getX() - mop.getFace().getXOffset() * One32nd;
-            final double yCoord = mop.getHitVec().y - absOffset.getY() - mop.getFace().getYOffset() * One32nd;
-            final double zCoord = mop.getHitVec().z - absOffset.getZ() - mop.getFace().getZOffset() * One32nd;
+            final double xCoord = mop.getHitVec().x - absOffset.getX() + mop.getFace().getXOffset() * One32nd;
+            final double yCoord = mop.getHitVec().y - absOffset.getY() + mop.getFace().getYOffset() * One32nd;
+            final double zCoord = mop.getHitVec().z - absOffset.getZ() + mop.getFace().getZOffset() * One32nd;
 
 			final int bitXi = (int) Math.floor( xCoord * VoxelBlob.dim );
 			final int bitYi = (int) Math.floor( yCoord * VoxelBlob.dim );
