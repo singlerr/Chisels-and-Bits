@@ -49,23 +49,34 @@ public class ChiselsAndBitsMenu extends Screen
 		return Math.max( 0.0f, Math.min( 1.0f, f ) );
 	}
 
-	public void raiseVisibility()
+	public boolean raiseVisibility()
 	{
-	    if (!canRaise)
-	        return;
+	    if (!isCanRaise())
+	        return false;
 
 		visibility = clampVis( visibility + lastChange.elapsed( TimeUnit.MILLISECONDS ) * TIME_SCALE );
 		lastChange = Stopwatch.createStarted();
+		return true;
 	}
 
 	public void decreaseVisibility()
 	{
-	    canRaise = true;
+	    setCanRaise(true);
 		visibility = clampVis( visibility - lastChange.elapsed( TimeUnit.MILLISECONDS ) * TIME_SCALE );
 		lastChange = Stopwatch.createStarted();
 	}
 
-	public boolean isVisible()
+    public boolean isCanRaise()
+    {
+        return canRaise;
+    }
+
+    public void setCanRaise(final boolean canRaise)
+    {
+        this.canRaise = canRaise;
+    }
+
+    public boolean isVisible()
 	{
 		return visibility > 0.001;
 	}
@@ -486,6 +497,8 @@ public class ChiselsAndBitsMenu extends Screen
         if ( this.minecraft.currentScreen == null )
         {
             this.minecraft.setGameFocused(true);
+            this.minecraft.getSoundHandler().resume();
+            this.minecraft.mouseHelper.grabMouse();
         }
         return true;
     }

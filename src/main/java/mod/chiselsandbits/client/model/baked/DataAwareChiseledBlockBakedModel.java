@@ -5,7 +5,7 @@ import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.NullBakedModel;
 import mod.chiselsandbits.render.chiseledblock.ChiselRenderType;
-import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBakedModel;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
@@ -70,7 +70,7 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
 
         if (layer == null)
         {
-            final ChiseledBlockBaked[] models = new ChiseledBlockBaked[ChiselRenderType.values().length];
+            final ChiseledBlockBakedModel[] models = new ChiseledBlockBakedModel[ChiselRenderType.values().length];
             int o = 0;
 
             for (final ChiselRenderType l : ChiselRenderType.values())
@@ -86,10 +86,10 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
         IBakedModel baked;
         if (RenderType.getBlockRenderTypes().contains(layer) && ChiseledBlockSmartModel.FLUID_RENDER_TYPES.get(RenderType.getBlockRenderTypes().indexOf(layer)))
         {
-            final ChiseledBlockBaked a = ChiseledBlockSmartModel.getCachedModel(
+            final ChiseledBlockBakedModel a = ChiseledBlockSmartModel.getCachedModel(
               (TileEntityBlockChiseled) Objects.requireNonNull(world.getTileEntity(pos)),
               ChiselRenderType.fromLayer(layer, false));
-            final ChiseledBlockBaked b = ChiseledBlockSmartModel.getCachedModel(
+            final ChiseledBlockBakedModel b = ChiseledBlockSmartModel.getCachedModel(
               (TileEntityBlockChiseled) Objects.requireNonNull(world.getTileEntity(pos)),
               ChiselRenderType.fromLayer(layer, true));
 
@@ -120,10 +120,10 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
     public IBakedModel func_239290_a_(
       final IBakedModel originalModel, final ItemStack stack, final World world, final LivingEntity entity)
     {
-        final ChiseledBlockBaked a = ChiseledBlockSmartModel.getCachedModel(
+        final ChiseledBlockBakedModel a = ChiseledBlockSmartModel.getCachedModel(
           stack,
           ChiselRenderType.fromLayer(MinecraftForgeClient.getRenderLayer(), false));
-        final ChiseledBlockBaked b = ChiseledBlockSmartModel.getCachedModel(
+        final ChiseledBlockBakedModel b = ChiseledBlockSmartModel.getCachedModel(
           stack,
           ChiselRenderType.fromLayer(MinecraftForgeClient.getRenderLayer(), true));
 

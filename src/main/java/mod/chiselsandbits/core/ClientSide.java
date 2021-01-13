@@ -85,6 +85,7 @@ import org.lwjgl.opengl.GL11;
 
 import javax.annotation.Nonnull;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -253,8 +254,8 @@ public class ClientSide
             if (!modeMenu.isInvalid() && modeMenu.isKeyDown())
             {
                 ChiselsAndBitsMenu.instance.actionUsed = false;
-                ChiselsAndBitsMenu.instance.raiseVisibility();
-                ChiselsAndBitsMenu.instance.getMinecraft().mouseHelper.ungrabMouse();
+                if (ChiselsAndBitsMenu.instance.raiseVisibility())
+                    ChiselsAndBitsMenu.instance.getMinecraft().mouseHelper.ungrabMouse();
             }
             else
             {
@@ -397,7 +398,7 @@ public class ClientSide
 
                 try
                 {
-                    final BitLocation bl = new BitLocation(rayTraceResult, true, BitOperation.CHISEL);
+                    final BitLocation bl = new BitLocation(rayTraceResult, BitOperation.CHISEL);
                     final IBitAccess access = ChiselsAndBits.getApi().getBitAccess(mc.world, bl.getBlockPos());
                     final IBitBrush brush = access.getBitAt(bl.getBitX(), bl.getBitY(), bl.getBitZ());
                     final ItemStack is = brush.getItemStack(1);
@@ -592,6 +593,11 @@ public class ClientSide
             return;
         }
 
+        if (Minecraft.getInstance().player != null && !Minecraft.getInstance().player.inventory.getCurrentItem().isEmpty())
+        {
+            lastTool = getToolTypeForItem(Objects.requireNonNull(Minecraft.getInstance().player).inventory.getCurrentItem());
+        }
+
         // used to prevent hyper chisels.. its actually far worse then you might
         // think...
         if (event.side == LogicalSide.CLIENT && event.type == TickEvent.Type.CLIENT && event.phase == TickEvent.Phase.START
@@ -600,7 +606,7 @@ public class ClientSide
             ItemChisel.resetDelay();
         }
 
-        if (!getToolKey().isInvalid() && !getToolKey().isKeyDown())
+        if (!getToolKey().isInvalid() && !getToolKey().isKeyDown() && lastTool == ChiselToolType.CHISEL)
         {
             if (ticksSinceRelease >= 4)
             {
@@ -705,7 +711,7 @@ public class ClientSide
 
         tapeMeasures.setPreviewMeasure(null, null, chMode, null);
 
-        if (tool != null && tool == ChiselToolType.TAPEMEASURE)
+        if (tool == ChiselToolType.TAPEMEASURE)
         {
             final PlayerEntity player = getPlayer();
             final RayTraceResult mop = Minecraft.getInstance().objectMouseOver;
@@ -715,7 +721,7 @@ public class ClientSide
             if (mop != null && mop.getType() == RayTraceResult.Type.BLOCK)
             {
                 final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) mop;
-                final BitLocation location = new BitLocation(blockRayTraceResult, true, BitOperation.CHISEL);
+                final BitLocation location = new BitLocation(blockRayTraceResult, BitOperation.CHISEL);
                 if (theWorld.getWorldBorder().contains(location.blockPos))
                 {
                     final BitLocation other = getStartPos();
@@ -781,7 +787,7 @@ public class ClientSide
                 if (mop.getType() == RayTraceResult.Type.BLOCK)
                 {
                     final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) mop;
-                    final BitLocation location = new BitLocation(rayTraceResult, true, getLastBitOperation(player, lastHand, getPlayer().getHeldItem(lastHand)));
+                    final BitLocation location = new BitLocation(rayTraceResult, getLastBitOperation(player, lastHand, getPlayer().getHeldItem(lastHand)));
                     if (theWorld.getWorldBorder().contains(location.blockPos))
                     {
                         // this logic originated in the vanilla bounding box...
@@ -847,9 +853,6 @@ public class ClientSide
                                     lastHand = Hand.MAIN_HAND;
                                     lastTool = ChiselToolType.CHISEL;
                                 }
-                            }
-                            else {
-                                System.out.println("Size check failed");
                             }
                         }
                         else
@@ -1068,7 +1071,7 @@ public class ClientSide
 
         if (ClientSide.offGridPlacement(player))
         {
-            final BitLocation bl = new BitLocation(mop, true, BitOperation.PLACE);
+            final BitLocation bl = new BitLocation(mop, BitOperation.PLACE);
             showGhost(matrixStack, currentItem, item, bl.blockPos, player, rotations, x, y, z, mop.getFace(), new BlockPos(bl.bitX, bl.bitY, bl.bitZ), null);
         }
         else
@@ -1096,11 +1099,19 @@ public class ClientSide
 
             final TileEntity newTarget = theWorld.getTileEntity(newOffset);
 
-            if (theWorld.isAirBlock(newOffset) || theWorld.getBlockState(newOffset)
+            if (theWorld.isAirBlock(newOffset) || newTarget instanceof TileEntityBlockChiseled || (theWorld.getTileEntity(newOffset) instanceof TileEntityBlockChiseled && theWorld.getBlockState(newOffset)
+                                                                                                                                .getBlock()
+                                                                                                                                .isReplaceable(theWorld.getBlockState(newOffset),
+                                                                                                                                  new BlockItemUseContext(player, hand,  player.getHeldItem(hand), new BlockRayTraceResult(
+                                                                                                                                    mop.getHitVec().add(mop.getFace().getXOffset(), mop.getFace().getYOffset(), mop.getFace().getZOffset()),
+                                                                                                                                    mop.getFace(),
+                                                                                                                                    mop.getPos().add(mop.getFace().getDirectionVec()),
+                                                                                                                                    mop.isInside()
+                                                                                                                                  )))) || ( !(theWorld.getTileEntity(newOffset) instanceof TileEntityBlockChiseled) && theWorld.getBlockState(newOffset)
                                                     .getBlock()
                                                     .isReplaceable(theWorld.getBlockState(newOffset),
-                                                      new BlockItemUseContext(player, hand,  player.getHeldItem(hand), mop))
-                  || newTarget instanceof TileEntityBlockChiseled
+                                                      new BlockItemUseContext(player, hand,  player.getHeldItem(hand), mop)))
+
             )
             {
                 final TileEntityBlockChiseled test = ModUtil.getChiseledTileEntity(theWorld, newOffset, false);
@@ -1401,6 +1412,11 @@ public class ClientSide
 
     @Nonnull
     Hand lastHand = Hand.MAIN_HAND;
+
+    public void setLastTool(@Nonnull final ChiselToolType lastTool)
+    {
+        this.lastTool = lastTool;
+    }
 
     KeyBinding getToolKey()
     {

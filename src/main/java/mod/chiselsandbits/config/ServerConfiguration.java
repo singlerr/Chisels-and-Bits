@@ -54,7 +54,7 @@ public class ServerConfiguration extends AbstractConfiguration
 
         blackListRandomTickingBlocks = defineBoolean(builder, "server.balancing.random-ticking-blocks.blacklisted", false);
         damageTools = defineBoolean(builder, "server.balancing.tools.damage", true);
-        enableChiselToolHarvestCheck = defineBoolean(builder, "server.balancing.chisel-tool.harvest-check.enabled", true);
+        enableChiselToolHarvestCheck = defineBoolean(builder, "server.balancing.chisel-tool.harvest-check.enabled", false);
         enableChiselToolHarvestCheckTools = defineString(builder, "server.balancing.chisel-tool.harvest-check.tools", "");
         enableToolHarvestLevels = defineBoolean(builder, "server.balancing.tools.harvest-levels.enabled", true);
         enableBitLightSource = defineBoolean(builder, "server.balancing.bits.act-as-light-source", true);

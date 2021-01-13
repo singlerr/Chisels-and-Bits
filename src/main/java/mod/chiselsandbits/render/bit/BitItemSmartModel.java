@@ -1,13 +1,10 @@
 package mod.chiselsandbits.render.bit;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.core.ClientSide;
-import mod.chiselsandbits.events.ClientTickHandler;
 import mod.chiselsandbits.events.TickHandler;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -15,16 +12,13 @@ import mod.chiselsandbits.client.model.baked.BaseSmartModel;
 import mod.chiselsandbits.registry.ModItems;
 import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.chiseledblock.ChiselRenderType;
-import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBakedModel;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.world.World;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public class BitItemSmartModel extends BaseSmartModel implements ICacheClearable
 {
@@ -57,12 +51,11 @@ public class BitItemSmartModel extends BaseSmartModel implements ICacheClearable
 			{
 				final VoxelBlob blob = new VoxelBlob();
 				blob.fill( stateID );
-				final VoxelBlobStateReference ref = new VoxelBlobStateReference( blob, 0 );
-				final IBakedModel a = new ChiseledBlockBaked( stateID, ChiselRenderType.SOLID, ref,  DefaultVertexFormats.BLOCK );
-				final IBakedModel b = new ChiseledBlockBaked( stateID, ChiselRenderType.SOLID_FLUID, ref,  DefaultVertexFormats.BLOCK );
-				final IBakedModel c = new ChiseledBlockBaked( stateID, ChiselRenderType.CUTOUT_MIPPED, ref, DefaultVertexFormats.BLOCK );
-				final IBakedModel d = new ChiseledBlockBaked( stateID, ChiselRenderType.CUTOUT, ref,  DefaultVertexFormats.BLOCK );
-				final IBakedModel e = new ChiseledBlockBaked( stateID, ChiselRenderType.TRANSLUCENT, ref, DefaultVertexFormats.BLOCK );
+				final IBakedModel a = new ChiseledBlockBakedModel( stateID, ChiselRenderType.SOLID, blob,  DefaultVertexFormats.BLOCK );
+				final IBakedModel b = new ChiseledBlockBakedModel( stateID, ChiselRenderType.SOLID_FLUID, blob,  DefaultVertexFormats.BLOCK );
+				final IBakedModel c = new ChiseledBlockBakedModel( stateID, ChiselRenderType.CUTOUT_MIPPED, blob, DefaultVertexFormats.BLOCK );
+				final IBakedModel d = new ChiseledBlockBakedModel( stateID, ChiselRenderType.CUTOUT, blob,  DefaultVertexFormats.BLOCK );
+				final IBakedModel e = new ChiseledBlockBakedModel( stateID, ChiselRenderType.TRANSLUCENT, blob, DefaultVertexFormats.BLOCK );
 				out = new ModelCombined( a, b, c, d, e );
 			}
 			else

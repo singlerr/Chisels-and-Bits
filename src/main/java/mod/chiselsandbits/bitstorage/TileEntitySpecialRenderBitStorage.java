@@ -3,11 +3,10 @@ package mod.chiselsandbits.bitstorage;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.render.chiseledblock.ChiselRenderType;
-import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBakedModel;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.utils.FluidCuboidHelper;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
@@ -88,9 +87,9 @@ public class TileEntitySpecialRenderBitStorage extends TileEntityRenderer<TileEn
         matrixStackIn.scale(12/16f, 12/16f, 12/16f);
         final VoxelBlob finalInnerModelBlob = innerModelBlob;
         RenderType.getBlockRenderTypes().forEach(renderType -> {
-            final ChiseledBlockBaked innerModel = ChiseledBlockSmartModel.getCachedModel(
+            final ChiseledBlockBakedModel innerModel = ChiseledBlockSmartModel.getCachedModel(
               ModUtil.getStateId(state),
-              new VoxelBlobStateReference(finalInnerModelBlob, 0L),
+              finalInnerModelBlob,
               ChiselRenderType.fromLayer(renderType, te.getMyFluid() != null),
               DefaultVertexFormats.BLOCK,
               Objects.requireNonNull(te.getWorld()).getRandom()

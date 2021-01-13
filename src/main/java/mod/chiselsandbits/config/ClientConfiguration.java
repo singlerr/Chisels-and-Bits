@@ -27,6 +27,8 @@ public class ClientConfiguration extends AbstractConfiguration
     public ForgeConfigSpec.BooleanValue useGetLightValue;
     public ForgeConfigSpec.BooleanValue disableCustomVertexFormats;
 
+    public ForgeConfigSpec.LongValue modelCacheSize;
+
     /**
      * Builds client configuration.
      *
@@ -56,6 +58,7 @@ public class ClientConfiguration extends AbstractConfiguration
         enableFaceLightmapExtraction = defineBoolean(builder, "lighting.face-lightmap-extraction", true);
         useGetLightValue = defineBoolean(builder, "lighting.use-value", true);
         disableCustomVertexFormats = defineBoolean(builder, "vertexformats.custom.disabled", true);
+        modelCacheSize = defineLong(builder, "models.cache.size", 1000000);
 
         finishCategory(builder);
 

@@ -36,8 +36,8 @@ public final class ModBlocks
     private static final DeferredRegister<Block> BLOCK_REGISTRAR = DeferredRegister.create(ForgeRegistries.BLOCKS, ChiselsAndBits.MODID);
     private static final DeferredRegister<Item> ITEM_REGISTRAR = DeferredRegister.create(ForgeRegistries.ITEMS, ChiselsAndBits.MODID);
 
-    private static final Map<Material, RegistryObject<BlockChiseled>> MATERIAL_TO_BLOCK_CONVERSIONS = Maps.newHashMap();
-    private static final Map<Material, RegistryObject<ItemBlockChiseled>>  MATERIAL_TO_ITEM_CONVERSIONS = Maps.newHashMap();
+    public static final Map<Material, RegistryObject<BlockChiseled>> MATERIAL_TO_BLOCK_CONVERSIONS = Maps.newHashMap();
+    public static final Map<Material, RegistryObject<ItemBlockChiseled>>  MATERIAL_TO_ITEM_CONVERSIONS = Maps.newHashMap();
 
     public static final RegistryObject<BlockBitStorage> BIT_STORAGE_BLOCK = BLOCK_REGISTRAR.register("bit_storage", () -> new BlockBitStorage(AbstractBlock.Properties.create(Material.IRON)
                                                                                                                                     .hardnessAndResistance(1.5F, 6.0F)
@@ -65,7 +65,7 @@ public final class ModBlocks
 
     public static final RegistryObject<BlockItem> CHISEL_PRINTER_ITEM = ITEM_REGISTRAR.register("chisel_printer", () -> new BlockItem(ModBlocks.CHISEL_PRINTER_BLOCK.get(), new Item.Properties().group(CHISELS_AND_BITS)));
 
-    private static final MaterialType[] VALID_CHISEL_MATERIALS = new MaterialType[] {
+    public static final MaterialType[] VALID_CHISEL_MATERIALS = new MaterialType[] {
       new MaterialType( "wood", Material.WOOD ),
       new MaterialType( "rock", Material.ROCK ),
       new MaterialType( "iron", Material.IRON ),

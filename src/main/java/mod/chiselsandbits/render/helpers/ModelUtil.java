@@ -7,7 +7,7 @@ import mod.chiselsandbits.helpers.DeprecationHelper;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.render.chiseledblock.ChiselRenderType;
-import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBaked;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockBakedModel;
 import mod.chiselsandbits.render.helpers.ModelQuadLayer.ModelQuadLayerBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -35,8 +35,8 @@ import java.util.*;
 public class ModelUtil implements ICacheClearable
 {
 	private final static HashMap<Pair<RenderType, Direction>, HashMap<Integer, String>> blockToTexture = new HashMap<>();
-	private static HashMap<Triple<Integer, RenderType, Direction>, ModelQuadLayer[]>             cache = new HashMap<>();
-	private static HashMap<Pair<RenderType, Integer>, ChiseledBlockBaked>                   breakCache = new HashMap<>();
+	private static HashMap<Triple<Integer, RenderType, Direction>, ModelQuadLayer[]>    cache          = new HashMap<>();
+	private static HashMap<Pair<RenderType, Integer>, ChiseledBlockBakedModel>          breakCache     = new HashMap<>();
 
 	@SuppressWarnings( "unused" )
 	private static ModelUtil instance = new ModelUtil();
@@ -528,13 +528,13 @@ public class ModelUtil implements ICacheClearable
 		return Minecraft.getInstance().getItemColors().getColor( target, tint );
 	}
 
-	public static ChiseledBlockBaked getBreakingModel(
+	public static ChiseledBlockBakedModel getBreakingModel(
 			ChiselRenderType layer,
 			Integer blockStateID,
             Random random)
 	{
 		Pair<RenderType, Integer> key = Pair.of(layer.layer, blockStateID);
-		ChiseledBlockBaked out = breakCache.get( key );
+		ChiseledBlockBakedModel out = breakCache.get( key );
 
 		if ( out == null )
 		{
@@ -543,11 +543,11 @@ public class ModelUtil implements ICacheClearable
 
 			if ( model != null )
 			{
-				out = ChiseledBlockBaked.createFromTexture( ModelUtil.findTexture( blockStateID, model, Direction.UP, layer.layer, random ), layer );
+				out = ChiseledBlockBakedModel.createFromTexture( ModelUtil.findTexture( blockStateID, model, Direction.UP, layer.layer, random ), layer );
 			}
 			else
 			{
-				out = ChiseledBlockBaked.createFromTexture( null, null );
+				out = ChiseledBlockBakedModel.createFromTexture( null, null );
 			}
 
 			breakCache.put( key, out );

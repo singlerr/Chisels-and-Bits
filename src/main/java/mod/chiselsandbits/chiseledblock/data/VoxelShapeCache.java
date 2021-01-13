@@ -24,7 +24,7 @@ public final class VoxelShapeCache
     }
 
     public VoxelShape get(VoxelBlob blob, BoxType type) {
-        final CacheKey key = new CacheKey(type, (BitSet) blob.noneAir.clone());
+        final CacheKey key = new CacheKey(type, (BitSet) blob.getNoneAir().clone());
 
         VoxelShape shape = cache.get(key);
         if (shape == null)

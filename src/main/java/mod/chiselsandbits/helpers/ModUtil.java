@@ -8,6 +8,7 @@ import java.util.Random;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import mod.chiselsandbits.render.helpers.SimpleInstanceCache;
 import mod.chiselsandbits.utils.SingleBlockBlockReader;
 import net.minecraft.block.*;
 import net.minecraft.entity.LivingEntity;
@@ -15,6 +16,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 import net.minecraftforge.fluids.FluidStack;
@@ -59,6 +61,8 @@ public class ModUtil
 
 	private final static Random RAND = new Random();
 	private final static float DEG_TO_RAD = 0.017453292f;
+
+	private static final SimpleInstanceCache<ItemStack, VoxelBlob> STACK_VOXEL_BLOB_SIMPLE_INSTANCE_CACHE = new SimpleInstanceCache<>(ItemStack.EMPTY, null);
 
 	static public Direction getPlaceFace(
 			final LivingEntity placer )
@@ -404,17 +408,25 @@ public class ModUtil
 	{
 		if ( stack.hasTag() )
 		{
-			final NBTBlobConverter tmp = new NBTBlobConverter();
+		    VoxelBlob blob;
+		    if (STACK_VOXEL_BLOB_SIMPLE_INSTANCE_CACHE.needsUpdate(stack)) {
+                final NBTBlobConverter tmp = new NBTBlobConverter();
 
-			CompoundNBT cData = getSubCompound( stack, NBT_BLOCKENTITYTAG, false );
+                CompoundNBT cData = getSubCompound( stack, NBT_BLOCKENTITYTAG, false );
 
-			if ( cData.size() == 0 )
-			{
-				cData = stack.getTag();
-			}
+                if ( cData.size() == 0 )
+                {
+                    cData = stack.getTag();
+                }
 
-			tmp.readChisleData( cData, VoxelBlob.VERSION_ANY );
-			VoxelBlob blob = tmp.getBlob();
+                tmp.readChisleData( cData, VoxelBlob.VERSION_ANY );
+                blob = tmp.getBlob();
+                STACK_VOXEL_BLOB_SIMPLE_INSTANCE_CACHE.updateCachedValue(blob);
+            }
+		    else
+            {
+                blob = STACK_VOXEL_BLOB_SIMPLE_INSTANCE_CACHE.getCached();
+            }
 
 			if ( rotationPlayer != null )
 			{

@@ -16,6 +16,7 @@ import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -156,7 +157,7 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 					if ( mop != null && mop instanceof BlockRayTraceResult )
 					{
 					    final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) mop;
-						final BitLocation loc = new BitLocation( rayTraceResult, true, BitOperation.CHISEL );
+						final BitLocation loc = new BitLocation( rayTraceResult, BitOperation.CHISEL );
 						ClientSide.instance.pointAt( ChiselToolType.CHISEL, loc, hand );
 						return true;
 					}
@@ -174,23 +175,26 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 				final Vector3d ray_to = PlayerRay.getRight();
                 final RayTraceContext context = new RayTraceContext(ray_from, ray_to, RayTraceContext.BlockMode.VISUAL, RayTraceContext.FluidMode.NONE, player);
 
-                final RayTraceResult mop = player.world.rayTraceBlocks(context);
-				if ( mop != null && mop instanceof BlockRayTraceResult )
+                BlockRayTraceResult mop = player.world.rayTraceBlocks(context);
+				if (mop.getType() != RayTraceResult.Type.MISS)
 				{
-				    final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) mop;
-					useChisel( mode, player, player.world, pos, rayTraceResult.getFace(), (float) ( rayTraceResult.getHitVec().x - pos.getX() ), (float) ( rayTraceResult.getHitVec().y - pos.getY() ), (float) ( rayTraceResult.getHitVec().z - pos.getZ() ), hand );
+				    if ((Minecraft.getInstance().objectMouseOver != null ? Minecraft.getInstance().objectMouseOver.getType() : RayTraceResult.Type.MISS) == RayTraceResult.Type.BLOCK) {
+                        BlockRayTraceResult minecraftResult = (BlockRayTraceResult) Minecraft.getInstance().objectMouseOver;
+                        if (!minecraftResult.getPos().toImmutable().equals(mop.getPos().toImmutable())) {
+                            mop = minecraftResult;
+                        }
+                    }
+
+					useChisel( mode, player, player.world, mop, hand );
 				}
 			}
 
 			return true;
 		}
 
-		if ( player.getEntityWorld() != null && player.getEntityWorld().isRemote )
+		if ( player.getEntityWorld().isRemote )
 		{
-			if ( ClientSide.instance.getStartPos() != null )
-			{
-				return true;
-			}
+            return ClientSide.instance.getStartPos() != null;
 		}
 
 		return false;
@@ -249,21 +253,17 @@ public class ItemChisel extends ToolItem implements IItemScrollWheel, IChiselMod
 			final ChiselMode mode,
 			final PlayerEntity player,
 			final World world,
-			final @Nonnull BlockPos pos,
-			final Direction side,
-			final float hitX,
-			final float hitY,
-			final float hitZ,
+			final BlockRayTraceResult rayTraceResult,
 			final Hand hand )
 	{
-		final BitLocation location = new BitLocation(new BlockRayTraceResult(new Vector3d( hitX, hitY, hitZ ), side, pos, true), false, BitOperation.CHISEL );
+		final BitLocation location = new BitLocation(rayTraceResult, BitOperation.CHISEL );
 
-		final PacketChisel pc = new PacketChisel( BitOperation.CHISEL, location, side, mode, hand );
+		final PacketChisel pc = new PacketChisel( BitOperation.CHISEL, location, rayTraceResult.getFace(), mode, hand );
 
 		final int extractedState = pc.doAction( player );
 		if ( extractedState != 0 )
 		{
-			ClientSide.breakSound( world, pos, extractedState );
+			ClientSide.breakSound( world, rayTraceResult.getPos(), extractedState );
 
 			ChiselsAndBits.getNetworkChannel().sendToServer(pc);
 		}

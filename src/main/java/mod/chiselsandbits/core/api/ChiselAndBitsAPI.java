@@ -151,7 +151,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			final boolean placement )
 	{
 		final BlockRayTraceResult mop = new BlockRayTraceResult(new Vector3d(hitX, hitY, hitZ), side, pos, false);
-		return new BitLocation( mop, false, placement ? BitOperation.PLACE : BitOperation.CHISEL );
+		return new BitLocation( mop, placement ? BitOperation.PLACE : BitOperation.CHISEL );
 	}
 
 	@Override

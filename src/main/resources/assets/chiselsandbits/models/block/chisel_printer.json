@@ -3,7 +3,8 @@
 	"parent": "block/block",
 	"textures": {
 		"0": "chiselsandbits:block/bit_printer",
-		"particle": "chiselsandbits:block/bit_printer"
+		"particle": "chiselsandbits:block/bit_printer",
+        "missing": "chiselsandbits:block/missing"
 	},
 	"elements": [
 		{

@@ -304,7 +304,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 		if ( world.isRemote )
 		{
 			final IToolMode mode = ChiselModeManager.getChiselMode( player, ClientSide.instance.getHeldToolType( hand ), hand );
-			final BitLocation bitLocation = (BitLocation) new BitLocation( rayTraceResult, true, getBitOperation( player, hand, stack ) ).offSet(rayTraceResult.getFace());
+			final BitLocation bitLocation = new BitLocation( rayTraceResult, getBitOperation( player, hand, stack ) );
 
 
 			BlockState blkstate = world.getBlockState( bitLocation.blockPos );
@@ -336,6 +336,7 @@ public class ItemChiseledBit extends Item implements IItemScrollWheel, IChiselMo
 
 				if ( result > 0 )
 				{
+				    ClientSide.instance.setLastTool(ChiselToolType.BIT);
 				    ChiselsAndBits.getNetworkChannel().sendToServer(pc);
 				}
 			}

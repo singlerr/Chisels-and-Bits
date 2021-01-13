@@ -157,6 +157,11 @@ public final class VoxelBlob implements IVoxelSrc
         noneAir = new BitSet(array_size);
     }
 
+    public BitSet getNoneAir()
+    {
+        return noneAir;
+    }
+
     @Override
     public boolean equals(
       final Object obj)

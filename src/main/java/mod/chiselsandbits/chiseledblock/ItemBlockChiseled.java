@@ -212,7 +212,7 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 	{
 		if ( offgrid )
 		{
-			final BitLocation bl = new BitLocation( new BlockRayTraceResult( new Vector3d( hitX, hitY, hitZ ), side, pos , false), true, BitOperation.PLACE );
+			final BitLocation bl = new BitLocation( new BlockRayTraceResult( new Vector3d( hitX, hitY, hitZ ), side, pos , false), BitOperation.PLACE );
 			return tryPlaceBlockAt( block, stack, player, world, bl.blockPos, side, Hand.MAIN_HAND, hitX, hitY, hitZ, new BlockPos( bl.bitX, bl.bitY, bl.bitZ ), true );
 		}
 		else
@@ -246,7 +246,7 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
 		final VoxelBlob source = ModUtil.getBlobFromStack( stack, player );
 
 		final IntegerBox modelBounds = source.getBounds();
-		BlockPos offset = partial == null ? new BlockPos( 0, 0, 0 ) : ModUtil.getPartialOffset( side, partial, modelBounds );
+		BlockPos offset = partial == null || modelBounds == null ? new BlockPos( 0, 0, 0 ) : ModUtil.getPartialOffset( side, partial, modelBounds );
 
 		if ( offset.getX() < 0 )
 		{
@@ -504,7 +504,9 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
                 context.getWorld().playSound( pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, DeprecationHelper.getSoundType( this.getBlock() ).getPlaceSound(), SoundCategory.BLOCKS,
                   ( DeprecationHelper.getSoundType( this.block ).getVolume() + 1.0F ) / 2.0F,
                   DeprecationHelper.getSoundType( this.block ).getPitch() * 0.8F, false );
-                ModUtil.adjustStackSize( context.getItem(), -1 );
+
+                if (!context.getPlayer().isCreative())
+                    ModUtil.adjustStackSize( context.getItem(), -1 );
 
                 return ActionResultType.SUCCESS;
             }

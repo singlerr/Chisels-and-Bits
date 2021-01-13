@@ -2,7 +2,6 @@ package mod.chiselsandbits.render.chiseledblock;
 
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob.VisibleFace;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.client.model.baked.BaseBakedBlockModel;
 import mod.chiselsandbits.core.ChiselsAndBits;
@@ -28,8 +27,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ChiseledBlockBaked extends BaseBakedBlockModel
+public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 {
+    private static final Random RANDOM = new Random();
+
     public static final  float       PIXELS_PER_BLOCK = 16.0f;
     private final static int[][]     faceVertMap      = new int[6][4];
     private final static float[][][] quadMapping      = new float[6][4][6];
@@ -160,14 +161,14 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
         return Arrays.asList(array);
     }
 
-    private ChiseledBlockBaked()
+    private ChiseledBlockBakedModel()
     {
     }
 
-    public ChiseledBlockBaked(
+    public ChiseledBlockBakedModel(
       final int blockReference,
       final ChiselRenderType layer,
-      final VoxelBlobStateReference data,
+      final VoxelBlob data,
       final VertexFormat format)
     {
         myLayer = layer;
@@ -182,11 +183,10 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
 
         if (originalModel != null && data != null)
         {
-            final VoxelBlob vb = data.getVoxelBlob();
-            if (layer.filter(vb))
+            if (layer.filter(data))
             {
                 final ChiseledModelBuilder builder = new ChiseledModelBuilder();
-                generateFaces(builder, vb, new Random(data.weight));
+                generateFaces(builder, data, RANDOM);
 
                 // convert from builder to final storage.
                 up = builder.getSide(Direction.UP);
@@ -200,7 +200,7 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
         }
     }
 
-    public static ChiseledBlockBaked breakingParticleModel(
+    public static ChiseledBlockBakedModel breakingParticleModel(
       final ChiselRenderType layer,
       final Integer blockStateID,
       final Random random)
@@ -771,11 +771,11 @@ public class ChiseledBlockBaked extends BaseBakedBlockModel
         return count;
     }
 
-    public static ChiseledBlockBaked createFromTexture(
+    public static ChiseledBlockBakedModel createFromTexture(
       TextureAtlasSprite findTexture,
       ChiselRenderType layer)
     {
-        ChiseledBlockBaked out = new ChiseledBlockBaked();
+        ChiseledBlockBakedModel out = new ChiseledBlockBakedModel();
         out.sprite = findTexture;
         out.myLayer = layer;
         return out;

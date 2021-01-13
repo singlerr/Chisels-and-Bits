@@ -18,6 +18,7 @@ import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkChannel;
 import mod.chiselsandbits.registry.*;
 import mod.chiselsandbits.render.SmartModelManager;
+import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
 import mod.chiselsandbits.utils.Constants;
 import mod.chiselsandbits.utils.LanguageHandler;
 import net.minecraft.block.material.Material;
@@ -26,6 +27,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLModIdMappingEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
@@ -60,6 +62,7 @@ public class ChiselsAndBits
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(ChiselsAndBitsClient::retrieveRegisteredIconSprites));
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(SmartModelManager.getInstance()::onModelBakeEvent));
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(SmartModelManager.getInstance()::textureStichEvent));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup));
 
         MinecraftForge.EVENT_BUS.addListener(this::handleIdMapping);
         MinecraftForge.EVENT_BUS.register(new VaporizeWater());
@@ -112,6 +115,12 @@ public class ChiselsAndBits
 		ChiselsAndBits.getApi().addEquivilantMaterial( Material.WEB, Material.PLANTS );
 		ChiselsAndBits.getApi().addEquivilantMaterial( Material.TNT, Material.ROCK );
 	}
+
+    public void clientSetup(
+      final FMLClientSetupEvent event )
+    {
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> Mod.EventBusSubscriber.Bus.MOD.bus().get().addListener(ChiseledBlockSmartModel::onConfigurationReload));
+    }
 
 	boolean idsHaveBeenMapped = false;
 

@@ -9,7 +9,7 @@ public class SimpleMaxSizedCache<K, V>
 
     private final LinkedHashMap<K, V> cache = new LinkedHashMap<>();
 
-    private final long maxSize;
+    private long maxSize;
 
     public SimpleMaxSizedCache(final long maxSize) {this.maxSize = maxSize;}
 
@@ -28,5 +28,17 @@ public class SimpleMaxSizedCache<K, V>
             evictFromCacheIfNeeded();
 
         cache.put(key, value);
+    }
+
+    public void changeMaxSize(final long newSize) {
+        if (this.maxSize != newSize)
+        {
+            this.clear();
+            this.maxSize = newSize;
+        }
+    }
+
+    public void clear() {
+        this.cache.clear();
     }
 }
