@@ -76,7 +76,8 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
     {
         final VoxelBlobStateReference data = te.getBlobStateReference();
         Integer blockP = te.getPrimaryBlockStateId();
-        return getCachedModel(blockP, data.getVoxelBlob(), layer, getModelFormat(), Objects.requireNonNull(te.getWorld()).rand);
+        VoxelBlob vBlob = (data != null) ? data.getVoxelBlob() : null;
+        return getCachedModel(blockP, vBlob, layer, getModelFormat(), Objects.requireNonNull(te.getWorld()).rand);
     }
 
     public static ChiseledBlockBakedModel getCachedModel(
