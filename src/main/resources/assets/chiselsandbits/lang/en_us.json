@@ -19,6 +19,7 @@
   "block.chiselsandbits.chiseled_leaves": "Chiseled Leaves",
 
   "block.chiselsandbits.bit_storage": "Chiseled Bit Storage",
+  "block.chiselsandbits.chisel_printer": "Chisel Station",
 
   "item.chiselsandbits.block_bit": "Chiseled Bit",
   "item.chiselsandbits.bit_bag": "Chiseled Bit Bag",
@@ -36,8 +37,13 @@
   "item.chiselsandbits.chisel_iron": "Iron Chisel",
   "item.chiselsandbits.chisel_gold": "Golden Chisel",
   "item.chiselsandbits.chisel_diamond": "Diamond Chisel",
+  "item.chiselsandbits.chisel_netherite": "Netherite Chisel",
 
+  "item.chiselsandbits.bitsaw_stone": "Stone Bit Saw",
+  "item.chiselsandbits.bitsaw_iron": "Iron Bit Saw",
+  "item.chiselsandbits.bitsaw_gold": "Golden Bit Saw",
   "item.chiselsandbits.bitsaw_diamond": "Diamond Bit Saw",
+  "item.chiselsandbits.bitsaw_netherite": "Netherite Bit Saw",
   "item.chiselsandbits.tape_measure": "Tape Measure",
   "item.chiselsandbits.magnifying_glass": "Magnifying Glass",
 
