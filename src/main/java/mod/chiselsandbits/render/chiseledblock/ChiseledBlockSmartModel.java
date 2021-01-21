@@ -131,6 +131,10 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
                 MODEL_CACHE.put(new ModelCacheKey(data, layer), out);
             }
         }
+        else
+        {
+            return out;
+        }
 
         return out;
     }

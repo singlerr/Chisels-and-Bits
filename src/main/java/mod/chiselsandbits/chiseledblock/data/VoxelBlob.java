@@ -163,16 +163,26 @@ public final class VoxelBlob implements IVoxelSrc
     }
 
     @Override
-    public boolean equals(
-      final Object obj)
+    public boolean equals(final Object o)
     {
-        if (obj instanceof VoxelBlob)
+        if (this == o)
         {
-            final VoxelBlob a = (VoxelBlob) obj;
-            return Arrays.equals(a.values, values);
+            return true;
         }
+        if (!(o instanceof VoxelBlob))
+        {
+            return false;
+        }
+        final VoxelBlob voxelBlob = (VoxelBlob) o;
+        return detail == voxelBlob.detail && Arrays.equals(values, voxelBlob.values);
+    }
 
-        return false;
+    @Override
+    public int hashCode()
+    {
+        int result = Objects.hash(detail);
+        result = 31 * result + Arrays.hashCode(values);
+        return result;
     }
 
     public VoxelBlob(

@@ -2,7 +2,9 @@ package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 public class SimpleMaxSizedCache<K, V>
 {
@@ -28,6 +30,14 @@ public class SimpleMaxSizedCache<K, V>
             evictFromCacheIfNeeded();
 
         cache.put(key, value);
+    }
+
+    public Set<K> keySet() {
+        return cache.keySet();
+    }
+
+    public Collection<V> values() {
+        return cache.values();
     }
 
     public void changeMaxSize(final long newSize) {
