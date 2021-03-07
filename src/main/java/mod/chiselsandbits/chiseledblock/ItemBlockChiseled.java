@@ -476,7 +476,13 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
                 }
             }
 
-            if (context instanceof BlockItemUseContext && !canMerge && !offgrid && !state.isReplaceable((BlockItemUseContext) context) )
+            BlockItemUseContext replacementCheckContext = (BlockItemUseContext) context;
+            if(context.getPlayer().getEntityWorld().getBlockState(context.getPos()).getBlock() instanceof BlockChiseled)
+            {
+                replacementCheckContext = new DirectionalPlaceContext(context.getWorld(), pos, Direction.DOWN, ItemStack.EMPTY, Direction.UP);
+            }
+
+            if (!canMerge && !offgrid && !state.isReplaceable(replacementCheckContext))
             {
                 pos = pos.offset( side );
             }

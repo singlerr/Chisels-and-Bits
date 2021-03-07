@@ -199,7 +199,7 @@ public final class VoxelBlob implements IVoxelSrc
 
         for (int x = 0; x < values.length; ++x)
         {
-            if (values[x] != 0 && sv[x] != 0)
+            if (values[x] != 0 && sv[x] != 0 && values[x] != sv[x])
             {
                 return false;
             }
