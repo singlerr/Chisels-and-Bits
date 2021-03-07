@@ -4,10 +4,7 @@ import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.api.StateCount;
 import mod.chiselsandbits.api.VoxelStats;
 import mod.chiselsandbits.chiseledblock.BlockBitInfo;
-import mod.chiselsandbits.chiseledblock.serialization.BitStream;
-import mod.chiselsandbits.chiseledblock.serialization.BlobSerializer;
-import mod.chiselsandbits.chiseledblock.serialization.BlobSerilizationCache;
-import mod.chiselsandbits.chiseledblock.serialization.CrossWorldBlobSerializer;
+import mod.chiselsandbits.chiseledblock.serialization.*;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
@@ -1017,9 +1014,10 @@ public final class VoxelBlob implements IVoxelSrc
     }
 
     public static final int VERSION_ANY               = -1;
-    public static final int VERSION_COMPACT           = 0;
-    public static final int VERSION_CROSSWORLD_LEGACY = 1; // stored meta.
+    private static final int VERSION_COMPACT           = 0; // stored meta.
+    private static final int VERSION_CROSSWORLD_LEGACY = 1; // stored meta.
     public static final int VERSION_CROSSWORLD        = 2;
+    public static final int VERSION_COMPACT_PALLETED = 3;
 
     public void blobFromBytes(
       final byte[] bytes) throws IOException
@@ -1053,6 +1051,10 @@ public final class VoxelBlob implements IVoxelSrc
         if (version == VERSION_COMPACT)
         {
             bs = new BlobSerializer(header);
+        }
+        else if (version == VERSION_COMPACT_PALLETED)
+        {
+            bs = new PalettedBlobSerializer(header);
         }
         else if (version == VERSION_CROSSWORLD)
         {
@@ -1100,6 +1102,12 @@ public final class VoxelBlob implements IVoxelSrc
         {
             return new BlobSerializer(this);
         }
+
+        if (version == VERSION_COMPACT_PALLETED)
+        {
+            return new PalettedBlobSerializer(this);
+        }
+
 
         if (version == VERSION_CROSSWORLD)
         {

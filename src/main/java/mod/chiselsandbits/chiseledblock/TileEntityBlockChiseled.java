@@ -234,13 +234,11 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
         }
     }
 
-
-
     public boolean readChiselData(
       final CompoundNBT tag)
     {
         final NBTBlobConverter converter = new NBTBlobConverter(false, this);
-        return converter.readChisleData(tag, VoxelBlob.VERSION_COMPACT);
+        return converter.readChisleData(tag, VoxelBlob.VERSION_COMPACT_PALLETED);
     }
 
     public void writeChiselData(
@@ -381,7 +379,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
 
         try
         {
-            voxelRef = converter.getVoxelRef(VoxelBlob.VERSION_COMPACT, getPositionRandom(pos));
+            voxelRef = converter.getVoxelRef(VoxelBlob.VERSION_COMPACT_PALLETED, getPositionRandom(pos));
         }
         catch (final Exception e)
         {
@@ -442,7 +440,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
             lightLevel = lv;
             isNormalCube = nc;
 
-            setBlobStateReference(new VoxelBlobStateReference(vb.blobToBytes(VoxelBlob.VERSION_COMPACT), getPositionRandom(pos)));
+            setBlobStateReference(new VoxelBlobStateReference(vb.blobToBytes(VoxelBlob.VERSION_COMPACT_PALLETED), getPositionRandom(pos)));
             setPrimaryBlockStateId(common.mostCommonState);
             setState(getState(), getBlobStateReference());
             return;
@@ -468,7 +466,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
             lightLevel = lv;
             isNormalCube = nc;
 
-            setBlobStateReference(new VoxelBlobStateReference(vb.blobToBytes(VoxelBlob.VERSION_COMPACT), getPositionRandom(pos)));
+            setBlobStateReference(new VoxelBlobStateReference(vb.blobToBytes(VoxelBlob.VERSION_COMPACT_PALLETED), getPositionRandom(pos)));
             setPrimaryBlockStateId(common.mostCommonState);
             setState(getState(), getBlobStateReference());
 

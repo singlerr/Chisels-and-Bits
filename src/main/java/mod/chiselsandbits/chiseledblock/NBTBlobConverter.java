@@ -123,7 +123,7 @@ public class NBTBlobConverter
 			return;
 		}
 
-		final int newFormat = crossWorld ? VoxelBlob.VERSION_CROSSWORLD : VoxelBlob.VERSION_COMPACT;
+		final int newFormat = crossWorld ? VoxelBlob.VERSION_CROSSWORLD : VoxelBlob.VERSION_COMPACT_PALLETED;
 		final byte[] voxelBytes = newFormat == format ? voxelRef.getByteArray() : voxelRef.getVoxelBlob().blobToBytes( newFormat );
 
 		compound.putInt( NBT_LIGHTVALUE, lightValue );
@@ -173,10 +173,10 @@ public class NBTBlobConverter
 		isNormalCube = compound.getBoolean( NBT_NORMALCUBE_FLAG );
 		byte[] v = compound.getByteArray( NBT_VERSIONED_VOXEL );
 
-		if ( v == null || v.length == 0 )
+		if (v.length == 0)
 		{
 			final byte[] vx = compound.getByteArray( NBT_LEGACY_VOXEL );
-			if ( v != null && vx.length > 0 )
+			if (vx.length > 0)
 			{
 				final VoxelBlob bx = new VoxelBlob();
 
@@ -188,8 +188,8 @@ public class NBTBlobConverter
 				{
 				}
 
-				v = bx.blobToBytes( VoxelBlob.VERSION_COMPACT );
-				format = VoxelBlob.VERSION_COMPACT;
+				v = bx.blobToBytes( VoxelBlob.VERSION_COMPACT_PALLETED );
+				format = VoxelBlob.VERSION_COMPACT_PALLETED;
 			}
 		}
 

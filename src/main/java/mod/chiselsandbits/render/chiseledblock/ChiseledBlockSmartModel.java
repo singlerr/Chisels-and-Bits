@@ -230,7 +230,7 @@ public class ChiseledBlockSmartModel extends BaseSmartModel implements ICacheCle
                 // :_(
             }
 
-            vdata = xx.blobToBytes(VoxelBlob.VERSION_COMPACT);
+            vdata = xx.blobToBytes(VoxelBlob.VERSION_COMPACT_PALLETED);
         }
 
         final IBakedModel[] models = new IBakedModel[ChiselRenderType.values().length];
