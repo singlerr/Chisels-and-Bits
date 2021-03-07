@@ -476,7 +476,7 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
                 }
             }
 
-            BlockItemUseContext replacementCheckContext = (BlockItemUseContext) context;
+            BlockItemUseContext replacementCheckContext = context instanceof BlockItemUseContext ? (BlockItemUseContext) context : new BlockItemUseContext(context);
             if(context.getPlayer().getEntityWorld().getBlockState(context.getPos()).getBlock() instanceof BlockChiseled)
             {
                 replacementCheckContext = new DirectionalPlaceContext(context.getWorld(), pos, Direction.DOWN, ItemStack.EMPTY, Direction.UP);
@@ -511,7 +511,7 @@ public class ItemBlockChiseled extends BlockItem implements IVoxelBlobItem, IIte
                   ( DeprecationHelper.getSoundType( this.block ).getVolume() + 1.0F ) / 2.0F,
                   DeprecationHelper.getSoundType( this.block ).getPitch() * 0.8F, false );
 
-                if (!context.getPlayer().isCreative())
+                if (!context.getPlayer().isCreative() && context.getItem().getItem() instanceof ItemBlockChiseled)
                     ModUtil.adjustStackSize( context.getItem(), -1 );
 
                 return ActionResultType.SUCCESS;
