@@ -2,6 +2,7 @@ package mod.chiselsandbits.utils;
 
 import com.google.common.collect.Lists;
 import net.minecraft.block.BlockState;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.IntIdentityHashBiMap;
 import net.minecraft.util.palette.ArrayPalette;
 import net.minecraft.util.palette.HashMapPalette;
@@ -47,5 +48,30 @@ public class PaletteUtils
         }
 
         throw new IllegalArgumentException("The given palette type is unknown.");
+    }
+
+    public static void read(final IPalette<BlockState> stateIPalette, final PacketBuffer buffer)
+    {
+        if (stateIPalette instanceof ArrayPalette)
+        {
+            final ArrayPalette<BlockState> palette = (ArrayPalette<BlockState>) stateIPalette;
+            palette.arraySize = buffer.readVarInt();
+
+            for(int i = 0; i < palette.arraySize; ++i) {
+                palette.states[i] = palette.registry.getByValue(buffer.readVarInt());
+            }
+        }
+
+        if (stateIPalette instanceof HashMapPalette)
+        {
+            final HashMapPalette<BlockState> palette = (HashMapPalette<BlockState>) stateIPalette;
+            palette.statePaletteMap.clear();
+            int i = buffer.readVarInt();
+
+            for(int j = 0; j < i; ++j) {
+                palette.statePaletteMap.add(palette.registry.getByValue(buffer.readVarInt()));
+            }
+
+        }
     }
 }

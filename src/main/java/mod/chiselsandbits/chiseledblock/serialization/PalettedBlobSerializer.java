@@ -46,7 +46,7 @@ public class PalettedBlobSerializer extends BlobSerializer implements IResizeCal
 
         //Setup the palette ids.
         this.setBits(toInflate.readVarInt());
-        this.palette.read(toInflate);
+        PaletteUtils.read(this.palette, toInflate);
     }
 
     private void setBits(int bitsIn) {
