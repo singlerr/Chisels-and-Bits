@@ -59,10 +59,10 @@ public class PalettedBlobSerializer extends BlobSerializer implements IResizeCal
             this.bitsPerIntMinus1 = bitsIn - 1;
 
             this.bits = bitsIn;
-            if (this.bits <= 4) {
+            if (this.bits <= 8) {
                 this.bits = 4;
                 this.palette = new ArrayPalette<>(this.registry, this.bits, this, NBTUtil::readBlockState);
-            } else if (this.bits < 9) {
+            } else if (this.bits < 17) {
                 this.palette = new HashMapPalette<>(this.registry, this.bits, this, NBTUtil::readBlockState, NBTUtil::writeBlockState);
             } else {
                 this.palette = this.registryPalette;

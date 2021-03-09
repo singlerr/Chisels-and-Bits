@@ -57,8 +57,11 @@ public class PaletteUtils
             final ArrayPalette<BlockState> palette = (ArrayPalette<BlockState>) stateIPalette;
             palette.arraySize = buffer.readVarInt();
 
+            final Object[] statesArray = palette.states;
+
             for(int i = 0; i < palette.arraySize; ++i) {
-                palette.states[i] = palette.registry.getByValue(buffer.readVarInt());
+                final Object registryEntry = palette.registry.getByValue(buffer.readVarInt());
+                statesArray[i] = registryEntry;
             }
         }
 
