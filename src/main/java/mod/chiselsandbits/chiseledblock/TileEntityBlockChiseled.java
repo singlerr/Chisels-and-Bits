@@ -649,6 +649,16 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
         return vb.canMerge(voxelBlob) && !occ.isBlobOccluded(voxelBlob);
     }
 
+    public boolean isEmpty(
+      final VoxelBlob voxelBlob)
+    {
+        final VoxelBlob vb = getBlob();
+        final IChiseledTileContainer occ = getTileContainer();
+
+        return vb.isEmpty(voxelBlob) && !occ.isBlobOccluded(voxelBlob);
+    }
+
+
     @NotNull
     @Override
     public Collection<AxisAlignedBB> getBoxes(

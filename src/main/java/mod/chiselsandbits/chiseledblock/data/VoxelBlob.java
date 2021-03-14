@@ -208,6 +208,22 @@ public final class VoxelBlob implements IVoxelSrc
         return true;
     }
 
+    public boolean isEmpty(
+      final VoxelBlob second)
+    {
+        final int sv[] = second.values;
+
+        for (int x = 0; x < values.length; ++x)
+        {
+            if (values[x] != 0 && sv[x] != 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public VoxelBlob merge(
       final VoxelBlob second)
     {
