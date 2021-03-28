@@ -244,7 +244,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
     public void writeChiselData(
       final CompoundNBT tag)
     {
-        new NBTBlobConverter(false, this).writeChisleData(tag, false);
+        new NBTBlobConverter(false, this).writeChiselData(tag, false);
     }
 
     @NotNull
@@ -270,7 +270,7 @@ public class TileEntityBlockChiseled extends TileEntity implements IChiseledTile
       final boolean crossWorld)
     {
         final CompoundNBT superNbt = super.write(tag);
-        new NBTBlobConverter(false, this).writeChisleData(superNbt, crossWorld);
+        new NBTBlobConverter(false, this).writeChiselData(superNbt, crossWorld);
         superNbt.putBoolean("cw", crossWorld);
         return superNbt;
     }

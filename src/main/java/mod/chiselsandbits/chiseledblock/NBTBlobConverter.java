@@ -4,7 +4,6 @@ import mod.chiselsandbits.api.VoxelStats;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.chiseledblock.serialization.StringStates;
-import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.registry.ModBlocks;
 import net.minecraft.block.Block;
@@ -112,7 +111,7 @@ public class NBTBlobConverter
 		updateFromBlob();
 	}
 
-	public final void writeChisleData(
+	public final void writeChiselData(
 			final CompoundNBT compound,
 			final boolean crossWorld )
 	{
@@ -249,7 +248,7 @@ public class NBTBlobConverter
 		{
 			final ItemStack is = new ItemStack( blk );
 			final CompoundNBT compound = ModUtil.getSubCompound( is, ModUtil.NBT_BLOCKENTITYTAG, true );
-			writeChisleData( compound, crossWorld );
+			writeChiselData( compound, crossWorld );
 
 			if ( compound.size() > 0 )
 			{

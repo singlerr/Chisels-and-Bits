@@ -1033,7 +1033,8 @@ public final class VoxelBlob implements IVoxelSrc
     private static final int VERSION_COMPACT           = 0; // stored meta.
     private static final int VERSION_CROSSWORLD_LEGACY = 1; // stored meta.
     public static final int VERSION_CROSSWORLD        = 2;
-    public static final int VERSION_COMPACT_PALLETED = 3;
+    private static final int VERSION_COMPACT_PALLETED_BROKEN = 3;
+    public static final int VERSION_COMPACT_PALLETED = 4;
 
     public void blobFromBytes(
       final byte[] bytes) throws IOException
@@ -1068,9 +1069,13 @@ public final class VoxelBlob implements IVoxelSrc
         {
             bs = new BlobSerializer(header);
         }
-        else if (version == VERSION_COMPACT_PALLETED)
+        else if (version == VERSION_COMPACT_PALLETED_BROKEN)
         {
             bs = new PalettedBlobSerializer(header);
+        }
+        else if (version == VERSION_COMPACT_PALLETED)
+        {
+            bs = new NbtBasedPalettedBlobSerializer(header);
         }
         else if (version == VERSION_CROSSWORLD)
         {
