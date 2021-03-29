@@ -1,6 +1,6 @@
 package mod.chiselsandbits.events;
 
-import mod.chiselsandbits.api.EventFullBlockRestoration;
+import mod.chiselsandbits.api.events.EventFullBlockRestoration;
 import net.minecraft.block.Blocks;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.SoundCategory;

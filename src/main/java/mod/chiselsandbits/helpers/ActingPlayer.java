@@ -2,7 +2,7 @@ package mod.chiselsandbits.helpers;
 
 import javax.annotation.Nonnull;
 
-import mod.chiselsandbits.api.EventBlockBitModification;
+import mod.chiselsandbits.api.events.EventBlockBitModification;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -11,8 +11,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-
-import java.util.function.Consumer;
 
 public class ActingPlayer
 {

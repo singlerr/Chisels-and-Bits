@@ -1,8 +1,8 @@
 package mod.chiselsandbits.core.api;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
-import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
+import mod.chiselsandbits.api.exceptions.CannotBeChiseledException;
+import mod.chiselsandbits.api.exceptions.InvalidBitItemException;
 import mod.chiselsandbits.api.*;
 import mod.chiselsandbits.api.ParameterType.DoubleParam;
 import mod.chiselsandbits.api.ParameterType.FloatParam;
@@ -86,11 +86,11 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 	@Override
 	public IBitAccess getBitAccess(
 			final World world,
-			final BlockPos pos ) throws CannotBeChiseled
+			final BlockPos pos ) throws CannotBeChiseledException
 	{
 		if ( world == null || pos == null )
 		{
-			throw new CannotBeChiseled();
+			throw new CannotBeChiseledException();
 		}
 
 		final BlockState state = world.getBlockState( pos );
@@ -114,12 +114,12 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			return new BitAccess( world, pos, te.getBlob(), mask );
 		}
 
-		throw new CannotBeChiseled();
+		throw new CannotBeChiseledException();
 	}
 
 	@Override
 	public IBitBrush createBrush(
-			final ItemStack stack ) throws InvalidBitItem
+			final ItemStack stack ) throws InvalidBitItemException
 	{
 		if ( ModUtil.isEmpty( stack ) )
 		{
@@ -137,7 +137,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 			}
 		}
 
-		throw new InvalidBitItem();
+		throw new InvalidBitItemException();
 	}
 
 	@Override
@@ -233,7 +233,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public IBitBrush createBrushFromState(
-			final BlockState state ) throws InvalidBitItem
+			final BlockState state ) throws InvalidBitItemException
 	{
 		if ( state == null || state.getBlock() == Blocks.AIR )
 		{
@@ -242,7 +242,7 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 		if ( !BlockBitInfo.canChisel( state ) )
 		{
-			throw new InvalidBitItem();
+			throw new InvalidBitItemException();
 		}
 
 		return new BitBrush( ModUtil.getStateId( state ) );
@@ -250,11 +250,11 @@ public class ChiselAndBitsAPI implements IChiselAndBitsAPI
 
 	@Override
 	public ItemStack getBitItem(
-			final BlockState state ) throws InvalidBitItem
+			final BlockState state ) throws InvalidBitItemException
 	{
 		if ( !BlockBitInfo.canChisel( state ) )
 		{
-			throw new InvalidBitItem();
+			throw new InvalidBitItemException();
 		}
 
 		return ItemChiseledBit.createStack( ModUtil.getStateId( state ), 1, true );

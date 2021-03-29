@@ -1,6 +1,6 @@
 package mod.chiselsandbits.core.api;
 
-import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
+import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.*;
 import mod.chiselsandbits.chiseledblock.BlockChiseled;
 import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChiseledValue;
@@ -80,7 +80,7 @@ public class BitAccess implements IBitAccess
 			int x,
 			int y,
 			int z,
-			final IBitBrush bit ) throws SpaceOccupied
+			final IBitBrush bit ) throws SpaceOccupiedException
 	{
 		int state = 0;
 
@@ -100,7 +100,7 @@ public class BitAccess implements IBitAccess
 		}
 		else
 		{
-			throw new SpaceOccupied();
+			throw new SpaceOccupiedException();
 		}
 	}
 

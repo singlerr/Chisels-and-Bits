@@ -1,6 +1,6 @@
 package mod.chiselsandbits.chiseledblock;
 
-import mod.chiselsandbits.api.EventBlockBitModification;
+import mod.chiselsandbits.api.events.EventBlockBitModification;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.chiseledblock.BlockChiseled.ReplaceWithChiseledValue;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;

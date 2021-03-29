@@ -30,6 +30,13 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements IW
         this.reader = reader;
     }
 
+    public SingleBlockWorldReader(final BlockState state, final IWorldReader reader)
+    {
+        super(state, state.getBlock());
+        this.reader = reader;
+    }
+
+
     @Nullable
     @Override
     public IChunk getChunk(final int x, final int z, final ChunkStatus requiredStatus, final boolean nonnull)

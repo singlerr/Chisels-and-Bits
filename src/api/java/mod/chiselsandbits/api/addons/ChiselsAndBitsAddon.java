@@ -1,4 +1,4 @@
-package mod.chiselsandbits.api;
+package mod.chiselsandbits.api.addons;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

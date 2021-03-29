@@ -3,7 +3,7 @@ package mod.chiselsandbits.chiseledblock;
 import javax.annotation.Nonnull;
 
 import mod.chiselsandbits.api.BoxType;
-import mod.chiselsandbits.api.IMultiStateBlock;
+import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.chiseledblock.data.BitLocation;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
@@ -47,6 +47,7 @@ import net.minecraft.world.*;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ToolType;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class BlockChiseled extends Block implements ITileEntityProvider, IMultiStateBlock
@@ -628,10 +629,11 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
         //No items
     }
 
-	@Override
+	@NotNull
+    @Override
 	public BlockState getPrimaryState(
-			final IBlockReader world,
-			final BlockPos pos )
+			@NotNull final IBlockReader world,
+			@NotNull final BlockPos pos )
 	{
 		try
 		{

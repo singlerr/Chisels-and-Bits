@@ -2,7 +2,7 @@ package mod.chiselsandbits.bitbag;
 
 import java.util.Arrays;
 
-import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
+import mod.chiselsandbits.api.exceptions.InvalidBitItemException;
 import mod.chiselsandbits.api.IBitBag;
 import mod.chiselsandbits.api.IBitBrush;
 import mod.chiselsandbits.api.ItemType;
@@ -117,7 +117,7 @@ public class BagStorage implements IBitBag
 						return ModUtil.getEmptyStack();
 					}
 				}
-				catch ( final InvalidBitItem e )
+				catch ( final InvalidBitItemException e )
 				{
 					Log.logError( "Something went wrong", e );
 				}

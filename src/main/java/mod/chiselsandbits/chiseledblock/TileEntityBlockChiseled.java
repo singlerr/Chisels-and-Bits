@@ -1,6 +1,8 @@
 package mod.chiselsandbits.chiseledblock;
 
 import mod.chiselsandbits.api.*;
+import mod.chiselsandbits.api.events.EventBlockBitPostModification;
+import mod.chiselsandbits.api.events.EventFullBlockRestoration;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
 import mod.chiselsandbits.client.UndoTracker;

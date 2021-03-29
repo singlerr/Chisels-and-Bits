@@ -1,4 +1,4 @@
-package mod.chiselsandbits.api;
+package mod.chiselsandbits.api.events;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;

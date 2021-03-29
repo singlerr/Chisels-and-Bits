@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
+import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Rotation;
@@ -59,13 +59,13 @@ public interface IBitAccess
 	 * @param y
 	 * @param z
 	 * @param bit
-	 * @throws SpaceOccupied
+	 * @throws SpaceOccupiedException
 	 */
 	void setBitAt(
 			int x,
 			int y,
 			int z,
-			IBitBrush bit ) throws SpaceOccupied;
+			IBitBrush bit ) throws SpaceOccupiedException;
 
 	/**
 	 * Any time you modify a block you must commit your changes for them to take

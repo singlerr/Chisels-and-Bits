@@ -1,6 +1,6 @@
 package mod.chiselsandbits.network.packets;
 
-import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
+import mod.chiselsandbits.api.exceptions.CannotBeChiseledException;
 import mod.chiselsandbits.bitbag.BagInventory;
 import mod.chiselsandbits.chiseledblock.data.BitIterator;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
@@ -21,7 +21,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-import java.awt.event.ItemEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -215,7 +214,7 @@ public class PacketUndo extends ModPacket
 				}
 			}
 		}
-		catch ( final CannotBeChiseled e )
+		catch ( final CannotBeChiseledException e )
 		{
 			// error message below.
 		}

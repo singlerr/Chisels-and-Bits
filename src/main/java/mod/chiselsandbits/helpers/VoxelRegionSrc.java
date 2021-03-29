@@ -1,6 +1,6 @@
 package mod.chiselsandbits.helpers;
 
-import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
+import mod.chiselsandbits.api.exceptions.CannotBeChiseledException;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.api.BitAccess;
@@ -49,7 +49,7 @@ public class VoxelRegionSrc implements IVoxelSrc
 						final BitAccess access = (BitAccess) ChiselsAndBits.getApi().getBitAccess( src, new BlockPos( x, y, z ) );
 						blobs[idx] = access.getNativeBlob();
 					}
-					catch ( final CannotBeChiseled e )
+					catch ( final CannotBeChiseledException e )
 					{
 						blobs[idx] = new VoxelBlob();
 					}

@@ -2,7 +2,7 @@ package mod.chiselsandbits.crafting;
 
 import java.util.Random;
 
-import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
+import mod.chiselsandbits.api.exceptions.InvalidBitItemException;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBag;
 import mod.chiselsandbits.api.IBitBrush;
@@ -60,7 +60,7 @@ public class ChiselBlockCrafting extends SpecialRecipe
 
 			public Chiseler(
 					final ItemStack chisel,
-					final IBitBag bag ) throws InvalidBitItem
+					final IBitBag bag ) throws InvalidBitItemException
 			{
 				airBrush = ChiselsAndBits.getApi().createBrushFromState( null );
 				this.chisel = chisel;
@@ -138,7 +138,7 @@ public class ChiselBlockCrafting extends SpecialRecipe
 					block = ModUtil.getEmptyStack();
 				}
 			}
-			catch ( final InvalidBitItem e )
+			catch ( final InvalidBitItemException e )
 			{
 
 			}
@@ -222,7 +222,7 @@ public class ChiselBlockCrafting extends SpecialRecipe
 							continue;
 						}
 					}
-					catch ( final InvalidBitItem err )
+					catch ( final InvalidBitItemException err )
 					{
 						// not supported.
 					}

@@ -5,9 +5,9 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nonnull;
 
-import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
-import mod.chiselsandbits.api.APIExceptions.InvalidBitItem;
-import mod.chiselsandbits.api.APIExceptions.SpaceOccupied;
+import mod.chiselsandbits.api.exceptions.CannotBeChiseledException;
+import mod.chiselsandbits.api.exceptions.InvalidBitItemException;
+import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.BitQueryResults;
 import mod.chiselsandbits.api.IBitAccess;
 import mod.chiselsandbits.api.IBitBrush;
@@ -16,7 +16,6 @@ import mod.chiselsandbits.api.IBitVisitor;
 import mod.chiselsandbits.api.IChiselAndBitsAPI;
 import mod.chiselsandbits.api.ItemType;
 import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
-import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.core.Log;
 import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.items.ItemChiseledBit;
@@ -128,11 +127,11 @@ public abstract class DebugAction
 				final IBitBrush brush = api.createBrush( bitItem );
 				access.setBitAt( 0, 0, 0, brush );
 			}
-			catch ( final InvalidBitItem e )
+			catch ( final InvalidBitItemException e )
 			{
 				apiAssert( "createBrush/getBitItem", player, false );
 			}
-			catch ( final SpaceOccupied e )
+			catch ( final SpaceOccupiedException e )
 			{
 				apiAssert( "setBitAt", player, false );
 			}
@@ -227,15 +226,15 @@ public abstract class DebugAction
 				access.setBitAt( loc.getBitX(), loc.getBitY(), loc.getBitZ(), brush );
 				access.commitChanges( true );
 			}
-			catch ( final CannotBeChiseled e )
+			catch ( final CannotBeChiseledException e )
 			{
 				Log.logError( "FAIL", e );
 			}
-			catch ( final SpaceOccupied e )
+			catch ( final SpaceOccupiedException e )
 			{
 				Log.logError( "FAIL", e );
 			}
-			catch ( final InvalidBitItem e )
+			catch ( final InvalidBitItemException e )
 			{
 				Log.logError( "FAIL", e );
 			}
@@ -268,7 +267,7 @@ public abstract class DebugAction
 				output( player, access.queryBitRange( new BlockPos( 0, 15, 15 ), new BlockPos( 15, 15, 15 ) ) );
 				output( player, access.queryBitRange( new BlockPos( 0, 0, 0 ), new BlockPos( 15, 15, 0 ) ) );
 			}
-			catch ( final CannotBeChiseled e )
+			catch ( final CannotBeChiseledException e )
 			{
 				Log.logError( "FAIL", e );
 			}
@@ -306,15 +305,15 @@ public abstract class DebugAction
 				access.setBitAt( loc.getBitX(), loc.getBitY(), loc.getBitZ(), brush );
 				access.commitChanges( true );
 			}
-			catch ( final CannotBeChiseled e )
+			catch ( final CannotBeChiseledException e )
 			{
 				Log.logError( "FAIL", e );
 			}
-			catch ( final SpaceOccupied e )
+			catch ( final SpaceOccupiedException e )
 			{
 				Log.logError( "FAIL", e );
 			}
-			catch ( final InvalidBitItem e )
+			catch ( final InvalidBitItemException e )
 			{
 				Log.logError( "FAIL", e );
 			}
@@ -357,7 +356,7 @@ public abstract class DebugAction
 						{
 							bit = api.createBrush( api.getBitItem( state ) );
 						}
-						catch ( final InvalidBitItem e )
+						catch ( final InvalidBitItemException e )
 						{
 						}
 
@@ -367,7 +366,7 @@ public abstract class DebugAction
 
 				access.commitChanges( true );
 			}
-			catch ( final CannotBeChiseled e )
+			catch ( final CannotBeChiseledException e )
 			{
 				Log.logError( "FAIL", e );
 			}
@@ -398,7 +397,7 @@ public abstract class DebugAction
 
 				access.commitChanges( true );
 			}
-			catch ( final CannotBeChiseled e )
+			catch ( final CannotBeChiseledException e )
 			{
 				Log.logError( "FAIL", e );
 			}
@@ -429,7 +428,7 @@ public abstract class DebugAction
 
 				access.commitChanges( true );
 			}
-			catch ( final CannotBeChiseled e )
+			catch ( final CannotBeChiseledException e )
 			{
 				Log.logError( "FAIL", e );
 			}
@@ -480,7 +479,7 @@ public abstract class DebugAction
 					player.inventory.addItemStackToInventory( is.getValue() );
 				}
 			}
-			catch ( final CannotBeChiseled e )
+			catch ( final CannotBeChiseledException e )
 			{
 				Log.logError( "FAIL", e );
 			}
@@ -530,7 +529,7 @@ public abstract class DebugAction
 					}
 				}
 			}
-			catch ( final CannotBeChiseled e )
+			catch ( final CannotBeChiseledException e )
 			{
 				Log.logError( "FAIL", e );
 			}
@@ -585,7 +584,7 @@ public abstract class DebugAction
 				player.inventory.addItemStackToInventory( access.getBitsAsItem( side, ItemType.NEGATIVE_DESIGN, false ) );
 				player.inventory.addItemStackToInventory( access.getBitsAsItem( side, ItemType.POSITIVE_DESIGN, false ) );
 			}
-			catch ( final CannotBeChiseled e )
+			catch ( final CannotBeChiseledException e )
 			{
 				Log.logError( "FAIL", e );
 			}

@@ -4,7 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Stopwatch;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import mod.chiselsandbits.api.APIExceptions.CannotBeChiseled;
+import mod.chiselsandbits.api.exceptions.CannotBeChiseledException;
 import mod.chiselsandbits.api.*;
 import mod.chiselsandbits.bitstorage.TileEntitySpecialRenderBitStorage;
 import mod.chiselsandbits.chiseledblock.*;
@@ -382,7 +382,7 @@ public class ClientSide
 
                     CreativeClipboardTab.addItem(is);
                 }
-                catch (final CannotBeChiseled e)
+                catch (final CannotBeChiseledException e)
                 {
                     // nope.
                 }
@@ -404,7 +404,7 @@ public class ClientSide
                     final ItemStack is = brush.getItemStack(1);
                     doPick(is);
                 }
-                catch (final CannotBeChiseled e)
+                catch (final CannotBeChiseledException e)
                 {
                     // nope.
                 }

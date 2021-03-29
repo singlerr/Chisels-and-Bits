@@ -1,4 +1,4 @@
-package mod.chiselsandbits.api;
+package mod.chiselsandbits.api.events;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
