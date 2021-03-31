@@ -1,7 +1,11 @@
 package mod.chiselsandbits.utils;
 
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraftforge.common.util.Constants;
 
@@ -30,5 +34,46 @@ public class ChunkSectionUtils
           nbt.getList(NbtConstants.PALETTE, Constants.NBT.TAG_COMPOUND),
           nbt.getLongArray(NbtConstants.BLOCK_STATES)
         );
+    }
+
+    public static ChunkSection rotate90Degrees(final ChunkSection source, final Direction.Axis axis, final int rotationCount) {
+        if (rotationCount == 0)
+            return source;
+
+        final Vector3d centerVector = new Vector3d(7.5d, 7.5d, 7.5d);
+
+        final ChunkSection target = new ChunkSection(0);
+
+        for (int x = 0; x < 16; x++)
+        {
+            for (int y = 0; y < 16; y++)
+            {
+                for (int z = 0; z < 16; z++)
+                {
+                    final Vector3d workingVector = new Vector3d(x, y, z);
+                    Vector3d rotatedVector = workingVector.subtract(centerVector);
+                    for (int i = 0; i < rotationCount; i++)
+                    {
+                        rotatedVector = VectorUtils.rotate90Degrees(rotatedVector, axis);
+                    }
+
+                    final BlockPos sourcePos = new BlockPos(workingVector);
+                    final BlockPos targetPos = new BlockPos(rotatedVector);
+
+                    target.setBlockState(
+                      targetPos.getX(),
+                      targetPos.getY(),
+                      targetPos.getZ(),
+                      source.getBlockState(
+                        sourcePos.getX(),
+                        sourcePos.getY(),
+                        sourcePos.getZ()
+                      )
+                    );
+                }
+            }
+        }
+
+        return target;
     }
 }

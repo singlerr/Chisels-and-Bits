@@ -24,7 +24,7 @@ public interface IAreaMutator extends IAreaAccessor
      *
      * @param blockState           The blockstate.
      * @param inAreaBlockPosOffset The offset of blocks in the current area.
-     * @param inBlockTarget        The offset in the targetted block.
+     * @param inBlockTarget        The offset in the targeted block.
      */
     void setInBlockTarget(
       BlockState blockState,

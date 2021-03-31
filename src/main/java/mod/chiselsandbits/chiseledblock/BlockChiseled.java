@@ -301,6 +301,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
     }
 
     @Override
+    @OnlyIn( Dist.CLIENT )
     public boolean addDestroyEffects(final BlockState state, final World world, final BlockPos pos, final ParticleManager manager)
     {
         try
@@ -570,7 +571,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
                 activeState = getPrimaryState( world, pos );
             }
 
-            return activeState.canHarvestBlock( new SingleBlockBlockReader( activeState ), pos, player );
+            return activeState.canHarvestBlock( new SingleBlockBlockReader( activeState, pos, world), pos, player );
         }
 
         return true;
@@ -599,7 +600,7 @@ public class BlockChiseled extends Block implements ITileEntityProvider, IMultiS
             float denom = player.inventory.getDestroySpeed( actingState );
             float numer = player.inventory.getDestroySpeed( state );
 
-            if ( !state.canHarvestBlock( new SingleBlockBlockReader( state ), ZERO, player ) )
+            if ( !state.canHarvestBlock( new SingleBlockBlockReader( state, worldIn), ZERO, player ) )
             {
                 return player.getDigSpeed( actingState, pos ) / hardness / 100F * ( numer / denom );
             }

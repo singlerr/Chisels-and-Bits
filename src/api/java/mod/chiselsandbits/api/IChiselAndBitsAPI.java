@@ -4,7 +4,9 @@ import mod.chiselsandbits.api.addons.IChiselsAndBitsAddon;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.chiseling.IConversionManager;
 import mod.chiselsandbits.api.chiseling.IEligibilityManager;
+import mod.chiselsandbits.api.item.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
+import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -55,6 +57,23 @@ public interface IChiselAndBitsAPI
      */
     @NotNull
     IChangeTracker getChangeTracker();
+
+    /**
+     * Manager which deals with calculating, and optionally caching, the voxel shapes, which
+     * can be constructed from a given area.
+     *
+     * @return The voxel shape manager.
+     */
+    @NotNull
+    IVoxelShapeManager getVoxelShapeManager();
+
+    /**
+     * A factory which can produce a multistate item from a given source.
+     *
+     * @return The factory.
+     */
+    @NotNull
+    IMultiStateItemFactory getMultiStateItemFactory();
 
     class Holder {
         private static IChiselAndBitsAPI apiInstance;

@@ -1,10 +1,12 @@
 package mod.chiselsandbits.api.block.entity;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
+import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraftforge.common.util.INBTSerializable;
 
 /**
@@ -22,5 +24,22 @@ public interface IMultiStateBlockEntity extends IWorldAreaAccessor,
      *
      * @return The statistics.
      */
-    IMultiStateBlockStatistics getStatistics();
+    IMultiStateObjectStatistics getStatistics();
+
+    /**
+     * Rotates the current multistate block 90 degrees around the given axis with the given rotation count.
+     *
+     * @param axis The axis to rotate around.
+     * @param rotationCount The amount of times to rotate the
+     */
+    void rotate(final Direction.Axis axis, final int rotationCount);
+
+    /**
+     * Rotates the current multistate block exactly once 90 degrees around the given axis.
+     *
+     * @param axis The axis to rotate around.
+     */
+    default void rotate(final Direction.Axis axis) {
+        this.rotate(axis, 1);
+    }
 }
