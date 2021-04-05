@@ -1,7 +1,7 @@
 package mod.chiselsandbits.events;
 
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.items.ItemMagnifyingGlass;
+import mod.chiselsandbits.item.MagnifyingGlassItem;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -18,7 +18,8 @@ public class ClientTickHandler
     public static void onTickPlayerTick(final TickEvent.ClientTickEvent event)
     {
         if (Minecraft.getInstance().player != null)
-            if (Minecraft.getInstance().player.getHeldItemMainhand().getItem() instanceof ItemMagnifyingGlass || Minecraft.getInstance().player.getHeldItemOffhand().getItem() instanceof ItemMagnifyingGlass)
+            if (Minecraft.getInstance().player.getHeldItemMainhand().getItem() instanceof MagnifyingGlassItem
+                  || Minecraft.getInstance().player.getHeldItemOffhand().getItem() instanceof MagnifyingGlassItem)
                 if (Minecraft.getInstance().ingameGUI != null)
                     Minecraft.getInstance().ingameGUI.remainingHighlightTicks = 40;
     }

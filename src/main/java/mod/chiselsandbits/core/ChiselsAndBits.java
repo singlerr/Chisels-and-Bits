@@ -5,22 +5,22 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import mod.chiselsandbits.api.IChiselAndBitsAPI;
-import mod.chiselsandbits.chiseledblock.BlockBitInfo;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.core.api.ChiselsAndBitsAPI;
+import mod.chiselsandbits.legacy.chiseledblock.BlockBitInfo;
+import mod.chiselsandbits.legacy.chiseledblock.data.VoxelBlob;
 import mod.chiselsandbits.client.UndoTracker;
-import mod.chiselsandbits.config.Configuration;
-import mod.chiselsandbits.core.api.ChiselAndBitsAPI;
+import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.core.api.IMCHandler;
 import mod.chiselsandbits.events.EventPlayerInteract;
 import mod.chiselsandbits.events.VaporizeWater;
 import mod.chiselsandbits.interfaces.ICacheClearable;
 import mod.chiselsandbits.network.NetworkChannel;
-import mod.chiselsandbits.registry.*;
+import mod.chiselsandbits.registrars.*;
 import mod.chiselsandbits.render.SmartModelManager;
 import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
-import mod.chiselsandbits.utils.Constants;
-import mod.chiselsandbits.utils.LanguageHandler;
+import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.api.util.LanguageHandler;
 import net.minecraft.block.material.Material;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -38,10 +38,10 @@ public class ChiselsAndBits
 {
 	public static final @Nonnull String MODID = Constants.MOD_ID;
 
-	private static ChiselsAndBits    instance;
-	private        Configuration     config;
-	private final  IChiselAndBitsAPI api = new ChiselAndBitsAPI();
-	private final  NetworkChannel    networkChannel = new NetworkChannel(MODID);
+	private static ChiselsAndBits     instance;
+	private        Configuration      config;
+	private final  IChiselsAndBitsAPI api            = new ChiselsAndBitsAPI();
+	private final  NetworkChannel     networkChannel = new NetworkChannel(MODID);
 
 	List<ICacheClearable> cacheClearables = new ArrayList<>();
 
@@ -87,7 +87,7 @@ public class ChiselsAndBits
 		return instance.config;
 	}
 
-	public static IChiselAndBitsAPI getApi()
+	public static IChiselsAndBitsAPI getApi()
 	{
 		return instance.api;
 	}

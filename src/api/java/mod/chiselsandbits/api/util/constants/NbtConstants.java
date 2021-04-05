@@ -4,6 +4,7 @@ public class NbtConstants
 {
 
 
+
     private NbtConstants()
     {
         throw new IllegalStateException("Can not instantiate an instance of: NbtConstants. This is a utility class");
@@ -27,4 +28,5 @@ public class NbtConstants
     public static final String Y_COORDINATE = "yCoordinate";
     public static final String COORDINATE = "coordinate";
     public static final String VALUE = "value";
+    public static final String CHISEL_MODE = "chiselMode";
 }

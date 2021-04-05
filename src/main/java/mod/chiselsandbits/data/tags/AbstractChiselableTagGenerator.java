@@ -1,7 +1,7 @@
 package mod.chiselsandbits.data.tags;
 
 import com.ldtteam.datagenerators.tags.TagJson;
-import mod.chiselsandbits.utils.Constants;
+import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;

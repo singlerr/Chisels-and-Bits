@@ -1,15 +1,9 @@
 package mod.chiselsandbits.network;
 
-import java.io.IOException;
-import java.util.function.Supplier;
-
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.INetHandler;
-import net.minecraft.network.IPacket;
 import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 
-@SuppressWarnings( "rawtypes" )
 public abstract class ModPacket
 {
 

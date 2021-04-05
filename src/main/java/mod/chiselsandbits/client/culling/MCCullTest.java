@@ -1,16 +1,14 @@
 package mod.chiselsandbits.client.culling;
 
-import mod.chiselsandbits.chiseledblock.BlockBitInfo;
-import mod.chiselsandbits.helpers.ModUtil;
+import mod.chiselsandbits.api.util.blockstate.BlockStateIdUtils;
+import mod.chiselsandbits.legacy.chiseledblock.BlockBitInfo;
 import net.minecraft.block.*;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.tags.BlockTags;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
-import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fluids.IFluidBlock;
 
 /**
@@ -34,12 +32,12 @@ public class MCCullTest implements ICullTest, IBlockReader
 			return false;
 		}
 
-		a = ModUtil.getStateById( mySpot );
+		a = BlockStateIdUtils.getStateById( mySpot );
 		if ( a == null )
 		{
 			a = Blocks.AIR.getDefaultState();
 		}
-		b = ModUtil.getStateById( secondSpot );
+		b = BlockStateIdUtils.getStateById( secondSpot );
 		if ( b == null )
 		{
 			b = Blocks.AIR.getDefaultState();

@@ -1,11 +1,11 @@
 package mod.chiselsandbits.data.model;
 
 import com.ldtteam.datagenerators.models.item.ItemModelJson;
-import mod.chiselsandbits.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.chiseledblock.MaterialType;
+import mod.chiselsandbits.legacy.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.legacy.chiseledblock.MaterialType;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.registry.ModBlocks;
-import mod.chiselsandbits.utils.Constants;
+import mod.chiselsandbits.registrars.ModBlocks;
+import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;

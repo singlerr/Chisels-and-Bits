@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.voxelshape;
 
-import mod.chiselsandbits.api.IChiselAndBitsAPI;
+import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -11,7 +11,7 @@ public interface IVoxelShapeManager
 {
 
     static IVoxelShapeManager getInstance() {
-        return IChiselAndBitsAPI.getInstance().getVoxelShapeManager();
+        return IChiselsAndBitsAPI.getInstance().getVoxelShapeManager();
     }
 
     /**

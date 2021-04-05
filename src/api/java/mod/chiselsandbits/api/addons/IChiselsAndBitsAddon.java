@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.addons;
 
-import mod.chiselsandbits.api.IChiselAndBitsAPI;
+import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 
 /**
  * Implement this on a class with the @ChiselsAndBitsAddon annotation, you can
@@ -19,5 +19,5 @@ public interface IChiselsAndBitsAddon
 	 *
 	 * @param api The api of chisels and bits.
 	 */
-	void commonSetup(final IChiselAndBitsAPI api);
+	void commonSetup(final IChiselsAndBitsAPI api);
 }

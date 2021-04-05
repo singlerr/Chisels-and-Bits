@@ -4,20 +4,18 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
+import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.world.IInWorldStateEntryInfo;
+import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
-import mod.chiselsandbits.api.util.BlockPosStreamProvider;
-import mod.chiselsandbits.api.util.IPacketBufferSerializable;
-import mod.chiselsandbits.api.util.PacketBufferCache;
-import mod.chiselsandbits.api.util.Vector2i;
+import mod.chiselsandbits.api.util.*;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
-import mod.chiselsandbits.helpers.ModUtil;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
-import mod.chiselsandbits.utils.SingleBlockWorldReader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
@@ -229,9 +227,20 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         return getStartPoint().add(1, 1, 1).subtract(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS);
     }
 
+    /**
+     * Returns all entries in the current area in a mutable fashion. Includes all empty areas as areas containing an air state.
+     *
+     * @return A stream with a mutable state entry info for each mutable section in the area.
+     */
+    @Override
+    public Stream<IMutableStateEntryInfo> mutableStream()
+    {
+        return null;
+    }
+
     @SuppressWarnings("deprecation")
     @Override
-    public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget)
+    public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
     {
         if (inAreaTarget.getX() < 0 ||
               inAreaTarget.getY() < 0 ||
@@ -249,6 +258,13 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
           inAreaPos.getY(),
           inAreaPos.getZ()
         );
+
+        if (!currentState.isAir(new SingleBlockBlockReader(
+          currentState,
+          getPos(),
+          getWorld()
+        ), getPos()))
+            throw new SpaceOccupiedException();
 
         this.compressedSection.setBlockState(
           inAreaPos.getX(),
@@ -268,7 +284,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     }
 
     @Override
-    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget) throws SpaceOccupiedException
     {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
         {
@@ -277,6 +293,68 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
 
         this.setInAreaTarget(
           blockState,
+          inBlockTarget
+        );
+    }
+
+    /**
+     * Clears the current area, using the offset from the area as well as the in area target offset.
+     *
+     * @param inAreaTarget The in area offset.
+     */
+    @Override
+    public void clearInAreaTarget(final Vector3d inAreaTarget)
+    {
+        if (inAreaTarget.getX() < 0 ||
+              inAreaTarget.getY() < 0 ||
+              inAreaTarget.getZ() < 0 ||
+              inAreaTarget.getX() >= 1 ||
+              inAreaTarget.getY() >= 1 ||
+              inAreaTarget.getZ() >= 1) {
+            throw new IllegalArgumentException("Target is not in the current area.");
+        }
+
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE));
+
+        final BlockState currentState = this.compressedSection.getBlockState(
+          inAreaPos.getX(),
+          inAreaPos.getY(),
+          inAreaPos.getZ()
+        );
+        final BlockState blockState = Blocks.AIR.getDefaultState();
+
+        this.compressedSection.setBlockState(
+          inAreaPos.getX(),
+          inAreaPos.getY(),
+          inAreaPos.getZ(),
+          blockState,
+          true
+        );
+
+        if (blockState.isAir() && !currentState.isAir()) {
+            mutableStatistics.onBlockStateRemoved(currentState, inAreaPos);
+        } else if (!blockState.isAir() && currentState.isAir()) {
+            mutableStatistics.onBlockStateAdded(blockState, inAreaPos);
+        } else if (!blockState.isAir() && !currentState.isAir()) {
+            mutableStatistics.onBlockStateReplaced(currentState, blockState, inAreaPos);
+        }
+    }
+
+    /**
+     * Clears the current area, using the in area block position offset as well as the in block target offset to calculate the in area offset for setting.
+     *
+     * @param inAreaBlockPosOffset The offset of blocks in the current area.
+     * @param inBlockTarget        The offset in the targeted block.
+     */
+    @Override
+    public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    {
+        if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
+        {
+            throw new IllegalStateException(String.format("The given in area block pos offset is not inside the current block: %s", inAreaBlockPosOffset));
+        }
+
+        this.clearInAreaTarget(
           inBlockTarget
         );
     }
@@ -301,6 +379,23 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
           .forEach(position -> this.mutableStatistics.onBlockStateAdded(
             this.compressedSection.getBlockState(position.getX(), position.getY(), position.getZ()),
             position
+          ));
+    }
+
+    /**
+     * Initializes the block entity so that all its state entries have the given state as their state.
+     *
+     * @param currentState The new initial state.
+     */
+    @Override
+    public void initializeWith(final BlockState currentState)
+    {
+        BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+          .forEach(blockPos -> this.compressedSection.setBlockState(
+            blockPos.getX(),
+            blockPos.getY(),
+            blockPos.getZ(),
+            currentState
           ));
     }
 
@@ -638,12 +733,12 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         @Override
         public void serializeInto(@NotNull final PacketBuffer packetBuffer)
         {
-            packetBuffer.writeVarInt(ModUtil.getStateId(this.primaryState));
+            packetBuffer.writeVarInt(IBlockStateIdManager.getInstance().getIdFrom(this.primaryState));
 
             packetBuffer.writeVarInt(this.countMap.size());
             for (final Map.Entry<BlockState, Integer> blockStateIntegerEntry : this.countMap.entrySet())
             {
-                packetBuffer.writeVarInt(ModUtil.getStateId(blockStateIntegerEntry.getKey()));
+                packetBuffer.writeVarInt(IBlockStateIdManager.getInstance().getIdFrom(blockStateIntegerEntry.getKey()));
                 packetBuffer.writeVarInt(blockStateIntegerEntry.getValue());
             }
             packetBuffer.writeVarInt(this.columnBlockedMap.size());
@@ -666,13 +761,13 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
             this.countMap.clear();
             this.columnBlockedMap.clear();
 
-            this.primaryState = ModUtil.getStateById(packetBuffer.readVarInt());
+            this.primaryState = IBlockStateIdManager.getInstance().getBlockStateFrom(packetBuffer.readVarInt());
 
             final int stateCount = packetBuffer.readVarInt();
             for (int i = 0; i < stateCount; i++)
             {
                 this.countMap.put(
-                  ModUtil.getStateById(packetBuffer.readVarInt()),
+                  IBlockStateIdManager.getInstance().getBlockStateFrom(packetBuffer.readVarInt()),
                   packetBuffer.readVarInt()
                 );
             }

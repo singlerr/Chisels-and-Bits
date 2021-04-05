@@ -2,9 +2,8 @@ package mod.chiselsandbits.data.model;
 
 import com.ldtteam.datagenerators.models.item.ItemModelJson;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.registry.ModBlocks;
-import mod.chiselsandbits.registry.ModItems;
-import mod.chiselsandbits.utils.Constants;
+import mod.chiselsandbits.registrars.ModItems;
+import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;

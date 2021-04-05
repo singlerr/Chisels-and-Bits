@@ -1,10 +1,11 @@
 package mod.chiselsandbits.api.multistate.mutator;
 
-import mod.chiselsandbits.api.IChiselAndBitsAPI;
+import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
 
 /**
  * Allows for the creation of new mutators used to modify chiselable areas.
@@ -17,7 +18,7 @@ public interface IMutatorFactory
      * @return The mutator factory.
      */
     static IMutatorFactory getInstance() {
-        return IChiselAndBitsAPI.getInstance().getMutatorFactory();
+        return IChiselsAndBitsAPI.getInstance().getMutatorFactory();
     }
 
     /**
@@ -28,7 +29,7 @@ public interface IMutatorFactory
      * @return The mutator.
      */
     IWorldAreaMutator in(
-      final IBlockReader world,
+      final IWorld world,
       final BlockPos pos
     );
 
@@ -41,7 +42,7 @@ public interface IMutatorFactory
      * @return The mutator.
      */
     IWorldAreaMutator covering(
-      final IBlockReader world,
+      final IWorld world,
       final BlockPos from,
       final BlockPos to
     );
@@ -55,7 +56,7 @@ public interface IMutatorFactory
      * @return The mutator.
      */
     IWorldAreaMutator covering(
-      final IBlockReader world,
+      final IWorld world,
       final Vector3d from,
       final Vector3d to
     );

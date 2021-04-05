@@ -1,8 +1,8 @@
 package mod.chiselsandbits.client.model.baked;
 
-import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
-import mod.chiselsandbits.chiseledblock.data.VoxelBlobStateReference;
-import mod.chiselsandbits.chiseledblock.data.VoxelType;
+import mod.chiselsandbits.legacy.chiseledblock.TileEntityBlockChiseled;
+import mod.chiselsandbits.legacy.chiseledblock.data.VoxelBlobStateReference;
+import mod.chiselsandbits.legacy.chiseledblock.data.VoxelType;
 import mod.chiselsandbits.render.ModelCombined;
 import mod.chiselsandbits.render.NullBakedModel;
 import mod.chiselsandbits.render.chiseledblock.ChiselRenderType;
@@ -16,7 +16,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockDisplayReader;
 import net.minecraft.world.World;
-import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.client.model.data.ModelProperty;
@@ -25,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
 {

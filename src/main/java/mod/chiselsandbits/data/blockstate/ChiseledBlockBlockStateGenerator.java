@@ -4,11 +4,11 @@ import com.google.common.collect.Maps;
 import com.ldtteam.datagenerators.blockstate.BlockstateJson;
 import com.ldtteam.datagenerators.blockstate.BlockstateModelJson;
 import com.ldtteam.datagenerators.blockstate.BlockstateVariantJson;
-import mod.chiselsandbits.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.chiseledblock.MaterialType;
+import mod.chiselsandbits.legacy.chiseledblock.BlockChiseled;
+import mod.chiselsandbits.legacy.chiseledblock.MaterialType;
 import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.registry.ModBlocks;
-import mod.chiselsandbits.utils.Constants;
+import mod.chiselsandbits.registrars.ModBlocks;
+import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
@@ -20,7 +20,6 @@ import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = ChiselsAndBits.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
