@@ -2,13 +2,16 @@ package mod.chiselsandbits.multistate.snapshot;
 
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
+import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,12 +28,75 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
         this.endPoint = endPoint;
     }
 
+    /**
+     * Creates a new area shape identifier.
+     * <p>
+     * Note: This method always returns a new instance.
+     *
+     * @return The new identifier.
+     */
+    @Override
+    public IAreaShapeIdentifier createNewShapeIdentifier()
+    {
+        return null;
+    }
+
     @Override
     public Stream<IStateEntryInfo> stream()
     {
         return snapshots.values()
           .stream()
           .flatMap(IAreaAccessor::stream);
+    }
+
+    /**
+     * Gets the target state in the current area, using the offset from the area as well as the in area target offset.
+     *
+     * @param inAreaTarget The in area offset.
+     * @return An optional potentially containing the state entry of the requested target.
+     */
+    @Override
+    public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
+    {
+        return Optional.empty();
+    }
+
+    /**
+     * Gets the target state in the current area, using the in area block position offset as well as the in block target offset to calculate the in area offset for setting.
+     *
+     * @param inAreaBlockPosOffset The offset of blocks in the current area.
+     * @param inBlockTarget        The offset in the targeted block.
+     * @return An optional potentially containing the state entry of the requested target.
+     */
+    @Override
+    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    {
+        return Optional.empty();
+    }
+
+    /**
+     * Indicates if the given target is inside of the current accessor.
+     *
+     * @param inAreaTarget The area target to check.
+     * @return True when inside, false when not.
+     */
+    @Override
+    public boolean isInside(final Vector3d inAreaTarget)
+    {
+        return false;
+    }
+
+    /**
+     * Indicates if the given target (with the given block position offset) is inside of the current accessor.
+     *
+     * @param inAreaBlockPosOffset The offset of blocks in the current area.
+     * @param inBlockTarget        The offset in the targeted block.
+     * @return True when inside, false when not.
+     */
+    @Override
+    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    {
+        return false;
     }
 
     @Override
@@ -49,6 +115,17 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
           startPoint,
           endPoint
         );
+    }
+
+    /**
+     * Returns all entries in the current area in a mutable fashion. Includes all empty areas as areas containing an air state.
+     *
+     * @return A stream with a mutable state entry info for each mutable section in the area.
+     */
+    @Override
+    public Stream<IMutableStateEntryInfo> mutableStream()
+    {
+        return null;
     }
 
     @Override
@@ -88,5 +165,28 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
 
         this.snapshots.get(inAreaBlockPosOffset)
           .setInAreaTarget(blockState, inBlockTarget);
+    }
+
+    /**
+     * Clears the current area, using the offset from the area as well as the in area target offset.
+     *
+     * @param inAreaTarget The in area offset.
+     */
+    @Override
+    public void clearInAreaTarget(final Vector3d inAreaTarget)
+    {
+
+    }
+
+    /**
+     * Clears the current area, using the in area block position offset as well as the in block target offset to calculate the in area offset for setting.
+     *
+     * @param inAreaBlockPosOffset The offset of blocks in the current area.
+     * @param inBlockTarget        The offset in the targeted block.
+     */
+    @Override
+    public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    {
+
     }
 }

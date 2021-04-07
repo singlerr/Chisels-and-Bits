@@ -2,20 +2,26 @@ package mod.chiselsandbits.item.multistate;
 
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
+import mod.chiselsandbits.api.item.multistate.IStatistics;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.api.multistate.accessor.world.IInWorldStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
+import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
+import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
-import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
+import mod.chiselsandbits.api.util.SingleBlockBlockReader;
+import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.utils.ChunkSectionUtils;
+import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.IBlockReader;
 import net.minecraft.world.chunk.ChunkSection;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,17 +29,28 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.BITS_PER_BLOCK_SIDE;
+import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT;
+
 public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
 {
 
-    private final ChunkSection compressedStorage;
+    private final ItemStack    sourceStack;
+    private final ChunkSection compressedSection;
 
-    public ChiseledBlockMultiStateItemStack()
+    public ChiseledBlockMultiStateItemStack(final ItemStack sourceStack)
     {
-        this.compressedStorage = new ChunkSection(0);
+        this.sourceStack = sourceStack;
+        this.compressedSection = new ChunkSection(0);
+
+        this.deserializeNBT(sourceStack.getOrCreateChildTag(NbtConstants.CHISELED_DATA));
     }
 
-    public ChiseledBlockMultiStateItemStack(final ChunkSection compressedStorage) {this.compressedStorage = compressedStorage;}
+    public ChiseledBlockMultiStateItemStack(final ItemStack sourceStack, final ChunkSection compressedSection)
+    {
+        this.sourceStack = sourceStack;
+        this.compressedSection = compressedSection;
+    }
 
     /**
      * Creates a new area shape identifier.
@@ -45,7 +62,7 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public IAreaShapeIdentifier createNewShapeIdentifier()
     {
-        return new ShapeIdentifier(this.compressedStorage);
+        return new ShapeIdentifier(this.compressedSection);
     }
 
     /**
@@ -56,10 +73,12 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public Stream<IStateEntryInfo> stream()
     {
-        return BlockPosStreamProvider.getForRange(ChiseledBlockEntity.BITS_PER_BLOCK_SIDE)
+        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
                  .map(blockPos -> new StateEntry(
-                     this.compressedStorage.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
-                     blockPos
+                     this.compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+                     blockPos,
+                     this::setInAreaTarget,
+                     this::clearInAreaTarget
                    )
                  );
     }
@@ -73,7 +92,30 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
     {
-        return Optional.empty();
+        if (inAreaTarget.getX() < 0 ||
+              inAreaTarget.getY() < 0 ||
+              inAreaTarget.getZ() < 0 ||
+              inAreaTarget.getX() >= 1 ||
+              inAreaTarget.getY() >= 1 ||
+              inAreaTarget.getZ() >= 1)
+        {
+            throw new IllegalArgumentException("Target is not in the current area.");
+        }
+
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE));
+
+        final BlockState currentState = this.compressedSection.getBlockState(
+          inAreaPos.getX(),
+          inAreaPos.getY(),
+          inAreaPos.getZ()
+        );
+
+        return currentState.isAir() ? Optional.empty() : Optional.of(new StateEntry(
+          currentState,
+          inAreaPos,
+          this::setInAreaTarget,
+          this::clearInAreaTarget
+        ));
     }
 
     /**
@@ -86,7 +128,39 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
-        return Optional.empty();
+        if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
+        {
+            throw new IllegalStateException(String.format("The given in area block pos offset is not inside the current block: %s", inAreaBlockPosOffset));
+        }
+
+        return this.getInAreaTarget(
+          inBlockTarget
+        );
+    }
+
+    /**
+     * Indicates if the given target is inside of the current accessor.
+     *
+     * @param inAreaTarget The area target to check.
+     * @return True when inside, false when not.
+     */
+    @Override
+    public boolean isInside(final Vector3d inAreaTarget)
+    {
+        return false;
+    }
+
+    /**
+     * Indicates if the given target (with the given block position offset) is inside of the current accessor.
+     *
+     * @param inAreaBlockPosOffset The offset of blocks in the current area.
+     * @param inBlockTarget        The offset in the targeted block.
+     * @return True when inside, false when not.
+     */
+    @Override
+    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    {
+        return false;
     }
 
     /**
@@ -97,7 +171,7 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public IMultiStateSnapshot createSnapshot()
     {
-        return null;
+        return MultiStateSnapshotUtils.createFromSection(this.compressedSection);
     }
 
     /**
@@ -108,7 +182,14 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public Stream<IMutableStateEntryInfo> mutableStream()
     {
-        return null;
+        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+                 .map(blockPos -> new StateEntry(
+                     this.compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+                     blockPos,
+                     this::setInAreaTarget,
+                     this::clearInAreaTarget
+                   )
+                 );
     }
 
     /**
@@ -120,7 +201,40 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
     {
+        if (inAreaTarget.getX() < 0 ||
+              inAreaTarget.getY() < 0 ||
+              inAreaTarget.getZ() < 0 ||
+              inAreaTarget.getX() >= 1 ||
+              inAreaTarget.getY() >= 1 ||
+              inAreaTarget.getZ() >= 1)
+        {
+            throw new IllegalArgumentException("Target is not in the current area.");
+        }
 
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE));
+
+        final BlockState currentState = this.compressedSection.getBlockState(
+          inAreaPos.getX(),
+          inAreaPos.getY(),
+          inAreaPos.getZ()
+        );
+
+        if (!currentState.isAir(new SingleBlockBlockReader(
+          currentState
+        ), BlockPos.ZERO))
+        {
+            throw new SpaceOccupiedException();
+        }
+
+        this.compressedSection.setBlockState(
+          inAreaPos.getX(),
+          inAreaPos.getY(),
+          inAreaPos.getZ(),
+          blockState,
+          true
+        );
+
+        this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
     }
 
     /**
@@ -133,7 +247,15 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget) throws SpaceOccupiedException
     {
+        if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
+        {
+            throw new IllegalStateException(String.format("The given in area block pos offset is not inside the current block: %s", inAreaBlockPosOffset));
+        }
 
+        this.setInAreaTarget(
+          blockState,
+          inBlockTarget
+        );
     }
 
     /**
@@ -144,7 +266,29 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void clearInAreaTarget(final Vector3d inAreaTarget)
     {
+        if (inAreaTarget.getX() < 0 ||
+              inAreaTarget.getY() < 0 ||
+              inAreaTarget.getZ() < 0 ||
+              inAreaTarget.getX() >= 1 ||
+              inAreaTarget.getY() >= 1 ||
+              inAreaTarget.getZ() >= 1)
+        {
+            throw new IllegalArgumentException("Target is not in the current area.");
+        }
 
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE));
+
+        final BlockState blockState = Blocks.AIR.getDefaultState();
+
+        this.compressedSection.setBlockState(
+          inAreaPos.getX(),
+          inAreaPos.getY(),
+          inAreaPos.getZ(),
+          blockState,
+          true
+        );
+
+        this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
     }
 
     /**
@@ -156,7 +300,14 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
+        if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
+        {
+            throw new IllegalStateException(String.format("The given in area block pos offset is not inside the current block: %s", inAreaBlockPosOffset));
+        }
 
+        this.clearInAreaTarget(
+          inBlockTarget
+        );
     }
 
     /**
@@ -167,7 +318,7 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void serializeInto(@NotNull final PacketBuffer packetBuffer)
     {
-
+        compressedSection.getData().write(packetBuffer);
     }
 
     /**
@@ -178,25 +329,52 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void deserializeFrom(@NotNull final PacketBuffer packetBuffer)
     {
-
+        compressedSection.getData().read(packetBuffer);
     }
 
     @Override
     public CompoundNBT serializeNBT()
     {
-        return null;
+        final CompoundNBT nbt = new CompoundNBT();
+
+        final CompoundNBT chiselBlockData = new CompoundNBT();
+        final CompoundNBT compressedSectionData = ChunkSectionUtils.serializeNBT(this.compressedSection);
+        chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
+
+        nbt.put(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, chiselBlockData);
+
+        return nbt;
     }
 
     @Override
     public void deserializeNBT(final CompoundNBT nbt)
     {
+        final CompoundNBT chiselBlockData = nbt.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
+        final CompoundNBT compressedSectionData = chiselBlockData.getCompound(NbtConstants.COMPRESSED_STORAGE);
 
+        ChunkSectionUtils.deserializeNBT(
+          this.compressedSection,
+          compressedSectionData
+        );
     }
 
-    private static final class ShapeIdentifier implements IAreaShapeIdentifier {
+    /**
+     * The statistics of the itemstack.
+     *
+     * @return The statistics.
+     */
+    @Override
+    public IStatistics getStatistics()
+    {
+        return null;
+    }
+
+    private static final class ShapeIdentifier implements IAreaShapeIdentifier
+    {
         private final long[] dataArray;
 
-        private ShapeIdentifier(final ChunkSection chunkSection) {
+        private ShapeIdentifier(final ChunkSection chunkSection)
+        {
             dataArray = Arrays.copyOf(
               chunkSection.getData().storage.getBackingLongArray(),
               chunkSection.getData().storage.getBackingLongArray().length
@@ -225,30 +403,41 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
         }
     }
 
-
-    private static final class StateEntry implements IStateEntryInfo
+    private static final class StateEntry implements IMutableStateEntryInfo
     {
 
-        private final BlockState   state;
-        private final Vector3d     startPoint;
-        private final Vector3d     endPoint;
+        private final BlockState state;
+        private final Vector3d   startPoint;
+        private final Vector3d   endPoint;
 
-        public StateEntry(final BlockState state, final Vector3i startPoint)
+        private final StateSetter  stateSetter;
+        private final StateClearer stateClearer;
+
+        public StateEntry(
+          final BlockState state,
+          final Vector3i startPoint,
+          final StateSetter stateSetter,
+          final StateClearer stateClearer)
         {
             this(
               state,
-              Vector3d.copy(startPoint).mul(ChiseledBlockEntity.SIZE_PER_BIT, ChiseledBlockEntity.SIZE_PER_BIT, ChiseledBlockEntity.SIZE_PER_BIT),
-              Vector3d.copy(startPoint).mul(ChiseledBlockEntity.SIZE_PER_BIT, ChiseledBlockEntity.SIZE_PER_BIT, ChiseledBlockEntity.SIZE_PER_BIT).add(ChiseledBlockEntity.SIZE_PER_BIT, ChiseledBlockEntity.SIZE_PER_BIT, ChiseledBlockEntity.SIZE_PER_BIT)
-            );
+              Vector3d.copy(startPoint).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT),
+              Vector3d.copy(startPoint).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT).add(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT),
+              stateSetter, stateClearer);
         }
 
         private StateEntry(
           final BlockState state,
           final Vector3d startPoint,
-          final Vector3d endPoint) {
+          final Vector3d endPoint,
+          final StateSetter stateSetter,
+          final StateClearer stateClearer)
+        {
             this.state = state;
             this.startPoint = startPoint;
             this.endPoint = endPoint;
+            this.stateSetter = stateSetter;
+            this.stateClearer = stateClearer;
         }
 
         @Override
@@ -268,6 +457,27 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
         {
             return endPoint;
         }
+
+        /**
+         * Sets the current entries state.
+         *
+         * @param blockState The new blockstate of the entry.
+         */
+        @Override
+        public void setState(final BlockState blockState) throws SpaceOccupiedException
+        {
+            stateSetter.accept(blockState, getStartPoint());
+        }
+
+        /**
+         * Clears the current state entries blockstate. Effectively setting the current blockstate to air.
+         */
+        @Override
+        public void clear()
+        {
+            stateClearer.accept(getStartPoint());
+        }
     }
+
 
 }

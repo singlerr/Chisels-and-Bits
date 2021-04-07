@@ -1,11 +1,11 @@
 package mod.chiselsandbits.events;
 
-import mod.chiselsandbits.core.ChiselsAndBits;
+import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = ChiselsAndBits.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TickHandler
 {
 

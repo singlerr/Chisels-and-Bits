@@ -4,12 +4,12 @@ import com.google.common.collect.Maps;
 import com.ldtteam.datagenerators.blockstate.BlockstateJson;
 import com.ldtteam.datagenerators.blockstate.BlockstateModelJson;
 import com.ldtteam.datagenerators.blockstate.BlockstateVariantJson;
-import mod.chiselsandbits.legacy.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.legacy.chiseledblock.MaterialType;
-import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.block.ChiseledBlock;
+import mod.chiselsandbits.materials.MaterialManager;
+import mod.chiselsandbits.registrars.ModBlocks;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
@@ -17,12 +17,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
 
-@Mod.EventBusSubscriber(modid = ChiselsAndBits.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChiseledBlockBlockStateGenerator implements IDataProvider
 {
     @SubscribeEvent
@@ -36,38 +37,40 @@ public class ChiseledBlockBlockStateGenerator implements IDataProvider
     private ChiseledBlockBlockStateGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void act(final DirectoryCache cache) throws IOException
+    public void act(@NotNull final DirectoryCache cache) throws IOException
     {
-        for (MaterialType materialType : ModBlocks.VALID_CHISEL_MATERIALS)
+        for (Map.Entry<Material, RegistryObject<ChiseledBlock>> entry : ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.entrySet())
         {
-            final RegistryObject<BlockChiseled> blockChiseledRegistryObject = ModBlocks.getMaterialToBlockConversions().get(materialType.getType());
-            BlockChiseled blockChiseled = blockChiseledRegistryObject.get();
-            actOnBlock(cache, blockChiseled, materialType);
+            Material material = entry.getKey();
+            RegistryObject<ChiseledBlock> chiseledBlockRegistryObject = entry.getValue();
+            ChiseledBlock blockChiseled = chiseledBlockRegistryObject.get();
+            actOnBlock(cache, blockChiseled, MaterialManager.getInstance().getMaterialNames().get(material));
         }
     }
 
+    @NotNull
     @Override
     public String getName()
     {
         return "Chiseled block blockstate generator";
     }
 
-    public void actOnBlock(final DirectoryCache cache, final Block block, final MaterialType type) throws IOException
+    public void actOnBlock(final DirectoryCache cache, final Block block, final String materialName) throws IOException
     {
         final Map<String, BlockstateVariantJson> variants = Maps.newHashMap();
 
-        block.getStateContainer().getProperties().stream().forEach(property -> {
-            property.getAllowedValues().forEach(value -> {
-                final String variantKey = String.format("%s=%s", property.getName(), value);
-                String modelFile = Constants.DataGenerator.CHISELED_BLOCK_MODEL.toString();
-                final BlockstateModelJson model = new BlockstateModelJson(modelFile, 0, 0);
-                variants.put(variantKey, new BlockstateVariantJson(model));
-            });
-        });
+        block.getStateContainer().getProperties().forEach(property -> property.getAllowedValues().forEach(value -> {
+            final String variantKey = String.format("%s=%s", property.getName(), value);
+            String modelFile = Constants.DataGenerator.CHISELED_BLOCK_MODEL.toString();
+            final BlockstateModelJson model = new BlockstateModelJson(modelFile, 0, 0);
+            variants.put(variantKey, new BlockstateVariantJson(model));
+        }));
 
         final BlockstateJson blockstateJson = new BlockstateJson(variants);
         final Path blockstateFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.BLOCKSTATE_DIR);
-        final Path blockstatePath = blockstateFolder.resolve("chiseled" + type.getName() + ".json");
+        final Path blockstatePath = blockstateFolder.resolve("chiseled" +
+                                                               materialName
+                                                               + ".json");
 
         IDataProvider.save(Constants.DataGenerator.GSON, cache, blockstateJson.serialize(), blockstatePath);
     }

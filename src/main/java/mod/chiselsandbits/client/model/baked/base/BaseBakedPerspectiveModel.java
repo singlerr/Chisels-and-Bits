@@ -1,10 +1,8 @@
-package mod.chiselsandbits.client.model.baked;
+package mod.chiselsandbits.client.model.baked.base;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import mod.chiselsandbits.helpers.IStateRef;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraft.util.math.vector.Vector3f;

@@ -7,6 +7,9 @@ import net.minecraftforge.eventbus.api.Event;
  */
 public class LeftClickProcessingState
 {
+
+    public static final LeftClickProcessingState DEFAULT = new LeftClickProcessingState(false, Event.Result.DEFAULT);
+
     private final boolean      shouldCancel;
     private final Event.Result nextState;
 

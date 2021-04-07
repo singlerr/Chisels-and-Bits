@@ -1,4 +1,4 @@
-package mod.chiselsandbits.client.model.baked;
+package mod.chiselsandbits.client.model.baked.base;
 
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms;

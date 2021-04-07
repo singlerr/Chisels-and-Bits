@@ -3,7 +3,6 @@ package mod.chiselsandbits.item;
 import mod.chiselsandbits.api.chiseling.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
-import mod.chiselsandbits.chiseling.ChiselMode;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.leftclick.LeftClickProcessingState;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
@@ -62,7 +61,7 @@ public class ChiselItem extends ToolItem implements IChiselingItem
             }
             catch (IllegalArgumentException illegalArgumentException) {
                 LOGGER.error(String.format("An ItemStack got loaded with a name that is not a valid chisel mode: %s", chiselModeName));
-                this.setMode(stack, ChiselMode.SINGLE);
+                this.setMode(stack, IChiselMode.getDefaultMode());
             }
         }
 

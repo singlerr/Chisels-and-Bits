@@ -1,11 +1,13 @@
-package mod.chiselsandbits.client.model.baked;
+package mod.chiselsandbits.client.model.baked.base;
 
-import mod.chiselsandbits.core.ClientSide;
-import mod.chiselsandbits.render.NullBakedModel;
+import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
@@ -19,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Random;
 
+@SuppressWarnings("deprecation")
 public abstract class BaseSmartModel implements IBakedModel
 {
 
@@ -38,12 +41,12 @@ public abstract class BaseSmartModel implements IBakedModel
         @Nullable
         @Override
         public IBakedModel getOverrideModel(
-          final IBakedModel p_239290_1_, final ItemStack p_239290_2_, @Nullable final ClientWorld p_239290_3_, @Nullable final LivingEntity p_239290_4_)
+          @NotNull final IBakedModel p_239290_1_, @NotNull final ItemStack p_239290_2_, @Nullable final ClientWorld p_239290_3_, @Nullable final LivingEntity p_239290_4_)
         {
             return parent.func_239290_a_( p_239290_1_, p_239290_2_, p_239290_3_, p_239290_4_ );
         }
 
-	};
+	}
 
 	public BaseSmartModel()
 	{
@@ -68,20 +71,15 @@ public abstract class BaseSmartModel implements IBakedModel
 		return false;
 	}
 
-	@Override
+	@NotNull
+    @Override
 	public TextureAtlasSprite getParticleTexture()
 	{
-		final TextureAtlasSprite sprite = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getTexture( Blocks.STONE.getDefaultState() );
-
-		if ( sprite == null )
-		{
-			return ClientSide.instance.getMissingIcon();
-		}
-
-		return sprite;
+        return Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getTexture( Blocks.STONE.getDefaultState() );
 	}
 
-	@Override
+	@NotNull
+    @Override
 	public ItemCameraTransforms getItemCameraTransforms()
 	{
 		return ItemCameraTransforms.DEFAULT;
@@ -96,8 +94,9 @@ public abstract class BaseSmartModel implements IBakedModel
         return model.getQuads( state, side, rand, extraData );
     }
 
+    @NotNull
     @Override
-    public List<BakedQuad> getQuads(@Nullable final BlockState state, @Nullable final Direction side, final Random rand)
+    public List<BakedQuad> getQuads(@Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand)
     {
         final IBakedModel model = handleBlockState( state, rand );
         return model.getQuads( state, side, rand );
@@ -119,7 +118,8 @@ public abstract class BaseSmartModel implements IBakedModel
         return NullBakedModel.instance;
     }
 
-	@Override
+	@NotNull
+    @Override
 	public ItemOverrideList getOverrides()
 	{
 		return overrides;

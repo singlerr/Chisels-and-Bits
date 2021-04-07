@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
 
 /**
  * Represents a single state entry that actually exists in a physical world.
@@ -18,7 +19,7 @@ public interface IInWorldStateEntryInfo extends IStateEntryInfo
      * The world, in the form of a block reader, that this entry info resides in.
      * @return The world.
      */
-    IBlockReader getWorld();
+    IWorld getWorld();
 
     /**
      * The position of the block that this state entry is part of.

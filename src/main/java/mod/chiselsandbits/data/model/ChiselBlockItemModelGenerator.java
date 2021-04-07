@@ -1,12 +1,12 @@
 package mod.chiselsandbits.data.model;
 
 import com.ldtteam.datagenerators.models.item.ItemModelJson;
-import mod.chiselsandbits.legacy.chiseledblock.BlockChiseled;
-import mod.chiselsandbits.legacy.chiseledblock.MaterialType;
-import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.block.ChiseledBlock;
+import mod.chiselsandbits.materials.MaterialManager;
+import mod.chiselsandbits.registrars.ModBlocks;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
@@ -15,12 +15,14 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Objects;
 
-@Mod.EventBusSubscriber(modid = ChiselsAndBits.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChiselBlockItemModelGenerator implements IDataProvider
 {
     @SubscribeEvent
@@ -34,18 +36,16 @@ public class ChiselBlockItemModelGenerator implements IDataProvider
     private ChiselBlockItemModelGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void act(final DirectoryCache cache) throws IOException
+    public void act(@NotNull final DirectoryCache cache) throws IOException
     {
-        for (MaterialType materialType : ModBlocks.VALID_CHISEL_MATERIALS)
+        for (Map.Entry<Material, RegistryObject<ChiseledBlock>> entry : ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.entrySet())
         {
-            final RegistryObject<BlockChiseled> blockChiseledRegistryObject = ModBlocks.getMaterialToBlockConversions().get(materialType.getType());
-            BlockChiseled blockChiseled = blockChiseledRegistryObject.get();
-            actOnBlockWithLoader(cache, blockChiseled, new ResourceLocation(Constants.MOD_ID, "chiseled_block"), materialType);
+            Material material = entry.getKey();
+            actOnBlockWithLoader(cache, new ResourceLocation(Constants.MOD_ID, "chiseled_block"), MaterialManager.getInstance().getMaterialNames().get(material));
         }
-
-        actOnBlockWithParent(cache, ModBlocks.CHISEL_PRINTER_BLOCK.get(), Constants.DataGenerator.CHISEL_PRINTER_MODEL);
     }
 
+    @NotNull
     @Override
     public String getName()
     {
@@ -57,19 +57,19 @@ public class ChiselBlockItemModelGenerator implements IDataProvider
         final ItemModelJson json = new ItemModelJson();
         json.setParent(parent.toString());
 
-        saveBlockJson(cache, block, json, Objects.requireNonNull(block.getRegistryName()).getPath());
+        saveBlockJson(cache, json, Objects.requireNonNull(block.getRegistryName()).getPath());
     }
 
-    public void actOnBlockWithLoader(final DirectoryCache cache, final Block block, final ResourceLocation loader, final MaterialType materialType) throws IOException
+    public void actOnBlockWithLoader(final DirectoryCache cache, final ResourceLocation loader, final String materialName) throws IOException
     {
         final ItemModelJson json = new ItemModelJson();
         json.setParent("item/generated");
         json.setLoader(loader.toString());
 
-        saveBlockJson(cache, block, json, "chiseled" + materialType.getName());
+        saveBlockJson(cache, json, "chiseled" + materialName);
     }
 
-    private void saveBlockJson(final DirectoryCache cache, final Block block, final ItemModelJson json, final String name) throws IOException
+    private void saveBlockJson(final DirectoryCache cache, final ItemModelJson json, final String name) throws IOException
     {
         final Path itemModelFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.ITEM_MODEL_DIR);
         final Path itemModelPath = itemModelFolder.resolve(name + ".json");

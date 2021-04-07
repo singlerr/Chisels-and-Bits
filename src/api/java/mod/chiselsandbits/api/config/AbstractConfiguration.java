@@ -1,8 +1,8 @@
 package mod.chiselsandbits.api.config;
 
 import com.google.common.collect.Sets;
-import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.api.util.DeprecationHelper;
+import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraftforge.common.ForgeConfigSpec.*;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public abstract class AbstractConfiguration
 
     private static String nameTKey(final String key)
     {
-        final String tKey = currentCategory.isEmpty() ? String.format("mod.%s.config.%s", ChiselsAndBits.MODID, key) : String.format("mod.%s.config.%s.%s", ChiselsAndBits.MODID, currentCategory, key);
+        final String tKey = currentCategory.isEmpty() ? String.format("mod.%s.config.%s", Constants.MOD_ID, key) : String.format("mod.%s.config.%s.%s", Constants.MOD_ID, currentCategory, key);
 
         final String[] tKeyParts = tKey.split("\\.");
         String workingKey = "";

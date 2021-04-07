@@ -1,10 +1,12 @@
 package mod.chiselsandbits.client.culling;
 
+import net.minecraft.block.BlockState;
+
 public interface ICullTest
 {
 
 	boolean isVisible(
-			int mySpot,
-			int secondSpot );
+			BlockState mySpot,
+            BlockState secondSpot );
 
 }

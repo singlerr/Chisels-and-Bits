@@ -1,14 +1,9 @@
 package mod.chiselsandbits.client.culling;
 
-import mod.chiselsandbits.api.util.blockstate.BlockStateIdUtils;
-import mod.chiselsandbits.legacy.chiseledblock.BlockBitInfo;
-import net.minecraft.block.*;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.FlowingFluidBlock;
+import net.minecraft.block.StainedGlassBlock;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockReader;
 import net.minecraftforge.fluids.IFluidBlock;
 
 /**
@@ -16,31 +11,18 @@ import net.minecraftforge.fluids.IFluidBlock;
  *
  * hardcode vanilla stained glass because that looks horrible.
  */
-public class MCCullTest implements ICullTest, IBlockReader
+public class MCCullTest implements ICullTest
 {
 
-	private BlockState a;
-	private BlockState b;
 
 	@Override
 	public boolean isVisible(
-			final int mySpot,
-			final int secondSpot )
+			final BlockState a,
+			final BlockState b )
 	{
-		if ( mySpot == 0 || mySpot == secondSpot )
+		if ( a == b )
 		{
 			return false;
-		}
-
-		a = BlockStateIdUtils.getStateById( mySpot );
-		if ( a == null )
-		{
-			a = Blocks.AIR.getDefaultState();
-		}
-		b = BlockStateIdUtils.getStateById( secondSpot );
-		if ( b == null )
-		{
-			b = Blocks.AIR.getDefaultState();
 		}
 
 		if ( a.getBlock().getClass() == StainedGlassBlock.class && a.getBlock() == b.getBlock() )
@@ -59,28 +41,7 @@ public class MCCullTest implements ICullTest, IBlockReader
 		}
 		catch ( final Throwable t )
 		{
-			// revert to older logic in the event of some sort of issue.
-			return BlockBitInfo.getTypeFromStateID( mySpot ).shouldShow( BlockBitInfo.getTypeFromStateID( secondSpot ) );
+		    return false;
 		}
 	}
-
-	@Override
-	public TileEntity getTileEntity(
-			final BlockPos pos )
-	{
-		return null;
-	}
-
-	@Override
-	public BlockState getBlockState(
-			final BlockPos pos )
-	{
-		return pos.equals( BlockPos.ZERO ) ? a : b;
-	}
-
-    @Override
-    public FluidState getFluidState(final BlockPos pos)
-    {
-        return Fluids.EMPTY.getDefaultState();
-    }
 }

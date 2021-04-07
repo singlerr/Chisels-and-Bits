@@ -18,4 +18,11 @@ public interface IMultiStateItemStack extends IAreaAccessor,
                                                 INBTSerializable<CompoundNBT>,
                                                 IPacketBufferSerializable
 {
+
+    /**
+     * The statistics of the itemstack.
+     *
+     * @return The statistics.
+     */
+    IStatistics getStatistics();
 }

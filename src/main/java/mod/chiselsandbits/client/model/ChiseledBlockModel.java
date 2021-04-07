@@ -2,8 +2,7 @@ package mod.chiselsandbits.client.model;
 
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
-import mod.chiselsandbits.client.model.baked.DataAwareChiseledBlockBakedModel;
-import mod.chiselsandbits.render.chiseledblock.ChiseledBlockSmartModel;
+import mod.chiselsandbits.client.model.baked.chiseled.DataAwareChiseledBlockBakedModel;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.ResourceLocation;

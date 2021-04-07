@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.util;
 
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
@@ -21,6 +22,25 @@ public class BlockPosStreamProvider
 
     public static Stream<BlockPos> getForRange(final int min, final int max) {
         return getForRange(min, min, min, max, max, max);
+    }
+
+    public static Stream<BlockPos> getForRange(final Vector3d min, final Vector3d max) {
+        return getForRange(
+          min.getX(), min.getY(), min.getZ(),
+          max.getX(), max.getY(), max.getZ()
+        );
+    }
+
+    public static Stream<BlockPos> getForRange(final double minX, final double minY, final double minZ, final double maxX, final double maxY, final double maxZ)
+    {
+        return getForRange(
+          (int) minX,
+          (int) minY,
+          (int) minZ,
+          (int) maxX,
+          (int) maxY,
+          (int) maxZ
+        );
     }
 
     public static Stream<BlockPos> getForRange(final int minX, final int minY, final int minZ, final int maxX, final int maxY, final int maxZ)

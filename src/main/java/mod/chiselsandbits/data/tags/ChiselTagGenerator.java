@@ -2,20 +2,20 @@ package mod.chiselsandbits.data.tags;
 
 import com.google.common.collect.Lists;
 import com.ldtteam.datagenerators.tags.TagJson;
-import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-@Mod.EventBusSubscriber(modid = ChiselsAndBits.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChiselTagGenerator implements IDataProvider
 {
     @SubscribeEvent
@@ -29,14 +29,14 @@ public class ChiselTagGenerator implements IDataProvider
     private ChiselTagGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void act(final DirectoryCache cache) throws IOException
+    public void act(@NotNull final DirectoryCache cache) throws IOException
     {
         final TagJson json = new TagJson();
         json.setValues(
           Lists.newArrayList(
-            ModItems.ITEM_CHISEL_DIAMOND.getId().toString(),
-            ModItems.ITEM_CHISEL_GOLD.getId().toString(),
-            ModItems.ITEM_CHISEL_IRON.getId().toString(),
+            //ModItems.ITEM_CHISEL_DIAMOND.getId().toString(),
+            //ModItems.ITEM_CHISEL_GOLD.getId().toString(),
+            //ModItems.ITEM_CHISEL_IRON.getId().toString(),
             ModItems.ITEM_CHISEL_STONE.getId().toString()
           )
         );
@@ -47,9 +47,10 @@ public class ChiselTagGenerator implements IDataProvider
         IDataProvider.save(Constants.DataGenerator.GSON, cache, json.serialize(), chiselableTagPath);
     }
 
+    @NotNull
     @Override
     public String getName()
     {
-        return null;
+        return "Chisel tag generator";
     }
 }

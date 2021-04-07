@@ -1,0 +1,160 @@
+package mod.chiselsandbits.api;
+
+import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.change.IChangeTracker;
+import mod.chiselsandbits.api.chiseling.IChiselMode;
+import mod.chiselsandbits.api.chiseling.IChiselingManager;
+import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
+import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
+import mod.chiselsandbits.api.config.Configuration;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
+import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
+import mod.chiselsandbits.api.registries.IRegistryManager;
+import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
+import mod.chiselsandbits.multistate.mutator.MutatorFactory;
+import org.jetbrains.annotations.NotNull;
+
+public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
+    private static final ChiselsAndBitsAPI INSTANCE = new ChiselsAndBitsAPI();
+
+    public static ChiselsAndBitsAPI getInstance()
+    {
+        return INSTANCE;
+    }
+
+    /**
+     * Gives access to the factory that can produce different mutators.
+     *
+     * @return The factory used to create new mutators.
+     */
+    @NotNull
+    @Override
+    public IMutatorFactory getMutatorFactory()
+    {
+        return MutatorFactory.getInstance();
+    }
+
+    /**
+     * Manager which deals with chiseling eligibility.
+     *
+     * @return The manager.
+     */
+    @NotNull
+    @Override
+    public IEligibilityManager getEligibilityManager()
+    {
+        return null;
+    }
+
+    /**
+     * Manager which deals with converting eligible blocks, blockstates and IItemProviders into their chiseled variants.
+     *
+     * @return The conversion manager.
+     */
+    @NotNull
+    @Override
+    public IConversionManager getConversionManager()
+    {
+        return null;
+    }
+
+    /**
+     * The chiseling change tracker.
+     *
+     * @return The change tracker.
+     */
+    @NotNull
+    @Override
+    public IChangeTracker getChangeTracker()
+    {
+        return null;
+    }
+
+    /**
+     * Manager which deals with calculating, and optionally caching, the voxel shapes, which can be constructed from a given area.
+     *
+     * @return The voxel shape manager.
+     */
+    @NotNull
+    @Override
+    public IVoxelShapeManager getVoxelShapeManager()
+    {
+        return null;
+    }
+
+    /**
+     * A factory which can produce a multistate item from a given source.
+     *
+     * @return The factory.
+     */
+    @NotNull
+    @Override
+    public IMultiStateItemFactory getMultiStateItemFactory()
+    {
+        return null;
+    }
+
+    /**
+     * Represents the default mode for the chiseling system.
+     *
+     * @return The default mode.
+     */
+    @NotNull
+    @Override
+    public IChiselMode getDefaultChiselMode()
+    {
+        return null;
+    }
+
+    /**
+     * Gives access to all registries which are used by chisels and bits.
+     *
+     * @return The manager for registries used by chisels and bits.
+     */
+    @NotNull
+    @Override
+    public IRegistryManager getRegistryManager()
+    {
+        return null;
+    }
+
+    /**
+     * Gives access to the manager which controls chiseling operations.
+     *
+     * @return The current chiseling manager.
+     */
+    @NotNull
+    @Override
+    public IChiselingManager getChiselingManager()
+    {
+        return null;
+    }
+
+    /**
+     * The configuration on top of which chisels and bits is running.
+     *
+     * @return The current configuration.
+     */
+    @NotNull
+    @Override
+    public Configuration getConfiguration()
+    {
+        return null;
+    }
+
+    /**
+     * The manager which deals with calculating the given blockstate ids in the current running session.
+     *
+     * @return The blockstate id manager.
+     */
+    @NotNull
+    @Override
+    public IBlockStateIdManager getBlockStateIdManager()
+    {
+        return null;
+    }
+
+    private ChiselsAndBitsAPI()
+    {
+    }
+}

@@ -74,4 +74,12 @@ public interface IChiselingContext
     default IChiselingContext include(final BlockPos inWorldPosition, final Vector3d relativeInBlockPosition) {
         return this.include(Vector3d.copy(inWorldPosition).add(relativeInBlockPosition));
     }
+
+    /**
+     * Marks the current context as complete, so that it can not be reused for interactions which
+     * will follow this one.
+     *
+     * Indicates that an action has been performed using this context, making it invalid.
+     */
+    void setComplete();
 }

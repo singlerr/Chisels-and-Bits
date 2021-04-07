@@ -3,15 +3,15 @@ package mod.chiselsandbits.block;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.change.IChangeTracker;
+import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.util.SingleBlockBlockReader;
+import mod.chiselsandbits.api.util.SingleBlockWorldReader;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
-import mod.chiselsandbits.core.ChiselsAndBits;
-import mod.chiselsandbits.core.ClientSide;
-import mod.chiselsandbits.registrars.ModTileEntityTypes;
-import mod.chiselsandbits.api.util.SingleBlockBlockReader;
+import mod.chiselsandbits.utils.EffectUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.PushReaction;
@@ -63,9 +63,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     @Override
     public TileEntity createTileEntity(final BlockState state, final IBlockReader world)
     {
-        return new ChiseledBlockEntity(
-          ModTileEntityTypes.CHISELED.get()
-        );
+        return new ChiseledBlockEntity();
     }
 
 
@@ -150,7 +148,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     }
 
     @Override
-    public boolean propagatesSkylightDown(final BlockState state, final IBlockReader reader, final BlockPos pos)
+    public boolean propagatesSkylightDown(@NotNull final BlockState state, @NotNull final IBlockReader reader, @NotNull final BlockPos pos)
     {
         final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(reader, pos);
         return !multiStateBlockEntity.getStatistics().isFullBlock();
@@ -160,7 +158,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     public boolean removedByPlayer(
       final BlockState state, final World world, final BlockPos pos, final PlayerEntity player, final boolean willHarvest, final FluidState fluid)
     {
-        if ( !willHarvest && ChiselsAndBits.getConfig().getClient().addBrokenBlocksToCreativeClipboard.get() )
+        if ( !willHarvest && Configuration.getInstance().getClient().addBrokenBlocksToCreativeClipboard.get() )
         {
             final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(world, pos);
             final IMultiStateSnapshot multiStateSnapshot = multiStateBlockEntity.createSnapshot();
@@ -176,14 +174,14 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     }
 
     @Override
-    public boolean isReplaceable(final BlockState state, final BlockItemUseContext useContext)
+    public boolean isReplaceable(@NotNull final BlockState state, final BlockItemUseContext useContext)
     {
         final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(useContext.getWorld(), useContext.getPos());
         return multiStateBlockEntity.getStatistics().isEmptyBlock();
     }
 
     @Override
-    public void harvestBlock(final World worldIn, final PlayerEntity player, final BlockPos pos, final BlockState state, @Nullable final TileEntity te, final ItemStack stack)
+    public void harvestBlock(@NotNull final World worldIn, @NotNull final PlayerEntity player, @NotNull final BlockPos pos, @NotNull final BlockState state, @Nullable final TileEntity te, @NotNull final ItemStack stack)
     {
         final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(worldIn, pos);
         final IMultiStateSnapshot snapshot = multiStateBlockEntity.createSnapshot();
@@ -192,7 +190,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     }
 
     @Override
-    public void onBlockPlacedBy(final World worldIn, final BlockPos pos, final BlockState state, @Nullable final LivingEntity placer, final ItemStack stack)
+    public void onBlockPlacedBy(@NotNull final World worldIn, @NotNull final BlockPos pos, @NotNull final BlockState state, @Nullable final LivingEntity placer, @NotNull final ItemStack stack)
     {
         final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(worldIn, pos);
         final Direction placementDirection = placer == null ? Direction.NORTH : placer.getHorizontalFacing().getOpposite();
@@ -244,11 +242,16 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     public boolean addDestroyEffects(final BlockState state, final World world, final BlockPos pos, final ParticleManager manager)
     {
         final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(world, pos);
-        return ClientSide.instance.addBlockDestroyEffects(
-          world,
+        return EffectUtils.addBlockDestroyEffects(
+          new SingleBlockWorldReader(
+            multiStateBlockEntity.getStatistics().getPrimaryState(),
+            pos,
+            world
+          ),
           pos,
           multiStateBlockEntity.getStatistics().getPrimaryState(),
-          manager
+          manager,
+          world
         );
     }
 
@@ -262,7 +265,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) target;
 
         final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(world, blockRayTraceResult.getPos());
-        return ClientSide.instance.addHitEffects(
+        return EffectUtils.addHitEffects(
           world,
           blockRayTraceResult,
           multiStateBlockEntity.getStatistics().getPrimaryState(),
@@ -302,7 +305,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     }
 
     @Override
-    public void fillItemGroup(final ItemGroup group, final NonNullList<ItemStack> items)
+    public void fillItemGroup(@NotNull final ItemGroup group, @NotNull final NonNullList<ItemStack> items)
     {
         //No items.
     }

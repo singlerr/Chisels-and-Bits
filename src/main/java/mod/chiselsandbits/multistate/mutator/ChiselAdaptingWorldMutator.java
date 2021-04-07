@@ -1,6 +1,7 @@
 package mod.chiselsandbits.multistate.mutator;
 
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
+import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
@@ -8,10 +9,12 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.world.IInWorldStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
+import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
+import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
+import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
-import mod.chiselsandbits.api.util.blockstate.BlockStateIdUtils;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.Block;
@@ -97,9 +100,9 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             return Optional.empty();
         }
 
-        if (inAreaTarget.getX() > 1 ||
-              inAreaTarget.getY() > 1 ||
-              inAreaTarget.getZ() > 1)
+        if (inAreaTarget.getX() >= 1 ||
+              inAreaTarget.getY() >= 1 ||
+              inAreaTarget.getZ() >= 1)
         {
             return Optional.empty();
         }
@@ -130,6 +133,41 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
 
         return getInAreaTarget(inBlockTarget);
+    }
+
+    /**
+     * Indicates if the given target is inside of the current accessor.
+     *
+     * @param inAreaTarget The area target to check.
+     * @return True when inside, false when not.
+     */
+    @Override
+    public boolean isInside(final Vector3d inAreaTarget)
+    {
+        return !(inAreaTarget.getX() < 0) &&
+                 !(inAreaTarget.getY() < 0) &&
+                 !(inAreaTarget.getZ() < 0) &&
+                 !(inAreaTarget.getX() >= 1) &&
+                 !(inAreaTarget.getY() >= 1) &&
+                 !(inAreaTarget.getZ() >= 1);
+    }
+
+    /**
+     * Indicates if the given target (with the given block position offset) is inside of the current accessor.
+     *
+     * @param inAreaBlockPosOffset The offset of blocks in the current area.
+     * @param inBlockTarget        The offset in the targeted block.
+     * @return True when inside, false when not.
+     */
+    @Override
+    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    {
+        if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
+        {
+            return false;
+        }
+
+        return isInside(inBlockTarget);
     }
 
     @Override
@@ -227,9 +265,9 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
               "The chisel adapting world mutator can only mutate blocks with an in area offset greater or equal to 0. Requested was: " + inAreaTarget.toString());
         }
 
-        if (inAreaTarget.getX() > 1 ||
-              inAreaTarget.getY() > 1 ||
-              inAreaTarget.getZ() > 1)
+        if (inAreaTarget.getX() >= 1 ||
+              inAreaTarget.getY() >= 1 ||
+              inAreaTarget.getZ() >= 1)
         {
             throw new IllegalArgumentException(
               "The chisel adapting world mutator can only mutate blocks with an in area offset smaller then 1. Requested was: " + inAreaTarget.toString());
@@ -359,14 +397,46 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         this.clearInAreaTarget(inBlockTarget);
     }
 
+    /**
+     * Returns all entries in the current area in a mutable fashion. Includes all empty areas as areas containing an air state.
+     *
+     * @return A stream with a mutable state entry info for each mutable section in the area.
+     */
+    @Override
+    public Stream<IInWorldMutableStateEntryInfo> inWorldMutableStream()
+    {
+        final TileEntity tileEntity = getWorld().getTileEntity(getPos());
+        if (tileEntity instanceof IMultiStateBlockEntity)
+        {
+            return ((IMultiStateBlockEntity) tileEntity).inWorldMutableStream();
+        }
+
+        final BlockState currentState = getWorld().getBlockState(getPos());
+        if (IEligibilityManager.getInstance().canBeChiseled(currentState))
+        {
+            return BlockPosStreamProvider.getForRange(ChiseledBlockEntity.BITS_PER_BLOCK_SIDE)
+                     .map(blockPos -> new MutablePreAdaptedStateEntry(
+                         currentState,
+                         getWorld(),
+                         getPos(),
+                         blockPos,
+                         this::setInAreaTarget,
+                         this::clearInAreaTarget
+                       )
+                     );
+        }
+
+        return Stream.empty();
+    }
+
     private static class PreAdaptedStateEntry implements IInWorldStateEntryInfo
     {
 
         private final BlockState   state;
-        private final IBlockReader world;
+        private final IWorld world;
         private final BlockPos     pos;
 
-        private PreAdaptedStateEntry(final BlockState state, final IBlockReader world, final BlockPos pos)
+        private PreAdaptedStateEntry(final BlockState state, final IWorld world, final BlockPos pos)
         {
             this.state = state;
             this.world = world;
@@ -380,7 +450,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
 
         @Override
-        public IBlockReader getWorld()
+        public IWorld getWorld()
         {
             return world;
         }
@@ -408,11 +478,11 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
     }
 
-    private static class MutablePreAdaptedStateEntry implements IMutableStateEntryInfo
+    private static class MutablePreAdaptedStateEntry implements IInWorldMutableStateEntryInfo
     {
 
-        private       BlockState   blockState;
-        private final IBlockReader world;
+        private final BlockState blockState;
+        private final IWorld     world;
         private final Vector3d     startPoint;
         private final Vector3d     endPoint;
         private final BlockPos     blockPos;
@@ -422,7 +492,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
 
         public MutablePreAdaptedStateEntry(
           final BlockState blockState,
-          final IBlockReader world,
+          final IWorld world,
           final BlockPos blockPos,
           final Vector3i inBlockOffset,
           final StateSetter setCallback, final StateClearer clearCallback)
@@ -475,7 +545,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
          * @return The world.
          */
         @Override
-        public IBlockReader getWorld()
+        public IWorld getWorld()
         {
             return world;
         }
@@ -512,25 +582,11 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
     }
 
-    @FunctionalInterface
-    public interface StateSetter
-    {
-
-        void accept(BlockState state, Vector3d pos) throws SpaceOccupiedException;
-    }
-
-    @FunctionalInterface
-    public interface StateClearer
-    {
-
-        void accept(Vector3d pos);
-    }
-
     private static class PreAdaptedShapeIdentifier implements IAreaShapeIdentifier
     {
         private final int blockState;
 
-        private PreAdaptedShapeIdentifier(final BlockState blockState) {this.blockState = BlockStateIdUtils.getStateId(blockState);}
+        private PreAdaptedShapeIdentifier(final BlockState blockState) {this.blockState = IBlockStateIdManager.getInstance().getIdFrom(blockState);}
 
         @Override
         public boolean equals(final Object o)

@@ -9,6 +9,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
+import java.util.Optional;
+
 public interface IChiselMode extends IWithDisplayName, IForgeRegistryEntry<IChiselMode>
 {
 
@@ -30,5 +32,5 @@ public interface IChiselMode extends IWithDisplayName, IForgeRegistryEntry<IChis
       final IChiselingContext context
     );
 
-    IAreaAccessor getCurrentAccessor(final IChiselingContext context);
+    Optional<IAreaAccessor> getCurrentAccessor(final IChiselingContext context);
 }

@@ -2,6 +2,7 @@ package mod.chiselsandbits.item;
 
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityAnalysisResult;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
+import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.block.BlockState;
@@ -65,6 +66,6 @@ public class MagnifyingGlassItem extends Item
       @NotNull final ITooltipFlag advanced)
     {
         super.addInformation(stack, worldIn, tooltip, advanced);
-        ChiselsAndBits.getConfig().getCommon().helpText(LocalStrings.HelpMagnifyingGlass, tooltip);
+        Configuration.getInstance().getCommon().helpText(LocalStrings.HelpMagnifyingGlass, tooltip);
     }
 }

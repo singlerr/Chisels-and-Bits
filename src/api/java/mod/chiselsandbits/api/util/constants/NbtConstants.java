@@ -29,4 +29,5 @@ public class NbtConstants
     public static final String COORDINATE = "coordinate";
     public static final String VALUE = "value";
     public static final String CHISEL_MODE = "chiselMode";
+    public static final String CHISELED_DATA = "chiseledData";
 }

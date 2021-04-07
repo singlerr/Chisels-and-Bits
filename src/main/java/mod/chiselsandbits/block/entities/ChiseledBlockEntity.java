@@ -8,12 +8,15 @@ import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.api.multistate.accessor.world.IInWorldStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
+import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
+import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
+import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.*;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.registrars.ModTileEntityTypes;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.BlockState;
@@ -32,6 +35,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.IBlockReader;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraftforge.common.util.Constants;
@@ -56,9 +60,9 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     private ChunkSection compressedSection;
     private final MutableStatistics mutableStatistics;
 
-    public ChiseledBlockEntity(final TileEntityType<?> tileEntityTypeIn)
+    public ChiseledBlockEntity()
     {
-        super(tileEntityTypeIn);
+        super(ModTileEntityTypes.CHISELED.get());
         compressedSection = new ChunkSection(0); //We always use a minimal y level to lookup. Makes calculations internally easier.
         mutableStatistics = new MutableStatistics(this::getWorld, this::getPos);
     }
@@ -77,8 +81,9 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
             compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
             getWorld(),
             getPos(),
-            blockPos
-          )
+            blockPos,
+            this::setInAreaTarget,
+            this::clearInAreaTarget)
       );
     }
 
@@ -102,12 +107,15 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
           inAreaPos.getZ()
         );
 
-        return currentState.isAir() ? Optional.empty() : Optional.of(new StateEntry(
+        // TODO: Replace in 1.17 with isAir()
+        return currentState.isAir(new SingleBlockWorldReader(currentState, getPos(), getWorld()), getPos()) ? Optional.empty() : Optional.of(new StateEntry(
           currentState,
           getWorld(),
           getPos(),
-          inAreaPos
-        ));
+          inAreaPos,
+          this::setInAreaTarget,
+          this::clearInAreaTarget)
+        );
     }
 
     @Override
@@ -119,6 +127,43 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         }
 
         return this.getInAreaTarget(
+          inBlockTarget
+        );
+    }
+
+    /**
+     * Indicates if the given target is inside of the current accessor.
+     *
+     * @param inAreaTarget The area target to check.
+     * @return True when inside, false when not.
+     */
+    @Override
+    public boolean isInside(final Vector3d inAreaTarget)
+    {
+        return !(inAreaTarget.getX() < 0) &&
+                 !(inAreaTarget.getY() < 0) &&
+                 !(inAreaTarget.getZ() < 0) &&
+                 !(inAreaTarget.getX() >= 1) &&
+                 !(inAreaTarget.getY() >= 1) &&
+                 !(inAreaTarget.getZ() >= 1);
+    }
+
+    /**
+     * Indicates if the given target (with the given block position offset) is inside of the current accessor.
+     *
+     * @param inAreaBlockPosOffset The offset of blocks in the current area.
+     * @param inBlockTarget        The offset in the targeted block.
+     * @return True when inside, false when not.
+     */
+    @Override
+    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    {
+        if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
+        {
+            return false;
+        }
+
+        return this.isInside(
           inBlockTarget
         );
     }
@@ -235,7 +280,15 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     @Override
     public Stream<IMutableStateEntryInfo> mutableStream()
     {
-        return null;
+        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+                 .map(blockPos -> new StateEntry(
+                   compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+                   getWorld(),
+                   getPos(),
+                   blockPos,
+                   this::setInAreaTarget,
+                   this::clearInAreaTarget)
+                 );
     }
 
     @SuppressWarnings("deprecation")
@@ -399,36 +452,68 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
           ));
     }
 
-    private static final class StateEntry implements IInWorldStateEntryInfo {
+    /**
+     * Returns all entries in the current area in a mutable fashion. Includes all empty areas as areas containing an air state.
+     *
+     * @return A stream with a mutable state entry info for each mutable section in the area.
+     */
+    @Override
+    public Stream<IInWorldMutableStateEntryInfo> inWorldMutableStream()
+    {
+        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+                 .map(blockPos -> new StateEntry(
+                   compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+                   getWorld(),
+                   getPos(),
+                   blockPos,
+                   this::setInAreaTarget,
+                   this::clearInAreaTarget)
+                 );
+    }
+
+    private static final class StateEntry implements IInWorldMutableStateEntryInfo {
 
         private final BlockState state;
-        private final IBlockReader reader;
-        private final BlockPos blockPos;
+        private final IWorld     reader;
+        private final BlockPos   blockPos;
         private final Vector3d startPoint;
         private final Vector3d endPoint;
 
-        public StateEntry(final BlockState state, final IBlockReader reader, final BlockPos blockPos, final Vector3i startPoint)
+        private final StateSetter stateSetter;
+        private final StateClearer stateClearer;
+
+        public StateEntry(
+          final BlockState state,
+          final IWorld reader,
+          final BlockPos blockPos,
+          final Vector3i startPoint,
+          final StateSetter stateSetter,
+          final StateClearer stateClearer)
         {
             this(
               state,
               reader,
               blockPos,
               Vector3d.copy(startPoint).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT),
-              Vector3d.copy(startPoint).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT).add(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)
-            );
+              Vector3d.copy(startPoint).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT).add(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT),
+              stateSetter, stateClearer);
         }
 
         private StateEntry(
           final BlockState state,
-          final IBlockReader reader,
+          final IWorld reader,
           final BlockPos blockPos,
           final Vector3d startPoint,
-          final Vector3d endPoint) {
+          final Vector3d endPoint,
+          final StateSetter stateSetter,
+          final StateClearer stateClearer) {
             this.state = state;
             this.reader = reader;
             this.blockPos = blockPos;
             this.startPoint = startPoint;
             this.endPoint = endPoint;
+            this.stateSetter = stateSetter;
+            this.stateClearer = stateClearer;
         }
 
         @Override
@@ -438,7 +523,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         }
 
         @Override
-        public IBlockReader getWorld()
+        public IWorld getWorld()
         {
             return reader;
         }
@@ -459,6 +544,26 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         public Vector3d getEndPoint()
         {
             return endPoint;
+        }
+
+        /**
+         * Sets the current entries state.
+         *
+         * @param blockState The new blockstate of the entry.
+         */
+        @Override
+        public void setState(final BlockState blockState) throws SpaceOccupiedException
+        {
+            stateSetter.accept(blockState, getStartPoint());
+        }
+
+        /**
+         * Clears the current state entries blockstate. Effectively setting the current blockstate to air.
+         */
+        @Override
+        public void clear()
+        {
+            stateClearer.accept(getStartPoint());
         }
     }
 
