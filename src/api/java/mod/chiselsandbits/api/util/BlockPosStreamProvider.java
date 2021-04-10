@@ -45,6 +45,10 @@ public class BlockPosStreamProvider
 
     public static Stream<BlockPos> getForRange(final int minX, final int minY, final int minZ, final int maxX, final int maxY, final int maxZ)
     {
+        if (minX == maxX && minY == maxY && minZ == maxZ) {
+            return Stream.of(new BlockPos(minX, minY, minZ));
+        }
+
         return IntStream.range(minX, maxX + 1)
           .mapToObj(xCoord -> IntStream.range(minY, maxY + 1)
             .mapToObj(yCoord -> IntStream.range(minZ, maxZ + 1)

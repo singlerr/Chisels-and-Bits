@@ -45,7 +45,10 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
             return LeftClickProcessingState.DEFAULT;
 
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        final Vector3d hitVector = blockRayTraceResult.getHitVec();
+        final Vector3d hitVector = blockRayTraceResult.getHitVec().add(
+          Vector3d.copy(blockRayTraceResult.getFace().getOpposite().getDirectionVec())
+          .mul(SIZE_PER_HALF_BIT, SIZE_PER_HALF_BIT, SIZE_PER_HALF_BIT)
+        );
 
         Vector3d alignmentOffset = Vector3d.ZERO;
         if (aligned) {

@@ -36,13 +36,12 @@ public final class ModBlocks
             material,
             BLOCK_REGISTRAR.register(
               "chiseled" + name,
-              () -> (ChiseledBlock) new ChiseledBlock(AbstractBlock.Properties
+              () -> new ChiseledBlock(AbstractBlock.Properties
                                          .create(material)
                                          .hardnessAndResistance(1.5f, 6f)
                                          .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false)
                                          .setOpaque((p_test_1_, p_test_2_, p_test_3_) -> false)
                                          .notSolid())
-                .setRegistryName("chiseled" + name)
             )
           ));
     }

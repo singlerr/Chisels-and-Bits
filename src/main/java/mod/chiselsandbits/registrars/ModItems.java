@@ -2,7 +2,6 @@ package mod.chiselsandbits.registrars;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.core.ChiselsAndBits;
 import mod.chiselsandbits.item.BitItem;
 import mod.chiselsandbits.item.ChiselItem;
 import mod.chiselsandbits.item.ChiseledBlockItem;

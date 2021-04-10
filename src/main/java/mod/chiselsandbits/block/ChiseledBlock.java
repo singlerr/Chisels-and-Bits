@@ -186,7 +186,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
         final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(worldIn, pos);
         final IMultiStateSnapshot snapshot = multiStateBlockEntity.createSnapshot();
 
-        spawnAsEntity(worldIn, pos, IMultiStateItemFactory.getInstance().createFrom(snapshot));
+        spawnAsEntity(worldIn, pos, snapshot.toItemStack().toItemStack());
     }
 
     @Override

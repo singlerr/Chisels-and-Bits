@@ -101,7 +101,7 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements IW
     @Override
     public int getSeaLevel()
     {
-        return 64;
+        return this.reader.getSeaLevel();
     }
 
     @NotNull

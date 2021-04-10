@@ -5,7 +5,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
 
@@ -90,6 +90,7 @@ minecraft {
             mods {
                 chiselsandbits {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
@@ -108,6 +109,7 @@ minecraft {
             mods {
                 chiselsandbits {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
@@ -130,6 +132,7 @@ minecraft {
             mods {
                 chiselsandbits {
                     source sourceSets.main
+                    source sourceSets.api
                 }
             }
         }
@@ -166,7 +169,4 @@ dependencies {
     apiCompile 'com.intellij:annotations:+@jar'
     compile 'com.intellij:annotations:+@jar'
     testCompile 'com.intellij:annotations:+@jar'
-
-    compile fg.deobf("curse.maven:cooking-for-blockheads-231484:3238962")
-    compile fg.deobf("curse.maven:farmers-delight-398521:3249879")
 }

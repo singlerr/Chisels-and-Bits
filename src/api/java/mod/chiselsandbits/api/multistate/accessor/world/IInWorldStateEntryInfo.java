@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.multistate.accessor.world;
 
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.util.IWorldObject;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
@@ -13,14 +14,8 @@ import net.minecraft.world.IWorld;
  * @see net.minecraft.world.IBlockReader
  * @see IWorldAreaAccessor
  */
-public interface IInWorldStateEntryInfo extends IStateEntryInfo
+public interface IInWorldStateEntryInfo extends IStateEntryInfo, IWorldObject
 {
-    /**
-     * The world, in the form of a block reader, that this entry info resides in.
-     * @return The world.
-     */
-    IWorld getWorld();
-
     /**
      * The position of the block that this state entry is part of.
      *

@@ -29,12 +29,10 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.chunk.ChunkSection;
@@ -261,15 +259,15 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     }
 
     @Override
-    public Vector3d getStartPoint()
+    public Vector3d getInWorldStartPoint()
     {
         return Vector3d.copy(getPos());
     }
 
     @Override
-    public Vector3d getEndPoint()
+    public Vector3d getInWorldEndPoint()
     {
-        return getStartPoint().add(1, 1, 1).subtract(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS);
+        return getInWorldStartPoint().add(1, 1, 1).subtract(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS);
     }
 
     /**
@@ -450,6 +448,8 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
             blockPos.getZ(),
             currentState
           ));
+
+        this.mutableStatistics.initializeWith(currentState);
     }
 
     /**
@@ -755,6 +755,11 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
               new Vector2i(pos.getX(), pos.getZ()),
               pos.getY()
             );
+
+            this.columnBlockedMap.remove(
+              new Vector2i(pos.getX(), pos.getZ()),
+              pos.getY()
+            );
         }
 
         private void onBlockStateReplaced(final BlockState currentState, final BlockState newState, final BlockPos pos) {
@@ -974,6 +979,48 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
             this.totalUsedChecksWeakPowerCount = nbt.getInt(NbtConstants.TOTAL_SHOULD_CHECK_WEAK_POWER_COUNT);
             this.totalUpperSurfaceSlipperiness = nbt.getFloat(NbtConstants.TOTAL_UPPER_LEVEL_SLIPPERINESS);
             this.totalLightLevel = nbt.getInt(NbtConstants.TOTAL_LIGHT_LEVEL);
+        }
+
+        public void initializeWith(final BlockState blockState) {
+            clear();
+            this.primaryState = blockState;
+            this.countMap.put(blockState, BITS_PER_BLOCK);
+
+            this.totalUsedBlockCount = BITS_PER_BLOCK;
+
+            if (blockState.shouldCheckWeakPower(
+              new SingleBlockWorldReader(
+                blockState,
+                this.positionSupplier.get(),
+                this.worldReaderSupplier.get()
+              ),
+              this.positionSupplier.get(),
+              Direction.NORTH
+            )) {
+                this.totalUsedChecksWeakPowerCount = BITS_PER_BLOCK;
+            }
+
+            this.totalLightLevel += (blockState.getLightValue(
+              new SingleBlockWorldReader(
+                blockState,
+                this.positionSupplier.get(),
+                this.worldReaderSupplier.get()
+              ),
+              this.positionSupplier.get()
+            ) * BITS_PER_BLOCK);
+
+            this.totalUpperSurfaceSlipperiness += (blockState.getSlipperiness(
+              new SingleBlockWorldReader(
+                blockState,
+                this.positionSupplier.get(),
+                this.worldReaderSupplier.get()
+              ),
+              this.positionSupplier.get(),
+              null
+            ) * BITS_PER_LAYER);
+
+            BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+              .forEach(pos -> columnBlockedMap.put(new Vector2i(pos.getX(), pos.getZ()), pos.getY()));
         }
     }
 

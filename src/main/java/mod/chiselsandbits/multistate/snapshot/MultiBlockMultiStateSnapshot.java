@@ -1,6 +1,7 @@
 package mod.chiselsandbits.multistate.snapshot;
 
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
@@ -9,6 +10,7 @@ import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Map;
 import java.util.Optional;
@@ -188,5 +190,16 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
 
+    }
+
+    /**
+     * Converts the current snapshot to a variant which is itemstack capable.
+     *
+     * @return The multistate itemstack which is the itemstack nbt representation of the current snapshot.
+     */
+    @Override
+    public IMultiStateItemStack toItemStack()
+    {
+        throw new NotImplementedException("Multi block snapshots can not be contained in an itemstack as of now.");
     }
 }

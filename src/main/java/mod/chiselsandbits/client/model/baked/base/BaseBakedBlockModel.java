@@ -25,7 +25,8 @@ public abstract class BaseBakedBlockModel extends BaseBakedPerspectiveModel impl
 		return false;
 	}
 
-	@Override
+	@SuppressWarnings({"NullableProblems", "deprecation"})
+    @Override
 	final public ItemCameraTransforms getItemCameraTransforms()
 	{
 		return ItemCameraTransforms.DEFAULT;

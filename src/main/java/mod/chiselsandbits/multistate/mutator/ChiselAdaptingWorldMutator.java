@@ -23,7 +23,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraftforge.common.util.Constants;
@@ -31,6 +30,8 @@ import net.minecraftforge.common.util.Constants;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT;
 
 public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
 {
@@ -207,18 +208,18 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     }
 
     @Override
-    public Vector3d getStartPoint()
+    public Vector3d getInWorldStartPoint()
     {
         return Vector3d.copy(pos);
     }
 
     @Override
-    public Vector3d getEndPoint()
+    public Vector3d getInWorldEndPoint()
     {
         return Vector3d.copy(pos).add(
-          15 * ChiseledBlockEntity.SIZE_PER_BIT,
-          15 * ChiseledBlockEntity.SIZE_PER_BIT,
-          15 * ChiseledBlockEntity.SIZE_PER_BIT
+          15 * SIZE_PER_BIT,
+          15 * SIZE_PER_BIT,
+          15 * SIZE_PER_BIT
         );
     }
 
@@ -254,6 +255,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         return Stream.empty();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
     {
@@ -262,7 +264,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
               inAreaTarget.getZ() < 0)
         {
             throw new IllegalArgumentException(
-              "The chisel adapting world mutator can only mutate blocks with an in area offset greater or equal to 0. Requested was: " + inAreaTarget.toString());
+              "The chisel adapting world mutator can only mutate blocks with an in area offset greater or equal to 0. Requested was: " + inAreaTarget);
         }
 
         if (inAreaTarget.getX() >= 1 ||
@@ -270,7 +272,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
               inAreaTarget.getZ() >= 1)
         {
             throw new IllegalArgumentException(
-              "The chisel adapting world mutator can only mutate blocks with an in area offset smaller then 1. Requested was: " + inAreaTarget.toString());
+              "The chisel adapting world mutator can only mutate blocks with an in area offset smaller then 1. Requested was: " + inAreaTarget);
         }
 
         final TileEntity tileEntity = getWorld().getTileEntity(getPos());
@@ -325,6 +327,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
      *
      * @param inAreaTarget The in area offset.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public void clearInAreaTarget(final Vector3d inAreaTarget)
     {
@@ -333,7 +336,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
               inAreaTarget.getZ() < 0)
         {
             throw new IllegalArgumentException(
-              "The chisel adapting world mutator can only mutate blocks with an in area offset greater or equal to 0. Requested was: " + inAreaTarget.toString());
+              "The chisel adapting world mutator can only mutate blocks with an in area offset greater or equal to 0. Requested was: " + inAreaTarget);
         }
 
         if (inAreaTarget.getX() > 1 ||
@@ -341,7 +344,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
               inAreaTarget.getZ() > 1)
         {
             throw new IllegalArgumentException(
-              "The chisel adapting world mutator can only mutate blocks with an in area offset smaller then 1. Requested was: " + inAreaTarget.toString());
+              "The chisel adapting world mutator can only mutate blocks with an in area offset smaller then 1. Requested was: " + inAreaTarget);
         }
 
         final TileEntity tileEntity = getWorld().getTileEntity(getPos());
@@ -353,7 +356,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
 
         final BlockState currentState = getWorld().getBlockState(getPos());
         //TODO: On 1.17 update: Replace with normal isAir()
-        if (!currentState.isAir(getWorld(), getPos()))
+        if (currentState.isAir(getWorld(), getPos()))
         {
             return;
         }
@@ -471,9 +474,9 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         public Vector3d getEndPoint()
         {
             return new Vector3d(
-              15 * ChiseledBlockEntity.SIZE_PER_BIT,
-              15 * ChiseledBlockEntity.SIZE_PER_BIT,
-              15 * ChiseledBlockEntity.SIZE_PER_BIT
+              15 * SIZE_PER_BIT,
+              15 * SIZE_PER_BIT,
+              15 * SIZE_PER_BIT
             );
         }
     }
@@ -500,10 +503,10 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             this.blockState = blockState;
             this.world = world;
             this.blockPos = blockPos;
-            this.startPoint = Vector3d.copy(inBlockOffset);
+            this.startPoint = Vector3d.copy(inBlockOffset).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT);
             this.setCallback = setCallback;
             this.clearCallback = clearCallback;
-            this.endPoint = this.startPoint.add(ChiseledBlockEntity.SIZE_PER_BIT, ChiseledBlockEntity.SIZE_PER_BIT, ChiseledBlockEntity.SIZE_PER_BIT);
+            this.endPoint = this.startPoint.add(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT);
         }
 
         /**

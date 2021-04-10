@@ -36,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.BITS_PER_BLOCK_SIDE;
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT;
@@ -231,19 +232,25 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
           accessor,
           resultingFaces,
           StateEntryComparators.xzySorted(),
-          X_Faces
+          X_Faces,
+          Vector3d::getX,
+          Vector3d::getZ
         );
         processFaces(
           accessor,
           resultingFaces,
           StateEntryComparators.yzxSorted(),
-          Y_Faces
+          Y_Faces,
+          Vector3d::getY,
+          Vector3d::getZ
         );
         processFaces(
           accessor,
           resultingFaces,
           StateEntryComparators.zyxSorted(),
-          Z_Faces
+          Z_Faces,
+          Vector3d::getZ,
+          Vector3d::getY
         );
 
         // re-usable float[]'s to minimize garbage cleanup.
@@ -400,7 +407,9 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
       final IAreaAccessor accessor,
       final List<List<FaceRegion>> resultingRegions,
       final Comparator<IStateEntryInfo> analysisOrder,
-      final Direction[] potentialDirections
+      final Direction[] potentialDirections,
+      final Function<Vector3d, Double> regionBuildingAxisValueExtractor,
+      final Function<Vector3d, Double> faceBuildingAxisValueExtractor
     ) {
         final ArrayList<FaceRegion> regions = Lists.newArrayList();
         final ICullTest test = chiselRenderType.getTest();
@@ -412,18 +421,18 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
             accessor.stream()
               .sorted(analysisOrder)
               .forEachOrdered(stateEntryInfo -> {
-                  if (state.getRegionBuildingAxisValue() != stateEntryInfo.getStartPoint().getX()) {
+                  if (state.getRegionBuildingAxisValue() != regionBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint())) {
                       if (!regions.isEmpty()) {
                           resultingRegions.add(Lists.newArrayList(regions));
                       }
                       regions.clear();
                   }
-                  state.setRegionBuildingAxisValue(stateEntryInfo.getStartPoint().getX());
+                  state.setRegionBuildingAxisValue(regionBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint()));
 
-                  if (state.getFaceBuildingAxisValue() != stateEntryInfo.getStartPoint().getZ()) {
+                  if (state.getFaceBuildingAxisValue() != faceBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint())) {
                       state.setCurrentRegion(null);
                   }
-                  state.setFaceBuildingAxisValue(stateEntryInfo.getStartPoint().getZ());
+                  state.setFaceBuildingAxisValue(faceBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint()));
 
                   final Optional<FaceRegion> potentialRegionData = buildFaceRegion(
                     accessor,
@@ -463,6 +472,12 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                 SIZE_PER_BIT
               );
               final Vector3d offsetTarget = stateEntryInfo.getStartPoint().add(faceOffSet);
+
+              if (!blob.isInside(offsetTarget)) {
+                  return Optional.of(Blocks.AIR.getDefaultState())
+                           .map(neighborState -> test.isVisible(stateEntryInfo.getState(), neighborState))
+                           .orElseGet(() -> !stateEntryInfo.getState().isAir(new SingleBlockBlockReader(stateEntryInfo.getState()), BlockPos.ZERO));
+              }
 
               //TODO: Replace isAir in 1.17
               return blob.getInAreaTarget(offsetTarget)

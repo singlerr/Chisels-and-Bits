@@ -4,7 +4,6 @@ import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityAnalysisResult;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.util.LocalStrings;
-import mod.chiselsandbits.core.ChiselsAndBits;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;

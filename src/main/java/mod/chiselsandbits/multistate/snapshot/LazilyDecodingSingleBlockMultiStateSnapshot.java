@@ -1,6 +1,8 @@
 package mod.chiselsandbits.multistate.snapshot;
 
+import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
@@ -9,17 +11,24 @@ import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
+import mod.chiselsandbits.item.ChiseledBlockItem;
+import mod.chiselsandbits.item.multistate.ChiseledBlockMultiStateItemStack;
+import mod.chiselsandbits.materials.MaterialManager;
+import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.material.Material;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.chunk.ChunkSection;
+import net.minecraftforge.fml.RegistryObject;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -287,6 +296,42 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
 
         ChunkSectionUtils.deserializeNBT(this.lazyChunkSection, this.lazyNbtCompound);
         this.loaded = true;
+    }
+
+    /**
+     * Converts the current snapshot to a variant which is itemstack capable.
+     *
+     * @return The multistate itemstack which is the itemstack nbt representation of the current snapshot.
+     */
+    @Override
+    public IMultiStateItemStack toItemStack()
+    {
+        final BlockState primaryState = determinePrimaryState();
+        final Material blockMaterial = primaryState.getMaterial();
+        final Material conversionMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(blockMaterial);
+
+        final RegistryObject<ChiseledBlockItem> convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(conversionMaterial);
+        final ChiseledBlockItem chiseledBlockItem = convertedItemProvider.get();
+
+        return new ChiseledBlockMultiStateItemStack(chiseledBlockItem, ChunkSectionUtils.cloneSection(this.lazyChunkSection));
+    }
+
+    private BlockState determinePrimaryState() {
+        final Map<BlockState, Integer> countMap = Maps.newHashMap();
+
+        load();
+
+        this.lazyChunkSection.getData().count(countMap::put);
+
+        BlockState maxState = Blocks.AIR.getDefaultState();
+        int maxCount = 0;
+        for (final Map.Entry<BlockState, Integer> blockStateIntegerEntry : countMap.entrySet())
+        {
+            if (maxCount < blockStateIntegerEntry.getValue())
+                maxState = blockStateIntegerEntry.getKey();
+        }
+
+        return maxState;
     }
 
     private static class StateEntry implements IMutableStateEntryInfo {

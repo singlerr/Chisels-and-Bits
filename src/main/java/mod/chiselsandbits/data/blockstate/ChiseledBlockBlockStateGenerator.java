@@ -66,6 +66,13 @@ public class ChiseledBlockBlockStateGenerator implements IDataProvider
             variants.put(variantKey, new BlockstateVariantJson(model));
         }));
 
+        if (block.getStateContainer().getProperties().isEmpty()) {
+            final String variantKey = "";
+            String modelFile = Constants.DataGenerator.CHISELED_BLOCK_MODEL.toString();
+            final BlockstateModelJson model = new BlockstateModelJson(modelFile, 0, 0);
+            variants.put(variantKey, new BlockstateVariantJson(model));
+        }
+
         final BlockstateJson blockstateJson = new BlockstateJson(variants);
         final Path blockstateFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.BLOCKSTATE_DIR);
         final Path blockstatePath = blockstateFolder.resolve("chiseled" +

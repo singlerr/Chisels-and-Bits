@@ -8,12 +8,13 @@ import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntry
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
+import mod.chiselsandbits.api.util.IWorldObject;
 import mod.chiselsandbits.multistate.snapshot.MultiBlockMultiStateSnapshot;
+import mod.chiselsandbits.utils.WorldObjectUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
-import org.intellij.lang.annotations.Identifier;
 
 import java.util.Map;
 import java.util.Optional;
@@ -24,11 +25,12 @@ import java.util.stream.Stream;
 public class WorldWrappingMutator implements IWorldAreaMutator
 {
 
-    private final IWorld world;
+    private final IWorld   world;
     private final Vector3d startPoint;
     private final Vector3d endPoint;
 
-    public WorldWrappingMutator(final IWorld world, final Vector3d startPoint, final Vector3d endPoint) {
+    public WorldWrappingMutator(final IWorld world, final Vector3d startPoint, final Vector3d endPoint)
+    {
         this.world = world;
         this.startPoint = startPoint;
         this.endPoint = endPoint;
@@ -50,8 +52,8 @@ public class WorldWrappingMutator implements IWorldAreaMutator
     @Override
     public Stream<IStateEntryInfo> stream()
     {
-        final BlockPos startBlockPos = new BlockPos(getStartPoint());
-        final BlockPos endBlockPos = new BlockPos(getEndPoint());
+        final BlockPos startBlockPos = new BlockPos(getInWorldStartPoint());
+        final BlockPos endBlockPos = new BlockPos(getInWorldEndPoint());
 
         Stream<BlockPos> positionStream = startBlockPos.equals(endBlockPos) ? Stream.of(startBlockPos) : BlockPosStreamProvider.getForRange(
           startBlockPos.getX(), startBlockPos.getY(), startBlockPos.getZ(),
@@ -59,14 +61,9 @@ public class WorldWrappingMutator implements IWorldAreaMutator
         );
 
         return positionStream.map(blockPos -> new ChiselAdaptingWorldMutator(getWorld(), blockPos))
-          .flatMap(ChiselAdaptingWorldMutator::inWorldStream)
-          .filter(entry -> !(entry.getInWorldStartPoint().getX() < getStartPoint().getX()) &&
-                   !(entry.getInWorldStartPoint().getY() < getStartPoint().getY()) &&
-                   !(entry.getInWorldStartPoint().getZ() < getStartPoint().getZ()) &&
-                   !(entry.getInWorldEndPoint().getX() > getEndPoint().getX()) &&
-                   !(entry.getInWorldEndPoint().getY() > getEndPoint().getY()) &&
-                   !(entry.getInWorldEndPoint().getZ() > getEndPoint().getZ()))
-          .map(IStateEntryInfo.class::cast);
+                 .flatMap(ChiselAdaptingWorldMutator::inWorldStream)
+                 .filter(entry -> WorldObjectUtils.isInsideOrCoveredBy(this, entry))
+                 .map(IStateEntryInfo.class::cast);
     }
 
     /**
@@ -105,15 +102,16 @@ public class WorldWrappingMutator implements IWorldAreaMutator
     {
         if (inAreaTarget.getX() < 0 ||
               inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0) {
+              inAreaTarget.getZ() < 0)
+        {
             return false;
         }
 
-        final Vector3d actualTarget = getStartPoint().add(inAreaTarget);
+        final Vector3d actualTarget = getInWorldStartPoint().add(inAreaTarget);
 
-        return !(actualTarget.getX() >= getEndPoint().getX()) &&
-                 !(actualTarget.getY() >= getEndPoint().getY()) &&
-                 !(actualTarget.getZ() >= getEndPoint().getZ());
+        return !(actualTarget.getX() >= getInWorldEndPoint().getX()) &&
+                 !(actualTarget.getY() >= getInWorldEndPoint().getY()) &&
+                 !(actualTarget.getZ() >= getInWorldEndPoint().getZ());
     }
 
     /**
@@ -126,23 +124,23 @@ public class WorldWrappingMutator implements IWorldAreaMutator
     @Override
     public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
-        final BlockPos startPos = new BlockPos(getStartPoint());
+        final BlockPos startPos = new BlockPos(getInWorldStartPoint());
         final BlockPos targetPos = startPos.add(inAreaBlockPosOffset);
         final Vector3d target = Vector3d.copy(targetPos).add(inBlockTarget);
 
-        return !(target.getX() < getStartPoint().getX()) &&
-                 !(target.getY() < getStartPoint().getY()) &&
-                 !(target.getZ() < getStartPoint().getZ()) &&
-                 !(target.getX() >= getEndPoint().getX()) &&
-                 !(target.getY() >= getEndPoint().getY()) &&
-                 !(target.getZ() >= getEndPoint().getZ());
+        return !(target.getX() < getInWorldStartPoint().getX()) &&
+                 !(target.getY() < getInWorldStartPoint().getY()) &&
+                 !(target.getZ() < getInWorldStartPoint().getZ()) &&
+                 !(target.getX() >= getInWorldEndPoint().getX()) &&
+                 !(target.getY() >= getInWorldEndPoint().getY()) &&
+                 !(target.getZ() >= getInWorldEndPoint().getZ());
     }
 
     @Override
     public IMultiStateSnapshot createSnapshot()
     {
-        final BlockPos startBlockPos = new BlockPos(getStartPoint());
-        final BlockPos endBlockPos = new BlockPos(getEndPoint());
+        final BlockPos startBlockPos = new BlockPos(getInWorldStartPoint());
+        final BlockPos endBlockPos = new BlockPos(getInWorldEndPoint());
 
         Stream<BlockPos> positionStream = startBlockPos.equals(endBlockPos) ? Stream.of(startBlockPos) : BlockPosStreamProvider.getForRange(
           startBlockPos.getX(), startBlockPos.getY(), startBlockPos.getZ(),
@@ -150,15 +148,15 @@ public class WorldWrappingMutator implements IWorldAreaMutator
         );
 
         final Map<BlockPos, IMultiStateSnapshot> snapshots = positionStream
-          .collect(Collectors.toMap(
-            Function.identity(),
-            blockPos -> new ChiselAdaptingWorldMutator(getWorld(), blockPos).createSnapshot()
-          ));
+                                                               .collect(Collectors.toMap(
+                                                                 Function.identity(),
+                                                                 blockPos -> new ChiselAdaptingWorldMutator(getWorld(), blockPos).createSnapshot()
+                                                               ));
 
         return new MultiBlockMultiStateSnapshot(
           snapshots,
-          getStartPoint(),
-          getEndPoint()
+          getInWorldStartPoint(),
+          getInWorldEndPoint()
         );
     }
 
@@ -169,13 +167,13 @@ public class WorldWrappingMutator implements IWorldAreaMutator
     }
 
     @Override
-    public Vector3d getStartPoint()
+    public Vector3d getInWorldStartPoint()
     {
         return startPoint;
     }
 
     @Override
-    public Vector3d getEndPoint()
+    public Vector3d getInWorldEndPoint()
     {
         return endPoint;
     }
@@ -189,12 +187,15 @@ public class WorldWrappingMutator implements IWorldAreaMutator
     public Stream<IMutableStateEntryInfo> mutableStream()
     {
         return BlockPosStreamProvider.getForRange(
-          getStartPoint(), getEndPoint()
+          getInWorldStartPoint(), getInWorldEndPoint()
         ).flatMap(blockPos -> positionBasedMutableStream(blockPos)
-                .map(mutableEntry -> new PositionAdaptingMutableStateEntry(mutableEntry, blockPos)));
+                                .map(mutableEntry -> new PositionAdaptingMutableStateEntry(mutableEntry, blockPos, getWorld())))
+                 .filter(entry -> WorldObjectUtils.isInsideOrCoveredBy(this, entry))
+                 .map(IMutableStateEntryInfo.class::cast);
     }
 
-    private Stream<IMutableStateEntryInfo> positionBasedMutableStream(final BlockPos position) {
+    private Stream<IMutableStateEntryInfo> positionBasedMutableStream(final BlockPos position)
+    {
         final ChiselAdaptingWorldMutator innerMutator = new ChiselAdaptingWorldMutator(
           getWorld(), position
         );
@@ -207,15 +208,17 @@ public class WorldWrappingMutator implements IWorldAreaMutator
     {
         if (inAreaTarget.getX() < 0 ||
               inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0) {
+              inAreaTarget.getZ() < 0)
+        {
             throw new IllegalArgumentException(String.format("The in area target can not have a negative component: %s", inAreaTarget.toString()));
         }
 
-        final Vector3d actualTarget = getStartPoint().add(inAreaTarget);
+        final Vector3d actualTarget = getInWorldStartPoint().add(inAreaTarget);
 
-        if (actualTarget.getX() >= getEndPoint().getX() ||
-              actualTarget.getY() >= getEndPoint().getY() ||
-              actualTarget.getZ() >= getEndPoint().getZ()) {
+        if (actualTarget.getX() >= getInWorldEndPoint().getX() ||
+              actualTarget.getY() >= getInWorldEndPoint().getY() ||
+              actualTarget.getZ() >= getInWorldEndPoint().getZ())
+        {
             throw new IllegalArgumentException(String.format("The in area target is larger then the allowed size:%s", inAreaTarget));
         }
 
@@ -232,19 +235,21 @@ public class WorldWrappingMutator implements IWorldAreaMutator
     @Override
     public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget) throws SpaceOccupiedException
     {
-        final BlockPos startPos = new BlockPos(getStartPoint());
+        final BlockPos startPos = new BlockPos(getInWorldStartPoint());
         final BlockPos targetPos = startPos.add(inAreaBlockPosOffset);
         final Vector3d target = Vector3d.copy(targetPos).add(inBlockTarget);
 
-        if (target.getX() < getStartPoint().getX() ||
-              target.getY() < getStartPoint().getY() ||
-              target.getZ() < getStartPoint().getZ()) {
+        if (target.getX() < getInWorldStartPoint().getX() ||
+              target.getY() < getInWorldStartPoint().getY() ||
+              target.getZ() < getInWorldStartPoint().getZ())
+        {
             throw new IllegalArgumentException(String.format("The target can not be smaller then the start point: %s", target.toString()));
         }
 
-        if (target.getX() >= getEndPoint().getX() ||
-              target.getY() >= getEndPoint().getY() ||
-              target.getZ() >= getEndPoint().getZ()) {
+        if (target.getX() >= getInWorldEndPoint().getX() ||
+              target.getY() >= getInWorldEndPoint().getY() ||
+              target.getZ() >= getInWorldEndPoint().getZ())
+        {
             throw new IllegalArgumentException(String.format("The target can not be greater then the start point: %s", target.toString()));
         }
 
@@ -265,15 +270,17 @@ public class WorldWrappingMutator implements IWorldAreaMutator
     {
         if (inAreaTarget.getX() < 0 ||
               inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0) {
+              inAreaTarget.getZ() < 0)
+        {
             throw new IllegalArgumentException(String.format("The in area target can not have a negative component: %s", inAreaTarget.toString()));
         }
 
-        final Vector3d actualTarget = getStartPoint().add(inAreaTarget);
+        final Vector3d actualTarget = getInWorldStartPoint().add(inAreaTarget);
 
-        if (actualTarget.getX() >= getEndPoint().getX() ||
-              actualTarget.getY() >= getEndPoint().getY() ||
-              actualTarget.getZ() >= getEndPoint().getZ()) {
+        if (actualTarget.getX() >= getInWorldEndPoint().getX() ||
+              actualTarget.getY() >= getInWorldEndPoint().getY() ||
+              actualTarget.getZ() >= getInWorldEndPoint().getZ())
+        {
             throw new IllegalArgumentException(String.format("The in area target is larger then the allowed size:%s", inAreaTarget));
         }
 
@@ -296,19 +303,21 @@ public class WorldWrappingMutator implements IWorldAreaMutator
     @Override
     public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
-        final BlockPos startPos = new BlockPos(getStartPoint());
+        final BlockPos startPos = new BlockPos(getInWorldStartPoint());
         final BlockPos targetPos = startPos.add(inAreaBlockPosOffset);
         final Vector3d target = Vector3d.copy(targetPos).add(inBlockTarget);
 
-        if (target.getX() < getStartPoint().getX() ||
-              target.getY() < getStartPoint().getY() ||
-              target.getZ() < getStartPoint().getZ()) {
+        if (target.getX() < getInWorldStartPoint().getX() ||
+              target.getY() < getInWorldStartPoint().getY() ||
+              target.getZ() < getInWorldStartPoint().getZ())
+        {
             throw new IllegalArgumentException(String.format("The target can not be smaller then the start point: %s", target.toString()));
         }
 
-        if (target.getX() >= getEndPoint().getX() ||
-              target.getY() >= getEndPoint().getY() ||
-              target.getZ() >= getEndPoint().getZ()) {
+        if (target.getX() >= getInWorldEndPoint().getX() ||
+              target.getY() >= getInWorldEndPoint().getY() ||
+              target.getZ() >= getInWorldEndPoint().getZ())
+        {
             throw new IllegalArgumentException(String.format("The target can not be greater then the start point: %s", target.toString()));
         }
 
@@ -328,96 +337,33 @@ public class WorldWrappingMutator implements IWorldAreaMutator
     public Stream<IInWorldMutableStateEntryInfo> inWorldMutableStream()
     {
         return BlockPosStreamProvider.getForRange(
-          getStartPoint(), getEndPoint()
+          getInWorldStartPoint(), getInWorldEndPoint()
         ).flatMap(blockPos -> positionBasedInWorldMutableStream(blockPos)
-                                .map(mutableEntry -> new InWorldPositionAdaptingMutableStateEntry(mutableEntry, getWorld(), blockPos)));
+                                .filter(entry -> WorldObjectUtils.isInsideOrCoveredBy(this, entry)));
     }
 
-    private Stream<IMutableStateEntryInfo> positionBasedInWorldMutableStream(final BlockPos position) {
+    private Stream<IInWorldMutableStateEntryInfo> positionBasedInWorldMutableStream(final BlockPos position)
+    {
         final ChiselAdaptingWorldMutator innerMutator = new ChiselAdaptingWorldMutator(
           getWorld(), position
         );
 
-        return innerMutator.mutableStream();
+        return innerMutator.inWorldMutableStream();
     }
 
-    private static final class PositionAdaptingMutableStateEntry implements IMutableStateEntryInfo {
+    private static final class PositionAdaptingMutableStateEntry implements IMutableStateEntryInfo, IWorldObject
+    {
         private final IMutableStateEntryInfo source;
-        private final Vector3d offSet;
+        private final Vector3d               offSet;
+        private final IWorld                 world;
 
         private PositionAdaptingMutableStateEntry(
           final IMutableStateEntryInfo source,
-          final BlockPos position) {
+          final BlockPos position, final IWorld world)
+        {
             this.source = source;
             this.offSet = Vector3d.copy(position);
-        }
-
-        /**
-         * The state that this entry represents.
-         *
-         * @return The state.
-         */
-        @Override
-        public BlockState getState()
-        {
-            return source.getState();
-        }
-
-        /**
-         * The start (lowest on all three axi) position of the state that this entry occupies.
-         *
-         * @return The start position of this entry in the given block.
-         */
-        @Override
-        public Vector3d getStartPoint()
-        {
-            return source.getStartPoint().add(offSet);
-        }
-
-        /**
-         * The end (highest on all three axi) position of the state that this entry occupies.
-         *
-         * @return The start position of this entry in the given block.
-         */
-        @Override
-        public Vector3d getEndPoint()
-        {
-            return source.getEndPoint().add(offSet);
-        }
-
-        /**
-         * Sets the current entries state.
-         *
-         * @param blockState The new blockstate of the entry.
-         */
-        @Override
-        public void setState(final BlockState blockState) throws SpaceOccupiedException
-        {
-            source.setState(blockState);
-        }
-
-        /**
-         * Clears the current state entries blockstate. Effectively setting the current blockstate to air.
-         */
-        @Override
-        public void clear()
-        {
-            source.clear();
-        }
-    }
-
-    private static final class InWorldPositionAdaptingMutableStateEntry implements IInWorldMutableStateEntryInfo {
-        private final IMutableStateEntryInfo source;
-        private final IWorld world;
-        private final Vector3d offSet;
-
-        private InWorldPositionAdaptingMutableStateEntry(
-          final IMutableStateEntryInfo source,
-          final IWorld world,
-          final BlockPos position) {
-            this.source = source;
             this.world = world;
-            this.offSet = Vector3d.copy(position);
         }
 
         /**
@@ -474,7 +420,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator
         }
 
         /**
-         * The world, in the form of a block reader, that this entry info resides in.
+         * The world the object is in.
          *
          * @return The world.
          */
@@ -485,15 +431,25 @@ public class WorldWrappingMutator implements IWorldAreaMutator
         }
 
         /**
-         * The position of the block that this state entry is part of.
+         * The start point of the object in the world.
          *
-         * @return The in world block position.
+         * @return The start point.
          */
         @Override
-        public BlockPos getBlockPos()
+        public Vector3d getInWorldStartPoint()
         {
-            return new BlockPos(offSet);
+            return getStartPoint();
+        }
+
+        /**
+         * The end point of the object in the world.
+         *
+         * @return The end point.
+         */
+        @Override
+        public Vector3d getInWorldEndPoint()
+        {
+            return getEndPoint();
         }
     }
-
 }

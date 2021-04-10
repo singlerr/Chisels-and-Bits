@@ -76,4 +76,12 @@ public class ChunkSectionUtils
 
         return target;
     }
+
+    public static ChunkSection cloneSection(final ChunkSection lazyChunkSection)
+    {
+        final ChunkSection clone = new ChunkSection(0);
+        deserializeNBT(clone, serializeNBT(lazyChunkSection));
+
+        return clone;
+    }
 }

@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api;
 
+import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.chiseling.IChiselMode;
@@ -11,7 +12,15 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
+import mod.chiselsandbits.change.ChangeTracker;
+import mod.chiselsandbits.chiseling.ChiselingManager;
+import mod.chiselsandbits.chiseling.conversion.ConversionManager;
+import mod.chiselsandbits.chiseling.eligibility.EligibilityManager;
+import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
 import mod.chiselsandbits.multistate.mutator.MutatorFactory;
+import mod.chiselsandbits.registrars.ModChiselModes;
+import mod.chiselsandbits.registries.RegistryManager;
+import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import org.jetbrains.annotations.NotNull;
 
 public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
@@ -43,7 +52,7 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
     @Override
     public IEligibilityManager getEligibilityManager()
     {
-        return null;
+        return EligibilityManager.getInstance();
     }
 
     /**
@@ -55,7 +64,7 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
     @Override
     public IConversionManager getConversionManager()
     {
-        return null;
+        return ConversionManager.getInstance();
     }
 
     /**
@@ -67,7 +76,7 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
     @Override
     public IChangeTracker getChangeTracker()
     {
-        return null;
+        return ChangeTracker.getInstance();
     }
 
     /**
@@ -79,7 +88,7 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
     @Override
     public IVoxelShapeManager getVoxelShapeManager()
     {
-        return null;
+        return VoxelShapeManager.getInstance();
     }
 
     /**
@@ -91,7 +100,7 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
     @Override
     public IMultiStateItemFactory getMultiStateItemFactory()
     {
-        return null;
+        return MultiStateItemFactory.getInstance();
     }
 
     /**
@@ -103,7 +112,7 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
     @Override
     public IChiselMode getDefaultChiselMode()
     {
-        return null;
+        return ModChiselModes.SINGLE_BIT.get();
     }
 
     /**
@@ -115,7 +124,7 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
     @Override
     public IRegistryManager getRegistryManager()
     {
-        return null;
+        return RegistryManager.getInstance();
     }
 
     /**
@@ -127,7 +136,7 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
     @Override
     public IChiselingManager getChiselingManager()
     {
-        return null;
+        return ChiselingManager.getInstance();
     }
 
     /**
@@ -139,7 +148,7 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
     @Override
     public Configuration getConfiguration()
     {
-        return null;
+        return ChiselsAndBits.getInstance().getConfiguration();
     }
 
     /**
@@ -151,7 +160,7 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
     @Override
     public IBlockStateIdManager getBlockStateIdManager()
     {
-        return null;
+        return new IBlockStateIdManager() {};
     }
 
     private ChiselsAndBitsAPI()

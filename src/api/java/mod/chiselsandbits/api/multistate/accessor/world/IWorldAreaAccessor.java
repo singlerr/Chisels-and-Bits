@@ -2,6 +2,7 @@ package mod.chiselsandbits.api.multistate.accessor.world;
 
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
+import mod.chiselsandbits.api.util.IWorldObject;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
@@ -11,7 +12,7 @@ import java.util.stream.Stream;
 /**
  * Represents an area accessor which actually exists in the world.
  */
-public interface IWorldAreaAccessor extends IAreaAccessor
+public interface IWorldAreaAccessor extends IAreaAccessor, IWorldObject
 {
     /**
      * Gives access to a stream of in world state entries.
@@ -33,8 +34,8 @@ public interface IWorldAreaAccessor extends IAreaAccessor
      */
     default Stream<BlockPos> coveredAreaStream()
     {
-        final BlockPos startPos = new BlockPos(getStartPoint());
-        final BlockPos endPos = new BlockPos(getEndPoint());
+        final BlockPos startPos = new BlockPos(getInWorldStartPoint());
+        final BlockPos endPos = new BlockPos(getInWorldEndPoint());
 
         //Short circuit the stream builder if the area covered is exactly one block.
         if (startPos.equals(endPos))
@@ -45,25 +46,4 @@ public interface IWorldAreaAccessor extends IAreaAccessor
           endPos.getX(), endPos.getY(), endPos.getZ()
         );
     }
-
-    /**
-     * The world this area accessor is in.
-     *
-     * @return The world.
-     */
-    IBlockReader getWorld();
-
-    /**
-     * The start (lowest on all three axi) position of the state that this entry occupies.
-     *
-     * @return The start position of this entry in the given world.
-     */
-    Vector3d getStartPoint();
-
-    /**
-     * The end (highest on all three axi) position of the state that this entry occupies.
-     *
-     * @return The end position of this entry in the given world.
-     */
-    Vector3d getEndPoint();
 }
