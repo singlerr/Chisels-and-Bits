@@ -19,6 +19,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -33,6 +34,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Vector;
+import java.util.function.Function;
 
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.*;
 
@@ -55,7 +58,12 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     public ClickProcessingState onLeftClickBy(
       final PlayerEntity playerEntity, final IChiselingContext context)
     {
-        final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(playerEntity, context);
+        final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
+          playerEntity,
+          context,
+          face -> Vector3d.copy(face.getOpposite().getDirectionVec()),
+          Function.identity()
+        );
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
               try (IBatchMutation ignoredBatch =
                      mutator.batch())
@@ -102,7 +110,12 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     @Override
     public ClickProcessingState onRightClickBy(final PlayerEntity playerEntity, final IChiselingContext context)
     {
-        final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(playerEntity, context);
+        final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
+          playerEntity,
+          context,
+          face -> Vector3d.copy(face.getDirectionVec()),
+          facingVector -> aligned ? facingVector : facingVector.mul(1,-1, 1)
+        );
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
             final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
             if (heldBlockState.isAir(new SingleBlockBlockReader(heldBlockState), BlockPos.ZERO))
@@ -149,8 +162,12 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         return context.getMutator().map(mutator -> mutator);
     }
 
-    private Optional<ClickProcessingState> processRayTraceIntoContext(final PlayerEntity playerEntity, final IChiselingContext context)
-    {
+    private Optional<ClickProcessingState> processRayTraceIntoContext(
+      final PlayerEntity playerEntity,
+      final IChiselingContext context,
+      final Function<Direction, Vector3d> placementFacingAdapter,
+      final Function<Vector3d, Vector3d> fullFacingVectorAdapter
+    ) {
         final RayTraceResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
         if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK || !(rayTraceResult instanceof BlockRayTraceResult))
         {
@@ -159,26 +176,33 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
 
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
         final Vector3d hitVector = blockRayTraceResult.getHitVec().add(
-          Vector3d.copy(blockRayTraceResult.getFace().getOpposite().getDirectionVec())
+          placementFacingAdapter.apply(blockRayTraceResult.getFace())
             .mul(SIZE_PER_HALF_BIT, SIZE_PER_HALF_BIT, SIZE_PER_HALF_BIT)
         );
 
         Vector3d alignmentOffset = Vector3d.ZERO;
-        final Vector3d fullFacingVector = aligned ? new Vector3d(1, 1, 1) : Vector3d.copy(
+        final Vector3d fullFacingVector = fullFacingVectorAdapter.apply(aligned ? new Vector3d(1, 1, 1) : Vector3d.copy(
           RayTracingUtils.getFullFacingVector(playerEntity)
-        );
+        ));
 
         if (aligned)
         {
-            final Vector3d inBlockOffset = hitVector.subtract(Vector3d.copy(blockRayTraceResult.getPos()));
+            final Vector3d inBlockOffset = hitVector.subtract(Vector3d.copy(new BlockPos(hitVector)));
             final BlockPos bitsInBlockOffset = new BlockPos(inBlockOffset.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE));
-            final BlockPos bitsRemainder = new BlockPos(
-              bitsInBlockOffset.getX() % bitsPerSide,
-              bitsInBlockOffset.getY() % bitsPerSide,
-              bitsInBlockOffset.getZ() % bitsPerSide
+
+            final BlockPos targetedSectionIndices = new BlockPos(
+              bitsInBlockOffset.getX() / bitsPerSide,
+              bitsInBlockOffset.getY() / bitsPerSide,
+              bitsInBlockOffset.getZ() / bitsPerSide
             );
 
-            final BlockPos targetedBitsInBlockOffset = bitsInBlockOffset.subtract(bitsRemainder);
+            final BlockPos targetedStartPoint = new BlockPos(
+              targetedSectionIndices.getX() * bitsPerSide,
+              targetedSectionIndices.getY() * bitsPerSide,
+              targetedSectionIndices.getZ() * bitsPerSide
+            );
+
+            final BlockPos targetedBitsInBlockOffset = bitsInBlockOffset.subtract(targetedStartPoint);
 
             alignmentOffset = Vector3d.copy(targetedBitsInBlockOffset)
                                 .mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT);
