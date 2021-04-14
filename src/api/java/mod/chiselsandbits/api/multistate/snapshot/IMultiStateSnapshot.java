@@ -1,9 +1,10 @@
 package mod.chiselsandbits.api.multistate.snapshot;
 
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
+import mod.chiselsandbits.api.multistate.accessor.sortable.ISortableAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IAreaMutator;
 
-public interface IMultiStateSnapshot extends IAreaMutator
+public interface IMultiStateSnapshot extends IAreaMutator, ISortableAreaAccessor
 {
 
     /**

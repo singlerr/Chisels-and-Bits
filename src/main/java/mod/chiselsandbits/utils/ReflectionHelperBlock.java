@@ -12,11 +12,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.IBlockReader;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-@SuppressWarnings({"deprecation", "ConstantConditions"})
+@SuppressWarnings({"deprecation", "NullableProblems"})
 public class ReflectionHelperBlock extends Block
 {
     public String MethodName;
@@ -31,40 +31,40 @@ public class ReflectionHelperBlock extends Block
         super( AbstractBlock.Properties.create(Material.AIR) );
     }
 
-    @NotNull
+    @Nullable
     @Override
-    public VoxelShape getRenderShape(@NotNull final BlockState state, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos)
+    public VoxelShape getRenderShape(@Nullable final BlockState state, @Nullable final IBlockReader worldIn, @Nullable final BlockPos pos)
     {
         markMethod();
         return null;
     }
 
-    @NotNull
+    @Nullable
     @Override
-    public VoxelShape getCollisionShape(@NotNull final BlockState state, @NotNull final IBlockReader reader, @NotNull final BlockPos pos)
+    public VoxelShape getCollisionShape(@Nullable final BlockState state, @Nullable final IBlockReader reader, @Nullable final BlockPos pos)
     {
         markMethod();
         return null;
     }
 
-    @NotNull
+    @Nullable
     @Override
-    public VoxelShape getShape(@NotNull final BlockState state, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos, @NotNull final ISelectionContext context)
+    public VoxelShape getShape(@Nullable final BlockState state, @Nullable final IBlockReader worldIn, @Nullable final BlockPos pos, @Nullable final ISelectionContext context)
     {
         markMethod();
         return null;
     }
 
-    @NotNull
+    @Nullable
     @Override
-    public VoxelShape getCollisionShape(@NotNull final BlockState state, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos, @NotNull final ISelectionContext context)
+    public VoxelShape getCollisionShape(@Nullable final BlockState state, @Nullable final IBlockReader worldIn, @Nullable final BlockPos pos, @Nullable final ISelectionContext context)
     {
         markMethod();
         return null;
     }
 
     @Override
-    public float getPlayerRelativeBlockHardness(@NotNull final BlockState state, @NotNull final PlayerEntity player, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos)
+    public float getPlayerRelativeBlockHardness(@Nullable final BlockState state, @Nullable final PlayerEntity player, @Nullable final IBlockReader worldIn, @Nullable final BlockPos pos)
     {
         markMethod();
         return 0;
@@ -77,9 +77,9 @@ public class ReflectionHelperBlock extends Block
         return 0;
     }
 
-    @NotNull
+    @Nullable
     @Override
-    public List<ItemStack> getDrops(@NotNull final BlockState state, @NotNull final LootContext.Builder builder)
+    public List<ItemStack> getDrops(@Nullable final BlockState state, @Nullable final LootContext.Builder builder)
     {
         markMethod();
         return Lists.newArrayList();

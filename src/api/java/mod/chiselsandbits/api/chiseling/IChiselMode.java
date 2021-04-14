@@ -1,7 +1,8 @@
 package mod.chiselsandbits.api.chiseling;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import mod.chiselsandbits.api.item.leftclick.LeftClickProcessingState;
+import mod.chiselsandbits.api.item.click.ClickProcessingState;
+import mod.chiselsandbits.api.item.withmode.IRenderableMode;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.util.IWithDisplayName;
@@ -11,7 +12,7 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.Optional;
 
-public interface IChiselMode extends IWithDisplayName, IForgeRegistryEntry<IChiselMode>
+public interface IChiselMode extends IWithDisplayName, IForgeRegistryEntry<IChiselMode>, IRenderableMode
 {
 
     static IChiselMode getDefaultMode() {
@@ -22,12 +23,22 @@ public interface IChiselMode extends IWithDisplayName, IForgeRegistryEntry<IChis
         return IRegistryManager.getInstance().getChiselModeRegistry();
     }
 
-    LeftClickProcessingState onLeftClickBy(
+    ClickProcessingState onLeftClickBy(
       final PlayerEntity playerEntity,
       final IChiselingContext context
     );
 
     void onStoppedLeftClicking(
+      final PlayerEntity playerEntity,
+      final IChiselingContext context
+    );
+
+    ClickProcessingState onRightClickBy(
+      final PlayerEntity playerEntity,
+      final IChiselingContext context
+    );
+
+    void onStoppedRightClicking(
       final PlayerEntity playerEntity,
       final IChiselingContext context
     );

@@ -16,7 +16,7 @@ public class WorldObjectUtils
     }
 
     public static boolean isAInsideOrCoveredByB(final IWorldObject a, final IWorldObject b) {
-        return isAInsideB(a, b) || isACoveredByB(a, b);
+        return isAInsideB(a, b) || isACoveringB(a, b);
     }
 
     public static boolean isAInsideB(final IWorldObject a, final IWorldObject b) {
@@ -28,18 +28,18 @@ public class WorldObjectUtils
 
         return bStart.getX() <= aStart.getX() && aEnd.getX() <= bEnd.getX() &&
                  bStart.getY() <= aStart.getY() && aEnd.getY() <= bEnd.getY() &&
-                 bStart.getZ() <= bStart.getZ() && aEnd.getZ() <= bEnd.getZ();
+                 bStart.getZ() <= aStart.getZ() && aEnd.getZ() <= bEnd.getZ();
     }
 
-    public static boolean isACoveredByB(final IWorldObject a, final IWorldObject b) {
+    public static boolean isACoveringB(final IWorldObject a, final IWorldObject b) {
         final Vector3d bLowerLeftFront = b.getInWorldStartPoint();
         final Vector3d bUpperRightBack = b.getInWorldEndPoint();
 
         final Vector3d bLowerLeftBack = new Vector3d(bLowerLeftFront.getX(), bLowerLeftFront.getY(), bUpperRightBack.getZ());
-        final Vector3d bLowerRightFront = new Vector3d(bUpperRightBack.getX(), bLowerLeftFront.getY(), bLowerLeftFront.getZ());
         final Vector3d bUpperLeftFront = new Vector3d(bLowerLeftFront.getX(), bUpperRightBack.getY(), bLowerLeftFront.getZ());
-        final Vector3d bLowerRightBack = new Vector3d(bUpperRightBack.getX(), bLowerLeftFront.getY(), bUpperRightBack.getZ());
+        final Vector3d bLowerRightFront = new Vector3d(bUpperRightBack.getX(), bLowerLeftFront.getY(), bLowerLeftFront.getZ());
         final Vector3d bUpperLeftBack = new Vector3d(bLowerLeftFront.getX(), bUpperRightBack.getY(), bUpperRightBack.getZ());
+        final Vector3d bLowerRightBack = new Vector3d(bUpperRightBack.getX(), bLowerLeftFront.getY(), bUpperRightBack.getZ());
         final Vector3d bUpperRightFront = new Vector3d(bUpperRightBack.getX(), bUpperRightBack.getY(), bLowerLeftFront.getZ());
 
         return isPointInside(a, bLowerLeftFront) ||

@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
+import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
@@ -62,7 +63,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator
 
         return positionStream.map(blockPos -> new ChiselAdaptingWorldMutator(getWorld(), blockPos))
                  .flatMap(ChiselAdaptingWorldMutator::inWorldStream)
-                 .filter(entry -> WorldObjectUtils.isInsideOrCoveredBy(this, entry))
+                 .filter(entry -> WorldObjectUtils.isAInsideB(this, entry) || WorldObjectUtils.isACoveringB(this, entry))
                  .map(IStateEntryInfo.class::cast);
     }
 
@@ -190,7 +191,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator
           getInWorldStartPoint(), getInWorldEndPoint()
         ).flatMap(blockPos -> positionBasedMutableStream(blockPos)
                                 .map(mutableEntry -> new PositionAdaptingMutableStateEntry(mutableEntry, blockPos, getWorld())))
-                 .filter(entry -> WorldObjectUtils.isInsideOrCoveredBy(this, entry))
+                 .filter(entry -> WorldObjectUtils.isAInsideB(this, entry) || WorldObjectUtils.isACoveringB(this, entry))
                  .map(IMutableStateEntryInfo.class::cast);
     }
 
@@ -339,7 +340,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator
         return BlockPosStreamProvider.getForRange(
           getInWorldStartPoint(), getInWorldEndPoint()
         ).flatMap(blockPos -> positionBasedInWorldMutableStream(blockPos)
-                                .filter(entry -> WorldObjectUtils.isInsideOrCoveredBy(this, entry)));
+                                .filter(entry -> WorldObjectUtils.isAInsideB(this, entry) || WorldObjectUtils.isACoveringB(this, entry)));
     }
 
     private Stream<IInWorldMutableStateEntryInfo> positionBasedInWorldMutableStream(final BlockPos position)
@@ -349,6 +350,26 @@ public class WorldWrappingMutator implements IWorldAreaMutator
         );
 
         return innerMutator.inWorldMutableStream();
+    }
+
+    /**
+     * Trigger a batch mutation start.
+     * <p>
+     * As long as at least one batch mutation is still running no changes are transmitted to the client.
+     *
+     * @return The batch mutation lock.
+     */
+    @Override
+    public IBatchMutation batch()
+    {
+        return new BatchMutationLock(
+          BlockPosStreamProvider.getForRange(
+            getInWorldStartPoint(), getInWorldEndPoint()
+          ).map(blockPos -> new ChiselAdaptingWorldMutator(
+            getWorld(), blockPos))
+            .map(ChiselAdaptingWorldMutator::batch)
+            .collect(Collectors.toList())
+        );
     }
 
     private static final class PositionAdaptingMutableStateEntry implements IMutableStateEntryInfo, IWorldObject
@@ -450,6 +471,23 @@ public class WorldWrappingMutator implements IWorldAreaMutator
         public Vector3d getInWorldEndPoint()
         {
             return getEndPoint();
+        }
+    }
+
+    private static final class BatchMutationLock implements IBatchMutation
+    {
+
+        private final Iterable<IBatchMutation> innerLocks;
+
+        private BatchMutationLock(final Iterable<IBatchMutation> innerLocks) {this.innerLocks = innerLocks;}
+
+        @Override
+        public void close()
+        {
+            for (IBatchMutation innerLock : innerLocks)
+            {
+                innerLock.close();
+            }
         }
     }
 }

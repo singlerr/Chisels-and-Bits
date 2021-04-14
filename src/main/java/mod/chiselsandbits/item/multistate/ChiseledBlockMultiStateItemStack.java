@@ -7,6 +7,7 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.item.multistate.IStatistics;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
@@ -432,6 +433,20 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
     public ItemStack toItemStack()
     {
         return sourceStack.copy();
+    }
+
+    @Override
+    public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
+    {
+        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+                 .map(positionMutator::mutate)
+                 .map(blockPos -> new StateEntry(
+                     this.compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+                     blockPos,
+                     this::setInAreaTarget,
+                     this::clearInAreaTarget
+                   )
+                 );
     }
 
     private static final class ShapeIdentifier implements IAreaShapeIdentifier

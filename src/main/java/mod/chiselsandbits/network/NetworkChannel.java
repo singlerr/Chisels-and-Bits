@@ -1,6 +1,9 @@
 package mod.chiselsandbits.network;
 
 
+import mod.chiselsandbits.network.packets.HeldToolModeChangedPacket;
+import mod.chiselsandbits.network.packets.ModPacket;
+import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
@@ -43,9 +46,12 @@ public class NetworkChannel
     /**
      * Registers all common messages.
      */
+    @SuppressWarnings("UnusedAssignment")
     public void registerCommonMessages()
     {
-        //TODO: Register the required messages.
+        int index = -1;
+        registerMessage(index++, HeldToolModeChangedPacket.class, HeldToolModeChangedPacket::new);
+        registerMessage(index++, TileEntityUpdatedPacket.class, TileEntityUpdatedPacket::new);
     }
 
     /**
@@ -58,7 +64,7 @@ public class NetworkChannel
      */
     public <MSG extends ModPacket> void registerMessage(final int id, final Class<MSG> msgClazz, final Function<PacketBuffer, MSG> msgCreator)
     {
-        rawChannel.registerMessage(id, msgClazz, ModPacket::getPayload, msgCreator, (msg, ctxIn) -> {
+        rawChannel.registerMessage(id, msgClazz, ModPacket::writePayload, msgCreator, (msg, ctxIn) -> {
             final Context ctx = ctxIn.get();
             final LogicalSide packetOrigin = ctx.getDirection().getOriginationSide();
             ctx.setPacketHandled(true);

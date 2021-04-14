@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.world.IInWorldStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
+import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntryInfo;
@@ -430,6 +431,57 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
 
         return Stream.empty();
+    }
+
+    /**
+     * Trigger a batch mutation start.
+     * <p>
+     * As long as at least one batch mutation is still running no changes are transmitted to the client.
+     *
+     * @return The batch mutation lock.
+     */
+    @SuppressWarnings("deprecation")
+    @Override
+    public IBatchMutation batch()
+    {
+        final TileEntity tileEntity = getWorld().getTileEntity(getPos());
+        if (tileEntity instanceof IMultiStateBlockEntity)
+        {
+            return ((IMultiStateBlockEntity) tileEntity).batch();
+        }
+
+        final BlockState currentState = getWorld().getBlockState(getPos());
+        //TODO: On 1.17 update: Replace with normal isAir()
+        if (currentState.isAir(getWorld(), getPos()))
+        {
+            return () -> {
+                //Noop
+            };
+        }
+
+        final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(currentState);
+        if (optionalWithConvertedBlock.isPresent())
+        {
+            final Block convertedBlock = optionalWithConvertedBlock.get();
+            getWorld().setBlockState(
+              getPos(),
+              convertedBlock.getDefaultState(),
+              Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.UPDATE_NEIGHBORS
+            );
+
+            final TileEntity convertedTileEntity = getWorld().getTileEntity(getPos());
+            if (convertedTileEntity instanceof IMultiStateBlockEntity)
+            {
+                ((IMultiStateBlockEntity) convertedTileEntity).initializeWith(currentState);
+                return ((IMultiStateBlockEntity) convertedTileEntity).batch();
+            }
+
+            throw new IllegalStateException("Conversion of the existing block of type: " + currentState + " into a chiseled variant failed.");
+        }
+
+        return () -> {
+            //Noop
+        };
     }
 
     private static class PreAdaptedStateEntry implements IInWorldStateEntryInfo

@@ -8,6 +8,8 @@ import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.IChiselMode;
 import mod.chiselsandbits.api.config.Configuration;
+import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
+import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.registries.IRegistryManager;
@@ -119,6 +121,12 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     IBlockStateIdManager getBlockStateIdManager();
+
+    @NotNull
+    IBitInventoryManager getBitInventoryManager();
+
+    @NotNull
+    IBitItemManager getBitItemManager();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

@@ -8,14 +8,17 @@ import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.Configuration;
+import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
+import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.change.ChangeTracker;
-import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.chiseling.conversion.ConversionManager;
 import mod.chiselsandbits.chiseling.eligibility.EligibilityManager;
+import mod.chiselsandbits.inventory.management.BitInventoryManager;
+import mod.chiselsandbits.item.bit.BitItemManager;
 import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
 import mod.chiselsandbits.multistate.mutator.MutatorFactory;
 import mod.chiselsandbits.registrars.ModChiselModes;
@@ -23,8 +26,13 @@ import mod.chiselsandbits.registries.RegistryManager;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import org.jetbrains.annotations.NotNull;
 
-public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
+public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
+{
     private static final ChiselsAndBitsAPI INSTANCE = new ChiselsAndBitsAPI();
+
+    private ChiselsAndBitsAPI()
+    {
+    }
 
     public static ChiselsAndBitsAPI getInstance()
     {
@@ -136,7 +144,7 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
     @Override
     public IChiselingManager getChiselingManager()
     {
-        return ChiselingManager.getInstance();
+        return mod.chiselsandbits.chiseling.ChiselingManager.getInstance();
     }
 
     /**
@@ -163,7 +171,17 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI {
         return new IBlockStateIdManager() {};
     }
 
-    private ChiselsAndBitsAPI()
+    @NotNull
+    @Override
+    public IBitInventoryManager getBitInventoryManager()
     {
+        return BitInventoryManager.getInstance();
+    }
+
+    @NotNull
+    @Override
+    public IBitItemManager getBitItemManager()
+    {
+        return BitItemManager.getInstance();
     }
 }

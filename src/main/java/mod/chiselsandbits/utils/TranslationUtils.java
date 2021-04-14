@@ -13,12 +13,12 @@ public class TranslationUtils
         throw new IllegalStateException("Can not instantiate an instance of: TranslationUtils. This is a utility class");
     }
 
-    public static IFormattableTextComponent build(final String keySuffix) {
-        return new TranslationTextComponent(String.format("mod.%s.%s", Constants.MOD_ID, keySuffix));
+    public static IFormattableTextComponent build(final String keySuffix, final Object... args) {
+        return new TranslationTextComponent(String.format("mod.%s.%s", Constants.MOD_ID, keySuffix), args);
     }
 
-    public static IFormattableTextComponent build(final LocalStrings chiselSupportTagBlackListed)
+    public static IFormattableTextComponent build(final LocalStrings chiselSupportTagBlackListed, final Object... args)
     {
-        return new TranslationTextComponent(chiselSupportTagBlackListed.toString());
+        return new TranslationTextComponent(chiselSupportTagBlackListed.toString(), args);
     }
 }

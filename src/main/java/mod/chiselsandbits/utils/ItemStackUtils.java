@@ -1,7 +1,10 @@
 package mod.chiselsandbits.utils;
 
+import mod.chiselsandbits.api.item.bit.IBitItem;
+import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import net.minecraft.block.*;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -10,6 +13,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.IFluidBlock;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class ItemStackUtils
 {
@@ -80,5 +84,43 @@ public class ItemStackUtils
         }
     }
 
+    public static ItemStack getModeItemStackFromPlayer(@Nullable final PlayerEntity playerEntity) {
+        if (playerEntity == null)
+            return ItemStack.EMPTY;
 
+        if (playerEntity.getHeldItemMainhand().getItem() instanceof IWithModeItem)
+            return playerEntity.getHeldItemMainhand();
+
+        if (playerEntity.getHeldItemOffhand().getItem() instanceof IWithModeItem)
+            return playerEntity.getHeldItemOffhand();
+
+        return ItemStack.EMPTY;
+    }
+
+    public static ItemStack getBitItemStackFromPlayer(@Nullable final PlayerEntity playerEntity) {
+        if (playerEntity == null)
+            return ItemStack.EMPTY;
+
+        if (playerEntity.getHeldItemMainhand().getItem() instanceof IBitItem)
+            return playerEntity.getHeldItemMainhand();
+
+        if (playerEntity.getHeldItemOffhand().getItem() instanceof IBitItem)
+            return playerEntity.getHeldItemOffhand();
+
+        return ItemStack.EMPTY;
+    }
+
+
+    public static BlockState getHeldBitBlockStateFromPlayer(@Nullable final PlayerEntity playerEntity) {
+        if (playerEntity == null)
+            return Blocks.AIR.getDefaultState();
+
+        if (playerEntity.getHeldItemMainhand().getItem() instanceof IBitItem)
+            return ((IBitItem) playerEntity.getHeldItemMainhand().getItem()).getBitState(playerEntity.getHeldItemMainhand());
+
+        if (playerEntity.getHeldItemOffhand().getItem() instanceof IBitItem)
+            return ((IBitItem) playerEntity.getHeldItemOffhand().getItem()).getBitState(playerEntity.getHeldItemOffhand());;
+
+        return Blocks.AIR.getDefaultState();
+    }
 }

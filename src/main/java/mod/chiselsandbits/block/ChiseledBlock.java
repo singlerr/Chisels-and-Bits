@@ -5,7 +5,6 @@ import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
-import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
@@ -14,6 +13,7 @@ import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.utils.EffectUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.Entity;
@@ -32,6 +32,7 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
@@ -70,22 +71,25 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     @Override
     public float getSlipperiness(final BlockState state, final IWorldReader world, final BlockPos pos, @Nullable final Entity entity)
     {
-        final IMultiStateBlockEntity blockEntityWithMultipleStates = getBlockEntityFromOrThrow(world, pos);
-        return blockEntityWithMultipleStates.getStatistics().getSlipperiness();
+        return getBlockEntityFromOrThrow(world, pos)
+          .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().getSlipperiness())
+          .orElse(0f);
     }
 
     @Override
     public boolean shouldCheckWeakPower(final BlockState state, final IWorldReader world, final BlockPos pos, final Direction side)
     {
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(world, pos);
-        return multiStateBlockEntity.getStatistics().shouldCheckWeakPower();
+        return getBlockEntityFromOrThrow(world, pos)
+          .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().shouldCheckWeakPower())
+          .orElse(false);
     }
 
     @Override
     public float getAmbientOcclusionLightValue(@NotNull final BlockState state, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos)
     {
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(worldIn, pos);
-        return multiStateBlockEntity.getStatistics().getFullnessFactor();
+        return getBlockEntityFromOrThrow(worldIn, pos)
+          .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().getFullnessFactor())
+          .orElse(1f);
     }
 
     //TODO: Check if getOpacity needs to be overridden.
@@ -94,38 +98,39 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     @Override
     public VoxelShape getShape(@NotNull final BlockState state, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos, @NotNull final ISelectionContext context)
     {
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(worldIn, pos);
-        return IVoxelShapeManager.getInstance().get(multiStateBlockEntity);
+        return getBlockEntityFromOrThrow(worldIn, pos)
+                 .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity))
+                 .orElse(VoxelShapes.empty());
     }
 
     @NotNull
     @Override
     public VoxelShape getCollisionShape(@NotNull final BlockState state, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos, @NotNull final ISelectionContext context)
     {
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(worldIn, pos);
-        return IVoxelShapeManager.getInstance().get(multiStateBlockEntity);
+        return getShape(state, worldIn, pos, context);
     }
 
     @NotNull
     @Override
     public VoxelShape getRayTraceShape(@NotNull final BlockState state, @NotNull final IBlockReader reader, @NotNull final BlockPos pos, @NotNull final ISelectionContext context)
     {
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(reader, pos);
-        return IVoxelShapeManager.getInstance().get(multiStateBlockEntity);
+        return getShape(state, reader, pos, context);
     }
 
     @Override
     public int getLightValue(final BlockState state, final IBlockReader world, final BlockPos pos)
     {
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(world, pos);
-        return (int) (multiStateBlockEntity.getStatistics().getLightEmissionFactor() * world.getMaxLightLevel());
+        return getBlockEntityFromOrThrow(world, pos)
+          .map(multiStateBlockEntity -> (int) (multiStateBlockEntity.getStatistics().getLightEmissionFactor() * world.getMaxLightLevel()))
+          .orElse(0);
     }
 
     @Override
     public float getPlayerRelativeBlockHardness(@NotNull final BlockState state, @NotNull final PlayerEntity player, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos)
     {
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(worldIn, pos);
-        return multiStateBlockEntity.getStatistics().getRelativeBlockHardness(player);
+        return getBlockEntityFromOrThrow(worldIn, pos)
+          .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().getRelativeBlockHardness(player))
+          .orElse(1f);
     }
 
     @Override
@@ -150,8 +155,9 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     @Override
     public boolean propagatesSkylightDown(@NotNull final BlockState state, @NotNull final IBlockReader reader, @NotNull final BlockPos pos)
     {
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(reader, pos);
-        return !multiStateBlockEntity.getStatistics().isFullBlock();
+        return getBlockEntityFromOrThrow(reader, pos)
+          .map(multiStateBlockEntity -> !multiStateBlockEntity.getStatistics().isFullBlock())
+          .orElse(false);
     }
 
     @Override
@@ -160,14 +166,16 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     {
         if ( !willHarvest && Configuration.getInstance().getClient().addBrokenBlocksToCreativeClipboard.get() )
         {
-            final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(world, pos);
-            final IMultiStateSnapshot multiStateSnapshot = multiStateBlockEntity.createSnapshot();
+            getBlockEntityFromOrThrow(world, pos)
+              .ifPresent(multiStateBlockEntity -> {
+                  final IMultiStateSnapshot multiStateSnapshot = multiStateBlockEntity.createSnapshot();
 
-            IChangeTracker.getInstance().onBlockBroken(
-              world,
-              pos,
-              multiStateSnapshot
-            );
+                  IChangeTracker.getInstance().onBlockBroken(
+                    world,
+                    pos,
+                    multiStateSnapshot
+                  );
+              });
         }
 
         return super.removedByPlayer( state, world, pos, player, willHarvest, fluid );
@@ -176,33 +184,38 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     @Override
     public boolean isReplaceable(@NotNull final BlockState state, final BlockItemUseContext useContext)
     {
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(useContext.getWorld(), useContext.getPos());
-        return multiStateBlockEntity.getStatistics().isEmptyBlock();
+        return getBlockEntityFromOrThrow(useContext.getWorld(), useContext.getPos())
+          .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().isEmptyBlock())
+          .orElse(true);
     }
 
     @Override
     public void harvestBlock(@NotNull final World worldIn, @NotNull final PlayerEntity player, @NotNull final BlockPos pos, @NotNull final BlockState state, @Nullable final TileEntity te, @NotNull final ItemStack stack)
     {
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(worldIn, pos);
-        final IMultiStateSnapshot snapshot = multiStateBlockEntity.createSnapshot();
+        getBlockEntityFromOrThrow(worldIn, pos)
+          .ifPresent(multiStateBlockEntity -> {
+              final IMultiStateSnapshot snapshot = multiStateBlockEntity.createSnapshot();
 
-        spawnAsEntity(worldIn, pos, snapshot.toItemStack().toItemStack());
+              spawnAsEntity(worldIn, pos, snapshot.toItemStack().toItemStack());
+          });
     }
 
     @Override
     public void onBlockPlacedBy(@NotNull final World worldIn, @NotNull final BlockPos pos, @NotNull final BlockState state, @Nullable final LivingEntity placer, @NotNull final ItemStack stack)
     {
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(worldIn, pos);
-        final Direction placementDirection = placer == null ? Direction.NORTH : placer.getHorizontalFacing().getOpposite();
-        final int horizontalIndex = placementDirection.getHorizontalIndex();
-        
-        int rotationCount = horizontalIndex - 4;
-        if (rotationCount < 0) {
-            rotationCount += 4;
-        }
+        getBlockEntityFromOrThrow(worldIn, pos)
+          .ifPresent(multiStateBlockEntity -> {
+              final Direction placementDirection = placer == null ? Direction.NORTH : placer.getHorizontalFacing().getOpposite();
+              final int horizontalIndex = placementDirection.getHorizontalIndex();
 
-        multiStateBlockEntity.rotate(Direction.Axis.Y, rotationCount);
-        super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+              int rotationCount = horizontalIndex - 4;
+              if (rotationCount < 0) {
+                  rotationCount += 4;
+              }
+
+              multiStateBlockEntity.rotate(Direction.Axis.Y, rotationCount);
+              super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+          });
     }
 
     @Override
@@ -213,46 +226,45 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
 
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) target;
 
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(world, pos);
+        return getBlockEntityFromOrThrow(world, pos)
+          .flatMap(e -> {
+              final Vector3d hitVec = blockRayTraceResult.getHitVec();
+              final BlockPos blockPos = new BlockPos(hitVec);
+              final Vector3d accuratePos = new Vector3d(
+                blockPos.getX(),
+                blockPos.getY(),
+                blockPos.getZ()
+              );
+              final Vector3d faceOffset = new Vector3d(
+                blockRayTraceResult.getFace().getOpposite().getXOffset() * ChiseledBlockEntity.SIZE_PER_HALF_BIT,
+                blockRayTraceResult.getFace().getOpposite().getYOffset() * ChiseledBlockEntity.SIZE_PER_HALF_BIT,
+                blockRayTraceResult.getFace().getOpposite().getZOffset() * ChiseledBlockEntity.SIZE_PER_HALF_BIT
+              );
+              final Vector3d hitDelta = hitVec.subtract(accuratePos).add(faceOffset);
 
-        final Vector3d hitVec = blockRayTraceResult.getHitVec();
-        final BlockPos blockPos = new BlockPos(hitVec);
-        final Vector3d accuratePos = new Vector3d(
-          blockPos.getX(),
-          blockPos.getY(),
-          blockPos.getZ()
-        );
-        final Vector3d faceOffset = new Vector3d(
-          blockRayTraceResult.getFace().getOpposite().getXOffset() * ChiseledBlockEntity.SIZE_PER_HALF_BIT,
-          blockRayTraceResult.getFace().getOpposite().getYOffset() * ChiseledBlockEntity.SIZE_PER_HALF_BIT,
-          blockRayTraceResult.getFace().getOpposite().getZOffset() * ChiseledBlockEntity.SIZE_PER_HALF_BIT
-        );
-        final Vector3d hitDelta = hitVec.subtract(accuratePos).add(faceOffset);
-
-        final Optional<IStateEntryInfo> potentialEntry = multiStateBlockEntity.getInAreaTarget(hitDelta);
-        if (!potentialEntry.isPresent())
-            return ItemStack.EMPTY;
-
-        final IStateEntryInfo targetedStateEntry = potentialEntry.get();
-        return IMultiStateItemFactory.getInstance().createFrom(targetedStateEntry);
+              return e.getInAreaTarget(hitDelta);
+          })
+          .map(targetedStateEntry -> IMultiStateItemFactory.getInstance().createFrom(targetedStateEntry))
+          .orElse(ItemStack.EMPTY);
     }
 
     @Override
     @OnlyIn( Dist.CLIENT )
     public boolean addDestroyEffects(final BlockState state, final World world, final BlockPos pos, final ParticleManager manager)
     {
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(world, pos);
-        return EffectUtils.addBlockDestroyEffects(
-          new SingleBlockWorldReader(
-            multiStateBlockEntity.getStatistics().getPrimaryState(),
+        return getBlockEntityFromOrThrow(world, pos)
+          .map(e -> EffectUtils.addBlockDestroyEffects(
+            new SingleBlockWorldReader(
+              e.getStatistics().getPrimaryState(),
+              pos,
+              world
+            ),
             pos,
+            e.getStatistics().getPrimaryState(),
+            manager,
             world
-          ),
-          pos,
-          multiStateBlockEntity.getStatistics().getPrimaryState(),
-          manager,
-          world
-        );
+          ))
+          .orElse(false);
     }
 
     @Override
@@ -264,13 +276,14 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
 
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) target;
 
-        final IMultiStateBlockEntity multiStateBlockEntity = getBlockEntityFromOrThrow(world, blockRayTraceResult.getPos());
-        return EffectUtils.addHitEffects(
-          world,
-          blockRayTraceResult,
-          multiStateBlockEntity.getStatistics().getPrimaryState(),
-          manager
-      );
+        return getBlockEntityFromOrThrow(world, blockRayTraceResult.getPos())
+          .map(e -> EffectUtils.addHitEffects(
+            world,
+            blockRayTraceResult,
+            e.getStatistics().getPrimaryState(),
+            manager
+          ))
+          .orElse(false);
     }
 
     @Override
@@ -279,8 +292,10 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
         for (final Direction.Axis axis : Direction.Axis.values())
         {
             if (rotation.getOrientation().isOnAxis(axis)) {
-                final IMultiStateBlockEntity blockEntityWithMultipleStates = getBlockEntityFromOrThrow(world, pos);
-                blockEntityWithMultipleStates.rotate(axis);
+                getBlockEntityFromOrThrow(world, pos)
+                  .ifPresent(e -> e.rotate(axis));
+
+                return state;
             }
         }
 
@@ -290,18 +305,21 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     @Override
     public boolean canHarvestBlock(final BlockState state, final IBlockReader world, final BlockPos pos, final PlayerEntity player)
     {
-        final IMultiStateBlockEntity blockEntityWithMultipleStates = getBlockEntityFromOrThrow(world, pos);
-        final BlockState primaryState = blockEntityWithMultipleStates.getStatistics().getPrimaryState();
+        return getBlockEntityFromOrThrow(world, pos)
+          .map(e -> {
+              final BlockState primaryState = e.getStatistics().getPrimaryState();
 
-        return primaryState.canHarvestBlock(
-          new SingleBlockBlockReader(
-            primaryState,
-            pos,
-            world
-          ),
-          pos,
-          player
-        );
+              return primaryState.canHarvestBlock(
+                new SingleBlockBlockReader(
+                  primaryState,
+                  pos,
+                  world
+                ),
+                pos,
+                player
+              );
+          })
+          .orElse(true);
     }
 
     @Override
@@ -314,17 +332,18 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     @Override
     public BlockState getPrimaryState(@NotNull final IBlockReader world, @NotNull final BlockPos pos)
     {
-        final IMultiStateBlockEntity blockEntityWithMultipleStates = getBlockEntityFromOrThrow(world, pos);
-        return blockEntityWithMultipleStates.getStatistics().getPrimaryState();
+        return getBlockEntityFromOrThrow(world, pos)
+          .map(e -> e.getStatistics().getPrimaryState())
+          .orElse(Blocks.AIR.getDefaultState());
     }
 
     @NotNull
-    private IMultiStateBlockEntity getBlockEntityFromOrThrow(final IBlockReader worldIn, final BlockPos pos)
+    private Optional<IMultiStateBlockEntity> getBlockEntityFromOrThrow(final IBlockReader worldIn, final BlockPos pos)
     {
         final TileEntity tileEntity = worldIn.getTileEntity(pos);
         if (!(tileEntity instanceof IMultiStateBlockEntity))
-            throw new IllegalArgumentException(String.format("The given position: %s does not seem to point to a multi state block!", pos));
+            return Optional.empty();
 
-        return (IMultiStateBlockEntity) tileEntity;
+        return Optional.of((IMultiStateBlockEntity) tileEntity);
     }
 }

@@ -15,12 +15,11 @@ import java.util.UUID;
 public class ChiselingManager implements IChiselingManager
 {
     private static final ChiselingManager INSTANCE = new ChiselingManager();
+    private final ThreadLocal<Table<UUID, ResourceLocation, IChiselingContext>> contexts = ThreadLocal.withInitial(HashBasedTable::create);
 
     private ChiselingManager()
     {
     }
-
-    private final Table<UUID, ResourceLocation, ChiselingContext> contexts = HashBasedTable.create();
 
     public static ChiselingManager getInstance()
     {
@@ -41,30 +40,32 @@ public class ChiselingManager implements IChiselingManager
     public IChiselingContext getOrCreateContext(
       final PlayerEntity playerEntity, final IChiselMode mode)
     {
-        final Map<ResourceLocation, ChiselingContext> currentPlayerContexts = Maps.newHashMap(contexts.row(playerEntity.getUniqueID()));
+        final Map<ResourceLocation, IChiselingContext> currentPlayerContexts = Maps.newHashMap(contexts.get().row(playerEntity.getUniqueID()));
         for (final ResourceLocation worldId : currentPlayerContexts.keySet())
         {
             if (!worldId.equals(playerEntity.getEntityWorld().getDimensionKey().getLocation()))
             {
-                contexts.remove(playerEntity.getUniqueID(), worldId);
+                contexts.get().remove(playerEntity.getUniqueID(), worldId);
             }
         }
 
-        if (contexts.contains(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation()))
+        if (contexts.get().contains(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation()))
         {
-            final ChiselingContext context = contexts.get(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation());
+            final IChiselingContext context = contexts.get().get(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation());
             if (context.getMode() == mode)
+            {
                 return context;
+            }
 
-            contexts.remove(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation());
+            contexts.get().remove(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation());
         }
 
-        final ChiselingContext newContext = new ChiselingContext(playerEntity.getEntityWorld(), mode,
-          () -> contexts.remove(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation()));
+        final ChiselingContext newContext = new ChiselingContext(playerEntity.getEntityWorld(),
+          mode,
+          () -> contexts.get().remove(playerEntity.getUniqueID(),  playerEntity.getEntityWorld().getDimensionKey().getLocation()));
 
-        contexts.put(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation(), newContext);
+        contexts.get().put(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation(), newContext);
 
         return newContext;
     }
-
 }

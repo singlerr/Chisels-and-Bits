@@ -1,0 +1,42 @@
+package mod.chiselsandbits.events;
+
+import mod.chiselsandbits.api.item.click.ClickProcessingState;
+import mod.chiselsandbits.api.item.click.IRightClickControllingItem;
+import mod.chiselsandbits.api.util.constants.Constants;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+
+@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+public class RightClickEventHandler
+{
+
+    @SubscribeEvent
+    public static void onPlayerInteractRightClickBlock(final PlayerInteractEvent.RightClickBlock event)
+    {
+        final ItemStack itemStack = event.getItemStack();
+        if (itemStack.getItem() instanceof IRightClickControllingItem) {
+            final IRightClickControllingItem rightClickControllingItem = (IRightClickControllingItem) itemStack.getItem();
+            final ClickProcessingState processingState = rightClickControllingItem.handleRightClickProcessing(
+              event.getPlayer(),
+              event.getHand(),
+              event.getPos(),
+              event.getFace(),
+              new ClickProcessingState(
+                event.isCanceled(),
+                event.getUseItem()
+              )
+            );
+
+
+            if (processingState.shouldCancel())
+            {
+                event.setCanceled(true);
+            }
+
+            event.setUseItem(processingState.getNextState());
+        }
+    }
+}

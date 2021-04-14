@@ -7,6 +7,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
 import net.minecraft.item.Item;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
@@ -32,7 +33,7 @@ public class BlockBitItemModelGenerator implements IDataProvider
     @Override
     public void act(@NotNull final DirectoryCache cache) throws IOException
     {
-        actOnItemWithEmptyGenerated(cache, ModItems.ITEM_BLOCK_BIT.get());
+        actOnBlockWithLoader(cache, new ResourceLocation(Constants.MOD_ID, "bit"), ModItems.ITEM_BLOCK_BIT.get());
     }
 
     @NotNull
@@ -42,10 +43,11 @@ public class BlockBitItemModelGenerator implements IDataProvider
         return "Chisel block item model generator";
     }
 
-    public void actOnItemWithEmptyGenerated(final DirectoryCache cache, final Item item) throws IOException
+    public void actOnBlockWithLoader(final DirectoryCache cache, final ResourceLocation loader, final Item item) throws IOException
     {
         final ItemModelJson json = new ItemModelJson();
         json.setParent("item/generated");
+        json.setLoader(loader.toString());
 
         saveItemJson(cache, json, Objects.requireNonNull(item.getRegistryName()).getPath());
     }

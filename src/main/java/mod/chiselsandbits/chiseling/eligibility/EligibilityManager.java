@@ -121,6 +121,13 @@ public class EligibilityManager implements IEligibilityManager
 
                     final boolean supportedMaterial = ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.containsKey(state.getMaterial());
 
+                    if (!supportedMaterial) {
+                        return new EligibilityAnalysisResult(
+                          false,
+                          false,
+                          TranslationUtils.build(LocalStrings.ChiselSupportGenericNotSupported));
+                    }
+
                     if (blkClass.isAnnotationPresent(IgnoreBlockLogic.class))
                     {
                         isFullBlock = true;

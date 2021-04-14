@@ -1,21 +1,20 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
-import com.google.common.cache.Cache;
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
-import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
+import mod.chiselsandbits.api.multistate.accessor.sortable.ISortableAreaAccessor;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
-import mod.chiselsandbits.client.model.baked.chiseled.face.ChiseledBlockBakedQuad;
-import mod.chiselsandbits.client.model.baked.chiseled.face.FaceManager;
-import mod.chiselsandbits.client.model.baked.chiseled.face.FaceRegion;
-import mod.chiselsandbits.client.model.baked.chiseled.face.IFaceBuilder;
-import mod.chiselsandbits.client.model.baked.chiseled.face.model.ModelQuadLayer;
+import mod.chiselsandbits.client.model.baked.face.ChiselsAndBitsBakedQuad;
+import mod.chiselsandbits.client.model.baked.face.FaceManager;
+import mod.chiselsandbits.client.model.baked.face.FaceRegion;
+import mod.chiselsandbits.client.model.baked.face.IFaceBuilder;
+import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
 import mod.chiselsandbits.utils.ModelUtil;
-import mod.chiselsandbits.utils.StateEntryComparators;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
@@ -38,7 +37,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.BITS_PER_BLOCK_SIDE;
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT;
 
 @SuppressWarnings("deprecation")
@@ -176,7 +174,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
     public ChiseledBlockBakedModel(
       final BlockState state,
       final ChiselRenderType layer,
-      final IAreaAccessor data)
+      final ISortableAreaAccessor data)
     {
         chiselRenderType = layer;
         IBakedModel originalModel = null;
@@ -219,19 +217,19 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 
     IFaceBuilder getBuilder()
     {
-        return new ChiseledBlockBakedQuad.Builder(DefaultVertexFormats.BLOCK);
+        return new ChiselsAndBitsBakedQuad.Builder(DefaultVertexFormats.BLOCK);
     }
 
     private void generateFaces(
       final ChiseledBlockModelBuilder builder,
-      final IAreaAccessor accessor)
+      final ISortableAreaAccessor accessor)
     {
         final List<List<FaceRegion>> resultingFaces = new ArrayList<>();
 
         processFaces(
           accessor,
           resultingFaces,
-          StateEntryComparators.xzySorted(),
+          IPositionMutator.xzy(),
           X_Faces,
           Vector3d::getX,
           Vector3d::getZ
@@ -239,7 +237,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
         processFaces(
           accessor,
           resultingFaces,
-          StateEntryComparators.yzxSorted(),
+          IPositionMutator.yzx(),
           Y_Faces,
           Vector3d::getY,
           Vector3d::getZ
@@ -247,7 +245,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
         processFaces(
           accessor,
           resultingFaces,
-          StateEntryComparators.zyxSorted(),
+          IPositionMutator.zyx(),
           Z_Faces,
           Vector3d::getZ,
           Vector3d::getY
@@ -273,8 +271,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                 // keep integers up until the last moment... ( note I tested
                 // snapping the floats after this stage, it made no
                 // difference. )
-                offsetVec(to, region.getMaxX(), region.getMaxY(), region.getMaxZ(), myFace, 1);
-                offsetVec(from, region.getMinX(), region.getMinY(), region.getMinZ(), myFace, -1);
+                offsetVec(to, region.getMaxX(), region.getMaxY(), region.getMaxZ());
+                offsetVec(from, region.getMinX(), region.getMinY(), region.getMinZ());
                 final ModelQuadLayer[] mpc = FaceManager.getInstance().getCachedFace(region.getBlockState(), myFace, chiselRenderType.layer);
 
                 if (mpc != null)
@@ -367,6 +365,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
         return (i & 0xff) / 255.0f;
     }
 
+    //TODO: Fix this.
     private void mergeFaces(
       final List<FaceRegion> src)
     {
@@ -404,9 +403,9 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 
 
     private void processFaces(
-      final IAreaAccessor accessor,
+      final ISortableAreaAccessor accessor,
       final List<List<FaceRegion>> resultingRegions,
-      final Comparator<IStateEntryInfo> analysisOrder,
+      final IPositionMutator analysisOrder,
       final Direction[] potentialDirections,
       final Function<Vector3d, Double> regionBuildingAxisValueExtractor,
       final Function<Vector3d, Double> faceBuildingAxisValueExtractor
@@ -418,8 +417,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
         {
             final FaceBuildingState state = new FaceBuildingState();
 
-            accessor.stream()
-              .sorted(analysisOrder)
+            accessor.streamWithPositionMutator(analysisOrder)
               .forEachOrdered(stateEntryInfo -> {
                   if (state.getRegionBuildingAxisValue() != regionBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint())) {
                       if (!regions.isEmpty()) {
@@ -445,6 +443,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                       state.setCurrentRegion(null);
                       return;
                   }
+
 
                   if (state.getCurrentRegion() != null) {
                       if (state.getCurrentRegion().extend(potentialRegionData.get())) {
@@ -493,12 +492,13 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
               );
               final Vector3d offsetTarget = stateEntryInfo.getStartPoint().add(faceOffSet);
 
-              return new FaceRegion(facing,
-                ((stateEntryInfo.getStartPoint().getX() * BITS_PER_BLOCK_SIDE) * 2 + 1 + facing.getXOffset()) / BITS_PER_BLOCK_SIDE,
-                ((stateEntryInfo.getStartPoint().getY() * BITS_PER_BLOCK_SIDE) * 2 + 1 + facing.getYOffset()) / BITS_PER_BLOCK_SIDE,
-                ((stateEntryInfo.getStartPoint().getZ() * BITS_PER_BLOCK_SIDE) * 2 + 1 + facing.getZOffset()) / BITS_PER_BLOCK_SIDE,
+              return FaceRegion.createFrom3DObjectWithFacing(
+                stateEntryInfo.getStartPoint(),
+                stateEntryInfo.getEndPoint(),
+                facing,
                 stateEntryInfo.getState(),
-                !blob.isInside(offsetTarget));
+                !blob.isInside(offsetTarget)
+              );
           });
     }
 
@@ -555,17 +555,17 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
             default:
         }
 
-        uvs[0] = 16.0f * u(quadsUV, to_u, to_v); // 0
-        uvs[1] = 16.0f * v(quadsUV, to_u, to_v); // 1
+        uvs[0] = u(quadsUV, to_u, to_v) * 16; // 0
+        uvs[1] = v(quadsUV, to_u, to_v) * 16; // 1
 
-        uvs[2] = 16.0f * u(quadsUV, from_u, to_v); // 2
-        uvs[3] = 16.0f * v(quadsUV, from_u, to_v); // 3
+        uvs[2] = u(quadsUV, from_u, to_v) * 16; // 2
+        uvs[3] = v(quadsUV, from_u, to_v) * 16; // 3
 
-        uvs[4] = 16.0f * u(quadsUV, from_u, from_v); // 2
-        uvs[5] = 16.0f * v(quadsUV, from_u, from_v); // 3
+        uvs[4] = u(quadsUV, from_u, from_v) * 16; // 2
+        uvs[5] = v(quadsUV, from_u, from_v) * 16; // 3
 
-        uvs[6] = 16.0f * u(quadsUV, to_u, from_v); // 0
-        uvs[7] = 16.0f * v(quadsUV, to_u, from_v); // 1
+        uvs[6] = u(quadsUV, to_u, from_v) * 16; // 0
+        uvs[7] = v(quadsUV, to_u, from_v) * 16; // 1
     }
 
     float u(
@@ -594,43 +594,11 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
       final double[] result,
       final double toX,
       final double toY,
-      final double toZ,
-      final Direction f,
-      final int d)
+      final double toZ)
     {
-
-        double leftX = 0;
-        final double leftY = 0;
-        double leftZ = 0;
-
-        final double upX = 0;
-        double upY = 0;
-        double upZ = 0;
-
-        switch (f)
-        {
-            case DOWN:
-            case UP:
-                leftX = 1;
-                upZ = 1;
-                break;
-            case EAST:
-            case WEST:
-                leftZ = 1;
-                upY = 1;
-                break;
-            case NORTH:
-            case SOUTH:
-                leftX = 1;
-                upY = 1;
-                break;
-            default:
-                break;
-        }
-
-        result[0] = (toX + leftX * d + upX * d) / 2;
-        result[1] = (toY + leftY * d + upY * d) / 2;
-        result[2] = (toZ + leftZ * d + upZ * d) / 2;
+        result[0] = toX;
+        result[1] = toY;
+        result[2] = toZ;
     }
 
     @NotNull

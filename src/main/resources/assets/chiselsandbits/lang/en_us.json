@@ -21,7 +21,7 @@
   "block.chiselsandbits.bit_storage": "Chiseled Bit Storage",
   "block.chiselsandbits.chisel_printer": "Chisel Station",
 
-  "item.chiselsandbits.block_bit": "Chiseled Bit",
+  "item.chiselsandbits.block_bit": "%s Bit",
   "item.chiselsandbits.bit_bag": "Chiseled Bit Bag",
   "item.chiselsandbits.bit_bag_dyed": "Chiseled Bit Bag",
   "item.chiselsandbits.wrench_wood": "Wooden Wrench",
@@ -47,6 +47,7 @@
   "item.chiselsandbits.tape_measure": "Tape Measure",
   "item.chiselsandbits.magnifying_glass": "Magnifying Glass",
 
+  "mod.chiselsandbits.chiselmode.mode": "Chisel Mode: %s",
   "mod.chiselsandbits.chiselmode.single": "Single Bit",
   "mod.chiselsandbits.chiselmode.snap2": "Grid Snapped 1/8 Size Cube",
   "mod.chiselsandbits.chiselmode.snap4": "Grid Snapped 1/4 Size Cube",

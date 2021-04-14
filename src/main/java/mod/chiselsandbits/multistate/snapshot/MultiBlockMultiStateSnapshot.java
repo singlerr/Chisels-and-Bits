@@ -5,14 +5,19 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
+import mod.chiselsandbits.api.multistate.mutator.IAreaMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import org.apache.commons.lang3.NotImplementedException;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,6 +33,11 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
         this.snapshots = snapshots;
         this.startPoint = startPoint;
         this.endPoint = endPoint;
+
+        if (!BlockPosStreamProvider.getForRange(startPoint, endPoint)
+          .allMatch(snapshots::containsKey)
+            )
+            throw new IllegalArgumentException("Not all required blockposes are part of the given range.");
     }
 
     /**
@@ -40,7 +50,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public IAreaShapeIdentifier createNewShapeIdentifier()
     {
-        return null;
+        return new Identifier(this.snapshots.values());
     }
 
     @Override
@@ -60,7 +70,9 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
     {
-        return Optional.empty();
+        final BlockPos inAreaOffset = new BlockPos(inAreaTarget);
+
+        return getInBlockTarget(inAreaOffset, inAreaTarget.subtract(Vector3d.copy(inAreaOffset)));
     }
 
     /**
@@ -73,7 +85,12 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
-        return Optional.empty();
+        final BlockPos targetPos = new BlockPos(startPoint).add(inAreaBlockPosOffset);
+
+        if (!snapshots.containsKey(targetPos))
+            throw new IllegalArgumentException("The given position is not in the current snapshot!");
+
+        return snapshots.get(targetPos).getInBlockTarget(BlockPos.ZERO, inBlockTarget);
     }
 
     /**
@@ -85,7 +102,9 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public boolean isInside(final Vector3d inAreaTarget)
     {
-        return false;
+        final BlockPos inAreaOffset = new BlockPos(inAreaTarget);
+
+        return isInside(inAreaOffset, inAreaTarget.subtract(Vector3d.copy(inAreaOffset)));
     }
 
     /**
@@ -98,7 +117,9 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
-        return false;
+        final BlockPos targetPos = new BlockPos(startPoint).add(inAreaBlockPosOffset);
+
+        return snapshots.containsKey(targetPos) && snapshots.get(targetPos).isInside(BlockPos.ZERO, inBlockTarget);
     }
 
     @Override
@@ -127,7 +148,9 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public Stream<IMutableStateEntryInfo> mutableStream()
     {
-        return null;
+        return snapshots.values()
+                 .stream()
+                 .flatMap(IAreaMutator::mutableStream);
     }
 
     @Override
@@ -177,7 +200,19 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public void clearInAreaTarget(final Vector3d inAreaTarget)
     {
+        final Vector3d workingTarget = inAreaTarget.add(this.startPoint);
 
+        final BlockPos offset = new BlockPos(workingTarget);
+        final Vector3d inBlockTarget = new Vector3d(
+          workingTarget.getX() - offset.getX(),
+          workingTarget.getY() - offset.getY(),
+          workingTarget.getZ() - offset.getZ()
+        );
+
+        this.clearInBlockTarget(
+          offset,
+          inBlockTarget
+        );
     }
 
     /**
@@ -189,7 +224,21 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
+        final Vector3d workingTarget = Vector3d.copy(inAreaBlockPosOffset).add(inBlockTarget);
+        if (workingTarget.getX() < startPoint.getX() ||
+              workingTarget.getY() < startPoint.getY() ||
+              workingTarget.getZ() < startPoint.getZ() ||
+              workingTarget.getX() > endPoint.getX() ||
+              workingTarget.getY() > endPoint.getY() ||
+              workingTarget.getZ() > endPoint.getZ()
+        )
+            throw new IllegalArgumentException("The given target is outside of the operating range of this snapshot!");
 
+        if (!snapshots.containsKey(inAreaBlockPosOffset))
+            throw new IllegalArgumentException("The given in area block pos offset is outside of the target range!");
+
+        this.snapshots.get(inAreaBlockPosOffset)
+          .clearInAreaTarget(inBlockTarget);
     }
 
     /**
@@ -201,5 +250,44 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     public IMultiStateItemStack toItemStack()
     {
         throw new NotImplementedException("Multi block snapshots can not be contained in an itemstack as of now.");
+    }
+
+    @Override
+    public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
+    {
+        return BlockPosStreamProvider.getForRange(startPoint, endPoint)
+          .map(positionMutator::mutate)
+          .map(snapshots::get)
+          .flatMap(a -> a.streamWithPositionMutator(positionMutator));
+    }
+
+    private static final class Identifier implements IAreaShapeIdentifier {
+        private final Collection<IAreaShapeIdentifier> inners;
+
+        public Identifier(final Collection<IMultiStateSnapshot> innerSnapshots)
+        {
+            this.inners = innerSnapshots.stream().map(IAreaAccessor::createNewShapeIdentifier).collect(Collectors.toList());
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (!(o instanceof Identifier))
+            {
+                return false;
+            }
+            final Identifier that = (Identifier) o;
+            return inners.equals(that.inners);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(inners);
+        }
     }
 }

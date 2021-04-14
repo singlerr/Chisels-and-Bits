@@ -30,6 +30,7 @@ public class MaterialManager
         this.registerMapping("fluid", Material.WATER);
         this.registerMapping("leaves", Material.LEAVES);
         this.registerMapping("plant", Material.PLANTS);
+        this.registerMapping("wool", Material.WOOL);
 
         this.registerRemapping(Material.SPONGE, Material.CLAY);
         this.registerRemapping(Material.ANVIL, Material.IRON);

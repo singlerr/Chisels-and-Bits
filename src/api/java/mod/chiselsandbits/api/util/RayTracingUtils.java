@@ -7,6 +7,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
 import net.minecraftforge.common.ForgeMod;
 
 /**
@@ -37,5 +38,15 @@ public class RayTracingUtils
         final double reachDistance = playerEntity.isCreative() ? reachAttributeValue : reachAttributeValue - 0.5D;
 
         return playerEntity.pick(reachDistance, 0.5f, true);
+    }
+
+    public static Vector3i getFullFacingVector(final PlayerEntity playerEntity) {
+        final Vector3d facingVector = playerEntity.getLookVec();
+
+        return new Vector3i(
+          facingVector.getX() < 0 ? -1 : 1,
+          facingVector.getY() < 0 ? -1 : 1,
+          facingVector.getZ() < 0 ? -1 : 1
+        );
     }
 }

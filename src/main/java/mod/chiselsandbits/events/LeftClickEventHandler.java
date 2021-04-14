@@ -1,7 +1,7 @@
 package mod.chiselsandbits.events;
 
-import mod.chiselsandbits.api.item.leftclick.ILeftClickControllingItem;
-import mod.chiselsandbits.api.item.leftclick.LeftClickProcessingState;
+import mod.chiselsandbits.api.item.click.ILeftClickControllingItem;
+import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,12 +19,12 @@ public class LeftClickEventHandler
         final ItemStack itemStack = event.getItemStack();
         if (itemStack.getItem() instanceof ILeftClickControllingItem) {
             final ILeftClickControllingItem leftClickControllingItem = (ILeftClickControllingItem) itemStack.getItem();
-            final LeftClickProcessingState processingState = leftClickControllingItem.handleLeftClickProcessing(
+            final ClickProcessingState processingState = leftClickControllingItem.handleLeftClickProcessing(
               event.getPlayer(),
               event.getHand(),
               event.getPos(),
               event.getFace(),
-              new LeftClickProcessingState(
+              new ClickProcessingState(
                 event.isCanceled(),
                 event.getUseItem()
               )

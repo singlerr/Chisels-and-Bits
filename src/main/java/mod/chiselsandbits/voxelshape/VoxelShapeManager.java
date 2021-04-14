@@ -44,7 +44,13 @@ public class VoxelShapeManager implements IVoxelShapeManager
     {
         try {
             return cache.get(accessor.createNewShapeIdentifier(),
-              () -> VoxelShapeCalculator.calculate(accessor));
+              () -> {
+                final VoxelShape calculatedShape = VoxelShapeCalculator.calculate(accessor);
+                if (calculatedShape.isEmpty())
+                    return VoxelShapes.fullCube();
+
+                return calculatedShape;
+            });
         }
         catch (ExecutionException e)
         {

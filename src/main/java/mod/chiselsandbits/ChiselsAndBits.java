@@ -33,8 +33,6 @@ public class ChiselsAndBits
         this.configuration = new Configuration(ModLoadingContext.get().getActiveContainer());
         IChiselsAndBitsAPI.Holder.setInstance(ChiselsAndBitsAPI.getInstance());
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FMLJavaModLoadingContext.get().getModEventBus().addListener(ChiselsAndBitsClient::onModelRegistry));
-
         ModBlocks.onModConstruction();
         ModItems.onModConstruction();
         ModTileEntityTypes.onModConstruction();
@@ -57,5 +55,4 @@ public class ChiselsAndBits
     public NetworkChannel getNetworkChannel() {
 	    return networkChannel;
     }
-
 }

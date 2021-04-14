@@ -34,6 +34,8 @@ public class ChunkSectionUtils
           nbt.getList(NbtConstants.PALETTE, Constants.NBT.TAG_COMPOUND),
           nbt.getLongArray(NbtConstants.BLOCK_STATES)
         );
+
+        chunkSection.recalculateRefCounts();
     }
 
     public static ChunkSection rotate90Degrees(final ChunkSection source, final Direction.Axis axis, final int rotationCount) {

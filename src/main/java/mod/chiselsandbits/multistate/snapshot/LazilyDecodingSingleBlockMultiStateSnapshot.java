@@ -5,12 +5,14 @@ import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
+import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.item.ChiseledBlockItem;
 import mod.chiselsandbits.item.multistate.ChiseledBlockMultiStateItemStack;
 import mod.chiselsandbits.materials.MaterialManager;
@@ -332,6 +334,21 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         }
 
         return maxState;
+    }
+
+    @Override
+    public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
+    {
+        load();
+
+        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+                 .map(positionMutator::mutate)
+                 .map(blockPos -> new StateEntry(
+                   this.lazyChunkSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+                   blockPos,
+                   this::setInAreaTarget,
+                   this::clearInAreaTarget)
+                 );
     }
 
     private static class StateEntry implements IMutableStateEntryInfo {

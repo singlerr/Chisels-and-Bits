@@ -3,12 +3,17 @@ package mod.chiselsandbits.block.entities;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
+import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntryInfo;
@@ -16,6 +21,7 @@ import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.*;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
 import mod.chiselsandbits.registrars.ModTileEntityTypes;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
@@ -57,6 +63,8 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
 
     private ChunkSection compressedSection;
     private final MutableStatistics mutableStatistics;
+
+    private final Map<UUID, IBatchMutation> batchMutations = Maps.newConcurrentMap();
 
     public ChiseledBlockEntity()
     {
@@ -172,11 +180,18 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         return MultiStateSnapshotUtils.createFromSection(this.compressedSection);
     }
 
+    @SuppressWarnings("ConstantConditions")
+    @Override
+    public void read(@Nullable final BlockState state, @NotNull final CompoundNBT nbt)
+    {
+        super.read(state, nbt);
+
+        this.deserializeNBT(nbt);
+    }
+
     @Override
     public void deserializeNBT(final CompoundNBT nbt)
     {
-        super.deserializeNBT(nbt);
-
         final CompoundNBT chiselBlockData = nbt.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
         final CompoundNBT compressedSectionData = chiselBlockData.getCompound(NbtConstants.COMPRESSED_STORAGE);
         final CompoundNBT statisticsData = chiselBlockData.getCompound(NbtConstants.STATISTICS);
@@ -189,11 +204,11 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         mutableStatistics.deserializeNBT(statisticsData);
     }
 
+    @NotNull
     @Override
-    public CompoundNBT serializeNBT()
+    public CompoundNBT write(@NotNull final CompoundNBT compound)
     {
-        final CompoundNBT nbt = super.serializeNBT();
-
+        final CompoundNBT nbt = super.write(compound);
         final CompoundNBT chiselBlockData = new CompoundNBT();
         final CompoundNBT compressedSectionData = ChunkSectionUtils.serializeNBT(this.compressedSection);
         chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
@@ -202,6 +217,13 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         nbt.put(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, chiselBlockData);
 
         return nbt;
+    }
+
+    @Override
+    public CompoundNBT serializeNBT()
+    {
+        final CompoundNBT nbt = super.serializeNBT();
+        return write(nbt);
     }
 
     @Nullable
@@ -216,11 +238,15 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     public CompoundNBT getUpdateTag()
     {
         //Special compound version which just contains the bit array!
-        final CompoundNBT updateTag = new CompoundNBT();
+        final CompoundNBT updateTag = super.getUpdateTag();
 
-        final PacketBuffer packetBuffer = PacketBufferCache.getInstance().get();
-        this.serializeInto(packetBuffer);
-        updateTag.putByteArray(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, packetBuffer.array());
+        final ByteBuf buffer = Unpooled.buffer();
+        final PacketBuffer innerPacketBuffer = new PacketBuffer(buffer);
+        this.serializeInto(innerPacketBuffer);
+        final byte[] data = buffer.array();
+        buffer.release();
+
+        updateTag.putByteArray(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, data);
 
         return updateTag;
     }
@@ -235,26 +261,23 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     public void handleUpdateTag(final BlockState state, final CompoundNBT tag)
     {
         final byte[] compressedStorageData = tag.getByteArray(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
-        final PacketBuffer packetBuffer = PacketBufferCache.getInstance().get();
-        packetBuffer.writeByteArray(compressedStorageData);
 
-        packetBuffer.resetReaderIndex();
-        packetBuffer.resetWriterIndex();
-
-        this.deserializeFrom(packetBuffer);
+        final ByteBuf buffer = Unpooled.wrappedBuffer(compressedStorageData);
+        this.deserializeFrom(new PacketBuffer(buffer));
+        buffer.release();
     }
 
     @Override
     public void serializeInto(@NotNull final PacketBuffer packetBuffer)
     {
-        compressedSection.getData().write(packetBuffer);
+        compressedSection.write(packetBuffer);
         mutableStatistics.serializeInto(packetBuffer);
     }
 
     @Override
     public void deserializeFrom(@NotNull final PacketBuffer packetBuffer)
     {
-        compressedSection.getData().read(packetBuffer);
+        compressedSection.read(packetBuffer);
         mutableStatistics.deserializeFrom(packetBuffer);
     }
 
@@ -317,6 +340,9 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         ), getPos()))
             throw new SpaceOccupiedException();
 
+        if (getWorld() == null || getWorld().isRemote())
+            return;
+
         this.compressedSection.setBlockState(
           inAreaPos.getX(),
           inAreaPos.getY(),
@@ -331,6 +357,11 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
             mutableStatistics.onBlockStateAdded(blockState, inAreaPos);
         } else if (!blockState.isAir() && !currentState.isAir()) {
             mutableStatistics.onBlockStateReplaced(currentState, blockState, inAreaPos);
+        }
+
+        if (getWorld() != null)
+        {
+            markDirty();
         }
     }
 
@@ -367,6 +398,9 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
 
         final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE));
 
+        if (getWorld() == null || getWorld().isRemote())
+            return;
+
         final BlockState currentState = this.compressedSection.getBlockState(
           inAreaPos.getX(),
           inAreaPos.getY(),
@@ -388,6 +422,11 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
             mutableStatistics.onBlockStateAdded(blockState, inAreaPos);
         } else if (!blockState.isAir() && !currentState.isAir()) {
             mutableStatistics.onBlockStateReplaced(currentState, blockState, inAreaPos);
+        }
+
+        if (getWorld() != null)
+        {
+            markDirty();
         }
     }
 
@@ -419,6 +458,9 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     @Override
     public void rotate(final Direction.Axis axis, final int rotationCount)
     {
+        if (getWorld() == null || getWorld().isRemote())
+            return;
+
         this.compressedSection = ChunkSectionUtils.rotate90Degrees(
           this.compressedSection,
           axis,
@@ -441,6 +483,9 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     @Override
     public void initializeWith(final BlockState currentState)
     {
+        if (getWorld() == null || getWorld().isRemote())
+            return;
+
         BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
           .forEach(blockPos -> this.compressedSection.setBlockState(
             blockPos.getX(),
@@ -469,6 +514,53 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
                    this::setInAreaTarget,
                    this::clearInAreaTarget)
                  );
+    }
+
+    @Override
+    public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
+    {
+        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+                 .map(positionMutator::mutate)
+                 .map(blockPos -> new StateEntry(
+                   compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+                   getWorld(),
+                   getPos(),
+                   blockPos,
+                   this::setInAreaTarget,
+                   this::clearInAreaTarget)
+                 );
+    }
+
+    /**
+     * For tile entities, ensures the chunk containing the tile entity is saved to disk later - the game won't think it hasn't changed and skip it.
+     */
+    @Override
+    public void markDirty()
+    {
+        if (getWorld() != null && !getWorld().isRemote() && this.batchMutations.isEmpty()) {
+            super.markDirty();
+
+            getWorld().notifyBlockUpdate(getPos(), Blocks.AIR.getDefaultState(), getBlockState(), Constants.BlockFlags.DEFAULT);
+
+            ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
+              new TileEntityUpdatedPacket(this),
+              getWorld().getChunkAt(getPos())
+            );
+        }
+    }
+
+    @Override
+    public IBatchMutation batch()
+    {
+        final UUID id = UUID.randomUUID();
+
+        this.batchMutations.put(id, new BatchMutationLock(() -> {
+            this.batchMutations.remove(id);
+
+            if (this.batchMutations.isEmpty())
+                markDirty();
+        }));
+        return this.batchMutations.get(id);
     }
 
     private static final class StateEntry implements IInWorldMutableStateEntryInfo {
@@ -1054,6 +1146,19 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         public int hashCode()
         {
             return Arrays.hashCode(identifyingPayload);
+        }
+    }
+
+    private static final class BatchMutationLock implements IBatchMutation {
+
+        private final Runnable closeCallback;
+
+        private BatchMutationLock(final Runnable closeCallback) {this.closeCallback = closeCallback;}
+
+        @Override
+        public void close()
+        {
+            this.closeCallback.run();
         }
     }
 }
