@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.withmode.IRenderableMode;
 import mod.chiselsandbits.api.item.withmode.IToolMode;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
@@ -316,22 +317,25 @@ public class RadialToolModeSelectionScreen<M extends IToolMode> extends Screen
 
         if (isMouseInSection)
         {
-            float startOfMouseArcAngle = mouseAngle - (itemArcAngle / 2);
-            float mouseArcAngle = itemArcAngle;
 
-            if (sectionArcAngle != 360) {
-                if (startOfMouseArcAngle < sectionStartAngle) {
-                    mouseArcAngle -= (sectionStartAngle - startOfMouseArcAngle);
-                    startOfMouseArcAngle = sectionStartAngle;
+            if (Configuration.getInstance().getClient().enableMouseIndicatorInRadialMenu.get()) {
+                float startOfMouseArcAngle = mouseAngle - (itemArcAngle / 2);
+                float mouseArcAngle = itemArcAngle;
+
+                if (sectionArcAngle != 360) {
+                    if (startOfMouseArcAngle < sectionStartAngle) {
+                        mouseArcAngle -= (sectionStartAngle - startOfMouseArcAngle);
+                        startOfMouseArcAngle = sectionStartAngle;
+                    }
+
+                    if ((startOfMouseArcAngle + mouseArcAngle) > (sectionStartAngle + sectionArcAngle)) {
+                        mouseArcAngle = (sectionStartAngle + sectionArcAngle) - startOfMouseArcAngle;
+                    }
                 }
 
-                if ((startOfMouseArcAngle + mouseArcAngle) > (sectionStartAngle + sectionArcAngle)) {
-                    mouseArcAngle = (sectionStartAngle + sectionArcAngle) - startOfMouseArcAngle;
-                }
+                RenderSystem.color4f(0.8F, 0.8F, 0.8F, 0.3F);
+                drawTorus(stack, startOfMouseArcAngle - 90, mouseArcAngle, innerRadius, outerRadius);
             }
-
-            RenderSystem.color4f(0.8F, 0.8F, 0.8F, 0.3F);
-            drawTorus(stack, startOfMouseArcAngle - 90, mouseArcAngle, innerRadius, outerRadius);
 
             if (hoveredItemIndex >= 0)
             {
@@ -413,7 +417,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode> extends Screen
 
         if (isHovered)
         {
-            RenderSystem.color4f(0.6F, 0.6F, 0.6F, 0.7F);
+            RenderSystem.color4f(0.7F, 0.7F, 0.7F, 0.7F);
             drawTorus(
               stack,
               sectionStartAngle,

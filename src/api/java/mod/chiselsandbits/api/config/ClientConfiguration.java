@@ -25,6 +25,8 @@ public class ClientConfiguration extends AbstractConfiguration
     public ForgeConfigSpec.BooleanValue useGetLightValue;
     public ForgeConfigSpec.BooleanValue disableCustomVertexFormats;
 
+    public ForgeConfigSpec.BooleanValue enableMouseIndicatorInRadialMenu;
+
     public ForgeConfigSpec.LongValue modelCacheSize;
 
     /**
@@ -57,6 +59,11 @@ public class ClientConfiguration extends AbstractConfiguration
         useGetLightValue = defineBoolean(builder, "lighting.use-value", true);
         disableCustomVertexFormats = defineBoolean(builder, "vertexformats.custom.disabled", true);
         modelCacheSize = defineLong(builder, "models.cache.size", 1000, 0, 2000);
+
+        finishCategory(builder);
+        createCategory(builder, "client.gui");
+
+        enableMouseIndicatorInRadialMenu = defineBoolean(builder, "radial-menu.mouse-indicator", false);
 
         finishCategory(builder);
 
