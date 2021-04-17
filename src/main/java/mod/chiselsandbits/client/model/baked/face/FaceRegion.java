@@ -137,10 +137,10 @@ public class FaceRegion
             case DOWN:
             case UP:
             {
-                final boolean a = maxX == faceToExtendTo.minX - 1 * SIZE_PER_BIT && maxZ == faceToExtendTo.maxZ && minZ == faceToExtendTo.minZ;
-                final boolean b = minX == faceToExtendTo.maxX + 1 * SIZE_PER_BIT && maxZ == faceToExtendTo.maxZ && minZ == faceToExtendTo.minZ;
-                final boolean c = maxZ == faceToExtendTo.minZ - 1 * SIZE_PER_BIT && maxX == faceToExtendTo.maxX && minX == faceToExtendTo.minX;
-                final boolean d = minZ == faceToExtendTo.maxZ + 1 * SIZE_PER_BIT && maxX == faceToExtendTo.maxX && minX == faceToExtendTo.minX;
+                final boolean a = maxX == faceToExtendTo.minX && maxZ == faceToExtendTo.maxZ && minZ == faceToExtendTo.minZ;
+                final boolean b = minX == faceToExtendTo.maxX && maxZ == faceToExtendTo.maxZ && minZ == faceToExtendTo.minZ;
+                final boolean c = maxZ == faceToExtendTo.minZ && maxX == faceToExtendTo.maxX && minX == faceToExtendTo.minX;
+                final boolean d = minZ == faceToExtendTo.maxZ && maxX == faceToExtendTo.maxX && minX == faceToExtendTo.minX;
 
                 if (a || b || c || d)
                 {
@@ -159,10 +159,10 @@ public class FaceRegion
             case WEST:
             case EAST:
             {
-                final boolean a = maxY == faceToExtendTo.minY - 1 * SIZE_PER_BIT && maxZ == faceToExtendTo.maxZ && minZ == faceToExtendTo.minZ;
-                final boolean b = minY == faceToExtendTo.maxY + 1 * SIZE_PER_BIT && maxZ == faceToExtendTo.maxZ && minZ == faceToExtendTo.minZ;
-                final boolean c = maxZ == faceToExtendTo.minZ - 1 * SIZE_PER_BIT && maxY == faceToExtendTo.maxY && minY == faceToExtendTo.minY;
-                final boolean d = minZ == faceToExtendTo.maxZ + 1 * SIZE_PER_BIT && maxY == faceToExtendTo.maxY && minY == faceToExtendTo.minY;
+                final boolean a = maxY == faceToExtendTo.minY && maxZ == faceToExtendTo.maxZ && minZ == faceToExtendTo.minZ;
+                final boolean b = minY == faceToExtendTo.maxY && maxZ == faceToExtendTo.maxZ && minZ == faceToExtendTo.minZ;
+                final boolean c = maxZ == faceToExtendTo.minZ && maxY == faceToExtendTo.maxY && minY == faceToExtendTo.minY;
+                final boolean d = minZ == faceToExtendTo.maxZ && maxY == faceToExtendTo.maxY && minY == faceToExtendTo.minY;
 
                 if (a || b || c || d)
                 {
@@ -181,10 +181,10 @@ public class FaceRegion
             case NORTH:
             case SOUTH:
             {
-                final boolean a = maxY == faceToExtendTo.minY - 1 * SIZE_PER_BIT && maxX == faceToExtendTo.maxX && minX == faceToExtendTo.minX;
-                final boolean b = minY == faceToExtendTo.maxY + 1 * SIZE_PER_BIT && maxX == faceToExtendTo.maxX && minX == faceToExtendTo.minX;
-                final boolean c = maxX == faceToExtendTo.minX - 1 * SIZE_PER_BIT && maxY == faceToExtendTo.maxY && minY == faceToExtendTo.minY;
-                final boolean d = minX == faceToExtendTo.maxX + 1 * SIZE_PER_BIT && maxY == faceToExtendTo.maxY && minY == faceToExtendTo.minY;
+                final boolean a = maxY == faceToExtendTo.minY && maxX == faceToExtendTo.maxX && minX == faceToExtendTo.minX;
+                final boolean b = minY == faceToExtendTo.maxY && maxX == faceToExtendTo.maxX && minX == faceToExtendTo.minX;
+                final boolean c = maxX == faceToExtendTo.minX && maxY == faceToExtendTo.maxY && minY == faceToExtendTo.minY;
+                final boolean d = minX == faceToExtendTo.maxX && maxY == faceToExtendTo.maxY && minY == faceToExtendTo.minY;
 
                 if (a || b || c || d)
                 {

@@ -128,7 +128,7 @@ public final class ModChiselModes
     public static final RegistryObject<IChiselMode> LINE_TWO = MODE_REGISTRAR.register(
       "line_2",
       () -> new LinedChiselModeBuilder()
-              .setBitsPerSide(1)
+              .setBitsPerSide(2)
               .setDisplayName(
                 TranslationUtils.build(
                   "chiselmode.line2"
@@ -141,7 +141,7 @@ public final class ModChiselModes
     public static final RegistryObject<IChiselMode> LINE_FOUR = MODE_REGISTRAR.register(
       "line_4",
       () -> new LinedChiselModeBuilder()
-              .setBitsPerSide(1)
+              .setBitsPerSide(4)
               .setDisplayName(
                 TranslationUtils.build(
                   "chiselmode.line4"
@@ -154,7 +154,7 @@ public final class ModChiselModes
     public static final RegistryObject<IChiselMode> LINE_EIGHT = MODE_REGISTRAR.register(
       "line_8",
       () -> new LinedChiselModeBuilder()
-              .setBitsPerSide(1)
+              .setBitsPerSide(8)
               .setDisplayName(
                 TranslationUtils.build(
                   "chiselmode.line8"

@@ -13,6 +13,7 @@ import mod.chiselsandbits.api.util.IWorldObject;
 import mod.chiselsandbits.multistate.snapshot.MultiBlockMultiStateSnapshot;
 import mod.chiselsandbits.utils.WorldObjectUtils;
 import net.minecraft.block.BlockState;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
@@ -63,7 +64,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator
 
         return positionStream.map(blockPos -> new ChiselAdaptingWorldMutator(getWorld(), blockPos))
                  .flatMap(ChiselAdaptingWorldMutator::inWorldStream)
-                 .filter(entry -> WorldObjectUtils.isAInsideB(this, entry) || WorldObjectUtils.isACoveringB(this, entry))
+                 .filter(entry ->  this.getBoundingBox().intersects(entry.getBoundingBox()) || entry.getBoundingBox().intersects(this.getBoundingBox()))
                  .map(IStateEntryInfo.class::cast);
     }
 
@@ -191,7 +192,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator
           getInWorldStartPoint(), getInWorldEndPoint()
         ).flatMap(blockPos -> positionBasedMutableStream(blockPos)
                                 .map(mutableEntry -> new PositionAdaptingMutableStateEntry(mutableEntry, blockPos, getWorld())))
-                 .filter(entry -> WorldObjectUtils.isAInsideB(this, entry) || WorldObjectUtils.isACoveringB(this, entry))
+                 .filter(entry ->  this.getBoundingBox().intersects(entry.getBoundingBox()) || entry.getBoundingBox().intersects(this.getBoundingBox()))
                  .map(IMutableStateEntryInfo.class::cast);
     }
 
@@ -340,7 +341,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator
         return BlockPosStreamProvider.getForRange(
           getInWorldStartPoint(), getInWorldEndPoint()
         ).flatMap(blockPos -> positionBasedInWorldMutableStream(blockPos)
-                                .filter(entry -> WorldObjectUtils.isAInsideB(this, entry) || WorldObjectUtils.isACoveringB(this, entry)));
+                                .filter(entry -> this.getBoundingBox().intersects(entry.getBoundingBox()) || entry.getBoundingBox().intersects(this.getBoundingBox())));
     }
 
     private Stream<IInWorldMutableStateEntryInfo> positionBasedInWorldMutableStream(final BlockPos position)

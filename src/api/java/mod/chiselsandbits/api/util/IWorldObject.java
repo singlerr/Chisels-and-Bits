@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.util;
 
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
 
@@ -29,4 +30,13 @@ public interface IWorldObject
      * @return The end point.
      */
     Vector3d getInWorldEndPoint();
+
+    /**
+     * Gives access to the in would axis aligned bounding box of the object.
+     *
+     * @return The axis aligned bounding box.
+     */
+    default AxisAlignedBB getBoundingBox() {
+        return new AxisAlignedBB(getInWorldStartPoint(), getInWorldEndPoint());
+    }
 }
