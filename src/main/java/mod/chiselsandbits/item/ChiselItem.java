@@ -1,6 +1,6 @@
 package mod.chiselsandbits.item;
 
-import mod.chiselsandbits.api.chiseling.IChiselMode;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
@@ -53,9 +53,16 @@ public class ChiselItem extends ToolItem implements IChiselingItem
 
     @Override
     public void addInformation(
-      @NotNull final ItemStack stack, @Nullable final World worldIn, final List<ITextComponent> tooltip, @NotNull final ITooltipFlag flagIn)
+      @NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<ITextComponent> tooltip, @NotNull final ITooltipFlag flagIn)
     {
-        tooltip.add(TranslationUtils.build("chiselmode.mode", getMode(stack).getDisplayName()));
+        final IChiselMode mode = getMode(stack);
+        if (mode.getGroup().isPresent()) {
+            tooltip.add(TranslationUtils.build("chiselmode.mode_grouped", mode.getGroup().get().getDisplayName(), mode.getDisplayName()));
+        }
+        else {
+            tooltip.add(TranslationUtils.build("chiselmode.mode", mode.getDisplayName()));
+        }
+
 
         super.addInformation(stack, worldIn, tooltip, flagIn);
     }

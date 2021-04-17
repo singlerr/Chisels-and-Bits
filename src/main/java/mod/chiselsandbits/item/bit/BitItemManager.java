@@ -19,11 +19,14 @@ public class BitItemManager implements IBitItemManager
     public static BitItemManager getInstance()
     {
         return INSTANCE;
-    }    /**
+    }
+
+    /**
      * The maximum amount of bits that fits into a single itemstack.
      *
      * @return The maximum amount of bits.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public int getMaxStackSize()
     {

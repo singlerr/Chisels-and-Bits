@@ -5,7 +5,7 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.item.withmode.IRenderableMode;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.client.screens.RadialToolMenuScreen;
+import mod.chiselsandbits.client.screens.RadialToolModeSelectionScreen;
 import mod.chiselsandbits.keys.contexts.HoldsWithToolItemInHandKeyConflictContext;
 import mod.chiselsandbits.keys.contexts.SpecificScreenOpenKeyConflictContext;
 import mod.chiselsandbits.network.packets.HeldToolModeChangedPacket;
@@ -96,7 +96,7 @@ public class KeyBindingManager
                         {
                             try {
                                 final IWithModeItem<? extends IRenderableMode> withModeItem = (IWithModeItem<? extends IRenderableMode>) inHand.getItem();
-                                mc.displayGuiScreen(RadialToolMenuScreen.create(withModeItem));
+                                mc.displayGuiScreen(RadialToolModeSelectionScreen.create(withModeItem, inHand));
                             } catch (ClassCastException ignored) {
                             }
                         }
@@ -110,8 +110,8 @@ public class KeyBindingManager
             toolMenuKeyWasDown = true;
         }
 
-        if (mc.currentScreen instanceof RadialToolMenuScreen) {
-            final RadialToolMenuScreen<?> radialToolMenuScreen = (RadialToolMenuScreen<?>) mc.currentScreen;
+        if (mc.currentScreen instanceof RadialToolModeSelectionScreen) {
+            final RadialToolModeSelectionScreen<?> radialToolMenuScreen = (RadialToolModeSelectionScreen<?>) mc.currentScreen;
 
             if (toolModeSelectionPlusCoolDown == 0 && isCycleToolMenuRightKeyPressed())
                 radialToolMenuScreen.onMoveSelectionToTheRight();

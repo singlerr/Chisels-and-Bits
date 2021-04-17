@@ -1,9 +1,11 @@
 package mod.chiselsandbits.chiseling;
 
-import mod.chiselsandbits.api.chiseling.IChiselMode;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
+import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
 
@@ -114,5 +116,29 @@ public class ChiselingContext implements IChiselingContext
     public void setComplete()
     {
         this.onCompleteCallback.run();
+    }
+
+    @Override
+    public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
+    {
+        if (getMutator().isPresent() && getMutator().map(m -> m.isInside(inAreaTarget)).orElse(false)) {
+            return getMutator().flatMap(m -> m.getInAreaTarget(inAreaTarget));
+        }
+
+        final BlockPos position = new BlockPos(inAreaTarget);
+        final Vector3d inBlockOffset = inAreaTarget.subtract(position.getX(), position.getY(), position.getZ());
+
+        return IMutatorFactory.getInstance().in(
+          getWorld(),
+          position
+        ).getInAreaTarget(
+          inBlockOffset
+        );
+    }
+
+    @Override
+    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    {
+        return getInAreaTarget(Vector3d.copy(inAreaBlockPosOffset).add(inBlockTarget));
     }
 }

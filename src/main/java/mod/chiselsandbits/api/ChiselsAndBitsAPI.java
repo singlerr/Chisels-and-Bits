@@ -3,7 +3,7 @@ package mod.chiselsandbits.api;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.change.IChangeTracker;
-import mod.chiselsandbits.api.chiseling.IChiselMode;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;

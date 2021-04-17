@@ -6,7 +6,7 @@ import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
-import mod.chiselsandbits.api.chiseling.IChiselMode;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;

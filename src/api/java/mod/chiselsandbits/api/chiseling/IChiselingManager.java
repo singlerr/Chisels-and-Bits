@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.chiseling;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import net.minecraft.entity.player.PlayerEntity;
 
 public interface IChiselingManager

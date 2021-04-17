@@ -1,5 +1,7 @@
 package mod.chiselsandbits.api.chiseling;
 
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
+import mod.chiselsandbits.api.multistate.accessor.IStateAccessor;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
@@ -10,7 +12,7 @@ import java.util.Optional;
 /**
  * The current context for the running chiseling operation.
  */
-public interface IChiselingContext
+public interface IChiselingContext extends IStateAccessor
 {
     /**
      * Returns the current {@link IWorldAreaMutator} if there is one.

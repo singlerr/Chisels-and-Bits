@@ -1,24 +1,22 @@
-package mod.chiselsandbits.chiseling;
+package mod.chiselsandbits.chiseling.modes.cubed;
 
 import com.google.common.collect.Maps;
-import mod.chiselsandbits.api.chiseling.IChiselMode;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
-import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
+import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
-import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
+import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -29,12 +27,10 @@ import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.registries.ForgeRegistryEntry;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Vector;
 import java.util.function.Function;
 
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.*;
@@ -65,7 +61,7 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
           Function.identity()
         );
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
-              try (IBatchMutation ignoredBatch =
+              try (IBatchMutation ignored =
                      mutator.batch())
               {
                   context.setComplete();
@@ -84,14 +80,12 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
                   final IBitInventory inventory = IBitInventoryManager.getInstance()
                     .create(playerEntity);
 
-                  resultingBitCount.forEach((blockState, count) -> {
-                      BitInventoryUtils.insertIntoOrSpawn(
-                        playerEntity,
-                        inventory,
-                        blockState,
-                        count
-                      );
-                  });
+                  resultingBitCount.forEach((blockState, count) -> BitInventoryUtils.insertIntoOrSpawn(
+                    playerEntity,
+                    inventory,
+                    blockState,
+                    count
+                  ));
 
               }
 
@@ -133,15 +127,13 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
                     playerBitInventory.extract(heldBlockState, missingBitCount);
                 }
 
-                try (IBatchMutation ignoredBatch =
+                try (IBatchMutation ignored =
                        mutator.batch())
                 {
                     context.setComplete();
                     mutator.inWorldMutableStream()
                       .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO))
-                      .forEach(state -> {
-                          state.overrideState(heldBlockState);
-                      }); //We can use override state here to prevent the try-catch block.
+                      .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                 }
             }
 
@@ -226,14 +218,17 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     }
 
     @Override
-    public ITextComponent getShortText()
-    {
-        return getDisplayName();
-    }
-
-    @Override
     public ITextComponent getDisplayName()
     {
         return this.displayName;
+    }
+
+    @NotNull
+    @Override
+    public Optional<IToolModeGroup> getGroup()
+    {
+        return Optional.of(
+          aligned ? ModChiselModeGroups.CUBED_ALIGNED : ModChiselModeGroups.CUBED
+        );
     }
 }

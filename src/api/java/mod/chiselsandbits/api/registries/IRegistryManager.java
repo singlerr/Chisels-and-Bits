@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.registries;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import mod.chiselsandbits.api.chiseling.IChiselMode;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import net.minecraftforge.registries.IForgeRegistry;
 
 /**

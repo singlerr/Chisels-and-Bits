@@ -1,8 +1,9 @@
 package mod.chiselsandbits.registrars;
 
-import mod.chiselsandbits.api.chiseling.IChiselMode;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.chiseling.CubedChiselModeBuilder;
+import mod.chiselsandbits.chiseling.modes.cubed.CubedChiselModeBuilder;
+import mod.chiselsandbits.chiseling.modes.line.LinedChiselModeBuilder;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.RegistryObject;
@@ -109,6 +110,58 @@ public final class ModChiselModes
               )
               .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/snap8.png"))
               .createCubedChiselMode()
+    );
+
+    public static final RegistryObject<IChiselMode> LINE_ONE = MODE_REGISTRAR.register(
+      "line_1",
+      () -> new LinedChiselModeBuilder()
+            .setBitsPerSide(1)
+            .setDisplayName(
+              TranslationUtils.build(
+                "chiselmode.line1"
+              )
+            )
+           .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/line.png"))
+           .createLinedChiselMode()
+    );
+
+    public static final RegistryObject<IChiselMode> LINE_TWO = MODE_REGISTRAR.register(
+      "line_2",
+      () -> new LinedChiselModeBuilder()
+              .setBitsPerSide(1)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.line2"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/line2.png"))
+              .createLinedChiselMode()
+    );
+
+    public static final RegistryObject<IChiselMode> LINE_FOUR = MODE_REGISTRAR.register(
+      "line_4",
+      () -> new LinedChiselModeBuilder()
+              .setBitsPerSide(1)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.line4"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/line4.png"))
+              .createLinedChiselMode()
+    );
+
+    public static final RegistryObject<IChiselMode> LINE_EIGHT = MODE_REGISTRAR.register(
+      "line_8",
+      () -> new LinedChiselModeBuilder()
+              .setBitsPerSide(1)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.line8"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/line8.png"))
+              .createLinedChiselMode()
     );
 
 

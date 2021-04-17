@@ -2,7 +2,7 @@ package mod.chiselsandbits.item.bit;
 
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import mod.chiselsandbits.api.chiseling.IChiselMode;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
@@ -40,7 +40,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class BitItem extends Item implements IChiselingItem, IBitItem
@@ -103,8 +102,13 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
     public void addInformation(
       @NotNull final ItemStack stack, @Nullable final World worldIn, final List<ITextComponent> tooltip, @NotNull final ITooltipFlag flagIn)
     {
-        tooltip.add(TranslationUtils.build("chiselmode.mode", getMode(stack).getDisplayName()));
-
+        final IChiselMode mode = getMode(stack);
+        if (mode.getGroup().isPresent()) {
+            tooltip.add(TranslationUtils.build("chiselmode.mode_grouped", mode.getGroup().get().getDisplayName(), mode.getDisplayName()));
+        }
+        else {
+            tooltip.add(TranslationUtils.build("chiselmode.mode", mode.getDisplayName()));
+        }
         super.addInformation(stack, worldIn, tooltip, flagIn);
     }
 

@@ -1,4 +1,4 @@
-package mod.chiselsandbits.chiseling;
+package mod.chiselsandbits.chiseling.modes.cubed;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.IFormattableTextComponent;

@@ -3,7 +3,7 @@ package mod.chiselsandbits.chiseling;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
-import mod.chiselsandbits.api.chiseling.IChiselMode;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import net.minecraft.entity.player.PlayerEntity;
