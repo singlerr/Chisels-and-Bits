@@ -5,16 +5,10 @@ import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.util.LanguageHandler;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.core.ChiselsAndBitsClient;
 import mod.chiselsandbits.network.NetworkChannel;
 import mod.chiselsandbits.registrars.*;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLanguageProvider;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 
 @Mod(Constants.MOD_ID)
 public class ChiselsAndBits
@@ -22,7 +16,7 @@ public class ChiselsAndBits
 	private static ChiselsAndBits     instance;
 	private final  NetworkChannel     networkChannel = new NetworkChannel(Constants.MOD_ID);
 
-	private Configuration configuration = null;
+	private final Configuration configuration;
 
 	public ChiselsAndBits()
 	{

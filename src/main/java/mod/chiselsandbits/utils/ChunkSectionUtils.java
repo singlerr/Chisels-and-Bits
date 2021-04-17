@@ -30,6 +30,9 @@ public class ChunkSectionUtils
     }
 
     public static void deserializeNBT(final ChunkSection chunkSection, final CompoundNBT nbt) {
+        if (nbt.isEmpty())
+            return;
+
         chunkSection.getData().readChunkPalette(
           nbt.getList(NbtConstants.PALETTE, Constants.NBT.TAG_COMPOUND),
           nbt.getLongArray(NbtConstants.BLOCK_STATES)

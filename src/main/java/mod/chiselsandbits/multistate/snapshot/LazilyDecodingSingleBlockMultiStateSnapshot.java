@@ -330,7 +330,10 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         for (final Map.Entry<BlockState, Integer> blockStateIntegerEntry : countMap.entrySet())
         {
             if (maxCount < blockStateIntegerEntry.getValue())
+            {
                 maxState = blockStateIntegerEntry.getKey();
+                maxCount = blockStateIntegerEntry.getValue();
+            }
         }
 
         return maxState;

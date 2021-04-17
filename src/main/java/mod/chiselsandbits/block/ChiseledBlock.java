@@ -192,12 +192,12 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     @Override
     public void harvestBlock(@NotNull final World worldIn, @NotNull final PlayerEntity player, @NotNull final BlockPos pos, @NotNull final BlockState state, @Nullable final TileEntity te, @NotNull final ItemStack stack)
     {
-        getBlockEntityFromOrThrow(worldIn, pos)
-          .ifPresent(multiStateBlockEntity -> {
-              final IMultiStateSnapshot snapshot = multiStateBlockEntity.createSnapshot();
+        if (te instanceof IMultiStateBlockEntity) {
+            final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) te;
 
-              spawnAsEntity(worldIn, pos, snapshot.toItemStack().toItemStack());
-          });
+            final IMultiStateSnapshot snapshot = multiStateBlockEntity.createSnapshot();
+            spawnAsEntity(worldIn, pos, snapshot.toItemStack().toItemStack());
+        }
     }
 
     @Override

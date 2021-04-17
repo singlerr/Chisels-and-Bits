@@ -63,6 +63,8 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
         this.compressedSection = compressedSection;
 
         this.statistics.initializeFrom(this.compressedSection);
+
+        this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
     }
 
     /**
