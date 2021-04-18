@@ -59,16 +59,9 @@ public class ChiseledBlockBakedModelManager
     }
 
     public Optional<ChiseledBlockBakedModel> get(
-      final ItemStack itemStack,
+      final IMultiStateItemStack multiStateItemStack,
       final ChiselRenderType renderType
     ) {
-        final Item item = itemStack.getItem();
-        if (!(item instanceof IMultiStateItem))
-            return Optional.empty();
-
-        final IMultiStateItem multiStateItem = (IMultiStateItem) item;
-        final IMultiStateItemStack multiStateItemStack = multiStateItem.createItemStack(itemStack);
-
         return Optional.of(
           get(
             multiStateItemStack,

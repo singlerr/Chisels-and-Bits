@@ -1,6 +1,8 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.client.model.baked.base.BaseSmartModel;
 import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
@@ -8,6 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -131,12 +134,19 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
     public IBakedModel func_239290_a_(
       final IBakedModel originalModel, final ItemStack stack, final World world, final LivingEntity entity)
     {
+        final Item item = stack.getItem();
+        if (!(item instanceof IMultiStateItem))
+            return NullBakedModel.instance;
+
+        final IMultiStateItem multiStateItem = (IMultiStateItem) item;
+        final IMultiStateItemStack multiStateItemStack = multiStateItem.createItemStack(stack);
+
         final IBakedModel[] typedModels = Arrays.stream(VoxelType.values())
           .map(ChiselRenderType::getRenderTypes)
           .filter(types -> !types.isEmpty())
           .map(types -> {
               final IBakedModel[] models = types.stream()
-                       .map(type ->  ChiseledBlockBakedModelManager.getInstance().get(stack, type))
+                       .map(type ->  ChiseledBlockBakedModelManager.getInstance().get(multiStateItemStack, type))
                        .filter(Optional::isPresent)
                        .map(Optional::get)
                        .filter(model -> !model.isEmpty())

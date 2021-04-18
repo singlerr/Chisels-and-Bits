@@ -391,11 +391,12 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
 
         final CompoundNBT chiselBlockData = new CompoundNBT();
         final CompoundNBT compressedSectionData = ChunkSectionUtils.serializeNBT(this.compressedSection);
-        chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
         final CompoundNBT statisticsData = this.statistics.serializeNBT();
 
+        chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
+        chiselBlockData.put(NbtConstants.STATISTICS, statisticsData);
+
         nbt.put(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, chiselBlockData);
-        nbt.put(NbtConstants.STATISTICS, statisticsData);
 
         return nbt;
     }
