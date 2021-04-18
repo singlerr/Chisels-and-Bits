@@ -32,4 +32,17 @@ public interface ILeftClickControllingItem
       final Direction face,
       final ClickProcessingState currentState
     );
+
+    /**
+     * Indicates if the player can use the item in the current interaction.
+     * If this returns false, then no processing is performed and the interaction
+     * event is cancelled.
+     *
+     * @param playerEntity The player in question.
+     *
+     * @return True when useable, false when not.
+     */
+    default boolean canUse(final PlayerEntity playerEntity) {
+        return true;
+    }
 }

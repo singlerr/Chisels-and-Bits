@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -19,6 +20,13 @@ public class RightClickEventHandler
         final ItemStack itemStack = event.getItemStack();
         if (itemStack.getItem() instanceof IRightClickControllingItem) {
             final IRightClickControllingItem rightClickControllingItem = (IRightClickControllingItem) itemStack.getItem();
+
+            if (!rightClickControllingItem.canUse(event.getPlayer())) {
+                event.setCanceled(true);
+                event.setUseItem(Event.Result.DENY);
+                return;
+            }
+
             final ClickProcessingState processingState = rightClickControllingItem.handleRightClickProcessing(
               event.getPlayer(),
               event.getHand(),

@@ -4,9 +4,6 @@ import mod.chiselsandbits.registrars.ModBlocks;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraftforge.fml.RegistryObject;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-
-import java.util.function.Predicate;
 
 public final class ModRenderLayers
 {

@@ -84,4 +84,11 @@ public interface IChiselingContext extends IStateAccessor
      * Indicates that an action has been performed using this context, making it invalid.
      */
     void setComplete();
+
+    /**
+     * Indicates if the context is completed or not.
+     *
+     * @return True when complete.
+     */
+    boolean isComplete();
 }

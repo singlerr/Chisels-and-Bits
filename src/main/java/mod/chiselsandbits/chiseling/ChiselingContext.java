@@ -18,6 +18,8 @@ public class ChiselingContext implements IChiselingContext
 
     private final Runnable onCompleteCallback;
 
+    private boolean complete = false;
+
     private IWorldAreaMutator mutator = null;
 
     public ChiselingContext(final IWorld world, final IChiselMode chiselMode, final Runnable onCompleteCallback) {
@@ -115,7 +117,19 @@ public class ChiselingContext implements IChiselingContext
     @Override
     public void setComplete()
     {
+        this.complete = true;
         this.onCompleteCallback.run();
+    }
+
+    /**
+     * Indicates if the context is completed or not.
+     *
+     * @return True when complete.
+     */
+    @Override
+    public boolean isComplete()
+    {
+        return complete;
     }
 
     @Override

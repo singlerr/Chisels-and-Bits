@@ -10,7 +10,9 @@ import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
+import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -60,6 +62,12 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
         return handleClickProcessing(
           playerEntity, hand, currentState, IChiselMode::onLeftClickBy
         );
+    }
+
+    @Override
+    public boolean canUse(final PlayerEntity playerEntity)
+    {
+        return ChiselingManager.getInstance().canChisel(playerEntity);
     }
 
     @NotNull
@@ -149,7 +157,14 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
           chiselMode
         );
 
-        return callback.run(chiselMode, playerEntity, context);
+
+        final ClickProcessingState resultState = callback.run(chiselMode, playerEntity, context);
+
+        if (context.isComplete()) {
+            playerEntity.getCooldownTracker().setCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
+        }
+
+        return resultState;
     }
 
     @Override

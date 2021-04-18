@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -19,6 +20,13 @@ public class LeftClickEventHandler
         final ItemStack itemStack = event.getItemStack();
         if (itemStack.getItem() instanceof ILeftClickControllingItem) {
             final ILeftClickControllingItem leftClickControllingItem = (ILeftClickControllingItem) itemStack.getItem();
+
+            if (!leftClickControllingItem.canUse(event.getPlayer())) {
+                event.setCanceled(true);
+                event.setUseItem(Event.Result.DENY);
+                return;
+            }
+
             final ClickProcessingState processingState = leftClickControllingItem.handleLeftClickProcessing(
               event.getPlayer(),
               event.getHand(),
@@ -29,7 +37,6 @@ public class LeftClickEventHandler
                 event.getUseItem()
               )
             );
-
 
             if (processingState.shouldCancel())
             {

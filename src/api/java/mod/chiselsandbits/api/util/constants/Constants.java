@@ -37,4 +37,6 @@ public final class Constants
         public static final ResourceLocation CHISELED_BLOCK_MODEL = new ResourceLocation( Constants.MOD_ID, "block/chiseled" );
         public static final ResourceLocation CHISEL_PRINTER_MODEL = new ResourceLocation( Constants.MOD_ID, "block/chisel_printer" );
     }
+
+    public static final int TICKS_BETWEEN_CHISEL_USAGE = 3;
 }

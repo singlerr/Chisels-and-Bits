@@ -5,7 +5,9 @@ import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
+import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.client.util.ITooltipFlag;
@@ -126,9 +128,21 @@ public class ChiselItem extends ToolItem implements IChiselingItem
           chiselMode
         );
 
-        return chiselMode.onLeftClickBy(
+        final ClickProcessingState resultState = chiselMode.onLeftClickBy(
           playerEntity,
           context
         );
+
+        if (context.isComplete()) {
+            playerEntity.getCooldownTracker().setCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
+        }
+
+        return resultState;
+    }
+
+    @Override
+    public boolean canUse(final PlayerEntity playerEntity)
+    {
+        return ChiselingManager.getInstance().canChisel(playerEntity);
     }
 }
