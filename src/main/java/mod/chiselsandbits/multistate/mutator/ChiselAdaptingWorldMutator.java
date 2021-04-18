@@ -20,6 +20,7 @@ import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
@@ -36,7 +37,8 @@ import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT
 
 public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
 {
-    private final IWorld   world;
+    public static final BlockState DEFAULT_STATE = Blocks.STONE.getDefaultState();
+    private final IWorld world;
     private final BlockPos pos;
 
     public ChiselAdaptingWorldMutator(final IWorld world, final BlockPos pos)
@@ -283,14 +285,14 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             return;
         }
 
+        final BlockState currentState = getWorld().getBlockState(getPos());
         //TODO: On 1.17 update: Replace with normal isAir()
-        if (!blockState.isAir(getWorld(), getPos()))
+        if (!currentState.isAir(getWorld(), getPos()))
         {
             throw new SpaceOccupiedException();
         }
 
-        final BlockState currentState = getWorld().getBlockState(getPos());
-        final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(currentState);
+        final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(blockState);
         if (optionalWithConvertedBlock.isPresent())
         {
             final Block convertedBlock = optionalWithConvertedBlock.get();
@@ -450,13 +452,15 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             return ((IMultiStateBlockEntity) tileEntity).batch();
         }
 
-        final BlockState currentState = getWorld().getBlockState(getPos());
+        BlockState currentState = getWorld().getBlockState(getPos());
+        BlockState initializationState = currentState;
         //TODO: On 1.17 update: Replace with normal isAir()
         if (currentState.isAir(getWorld(), getPos()))
         {
-            return () -> {
-                //Noop
-            };
+            //This happens when placing into an empty blockspace.
+            //We will assume a simple rock as the base material. The TE will fix itself after the placement.
+            currentState = DEFAULT_STATE;
+            initializationState = Blocks.AIR.getDefaultState();
         }
 
         final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(currentState);
@@ -472,7 +476,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             final TileEntity convertedTileEntity = getWorld().getTileEntity(getPos());
             if (convertedTileEntity instanceof IMultiStateBlockEntity)
             {
-                ((IMultiStateBlockEntity) convertedTileEntity).initializeWith(currentState);
+                ((IMultiStateBlockEntity) convertedTileEntity).initializeWith(initializationState);
                 return ((IMultiStateBlockEntity) convertedTileEntity).batch();
             }
 

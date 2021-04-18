@@ -8,6 +8,7 @@ import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
@@ -21,10 +22,13 @@ import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.*;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.block.ChiseledBlock;
 import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
+import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModTileEntityTypes;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
@@ -39,6 +43,7 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.util.palette.PalettedContainer;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.chunk.ChunkSection;
@@ -48,6 +53,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -538,6 +544,8 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     public void markDirty()
     {
         if (getWorld() != null && !getWorld().isRemote() && this.batchMutations.isEmpty()) {
+            mutableStatistics.recalculate(this.compressedSection);
+
             super.markDirty();
 
             getWorld().notifyBlockUpdate(getPos(), Blocks.AIR.getDefaultState(), getBlockState(), Constants.BlockFlags.DEFAULT);
@@ -661,7 +669,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
 
     private static final class MutableStatistics implements IMultiStateObjectStatistics, INBTSerializable<CompoundNBT>, IPacketBufferSerializable {
 
-        private final Supplier<IWorldReader> worldReaderSupplier;
+        private final Supplier<IWorld> worldReaderSupplier;
         private final Supplier<BlockPos> positionSupplier;
 
         private BlockState primaryState = Blocks.AIR.getDefaultState();
@@ -674,7 +682,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         private float totalUpperSurfaceSlipperiness = 0f;
         private int totalLightLevel = 0;
 
-        private MutableStatistics(final Supplier<IWorldReader> worldReaderSupplier, final Supplier<BlockPos> positionSupplier) {this.worldReaderSupplier = worldReaderSupplier;
+        private MutableStatistics(final Supplier<IWorld> worldReaderSupplier, final Supplier<BlockPos> positionSupplier) {this.worldReaderSupplier = worldReaderSupplier;
             this.positionSupplier = positionSupplier;
         }
 
@@ -715,7 +723,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         @Override
         public float getRelativeBlockHardness(final PlayerEntity player)
         {
-            return (float) (this.countMap.entrySet().stream()
+            final double totalRelativeHardness = (this.countMap.entrySet().stream()
                           .mapToDouble(entry -> (double) entry.getKey().getPlayerRelativeBlockHardness(
                             player,
                             new SingleBlockWorldReader(
@@ -725,7 +733,13 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
                             ),
                             this.positionSupplier.get()
                           ) * entry.getValue())
-                          .sum() / this.totalUsedBlockCount);
+                          .filter(Double::isFinite)
+                          .sum());
+
+            if (totalRelativeHardness == 0 || Double.isNaN(totalRelativeHardness) || Double.isInfinite(totalRelativeHardness))
+                return 0;
+
+            return (float) (totalRelativeHardness / totalUsedBlockCount);
         }
 
         @Override
@@ -797,10 +811,18 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
               this.positionSupplier.get()
             );
 
-            this.columnBlockedMap.put(
-              new Vector2i(pos.getX(), pos.getZ()),
-              pos.getY()
-            );
+            if (!blockState.propagatesSkylightDown(new SingleBlockWorldReader(
+                blockState,
+                this.positionSupplier.get(),
+                this.worldReaderSupplier.get()
+              ),
+              this.positionSupplier.get()))
+            {
+                this.columnBlockedMap.put(
+                  new Vector2i(pos.getX(), pos.getZ()),
+                  pos.getY()
+                );
+            }
         }
 
         private void onBlockStateRemoved(final BlockState blockState, final BlockPos pos) {
@@ -841,11 +863,6 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
                 this.worldReaderSupplier.get()
               ),
               this.positionSupplier.get()
-            );
-
-            this.columnBlockedMap.remove(
-              new Vector2i(pos.getX(), pos.getZ()),
-              pos.getY()
             );
 
             this.columnBlockedMap.remove(
@@ -924,6 +941,36 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
               ),
               this.positionSupplier.get()
             );
+
+            if (currentState.propagatesSkylightDown(
+              new SingleBlockWorldReader(
+                newState,
+                this.positionSupplier.get(),
+                this.worldReaderSupplier.get()
+              ),
+              this.positionSupplier.get()
+            )) {
+                if (!newState.propagatesSkylightDown(
+                  new SingleBlockWorldReader(
+                    newState,
+                    this.positionSupplier.get(),
+                    this.worldReaderSupplier.get()
+                  ),
+                  this.positionSupplier.get()
+                )) {
+                    this.columnBlockedMap.remove(new Vector2i(pos.getX(), pos.getZ()), pos.getY());
+                }
+            }
+            else if (newState.propagatesSkylightDown(
+              new SingleBlockWorldReader(
+                newState,
+                this.positionSupplier.get(),
+                this.worldReaderSupplier.get()
+              ),
+              this.positionSupplier.get()
+            )) {
+                this.columnBlockedMap.put(new Vector2i(pos.getX(), pos.getZ()), pos.getY());
+            }
         }
 
         private void updatePrimaryState() {
@@ -1113,6 +1160,81 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
 
             BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
               .forEach(pos -> columnBlockedMap.put(new Vector2i(pos.getX(), pos.getZ()), pos.getY()));
+        }
+
+        private void recalculate(final ChunkSection source) {
+            final BlockState currentPrimaryState = primaryState;
+
+            clear();
+
+            source.getData().count(countMap::put);
+            updatePrimaryState();
+
+            this.totalUsedBlockCount = countMap.values().stream().mapToInt(i -> i).sum();
+
+            countMap.forEach((blockState, count) -> {
+                if (blockState.shouldCheckWeakPower(
+                  new SingleBlockWorldReader(
+                    blockState,
+                    this.positionSupplier.get(),
+                    this.worldReaderSupplier.get()
+                  ),
+                  this.positionSupplier.get(),
+                  Direction.NORTH
+                )) {
+                    this.totalUsedChecksWeakPowerCount += count;
+                }
+
+                this.totalLightLevel += (blockState.getLightValue(
+                  new SingleBlockWorldReader(
+                    blockState,
+                    this.positionSupplier.get(),
+                    this.worldReaderSupplier.get()
+                  ),
+                  this.positionSupplier.get()
+                ) * count);
+            });
+
+            BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+              .forEach(pos -> {
+                  final BlockState blockState = source.getBlockState(pos.getX(), pos.getY(), pos.getZ());
+                  if (pos.getY() == 15) {
+                      this.totalUpperSurfaceSlipperiness += (blockState.getSlipperiness(
+                        new SingleBlockWorldReader(
+                          blockState,
+                          this.positionSupplier.get(),
+                          this.worldReaderSupplier.get()
+                        ),
+                        this.positionSupplier.get(),
+                        null
+                      ));
+                  }
+
+                  if (!blockState.propagatesSkylightDown(
+                    new SingleBlockWorldReader(
+                      blockState,
+                      this.positionSupplier.get(),
+                      this.worldReaderSupplier.get()
+                    ),
+                    this.positionSupplier.get()
+                  ))
+                  {
+                      columnBlockedMap.put(new Vector2i(pos.getX(), pos.getZ()), pos.getY());
+                  }
+              });
+
+            if (this.primaryState != currentPrimaryState) {
+                final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(this.primaryState);
+                if (optionalWithConvertedBlock.isPresent())
+                {
+                    final Block convertedBlock = optionalWithConvertedBlock.get();
+                    this.worldReaderSupplier.get().setBlockState(
+                      this.positionSupplier.get(),
+                      convertedBlock.getDefaultState(),
+                      Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.UPDATE_NEIGHBORS
+                    );
+                }
+            }
         }
     }
 

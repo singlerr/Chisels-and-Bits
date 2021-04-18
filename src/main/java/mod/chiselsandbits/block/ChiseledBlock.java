@@ -156,7 +156,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     public boolean propagatesSkylightDown(@NotNull final BlockState state, @NotNull final IBlockReader reader, @NotNull final BlockPos pos)
     {
         return getBlockEntityFromOrThrow(reader, pos)
-          .map(multiStateBlockEntity -> !multiStateBlockEntity.getStatistics().isFullBlock())
+          .map(multiStateBlockEntity -> !multiStateBlockEntity.getStatistics().canPropagateSkylight())
           .orElse(false);
     }
 

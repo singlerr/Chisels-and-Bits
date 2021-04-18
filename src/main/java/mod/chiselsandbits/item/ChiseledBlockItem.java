@@ -6,6 +6,8 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IAreaMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
+import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
+import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.item.multistate.ChiseledBlockMultiStateItemStack;
 import net.minecraft.block.Block;
@@ -41,7 +43,7 @@ public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
     public ActionResultType tryPlace(@NotNull final BlockItemUseContext context)
     {
         final IAreaAccessor source = this.createItemStack(context.getItem());
-        final IAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getWorld(), context.getPos());
+        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getWorld(), context.getPos());
         final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();
 
         final boolean noCollisions = source.stream().sequential()
@@ -62,20 +64,22 @@ public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
                 });
 
         if (noCollisions) {
-            source.stream().sequential().forEach(
-              stateEntryInfo -> {
-                  try
-                  {
-                      attemptTarget.setInAreaTarget(
-                        stateEntryInfo.getState(),
-                        stateEntryInfo.getStartPoint()
-                      );
+            try (IBatchMutation ignored = areaMutator.batch()) {
+                source.stream().sequential().forEach(
+                  stateEntryInfo -> {
+                      try
+                      {
+                          areaMutator.setInAreaTarget(
+                            stateEntryInfo.getState(),
+                            stateEntryInfo.getStartPoint()
+                          );
+                      }
+                      catch (SpaceOccupiedException ignored1)
+                      {
+                      }
                   }
-                  catch (SpaceOccupiedException ignored)
-                  {
-                  }
-              }
-            );
+                );
+            }
 
             return ActionResultType.SUCCESS;
         }
