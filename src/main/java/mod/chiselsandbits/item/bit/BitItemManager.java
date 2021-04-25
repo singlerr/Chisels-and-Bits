@@ -56,6 +56,7 @@ public class BitItemManager implements IBitItemManager
         final ItemStack resultStack = new ItemStack(ModItems.ITEM_BLOCK_BIT.get());
 
         resultStack.getOrCreateTag().put(NbtConstants.BLOCK_STATE, NBTUtil.writeBlockState(blockState));
+        resultStack.setCount(count);
 
         return resultStack;
     }

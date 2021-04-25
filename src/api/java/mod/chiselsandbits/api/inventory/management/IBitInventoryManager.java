@@ -26,9 +26,7 @@ public interface IBitInventoryManager
      * @param playerEntity The player inventory.
      * @return The bit inventory which represents the players inventory.
      */
-    default IBitInventory create(final PlayerEntity playerEntity) {
-        return this.create(playerEntity.inventory);
-    }
+    IBitInventory create(final PlayerEntity playerEntity);
 
     /**
      * Creates a new bit inventory wrapping the given {@link IItemHandler}.

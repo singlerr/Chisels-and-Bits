@@ -7,6 +7,8 @@ import mod.chiselsandbits.inventory.bit.IInventoryBitInventory;
 import mod.chiselsandbits.inventory.bit.IItemHandlerBitInventory;
 import mod.chiselsandbits.inventory.bit.IModifiableItemHandlerBitInventory;
 import mod.chiselsandbits.inventory.bit.IllegalBitInventory;
+import mod.chiselsandbits.inventory.player.PlayerMainAndOffhandInventoryWrapper;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
@@ -25,14 +27,12 @@ public class BitInventoryManager implements IBitInventoryManager
         return INSTANCE;
     }
 
-    /**
-     * Creates a new bit inventory wrapping the given {@link IItemHandler}.
-     * <p>
-     * This inventory is aware of items which themselves can act as a bit inventory.
-     *
-     * @param itemHandler The {@link IItemHandler}.
-     * @return The bit inventory which represents the inventory.
-     */
+    @Override
+    public IBitInventory create(final PlayerEntity playerEntity)
+    {
+        return this.create(new PlayerMainAndOffhandInventoryWrapper(playerEntity.inventory));
+    }
+
     @Override
     public IBitInventory create(final IItemHandler itemHandler)
     {
@@ -42,26 +42,12 @@ public class BitInventoryManager implements IBitInventoryManager
         return new IItemHandlerBitInventory(itemHandler);
     }
 
-    /**
-     * Creates a new bit inventory wrapping the given inventory.
-     * <p>
-     * This inventory is aware of items which themselves can act as a bit inventory.
-     *
-     * @param inventory The inventory.
-     * @return The bit inventory which represents the inventory.
-     */
     @Override
     public IBitInventory create(final IInventory inventory)
     {
         return new IInventoryBitInventory(inventory);
     }
 
-    /**
-     * Creates a new bit inventory wrapping the given itemstack.
-     *
-     * @param stack The itemstack to wrap.
-     * @return The bit inventory which represents the inventory.
-     */
     @Override
     public IBitInventory create(final ItemStack stack)
     {
