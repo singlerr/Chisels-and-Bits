@@ -229,7 +229,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
         return getBlockEntityFromOrThrow(world, pos)
           .flatMap(e -> {
               final Vector3d hitVec = blockRayTraceResult.getHitVec();
-              final BlockPos blockPos = new BlockPos(hitVec);
+              final BlockPos blockPos = blockRayTraceResult.getPos();
               final Vector3d accuratePos = new Vector3d(
                 blockPos.getX(),
                 blockPos.getY(),

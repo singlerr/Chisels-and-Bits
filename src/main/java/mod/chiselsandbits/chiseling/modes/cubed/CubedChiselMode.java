@@ -64,12 +64,11 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         if (context.isSimulation())
             return ClickProcessingState.DEFAULT;
 
+        context.setComplete();
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
               try (IBatchMutation ignored =
                      mutator.batch())
               {
-                  context.setComplete();
-
                   final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
 
                   mutator.inWorldMutableStream()
@@ -129,6 +128,7 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
 
             final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
 
+            context.setComplete();
             if (playerBitInventory.canExtract(heldBlockState, missingBitCount) || playerEntity.isCreative()) {
                 if (!playerEntity.isCreative())
                 {
@@ -138,7 +138,6 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
                 try (IBatchMutation ignored =
                        mutator.batch())
                 {
-                    context.setComplete();
                     mutator.inWorldMutableStream()
                       .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO))
                       .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
