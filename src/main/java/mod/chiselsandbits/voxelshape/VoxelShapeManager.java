@@ -4,15 +4,18 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
+import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 public class VoxelShapeManager implements IVoxelShapeManager
 {
@@ -20,7 +23,7 @@ public class VoxelShapeManager implements IVoxelShapeManager
 
     private static final VoxelShapeManager INSTANCE = new VoxelShapeManager();
 
-    private static final Cache<IAreaShapeIdentifier, VoxelShape> cache = CacheBuilder.newBuilder()
+    private static final Cache<Key, VoxelShape> cache = CacheBuilder.newBuilder()
                                                                            .expireAfterAccess(1, TimeUnit.MINUTES)
                                                                            .build();
 
@@ -33,19 +36,18 @@ public class VoxelShapeManager implements IVoxelShapeManager
         return INSTANCE;
     }
 
-    /**
-     * Returns the shape of the multistate entries which are contained in the given area accessor.
-     *
-     * @param accessor The accessor to get the shape of.
-     * @return The shape of the accessor.
-     */
     @Override
-    public VoxelShape get(final IAreaAccessor accessor)
+    public VoxelShape get(final IAreaAccessor accessor, final Predicate<IStateEntryInfo> selectablePredicate)
     {
         try {
-            return cache.get(accessor.createNewShapeIdentifier(),
+            final Key cacheKey = new Key(
+              accessor.createNewShapeIdentifier(),
+              selectablePredicate
+            );
+
+            return cache.get(cacheKey,
               () -> {
-                final VoxelShape calculatedShape = VoxelShapeCalculator.calculate(accessor);
+                final VoxelShape calculatedShape = VoxelShapeCalculator.calculate(accessor, selectablePredicate);
                 if (calculatedShape.isEmpty())
                     return VoxelShapes.fullCube();
 
@@ -59,15 +61,47 @@ public class VoxelShapeManager implements IVoxelShapeManager
         }
     }
 
-    /**
-     * Returns the shape that is referenced by a given area shape identifier. If no shape with the given identifier is known then an empty optional is returned.
-     *
-     * @param identifier The identifier to get the voxel shape for.
-     * @return The optional, optionally containing the voxel shape.
-     */
     @Override
-    public Optional<VoxelShape> getCached(final IAreaShapeIdentifier identifier)
+    public Optional<VoxelShape> getCached(
+      final IAreaShapeIdentifier identifier,
+      final Predicate<IStateEntryInfo> selectablePredicate)
     {
-        return Optional.ofNullable(cache.getIfPresent(identifier));
+        final Key key = new Key(
+          identifier,
+          selectablePredicate
+        );
+
+        return Optional.ofNullable(cache.getIfPresent(key));
+    }
+
+    private static final class Key {
+        private final IAreaShapeIdentifier identifier;
+        private final Predicate<IStateEntryInfo> predicate;
+
+        private Key(final IAreaShapeIdentifier identifier, final Predicate<IStateEntryInfo> predicate) {
+            this.identifier = identifier;
+            this.predicate = predicate;
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (!(o instanceof Key))
+            {
+                return false;
+            }
+            final Key key = (Key) o;
+            return Objects.equals(identifier, key.identifier) && Objects.equals(predicate, key.predicate);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(identifier, predicate);
+        }
     }
 }

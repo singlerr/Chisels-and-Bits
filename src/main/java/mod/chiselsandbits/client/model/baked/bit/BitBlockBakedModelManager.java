@@ -4,7 +4,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
-import mod.chiselsandbits.events.TickHandler;
+import mod.chiselsandbits.client.events.TickHandler;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;

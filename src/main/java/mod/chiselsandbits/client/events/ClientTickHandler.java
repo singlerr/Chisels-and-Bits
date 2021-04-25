@@ -1,4 +1,4 @@
-package mod.chiselsandbits.events;
+package mod.chiselsandbits.client.events;
 
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.item.MagnifyingGlassItem;

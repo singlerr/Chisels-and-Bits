@@ -54,4 +54,13 @@ public interface IAreaAccessor extends IStateAccessor
      * @return The snapshot.
      */
     IMultiStateSnapshot createSnapshot();
+
+    /**
+     * The origin of the area.
+     *
+     * @return The areas origin.
+     */
+    default BlockPos getAreaOrigin() {
+        return BlockPos.ZERO;
+    }
 }

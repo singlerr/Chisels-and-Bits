@@ -1,6 +1,8 @@
+import java.util.stream.Collectors
+
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven { url = 'https://ldtteam.jfrog.io/ldtteam/modding/' }
         jcenter()
         mavenCentral()
     }
@@ -22,6 +24,23 @@ repositories {
         name = "CurseForge"
         url = "https://cursemaven.com/"
     }
+}
+
+final Collection<String> customRepositories = repositories.stream().map({it -> it.name}).collect(Collectors.toList());
+
+repositories.all {
+    if (customRepositories.contains(it.name))
+        return;
+
+    if (it.name.startsWith("BUNDELED"))
+        return;
+
+    repositories.remove(it)
+}
+
+
+afterEvaluate {
+    repositories.removeIf({r -> r.name != 'LDTTeam - Modding' && r.name != 'CurseForge'})
 }
 
 apply plugin: 'net.minecraftforge.gradle'

@@ -60,6 +60,10 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
           face -> Vector3d.copy(face.getOpposite().getDirectionVec()),
           Function.identity()
         );
+
+        if (context.isSimulation())
+            return ClickProcessingState.DEFAULT;
+
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
               try (IBatchMutation ignored =
                      mutator.batch())
@@ -110,6 +114,10 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
           face -> Vector3d.copy(face.getDirectionVec()),
           facingVector -> aligned ? facingVector : facingVector.mul(1,-1, 1)
         );
+
+        if (context.isSimulation())
+            return ClickProcessingState.DEFAULT;
+
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
             final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
             if (heldBlockState.isAir(new SingleBlockBlockReader(heldBlockState), BlockPos.ZERO))

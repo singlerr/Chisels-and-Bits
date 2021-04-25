@@ -70,7 +70,9 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
                     models[o++] = ChiseledBlockBakedModelManager.getInstance().get(
                       ((IMultiStateBlockEntity) tileEntity),
                       ((IMultiStateBlockEntity) tileEntity).getStatistics().getPrimaryState(),
-                      chiselRenderType
+                      chiselRenderType,
+                      world,
+                      pos
                     );
                 }
 
@@ -95,14 +97,18 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
               ChiseledBlockBakedModelManager.getInstance().get(
                 ((IMultiStateBlockEntity) tileEntity),
                 ((IMultiStateBlockEntity) tileEntity).getStatistics().getPrimaryState(),
-                ChiselRenderType.fromLayer(layer, false)
+                ChiselRenderType.fromLayer(layer, false),
+                world,
+                pos
               );
 
             final ChiseledBlockBakedModel fluidModel =
               ChiseledBlockBakedModelManager.getInstance().get(
                 ((IMultiStateBlockEntity) tileEntity),
                 ((IMultiStateBlockEntity) tileEntity).getStatistics().getPrimaryState(),
-                ChiselRenderType.fromLayer(layer, true)
+                ChiselRenderType.fromLayer(layer, true),
+                world,
+                pos
               );
 
             if (solidModel.isEmpty())
@@ -123,7 +129,9 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
             baked = ChiseledBlockBakedModelManager.getInstance().get(
               ((IMultiStateBlockEntity) tileEntity),
               ((IMultiStateBlockEntity) tileEntity).getStatistics().getPrimaryState(),
-              ChiselRenderType.fromLayer(layer, false)
+              ChiselRenderType.fromLayer(layer, false),
+              world,
+              pos
             );
         }
 

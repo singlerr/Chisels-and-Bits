@@ -1,8 +1,8 @@
 package mod.chiselsandbits.chiseling;
 
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
+import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
@@ -10,7 +10,7 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 
-import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 public class ChiselingManager implements IChiselingManager
@@ -34,49 +34,71 @@ public class ChiselingManager implements IChiselingManager
     }
 
     /**
-     * Gets or creates a new chiseling context for the given player.
-     * <p>
-     * A new context is created when either one of the following conditions is met: - No context has been created before. - The world of the player and the world of the existing
-     * context are not equal - The new chisel mode and the chisel mode of the existing context are not equal.
+     * Gives access to the chiseling context of the player, if it exists.
      *
      * @param playerEntity The player for which the context is looked up.
-     * @param mode         The mode which the player wants to chisel in.
-     * @return The context.
+     * @param mode         The mode which the player wants to chisel in
+     * @return An optional potentially containing the current context of the player.
      */
     @Override
-    public IChiselingContext getOrCreateContext(
-      final PlayerEntity playerEntity, final IChiselMode mode)
+    public Optional<IChiselingContext> get(final PlayerEntity playerEntity, final IChiselMode mode)
     {
-        validateOrSetup();
+        final UUID playerId = playerEntity.getUniqueID();
+        final ResourceLocation worldId = playerEntity.getEntityWorld().getDimensionKey().getLocation();
 
-        final Map<ResourceLocation, IChiselingContext> currentPlayerContexts = Maps.newHashMap(contexts.get().row(playerEntity.getUniqueID()));
-        for (final ResourceLocation worldId : currentPlayerContexts.keySet())
-        {
-            if (!worldId.equals(playerEntity.getEntityWorld().getDimensionKey().getLocation()))
-            {
-                contexts.get().remove(playerEntity.getUniqueID(), worldId);
+        final IChiselingContext currentStored = contexts.get().get(playerId, worldId);
+        if (currentStored == null)
+            return Optional.empty();
+
+        return Optional.of(currentStored);
+    }
+
+    @Override
+    public Optional<IChiselingContext> get(final PlayerEntity playerEntity, final IChiselMode mode, final ChiselingOperation modeOfOperandus)
+    {
+        final UUID playerId = playerEntity.getUniqueID();
+        final ResourceLocation worldId = playerEntity.getEntityWorld().getDimensionKey().getLocation();
+
+        final IChiselingContext currentStored = contexts.get().get(playerId, worldId);
+        if (currentStored == null)
+            return Optional.empty();
+
+        if (currentStored.getModeOfOperandus() == modeOfOperandus)
+            return Optional.of(currentStored);
+
+        return Optional.empty();
+    }
+
+    @Override
+    public IChiselingContext create(final PlayerEntity playerEntity, final IChiselMode mode, final ChiselingOperation modeOfOperandus, final boolean simulation)
+    {
+        final UUID playerId = playerEntity.getUniqueID();
+        final ResourceLocation worldId = playerEntity.getEntityWorld().getDimensionKey().getLocation();
+
+        final IChiselingContext currentStored = contexts.get().get(playerId, worldId);
+
+        //We might already have one stored.
+        if (currentStored != null) {
+            if (!simulation) {
+                contexts.get().remove(playerId, worldId);
             }
-        }
-
-        if (contexts.get().contains(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation()))
-        {
-            final IChiselingContext context = contexts.get().get(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation());
-            if (context.getMode() == mode)
-            {
-                return context;
-            }
-
-            contexts.get().remove(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation());
         }
 
         final ChiselingContext newContext = new ChiselingContext(playerEntity.getEntityWorld(),
           mode,
-          () -> {
-            this.lastUsedChiselMoments.get().put(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation(), (long) playerEntity.ticksExisted);
-            contexts.get().remove(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation());
+          modeOfOperandus,
+          simulation, () -> {
+            if (simulation)
+                return;
+
+            this.lastUsedChiselMoments.get().put(playerId, worldId, (long) playerEntity.ticksExisted);
+            contexts.get().remove(playerId, worldId);
         });
 
-        contexts.get().put(playerEntity.getUniqueID(), playerEntity.getEntityWorld().getDimensionKey().getLocation(), newContext);
+        if (!simulation)
+        {
+            contexts.get().put(playerId, worldId, newContext);
+        }
 
         return newContext;
     }

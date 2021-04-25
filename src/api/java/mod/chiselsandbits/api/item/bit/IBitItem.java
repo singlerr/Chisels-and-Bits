@@ -1,13 +1,16 @@
 package mod.chiselsandbits.api.item.bit;
 
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.item.click.IRightClickControllingItem;
+import mod.chiselsandbits.api.item.withhighlight.IWithHighlightItem;
+import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 
 /**
  * Represents an item which is a single bit.
  */
-public interface IBitItem extends IRightClickControllingItem
+public interface IBitItem extends IRightClickControllingItem, IWithHighlightItem, IWithModeItem<IChiselMode>
 {
 
     /**

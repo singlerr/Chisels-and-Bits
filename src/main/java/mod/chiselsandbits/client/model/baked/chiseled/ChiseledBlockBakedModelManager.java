@@ -3,21 +3,20 @@ package mod.chiselsandbits.client.model.baked.chiseled;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import mod.chiselsandbits.api.config.Configuration;
-import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
-import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.ISortableAreaAccessor;
-import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
 import net.minecraft.block.BlockState;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumMap;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -44,9 +43,20 @@ public class ChiseledBlockBakedModelManager
     public ChiseledBlockBakedModel get(
       final ISortableAreaAccessor accessor,
       final BlockState primaryState,
-      final ChiselRenderType renderType
+      final ChiselRenderType renderType,
+      @Nullable IBlockReader blockReader,
+      @Nullable BlockPos position
     ) {
-        final Key key = new Key(accessor.createNewShapeIdentifier(), primaryState, renderType);
+        final EnumMap<Direction, BlockState> neighborhoodMap = new EnumMap<>(Direction.class);
+        if (blockReader != null && position != null) {
+            for (final Direction value : Direction.values())
+            {
+                final BlockPos offsetPos = position.offset(value);
+                neighborhoodMap.put(value, blockReader.getBlockState(offsetPos));
+            }
+        }
+
+        final Key key = new Key(accessor.createNewShapeIdentifier(), primaryState, renderType, neighborhoodMap);
         try
         {
             return cache.get(key, () -> new ChiseledBlockBakedModel(primaryState, renderType, accessor));
@@ -66,7 +76,9 @@ public class ChiseledBlockBakedModelManager
           get(
             multiStateItemStack,
             multiStateItemStack.getStatistics().getPrimaryState(),
-            renderType
+            renderType,
+            null,
+            BlockPos.ZERO
           )
         );
     }
@@ -75,11 +87,17 @@ public class ChiseledBlockBakedModelManager
         private final IAreaShapeIdentifier identifier;
         private final BlockState primaryState;
         private final ChiselRenderType renderType;
+        private final EnumMap<Direction, BlockState> neighborhoodMap;
 
-        private Key(final IAreaShapeIdentifier identifier, final BlockState primaryState, final ChiselRenderType renderType) {
+        private Key(
+          final IAreaShapeIdentifier identifier,
+          final BlockState primaryState,
+          final ChiselRenderType renderType,
+          final EnumMap<Direction, BlockState> neighborhoodMap) {
             this.identifier = identifier;
             this.primaryState = primaryState;
             this.renderType = renderType;
+            this.neighborhoodMap = neighborhoodMap;
         }
 
         @Override
@@ -94,13 +112,14 @@ public class ChiseledBlockBakedModelManager
                 return false;
             }
             final Key key = (Key) o;
-            return Objects.equals(identifier, key.identifier) && Objects.equals(primaryState, key.primaryState) && renderType == key.renderType;
+            return Objects.equals(identifier, key.identifier) && Objects.equals(primaryState, key.primaryState) && renderType == key.renderType
+                     && Objects.equals(neighborhoodMap, key.neighborhoodMap);
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(identifier, primaryState, renderType);
+            return Objects.hash(identifier, primaryState, renderType, neighborhoodMap);
         }
     }
 }

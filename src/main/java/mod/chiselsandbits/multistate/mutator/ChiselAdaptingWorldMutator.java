@@ -16,6 +16,7 @@ import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntry
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
+import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.Block;
@@ -76,13 +77,19 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
 
         final BlockState currentState = getWorld().getBlockState(getPos());
-        if (IEligibilityManager.getInstance().canBeChiseled(currentState))
+        if (IEligibilityManager.getInstance().canBeChiseled(currentState) ||
+            currentState.isAir(new SingleBlockBlockReader(currentState, getPos(), getWorld()), getPos()))
         {
-            return Stream.of(new PreAdaptedStateEntry(
-              currentState,
-              getWorld(),
-              getPos()
-            ));
+            return BlockPosStreamProvider.getForRange(ChiseledBlockEntity.BITS_PER_BLOCK_SIDE)
+                     .map(blockPos -> new MutablePreAdaptedStateEntry(
+                         currentState,
+                         getWorld(),
+                         getPos(),
+                         blockPos,
+                         this::setInAreaTarget,
+                         this::clearInAreaTarget
+                       )
+                     );
         }
 
         return Stream.empty();
@@ -418,7 +425,8 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
 
         final BlockState currentState = getWorld().getBlockState(getPos());
-        if (IEligibilityManager.getInstance().canBeChiseled(currentState))
+        if (IEligibilityManager.getInstance().canBeChiseled(currentState) ||
+            currentState.isAir(new SingleBlockBlockReader(currentState, getPos(), getWorld()), getPos()))
         {
             return BlockPosStreamProvider.getForRange(ChiseledBlockEntity.BITS_PER_BLOCK_SIDE)
                      .map(blockPos -> new MutablePreAdaptedStateEntry(
@@ -530,9 +538,9 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         public Vector3d getEndPoint()
         {
             return new Vector3d(
-              15 * SIZE_PER_BIT,
-              15 * SIZE_PER_BIT,
-              15 * SIZE_PER_BIT
+              16 * SIZE_PER_BIT,
+              16 * SIZE_PER_BIT,
+              16 * SIZE_PER_BIT
             );
         }
     }

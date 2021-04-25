@@ -91,4 +91,27 @@ public interface IChiselingContext extends IStateAccessor
      * @return True when complete.
      */
     boolean isComplete();
+
+    /**
+     * Indicates if the current context that is being executed is supposed to be a simulation.
+     *
+     * @return True when a simulation.
+     */
+    boolean isSimulation();
+
+    /**
+     * Indicates what kind of chiseling operation this context was created for.
+     * This indicates if the mode is used for chiseling or placing.
+     *
+     * @return {@link ChiselingOperation#CHISELING} when the context is used for breaking blocks, {@link ChiselingOperation#PLACING} for bit placement.
+     */
+    ChiselingOperation getModeOfOperandus();
+
+    /**
+     * Creates a deep copy of the context, so that the copy can be modified, without modifying this instance.
+     * A snapshot is automatically a simulation.
+     *
+     * @return The snapshot context of this context.
+     */
+    IChiselingContext createSnapshot();
 }

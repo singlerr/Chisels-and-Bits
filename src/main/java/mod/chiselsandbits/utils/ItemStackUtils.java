@@ -1,6 +1,7 @@
 package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.api.item.bit.IBitItem;
+import mod.chiselsandbits.api.item.withhighlight.IWithHighlightItem;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import net.minecraft.block.*;
@@ -92,6 +93,19 @@ public class ItemStackUtils
             return playerEntity.getHeldItemMainhand();
 
         if (playerEntity.getHeldItemOffhand().getItem() instanceof IWithModeItem)
+            return playerEntity.getHeldItemOffhand();
+
+        return ItemStack.EMPTY;
+    }
+
+    public static ItemStack getHighlightItemStackFromPlayer(@Nullable final PlayerEntity playerEntity) {
+        if (playerEntity == null)
+            return ItemStack.EMPTY;
+
+        if (playerEntity.getHeldItemMainhand().getItem() instanceof IWithHighlightItem)
+            return playerEntity.getHeldItemMainhand();
+
+        if (playerEntity.getHeldItemOffhand().getItem() instanceof IWithHighlightItem)
             return playerEntity.getHeldItemOffhand();
 
         return ItemStack.EMPTY;

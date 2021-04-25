@@ -11,14 +11,14 @@ import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.IWorldObject;
 import mod.chiselsandbits.multistate.snapshot.MultiBlockMultiStateSnapshot;
-import mod.chiselsandbits.utils.WorldObjectUtils;
 import net.minecraft.block.BlockState;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -48,7 +48,18 @@ public class WorldWrappingMutator implements IWorldAreaMutator
     @Override
     public IAreaShapeIdentifier createNewShapeIdentifier()
     {
-        return null;
+        final BlockPos startBlockPos = new BlockPos(getInWorldStartPoint());
+        final BlockPos endBlockPos = new BlockPos(getInWorldEndPoint());
+        Stream<BlockPos> positionStream = startBlockPos.equals(endBlockPos) ? Stream.of(startBlockPos) : BlockPosStreamProvider.getForRange(
+          startBlockPos.getX(), startBlockPos.getY(), startBlockPos.getZ(),
+          endBlockPos.getX(), endBlockPos.getY(), endBlockPos.getZ()
+        );
+
+        return new Identifier(
+          positionStream.map(blockPos -> new ChiselAdaptingWorldMutator(getWorld(), blockPos))
+            .map(ChiselAdaptingWorldMutator::createNewShapeIdentifier)
+            .collect(Collectors.toList()),
+          startPoint, endPoint);
     }
 
     @Override
@@ -62,10 +73,15 @@ public class WorldWrappingMutator implements IWorldAreaMutator
           endBlockPos.getX(), endBlockPos.getY(), endBlockPos.getZ()
         );
 
-        return positionStream.map(blockPos -> new ChiselAdaptingWorldMutator(getWorld(), blockPos))
-                 .flatMap(ChiselAdaptingWorldMutator::inWorldStream)
-                 .filter(entry ->  this.getBoundingBox().intersects(entry.getBoundingBox()) || entry.getBoundingBox().intersects(this.getBoundingBox()))
-                 .map(IStateEntryInfo.class::cast);
+        return positionStream
+          .flatMap(blockPos -> new ChiselAdaptingWorldMutator(getWorld(), blockPos)
+            .inWorldMutableStream()
+            .filter(entry ->  this.getBoundingBox().intersects(entry.getBoundingBox()) || entry.getBoundingBox().intersects(this.getBoundingBox()))
+            .map(s -> new PositionAdaptingMutableStateEntry(
+              s,
+              blockPos,
+              world
+              )));
     }
 
     /**
@@ -212,7 +228,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator
               inAreaTarget.getY() < 0 ||
               inAreaTarget.getZ() < 0)
         {
-            throw new IllegalArgumentException(String.format("The in area target can not have a negative component: %s", inAreaTarget.toString()));
+            throw new IllegalArgumentException(String.format("The in area target can not have a negative component: %s", inAreaTarget));
         }
 
         final Vector3d actualTarget = getInWorldStartPoint().add(inAreaTarget);
@@ -245,14 +261,14 @@ public class WorldWrappingMutator implements IWorldAreaMutator
               target.getY() < getInWorldStartPoint().getY() ||
               target.getZ() < getInWorldStartPoint().getZ())
         {
-            throw new IllegalArgumentException(String.format("The target can not be smaller then the start point: %s", target.toString()));
+            throw new IllegalArgumentException(String.format("The target can not be smaller then the start point: %s", target));
         }
 
         if (target.getX() >= getInWorldEndPoint().getX() ||
               target.getY() >= getInWorldEndPoint().getY() ||
               target.getZ() >= getInWorldEndPoint().getZ())
         {
-            throw new IllegalArgumentException(String.format("The target can not be greater then the start point: %s", target.toString()));
+            throw new IllegalArgumentException(String.format("The target can not be greater then the start point: %s", target));
         }
 
         final ChiselAdaptingWorldMutator innerMutator = new ChiselAdaptingWorldMutator(
@@ -274,7 +290,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator
               inAreaTarget.getY() < 0 ||
               inAreaTarget.getZ() < 0)
         {
-            throw new IllegalArgumentException(String.format("The in area target can not have a negative component: %s", inAreaTarget.toString()));
+            throw new IllegalArgumentException(String.format("The in area target can not have a negative component: %s", inAreaTarget));
         }
 
         final Vector3d actualTarget = getInWorldStartPoint().add(inAreaTarget);
@@ -313,14 +329,14 @@ public class WorldWrappingMutator implements IWorldAreaMutator
               target.getY() < getInWorldStartPoint().getY() ||
               target.getZ() < getInWorldStartPoint().getZ())
         {
-            throw new IllegalArgumentException(String.format("The target can not be smaller then the start point: %s", target.toString()));
+            throw new IllegalArgumentException(String.format("The target can not be smaller then the start point: %s", target));
         }
 
         if (target.getX() >= getInWorldEndPoint().getX() ||
               target.getY() >= getInWorldEndPoint().getY() ||
               target.getZ() >= getInWorldEndPoint().getZ())
         {
-            throw new IllegalArgumentException(String.format("The target can not be greater then the start point: %s", target.toString()));
+            throw new IllegalArgumentException(String.format("The target can not be greater then the start point: %s", target));
         }
 
         final ChiselAdaptingWorldMutator innerMutator = new ChiselAdaptingWorldMutator(
@@ -371,6 +387,88 @@ public class WorldWrappingMutator implements IWorldAreaMutator
             .map(ChiselAdaptingWorldMutator::batch)
             .collect(Collectors.toList())
         );
+    }
+
+    private static final class PositionAdaptingStateEntry implements IStateEntryInfo, IWorldObject
+    {
+        private final IStateEntryInfo source;
+        private final Vector3d               offSet;
+        private final IWorld                 world;
+
+        private PositionAdaptingStateEntry(
+          final IMutableStateEntryInfo source,
+          final BlockPos position, final IWorld world)
+        {
+            this.source = source;
+            this.offSet = Vector3d.copy(position);
+            this.world = world;
+        }
+
+        /**
+         * The state that this entry represents.
+         *
+         * @return The state.
+         */
+        @Override
+        public BlockState getState()
+        {
+            return source.getState();
+        }
+
+        /**
+         * The start (lowest on all three axi) position of the state that this entry occupies.
+         *
+         * @return The start position of this entry in the given block.
+         */
+        @Override
+        public Vector3d getStartPoint()
+        {
+            return source.getStartPoint().add(offSet);
+        }
+
+        /**
+         * The end (highest on all three axi) position of the state that this entry occupies.
+         *
+         * @return The start position of this entry in the given block.
+         */
+        @Override
+        public Vector3d getEndPoint()
+        {
+            return source.getEndPoint().add(offSet);
+        }
+
+        /**
+         * The world the object is in.
+         *
+         * @return The world.
+         */
+        @Override
+        public IWorld getWorld()
+        {
+            return world;
+        }
+
+        /**
+         * The start point of the object in the world.
+         *
+         * @return The start point.
+         */
+        @Override
+        public Vector3d getInWorldStartPoint()
+        {
+            return getStartPoint();
+        }
+
+        /**
+         * The end point of the object in the world.
+         *
+         * @return The end point.
+         */
+        @Override
+        public Vector3d getInWorldEndPoint()
+        {
+            return getEndPoint();
+        }
     }
 
     private static final class PositionAdaptingMutableStateEntry implements IMutableStateEntryInfo, IWorldObject
@@ -489,6 +587,40 @@ public class WorldWrappingMutator implements IWorldAreaMutator
             {
                 innerLock.close();
             }
+        }
+    }
+
+    private static final class Identifier implements IAreaShapeIdentifier {
+        private final Collection<IAreaShapeIdentifier> inners;
+        private final Vector3d startPoint;
+        private final Vector3d endPoint;
+
+        public Identifier(final Collection<IAreaShapeIdentifier> innerSnapshots, final Vector3d startPoint, final Vector3d endPoint)
+        {
+            this.inners = innerSnapshots;
+            this.startPoint = startPoint;
+            this.endPoint = endPoint;
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (!(o instanceof Identifier))
+            {
+                return false;
+            }
+            final Identifier that = (Identifier) o;
+            return inners.equals(that.inners) && startPoint.equals(that.startPoint) && endPoint.equals(that.endPoint);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(inners, startPoint, endPoint);
         }
     }
 }
