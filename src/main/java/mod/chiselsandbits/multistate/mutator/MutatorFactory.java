@@ -2,10 +2,8 @@ package mod.chiselsandbits.multistate.mutator;
 
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
-import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.*;
@@ -13,6 +11,10 @@ import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.*;
 public class MutatorFactory implements IMutatorFactory
 {
     private static final MutatorFactory INSTANCE = new MutatorFactory();
+
+    private MutatorFactory()
+    {
+    }
 
     public static MutatorFactory getInstance()
     {
@@ -47,8 +49,8 @@ public class MutatorFactory implements IMutatorFactory
           world,
           Vector3d.copy(from),
           Vector3d.copy(to).add(new Vector3d(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)
-                                  .mul(BITS_PER_BLOCK_SIDE - 1, BITS_PER_BLOCK_SIDE - 1, BITS_PER_BLOCK_SIDE - 1)
-                                  .add(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS)
+                                  .mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE)
+                                  .subtract(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS)
           )
         );
     }
@@ -66,12 +68,8 @@ public class MutatorFactory implements IMutatorFactory
     {
         return new WorldWrappingMutator(
           world,
-          from,
-          to
+          Vector3d.copy(new BlockPos(from.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE))).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT).add(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS),
+          Vector3d.copy(new BlockPos(to.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE))).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT).add(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT).subtract(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS)
         );
-    }
-
-    private MutatorFactory()
-    {
     }
 }

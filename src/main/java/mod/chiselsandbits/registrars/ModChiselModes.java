@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.chiseling.modes.cubed.CubedChiselModeBuilder;
 import mod.chiselsandbits.chiseling.modes.line.LinedChiselModeBuilder;
+import mod.chiselsandbits.chiseling.modes.plane.PlaneChiselModeBuilder;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.RegistryObject;
@@ -164,6 +165,57 @@ public final class ModChiselModes
               .createLinedChiselMode()
     );
 
+    public static final RegistryObject<IChiselMode> PLANE_ONE = MODE_REGISTRAR.register(
+      "plane_1",
+      () -> new PlaneChiselModeBuilder()
+              .setDepth(1)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.plane1"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/plane.png"))
+              .createPlaneChiselMode()
+    );
+
+    public static final RegistryObject<IChiselMode> PLANE_TWO = MODE_REGISTRAR.register(
+      "plane_2",
+      () -> new PlaneChiselModeBuilder()
+              .setDepth(2)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.plane2"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/plane2.png"))
+              .createPlaneChiselMode()
+    );
+
+    public static final RegistryObject<IChiselMode> PLANE_FOUR = MODE_REGISTRAR.register(
+      "plane_4",
+      () -> new PlaneChiselModeBuilder()
+              .setDepth(4)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.plane4"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/plane4.png"))
+              .createPlaneChiselMode()
+    );
+
+    public static final RegistryObject<IChiselMode> PLANE_EIGHT = MODE_REGISTRAR.register(
+      "plane_8",
+      () -> new PlaneChiselModeBuilder()
+              .setDepth(8)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.plane8"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/plane8.png"))
+              .createPlaneChiselMode()
+    );
 
 
     public static void onModConstruction() {

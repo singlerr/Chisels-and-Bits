@@ -1,5 +1,7 @@
 package mod.chiselsandbits.api.multistate.accessor;
 
+import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
+import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
@@ -63,4 +65,13 @@ public interface IAreaAccessor extends IStateAccessor
     default BlockPos getAreaOrigin() {
         return BlockPos.ZERO;
     }
+
+    /**
+     * Gives access to a stream with the entry state info inside the accessors range.
+     * Allows for the entry state order to be mutated using a position mutator.
+     *
+     * @param positionMutator The mutator for the positional order.
+     * @return The stream with the inner states.
+     */
+    Stream<IStateEntryInfo> streamWithPositionMutator(IPositionMutator positionMutator);
 }

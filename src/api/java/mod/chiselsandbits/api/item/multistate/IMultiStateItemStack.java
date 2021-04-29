@@ -1,6 +1,5 @@
 package mod.chiselsandbits.api.item.multistate;
 
-import mod.chiselsandbits.api.multistate.accessor.sortable.ISortableAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IAreaMutator;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import net.minecraft.item.ItemStack;
@@ -10,8 +9,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 /**
  * The itemstack sensitive version of the multistate item.
  */
-public interface IMultiStateItemStack extends ISortableAreaAccessor,
-                                                IAreaMutator,
+public interface IMultiStateItemStack extends  IAreaMutator,
                                                 INBTSerializable<CompoundNBT>,
                                                 IPacketBufferSerializable
 {

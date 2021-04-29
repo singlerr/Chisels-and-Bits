@@ -61,4 +61,20 @@ public final class ModChiselModeGroups
             );
         }
     };
+
+    public static IToolModeGroup PLANE = new IToolModeGroup() {
+        @Override
+        public ResourceLocation getIcon()
+        {
+            return new ResourceLocation(Constants.MOD_ID,"textures/icons/plane.png");
+        }
+
+        @Override
+        public ITextComponent getDisplayName()
+        {
+            return TranslationUtils.build(
+              "chiselmode.plane"
+            );
+        }
+    };
 }

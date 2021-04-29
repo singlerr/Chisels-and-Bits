@@ -50,4 +50,38 @@ public class VectorUtils
                 throw new IllegalArgumentException(String.format("Unknown axis: %s", axis));
         }
     }
+
+    public static Vector3d scaleToOne(final Vector3d v) {
+        final double maxSize = Math.abs(getMaximalComponent(v));
+        if (MathUtil.almostEqual(maxSize, 0))
+            return Vector3d.ZERO;
+
+        final double scale = 1 / maxSize;
+
+        return v.scale(scale);
+    }
+
+    public static double getMaximalComponent(final Vector3d v) {
+        final double x = Math.abs(v.getX());
+        final double y = Math.abs(v.getY());
+        final double z = Math.abs(v.getZ());
+
+        if (x >= y && x >= z) {
+            return v.getX();
+        }
+
+        if (y >= x && y >= z) {
+            return v.getY();
+        }
+
+        if (z >= x && z >= y) {
+            return v.getZ();
+        }
+
+        return 0;
+    }
+
+    public static Vector3d invert(final Vector3d v) {
+        return v.mul(-1, -1, -1);
+    }
 }

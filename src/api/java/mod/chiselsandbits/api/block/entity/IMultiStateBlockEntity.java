@@ -1,7 +1,6 @@
 package mod.chiselsandbits.api.block.entity;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
-import mod.chiselsandbits.api.multistate.accessor.sortable.ISortableAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchedAreaMutator;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
@@ -18,7 +17,6 @@ import net.minecraftforge.common.util.INBTSerializable;
  */
 public interface IMultiStateBlockEntity extends IWorldAreaAccessor,
                                                           IWorldAreaMutator,
-                                                          ISortableAreaAccessor,
                                                           INBTSerializable<CompoundNBT>,
                                                           IPacketBufferSerializable,
                                                           IBatchedAreaMutator

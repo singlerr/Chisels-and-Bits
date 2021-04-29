@@ -4,8 +4,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
-import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
-import mod.chiselsandbits.api.multistate.accessor.sortable.ISortableAreaAccessor;
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
+import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -41,7 +41,7 @@ public class ChiseledBlockBakedModelManager
     }
 
     public ChiseledBlockBakedModel get(
-      final ISortableAreaAccessor accessor,
+      final IAreaAccessor accessor,
       final BlockState primaryState,
       final ChiselRenderType renderType,
       @Nullable IBlockReader blockReader,

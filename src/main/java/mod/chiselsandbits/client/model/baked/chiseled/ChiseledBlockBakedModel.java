@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
-import mod.chiselsandbits.api.multistate.accessor.sortable.ISortableAreaAccessor;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.culling.ICullTest;
@@ -174,7 +173,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
     public ChiseledBlockBakedModel(
       final BlockState state,
       final ChiselRenderType layer,
-      final ISortableAreaAccessor data)
+      final IAreaAccessor data)
     {
         chiselRenderType = layer;
         IBakedModel originalModel = null;
@@ -222,7 +221,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 
     private void generateFaces(
       final ChiseledBlockModelBuilder builder,
-      final ISortableAreaAccessor accessor)
+      final IAreaAccessor accessor)
     {
         final List<List<FaceRegion>> resultingFaces = new ArrayList<>();
 
@@ -403,7 +402,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 
 
     private void processFaces(
-      final ISortableAreaAccessor accessor,
+      final IAreaAccessor accessor,
       final List<List<FaceRegion>> resultingRegions,
       final IPositionMutator analysisOrder,
       final Direction[] potentialDirections,

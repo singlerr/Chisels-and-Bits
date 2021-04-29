@@ -1,6 +1,8 @@
 package mod.chiselsandbits.voxelshape;
 
+import mod.chiselsandbits.aabb.AABBManager;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessorWithVoxelShape;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -16,11 +18,16 @@ public class VoxelShapeCalculator
 {
     public static VoxelShape calculate(
       final IAreaAccessor areaAccessor,
+      final BlockPos offset,
       final Predicate<IStateEntryInfo> selectablePredicate) {
+        if (areaAccessor instanceof IAreaAccessorWithVoxelShape)
+            return ((IAreaAccessorWithVoxelShape) areaAccessor).provideShape(selectablePredicate, offset);
+
         return
-            areaAccessor.stream()
-              .filter(selectablePredicate)
-              .map(stateEntryInfo -> new AxisAlignedBB(stateEntryInfo.getStartPoint().subtract(Vector3d.copy(areaAccessor.getAreaOrigin())), stateEntryInfo.getEndPoint().subtract(Vector3d.copy(areaAccessor.getAreaOrigin()))))
+            AABBManager.getInstance()
+              .get(areaAccessor, selectablePredicate)
+              .stream()
+              .map(aabb -> aabb.offset(offset))
         .reduce(
           VoxelShapes.empty(),
           (voxelShape, axisAlignedBB) -> {

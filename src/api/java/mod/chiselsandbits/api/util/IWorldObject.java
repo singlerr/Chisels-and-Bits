@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.util;
 
+import mod.chiselsandbits.api.aabb.IAABBOwner;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
@@ -7,7 +8,7 @@ import net.minecraft.world.IWorld;
 /**
  * Represents a 3D object in world.
  */
-public interface IWorldObject
+public interface IWorldObject extends IAABBOwner
 {
 
     /**
@@ -32,7 +33,7 @@ public interface IWorldObject
     Vector3d getInWorldEndPoint();
 
     /**
-     * Gives access to the in would axis aligned bounding box of the object.
+     * Gives access to the in world axis aligned bounding box of the object.
      *
      * @return The axis aligned bounding box.
      */

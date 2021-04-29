@@ -5,8 +5,10 @@ import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
-import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
+import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.identifier.ISingleStateAreaShareIdentifier;
+import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.accessor.world.IInWorldStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
@@ -34,6 +36,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.BITS_PER_BLOCK_SIDE;
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT;
 
 public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
@@ -67,6 +70,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         return new PreAdaptedShapeIdentifier(getWorld().getBlockState(getPos()));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public Stream<IStateEntryInfo> stream()
     {
@@ -204,6 +208,18 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
 
         return MultiStateSnapshotUtils.createFromSection(temporarySection);
+    }
+
+    @Override
+    public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
+    {
+        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+                 .map(positionMutator::mutate)
+                 .map(Vector3d::copy)
+                 .map(v -> v.mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT))
+                 .map(this::getInAreaTarget)
+                 .filter(Optional::isPresent)
+                 .map(Optional::get);
     }
 
     @Override
@@ -415,6 +431,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
      *
      * @return A stream with a mutable state entry info for each mutable section in the area.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public Stream<IInWorldMutableStateEntryInfo> inWorldMutableStream()
     {
@@ -649,7 +666,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
     }
 
-    private static class PreAdaptedShapeIdentifier implements IAreaShapeIdentifier
+    private static class PreAdaptedShapeIdentifier implements ISingleStateAreaShareIdentifier
     {
         private final int blockState;
 

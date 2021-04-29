@@ -1,8 +1,10 @@
 package mod.chiselsandbits.multistate.mutator;
 
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
-import mod.chiselsandbits.api.multistate.accessor.IAreaShapeIdentifier;
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessorWithVoxelShape;
+import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntryInfo;
@@ -10,9 +12,15 @@ import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.IWorldObject;
+import mod.chiselsandbits.api.util.VectorUtils;
+import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.multistate.snapshot.MultiBlockMultiStateSnapshot;
 import net.minecraft.block.BlockState;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
 
@@ -21,10 +29,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class WorldWrappingMutator implements IWorldAreaMutator
+import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.BITS_PER_BLOCK_SIDE;
+import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT;
+
+public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWithVoxelShape
 {
 
     private final IWorld   world;
@@ -55,10 +67,12 @@ public class WorldWrappingMutator implements IWorldAreaMutator
           endBlockPos.getX(), endBlockPos.getY(), endBlockPos.getZ()
         );
 
+        final Collection<IAreaShapeIdentifier> identifiers = positionStream.map(blockPos -> new ChiselAdaptingWorldMutator(getWorld(), blockPos))
+                                                               .map(ChiselAdaptingWorldMutator::createNewShapeIdentifier)
+                                                               .collect(Collectors.toList());
+
         return new Identifier(
-          positionStream.map(blockPos -> new ChiselAdaptingWorldMutator(getWorld(), blockPos))
-            .map(ChiselAdaptingWorldMutator::createNewShapeIdentifier)
-            .collect(Collectors.toList()),
+          identifiers,
           startPoint, endPoint);
     }
 
@@ -176,6 +190,25 @@ public class WorldWrappingMutator implements IWorldAreaMutator
           getInWorldStartPoint(),
           getInWorldEndPoint()
         );
+    }
+
+    @Override
+    public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
+    {
+        return BlockPosStreamProvider.getForRange(
+          getInWorldStartPoint().mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE),
+          getInWorldEndPoint().mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE)
+        )
+                 .map(positionMutator::mutate)
+                 .map(position -> Vector3d.copy(position).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT))
+                 .map(position -> {
+                     final BlockPos blockPos = new BlockPos(position);
+                     final Vector3d inBlockOffset = position.subtract(Vector3d.copy(blockPos));
+
+                     return getInBlockTarget(blockPos, inBlockOffset);
+                 })
+                 .filter(Optional::isPresent)
+                 .map(Optional::get);
     }
 
     @Override
@@ -389,86 +422,25 @@ public class WorldWrappingMutator implements IWorldAreaMutator
         );
     }
 
-    private static final class PositionAdaptingStateEntry implements IStateEntryInfo, IWorldObject
+    @Override
+    public VoxelShape provideShape(final Predicate<IStateEntryInfo> selectionPredicate, final BlockPos offset)
     {
-        private final IStateEntryInfo source;
-        private final Vector3d               offSet;
-        private final IWorld                 world;
-
-        private PositionAdaptingStateEntry(
-          final IMutableStateEntryInfo source,
-          final BlockPos position, final IWorld world)
-        {
-            this.source = source;
-            this.offSet = Vector3d.copy(position);
-            this.world = world;
-        }
-
-        /**
-         * The state that this entry represents.
-         *
-         * @return The state.
-         */
-        @Override
-        public BlockState getState()
-        {
-            return source.getState();
-        }
-
-        /**
-         * The start (lowest on all three axi) position of the state that this entry occupies.
-         *
-         * @return The start position of this entry in the given block.
-         */
-        @Override
-        public Vector3d getStartPoint()
-        {
-            return source.getStartPoint().add(offSet);
-        }
-
-        /**
-         * The end (highest on all three axi) position of the state that this entry occupies.
-         *
-         * @return The start position of this entry in the given block.
-         */
-        @Override
-        public Vector3d getEndPoint()
-        {
-            return source.getEndPoint().add(offSet);
-        }
-
-        /**
-         * The world the object is in.
-         *
-         * @return The world.
-         */
-        @Override
-        public IWorld getWorld()
-        {
-            return world;
-        }
-
-        /**
-         * The start point of the object in the world.
-         *
-         * @return The start point.
-         */
-        @Override
-        public Vector3d getInWorldStartPoint()
-        {
-            return getStartPoint();
-        }
-
-        /**
-         * The end point of the object in the world.
-         *
-         * @return The end point.
-         */
-        @Override
-        public Vector3d getInWorldEndPoint()
-        {
-            return getEndPoint();
-        }
+        final VoxelShape areaShape = VoxelShapes.create(getBoundingBox().offset(VectorUtils.invert(Vector3d.copy(getAreaOrigin()))).offset(offset));
+        final VoxelShape containedShape = BlockPosStreamProvider.getForRange(
+          getInWorldStartPoint(), getInWorldEndPoint()
+        ).map(blockPos -> new ChiselAdaptingWorldMutator(
+          getWorld(), blockPos))
+                                            .map(a -> IVoxelShapeManager.getInstance().get(a, a.getAreaOrigin().subtract(getAreaOrigin()).add(offset), selectionPredicate))
+                                            .reduce(
+                                              VoxelShapes.empty(),
+                                              (voxelShape, bbShape) -> VoxelShapes.combine(voxelShape, bbShape, IBooleanFunction.OR),
+                                              (voxelShape, voxelShape2) -> VoxelShapes.combine(voxelShape, voxelShape2, IBooleanFunction.OR)
+                                            ).simplify();
+        return VoxelShapes.combine(
+          areaShape,
+          containedShape,
+          IBooleanFunction.AND
+        ).simplify();
     }
 
     private static final class PositionAdaptingMutableStateEntry implements IMutableStateEntryInfo, IWorldObject
@@ -570,6 +542,12 @@ public class WorldWrappingMutator implements IWorldAreaMutator
         public Vector3d getInWorldEndPoint()
         {
             return getEndPoint();
+        }
+
+        @Override
+        public AxisAlignedBB getBoundingBox()
+        {
+            return IWorldObject.super.getBoundingBox();
         }
     }
 

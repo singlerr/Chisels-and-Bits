@@ -226,6 +226,15 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
 
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) target;
 
+        if (player.isCrouching()) {
+            return getBlockEntityFromOrThrow(world, pos)
+              .map(e -> {
+                  final IMultiStateSnapshot snapshot = e.createSnapshot();
+                  return snapshot.toItemStack().toItemStack();
+              })
+              .orElse(ItemStack.EMPTY);
+        }
+
         return getBlockEntityFromOrThrow(world, pos)
           .flatMap(e -> {
               final Vector3d hitVec = blockRayTraceResult.getHitVec();
