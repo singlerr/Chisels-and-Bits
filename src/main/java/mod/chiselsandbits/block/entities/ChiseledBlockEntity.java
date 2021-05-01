@@ -22,6 +22,7 @@ import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.*;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.legacy.LegacyLoadManager;
 import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
 import mod.chiselsandbits.registrars.ModTileEntityTypes;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
@@ -42,6 +43,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -190,6 +192,40 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     @Override
     public void deserializeNBT(final CompoundNBT nbt)
     {
+        //TODO: 1.17: Delete the legacy loading.
+        if (!nbt.contains(NbtConstants.CHISEL_BLOCK_ENTITY_DATA)) {
+            //We don't have our data. Lets try to load a legacy format.
+            final ChunkSection legacyDataSection = LegacyLoadManager.getInstance().attemptLegacyBlockEntityLoad(nbt);
+            if (ChunkSection.isEmpty(legacyDataSection)) {
+                //We will fail to load, so lets reset all data.
+                for (int x = 0; x < BITS_PER_BLOCK_SIDE; x++)
+                {
+                    for (int y = 0; y < BITS_PER_BLOCK_SIDE; y++)
+                    {
+                        for (int z = 0; z < BITS_PER_BLOCK_SIDE; z++)
+                        {
+                            this.compressedSection.setBlockState(x, y, z, Blocks.AIR.getDefaultState(), false);
+                        }
+                    }
+                }
+                this.mutableStatistics.recalculate(this.compressedSection);
+                return;
+            }
+
+            //Update a temporary instance of the statistics to make this work.
+            final MutableStatistics legacyStatistics = new MutableStatistics(this::getWorld, this::getPos);
+            legacyStatistics.recalculate(legacyDataSection);
+
+            //Now write all data into our nbt structure.
+            final CompoundNBT chiselBlockData = new CompoundNBT();
+            final CompoundNBT compressedSectionData = ChunkSectionUtils.serializeNBT(this.compressedSection);
+            chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
+            chiselBlockData.put(NbtConstants.STATISTICS, mutableStatistics.serializeNBT());
+
+            //Store it in the current nbt.
+            nbt.put(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, chiselBlockData);
+        }
+
         final CompoundNBT chiselBlockData = nbt.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
         final CompoundNBT compressedSectionData = chiselBlockData.getCompound(NbtConstants.COMPRESSED_STORAGE);
         final CompoundNBT statisticsData = chiselBlockData.getCompound(NbtConstants.STATISTICS);

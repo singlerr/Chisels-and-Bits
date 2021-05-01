@@ -101,19 +101,19 @@ public class EligibilityManager implements IEligibilityManager
                     // custom dropping behavior?
                     pb.getDrops(state, null);
                     final Class<?> wc = ClassUtils.getDeclaringClass(blkClass, pb.MethodName, BlockState.class, LootContext.Builder.class);
-                    final boolean quantityDroppedTest = wc == Block.class || wc == AbstractBlock.class;
+                    final boolean quantityDroppedTest = wc == Block.class || wc == AbstractBlock.class || wc == FlowingFluidBlock.class;
 
-                    final boolean isNotSlab = Item.getItemFromBlock(blk) != Items.AIR;
+                    final boolean isNotSlab = Item.getItemFromBlock(blk) != Items.AIR || state.getBlock() instanceof FlowingFluidBlock;
                     boolean itemExistsOrNotSpecialDrops = quantityDroppedTest || isNotSlab;
 
                     // ignore blocks with custom collision.
                     pb.getShape(null, null, null, null);
                     Class<?> collisionClass = ClassUtils.getDeclaringClass(blkClass, pb.MethodName, BlockState.class, IBlockReader.class, BlockPos.class, ISelectionContext.class);
-                    boolean noCustomCollision = collisionClass == Block.class || collisionClass == AbstractBlock.class || blk.getClass() == SlimeBlock.class;
+                    boolean noCustomCollision = collisionClass == Block.class || collisionClass == AbstractBlock.class || blk.getClass() == SlimeBlock.class || collisionClass == FlowingFluidBlock.class;
 
                     // full cube specifically is tied to lighting... so for glass
                     // Compatibility use isFullBlock which can be true for glass.
-                    boolean isFullBlock = state.isSolid() || blk instanceof AbstractGlassBlock;
+                    boolean isFullBlock = state.isSolid() || blk instanceof AbstractGlassBlock || blk instanceof FlowingFluidBlock;
                     final BlockEligibilityAnalysisData info = BlockEligibilityAnalysisData.createFromState(state);
 
                     final boolean tickingBehavior = blk.ticksRandomly(state) && Configuration.getInstance().getServer().blackListRandomTickingBlocks.get();

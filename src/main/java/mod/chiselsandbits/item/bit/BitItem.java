@@ -20,6 +20,7 @@ import mod.chiselsandbits.utils.TranslationUtils;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
@@ -57,6 +58,8 @@ import java.util.stream.Collectors;
 public class BitItem extends Item implements IChiselingItem, IBitItem
 {
     private static final Logger LOGGER = LogManager.getLogger();
+
+    private static final String LEGACY_BLOCK_STATE_ID_KEY = "id";
 
     private final List<ItemStack> availableBitStacks = Lists.newLinkedList();
 
@@ -184,6 +187,14 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
     @Override
     public BlockState getBitState(final ItemStack stack)
     {
+        //TODO: 1.17 Remove the legacy loading of the blockstate.
+        if (!stack.getOrCreateTag().contains(NbtConstants.BLOCK_STATE)) {
+            if (!stack.getOrCreateTag().contains(LEGACY_BLOCK_STATE_ID_KEY)) {
+                return Blocks.AIR.getDefaultState();
+            }
+
+            return IBlockStateIdManager.getInstance().getBlockStateFrom(stack.getOrCreateTag().getInt(LEGACY_BLOCK_STATE_ID_KEY));
+        }
         return NBTUtil.readBlockState(stack.getOrCreateChildTag(NbtConstants.BLOCK_STATE));
     }
 

@@ -15,10 +15,6 @@ public final class ClientPacketHandlers
         throw new IllegalStateException("Can not instantiate an instance of: ClientPacketHandlers. This is a utility class");
     }
 
-    public static DistExecutor.SafeRunnable getTileEntityUpdatePacketHandler(final BlockPos blockPos, final CompoundNBT compoundNBT) {
-        return () -> handleTileEntityUpdatedPacket(blockPos, compoundNBT);
-    }
-
     public static void handleTileEntityUpdatedPacket(final BlockPos blockPos, final CompoundNBT updateTag) {
         if (Minecraft.getInstance().world != null) {
             final TileEntity tileEntity = Minecraft.getInstance().world.getTileEntity(blockPos);
