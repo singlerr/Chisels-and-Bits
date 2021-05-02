@@ -194,7 +194,9 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
                 return Blocks.AIR.getDefaultState();
             }
 
-            return IBlockStateIdManager.getInstance().getBlockStateFrom(stack.getOrCreateTag().getInt(LEGACY_BLOCK_STATE_ID_KEY));
+            final BlockState blockState = IBlockStateIdManager.getInstance().getBlockStateFrom(stack.getOrCreateTag().getInt(LEGACY_BLOCK_STATE_ID_KEY));
+            stack.getOrCreateTag().remove(LEGACY_BLOCK_STATE_ID_KEY);
+            stack.getOrCreateTag().put(NbtConstants.BLOCK_STATE, NBTUtil.writeBlockState(blockState));
         }
         return NBTUtil.readBlockState(stack.getOrCreateChildTag(NbtConstants.BLOCK_STATE));
     }
