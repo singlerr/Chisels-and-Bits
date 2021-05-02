@@ -417,6 +417,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
             final FaceBuildingState state = new FaceBuildingState();
 
             accessor.streamWithPositionMutator(analysisOrder)
+              .filter(this.chiselRenderType::isRequiredForRendering)
               .forEachOrdered(stateEntryInfo -> {
                   if (state.getRegionBuildingAxisValue() != regionBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint())) {
                       if (!regions.isEmpty()) {

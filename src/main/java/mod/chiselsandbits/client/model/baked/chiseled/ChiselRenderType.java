@@ -7,6 +7,7 @@ import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.client.culling.MCCullTest;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 
 import java.security.InvalidParameterException;
 import java.util.Collection;
@@ -49,8 +50,13 @@ public enum ChiselRenderType
         }
 
         return accessor.stream()
-          .map(IStateEntryInfo::getState)
-          .anyMatch(this.type::isValidBlockState);
+          .anyMatch(this::isRequiredForRendering);
+    }
+
+    public boolean isRequiredForRendering(
+      final IStateEntryInfo stateEntryInfo )
+    {
+        return this.type.isValidBlockState(stateEntryInfo.getState()) && RenderTypeLookup.canRenderInLayer(stateEntryInfo.getState(), this.layer);
     }
 
     public static ChiselRenderType fromLayer(
