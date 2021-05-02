@@ -46,8 +46,16 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     public WorldWrappingMutator(final IWorld world, final Vector3d startPoint, final Vector3d endPoint)
     {
         this.world = world;
-        this.startPoint = startPoint;
-        this.endPoint = endPoint;
+        this.startPoint = new Vector3d(
+          Math.min(startPoint.getX(), endPoint.getX()),
+          Math.min(startPoint.getY(), endPoint.getY()),
+          Math.min(startPoint.getZ(), endPoint.getZ())
+        );
+        this.endPoint = new Vector3d(
+          Math.max(startPoint.getX(), endPoint.getX()),
+          Math.max(startPoint.getY(), endPoint.getY()),
+          Math.max(startPoint.getZ(), endPoint.getZ())
+        );
     }
 
     /**
@@ -90,7 +98,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
         return positionStream
           .flatMap(blockPos -> new ChiselAdaptingWorldMutator(getWorld(), blockPos)
             .inWorldMutableStream()
-            .filter(entry ->  this.getBoundingBox().intersects(entry.getBoundingBox()) || entry.getBoundingBox().intersects(this.getBoundingBox()))
+            .filter(entry ->  this.getInWorldBoundingBox().intersects(entry.getBoundingBox()) || entry.getBoundingBox().intersects(this.getInWorldBoundingBox()))
             .map(s -> new PositionAdaptingMutableStateEntry(
               s,
               blockPos,
@@ -132,18 +140,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public boolean isInside(final Vector3d inAreaTarget)
     {
-        if (inAreaTarget.getX() < 0 ||
-              inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0)
-        {
-            return false;
-        }
-
-        final Vector3d actualTarget = getInWorldStartPoint().add(inAreaTarget);
-
-        return !(actualTarget.getX() >= getInWorldEndPoint().getX()) &&
-                 !(actualTarget.getY() >= getInWorldEndPoint().getY()) &&
-                 !(actualTarget.getZ() >= getInWorldEndPoint().getZ());
+        return getInWorldBoundingBox().contains(inAreaTarget);
     }
 
     /**
@@ -156,16 +153,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
-        final BlockPos startPos = new BlockPos(getInWorldStartPoint());
-        final BlockPos targetPos = startPos.add(inAreaBlockPosOffset);
-        final Vector3d target = Vector3d.copy(targetPos).add(inBlockTarget);
-
-        return !(target.getX() < getInWorldStartPoint().getX()) &&
-                 !(target.getY() < getInWorldStartPoint().getY()) &&
-                 !(target.getZ() < getInWorldStartPoint().getZ()) &&
-                 !(target.getX() >= getInWorldEndPoint().getX()) &&
-                 !(target.getY() >= getInWorldEndPoint().getY()) &&
-                 !(target.getZ() >= getInWorldEndPoint().getZ());
+        return isInside(Vector3d.copy(inAreaBlockPosOffset).add(inBlockTarget));
     }
 
     @Override
@@ -241,7 +229,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
           getInWorldStartPoint(), getInWorldEndPoint()
         ).flatMap(blockPos -> positionBasedMutableStream(blockPos)
                                 .map(mutableEntry -> new PositionAdaptingMutableStateEntry(mutableEntry, blockPos, getWorld())))
-                 .filter(entry ->  this.getBoundingBox().intersects(entry.getBoundingBox()) || entry.getBoundingBox().intersects(this.getBoundingBox()))
+                 .filter(entry ->  this.getInWorldBoundingBox().intersects(entry.getInWorldBoundingBox()) || entry.getInWorldBoundingBox().intersects(this.getInWorldBoundingBox()))
                  .map(IMutableStateEntryInfo.class::cast);
     }
 
@@ -390,7 +378,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
         return BlockPosStreamProvider.getForRange(
           getInWorldStartPoint(), getInWorldEndPoint()
         ).flatMap(blockPos -> positionBasedInWorldMutableStream(blockPos)
-                                .filter(entry -> this.getBoundingBox().intersects(entry.getBoundingBox()) || entry.getBoundingBox().intersects(this.getBoundingBox())));
+                                .filter(entry -> this.getInWorldBoundingBox().intersects(entry.getInWorldBoundingBox()) || entry.getInWorldBoundingBox().intersects(this.getInWorldBoundingBox())));
     }
 
     private Stream<IInWorldMutableStateEntryInfo> positionBasedInWorldMutableStream(final BlockPos position)
@@ -425,12 +413,12 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public VoxelShape provideShape(final Predicate<IStateEntryInfo> selectionPredicate, final BlockPos offset)
     {
-        final VoxelShape areaShape = VoxelShapes.create(getBoundingBox().offset(VectorUtils.invert(Vector3d.copy(getAreaOrigin()))).offset(offset));
+        final VoxelShape areaShape = VoxelShapes.create(getInWorldBoundingBox().offset(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).offset(offset));
         final VoxelShape containedShape = BlockPosStreamProvider.getForRange(
           getInWorldStartPoint(), getInWorldEndPoint()
         ).map(blockPos -> new ChiselAdaptingWorldMutator(
           getWorld(), blockPos))
-                                            .map(a -> IVoxelShapeManager.getInstance().get(a, a.getAreaOrigin().subtract(getAreaOrigin()).add(offset), selectionPredicate))
+                                            .map(a -> IVoxelShapeManager.getInstance().get(a, new BlockPos(a.getInWorldStartPoint()).add(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).add(offset), selectionPredicate))
                                             .reduce(
                                               VoxelShapes.empty(),
                                               (voxelShape, bbShape) -> VoxelShapes.combine(voxelShape, bbShape, IBooleanFunction.OR),
@@ -542,12 +530,6 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
         public Vector3d getInWorldEndPoint()
         {
             return getEndPoint();
-        }
-
-        @Override
-        public AxisAlignedBB getBoundingBox()
-        {
-            return IWorldObject.super.getBoundingBox();
         }
     }
 

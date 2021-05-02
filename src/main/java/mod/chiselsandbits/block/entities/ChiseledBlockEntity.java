@@ -133,7 +133,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         );
 
         // TODO: Replace in 1.17 with isAir()
-        return currentState.isAir(new SingleBlockWorldReader(currentState, getPos(), getWorld()), getPos()) ? Optional.empty() : Optional.of(new StateEntry(
+        return Optional.of(new StateEntry(
           currentState,
           getWorld(),
           getPos(),
@@ -208,19 +208,19 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
                         }
                     }
                 }
-                this.mutableStatistics.recalculate(this.compressedSection);
+                this.mutableStatistics.recalculate(this.compressedSection, false);
                 return;
             }
 
             //Update a temporary instance of the statistics to make this work.
             final MutableStatistics legacyStatistics = new MutableStatistics(this::getWorld, this::getPos);
-            legacyStatistics.recalculate(legacyDataSection);
+            legacyStatistics.recalculate(legacyDataSection, false);
 
             //Now write all data into our nbt structure.
             final CompoundNBT chiselBlockData = new CompoundNBT();
-            final CompoundNBT compressedSectionData = ChunkSectionUtils.serializeNBT(this.compressedSection);
+            final CompoundNBT compressedSectionData = ChunkSectionUtils.serializeNBT(legacyDataSection);
             chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
-            chiselBlockData.put(NbtConstants.STATISTICS, mutableStatistics.serializeNBT());
+            chiselBlockData.put(NbtConstants.STATISTICS, legacyStatistics.serializeNBT());
 
             //Store it in the current nbt.
             nbt.put(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, chiselBlockData);
@@ -284,7 +284,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     {
         if (getWorld() != null && !getWorld().isRemote() && this.batchMutations.isEmpty())
         {
-            mutableStatistics.recalculate(this.compressedSection);
+            mutableStatistics.recalculate(this.compressedSection, true);
 
             super.markDirty();
 
@@ -618,17 +618,6 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
             }
         }));
         return this.batchMutations.get(id);
-    }
-
-    /**
-     * The origin of the area.
-     *
-     * @return The areas origin.
-     */
-    @Override
-    public BlockPos getAreaOrigin()
-    {
-        return BlockPos.ZERO;
     }
 
     private static final class StateEntry implements IInWorldMutableStateEntryInfo
@@ -1255,7 +1244,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
             this.totalLightLevel = 0;
         }
 
-        private void recalculate(final ChunkSection source)
+        private void recalculate(final ChunkSection source, final boolean updateWorld)
         {
             final BlockState currentPrimaryState = primaryState;
 
@@ -1319,7 +1308,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
                   }
               });
 
-            if (this.primaryState != currentPrimaryState)
+            if (this.primaryState != currentPrimaryState && updateWorld)
             {
                 final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(this.primaryState);
                 if (optionalWithConvertedBlock.isPresent())

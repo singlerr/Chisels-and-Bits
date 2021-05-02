@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.util;
 
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
@@ -83,5 +84,25 @@ public class VectorUtils
 
     public static Vector3d invert(final Vector3d v) {
         return v.mul(-1, -1, -1);
+    }
+
+    public static BlockPos invert(final BlockPos v) {
+        return new BlockPos(-1 * v.getX(), -1 * v.getY(), -1 * v.getZ());
+    }
+
+    public static Vector3d minimizeTowardsZero(final Vector3d start, final Vector3d end) {
+        return new Vector3d(
+          MathUtil.minimizeTowardsZero(start.getX(), end.getX()),
+          MathUtil.minimizeTowardsZero(start.getY(), end.getY()),
+          MathUtil.minimizeTowardsZero(start.getZ(), end.getZ())
+        );
+    }
+
+    public static Vector3d maximizeAwayFromZero(final Vector3d start, final Vector3d end) {
+        return new Vector3d(
+          MathUtil.maximizeAwayFromZero(start.getX(), end.getX()),
+          MathUtil.maximizeAwayFromZero(start.getY(), end.getY()),
+          MathUtil.maximizeAwayFromZero(start.getZ(), end.getZ())
+        );
     }
 }

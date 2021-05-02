@@ -24,7 +24,7 @@ public class VoxelShapeManager implements IVoxelShapeManager
 
     private static final VoxelShapeManager INSTANCE = new VoxelShapeManager();
 
-    private static final Cache<Key, VoxelShape> cache = CacheBuilder.newBuilder()
+    private final Cache<Key, VoxelShape> cache = CacheBuilder.newBuilder()
                                                                            .expireAfterAccess(1, TimeUnit.MINUTES)
                                                                            .build();
 

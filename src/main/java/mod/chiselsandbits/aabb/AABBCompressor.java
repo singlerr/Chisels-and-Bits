@@ -29,17 +29,6 @@ public class AABBCompressor
 
     public static Collection<AxisAlignedBB> compressStates(
       final IAreaAccessor accessor,
-      final Predicate<IStateEntryInfo> selectablePredicate) {
-        return compressStates(
-          accessor,
-          Vector3d.ZERO,
-          selectablePredicate
-        );
-    }
-
-    public static Collection<AxisAlignedBB> compressStates(
-      final IAreaAccessor accessor,
-      final Vector3d origin,
       final Predicate<IStateEntryInfo> selectablePredicate)
     {
         final BuildingState state = new BuildingState();
@@ -67,7 +56,7 @@ public class AABBCompressor
                 d -> DirectionUtils.getDirectionVectorBetweenIfAligned(centerPoint, d)
               );
 
-              final Optional<AxisAlignedBB> potentialEntryData = buildBoundingBox(stateEntryInfo, origin, selectablePredicate);
+              final Optional<AxisAlignedBB> potentialEntryData = buildBoundingBox(stateEntryInfo, selectablePredicate);
 
               if (!potentialEntryData.isPresent()) {
                   state.setCurrentBox(null, centerPoint);
@@ -122,12 +111,11 @@ public class AABBCompressor
 
     public static Optional<AxisAlignedBB> buildBoundingBox(
       final IStateEntryInfo stateEntryInfo,
-      final Vector3d origin,
       final Predicate<IStateEntryInfo> selectablePredicate) {
         if (!selectablePredicate.test(stateEntryInfo))
             return Optional.empty();
 
-        return Optional.of(stateEntryInfo.getBoundingBox().offset(VectorUtils.invert(origin)));
+        return Optional.of(stateEntryInfo.getBoundingBox());
     }
 
     private static final class BuildingState {

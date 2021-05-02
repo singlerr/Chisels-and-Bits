@@ -58,15 +58,6 @@ public interface IAreaAccessor extends IStateAccessor
     IMultiStateSnapshot createSnapshot();
 
     /**
-     * The origin of the area.
-     *
-     * @return The areas origin.
-     */
-    default BlockPos getAreaOrigin() {
-        return BlockPos.ZERO;
-    }
-
-    /**
      * Gives access to a stream with the entry state info inside the accessors range.
      * Allows for the entry state order to be mutated using a position mutator.
      *

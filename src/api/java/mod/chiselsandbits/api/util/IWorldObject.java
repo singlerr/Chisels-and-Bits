@@ -8,7 +8,7 @@ import net.minecraft.world.IWorld;
 /**
  * Represents a 3D object in world.
  */
-public interface IWorldObject extends IAABBOwner
+public interface IWorldObject
 {
 
     /**
@@ -37,7 +37,7 @@ public interface IWorldObject extends IAABBOwner
      *
      * @return The axis aligned bounding box.
      */
-    default AxisAlignedBB getBoundingBox() {
+    default AxisAlignedBB getInWorldBoundingBox() {
         return new AxisAlignedBB(getInWorldStartPoint(), getInWorldEndPoint());
     }
 }

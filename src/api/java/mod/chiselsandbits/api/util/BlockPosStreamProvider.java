@@ -25,21 +25,20 @@ public class BlockPosStreamProvider
     }
 
     public static Stream<BlockPos> getForRange(final Vector3d min, final Vector3d max) {
+        final BlockPos minPos = new BlockPos(min);
+        final BlockPos maxPos = new BlockPos(max);
+
         return getForRange(
-          min.getX(), min.getY(), min.getZ(),
-          max.getX(), max.getY(), max.getZ()
+          minPos.getX(), minPos.getY(), minPos.getZ(),
+          maxPos.getX(), maxPos.getY(), maxPos.getZ()
         );
     }
 
     public static Stream<BlockPos> getForRange(final double minX, final double minY, final double minZ, final double maxX, final double maxY, final double maxZ)
     {
         return getForRange(
-          (int) minX,
-          (int) minY,
-          (int) minZ,
-          (int) maxX,
-          (int) maxY,
-          (int) maxZ
+          new Vector3d(minX, minY, minZ),
+          new Vector3d(maxX, maxY, maxZ)
         );
     }
 

@@ -8,6 +8,7 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.utils.EffectUtils;
@@ -93,7 +94,6 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
     }
 
     //TODO: Check if getOpacity needs to be overridden.
-
     @NotNull
     @Override
     public VoxelShape getShape(@NotNull final BlockState state, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos, @NotNull final ISelectionContext context)

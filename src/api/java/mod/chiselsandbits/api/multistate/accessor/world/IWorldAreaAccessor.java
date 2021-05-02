@@ -46,15 +46,4 @@ public interface IWorldAreaAccessor extends IAreaAccessor, IWorldObject
           endPos.getX(), endPos.getY(), endPos.getZ()
         );
     }
-
-    /**
-     * The origin of the area.
-     *
-     * @return The areas origin.
-     */
-    @Override
-    default BlockPos getAreaOrigin()
-    {
-        return new BlockPos(getInWorldStartPoint());
-    }
 }

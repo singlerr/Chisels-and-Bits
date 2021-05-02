@@ -18,4 +18,24 @@ public class MathUtil
         final double diff = Math.abs(l.doubleValue() - r.doubleValue());
         return diff < epsilon.doubleValue();
     }
+
+    public static double minimizeTowardsZero(final double l, final double r) {
+        final double absL = Math.abs(l);
+        final double absR = Math.abs(r);
+
+        if (absL <= absR)
+            return l;
+
+        return r;
+    }
+
+    public static double maximizeAwayFromZero(final double l, final double r) {
+        final double absL = Math.abs(l);
+        final double absR = Math.abs(r);
+
+        if (absL >= absR)
+            return l;
+
+        return r;
+    }
 }

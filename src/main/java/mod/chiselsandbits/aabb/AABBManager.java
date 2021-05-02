@@ -49,7 +49,7 @@ public class AABBManager
         {
             return cache.get(
               cacheKey,
-              () -> AABBCompressor.compressStates(accessor, Vector3d.copy(accessor.getAreaOrigin()), selectablePredicate)
+              () -> AABBCompressor.compressStates(accessor, selectablePredicate)
             );
         }
         catch (ExecutionException e)
