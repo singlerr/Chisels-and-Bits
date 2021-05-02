@@ -3,14 +3,21 @@ package mod.chiselsandbits.chiseling;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
+import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
 
+import java.lang.ref.WeakReference;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 public class ChiselingContext implements IChiselingContext
 {
@@ -19,6 +26,9 @@ public class ChiselingContext implements IChiselingContext
     private final ChiselingOperation modeOfOperandus;
     private final boolean            simulation;
     private final Runnable           onCompleteCallback;
+    private final ItemStack          causingItemStack;
+    private final boolean      supportsDamaging;
+    private final PlayerEntity playerEntity;
 
     private boolean           complete = false;
     private IWorldAreaMutator mutator  = null;
@@ -28,13 +38,26 @@ public class ChiselingContext implements IChiselingContext
       final IChiselMode chiselMode,
       final ChiselingOperation modeOfOperandus,
       final boolean simulation,
-      final Runnable onCompleteCallback)
+      final Runnable onCompleteCallback,
+      final ItemStack causingItemStack,
+      final PlayerEntity playerEntity)
     {
         this.world = world;
         this.chiselMode = chiselMode;
         this.simulation = simulation;
         this.onCompleteCallback = onCompleteCallback;
         this.modeOfOperandus = modeOfOperandus;
+        this.causingItemStack = causingItemStack;
+
+        if (this.causingItemStack.getItem() instanceof IChiselingItem) {
+            this.supportsDamaging = ((IChiselingItem) this.causingItemStack.getItem()).isDamageableDuringChiseling();
+        }
+        else
+        {
+            this.supportsDamaging = false;
+        }
+
+        this.playerEntity = playerEntity;
     }
 
     private ChiselingContext(
@@ -42,15 +65,19 @@ public class ChiselingContext implements IChiselingContext
       final IChiselMode chiselMode,
       final ChiselingOperation modeOfOperandus,
       final boolean complete,
-      final IWorldAreaMutator mutator)
+      final IWorldAreaMutator mutator,
+      final PlayerEntity playerEntity)
     {
         this.world = world;
         this.chiselMode = chiselMode;
+        this.causingItemStack = ItemStack.EMPTY;
+        this.supportsDamaging = false;
         this.onCompleteCallback = () -> {}; //Noop this is the snapshot constructor which has no callback logic.
         this.simulation = true; //Always the case for snapshots.
         this.modeOfOperandus = modeOfOperandus;
         this.complete = complete;
         this.mutator = mutator;
+        this.playerEntity = playerEntity;
     }
 
     @Override
@@ -143,8 +170,28 @@ public class ChiselingContext implements IChiselingContext
             world,
             mutator.getInWorldStartPoint(),
             mutator.getInWorldEndPoint()
-          )
+          ),
+          playerEntity
         );
+    }
+
+    @Override
+    public boolean tryDamageItem(final int damage)
+    {
+        if (!this.supportsDamaging || this.simulation)
+            return true;
+
+        final AtomicBoolean broken = new AtomicBoolean(false);
+        this.causingItemStack.damageItem(damage, playerEntity, playerEntity -> {
+            broken.set(true);
+
+            Hand hand = Hand.MAIN_HAND;
+            if (playerEntity.getHeldItemOffhand() == causingItemStack)
+                hand = Hand.OFF_HAND;
+            playerEntity.sendBreakAnimation(hand);
+        });
+
+        return !broken.get();
     }
 
     @Override

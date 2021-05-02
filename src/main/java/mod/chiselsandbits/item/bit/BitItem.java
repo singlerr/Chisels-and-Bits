@@ -173,7 +173,8 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
           playerEntity,
           chiselMode,
           modeOfOperation,
-          false);
+          false,
+          itemStack);
 
         final ClickProcessingState resultState = callback.run(chiselMode, playerEntity, context);
 
@@ -245,7 +246,8 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
           playerEntity,
           chiselMode,
           ChiselingOperation.CHISELING,
-          true);
+          true,
+          itemStack);
 
         //We try a left click render first.
         chiselMode.onLeftClickBy(
@@ -329,13 +331,15 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
           playerEntity,
           chiselMode,
           ChiselingOperation.CHISELING,
-          true
+          true,
+          itemStack
         );
         final IChiselingContext placingContext = IChiselingManager.getInstance().create(
           playerEntity,
           chiselMode,
           ChiselingOperation.PLACING,
-          true
+          true,
+          itemStack
         );
 
         chiselMode.onLeftClickBy(
@@ -371,6 +375,12 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
               0.0f, 0.85f, 0.0f, 0.65f
             );
         }
+    }
+
+    @Override
+    public boolean isDamageableDuringChiseling()
+    {
+        return false;
     }
 
     @FunctionalInterface

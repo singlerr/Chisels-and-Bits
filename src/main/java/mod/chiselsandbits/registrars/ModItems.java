@@ -33,8 +33,15 @@ public final class ModItems
 
 
     public static final RegistryObject<ChiselItem> ITEM_CHISEL_STONE =
-      ITEM_REGISTRAR.register("chisel_stone", () -> new ChiselItem(ItemTier.STONE, new Item.Properties().group(CHISELS_AND_BITS)));
-
+      ITEM_REGISTRAR.register("chisel_stone", () -> new ChiselItem(ItemTier.STONE, new Item.Properties().group(CHISELS_AND_BITS).maxStackSize(1)));
+    public static final RegistryObject<ChiselItem> ITEM_CHISEL_IRON =
+      ITEM_REGISTRAR.register("chisel_iron", () -> new ChiselItem(ItemTier.IRON, new Item.Properties().group(CHISELS_AND_BITS).maxStackSize(1)));
+    public static final RegistryObject<ChiselItem> ITEM_CHISEL_GOLD =
+      ITEM_REGISTRAR.register("chisel_gold", () -> new ChiselItem(ItemTier.GOLD, new Item.Properties().group(CHISELS_AND_BITS).maxStackSize(1)));
+    public static final RegistryObject<ChiselItem> ITEM_CHISEL_DIAMOND =
+      ITEM_REGISTRAR.register("chisel_diamond", () -> new ChiselItem(ItemTier.DIAMOND, new Item.Properties().group(CHISELS_AND_BITS).maxStackSize(1)));
+    public static final RegistryObject<ChiselItem> ITEM_CHISEL_NETHERITE =
+      ITEM_REGISTRAR.register("chisel_netherite", () -> new ChiselItem(ItemTier.NETHERITE, new Item.Properties().group(CHISELS_AND_BITS).maxStackSize(1)));
     public static final RegistryObject<BitItem> ITEM_BLOCK_BIT =
       ITEM_REGISTRAR.register("block_bit", () -> new BitItem(new Item.Properties().group(
       CHISELS_AND_BITS)));

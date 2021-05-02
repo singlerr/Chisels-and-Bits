@@ -3,6 +3,7 @@ package mod.chiselsandbits.api.chiseling;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 
 import java.util.Optional;
 
@@ -25,13 +26,15 @@ public interface IChiselingManager
      * @param mode The mode which the player wants to chisel in.
      * @param modeOfOperandus The mode of operation for the current context.
      * @param simulation Indicates if the context should be created as a simulation context if it does not exist. If the context does not exist, a simulation context is not stored in the manager. A simulation context will also be a snapshot of the current context if one already exists.
+     * @param causingItemStack The stack that triggered the chiseling operation.
      * @return The context.
      */
     default IChiselingContext getOrCreateContext(
       final PlayerEntity playerEntity,
       final IChiselMode mode,
       final ChiselingOperation modeOfOperandus,
-      final boolean simulation) {
+      final boolean simulation,
+      final ItemStack causingItemStack) {
         final Optional<IChiselingContext> optionalWithCurrent = get(playerEntity, mode, modeOfOperandus);
 
         if (optionalWithCurrent.isPresent())
@@ -40,7 +43,7 @@ public interface IChiselingManager
             return current.createSnapshot();
         }
 
-        return create(playerEntity, mode, modeOfOperandus, simulation);
+        return create(playerEntity, mode, modeOfOperandus, simulation, causingItemStack);
     }
 
     /**
@@ -79,6 +82,7 @@ public interface IChiselingManager
      * @param mode The mode which the player wants to chisel in.
      * @param modeOfOperandus The mode of operation for the current context.
      * @param simulation Indicates if the context is used in contextual simulation. {@code true}, prevents overriding of the current context and also does not save the context in the manager.
+     * @param causingItemStack The stack that triggered the chiseling operation.
      *
      * @return The newly created context.
      */
@@ -86,6 +90,7 @@ public interface IChiselingManager
       final PlayerEntity playerEntity,
       final IChiselMode mode,
       final ChiselingOperation modeOfOperandus,
-      final boolean simulation
+      final boolean simulation,
+      final ItemStack causingItemStack
     );
 }

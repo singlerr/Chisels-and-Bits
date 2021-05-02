@@ -16,17 +16,17 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ChiselTagGenerator implements IDataProvider
+public class PiglinsLovedTagGenerator implements IDataProvider
 {
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
-        event.getGenerator().addProvider(new ChiselTagGenerator(event.getGenerator()));
+        event.getGenerator().addProvider(new PiglinsLovedTagGenerator(event.getGenerator()));
     }
 
     private final DataGenerator generator;
 
-    private ChiselTagGenerator(final DataGenerator generator) {this.generator = generator;}
+    private PiglinsLovedTagGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
     public void act(@NotNull final DirectoryCache cache) throws IOException
@@ -34,16 +34,14 @@ public class ChiselTagGenerator implements IDataProvider
         final TagJson json = new TagJson();
         json.setValues(
           Lists.newArrayList(
-            ModItems.ITEM_CHISEL_DIAMOND.getId().toString(),
-            ModItems.ITEM_CHISEL_GOLD.getId().toString(),
-            ModItems.ITEM_CHISEL_IRON.getId().toString(),
-            ModItems.ITEM_CHISEL_STONE.getId().toString(),
-            ModItems.ITEM_CHISEL_NETHERITE.getId().toString()
+            ModItems.ITEM_CHISEL_GOLD.getId().toString()
           )
         );
 
-        final Path tagFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.ITEM_TAGS_DIR);
-        final Path chiselableTagPath = tagFolder.resolve("chisel.json");
+        json.setReplace(false);
+
+        final Path tagFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.MINECRAFT_ITEM_TAGS_DIR);
+        final Path chiselableTagPath = tagFolder.resolve("piglin_loved.json");
 
         IDataProvider.save(Constants.DataGenerator.GSON, cache, json.serialize(), chiselableTagPath);
     }
@@ -52,6 +50,6 @@ public class ChiselTagGenerator implements IDataProvider
     @Override
     public String getName()
     {
-        return "Piglins loved tag generator";
+        return "Chisel tag generator";
     }
 }

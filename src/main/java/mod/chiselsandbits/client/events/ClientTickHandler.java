@@ -15,7 +15,7 @@ public class ClientTickHandler
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
-    public static void onTickPlayerTick(final TickEvent.ClientTickEvent event)
+    public static void handleClientTickForMagnifyingGlass(final TickEvent.ClientTickEvent event)
     {
         if (Minecraft.getInstance().player != null)
             if (Minecraft.getInstance().player.getHeldItemMainhand().getItem() instanceof MagnifyingGlassItem

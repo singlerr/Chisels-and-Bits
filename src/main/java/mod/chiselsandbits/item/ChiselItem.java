@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.utils.ItemStackUtils;
@@ -147,7 +148,8 @@ public class ChiselItem extends ToolItem implements IChiselingItem
           playerEntity,
           chiselMode,
           ChiselingOperation.CHISELING,
-          false);
+          false,
+          itemStack);
 
         final ClickProcessingState resultState = chiselMode.onLeftClickBy(
           playerEntity,
@@ -204,7 +206,8 @@ public class ChiselItem extends ToolItem implements IChiselingItem
           playerEntity,
           chiselMode,
           ChiselingOperation.CHISELING,
-          true);
+          true,
+          itemStack);
 
         //We try a left click render first.
         chiselMode.onLeftClickBy(
@@ -244,7 +247,8 @@ public class ChiselItem extends ToolItem implements IChiselingItem
                                                 playerEntity,
                                                 chiselMode,
                                                 ChiselingOperation.CHISELING,
-                                                true
+                                                true,
+                                                itemStack
                                               )
                                             );
 
@@ -275,5 +279,18 @@ public class ChiselItem extends ToolItem implements IChiselingItem
           inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() - zView,
           0.95F, 0.0F, 0.0F, 0.65F
         );
+    }
+
+    @Override
+    public boolean isDamageableDuringChiseling()
+    {
+        return true;
+    }
+
+    @Override
+    public int getMaxDamage(final ItemStack stack)
+    {
+        final IItemTier tier = getTier();
+        return tier.getMaxUses() * ChiseledBlockEntity.BITS_PER_BLOCK;
     }
 }

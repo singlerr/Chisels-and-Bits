@@ -8,6 +8,7 @@ import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.Optional;
@@ -70,7 +71,7 @@ public class ChiselingManager implements IChiselingManager
     }
 
     @Override
-    public IChiselingContext create(final PlayerEntity playerEntity, final IChiselMode mode, final ChiselingOperation modeOfOperandus, final boolean simulation)
+    public IChiselingContext create(final PlayerEntity playerEntity, final IChiselMode mode, final ChiselingOperation modeOfOperandus, final boolean simulation, final ItemStack causingItemStack)
     {
         final UUID playerId = playerEntity.getUniqueID();
         final ResourceLocation worldId = playerEntity.getEntityWorld().getDimensionKey().getLocation();
@@ -93,7 +94,7 @@ public class ChiselingManager implements IChiselingManager
 
             this.lastUsedChiselMoments.get().put(playerId, worldId, (long) playerEntity.ticksExisted);
             contexts.get().remove(playerId, worldId);
-        });
+        }, causingItemStack, playerEntity);
 
         if (!simulation)
         {

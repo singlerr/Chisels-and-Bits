@@ -14,7 +14,7 @@
 6cb8fdfb5f2fb79ee266fd58abf6b9ad661c554e assets/chiselsandbits/blockstates/chiseledsnow.json
 6cb8fdfb5f2fb79ee266fd58abf6b9ad661c554e assets/chiselsandbits/blockstates/chiseledwood.json
 6cb8fdfb5f2fb79ee266fd58abf6b9ad661c554e assets/chiselsandbits/blockstates/chiseledwool.json
-691fd1d94865aaf47d1fba0fa599a4e99d3fe4f2 assets/chiselsandbits/lang/config/config.json
+39a30ec285a886e853bf93108d1f9501df5cb950 assets/chiselsandbits/lang/config/config.json
 47f435ac51a53eb518987d0a964412bc5e2b84f9 assets/chiselsandbits/models/item/block_bit.json
 eec4217060888687d4e939e8764a77e4fd628dfe assets/chiselsandbits/models/item/chiseledclay.json
 eec4217060888687d4e939e8764a77e4fd628dfe assets/chiselsandbits/models/item/chiseledcloth.json
@@ -34,5 +34,6 @@ eec4217060888687d4e939e8764a77e4fd628dfe assets/chiselsandbits/models/item/chise
 eec4217060888687d4e939e8764a77e4fd628dfe assets/chiselsandbits/models/item/chiseledwool.json
 6df1285db4729371f4ddffb02051c520c8ea99d6 data/chiselsandbits/tags/blocks/chiselable/blocked.json
 cac8e5e284b4096ae634a978c6944ce4eba42b44 data/chiselsandbits/tags/blocks/chiselable/forced.json
-531746f629c038450b235042388ea42ed0ca46e9 data/chiselsandbits/tags/items/chisel.json
+1262798bd4063d60bc2abe1afb5986656958a03f data/chiselsandbits/tags/items/chisel.json
 81d914bae6feb5d3efc189d23a2edac3ff3da0bc data/forge/tags/items/paper.json
+8bfb1ba529a836b72fb857a23a89d36eeb4093ca data/minecraft/tags/items/piglin_loved.json

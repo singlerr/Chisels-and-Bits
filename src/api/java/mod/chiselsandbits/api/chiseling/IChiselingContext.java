@@ -114,4 +114,32 @@ public interface IChiselingContext extends IStateAccessor
      * @return The snapshot context of this context.
      */
     IChiselingContext createSnapshot();
+
+    /**
+     * Invoked to try to damage the item that caused the chiseling operation.
+     * If no item was the cause of the operation this function always returns successfully.
+     * If this item does not support damaging the item on a chiseling operation this method also
+     * always returns successfully.
+     *
+     * Does exactly 1 damage to the item.
+     *
+     * The only case where this method does not return {@code True}, is when the item that caused the operation broke in the previous operation.
+     * @return {@code True} when successful, {@code false} when not.
+     */
+    default boolean tryDamageItem() {
+        return tryDamageItem(1);
+    };
+
+    /**
+     * Invoked to try to damage the item that caused the chiseling operation.
+     * If no item was the cause of the operation this function always returns successfully.
+     * If this item does not support damaging the item on a chiseling operation this method also
+     * always returns successfully.
+     *
+     * The only case where this method does not return {@code True}, is when the item that caused the operation broke in the previous operation.
+     *
+     * @param damage The damage to apply to the item that caused the chiseling operation.
+     * @return {@code True} when successful, {@code false} when not.
+     */
+    boolean tryDamageItem(final int damage);
 }

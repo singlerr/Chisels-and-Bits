@@ -75,10 +75,13 @@ public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implement
                   mutator.inWorldMutableStream()
                     .forEach(state -> {
                         final BlockState currentState = state.getState();
-                        resultingBitCount.putIfAbsent(currentState, 0);
-                        resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
 
-                        state.clear();
+                        if (context.tryDamageItem()) {
+                            resultingBitCount.putIfAbsent(currentState, 0);
+                            resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
+
+                            state.clear();
+                        }
                     });
 
                   final IBitInventory inventory = IBitInventoryManager.getInstance()

@@ -355,4 +355,13 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
 
         return Optional.of((IMultiStateBlockEntity) tileEntity);
     }
+
+    @Override
+    public void onReplaced(final BlockState state, final World worldIn, final BlockPos pos, final BlockState newState, final boolean isMoving)
+    {
+        if (newState.getBlock() instanceof ChiseledBlock)
+            return;
+
+        super.onReplaced(state, worldIn, pos, newState, isMoving);
+    }
 }
