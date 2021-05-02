@@ -16,9 +16,10 @@ public class ChiseledBlockBlockColor implements IBlockColor
 
     @Override
     public int getColor(
-      @NotNull final BlockState state, @Nullable final IBlockDisplayReader displayReader, @Nullable final BlockPos pos, final int color) {
-        final BlockState containedState = IBlockStateIdManager.getInstance().getBlockStateFrom(color >> TINT_BITS );
+      @NotNull final BlockState state, @Nullable final IBlockDisplayReader displayReader, @Nullable final BlockPos pos, final int color)
+    {
+        final BlockState containedState = IBlockStateIdManager.getInstance().getBlockStateFrom(color >> TINT_BITS);
         int tintValue = color & TINT_MASK;
-        return Minecraft.getInstance().getBlockColors().getColor( containedState, displayReader, pos, tintValue );
+        return Minecraft.getInstance().getBlockColors().getColor(containedState, displayReader, pos, tintValue);
     }
 }

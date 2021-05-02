@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client.registrars;
 
 import mod.chiselsandbits.block.ChiseledBlock;
+import mod.chiselsandbits.client.colors.BitItemItemColor;
 import mod.chiselsandbits.client.colors.ChiseledBlockBlockColor;
 import mod.chiselsandbits.client.colors.ChiseledBlockItemItemColor;
 import mod.chiselsandbits.item.ChiseledBlockItem;
@@ -27,5 +28,8 @@ public final class ModColors
         Minecraft.getInstance()
           .getItemColors()
           .register(new ChiseledBlockItemItemColor(), ModItems.MATERIAL_TO_ITEM_CONVERSIONS.values().stream().map(RegistryObject::get).toArray(ChiseledBlockItem[]::new));
+        Minecraft.getInstance()
+          .getItemColors()
+          .register(new BitItemItemColor(), ModItems.ITEM_BLOCK_BIT.get());
     }
 }

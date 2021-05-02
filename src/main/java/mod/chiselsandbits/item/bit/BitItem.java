@@ -21,6 +21,7 @@ import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
@@ -45,6 +46,7 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistry;
 import org.apache.logging.log4j.LogManager;
@@ -116,7 +118,13 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
         final BlockState containedStack = getBitState(stack);
         final Block block = containedStack.getBlock();
 
-        return new TranslationTextComponent(this.getTranslationKey(stack), block.asItem().getDisplayName(new ItemStack(block)));
+        ITextComponent stateName = block.asItem().getDisplayName(new ItemStack(block));
+        if (block instanceof FlowingFluidBlock) {
+            final FlowingFluidBlock flowingFluidBlock = (FlowingFluidBlock) block;
+            stateName = new TranslationTextComponent(flowingFluidBlock.getFluid().getAttributes().getTranslationKey());
+        }
+
+        return new TranslationTextComponent(this.getTranslationKey(stack), stateName);
     }
 
     @Override
