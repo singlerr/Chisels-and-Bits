@@ -30,4 +30,5 @@ public class NbtConstants
     public static final String CHISEL_MODE = "chiselMode";
     public static final String CHISELED_DATA = "chiseledData";
     public static final String INVENTORY = "Inventory";
+    public static final String CONTENTS = "contents";
 }

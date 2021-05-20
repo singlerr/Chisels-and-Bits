@@ -1,15 +1,19 @@
 package mod.chiselsandbits.item;
 
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItem;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
+import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.inventory.bit.IllegalBitInventory;
 import mod.chiselsandbits.inventory.bit.SlottedBitInventoryItemStack;
 import mod.chiselsandbits.network.packets.OpenBagGuiPacket;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.SimpleInstanceCache;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
@@ -105,6 +109,9 @@ public class BitBagItem extends Item implements IBitInventoryItem
     @Override
     public IBitInventoryItemStack create(final ItemStack stack)
     {
+        if (stack.getItem() == this)
+            return new SlottedBitInventoryItemStack(0, (nbt) -> ItemStack.EMPTY);
+
         final SlottedBitInventoryItemStack inventoryItemStack = new SlottedBitInventoryItemStack(
           BAG_STORAGE_SLOTS,
           nbt -> {
@@ -112,6 +119,28 @@ public class BitBagItem extends Item implements IBitInventoryItem
               return stack;
           }
         );
+
+        if (!stack.getOrCreateTag().contains(NbtConstants.INVENTORY) && stack.getOrCreateTag().contains(NbtConstants.CONTENTS)) {
+            int[] legacyContentData = stack.getOrCreateTag().getIntArray(NbtConstants.CONTENTS);
+            if (legacyContentData.length != BAG_STORAGE_SLOTS * 2) {
+                final int[] tmp = legacyContentData;
+                legacyContentData = new int[BAG_STORAGE_SLOTS * 2];
+                System.arraycopy( legacyContentData, 0, tmp, 0, Math.min( BAG_STORAGE_SLOTS * 2, tmp.length ) );
+            }
+
+            for (int i = 0; i < BAG_STORAGE_SLOTS; i++)
+            {
+                final int count = legacyContentData[2 * i + 1];
+                final int id = legacyContentData[2 * i];
+
+                final BlockState blockState = IBlockStateIdManager.getInstance().getBlockStateFrom(id);
+                final ItemStack bitStack = IBitItemManager.getInstance().create(blockState, count);
+
+                inventoryItemStack.setInventorySlotContents(i, bitStack);
+            }
+
+            stack.getOrCreateTag().remove(NbtConstants.CONTENTS);
+        }
 
         inventoryItemStack.deserializeNBT(stack.getOrCreateChildTag(NbtConstants.INVENTORY));
         return inventoryItemStack;
