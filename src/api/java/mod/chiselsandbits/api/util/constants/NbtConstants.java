@@ -31,4 +31,5 @@ public class NbtConstants
     public static final String CHISELED_DATA = "chiseledData";
     public static final String INVENTORY = "Inventory";
     public static final String CONTENTS = "contents";
+    public static final String BLOCK_ENTITY_DATA = "BlockEntityTag";
 }

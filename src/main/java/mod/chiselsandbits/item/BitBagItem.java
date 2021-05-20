@@ -109,7 +109,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
     @Override
     public IBitInventoryItemStack create(final ItemStack stack)
     {
-        if (stack.getItem() == this)
+        if (stack.getItem() != this)
             return new SlottedBitInventoryItemStack(0, (nbt) -> ItemStack.EMPTY);
 
         final SlottedBitInventoryItemStack inventoryItemStack = new SlottedBitInventoryItemStack(

@@ -9,12 +9,18 @@ import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.item.multistate.ChiseledBlockMultiStateItemStack;
+import mod.chiselsandbits.legacy.LegacyLoadManager;
+import mod.chiselsandbits.multistate.snapshot.LazilyDecodingSingleBlockMultiStateSnapshot;
+import mod.chiselsandbits.utils.ChunkSectionUtils;
+import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.Block;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.world.chunk.ChunkSection;
 import org.jetbrains.annotations.NotNull;
 
 public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
@@ -35,6 +41,18 @@ public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
     @Override
     public IMultiStateItemStack createItemStack(final ItemStack stack)
     {
+        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_ENTITY_DATA)){
+            final ChunkSection legacyLoadedChunkSection = LegacyLoadManager.getInstance().attemptLegacyBlockEntityLoad(
+              stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_ENTITY_DATA)
+            );
+
+            final IMultiStateSnapshot snapshot = MultiStateSnapshotUtils.createFromSection(legacyLoadedChunkSection);
+            final IMultiStateItemStack multiStateItemStack = snapshot.toItemStack();
+
+            final ItemStack tempStack = multiStateItemStack.toItemStack();
+            stack.setTag(tempStack.getTag());
+        }
+
         return new ChiseledBlockMultiStateItemStack(stack);
     }
 

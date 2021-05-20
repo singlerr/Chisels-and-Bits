@@ -203,7 +203,64 @@ public abstract class AbstractBitInventory implements IBitInventory
         if (!canInsert(blockState, count))
             throw new IllegalArgumentException("Can not insert: " + blockState);
 
+        int currentRawCount = 0;
+        for (int i = 0; i < getInventorySize(); i++)
+        {
+            final ItemStack stack = getStackInSlot(i);
+            if (stack.getItem() instanceof IBitItem) {
+                final IBitItem bitItem = (IBitItem) stack.getItem();
+                if (bitItem.getBitState(stack) == blockState) {
+                    currentRawCount += stack.getCount();
+                }
+            }
+        }
+
         int toInsert = count;
+
+        if (currentRawCount == 0) {
+            for (int i = 0; i < getInventorySize(); i++)
+            {
+                final ItemStack stack = getStackInSlot(i);
+                if (stack.isEmpty()) {
+                    final int stackInsertCount = Math.min(toInsert, getMaxBitsForSlot());
+
+                    if (stackInsertCount > 0) {
+                        toInsert -= stackInsertCount;
+
+                        final ItemStack newStack = IBitItemManager.getInstance().create(blockState, stackInsertCount);
+
+                        setSlotContents(i, newStack);
+                    }
+                }
+
+                if (toInsert <= 0)
+                    return;
+            }
+        }
+
+        if (currentRawCount < getMaxBitsForSlot()) {
+            for (int i = 0; i < getInventorySize(); i++)
+            {
+                final ItemStack stack = getStackInSlot(i);
+                if (stack.getItem() instanceof IBitItem) {
+                    final IBitItem bitItem = (IBitItem) stack.getItem();
+                    if (bitItem.getBitState(stack) == blockState) {
+                        final int stackInsertCount = Math.min(toInsert, getMaxBitsForSlot() - stack.getCount());
+
+                        if (stackInsertCount > 0) {
+                            toInsert -= stackInsertCount;
+
+                            stack.setCount(stack.getCount() + stackInsertCount);
+
+                            setSlotContents(i, stack);
+                        }
+                    }
+                }
+
+                if (toInsert <= 0)
+                    return;
+            }
+        }
 
         for (int i = getInventorySize() - 1; i >= 0; i--)
         {
