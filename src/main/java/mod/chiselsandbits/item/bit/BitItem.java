@@ -4,10 +4,11 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
-import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
+import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
@@ -46,7 +47,6 @@ import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.ForgeRegistry;
 import org.apache.logging.log4j.LogManager;
@@ -64,6 +64,8 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
     private static final String LEGACY_BLOCK_STATE_ID_KEY = "id";
 
     private final List<ItemStack> availableBitStacks = Lists.newLinkedList();
+
+    private final ThreadLocal<Boolean> threadLocalBitMergeOperationInProgress = ThreadLocal.withInitial(() -> false);
 
     public BitItem(final Properties properties)
     {
@@ -207,6 +209,26 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
             stack.getOrCreateTag().put(NbtConstants.BLOCK_STATE, NBTUtil.writeBlockState(blockState));
         }
         return NBTUtil.readBlockState(stack.getOrCreateChildTag(NbtConstants.BLOCK_STATE));
+    }
+
+    @Override
+    public void onMergeOperationWithBagBeginning()
+    {
+        this.threadLocalBitMergeOperationInProgress.set(true);
+    }
+
+    @Override
+    public void onMergeOperationWithBagEnding()
+    {
+        this.threadLocalBitMergeOperationInProgress.set(false);
+    }
+    @Override
+    public int getItemStackLimit(final ItemStack stack)
+    {
+        if (this.threadLocalBitMergeOperationInProgress.get())
+            return Configuration.getInstance().getServer().bagStackSize.get();
+
+        return super.getItemStackLimit(stack);
     }
 
     @Override

@@ -31,6 +31,8 @@ public class ChiselsAndBits
         ModItems.onModConstruction();
         ModTileEntityTypes.onModConstruction();
         ModChiselModes.onModConstruction();
+        ModContainerTypes.onModConstruction();
+
         ModTags.init();
 
         networkChannel.registerCommonMessages();

@@ -44,4 +44,10 @@ public class IInventoryBitInventory extends AbstractBitInventory
     {
         inventory.setInventorySlotContents(index, stack);
     }
+
+    @Override
+    public boolean isEmpty()
+    {
+        return inventory.isEmpty();
+    }
 }

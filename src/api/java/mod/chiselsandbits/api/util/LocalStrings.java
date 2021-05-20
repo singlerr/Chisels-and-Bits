@@ -32,6 +32,7 @@ public enum LocalStrings
 
 	HelpBitBag( "help.bit_bag" ),
 	LongHelpBitBag( "help.bit_bag.long" ),
+    ContainerBitBag("container.bit_bag"),
 
 	HelpWrench( "help.wrench" ),
 	LongHelpWrench( "help.wrench.long" ),

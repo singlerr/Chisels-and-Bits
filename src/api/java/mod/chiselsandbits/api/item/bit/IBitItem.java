@@ -22,4 +22,16 @@ public interface IBitItem extends IRightClickControllingItem, IWithHighlightItem
      * @return The blockstate contained in this bit item.
      */
     BlockState getBitState(final ItemStack stack);
+
+    /**
+     * Invoked when a merge operation of a bit inside a bitbag is beginning during a shift-click interaction
+     * in the bit bag UI.
+     */
+    void onMergeOperationWithBagBeginning();
+
+    /**
+     * Invoked when a merge operation of a bit inside a bitbag is ending during a shift-click interaction
+     * in the bit bag UI.
+     */
+    void onMergeOperationWithBagEnding();
 }

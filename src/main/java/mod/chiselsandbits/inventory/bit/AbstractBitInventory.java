@@ -151,6 +151,10 @@ public abstract class AbstractBitInventory implements IBitInventory
         return count <= insertionCount;
     }
 
+    protected int getMaxBitsForSlot() {
+        return IBitItemManager.getInstance().getMaxStackSize();
+    }
+
     /**
      * Returns the maximal amount of bits with a given blockstate which can be inserted of a given blockstate.
      *
@@ -165,12 +169,12 @@ public abstract class AbstractBitInventory implements IBitInventory
                  .filter(stack -> stack.getItem() instanceof IBitItem || stack.getItem() instanceof IBitInventoryItem || stack.isEmpty())
                  .mapToInt(stack -> {
                      if (stack.isEmpty())
-                         return IBitItemManager.getInstance().getMaxStackSize();
+                         return getMaxBitsForSlot();
 
                      if (stack.getItem() instanceof IBitItem) {
                          final IBitItem bitItem = (IBitItem) stack.getItem();
                          if (bitItem.getBitState(stack) == blockState)
-                             return stack.getMaxStackSize() - stack.getCount();
+                             return getMaxBitsForSlot() - stack.getCount();
 
                          return 0;
                      }
@@ -225,13 +229,13 @@ public abstract class AbstractBitInventory implements IBitInventory
         }
 
 
-        for (int i = getInventorySize() - 1; i >= 0; i--)
+        for (int i = 0; i < getInventorySize(); i++)
         {
             final ItemStack stack = getStackInSlot(i);
             if (stack.getItem() instanceof IBitItem) {
                 final IBitItem bitItem = (IBitItem) stack.getItem();
                 if (bitItem.getBitState(stack) == blockState) {
-                    final int stackInsertCount = Math.min(toInsert, stack.getMaxStackSize() - stack.getCount());
+                    final int stackInsertCount = Math.min(toInsert, getMaxBitsForSlot() - stack.getCount());
 
                     if (stackInsertCount > 0) {
                         toInsert -= stackInsertCount;
@@ -247,11 +251,11 @@ public abstract class AbstractBitInventory implements IBitInventory
                 return;
         }
 
-        for (int i = getInventorySize() - 1; i >= 0; i--)
+        for (int i = 0; i < getInventorySize(); i++)
         {
             final ItemStack stack = getStackInSlot(i);
             if (stack.isEmpty()) {
-                final int stackInsertCount = Math.min(toInsert, IBitItemManager.getInstance().getMaxStackSize());
+                final int stackInsertCount = Math.min(toInsert, getMaxBitsForSlot());
 
                 if (stackInsertCount > 0) {
                     toInsert -= stackInsertCount;

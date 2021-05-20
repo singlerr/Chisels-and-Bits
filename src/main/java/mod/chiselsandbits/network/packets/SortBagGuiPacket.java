@@ -1,0 +1,38 @@
+package mod.chiselsandbits.network.packets;
+
+import mod.chiselsandbits.container.BagContainer;
+import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.network.PacketBuffer;
+
+public final class SortBagGuiPacket extends ModPacket
+{
+    public SortBagGuiPacket(PacketBuffer buffer)
+    {
+        readPayload(buffer);
+    }
+
+    public SortBagGuiPacket()
+    {
+    }
+
+    @Override
+    public void server(
+      final ServerPlayerEntity player)
+    {
+        if (player.openContainer instanceof BagContainer)
+        {
+            ((BagContainer) player.openContainer).sort();
+        }
+    }
+
+    @Override
+    public void writePayload(final PacketBuffer buffer)
+    {
+    }
+
+    @Override
+    public void readPayload(
+      PacketBuffer buffer)
+    {
+    }
+}

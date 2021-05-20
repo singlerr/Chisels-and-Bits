@@ -1,6 +1,8 @@
 package mod.chiselsandbits.api.inventory.bit;
 
+import mod.chiselsandbits.api.item.bit.IBitItem;
 import net.minecraft.block.BlockState;
+import net.minecraft.item.ItemStack;
 
 /**
  * Represents an inventory in which bits are contained.
@@ -108,4 +110,36 @@ public interface IBitInventory
      * @throws IllegalArgumentException when insertion is not possible.
      */
     void insert(final BlockState blockState, final int count) throws IllegalArgumentException;
+
+    /**
+     * Indicates if this inventory is empty or not.
+     * @return {@code true} when empty.
+     */
+    boolean isEmpty();
+
+    /**
+     * Tries to insert a given itemstack with a bit item into the inventory.
+     * Draining the itemstack completely if possible.
+     *
+     * @param stack The stack to insert.
+     * @return The remainder, or the original stack if it is not an bit item.
+     */
+    default ItemStack insert(final ItemStack stack)
+    {
+        if (!(stack.getItem() instanceof IBitItem))
+            return stack;
+
+        final IBitItem bitItem = (IBitItem) stack.getItem();
+        final BlockState blockState = bitItem.getBitState(stack);
+
+        final int maxToInsertCount = this.getMaxInsertAmount(blockState);
+        final int maxToInsertFromStack = Math.min(stack.getCount(), maxToInsertCount);
+        final int maxRemainingOnStack = stack.getCount() - maxToInsertCount;
+
+        this.insert(blockState, maxToInsertFromStack);
+
+        final ItemStack resultStack = stack.copy();
+        resultStack.setCount(maxRemainingOnStack);
+        return resultStack;
+    }
 }

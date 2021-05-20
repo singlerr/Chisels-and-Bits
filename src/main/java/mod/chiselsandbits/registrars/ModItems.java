@@ -2,6 +2,7 @@ package mod.chiselsandbits.registrars;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.item.bit.BitItem;
 import mod.chiselsandbits.item.ChiselItem;
 import mod.chiselsandbits.item.ChiseledBlockItem;
@@ -48,6 +49,13 @@ public final class ModItems
 
     public static final RegistryObject<MagnifyingGlassItem> ITEM_MAGNIFYING_GLASS =
       ITEM_REGISTRAR.register("magnifying_glass", () -> new MagnifyingGlassItem(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+
+    public static final RegistryObject<BitBagItem> ITEM_BIT_BAG_DEFAULT =
+      ITEM_REGISTRAR.register("bit_bag", () -> new BitBagItem(new Item.Properties().group(
+        CHISELS_AND_BITS)));
+    public static final RegistryObject<BitBagItem> ITEM_BIT_BAG_DYED    =
+      ITEM_REGISTRAR.register("bit_bag_dyed", () -> new BitBagItem(new Item.Properties().group(
         CHISELS_AND_BITS)));
 
     public static void onModConstruction() {

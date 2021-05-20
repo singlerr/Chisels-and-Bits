@@ -48,4 +48,16 @@ public class IItemHandlerBitInventory extends AbstractBitInventory
             throw new IllegalStateException("Failed to insert stack.");
         }
     }
+
+    @Override
+    public boolean isEmpty()
+    {
+        for (int i = 0; i < itemHandler.getSlots(); i++)
+        {
+            if (!itemHandler.getStackInSlot(i).isEmpty())
+                return false;
+        }
+
+        return true;
+    }
 }

@@ -80,4 +80,10 @@ public class IllegalBitInventory implements IBitInventory
     {
 
     }
+
+    @Override
+    public boolean isEmpty()
+    {
+        return true;
+    }
 }

@@ -34,6 +34,5 @@ public class ChiselsAndBitsClient
         KeyBindingManager.getInstance().onModInitialization();
 
         ModRenderLayers.onClientInit();
-        ModColors.onClientInit();
     }
 }
