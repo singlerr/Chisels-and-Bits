@@ -1,6 +1,7 @@
 package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
+import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,9 +15,11 @@ public class BitInventoryUtils
         throw new IllegalStateException("Can not instantiate an instance of: BitInventoryUtils. This is a utility class");
     }
 
-    public static void insertIntoOrSpawn(final PlayerEntity playerEntity, final IBitInventory inventory, final BlockState blockState, final int count) {
-        if (playerEntity.getEntityWorld().isRemote())
+    public static void insertIntoOrSpawn(final PlayerEntity playerEntity, final BlockState blockState, final int count) {
+        if (playerEntity == null || playerEntity.getEntityWorld().isRemote())
             return;
+
+        final IBitInventory inventory = IBitInventoryManager.getInstance().create(playerEntity);
 
         if (playerEntity.isCreative()) {
             if (inventory.canExtractOne(blockState))

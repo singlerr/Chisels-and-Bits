@@ -84,12 +84,8 @@ public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implement
                         }
                     });
 
-                  final IBitInventory inventory = IBitInventoryManager.getInstance()
-                                                    .create(playerEntity);
-
                   resultingBitCount.forEach((blockState, count) -> BitInventoryUtils.insertIntoOrSpawn(
                     playerEntity,
-                    inventory,
                     blockState,
                     count
                   ));

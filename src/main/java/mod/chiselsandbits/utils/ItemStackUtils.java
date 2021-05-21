@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -85,55 +86,101 @@ public class ItemStackUtils
         }
     }
 
-    public static ItemStack getModeItemStackFromPlayer(@Nullable final PlayerEntity playerEntity) {
+    public static ItemStack getModeItemStackFromPlayer(@Nullable final PlayerEntity playerEntity)
+    {
         if (playerEntity == null)
+        {
             return ItemStack.EMPTY;
+        }
 
         if (playerEntity.getHeldItemMainhand().getItem() instanceof IWithModeItem)
+        {
             return playerEntity.getHeldItemMainhand();
+        }
 
         if (playerEntity.getHeldItemOffhand().getItem() instanceof IWithModeItem)
+        {
             return playerEntity.getHeldItemOffhand();
+        }
 
         return ItemStack.EMPTY;
     }
 
-    public static ItemStack getHighlightItemStackFromPlayer(@Nullable final PlayerEntity playerEntity) {
+    public static ItemStack getHighlightItemStackFromPlayer(@Nullable final PlayerEntity playerEntity)
+    {
         if (playerEntity == null)
+        {
             return ItemStack.EMPTY;
+        }
 
         if (playerEntity.getHeldItemMainhand().getItem() instanceof IWithHighlightItem)
+        {
             return playerEntity.getHeldItemMainhand();
+        }
 
         if (playerEntity.getHeldItemOffhand().getItem() instanceof IWithHighlightItem)
+        {
             return playerEntity.getHeldItemOffhand();
+        }
 
         return ItemStack.EMPTY;
     }
 
-    public static ItemStack getBitItemStackFromPlayer(@Nullable final PlayerEntity playerEntity) {
+    public static ItemStack getBitItemStackFromPlayer(@Nullable final PlayerEntity playerEntity)
+    {
         if (playerEntity == null)
+        {
             return ItemStack.EMPTY;
+        }
 
         if (playerEntity.getHeldItemMainhand().getItem() instanceof IBitItem)
+        {
             return playerEntity.getHeldItemMainhand();
+        }
 
         if (playerEntity.getHeldItemOffhand().getItem() instanceof IBitItem)
+        {
             return playerEntity.getHeldItemOffhand();
+        }
 
         return ItemStack.EMPTY;
     }
 
-
-    public static BlockState getHeldBitBlockStateFromPlayer(@Nullable final PlayerEntity playerEntity) {
+    public static BlockState getHeldBitBlockStateFromPlayer(@Nullable final PlayerEntity playerEntity)
+    {
         if (playerEntity == null)
+        {
             return Blocks.AIR.getDefaultState();
+        }
 
         if (playerEntity.getHeldItemMainhand().getItem() instanceof IBitItem)
+        {
             return ((IBitItem) playerEntity.getHeldItemMainhand().getItem()).getBitState(playerEntity.getHeldItemMainhand());
+        }
 
         if (playerEntity.getHeldItemOffhand().getItem() instanceof IBitItem)
-            return ((IBitItem) playerEntity.getHeldItemOffhand().getItem()).getBitState(playerEntity.getHeldItemOffhand());;
+        {
+            return ((IBitItem) playerEntity.getHeldItemOffhand().getItem()).getBitState(playerEntity.getHeldItemOffhand());
+        }
+        ;
+
+        return Blocks.AIR.getDefaultState();
+    }
+
+    public static BlockState getStateFromItem(
+      final ItemStack is)
+    {
+        try
+        {
+            if (!is.isEmpty() && is.getItem() instanceof BlockItem)
+            {
+                final BlockItem blockItem = (BlockItem) is.getItem();
+                return blockItem.getBlock().getDefaultState();
+            }
+        }
+        catch (final Throwable ignored)
+        {
+        }
 
         return Blocks.AIR.getDefaultState();
     }

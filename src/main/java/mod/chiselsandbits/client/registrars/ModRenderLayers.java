@@ -17,5 +17,7 @@ public final class ModRenderLayers
         ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values()
           .stream().map(RegistryObject::get)
           .forEach(b -> RenderTypeLookup.setRenderLayer(b, input -> RenderType.getBlockRenderTypes().contains(input)));
+
+        RenderTypeLookup.setRenderLayer(ModBlocks.BIT_STORAGE_BLOCK.get(), RenderType.getCutoutMipped());
     }
 }

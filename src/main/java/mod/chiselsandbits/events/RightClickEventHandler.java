@@ -3,6 +3,7 @@ package mod.chiselsandbits.events;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.click.IRightClickControllingItem;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.registrars.ModBlocks;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -17,6 +18,11 @@ public class RightClickEventHandler
     @SubscribeEvent
     public static void onPlayerInteractRightClickBlock(final PlayerInteractEvent.RightClickBlock event)
     {
+        if (event.getWorld().getBlockState(event.getPos()).getBlock() == ModBlocks.BIT_STORAGE_BLOCK.get()) {
+            event.setUseBlock(Event.Result.ALLOW);
+            return;
+        }
+
         final ItemStack itemStack = event.getItemStack();
         if (itemStack.getItem() instanceof IRightClickControllingItem) {
             final IRightClickControllingItem rightClickControllingItem = (IRightClickControllingItem) itemStack.getItem();

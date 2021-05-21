@@ -2,11 +2,9 @@ package mod.chiselsandbits.registrars;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.item.BitBagItem;
+import mod.chiselsandbits.client.ister.BitStorageISTER;
+import mod.chiselsandbits.item.*;
 import mod.chiselsandbits.item.bit.BitItem;
-import mod.chiselsandbits.item.ChiselItem;
-import mod.chiselsandbits.item.ChiseledBlockItem;
-import mod.chiselsandbits.item.MagnifyingGlassItem;
 import mod.chiselsandbits.materials.MaterialManager;
 import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
@@ -57,6 +55,11 @@ public final class ModItems
     public static final RegistryObject<BitBagItem> ITEM_BIT_BAG_DYED    =
       ITEM_REGISTRAR.register("bit_bag_dyed", () -> new BitBagItem(new Item.Properties().group(
         CHISELS_AND_BITS)));
+
+    public static final RegistryObject<BitStorageBlockItem> BIT_STORAGE_BLOCK_ITEM = ITEM_REGISTRAR.register("bit_storage", () -> new BitStorageBlockItem(ModBlocks.BIT_STORAGE_BLOCK.get(), new Item.Properties()
+                                                                                                                                                                                    .group(CHISELS_AND_BITS)
+                                                                                                                                                                                    .setISTER(() -> BitStorageISTER::new)));
+
 
     public static void onModConstruction() {
         ITEM_REGISTRAR.register(FMLJavaModLoadingContext.get().getModEventBus());

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
+import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
@@ -271,7 +272,7 @@ public class ChiselItem extends ToolItem implements IChiselingItem
 
         final BlockPos inWorldStartPos = new BlockPos(context.getMutator().get().getInWorldStartPoint());
 
-        final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(context.getMutator().get(), s -> true);
+        final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(context.getMutator().get(), s -> IEligibilityManager.getInstance().canBeChiseled(s.getState()));
         WorldRenderer.drawShape(
           matrixStack,
           Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(RenderType.LINES),

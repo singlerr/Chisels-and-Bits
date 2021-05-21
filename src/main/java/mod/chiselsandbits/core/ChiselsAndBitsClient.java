@@ -3,6 +3,7 @@ package mod.chiselsandbits.core;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.model.loader.BitBlockModelLoader;
 import mod.chiselsandbits.client.model.loader.ChiseledBlockModelLoader;
+import mod.chiselsandbits.client.registrars.ModBESR;
 import mod.chiselsandbits.client.registrars.ModColors;
 import mod.chiselsandbits.client.registrars.ModRenderLayers;
 import mod.chiselsandbits.keys.KeyBindingManager;
@@ -34,5 +35,6 @@ public class ChiselsAndBitsClient
         KeyBindingManager.getInstance().onModInitialization();
 
         ModRenderLayers.onClientInit();
+        ModBESR.onClientInit();
     }
 }

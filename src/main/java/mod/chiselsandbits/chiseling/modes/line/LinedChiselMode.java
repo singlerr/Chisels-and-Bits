@@ -86,12 +86,8 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
                         }
                     });
 
-                  final IBitInventory inventory = IBitInventoryManager.getInstance()
-                                                    .create(playerEntity);
-
                   resultingBitCount.forEach((blockState, count) -> BitInventoryUtils.insertIntoOrSpawn(
                     playerEntity,
-                    inventory,
                     blockState,
                     count
                   ));

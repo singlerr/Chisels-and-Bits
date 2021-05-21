@@ -9,6 +9,7 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
+import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
@@ -476,6 +477,12 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
           inAreaPos.getY(),
           inAreaPos.getZ()
         );
+
+        if (!IEligibilityManager.getInstance().canBeChiseled(currentState))
+        {
+            return;
+        }
+
         final BlockState blockState = Blocks.AIR.getDefaultState();
 
         this.compressedSection.setBlockState(

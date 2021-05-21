@@ -2,6 +2,8 @@ package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
+import net.minecraft.block.BlockState;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -88,5 +90,34 @@ public class ChunkSectionUtils
         deserializeNBT(clone, serializeNBT(lazyChunkSection));
 
         return clone;
+    }
+
+    public static void fillFromBottom(
+      final ChunkSection chunkSection,
+      final BlockState blockState,
+      final int amount
+    ) {
+        final int loopCount = Math.max(0, Math.min(amount, ChiseledBlockEntity.BITS_PER_BLOCK));
+        if (loopCount == 0)
+            return;
+
+        int count = 0;
+        for (int y = 0; y < ChiseledBlockEntity.BITS_PER_BLOCK_SIDE; y++)
+        {
+            for (int x = 0; x < ChiseledBlockEntity.BITS_PER_BLOCK_SIDE; x++)
+            {
+                for (int z = 0; z < ChiseledBlockEntity.BITS_PER_BLOCK_SIDE; z++)
+                {
+                    chunkSection.setBlockState(
+                      x, y, z,
+                      blockState
+                    );
+
+                    count++;
+                    if (count == amount)
+                        return;
+                }
+            }
+        }
     }
 }

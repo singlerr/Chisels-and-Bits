@@ -199,4 +199,11 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     {
         return getMaxBitsForSlot();
     }
+
+    //The following methods are needed to handle the obfuscation tree.
+    @Override
+    public boolean isEmpty()
+    {
+        return super.isEmpty();
+    }
 }

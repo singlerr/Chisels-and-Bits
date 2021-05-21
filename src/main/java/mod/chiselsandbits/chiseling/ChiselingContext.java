@@ -80,6 +80,24 @@ public class ChiselingContext implements IChiselingContext
         this.playerEntity = playerEntity;
     }
 
+    private ChiselingContext(
+      final IWorld world,
+      final IChiselMode chiselMode,
+      final ChiselingOperation modeOfOperandus,
+      final boolean complete,
+      final PlayerEntity playerEntity)
+    {
+        this.world = world;
+        this.chiselMode = chiselMode;
+        this.causingItemStack = ItemStack.EMPTY;
+        this.supportsDamaging = false;
+        this.onCompleteCallback = () -> {}; //Noop this is the snapshot constructor which has no callback logic.
+        this.simulation = true; //Always the case for snapshots.
+        this.modeOfOperandus = modeOfOperandus;
+        this.complete = complete;
+        this.playerEntity = playerEntity;
+    }
+
     @Override
     public Optional<IWorldAreaMutator> getMutator()
     {
@@ -161,6 +179,16 @@ public class ChiselingContext implements IChiselingContext
     @Override
     public IChiselingContext createSnapshot()
     {
+        if (mutator == null) {
+            return new ChiselingContext(
+              world,
+              chiselMode,
+              modeOfOperandus,
+              this.complete,
+              playerEntity
+            );
+        }
+
         return new ChiselingContext(
           world,
           chiselMode,

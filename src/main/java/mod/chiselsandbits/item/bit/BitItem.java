@@ -222,6 +222,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
     {
         this.threadLocalBitMergeOperationInProgress.set(false);
     }
+
     @Override
     public int getItemStackLimit(final ItemStack stack)
     {
@@ -348,7 +349,15 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
                                            new Vector3f(0.0f, 0.85f, 0.0f);
             final BlockPos inWorldStartPos = new BlockPos(currentContextSnapshot.getMutator().get().getInWorldStartPoint());
 
-            final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(currentContextSnapshot.getMutator().get(), s -> true);
+            final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(currentContextSnapshot.getMutator().get(), s -> {
+                if (currentContextSnapshot.getModeOfOperandus() == ChiselingOperation.CHISELING) {
+                    return IEligibilityManager.getInstance().canBeChiseled(s.getState());
+                }
+                else
+                {
+                    return true;
+                }
+            });
             WorldRenderer.drawShape(
               matrixStack,
               Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(RenderType.LINES),
@@ -386,7 +395,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
         if (chiselingContext.getMutator().isPresent()) {
             final BlockPos inWorldStartPos = new BlockPos(chiselingContext.getMutator().get().getInWorldStartPoint());
 
-            final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(chiselingContext.getMutator().get(), s -> true);
+            final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(chiselingContext.getMutator().get(), s -> IEligibilityManager.getInstance().canBeChiseled(s.getState()));
             WorldRenderer.drawShape(
               matrixStack,
               Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(RenderType.LINES),
