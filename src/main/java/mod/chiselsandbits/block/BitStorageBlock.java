@@ -124,7 +124,7 @@ public class BitStorageBlock extends Block implements ITileEntityProvider
 
     public ItemStack getTankDrop(final BitStorageBlockEntity bitTank)
     {
-        final ItemStack tankStack = new ItemStack(ModItems.BIT_STORAGE_BLOCK_ITEM.get());
+        final ItemStack tankStack = new ItemStack(ModItems.BIT_STORAGE.get());
         tankStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)
           .ifPresent(s -> s
                             .fill(

@@ -3,7 +3,7 @@ package mod.chiselsandbits.api.item.click;
 import net.minecraftforge.eventbus.api.Event;
 
 /**
- * Represents the continuous processing state of a left click interaction.
+ * Represents the continuous processing state of a click interaction.
  */
 public class ClickProcessingState
 {
