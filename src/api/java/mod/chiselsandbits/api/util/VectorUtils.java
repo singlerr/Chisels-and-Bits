@@ -105,4 +105,12 @@ public class VectorUtils
           MathUtil.maximizeAwayFromZero(start.getZ(), end.getZ())
         );
     }
+
+    public static Vector3d absolute(final Vector3d vector3d) {
+        return new Vector3d(
+          vector3d.getX() < 0 ? -1 * vector3d.getX() : vector3d.getX(),
+          vector3d.getY() < 0 ? -1 * vector3d.getY() : vector3d.getY(),
+          vector3d.getZ() < 0 ? -1 * vector3d.getZ() : vector3d.getZ()
+        );
+    }
 }

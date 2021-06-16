@@ -34,7 +34,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @SuppressWarnings("deprecation")
-public class RadialToolModeSelectionScreen<M extends IToolMode> extends Screen
+public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Screen
 {
     private static final float DRAWS = 720;
 
@@ -94,7 +94,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode> extends Screen
         this.mainToolModeList.addAll(this.mainToolModes);
     }
 
-    public static <W extends IToolMode> RadialToolModeSelectionScreen<W> create(IWithModeItem<W> modeItem, final ItemStack stack)
+    public static <W extends IToolMode<?>> RadialToolModeSelectionScreen<W> create(IWithModeItem<W> modeItem, final ItemStack stack)
     {
         return new RadialToolModeSelectionScreen<>(modeItem, stack, stack.getDisplayName());
     }
@@ -186,7 +186,6 @@ public class RadialToolModeSelectionScreen<M extends IToolMode> extends Screen
         WorldVertexBufferUploader.draw(vertexBuffer);
     }
 
-    @SuppressWarnings("deprecation")
     private static void handleSelectableTorusRendering(
       @NotNull final MatrixStack matrixStack,
       final int mouseX,
@@ -449,20 +448,29 @@ public class RadialToolModeSelectionScreen<M extends IToolMode> extends Screen
         final ITextComponent name = mode.getDisplayName();
         final int fontWidth = fontRenderer.getStringPropertyWidth(name);
 
-        final int itemHeight = (int) ((DEFAULT_ICON_SIZE * iconScaleFactor) + DEFAULT_ICON_TEXT_SPACER + fontRenderer.FONT_HEIGHT);
+        final int itemHeight = mode.shouldRenderDisplayNameInMenu() ?
+                                 (int) ((DEFAULT_ICON_SIZE * iconScaleFactor) + DEFAULT_ICON_TEXT_SPACER + fontRenderer.FONT_HEIGHT)
+                                 : (int) (DEFAULT_ICON_SIZE * iconScaleFactor);
 
         final float iconStartX = itemCenterX - ((DEFAULT_ICON_SIZE * iconScaleFactor) / 2f);
         final float iconStartY = itemCenterY - (itemHeight / 2f);
 
         stack.push();
-        RenderSystem.color4f(1, 1, 1, 1);
+        RenderSystem.color4f(
+          (float) mode.getColorVector().getX(),
+          (float) mode.getColorVector().getY(),
+          (float) mode.getColorVector().getZ(),
+          1
+        );
         Minecraft.getInstance().getTextureManager().bindTexture(mode.getIcon());
         blit(stack, (int) iconStartX, (int) iconStartY, (int) (DEFAULT_ICON_SIZE * iconScaleFactor), (int) (DEFAULT_ICON_SIZE * iconScaleFactor), 0, 0, 18, 18, 18, 18);
         stack.push();
 
-        stack.translate(itemCenterX, itemCenterY, 0);
-        stack.scale(0.6F * iconScaleFactor, 0.6F * iconScaleFactor, 0.6F * iconScaleFactor);
-        fontRenderer.func_243248_b(stack, mode.getDisplayName(), fontWidth / -2f, DEFAULT_ICON_TEXT_SPACER, 0xCCFFFFFF);
+        if (mode.shouldRenderDisplayNameInMenu()) {
+            stack.translate(itemCenterX, itemCenterY, 0);
+            stack.scale(0.6F * iconScaleFactor, 0.6F * iconScaleFactor, 0.6F * iconScaleFactor);
+            fontRenderer.func_243248_b(stack, mode.getDisplayName(), fontWidth / -2f, DEFAULT_ICON_TEXT_SPACER, 0xCCFFFFFF);
+        }
 
         stack.pop();
         stack.pop();

@@ -592,5 +592,11 @@
   "mod.chiselsandbits.config.server.troubleshooting.server.troubleshooting.logging.eligibility-errors": "",
   "mod.chiselsandbits.config.server.troubleshooting.server.troubleshooting.logging.eligibility-errors.comment": "",
   "mod.chiselsandbits.config.server.troubleshooting.server.troubleshooting.logging.tile-errors": "",
-  "mod.chiselsandbits.config.server.troubleshooting.server.troubleshooting.logging.tile-errors.comment": ""
+  "mod.chiselsandbits.config.server.troubleshooting.server.troubleshooting.logging.tile-errors.comment": "",
+
+  "chiselsandbits.measurements.lengths.block": "%s Blks.",
+  "chiselsandbits.measurements.lengths.bit": "%s Bits.",
+  "chiselsandbits.measurements.owners.you": "By you!",
+  "chiselsandbits.measurements.owners.unknown": "By unknown!",
+  "chiselsandbits.measurements.owners.by": "By: %s!"
 }

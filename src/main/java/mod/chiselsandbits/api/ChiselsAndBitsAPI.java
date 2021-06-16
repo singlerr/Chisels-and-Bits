@@ -11,6 +11,7 @@ import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
+import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
@@ -20,6 +21,7 @@ import mod.chiselsandbits.chiseling.eligibility.EligibilityManager;
 import mod.chiselsandbits.inventory.management.BitInventoryManager;
 import mod.chiselsandbits.item.bit.BitItemManager;
 import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
+import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.multistate.mutator.MutatorFactory;
 import mod.chiselsandbits.registrars.ModChiselModes;
 import mod.chiselsandbits.registries.RegistryManager;
@@ -183,5 +185,11 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public IBitItemManager getBitItemManager()
     {
         return BitItemManager.getInstance();
+    }
+
+    @Override
+    public @NotNull IMeasuringManager getMeasuringManager()
+    {
+        return MeasuringManager.getInstance();
     }
 }

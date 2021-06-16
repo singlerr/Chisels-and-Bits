@@ -2,6 +2,7 @@ package mod.chiselsandbits.client.events;
 
 import mod.chiselsandbits.api.item.withhighlight.IWithHighlightItem;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.client.render.MeasurementRenderer;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,7 +18,7 @@ public class WorldRenderLastHandler
 {
 
     @SubscribeEvent
-    public static void onRenderWorldLast(final RenderWorldLastEvent event)
+    public static void renderCustomWorldHighlight(final RenderWorldLastEvent event)
     {
         final PlayerEntity playerEntity = Minecraft.getInstance().player;
         if (playerEntity == null)
@@ -43,5 +44,12 @@ public class WorldRenderLastHandler
           event.getProjectionMatrix(),
           event.getFinishTimeNano()
         );
+    }
+
+
+    @SubscribeEvent
+    public static void renderMeasurements(final RenderWorldLastEvent event)
+    {
+        MeasurementRenderer.getInstance().renderMeasurements(event);
     }
 }

@@ -16,6 +16,7 @@ import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.chiseling.ChiselingManager;
+import mod.chiselsandbits.client.render.ModRenderTypes;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
@@ -360,11 +361,12 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
             });
             WorldRenderer.drawShape(
               matrixStack,
-              Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(RenderType.LINES),
+              Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
               boundingShape,
               inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() -zView,
               colorVector.getX(), colorVector.getY(), colorVector.getZ(), 0.65f
             );
+            Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().finish(ModRenderTypes.MEASUREMENT_LINES.get());
             return;
         }
 
@@ -398,7 +400,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
             final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(chiselingContext.getMutator().get(), s -> IEligibilityManager.getInstance().canBeChiseled(s.getState()));
             WorldRenderer.drawShape(
               matrixStack,
-              Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(RenderType.LINES),
+              Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
               boundingShape,
               inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() -zView,
               0.85f, 0.0f, 0.0f, 0.65f
@@ -410,12 +412,13 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
             final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(placingContext.getMutator().get(), s -> true);
             WorldRenderer.drawShape(
               matrixStack,
-              Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(RenderType.LINES),
+              Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
               boundingShape,
               inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() -zView,
               0.0f, 0.85f, 0.0f, 0.65f
             );
         }
+        Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().finish(ModRenderTypes.MEASUREMENT_LINES.get());
     }
 
     @Override

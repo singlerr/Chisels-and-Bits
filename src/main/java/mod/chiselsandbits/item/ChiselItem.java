@@ -12,6 +12,7 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.chiseling.ChiselingManager;
+import mod.chiselsandbits.client.render.ModRenderTypes;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
@@ -275,11 +276,12 @@ public class ChiselItem extends ToolItem implements IChiselingItem
         final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(context.getMutator().get(), s -> IEligibilityManager.getInstance().canBeChiseled(s.getState()));
         WorldRenderer.drawShape(
           matrixStack,
-          Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(RenderType.LINES),
+          Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
           boundingShape,
           inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() - zView,
           0.95F, 0.0F, 0.0F, 0.65F
         );
+        Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().finish(ModRenderTypes.MEASUREMENT_LINES.get());
     }
 
     @Override

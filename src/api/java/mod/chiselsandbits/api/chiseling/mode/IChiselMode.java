@@ -5,6 +5,7 @@ import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.withmode.IRenderableMode;
 import mod.chiselsandbits.api.item.withmode.IToolMode;
+import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.util.IWithDisplayName;
@@ -14,7 +15,7 @@ import net.minecraftforge.registries.IForgeRegistryEntry;
 
 import java.util.Optional;
 
-public interface IChiselMode extends IForgeRegistryEntry<IChiselMode>, IToolMode
+public interface IChiselMode extends IForgeRegistryEntry<IChiselMode>, IToolMode<IToolModeGroup>
 {
 
     static IChiselMode getDefaultMode() {

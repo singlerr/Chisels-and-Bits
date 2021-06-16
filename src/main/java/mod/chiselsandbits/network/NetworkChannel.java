@@ -55,6 +55,8 @@ public class NetworkChannel
         registerMessage(index++, ClearBagGuiPacket.class, ClearBagGuiPacket::new);
         registerMessage(index++, OpenBagGuiPacket.class, OpenBagGuiPacket::new);
         registerMessage(index++, SortBagGuiPacket.class, SortBagGuiPacket::new);
+        registerMessage(index++, MeasurementUpdatedPacket.class, MeasurementUpdatedPacket::new);
+        registerMessage(index++, MeasurementsUpdatedPacket.class, MeasurementsUpdatedPacket::new);
     }
 
     /**
