@@ -8,7 +8,7 @@ import net.minecraft.network.PacketBuffer;
 public final class MeasurementUpdatedPacket extends ModPacket
 {
 
-    private Measurement measurement = new Measurement();
+    private Measurement measurement;
 
     public MeasurementUpdatedPacket(final Measurement measurement)
     {
@@ -29,7 +29,8 @@ public final class MeasurementUpdatedPacket extends ModPacket
     @Override
     public void readPayload(final PacketBuffer buffer)
     {
-        measurement.deserializeFrom(buffer);
+        this.measurement = new Measurement();
+        this.measurement.deserializeFrom(buffer);
     }
 
     @Override
