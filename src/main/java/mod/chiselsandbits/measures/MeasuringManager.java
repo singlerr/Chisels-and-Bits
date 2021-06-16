@@ -18,11 +18,14 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
 
 public class MeasuringManager implements IMeasuringManager, IPacketBufferSerializable
 {
@@ -62,6 +65,13 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
           mode,
           world.getDimensionKey().getLocation()
         );
+    }
+
+    @Override
+    public void resetMeasurementsFor(final UUID playerId)
+    {
+        measurements.columnMap().remove(playerId);
+        syncToAll();
     }
 
     public void syncToAll()
@@ -122,6 +132,9 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
     public void createAndSend(
       final Vector3d from, final Vector3d to, final MeasuringMode mode
     ) {
+        if (Minecraft.getInstance().world == null || Minecraft.getInstance().player == null)
+            return;
+
         final Measurement measurement = this.create(
           Minecraft.getInstance().world,
           Minecraft.getInstance().player,

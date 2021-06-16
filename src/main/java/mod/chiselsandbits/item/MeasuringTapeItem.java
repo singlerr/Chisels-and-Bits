@@ -1,11 +1,14 @@
 package mod.chiselsandbits.item;
 
 import com.google.common.collect.Lists;
+import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.measuring.IMeasuringTapeItem;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.measures.MeasuringManager;
+import mod.chiselsandbits.network.packets.MeasurementsResetPacket;
+import mod.chiselsandbits.network.packets.MeasurementsUpdatedPacket;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -60,6 +63,12 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
         final ItemStack stack = playerEntity.getHeldItem(hand);
         if (stack.getItem() != this)
             return ClickProcessingState.DEFAULT;
+
+        if (playerEntity.isCrouching()) {
+            clear(stack);
+            ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new MeasurementsResetPacket());
+            return ClickProcessingState.DEFAULT;
+        }
 
         final RayTraceResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
         if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK || !(rayTraceResult instanceof BlockRayTraceResult))

@@ -11,14 +11,14 @@ public final class HeldToolModeChangedPacket extends ModPacket
 
     private int modeIndex;
 
+    public HeldToolModeChangedPacket(final PacketBuffer buffer)
+    {
+        super(buffer);
+    }
+
     public HeldToolModeChangedPacket(final int modeIndex)
     {
         this.modeIndex = modeIndex;
-    }
-
-    public HeldToolModeChangedPacket(final PacketBuffer buffer)
-    {
-        readPayload(buffer);
     }
 
     @Override

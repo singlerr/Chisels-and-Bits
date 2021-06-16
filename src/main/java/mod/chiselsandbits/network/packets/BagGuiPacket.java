@@ -13,9 +13,9 @@ public final class BagGuiPacket extends ModPacket
 	private boolean duplicateButton = false;
 	private boolean holdingShift = false;
 
-    public BagGuiPacket(PacketBuffer buffer)
+    public BagGuiPacket(final PacketBuffer buffer)
     {
-        readPayload(buffer);
+        super(buffer);
     }
 
     public BagGuiPacket(final int slotNumber, final int mouseButton, final boolean duplicateButton, final boolean holdingShift)

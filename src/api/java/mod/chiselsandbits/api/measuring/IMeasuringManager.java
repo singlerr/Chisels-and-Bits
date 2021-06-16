@@ -2,6 +2,7 @@ package mod.chiselsandbits.api.measuring;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
@@ -34,4 +35,10 @@ public interface IMeasuringManager
       final Vector3d to,
       final MeasuringMode mode
     );
+
+    default void resetMeasurementsFor(PlayerEntity playerEntity) {
+        resetMeasurementsFor(playerEntity.getUniqueID());
+    }
+
+    void resetMeasurementsFor(UUID playerId);
 }

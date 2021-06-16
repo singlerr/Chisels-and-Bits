@@ -1,5 +1,6 @@
 package mod.chiselsandbits.item.multistate;
 
+import mod.chiselsandbits.api.exceptions.StateEntryInfoIsToBigException;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
@@ -29,12 +30,19 @@ public class MultiStateItemFactory implements IMultiStateItemFactory
      */
     @SuppressWarnings("deprecation")
     @Override
-    public ItemStack createFrom(final IStateEntryInfo stateEntryInfo)
+    public ItemStack createBlockFrom(final IStateEntryInfo stateEntryInfo)
     {
         //TODO: Fix this in 1.17
         if (stateEntryInfo.getState().isAir(new SingleBlockBlockReader(stateEntryInfo.getState()), BlockPos.ZERO))
             return ItemStack.EMPTY;
 
         return IBitItemManager.getInstance().create(stateEntryInfo.getState());
+    }
+
+    @Override
+    public ItemStack createPatternFrom(final IStateEntryInfo stateEntryInfo) throws StateEntryInfoIsToBigException
+    {
+        //TODO Implement this.
+        return ItemStack.EMPTY;
     }
 }

@@ -1,21 +1,16 @@
 package mod.chiselsandbits.network.packets;
 
-import mod.chiselsandbits.measures.Measurement;
 import mod.chiselsandbits.measures.MeasuringManager;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.network.PacketBuffer;
 
-public final class MeasurementUpdatedPacket extends ModPacket
+public final class MeasurementsResetPacket extends ModPacket
 {
-
-    private Measurement measurement = new Measurement();
-
-    public MeasurementUpdatedPacket(final Measurement measurement)
+    public MeasurementsResetPacket()
     {
-        this.measurement = measurement;
     }
 
-    public MeasurementUpdatedPacket(final PacketBuffer buffer)
+    public MeasurementsResetPacket(final PacketBuffer buffer)
     {
         super(buffer);
     }
@@ -23,18 +18,16 @@ public final class MeasurementUpdatedPacket extends ModPacket
     @Override
     public void writePayload(final PacketBuffer buffer)
     {
-        measurement.serializeInto(buffer);
     }
 
     @Override
     public void readPayload(final PacketBuffer buffer)
     {
-        measurement.deserializeFrom(buffer);
     }
 
     @Override
     public void server(final ServerPlayerEntity playerEntity)
     {
-        MeasuringManager.getInstance().addOrUpdate(measurement);
+        MeasuringManager.getInstance().resetMeasurementsFor(playerEntity);
     }
 }

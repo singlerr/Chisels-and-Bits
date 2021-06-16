@@ -7,13 +7,13 @@ import net.minecraft.network.PacketBuffer;
 public final class MeasurementsUpdatedPacket extends ModPacket
 {
 
-    public MeasurementsUpdatedPacket()
+    public MeasurementsUpdatedPacket(final PacketBuffer buffer)
     {
+        super(buffer);
     }
 
-    public MeasurementsUpdatedPacket(PacketBuffer buffer)
+    public MeasurementsUpdatedPacket()
     {
-        readPayload(buffer);
     }
 
     @Override

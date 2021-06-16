@@ -12,9 +12,9 @@ public final class BagGuiStackPacket extends ModPacket
     private int       index = -1;
     private ItemStack stack;
 
-    public BagGuiStackPacket(PacketBuffer buffer)
+    public BagGuiStackPacket(final PacketBuffer buffer)
     {
-        this.readPayload(buffer);
+        super(buffer);
     }
 
     public BagGuiStackPacket(final int index, @NotNull final ItemStack stack)

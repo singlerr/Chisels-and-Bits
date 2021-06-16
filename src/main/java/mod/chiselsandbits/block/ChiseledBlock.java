@@ -8,7 +8,6 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
-import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.utils.EffectUtils;
@@ -253,7 +252,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
 
               return e.getInAreaTarget(hitDelta);
           })
-          .map(targetedStateEntry -> IMultiStateItemFactory.getInstance().createFrom(targetedStateEntry))
+          .map(targetedStateEntry -> IMultiStateItemFactory.getInstance().createBlockFrom(targetedStateEntry))
           .orElse(ItemStack.EMPTY);
     }
 
