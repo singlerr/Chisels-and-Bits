@@ -3,22 +3,24 @@ package mod.chiselsandbits.multistate.snapshot;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
-import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IAreaMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
+import mod.chiselsandbits.api.util.VectorUtils;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,19 +30,22 @@ import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT
 
 public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
 {
-    private final Map<BlockPos, IMultiStateSnapshot> snapshots;
-    private final Vector3d startPoint;
-    private final Vector3d endPoint;
+    private Map<BlockPos, IMultiStateSnapshot> snapshots;
+    private Vector3d                           startPoint;
+    private Vector3d                           endPoint;
 
-    public MultiBlockMultiStateSnapshot(final Map<BlockPos, IMultiStateSnapshot> snapshots, final Vector3d startPoint, final Vector3d endPoint) {
+    public MultiBlockMultiStateSnapshot(final Map<BlockPos, IMultiStateSnapshot> snapshots, final Vector3d startPoint, final Vector3d endPoint)
+    {
         this.snapshots = snapshots;
         this.startPoint = startPoint;
         this.endPoint = endPoint;
 
         if (!BlockPosStreamProvider.getForRange(startPoint, endPoint)
-          .allMatch(snapshots::containsKey)
-            )
+               .allMatch(snapshots::containsKey)
+        )
+        {
             throw new IllegalArgumentException("Not all required blockposes are part of the given range.");
+        }
     }
 
     /**
@@ -60,40 +65,8 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     public Stream<IStateEntryInfo> stream()
     {
         return snapshots.values()
-          .stream()
-          .flatMap(IAreaAccessor::stream);
-    }
-
-    /**
-     * Gets the target state in the current area, using the offset from the area as well as the in area target offset.
-     *
-     * @param inAreaTarget The in area offset.
-     * @return An optional potentially containing the state entry of the requested target.
-     */
-    @Override
-    public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
-    {
-        final BlockPos inAreaOffset = new BlockPos(inAreaTarget);
-
-        return getInBlockTarget(inAreaOffset, inAreaTarget.subtract(Vector3d.copy(inAreaOffset)));
-    }
-
-    /**
-     * Gets the target state in the current area, using the in area block position offset as well as the in block target offset to calculate the in area offset for setting.
-     *
-     * @param inAreaBlockPosOffset The offset of blocks in the current area.
-     * @param inBlockTarget        The offset in the targeted block.
-     * @return An optional potentially containing the state entry of the requested target.
-     */
-    @Override
-    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
-    {
-        final BlockPos targetPos = new BlockPos(startPoint).add(inAreaBlockPosOffset);
-
-        if (!snapshots.containsKey(targetPos))
-            throw new IllegalArgumentException("The given position is not in the current snapshot!");
-
-        return snapshots.get(targetPos).getInBlockTarget(BlockPos.ZERO, inBlockTarget);
+                 .stream()
+                 .flatMap(IAreaAccessor::stream);
     }
 
     /**
@@ -129,18 +102,71 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     public IMultiStateSnapshot createSnapshot()
     {
         final Map<BlockPos, IMultiStateSnapshot> copiedSnapshots = snapshots.keySet()
-          .stream()
-          .collect(Collectors.toMap(
-            Function.identity(),
-            pos -> snapshots.get(pos).createSnapshot()
-          )
-        );
+                                                                     .stream()
+                                                                     .collect(Collectors.toMap(
+                                                                       Function.identity(),
+                                                                       pos -> snapshots.get(pos).createSnapshot()
+                                                                       )
+                                                                     );
 
         return new MultiBlockMultiStateSnapshot(
           copiedSnapshots,
           startPoint,
           endPoint
         );
+    }
+
+    @Override
+    public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
+    {
+        return BlockPosStreamProvider.getForRange(
+          startPoint.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE),
+          endPoint.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE)
+        )
+                 .map(positionMutator::mutate)
+                 .map(position -> Vector3d.copy(position).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT))
+                 .map(position -> {
+                     final BlockPos blockPos = new BlockPos(position);
+                     final Vector3d inBlockOffset = position.subtract(Vector3d.copy(blockPos));
+
+                     return getInBlockTarget(blockPos, inBlockOffset);
+                 })
+                 .filter(Optional::isPresent)
+                 .map(Optional::get);
+    }
+
+    /**
+     * Gets the target state in the current area, using the offset from the area as well as the in area target offset.
+     *
+     * @param inAreaTarget The in area offset.
+     * @return An optional potentially containing the state entry of the requested target.
+     */
+    @Override
+    public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
+    {
+        final BlockPos inAreaOffset = new BlockPos(inAreaTarget);
+
+        return getInBlockTarget(inAreaOffset, inAreaTarget.subtract(Vector3d.copy(inAreaOffset)));
+    }
+
+    /**
+     * Gets the target state in the current area, using the in area block position offset as well as the in block target offset to calculate the in area offset for setting.
+     *
+     * @param inAreaBlockPosOffset The offset of blocks in the current area.
+     * @param inBlockTarget        The offset in the targeted block.
+     * @return An optional potentially containing the state entry of the requested target.
+     */
+    @Override
+    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    {
+        final BlockPos targetPos = new BlockPos(startPoint).add(inAreaBlockPosOffset);
+
+        if (!snapshots.containsKey(targetPos))
+        {
+            throw new IllegalArgumentException("The given position is not in the current snapshot!");
+        }
+
+        return snapshots.get(targetPos).getInBlockTarget(BlockPos.ZERO, inBlockTarget);
     }
 
     /**
@@ -186,10 +212,14 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
               workingTarget.getY() > endPoint.getY() ||
               workingTarget.getZ() > endPoint.getZ()
         )
+        {
             throw new IllegalArgumentException("The given target is outside of the operating range of this snapshot!");
+        }
 
         if (!snapshots.containsKey(inAreaBlockPosOffset))
+        {
             throw new IllegalArgumentException("The given in area block pos offset is outside of the target range!");
+        }
 
         this.snapshots.get(inAreaBlockPosOffset)
           .setInAreaTarget(blockState, inBlockTarget);
@@ -235,10 +265,14 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
               workingTarget.getY() > endPoint.getY() ||
               workingTarget.getZ() > endPoint.getZ()
         )
+        {
             throw new IllegalArgumentException("The given target is outside of the operating range of this snapshot!");
+        }
 
         if (!snapshots.containsKey(inAreaBlockPosOffset))
+        {
             throw new IllegalArgumentException("The given in area block pos offset is outside of the target range!");
+        }
 
         this.snapshots.get(inAreaBlockPosOffset)
           .clearInAreaTarget(inBlockTarget);
@@ -256,30 +290,155 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     }
 
     @Override
-    public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
+    public IMultiStateObjectStatistics getStatics()
     {
-        return BlockPosStreamProvider.getForRange(
-          startPoint.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE),
-          endPoint.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE)
-        )
-                 .map(positionMutator::mutate)
-                 .map(position -> Vector3d.copy(position).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT))
-                 .map(position -> {
-                     final BlockPos blockPos = new BlockPos(position);
-                     final Vector3d inBlockOffset = position.subtract(Vector3d.copy(blockPos));
+        return new IMultiStateObjectStatistics()
+        {
+            @Override
+            public BlockState getPrimaryState()
+            {
+                return getStateCounts().entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).map(Map.Entry::getKey).orElse(Blocks.AIR.getDefaultState());
+            }
 
-                     return getInBlockTarget(blockPos, inBlockOffset);
-                 })
-                 .filter(Optional::isPresent)
-                 .map(Optional::get);
+            @Override
+            public Map<BlockState, Integer> getStateCounts()
+            {
+                return stream().collect(Collectors.toMap(
+                  IStateEntryInfo::getState,
+                  s -> 1,
+                  Integer::sum
+                ));
+            }
+
+            @Override
+            public boolean shouldCheckWeakPower()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+
+            @Override
+            public float getFullnessFactor()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+
+            @Override
+            public float getSlipperiness()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+
+            @Override
+            public float getLightEmissionFactor()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+
+            @Override
+            public float getRelativeBlockHardness(final PlayerEntity player)
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+
+            @Override
+            public boolean canPropagateSkylight()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+        };
     }
 
-    private static final class Identifier implements IAreaShapeIdentifier {
+    @Override
+    public void rotate(final Direction.Axis axis, final int rotationCount)
+    {
+        final Vector3d center = this.startPoint.add(this.endPoint).mul(0.5, 0.5, 0.5);
+
+        final Map<BlockPos, IMultiStateSnapshot> rotatedParts = this.snapshots
+                                                                  .entrySet().stream()
+                                                                  .collect(
+                                                                    Collectors.toMap(
+                                                                      e -> {
+                                                                          final Vector3d offSetPos = Vector3d.copy(e.getKey()).subtract(center);
+                                                                          final Vector3d rotatedOffset = VectorUtils.rotateMultipleTimes90Degrees(offSetPos, axis, rotationCount);
+                                                                          return new BlockPos(startPoint.add(rotatedOffset));
+                                                                      },
+                                                                      e -> {
+                                                                          final IMultiStateSnapshot clone = e.getValue().clone();
+                                                                          clone.rotate(axis, rotationCount);
+                                                                          return clone;
+                                                                      }
+                                                                    )
+                                                                  );
+
+        final Vector3d rotatedStartPoint = VectorUtils.rotateMultipleTimes90Degrees(startPoint.subtract(center), axis, rotationCount).add(center);
+        final Vector3d rotatedEndPoint = VectorUtils.rotateMultipleTimes90Degrees(endPoint.subtract(center), axis, rotationCount).add(center);
+        final Vector3d newStartPoint = VectorUtils.minimize(rotatedStartPoint, rotatedEndPoint);
+        final Vector3d newEndPoint = VectorUtils.maximize(rotatedStartPoint, rotatedEndPoint);
+
+        this.snapshots = rotatedParts;
+        this.startPoint = newStartPoint;
+        this.endPoint = newEndPoint;
+    }
+
+    @Override
+    public void mirror(final Direction.Axis axis)
+    {
+        final Vector3d center = this.startPoint.add(this.endPoint).mul(0.5, 0.5, 0.5);
+
+        this.snapshots = this.snapshots
+                           .entrySet().stream()
+                           .collect(
+                             Collectors.toMap(
+                               e -> {
+                                   final int mirroredX =
+                                     axis == Direction.Axis.X ? (int) (center.getX() - e.getKey().getX()) : e.getKey().getX();
+                                   final int mirroredY =
+                                     axis == Direction.Axis.Y ? (int) (center.getY() - e.getKey().getY()) : e.getKey().getY();
+                                   final int mirroredZ =
+                                     axis == Direction.Axis.Z ? (int) (center.getZ() - e.getKey().getZ()) : e.getKey().getZ();
+
+                                   return new BlockPos(mirroredX, mirroredY, mirroredZ);
+                               },
+                               e -> {
+                                   final IMultiStateSnapshot clone = e.getValue().clone();
+                                   clone.mirror(axis);
+                                   return clone;
+                               }
+                             )
+                           );
+    }
+
+    @Override
+    public IMultiStateSnapshot clone()
+    {
+        final Map<BlockPos, IMultiStateSnapshot> clonedSnapshots = this.snapshots
+                                                                     .entrySet().stream().collect(
+            Collectors.toMap(
+              Map.Entry::getKey,
+              e -> e.getValue().clone()
+            )
+          );
+
+        return new MultiBlockMultiStateSnapshot(
+          clonedSnapshots,
+          startPoint,
+          endPoint
+        );
+    }
+
+    private static final class Identifier implements IAreaShapeIdentifier
+    {
         private final Collection<IAreaShapeIdentifier> inners;
 
         public Identifier(final Collection<IMultiStateSnapshot> innerSnapshots)
         {
             this.inners = innerSnapshots.stream().map(IAreaAccessor::createNewShapeIdentifier).collect(Collectors.toList());
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(inners);
         }
 
         @Override
@@ -295,12 +454,6 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
             }
             final Identifier that = (Identifier) o;
             return inners.equals(that.inners);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Objects.hash(inners);
         }
     }
 }

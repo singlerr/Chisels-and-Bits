@@ -2,13 +2,16 @@ package mod.chiselsandbits.item;
 
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.measuring.IMeasuringTapeItem;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
+import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.network.packets.MeasurementsResetPacket;
 import mod.chiselsandbits.network.packets.MeasurementsUpdatedPacket;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -20,11 +23,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.eventbus.api.Event;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
@@ -167,5 +175,14 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
     public void clear(final @NotNull ItemStack stack)
     {
         stack.getOrCreateTag().remove("start");
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void addInformation(
+      final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
+    {
+        super.addInformation(stack, worldIn, tooltip, flagIn);
+        Configuration.getInstance().getCommon().helpText(LocalStrings.HelpTapeMeasure, tooltip);
     }
 }

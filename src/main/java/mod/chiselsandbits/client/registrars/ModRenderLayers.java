@@ -18,6 +18,6 @@ public final class ModRenderLayers
           .stream().map(RegistryObject::get)
           .forEach(b -> RenderTypeLookup.setRenderLayer(b, input -> RenderType.getBlockRenderTypes().contains(input)));
 
-        RenderTypeLookup.setRenderLayer(ModBlocks.BIT_STORAGE_BLOCK.get(), RenderType.getCutoutMipped());
+        RenderTypeLookup.setRenderLayer(ModBlocks.BIT_STORAGE.get(), RenderType.getCutoutMipped());
     }
 }

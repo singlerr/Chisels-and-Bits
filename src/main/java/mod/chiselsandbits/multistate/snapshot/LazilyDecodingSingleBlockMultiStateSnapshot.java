@@ -3,17 +3,18 @@ package mod.chiselsandbits.multistate.snapshot;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
-import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.item.ChiseledBlockItem;
-import mod.chiselsandbits.item.multistate.ChiseledBlockMultiStateItemStack;
+import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
@@ -21,16 +22,20 @@ import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraftforge.fml.RegistryObject;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.BITS_PER_BLOCK_SIDE;
@@ -39,9 +44,10 @@ import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT
 public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateSnapshot
 {
 
-    private final CompoundNBT lazyNbtCompound;
-    private       boolean      loaded           = false;
-    private final ChunkSection lazyChunkSection = new ChunkSection(0);
+    private CompoundNBT                 lazyNbtCompound;
+    private boolean                     loaded                = false;
+    private ChunkSection                lazyChunkSection      = new ChunkSection(0);
+    private IMultiStateObjectStatistics stateObjectStatistics = null;
 
     public LazilyDecodingSingleBlockMultiStateSnapshot(final CompoundNBT lazyNbtCompound) {this.lazyNbtCompound = lazyNbtCompound;}
 
@@ -66,13 +72,28 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
 
         return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
                  .map(blockPos -> new StateEntry(
-                     lazyChunkSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
-                     blockPos,
-                    this::setInAreaTarget, this::clearInAreaTarget)
+                   lazyChunkSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+                   blockPos,
+                   this::setInAreaTarget, this::clearInAreaTarget)
                  );
     }
 
     /**
+     * Indicates if the given target is inside of the current accessor.
+     *
+     * @param inAreaTarget The area target to check.
+     * @return True when inside, false when not.
+     */
+    @Override
+    public boolean isInside(final Vector3d inAreaTarget)
+    {
+        return !(inAreaTarget.getX() < 0) &&
+                 !(inAreaTarget.getY() < 0) &&
+                 !(inAreaTarget.getZ() < 0) &&
+                 !(inAreaTarget.getX() >= 1) &&
+                 !(inAreaTarget.getY() >= 1) &&
+                 !(inAreaTarget.getZ() >= 1);
+    }    /**
      * Gets the target state in the current area, using the offset from the area as well as the in area target offset.
      *
      * @param inAreaTarget The in area offset.
@@ -87,7 +108,8 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
               inAreaTarget.getZ() < 0 ||
               inAreaTarget.getX() >= 1 ||
               inAreaTarget.getY() >= 1 ||
-              inAreaTarget.getZ() >= 1) {
+              inAreaTarget.getZ() >= 1)
+        {
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
@@ -111,6 +133,22 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     }
 
     /**
+     * Indicates if the given target (with the given block position offset) is inside of the current accessor.
+     *
+     * @param inAreaBlockPosOffset The offset of blocks in the current area.
+     * @param inBlockTarget        The offset in the targeted block.
+     * @return True when inside, false when not.
+     */
+    @Override
+    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    {
+        if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
+        {
+            return false;
+        }
+
+        return isInside(inBlockTarget);
+    }    /**
      * Gets the target state in the current area, using the in area block position offset as well as the in block target offset to calculate the in area offset for setting.
      *
      * @param inAreaBlockPosOffset The offset of blocks in the current area.
@@ -130,50 +168,42 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         );
     }
 
-    /**
-     * Indicates if the given target is inside of the current accessor.
-     *
-     * @param inAreaTarget The area target to check.
-     * @return True when inside, false when not.
-     */
-    @Override
-    public boolean isInside(final Vector3d inAreaTarget)
-    {
-        return !(inAreaTarget.getX() < 0) &&
-                 !(inAreaTarget.getY() < 0) &&
-                 !(inAreaTarget.getZ() < 0) &&
-                 !(inAreaTarget.getX() >= 1) &&
-                 !(inAreaTarget.getY() >= 1) &&
-                 !(inAreaTarget.getZ() >= 1);
-    }
-
-    /**
-     * Indicates if the given target (with the given block position offset) is inside of the current accessor.
-     *
-     * @param inAreaBlockPosOffset The offset of blocks in the current area.
-     * @param inBlockTarget        The offset in the targeted block.
-     * @return True when inside, false when not.
-     */
-    @Override
-    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
-    {
-        if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
-        {
-            return false;
-        }
-
-        return isInside(inBlockTarget);
-    }
-
     @Override
     public IMultiStateSnapshot createSnapshot()
     {
-        if (!loaded) {
+        if (!loaded)
+        {
             final CompoundNBT copyNbtCompound = lazyNbtCompound.copy();
             return new LazilyDecodingSingleBlockMultiStateSnapshot(copyNbtCompound);
         }
 
         return MultiStateSnapshotUtils.createFromSection(this.lazyChunkSection);
+    }
+
+    @Override
+    public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
+    {
+        load();
+
+        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+                 .map(positionMutator::mutate)
+                 .map(blockPos -> new StateEntry(
+                   this.lazyChunkSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+                   blockPos,
+                   this::setInAreaTarget,
+                   this::clearInAreaTarget)
+                 );
+    }
+
+    private void load()
+    {
+        if (this.loaded)
+        {
+            return;
+        }
+
+        ChunkSectionUtils.deserializeNBT(this.lazyChunkSection, this.lazyNbtCompound);
+        this.loaded = true;
     }
 
     /**
@@ -203,7 +233,8 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
               inAreaTarget.getZ() < 0 ||
               inAreaTarget.getX() >= 1 ||
               inAreaTarget.getY() >= 1 ||
-              inAreaTarget.getZ() >= 1) {
+              inAreaTarget.getZ() >= 1)
+        {
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
@@ -214,7 +245,9 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         final BlockState currentState = this.lazyChunkSection.getBlockState(inAreaPos.getX(), inAreaPos.getY(), inAreaPos.getZ());
         // TODO: 1.17 replace with normal isAir();
         if (!currentState.isAir(new SingleBlockBlockReader(currentState), BlockPos.ZERO))
+        {
             throw new SpaceOccupiedException();
+        }
 
         this.lazyChunkSection.setBlockState(
           inAreaPos.getX(),
@@ -252,7 +285,8 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
               inAreaTarget.getZ() < 0 ||
               inAreaTarget.getX() >= 1 ||
               inAreaTarget.getY() >= 1 ||
-              inAreaTarget.getZ() >= 1) {
+              inAreaTarget.getZ() >= 1)
+        {
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
@@ -290,15 +324,6 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         );
     }
 
-    private void load()
-    {
-        if (this.loaded)
-            return;
-
-        ChunkSectionUtils.deserializeNBT(this.lazyChunkSection, this.lazyNbtCompound);
-        this.loaded = true;
-    }
-
     /**
      * Converts the current snapshot to a variant which is itemstack capable.
      *
@@ -314,10 +339,105 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         final RegistryObject<ChiseledBlockItem> convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(conversionMaterial);
         final ChiseledBlockItem chiseledBlockItem = convertedItemProvider.get();
 
-        return new ChiseledBlockMultiStateItemStack(chiseledBlockItem, ChunkSectionUtils.cloneSection(this.lazyChunkSection));
+        return new SingleBlockMultiStateItemStack(chiseledBlockItem, ChunkSectionUtils.cloneSection(this.lazyChunkSection));
     }
 
-    private BlockState determinePrimaryState() {
+    @Override
+    public IMultiStateObjectStatistics getStatics()
+    {
+        load();
+        buildStatistics();
+
+        return this.stateObjectStatistics;
+    }
+
+    @Override
+    public void rotate(final Direction.Axis axis, final int rotationCount)
+    {
+        load();
+        this.lazyChunkSection = ChunkSectionUtils.rotate90Degrees(
+          this.lazyChunkSection,
+          axis,
+          rotationCount
+        );
+        this.lazyNbtCompound = ChunkSectionUtils.serializeNBT(this.lazyChunkSection);
+        buildStatistics();
+    }
+
+    @Override
+    public void mirror(final Direction.Axis axis)
+    {
+        load();
+        this.lazyChunkSection = ChunkSectionUtils.mirror(
+          this.lazyChunkSection,
+          axis
+        );
+        this.lazyNbtCompound = ChunkSectionUtils.serializeNBT(this.lazyChunkSection);
+        buildStatistics();
+    }
+
+    private void buildStatistics()
+    {
+        //These are a limited set of statistics at the moment
+        //TODO: Figure this out.
+        this.stateObjectStatistics = new IMultiStateObjectStatistics()
+        {
+            @Override
+            public BlockState getPrimaryState()
+            {
+                return determinePrimaryState();
+            }
+
+            @Override
+            public Map<BlockState, Integer> getStateCounts()
+            {
+                return stream().collect(Collectors.toMap(
+                  IStateEntryInfo::getState,
+                  s -> 1,
+                  Integer::sum
+                ));
+            }
+
+            @Override
+            public boolean shouldCheckWeakPower()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+
+            @Override
+            public float getFullnessFactor()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+
+            @Override
+            public float getSlipperiness()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+
+            @Override
+            public float getLightEmissionFactor()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+
+            @Override
+            public float getRelativeBlockHardness(final PlayerEntity player)
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+
+            @Override
+            public boolean canPropagateSkylight()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+        };
+    }
+
+    private BlockState determinePrimaryState()
+    {
         final Map<BlockState, Integer> countMap = Maps.newHashMap();
 
         load();
@@ -339,33 +459,29 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     }
 
     @Override
-    public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
+    public IMultiStateSnapshot clone()
     {
         load();
-
-        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
-                 .map(positionMutator::mutate)
-                 .map(blockPos -> new StateEntry(
-                   this.lazyChunkSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
-                   blockPos,
-                   this::setInAreaTarget,
-                   this::clearInAreaTarget)
-                 );
+        return new LazilyDecodingSingleBlockMultiStateSnapshot(
+          ChunkSectionUtils.serializeNBT(this.lazyChunkSection)
+        );
     }
 
-    private static class StateEntry implements IMutableStateEntryInfo {
+    private static class StateEntry implements IMutableStateEntryInfo
+    {
 
-        private final BlockState blockState;
-        private final Vector3d startPoint;
-        private final Vector3d endPoint;
-        private final StateSetter stateSetter;
+        private final BlockState   blockState;
+        private final Vector3d     startPoint;
+        private final Vector3d     endPoint;
+        private final StateSetter  stateSetter;
         private final StateClearer stateClearer;
 
         private StateEntry(
           final BlockState blockState,
           final Vector3i startPoint,
           final StateSetter stateSetter,
-          final StateClearer stateClearer) {
+          final StateClearer stateClearer)
+        {
             this.blockState = blockState;
             this.startPoint = Vector3d.copy(startPoint).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT);
             this.endPoint = Vector3d.copy(startPoint).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT).add(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT);
@@ -412,14 +528,22 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         }
     }
 
-    private static class Identifier implements IAreaShapeIdentifier {
+    private static class Identifier implements IAreaShapeIdentifier
+    {
         private final long[] identifyingPayload;
 
-        private Identifier(final ChunkSection section) {
+        private Identifier(final ChunkSection section)
+        {
             this.identifyingPayload = Arrays.copyOf(
               section.getData().storage.getBackingLongArray(),
               section.getData().storage.getBackingLongArray().length
             );
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Arrays.hashCode(identifyingPayload);
         }
 
         @Override
@@ -436,11 +560,9 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
             final Identifier that = (Identifier) o;
             return Arrays.equals(identifyingPayload, that.identifyingPayload);
         }
-
-        @Override
-        public int hashCode()
-        {
-            return Arrays.hashCode(identifyingPayload);
-        }
     }
+
+
+
+
 }

@@ -18,7 +18,7 @@ public class RightClickEventHandler
     @SubscribeEvent
     public static void onPlayerInteractRightClickBlock(final PlayerInteractEvent.RightClickBlock event)
     {
-        if (event.getWorld().getBlockState(event.getPos()).getBlock() == ModBlocks.BIT_STORAGE_BLOCK.get()) {
+        if (event.getWorld().getBlockState(event.getPos()).getBlock() == ModBlocks.BIT_STORAGE.get()) {
             event.setUseBlock(Event.Result.ALLOW);
             return;
         }

@@ -21,9 +21,17 @@ public interface IMultiStateItemStack extends  IAreaMutator,
     IStatistics getStatistics();
 
     /**
-     * Converts this multistack itemstack data to an actual use able itemstack.
+     * Converts this multistate itemstack data to an actual use able itemstack.
      *
      * @return The itemstack with the data of this multistate itemstack.
      */
-    ItemStack toItemStack();
+    ItemStack toBlockStack();
+
+    /**
+     * Converts this multistate itemstack data into a pattern that can be reused.
+     * By default converts this into a single use pattern.
+     *
+     * @return The single use patter from this multi state itemstack.
+     */
+    ItemStack toPatternStack();
 }

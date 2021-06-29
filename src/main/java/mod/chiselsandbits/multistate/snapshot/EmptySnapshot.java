@@ -1,5 +1,6 @@
 package mod.chiselsandbits.multistate.snapshot;
 
+import com.google.common.collect.ImmutableMap;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.item.multistate.IStatistics;
@@ -8,21 +9,75 @@ import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 public class EmptySnapshot implements IMultiStateSnapshot
 {
     public static final EmptySnapshot INSTANCE = new EmptySnapshot();
+
+    private static final IMultiStateObjectStatistics EMPTY_STATISTICS = new IMultiStateObjectStatistics() {
+        @Override
+        public BlockState getPrimaryState()
+        {
+            return Blocks.AIR.getDefaultState();
+        }
+
+        @Override
+        public Map<BlockState, Integer> getStateCounts()
+        {
+            return ImmutableMap.<BlockState, Integer>builder().build();
+        }
+
+        @Override
+        public boolean shouldCheckWeakPower()
+        {
+            return false;
+        }
+
+        @Override
+        public float getFullnessFactor()
+        {
+            return 0;
+        }
+
+        @Override
+        public float getSlipperiness()
+        {
+            return 0;
+        }
+
+        @Override
+        public float getLightEmissionFactor()
+        {
+            return 0;
+        }
+
+        @Override
+        public float getRelativeBlockHardness(final PlayerEntity player)
+        {
+            return 0;
+        }
+
+        @Override
+        public boolean canPropagateSkylight()
+        {
+            return true;
+        }
+    };
 
     /**
      * Creates a new area shape identifier.
@@ -185,11 +240,35 @@ public class EmptySnapshot implements IMultiStateSnapshot
         return Stack.INSTANCE;
     }
 
+    @Override
+    public IMultiStateObjectStatistics getStatics()
+    {
+        return EMPTY_STATISTICS;
+    }
+
+    @Override
+    public IMultiStateSnapshot clone()
+    {
+        return this;
+    }
+
+    @Override
+    public void rotate(final Direction.Axis axis, final int rotationCount)
+    {
+        //Noop
+    }
+
+    @Override
+    public void mirror(final Direction.Axis axis)
+    {
+        //Noop
+    }
+
     private static final class Identifier implements IAreaShapeIdentifier {
         public static final Identifier INSTANCE = new Identifier();
     }
 
-    private static final class Stack implements IMultiStateItemStack {
+    public static final class Stack implements IMultiStateItemStack {
 
         public static final Stack INSTANCE = new Stack();
 
@@ -206,6 +285,12 @@ public class EmptySnapshot implements IMultiStateSnapshot
                 public BlockState getPrimaryState()
                 {
                     return Blocks.AIR.getDefaultState();
+                }
+
+                @Override
+                public boolean isEmpty()
+                {
+                    return true;
                 }
 
                 @Override
@@ -228,7 +313,13 @@ public class EmptySnapshot implements IMultiStateSnapshot
          * @return The itemstack with the data of this multistate itemstack.
          */
         @Override
-        public ItemStack toItemStack()
+        public ItemStack toBlockStack()
+        {
+            return ItemStack.EMPTY;
+        }
+
+        @Override
+        public ItemStack toPatternStack()
         {
             return ItemStack.EMPTY;
         }

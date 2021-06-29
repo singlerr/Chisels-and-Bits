@@ -12,6 +12,7 @@ import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
+import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
@@ -24,8 +25,10 @@ import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
 import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.multistate.mutator.MutatorFactory;
 import mod.chiselsandbits.registrars.ModChiselModes;
+import mod.chiselsandbits.registrars.ModModificationOperation;
 import mod.chiselsandbits.registries.RegistryManager;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
+import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 
 public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
@@ -191,5 +194,11 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull IMeasuringManager getMeasuringManager()
     {
         return MeasuringManager.getInstance();
+    }
+
+    @Override
+    public @NotNull IForgeRegistry<IModificationTableOperation> getModificationTableOperationRegistry()
+    {
+        return ModModificationOperation.REGISTRY_SUPPLIER.get();
     }
 }

@@ -17,4 +17,6 @@ public interface IStatistics extends INBTSerializable<CompoundNBT>
      * @return The primary blockstate.
      */
     BlockState getPrimaryState();
+
+    boolean isEmpty();
 }

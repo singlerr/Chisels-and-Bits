@@ -17,6 +17,8 @@ public final class Constants
     public static final String MOD_NAME = "Chisels & Bits";
     public static final String MOD_VERSION = "%VERSION%";
 
+    public static final String INTERACTABLE_MODEL_LOADER = Constants.MOD_ID + ":interactable_model";
+
     public static class DataGenerator {
 
         public static final  Gson   GSON                           = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();

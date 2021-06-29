@@ -12,9 +12,11 @@ import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
+import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
+import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -131,6 +133,9 @@ public interface IChiselsAndBitsAPI
 
     @NotNull
     IMeasuringManager getMeasuringManager();
+
+    @NotNull
+    IForgeRegistry<IModificationTableOperation> getModificationTableOperationRegistry();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

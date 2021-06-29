@@ -30,12 +30,12 @@ public class BitStorageISTER extends ItemStackTileEntityRenderer
       final int combinedOverlay)
     {
 
-        final IBakedModel model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(ModBlocks.BIT_STORAGE_BLOCK.getId(), "facing=east"));
+        final IBakedModel model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(ModBlocks.BIT_STORAGE.getId(), "facing=east"));
 
         Minecraft.getInstance()
           .getBlockRendererDispatcher()
           .getBlockModelRenderer()
-          .renderModel(matrixStack.getLast(), buffer.getBuffer(RenderType.getTranslucent()), ModBlocks.BIT_STORAGE_BLOCK
+          .renderModel(matrixStack.getLast(), buffer.getBuffer(RenderType.getTranslucent()), ModBlocks.BIT_STORAGE
                                                                                                .get().getDefaultState(), model, 1f, 1f, 1f, combinedLight, combinedOverlay,
             EmptyModelData.INSTANCE);
 

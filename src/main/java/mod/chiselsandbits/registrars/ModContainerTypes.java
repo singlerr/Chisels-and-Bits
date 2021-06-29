@@ -2,6 +2,7 @@ package mod.chiselsandbits.registrars;
 
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.container.BagContainer;
+import mod.chiselsandbits.container.ModificationTableContainer;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -22,6 +23,11 @@ public final class ModContainerTypes
     public static final RegistryObject<ContainerType<BagContainer>> BIT_BAG = CONTAINER_TYPE_REGISTRAR.register(
       "bag",
       () -> new ContainerType<>(BagContainer::new)
+    );
+
+    public static final RegistryObject<ContainerType<ModificationTableContainer>> MODIFICATION_TABLE = CONTAINER_TYPE_REGISTRAR.register(
+      "modification_table",
+      () -> new ContainerType<>(ModificationTableContainer::new)
     );
 
     public static void onModConstruction() {

@@ -65,7 +65,8 @@ public class ChunkSectionUtils
                     }
 
                     final BlockPos sourcePos = new BlockPos(workingVector);
-                    final BlockPos targetPos = new BlockPos(rotatedVector);
+                    final Vector3d offsetPos = rotatedVector.add(centerVector).mul(1000,1000,1000);
+                    final BlockPos targetPos = new BlockPos(new Vector3d(Math.round(offsetPos.getX()), Math.round(offsetPos.getY()), Math.round(offsetPos.getZ())).mul(1/1000d,1/1000d,1/1000d));
 
                     target.setBlockState(
                       targetPos.getX(),
@@ -119,5 +120,33 @@ public class ChunkSectionUtils
                 }
             }
         }
+    }
+
+    public static ChunkSection mirror(final ChunkSection lazyChunkSection, final Direction.Axis axis)
+    {
+        final ChunkSection result = new ChunkSection(0);
+
+        for (int y = 0; y < ChiseledBlockEntity.BITS_PER_BLOCK_SIDE; y++)
+        {
+            for (int x = 0; x < ChiseledBlockEntity.BITS_PER_BLOCK_SIDE; x++)
+            {
+                for (int z = 0; z < ChiseledBlockEntity.BITS_PER_BLOCK_SIDE; z++)
+                {
+                    final BlockState blockState = lazyChunkSection.getBlockState(x, y, z);
+
+                    final int mirroredX = axis == Direction.Axis.X ? (ChiseledBlockEntity.BITS_PER_BLOCK_SIDE - x - 1) : x;
+                    final int mirroredY = axis == Direction.Axis.Y ? (ChiseledBlockEntity.BITS_PER_BLOCK_SIDE - y - 1) : y;
+                    final int mirroredZ = axis == Direction.Axis.Z ? (ChiseledBlockEntity.BITS_PER_BLOCK_SIDE - z - 1) : z;
+
+                    result.setBlockState(
+                      mirroredX, mirroredY, mirroredZ,
+                      blockState,
+                      false
+                    );
+                }
+            }
+        }
+
+        return result;
     }
 }

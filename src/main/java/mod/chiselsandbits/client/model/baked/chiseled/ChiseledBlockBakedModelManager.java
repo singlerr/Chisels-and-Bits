@@ -2,11 +2,14 @@ package mod.chiselsandbits.client.model.baked.chiseled;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
+import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
@@ -81,6 +84,23 @@ public class ChiseledBlockBakedModelManager
             BlockPos.ZERO
           )
         );
+    }
+
+    public IBakedModel getBakedModel(
+      final IMultiStateItemStack multiStateItemStack
+    ) {
+        final ChiseledBlockBakedModel[] models = new ChiseledBlockBakedModel[ChiselRenderType.values().length];
+        int o = 0;
+
+        for (final ChiselRenderType chiselRenderType : ChiselRenderType.values())
+        {
+            models[o++] = ChiseledBlockBakedModelManager.getInstance().get(
+              multiStateItemStack,
+              chiselRenderType
+            ).orElse(ChiseledBlockBakedModel.EMPTY);
+        }
+
+        return new CombinedModel(models);
     }
 
     private static final class Key {

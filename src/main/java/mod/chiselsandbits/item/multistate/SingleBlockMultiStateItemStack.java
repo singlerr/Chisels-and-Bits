@@ -5,6 +5,7 @@ import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.item.multistate.IStatistics;
+import mod.chiselsandbits.api.item.pattern.IPatternItem;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
@@ -14,10 +15,14 @@ import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.*;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.item.ChiseledBlockItem;
+import mod.chiselsandbits.materials.MaterialManager;
+import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.material.Material;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -29,6 +34,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.world.chunk.ChunkSection;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -39,14 +45,14 @@ import java.util.stream.Stream;
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.BITS_PER_BLOCK_SIDE;
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT;
 
-public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
+public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
 {
 
     private final ItemStack    sourceStack;
     private final ChunkSection compressedSection;
     private final Statistics statistics = new Statistics();
 
-    public ChiseledBlockMultiStateItemStack(final ItemStack sourceStack)
+    public SingleBlockMultiStateItemStack(final ItemStack sourceStack)
     {
         this.sourceStack = sourceStack;
         this.compressedSection = new ChunkSection(0);
@@ -54,7 +60,7 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
         this.deserializeNBT(sourceStack.getOrCreateChildTag(NbtConstants.CHISELED_DATA));
     }
 
-    public ChiseledBlockMultiStateItemStack(final Item item, final ChunkSection compressedSection)
+    public SingleBlockMultiStateItemStack(final Item item, final ChunkSection compressedSection)
     {
         if (!(item instanceof IMultiStateItem))
             throw new IllegalArgumentException("The given item is not a MultiState Item");
@@ -433,9 +439,38 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
      * @return The itemstack with the data of this multistate itemstack.
      */
     @Override
-    public ItemStack toItemStack()
+    public ItemStack toBlockStack()
     {
+        if (this.sourceStack.getItem() instanceof IPatternItem)
+        {
+            //We were created with a pattern item, instead of the block item
+            //Create a new item, and copy the nbt.
+            final BlockState primaryState = statistics.getPrimaryState();
+            final Material blockMaterial = primaryState.getMaterial();
+            final Material conversionMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(blockMaterial);
+
+            final RegistryObject<ChiseledBlockItem> convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(conversionMaterial);
+            final ChiseledBlockItem chiseledBlockItem = convertedItemProvider.get();
+
+            final ItemStack blockStack = new ItemStack(chiseledBlockItem);
+            blockStack.setTag(sourceStack.getOrCreateTag().copy());
+
+            return blockStack;
+        }
+
         return sourceStack.copy();
+    }
+
+    @Override
+    public ItemStack toPatternStack()
+    {
+        if (this.sourceStack.getItem() instanceof IPatternItem) {
+            return sourceStack.copy();
+        }
+
+        final ItemStack singleUsePatternStack = new ItemStack(ModItems.SINGLE_USE_PATTERN_ITEM.get());
+        singleUsePatternStack.setTag(sourceStack.getOrCreateTag().copy());
+        return singleUsePatternStack;
     }
 
     @Override
@@ -572,6 +607,12 @@ public class ChiseledBlockMultiStateItemStack implements IMultiStateItemStack
         public BlockState getPrimaryState()
         {
             return primaryState;
+        }
+
+        @Override
+        public boolean isEmpty()
+        {
+            return countMap.isEmpty() || (countMap.size() == 1 && countMap.containsKey(Blocks.AIR.getDefaultState()));
         }
 
         private void clear() {

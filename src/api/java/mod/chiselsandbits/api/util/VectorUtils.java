@@ -5,22 +5,28 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
 
+import java.util.Random;
+
 public class VectorUtils
 {
 
-    private final static double DEG_TO_RAD_FACTOR = Math.PI / 360d;
+    public final static double DEG_TO_RAD_FACTOR = (2*Math.PI) / 360d;
 
     private VectorUtils()
     {
         throw new IllegalStateException("Can not instantiate an instance of: VectorUtils. This is a utility class");
     }
 
+    public static Vector3d rotateMultipleTimes90Degrees(final Vector3d vector3d, final Direction.Axis axis, final int times) {
+        return rotateDegrees(vector3d, axis, (times * 90) % 360);
+    }
+
     public static Vector3d rotate90Degrees(final Vector3d vector3d, final Direction.Axis axis) {
-        return rotateHalfRadian(vector3d, axis);
+        return rotateDegrees(vector3d, axis, 90);
     }
 
     public static Vector3d rotateHalfRadian(final Vector3d vector3d, final Direction.Axis axis) {
-        return rotateDegrees(vector3d, axis, 0.5 * Math.PI);
+        return rotate(vector3d, axis, 0.5 * Math.PI);
     }
 
     public static Vector3d rotateDegrees(final Vector3d vector3d, final Direction.Axis axis, final double angleInDegrees) {
@@ -32,19 +38,19 @@ public class VectorUtils
             case X:
                 return new Vector3d(
                   vector3d.getX(),
-                  vector3d.getY() * MathHelper.cos((float) angleInRadian) - vector3d.getZ() * MathHelper.sin((float) angleInRadian),
-                  vector3d.getY() * MathHelper.sin((float) angleInRadian) + vector3d.getZ() * MathHelper.cos((float) angleInRadian)
+                  vector3d.getY() * Math.cos((float) angleInRadian) - vector3d.getZ() * Math.sin((float) angleInRadian),
+                  vector3d.getY() * Math.sin((float) angleInRadian) + vector3d.getZ() * Math.cos((float) angleInRadian)
                 );
             case Y:
                 return new Vector3d(
-                  vector3d.getX() * MathHelper.cos((float) angleInRadian) + vector3d.getZ() * MathHelper.sin((float) angleInRadian),
+                  vector3d.getX() * Math.cos((float) angleInRadian) + vector3d.getZ() * Math.sin((float) angleInRadian),
                   vector3d.getY(),
-                  -vector3d.getX() * MathHelper.sin((float) angleInRadian) + vector3d.getZ() * MathHelper.cos((float) angleInRadian)
+                  -vector3d.getX() * Math.sin((float) angleInRadian) + vector3d.getZ() * Math.cos((float) angleInRadian)
                 );
             case Z:
                 return new Vector3d(
-                  vector3d.getX() * MathHelper.cos((float) angleInRadian) - vector3d.getY() * MathHelper.sin((float) angleInRadian),
-                  vector3d.getX() * MathHelper.sin((float) angleInRadian) + vector3d.getY() * MathHelper.cos((float) angleInRadian),
+                  vector3d.getX() * Math.cos((float) angleInRadian) - vector3d.getY() * Math.sin((float) angleInRadian),
+                  vector3d.getX() * Math.sin((float) angleInRadian) + vector3d.getY() * Math.cos((float) angleInRadian),
                   vector3d.getZ()
                 );
             default:
@@ -111,6 +117,29 @@ public class VectorUtils
           vector3d.getX() < 0 ? -1 * vector3d.getX() : vector3d.getX(),
           vector3d.getY() < 0 ? -1 * vector3d.getY() : vector3d.getY(),
           vector3d.getZ() < 0 ? -1 * vector3d.getZ() : vector3d.getZ()
+        );
+    }
+
+    public static Vector3d offsetRandomly(Vector3d source, Random random, float radius) {
+        return new Vector3d(source.x + (random.nextFloat() - .5f) * 2 * radius, source.y + (random.nextFloat() - .5f) * 2 * radius,
+          source.z + (random.nextFloat() - .5f) * 2 * radius);
+    }
+
+    public static Vector3d minimize(final Vector3d a, final Vector3d b)
+    {
+        return new Vector3d(
+          Math.min(a.getX(), b.getX()),
+          Math.min(a.getY(), b.getY()),
+          Math.min(a.getZ(), b.getZ())
+        );
+    }
+
+    public static Vector3d maximize(final Vector3d a, final Vector3d b)
+    {
+        return new Vector3d(
+          Math.max(a.getX(), b.getX()),
+          Math.max(a.getY(), b.getY()),
+          Math.max(a.getZ(), b.getZ())
         );
     }
 }

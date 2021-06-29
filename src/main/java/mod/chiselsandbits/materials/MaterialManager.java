@@ -31,6 +31,7 @@ public class MaterialManager
         this.registerMapping("leaves", Material.LEAVES);
         this.registerMapping("plant", Material.PLANTS);
         this.registerMapping("wool", Material.WOOL);
+        this.registerMapping("nether_wood", Material.NETHER_WOOD);
 
         this.registerRemapping(Material.SPONGE, Material.CLAY);
         this.registerRemapping(Material.ANVIL, Material.IRON);

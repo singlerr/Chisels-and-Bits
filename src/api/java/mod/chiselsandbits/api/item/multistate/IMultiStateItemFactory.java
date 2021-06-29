@@ -23,13 +23,4 @@ public interface IMultiStateItemFactory
      * @return The itemstack containing only the given single state entry.
      */
     ItemStack createBlockFrom(final IStateEntryInfo stateEntryInfo);
-
-    /**
-     * Creates a new multistate itemstack pattern with a single state internally.
-     *
-     * @param stateEntryInfo The state entry info to create the pattern for.
-     * @return The stack containing the pattern.
-     * @throws StateEntryInfoIsToBigException Thrown when the state entry is bigger then 1x1x1 and not origined at the block origin.
-     */
-    ItemStack createPatternFrom(final IStateEntryInfo stateEntryInfo) throws StateEntryInfoIsToBigException;
 }

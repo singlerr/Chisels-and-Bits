@@ -29,9 +29,11 @@ public final class ModTileEntityTypes
 
     public static RegistryObject<TileEntityType<BitStorageBlockEntity>> BIT_STORAGE = REGISTRAR.register("bit_storage", () -> TileEntityType.Builder.create(
       BitStorageBlockEntity::new,
-      ModBlocks.BIT_STORAGE_BLOCK.get()
+      ModBlocks.BIT_STORAGE.get()
       ).build(null)
     );
+
+
 
     public static void onModConstruction()
     {

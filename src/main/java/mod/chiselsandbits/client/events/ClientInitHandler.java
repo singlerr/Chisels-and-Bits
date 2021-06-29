@@ -2,6 +2,7 @@ package mod.chiselsandbits.client.events;
 
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.screens.BitBagScreen;
+import mod.chiselsandbits.client.screens.ModificationTableScreen;
 import mod.chiselsandbits.registrars.ModContainerTypes;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.client.gui.ScreenManager;
@@ -29,6 +30,10 @@ public class ClientInitHandler
             ScreenManager.registerFactory(
               ModContainerTypes.BIT_BAG.get(),
               BitBagScreen::new
+            );
+            ScreenManager.registerFactory(
+              ModContainerTypes.MODIFICATION_TABLE.get(),
+              ModificationTableScreen::new
             );
         });
 

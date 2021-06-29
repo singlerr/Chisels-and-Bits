@@ -1,27 +1,32 @@
 package mod.chiselsandbits.item;
 
+import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
-import mod.chiselsandbits.api.multistate.mutator.IAreaMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
-import mod.chiselsandbits.item.multistate.ChiseledBlockMultiStateItemStack;
+import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.legacy.LegacyLoadManager;
-import mod.chiselsandbits.multistate.snapshot.LazilyDecodingSingleBlockMultiStateSnapshot;
-import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.Block;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
 {
@@ -49,11 +54,11 @@ public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
             final IMultiStateSnapshot snapshot = MultiStateSnapshotUtils.createFromSection(legacyLoadedChunkSection);
             final IMultiStateItemStack multiStateItemStack = snapshot.toItemStack();
 
-            final ItemStack tempStack = multiStateItemStack.toItemStack();
+            final ItemStack tempStack = multiStateItemStack.toBlockStack();
             stack.setTag(tempStack.getTag());
         }
 
-        return new ChiseledBlockMultiStateItemStack(stack);
+        return new SingleBlockMultiStateItemStack(stack);
     }
 
     @NotNull
@@ -103,5 +108,13 @@ public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
         }
 
         return ActionResultType.FAIL;
+    }
+
+    @Override
+    public void addInformation(
+      final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
+    {
+        super.addInformation(stack, worldIn, tooltip, flagIn);
+        Configuration.getInstance().getCommon().helpText(LocalStrings.HelpBitBag, tooltip);
     }
 }

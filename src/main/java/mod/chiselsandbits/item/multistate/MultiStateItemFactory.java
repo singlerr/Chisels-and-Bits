@@ -38,11 +38,4 @@ public class MultiStateItemFactory implements IMultiStateItemFactory
 
         return IBitItemManager.getInstance().create(stateEntryInfo.getState());
     }
-
-    @Override
-    public ItemStack createPatternFrom(final IStateEntryInfo stateEntryInfo) throws StateEntryInfoIsToBigException
-    {
-        //TODO Implement this.
-        return ItemStack.EMPTY;
-    }
 }
