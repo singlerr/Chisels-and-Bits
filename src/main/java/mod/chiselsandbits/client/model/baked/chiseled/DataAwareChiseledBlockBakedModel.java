@@ -7,6 +7,7 @@ import mod.chiselsandbits.client.model.baked.base.BaseSmartModel;
 import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.entity.LivingEntity;
@@ -67,13 +68,14 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
             if (tileEntity instanceof IMultiStateBlockEntity) {
                 for (final ChiselRenderType chiselRenderType : ChiselRenderType.values())
                 {
-                    models[o++] = ChiseledBlockBakedModelManager.getInstance().get(
+                    final ChiseledBlockBakedModel model = ChiseledBlockBakedModelManager.getInstance().get(
                       ((IMultiStateBlockEntity) tileEntity),
                       ((IMultiStateBlockEntity) tileEntity).getStatistics().getPrimaryState(),
                       chiselRenderType,
                       world,
                       pos
                     );
+                    models[o++] = model;
                 }
 
                 return new ModelDataMap.Builder().withInitial(MODEL_PROP, new CombinedModel(models)).build();
@@ -89,6 +91,11 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
         if (!(tileEntity instanceof IMultiStateBlockEntity))
             return new ModelDataMap.Builder().withInitial(MODEL_PROP, NullBakedModel.instance).build();
 
+        final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntity;
+        if (multiStateBlockEntity.getStatistics().getStateCounts().isEmpty() ||
+              (multiStateBlockEntity.getStatistics().getStateCounts().size() == 1 && multiStateBlockEntity.getStatistics().getStateCounts().containsKey(Blocks.AIR.getDefaultState()))) {
+            return new ModelDataMap.Builder().withInitial(MODEL_PROP, NullBakedModel.instance).build();
+        }
 
         IBakedModel baked;
         if (RenderType.getBlockRenderTypes().contains(layer) && FluidRenderingManager.getInstance().isFluidRenderType(layer))
