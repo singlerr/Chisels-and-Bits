@@ -2,7 +2,6 @@ package mod.chiselsandbits.data.recipes;
 
 import com.google.gson.JsonObject;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.data.blockstate.ModificationTableBlockStateGenerator;
 import mod.chiselsandbits.registrars.ModModificationOperation;
 import mod.chiselsandbits.registrars.ModRecipeSerializers;
 import net.minecraft.data.DataGenerator;
@@ -20,16 +19,16 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ModificationTableRecipeProvider extends RecipeProvider
+public class ModificationOperationRecipeProvider extends RecipeProvider
 {
 
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
-        event.getGenerator().addProvider(new ModificationTableRecipeProvider(event.getGenerator()));
+        event.getGenerator().addProvider(new ModificationOperationRecipeProvider(event.getGenerator()));
     }
 
-    private ModificationTableRecipeProvider(final DataGenerator generatorIn)
+    private ModificationOperationRecipeProvider(final DataGenerator generatorIn)
     {
         super(generatorIn);
     }
@@ -79,6 +78,6 @@ public class ModificationTableRecipeProvider extends RecipeProvider
     @Override
     public @NotNull String getName()
     {
-        return "Modification table recipes";
+        return "Modification operation recipes";
     }
 }

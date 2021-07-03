@@ -1,8 +1,10 @@
 package mod.chiselsandbits.registrars;
 
+import mod.chiselsandbits.aabb.AABBManager;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
+import mod.chiselsandbits.block.entities.ChiseledPrinterBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.fml.RegistryObject;
@@ -14,7 +16,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 public final class ModTileEntityTypes
 {
 
-    private static final DeferredRegister<TileEntityType<?>> REGISTRAR = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, Constants.MOD_ID);
+
+    private static final DeferredRegister<TileEntityType<?>>                       REGISTRAR        = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, Constants.MOD_ID);
 
     private ModTileEntityTypes()
     {
@@ -33,7 +36,13 @@ public final class ModTileEntityTypes
       ).build(null)
     );
 
-
+    public static final RegistryObject<TileEntityType<ChiseledPrinterBlockEntity>> CHISELED_PRINTER = REGISTRAR.register(
+      "chiseled_printer",
+      () -> TileEntityType.Builder.create(
+        ChiseledPrinterBlockEntity::new,
+        ModBlocks.CHISELED_PRINTER.get()
+      ).build(null)
+    );
 
     public static void onModConstruction()
     {

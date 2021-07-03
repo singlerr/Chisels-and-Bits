@@ -79,12 +79,12 @@ public class BlockEligibilityAnalysisData
 
                 return new BlockEligibilityAnalysisData( true, blockHardness, resistance );
             }
+            else if (test_b && test_c && test_d && isFluid) {
+                //TODO Adapt this
+                return new BlockEligibilityAnalysisData( true, 2f, 6f );
+            }
             else
             {
-                // less accurate, we can just pretend they are some fixed
-                // hardness... say like stone?
-
-                final Block stone = Blocks.STONE;
                 return new BlockEligibilityAnalysisData( Configuration.getInstance().getServer().compatabilityMode.get(), 2f, 6f );
             }
         }

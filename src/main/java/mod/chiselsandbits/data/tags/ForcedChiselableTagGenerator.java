@@ -1,6 +1,7 @@
 package mod.chiselsandbits.data.tags;
 
 import com.google.common.collect.Lists;
+import mod.chiselsandbits.api.data.tag.AbstractChiselableTagGenerator;
 import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.block.Blocks;
 import net.minecraft.data.DataGenerator;

@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.item.withmode.IRenderableMode;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.screens.RadialToolModeSelectionScreen;
+import mod.chiselsandbits.keys.contexts.HoldsSpecificItemInHandKeyConflictContext;
 import mod.chiselsandbits.keys.contexts.HoldsWithToolItemInHandKeyConflictContext;
 import mod.chiselsandbits.keys.contexts.SpecificScreenOpenKeyConflictContext;
 import mod.chiselsandbits.network.packets.HeldToolModeChangedPacket;
@@ -15,6 +16,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.util.InputMappings;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -29,6 +31,7 @@ public class KeyBindingManager
     private KeyBinding openToolMenuKeybinding = null;
     private KeyBinding cycleToolMenuLeftKeybinding = null;
     private KeyBinding cycleToolMenuRightKeybinding = null;
+    private KeyBinding resetMeasuringTapeKeyBinding = null;
 
     private boolean toolMenuKeyWasDown = false;
     private int toolModeSelectionPlusCoolDown = 15;
@@ -67,6 +70,13 @@ public class KeyBindingManager
                                               InputMappings.Type.KEYSYM,
                                               InputMappings.INPUT_INVALID.getKeyCode(),
                                               "key.chiselsandbits.category"));
+
+        ClientRegistry.registerKeyBinding(resetMeasuringTapeKeyBinding =
+                                            new KeyBinding("key.measuring-tape.reset",
+                                              HoldsSpecificItemInHandKeyConflictContext.MEASURING_TAPE,
+                                              KeyModifier.SHIFT, InputMappings.Type.MOUSE, 1,
+                                              "key.chiselsandbits.category"));
+
     }
 
     @SubscribeEvent
@@ -179,6 +189,18 @@ public class KeyBindingManager
         return isDown && keybinding.getKeyConflictContext().isActive() && keybinding.getKeyModifier().isActive(keybinding.getKeyConflictContext());
     }
 
+    public boolean areBindingsInitialized() {
+        return resetMeasuringTapeKeyBinding != null;
+    }
+
+    public KeyBinding getResetMeasuringTapeKeyBinding()
+    {
+        if (resetMeasuringTapeKeyBinding == null)
+            throw new IllegalStateException("Keybindings have not been initialized.");
+
+        return resetMeasuringTapeKeyBinding;
+    }
+
     public KeyBinding getOpenToolMenuKeybinding()
     {
         if (openToolMenuKeybinding == null)
@@ -202,6 +224,8 @@ public class KeyBindingManager
 
         return cycleToolMenuRightKeybinding;
     }
+
+    public boolean isResetMeasuringTapeKeyPressed() {return isKeyDown(getResetMeasuringTapeKeyBinding()); }
 
     public boolean isOpenToolMenuKeyPressed() {
         return isKeyDown(getOpenToolMenuKeybinding());

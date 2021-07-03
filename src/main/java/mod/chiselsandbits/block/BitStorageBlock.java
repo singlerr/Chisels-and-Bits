@@ -34,7 +34,7 @@ import java.util.List;
 public class BitStorageBlock extends Block implements ITileEntityProvider
 {
 
-    private static final Property<Direction> FACING = HorizontalBlock.HORIZONTAL_FACING;
+    public static final Property<Direction> FACING = HorizontalBlock.HORIZONTAL_FACING;
 
     public BitStorageBlock(AbstractBlock.Properties properties)
     {

@@ -36,11 +36,11 @@ public class QuillItemModelGenerator implements IDataProvider
     public void act(final DirectoryCache cache) throws IOException
     {
         final ItemModelJson modelJson = new ItemModelJson();
-        final String modelLocation = new ResourceLocation(Constants.MOD_ID, "item/" + Objects.requireNonNull(ModItems.QUILL_ITEM.get().getRegistryName()).getPath()) + "_spec";
+        final String modelLocation = new ResourceLocation(Constants.MOD_ID, "item/" + Objects.requireNonNull(ModItems.QUILL.get().getRegistryName()).getPath()) + "_spec";
 
         modelJson.setLoader(Constants.INTERACTABLE_MODEL_LOADER);
         modelJson.setParent(modelLocation);
-        final String name = Objects.requireNonNull(ModItems.QUILL_ITEM.get().getRegistryName()).getPath();
+        final String name = Objects.requireNonNull(ModItems.QUILL.get().getRegistryName()).getPath();
         IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(modelJson), generator.getOutputFolder().resolve(DataGeneratorConstants.ITEM_MODEL_DIR).resolve(name + ".json"));
     }
 

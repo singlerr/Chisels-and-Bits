@@ -40,6 +40,7 @@ public class MaterialManager
         this.registerRemapping(Material.CORAL, Material.ROCK);
         this.registerRemapping(Material.WEB, Material.PLANTS);
         this.registerRemapping(Material.TNT, Material.ROCK);
+        this.registerRemapping(Material.LAVA, Material.WATER);
     }
 
     public void registerMapping(final String name, final Material material)

@@ -139,7 +139,7 @@ public class MultiStateSnapshotWidget extends Widget
     @Override
     protected void onDrag(final double mouseX, final double mouseY, final double dragX, final double dragY)
     {
-        this.facingVector = this.facingVector.add(dragY * 100, dragX * 100, 0);
+        this.facingVector = this.facingVector.add(-dragY * 100, dragX * 100, 0);
     }
 
     @Override

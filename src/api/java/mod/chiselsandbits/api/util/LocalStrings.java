@@ -113,7 +113,10 @@ public enum LocalStrings
 
     ChiselStationName("chisel.station.name"),
     ChiselStationHelp("chisel.station.help"),
-    LongChiselStationHelp("chisel.station.help.long");
+    LongChiselStationHelp("chisel.station.help.long"),
+
+    ModificationTableHelp("modification.table.help"),
+    LongModificationTableHelp("modification.table.help.long");
 
     private final String string;
 

@@ -1,4 +1,4 @@
-package mod.chiselsandbits.data.tags;
+package mod.chiselsandbits.api.data.tag;
 
 import com.ldtteam.datagenerators.tags.TagJson;
 import mod.chiselsandbits.api.util.constants.Constants;
@@ -8,10 +8,12 @@ import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -36,7 +38,7 @@ public abstract class AbstractChiselableTagGenerator implements IDataProvider
 
 
     @Override
-    public void act(final DirectoryCache cache) throws IOException
+    public void act(final @NotNull DirectoryCache cache) throws IOException
     {
         final TagJson json = new TagJson();
         json.setValues(blocks.stream().map(ForgeRegistryEntry::getRegistryName).filter(Objects::nonNull).map(Object::toString).collect(Collectors.toList()));
@@ -48,8 +50,8 @@ public abstract class AbstractChiselableTagGenerator implements IDataProvider
     }
 
     @Override
-    public String getName()
+    public @NotNull String getName()
     {
-        return StringUtils.capitalize(mode.toString()) + " chiselable tag generator";
+        return StringUtils.capitalize(mode.toString().toLowerCase(Locale.ROOT)) + " chiselable tag generator";
     }
 }

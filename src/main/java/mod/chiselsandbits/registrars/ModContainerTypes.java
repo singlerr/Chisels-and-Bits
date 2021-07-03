@@ -1,7 +1,9 @@
 package mod.chiselsandbits.registrars;
 
+import mod.chiselsandbits.aabb.AABBManager;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.container.BagContainer;
+import mod.chiselsandbits.container.ChiseledPrinterContainer;
 import mod.chiselsandbits.container.ModificationTableContainer;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraftforge.fml.RegistryObject;
@@ -28,6 +30,11 @@ public final class ModContainerTypes
     public static final RegistryObject<ContainerType<ModificationTableContainer>> MODIFICATION_TABLE = CONTAINER_TYPE_REGISTRAR.register(
       "modification_table",
       () -> new ContainerType<>(ModificationTableContainer::new)
+    );
+
+    public static final RegistryObject<ContainerType<ChiseledPrinterContainer>> CHISELED_PRINTER_CONTAINER = CONTAINER_TYPE_REGISTRAR.register(
+      "chiseled_printer",
+      () -> new ContainerType<>(ChiseledPrinterContainer::new)
     );
 
     public static void onModConstruction() {

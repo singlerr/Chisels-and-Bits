@@ -8,9 +8,11 @@ import mod.chiselsandbits.api.item.measuring.IMeasuringTapeItem;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
+import mod.chiselsandbits.keys.KeyBindingManager;
 import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.network.packets.MeasurementsResetPacket;
 import mod.chiselsandbits.network.packets.MeasurementsUpdatedPacket;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -24,6 +26,7 @@ import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -72,7 +75,7 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
         if (stack.getItem() != this)
             return ClickProcessingState.DEFAULT;
 
-        if (playerEntity.isCrouching()) {
+        if (KeyBindingManager.getInstance().isResetMeasuringTapeKeyPressed()) {
             clear(stack);
             ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new MeasurementsResetPacket());
             return ClickProcessingState.DEFAULT;
@@ -122,6 +125,12 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
 
         final Optional<Vector3d> startPointHandler = getStart(stack);
         if (!startPointHandler.isPresent()) {
+            return;
+        }
+
+        if (KeyBindingManager.getInstance().isResetMeasuringTapeKeyPressed()) {
+            clear(stack);
+            ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new MeasurementsResetPacket());
             return;
         }
 
@@ -183,6 +192,14 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
       final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
     {
         super.addInformation(stack, worldIn, tooltip, flagIn);
-        Configuration.getInstance().getCommon().helpText(LocalStrings.HelpTapeMeasure, tooltip);
+
+        if (KeyBindingManager.getInstance().areBindingsInitialized()) {
+            Configuration.getInstance().getCommon().helpText(LocalStrings.HelpTapeMeasure, tooltip,
+              Minecraft.getInstance().gameSettings.keyBindUseItem.func_238171_j_().getString(),
+              Minecraft.getInstance().gameSettings.keyBindUseItem.func_238171_j_().getString(),
+              KeyBindingManager.getInstance().getResetMeasuringTapeKeyBinding().func_238171_j_().getString(),
+              KeyBindingManager.getInstance().getOpenToolMenuKeybinding().func_238171_j_().getString()
+            );
+        }
     }
 }

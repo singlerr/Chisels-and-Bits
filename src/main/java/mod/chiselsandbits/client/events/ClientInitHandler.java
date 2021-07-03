@@ -1,7 +1,9 @@
 package mod.chiselsandbits.client.events;
 
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.block.entities.ChiseledPrinterBlockEntity;
 import mod.chiselsandbits.client.screens.BitBagScreen;
+import mod.chiselsandbits.client.screens.ChiseledPrinterScreen;
 import mod.chiselsandbits.client.screens.ModificationTableScreen;
 import mod.chiselsandbits.registrars.ModContainerTypes;
 import mod.chiselsandbits.registrars.ModItems;
@@ -35,19 +37,18 @@ public class ClientInitHandler
               ModContainerTypes.MODIFICATION_TABLE.get(),
               ModificationTableScreen::new
             );
+            ScreenManager.registerFactory(
+              ModContainerTypes.CHISELED_PRINTER_CONTAINER.get(),
+              ChiseledPrinterScreen::new
+            );
         });
 
         event.enqueueWork(() -> {
-            ItemModelsProperties.registerProperty(ModItems.MEASURING_TAPE.get(), new ResourceLocation(Constants.MOD_ID, "is_measuring"), new IItemPropertyGetter() {
-                @Override
-                public float call(
-                  final @NotNull ItemStack stack, @Nullable final ClientWorld clientWorld, @Nullable final LivingEntity livingEntity)
-                {
-                    if (stack.getItem() != ModItems.MEASURING_TAPE.get())
-                        return 0;
+            ItemModelsProperties.registerProperty(ModItems.MEASURING_TAPE.get(), new ResourceLocation(Constants.MOD_ID, "is_measuring"), (stack, clientWorld, livingEntity) -> {
+                if (stack.getItem() != ModItems.MEASURING_TAPE.get())
+                    return 0;
 
-                    return ModItems.MEASURING_TAPE.get().getStart(stack).isPresent() ? 1 : 0;
-                }
+                return ModItems.MEASURING_TAPE.get().getStart(stack).isPresent() ? 1 : 0;
             });
         });
     }

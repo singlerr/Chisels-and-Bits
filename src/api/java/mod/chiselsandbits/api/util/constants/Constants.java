@@ -39,8 +39,8 @@ public final class Constants
         private static final String RESOURCEPACK_DIR               = "assets/" + MOD_ID + "/";
         public static final  String BLOCKSTATE_DIR                 = RESOURCEPACK_DIR + "blockstates/";
         public static final  String CONFIG_LANG_DIR                 = RESOURCEPACK_DIR + "lang/config/";
-        public static final ResourceLocation CHISELED_BLOCK_MODEL = new ResourceLocation( Constants.MOD_ID, "block/chiseled" );
-        public static final ResourceLocation CHISEL_PRINTER_MODEL = new ResourceLocation( Constants.MOD_ID, "block/chisel_printer" );
+        public static final ResourceLocation CHISELED_BLOCK_MODEL   = new ResourceLocation( Constants.MOD_ID, "block/chiseled" );
+        public static final ResourceLocation CHISELED_PRINTER_MODEL = new ResourceLocation( Constants.MOD_ID, "block/chiseled_printer" );
     }
 
     public static final int TICKS_BETWEEN_CHISEL_USAGE = 3;

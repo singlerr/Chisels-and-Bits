@@ -35,16 +35,16 @@ public final class ModItems
       ITEM_REGISTRAR.register("chisel_diamond", () -> new ChiselItem(ItemTier.DIAMOND, new Item.Properties().group(CHISELS_AND_BITS).maxStackSize(1)));
     public static final  RegistryObject<ChiselItem>                       ITEM_CHISEL_NETHERITE        =
       ITEM_REGISTRAR.register("chisel_netherite", () -> new ChiselItem(ItemTier.NETHERITE, new Item.Properties().group(CHISELS_AND_BITS).maxStackSize(1)));
-    public static final  RegistryObject<BitItem>                          ITEM_BLOCK_BIT               =
+    public static final  RegistryObject<BitItem>             ITEM_BLOCK_BIT   =
       ITEM_REGISTRAR.register("block_bit", () -> new BitItem(new Item.Properties().group(
         CHISELS_AND_BITS)));
-    public static final  RegistryObject<MagnifyingGlassItem>              ITEM_MAGNIFYING_GLASS        =
+    public static final  RegistryObject<MagnifyingGlassItem> MAGNIFYING_GLASS =
       ITEM_REGISTRAR.register("magnifying_glass", () -> new MagnifyingGlassItem(new Item.Properties().group(
         CHISELS_AND_BITS)));
-    public static final  RegistryObject<BitBagItem>                       ITEM_BIT_BAG_DEFAULT         =
+    public static final  RegistryObject<BitBagItem>          BIT_BAG_DEFAULT  =
       ITEM_REGISTRAR.register("bit_bag", () -> new BitBagItem(new Item.Properties().group(
         CHISELS_AND_BITS)));
-    public static final  RegistryObject<BitBagItem>                       ITEM_BIT_BAG_DYED            =
+    public static final  RegistryObject<BitBagItem>          ITEM_BIT_BAG_DYED     =
       ITEM_REGISTRAR.register("bit_bag_dyed", () -> new BitBagItem(new Item.Properties().group(
         CHISELS_AND_BITS)));
     public static final  RegistryObject<BitStorageBlockItem>
@@ -63,11 +63,14 @@ public final class ModItems
     public static final  RegistryObject<MultiUsePatternItem>              MULTI_USE_PATTERN_ITEM       =
       ITEM_REGISTRAR.register("pattern_multi_use", () -> new MultiUsePatternItem(new Item.Properties().group(CHISELS_AND_BITS)));
 
-    public static final RegistryObject<QuillItem> QUILL_ITEM =
+    public static final RegistryObject<QuillItem> QUILL =
       ITEM_REGISTRAR.register("quill", () -> new QuillItem(new Item.Properties().group(CHISELS_AND_BITS).setISTER(() -> InteractionISTER::new)));
 
     public static final RegistryObject<SealantItem> SEALANT_ITEM =
       ITEM_REGISTRAR.register("sealant", () -> new SealantItem(new Item.Properties().group(CHISELS_AND_BITS).setISTER(() -> InteractionISTER::new)));
+
+    public static final RegistryObject<BlockItem> CHISELED_PRINTER =
+        ITEM_REGISTRAR.register("chiseled_printer", () -> new BlockItem(ModBlocks.CHISELED_PRINTER.get(), new Item.Properties().group(CHISELS_AND_BITS)));
 
     private ModItems()
     {

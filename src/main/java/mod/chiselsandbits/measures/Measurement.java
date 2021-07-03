@@ -25,16 +25,8 @@ public class Measurement implements IMeasurement, IPacketBufferSerializable
 
     public Measurement(final UUID owner, final Vector3d from, final Vector3d to, final MeasuringMode mode, final ResourceLocation worldKey) {
         this.owner = owner;
-        this.from = new Vector3d(
-          Math.min(from.getX(), to.getX()),
-          Math.min(from.getY(), to.getY()),
-          Math.min(from.getZ(), to.getZ())
-        );
-        this.to = new Vector3d(
-          Math.max(from.getX(), to.getX()),
-          Math.max(from.getY(), to.getY()),
-          Math.max(from.getZ(), to.getZ())
-        );;
+        this.from = mode.getType().adaptStartPosition(from, to);
+        this.to = mode.getType().adaptEndPosition(from, to);
         this.mode = mode;
         this.worldKey = worldKey;
     }

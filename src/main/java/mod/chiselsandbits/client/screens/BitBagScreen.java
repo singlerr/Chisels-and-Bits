@@ -226,7 +226,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
     @Override
     protected void drawGuiContainerForegroundLayer(final @NotNull MatrixStack matrixStack, final int x, final int y)
     {
-        font.func_238407_a_(matrixStack, LanguageMap.getInstance().func_241870_a(ModItems.ITEM_BIT_BAG_DEFAULT.get().getDisplayName( ItemStack.EMPTY )), 8, 6, 0x404040 );
+        font.func_238407_a_(matrixStack, LanguageMap.getInstance().func_241870_a(ModItems.BIT_BAG_DEFAULT.get().getDisplayName( ItemStack.EMPTY )), 8, 6, 0x404040 );
         font.drawString(matrixStack, I18n.format( "container.inventory" ), 8, ySize - 93, 0x404040 );
     }
 }

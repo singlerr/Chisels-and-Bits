@@ -20,7 +20,7 @@
   "block.chiselsandbits.chiselednether_wood": "Chiseled Nether Wood",
 
   "block.chiselsandbits.bit_storage": "Chiseled Bit Storage",
-  "block.chiselsandbits.chisel_printer": "Chisel Station",
+  "block.chiselsandbits.chiseled_printer": "Chisel Station",
   "block.chiselsandbits.modification_table": "Modification Table",
 
   "item.chiselsandbits.block_bit": "%s Bit",
@@ -146,7 +146,7 @@
   "mod.chiselsandbits.help.bitsaw": "Craft with Blocks or Chiseled blocks;Cut along any of the 3 axis.",
   "mod.chiselsandbits.help.bittank.empty": "Fill with fluid and extract bits.;Currently empty.",
   "mod.chiselsandbits.help.bittank.full": "Fill with fluid and extract bits.; Contains: {}.; {} Bits remaining.",
-  "mod.chiselsandbits.help.tape_measure": "{} and drag to measure;{} + {} to clear;Use {} to display menu.",
+  "mod.chiselsandbits.help.tape_measure": "{} and drag to measure, again {} to save;{} to clear;Use {} to display menu.",
   "mod.chiselsandbits.help.magnifying_glass": "Hover over block to check if compatible.",
 
   "mod.chiselsandbits.help.chiseled_block.long": "Left-click to place the block. Sneak while placing to ignore block grid. Shift + Mouse Wheel to cycle placement rotation.",
@@ -334,6 +334,9 @@
   "mod.chiselsandbits.chisel.station.name": "Chisel Station",
   "mod.chiselsandbits.chisel.station.help": "Allows mass production of a single material chiseled pattern.",
   "mod.chiselsandbits.chisel.station.help.long": "Allows you to mass produce a single pattern multiple times. However only allows a single material to be used, replacing any exiting material in the pattern.",
+
+  "mod.chiselsandbits.modification.table.help": "Allows for modification of unsealed patterns.",
+  "mod.chiselsandbits.modification.table.help.long": "Several different operations can be applied to an unsealed pattern. Additionally you can see a pattern modification before applying it.",
 
   "mod.chiselsandbits.advancements.root.title": "Chisels & Bits!",
   "mod.chiselsandbits.advancements.root.description": "Get yourself a chisel and start diving into the world of bits.",

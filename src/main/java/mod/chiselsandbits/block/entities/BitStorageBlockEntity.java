@@ -8,6 +8,7 @@ import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
+import mod.chiselsandbits.block.BitStorageBlock;
 import mod.chiselsandbits.registrars.ModTileEntityTypes;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
@@ -93,6 +94,7 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
         else
         {
             myFluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluid));
+            this.state = myFluid.getDefaultState().getBlockState();
         }
 
         bits = nbt.getInt("bits");
@@ -260,7 +262,7 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
                 final int oldBits = bits;
 
                 myFluid = f;
-                state = null;
+                state = myFluid.getDefaultState().getBlockState();
                 bits = amount;
 
                 if (bits != oldBits || myFluid != oldFluid || oldState != null)
@@ -510,7 +512,7 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
             final IBitInventory bitInventory = IBitInventoryManager.getInstance().create(playerIn);
             final int extractionAmount = Math.min(
               MAX_CONTENTS - bits,
-              bitInventory.getMaxInsertAmount(state)
+              bitInventory.getMaxExtractAmount(state)
             );
 
             bitInventory.extract(state, extractionAmount);
@@ -709,5 +711,9 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
     public int getBits()
     {
         return bits;
+    }
+
+    public Direction getFacing() {
+        return getWorld().getBlockState(getPos()).get(BitStorageBlock.FACING);
     }
 }

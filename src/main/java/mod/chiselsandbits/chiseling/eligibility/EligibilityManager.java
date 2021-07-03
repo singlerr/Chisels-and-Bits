@@ -8,12 +8,14 @@ import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.block.ChiseledBlock;
+import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModTags;
 import mod.chiselsandbits.utils.ClassUtils;
 import mod.chiselsandbits.utils.ReflectionHelperBlock;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.block.*;
+import net.minecraft.block.material.Material;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
@@ -119,7 +121,10 @@ public class EligibilityManager implements IEligibilityManager
                     final boolean tickingBehavior = blk.ticksRandomly(state) && Configuration.getInstance().getServer().blackListRandomTickingBlocks.get();
                     boolean hasBehavior = (blk.hasTileEntity(state) || tickingBehavior);
 
-                    final boolean supportedMaterial = ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.containsKey(state.getMaterial());
+                    final Material remappedMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(
+                      state.getMaterial()
+                    );
+                    final boolean supportedMaterial = ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.containsKey(remappedMaterial);
 
                     if (!supportedMaterial) {
                         return new EligibilityAnalysisResult(

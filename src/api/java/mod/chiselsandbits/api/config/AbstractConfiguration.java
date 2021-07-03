@@ -18,7 +18,8 @@ public abstract class AbstractConfiguration
 
     protected static void createCategory(final Builder builder, final String key)
     {
-        builder.comment(DeprecationHelper.translateToLocal(commentTKey(key))).push(key);
+        final String translation = DeprecationHelper.translateToLocal(commentTKey(key));
+        builder.comment(translation == null || translation.isEmpty() ? key : translation).push(key);
         currentCategory = key;
     }
 
@@ -64,7 +65,8 @@ public abstract class AbstractConfiguration
 
     private static Builder buildBase(final Builder builder, final String key)
     {
-        return builder.comment(DeprecationHelper.translateToLocal(commentTKey(key))).translation(nameTKey(key));
+        final String translation = DeprecationHelper.translateToLocal(commentTKey(key));
+        return  builder.comment(translation == null || translation.isEmpty() ? key : translation).translation(nameTKey(key));
     }
 
     protected static BooleanValue defineBoolean(final Builder builder, final String key, final boolean defaultValue)

@@ -52,6 +52,6 @@ public class ChiselTagGenerator implements IDataProvider
     @Override
     public String getName()
     {
-        return "Piglins loved tag generator";
+        return "Chisel tag generator";
     }
 }

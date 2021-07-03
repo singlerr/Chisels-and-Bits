@@ -19,5 +19,7 @@ public final class ModRenderLayers
           .forEach(b -> RenderTypeLookup.setRenderLayer(b, input -> RenderType.getBlockRenderTypes().contains(input)));
 
         RenderTypeLookup.setRenderLayer(ModBlocks.BIT_STORAGE.get(), RenderType.getCutoutMipped());
+
+        RenderTypeLookup.setRenderLayer(ModBlocks.CHISELED_PRINTER.get(), RenderType.getCutoutMipped());
     }
 }
