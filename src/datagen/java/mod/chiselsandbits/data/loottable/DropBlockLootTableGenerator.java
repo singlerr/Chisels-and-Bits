@@ -3,7 +3,6 @@ package mod.chiselsandbits.data.loottable;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.data.advancement.ChiselsAndBitsAdvancementGenerator;
 import mod.chiselsandbits.registrars.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraft.data.DataGenerator;

@@ -71,6 +71,20 @@ sourceSets {
         compileClasspath += sourceSets.api.output
         runtimeClasspath += sourceSets.api.output
     }
+    datagen {
+        java {
+            srcDir 'src/datagen/java'
+        }
+        resources {
+            srcDir 'src/datagen/resources'
+        }
+        compileClasspath += configurations.getByName("minecraft")
+        runtimeClasspath += configurations.getByName("minecraft")
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+        compileClasspath += sourceSets.api.output
+        runtimeClasspath += sourceSets.api.output
+    }
     test {
         java {
             srcDir 'src/test/java'
@@ -152,6 +166,32 @@ minecraft {
                 chiselsandbits {
                     source sourceSets.main
                     source sourceSets.api
+                    source sourceSets.datagen
+                }
+            }
+        }
+
+        wikiRecipes {
+            workingDirectory project.file('run')
+            parent project.minecraft.runs.data
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', ''
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'info'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            args '--all', '--output', file('documentation'),
+                    '--mod', 'chiselsandbits',
+                    '--existing', file('documentation')
+
+            mods {
+                chiselsandbits {
+                    source sourceSets.main
+                    source sourceSets.api
+                    source sourceSets.datagen
                 }
             }
         }
@@ -172,6 +212,7 @@ dependencies {
     // data generators.
     apiImplementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
     implementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
+    datagenImplementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
 
     // unit testing
     testCompile 'junit:junit:4.11'
@@ -186,6 +227,7 @@ dependencies {
 
     //Utilities
     apiCompile 'org.jetbrains:annotations:+'
+    datagenCompile 'org.jetbrains:annotations:+'
     compile 'org.jetbrains:annotations:+'
     testCompile 'org.jetbrains:annotations:+'
 }

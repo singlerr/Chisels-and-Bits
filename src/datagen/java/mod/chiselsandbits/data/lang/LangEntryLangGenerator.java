@@ -1,7 +1,6 @@
 package mod.chiselsandbits.data.lang;
 
 import com.google.gson.JsonObject;
-import mod.chiselsandbits.api.config.AbstractConfiguration;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.data.DataGenerator;
@@ -14,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
