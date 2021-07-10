@@ -43,7 +43,9 @@ public class IconManager implements IIconManager
     public static void onBlockColorHandler(final ColorHandlerEvent.Block event)
     {
         //We use this event since this is virtually the only time we can init the IconManager and have it load the custom atlas.
-        IconManager.getInstance().initialize();
+        //Guard for doing stupid shit when data gen is running :D
+        if (Minecraft.getInstance() != null)
+            IconManager.getInstance().initialize();
     }
 
     private void initialize() {

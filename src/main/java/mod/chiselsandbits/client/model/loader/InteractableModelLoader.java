@@ -16,15 +16,8 @@ import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public class InteractableModelLoader implements IModelLoader<InteractableItemModel>
+public final class InteractableModelLoader implements IModelLoader<InteractableItemModel>
 {
-
-    @SubscribeEvent
-    public static void onModelRegistry(final ModelRegistryEvent event)
-    {
-        ModelLoaderRegistry.registerLoader(new ResourceLocation(Constants.INTERACTABLE_MODEL_LOADER), new InteractableModelLoader());
-    }
-
     @Override
     public void onResourceManagerReload(@NotNull final IResourceManager resourceManager)
     {

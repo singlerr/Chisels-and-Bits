@@ -31,3 +31,4 @@ run/*
 out
 run/
 .cache
+documentation/generated/

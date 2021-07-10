@@ -85,6 +85,20 @@ sourceSets {
         compileClasspath += sourceSets.api.output
         runtimeClasspath += sourceSets.api.output
     }
+    documentation {
+        java {
+            srcDir 'src/documentation/java'
+        }
+        resources {
+            srcDir 'src/documentation/resources'
+        }
+        compileClasspath += configurations.getByName("minecraft")
+        runtimeClasspath += configurations.getByName("minecraft")
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+        compileClasspath += sourceSets.api.output
+        runtimeClasspath += sourceSets.api.output
+    }
     test {
         java {
             srcDir 'src/test/java'
@@ -166,12 +180,35 @@ minecraft {
                 chiselsandbits {
                     source sourceSets.main
                     source sourceSets.api
+                }
+            }
+        }
+
+        generateData {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', ''
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'info'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+
+            args '--all', '--output', file('src/datagen/generated/chiselsandbits'),
+                    '--mod', 'chiselsandbits',
+                    '--existing', sourceSets.main.resources.srcDirs[0]
+
+            mods {
+                chiselsandbits {
+                    source sourceSets.main
+                    source sourceSets.api
                     source sourceSets.datagen
                 }
             }
         }
 
-        wikiRecipes {
+        generateDocumentation {
             workingDirectory project.file('run')
             parent project.minecraft.runs.data
 
@@ -183,15 +220,16 @@ minecraft {
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
-            args '--all', '--output', file('documentation'),
+            args '--all', '--output', file('src/documentation/generated/chiselsandbits'),
                     '--mod', 'chiselsandbits',
-                    '--existing', file('documentation')
+                    '--existing', sourceSets.main.resources.srcDirs[0],
+                    '--existing', file('src/datagen/generated/chiselsandbits')
 
             mods {
                 chiselsandbits {
                     source sourceSets.main
                     source sourceSets.api
-                    source sourceSets.datagen
+                    source sourceSets.documentation
                 }
             }
         }
@@ -213,6 +251,7 @@ dependencies {
     apiImplementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
     implementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
     datagenImplementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
+    documentationImplementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
 
     // unit testing
     testCompile 'junit:junit:4.11'
@@ -228,6 +267,7 @@ dependencies {
     //Utilities
     apiCompile 'org.jetbrains:annotations:+'
     datagenCompile 'org.jetbrains:annotations:+'
+    documentationCompile 'org.jetbrains:annotations:+'
     compile 'org.jetbrains:annotations:+'
     testCompile 'org.jetbrains:annotations:+'
 }
@@ -251,4 +291,16 @@ jar {
     }
 
     classifier = 'universal'
+}
+
+tasks.whenObjectAdded {
+    if (it.name == "prepareRunGenerateDocumentation") {
+        it.doFirst {
+            def iconsDirectory = project.file('src/datagen/generated/chiselsandbits/icons')
+            if (iconsDirectory.exists()) {
+                project.getLogger().lifecycle("Executing 'prepareRunGenerateDocumentation' with existing icon directory. Deleting...")
+                iconsDirectory.delete()
+            }
+        }
+    }
 }
