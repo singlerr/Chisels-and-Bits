@@ -3,15 +3,24 @@ package mod.chiselsandbits.data.icons;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.datafixers.util.Pair;
+import com.sun.org.apache.regexp.internal.RE;
 import mod.chiselsandbits.api.util.constants.Constants;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.SpriteMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.inventory.container.PlayerContainer;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraft.util.math.vector.Vector3f;
@@ -25,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -37,18 +47,16 @@ public class ModelRenderer
 
     private final int width;
     private final int height;
-    private final AtlasTexture texture;
     private final int framebufferID;
     private final int renderedTexture;
     private final int depthBuffer;
     private final File outputDirectory;
 
-    public ModelRenderer(int width, int height, final File outputDirectory, AtlasTexture texture)
+    public ModelRenderer(int width, int height, final File outputDirectory)
     {
         this.width = width;
         this.height = height;
         this.outputDirectory = outputDirectory;
-        this.texture = texture;
         this.framebufferID = glGenFramebuffers();
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
 
@@ -68,7 +76,7 @@ public class ModelRenderer
 
     // TODO free GL resources
 
-    public void renderModel(IBakedModel model, String filename)
+    public void renderModel(IBakedModel model, String filename, Item item)
     {
         if (model == null)
             return;
@@ -76,7 +84,7 @@ public class ModelRenderer
         // Set up GL
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
         glViewport(0, 0, width, height);
-        glBindTexture(GL_TEXTURE_2D, texture.getGlTextureId());
+        Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
         glClearColor(0.0f,0.0f,0.0f,0.0f);
         glClearDepth(1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -133,17 +141,31 @@ public class ModelRenderer
             RenderSystem.rotatef(180, 0, 1,0);
         }
 
+
         //Deal with none normal Transformtypes
         model = model.handlePerspective(TransformType.GUI, stack);
-
-        bufferbuilder.begin(GL_QUADS, DefaultVertexFormats.BLOCK);
-        for(Direction side : DIRECTIONS_AND_NULL)
-            for(BakedQuad quad : model.getQuads(null, side, RANDOM, EmptyModelData.INSTANCE))
-                bufferbuilder.addQuad(
-                  stack.getLast(), quad, 1, 1, 1, 15728880, OverlayTexture.NO_OVERLAY
-                );
+        if (!model.isBuiltInRenderer()) {
+            bufferbuilder.begin(GL_QUADS, DefaultVertexFormats.BLOCK);
+            for(Direction side : DIRECTIONS_AND_NULL)
+                for(BakedQuad quad : model.getQuads(null, side, RANDOM, EmptyModelData.INSTANCE))
+                    bufferbuilder.addQuad(
+                      stack.getLast(), quad, 1, 1, 1, 15728880, OverlayTexture.NO_OVERLAY
+                    );
+        }
+        else
+        {
+            item.getItemStackTileEntityRenderer().func_239207_a_(
+              new ItemStack(item),
+              TransformType.GUI,
+              stack,
+              IRenderTypeBuffer.getImpl(bufferbuilder),
+              15728880, OverlayTexture.NO_OVERLAY
+            );
+        }
         bufferbuilder.finishDrawing();
         WorldVertexBufferUploader.draw(bufferbuilder);
+
+
         if (sideLitModel) {
             RenderHelper.setupGui3DDiffuseLighting();
         }
@@ -152,8 +174,10 @@ public class ModelRenderer
         exportTo(filename, renderedTexture, cutter::cutTexture);
     }
 
-    public void exportAtlas() {
-        exportTo("atlas.png", texture.getGlTextureId(), bufferedImage -> bufferedImage);
+    public void exportAtlas(Map<ResourceLocation, Pair<AtlasTexture, AtlasTexture.SheetData>> spriteMap) {
+        spriteMap.keySet().forEach(sprite -> {
+            exportTo(sprite.getNamespace() + "/" + sprite.getPath(), spriteMap.get(sprite).getFirst().getGlTextureId(), Function.identity());
+        });
     }
 
     private void exportTo(String fileName, int texture, Function<BufferedImage, BufferedImage> imageAdapter)

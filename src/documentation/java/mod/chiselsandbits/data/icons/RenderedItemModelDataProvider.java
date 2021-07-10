@@ -74,6 +74,7 @@ public class RenderedItemModelDataProvider implements IDataProvider
     @Override
     public void act(@Nonnull DirectoryCache cache) throws IOException
     {
+
         // Hack together something that may work?
         if(!glfwInit())
             throw new RuntimeException("Failed to initialize GLFW???");
@@ -96,6 +97,8 @@ public class RenderedItemModelDataProvider implements IDataProvider
         {
             throw new IllegalStateException("Failed to load the resourceManager for exporting icons.", e);
         }
+
+        MinecraftInstanceManager.getInstance().initialize(resourceManager);
         ModelLoader loader = new ModelLoader(resourceManager);
         ChiselsAndBitsClient.onModelRegistry(this::registerLoader);
 
@@ -116,15 +119,15 @@ public class RenderedItemModelDataProvider implements IDataProvider
               .forEach(File::delete);
             Files.deleteIfExists(this.generator.getOutputFolder().resolve("icons/item"));
         }
-        ModelRenderer itemRenderer = new ModelRenderer(512, 512, itemOutputDirectory.toFile(), loader.getAtlas());
+        ModelRenderer itemRenderer = new ModelRenderer(512, 512, itemOutputDirectory.toFile());
 
         ForgeRegistries.ITEMS.forEach(item -> {
             ModelResourceLocation modelLocation = new ModelResourceLocation(
               item.getRegistryName().toString(), "inventory"
             );
-            itemRenderer.renderModel(loader.getModel(modelLocation), item.getRegistryName().getNamespace() + "/" + item.getRegistryName().getPath() + ".png");
+            itemRenderer.renderModel(loader.getModel(modelLocation), item.getRegistryName().getNamespace() + "/" + item.getRegistryName().getPath() + ".png", item);
         });
-        itemRenderer.exportAtlas();
+        itemRenderer.exportAtlas(loader.getInternalSheets());
         glfwTerminate();
     }
 
