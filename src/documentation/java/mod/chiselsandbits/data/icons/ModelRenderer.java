@@ -3,6 +3,7 @@ package mod.chiselsandbits.data.icons;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.BakedQuad;
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -142,10 +144,12 @@ public class ModelRenderer
         if (!model.isBuiltInRenderer()) {
             bufferbuilder.begin(GL_QUADS, DefaultVertexFormats.BLOCK);
             for(Direction side : DIRECTIONS_AND_NULL)
-                for(BakedQuad quad : model.getQuads(null, side, RANDOM, EmptyModelData.INSTANCE))
-                    bufferbuilder.addQuad(
-                      stack.getLast(), quad, 1, 1, 1, 15728880, OverlayTexture.NO_OVERLAY
-                    );
+                renderQuads(
+                  stack, bufferbuilder, model.getQuads(null, side, RANDOM, EmptyModelData.INSTANCE), new ItemStack(item),
+                  LightTexture.packLight(15,15),
+                  OverlayTexture.NO_OVERLAY
+                );
+
             bufferbuilder.finishDrawing();
             WorldVertexBufferUploader.draw(bufferbuilder);
         }
@@ -158,7 +162,8 @@ public class ModelRenderer
               TransformType.GUI,
               stack,
               buffer,
-              15728880, OverlayTexture.NO_OVERLAY
+              LightTexture.packLight(15,15),
+              OverlayTexture.NO_OVERLAY
             );
 
             buffer.finish();
@@ -171,6 +176,24 @@ public class ModelRenderer
 
         final TextureCutter cutter = new TextureCutter(256, 256);
         exportTo(filename, () -> GlStateManager.bindTexture(renderedTexture), cutter::cutTexture);
+    }
+
+    public void renderQuads(MatrixStack matrixStackIn, IVertexBuilder bufferIn, List<BakedQuad> quadsIn, ItemStack itemStackIn, int combinedLightIn, int combinedOverlayIn) {
+        boolean flag = !itemStackIn.isEmpty();
+        MatrixStack.Entry matrixstack$entry = matrixStackIn.getLast();
+
+        for(BakedQuad bakedquad : quadsIn) {
+            int i = -1;
+            if (flag && bakedquad.hasTintIndex()) {
+                i = Minecraft.getInstance().getItemColors().getColor(itemStackIn, bakedquad.getTintIndex());
+            }
+
+            float f = (float)(i >> 16 & 255) / 255.0F;
+            float f1 = (float)(i >> 8 & 255) / 255.0F;
+            float f2 = (float)(i & 255) / 255.0F;
+            bufferIn.addVertexData(matrixstack$entry, bakedquad, f, f1, f2, combinedLightIn, combinedOverlayIn, true);
+        }
+
     }
 
     public void exportAtlas(Collection<ResourceLocation> spriteMaps) {
