@@ -1,6 +1,9 @@
 package mod.chiselsandbits.data.icons;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.datafixers.DataFixerUpper;
 import mod.chiselsandbits.api.util.ReflectionUtils;
+import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.GameRenderer;
@@ -12,12 +15,14 @@ import net.minecraft.client.renderer.model.ModelManager;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.Timer;
+import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraftforge.common.model.animation.CapabilityAnimation;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import sun.misc.Unsafe;
 
+import java.io.File;
 import java.lang.reflect.Field;
 
 public class MinecraftInstanceManager
@@ -44,6 +49,7 @@ public class MinecraftInstanceManager
 
         createMinecraft();
         initializeTimer();
+        initializeRenderSystem();
         initializeResourceManager(resourceManager);
         initializeTextureManager(resourceManager);
         initializeBlockColors();
@@ -52,11 +58,12 @@ public class MinecraftInstanceManager
         initializeItemRenderer();
         initializeBlockRenderDispatcher();
         initializeGameRenderer(resourceManager);
+        initializeDataFixer();
+        initializeGameSettings();
 
 
         initializeForge();
     }
-
 
     private Unsafe unsafe() {
         if (internalUnsafe != null)
@@ -95,6 +102,12 @@ public class MinecraftInstanceManager
     private void initializeTimer() {
         final Timer timer = new Timer(20,0L);
         ReflectionUtils.setField(Minecraft.getInstance(), "timer", timer);
+    }
+
+    private void initializeRenderSystem()
+    {
+        RenderSystem.initRenderThread();
+        RenderSystem.initGameThread(false);
     }
 
     private void initializeResourceManager(final IResourceManager resourceManager)
@@ -139,6 +152,17 @@ public class MinecraftInstanceManager
     private void initializeGameRenderer(final IResourceManager resourceManager) {
         final GameRenderer gameRenderer = new GameRenderer(Minecraft.getInstance(), resourceManager, new RenderTypeBuffers());
         ReflectionUtils.setField(Minecraft.getInstance(), "gameRenderer", gameRenderer);
+    }
+
+    private void initializeDataFixer()
+    {
+        ReflectionUtils.setField(Minecraft.getInstance(), "dataFixer", DataFixesManager.getDataFixer());
+    }
+
+    private void initializeGameSettings()
+    {
+        final GameSettings gameSettings = new GameSettings(Minecraft.getInstance(), new File("./"));
+        ReflectionUtils.setField(Minecraft.getInstance(), "gameSettings", gameSettings);
     }
 
     private void initializeForge()

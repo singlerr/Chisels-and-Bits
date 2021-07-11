@@ -65,7 +65,6 @@ public class RenderedItemModelDataProvider implements IDataProvider
         // Hack together something that may work?
         if(!glfwInit())
             throw new RuntimeException("Failed to initialize GLFW???");
-        RenderSystem.initRenderThread();
         glfwSetErrorCallback(loggingErrorCallback);
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
@@ -100,19 +99,12 @@ public class RenderedItemModelDataProvider implements IDataProvider
         }
         ModelRenderer itemRenderer = new ModelRenderer(512, 512, itemOutputDirectory.toFile());
 
-        /*ForgeRegistries.ITEMS.forEach(item -> {
+        ForgeRegistries.ITEMS.forEach(item -> {
             ModelResourceLocation modelLocation = new ModelResourceLocation(
               item.getRegistryName().toString(), "inventory"
             );
             itemRenderer.renderModel(Minecraft.getInstance().getModelManager().getModel(modelLocation), item.getRegistryName().getNamespace() + "/" + item.getRegistryName().getPath() + ".png", item);
-        });*/
-
-        final Item item = Items.AIR;
-        ModelResourceLocation modelLocation = new ModelResourceLocation(
-          item.getRegistryName().toString(), "inventory"
-        );
-        itemRenderer.renderModel(Minecraft.getInstance().getModelManager().getModel(modelLocation), item.getRegistryName().getNamespace() + "/" + item.getRegistryName().getPath() + ".png", item);
-
+        });
         itemRenderer.exportAtlas(((ExtendedModelManager) Minecraft.getInstance().getModelManager()).getTextureMap());
         glfwTerminate();
     }

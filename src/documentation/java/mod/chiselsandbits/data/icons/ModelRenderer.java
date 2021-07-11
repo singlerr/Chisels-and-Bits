@@ -54,7 +54,7 @@ public class ModelRenderer
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
 
         this.renderedTexture = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, renderedTexture);
+        GlStateManager.bindTexture(renderedTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -76,7 +76,7 @@ public class ModelRenderer
 
         // Set up GL
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
-        glBindTexture(GL_TEXTURE_2D, renderedTexture);
+        GlStateManager.bindTexture(renderedTexture);
         glViewport(0, 0, width, height);
         glClearColor(0.0f,0.0f,0.0f,0.0f);
         glClearDepth(1);
@@ -86,7 +86,7 @@ public class ModelRenderer
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         // TODO figure out where the .25 comes from. Maybe blocks always render too big?
-        glOrtho(-1.25, 1.25, -1.25, 1.25, -1000, 1000);
+        glOrtho(-1.25, 1.25, -1.25, 1.25, -1000, 3000);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
         RenderHelper.enableStandardItemLighting();
@@ -146,27 +146,31 @@ public class ModelRenderer
                     bufferbuilder.addQuad(
                       stack.getLast(), quad, 1, 1, 1, 15728880, OverlayTexture.NO_OVERLAY
                     );
+            bufferbuilder.finishDrawing();
+            WorldVertexBufferUploader.draw(bufferbuilder);
         }
         else
         {
+            IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(bufferbuilder);
+
             item.getItemStackTileEntityRenderer().func_239207_a_(
               new ItemStack(item),
               TransformType.GUI,
               stack,
-              IRenderTypeBuffer.getImpl(bufferbuilder),
+              buffer,
               15728880, OverlayTexture.NO_OVERLAY
             );
+
+            buffer.finish();
         }
-        bufferbuilder.finishDrawing();
-        WorldVertexBufferUploader.draw(bufferbuilder);
 
 
         if (sideLitModel) {
             RenderHelper.setupGui3DDiffuseLighting();
         }
 
-        //final TextureCutter cutter = new TextureCutter(256, 256);
-        exportTo(filename, () -> glBindTexture(GL_TEXTURE_2D, renderedTexture), Function.identity());
+        final TextureCutter cutter = new TextureCutter(256, 256);
+        exportTo(filename, () -> GlStateManager.bindTexture(renderedTexture), cutter::cutTexture);
     }
 
     public void exportAtlas(Collection<ResourceLocation> spriteMaps) {
