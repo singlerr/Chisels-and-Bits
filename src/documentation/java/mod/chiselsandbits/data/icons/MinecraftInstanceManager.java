@@ -4,12 +4,18 @@ import mod.chiselsandbits.api.util.ReflectionUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderTypeBuffers;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.renderer.model.ModelManager;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.IResourceManager;
+import net.minecraft.util.Timer;
+import net.minecraftforge.common.model.animation.CapabilityAnimation;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.items.CapabilityItemHandler;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -37,14 +43,20 @@ public class MinecraftInstanceManager
         isInitialized = true;
 
         createMinecraft();
+        initializeTimer();
         initializeResourceManager(resourceManager);
         initializeTextureManager(resourceManager);
         initializeBlockColors();
         initializeItemColors();
         initializeModelManager();
+        initializeItemRenderer();
         initializeBlockRenderDispatcher();
         initializeGameRenderer(resourceManager);
+
+
+        initializeForge();
     }
+
 
     private Unsafe unsafe() {
         if (internalUnsafe != null)
@@ -80,6 +92,11 @@ public class MinecraftInstanceManager
         }
     }
 
+    private void initializeTimer() {
+        final Timer timer = new Timer(20,0L);
+        ReflectionUtils.setField(Minecraft.getInstance(), "timer", timer);
+    }
+
     private void initializeResourceManager(final IResourceManager resourceManager)
     {
         ReflectionUtils.setField(Minecraft.getInstance(), "resourceManager", resourceManager);
@@ -100,8 +117,18 @@ public class MinecraftInstanceManager
     }
 
     private void initializeModelManager() {
-        final ModelManager modelManager = new ModelManager(Minecraft.getInstance().getTextureManager(), Minecraft.getInstance().getBlockColors(), 0);
+        final ExtendedModelManager modelManager = new ExtendedModelManager(Minecraft.getInstance().getTextureManager(), Minecraft.getInstance().getBlockColors(), 0);
         ReflectionUtils.setField(Minecraft.getInstance(), "modelManager", modelManager);
+    }
+
+    private void initializeItemRenderer()
+    {
+        final ItemRenderer itemRenderer = new ItemRenderer(
+          Minecraft.getInstance().getTextureManager(),
+          Minecraft.getInstance().getModelManager(),
+          Minecraft.getInstance().getItemColors()
+        );
+        ReflectionUtils.setField(Minecraft.getInstance(), "itemRenderer", itemRenderer);
     }
 
     private void initializeBlockRenderDispatcher() {
@@ -112,5 +139,18 @@ public class MinecraftInstanceManager
     private void initializeGameRenderer(final IResourceManager resourceManager) {
         final GameRenderer gameRenderer = new GameRenderer(Minecraft.getInstance(), resourceManager, new RenderTypeBuffers());
         ReflectionUtils.setField(Minecraft.getInstance(), "gameRenderer", gameRenderer);
+    }
+
+    private void initializeForge()
+    {
+        initializeCapabilities();
+    }
+
+    private void initializeCapabilities()
+    {
+        CapabilityItemHandler.register();
+        CapabilityFluidHandler.register();
+        CapabilityAnimation.register();
+        CapabilityEnergy.register();
     }
 }

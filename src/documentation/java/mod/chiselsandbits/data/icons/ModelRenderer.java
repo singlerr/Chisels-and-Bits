@@ -3,25 +3,18 @@ package mod.chiselsandbits.data.icons;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.datafixers.util.Pair;
-import com.sun.org.apache.regexp.internal.RE;
-import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.SpriteMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.model.data.EmptyModelData;
@@ -34,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.IntBuffer;
 import java.util.Arrays;
-import java.util.Map;
+import java.util.Collection;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -83,11 +76,13 @@ public class ModelRenderer
 
         // Set up GL
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
+        glBindTexture(GL_TEXTURE_2D, renderedTexture);
         glViewport(0, 0, width, height);
-        Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
         glClearColor(0.0f,0.0f,0.0f,0.0f);
         glClearDepth(1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         // TODO figure out where the .25 comes from. Maybe blocks always render too big?
@@ -170,19 +165,19 @@ public class ModelRenderer
             RenderHelper.setupGui3DDiffuseLighting();
         }
 
-        final TextureCutter cutter = new TextureCutter(256, 256);
-        exportTo(filename, renderedTexture, cutter::cutTexture);
+        //final TextureCutter cutter = new TextureCutter(256, 256);
+        exportTo(filename, () -> glBindTexture(GL_TEXTURE_2D, renderedTexture), Function.identity());
     }
 
-    public void exportAtlas(Map<ResourceLocation, Pair<AtlasTexture, AtlasTexture.SheetData>> spriteMap) {
-        spriteMap.keySet().forEach(sprite -> {
-            exportTo(sprite.getNamespace() + "/" + sprite.getPath(), spriteMap.get(sprite).getFirst().getGlTextureId(), Function.identity());
+    public void exportAtlas(Collection<ResourceLocation> spriteMaps) {
+        spriteMaps.forEach(sprite -> {
+            exportTo(sprite.getNamespace() + "/" + sprite.getPath(), () -> Minecraft.getInstance().getTextureManager().bindTexture(sprite), Function.identity());
         });
     }
 
-    private void exportTo(String fileName, int texture, Function<BufferedImage, BufferedImage> imageAdapter)
+    private void exportTo(String fileName, Runnable textureBinder, Function<BufferedImage, BufferedImage> imageAdapter)
     {
-        glBindTexture(GL_TEXTURE_2D, texture);
+        textureBinder.run();
         int width = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH);
         int height = glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT);
         int size = width*height;

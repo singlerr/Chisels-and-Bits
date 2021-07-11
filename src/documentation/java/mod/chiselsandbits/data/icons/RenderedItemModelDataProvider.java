@@ -2,11 +2,13 @@ package mod.chiselsandbits.data.icons;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.core.ChiselsAndBitsClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.IModelLoader;
@@ -56,21 +58,6 @@ public class RenderedItemModelDataProvider implements IDataProvider
         this.helper = helper;
     }
 
-    @SuppressWarnings("unchecked")
-    private void registerLoader(ResourceLocation rl, IModelLoader<?> loader)
-    {
-        try
-        {
-            Field f = ModelLoaderRegistry.class.getDeclaredField("loaders");
-            f.setAccessible(true);
-            Map<ResourceLocation, IModelLoader<?>> loaders = (Map<ResourceLocation, IModelLoader<?>>)f.get(null);
-            loaders.put(rl, loader);
-        } catch(NoSuchFieldException|IllegalAccessException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     public void act(@Nonnull DirectoryCache cache) throws IOException
     {
@@ -99,16 +86,8 @@ public class RenderedItemModelDataProvider implements IDataProvider
         }
 
         MinecraftInstanceManager.getInstance().initialize(resourceManager);
-        ModelLoader loader = new ModelLoader(resourceManager);
-        ChiselsAndBitsClient.onModelRegistry(this::registerLoader);
 
-        ForgeRegistries.ITEMS.forEach(item -> {
-            ModelResourceLocation modelLocation = new ModelResourceLocation(
-              item.getRegistryName().toString(), "inventory"
-            );
-            loader.add(modelLocation);
-        });
-        loader.bake();
+        ModelLoadingHandler.loadAndBake();
 
         final Path itemOutputDirectory = this.generator.getOutputFolder().resolve("icons/item");
         if (Files.exists(itemOutputDirectory)) {
@@ -121,13 +100,20 @@ public class RenderedItemModelDataProvider implements IDataProvider
         }
         ModelRenderer itemRenderer = new ModelRenderer(512, 512, itemOutputDirectory.toFile());
 
-        ForgeRegistries.ITEMS.forEach(item -> {
+        /*ForgeRegistries.ITEMS.forEach(item -> {
             ModelResourceLocation modelLocation = new ModelResourceLocation(
               item.getRegistryName().toString(), "inventory"
             );
-            itemRenderer.renderModel(loader.getModel(modelLocation), item.getRegistryName().getNamespace() + "/" + item.getRegistryName().getPath() + ".png", item);
-        });
-        itemRenderer.exportAtlas(loader.getInternalSheets());
+            itemRenderer.renderModel(Minecraft.getInstance().getModelManager().getModel(modelLocation), item.getRegistryName().getNamespace() + "/" + item.getRegistryName().getPath() + ".png", item);
+        });*/
+
+        final Item item = Items.AIR;
+        ModelResourceLocation modelLocation = new ModelResourceLocation(
+          item.getRegistryName().toString(), "inventory"
+        );
+        itemRenderer.renderModel(Minecraft.getInstance().getModelManager().getModel(modelLocation), item.getRegistryName().getNamespace() + "/" + item.getRegistryName().getPath() + ".png", item);
+
+        itemRenderer.exportAtlas(((ExtendedModelManager) Minecraft.getInstance().getModelManager()).getTextureMap());
         glfwTerminate();
     }
 
