@@ -14,6 +14,7 @@ import mod.chiselsandbits.network.packets.OpenBagGuiPacket;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.SimpleInstanceCache;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
@@ -80,7 +81,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
         }
 
         final List<ITextComponent> details = tooltipCache.getCached();
-        if (details.size() <= 2 || Screen.hasShiftDown())
+        if (details.size() <= 2 || (Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown()))
         {
             tooltip.addAll(details);
         }

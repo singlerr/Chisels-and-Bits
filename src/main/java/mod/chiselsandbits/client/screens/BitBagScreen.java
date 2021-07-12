@@ -198,7 +198,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
             slot = hoveredBitSlot;
         if ( slot != null && slot.inventory instanceof WrappingInventory && Minecraft.getInstance().player != null)
         {
-            final BagGuiPacket bagGuiPacket = new BagGuiPacket(slot.slotNumber, button, duplicateButton, Screen.hasShiftDown());
+            final BagGuiPacket bagGuiPacket = new BagGuiPacket(slot.slotNumber, button, duplicateButton, (Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown()));
             bagGuiPacket.doAction( Minecraft.getInstance().player );
 
             ChiselsAndBits.getInstance().getNetworkChannel().sendToServer( bagGuiPacket );

@@ -210,7 +210,7 @@ public class SingleUsePatternItem extends Item implements IPatternItem
     public void addInformation(
       final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
     {
-        if (Screen.hasShiftDown()) {
+        if ((Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown())) {
             tooltip.add(new StringTextComponent("        "));
             tooltip.add(new StringTextComponent("        "));
         }

@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SealingNotSupportedException;
 import mod.chiselsandbits.api.item.pattern.IMultiUsePatternItem;
 import mod.chiselsandbits.api.util.LocalStrings;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.BlockItemUseContext;
@@ -43,7 +44,7 @@ public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiU
     public void addInformation(
       final @NotNull ItemStack stack, final @Nullable World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
     {
-        if (Screen.hasShiftDown()) {
+        if ((Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown())) {
             tooltip.add(new StringTextComponent("        "));
             tooltip.add(new StringTextComponent("        "));
         }

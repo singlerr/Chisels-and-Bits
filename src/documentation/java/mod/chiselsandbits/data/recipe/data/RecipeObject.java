@@ -1,12 +1,15 @@
 package mod.chiselsandbits.data.recipe.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class RecipeObject
 {
-    private RecipeRowObject firstRow = new RecipeRowObject();
-    private RecipeRowObject secondRow = new RecipeRowObject();
-    private RecipeRowObject thirdRow = new RecipeRowObject();
-    private String product = "";
-    private boolean isShapeless = false;
+    private RecipeRowObject firstRow    = new RecipeRowObject();
+    private RecipeRowObject secondRow   = new RecipeRowObject();
+    private RecipeRowObject thirdRow    = new RecipeRowObject();
+    private List<String>    products     = new ArrayList<>();
+    private boolean         isShapeless = false;
 
     public RecipeRowObject getFirstRow()
     {
@@ -38,14 +41,14 @@ public class RecipeObject
         this.thirdRow = thirdRow;
     }
 
-    public String getProduct()
+    public List<String> getProducts()
     {
-        return product;
+        return products;
     }
 
-    public void setProduct(final String product)
+    public void setProducts(final List<String> products)
     {
-        this.product = product;
+        this.products = products;
     }
 
     public boolean isShapeless()

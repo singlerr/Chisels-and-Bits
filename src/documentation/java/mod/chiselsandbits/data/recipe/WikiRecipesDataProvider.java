@@ -2,6 +2,7 @@ package mod.chiselsandbits.data.recipe;
 
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
+import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
 import mod.chiselsandbits.api.util.ReflectionUtils;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.data.icons.RenderedItemModelDataProvider;
@@ -71,10 +72,7 @@ public class WikiRecipesDataProvider implements IDataProvider
         final Map<ResourceLocation, JsonElement> recipeData = recipeManager.prepare(resourceManager, EmptyProfiler.INSTANCE);
         recipeManager.apply(recipeData, resourceManager, EmptyProfiler.INSTANCE);
 
-        final NetworkTagManager networkTagManager = new NetworkTagManager();
-        AsyncReloadManager.getInstance().reload(resourceManager, networkTagManager);
-        TagRegistryManager.fetchTags(networkTagManager.getTagCollectionSupplier());
-        TagRegistryManager.fetchCustomTagTypes(networkTagManager.getTagCollectionSupplier());
+
 
         for (Item item : ForgeRegistries.ITEMS)
         {
@@ -204,7 +202,17 @@ public class WikiRecipesDataProvider implements IDataProvider
                         );
                     }
 
-                    recipeObject.setProduct(recipe.getRecipeOutput().getItem().getRegistryName().toString().replace(":", "/"));
+                    if (!(item instanceof IDocumentableItem))
+                    {
+                        recipeObject.getProducts().add(recipe.getRecipeOutput().getItem().getRegistryName().toString().replace(":", "/"));
+                    }
+                    else
+                    {
+                        recipeObject.getProducts().addAll(((IDocumentableItem) item).getDocumentableInstances(item).keySet().stream()
+                          .map(name -> item.getRegistryName().getNamespace() + "/" + name)
+                          .collect(Collectors.toSet())
+                        );
+                    }
                     recipeObject.setShapeless(!(recipe instanceof IShapedRecipe));
 
                     itemWikiDataObject.getRecipes().add(recipeName);
@@ -245,7 +253,17 @@ public class WikiRecipesDataProvider implements IDataProvider
 
                         setRecipeItemWhenNotSource(item, recipe, recipeObject.getThirdRow().getThirdItem(), 8);
 
-                        recipeObject.setProduct(recipe.getRecipeOutput().getItem().getRegistryName().toString().replace(":", "/"));
+                        if (!(item instanceof IDocumentableItem))
+                        {
+                            recipeObject.getProducts().add(recipe.getRecipeOutput().getItem().getRegistryName().toString().replace(":", "/"));
+                        }
+                        else
+                        {
+                            recipeObject.getProducts().addAll(((IDocumentableItem) item).getDocumentableInstances(item).keySet().stream()
+                                                                .map(name -> item.getRegistryName().getNamespace() + "/" + name)
+                                                                .collect(Collectors.toSet())
+                            );
+                        }
                         recipeObject.setShapeless(!(recipe instanceof IShapedRecipe));
 
                         itemWikiDataObject.getUsages().add(recipeName);
@@ -284,6 +302,18 @@ public class WikiRecipesDataProvider implements IDataProvider
             }
             else
             {
+                if (!(item instanceof IDocumentableItem))
+                {
+                    target.add(recipe.getRecipeOutput().getItem().getRegistryName().toString().replace(":", "/"));
+                }
+                else
+                {
+                    target.addAll(((IDocumentableItem) item).getDocumentableInstances(item).keySet().stream()
+                                                        .map(name -> item.getRegistryName().getNamespace() + "/" + name)
+                                                        .collect(Collectors.toSet())
+                    );
+                }
+
                 target.add(item.getRegistryName().toString().replace(":", "/"));
             }
         }

@@ -71,7 +71,7 @@ public class ModelRenderer
 
     // TODO free GL resources
 
-    public void renderModel(IBakedModel model, String filename, Item item)
+    public void renderModel(IBakedModel model, String filename, ItemStack stack)
     {
         if (model == null)
             return;
@@ -104,7 +104,7 @@ public class ModelRenderer
         RenderSystem.glMultiTexCoord2f(33986, 240.0F, 240.0F);
 
         // Actually render
-        MatrixStack stack = new MatrixStack();
+        MatrixStack matrixStack = new MatrixStack();
         boolean sideLitModel = !model.isSideLit();
         if (sideLitModel) {
             RenderHelper.setupGuiFlatDiffuseLighting();
@@ -140,12 +140,13 @@ public class ModelRenderer
 
 
         //Deal with none normal Transformtypes
-        model = model.handlePerspective(TransformType.GUI, stack);
+        model = model.getOverrides().getOverrideModel(model, stack, null, null);
+        model = model.handlePerspective(TransformType.GUI, matrixStack);
         if (!model.isBuiltInRenderer()) {
             bufferbuilder.begin(GL_QUADS, DefaultVertexFormats.BLOCK);
             for(Direction side : DIRECTIONS_AND_NULL)
                 renderQuads(
-                  stack, bufferbuilder, model.getQuads(null, side, RANDOM, EmptyModelData.INSTANCE), new ItemStack(item),
+                  matrixStack, bufferbuilder, model.getQuads(null, side, RANDOM, EmptyModelData.INSTANCE), stack,
                   LightTexture.packLight(15,15),
                   OverlayTexture.NO_OVERLAY
                 );
@@ -157,10 +158,10 @@ public class ModelRenderer
         {
             IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(bufferbuilder);
 
-            item.getItemStackTileEntityRenderer().func_239207_a_(
-              new ItemStack(item),
-              TransformType.GUI,
+            stack.getItem().getItemStackTileEntityRenderer().func_239207_a_(
               stack,
+              TransformType.GUI,
+              matrixStack,
               buffer,
               LightTexture.packLight(15,15),
               OverlayTexture.NO_OVERLAY

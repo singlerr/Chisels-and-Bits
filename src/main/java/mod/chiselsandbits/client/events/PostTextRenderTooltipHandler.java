@@ -19,7 +19,7 @@ public class PostTextRenderTooltipHandler
         if (!(event.getStack().getItem() instanceof IPatternItem))
             return;
 
-        if (!Screen.hasShiftDown())
+        if (!(Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown()))
             return;
 
         final IPatternItem patternItem = (IPatternItem) event.getStack().getItem();

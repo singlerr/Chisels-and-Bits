@@ -1,12 +1,15 @@
 package mod.chiselsandbits.data.icons;
 
+import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.data.init.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DirectoryCache;
 import net.minecraft.data.IDataProvider;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -61,7 +64,16 @@ public class RenderedItemModelDataProvider implements IDataProvider
             ModelResourceLocation modelLocation = new ModelResourceLocation(
               item.getRegistryName().toString(), "inventory"
             );
-            itemRenderer.renderModel(Minecraft.getInstance().getModelManager().getModel(modelLocation), item.getRegistryName().getNamespace() + "/" + item.getRegistryName().getPath() + ".png", item);
+
+            final IBakedModel model = Minecraft.getInstance().getModelManager().getModel(modelLocation);
+            if (item instanceof IDocumentableItem) {
+                final IDocumentableItem documentableItem = (IDocumentableItem) item;
+                documentableItem.getDocumentableInstances(item)
+                  .forEach((name, stack) -> itemRenderer.renderModel(model, item.getRegistryName().getNamespace() + "/" + name + ".png", stack));
+            }
+            else {
+                itemRenderer.renderModel(model, item.getRegistryName().getNamespace() + "/" + item.getRegistryName().getPath() + ".png", new ItemStack(item));
+            }
         });
         itemRenderer.exportAtlas(((ExtendedModelManager) Minecraft.getInstance().getModelManager()).getTextureMap());
     }

@@ -12,6 +12,8 @@ import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.IResourceManager;
+import net.minecraft.tags.NetworkTagManager;
+import net.minecraft.tags.TagRegistryManager;
 import net.minecraft.util.Timer;
 import net.minecraft.util.datafix.DataFixesManager;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -62,8 +64,9 @@ public class MinecraftInstanceManager
         initializeDataFixer();
         initializeGameSettings();
 
-
         initializeForge();
+
+        initializeTags(helper);
     }
 
     private Unsafe unsafe() {
@@ -177,5 +180,14 @@ public class MinecraftInstanceManager
         CapabilityFluidHandler.register();
         CapabilityAnimation.register();
         CapabilityEnergy.register();
+    }
+
+    private void initializeTags(ExistingFileHelper existingFileHelper)
+    {
+        final IResourceManager resourceManager = (IResourceManager) ReflectionUtils.getField(existingFileHelper, "serverData");
+        final NetworkTagManager networkTagManager = new NetworkTagManager();
+        AsyncReloadManager.getInstance().reload(resourceManager, networkTagManager);
+        TagRegistryManager.fetchTags(networkTagManager.getTagCollectionSupplier());
+        TagRegistryManager.fetchCustomTagTypes(networkTagManager.getTagCollectionSupplier());
     }
 }

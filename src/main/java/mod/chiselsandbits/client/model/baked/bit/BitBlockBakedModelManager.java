@@ -44,7 +44,7 @@ public class BitBlockBakedModelManager
     {
         return get(
           stack,
-          (!Minecraft.getInstance().gameSettings.keyBindSneak.isInvalid() && Minecraft.getInstance().gameSettings.keyBindSneak.isKeyDown()) || Screen.hasShiftDown()
+          (!Minecraft.getInstance().gameSettings.keyBindSneak.isInvalid() && Minecraft.getInstance().gameSettings.keyBindSneak.isKeyDown()) || (Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown())
         );
     }
 

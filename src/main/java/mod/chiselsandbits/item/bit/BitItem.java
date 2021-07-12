@@ -13,6 +13,7 @@ import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
+import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.chiseling.ChiselingManager;
@@ -56,9 +57,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class BitItem extends Item implements IChiselingItem, IBitItem
+public class BitItem extends Item implements IChiselingItem, IBitItem, IDocumentableItem
 {
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -460,5 +462,25 @@ public class BitItem extends Item implements IChiselingItem, IBitItem
         }
 
         items.addAll(availableBitStacks);
+    }
+
+    @Override
+    public Map<String, ItemStack> getDocumentableInstances(final Item item)
+    {
+        return ForgeRegistries.BLOCKS.getValues()
+          .stream()
+          .map(block -> {
+              if (IEligibilityManager.getInstance().canBeChiseled(block)) {
+                  final BlockState blockState = block.getDefaultState();
+                  return IBitItemManager.getInstance().create(blockState);
+              }
+
+              return ItemStack.EMPTY;
+          })
+          .filter(stack -> !stack.isEmpty())
+          .collect(Collectors.toMap(
+            stack -> "bit_" + this.getBitState(stack).getBlock().getRegistryName().toString().replace(":", "_"),
+            Function.identity()
+          ));
     }
 }
