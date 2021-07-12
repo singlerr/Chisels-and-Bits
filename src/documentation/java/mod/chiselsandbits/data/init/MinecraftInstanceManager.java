@@ -1,7 +1,6 @@
-package mod.chiselsandbits.data.icons;
+package mod.chiselsandbits.data.init;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.datafixers.DataFixerUpper;
 import mod.chiselsandbits.api.util.ReflectionUtils;
 import net.minecraft.client.GameSettings;
 import net.minecraft.client.Minecraft;
@@ -11,11 +10,11 @@ import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderTypeBuffers;
 import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.client.renderer.color.ItemColors;
-import net.minecraft.client.renderer.model.ModelManager;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.Timer;
 import net.minecraft.util.datafix.DataFixesManager;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.model.animation.CapabilityAnimation;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -41,11 +40,13 @@ public class MinecraftInstanceManager
     {
     }
 
-    public void initialize(final IResourceManager resourceManager) {
+    void initialize(final ExistingFileHelper helper) {
         if (isInitialized)
             return;
 
         isInitialized = true;
+
+        IResourceManager resourceManager = (IResourceManager) ReflectionUtils.getField(helper, "clientResources");
 
         createMinecraft();
         initializeTimer();

@@ -1,4 +1,4 @@
-package mod.chiselsandbits.data.icons;
+package mod.chiselsandbits.data.init;
 
 import mod.chiselsandbits.api.util.ReflectionUtils;
 import net.minecraft.client.Minecraft;
@@ -19,7 +19,7 @@ public class ExtendedModelManager extends ModelManager
 {
     private SpriteMap spriteMap = null;
 
-    public ExtendedModelManager(
+    ExtendedModelManager(
       final TextureManager textureManagerIn,
       final BlockColors blockColorsIn,
       final int maxMipmapLevelIn)
@@ -27,7 +27,7 @@ public class ExtendedModelManager extends ModelManager
         super(textureManagerIn, blockColorsIn, maxMipmapLevelIn);
     }
 
-    public void loadModels() {
+    void loadModels() {
         final ModelBakery modelBakery = this.prepare(
           Minecraft.getInstance().getResourceManager(),
           EmptyProfiler.INSTANCE
