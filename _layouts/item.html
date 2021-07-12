@@ -41,7 +41,7 @@
 	<h2 class="section">Recipes</h2>
 	<ul class="recipes">
 		{% for recipe in item.recipes %}
-			<li><img class="recipe" src="{{ site.root }}/images/recipes/{{ recipe }}" /></li>
+            <recipe>{{ recipe }}</recipe>
 		{% endfor %}
 	</ul>
 </div>
@@ -52,7 +52,7 @@
 	<h2 class="section">Usages</h2>
 	<ul class="usages">
 		{% for usage in item.usages %}
-			<li><img class="recipe" src="{{ site.root }}/images/usages/{{ usage }}" /></li>
+            <recipe>{{ usage }}</recipe>
 		{% endfor %}
 	</ul>
 </div>
@@ -61,5 +61,7 @@
 {% endif %}{% endfor %}
 
 {% include itemlist.html %}
+
+{% include blocklist.html %}
 
 {% include footer.html %}

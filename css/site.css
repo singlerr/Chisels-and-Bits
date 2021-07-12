@@ -129,3 +129,56 @@ nav a {
 .items li { float:none; display: inline-block; }
 
 
+
+#blockHeader { height:64px; margin-bottom:15px; }
+
+#blockHeader img { float:left; }
+#blockHeader h1 { margin:0px; line-height:44px; height:44px; vertical-align:bottom; text-indent:15px; }
+#blockHeader h6 { color:#666; margin:0px; line-height:20px; font-size:12px; height:20px; text-indent:15px; }
+
+.blocks li {
+    float:left;
+    margin:15px;
+}
+
+.recipes, .usages, .blocks {
+    list-style:none;
+    margin:0px;
+    padding:0px;
+    clear:both;
+}
+
+.section { clear:both; }
+
+.block_icon {
+    width:64px;
+    height:64px;
+}
+
+@media(max-width:800px)
+{
+
+    .block_icon {
+        width:42px;
+        height:42px;
+    }
+
+    #bg { background-image:none !important; }
+
+    #blockHeader h1 { font-size:18px; line-height:22px; height:22px; }
+    #blockHeader { height:42px; }
+
+    h1 { font-size:15px; }
+    h2 { font-size:15px; }
+    .faq .question { font-size:16px; }
+    .page { padding:15px; border-radius:0px; border-left:none; border-right:none; }
+
+}
+
+.blocks {
+    text-align:center;
+}
+
+.blocks li { float:none; display: inline-block; }
+
+

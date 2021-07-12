@@ -1,0 +1,17 @@
+
+<div class="page">
+
+	<h2 class="section">Blocks</h2>
+
+	<ul class="blocks">
+	{% for block in site.data.blocks %}
+		<li>
+			<a title="{{ block.name }} " href="{{ site.root }}/blocks/{{ block.url | slugify }}/ ">
+				<img class="block_icon" alt="{{ block.name }}" src="{{ site.root }}/images/blocks/{{ block.icon }}" />
+			</a>
+		</li>
+	{% endfor %}
+	</ul>
+	<div style="clear:both;"></div>
+
+</div>

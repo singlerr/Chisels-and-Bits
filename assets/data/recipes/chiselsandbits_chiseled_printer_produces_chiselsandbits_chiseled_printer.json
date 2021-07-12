@@ -1,0 +1,53 @@
+{
+  "recipes": [
+    {
+      "firstRow": {
+        "firstItem": [],
+        "secondItem": [
+          "chiselsandbits/chisel_stone",
+          "chiselsandbits/chisel_diamond",
+          "chiselsandbits/chisel_iron",
+          "chiselsandbits/chisel_netherite",
+          "chiselsandbits/chisel_gold"
+        ],
+        "thirdItem": []
+      },
+      "secondRow": {
+        "firstItem": [
+          "minecraft/smooth_stone_slab"
+        ],
+        "secondItem": [],
+        "thirdItem": [
+          "minecraft/smooth_stone_slab"
+        ]
+      },
+      "thirdRow": {
+        "firstItem": [
+          "chiselsandbits/chisel_stone",
+          "chiselsandbits/chisel_diamond",
+          "chiselsandbits/chisel_iron",
+          "chiselsandbits/chisel_netherite",
+          "chiselsandbits/chisel_gold"
+        ],
+        "secondItem": [
+          "chiselsandbits/chisel_stone",
+          "chiselsandbits/chisel_diamond",
+          "chiselsandbits/chisel_iron",
+          "chiselsandbits/chisel_netherite",
+          "chiselsandbits/chisel_gold"
+        ],
+        "thirdItem": [
+          "chiselsandbits/chisel_stone",
+          "chiselsandbits/chisel_diamond",
+          "chiselsandbits/chisel_iron",
+          "chiselsandbits/chisel_netherite",
+          "chiselsandbits/chisel_gold"
+        ]
+      },
+      "products": [
+        "chiselsandbits/chiseled_printer"
+      ],
+      "isShapeless": false
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "recipes": [
+    {
+      "firstRow": {
+        "firstItem": [
+          "minecraft/slime_ball"
+        ],
+        "secondItem": [
+          "minecraft/honey_bottle"
+        ],
+        "thirdItem": []
+      },
+      "secondRow": {
+        "firstItem": [],
+        "secondItem": [],
+        "thirdItem": []
+      },
+      "thirdRow": {
+        "firstItem": [],
+        "secondItem": [],
+        "thirdItem": []
+      },
+      "products": [
+        "chiselsandbits/sealant"
+      ],
+      "isShapeless": true
+    }
+  ]
+}

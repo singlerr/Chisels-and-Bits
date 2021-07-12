@@ -1,0 +1,67 @@
+{% include header.html %}
+
+<div class="blockPage">
+
+{% for block in site.data.blocks %}{% if page.block == block.id %}
+		
+	<div id="blockHeader">
+		<img class="block_icon" alt="{{ block.name }}" src="{{ site.root }}/images/blocks/{{ block.icon }}" />
+		<h1>{{ block.name }}</h1>
+		<h6>First Seen in version {{ block.version }}</h6>
+	</div>
+	
+	<p>{{ content }}</p>
+
+</div></div>
+
+{% if block.features.size > 0 %}
+<div class="page">
+	<h2 class="section">Features</h2>
+	<ul class="features">
+		{% for feature in block.features %}
+			<li>{{ feature }}</li>
+		{% endfor %}
+	</ul>
+</div>
+{% endif %}
+
+{% if block.controls.size > 0 %}
+<div class="page">
+	<h2 class="section">Controls</h2>
+	<ul class="features">
+		{% for control in block.controls %}
+			<li>{{ control.button }}: {{ control.action }}</li>
+		{% endfor %}
+	</ul>
+</div>
+{% endif %}
+
+{% if block.recipes.size > 0 %}
+<div class="page">
+	<h2 class="section">Recipes</h2>
+	<ul class="recipes">
+		{% for recipe in block.recipes %}
+			<li><img class="recipe" src="{{ site.root }}/images/recipes/{{ recipe }}" /></li>
+		{% endfor %}
+	</ul>
+</div>
+{% endif %}
+
+{% if block.usages.size > 0 %}
+<div class="page">
+	<h2 class="section">Usages</h2>
+	<ul class="usages">
+		{% for usage in block.usages %}
+			<li><img class="recipe" src="{{ site.root }}/images/usages/{{ usage }}" /></li>
+		{% endfor %}
+	</ul>
+</div>
+{% endif %}
+
+{% endif %}{% endfor %}
+
+{% include itemlist.html %}
+
+{% include blocklist.html %}
+
+{% include footer.html %}

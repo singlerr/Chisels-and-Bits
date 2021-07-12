@@ -1,0 +1,36 @@
+{
+  "recipes": [
+    {
+      "firstRow": {
+        "firstItem": [
+          "minecraft/stick"
+        ],
+        "secondItem": [
+          "minecraft/granite",
+          "minecraft/andesite",
+          "minecraft/polished_andesite",
+          "minecraft/polished_diorite",
+          "minecraft/stone",
+          "minecraft/diorite",
+          "minecraft/infested_stone",
+          "minecraft/polished_granite"
+        ],
+        "thirdItem": []
+      },
+      "secondRow": {
+        "firstItem": [],
+        "secondItem": [],
+        "thirdItem": []
+      },
+      "thirdRow": {
+        "firstItem": [],
+        "secondItem": [],
+        "thirdItem": []
+      },
+      "products": [
+        "chiselsandbits/chisel_stone"
+      ],
+      "isShapeless": false
+    }
+  ]
+}

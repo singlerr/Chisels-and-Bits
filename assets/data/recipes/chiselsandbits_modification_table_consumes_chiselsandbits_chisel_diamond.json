@@ -1,0 +1,55 @@
+{
+  "recipes": [
+    {
+      "firstRow": {
+        "firstItem": [
+          "chiselsandbits/modification_table",
+          "chiselsandbits/chisel_diamond"
+        ],
+        "secondItem": [
+          "chiselsandbits/chisel_stone",
+          "chiselsandbits/chisel_diamond",
+          "chiselsandbits/chisel_iron",
+          "chiselsandbits/chisel_netherite",
+          "chiselsandbits/chisel_gold"
+        ],
+        "thirdItem": [
+          "chiselsandbits/modification_table",
+          "chiselsandbits/chisel_diamond"
+        ]
+      },
+      "secondRow": {
+        "firstItem": [
+          "chiselsandbits/modification_table",
+          "chiselsandbits/chisel_diamond"
+        ],
+        "secondItem": [
+          "chiselsandbits/modification_table",
+          "chiselsandbits/chisel_diamond"
+        ],
+        "thirdItem": [
+          "chiselsandbits/modification_table",
+          "chiselsandbits/chisel_diamond"
+        ]
+      },
+      "thirdRow": {
+        "firstItem": [
+          "chiselsandbits/modification_table",
+          "chiselsandbits/chisel_diamond"
+        ],
+        "secondItem": [
+          "chiselsandbits/modification_table",
+          "chiselsandbits/chisel_diamond"
+        ],
+        "thirdItem": [
+          "chiselsandbits/modification_table",
+          "chiselsandbits/chisel_diamond"
+        ]
+      },
+      "products": [
+        "chiselsandbits/modification_table"
+      ],
+      "isShapeless": false
+    }
+  ]
+}

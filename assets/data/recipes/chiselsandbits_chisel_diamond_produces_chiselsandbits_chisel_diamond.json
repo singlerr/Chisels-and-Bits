@@ -1,0 +1,29 @@
+{
+  "recipes": [
+    {
+      "firstRow": {
+        "firstItem": [
+          "minecraft/stick"
+        ],
+        "secondItem": [
+          "minecraft/diamond"
+        ],
+        "thirdItem": []
+      },
+      "secondRow": {
+        "firstItem": [],
+        "secondItem": [],
+        "thirdItem": []
+      },
+      "thirdRow": {
+        "firstItem": [],
+        "secondItem": [],
+        "thirdItem": []
+      },
+      "products": [
+        "chiselsandbits/chisel_diamond"
+      ],
+      "isShapeless": false
+    }
+  ]
+}

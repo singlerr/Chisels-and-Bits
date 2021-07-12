@@ -1,0 +1,84 @@
+[
+  {
+    "id": "bit_storage",
+    "name": "Bit Storage",
+    "url": "bit-storage",
+    "features": [
+      "Convert buckets of fluid into bits.",
+      "Convert fluid bits back into buckets of fluids.",
+      "Stores materials for use with the printer."
+    ],
+    "controls": [
+      {
+        "button": "Right Click w/ bucket",
+        "action": "Insert fluid."
+      },
+      {
+        "button": "Right Click w/ normal material",
+        "action": "Insert material."
+      },
+      {
+        "button": "Right Click",
+        "action": "Extract bits"
+      },
+      {
+        "button": "Shift + Right Click",
+        "action": "Insert all bits of the contained material"
+      }
+    ],
+    "version": "1.0",
+    "icon": "bit_storage.png",
+    "recipes": [
+      "chiselsandbits_bit_storage_produces_chiselsandbits_bit_storage"
+    ],
+    "usages": []
+  },
+
+  {
+    "id": "chiseled_printer",
+    "name": "Chiseled Printer",
+    "url": "chiseled-printer",
+    "features": [
+      "Enables you to 'print' your patterns automatically.",
+      "Draws the bits from up to three bit storages which you place next to the printer.",
+      "The printer can not draw materials from the front, top or bottom.",
+      "Be aware: Even though you can pump full blocks into the bit storage, the printer might extract an amount of bits, which causes not enough bits to be left behind in the storage for the printer to reuse it!",
+      "In the UI: Place the pattern on the left and a chisel on the top."
+    ],
+    "controls": [
+      {
+        "button": "Right Click",
+        "action": "Opens UI"
+      }
+    ],
+    "version": "1.0",
+    "icon": "chiseled_printer.png",
+    "recipes": [
+      "chiselsandbits_chiseled_printer_produces_chiselsandbits_chiseled_printer"
+    ],
+    "usages": []
+  },
+
+  {
+    "id": "modification_table",
+    "name": "Modification Table",
+    "url": "modification-table",
+    "features": [
+      "Allows you to modify your single use patterns before you seal them.",
+      "In the UI: Place the pattern on the left, select a modification you want to apply, and pick up the pattern on the right.",
+      "On the bottom you can drag and scroll to see how to modification is applied to your pattern before you pick it up."
+    ],
+    "controls": [
+      {
+        "button": "Right Click",
+        "action": "Opens UI"
+      }
+    ],
+    "version": "1.0",
+    "icon": "modification_table.png",
+    "recipes": [
+      "chiselsandbits_modification_table_produces_chiselsandbits_modification_table"
+    ],
+    "usages": []
+  }
+]

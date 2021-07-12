@@ -1,0 +1,31 @@
+{
+  "recipes": [
+    {
+      "firstRow": {
+        "firstItem": [
+          "minecraft/feather"
+        ],
+        "secondItem": [
+          "minecraft/black_dye"
+        ],
+        "thirdItem": [
+          "minecraft/yellow_dye"
+        ]
+      },
+      "secondRow": {
+        "firstItem": [],
+        "secondItem": [],
+        "thirdItem": []
+      },
+      "thirdRow": {
+        "firstItem": [],
+        "secondItem": [],
+        "thirdItem": []
+      },
+      "products": [
+        "chiselsandbits/quill"
+      ],
+      "isShapeless": true
+    }
+  ]
+}

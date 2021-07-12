@@ -1,0 +1,37 @@
+{
+  "recipes": [
+    {
+      "firstRow": {
+        "firstItem": [],
+        "secondItem": [],
+        "thirdItem": [
+          "minecraft/string"
+        ]
+      },
+      "secondRow": {
+        "firstItem": [
+          "minecraft/iron_ingot"
+        ],
+        "secondItem": [
+          "minecraft/string"
+        ],
+        "thirdItem": [
+          "minecraft/yellow_dye"
+        ]
+      },
+      "thirdRow": {
+        "firstItem": [
+          "minecraft/iron_ingot"
+        ],
+        "secondItem": [
+          "minecraft/iron_ingot"
+        ],
+        "thirdItem": []
+      },
+      "products": [
+        "chiselsandbits/measuring_tape"
+      ],
+      "isShapeless": false
+    }
+  ]
+}
