@@ -20,6 +20,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ICraftingRecipe;
 import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.ShapedRecipe;
 import net.minecraft.profiler.EmptyProfiler;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.tags.NetworkTagManager;
@@ -35,12 +36,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class WikiRecipesDataProvider implements IDataProvider
@@ -97,110 +96,15 @@ public class WikiRecipesDataProvider implements IDataProvider
                     final RecipeObject recipeObject = new RecipeObject();
                     recipesObject.getRecipes().add(recipeObject);
 
-                    recipeObject.getFirstRow().getFirstItem().addAll(
-                      Arrays.stream(recipe.getIngredients().get(0).getMatchingStacks())
-                        .map(ItemStack::getItem)
-                        .map(Item::getRegistryName)
-                        .map(ResourceLocation::toString)
-                        .map(name -> name.replace(":", "/"))
-                        .collect(Collectors.toSet())
-                    );
-
-                    if (recipe.getIngredients().size() > 1)
-                    {
-                        recipeObject.getFirstRow().getSecondItem().addAll(
-                          Arrays.stream(recipe.getIngredients().get(1).getMatchingStacks())
-                            .map(ItemStack::getItem)
-                            .map(Item::getRegistryName)
-                            .map(ResourceLocation::toString)
-                            .map(name -> name.replace(":", "/"))
-                            .collect(Collectors.toSet())
-                        );
-                    }
-
-                    if (recipe.getIngredients().size() > 2)
-                    {
-                        recipeObject.getFirstRow().getThirdItem().addAll(
-                          Arrays.stream(recipe.getIngredients().get(2).getMatchingStacks())
-                            .map(ItemStack::getItem)
-                            .map(Item::getRegistryName)
-                            .map(ResourceLocation::toString)
-                            .map(name -> name.replace(":", "/"))
-                            .collect(Collectors.toSet())
-                        );
-                    }
-
-                    if (recipe.getIngredients().size() > 3)
-                    {
-                        recipeObject.getSecondRow().getFirstItem().addAll(
-                          Arrays.stream(recipe.getIngredients().get(3).getMatchingStacks())
-                            .map(ItemStack::getItem)
-                            .map(Item::getRegistryName)
-                            .map(ResourceLocation::toString)
-                            .map(name -> name.replace(":", "/"))
-                            .collect(Collectors.toSet())
-                        );
-                    }
-
-                    if (recipe.getIngredients().size() > 4)
-                    {
-                        recipeObject.getSecondRow().getSecondItem().addAll(
-                          Arrays.stream(recipe.getIngredients().get(4).getMatchingStacks())
-                            .map(ItemStack::getItem)
-                            .map(Item::getRegistryName)
-                            .map(ResourceLocation::toString)
-                            .map(name -> name.replace(":", "/"))
-                            .collect(Collectors.toSet())
-                        );
-                    }
-
-                    if (recipe.getIngredients().size() > 5)
-                    {
-                        recipeObject.getSecondRow().getThirdItem().addAll(
-                          Arrays.stream(recipe.getIngredients().get(5).getMatchingStacks())
-                            .map(ItemStack::getItem)
-                            .map(Item::getRegistryName)
-                            .map(ResourceLocation::toString)
-                            .map(name -> name.replace(":", "/"))
-                            .collect(Collectors.toSet())
-                        );
-                    }
-
-                    if (recipe.getIngredients().size() > 6)
-                    {
-                        recipeObject.getThirdRow().getFirstItem().addAll(
-                          Arrays.stream(recipe.getIngredients().get(6).getMatchingStacks())
-                            .map(ItemStack::getItem)
-                            .map(Item::getRegistryName)
-                            .map(ResourceLocation::toString)
-                            .map(name -> name.replace(":", "/"))
-                            .collect(Collectors.toSet())
-                        );
-                    }
-
-                    if (recipe.getIngredients().size() > 7)
-                    {
-                        recipeObject.getThirdRow().getSecondItem().addAll(
-                          Arrays.stream(recipe.getIngredients().get(7).getMatchingStacks())
-                            .map(ItemStack::getItem)
-                            .map(Item::getRegistryName)
-                            .map(ResourceLocation::toString)
-                            .map(name -> name.replace(":", "/"))
-                            .collect(Collectors.toSet())
-                        );
-                    }
-
-                    if (recipe.getIngredients().size() > 8)
-                    {
-                        recipeObject.getThirdRow().getThirdItem().addAll(
-                          Arrays.stream(recipe.getIngredients().get(8).getMatchingStacks())
-                            .map(ItemStack::getItem)
-                            .map(Item::getRegistryName)
-                            .map(ResourceLocation::toString)
-                            .map(name -> name.replace(":", "/"))
-                            .collect(Collectors.toSet())
-                        );
-                    }
+                    setRecipeItem(recipe, recipeObject, 0);
+                    setRecipeItem(recipe, recipeObject, 1);
+                    setRecipeItem(recipe, recipeObject, 2);
+                    setRecipeItem(recipe, recipeObject, 3);
+                    setRecipeItem(recipe, recipeObject, 4);
+                    setRecipeItem(recipe, recipeObject, 5);
+                    setRecipeItem(recipe, recipeObject, 6);
+                    setRecipeItem(recipe, recipeObject, 7);
+                    setRecipeItem(recipe, recipeObject, 8);
 
                     if (!(item instanceof IDocumentableItem))
                     {
@@ -235,23 +139,23 @@ public class WikiRecipesDataProvider implements IDataProvider
                         final RecipeObject recipeObject = new RecipeObject();
                         recipesObject.getRecipes().add(recipeObject);
 
-                        setRecipeItemWhenNotSource(item, recipe, recipeObject.getFirstRow().getFirstItem(), 0);
+                        setRecipeItemWhenNotSource(item, recipe, recipeObject, 0);
 
-                        setRecipeItemWhenNotSource(item, recipe, recipeObject.getFirstRow().getSecondItem(), 1);
+                        setRecipeItemWhenNotSource(item, recipe, recipeObject, 1);
 
-                        setRecipeItemWhenNotSource(item, recipe, recipeObject.getFirstRow().getThirdItem(), 2);
+                        setRecipeItemWhenNotSource(item, recipe, recipeObject, 2);
 
-                        setRecipeItemWhenNotSource(item, recipe, recipeObject.getSecondRow().getFirstItem(), 3);
+                        setRecipeItemWhenNotSource(item, recipe, recipeObject, 3);
 
-                        setRecipeItemWhenNotSource(item, recipe, recipeObject.getSecondRow().getSecondItem(), 4);
+                        setRecipeItemWhenNotSource(item, recipe, recipeObject, 4);
 
-                        setRecipeItemWhenNotSource(item, recipe, recipeObject.getSecondRow().getThirdItem(), 5);
+                        setRecipeItemWhenNotSource(item, recipe, recipeObject, 5);
 
-                        setRecipeItemWhenNotSource(item, recipe, recipeObject.getThirdRow().getFirstItem(), 6);
+                        setRecipeItemWhenNotSource(item, recipe, recipeObject, 6);
 
-                        setRecipeItemWhenNotSource(item, recipe, recipeObject.getThirdRow().getSecondItem(), 7);
+                        setRecipeItemWhenNotSource(item, recipe, recipeObject, 7);
 
-                        setRecipeItemWhenNotSource(item, recipe, recipeObject.getThirdRow().getThirdItem(), 8);
+                        setRecipeItemWhenNotSource(item, recipe, recipeObject, 8);
 
                         if (!(item instanceof IDocumentableItem))
                         {
@@ -285,11 +189,37 @@ public class WikiRecipesDataProvider implements IDataProvider
         }
     }
 
-    private void setRecipeItemWhenNotSource(final Item item, final ICraftingRecipe recipe, final List<String> target, final int index)
+    private void setRecipeItem(final ICraftingRecipe recipe, final RecipeObject recipeObject, int index) {
+        final int recipeWidth = recipe instanceof ShapedRecipe ? ((ShapedRecipe) recipe).getWidth() : 3;
+        final int recipeHeight = recipe instanceof ShapedRecipe ? ((ShapedRecipe) recipe).getHeight() : 3;
+
+        final List<String> target = recipeObject.getItemFromIndex(index, recipeWidth, recipeHeight);
+        if (recipe.getIngredients().size() > index) {
+            target.addAll(
+              Arrays.stream(recipe.getIngredients().get(index).getMatchingStacks())
+                .map(ItemStack::getItem)
+                .flatMap(stackItem -> {
+                    if (!(stackItem instanceof IDocumentableItem))
+                        return Stream.of(stackItem.getRegistryName().toString().replace(":", "/"));
+
+                    return ((IDocumentableItem) stackItem).getDocumentableInstances(stackItem).keySet().stream()
+                      .map(name -> stackItem.getRegistryName().getNamespace() + "/" + name);
+                })
+                .collect(Collectors.toSet())
+            );
+        }
+    }
+
+    private void setRecipeItemWhenNotSource(final Item item, final ICraftingRecipe recipe, final RecipeObject recipeObject, final int index)
     {
+        final int recipeWidth = recipe instanceof ShapedRecipe ? ((ShapedRecipe) recipe).getWidth() : 3;
+        final int recipeHeight = recipe instanceof ShapedRecipe ? ((ShapedRecipe) recipe).getHeight() : 3;
+
+        final List<String> target = recipeObject.getItemFromIndex(index, recipeWidth, recipeHeight);
+
         if (recipe.getIngredients().size() > index)
         {
-            if (Arrays.stream(recipe.getIngredients().get(index).getMatchingStacks()).anyMatch(s -> s.getItem() == item))
+            if (!Arrays.stream(recipe.getIngredients().get(index).getMatchingStacks()).anyMatch(s -> s.getItem() == item))
             {
                 target.addAll(
                   Arrays.stream(recipe.getIngredients().get(index).getMatchingStacks())
@@ -304,7 +234,7 @@ public class WikiRecipesDataProvider implements IDataProvider
             {
                 if (!(item instanceof IDocumentableItem))
                 {
-                    target.add(recipe.getRecipeOutput().getItem().getRegistryName().toString().replace(":", "/"));
+                    target.add(item.getRegistryName().toString().replace(":", "/"));
                 }
                 else
                 {
@@ -313,8 +243,6 @@ public class WikiRecipesDataProvider implements IDataProvider
                                                         .collect(Collectors.toSet())
                     );
                 }
-
-                target.add(item.getRegistryName().toString().replace(":", "/"));
             }
         }
     }
