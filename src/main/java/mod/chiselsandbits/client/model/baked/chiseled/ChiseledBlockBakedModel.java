@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
 import com.google.common.collect.Lists;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
@@ -36,7 +37,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT;
 
 @SuppressWarnings("deprecation")
 public class ChiseledBlockBakedModel extends BaseBakedBlockModel
@@ -424,6 +424,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                           resultingRegions.add(Lists.newArrayList(regions));
                       }
                       regions.clear();
+                      state.setCurrentRegion(null);
                   }
                   state.setRegionBuildingAxisValue(regionBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint()));
 
@@ -454,6 +455,11 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                   state.setCurrentRegion(potentialRegionData.get());
                   regions.add(potentialRegionData.get());
               });
+
+            if (!regions.isEmpty()) {
+                resultingRegions.add(Lists.newArrayList(regions));
+            }
+            regions.clear();
         }
     }
 
@@ -466,9 +472,9 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
         return Optional.of(target)
           .filter(stateEntryInfo -> {
               final Vector3d faceOffSet = Vector3d.copy(facing.getDirectionVec()).mul(
-                SIZE_PER_BIT,
-                SIZE_PER_BIT,
-                SIZE_PER_BIT
+                StateEntrySize.current().getSizePerBit(),
+                StateEntrySize.current().getSizePerBit(),
+                StateEntrySize.current().getSizePerBit()
               );
               final Vector3d offsetTarget = stateEntryInfo.getStartPoint().add(faceOffSet);
 
@@ -486,9 +492,9 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
           })
           .map(stateEntryInfo -> {
               final Vector3d faceOffSet = Vector3d.copy(facing.getDirectionVec()).mul(
-                SIZE_PER_BIT,
-                SIZE_PER_BIT,
-                SIZE_PER_BIT
+                StateEntrySize.current().getSizePerBit(),
+                StateEntrySize.current().getSizePerBit(),
+                StateEntrySize.current().getSizePerBit()
               );
               final Vector3d offsetTarget = stateEntryInfo.getStartPoint().add(faceOffSet);
 

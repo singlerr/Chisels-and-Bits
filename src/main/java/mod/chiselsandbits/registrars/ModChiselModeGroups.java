@@ -77,4 +77,21 @@ public final class ModChiselModeGroups
             );
         }
     };
+
+
+    public static IToolModeGroup SPHERE = new IToolModeGroup() {
+        @Override
+        public ResourceLocation getIcon()
+        {
+            return new ResourceLocation(Constants.MOD_ID,"textures/icons/sphere_medium.png");
+        }
+
+        @Override
+        public ITextComponent getDisplayName()
+        {
+            return TranslationUtils.build(
+              "chiselmode.sphere"
+            );
+        }
+    };
 }

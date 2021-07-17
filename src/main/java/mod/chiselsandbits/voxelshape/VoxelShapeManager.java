@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class VoxelShapeManager implements IVoxelShapeManager
@@ -41,20 +42,21 @@ public class VoxelShapeManager implements IVoxelShapeManager
     public VoxelShape get(
       final IAreaAccessor accessor,
       final BlockPos offset,
-      final Predicate<IStateEntryInfo> selectablePredicate)
+      final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder,
+      final boolean simplify)
     {
         try {
             final Key cacheKey = new Key(
               accessor.createNewShapeIdentifier(),
               offset,
-              selectablePredicate
-            );
+              selectablePredicateBuilder.apply(accessor),
+              simplify);
 
             return cache.get(cacheKey,
               () -> {
-                final VoxelShape calculatedShape = VoxelShapeCalculator.calculate(accessor, offset, selectablePredicate);
+                final VoxelShape calculatedShape = VoxelShapeCalculator.calculate(accessor, offset, selectablePredicateBuilder, simplify);
                 if (calculatedShape.isEmpty())
-                    return VoxelShapes.fullCube();
+                    return VoxelShapes.empty();
 
                 return calculatedShape;
             });
@@ -70,12 +72,13 @@ public class VoxelShapeManager implements IVoxelShapeManager
     public Optional<VoxelShape> getCached(
       final IAreaShapeIdentifier identifier,
       final BlockPos offset,
-      final Predicate<IStateEntryInfo> selectablePredicate)
+      final Predicate<IStateEntryInfo> selectablePredicate,
+      final boolean simplify)
     {
         final Key key = new Key(
           identifier,
-          offset, selectablePredicate
-        );
+          offset, selectablePredicate,
+          simplify);
 
         return Optional.ofNullable(cache.getIfPresent(key));
     }
@@ -84,11 +87,13 @@ public class VoxelShapeManager implements IVoxelShapeManager
         private final IAreaShapeIdentifier identifier;
         private final BlockPos offset;
         private final Predicate<IStateEntryInfo> predicate;
+        private final boolean simplify;
 
-        private Key(final IAreaShapeIdentifier identifier, final BlockPos offset, final Predicate<IStateEntryInfo> predicate) {
+        private Key(final IAreaShapeIdentifier identifier, final BlockPos offset, final Predicate<IStateEntryInfo> predicate, final boolean simplify) {
             this.identifier = identifier;
             this.offset = offset;
             this.predicate = predicate;
+            this.simplify = simplify;
         }
 
         @Override

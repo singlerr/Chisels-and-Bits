@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -11,5 +12,5 @@ import java.util.function.Predicate;
  */
 public interface IAreaAccessorWithVoxelShape extends IAreaAccessor
 {
-    VoxelShape provideShape(final Predicate<IStateEntryInfo> selectionPredicate, final BlockPos offset);
+    VoxelShape provideShape(final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder, final BlockPos offset, final boolean simplify);
 }

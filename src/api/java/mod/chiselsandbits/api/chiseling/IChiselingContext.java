@@ -1,13 +1,18 @@
 package mod.chiselsandbits.api.chiseling;
 
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateAccessor;
+import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * The current context for the running chiseling operation.
@@ -24,6 +29,7 @@ public interface IChiselingContext extends IStateAccessor
      *
      * @return The {@link Optional} containing the {@link IWorldAreaMutator}.
      */
+    @NotNull
     Optional<IWorldAreaMutator> getMutator();
 
     /**
@@ -31,6 +37,7 @@ public interface IChiselingContext extends IStateAccessor
      *
      * @return The {@link IWorld}.
      */
+    @NotNull
     IWorld getWorld();
 
     /**
@@ -38,6 +45,7 @@ public interface IChiselingContext extends IStateAccessor
      *
      * @return The {@link IChiselMode}.
      */
+    @NotNull
     IChiselMode getMode();
 
     /**
@@ -55,6 +63,7 @@ public interface IChiselingContext extends IStateAccessor
      * @param worldPosition The position in the current world to include.
      * @return The context, possibly with a mutated {@link IWorldAreaMutator}.
      */
+    @NotNull
     IChiselingContext include(final Vector3d worldPosition);
 
     /**
@@ -73,6 +82,7 @@ public interface IChiselingContext extends IStateAccessor
      * @param relativeInBlockPosition The relative position to include. Relative to the given {@code inWorldPosition}
      * @return The context, possibly with a mutated {@link IWorldAreaMutator}.
      */
+    @NotNull
     default IChiselingContext include(final BlockPos inWorldPosition, final Vector3d relativeInBlockPosition) {
         return this.include(Vector3d.copy(inWorldPosition).add(relativeInBlockPosition));
     }
@@ -105,6 +115,7 @@ public interface IChiselingContext extends IStateAccessor
      *
      * @return {@link ChiselingOperation#CHISELING} when the context is used for breaking blocks, {@link ChiselingOperation#PLACING} for bit placement.
      */
+    @NotNull
     ChiselingOperation getModeOfOperandus();
 
     /**
@@ -113,6 +124,7 @@ public interface IChiselingContext extends IStateAccessor
      *
      * @return The snapshot context of this context.
      */
+    @NotNull
     IChiselingContext createSnapshot();
 
     /**
@@ -142,4 +154,28 @@ public interface IChiselingContext extends IStateAccessor
      * @return {@code True} when successful, {@code false} when not.
      */
     boolean tryDamageItem(final int damage);
+
+    /**
+     * Allows for the setting of a filterBuilder on the context, which limits which {@link IStateEntryInfo} are returned from
+     * the relevant accessor methods of the {@link IWorldAreaMutator}, as well as which limits the setter methods on the same {@link IWorldAreaMutator}
+     * contained in the returned optional of the {@link #getMutator()}.
+     *
+     * If this context has currently no mutator available, and gets a mutator available afterwards then this filterBuilder will be applied to the new mutator.
+     *
+     * @param filterBuilder The new filterBuilder.
+     */
+    void setStateFilter(@NotNull final Function<IAreaAccessor, Predicate<IStateEntryInfo>> filterBuilder);
+
+    /**
+     * Clears the state filter which is applied to the {@link IWorldAreaMutator} for this context.
+     */
+    void clearStateFilter();
+
+    /**
+     * Returns the filter that is currently applied on the context.
+     * If one is applied.
+     *
+     * @return An optional, potentially containing the filter.
+     */
+    Optional<Function<IAreaAccessor, Predicate<IStateEntryInfo>>> getStateFilter();
 }

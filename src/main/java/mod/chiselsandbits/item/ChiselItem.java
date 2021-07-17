@@ -9,9 +9,10 @@ import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
+import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
-import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.client.render.ModRenderTypes;
 import mod.chiselsandbits.registrars.ModBlocks;
@@ -19,7 +20,6 @@ import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
@@ -46,12 +46,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ChiselItem extends ToolItem implements IChiselItem
 {
 
     private static final Logger LOGGER = LogManager.getLogger();
+    public static final Predicate<IStateEntryInfo> DEFAULT_CONTEXT_PREDICATE = (s) -> true;
 
     public ChiselItem(
       final IItemTier tier,
@@ -274,7 +276,17 @@ public class ChiselItem extends ToolItem implements IChiselItem
 
         final BlockPos inWorldStartPos = new BlockPos(context.getMutator().get().getInWorldStartPoint());
 
-        final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(context.getMutator().get(), s -> IEligibilityManager.getInstance().canBeChiseled(s.getState()));
+        final VoxelShape boundingShape = VoxelShapeManager.getInstance()
+                                           .get(context.getMutator().get(),
+                                             areaAccessor -> {
+                                                 final Predicate<IStateEntryInfo> contextPredicate = context.getStateFilter()
+                                                                                                       .map(factory -> factory.apply(areaAccessor))
+                                                                                                       .orElse(DEFAULT_CONTEXT_PREDICATE);
+
+                                                 return new InternalContextFilter(contextPredicate);
+                                             },
+                                             false
+                                             );
         WorldRenderer.drawShape(
           matrixStack,
           Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
@@ -295,6 +307,43 @@ public class ChiselItem extends ToolItem implements IChiselItem
     public int getMaxDamage(final ItemStack stack)
     {
         final IItemTier tier = getTier();
-        return tier.getMaxUses() * ChiseledBlockEntity.BITS_PER_BLOCK;
+        return tier.getMaxUses() * StateEntrySize.current().getBitsPerBlock();
+    }
+
+
+    private static final class InternalContextFilter implements Predicate<IStateEntryInfo> {
+
+        private final Predicate<IStateEntryInfo> placingContextPredicate;
+
+        private InternalContextFilter(final Predicate<IStateEntryInfo> placingContextPredicate) {this.placingContextPredicate = placingContextPredicate;}
+
+        @Override
+        public boolean test(final IStateEntryInfo s)
+        {
+            return (s.getState().isAir() || IEligibilityManager.getInstance().canBeChiseled(s.getState())) && placingContextPredicate.test(s);
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (!(o instanceof InternalContextFilter))
+            {
+                return false;
+            }
+
+            final InternalContextFilter that = (InternalContextFilter) o;
+
+            return Objects.equals(placingContextPredicate, that.placingContextPredicate);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return placingContextPredicate != null ? placingContextPredicate.hashCode() : 0;
+        }
     }
 }

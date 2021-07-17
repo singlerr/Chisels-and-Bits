@@ -13,6 +13,7 @@ import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
@@ -194,11 +195,5 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull IMeasuringManager getMeasuringManager()
     {
         return MeasuringManager.getInstance();
-    }
-
-    @Override
-    public @NotNull IForgeRegistry<IModificationTableOperation> getModificationTableOperationRegistry()
-    {
-        return ModModificationOperation.REGISTRY_SUPPLIER.get();
     }
 }

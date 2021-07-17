@@ -35,6 +35,12 @@ public class MCCullTest implements ICullTest
 			return true;
 		}
 
+		if (a.isAir() && !b.isAir())
+		    return false;
+
+		if (b.isAir() && !a.isAir())
+		    return true;
+
 		try
 		{
 			return !a.isSideInvisible( b, Direction.NORTH );

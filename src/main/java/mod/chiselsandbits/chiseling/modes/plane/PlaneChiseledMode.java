@@ -7,6 +7,7 @@ import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.RayTracingUtils;
@@ -181,12 +182,12 @@ public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implement
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
         final Vector3d hitVector = blockRayTraceResult.getHitVec().add(
           placementFacingAdapter.apply(blockRayTraceResult.getFace())
-            .mul(SIZE_PER_HALF_BIT, SIZE_PER_HALF_BIT, SIZE_PER_HALF_BIT)
+            .mul(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
         final Vector3d hitBlockPosVector = Vector3d.copy(new BlockPos(hitVector));
         final Vector3d inBlockHitVector = hitVector.subtract(hitBlockPosVector);
-        final Vector3d inBlockBitVector = inBlockHitVector.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE);
+        final Vector3d inBlockBitVector = inBlockHitVector.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
 
         final Direction iterationDirection = iterationAdaptor.apply(blockRayTraceResult.getFace());
         switch (iterationDirection)
@@ -217,61 +218,61 @@ public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implement
     private void includeDownAxis(final IChiselingContext context, final Vector3d hitBlockPosVector, final Vector3d inBlockBitVector)
     {
         final BlockPos position = new BlockPos(hitBlockPosVector);
-        context.include(position, clampVectorToBlock(new Vector3d(0, inBlockBitVector.getY() - depth, 0).add(Vector3d.copy(Direction.UP.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
-        context.include(position, clampVectorToBlock(new Vector3d(15.5, inBlockBitVector.getY() - depth, 15.5).add(Vector3d.copy(Direction.UP.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
+        context.include(position, clampVectorToBlock(new Vector3d(0, inBlockBitVector.getY() - depth, 0).add(Vector3d.copy(Direction.UP.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
+        context.include(position, clampVectorToBlock(new Vector3d(15.5, inBlockBitVector.getY() - depth, 15.5).add(Vector3d.copy(Direction.UP.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
 
-        context.include(position, clampVectorToBlock(new Vector3d(0, inBlockBitVector.getY() - 0.5f, 0).add(Vector3d.copy(Direction.UP.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
-        context.include(position, clampVectorToBlock(new Vector3d(15.5, inBlockBitVector.getY() - 0.5f , 15.5).add(Vector3d.copy(Direction.UP.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
+        context.include(position, clampVectorToBlock(new Vector3d(0, inBlockBitVector.getY() - 0.5f, 0).add(Vector3d.copy(Direction.UP.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
+        context.include(position, clampVectorToBlock(new Vector3d(15.5, inBlockBitVector.getY() - 0.5f , 15.5).add(Vector3d.copy(Direction.UP.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
     }
 
     private void includeUpAxis(final IChiselingContext context, final Vector3d hitBlockPosVector, final Vector3d inBlockBitVector)
     {
         final BlockPos position = new BlockPos(hitBlockPosVector);
-        context.include(position, clampVectorToBlock(new Vector3d(0, inBlockBitVector.getY() + depth, 0).add(Vector3d.copy(Direction.DOWN.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
-        context.include(position, clampVectorToBlock(new Vector3d(15.5, inBlockBitVector.getY() + depth, 15.5).add(Vector3d.copy(Direction.DOWN.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
+        context.include(position, clampVectorToBlock(new Vector3d(0, inBlockBitVector.getY() + depth, 0).add(Vector3d.copy(Direction.DOWN.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
+        context.include(position, clampVectorToBlock(new Vector3d(15.5, inBlockBitVector.getY() + depth, 15.5).add(Vector3d.copy(Direction.DOWN.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
 
-        context.include(position, clampVectorToBlock(new Vector3d(0, inBlockBitVector.getY() + 0.5f, 0).add(Vector3d.copy(Direction.DOWN.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
-        context.include(position, clampVectorToBlock(new Vector3d(15.5, inBlockBitVector.getY() + 0.5f , 15.5).add(Vector3d.copy(Direction.DOWN.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
+        context.include(position, clampVectorToBlock(new Vector3d(0, inBlockBitVector.getY() + 0.5f, 0).add(Vector3d.copy(Direction.DOWN.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
+        context.include(position, clampVectorToBlock(new Vector3d(15.5, inBlockBitVector.getY() + 0.5f , 15.5).add(Vector3d.copy(Direction.DOWN.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
     }
 
     private void includeNorthAxis(final IChiselingContext context, final Vector3d hitBlockPosVector, final Vector3d inBlockBitVector)
     {
         final BlockPos position = new BlockPos(hitBlockPosVector);
-        context.include(position, clampVectorToBlock(new Vector3d(0, 0, inBlockBitVector.getZ() - depth).add(Vector3d.copy(Direction.SOUTH.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
-        context.include(position, clampVectorToBlock(new Vector3d(15.5, 15.5, inBlockBitVector.getZ() - depth).add(Vector3d.copy(Direction.SOUTH.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
+        context.include(position, clampVectorToBlock(new Vector3d(0, 0, inBlockBitVector.getZ() - depth).add(Vector3d.copy(Direction.SOUTH.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
+        context.include(position, clampVectorToBlock(new Vector3d(15.5, 15.5, inBlockBitVector.getZ() - depth).add(Vector3d.copy(Direction.SOUTH.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
 
-        context.include(position, clampVectorToBlock(new Vector3d(0, 0, inBlockBitVector.getZ() - 0.5f).add(Vector3d.copy(Direction.SOUTH.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
-        context.include(position, clampVectorToBlock(new Vector3d(15.5, 15.5, inBlockBitVector.getZ() - 0.5f).add(Vector3d.copy(Direction.SOUTH.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
+        context.include(position, clampVectorToBlock(new Vector3d(0, 0, inBlockBitVector.getZ() - 0.5f).add(Vector3d.copy(Direction.SOUTH.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
+        context.include(position, clampVectorToBlock(new Vector3d(15.5, 15.5, inBlockBitVector.getZ() - 0.5f).add(Vector3d.copy(Direction.SOUTH.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
     }
 
     private void includeSouthAxis(final IChiselingContext context, final Vector3d hitBlockPosVector, final Vector3d inBlockBitVector)
     {
         final BlockPos position = new BlockPos(hitBlockPosVector);
-        context.include(position, clampVectorToBlock(new Vector3d(0, 0, inBlockBitVector.getZ() + depth).add(Vector3d.copy(Direction.NORTH.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
-        context.include(position, clampVectorToBlock(new Vector3d(15.5, 15.5, inBlockBitVector.getZ() + depth).add(Vector3d.copy(Direction.NORTH.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
+        context.include(position, clampVectorToBlock(new Vector3d(0, 0, inBlockBitVector.getZ() + depth).add(Vector3d.copy(Direction.NORTH.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
+        context.include(position, clampVectorToBlock(new Vector3d(15.5, 15.5, inBlockBitVector.getZ() + depth).add(Vector3d.copy(Direction.NORTH.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
 
-        context.include(position, clampVectorToBlock(new Vector3d(0, 0, inBlockBitVector.getZ() + 0.5f).add(Vector3d.copy(Direction.NORTH.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
-        context.include(position, clampVectorToBlock(new Vector3d(15.5, 15.5, inBlockBitVector.getZ() + 0.5f).add(Vector3d.copy(Direction.NORTH.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
+        context.include(position, clampVectorToBlock(new Vector3d(0, 0, inBlockBitVector.getZ() + 0.5f).add(Vector3d.copy(Direction.NORTH.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
+        context.include(position, clampVectorToBlock(new Vector3d(15.5, 15.5, inBlockBitVector.getZ() + 0.5f).add(Vector3d.copy(Direction.NORTH.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
     }
 
     private void includeWestAxis(final IChiselingContext context, final Vector3d hitBlockPosVector, final Vector3d inBlockBitVector)
     {
         final BlockPos position = new BlockPos(hitBlockPosVector);
-        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() - depth, 0, 0).add(Vector3d.copy(Direction.EAST.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
-        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() - depth, 15.5, 15.5).add(Vector3d.copy(Direction.EAST.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
+        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() - depth, 0, 0).add(Vector3d.copy(Direction.EAST.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
+        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() - depth, 15.5, 15.5).add(Vector3d.copy(Direction.EAST.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
 
-        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() - 0.5f, 0, 0).add(Vector3d.copy(Direction.EAST.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
-        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() - 0.5f , 15.5, 15.5).add(Vector3d.copy(Direction.EAST.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
+        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() - 0.5f, 0, 0).add(Vector3d.copy(Direction.EAST.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
+        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() - 0.5f , 15.5, 15.5).add(Vector3d.copy(Direction.EAST.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
     }
 
     private void includeEastAxis(final IChiselingContext context, final Vector3d hitBlockPosVector, final Vector3d inBlockBitVector)
     {
         final BlockPos position = new BlockPos(hitBlockPosVector);
-        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() + depth, 0, 0).add(Vector3d.copy(Direction.WEST.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
-        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() + depth, 15.5, 15.5).add(Vector3d.copy(Direction.WEST.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
+        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() + depth, 0, 0).add(Vector3d.copy(Direction.WEST.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
+        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() + depth, 15.5, 15.5).add(Vector3d.copy(Direction.WEST.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
 
-        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() + 0.5f, 0, 0).add(Vector3d.copy(Direction.WEST.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
-        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() + 0.5f , 15.5, 15.5).add(Vector3d.copy(Direction.WEST.getDirectionVec())).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)));
+        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() + 0.5f, 0, 0).add(Vector3d.copy(Direction.WEST.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
+        context.include(position, clampVectorToBlock(new Vector3d(inBlockBitVector.getX() + 0.5f , 15.5, 15.5).add(Vector3d.copy(Direction.WEST.getDirectionVec())).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())));
     }
 
     private Vector3d clampVectorToBlock(final Vector3d v)

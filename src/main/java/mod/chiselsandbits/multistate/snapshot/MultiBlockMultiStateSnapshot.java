@@ -2,6 +2,7 @@ package mod.chiselsandbits.multistate.snapshot;
 
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
@@ -24,9 +25,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.BITS_PER_BLOCK_SIDE;
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT;
 
 public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
 {
@@ -120,11 +118,11 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
     {
         return BlockPosStreamProvider.getForRange(
-          startPoint.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE),
-          endPoint.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE)
+          startPoint.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
+          endPoint.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
         )
                  .map(positionMutator::mutate)
-                 .map(position -> Vector3d.copy(position).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT))
+                 .map(position -> Vector3d.copy(position).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
                  .map(position -> {
                      final BlockPos blockPos = new BlockPos(position);
                      final Vector3d inBlockOffset = position.subtract(Vector3d.copy(blockPos));

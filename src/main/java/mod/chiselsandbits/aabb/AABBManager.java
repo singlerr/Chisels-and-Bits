@@ -16,7 +16,9 @@ import org.apache.logging.log4j.Logger;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public class AABBManager
 {
@@ -38,8 +40,10 @@ public class AABBManager
 
     public Collection<AxisAlignedBB> get(
       final IAreaAccessor accessor,
-      final Predicate<IStateEntryInfo> selectablePredicate
+      final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder
     ) {
+        final Predicate<IStateEntryInfo> selectablePredicate = selectablePredicateBuilder.apply(accessor);
+
         final Key cacheKey = new Key(
           accessor.createNewShapeIdentifier(),
           selectablePredicate

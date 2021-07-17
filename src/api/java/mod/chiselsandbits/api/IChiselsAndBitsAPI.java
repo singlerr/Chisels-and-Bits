@@ -13,6 +13,7 @@ import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
@@ -125,17 +126,42 @@ public interface IChiselsAndBitsAPI
     @NotNull
     IBlockStateIdManager getBlockStateIdManager();
 
+    /**
+     * Gives access to the bits inventory manager, which allows the conversion of normal inventory systems to bit inventories.
+     * These special bit inventories respect the core interfaces that make up an object that can hold or is a bit.
+     *
+     * @return The manager for dealing with bits.
+     */
     @NotNull
     IBitInventoryManager getBitInventoryManager();
 
+    /**
+     * The bit item manager.
+     * Allows for the creation of bit based itemstacks.
+     *
+     * @return The bit item manager.
+     */
     @NotNull
     IBitItemManager getBitItemManager();
 
+    /**
+     * The measuring manager.
+     * Gives access to measurements created by a given player.
+     *
+     * @return The measuring manager.
+     */
     @NotNull
     IMeasuringManager getMeasuringManager();
 
+    /**
+     * Represents the size of the bits in the current instance.
+     *
+     * @return The size of the state entries in the current instance.
+     */
     @NotNull
-    IForgeRegistry<IModificationTableOperation> getModificationTableOperationRegistry();
+    default StateEntrySize getStateEntrySize() {
+        return getConfiguration().getServer().bitSize.get();
+    }
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

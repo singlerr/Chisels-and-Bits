@@ -14,17 +14,17 @@ public class ModificationTableRecipeSerializer extends ForgeRegistryEntry<IRecip
     @Override
     public @NotNull ModificationTableRecipe read(final @NotNull ResourceLocation recipeId, final @NotNull JsonObject json)
     {
-        if (!IChiselsAndBitsAPI.getInstance().getModificationTableOperationRegistry().containsKey(recipeId))
+        if (!IChiselsAndBitsAPI.getInstance().getRegistryManager().getModificationTableOperationRegistry().containsKey(recipeId))
             throw new IllegalArgumentException(String.format("No modification table recipe is known for the id: %s", recipeId));
 
-        return new ModificationTableRecipe(IChiselsAndBitsAPI.getInstance().getModificationTableOperationRegistry().getValue(recipeId));
+        return new ModificationTableRecipe(IChiselsAndBitsAPI.getInstance().getRegistryManager().getModificationTableOperationRegistry().getValue(recipeId));
     }
 
     @Nullable
     @Override
     public ModificationTableRecipe read(final @NotNull ResourceLocation recipeId, final @NotNull PacketBuffer buffer)
     {
-        return new ModificationTableRecipe(IChiselsAndBitsAPI.getInstance().getModificationTableOperationRegistry().getValue(recipeId));
+        return new ModificationTableRecipe(IChiselsAndBitsAPI.getInstance().getRegistryManager().getModificationTableOperationRegistry().getValue(recipeId));
     }
 
     @Override

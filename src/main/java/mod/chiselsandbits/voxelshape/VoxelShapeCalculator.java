@@ -4,14 +4,12 @@ import mod.chiselsandbits.aabb.AABBManager;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessorWithVoxelShape;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.api.util.SingleBlockBlockReader;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
 
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class VoxelShapeCalculator
@@ -19,13 +17,14 @@ public class VoxelShapeCalculator
     public static VoxelShape calculate(
       final IAreaAccessor areaAccessor,
       final BlockPos offset,
-      final Predicate<IStateEntryInfo> selectablePredicate) {
+      final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder,
+      final boolean simplify) {
         if (areaAccessor instanceof IAreaAccessorWithVoxelShape)
-            return ((IAreaAccessorWithVoxelShape) areaAccessor).provideShape(selectablePredicate, offset);
+            return ((IAreaAccessorWithVoxelShape) areaAccessor).provideShape(selectablePredicateBuilder, offset, simplify);
 
-        return
+        final VoxelShape shape =
             AABBManager.getInstance()
-              .get(areaAccessor, selectablePredicate)
+              .get(areaAccessor, selectablePredicateBuilder)
               .stream()
               .map(aabb -> aabb.offset(offset))
         .reduce(
@@ -35,6 +34,8 @@ public class VoxelShapeCalculator
               return VoxelShapes.combine(voxelShape, bbShape, IBooleanFunction.OR);
           },
           (voxelShape, voxelShape2) -> VoxelShapes.combine(voxelShape, voxelShape2, IBooleanFunction.OR)
-        ).simplify();
+        );
+
+        return simplify ? shape.simplify() : shape;
     }
 }

@@ -1,5 +1,6 @@
 package mod.chiselsandbits.multistate.mutator;
 
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import net.minecraft.util.math.BlockPos;
@@ -48,8 +49,8 @@ public class MutatorFactory implements IMutatorFactory
         return new WorldWrappingMutator(
           world,
           Vector3d.copy(from),
-          Vector3d.copy(to).add(new Vector3d(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT)
-                                  .mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE)
+          Vector3d.copy(to).add(new Vector3d(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())
+                                  .mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
                                   .subtract(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS)
           )
         );
@@ -68,8 +69,8 @@ public class MutatorFactory implements IMutatorFactory
     {
         return new WorldWrappingMutator(
           world,
-          Vector3d.copy(new BlockPos(from.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE))).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT).add(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS),
-          Vector3d.copy(new BlockPos(to.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE))).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT).add(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT).subtract(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS)
+          Vector3d.copy(new BlockPos(from.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()))).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS),
+          Vector3d.copy(new BlockPos(to.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()))).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).subtract(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS)
         );
     }
 }

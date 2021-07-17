@@ -3,12 +3,9 @@ import com.google.common.collect.ImmutableMap;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.block.entities.ChiseledPrinterBlockEntity;
-import mod.chiselsandbits.core.ChiselsAndBitsClient;
 import net.minecraft.block.*;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
@@ -150,7 +147,7 @@ public class ChiseledPrinterBlock extends ContainerBlock
         if (!state.isIn(newState.getBlock())) {
             TileEntity tileentity = worldIn.getTileEntity(pos);
             if (tileentity instanceof ChiseledPrinterBlockEntity) {
-                ((ChiseledPrinterBlockEntity) tileentity).dropInventoryItems(state, worldIn, pos, newState, isMoving);
+                ((ChiseledPrinterBlockEntity) tileentity).dropInventoryItems(worldIn, pos);
                 worldIn.updateComparatorOutputLevel(pos, this);
             }
 

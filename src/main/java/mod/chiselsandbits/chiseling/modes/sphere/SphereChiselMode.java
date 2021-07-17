@@ -1,14 +1,17 @@
-package mod.chiselsandbits.chiseling.modes.cubed;
+package mod.chiselsandbits.chiseling.modes.sphere;
 
 import com.google.common.collect.Maps;
-import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
+import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.world.IInWorldStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.RayTracingUtils;
@@ -24,6 +27,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.eventbus.api.Event;
@@ -31,22 +35,20 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.*;
-
-public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
+public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
 {
-    private final int                       bitsPerSide;
-    private final boolean                   aligned;
+    private final int diameter;
     private final IFormattableTextComponent displayName;
     private final ResourceLocation          iconName;
 
-    CubedChiselMode(final int bitsPerSide, final boolean aligned, final IFormattableTextComponent displayName, final ResourceLocation iconName)
+    SphereChiselMode(final int diameter, final IFormattableTextComponent displayName, final ResourceLocation iconName)
     {
-        this.bitsPerSide = bitsPerSide;
-        this.aligned = aligned;
+        this.diameter = diameter;
         this.displayName = displayName;
         this.iconName = iconName;
     }
@@ -59,7 +61,7 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
           playerEntity,
           context,
           face -> Vector3d.copy(face.getOpposite().getDirectionVec()),
-          Function.identity()
+          facing -> facing.mul(-1, -1, -1)
         );
 
         if (context.isSimulation())
@@ -72,8 +74,15 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
               {
                   final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
 
+                  final Predicate<IStateEntryInfo> filter = context.getStateFilter()
+                    .map(factory -> factory.apply(mutator))
+                    .orElse((s) -> true);
+
                   mutator.inWorldMutableStream()
                     .forEach(state -> {
+                        if (!filter.test(state))
+                            return;
+
                         final BlockState currentState = state.getState();
                         if (context.tryDamageItem()) {
                             resultingBitCount.putIfAbsent(currentState, 0);
@@ -110,7 +119,7 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
           playerEntity,
           context,
           face -> Vector3d.copy(face.getDirectionVec()),
-          facingVector -> aligned ? facingVector : facingVector.mul(1,-1, 1)
+          Function.identity()
         );
 
         if (context.isSimulation())
@@ -121,8 +130,11 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
             if (heldBlockState.isAir(new SingleBlockBlockReader(heldBlockState), BlockPos.ZERO))
                 return ClickProcessingState.DEFAULT;
 
+            final Predicate<IStateEntryInfo> filter = context.getStateFilter()
+                                                        .map(factory -> factory.apply(mutator))
+                                                        .orElse((s) -> true);
             final int missingBitCount = (int) mutator.stream()
-              .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO))
+              .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO) && filter.test(state))
               .count();
 
             final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
@@ -138,7 +150,7 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
                        mutator.batch())
                 {
                     mutator.inWorldMutableStream()
-                      .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO))
+                      .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO) && filter.test(state))
                       .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                 }
             }
@@ -178,41 +190,39 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
             .mul(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
-        Vector3d alignmentOffset = Vector3d.ZERO;
-        final Vector3d fullFacingVector = fullFacingVectorAdapter.apply(aligned ? new Vector3d(1, 1, 1) : Vector3d.copy(
-          RayTracingUtils.getFullFacingVector(playerEntity)
-        ));
+        final Vector3d centeredHitVector = Vector3d.copy(
+          new BlockPos(
+            hitVector.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
+          )
+        ).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
 
-        if (aligned)
-        {
-            final Vector3d inBlockOffset = hitVector.subtract(Vector3d.copy(new BlockPos(hitVector)));
-            final BlockPos bitsInBlockOffset = new BlockPos(inBlockOffset.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
+        final Vector3d center = centeredHitVector.add(
+          new Vector3d(
+            (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide(),
+            (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide(),
+            (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide()
+          ).mul(
+            fullFacingVectorAdapter.apply(Vector3d.copy(blockRayTraceResult.getFace().getDirectionVec())
+            )
+          )
+        );
 
-            final BlockPos targetedSectionIndices = new BlockPos(
-              bitsInBlockOffset.getX() / bitsPerSide,
-              bitsInBlockOffset.getY() / bitsPerSide,
-              bitsInBlockOffset.getZ() / bitsPerSide
-            );
+        context.setStateFilter(areaAccessor -> {
+            if (areaAccessor instanceof IWorldAreaAccessor)
+                return new SphereAreaFilter(((IWorldAreaAccessor) areaAccessor).getInWorldStartPoint(), center);
 
-            final BlockPos targetedStartPoint = new BlockPos(
-              targetedSectionIndices.getX() * bitsPerSide,
-              targetedSectionIndices.getY() * bitsPerSide,
-              targetedSectionIndices.getZ() * bitsPerSide
-            );
+            return new SphereAreaFilter(Vector3d.ZERO, center);
+        });
 
-            final BlockPos targetedBitsInBlockOffset = bitsInBlockOffset.subtract(targetedStartPoint);
+        BlockPosStreamProvider.getForRange(diameter)
+          .forEach(bitPos -> {
+              final Vector3d target = center
+                .add(Vector3d.copy(bitPos.subtract(new Vector3i(diameter / 2, diameter / 2, diameter / 2))).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
 
-            alignmentOffset = Vector3d.copy(targetedBitsInBlockOffset)
-                                .mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
-        }
-
-        final Vector3d finalAlignmentOffset = alignmentOffset.mul(fullFacingVector);
-        BlockPosStreamProvider.getForRange(bitsPerSide)
-          .forEach(bitPos -> context.include(
-            hitVector
-              .subtract(finalAlignmentOffset)
-              .add(Vector3d.copy(bitPos).mul(fullFacingVector).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
-          ));
+              context.include(
+                target
+              );
+          });
 
         return Optional.empty();
     }
@@ -234,7 +244,58 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     public Optional<IToolModeGroup> getGroup()
     {
         return Optional.of(
-          aligned ? ModChiselModeGroups.CUBED_ALIGNED : ModChiselModeGroups.CUBED
+          ModChiselModeGroups.SPHERE
         );
+    }
+
+    private final class SphereAreaFilter implements Predicate<IStateEntryInfo> {
+
+        private final Vector3d startPoint;
+        private final Vector3d center;
+
+        private SphereAreaFilter(final Vector3d startPoint, final Vector3d center) {
+            this.startPoint = startPoint;
+            this.center = center;
+        }
+
+        @Override
+        public boolean test(final IStateEntryInfo stateEntryInfo)
+        {
+            if (!(stateEntryInfo instanceof IInWorldStateEntryInfo))
+                return false;
+
+            final IInWorldStateEntryInfo inWorldStateEntryInfo = (IInWorldStateEntryInfo) stateEntryInfo;
+
+            return inWorldStateEntryInfo.getInWorldStartPoint().distanceTo(center) <= (diameter / 2f / StateEntrySize.current().getBitsPerBlockSide());
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (!(o instanceof SphereAreaFilter))
+            {
+                return false;
+            }
+
+            final SphereAreaFilter that = (SphereAreaFilter) o;
+
+            if (!Objects.equals(startPoint, that.startPoint))
+            {
+                return false;
+            }
+            return Objects.equals(center, that.center);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = startPoint != null ? startPoint.hashCode() : 0;
+            result = 31 * result + (center != null ? center.hashCode() : 0);
+            return result;
+        }
     }
 }

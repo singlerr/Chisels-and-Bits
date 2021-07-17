@@ -58,6 +58,7 @@
   "mod.chiselsandbits.chiselmode.mode_grouped": "Chisel Mode: %1$s (%2$s)",
   "mod.chiselsandbits.chiselmode.single": "Single Bit",
   "mod.chiselsandbits.chiselmode.snap": "Grid Snapped Cube",
+  "mod.chiselsandbits.chiselmode.sphere": "Sphere",
   "mod.chiselsandbits.chiselmode.snap2": "1/8",
   "mod.chiselsandbits.chiselmode.snap4": "1/4",
   "mod.chiselsandbits.chiselmode.snap8": "1/2",
@@ -79,6 +80,9 @@
   "mod.chiselsandbits.chiselmode.cube_large": "Large",
   "mod.chiselsandbits.chiselmode.drawn_region": "Drawn Region",
   "mod.chiselsandbits.chiselmode.same_material": "Same Material",
+  "mod.chiselsandbits.chiselmode.sphere_small": "1/4",
+  "mod.chiselsandbits.chiselmode.sphere_medium": "1/2",
+  "mod.chiselsandbits.chiselmode.sphere_large": "Full",
 
   "mod.chiselsandbits.bitoption.place": "Place",
   "mod.chiselsandbits.bitoption.replace": "Replace",

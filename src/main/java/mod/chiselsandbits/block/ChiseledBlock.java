@@ -5,6 +5,7 @@ import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
@@ -244,9 +245,9 @@ public class ChiseledBlock extends Block implements IMultiStateBlock
                 blockPos.getZ()
               );
               final Vector3d faceOffset = new Vector3d(
-                blockRayTraceResult.getFace().getOpposite().getXOffset() * ChiseledBlockEntity.SIZE_PER_HALF_BIT,
-                blockRayTraceResult.getFace().getOpposite().getYOffset() * ChiseledBlockEntity.SIZE_PER_HALF_BIT,
-                blockRayTraceResult.getFace().getOpposite().getZOffset() * ChiseledBlockEntity.SIZE_PER_HALF_BIT
+                blockRayTraceResult.getFace().getOpposite().getXOffset() * StateEntrySize.current().getSizePerHalfBit(),
+                blockRayTraceResult.getFace().getOpposite().getYOffset() * StateEntrySize.current().getSizePerHalfBit(),
+                blockRayTraceResult.getFace().getOpposite().getZOffset() * StateEntrySize.current().getSizePerHalfBit()
               );
               final Vector3d hitDelta = hitVec.subtract(accuratePos).add(faceOffset);
 

@@ -1,5 +1,6 @@
 package mod.chiselsandbits.utils;
 
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
@@ -98,16 +99,16 @@ public class ChunkSectionUtils
       final BlockState blockState,
       final int amount
     ) {
-        final int loopCount = Math.max(0, Math.min(amount, ChiseledBlockEntity.BITS_PER_BLOCK));
+        final int loopCount = Math.max(0, Math.min(amount, StateEntrySize.current().getBitsPerBlock()));
         if (loopCount == 0)
             return;
 
         int count = 0;
-        for (int y = 0; y < ChiseledBlockEntity.BITS_PER_BLOCK_SIDE; y++)
+        for (int y = 0; y < StateEntrySize.current().getBitsPerBlockSide(); y++)
         {
-            for (int x = 0; x < ChiseledBlockEntity.BITS_PER_BLOCK_SIDE; x++)
+            for (int x = 0; x < StateEntrySize.current().getBitsPerBlockSide(); x++)
             {
-                for (int z = 0; z < ChiseledBlockEntity.BITS_PER_BLOCK_SIDE; z++)
+                for (int z = 0; z < StateEntrySize.current().getBitsPerBlockSide(); z++)
                 {
                     chunkSection.setBlockState(
                       x, y, z,
@@ -115,7 +116,7 @@ public class ChunkSectionUtils
                     );
 
                     count++;
-                    if (count == amount)
+                    if (count == loopCount)
                         return;
                 }
             }
@@ -126,17 +127,17 @@ public class ChunkSectionUtils
     {
         final ChunkSection result = new ChunkSection(0);
 
-        for (int y = 0; y < ChiseledBlockEntity.BITS_PER_BLOCK_SIDE; y++)
+        for (int y = 0; y < StateEntrySize.current().getBitsPerBlockSide(); y++)
         {
-            for (int x = 0; x < ChiseledBlockEntity.BITS_PER_BLOCK_SIDE; x++)
+            for (int x = 0; x < StateEntrySize.current().getBitsPerBlockSide(); x++)
             {
-                for (int z = 0; z < ChiseledBlockEntity.BITS_PER_BLOCK_SIDE; z++)
+                for (int z = 0; z < StateEntrySize.current().getBitsPerBlockSide(); z++)
                 {
                     final BlockState blockState = lazyChunkSection.getBlockState(x, y, z);
 
-                    final int mirroredX = axis == Direction.Axis.X ? (ChiseledBlockEntity.BITS_PER_BLOCK_SIDE - x - 1) : x;
-                    final int mirroredY = axis == Direction.Axis.Y ? (ChiseledBlockEntity.BITS_PER_BLOCK_SIDE - y - 1) : y;
-                    final int mirroredZ = axis == Direction.Axis.Z ? (ChiseledBlockEntity.BITS_PER_BLOCK_SIDE - z - 1) : z;
+                    final int mirroredX = axis == Direction.Axis.X ? (StateEntrySize.current().getBitsPerBlockSide() - x - 1) : x;
+                    final int mirroredY = axis == Direction.Axis.Y ? (StateEntrySize.current().getBitsPerBlockSide() - y - 1) : y;
+                    final int mirroredZ = axis == Direction.Axis.Z ? (StateEntrySize.current().getBitsPerBlockSide() - z - 1) : z;
 
                     result.setBlockState(
                       mirroredX, mirroredY, mirroredZ,

@@ -4,8 +4,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.vector.Vector3d;
 
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT;
-
 public class FaceRegion
 {
     private final Direction  face;

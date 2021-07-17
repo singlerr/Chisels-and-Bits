@@ -5,6 +5,7 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.chiseling.modes.cubed.CubedChiselModeBuilder;
 import mod.chiselsandbits.chiseling.modes.line.LinedChiselModeBuilder;
 import mod.chiselsandbits.chiseling.modes.plane.PlaneChiselModeBuilder;
+import mod.chiselsandbits.chiseling.modes.sphere.SphereChiselModeBuilder;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.RegistryObject;
@@ -217,7 +218,42 @@ public final class ModChiselModes
               .createPlaneChiselMode()
     );
 
+    public static final RegistryObject<IChiselMode> SMALL_SPHERE = MODE_REGISTRAR.register(
+      "small_sphere",
+      () -> new SphereChiselModeBuilder().setDiameter(4)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.sphere_small"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/sphere_small.png"))
+              .createSphereChiselMode()
+    );
 
+    public static final RegistryObject<IChiselMode> MEDIUM_SPHERE = MODE_REGISTRAR.register(
+      "medium_sphere",
+      () -> new SphereChiselModeBuilder().setDiameter(8)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.sphere_medium"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/sphere_medium.png"))
+              .createSphereChiselMode()
+    );
+
+    public static final RegistryObject<IChiselMode> LARGE_SPHERE = MODE_REGISTRAR.register(
+      "large_sphere",
+      () -> new SphereChiselModeBuilder().setDiameter(16)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.sphere_large"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/sphere_large.png"))
+              .createSphereChiselMode()
+    );
+    
     public static void onModConstruction() {
         REGISTRY = MODE_REGISTRAR.makeRegistry("chisel_mode", () -> new RegistryBuilder<IChiselMode>()
                                                                      .allowModification());

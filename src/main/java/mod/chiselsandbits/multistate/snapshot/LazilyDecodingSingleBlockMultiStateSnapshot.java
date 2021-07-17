@@ -3,6 +3,7 @@ package mod.chiselsandbits.multistate.snapshot;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
@@ -38,9 +39,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.BITS_PER_BLOCK_SIDE;
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT;
-
 public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateSnapshot
 {
 
@@ -70,7 +68,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     {
         load();
 
-        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+        return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                  .map(blockPos -> new StateEntry(
                    lazyChunkSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
                    blockPos,
@@ -113,7 +111,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE));
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
         load();
 
@@ -185,7 +183,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     {
         load();
 
-        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+        return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                  .map(positionMutator::mutate)
                  .map(blockPos -> new StateEntry(
                    this.lazyChunkSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
@@ -216,7 +214,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     {
         load();
 
-        return BlockPosStreamProvider.getForRange(BITS_PER_BLOCK_SIDE)
+        return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                  .map(blockPos -> new StateEntry(
                    lazyChunkSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
                    blockPos,
@@ -238,7 +236,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE));
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
         load();
 
@@ -290,7 +288,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE));
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
         load();
 
@@ -483,8 +481,8 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
           final StateClearer stateClearer)
         {
             this.blockState = blockState;
-            this.startPoint = Vector3d.copy(startPoint).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT);
-            this.endPoint = Vector3d.copy(startPoint).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT).add(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT);
+            this.startPoint = Vector3d.copy(startPoint).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
+            this.endPoint = Vector3d.copy(startPoint).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
             this.stateSetter = stateSetter;
             this.stateClearer = stateClearer;
         }

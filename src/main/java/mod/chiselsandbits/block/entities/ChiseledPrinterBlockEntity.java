@@ -139,7 +139,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     @Override
-    public void read(final BlockState state, final CompoundNBT nbt)
+    public void read(final @NotNull BlockState state, final @NotNull CompoundNBT nbt)
     {
         super.read(state, nbt);
 
@@ -151,7 +151,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     @Override
-    public CompoundNBT write(final CompoundNBT compound)
+    public @NotNull CompoundNBT write(final @NotNull CompoundNBT compound)
     {
         super.write(compound);
 
@@ -165,7 +165,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     @Override
-    public CompoundNBT getUpdateTag()
+    public @NotNull CompoundNBT getUpdateTag()
     {
         final CompoundNBT nbt = new CompoundNBT();
         write(nbt);
@@ -338,7 +338,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     @Override
-    public ITextComponent getDisplayName()
+    public @NotNull ITextComponent getDisplayName()
     {
         return LocalStrings.ChiselStationName.getLocalText();
     }
@@ -440,7 +440,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
         }
     }
 
-    public void dropInventoryItems(BlockState state, World worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
+    public void dropInventoryItems(World worldIn, BlockPos pos) {
         InventoryHelper.spawnItemStack(worldIn,
           pos.getX(),
           pos.getY(),

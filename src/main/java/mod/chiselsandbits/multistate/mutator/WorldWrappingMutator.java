@@ -1,6 +1,8 @@
 package mod.chiselsandbits.multistate.mutator;
 
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessorWithVoxelShape;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
@@ -16,7 +18,6 @@ import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.multistate.snapshot.MultiBlockMultiStateSnapshot;
 import net.minecraft.block.BlockState;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.VoxelShape;
@@ -32,9 +33,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.BITS_PER_BLOCK_SIDE;
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.SIZE_PER_BIT;
 
 public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWithVoxelShape
 {
@@ -184,11 +182,11 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
     {
         return BlockPosStreamProvider.getForRange(
-          getInWorldStartPoint().mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE),
-          getInWorldEndPoint().mul(BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE, BITS_PER_BLOCK_SIDE)
+          getInWorldStartPoint().mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
+          getInWorldEndPoint().mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
         )
                  .map(positionMutator::mutate)
-                 .map(position -> Vector3d.copy(position).mul(SIZE_PER_BIT, SIZE_PER_BIT, SIZE_PER_BIT))
+                 .map(position -> Vector3d.copy(position).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
                  .map(position -> {
                      final BlockPos blockPos = new BlockPos(position);
                      final Vector3d inBlockOffset = position.subtract(Vector3d.copy(blockPos));
@@ -411,24 +409,27 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     }
 
     @Override
-    public VoxelShape provideShape(final Predicate<IStateEntryInfo> selectionPredicate, final BlockPos offset)
+    public VoxelShape provideShape(final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder, final BlockPos offset, final boolean simplify)
     {
         final VoxelShape areaShape = VoxelShapes.create(getInWorldBoundingBox().offset(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).offset(offset));
         final VoxelShape containedShape = BlockPosStreamProvider.getForRange(
           getInWorldStartPoint(), getInWorldEndPoint()
         ).map(blockPos -> new ChiselAdaptingWorldMutator(
           getWorld(), blockPos))
-                                            .map(a -> IVoxelShapeManager.getInstance().get(a, new BlockPos(a.getInWorldStartPoint()).add(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).add(offset), selectionPredicate))
+                                            .map(a -> IVoxelShapeManager.getInstance().get(a, new BlockPos(a.getInWorldStartPoint()).add(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).add(offset),
+                                              selectablePredicateBuilder, simplify))
                                             .reduce(
                                               VoxelShapes.empty(),
                                               (voxelShape, bbShape) -> VoxelShapes.combine(voxelShape, bbShape, IBooleanFunction.OR),
                                               (voxelShape, voxelShape2) -> VoxelShapes.combine(voxelShape, voxelShape2, IBooleanFunction.OR)
-                                            ).simplify();
-        return VoxelShapes.combine(
+                                            );
+        final VoxelShape requestedShape = VoxelShapes.combine(
           areaShape,
           containedShape,
           IBooleanFunction.AND
-        ).simplify();
+        );
+
+        return simplify ? requestedShape.simplify() : requestedShape;
     }
 
     private static final class PositionAdaptingMutableStateEntry implements IMutableStateEntryInfo, IWorldObject

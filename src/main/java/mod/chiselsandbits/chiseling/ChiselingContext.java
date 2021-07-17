@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
@@ -13,11 +14,12 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
+import org.jetbrains.annotations.NotNull;
 
-import java.lang.ref.WeakReference;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class ChiselingContext implements IChiselingContext
 {
@@ -31,7 +33,8 @@ public class ChiselingContext implements IChiselingContext
     private final PlayerEntity playerEntity;
 
     private boolean           complete = false;
-    private IWorldAreaMutator mutator  = null;
+    private IWorldAreaMutator                                   mutator       = null;
+    private Function<IAreaAccessor, Predicate<IStateEntryInfo>> filterBuilder = null;
 
     public ChiselingContext(
       final IWorld world,
@@ -99,25 +102,25 @@ public class ChiselingContext implements IChiselingContext
     }
 
     @Override
-    public Optional<IWorldAreaMutator> getMutator()
+    public @NotNull Optional<IWorldAreaMutator> getMutator()
     {
         return Optional.ofNullable(mutator);
     }
 
     @Override
-    public IWorld getWorld()
+    public @NotNull IWorld getWorld()
     {
         return world;
     }
 
     @Override
-    public IChiselMode getMode()
+    public @NotNull IChiselMode getMode()
     {
         return chiselMode;
     }
 
     @Override
-    public IChiselingContext include(final Vector3d worldPosition)
+    public @NotNull IChiselingContext include(final Vector3d worldPosition)
     {
         if (getMutator().map(m -> !m.isInside(worldPosition)).orElse(true))
         {
@@ -171,13 +174,13 @@ public class ChiselingContext implements IChiselingContext
     }
 
     @Override
-    public ChiselingOperation getModeOfOperandus()
+    public @NotNull ChiselingOperation getModeOfOperandus()
     {
         return modeOfOperandus;
     }
 
     @Override
-    public IChiselingContext createSnapshot()
+    public @NotNull IChiselingContext createSnapshot()
     {
         if (mutator == null) {
             return new ChiselingContext(
@@ -220,6 +223,24 @@ public class ChiselingContext implements IChiselingContext
         });
 
         return !broken.get();
+    }
+
+    @Override
+    public void setStateFilter(final @NotNull Function<IAreaAccessor, Predicate<IStateEntryInfo>> filter)
+    {
+        this.filterBuilder = filter;
+    }
+
+    @Override
+    public void clearStateFilter()
+    {
+        this.filterBuilder = null;
+    }
+
+    @Override
+    public Optional<Function<IAreaAccessor, Predicate<IStateEntryInfo>>> getStateFilter()
+    {
+        return Optional.ofNullable(this.filterBuilder);
     }
 
     @Override

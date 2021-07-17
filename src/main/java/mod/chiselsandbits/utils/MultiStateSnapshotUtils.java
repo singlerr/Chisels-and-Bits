@@ -2,6 +2,7 @@ package mod.chiselsandbits.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
@@ -41,7 +42,7 @@ public class MultiStateSnapshotUtils
               blockState,
               () -> {
                   final ChunkSection result = new ChunkSection(0);
-                  BlockPosStreamProvider.getForRange(ChiseledBlockEntity.BITS_PER_BLOCK_SIDE)
+                  BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                     .forEach(pos -> result.setBlockState(pos.getX(), pos.getY(), pos.getZ(), blockState));
 
                   return result;

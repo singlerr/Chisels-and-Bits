@@ -36,7 +36,7 @@ public enum ModRenderTypes
             .target(field_239236_S_)
             .writeMask(COLOR_WRITE)
             .cull(CULL_DISABLED)
-            .depthTest(DEPTH_ALWAYS)
+            .depthTest(RenderState.DEPTH_ALWAYS)
             .fog(NO_FOG)
             .build(false));
 

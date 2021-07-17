@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.config;
 import com.google.common.collect.Lists;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import net.minecraft.block.BlockState;
 import net.minecraftforge.common.ForgeConfigSpec;
 
@@ -12,56 +13,25 @@ import java.util.Objects;
  */
 public class ServerConfiguration extends AbstractConfiguration
 {
-    public ForgeConfigSpec.BooleanValue logTileErrors;
-    public ForgeConfigSpec.BooleanValue logEligibilityErrors;
     public ForgeConfigSpec.BooleanValue blackListRandomTickingBlocks;
-    public ForgeConfigSpec.BooleanValue damageTools;
-    public ForgeConfigSpec.BooleanValue enableChiselToolHarvestCheck;
-    public ForgeConfigSpec.ConfigValue<String> enableChiselToolHarvestCheckTools;
-    public ForgeConfigSpec.BooleanValue enableToolHarvestLevels;
-    public ForgeConfigSpec.BooleanValue enableBitLightSource;
-    public ForgeConfigSpec.DoubleValue bitLightPercentage;
     public ForgeConfigSpec.BooleanValue compatabilityMode;
     public ForgeConfigSpec.IntValue bagStackSize;
-    public ForgeConfigSpec.IntValue wrenchUses;
-    public ForgeConfigSpec.BooleanValue fullBlockCrafting;
-    public ForgeConfigSpec.BooleanValue requireBagSpace;
-    public ForgeConfigSpec.BooleanValue voidExcessBits;
-    public ForgeConfigSpec.IntValue                            creativeClipboardSize;
-    public ForgeConfigSpec.ConfigValue<List<? extends String>> revertibleBlocks;
+    public ForgeConfigSpec.EnumValue<StateEntrySize> bitSize;
 
-    public ForgeConfigSpec.BooleanValue lowMemoryMode;
 
     protected ServerConfiguration(final ForgeConfigSpec.Builder builder)
     {
-        createCategory(builder, "server.troubleshooting");
-
-        logTileErrors = defineBoolean(builder, "server.troubleshooting.logging.tile-errors", true);
-        logEligibilityErrors = defineBoolean(builder, "server.troubleshooting.logging.eligibility-errors", true);
-
-        finishCategory(builder);
         createCategory(builder, "server.balancing");
 
         blackListRandomTickingBlocks = defineBoolean(builder, "server.balancing.random-ticking-blocks.blacklisted", false);
-        damageTools = defineBoolean(builder, "server.balancing.tools.damage", true);
-        enableChiselToolHarvestCheck = defineBoolean(builder, "server.balancing.chisel-tool.harvest-check.enabled", false);
-        enableChiselToolHarvestCheckTools = defineString(builder, "server.balancing.chisel-tool.harvest-check.tools", "");
-        enableToolHarvestLevels = defineBoolean(builder, "server.balancing.tools.harvest-levels.enabled", true);
-        enableBitLightSource = defineBoolean(builder, "server.balancing.bits.act-as-light-source", true);
-        bitLightPercentage = defineDouble(builder, "server.balancing.bits.light-percentage", 6.25);
         compatabilityMode = defineBoolean(builder, "server.balancing.compatibility-mode.enabled", false);
         bagStackSize = defineInteger(builder, "server.balancing.bag.stack-size", 512);
-        wrenchUses = defineInteger(builder, "server.balancing.wrench-uses", 1888);
-        fullBlockCrafting = defineBoolean(builder, "server.balancing.full-block-crafting.enabled", true);
-        requireBagSpace = defineBoolean(builder, "server.balancing.bag-space.required", true);
-        voidExcessBits = defineBoolean(builder, "server.balancing.bag-space.void-excess", true);
-        creativeClipboardSize = defineInteger(builder, "server.balancing.clipboard.size.creative", 10);
-        revertibleBlocks = defineList(builder, "server.balancing.revertible.blocks", Lists.newArrayList("*"), (o) -> o instanceof String);
 
         finishCategory(builder);
-        createCategory(builder, "server.performance");
 
-        lowMemoryMode = defineBoolean(builder, "server.performance.memory.low-mode.enabled", false);
+        createCategory(builder, "server.style");
+
+        bitSize = defineEnum(builder, "server.style.bitsize", StateEntrySize.ONE_SIXTEENTH);
 
         finishCategory(builder);
     }
