@@ -26,7 +26,7 @@ public class VoxelShapeManager implements IVoxelShapeManager
     private static final VoxelShapeManager INSTANCE = new VoxelShapeManager();
 
     private final Cache<Key, VoxelShape> cache = CacheBuilder.newBuilder()
-                                                                           .expireAfterAccess(1, TimeUnit.MINUTES)
+                                                                           .expireAfterAccess(5, TimeUnit.MINUTES)
                                                                            .build();
 
     private VoxelShapeManager()
@@ -107,14 +107,32 @@ public class VoxelShapeManager implements IVoxelShapeManager
             {
                 return false;
             }
+
             final Key key = (Key) o;
-            return Objects.equals(identifier, key.identifier) && Objects.equals(offset, key.offset) && Objects.equals(predicate, key.predicate);
+
+            if (simplify != key.simplify)
+            {
+                return false;
+            }
+            if (!Objects.equals(identifier, key.identifier))
+            {
+                return false;
+            }
+            if (!Objects.equals(offset, key.offset))
+            {
+                return false;
+            }
+            return Objects.equals(predicate, key.predicate);
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(identifier, offset, predicate);
+            int result = identifier != null ? identifier.hashCode() : 0;
+            result = 31 * result + (offset != null ? offset.hashCode() : 0);
+            result = 31 * result + (predicate != null ? predicate.hashCode() : 0);
+            result = 31 * result + (simplify ? 1 : 0);
+            return result;
         }
     }
 }

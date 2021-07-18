@@ -56,7 +56,14 @@ public enum ChiselRenderType
     public boolean isRequiredForRendering(
       final IStateEntryInfo stateEntryInfo )
     {
-        return this.type.isValidBlockState(stateEntryInfo.getState()) && RenderTypeLookup.canRenderInLayer(stateEntryInfo.getState(), this.layer);
+        if (!this.type.isValidBlockState(stateEntryInfo.getState()))
+            return false;
+
+        if (this.type.isFluid()) {
+            return RenderTypeLookup.canRenderInLayer(stateEntryInfo.getState().getFluidState(), this.layer);
+        }
+
+        return RenderTypeLookup.canRenderInLayer(stateEntryInfo.getState(), this.layer);
     }
 
     public static ChiselRenderType fromLayer(

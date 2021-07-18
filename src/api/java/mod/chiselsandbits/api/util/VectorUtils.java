@@ -142,4 +142,13 @@ public class VectorUtils
           Math.max(a.getZ(), b.getZ())
         );
     }
+
+    public static Vector3d makePositive(final Vector3d inBlockOffset)
+    {
+        return new Vector3d(
+          MathUtil.makePositive(inBlockOffset.getX()),
+          MathUtil.makePositive(inBlockOffset.getY()),
+          MathUtil.makePositive(inBlockOffset.getZ())
+        );
+    }
 }

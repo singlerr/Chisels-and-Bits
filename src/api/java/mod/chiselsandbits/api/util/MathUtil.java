@@ -38,4 +38,11 @@ public class MathUtil
 
         return r;
     }
+
+    public static double makePositive(double d) {
+        while(d < 0)
+            d++;
+
+        return d;
+    }
 }

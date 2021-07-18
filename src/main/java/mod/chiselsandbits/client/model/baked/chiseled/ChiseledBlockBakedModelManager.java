@@ -6,12 +6,17 @@ import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
+import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IBlockReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,6 +27,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 public class ChiseledBlockBakedModelManager
 {
@@ -62,7 +68,32 @@ public class ChiseledBlockBakedModelManager
         final Key key = new Key(accessor.createNewShapeIdentifier(), primaryState, renderType, neighborhoodMap);
         try
         {
-            return cache.get(key, () -> new ChiseledBlockBakedModel(primaryState, renderType, accessor));
+            return cache.get(key, () -> new ChiseledBlockBakedModel(
+              primaryState,
+              renderType,
+              accessor,
+              targetOffset -> {
+                  if (blockReader == null || position == null)
+                      return Blocks.AIR.getDefaultState();
+
+                  final Vector3d targetPositionVector = Vector3d.copy(position).add(targetOffset);
+                  final BlockPos targetPosition = new BlockPos(targetPositionVector);
+
+                  final TileEntity tileEntity = blockReader.getTileEntity(targetPosition);
+                  if (tileEntity instanceof IMultiStateBlockEntity) {
+                      final IMultiStateBlockEntity blockEntity = (IMultiStateBlockEntity) tileEntity;
+
+                      final Vector3d inBlockOffset = targetPositionVector.subtract(Vector3d.copy(targetPosition));
+                      final Vector3d inBlockOffsetTarget = VectorUtils.makePositive(inBlockOffset);
+
+                      return blockEntity.getInAreaTarget(inBlockOffsetTarget)
+                        .map(IStateEntryInfo::getState)
+                        .orElse(Blocks.AIR.getDefaultState());
+                  }
+
+                  return blockReader.getBlockState(targetPosition);
+              }
+            ));
         }
         catch (ExecutionException e)
         {

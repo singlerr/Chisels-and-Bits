@@ -41,7 +41,12 @@ import java.util.function.Function;
 @SuppressWarnings("deprecation")
 public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 {
-    public static final ChiseledBlockBakedModel EMPTY = new ChiseledBlockBakedModel(Blocks.AIR.getDefaultState(), ChiselRenderType.SOLID, null);
+    public static final ChiseledBlockBakedModel EMPTY = new ChiseledBlockBakedModel(
+      Blocks.AIR.getDefaultState(),
+      ChiselRenderType.SOLID,
+      null,
+      vector3d -> Blocks.AIR.getDefaultState()
+    );
 
     private final static int[][]     faceVertMap      = new int[6][4];
     private final static float[][][] quadMapping      = new float[6][4][6];
@@ -173,7 +178,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
     public ChiseledBlockBakedModel(
       final BlockState state,
       final ChiselRenderType layer,
-      final IAreaAccessor data)
+      final IAreaAccessor data,
+      final Function<Vector3d, BlockState> neighborStateSupplier)
     {
         chiselRenderType = layer;
         IBakedModel originalModel = null;
@@ -188,7 +194,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
             if (layer.isRequiredForRendering(data))
             {
                 final ChiseledBlockModelBuilder builder = new ChiseledBlockModelBuilder();
-                generateFaces(builder, data);
+                generateFaces(builder, data, neighborStateSupplier);
 
                 // convert from builder to final storage.
                 up = builder.getSide(Direction.UP);
@@ -221,7 +227,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 
     private void generateFaces(
       final ChiseledBlockModelBuilder builder,
-      final IAreaAccessor accessor)
+      final IAreaAccessor accessor,
+      final Function<Vector3d, BlockState> neighborStateSupplier)
     {
         final List<List<FaceRegion>> resultingFaces = new ArrayList<>();
 
@@ -231,7 +238,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
           IPositionMutator.xzy(),
           X_Faces,
           Vector3d::getX,
-          Vector3d::getZ
+          Vector3d::getZ,
+          neighborStateSupplier
         );
         processFaces(
           accessor,
@@ -239,7 +247,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
           IPositionMutator.yzx(),
           Y_Faces,
           Vector3d::getY,
-          Vector3d::getZ
+          Vector3d::getZ,
+          neighborStateSupplier
         );
         processFaces(
           accessor,
@@ -247,7 +256,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
           IPositionMutator.zyx(),
           Z_Faces,
           Vector3d::getZ,
-          Vector3d::getY
+          Vector3d::getY,
+          neighborStateSupplier
         );
 
         // re-usable float[]'s to minimize garbage cleanup.
@@ -407,7 +417,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
       final IPositionMutator analysisOrder,
       final Direction[] potentialDirections,
       final Function<Vector3d, Double> regionBuildingAxisValueExtractor,
-      final Function<Vector3d, Double> faceBuildingAxisValueExtractor
+      final Function<Vector3d, Double> faceBuildingAxisValueExtractor,
+      final Function<Vector3d, BlockState> neighborStateSupplier
     ) {
         final ArrayList<FaceRegion> regions = Lists.newArrayList();
         final ICullTest test = chiselRenderType.getTest();
@@ -437,7 +448,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                     accessor,
                     facing,
                     stateEntryInfo,
-                    test
+                    test,
+                    neighborStateSupplier
                   );
 
                   if (!potentialRegionData.isPresent()) {
@@ -467,7 +479,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
       final IAreaAccessor blob,
       final Direction facing,
       final IStateEntryInfo target,
-      final ICullTest test)
+      final ICullTest test,
+      final Function<Vector3d, BlockState> neighborStateSupplier)
     {
         return Optional.of(target)
           .filter(stateEntryInfo -> {
@@ -479,7 +492,9 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
               final Vector3d offsetTarget = stateEntryInfo.getStartPoint().add(faceOffSet);
 
               if (!blob.isInside(offsetTarget)) {
-                  return Optional.of(Blocks.AIR.getDefaultState())
+                  final BlockState externalNeighborState = neighborStateSupplier.apply(offsetTarget);
+
+                  return Optional.of(externalNeighborState)
                            .map(neighborState -> test.isVisible(stateEntryInfo.getState(), neighborState))
                            .orElseGet(() -> !stateEntryInfo.getState().isAir(new SingleBlockBlockReader(stateEntryInfo.getState()), BlockPos.ZERO));
               }

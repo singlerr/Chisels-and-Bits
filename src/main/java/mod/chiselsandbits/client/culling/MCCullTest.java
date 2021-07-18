@@ -30,10 +30,37 @@ public class MCCullTest implements ICullTest
 			return false;
 		}
 
-		if ( a.getBlock() instanceof IFluidBlock || a.getBlock() instanceof FlowingFluidBlock)
+		if (a.getBlock() instanceof IFluidBlock && b.getBlock() instanceof IFluidBlock)
 		{
-			return true;
+		    final IFluidBlock aFluidBlock = (IFluidBlock) a.getBlock();
+		    final IFluidBlock bFluidBlock = (IFluidBlock) b.getBlock();
+
+            return aFluidBlock.getFluid() != bFluidBlock.getFluid();
 		}
+
+        if (a.getBlock() instanceof FlowingFluidBlock && b.getBlock() instanceof FlowingFluidBlock)
+        {
+            final FlowingFluidBlock aFluidBlock = (FlowingFluidBlock) a.getBlock();
+            final FlowingFluidBlock bFluidBlock = (FlowingFluidBlock) b.getBlock();
+
+            return aFluidBlock.getFluid() != bFluidBlock.getFluid();
+        }
+
+        if (a.getBlock() instanceof IFluidBlock && b.getBlock() instanceof FlowingFluidBlock)
+        {
+            final IFluidBlock aFluidBlock = (IFluidBlock) a.getBlock();
+            final FlowingFluidBlock bFluidBlock = (FlowingFluidBlock) b.getBlock();
+
+            return aFluidBlock.getFluid() != bFluidBlock.getFluid();
+        }
+
+        if (a.getBlock() instanceof FlowingFluidBlock && b.getBlock() instanceof IFluidBlock)
+        {
+            final FlowingFluidBlock aFluidBlock = (FlowingFluidBlock) a.getBlock();
+            final IFluidBlock bFluidBlock = (IFluidBlock) b.getBlock();
+
+            return aFluidBlock.getFluid() != bFluidBlock.getFluid();
+        }
 
 		if (a.isAir() && !b.isAir())
 		    return false;

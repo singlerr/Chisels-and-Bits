@@ -16,4 +16,8 @@ public enum VoxelType
     public boolean isValidBlockState(final BlockState blockState) {
         return this.isValidBlockStateCallback.test(blockState);
     }
+
+    public boolean isFluid() {
+        return this == FLUID;
+    }
 }
