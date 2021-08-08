@@ -1415,6 +1415,14 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
             final Identifier that = (Identifier) o;
             return Arrays.equals(identifyingPayload, that.identifyingPayload);
         }
+
+        @Override
+        public String toString()
+        {
+            return "Identifier{" +
+                     "identifyingPayload=" + Arrays.toString(identifyingPayload) +
+                     '}';
+        }
     }
 
     private static final class BatchMutationLock implements IBatchMutation

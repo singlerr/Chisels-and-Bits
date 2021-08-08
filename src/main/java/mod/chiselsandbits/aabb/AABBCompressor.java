@@ -4,6 +4,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
@@ -95,7 +97,11 @@ public class AABBCompressor
     {
         for (final Direction offsetDirection :Direction.values())
         {
-            final Vector3d neighborCenter = centerPoint.add(Vector3d.copy(offsetDirection.getDirectionVec()));
+            final Vector3d neighborCenter = centerPoint.add(Vector3d.copy(offsetDirection.getDirectionVec()).mul(
+              StateEntrySize.current().getSizePerBit(),
+              StateEntrySize.current().getSizePerBit(),
+              StateEntrySize.current().getSizePerBit()
+              ));
             final Optional<AxisAlignedBB> potentialNeighborBox = state.getBoxFor(neighborCenter);
 
             if (potentialNeighborBox.isPresent()) {

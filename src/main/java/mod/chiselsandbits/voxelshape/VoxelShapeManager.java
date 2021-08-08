@@ -97,6 +97,17 @@ public class VoxelShapeManager implements IVoxelShapeManager
         }
 
         @Override
+        public String toString()
+        {
+            return "Key{" +
+                     "identifier=" + identifier.toString() +
+                     ", offset=" + offset +
+                     ", predicate=" + predicate +
+                     ", simplify=" + simplify +
+                     '}';
+        }
+
+        @Override
         public boolean equals(final Object o)
         {
             if (this == o)

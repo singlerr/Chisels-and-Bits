@@ -396,7 +396,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     {
         final VoxelShape shape = getBlockEntityFromOrThrow(worldIn, pos)
                                    .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity,
-                                     areaAccessor -> new CollisionPredicate(pos, worldIn)))
+                                     areaAccessor -> new CollisionPredicate(pos.toImmutable(), worldIn)))
                                    .orElse(VoxelShapes.empty());
 
         return shape.isEmpty() ? VoxelShapes.fullCube() : shape;
@@ -476,16 +476,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
         @Override
         public boolean test(final IStateEntryInfo stateEntryInfo)
         {
-            return !stateEntryInfo.getState().getBlockState().getCollisionShape(
-              new SingleBlockBlockReader(
-                stateEntryInfo.getState(),
-                stateEntryInfo.getState().getBlock(),
-                pos,
-                reader
-              ),
-              pos
-            )
-            .isEmpty();
+            return stateEntryInfo.getState().getFluidState().isEmpty() && !stateEntryInfo.getState().isAir();
         }
 
         @Override
@@ -523,8 +514,17 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
         public int hashCode()
         {
             int result = pos != null ? pos.hashCode() : 0;
-            result = 31 * result + (reader != null ? (reader instanceof World ? ((World) reader).getDimensionKey().getRegistryName().hashCode() : reader.hashCode()) : 0);
+            result = 31 * result + (reader != null ? (reader instanceof World ? ((World) reader).getDimensionKey().getLocation().hashCode() : reader.hashCode()) : 0);
             return result;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "CollisionPredicate{" +
+                     "pos=" + pos +
+                     ", reader=" + (reader != null ? (reader instanceof World ? ((World) reader).getDimensionKey().getLocation().toString() : reader.toString()) : "NULL") +
+                     '}';
         }
     }
 }
