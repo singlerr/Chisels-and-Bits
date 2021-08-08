@@ -280,7 +280,7 @@ jar {
         attributes([
                 'Maven-Artifact': "${project.group}:${project.archivesBaseName}:${project.version}:universal",
                 'Timestamp': System.currentTimeMillis(),
-                "Specification-Title": "minecolonies",
+                "Specification-Title": "Chisels & Bits",
                 "Specification-Vendor": "ldtteam",
                 "Specification-Version": "1", // We are version 1 of ourselves
                 "Implementation-Title": project.name,
