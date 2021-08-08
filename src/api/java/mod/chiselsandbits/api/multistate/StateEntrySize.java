@@ -28,6 +28,9 @@ public enum StateEntrySize
     ONE_HALF(2);
 
     public static StateEntrySize current() {
+        if (IChiselsAndBitsAPI.getInstance() == null)
+            return StateEntrySize.ONE_SIXTEENTH;
+
         return IChiselsAndBitsAPI.getInstance().getStateEntrySize();
     }
 
