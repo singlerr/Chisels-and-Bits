@@ -21,3 +21,10 @@ The scan for compatible blocks automatically also detects all mod blocks which a
 If a mod maker wants to control the selection procedure for his or her blocks, he can do so, by adding them to either one of two tags:
 - `chiselsandbits:chiselable/forced` to force the block to be chiselable (handy for glass like blocks)
 - `chiselsandbits:chiselable/blocked` to prevent a block that is normally chiselable to be chiseled.
+
+### Rebuild:
+As of the 1. of August 2021 this project underwent a massive rebuild and this means that not all features, that you as a player know from older versions, are part of this newly rebuild version.
+Additionally, this means that older versions of the mod are not supported anymore, even if they are for an active LTS version of Minecraft.
+Sadly we do not have the time or energy to support all the versions we would want.
+
+If you are missing a feature on the new rebuild version, please open a support ticket, after you have searched the already existing issues. Thanks. 
