@@ -2,57 +2,30 @@
   "recipes": [
     {
       "firstRow": {
-        "firstItem": [
-          "chiselsandbits/chiseled_printer",
-          "chiselsandbits/chisel_diamond"
-        ],
+        "firstItem": [],
         "secondItem": [
-          "chiselsandbits/chisel_stone",
-          "chiselsandbits/chisel_diamond",
-          "chiselsandbits/chisel_iron",
-          "chiselsandbits/chisel_netherite",
-          "chiselsandbits/chisel_gold"
-        ],
-        "thirdItem": [
-          "chiselsandbits/chiseled_printer",
           "chiselsandbits/chisel_diamond"
-        ]
+        ],
+        "thirdItem": []
       },
       "secondRow": {
         "firstItem": [
-          "chiselsandbits/chiseled_printer",
-          "chiselsandbits/chisel_diamond"
+          "minecraft/smooth_stone_slab"
         ],
-        "secondItem": [
-          "chiselsandbits/chiseled_printer",
-          "chiselsandbits/chisel_diamond"
-        ],
+        "secondItem": [],
         "thirdItem": [
-          "chiselsandbits/chiseled_printer",
-          "chiselsandbits/chisel_diamond"
+          "minecraft/smooth_stone_slab"
         ]
       },
       "thirdRow": {
         "firstItem": [
-          "chiselsandbits/chisel_stone",
-          "chiselsandbits/chisel_diamond",
-          "chiselsandbits/chisel_iron",
-          "chiselsandbits/chisel_netherite",
-          "chiselsandbits/chisel_gold"
+          "chiselsandbits/chisel_diamond"
         ],
         "secondItem": [
-          "chiselsandbits/chisel_stone",
-          "chiselsandbits/chisel_diamond",
-          "chiselsandbits/chisel_iron",
-          "chiselsandbits/chisel_netherite",
-          "chiselsandbits/chisel_gold"
+          "chiselsandbits/chisel_diamond"
         ],
         "thirdItem": [
-          "chiselsandbits/chisel_stone",
-          "chiselsandbits/chisel_diamond",
-          "chiselsandbits/chisel_iron",
-          "chiselsandbits/chisel_netherite",
-          "chiselsandbits/chisel_gold"
+          "chiselsandbits/chisel_diamond"
         ]
       },
       "products": [

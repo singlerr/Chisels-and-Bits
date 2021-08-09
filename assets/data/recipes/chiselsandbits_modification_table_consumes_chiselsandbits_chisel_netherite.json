@@ -3,47 +3,101 @@
     {
       "firstRow": {
         "firstItem": [
-          "chiselsandbits/modification_table",
-          "chiselsandbits/chisel_netherite"
+          "minecraft/oak_slab",
+          "minecraft/warped_slab",
+          "minecraft/acacia_slab",
+          "minecraft/birch_slab",
+          "minecraft/crimson_slab",
+          "minecraft/spruce_slab",
+          "minecraft/jungle_slab",
+          "minecraft/dark_oak_slab"
         ],
         "secondItem": [
-          "chiselsandbits/chisel_stone",
-          "chiselsandbits/chisel_diamond",
-          "chiselsandbits/chisel_iron",
-          "chiselsandbits/chisel_netherite",
-          "chiselsandbits/chisel_gold"
+          "chiselsandbits/chisel_netherite"
         ],
         "thirdItem": [
-          "chiselsandbits/modification_table",
-          "chiselsandbits/chisel_netherite"
+          "minecraft/oak_slab",
+          "minecraft/warped_slab",
+          "minecraft/acacia_slab",
+          "minecraft/birch_slab",
+          "minecraft/crimson_slab",
+          "minecraft/spruce_slab",
+          "minecraft/jungle_slab",
+          "minecraft/dark_oak_slab"
         ]
       },
       "secondRow": {
         "firstItem": [
-          "chiselsandbits/modification_table",
-          "chiselsandbits/chisel_netherite"
+          "minecraft/iron_nugget"
         ],
         "secondItem": [
-          "chiselsandbits/modification_table",
-          "chiselsandbits/chisel_netherite"
+          "minecraft/dark_oak_wood",
+          "minecraft/birch_wood",
+          "minecraft/stripped_crimson_hyphae",
+          "minecraft/spruce_log",
+          "minecraft/crimson_hyphae",
+          "minecraft/warped_stem",
+          "minecraft/stripped_birch_log",
+          "minecraft/stripped_birch_wood",
+          "minecraft/stripped_spruce_log",
+          "minecraft/stripped_warped_stem",
+          "minecraft/stripped_acacia_wood",
+          "minecraft/stripped_spruce_wood",
+          "minecraft/warped_hyphae",
+          "minecraft/jungle_log",
+          "minecraft/jungle_wood",
+          "minecraft/stripped_jungle_log",
+          "minecraft/spruce_wood",
+          "minecraft/stripped_jungle_wood",
+          "minecraft/stripped_warped_hyphae",
+          "minecraft/oak_log",
+          "minecraft/crimson_stem",
+          "minecraft/stripped_dark_oak_log",
+          "minecraft/dark_oak_log",
+          "minecraft/oak_wood",
+          "minecraft/stripped_dark_oak_wood",
+          "minecraft/stripped_oak_log",
+          "minecraft/acacia_wood",
+          "minecraft/birch_log",
+          "minecraft/acacia_log",
+          "minecraft/stripped_oak_wood",
+          "minecraft/stripped_acacia_log",
+          "minecraft/stripped_crimson_stem"
         ],
         "thirdItem": [
-          "chiselsandbits/modification_table",
-          "chiselsandbits/chisel_netherite"
+          "minecraft/iron_nugget"
         ]
       },
       "thirdRow": {
         "firstItem": [
-          "chiselsandbits/modification_table",
-          "chiselsandbits/chisel_netherite"
+          "minecraft/oak_planks",
+          "minecraft/spruce_planks",
+          "minecraft/birch_planks",
+          "minecraft/crimson_planks",
+          "minecraft/dark_oak_planks",
+          "minecraft/jungle_planks",
+          "minecraft/warped_planks",
+          "minecraft/acacia_planks"
         ],
         "secondItem": [
-          "chiselsandbits/modification_table",
-          "chiselsandbits/chisel_netherite"
+          "minecraft/oak_planks",
+          "minecraft/spruce_planks",
+          "minecraft/birch_planks",
+          "minecraft/crimson_planks",
+          "minecraft/dark_oak_planks",
+          "minecraft/jungle_planks",
+          "minecraft/warped_planks",
+          "minecraft/acacia_planks"
         ],
         "thirdItem": [
-          "chiselsandbits/modification_table",
-          "chiselsandbits/chisel_netherite"
+          "minecraft/oak_planks",
+          "minecraft/spruce_planks",
+          "minecraft/birch_planks",
+          "minecraft/crimson_planks",
+          "minecraft/dark_oak_planks",
+          "minecraft/jungle_planks",
+          "minecraft/warped_planks",
+          "minecraft/acacia_planks"
         ]
       },
       "products": [

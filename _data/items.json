@@ -64,7 +64,7 @@
     "name": "Golden Chisel",
     "url": "golden-chisel",
     "features": [
-      "Can chisel up to 32 bits by default",
+      "Can chisel up to 32 blocks by default",
       "Allows removing bits from blocks in the world.",
       "Has various modes, single bit, line, plane, and more.",
       "Can harvest any material that requires a gold pick."
@@ -97,7 +97,7 @@
     "name": "Iron Chisel",
     "url": "iron-chisel",
     "features": [
-      "Can chisel up to 250 bits by default",
+      "Can chisel up to 250 blocks by default",
       "Allows removing bits from blocks in the world.",
       "Has various modes, single bit, line, plane, and more.",
       "Can harvest any material that requires a iron pick."
@@ -130,7 +130,7 @@
     "name": "Stone Chisel",
     "url": "stone-chisel",
     "features": [
-      "Can chisel up to 131 bits by default",
+      "Can chisel up to 131 blocks by default",
       "Allows removing bits from blocks in the world.",
       "Has various modes, single bit, line, plane, and more.",
       "Can harvest any material that requires a stone pick."
@@ -163,7 +163,7 @@
     "name": "Netherite Chisel",
     "url": "netherite-chisel",
     "features": [
-      "Can chisel up to 2031 bits by default",
+      "Can chisel up to 2031 blocks by default",
       "Allows removing bits from blocks in the world.",
       "Has various modes, single bit, line, plane, and more.",
       "Can harvest any material that requires a stone pick."
@@ -179,7 +179,7 @@
       }
     ],
     "version": "1.0",
-    "icon": "chisel_stone.png",
+    "icon": "chisel_netherite.png",
     "recipes": [
       "chiselsandbits_chisel_stone_produces_chiselsandbits_chisel_stone"
     ],
@@ -239,7 +239,7 @@
   },
 
   {
-    "id": "tape_measure",
+    "id": "measuring_tape",
     "name": "Tape Measure",
     "url": "tape-measure",
     "features": [
@@ -263,7 +263,7 @@
       }
     ],
     "version": "1.0",
-    "icon": "tape_measure.png",
+    "icon": "measuring_tape.png",
     "recipes": [
       "chiselsandbits_measuring_tape_produces_chiselsandbits_measuring_tape"
     ],
@@ -282,6 +282,48 @@
     "icon": "magnifying_glass.png",
     "recipes": [
       "chiselsandbits_magnifying_glass_produces_chiselsandbits_magnifying_glass"
+    ],
+    "usages": []
+  },
+
+  {
+    "id": "quill",
+    "name": "Quill",
+    "url": "quill",
+    "features": [
+      "Used to write down patterns on a piece of paper."
+    ],
+    "controls": [
+      {
+        "button": "Right Click /w a piece of Paper in other Hand",
+        "action": "Writes down the pattern of the chiseled block you are looking at."
+      }
+    ],
+    "version": "1.0",
+    "icon": "quill.png",
+    "recipes": [
+      "chiselsandbits_quill_produces_chiselsandbits_quill"
+    ],
+    "usages": []
+  },
+
+  {
+    "id": "sealant",
+    "name": "Sealant",
+    "url": "sealant",
+    "features": [
+      "Used to seal your single use pattern so that you can reuse the resulting pattern."
+    ],
+    "controls": [
+      {
+        "button": "Right Click /w Single Use Pattern in other Hand",
+        "action": "Seals the pattern in your other hand."
+      }
+    ],
+    "version": "1.0",
+    "icon": "sealant.png",
+    "recipes": [
+      "chiselsandbits_sealant_produces_chiselsandbits_sealant"
     ],
     "usages": []
   }

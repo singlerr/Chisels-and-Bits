@@ -28,12 +28,12 @@
           "minecraft/black_stained_glass",
           "minecraft/red_stained_glass"
         ],
-        "thirdItem": [
-          "minecraft/stick"
-        ]
+        "thirdItem": []
       },
       "secondRow": {
-        "firstItem": [],
+        "firstItem": [
+          "minecraft/stick"
+        ],
         "secondItem": [],
         "thirdItem": []
       },

@@ -3,25 +3,32 @@
     {
       "firstRow": {
         "firstItem": [
-          "chiselsandbits/chisel_stone",
-          "chiselsandbits/chisel_diamond",
-          "chiselsandbits/chisel_iron",
-          "chiselsandbits/chisel_netherite",
-          "chiselsandbits/chisel_gold"
+          "chiselsandbits/chisel_stone"
         ],
         "secondItem": [
-          "chiselsandbits/magnifying_glass",
-          "chiselsandbits/chisel_stone"
+          "minecraft/light_gray_stained_glass",
+          "minecraft/gray_stained_glass",
+          "minecraft/green_stained_glass",
+          "minecraft/orange_stained_glass",
+          "minecraft/brown_stained_glass",
+          "minecraft/magenta_stained_glass",
+          "minecraft/glass",
+          "minecraft/pink_stained_glass",
+          "minecraft/blue_stained_glass",
+          "minecraft/lime_stained_glass",
+          "minecraft/purple_stained_glass",
+          "minecraft/cyan_stained_glass",
+          "minecraft/yellow_stained_glass",
+          "minecraft/white_stained_glass",
+          "minecraft/light_blue_stained_glass",
+          "minecraft/black_stained_glass",
+          "minecraft/red_stained_glass"
         ],
-        "thirdItem": [
-          "chiselsandbits/magnifying_glass",
-          "chiselsandbits/chisel_stone"
-        ]
+        "thirdItem": []
       },
       "secondRow": {
         "firstItem": [
-          "chiselsandbits/magnifying_glass",
-          "chiselsandbits/chisel_stone"
+          "minecraft/stick"
         ],
         "secondItem": [],
         "thirdItem": []

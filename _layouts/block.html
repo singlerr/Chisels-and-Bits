@@ -5,7 +5,7 @@
 {% for block in site.data.blocks %}{% if page.block == block.id %}
 		
 	<div id="blockHeader">
-		<img class="block_icon" alt="{{ block.name }}" src="{{ site.root }}/images/blocks/{{ block.icon }}" />
+		<img class="block_icon" alt="{{ block.name }}" src="{{ site.root }}/assets/images/items/chiselsandbits/{{ block.icon }}" />
 		<h1>{{ block.name }}</h1>
 		<h6>First Seen in version {{ block.version }}</h6>
 	</div>
@@ -41,7 +41,7 @@
 	<h2 class="section">Recipes</h2>
 	<ul class="recipes">
 		{% for recipe in block.recipes %}
-			<li><img class="recipe" src="{{ site.root }}/images/recipes/{{ recipe }}" /></li>
+        <recipe>{{ recipe }}</recipe>
 		{% endfor %}
 	</ul>
 </div>
@@ -52,7 +52,7 @@
 	<h2 class="section">Usages</h2>
 	<ul class="usages">
 		{% for usage in block.usages %}
-			<li><img class="recipe" src="{{ site.root }}/images/usages/{{ usage }}" /></li>
+        <recipe>{{ usage }}</recipe>
 		{% endfor %}
 	</ul>
 </div>
