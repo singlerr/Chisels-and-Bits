@@ -1,6 +1,6 @@
 ![Logo](https://raw.githubusercontent.com/ChiselsAndBits/Chisels-and-Bits/version/latest/src/main/resources/assets/chiselsandbits/textures/logo.png "Logo")
 
-| [Discord](https://discord.chisels-and-bits.com) | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/chisels-bits)  | [Releases](https://www.curseforge.com/minecraft/mc-mods/chisels-bits/files) | [Code](https://github.com/ChiselsAndBits/Chisels-and-Bits/) | [Issues](https://github.com/ChiselsAndBits/Chisels-and-Bits/issues) | [Pull Requests](https://github.com/ChiselsAndBits/Chisels-and-Bits/pulls) | [Patreon](https://www.patreon.com/chisels_and_bits) |
+| [Discord](https://discord.chisels-and-bits.com) | [Wiki](https://wiki.chisels-and-bits.com)  | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/chisels-bits)  | [Releases](https://www.curseforge.com/minecraft/mc-mods/chisels-bits/files) | [Code](https://github.com/ChiselsAndBits/Chisels-and-Bits/) | [Issues](https://github.com/ChiselsAndBits/Chisels-and-Bits/issues) | [Pull Requests](https://github.com/ChiselsAndBits/Chisels-and-Bits/pulls) | [Patreon](https://www.patreon.com/chisels_and_bits) |
 
 ### Minecraft mod:
 Chisels and Bits is a Minecraft Mod which allows you to cut up the large blocks that make up your world, and place the little cuts back down.
