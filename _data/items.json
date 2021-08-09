@@ -31,7 +31,7 @@
     "name": "Diamond Chisel",
     "url": "diamond-chisel",
     "features": [
-      "Can chisel up to 1561 bits by default",
+      "Can chisel up to 1561 blocks by default",
       "Allows removing bits from blocks in the world.",
       "Has various modes, single bit, line, plane, and more.",
       "Can harvest any material that requires a diamond pick."
