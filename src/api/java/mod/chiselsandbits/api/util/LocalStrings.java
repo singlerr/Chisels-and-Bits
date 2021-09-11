@@ -116,7 +116,10 @@ public enum LocalStrings
     LongChiselStationHelp("chisel.station.help.long"),
 
     ModificationTableHelp("modification.table.help"),
-    LongModificationTableHelp("modification.table.help.long");
+    LongModificationTableHelp("modification.table.help.long"),
+
+    CommandGiveErrorBlockStateNotChiselable("command.give.blockstate.not-chiselable"),
+    CommandFillCompleted("command.fill.completed");
 
     private final String string;
 

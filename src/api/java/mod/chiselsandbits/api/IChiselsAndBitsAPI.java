@@ -15,6 +15,7 @@ import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
+import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import net.minecraftforge.registries.IForgeRegistry;
@@ -162,6 +163,14 @@ public interface IChiselsAndBitsAPI
     default StateEntrySize getStateEntrySize() {
         return getConfiguration().getServer().bitSize.get();
     }
+
+    /**
+     * The profiling manager, allows for the profiling of operations related C&B.
+     *
+     * @return The profiling manager.
+     */
+    @NotNull
+    IProfilingManager getProfilingManager();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

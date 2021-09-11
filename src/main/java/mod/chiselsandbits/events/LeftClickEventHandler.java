@@ -2,7 +2,9 @@ package mod.chiselsandbits.events;
 
 import mod.chiselsandbits.api.item.click.ILeftClickControllingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
+import mod.chiselsandbits.api.profiling.IProfiler;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.profiling.ProfilingManager;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -19,11 +21,14 @@ public class LeftClickEventHandler
     {
         final ItemStack itemStack = event.getItemStack();
         if (itemStack.getItem() instanceof ILeftClickControllingItem) {
+            ProfilingManager.getInstance().withProfiler(p -> p.startSection("Left click processing"));
+
             final ILeftClickControllingItem leftClickControllingItem = (ILeftClickControllingItem) itemStack.getItem();
 
             if (!leftClickControllingItem.canUse(event.getPlayer())) {
                 event.setCanceled(true);
                 event.setUseItem(Event.Result.DENY);
+                ProfilingManager.getInstance().withProfiler(IProfiler::endSection);
                 return;
             }
 
@@ -44,6 +49,8 @@ public class LeftClickEventHandler
             }
 
             event.setUseItem(processingState.getNextState());
+
+            ProfilingManager.getInstance().withProfiler(IProfiler::endSection);
         }
     }
 }

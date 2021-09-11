@@ -1,5 +1,7 @@
 package mod.chiselsandbits.network.handlers;
 
+import mod.chiselsandbits.api.profiling.IProfilerSection;
+import mod.chiselsandbits.profiling.ProfilingManager;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundNBT;
@@ -20,13 +22,24 @@ public final class ClientPacketHandlers
         if (Minecraft.getInstance().world != null) {
             final TileEntity tileEntity = Minecraft.getInstance().world.getTileEntity(blockPos);
             if (tileEntity != null && tileEntity.getWorld() != null) {
-                tileEntity.handleUpdateTag(Minecraft.getInstance().world.getBlockState(blockPos), updateTag);
-                tileEntity.getWorld().notifyBlockUpdate(
-                  tileEntity.getPos(),
-                  Blocks.AIR.getDefaultState(),
-                  tileEntity.getBlockState(),
-                  Constants.BlockFlags.DEFAULT_AND_RERENDER
-                );
+
+                try(IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Handling tile entity update packet"))
+                {
+                    try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Updating tile entity"))
+                    {
+                        tileEntity.handleUpdateTag(Minecraft.getInstance().world.getBlockState(blockPos), updateTag);
+                    }
+
+                    try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Scheduling refresh"))
+                    {
+                        tileEntity.getWorld().notifyBlockUpdate(
+                          tileEntity.getPos(),
+                          Blocks.AIR.getDefaultState(),
+                          tileEntity.getBlockState(),
+                          Constants.BlockFlags.DEFAULT_AND_RERENDER
+                        );
+                    }
+                }
             }
         }
     }

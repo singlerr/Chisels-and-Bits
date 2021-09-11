@@ -36,6 +36,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -334,7 +335,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         final Material blockMaterial = primaryState.getMaterial();
         final Material conversionMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(blockMaterial);
 
-        final RegistryObject<ChiseledBlockItem> convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(conversionMaterial);
+        final Supplier<ChiseledBlockItem> convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.getOrDefault(conversionMaterial, ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(Material.ROCK));
         final ChiseledBlockItem chiseledBlockItem = convertedItemProvider.get();
 
         return new SingleBlockMultiStateItemStack(chiseledBlockItem, ChunkSectionUtils.cloneSection(this.lazyChunkSection));

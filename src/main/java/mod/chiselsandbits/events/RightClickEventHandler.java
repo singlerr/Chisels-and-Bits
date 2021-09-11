@@ -2,7 +2,9 @@ package mod.chiselsandbits.events;
 
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.click.IRightClickControllingItem;
+import mod.chiselsandbits.api.profiling.IProfiler;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModBlocks;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -25,11 +27,13 @@ public class RightClickEventHandler
 
         final ItemStack itemStack = event.getItemStack();
         if (itemStack.getItem() instanceof IRightClickControllingItem) {
+            ProfilingManager.getInstance().withProfiler(p -> p.startSection("Right click processing"));
             final IRightClickControllingItem rightClickControllingItem = (IRightClickControllingItem) itemStack.getItem();
 
             if (!rightClickControllingItem.canUse(event.getPlayer())) {
                 event.setCanceled(true);
                 event.setUseItem(Event.Result.DENY);
+                ProfilingManager.getInstance().withProfiler(IProfiler::endSection);
                 return;
             }
 
@@ -51,6 +55,7 @@ public class RightClickEventHandler
             }
 
             event.setUseItem(processingState.getNextState());
+            ProfilingManager.getInstance().withProfiler(IProfiler::endSection);
         }
     }
 }
