@@ -25,11 +25,17 @@ public enum StateEntrySize
     /**
      * 2 Bits per block.
      */
-    ONE_HALF(2);
+    ONE_HALF(2),
+
+    /**
+     * 1 Bit per block side.
+     * Generally only used for testing.
+     */
+    ONE(1);
 
     public static StateEntrySize current() {
         if (IChiselsAndBitsAPI.getInstance() == null)
-            return StateEntrySize.ONE_SIXTEENTH;
+            return StateEntrySize.ONE;
 
         return IChiselsAndBitsAPI.getInstance().getStateEntrySize();
     }

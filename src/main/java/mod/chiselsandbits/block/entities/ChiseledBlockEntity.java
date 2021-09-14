@@ -289,6 +289,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
 
             super.markDirty();
 
+            getWorld().getLightManager().checkBlock(getPos());
             getWorld().notifyBlockUpdate(getPos(), Blocks.AIR.getDefaultState(), getBlockState(), Constants.BlockFlags.DEFAULT);
 
             ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
