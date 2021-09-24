@@ -39,7 +39,7 @@ public class AABBCompressor
         //Y == FACE
 
         accessor.streamWithPositionMutator(IPositionMutator.xyz())
-          .forEachOrdered(stateEntryInfo -> {
+          .forEach(stateEntryInfo -> {
               if (state.getRegionBuildingAxisValue() != stateEntryInfo.getStartPoint().getX()) {
                   state.setCurrentBox(null, null);
               }

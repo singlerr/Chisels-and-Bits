@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.chiseling;
 
+import mod.chiselsandbits.api.chiseling.metadata.IMetadataKey;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateAccessor;
@@ -178,4 +179,26 @@ public interface IChiselingContext extends IStateAccessor
      * @return An optional, potentially containing the filter.
      */
     Optional<Function<IAreaAccessor, Predicate<IStateEntryInfo>>> getStateFilter();
+
+    /**
+     * Allows the storage of metadata on the context.
+     * @param key The key of the metadata.
+     * @param <T> The type of the metadata.
+     * @return An optional possibly containing the stored metadata, or empty if no metadata is stored with the given key.
+     */
+    <T> Optional<T> getMetadata(IMetadataKey<T> key);
+
+    /**
+     * Removes the metadata from the context.
+     * @param key The key for the metadata.
+     */
+    void removeMetadata(IMetadataKey<?> key);
+
+    /**
+     * Allows for the setting of the metadata on the context.
+     * @param key The key of the metadata.
+     * @param value The value of the metadata.
+     * @param <T> The type of the metadata.
+     */
+    <T> void setMetadata(IMetadataKey<T> key, T value);
 }

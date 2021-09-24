@@ -29,7 +29,7 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
     private static final float BIT_BEGIN = 6.0f;
     private static final float BIT_END = 10.0f;
 
-    final List<BakedQuad> generic = new ArrayList<BakedQuad>( 6 );
+    final List<BakedQuad> generic = new ArrayList<>(6);
 
     public BitBlockBakedModel(
       final BlockState blockState )
@@ -45,7 +45,7 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
         {
             for ( final RenderType layer : RenderType.getBlockRenderTypes() )
             {
-                final ModelQuadLayer[] layers = FaceManager.getInstance().getCachedFace( blockState, myFace, layer );
+                final ModelQuadLayer[] layers = FaceManager.getInstance().getCachedFace( blockState, myFace, layer,0 );
 
                 if ( layers == null || layers.length == 0 )
                 {

@@ -1,7 +1,9 @@
 package mod.chiselsandbits.chiseling;
 
+import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
+import mod.chiselsandbits.api.chiseling.metadata.IMetadataKey;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
@@ -16,6 +18,7 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -35,6 +38,7 @@ public class ChiselingContext implements IChiselingContext
     private boolean           complete = false;
     private IWorldAreaMutator                                   mutator       = null;
     private Function<IAreaAccessor, Predicate<IStateEntryInfo>> filterBuilder = null;
+    private Map<IMetadataKey<?>, Object> metadataKeyMap = Maps.newHashMap();
 
     public ChiselingContext(
       final IWorld world,
@@ -99,6 +103,11 @@ public class ChiselingContext implements IChiselingContext
         this.modeOfOperandus = modeOfOperandus;
         this.complete = complete;
         this.playerEntity = playerEntity;
+    }
+
+    private void setMetadataKeyMap(final Map<IMetadataKey<?>, Object> metadataKeyMap)
+    {
+        this.metadataKeyMap = metadataKeyMap;
     }
 
     @Override
@@ -182,6 +191,19 @@ public class ChiselingContext implements IChiselingContext
     @Override
     public @NotNull IChiselingContext createSnapshot()
     {
+        final ChiselingContext context = createInnerSnapshot();
+        final Map<IMetadataKey<?>, Object> newMetadata = Maps.newHashMap();
+        for (final IMetadataKey<?> key : this.metadataKeyMap.keySet())
+        {
+            final Optional<?> value = snapshotMetadata(key);
+            value.ifPresent(o -> newMetadata.put(key, o));
+        }
+
+        context.setMetadataKeyMap(newMetadata);
+        return context;
+    }
+
+    private @NotNull ChiselingContext createInnerSnapshot() {
         if (mutator == null) {
             return new ChiselingContext(
               world,
@@ -204,6 +226,11 @@ public class ChiselingContext implements IChiselingContext
           ),
           playerEntity
         );
+    }
+
+    private <T> Optional<T> snapshotMetadata(final IMetadataKey<T> key) {
+        final Optional<T> value = getMetadata(key);
+        return value.map(key::snapshot);
     }
 
     @Override
@@ -241,6 +268,34 @@ public class ChiselingContext implements IChiselingContext
     public Optional<Function<IAreaAccessor, Predicate<IStateEntryInfo>>> getStateFilter()
     {
         return Optional.ofNullable(this.filterBuilder);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> Optional<T> getMetadata(final IMetadataKey<T> key)
+    {
+        final Object value = this.metadataKeyMap.get(key);
+        if (value == null)
+            return Optional.empty();
+
+        try {
+            final T castValue = (T) value;
+            return Optional.ofNullable(castValue);
+        } catch (ClassCastException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public void removeMetadata(final IMetadataKey<?> key)
+    {
+         this.metadataKeyMap.remove(key);
+    }
+
+    @Override
+    public <T> void setMetadata(final IMetadataKey<T> key, final T value)
+    {
+        this.metadataKeyMap.put(key, value);
     }
 
     @Override

@@ -45,8 +45,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
       Blocks.AIR.getDefaultState(),
       ChiselRenderType.SOLID,
       null,
-      vector3d -> Blocks.AIR.getDefaultState()
-    );
+      vector3d -> Blocks.AIR.getDefaultState(),
+      0);
 
     private final static int[][]     faceVertMap      = new int[6][4];
     private final static float[][][] quadMapping      = new float[6][4][6];
@@ -179,7 +179,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
       final BlockState state,
       final ChiselRenderType layer,
       final IAreaAccessor data,
-      final Function<Vector3d, BlockState> neighborStateSupplier)
+      final Function<Vector3d, BlockState> neighborStateSupplier,
+      final long primaryStateRenderSeed)
     {
         chiselRenderType = layer;
         IBakedModel originalModel = null;
@@ -194,7 +195,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
             if (layer.isRequiredForRendering(data))
             {
                 final ChiseledBlockModelBuilder builder = new ChiseledBlockModelBuilder();
-                generateFaces(builder, data, neighborStateSupplier);
+                generateFaces(builder, data, neighborStateSupplier, primaryStateRenderSeed);
 
                 // convert from builder to final storage.
                 up = builder.getSide(Direction.UP);
@@ -228,7 +229,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
     private void generateFaces(
       final ChiseledBlockModelBuilder builder,
       final IAreaAccessor accessor,
-      final Function<Vector3d, BlockState> neighborStateSupplier)
+      final Function<Vector3d, BlockState> neighborStateSupplier,
+      final long primaryStateRenderSeed)
     {
         final List<List<FaceRegion>> resultingFaces = new ArrayList<>();
 
@@ -267,7 +269,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
         final float[] pos = new float[3];
 
         // single reusable face builder.
-        final IFaceBuilder faceBuilder1 = getBuilder();
+        final IFaceBuilder faceBuilder = getBuilder();
 
         for (final List<FaceRegion> src : resultingFaces)
         {
@@ -282,13 +284,12 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                 // difference. )
                 offsetVec(to, region.getMaxX(), region.getMaxY(), region.getMaxZ());
                 offsetVec(from, region.getMinX(), region.getMinY(), region.getMinZ());
-                final ModelQuadLayer[] mpc = FaceManager.getInstance().getCachedFace(region.getBlockState(), myFace, chiselRenderType.layer);
+                final ModelQuadLayer[] mpc = FaceManager.getInstance().getCachedFace(region.getBlockState(), myFace, chiselRenderType.layer, primaryStateRenderSeed);
 
                 if (mpc != null)
                 {
                     for (final ModelQuadLayer pc : mpc)
                     {
-                        final IFaceBuilder faceBuilder = pc.getLight() > 0 ? faceBuilder1 : faceBuilder1;
                         VertexFormat builderFormat = faceBuilder.getFormat();
 
                         faceBuilder.begin();
@@ -374,7 +375,6 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
         return (i & 0xff) / 255.0f;
     }
 
-    //TODO: Fix this.
     private void mergeFaces(
       final List<FaceRegion> src)
     {
@@ -418,8 +418,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
       final Direction[] potentialDirections,
       final Function<Vector3d, Double> regionBuildingAxisValueExtractor,
       final Function<Vector3d, Double> faceBuildingAxisValueExtractor,
-      final Function<Vector3d, BlockState> neighborStateSupplier
-    ) {
+      final Function<Vector3d, BlockState> neighborStateSupplier) {
         final ArrayList<FaceRegion> regions = Lists.newArrayList();
         final ICullTest test = chiselRenderType.getTest();
 

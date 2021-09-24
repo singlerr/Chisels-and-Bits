@@ -8,18 +8,12 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
-import mod.chiselsandbits.api.profiling.IProfiler;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.api.util.VectorUtils;
-import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
-import mod.chiselsandbits.profiling.CandBProfiler;
 import mod.chiselsandbits.profiling.ProfilingManager;
-import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -34,7 +28,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 public class ChiseledBlockBakedModelManager
 {
@@ -76,7 +69,8 @@ public class ChiseledBlockBakedModelManager
                 }
             }
 
-            final Key key = new Key(accessor.createNewShapeIdentifier(), primaryState, renderType, neighborhoodMap);
+            final long primaryStateRenderSeed = primaryState.getPositionRandom(position);
+            final Key key = new Key(accessor.createNewShapeIdentifier(), primaryState, renderType, neighborhoodMap, primaryStateRenderSeed);
             try
             {
                 return cache.get(key,
@@ -109,7 +103,8 @@ public class ChiseledBlockBakedModelManager
                                 }
 
                                 return blockReader.getBlockState(targetPosition);
-                            }
+                            },
+                            primaryStateRenderSeed
                           );
                       }
                   });
@@ -145,16 +140,18 @@ public class ChiseledBlockBakedModelManager
         private final BlockState primaryState;
         private final ChiselRenderType renderType;
         private final EnumMap<Direction, BlockState> neighborhoodMap;
+        private final long renderSeed;
 
         private Key(
           final IAreaShapeIdentifier identifier,
           final BlockState primaryState,
           final ChiselRenderType renderType,
-          final EnumMap<Direction, BlockState> neighborhoodMap) {
+          final EnumMap<Direction, BlockState> neighborhoodMap, final long renderSeed) {
             this.identifier = identifier;
             this.primaryState = primaryState;
             this.renderType = renderType;
             this.neighborhoodMap = neighborhoodMap;
+            this.renderSeed = renderSeed;
         }
 
         @Override
@@ -168,15 +165,37 @@ public class ChiseledBlockBakedModelManager
             {
                 return false;
             }
+
             final Key key = (Key) o;
-            return Objects.equals(identifier, key.identifier) && Objects.equals(primaryState, key.primaryState) && renderType == key.renderType
-                     && Objects.equals(neighborhoodMap, key.neighborhoodMap);
+
+            if (renderSeed != key.renderSeed)
+            {
+                return false;
+            }
+            if (!Objects.equals(identifier, key.identifier))
+            {
+                return false;
+            }
+            if (!Objects.equals(primaryState, key.primaryState))
+            {
+                return false;
+            }
+            if (renderType != key.renderType)
+            {
+                return false;
+            }
+            return Objects.equals(neighborhoodMap, key.neighborhoodMap);
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(identifier, primaryState, renderType, neighborhoodMap);
+            int result = identifier != null ? identifier.hashCode() : 0;
+            result = 31 * result + (primaryState != null ? primaryState.hashCode() : 0);
+            result = 31 * result + (renderType != null ? renderType.hashCode() : 0);
+            result = 31 * result + (neighborhoodMap != null ? neighborhoodMap.hashCode() : 0);
+            result = 31 * result + (int) (renderSeed ^ (renderSeed >>> 32));
+            return result;
         }
     }
 }

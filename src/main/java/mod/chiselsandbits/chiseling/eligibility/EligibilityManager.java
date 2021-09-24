@@ -40,7 +40,7 @@ public class EligibilityManager implements IEligibilityManager
     private static final EligibilityManager INSTANCE = new EligibilityManager();
 
     private static final Cache<BlockState, IEligibilityAnalysisResult> cache = CacheBuilder.newBuilder()
-                                                                            .expireAfterAccess(1, TimeUnit.HOURS)
+                                                                            .maximumSize(1000000)
                                                                             .build();
 
     private EligibilityManager()

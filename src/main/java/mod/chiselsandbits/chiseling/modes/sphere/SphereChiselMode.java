@@ -1,6 +1,8 @@
 package mod.chiselsandbits.chiseling.modes.sphere;
 
 import com.google.common.collect.Maps;
+import com.mojang.datafixers.util.Either;
+import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
@@ -17,6 +19,7 @@ import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
+import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.block.BlockState;
@@ -57,7 +60,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
     public ClickProcessingState onLeftClickBy(
       final PlayerEntity playerEntity, final IChiselingContext context)
     {
-        final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
+        final Either<ClickProcessingState, Vector3d> rayTraceHandle = this.processRayTraceIntoContext(
           playerEntity,
           context,
           face -> Vector3d.copy(face.getOpposite().getDirectionVec()),
@@ -68,41 +71,49 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
             return ClickProcessingState.DEFAULT;
 
         context.setComplete();
-        return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
-              try (IBatchMutation ignored =
-                     mutator.batch())
-              {
-                  final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
 
-                  final Predicate<IStateEntryInfo> filter = context.getStateFilter()
-                    .map(factory -> factory.apply(mutator))
-                    .orElse((s) -> true);
+        if (rayTraceHandle.left().isPresent())
+            return rayTraceHandle.left().get();
 
-                  mutator.inWorldMutableStream()
-                    .forEach(state -> {
-                        if (!filter.test(state))
-                            return;
+        if (!rayTraceHandle.right().isPresent())
+            throw new IllegalArgumentException("Missing both a click processing result as well as a center vector for sphere processing");
 
-                        final BlockState currentState = state.getState();
-                        if (context.tryDamageItem()) {
-                            resultingBitCount.putIfAbsent(currentState, 0);
-                            resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
+        context.setMetadata(ModMetadataKeys.ANCHOR.get(), rayTraceHandle.right().get());
 
-                            state.clear();
-                        }
-                    });
+        return context.getMutator().map(mutator -> {
+            try (IBatchMutation ignored =
+                   mutator.batch())
+            {
+                final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
 
-                  resultingBitCount.forEach((blockState, count) -> BitInventoryUtils.insertIntoOrSpawn(
-                    playerEntity,
-                    blockState,
-                    count
-                  ));
+                final Predicate<IStateEntryInfo> filter = context.getStateFilter()
+                                                            .map(factory -> factory.apply(mutator))
+                                                            .orElse((s) -> true);
 
-              }
+                mutator.inWorldMutableStream()
+                  .forEach(state -> {
+                      if (!filter.test(state))
+                          return;
 
-              return new ClickProcessingState(true, Event.Result.ALLOW);
-          }).orElse(ClickProcessingState.DEFAULT)
-        );
+                      final BlockState currentState = state.getState();
+                      if (context.tryDamageItem()) {
+                          resultingBitCount.putIfAbsent(currentState, 0);
+                          resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
+
+                          state.clear();
+                      }
+                  });
+
+                resultingBitCount.forEach((blockState, count) -> BitInventoryUtils.insertIntoOrSpawn(
+                  playerEntity,
+                  blockState,
+                  count
+                ));
+
+            }
+
+            return new ClickProcessingState(true, Event.Result.ALLOW);
+        }).orElse(ClickProcessingState.DEFAULT);
     }
 
     @Override
@@ -115,7 +126,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
     @Override
     public ClickProcessingState onRightClickBy(final PlayerEntity playerEntity, final IChiselingContext context)
     {
-        final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
+        final Either<ClickProcessingState, Vector3d> rayTraceHandle = this.processRayTraceIntoContext(
           playerEntity,
           context,
           face -> Vector3d.copy(face.getDirectionVec()),
@@ -125,7 +136,15 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
         if (context.isSimulation())
             return ClickProcessingState.DEFAULT;
 
-        return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
+        if (rayTraceHandle.left().isPresent())
+            return rayTraceHandle.left().get();
+
+        if (!rayTraceHandle.right().isPresent())
+            throw new IllegalArgumentException("Missing both a click processing result as well as a center vector for sphere processing");
+
+        context.setMetadata(ModMetadataKeys.ANCHOR.get(), rayTraceHandle.right().get());
+
+        return context.getMutator().map(mutator -> {
             final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
             if (heldBlockState.isAir(new SingleBlockBlockReader(heldBlockState), BlockPos.ZERO))
                 return ClickProcessingState.DEFAULT;
@@ -134,8 +153,8 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
                                                         .map(factory -> factory.apply(mutator))
                                                         .orElse((s) -> true);
             final int missingBitCount = (int) mutator.stream()
-              .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO) && filter.test(state))
-              .count();
+                                                .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO) && filter.test(state))
+                                                .count();
 
             final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
 
@@ -156,8 +175,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
             }
 
             return new ClickProcessingState(true, Event.Result.ALLOW);
-          }).orElse(ClickProcessingState.DEFAULT)
-        );
+        }).orElse(ClickProcessingState.DEFAULT);
     }
 
     @Override
@@ -172,7 +190,20 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
         return context.getMutator().map(mutator -> mutator);
     }
 
-    private Optional<ClickProcessingState> processRayTraceIntoContext(
+    @Override
+    public boolean isStillValid(final PlayerEntity playerEntity, final IChiselingContext context, final ChiselingOperation modeOfOperation)
+    {
+        final Optional<Vector3d> rayTraceHandle = this.processRayTraceIntoCenter(
+          playerEntity,
+          face -> Vector3d.copy(face.getDirectionVec()),
+          Function.identity()
+        );
+
+        final Optional<Vector3d> contextAnchor = context.getMetadata(ModMetadataKeys.ANCHOR.get());
+        return rayTraceHandle.map(d -> contextAnchor.filter(d::equals).isPresent()).orElseGet(() -> !contextAnchor.isPresent());
+    }
+
+    private Either<ClickProcessingState, Vector3d> processRayTraceIntoContext(
       final PlayerEntity playerEntity,
       final IChiselingContext context,
       final Function<Direction, Vector3d> placementFacingAdapter,
@@ -181,7 +212,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
         final RayTraceResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
         if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK || !(rayTraceResult instanceof BlockRayTraceResult))
         {
-            return Optional.of(ClickProcessingState.DEFAULT);
+            return Either.left(ClickProcessingState.DEFAULT);
         }
 
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
@@ -224,11 +255,48 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
               );
           });
 
-        return Optional.empty();
+        return Either.right(center);
+    }
+
+    private Optional<Vector3d> processRayTraceIntoCenter(
+      final PlayerEntity playerEntity,
+      final Function<Direction, Vector3d> placementFacingAdapter,
+      final Function<Vector3d, Vector3d> fullFacingVectorAdapter
+    ) {
+        final RayTraceResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
+        if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK || !(rayTraceResult instanceof BlockRayTraceResult))
+        {
+            return Optional.empty();
+        }
+
+        final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
+        final Vector3d hitVector = blockRayTraceResult.getHitVec().add(
+          placementFacingAdapter.apply(blockRayTraceResult.getFace())
+            .mul(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
+        );
+
+        final Vector3d centeredHitVector = Vector3d.copy(
+          new BlockPos(
+            hitVector.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
+          )
+        ).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
+
+        final Vector3d center = centeredHitVector.add(
+          new Vector3d(
+            (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide(),
+            (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide(),
+            (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide()
+          ).mul(
+            fullFacingVectorAdapter.apply(Vector3d.copy(blockRayTraceResult.getFace().getDirectionVec())
+            )
+          )
+        );
+
+        return Optional.of(center);
     }
 
     @Override
-    public ResourceLocation getIcon()
+    public @NotNull ResourceLocation getIcon()
     {
         return iconName;
     }
@@ -266,7 +334,8 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
 
             final IInWorldStateEntryInfo inWorldStateEntryInfo = (IInWorldStateEntryInfo) stateEntryInfo;
 
-            return inWorldStateEntryInfo.getInWorldStartPoint().distanceTo(center) <= (diameter / 2f / StateEntrySize.current().getBitsPerBlockSide());
+            return inWorldStateEntryInfo.getInWorldStartPoint().distanceTo(center) <= (diameter / 2f / StateEntrySize.current().getBitsPerBlockSide()) &&
+              !stateEntryInfo.getState().isAir();
         }
 
         @Override

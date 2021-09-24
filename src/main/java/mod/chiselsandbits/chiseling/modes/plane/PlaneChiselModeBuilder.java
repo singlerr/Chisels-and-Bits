@@ -1,6 +1,5 @@
 package mod.chiselsandbits.chiseling.modes.plane;
 
-import mod.chiselsandbits.chiseling.modes.line.LinedChiselMode;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.IFormattableTextComponent;
 
@@ -9,6 +8,7 @@ public class PlaneChiselModeBuilder
     private int                       depth;
     private IFormattableTextComponent displayName;
     private ResourceLocation iconName;
+    private boolean filterOnTarget = false;
 
     public PlaneChiselModeBuilder setDepth(final int depth)
     {
@@ -28,8 +28,13 @@ public class PlaneChiselModeBuilder
         return this;
     }
 
+    public PlaneChiselModeBuilder withFilterOnTarget() {
+        this.filterOnTarget = true;
+        return this;
+    }
+
     public PlaneChiseledMode createPlaneChiselMode()
     {
-        return new PlaneChiseledMode(depth, displayName, iconName);
+        return new PlaneChiseledMode(depth, displayName, iconName, filterOnTarget);
     }
 }

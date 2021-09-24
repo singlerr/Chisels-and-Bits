@@ -572,7 +572,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     @Override
     public void initializeWith(final BlockState currentState)
     {
-        if (getWorld() == null || getWorld().isRemote())
+        if (getWorld() == null)
         {
             return;
         }

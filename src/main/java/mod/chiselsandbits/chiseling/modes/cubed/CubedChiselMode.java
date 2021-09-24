@@ -1,8 +1,8 @@
 package mod.chiselsandbits.chiseling.modes.cubed;
 
 import com.google.common.collect.Maps;
-import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
@@ -14,6 +14,7 @@ import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
+import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.block.BlockState;
@@ -33,8 +34,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.*;
 
 public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
 {
@@ -63,7 +62,9 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         );
 
         if (context.isSimulation())
+        {
             return ClickProcessingState.DEFAULT;
+        }
 
         context.setComplete();
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
@@ -75,7 +76,8 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
                   mutator.inWorldMutableStream()
                     .forEach(state -> {
                         final BlockState currentState = state.getState();
-                        if (context.tryDamageItem()) {
+                        if (context.tryDamageItem())
+                        {
                             resultingBitCount.putIfAbsent(currentState, 0);
                             resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
 
@@ -88,7 +90,6 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
                     blockState,
                     count
                   ));
-
               }
 
               return new ClickProcessingState(true, Event.Result.ALLOW);
@@ -110,40 +111,45 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
           playerEntity,
           context,
           face -> Vector3d.copy(face.getDirectionVec()),
-          facingVector -> aligned ? facingVector : facingVector.mul(1,-1, 1)
+          facingVector -> aligned ? facingVector : facingVector.mul(1, -1, 1)
         );
 
         if (context.isSimulation())
+        {
             return ClickProcessingState.DEFAULT;
+        }
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
-            final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
-            if (heldBlockState.isAir(new SingleBlockBlockReader(heldBlockState), BlockPos.ZERO))
-                return ClickProcessingState.DEFAULT;
+              final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
+              if (heldBlockState.isAir(new SingleBlockBlockReader(heldBlockState), BlockPos.ZERO))
+              {
+                  return ClickProcessingState.DEFAULT;
+              }
 
-            final int missingBitCount = (int) mutator.stream()
-              .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO))
-              .count();
+              final int missingBitCount = (int) mutator.stream()
+                                                  .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO))
+                                                  .count();
 
-            final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
+              final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
 
-            context.setComplete();
-            if (playerBitInventory.canExtract(heldBlockState, missingBitCount) || playerEntity.isCreative()) {
-                if (!playerEntity.isCreative())
-                {
-                    playerBitInventory.extract(heldBlockState, missingBitCount);
-                }
+              context.setComplete();
+              if (playerBitInventory.canExtract(heldBlockState, missingBitCount) || playerEntity.isCreative())
+              {
+                  if (!playerEntity.isCreative())
+                  {
+                      playerBitInventory.extract(heldBlockState, missingBitCount);
+                  }
 
-                try (IBatchMutation ignored =
-                       mutator.batch())
-                {
-                    mutator.inWorldMutableStream()
-                      .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO))
-                      .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
-                }
-            }
+                  try (IBatchMutation ignored =
+                         mutator.batch())
+                  {
+                      mutator.inWorldMutableStream()
+                        .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO))
+                        .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
+                  }
+              }
 
-            return new ClickProcessingState(true, Event.Result.ALLOW);
+              return new ClickProcessingState(true, Event.Result.ALLOW);
           }).orElse(ClickProcessingState.DEFAULT)
         );
     }
@@ -165,7 +171,8 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
       final IChiselingContext context,
       final Function<Direction, Vector3d> placementFacingAdapter,
       final Function<Vector3d, Vector3d> fullFacingVectorAdapter
-    ) {
+    )
+    {
         final RayTraceResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
         if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK || !(rayTraceResult instanceof BlockRayTraceResult))
         {
@@ -186,7 +193,9 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         if (aligned)
         {
             final Vector3d inBlockOffset = hitVector.subtract(Vector3d.copy(new BlockPos(hitVector)));
-            final BlockPos bitsInBlockOffset = new BlockPos(inBlockOffset.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
+            final BlockPos bitsInBlockOffset = new BlockPos(inBlockOffset.mul(StateEntrySize.current().getBitsPerBlockSide(),
+              StateEntrySize.current().getBitsPerBlockSide(),
+              StateEntrySize.current().getBitsPerBlockSide()));
 
             final BlockPos targetedSectionIndices = new BlockPos(
               bitsInBlockOffset.getX() / bitsPerSide,
@@ -211,14 +220,16 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
           .forEach(bitPos -> context.include(
             hitVector
               .subtract(finalAlignmentOffset)
-              .add(Vector3d.copy(bitPos).mul(fullFacingVector).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
+              .add(Vector3d.copy(bitPos)
+                     .mul(fullFacingVector)
+                     .mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
           ));
 
         return Optional.empty();
     }
 
     @Override
-    public ResourceLocation getIcon()
+    public @NotNull ResourceLocation getIcon()
     {
         return iconName;
     }

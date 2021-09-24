@@ -3,6 +3,7 @@ package mod.chiselsandbits.events;
 import mod.chiselsandbits.api.item.click.ILeftClickControllingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.profiling.IProfiler;
+import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import net.minecraft.item.ItemStack;
@@ -12,7 +13,7 @@ import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class LeftClickEventHandler
 {
 
@@ -21,36 +22,33 @@ public class LeftClickEventHandler
     {
         final ItemStack itemStack = event.getItemStack();
         if (itemStack.getItem() instanceof ILeftClickControllingItem) {
-            ProfilingManager.getInstance().withProfiler(p -> p.startSection("Left click processing"));
+            try(IProfilerSection ignored = ProfilingManager.getInstance().withSection("Left click processing")) {
+                final ILeftClickControllingItem leftClickControllingItem = (ILeftClickControllingItem) itemStack.getItem();
 
-            final ILeftClickControllingItem leftClickControllingItem = (ILeftClickControllingItem) itemStack.getItem();
+                if (!leftClickControllingItem.canUse(event.getPlayer())) {
+                    event.setCanceled(true);
+                    event.setUseItem(Event.Result.DENY);
+                    return;
+                }
 
-            if (!leftClickControllingItem.canUse(event.getPlayer())) {
-                event.setCanceled(true);
-                event.setUseItem(Event.Result.DENY);
-                ProfilingManager.getInstance().withProfiler(IProfiler::endSection);
-                return;
+                final ClickProcessingState processingState = leftClickControllingItem.handleLeftClickProcessing(
+                  event.getPlayer(),
+                  event.getHand(),
+                  event.getPos(),
+                  event.getFace(),
+                  new ClickProcessingState(
+                    event.isCanceled(),
+                    event.getUseItem()
+                  )
+                );
+
+                if (processingState.shouldCancel())
+                {
+                    event.setCanceled(true);
+                }
+
+                event.setUseItem(processingState.getNextState());
             }
-
-            final ClickProcessingState processingState = leftClickControllingItem.handleLeftClickProcessing(
-              event.getPlayer(),
-              event.getHand(),
-              event.getPos(),
-              event.getFace(),
-              new ClickProcessingState(
-                event.isCanceled(),
-                event.getUseItem()
-              )
-            );
-
-            if (processingState.shouldCancel())
-            {
-                event.setCanceled(true);
-            }
-
-            event.setUseItem(processingState.getNextState());
-
-            ProfilingManager.getInstance().withProfiler(IProfiler::endSection);
         }
     }
 }

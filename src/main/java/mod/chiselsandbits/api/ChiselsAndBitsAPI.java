@@ -7,13 +7,12 @@ import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
+import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
-import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
-import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
@@ -21,6 +20,7 @@ import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.change.ChangeTracker;
 import mod.chiselsandbits.chiseling.conversion.ConversionManager;
 import mod.chiselsandbits.chiseling.eligibility.EligibilityManager;
+import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
 import mod.chiselsandbits.inventory.management.BitInventoryManager;
 import mod.chiselsandbits.item.bit.BitItemManager;
 import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
@@ -28,10 +28,8 @@ import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.multistate.mutator.MutatorFactory;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModChiselModes;
-import mod.chiselsandbits.registrars.ModModificationOperation;
 import mod.chiselsandbits.registries.RegistryManager;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
-import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 
 public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
@@ -203,5 +201,11 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull IProfilingManager getProfilingManager()
     {
         return ProfilingManager.getInstance();
+    }
+
+    @Override
+    public @NotNull ILocalChiselingContextCache getLocalChiselingContextCache()
+    {
+        return LocalChiselingContextCache.getInstance();
     }
 }

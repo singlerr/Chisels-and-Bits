@@ -34,6 +34,7 @@ public class ChiselsAndBits
         ModContainerTypes.onModConstruction();
         ModRecipeSerializers.onModConstruction();
         ModModificationOperation.onModConstruction();
+        ModMetadataKeys.onModConstruction();
 
         ModTags.init();
 

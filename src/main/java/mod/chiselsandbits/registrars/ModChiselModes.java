@@ -218,6 +218,62 @@ public final class ModChiselModes
               .createPlaneChiselMode()
     );
 
+    public static final RegistryObject<IChiselMode> CONNECTED_MATERIAL_ONE = MODE_REGISTRAR.register(
+      "connected_material_1",
+      () -> new PlaneChiselModeBuilder()
+              .setDepth(1)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.plane1"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/plane.png"))
+              .withFilterOnTarget()
+              .createPlaneChiselMode()
+    );
+
+    public static final RegistryObject<IChiselMode> CONNECTED_MATERIAL_TWO = MODE_REGISTRAR.register(
+      "connected_material_2",
+      () -> new PlaneChiselModeBuilder()
+              .setDepth(2)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.plane2"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/plane2.png"))
+              .withFilterOnTarget()
+              .createPlaneChiselMode()
+    );
+
+    public static final RegistryObject<IChiselMode> CONNECTED_MATERIAL_FOUR = MODE_REGISTRAR.register(
+      "connected_material_4",
+      () -> new PlaneChiselModeBuilder()
+              .setDepth(4)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.plane4"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/plane4.png"))
+              .withFilterOnTarget()
+              .createPlaneChiselMode()
+    );
+
+    public static final RegistryObject<IChiselMode> CONNECTED_MATERIAL_EIGHT = MODE_REGISTRAR.register(
+      "connected_material_8",
+      () -> new PlaneChiselModeBuilder()
+              .setDepth(8)
+              .setDisplayName(
+                TranslationUtils.build(
+                  "chiselmode.plane8"
+                )
+              )
+              .setIconName(new ResourceLocation(Constants.MOD_ID,"textures/icons/plane8.png"))
+              .withFilterOnTarget()
+              .createPlaneChiselMode()
+    );
+
     public static final RegistryObject<IChiselMode> SMALL_SPHERE = MODE_REGISTRAR.register(
       "small_sphere",
       () -> new SphereChiselModeBuilder().setDiameter(4)

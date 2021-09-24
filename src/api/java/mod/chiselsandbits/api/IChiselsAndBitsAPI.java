@@ -7,18 +7,17 @@ import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
+import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
-import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
-import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -171,6 +170,16 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     IProfilingManager getProfilingManager();
+
+    /**
+     * This method gives access to the client side local chiseling context cache.
+     * Although this method also exists on the server side, it should be considered a cross tick cache for the latest chiseling context in use by the current player,
+     * without it becoming the active context for that player.
+     *
+     * @return The {@link ILocalChiselingContextCache}.
+     */
+    @NotNull
+    ILocalChiselingContextCache getLocalChiselingContextCache();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

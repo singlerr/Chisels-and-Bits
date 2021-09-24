@@ -7,6 +7,7 @@ import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
+import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.config.Configuration;
@@ -15,12 +16,12 @@ import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
-import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.client.render.ModRenderTypes;
+import mod.chiselsandbits.item.ChiselItem;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
@@ -29,7 +30,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
@@ -73,7 +73,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     private final List<ItemStack> availableBitStacks = Lists.newLinkedList();
 
     private final ThreadLocal<Boolean> threadLocalBitMergeOperationInProgress = ThreadLocal.withInitial(() -> false);
-    public static final Predicate<IStateEntryInfo> DEFAULT_CONTEXT_PREDICATE = (s) -> true;
+    public static final Predicate<IStateEntryInfo> DEFAULT_CONTEXT_PREDICATE = ChiselItem.DEFAULT_CONTEXT_PREDICATE;
 
     public BitItem(final Properties properties)
     {
@@ -283,6 +283,26 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
             return !currentContextSnapshot.getMutator().isPresent();
         }
 
+        final Optional<IChiselingContext> localCachedContext = ILocalChiselingContextCache
+                                                                 .getInstance()
+                                                                 .get(ChiselingOperation.CHISELING);
+
+        if (localCachedContext.isPresent())
+        {
+            final IChiselingContext context = localCachedContext.get();
+
+            if (
+              context.getMode() == chiselMode
+            )
+
+                if (context.getMutator().isPresent())
+                {
+                    return false;
+                }
+
+            return !context.getMutator().isPresent();
+        }
+
         final IChiselingContext context = IChiselingManager.getInstance().create(
           playerEntity,
           chiselMode,
@@ -332,6 +352,13 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         final Optional<IChiselingContext> potentiallyExistingContext =
           IChiselingManager.getInstance().get(playerEntity, chiselMode);
 
+
+        final Optional<IChiselingContext> potentialChiselingContext = ILocalChiselingContextCache.getInstance()
+                                                                       .get(ChiselingOperation.CHISELING);
+
+        final Optional<IChiselingContext> potentialPlacingContext = ILocalChiselingContextCache.getInstance()
+          .get(ChiselingOperation.PLACING);
+
         if (potentiallyExistingContext.isPresent()) {
             final IChiselingContext currentContextSnapshot = potentiallyExistingContext.get().createSnapshot();
 
@@ -349,33 +376,34 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
                 );
             }
 
-            if (!currentContextSnapshot.getMutator().isPresent())
-                return;
+            renderExistingContextsBoundingBox(matrixStack, xView, yView, zView, currentContextSnapshot);
+            return;
+        }
+        else if (potentialChiselingContext.isPresent()
+                   && potentialChiselingContext.get().getMode() == chiselMode
+                   && chiselMode.isStillValid(playerEntity, potentialChiselingContext.get(), ChiselingOperation.CHISELING)) {
 
-            final Vector3f colorVector = currentContextSnapshot.getModeOfOperandus() == ChiselingOperation.CHISELING ?
-                                           new Vector3f(0.85f, 0.0f, 0.0f) :
-                                           new Vector3f(0.0f, 0.85f, 0.0f);
-            final BlockPos inWorldStartPos = new BlockPos(currentContextSnapshot.getMutator().get().getInWorldStartPoint());
+            final IChiselingContext chiselingContext = potentialChiselingContext.get();
 
-            final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(currentContextSnapshot.getMutator().get(),
-              areaAccessor -> {
-                  final Predicate<IStateEntryInfo> contextPredicate = currentContextSnapshot.getStateFilter()
-                                                                        .map(factory -> factory.apply(areaAccessor))
-                                                                        .orElse(DEFAULT_CONTEXT_PREDICATE);
+            renderExistingContextsBoundingBox(matrixStack, xView, yView, zView, chiselingContext);
 
-                  return new InternalContextFilter(contextPredicate);
-              },
-              false);
-            RenderSystem.disableDepthTest();
-            WorldRenderer.drawShape(
-              matrixStack,
-              Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
-              boundingShape,
-              inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() -zView,
-              colorVector.getX(), colorVector.getY(), colorVector.getZ(), 0.65f
-            );
-            Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().finish(ModRenderTypes.MEASUREMENT_LINES.get());
-            RenderSystem.enableDepthTest();
+            if (potentialPlacingContext.isPresent()
+                  && potentialPlacingContext.get().getMode() == chiselMode
+                  && chiselMode.isStillValid(playerEntity, potentialPlacingContext.get(), ChiselingOperation.PLACING)) {
+
+                final IChiselingContext placingContext = potentialPlacingContext.get();
+
+                renderExistingContextsBoundingBox(matrixStack, xView, yView, zView, placingContext);
+            }
+            return;
+        }
+        else if (potentialPlacingContext.isPresent()
+                   && potentialPlacingContext.get().getMode() == chiselMode
+                   && chiselMode.isStillValid(playerEntity, potentialPlacingContext.get(), ChiselingOperation.PLACING)) {
+
+            final IChiselingContext context = potentialPlacingContext.get();
+
+            renderExistingContextsBoundingBox(matrixStack, xView, yView, zView, context);
             return;
         }
 
@@ -423,6 +451,8 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
               inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() -zView,
               0.85f, 0.0f, 0.0f, 0.65f
             );
+
+            ILocalChiselingContextCache.getInstance().set(ChiselingOperation.CHISELING, chiselingContext);
         }
         if (placingContext.getMutator().isPresent()) {
             final BlockPos inWorldStartPos = new BlockPos(placingContext.getMutator().get().getInWorldStartPoint());
@@ -444,9 +474,43 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
               inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() -zView,
               0.0f, 0.85f, 0.0f, 0.65f
             );
+
+            ILocalChiselingContextCache.getInstance().set(ChiselingOperation.PLACING, placingContext);
         }
         Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().finish(ModRenderTypes.MEASUREMENT_LINES.get());
         RenderSystem.enableDepthTest();
+    }
+
+    private void renderExistingContextsBoundingBox(final MatrixStack matrixStack, final double xView, final double yView, final double zView, final IChiselingContext currentContextSnapshot)
+    {
+        if (!currentContextSnapshot.getMutator().isPresent())
+            return;
+
+        final Vector3f colorVector = currentContextSnapshot.getModeOfOperandus() == ChiselingOperation.CHISELING ?
+                                       new Vector3f(0.85f, 0.0f, 0.0f) :
+                                       new Vector3f(0.0f, 0.85f, 0.0f);
+        final BlockPos inWorldStartPos = new BlockPos(currentContextSnapshot.getMutator().get().getInWorldStartPoint());
+
+        final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(currentContextSnapshot.getMutator().get(),
+          areaAccessor -> {
+              final Predicate<IStateEntryInfo> contextPredicate = currentContextSnapshot.getStateFilter()
+                                                                    .map(factory -> factory.apply(areaAccessor))
+                                                                    .orElse(DEFAULT_CONTEXT_PREDICATE);
+
+              return new InternalContextFilter(contextPredicate);
+          },
+          false);
+        RenderSystem.disableDepthTest();
+        WorldRenderer.drawShape(
+          matrixStack,
+          Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
+          boundingShape,
+          inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() - zView,
+          colorVector.getX(), colorVector.getY(), colorVector.getZ(), 0.65f
+        );
+        Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().finish(ModRenderTypes.MEASUREMENT_LINES.get());
+        RenderSystem.enableDepthTest();
+        return;
     }
 
     @Override

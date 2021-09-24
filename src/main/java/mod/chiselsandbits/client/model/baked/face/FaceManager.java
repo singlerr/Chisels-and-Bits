@@ -60,7 +60,8 @@ public final class FaceManager
     public ModelQuadLayer[] getCachedFace(
       final BlockState state,
       final Direction face,
-      final RenderType layer)
+      final RenderType layer,
+      final long primaryStateRenderSeed)
     {
         if (layer == null)
         {
@@ -76,7 +77,7 @@ public final class FaceManager
                 try
                 {
                     ForgeHooksClient.setRenderLayer(layer);
-                    return buildFaceQuadLayers(state, face);
+                    return buildFaceQuadLayers(state, face, primaryStateRenderSeed);
                 }
                 finally
                 {
@@ -94,9 +95,10 @@ public final class FaceManager
 
     private ModelQuadLayer[] buildFaceQuadLayers(
       final BlockState state,
-      final Direction face)
+      final Direction face,
+      final long primaryStateRenderSeed)
     {
-        final IBakedModel model = solveModel(state, Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getModel(state));
+        final IBakedModel model = solveModel(state, Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getModel(state), primaryStateRenderSeed);
         final int lv = Configuration.getInstance().getClient().useGetLightValue.get() ? DeprecationHelper.getLightValue(state) : 0;
 
         final Fluid fluid = state.getFluidState().getFluid();
@@ -137,7 +139,7 @@ public final class FaceManager
 
         if (model != null)
         {
-            final List<BakedQuad> quads = getModelQuads(model, state, face);
+            final List<BakedQuad> quads = getModelQuads(model, state, face, primaryStateRenderSeed);
             processFaces(layers, face, quads);
         }
 
@@ -216,16 +218,17 @@ public final class FaceManager
 
     private static IBakedModel solveModel(
       final BlockState state,
-      final IBakedModel originalModel)
+      final IBakedModel originalModel,
+      final long primaryStateRenderSeed)
     {
         boolean hasFaces;
         try
         {
-            hasFaces = hasFaces(originalModel, state, null);
+            hasFaces = hasFaces(originalModel, state, null, primaryStateRenderSeed);
 
             for (final Direction f : Direction.values())
             {
-                hasFaces = hasFaces || hasFaces(originalModel, state, f);
+                hasFaces = hasFaces || hasFaces(originalModel, state, f, primaryStateRenderSeed);
             }
         }
         catch (final Exception e)
@@ -245,11 +248,11 @@ public final class FaceManager
 
                 try
                 {
-                    hasFaces = hasFaces(originalModel, state, null);
+                    hasFaces = hasFaces(originalModel, state, null, primaryStateRenderSeed);
 
                     for (final Direction f : Direction.values())
                     {
-                        hasFaces = hasFaces || hasFaces(originalModel, state, f);
+                        hasFaces = hasFaces || hasFaces(originalModel, state, f, primaryStateRenderSeed);
                     }
                 }
                 catch (final Exception e)
@@ -264,7 +267,7 @@ public final class FaceManager
                 }
                 else
                 {
-                    return new SimpleGeneratedModel(findTexture(state, originalModel, Direction.UP));
+                    return new SimpleGeneratedModel(findTexture(state, originalModel, Direction.UP, primaryStateRenderSeed));
                 }
             }
         }
@@ -275,9 +278,10 @@ public final class FaceManager
     private static boolean hasFaces(
       final IBakedModel model,
       final BlockState state,
-      final Direction f)
+      final Direction f,
+      final long primaryStateRenderSeed)
     {
-        final List<BakedQuad> l = getModelQuads(model, state, f);
+        final List<BakedQuad> l = getModelQuads(model, state, f, primaryStateRenderSeed);
         if (l == null || l.isEmpty())
         {
             return false;
@@ -306,7 +310,8 @@ public final class FaceManager
     public static TextureAtlasSprite findTexture(
       final BlockState state,
       final IBakedModel model,
-      final Direction myFace)
+      final Direction myFace,
+      final long primaryStateRenderSeed)
     {
         TextureAtlasSprite texture = null;
 
@@ -314,16 +319,16 @@ public final class FaceManager
         {
             try
             {
-                texture = findTexture(null, getModelQuads(model, state, myFace), myFace);
+                texture = findTexture(null, getModelQuads(model, state, myFace, primaryStateRenderSeed), myFace);
 
                 if (texture == null)
                 {
                     for (final Direction side : Direction.values())
                     {
-                        texture = findTexture(texture, getModelQuads(model, state, side), side);
+                        texture = findTexture(texture, getModelQuads(model, state, side, primaryStateRenderSeed), side);
                     }
 
-                    texture = findTexture(texture, getModelQuads(model, state, null), null);
+                    texture = findTexture(texture, getModelQuads(model, state, null, primaryStateRenderSeed), null);
                 }
             }
             catch (final Exception ignored)
@@ -399,11 +404,13 @@ public final class FaceManager
     private static List<BakedQuad> getModelQuads(
       final IBakedModel model,
       final BlockState state,
-      final Direction f)
+      final Direction f,
+      final long primaryStateRenderSeed)
     {
         try
         {
             // try to get block model...
+            RANDOM.setSeed(primaryStateRenderSeed);
             return model.getQuads( state, f, RANDOM );
         }
         catch ( final Throwable ignored)

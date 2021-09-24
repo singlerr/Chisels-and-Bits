@@ -1,7 +1,9 @@
 package mod.chiselsandbits.api.chiseling.mode;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
+import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.withmode.IRenderableMode;
 import mod.chiselsandbits.api.item.withmode.IToolMode;
@@ -10,6 +12,7 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.util.IWithDisplayName;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
@@ -96,4 +99,40 @@ public interface IChiselMode extends IForgeRegistryEntry<IChiselMode>, IToolMode
      * @return An optional, potentially containing an area accessor.
      */
     Optional<IAreaAccessor> getCurrentAccessor(final IChiselingContext context);
+
+    /**
+     * Checks if the passed context is still valid for the given entity.
+     * @param playerEntity The entity to check for.
+     * @param context The context to check.
+     * @param modeOfOperation The mode of operandus for the check.
+     * @return True when still valid, false when not.
+     */
+    default boolean isStillValid(
+      final PlayerEntity playerEntity,
+      final IChiselingContext context,
+      final ChiselingOperation modeOfOperation
+    ) {
+        final IChiselingContext snapshot = IChiselingManager.getInstance().create(
+          playerEntity,
+          this,
+          modeOfOperation,
+          true,
+          ItemStack.EMPTY
+        );
+
+        if (modeOfOperation == ChiselingOperation.CHISELING) {
+            onLeftClickBy(playerEntity, snapshot);
+        }
+        else {
+            onRightClickBy(playerEntity, snapshot);
+        }
+
+        if (!snapshot.getMutator().isPresent())
+            return !context.getMutator().isPresent();
+
+        if (!context.getMutator().isPresent())
+            return false;
+
+        return context.getMutator().get().getInWorldBoundingBox().equals(snapshot.getMutator().get().getInWorldBoundingBox());
+    }
 }

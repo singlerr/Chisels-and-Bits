@@ -9,13 +9,18 @@ import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
+import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
+import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
+import mod.chiselsandbits.chiseling.modes.sphere.SphereChiselMode;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
@@ -32,8 +37,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.*;
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.ONE_THOUSANDS;
 
 public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
@@ -41,12 +46,14 @@ public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implement
     private final int                       depth;
     private final IFormattableTextComponent displayName;
     private final ResourceLocation          iconName;
+    private final boolean filterOnTarget;
 
-    PlaneChiseledMode(final int depth, final IFormattableTextComponent displayName, final ResourceLocation iconName)
+    PlaneChiseledMode(final int depth, final IFormattableTextComponent displayName, final ResourceLocation iconName, final boolean filterOnTarget)
     {
         this.depth = depth;
         this.displayName = displayName;
         this.iconName = iconName;
+        this.filterOnTarget = filterOnTarget;
     }
     @Override
     public ClickProcessingState onLeftClickBy(
@@ -73,7 +80,12 @@ public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implement
 
                   final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
 
+                  final Predicate<IStateEntryInfo> filter = context.getStateFilter()
+                                                                     .map(builder -> builder.apply(mutator))
+                                                                     .orElse((state) -> true);
+
                   mutator.inWorldMutableStream()
+                    .filter(filter)
                     .forEach(state -> {
                         final BlockState currentState = state.getState();
 
@@ -189,6 +201,13 @@ public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implement
         final Vector3d inBlockHitVector = hitVector.subtract(hitBlockPosVector);
         final Vector3d inBlockBitVector = inBlockHitVector.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
 
+        if (context.getWorld() != null && filterOnTarget)
+        {
+            final IAreaAccessor worldAreaAccessor = IMutatorFactory.getInstance().in(context.getWorld(), new BlockPos(hitBlockPosVector));
+            final BlockState filterState = worldAreaAccessor.getInAreaTarget(inBlockHitVector).map(IStateEntryInfo::getState).orElse(Blocks.AIR.getDefaultState());
+            context.setStateFilter(areaAccessor -> new BlockStateAreaFilter(filterState));
+        }
+
         final Direction iterationDirection = iterationAdaptor.apply(blockRayTraceResult.getFace());
         switch (iterationDirection)
         {
@@ -300,6 +319,46 @@ public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implement
     @Override
     public Optional<IToolModeGroup> getGroup()
     {
-        return Optional.of(ModChiselModeGroups.PLANE);
+        return Optional.of(filterOnTarget ? ModChiselModeGroups.PLANE_FILTERED : ModChiselModeGroups.PLANE);
+    }
+
+    private final class BlockStateAreaFilter implements Predicate<IStateEntryInfo>
+    {
+        private final BlockState targetState;
+        private final int stateHash;
+
+        private BlockStateAreaFilter(final BlockState targetState) {
+            this.targetState = targetState;
+            this.stateHash = targetState.hashCode();
+        }
+
+        @Override
+        public boolean test(final IStateEntryInfo stateEntryInfo)
+        {
+            return stateHash == stateEntryInfo.getState().hashCode();
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (!(o instanceof BlockStateAreaFilter))
+            {
+                return false;
+            }
+
+            final BlockStateAreaFilter that = (BlockStateAreaFilter) o;
+
+            return targetState.equals(that.targetState);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return stateHash;
+        }
     }
 }

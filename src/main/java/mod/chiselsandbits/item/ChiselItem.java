@@ -1,11 +1,13 @@
 package mod.chiselsandbits.item;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
+import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
@@ -53,7 +55,25 @@ public class ChiselItem extends ToolItem implements IChiselItem
 {
 
     private static final Logger LOGGER = LogManager.getLogger();
-    public static final Predicate<IStateEntryInfo> DEFAULT_CONTEXT_PREDICATE = (s) -> true;
+    public static final Predicate<IStateEntryInfo> DEFAULT_CONTEXT_PREDICATE = new Predicate<IStateEntryInfo>() {
+        @Override
+        public boolean test(final IStateEntryInfo iStateEntryInfo)
+        {
+            return !iStateEntryInfo.getState().isAir();
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return 0;
+        }
+
+        @Override
+        public boolean equals(final Object obj)
+        {
+            return obj == this;
+        }
+    };
 
     public ChiselItem(
       final IItemTier tier,
@@ -207,6 +227,29 @@ public class ChiselItem extends ToolItem implements IChiselItem
             return !currentContextSnapshot.getMutator().isPresent();
         }
 
+        final Optional<IChiselingContext> localCachedContext = ILocalChiselingContextCache
+                                                                 .getInstance()
+                                                                 .get(ChiselingOperation.CHISELING);
+
+        if (localCachedContext.isPresent()
+          &&
+              localCachedContext.get().getMode().isStillValid(playerEntity, localCachedContext.get(), ChiselingOperation.CHISELING)
+        )
+        {
+            final IChiselingContext context = localCachedContext.get();
+
+            if (
+              context.getMode() == chiselMode
+            )
+
+            if (context.getMutator().isPresent())
+            {
+                return false;
+            }
+
+            return !context.getMutator().isPresent();
+        }
+
         final IChiselingContext context = IChiselingManager.getInstance().create(
           playerEntity,
           chiselMode,
@@ -219,6 +262,9 @@ public class ChiselItem extends ToolItem implements IChiselItem
           playerEntity,
           context
         );
+
+        //Store it in the local cache.
+        ILocalChiselingContextCache.getInstance().set(ChiselingOperation.CHISELING, context);
 
         return !context.getMutator().isPresent();
     }
@@ -245,29 +291,48 @@ public class ChiselItem extends ToolItem implements IChiselItem
         final Optional<IChiselingContext> potentiallyExistingContext =
           IChiselingManager.getInstance().get(playerEntity, chiselMode, ChiselingOperation.CHISELING);
 
-        final IChiselingContext context = potentiallyExistingContext
-                                            .map(IChiselingContext::createSnapshot)
-                                            .orElseGet(
-                                              () -> IChiselingManager.getInstance().create(
-                                                playerEntity,
-                                                chiselMode,
-                                                ChiselingOperation.CHISELING,
-                                                true,
-                                                itemStack
-                                              )
-                                            );
+        final Optional<IChiselingContext> potentiallyCachedContext = ILocalChiselingContextCache.getInstance()
+                                                                       .get(ChiselingOperation.CHISELING);
+        IChiselingContext context;
+        if (potentiallyExistingContext.isPresent()) {
+            context = potentiallyExistingContext.get();
 
-        chiselMode.onLeftClickBy(
-          playerEntity,
-          context
-        );
+            chiselMode.onLeftClickBy(
+              playerEntity,
+              context
+            );
+        }
+        else if (potentiallyCachedContext.isPresent()
+                   && potentiallyCachedContext.get().getMode() == chiselMode
+                   && potentiallyCachedContext.get().getModeOfOperandus() == ChiselingOperation.CHISELING
+                   && chiselMode.isStillValid(playerEntity, potentiallyCachedContext.get(), ChiselingOperation.CHISELING)) {
+            context = potentiallyCachedContext.get();
+        }
+        else
+        {
+            context =  IChiselingManager.getInstance().create(
+              playerEntity,
+              chiselMode,
+              ChiselingOperation.CHISELING,
+              true,
+              itemStack
+            );
+
+            chiselMode.onLeftClickBy(
+              playerEntity,
+              context
+            );
+        }
 
         if (!context.getMutator().isPresent())
         {
+            ILocalChiselingContextCache.getInstance().clear(ChiselingOperation.CHISELING);
             //No bit was included in the chiseling action
             //We interacted with something we could not chisel
             return;
         }
+
+        ILocalChiselingContextCache.getInstance().set(ChiselingOperation.CHISELING, context);
 
         Vector3d vector3d = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
         double xView = vector3d.getX();
@@ -287,6 +352,8 @@ public class ChiselItem extends ToolItem implements IChiselItem
                                              },
                                              false
                                              );
+
+        RenderSystem.disableDepthTest();
         WorldRenderer.drawShape(
           matrixStack,
           Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
@@ -295,6 +362,7 @@ public class ChiselItem extends ToolItem implements IChiselItem
           0.95F, 0.0F, 0.0F, 0.65F
         );
         Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().finish(ModRenderTypes.MEASUREMENT_LINES.get());
+        RenderSystem.enableDepthTest();
     }
 
     @Override
