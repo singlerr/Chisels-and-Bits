@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-public class ModMetadataKeys
+public final class ModMetadataKeys
 {
 
     private ModMetadataKeys()

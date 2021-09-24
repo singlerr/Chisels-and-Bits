@@ -29,6 +29,8 @@ public class ClientConfiguration extends AbstractConfiguration
 
     public ForgeConfigSpec.LongValue modelCacheSize;
 
+    public ForgeConfigSpec.BooleanValue injectIntoJEI;
+
     /**
      * Builds client configuration.
      *
@@ -64,6 +66,11 @@ public class ClientConfiguration extends AbstractConfiguration
         createCategory(builder, "client.gui");
 
         enableMouseIndicatorInRadialMenu = defineBoolean(builder, "radial-menu.mouse-indicator", false);
+
+        finishCategory(builder);
+        createCategory(builder, "compat.jei");
+
+        injectIntoJEI = defineBoolean(builder, "inject-bits", true);
 
         finishCategory(builder);
 
