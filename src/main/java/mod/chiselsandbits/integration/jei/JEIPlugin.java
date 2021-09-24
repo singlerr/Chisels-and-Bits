@@ -6,6 +6,7 @@ import mezz.jei.api.constants.ModIds;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.runtime.IIngredientManager;
 import mezz.jei.api.runtime.IJeiRuntime;
+import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.item.ItemStack;
@@ -13,6 +14,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 @SuppressWarnings("unused")
 @JeiPlugin
@@ -24,7 +26,7 @@ public class JEIPlugin implements IModPlugin
     public static final ResourceLocation UID = new ResourceLocation(Constants.MOD_ID, ModIds.JEI_ID);
 
     @Override
-    public ResourceLocation getPluginUid()
+    public @NotNull ResourceLocation getPluginUid()
     {
         return UID;
     }
@@ -34,11 +36,14 @@ public class JEIPlugin implements IModPlugin
     {
         LOGGER.info("JEI Runtime is now available.");
         IIngredientManager ingredientManager = jeiRuntime.getIngredientManager();
-        final NonNullList<ItemStack> bitStacks = NonNullList.create();
-        ModItems.ITEM_BLOCK_BIT.get().fillItemGroup(ModItems.ITEM_BLOCK_BIT.get().getGroup(), bitStacks);
-        if (!bitStacks.isEmpty()) {
-            LOGGER.info("Injecting bits.");
-            ingredientManager.addIngredientsAtRuntime(VanillaTypes.ITEM, bitStacks);
+
+        if (IChiselsAndBitsAPI.getInstance().getConfiguration().getClient().injectIntoJEI.get()) {
+            final NonNullList<ItemStack> bitStacks = NonNullList.create();
+            ModItems.ITEM_BLOCK_BIT.get().fillItemGroup(ModItems.ITEM_BLOCK_BIT.get().getGroup(), bitStacks);
+            if (!bitStacks.isEmpty()) {
+                LOGGER.info("Injecting bits.");
+                ingredientManager.addIngredientsAtRuntime(VanillaTypes.ITEM, bitStacks);
+            }
         }
     }
 }
