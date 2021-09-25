@@ -31,13 +31,13 @@ public class AsyncReloadManager extends ThreadTaskExecutor<Runnable>
 
     public void reload(IResourceManager resourceManager, IFutureReloadListener reloadListener) {
         final IAsyncReloader asyncLoader
-          = AsyncReloader.create(resourceManager, Lists.newArrayList(reloadListener), Runnable::run, Runnable::run, CompletableFuture.completedFuture(Unit.INSTANCE));
+          = AsyncReloader.of(resourceManager, Lists.newArrayList(reloadListener), Runnable::run, Runnable::run, CompletableFuture.completedFuture(Unit.INSTANCE));
 
         try
         {
-            while(!asyncLoader.fullyDone()) {
-                if (!this.driveOne()) {
-                    this.threadYieldPark();
+            while(!asyncLoader.isDone()) {
+                if (!this.pollTask()) {
+                    this.waitForTasks();
                 }
             }
         }
@@ -48,19 +48,19 @@ public class AsyncReloadManager extends ThreadTaskExecutor<Runnable>
     }
 
     @Override
-    protected @NotNull Runnable wrapTask(final @NotNull Runnable runnable)
+    protected @NotNull Runnable wrapRunnable(final @NotNull Runnable runnable)
     {
         return runnable;
     }
 
     @Override
-    protected boolean canRun(final @NotNull Runnable runnable)
+    protected boolean shouldRun(final @NotNull Runnable runnable)
     {
         return true;
     }
 
     @Override
-    protected @NotNull Thread getExecutionThread()
+    protected @NotNull Thread getRunningThread()
     {
         return Thread.currentThread();
     }

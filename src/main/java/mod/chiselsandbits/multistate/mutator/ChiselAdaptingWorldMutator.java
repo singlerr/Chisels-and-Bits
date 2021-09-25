@@ -37,7 +37,7 @@ import java.util.stream.Stream;
 
 public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
 {
-    public static final BlockState DEFAULT_STATE = Blocks.STONE.getDefaultState();
+    public static final BlockState DEFAULT_STATE = Blocks.STONE.defaultBlockState();
     private final IWorld world;
     private final BlockPos pos;
 
@@ -57,7 +57,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public IAreaShapeIdentifier createNewShapeIdentifier()
     {
-        final TileEntity tileEntity = getWorld().getTileEntity(getPos());
+        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).createNewShapeIdentifier();
@@ -70,7 +70,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public Stream<IStateEntryInfo> stream()
     {
-        final TileEntity tileEntity = getWorld().getTileEntity(getPos());
+        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).stream();
@@ -104,21 +104,21 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
     {
-        if (inAreaTarget.getX() < 0 ||
-              inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0)
+        if (inAreaTarget.x() < 0 ||
+              inAreaTarget.y() < 0 ||
+              inAreaTarget.z() < 0)
         {
             return Optional.empty();
         }
 
-        if (inAreaTarget.getX() >= 1 ||
-              inAreaTarget.getY() >= 1 ||
-              inAreaTarget.getZ() >= 1)
+        if (inAreaTarget.x() >= 1 ||
+              inAreaTarget.y() >= 1 ||
+              inAreaTarget.z() >= 1)
         {
             return Optional.empty();
         }
 
-        final TileEntity tileEntity = getWorld().getTileEntity(getPos());
+        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).getInAreaTarget(inAreaTarget);
@@ -130,7 +130,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
           currentState,
           getWorld(),
           getPos(),
-          new BlockPos(inAreaTarget.mul(StateEntrySize.current().getBitsPerBlockSide(),
+          new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(),
             StateEntrySize.current().getBitsPerBlockSide(),
             StateEntrySize.current().getBitsPerBlockSide())),
           this::setInAreaTarget,
@@ -165,12 +165,12 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public boolean isInside(final Vector3d inAreaTarget)
     {
-        return !(inAreaTarget.getX() < 0) &&
-                 !(inAreaTarget.getY() < 0) &&
-                 !(inAreaTarget.getZ() < 0) &&
-                 !(inAreaTarget.getX() >= 1) &&
-                 !(inAreaTarget.getY() >= 1) &&
-                 !(inAreaTarget.getZ() >= 1);
+        return !(inAreaTarget.x() < 0) &&
+                 !(inAreaTarget.y() < 0) &&
+                 !(inAreaTarget.z() < 0) &&
+                 !(inAreaTarget.x() >= 1) &&
+                 !(inAreaTarget.y() >= 1) &&
+                 !(inAreaTarget.z() >= 1);
     }
 
     /**
@@ -194,7 +194,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public IMultiStateSnapshot createSnapshot()
     {
-        final TileEntity tileEntity = getWorld().getTileEntity(getPos());
+        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).createSnapshot();
@@ -219,7 +219,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
     {
-        final TileEntity tileEntity = getWorld().getTileEntity(getPos());
+        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).streamWithPositionMutator(positionMutator);
@@ -259,13 +259,13 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public Vector3d getInWorldStartPoint()
     {
-        return Vector3d.copy(pos);
+        return Vector3d.atLowerCornerOf(pos);
     }
 
     @Override
     public Vector3d getInWorldEndPoint()
     {
-        return Vector3d.copy(pos).add(
+        return Vector3d.atLowerCornerOf(pos).add(
           15 * StateEntrySize.current().getSizePerBit(),
           15 * StateEntrySize.current().getSizePerBit(),
           15 * StateEntrySize.current().getSizePerBit()
@@ -280,7 +280,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public Stream<IMutableStateEntryInfo> mutableStream()
     {
-        final TileEntity tileEntity = getWorld().getTileEntity(getPos());
+        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).mutableStream();
@@ -308,23 +308,23 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
     {
-        if (inAreaTarget.getX() < 0 ||
-              inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0)
+        if (inAreaTarget.x() < 0 ||
+              inAreaTarget.y() < 0 ||
+              inAreaTarget.z() < 0)
         {
             throw new IllegalArgumentException(
               "The chisel adapting world mutator can only mutate blocks with an in area offset greater or equal to 0. Requested was: " + inAreaTarget);
         }
 
-        if (inAreaTarget.getX() >= 1 ||
-              inAreaTarget.getY() >= 1 ||
-              inAreaTarget.getZ() >= 1)
+        if (inAreaTarget.x() >= 1 ||
+              inAreaTarget.y() >= 1 ||
+              inAreaTarget.z() >= 1)
         {
             throw new IllegalArgumentException(
               "The chisel adapting world mutator can only mutate blocks with an in area offset smaller then 1. Requested was: " + inAreaTarget);
         }
 
-        final TileEntity tileEntity = getWorld().getTileEntity(getPos());
+        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             ((IMultiStateBlockEntity) tileEntity).setInAreaTarget(blockState, inAreaTarget);
@@ -342,13 +342,13 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         if (optionalWithConvertedBlock.isPresent())
         {
             final Block convertedBlock = optionalWithConvertedBlock.get();
-            getWorld().setBlockState(
+            getWorld().setBlock(
               getPos(),
-              convertedBlock.getDefaultState(),
+              convertedBlock.defaultBlockState(),
               Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.UPDATE_NEIGHBORS
             );
 
-            final TileEntity convertedTileEntity = getWorld().getTileEntity(getPos());
+            final TileEntity convertedTileEntity = getWorld().getBlockEntity(getPos());
             if (convertedTileEntity instanceof IMultiStateBlockEntity)
             {
                 ((IMultiStateBlockEntity) convertedTileEntity).initializeWith(currentState);
@@ -380,23 +380,23 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public void clearInAreaTarget(final Vector3d inAreaTarget)
     {
-        if (inAreaTarget.getX() < 0 ||
-              inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0)
+        if (inAreaTarget.x() < 0 ||
+              inAreaTarget.y() < 0 ||
+              inAreaTarget.z() < 0)
         {
             throw new IllegalArgumentException(
               "The chisel adapting world mutator can only mutate blocks with an in area offset greater or equal to 0. Requested was: " + inAreaTarget);
         }
 
-        if (inAreaTarget.getX() > 1 ||
-              inAreaTarget.getY() > 1 ||
-              inAreaTarget.getZ() > 1)
+        if (inAreaTarget.x() > 1 ||
+              inAreaTarget.y() > 1 ||
+              inAreaTarget.z() > 1)
         {
             throw new IllegalArgumentException(
               "The chisel adapting world mutator can only mutate blocks with an in area offset smaller then 1. Requested was: " + inAreaTarget);
         }
 
-        final TileEntity tileEntity = getWorld().getTileEntity(getPos());
+        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             ((IMultiStateBlockEntity) tileEntity).clearInAreaTarget(inAreaTarget);
@@ -414,13 +414,13 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         if (optionalWithConvertedBlock.isPresent())
         {
             final Block convertedBlock = optionalWithConvertedBlock.get();
-            getWorld().setBlockState(
+            getWorld().setBlock(
               getPos(),
-              convertedBlock.getDefaultState(),
+              convertedBlock.defaultBlockState(),
               Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.UPDATE_NEIGHBORS
             );
 
-            final TileEntity convertedTileEntity = getWorld().getTileEntity(getPos());
+            final TileEntity convertedTileEntity = getWorld().getBlockEntity(getPos());
             if (convertedTileEntity instanceof IMultiStateBlockEntity)
             {
                 ((IMultiStateBlockEntity) convertedTileEntity).initializeWith(currentState);
@@ -458,7 +458,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public Stream<IInWorldMutableStateEntryInfo> inWorldMutableStream()
     {
-        final TileEntity tileEntity = getWorld().getTileEntity(getPos());
+        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).inWorldMutableStream();
@@ -494,7 +494,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public IBatchMutation batch()
     {
-        final TileEntity tileEntity = getWorld().getTileEntity(getPos());
+        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).batch();
@@ -508,20 +508,20 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             //This happens when placing into an empty blockspace.
             //We will assume a simple rock as the base material. The TE will fix itself after the placement.
             currentState = DEFAULT_STATE;
-            initializationState = Blocks.AIR.getDefaultState();
+            initializationState = Blocks.AIR.defaultBlockState();
         }
 
         final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(currentState);
         if (optionalWithConvertedBlock.isPresent())
         {
             final Block convertedBlock = optionalWithConvertedBlock.get();
-            getWorld().setBlockState(
+            getWorld().setBlock(
               getPos(),
-              convertedBlock.getDefaultState(),
+              convertedBlock.defaultBlockState(),
               Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.UPDATE_NEIGHBORS
             );
 
-            final TileEntity convertedTileEntity = getWorld().getTileEntity(getPos());
+            final TileEntity convertedTileEntity = getWorld().getBlockEntity(getPos());
             if (convertedTileEntity instanceof IMultiStateBlockEntity)
             {
                 ((IMultiStateBlockEntity) convertedTileEntity).initializeWith(initializationState);
@@ -559,7 +559,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             this.blockState = blockState;
             this.world = world;
             this.blockPos = blockPos;
-            this.startPoint = Vector3d.copy(inBlockOffset).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
+            this.startPoint = Vector3d.atLowerCornerOf(inBlockOffset).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
             this.setCallback = setCallback;
             this.clearCallback = clearCallback;
             this.endPoint = this.startPoint.add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());

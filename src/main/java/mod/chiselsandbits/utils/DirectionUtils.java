@@ -37,20 +37,20 @@ public class DirectionUtils
     public static Optional<Direction> getDirectionVectorIfAligned(final Vector3d vector) {
         final Vector3d scaledToOne = VectorUtils.scaleToOne(vector);
 
-        if (MathUtil.almostEqual(scaledToOne.getX(), 0)) {
-            if (MathUtil.almostEqual(scaledToOne.getY(), 0)) {
-                if (MathUtil.almostEqual(scaledToOne.getZ(), 0)) {
+        if (MathUtil.almostEqual(scaledToOne.x(), 0)) {
+            if (MathUtil.almostEqual(scaledToOne.y(), 0)) {
+                if (MathUtil.almostEqual(scaledToOne.z(), 0)) {
                     return Optional.empty();
                 }
                 else
                 {
-                    return Optional.of(scaledToOne.getZ() < 0 ? Direction.NORTH : Direction.SOUTH);
+                    return Optional.of(scaledToOne.z() < 0 ? Direction.NORTH : Direction.SOUTH);
                 }
             }
             else
             {
-                if (MathUtil.almostEqual(scaledToOne.getZ(), 0)) {
-                    return Optional.of(scaledToOne.getY() < 0 ? Direction.DOWN : Direction.UP);
+                if (MathUtil.almostEqual(scaledToOne.z(), 0)) {
+                    return Optional.of(scaledToOne.y() < 0 ? Direction.DOWN : Direction.UP);
                 }
                 else
                 {
@@ -60,9 +60,9 @@ public class DirectionUtils
         }
         else
         {
-            if (MathUtil.almostEqual(scaledToOne.getY(), 0)) {
-                if (MathUtil.almostEqual(scaledToOne.getZ(), 0)) {
-                    return Optional.of(scaledToOne.getZ() < 0 ? Direction.WEST : Direction.EAST);
+            if (MathUtil.almostEqual(scaledToOne.y(), 0)) {
+                if (MathUtil.almostEqual(scaledToOne.z(), 0)) {
+                    return Optional.of(scaledToOne.z() < 0 ? Direction.WEST : Direction.EAST);
                 }
                 else
                 {

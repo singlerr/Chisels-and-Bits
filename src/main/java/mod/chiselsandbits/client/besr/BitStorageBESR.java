@@ -50,12 +50,12 @@ public class BitStorageBESR extends TileEntityRenderer<BitStorageBlockEntity>
             final FluidStack fluidStack = te.getBitsAsFluidStack();
             if (fluidStack != null)
             {
-                RenderType.getBlockRenderTypes().forEach(renderType -> {
-                    if (!RenderTypeLookup.canRenderInLayer(fluidStack.getFluid().getDefaultState(), renderType))
+                RenderType.chunkBufferLayers().forEach(renderType -> {
+                    if (!RenderTypeLookup.canRenderInLayer(fluidStack.getFluid().defaultFluidState(), renderType))
                         return;
 
-                    if (renderType == RenderType.getTranslucent() && Minecraft.isFabulousGraphicsEnabled())
-                        renderType = Atlases.getTranslucentCullBlockType();
+                    if (renderType == RenderType.translucent() && Minecraft.useShaderTransparency())
+                        renderType = Atlases.translucentCullBlockSheet();
 
                     final IVertexBuilder builder = buffer.getBuffer(renderType);
 
@@ -77,7 +77,7 @@ public class BitStorageBESR extends TileEntityRenderer<BitStorageBlockEntity>
         }
 
         final int bits = te.getBits();
-        final BlockState state = te.getMyFluid() == null ? te.getState() : te.getMyFluid().getDefaultState().getBlockState();
+        final BlockState state = te.getMyFluid() == null ? te.getState() : te.getMyFluid().defaultFluidState().createLegacyBlock();
         if (bits <= 0 || state == null)
             return;
 
@@ -93,21 +93,21 @@ public class BitStorageBESR extends TileEntityRenderer<BitStorageBlockEntity>
             STORAGE_CONTENTS_BLOB_CACHE.put(cacheKey, innerModelBlob);
         }
 
-        matrixStackIn.push();
+        matrixStackIn.pushPose();
         matrixStackIn.translate(2/16f, 2/16f, 2/16f);
         matrixStackIn.scale(12/16f, 12/16f, 12/16f);
         final ChunkSection finalInnerModelBlob = innerModelBlob;
-        RenderType.getBlockRenderTypes().forEach(renderType -> {
+        RenderType.chunkBufferLayers().forEach(renderType -> {
             final ChiseledBlockBakedModel innerModel = ChiseledBlockBakedModelManager.getInstance().get(
               MultiStateSnapshotUtils.createFromSection(finalInnerModelBlob),
               state,
               ChiselRenderType.fromLayer(renderType, te.getMyFluid() != null),
               new SingleBlockBlockReader(
                 state,
-                te.getPos(),
-                te.getWorld()
+                te.getBlockPos(),
+                te.getLevel()
               ),
-              te.getPos()
+              te.getBlockPos()
             );
 
             if (!innerModel.isEmpty())
@@ -116,11 +116,11 @@ public class BitStorageBESR extends TileEntityRenderer<BitStorageBlockEntity>
                 final float g = te.getMyFluid() == null ? 1f : ((te.getMyFluid().getAttributes().getColor() >> 8) & 0xff) / 255f;
                 final float b = te.getMyFluid() == null ? 1f : ((te.getMyFluid().getAttributes().getColor()) & 0xff) / 255f;
 
-                Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelRenderer().renderModel(matrixStackIn.getLast(), buffer.getBuffer(renderType), state, innerModel, r, g, b, combinedLightIn, combinedOverlayIn,
+                Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(matrixStackIn.last(), buffer.getBuffer(renderType), state, innerModel, r, g, b, combinedLightIn, combinedOverlayIn,
                   EmptyModelData.INSTANCE);
             }
         });
-        matrixStackIn.pop();
+        matrixStackIn.popPose();
     }
 
     private static final class CacheKey {

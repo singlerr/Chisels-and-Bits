@@ -32,6 +32,6 @@ public class GuiIconButton extends Button
         IconManager.getInstance().bindTexture();
         RenderSystem.color4f(1f, 1f, 1f, 1f);
         blit(matrixStack, x + 1, y + 1, 0, 16,16, icon);
-        Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
+        Minecraft.getInstance().getTextureManager().bind(PlayerContainer.BLOCK_ATLAS);
     }
 }

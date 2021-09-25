@@ -61,14 +61,14 @@ public class KeyBindingManager
                                             new KeyBinding("key.modded-tool.cycle.left",
                                               SpecificScreenOpenKeyConflictContext.RADIAL_TOOL_MENU,
                                               InputMappings.Type.KEYSYM,
-                                              InputMappings.INPUT_INVALID.getKeyCode(),
+                                              InputMappings.UNKNOWN.getValue(),
                                               "key.chiselsandbits.category"));
 
         ClientRegistry.registerKeyBinding(cycleToolMenuRightKeybinding =
                                             new KeyBinding("key.modded-tool.cycle.right",
                                               SpecificScreenOpenKeyConflictContext.RADIAL_TOOL_MENU,
                                               InputMappings.Type.KEYSYM,
-                                              InputMappings.INPUT_INVALID.getKeyCode(),
+                                              InputMappings.UNKNOWN.getValue(),
                                               "key.chiselsandbits.category"));
 
         ClientRegistry.registerKeyBinding(resetMeasuringTapeKeyBinding =
@@ -92,21 +92,21 @@ public class KeyBindingManager
     public void handleKeyPresses() {
         Minecraft mc = Minecraft.getInstance();
 
-        if (mc.currentScreen == null)
+        if (mc.screen == null)
         {
             boolean toolMenuKeyIsDown = isOpenToolMenuKeyPressed();
             if (toolMenuKeyIsDown && !toolMenuKeyWasDown)
             {
                 if (isOpenToolMenuKeyPressed())
                 {
-                    if (mc.currentScreen == null)
+                    if (mc.screen == null)
                     {
                         ItemStack inHand = ItemStackUtils.getModeItemStackFromPlayer(mc.player);
                         if (!inHand.isEmpty() && inHand.getItem() instanceof IWithModeItem)
                         {
                             try {
                                 final IWithModeItem<? extends IRenderableMode> withModeItem = (IWithModeItem<? extends IRenderableMode>) inHand.getItem();
-                                mc.displayGuiScreen(RadialToolModeSelectionScreen.create(withModeItem, inHand));
+                                mc.setScreen(RadialToolModeSelectionScreen.create(withModeItem, inHand));
                             } catch (ClassCastException ignored) {
                             }
                         }
@@ -120,8 +120,8 @@ public class KeyBindingManager
             toolMenuKeyWasDown = true;
         }
 
-        if (mc.currentScreen instanceof RadialToolModeSelectionScreen) {
-            final RadialToolModeSelectionScreen<?> radialToolMenuScreen = (RadialToolModeSelectionScreen<?>) mc.currentScreen;
+        if (mc.screen instanceof RadialToolModeSelectionScreen) {
+            final RadialToolModeSelectionScreen<?> radialToolMenuScreen = (RadialToolModeSelectionScreen<?>) mc.screen;
 
             if (toolModeSelectionPlusCoolDown == 0 && isCycleToolMenuRightKeyPressed())
                 radialToolMenuScreen.onMoveSelectionToTheRight();
@@ -173,17 +173,17 @@ public class KeyBindingManager
 
     public boolean isKeyDown(KeyBinding keybinding)
     {
-        if (keybinding.isInvalid())
+        if (keybinding.isUnbound())
             return false;
 
         boolean isDown = false;
         switch (keybinding.getKey().getType())
         {
             case KEYSYM:
-                isDown = InputMappings.isKeyDown(Minecraft.getInstance().getMainWindow().getHandle(), keybinding.getKey().getKeyCode());
+                isDown = InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), keybinding.getKey().getValue());
                 break;
             case MOUSE:
-                isDown = GLFW.glfwGetMouseButton(Minecraft.getInstance().getMainWindow().getHandle(), keybinding.getKey().getKeyCode()) == GLFW.GLFW_PRESS;
+                isDown = GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), keybinding.getKey().getValue()) == GLFW.GLFW_PRESS;
                 break;
         }
         return isDown && keybinding.getKeyConflictContext().isActive() && keybinding.getKeyModifier().isActive(keybinding.getKeyConflictContext());

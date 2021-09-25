@@ -18,9 +18,9 @@ public class ClientTickHandler
     public static void handleClientTickForMagnifyingGlass(final TickEvent.ClientTickEvent event)
     {
         if (Minecraft.getInstance().player != null)
-            if (Minecraft.getInstance().player.getHeldItemMainhand().getItem() instanceof MagnifyingGlassItem
-                  || Minecraft.getInstance().player.getHeldItemOffhand().getItem() instanceof MagnifyingGlassItem)
-                if (Minecraft.getInstance().ingameGUI != null)
-                    Minecraft.getInstance().ingameGUI.remainingHighlightTicks = 40;
+            if (Minecraft.getInstance().player.getMainHandItem().getItem() instanceof MagnifyingGlassItem
+                  || Minecraft.getInstance().player.getOffhandItem().getItem() instanceof MagnifyingGlassItem)
+                if (Minecraft.getInstance().gui != null)
+                    Minecraft.getInstance().gui.toolHighlightTimer = 40;
     }
 }

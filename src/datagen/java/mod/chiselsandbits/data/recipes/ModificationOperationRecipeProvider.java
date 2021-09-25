@@ -34,39 +34,39 @@ public class ModificationOperationRecipeProvider extends RecipeProvider
     }
 
     @Override
-    protected void registerRecipes(final @NotNull Consumer<IFinishedRecipe> consumer)
+    protected void buildShapelessRecipes(final @NotNull Consumer<IFinishedRecipe> consumer)
     {
         ModModificationOperation.REGISTRY_SUPPLIER.get().forEach(
           operation -> {
               consumer.accept(new IFinishedRecipe() {
                   @Override
-                  public void serialize(final @NotNull JsonObject json)
+                  public void serializeRecipeData(final @NotNull JsonObject json)
                   {
 
                   }
 
                   @Override
-                  public @NotNull ResourceLocation getID()
+                  public @NotNull ResourceLocation getId()
                   {
                       return Objects.requireNonNull(operation.getRegistryName());
                   }
 
                   @Override
-                  public @NotNull IRecipeSerializer<?> getSerializer()
+                  public @NotNull IRecipeSerializer<?> getType()
                   {
                       return ModRecipeSerializers.MODIFICATION_TABLE.get();
                   }
 
                   @Nullable
                   @Override
-                  public JsonObject getAdvancementJson()
+                  public JsonObject serializeAdvancement()
                   {
                       return null;
                   }
 
                   @Nullable
                   @Override
-                  public ResourceLocation getAdvancementID()
+                  public ResourceLocation getAdvancementId()
                   {
                       return null;
                   }

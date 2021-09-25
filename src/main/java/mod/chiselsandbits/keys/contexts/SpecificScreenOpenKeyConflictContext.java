@@ -21,7 +21,7 @@ public enum SpecificScreenOpenKeyConflictContext implements IKeyConflictContext
     @Override
     public boolean isActive()
     {
-        return Minecraft.getInstance().currentScreen != null && Minecraft.getInstance().currentScreen.getClass() == guiScreenClass;
+        return Minecraft.getInstance().screen != null && Minecraft.getInstance().screen.getClass() == guiScreenClass;
     }
 
     /**

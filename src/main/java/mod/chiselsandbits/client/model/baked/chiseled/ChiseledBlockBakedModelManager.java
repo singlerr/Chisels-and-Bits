@@ -41,7 +41,7 @@ public class ChiseledBlockBakedModelManager
     }
 
     private final Cache<Key, ChiseledBlockBakedModel> cache = CacheBuilder.newBuilder()
-        .maximumSize(Configuration.getInstance().getClient().modelCacheSize.get() * RenderType.getBlockRenderTypes().size())
+        .maximumSize(Configuration.getInstance().getClient().modelCacheSize.get() * RenderType.chunkBufferLayers().size())
         .expireAfterAccess(1, TimeUnit.HOURS)
         .build();
 
@@ -63,13 +63,13 @@ public class ChiseledBlockBakedModelManager
                 if (blockReader != null && position != null) {
                     for (final Direction value : Direction.values())
                     {
-                        final BlockPos offsetPos = position.offset(value);
+                        final BlockPos offsetPos = position.relative(value);
                         neighborhoodMap.put(value, blockReader.getBlockState(offsetPos));
                     }
                 }
             }
 
-            final long primaryStateRenderSeed = primaryState.getPositionRandom(position);
+            final long primaryStateRenderSeed = primaryState.getSeed(position);
             final Key key = new Key(accessor.createNewShapeIdentifier(), primaryState, renderType, neighborhoodMap, primaryStateRenderSeed);
             try
             {
@@ -83,23 +83,23 @@ public class ChiseledBlockBakedModelManager
                             targetOffset -> {
                                 if (blockReader == null || position == null)
                                 {
-                                    return Blocks.AIR.getDefaultState();
+                                    return Blocks.AIR.defaultBlockState();
                                 }
 
-                                final Vector3d targetPositionVector = Vector3d.copy(position).add(targetOffset);
+                                final Vector3d targetPositionVector = Vector3d.atLowerCornerOf(position).add(targetOffset);
                                 final BlockPos targetPosition = new BlockPos(targetPositionVector);
 
-                                final TileEntity tileEntity = blockReader.getTileEntity(targetPosition);
+                                final TileEntity tileEntity = blockReader.getBlockEntity(targetPosition);
                                 if (tileEntity instanceof IMultiStateBlockEntity)
                                 {
                                     final IMultiStateBlockEntity blockEntity = (IMultiStateBlockEntity) tileEntity;
 
-                                    final Vector3d inBlockOffset = targetPositionVector.subtract(Vector3d.copy(targetPosition));
+                                    final Vector3d inBlockOffset = targetPositionVector.subtract(Vector3d.atLowerCornerOf(targetPosition));
                                     final Vector3d inBlockOffsetTarget = VectorUtils.makePositive(inBlockOffset);
 
                                     return blockEntity.getInAreaTarget(inBlockOffsetTarget)
                                              .map(IStateEntryInfo::getState)
-                                             .orElse(Blocks.AIR.getDefaultState());
+                                             .orElse(Blocks.AIR.defaultBlockState());
                                 }
 
                                 return blockReader.getBlockState(targetPosition);

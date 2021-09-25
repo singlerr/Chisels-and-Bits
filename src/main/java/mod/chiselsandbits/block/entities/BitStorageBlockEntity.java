@@ -37,6 +37,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.Objects;
 
+import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+
 public class BitStorageBlockEntity extends TileEntity implements IItemHandler, IFluidHandler
 {
 
@@ -63,13 +65,13 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
       final NetworkManager net,
       final SUpdateTileEntityPacket pkt)
     {
-        read(null, pkt.getNbtCompound());
+        load(null, pkt.getTag());
     }
 
     @Override
-    public void read(@Nullable final BlockState state, final @NotNull CompoundNBT nbt)
+    public void load(@Nullable final BlockState state, final @NotNull CompoundNBT nbt)
     {
-        super.read(state, nbt);
+        super.load(state, nbt);
         final String fluid = nbt.getString("fluid");
 
         if (fluid.equals(""))
@@ -94,16 +96,16 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
         else
         {
             myFluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(fluid));
-            this.state = myFluid.getDefaultState().getBlockState();
+            this.state = myFluid.defaultFluidState().createLegacyBlock();
         }
 
         bits = nbt.getInt("bits");
     }
 
     @Override
-    public @NotNull CompoundNBT write(final @NotNull CompoundNBT compound)
+    public @NotNull CompoundNBT save(final @NotNull CompoundNBT compound)
     {
-        final CompoundNBT nbt = super.write(compound);
+        final CompoundNBT nbt = super.save(compound);
         nbt.putString("fluid", myFluid == null ? "" : Objects.requireNonNull(myFluid.getRegistryName()).toString());
         nbt.put("state", myFluid != null || state == null ? new CompoundNBT() : NBTUtil.writeBlockState(state));
         nbt.putInt("bits", bits);
@@ -114,14 +116,14 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
     public SUpdateTileEntityPacket getUpdatePacket()
     {
         final CompoundNBT t = new CompoundNBT();
-        return new SUpdateTileEntityPacket(getPos(), 0, write(t));
+        return new SUpdateTileEntityPacket(getBlockPos(), 0, save(t));
     }
 
     @Override
     public @NotNull CompoundNBT getUpdateTag()
     {
         final CompoundNBT nbttagcompound = new CompoundNBT();
-        return write(nbttagcompound);
+        return save(nbttagcompound);
     }
 
     @Override
@@ -195,9 +197,9 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
             {
                 if (this.state == null || state.isAir(new SingleBlockBlockReader(
                   state,
-                  getPos(),
-                  getWorld()
-                ), getPos()))
+                  getBlockPos(),
+                  getLevel()
+                ), getBlockPos()))
                 {
                     this.state = stackState;
                     this.bits = 4096;
@@ -235,7 +237,7 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
         Fluid f = null;
         for (final Fluid fl : ForgeRegistries.FLUIDS)
         {
-            if (fl.getDefaultState().getBlockState().getBlock() == blk.getBlock())
+            if (fl.defaultFluidState().createLegacyBlock().getBlock() == blk.getBlock())
             {
                 f = fl;
                 break;
@@ -248,7 +250,7 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
         }
 
         final ItemStack bitItem = getFluidBitStack(myFluid, bits);
-        final boolean canInsert = bitItem.isEmpty() || ItemStack.areItemStackTagsEqual(bitItem, stack) && bitItem.getItem() == stack.getItem() || state == null;
+        final boolean canInsert = bitItem.isEmpty() || ItemStack.tagMatches(bitItem, stack) && bitItem.getItem() == stack.getItem() || state == null;
 
         if (canInsert)
         {
@@ -262,7 +264,7 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
                 final int oldBits = bits;
 
                 myFluid = f;
-                state = myFluid.getDefaultState().getBlockState();
+                state = myFluid.defaultFluidState().createLegacyBlock();
                 bits = amount;
 
                 if (bits != oldBits || myFluid != oldFluid || oldState != null)
@@ -289,7 +291,7 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
         Fluid f = null;
         for (final Fluid fl : ForgeRegistries.FLUIDS)
         {
-            if (fl.getDefaultState().getBlockState().getBlock() == blk.getBlock())
+            if (fl.defaultFluidState().createLegacyBlock().getBlock() == blk.getBlock())
             {
                 f = fl;
                 break;
@@ -302,7 +304,7 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
         }
 
         final ItemStack bitItem = getBlockBitStack(blk, bits);
-        final boolean canInsert = bitItem.isEmpty() || ItemStack.areItemStackTagsEqual(bitItem, stack) && bitItem.getItem() == stack.getItem();
+        final boolean canInsert = bitItem.isEmpty() || ItemStack.tagMatches(bitItem, stack) && bitItem.getItem() == stack.getItem();
 
         if (canInsert)
         {
@@ -359,7 +361,7 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
       final double hitZ,
       final BlockPos pos)
     {
-        if (!playerIn.isSneaking())
+        if (!playerIn.isShiftKeyDown())
         {
             final ItemStack is = extractItem(0, 64, false);
             if (!is.isEmpty())
@@ -430,18 +432,18 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
 
     private void saveAndUpdate()
     {
-        if (world == null || getWorld() == null)
+        if (level == null || getLevel() == null)
         {
             return;
         }
 
-        markDirty();
-        getWorld().notifyBlockUpdate(pos, getBlockState(), getBlockState(), 0);
+        setChanged();
+        getLevel().sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 0);
 
         final int lv = getLightValue();
         if (oldLV != lv)
         {
-            getWorld().getLightManager().checkBlock(getPos());
+            getLevel().getLightEngine().checkBlock(getBlockPos());
             oldLV = lv;
         }
     }
@@ -457,7 +459,7 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
         }
 
         return IBitItemManager.getInstance().create(
-          liquid.getDefaultState().getBlockState(),
+          liquid.defaultFluidState().createLegacyBlock(),
           amount
         );
     }
@@ -480,7 +482,7 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
 
     public int getLightValue()
     {
-        final BlockState workingState = myFluid == null ? state : myFluid.getDefaultState().getBlockState();
+        final BlockState workingState = myFluid == null ? state : myFluid.defaultFluidState().createLegacyBlock();
         if (workingState == null)
         {
             return 0;
@@ -489,24 +491,24 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
         return workingState.getLightValue(
           new SingleBlockWorldReader(
             workingState,
-            getPos(),
-            getWorld()
+            getBlockPos(),
+            getLevel()
           ),
-          getPos()
+          getBlockPos()
         );
     }
 
     public boolean addAllPossibleBits(
       final PlayerEntity playerIn)
     {
-        if (playerIn != null && playerIn.isSneaking() && state != null && !state.isAir(
+        if (playerIn != null && playerIn.isShiftKeyDown() && state != null && !state.isAir(
           new SingleBlockBlockReader(
             state,
             state.getBlock(),
-            getPos(),
-            getWorld()
+            getBlockPos(),
+            getLevel()
           ),
-          getPos()
+          getBlockPos()
         ))
         {
             final IBitInventory bitInventory = IBitInventoryManager.getInstance().create(playerIn);
@@ -518,7 +520,7 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
             bitInventory.extract(state, extractionAmount);
 
             bits += extractionAmount;
-            markDirty();
+            setChanged();
         }
 
         return false;
@@ -528,15 +530,15 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
       final @Nonnull ItemStack current,
       final PlayerEntity playerIn)
     {
-        if (playerIn.isSneaking() || this.bits == 0)
+        if (playerIn.isShiftKeyDown() || this.bits == 0)
         {
             if (current.getItem() instanceof IBitItem || IEligibilityManager.getInstance().canBeChiseled(current.getItem()))
             {
                 final ItemStack resultStack = insertItem(0, current, false);
                 if (!playerIn.isCreative())
                 {
-                    playerIn.inventory.setInventorySlotContents(playerIn.inventory.currentItem, resultStack);
-                    playerIn.inventory.markDirty();
+                    playerIn.inventory.setItem(playerIn.inventory.selected, resultStack);
+                    playerIn.inventory.setChanged();
                 }
                 return true;
             }
@@ -714,6 +716,6 @@ public class BitStorageBlockEntity extends TileEntity implements IItemHandler, I
     }
 
     public Direction getFacing() {
-        return getWorld().getBlockState(getPos()).get(BitStorageBlock.FACING);
+        return getLevel().getBlockState(getBlockPos()).getValue(BitStorageBlock.FACING);
     }
 }

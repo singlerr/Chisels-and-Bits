@@ -29,7 +29,7 @@ public class ChiselTagGenerator implements IDataProvider
     private ChiselTagGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void act(@NotNull final DirectoryCache cache) throws IOException
+    public void run(@NotNull final DirectoryCache cache) throws IOException
     {
         final TagJson json = new TagJson();
         json.setValues(

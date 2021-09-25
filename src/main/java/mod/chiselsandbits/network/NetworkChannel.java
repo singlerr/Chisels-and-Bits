@@ -127,7 +127,7 @@ public class NetworkChannel
      */
     public void sendToDimension(final ModPacket msg, final ResourceLocation dim)
     {
-        rawChannel.send(PacketDistributor.DIMENSION.with(() -> RegistryKey.getOrCreateKey(Registry.WORLD_KEY, dim)), msg);
+        rawChannel.send(PacketDistributor.DIMENSION.with(() -> RegistryKey.create(Registry.DIMENSION_REGISTRY, dim)), msg);
     }
 
     /**

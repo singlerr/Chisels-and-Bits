@@ -17,7 +17,7 @@ public class GuiBagFontRenderer extends FontRenderer
       final FontRenderer src,
       final int bagStackSize)
     {
-        super(src.font);
+        super(src.fonts);
         fontRenderer = src;
 
         if (bagStackSize < 100)
@@ -35,12 +35,12 @@ public class GuiBagFontRenderer extends FontRenderer
     }
 
     @Override
-    public int drawStringWithShadow(MatrixStack matrixStack, @NotNull String text, float x, float y, int color)
+    public int drawShadow(MatrixStack matrixStack, @NotNull String text, float x, float y, int color)
     {
         try
         {
             text = convertText(text);
-            matrixStack.push();
+            matrixStack.pushPose();
             matrixStack.scale(scale, scale, scale);
 
             x /= scale;
@@ -48,21 +48,21 @@ public class GuiBagFontRenderer extends FontRenderer
             x += offsetX;
             y += offsetY;
 
-            return fontRenderer.drawStringWithShadow(matrixStack, text, x, y, color);
+            return fontRenderer.drawShadow(matrixStack, text, x, y, color);
         }
         finally
         {
-            matrixStack.pop();
+            matrixStack.popPose();
         }
     }
 
     @Override
-    public int drawString(MatrixStack matrixStack, @NotNull String text, float x, float y, int color)
+    public int draw(MatrixStack matrixStack, @NotNull String text, float x, float y, int color)
     {
         try
         {
             text = convertText(text);
-            matrixStack.push();
+            matrixStack.pushPose();
             matrixStack.scale(scale, scale, scale);
 
             x /= scale;
@@ -70,23 +70,23 @@ public class GuiBagFontRenderer extends FontRenderer
             x += offsetX;
             y += offsetY;
 
-            return fontRenderer.drawString(matrixStack, text, x, y, color);
+            return fontRenderer.draw(matrixStack, text, x, y, color);
         }
         finally
         {
-            matrixStack.pop();
+            matrixStack.popPose();
         }
     }
 
     @Override
-    public int renderString(final @NotNull String text, float x, float y, final int color, final @NotNull Matrix4f matrix, final boolean dropShadow, final boolean p_228078_7_)
+    public int drawInternal(final @NotNull String text, float x, float y, final int color, final @NotNull Matrix4f matrix, final boolean dropShadow, final boolean p_228078_7_)
     {
         final MatrixStack stack = new MatrixStack();
         final Matrix4f original = new Matrix4f(matrix);
 
         try
         {
-            stack.getLast().getMatrix().mul(matrix);
+            stack.last().pose().multiply(matrix);
             stack.scale(scale, scale, scale);
 
             x /= scale;
@@ -94,7 +94,7 @@ public class GuiBagFontRenderer extends FontRenderer
             x += offsetX;
             y += offsetY;
 
-            return super.renderString(text, x, y, color, stack.getLast().getMatrix(), dropShadow, p_228078_7_);
+            return super.drawInternal(text, x, y, color, stack.last().pose(), dropShadow, p_228078_7_);
         }
         finally
         {
@@ -103,7 +103,7 @@ public class GuiBagFontRenderer extends FontRenderer
     }
 
     @Override
-    public int renderString(
+    public int drawInBatch(
       final @NotNull String text,
       float x,
       float y,
@@ -120,7 +120,7 @@ public class GuiBagFontRenderer extends FontRenderer
 
         try
         {
-            stack.getLast().getMatrix().mul(matrix);
+            stack.last().pose().multiply(matrix);
             stack.scale(scale, scale, scale);
 
             x /= scale;
@@ -128,7 +128,7 @@ public class GuiBagFontRenderer extends FontRenderer
             x += offsetX;
             y += offsetY;
 
-            return super.renderString(text, x, y, color, dropShadow, stack.getLast().getMatrix(), buffer, transparentIn, colorBackgroundIn, packedLight);
+            return super.drawInBatch(text, x, y, color, dropShadow, stack.last().pose(), buffer, transparentIn, colorBackgroundIn, packedLight);
         }
         finally
         {
@@ -137,11 +137,11 @@ public class GuiBagFontRenderer extends FontRenderer
     }
 
     @Override
-    public int getStringWidth(
+    public int width(
       @NotNull String text)
     {
         text = convertText(text);
-        return fontRenderer.getStringWidth(text);
+        return fontRenderer.width(text);
     }
 
     private String convertText(

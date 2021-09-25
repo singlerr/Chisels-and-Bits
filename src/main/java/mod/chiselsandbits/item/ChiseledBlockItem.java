@@ -28,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import net.minecraft.item.Item.Properties;
+
 public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
 {
 
@@ -63,10 +65,10 @@ public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
 
     @NotNull
     @Override
-    public ActionResultType tryPlace(@NotNull final BlockItemUseContext context)
+    public ActionResultType place(@NotNull final BlockItemUseContext context)
     {
-        final IAreaAccessor source = this.createItemStack(context.getItem());
-        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getWorld(), context.getPos());
+        final IAreaAccessor source = this.createItemStack(context.getItemInHand());
+        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
         final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();
 
         final boolean noCollisions = source.stream().sequential()
@@ -111,10 +113,10 @@ public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
     }
 
     @Override
-    public void addInformation(
+    public void appendHoverText(
       final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
     {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
         Configuration.getInstance().getCommon().helpText(LocalStrings.HelpBitBag, tooltip);
     }
 }

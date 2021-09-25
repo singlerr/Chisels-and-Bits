@@ -16,7 +16,7 @@ public class BitInventoryUtils
     }
 
     public static void insertIntoOrSpawn(final PlayerEntity playerEntity, final BlockState blockState, final int count) {
-        if (playerEntity == null || playerEntity.getEntityWorld().isRemote())
+        if (playerEntity == null || playerEntity.getCommandSenderWorld().isClientSide())
             return;
 
         final IBitInventory inventory = IBitInventoryManager.getInstance().create(playerEntity);
@@ -48,7 +48,7 @@ public class BitInventoryUtils
             leftOverCount -= spawnCount;
 
             final ItemStack spawnStack = IBitItemManager.getInstance().create(blockState, spawnCount);
-            playerEntity.dropItem(spawnStack, true, true);
+            playerEntity.drop(spawnStack, true, true);
         }
     }
 }

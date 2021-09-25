@@ -19,14 +19,14 @@ public class ReadonlySlot extends Slot
     }
 
     @Override
-    public boolean isItemValid(
+    public boolean mayPlace(
       final @NotNull ItemStack stack)
     {
         return false;
     }
 
     @Override
-    public boolean canTakeStack(
+    public boolean mayPickup(
       final @NotNull PlayerEntity playerIn)
     {
         return false;

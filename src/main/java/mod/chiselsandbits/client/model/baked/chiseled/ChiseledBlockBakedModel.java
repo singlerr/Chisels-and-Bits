@@ -42,10 +42,10 @@ import java.util.function.Function;
 public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 {
     public static final ChiseledBlockBakedModel EMPTY = new ChiseledBlockBakedModel(
-      Blocks.AIR.getDefaultState(),
+      Blocks.AIR.defaultBlockState(),
       ChiselRenderType.SOLID,
       null,
-      vector3d -> Blocks.AIR.getDefaultState(),
+      vector3d -> Blocks.AIR.defaultBlockState(),
       0);
 
     private final static int[][]     faceVertMap      = new int[6][4];
@@ -70,10 +70,10 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
             final BlockFaceUV uv = new BlockFaceUV(defUVs, 0);
             final BlockPartFace bpf = new BlockPartFace(myFace, 0, "", uv);
 
-            final TextureAtlasSprite texture = Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation("missingno"));
+            final TextureAtlasSprite texture = Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(new ResourceLocation("missingno"));
             final BakedQuad q = faceBakery.bakeQuad(to, from, bpf, texture, myFace, mr, null, true, new ResourceLocation(Constants.MOD_ID, "chiseled_block"));
 
-            final int[] vertData = q.getVertexData();
+            final int[] vertData = q.getVertices();
 
             int a = 0;
             int b = 2;
@@ -109,19 +109,19 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 
                 if (ModelUtil.isZero(A) && ModelUtil.isZero(B))
                 {
-                    faceVertMap[myFace.getIndex()][vertNum] = 0;
+                    faceVertMap[myFace.get3DDataValue()][vertNum] = 0;
                 }
                 else if (ModelUtil.isZero(A) && ModelUtil.isOne(B))
                 {
-                    faceVertMap[myFace.getIndex()][vertNum] = 3;
+                    faceVertMap[myFace.get3DDataValue()][vertNum] = 3;
                 }
                 else if (ModelUtil.isOne(A) && ModelUtil.isZero(B))
                 {
-                    faceVertMap[myFace.getIndex()][vertNum] = 1;
+                    faceVertMap[myFace.get3DDataValue()][vertNum] = 1;
                 }
                 else
                 {
-                    faceVertMap[myFace.getIndex()][vertNum] = 2;
+                    faceVertMap[myFace.get3DDataValue()][vertNum] = 2;
                 }
             }
         }
@@ -187,7 +187,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 
         if (state != null && state.getBlock() != Blocks.AIR)
         {
-            originalModel = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getModel(state);
+            originalModel = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state);
         }
 
         if (originalModel != null && data != null)
@@ -239,8 +239,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
           resultingFaces,
           IPositionMutator.xzy(),
           X_Faces,
-          Vector3d::getX,
-          Vector3d::getZ,
+          Vector3d::x,
+          Vector3d::z,
           neighborStateSupplier
         );
         processFaces(
@@ -248,8 +248,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
           resultingFaces,
           IPositionMutator.yzx(),
           Y_Faces,
-          Vector3d::getY,
-          Vector3d::getZ,
+          Vector3d::y,
+          Vector3d::z,
           neighborStateSupplier
         );
         processFaces(
@@ -257,8 +257,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
           resultingFaces,
           IPositionMutator.zyx(),
           Z_Faces,
-          Vector3d::getZ,
-          Vector3d::getY,
+          Vector3d::z,
+          Vector3d::y,
           neighborStateSupplier
         );
 
@@ -320,7 +320,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                                         // this fixes a bug with Forge AO?? and
                                         // solid blocks.. I have no idea why...
                                         final float normalShift = 0.999f;
-                                        faceBuilder.put(elementIndex, normalShift * myFace.getXOffset(), normalShift * myFace.getYOffset(), normalShift * myFace.getZOffset());
+                                        faceBuilder.put(elementIndex, normalShift * myFace.getStepX(), normalShift * myFace.getStepY(), normalShift * myFace.getStepZ());
                                         break;
 
                                     case UV:
@@ -331,9 +331,9 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                                         }
                                         else
                                         {
-                                            final float u = uvs[faceVertMap[myFace.getIndex()][vertNum] * 2];
-                                            final float v = uvs[faceVertMap[myFace.getIndex()][vertNum] * 2 + 1];
-                                            faceBuilder.put(elementIndex, pc.getSprite().getInterpolatedU(u), pc.getSprite().getInterpolatedV(v));
+                                            final float u = uvs[faceVertMap[myFace.get3DDataValue()][vertNum] * 2];
+                                            final float v = uvs[faceVertMap[myFace.get3DDataValue()][vertNum] * 2 + 1];
+                                            faceBuilder.put(elementIndex, pc.getSprite().getU(u), pc.getSprite().getV(v));
                                         }
                                         break;
 
@@ -483,7 +483,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
     {
         return Optional.of(target)
           .filter(stateEntryInfo -> {
-              final Vector3d faceOffSet = Vector3d.copy(facing.getDirectionVec()).mul(
+              final Vector3d faceOffSet = Vector3d.atLowerCornerOf(facing.getNormal()).multiply(
                 StateEntrySize.current().getSizePerBit(),
                 StateEntrySize.current().getSizePerBit(),
                 StateEntrySize.current().getSizePerBit()
@@ -505,7 +505,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                 .orElseGet(() -> !stateEntryInfo.getState().isAir(new SingleBlockBlockReader(stateEntryInfo.getState()), BlockPos.ZERO));
           })
           .map(stateEntryInfo -> {
-              final Vector3d faceOffSet = Vector3d.copy(facing.getDirectionVec()).mul(
+              final Vector3d faceOffSet = Vector3d.atLowerCornerOf(facing.getNormal()).multiply(
                 StateEntrySize.current().getSizePerBit(),
                 StateEntrySize.current().getSizePerBit(),
                 StateEntrySize.current().getSizePerBit()
@@ -637,16 +637,16 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
     }
 
     @Override
-    public boolean isSideLit()
+    public boolean usesBlockLight()
     {
         return true;
     }
 
     @NotNull
     @Override
-    public TextureAtlasSprite getParticleTexture()
+    public TextureAtlasSprite getParticleIcon()
     {
-        return Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(MissingTextureSprite.getLocation());
+        return Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(MissingTextureSprite.getLocation());
     }
 
     private static final class FaceBuildingState {

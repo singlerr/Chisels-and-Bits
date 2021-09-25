@@ -41,7 +41,7 @@ public class ExtendedModelManager extends ModelManager
 
         this.spriteMap = modelBakery.getSpriteMap();
 
-        Minecraft.getInstance().getItemRenderer().getItemModelMesher().rebuildCache();
+        Minecraft.getInstance().getItemRenderer().getItemModelShaper().rebuildCache();
     }
 
     @SuppressWarnings("unchecked")

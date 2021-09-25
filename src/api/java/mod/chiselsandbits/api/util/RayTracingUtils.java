@@ -41,12 +41,12 @@ public class RayTracingUtils
     }
 
     public static Vector3i getFullFacingVector(final PlayerEntity playerEntity) {
-        final Vector3d facingVector = playerEntity.getLookVec();
+        final Vector3d facingVector = playerEntity.getLookAngle();
 
         return new Vector3i(
-          facingVector.getX() < 0 ? -1 : 1,
-          facingVector.getY() < 0 ? -1 : 1,
-          facingVector.getZ() < 0 ? -1 : 1
+          facingVector.x() < 0 ? -1 : 1,
+          facingVector.y() < 0 ? -1 : 1,
+          facingVector.z() < 0 ? -1 : 1
         );
     }
 }

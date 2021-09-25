@@ -25,20 +25,20 @@ public enum ModRenderTypes
 
     private static class Internal extends RenderType
     {
-        private static final RenderType MEASUREMENT_LINES = RenderType.makeType(Constants.MOD_ID + ":measurement_lines",
+        private static final RenderType MEASUREMENT_LINES = RenderType.create(Constants.MOD_ID + ":measurement_lines",
           DefaultVertexFormats.POSITION_COLOR,
           1,
           256,
-          RenderType.State.getBuilder()
-            .line(new RenderState.LineState(OptionalDouble.empty()))
-            .layer(field_239235_M_)
-            .transparency(GLINT_TRANSPARENCY)
-            .target(field_239236_S_)
-            .writeMask(COLOR_WRITE)
-            .cull(CULL_DISABLED)
-            .depthTest(RenderState.DEPTH_ALWAYS)
-            .fog(NO_FOG)
-            .build(false));
+          RenderType.State.builder()
+            .setLineState(new RenderState.LineState(OptionalDouble.empty()))
+            .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+            .setTransparencyState(GLINT_TRANSPARENCY)
+            .setOutputState(TRANSLUCENT_TARGET)
+            .setWriteMaskState(COLOR_WRITE)
+            .setCullState(NO_CULL)
+            .setDepthTestState(RenderState.NO_DEPTH_TEST)
+            .setFogState(NO_FOG)
+            .createCompositeState(false));
 
         private Internal(String name, VertexFormat fmt, int glMode, int size, boolean doCrumbling, boolean depthSorting, Runnable onEnable, Runnable onDisable)
         {

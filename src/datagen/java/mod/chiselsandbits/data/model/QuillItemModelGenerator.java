@@ -33,7 +33,7 @@ public class QuillItemModelGenerator implements IDataProvider
     }
 
     @Override
-    public void act(final DirectoryCache cache) throws IOException
+    public void run(final DirectoryCache cache) throws IOException
     {
         final ItemModelJson modelJson = new ItemModelJson();
         final String modelLocation = new ResourceLocation(Constants.MOD_ID, "item/" + Objects.requireNonNull(ModItems.QUILL.get().getRegistryName()).getPath()) + "_spec";

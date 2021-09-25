@@ -96,7 +96,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
 
     public static <W extends IToolMode<?>> RadialToolModeSelectionScreen<W> create(IWithModeItem<W> modeItem, final ItemStack stack)
     {
-        return new RadialToolModeSelectionScreen<>(modeItem, stack, stack.getDisplayName());
+        return new RadialToolModeSelectionScreen<>(modeItem, stack, stack.getHoverName());
     }
 
     @Override
@@ -104,10 +104,10 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
     public void render(final MatrixStack matrixStack, final int mouseX, final int mouseY, final float partialTicks)
     {
         // center of screen
-        float centerX = Minecraft.getInstance().getMainWindow().getScaledWidth() / 2F;
-        float centerY = Minecraft.getInstance().getMainWindow().getScaledHeight() / 2F;
+        float centerX = Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2F;
+        float centerY = Minecraft.getInstance().getWindow().getGuiScaledHeight() / 2F;
 
-        matrixStack.push();
+        matrixStack.pushPose();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.defaultAlphaFunc();
@@ -117,7 +117,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
         renderTorus(matrixStack, mouseX, mouseY, centerX, centerY);
 
         RenderSystem.color4f(1F, 1F, 1F, 1F);
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
     @SuppressWarnings("unchecked")
@@ -172,18 +172,18 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
 
     private static void drawTorus(MatrixStack matrix, float startAngle, float sizeAngle, float inner, float outer)
     {
-        BufferBuilder vertexBuffer = Tessellator.getInstance().getBuffer();
-        Matrix4f matrix4f = matrix.getLast().getMatrix();
+        BufferBuilder vertexBuffer = Tessellator.getInstance().getBuilder();
+        Matrix4f matrix4f = matrix.last().pose();
         vertexBuffer.begin(GL11.GL_QUAD_STRIP, DefaultVertexFormats.POSITION);
         float draws = DRAWS * (sizeAngle / 360F);
         for (int i = 0; i <= draws; i++)
         {
             float angle = (float) Math.toRadians(startAngle + (i / DRAWS) * 360);
-            vertexBuffer.pos(matrix4f, (float) (outer * Math.cos(angle)), (float) (outer * Math.sin(angle)), 0).endVertex();
-            vertexBuffer.pos(matrix4f, (float) (inner * Math.cos(angle)), (float) (inner * Math.sin(angle)), 0).endVertex();
+            vertexBuffer.vertex(matrix4f, (float) (outer * Math.cos(angle)), (float) (outer * Math.sin(angle)), 0).endVertex();
+            vertexBuffer.vertex(matrix4f, (float) (inner * Math.cos(angle)), (float) (inner * Math.sin(angle)), 0).endVertex();
         }
-        vertexBuffer.finishDrawing();
-        WorldVertexBufferUploader.draw(vertexBuffer);
+        vertexBuffer.end();
+        WorldVertexBufferUploader.end(vertexBuffer);
     }
 
     private static void handleSelectableTorusRendering(
@@ -446,38 +446,38 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
         final float itemCenterY = (float) Math.sin(Math.toRadians(workingAngle)) * (innerRadius + outerRadius) / 2F;
 
         final ITextComponent name = mode.getDisplayName();
-        final int fontWidth = fontRenderer.getStringPropertyWidth(name);
+        final int fontWidth = fontRenderer.width(name);
 
         final int itemHeight = mode.shouldRenderDisplayNameInMenu() ?
-                                 (int) ((DEFAULT_ICON_SIZE * iconScaleFactor) + DEFAULT_ICON_TEXT_SPACER + fontRenderer.FONT_HEIGHT)
+                                 (int) ((DEFAULT_ICON_SIZE * iconScaleFactor) + DEFAULT_ICON_TEXT_SPACER + fontRenderer.lineHeight)
                                  : (int) (DEFAULT_ICON_SIZE * iconScaleFactor);
 
         final float iconStartX = itemCenterX - ((DEFAULT_ICON_SIZE * iconScaleFactor) / 2f);
         final float iconStartY = itemCenterY - (itemHeight / 2f);
 
-        stack.push();
+        stack.pushPose();
         RenderSystem.color4f(
-          (float) mode.getColorVector().getX(),
-          (float) mode.getColorVector().getY(),
-          (float) mode.getColorVector().getZ(),
+          (float) mode.getColorVector().x(),
+          (float) mode.getColorVector().y(),
+          (float) mode.getColorVector().z(),
           1
         );
-        Minecraft.getInstance().getTextureManager().bindTexture(mode.getIcon());
+        Minecraft.getInstance().getTextureManager().bind(mode.getIcon());
         blit(stack, (int) iconStartX, (int) iconStartY, (int) (DEFAULT_ICON_SIZE * iconScaleFactor), (int) (DEFAULT_ICON_SIZE * iconScaleFactor), 0, 0, 18, 18, 18, 18);
-        stack.push();
+        stack.pushPose();
 
         if (mode.shouldRenderDisplayNameInMenu()) {
             stack.translate(itemCenterX, itemCenterY, 0);
             stack.scale(0.6F * iconScaleFactor, 0.6F * iconScaleFactor, 0.6F * iconScaleFactor);
-            fontRenderer.func_243248_b(stack, mode.getDisplayName(), fontWidth / -2f, DEFAULT_ICON_TEXT_SPACER, 0xCCFFFFFF);
+            fontRenderer.draw(stack, mode.getDisplayName(), fontWidth / -2f, DEFAULT_ICON_TEXT_SPACER, 0xCCFFFFFF);
         }
 
-        stack.pop();
-        stack.pop();
+        stack.popPose();
+        stack.popPose();
     }
 
     @Override
-    public void onClose()
+    public void removed()
     {
         updateSelection();
     }
@@ -510,7 +510,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
     public boolean mouseClicked(double mouseX, double mouseY, int button)
     {
         updateSelection();
-        this.closeScreen();
+        this.onClose();
         return true;
     }
 

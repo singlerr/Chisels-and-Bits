@@ -53,6 +53,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 @SuppressWarnings("deprecation")
 public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLoggable
 {
@@ -153,17 +155,17 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
 
         return getBlockEntityFromOrThrow(world, pos)
                  .flatMap(e -> {
-                     final Vector3d hitVec = blockRayTraceResult.getHitVec();
-                     final BlockPos blockPos = blockRayTraceResult.getPos();
+                     final Vector3d hitVec = blockRayTraceResult.getLocation();
+                     final BlockPos blockPos = blockRayTraceResult.getBlockPos();
                      final Vector3d accuratePos = new Vector3d(
                        blockPos.getX(),
                        blockPos.getY(),
                        blockPos.getZ()
                      );
                      final Vector3d faceOffset = new Vector3d(
-                       blockRayTraceResult.getFace().getOpposite().getXOffset() * StateEntrySize.current().getSizePerHalfBit(),
-                       blockRayTraceResult.getFace().getOpposite().getYOffset() * StateEntrySize.current().getSizePerHalfBit(),
-                       blockRayTraceResult.getFace().getOpposite().getZOffset() * StateEntrySize.current().getSizePerHalfBit()
+                       blockRayTraceResult.getDirection().getOpposite().getStepX() * StateEntrySize.current().getSizePerHalfBit(),
+                       blockRayTraceResult.getDirection().getOpposite().getStepY() * StateEntrySize.current().getSizePerHalfBit(),
+                       blockRayTraceResult.getDirection().getOpposite().getStepZ() * StateEntrySize.current().getSizePerHalfBit()
                      );
                      final Vector3d hitDelta = hitVec.subtract(accuratePos).add(faceOffset);
 
@@ -184,7 +186,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
 
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) target;
 
-        return getBlockEntityFromOrThrow(world, blockRayTraceResult.getPos())
+        return getBlockEntityFromOrThrow(world, blockRayTraceResult.getBlockPos())
                  .map(e -> EffectUtils.addHitEffects(
                    world,
                    blockRayTraceResult,
@@ -218,7 +220,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     {
         for (final Direction.Axis axis : Direction.Axis.values())
         {
-            if (rotation.getOrientation().isOnAxis(axis))
+            if (rotation.rotation().inverts(axis))
             {
                 getBlockEntityFromOrThrow(world, pos)
                   .ifPresent(e -> e.rotate(axis));
@@ -253,7 +255,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     @NotNull
     private Optional<IMultiStateBlockEntity> getBlockEntityFromOrThrow(final IBlockReader worldIn, final BlockPos pos)
     {
-        final TileEntity tileEntity = worldIn.getTileEntity(pos);
+        final TileEntity tileEntity = worldIn.getBlockEntity(pos);
         if (!(tileEntity instanceof IMultiStateBlockEntity))
         {
             return Optional.empty();
@@ -271,7 +273,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     }
 
     @Override
-    public void harvestBlock(
+    public void playerDestroy(
       @NotNull final World worldIn,
       @NotNull final PlayerEntity player,
       @NotNull final BlockPos pos,
@@ -284,12 +286,12 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
             final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) te;
 
             final IMultiStateSnapshot snapshot = multiStateBlockEntity.createSnapshot();
-            spawnAsEntity(worldIn, pos, snapshot.toItemStack().toBlockStack());
+            popResource(worldIn, pos, snapshot.toItemStack().toBlockStack());
         }
     }
 
     @Override
-    public void onBlockPlacedBy(
+    public void setPlacedBy(
       @NotNull final World worldIn,
       @NotNull final BlockPos pos,
       @NotNull final BlockState state,
@@ -298,8 +300,8 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     {
         getBlockEntityFromOrThrow(worldIn, pos)
           .ifPresent(multiStateBlockEntity -> {
-              final Direction placementDirection = placer == null ? Direction.NORTH : placer.getHorizontalFacing().getOpposite();
-              final int horizontalIndex = placementDirection.getHorizontalIndex();
+              final Direction placementDirection = placer == null ? Direction.NORTH : placer.getDirection().getOpposite();
+              final int horizontalIndex = placementDirection.get2DDataValue();
 
               int rotationCount = horizontalIndex - 4;
               if (rotationCount < 0)
@@ -308,18 +310,18 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
               }
 
               multiStateBlockEntity.rotate(Direction.Axis.Y, rotationCount);
-              super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+              super.setPlacedBy(worldIn, pos, state, placer, stack);
           });
     }
 
     @Override
-    public void fillItemGroup(@NotNull final ItemGroup group, @NotNull final NonNullList<ItemStack> items)
+    public void fillItemCategory(@NotNull final ItemGroup group, @NotNull final NonNullList<ItemStack> items)
     {
         //No items.
     }
 
     @Override
-    public boolean isVariableOpacity()
+    public boolean hasDynamicShape()
     {
         return true;
     }
@@ -330,48 +332,48 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     {
         return getBlockEntityFromOrThrow(world, pos)
                  .map(e -> e.getStatistics().getPrimaryState())
-                 .orElse(Blocks.AIR.getDefaultState());
+                 .orElse(Blocks.AIR.defaultBlockState());
     }
 
     @Override
-    public void onReplaced(final @NotNull BlockState state, final @NotNull World worldIn, final @NotNull BlockPos pos, final BlockState newState, final boolean isMoving)
+    public void onRemove(final @NotNull BlockState state, final @NotNull World worldIn, final @NotNull BlockPos pos, final BlockState newState, final boolean isMoving)
     {
         if (newState.getBlock() instanceof ChiseledBlock)
         {
             return;
         }
 
-        super.onReplaced(state, worldIn, pos, newState, isMoving);
+        super.onRemove(state, worldIn, pos, newState, isMoving);
     }
 
     @NotNull
     @Override
-    public PushReaction getPushReaction(@NotNull final BlockState state)
+    public PushReaction getPistonPushReaction(@NotNull final BlockState state)
     {
         return PushReaction.BLOCK;
     }
 
     @Override
-    public boolean isReplaceable(@NotNull final BlockState state, final BlockItemUseContext useContext)
+    public boolean canBeReplaced(@NotNull final BlockState state, final BlockItemUseContext useContext)
     {
-        return getBlockEntityFromOrThrow(useContext.getWorld(), useContext.getPos())
+        return getBlockEntityFromOrThrow(useContext.getLevel(), useContext.getClickedPos())
                  .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().isEmptyBlock())
                  .orElse(true);
     }
 
     @Override
-    public @NotNull VoxelShape getCollisionShape(final @NotNull BlockState state, final @NotNull IBlockReader reader, final @NotNull BlockPos pos)
+    public @NotNull VoxelShape getBlockSupportShape(final @NotNull BlockState state, final @NotNull IBlockReader reader, final @NotNull BlockPos pos)
     {
         final VoxelShape shape = getBlockEntityFromOrThrow(reader, pos)
                                    .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity,
                                      areaAccessor -> new CollisionPredicate(pos, reader)))
                                    .orElse(VoxelShapes.empty());
 
-        return shape.isEmpty() ? VoxelShapes.fullCube() : shape;
+        return shape.isEmpty() ? VoxelShapes.block() : shape;
     }
 
     @Override
-    public float getAmbientOcclusionLightValue(@NotNull final BlockState state, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos)
+    public float getShadeBrightness(@NotNull final BlockState state, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos)
     {
         return 1f - 0.8f * getBlockEntityFromOrThrow(worldIn, pos)
                  .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().getFullnessFactor())
@@ -381,7 +383,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     //TODO: Check if getOpacity needs to be overridden.
 
     @Override
-    public int getOpacity(final BlockState state, final IBlockReader worldIn, final BlockPos pos)
+    public int getLightBlock(final BlockState state, final IBlockReader worldIn, final BlockPos pos)
     {
         return (int) (float) (getBlockEntityFromOrThrow(worldIn, pos)
                   .map(multiStateBlockEntity -> worldIn.getMaxLightLevel() * multiStateBlockEntity.getStatistics().getFullnessFactor())
@@ -396,7 +398,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
                                    .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity))
                                    .orElse(VoxelShapes.empty());
 
-        return shape.isEmpty() ? VoxelShapes.fullCube() : shape;
+        return shape.isEmpty() ? VoxelShapes.block() : shape;
     }
 
     @NotNull
@@ -405,21 +407,21 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     {
         final VoxelShape shape = getBlockEntityFromOrThrow(worldIn, pos)
                                    .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity,
-                                     areaAccessor -> new CollisionPredicate(pos.toImmutable(), worldIn)))
+                                     areaAccessor -> new CollisionPredicate(pos.immutable(), worldIn)))
                                    .orElse(VoxelShapes.empty());
 
-        return shape.isEmpty() ? VoxelShapes.fullCube() : shape;
+        return shape.isEmpty() ? VoxelShapes.block() : shape;
     }
 
     @NotNull
     @Override
-    public VoxelShape getRayTraceShape(@NotNull final BlockState state, @NotNull final IBlockReader reader, @NotNull final BlockPos pos, @NotNull final ISelectionContext context)
+    public VoxelShape getVisualShape(@NotNull final BlockState state, @NotNull final IBlockReader reader, @NotNull final BlockPos pos, @NotNull final ISelectionContext context)
     {
         return getShape(state, reader, pos, context);
     }
 
     @Override
-    public float getPlayerRelativeBlockHardness(
+    public float getDestroyProgress(
       @NotNull final BlockState state,
       @NotNull final PlayerEntity player,
       @NotNull final IBlockReader worldIn,
@@ -431,13 +433,13 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     }
 
     @Override
-    public boolean canContainFluid(final @NotNull IBlockReader worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state, final Fluid fluidIn)
+    public boolean canPlaceLiquid(final @NotNull IBlockReader worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state, final Fluid fluidIn)
     {
-        return IEligibilityManager.getInstance().canBeChiseled(fluidIn.getDefaultState().getBlockState());
+        return IEligibilityManager.getInstance().canBeChiseled(fluidIn.defaultFluidState().createLegacyBlock());
     }
 
     @Override
-    public boolean receiveFluid(final @NotNull IWorld worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state, final @NotNull FluidState fluidStateIn)
+    public boolean placeLiquid(final @NotNull IWorld worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state, final @NotNull FluidState fluidStateIn)
     {
         return getBlockEntityFromOrThrow(worldIn, pos)
                  .map(entity -> {
@@ -449,7 +451,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
                                {
                                    try
                                    {
-                                       stateEntry.setState(fluidStateIn.getBlockState().getBlockState());
+                                       stateEntry.setState(fluidStateIn.createLegacyBlock().getBlockState());
                                    }
                                    catch (SpaceOccupiedException e)
                                    {
@@ -466,7 +468,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     }
 
     @Override
-    public @NotNull Fluid pickupFluid(final @NotNull IWorld worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state)
+    public @NotNull Fluid takeLiquid(final @NotNull IWorld worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state)
     {
         return Fluids.EMPTY;
     }
@@ -513,7 +515,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
             }
 
             if (reader instanceof World) {
-                return ((World) reader).getDimensionKey().getRegistryName().equals(((World) that.reader).getDimensionKey().getRegistryName());
+                return ((World) reader).dimension().getRegistryName().equals(((World) that.reader).dimension().getRegistryName());
             }
 
             return Objects.equals(reader, that.reader);
@@ -523,7 +525,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
         public int hashCode()
         {
             int result = pos != null ? pos.hashCode() : 0;
-            result = 31 * result + (reader != null ? (reader instanceof World ? ((World) reader).getDimensionKey().getLocation().hashCode() : reader.hashCode()) : 0);
+            result = 31 * result + (reader != null ? (reader instanceof World ? ((World) reader).dimension().location().hashCode() : reader.hashCode()) : 0);
             return result;
         }
 
@@ -532,7 +534,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
         {
             return "CollisionPredicate{" +
                      "pos=" + pos +
-                     ", reader=" + (reader != null ? (reader instanceof World ? ((World) reader).getDimensionKey().getLocation().toString() : reader.toString()) : "NULL") +
+                     ", reader=" + (reader != null ? (reader instanceof World ? ((World) reader).dimension().location().toString() : reader.toString()) : "NULL") +
                      '}';
         }
     }

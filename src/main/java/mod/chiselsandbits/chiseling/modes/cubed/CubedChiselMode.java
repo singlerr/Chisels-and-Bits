@@ -57,7 +57,7 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
           playerEntity,
           context,
-          face -> Vector3d.copy(face.getOpposite().getDirectionVec()),
+          face -> Vector3d.atLowerCornerOf(face.getOpposite().getNormal()),
           Function.identity()
         );
 
@@ -110,8 +110,8 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
           playerEntity,
           context,
-          face -> Vector3d.copy(face.getDirectionVec()),
-          facingVector -> aligned ? facingVector : facingVector.mul(1, -1, 1)
+          face -> Vector3d.atLowerCornerOf(face.getNormal()),
+          facingVector -> aligned ? facingVector : facingVector.multiply(1, -1, 1)
         );
 
         if (context.isSimulation())
@@ -180,20 +180,20 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         }
 
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        final Vector3d hitVector = blockRayTraceResult.getHitVec().add(
-          placementFacingAdapter.apply(blockRayTraceResult.getFace())
-            .mul(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
+        final Vector3d hitVector = blockRayTraceResult.getLocation().add(
+          placementFacingAdapter.apply(blockRayTraceResult.getDirection())
+            .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
         Vector3d alignmentOffset = Vector3d.ZERO;
-        final Vector3d fullFacingVector = fullFacingVectorAdapter.apply(aligned ? new Vector3d(1, 1, 1) : Vector3d.copy(
+        final Vector3d fullFacingVector = fullFacingVectorAdapter.apply(aligned ? new Vector3d(1, 1, 1) : Vector3d.atLowerCornerOf(
           RayTracingUtils.getFullFacingVector(playerEntity)
         ));
 
         if (aligned)
         {
-            final Vector3d inBlockOffset = hitVector.subtract(Vector3d.copy(new BlockPos(hitVector)));
-            final BlockPos bitsInBlockOffset = new BlockPos(inBlockOffset.mul(StateEntrySize.current().getBitsPerBlockSide(),
+            final Vector3d inBlockOffset = hitVector.subtract(Vector3d.atLowerCornerOf(new BlockPos(hitVector)));
+            final BlockPos bitsInBlockOffset = new BlockPos(inBlockOffset.multiply(StateEntrySize.current().getBitsPerBlockSide(),
               StateEntrySize.current().getBitsPerBlockSide(),
               StateEntrySize.current().getBitsPerBlockSide()));
 
@@ -211,18 +211,18 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
 
             final BlockPos targetedBitsInBlockOffset = bitsInBlockOffset.subtract(targetedStartPoint);
 
-            alignmentOffset = Vector3d.copy(targetedBitsInBlockOffset)
-                                .mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
+            alignmentOffset = Vector3d.atLowerCornerOf(targetedBitsInBlockOffset)
+                                .multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
         }
 
-        final Vector3d finalAlignmentOffset = alignmentOffset.mul(fullFacingVector);
+        final Vector3d finalAlignmentOffset = alignmentOffset.multiply(fullFacingVector);
         BlockPosStreamProvider.getForRange(bitsPerSide)
           .forEach(bitPos -> context.include(
             hitVector
               .subtract(finalAlignmentOffset)
-              .add(Vector3d.copy(bitPos)
-                     .mul(fullFacingVector)
-                     .mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
+              .add(Vector3d.atLowerCornerOf(bitPos)
+                     .multiply(fullFacingVector)
+                     .multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
           ));
 
         return Optional.empty();

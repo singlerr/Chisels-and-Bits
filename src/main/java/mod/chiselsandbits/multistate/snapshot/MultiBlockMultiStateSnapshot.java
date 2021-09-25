@@ -78,7 +78,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     {
         final BlockPos inAreaOffset = new BlockPos(inAreaTarget);
 
-        return isInside(inAreaOffset, inAreaTarget.subtract(Vector3d.copy(inAreaOffset)));
+        return isInside(inAreaOffset, inAreaTarget.subtract(Vector3d.atLowerCornerOf(inAreaOffset)));
     }
 
     /**
@@ -91,7 +91,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
-        final BlockPos targetPos = new BlockPos(startPoint).add(inAreaBlockPosOffset);
+        final BlockPos targetPos = new BlockPos(startPoint).offset(inAreaBlockPosOffset);
 
         return snapshots.containsKey(targetPos) && snapshots.get(targetPos).isInside(BlockPos.ZERO, inBlockTarget);
     }
@@ -118,14 +118,14 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
     {
         return BlockPosStreamProvider.getForRange(
-          startPoint.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
-          endPoint.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
+          startPoint.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
+          endPoint.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
         )
                  .map(positionMutator::mutate)
-                 .map(position -> Vector3d.copy(position).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
+                 .map(position -> Vector3d.atLowerCornerOf(position).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
                  .map(position -> {
                      final BlockPos blockPos = new BlockPos(position);
-                     final Vector3d inBlockOffset = position.subtract(Vector3d.copy(blockPos));
+                     final Vector3d inBlockOffset = position.subtract(Vector3d.atLowerCornerOf(blockPos));
 
                      return getInBlockTarget(blockPos, inBlockOffset);
                  })
@@ -144,7 +144,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     {
         final BlockPos inAreaOffset = new BlockPos(inAreaTarget);
 
-        return getInBlockTarget(inAreaOffset, inAreaTarget.subtract(Vector3d.copy(inAreaOffset)));
+        return getInBlockTarget(inAreaOffset, inAreaTarget.subtract(Vector3d.atLowerCornerOf(inAreaOffset)));
     }
 
     /**
@@ -157,7 +157,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
-        final BlockPos targetPos = new BlockPos(startPoint).add(inAreaBlockPosOffset);
+        final BlockPos targetPos = new BlockPos(startPoint).offset(inAreaBlockPosOffset);
 
         if (!snapshots.containsKey(targetPos))
         {
@@ -187,9 +187,9 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
 
         final BlockPos offset = new BlockPos(workingTarget);
         final Vector3d inBlockTarget = new Vector3d(
-          workingTarget.getX() - offset.getX(),
-          workingTarget.getY() - offset.getY(),
-          workingTarget.getZ() - offset.getZ()
+          workingTarget.x() - offset.getX(),
+          workingTarget.y() - offset.getY(),
+          workingTarget.z() - offset.getZ()
         );
 
         this.setInBlockTarget(
@@ -202,13 +202,13 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget) throws SpaceOccupiedException
     {
-        final Vector3d workingTarget = Vector3d.copy(inAreaBlockPosOffset).add(inBlockTarget);
-        if (workingTarget.getX() < startPoint.getX() ||
-              workingTarget.getY() < startPoint.getY() ||
-              workingTarget.getZ() < startPoint.getZ() ||
-              workingTarget.getX() > endPoint.getX() ||
-              workingTarget.getY() > endPoint.getY() ||
-              workingTarget.getZ() > endPoint.getZ()
+        final Vector3d workingTarget = Vector3d.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget);
+        if (workingTarget.x() < startPoint.x() ||
+              workingTarget.y() < startPoint.y() ||
+              workingTarget.z() < startPoint.z() ||
+              workingTarget.x() > endPoint.x() ||
+              workingTarget.y() > endPoint.y() ||
+              workingTarget.z() > endPoint.z()
         )
         {
             throw new IllegalArgumentException("The given target is outside of the operating range of this snapshot!");
@@ -235,9 +235,9 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
 
         final BlockPos offset = new BlockPos(workingTarget);
         final Vector3d inBlockTarget = new Vector3d(
-          workingTarget.getX() - offset.getX(),
-          workingTarget.getY() - offset.getY(),
-          workingTarget.getZ() - offset.getZ()
+          workingTarget.x() - offset.getX(),
+          workingTarget.y() - offset.getY(),
+          workingTarget.z() - offset.getZ()
         );
 
         this.clearInBlockTarget(
@@ -255,13 +255,13 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
-        final Vector3d workingTarget = Vector3d.copy(inAreaBlockPosOffset).add(inBlockTarget);
-        if (workingTarget.getX() < startPoint.getX() ||
-              workingTarget.getY() < startPoint.getY() ||
-              workingTarget.getZ() < startPoint.getZ() ||
-              workingTarget.getX() > endPoint.getX() ||
-              workingTarget.getY() > endPoint.getY() ||
-              workingTarget.getZ() > endPoint.getZ()
+        final Vector3d workingTarget = Vector3d.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget);
+        if (workingTarget.x() < startPoint.x() ||
+              workingTarget.y() < startPoint.y() ||
+              workingTarget.z() < startPoint.z() ||
+              workingTarget.x() > endPoint.x() ||
+              workingTarget.y() > endPoint.y() ||
+              workingTarget.z() > endPoint.z()
         )
         {
             throw new IllegalArgumentException("The given target is outside of the operating range of this snapshot!");
@@ -295,7 +295,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
             @Override
             public BlockState getPrimaryState()
             {
-                return getStateCounts().entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).map(Map.Entry::getKey).orElse(Blocks.AIR.getDefaultState());
+                return getStateCounts().entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).map(Map.Entry::getKey).orElse(Blocks.AIR.defaultBlockState());
             }
 
             @Override
@@ -349,14 +349,14 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public void rotate(final Direction.Axis axis, final int rotationCount)
     {
-        final Vector3d center = this.startPoint.add(this.endPoint).mul(0.5, 0.5, 0.5);
+        final Vector3d center = this.startPoint.add(this.endPoint).multiply(0.5, 0.5, 0.5);
 
         final Map<BlockPos, IMultiStateSnapshot> rotatedParts = this.snapshots
                                                                   .entrySet().stream()
                                                                   .collect(
                                                                     Collectors.toMap(
                                                                       e -> {
-                                                                          final Vector3d offSetPos = Vector3d.copy(e.getKey()).subtract(center);
+                                                                          final Vector3d offSetPos = Vector3d.atLowerCornerOf(e.getKey()).subtract(center);
                                                                           final Vector3d rotatedOffset = VectorUtils.rotateMultipleTimes90Degrees(offSetPos, axis, rotationCount);
                                                                           return new BlockPos(startPoint.add(rotatedOffset));
                                                                       },
@@ -381,7 +381,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public void mirror(final Direction.Axis axis)
     {
-        final Vector3d center = this.startPoint.add(this.endPoint).mul(0.5, 0.5, 0.5);
+        final Vector3d center = this.startPoint.add(this.endPoint).multiply(0.5, 0.5, 0.5);
 
         this.snapshots = this.snapshots
                            .entrySet().stream()
@@ -389,11 +389,11 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
                              Collectors.toMap(
                                e -> {
                                    final int mirroredX =
-                                     axis == Direction.Axis.X ? (int) (center.getX() - e.getKey().getX()) : e.getKey().getX();
+                                     axis == Direction.Axis.X ? (int) (center.x() - e.getKey().getX()) : e.getKey().getX();
                                    final int mirroredY =
-                                     axis == Direction.Axis.Y ? (int) (center.getY() - e.getKey().getY()) : e.getKey().getY();
+                                     axis == Direction.Axis.Y ? (int) (center.y() - e.getKey().getY()) : e.getKey().getY();
                                    final int mirroredZ =
-                                     axis == Direction.Axis.Z ? (int) (center.getZ() - e.getKey().getZ()) : e.getKey().getZ();
+                                     axis == Direction.Axis.Z ? (int) (center.z() - e.getKey().getZ()) : e.getKey().getZ();
 
                                    return new BlockPos(mirroredX, mirroredY, mirroredZ);
                                },

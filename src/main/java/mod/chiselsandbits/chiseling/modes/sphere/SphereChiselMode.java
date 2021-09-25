@@ -63,8 +63,8 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
         final Either<ClickProcessingState, Vector3d> rayTraceHandle = this.processRayTraceIntoContext(
           playerEntity,
           context,
-          face -> Vector3d.copy(face.getOpposite().getDirectionVec()),
-          facing -> facing.mul(-1, -1, -1)
+          face -> Vector3d.atLowerCornerOf(face.getOpposite().getNormal()),
+          facing -> facing.multiply(-1, -1, -1)
         );
 
         if (context.isSimulation())
@@ -129,7 +129,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
         final Either<ClickProcessingState, Vector3d> rayTraceHandle = this.processRayTraceIntoContext(
           playerEntity,
           context,
-          face -> Vector3d.copy(face.getDirectionVec()),
+          face -> Vector3d.atLowerCornerOf(face.getNormal()),
           Function.identity()
         );
 
@@ -195,7 +195,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
     {
         final Optional<Vector3d> rayTraceHandle = this.processRayTraceIntoCenter(
           playerEntity,
-          face -> Vector3d.copy(face.getDirectionVec()),
+          face -> Vector3d.atLowerCornerOf(face.getNormal()),
           Function.identity()
         );
 
@@ -216,24 +216,24 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
         }
 
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        final Vector3d hitVector = blockRayTraceResult.getHitVec().add(
-          placementFacingAdapter.apply(blockRayTraceResult.getFace())
-            .mul(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
+        final Vector3d hitVector = blockRayTraceResult.getLocation().add(
+          placementFacingAdapter.apply(blockRayTraceResult.getDirection())
+            .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
-        final Vector3d centeredHitVector = Vector3d.copy(
+        final Vector3d centeredHitVector = Vector3d.atLowerCornerOf(
           new BlockPos(
-            hitVector.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
+            hitVector.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
           )
-        ).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
+        ).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
 
         final Vector3d center = centeredHitVector.add(
           new Vector3d(
             (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide(),
             (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide(),
             (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide()
-          ).mul(
-            fullFacingVectorAdapter.apply(Vector3d.copy(blockRayTraceResult.getFace().getDirectionVec())
+          ).multiply(
+            fullFacingVectorAdapter.apply(Vector3d.atLowerCornerOf(blockRayTraceResult.getDirection().getNormal())
             )
           )
         );
@@ -248,7 +248,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
         BlockPosStreamProvider.getForRange(diameter)
           .forEach(bitPos -> {
               final Vector3d target = center
-                .add(Vector3d.copy(bitPos.subtract(new Vector3i(diameter / 2, diameter / 2, diameter / 2))).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                .add(Vector3d.atLowerCornerOf(bitPos.subtract(new Vector3i(diameter / 2, diameter / 2, diameter / 2))).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
 
               context.include(
                 target
@@ -270,24 +270,24 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
         }
 
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        final Vector3d hitVector = blockRayTraceResult.getHitVec().add(
-          placementFacingAdapter.apply(blockRayTraceResult.getFace())
-            .mul(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
+        final Vector3d hitVector = blockRayTraceResult.getLocation().add(
+          placementFacingAdapter.apply(blockRayTraceResult.getDirection())
+            .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
-        final Vector3d centeredHitVector = Vector3d.copy(
+        final Vector3d centeredHitVector = Vector3d.atLowerCornerOf(
           new BlockPos(
-            hitVector.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
+            hitVector.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
           )
-        ).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
+        ).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
 
         final Vector3d center = centeredHitVector.add(
           new Vector3d(
             (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide(),
             (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide(),
             (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide()
-          ).mul(
-            fullFacingVectorAdapter.apply(Vector3d.copy(blockRayTraceResult.getFace().getDirectionVec())
+          ).multiply(
+            fullFacingVectorAdapter.apply(Vector3d.atLowerCornerOf(blockRayTraceResult.getDirection().getNormal())
             )
           )
         );

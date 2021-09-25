@@ -55,7 +55,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         this.sourceStack = sourceStack;
         this.compressedSection = new ChunkSection(0);
 
-        this.deserializeNBT(sourceStack.getOrCreateChildTag(NbtConstants.CHISELED_DATA));
+        this.deserializeNBT(sourceStack.getOrCreateTagElement(NbtConstants.CHISELED_DATA));
     }
 
     public SingleBlockMultiStateItemStack(final Item item, final ChunkSection compressedSection)
@@ -112,17 +112,17 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
     {
-        if (inAreaTarget.getX() < 0 ||
-              inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0 ||
-              inAreaTarget.getX() >= 1 ||
-              inAreaTarget.getY() >= 1 ||
-              inAreaTarget.getZ() >= 1)
+        if (inAreaTarget.x() < 0 ||
+              inAreaTarget.y() < 0 ||
+              inAreaTarget.z() < 0 ||
+              inAreaTarget.x() >= 1 ||
+              inAreaTarget.y() >= 1 ||
+              inAreaTarget.z() >= 1)
         {
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
         final BlockState currentState = this.compressedSection.getBlockState(
           inAreaPos.getX(),
@@ -167,12 +167,12 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public boolean isInside(final Vector3d inAreaTarget)
     {
-        return !(inAreaTarget.getX() < 0) &&
-                 !(inAreaTarget.getY() < 0) &&
-                 !(inAreaTarget.getZ() < 0) &&
-                 !(inAreaTarget.getX() >= 1) &&
-                 !(inAreaTarget.getY() >= 1) &&
-                 !(inAreaTarget.getZ() >= 1);
+        return !(inAreaTarget.x() < 0) &&
+                 !(inAreaTarget.y() < 0) &&
+                 !(inAreaTarget.z() < 0) &&
+                 !(inAreaTarget.x() >= 1) &&
+                 !(inAreaTarget.y() >= 1) &&
+                 !(inAreaTarget.z() >= 1);
     }
 
     /**
@@ -234,17 +234,17 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
     {
-        if (inAreaTarget.getX() < 0 ||
-              inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0 ||
-              inAreaTarget.getX() >= 1 ||
-              inAreaTarget.getY() >= 1 ||
-              inAreaTarget.getZ() >= 1)
+        if (inAreaTarget.x() < 0 ||
+              inAreaTarget.y() < 0 ||
+              inAreaTarget.z() < 0 ||
+              inAreaTarget.x() >= 1 ||
+              inAreaTarget.y() >= 1 ||
+              inAreaTarget.z() >= 1)
         {
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
         final BlockState currentState = this.compressedSection.getBlockState(
           inAreaPos.getX(),
@@ -308,19 +308,19 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void clearInAreaTarget(final Vector3d inAreaTarget)
     {
-        if (inAreaTarget.getX() < 0 ||
-              inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0 ||
-              inAreaTarget.getX() >= 1 ||
-              inAreaTarget.getY() >= 1 ||
-              inAreaTarget.getZ() >= 1)
+        if (inAreaTarget.x() < 0 ||
+              inAreaTarget.y() < 0 ||
+              inAreaTarget.z() < 0 ||
+              inAreaTarget.x() >= 1 ||
+              inAreaTarget.y() >= 1 ||
+              inAreaTarget.z() >= 1)
         {
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
-        final BlockState blockState = Blocks.AIR.getDefaultState();
+        final BlockState blockState = Blocks.AIR.defaultBlockState();
 
         final BlockState currentState = this.compressedSection.getBlockState(
           inAreaPos.getX(),
@@ -374,7 +374,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void serializeInto(@NotNull final PacketBuffer packetBuffer)
     {
-        compressedSection.getData().write(packetBuffer);
+        compressedSection.getStates().write(packetBuffer);
     }
 
     /**
@@ -385,7 +385,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void deserializeFrom(@NotNull final PacketBuffer packetBuffer)
     {
-        compressedSection.getData().read(packetBuffer);
+        compressedSection.getStates().read(packetBuffer);
     }
 
     @Override
@@ -492,8 +492,8 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         private ShapeIdentifier(final ChunkSection chunkSection)
         {
             dataArray = Arrays.copyOf(
-              chunkSection.getData().storage.getBackingLongArray(),
-              chunkSection.getData().storage.getBackingLongArray().length
+              chunkSection.getStates().storage.getRaw(),
+              chunkSection.getStates().storage.getRaw().length
             );
         }
 
@@ -537,8 +537,8 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         {
             this(
               state,
-              Vector3d.copy(startPoint).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()),
-              Vector3d.copy(startPoint).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()),
+              Vector3d.atLowerCornerOf(startPoint).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()),
+              Vector3d.atLowerCornerOf(startPoint).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()),
               stateSetter, stateClearer);
         }
 
@@ -598,7 +598,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     private static final class Statistics implements IStatistics
     {
 
-        private       BlockState               primaryState = Blocks.AIR.getDefaultState();
+        private       BlockState               primaryState = Blocks.AIR.defaultBlockState();
         private final Map<BlockState, Integer> countMap     = Maps.newConcurrentMap();
 
         @Override
@@ -610,11 +610,11 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         @Override
         public boolean isEmpty()
         {
-            return countMap.isEmpty() || (countMap.size() == 1 && countMap.containsKey(Blocks.AIR.getDefaultState()));
+            return countMap.isEmpty() || (countMap.size() == 1 && countMap.containsKey(Blocks.AIR.defaultBlockState()));
         }
 
         private void clear() {
-            this.primaryState = Blocks.AIR.getDefaultState();
+            this.primaryState = Blocks.AIR.defaultBlockState();
 
             this.countMap.clear();
         }
@@ -642,7 +642,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         private void updatePrimaryState() {
             primaryState = this.countMap.entrySet().stream().min((o1, o2) -> -1 * (o1.getValue() - o2.getValue()))
                              .map(Map.Entry::getKey)
-                             .orElseGet(Blocks.AIR::getDefaultState);
+                             .orElseGet(Blocks.AIR::defaultBlockState);
         }
 
         @Override
@@ -691,7 +691,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         {
             this.clear();
 
-            compressedSection.getData().count(countMap::putIfAbsent);
+            compressedSection.getStates().count(countMap::putIfAbsent);
             updatePrimaryState();
         }
     }

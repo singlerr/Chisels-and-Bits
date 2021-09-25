@@ -18,7 +18,7 @@ public class FluidRenderingManager
     }
 
     private boolean renderTypesSetup = false;
-    private final BitSet renderTypes = new BitSet(RenderType.getBlockRenderTypes().size());
+    private final BitSet renderTypes = new BitSet(RenderType.chunkBufferLayers().size());
 
     private FluidRenderingManager()
     {
@@ -29,13 +29,13 @@ public class FluidRenderingManager
             return;
 
         renderTypes.clear();
-        final List<RenderType> blockRenderTypes = RenderType.getBlockRenderTypes();
+        final List<RenderType> blockRenderTypes = RenderType.chunkBufferLayers();
         for (int i = 0; i < blockRenderTypes.size(); i++)
         {
             final RenderType renderType = blockRenderTypes.get(i);
             for (final Fluid fluid : ForgeRegistries.FLUIDS)
             {
-                if (RenderTypeLookup.canRenderInLayer(fluid.getDefaultState(), renderType))
+                if (RenderTypeLookup.canRenderInLayer(fluid.defaultFluidState(), renderType))
                 {
                     renderTypes.set(i);
                     break;
@@ -48,6 +48,6 @@ public class FluidRenderingManager
 
     public boolean isFluidRenderType(final RenderType renderType) {
         setupRenderTypes();
-        return renderTypes.get(RenderType.getBlockRenderTypes().indexOf(renderType));
+        return renderTypes.get(RenderType.chunkBufferLayers().indexOf(renderType));
     }
 }

@@ -45,7 +45,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     {
         return getContents().stream()
           .sorted(Comparator.comparingInt(BitSlot::getCount).reversed())
-          .map(slot -> new TranslationTextComponent("chiselsandbits.bitbag.contents.enum.entry", slot.getCount(), slot.getState().getBlock().getTranslatedName()))
+          .map(slot -> new TranslationTextComponent("chiselsandbits.bitbag.contents.enum.entry", slot.getCount(), slot.getState().getBlock().getName()))
           .collect(Collectors.toList());
     }
 
@@ -107,19 +107,19 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     }
 
     @Override
-    public int getSizeInventory()
+    public int getContainerSize()
     {
         return this.size;
     }
 
     @Override
-    public @NotNull ItemStack getStackInSlot(final int index)
+    public @NotNull ItemStack getItem(final int index)
     {
-        return super.getStackInSlot(index);
+        return super.getItem(index);
     }
 
     @Override
-    public @NotNull ItemStack decrStackSize(final int index, final int count)
+    public @NotNull ItemStack removeItem(final int index, final int count)
     {
         if (!this.slotMap.containsKey(index))
             return ItemStack.EMPTY;
@@ -134,13 +134,13 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     }
 
     @Override
-    public @NotNull ItemStack removeStackFromSlot(final int index)
+    public @NotNull ItemStack removeItemNoUpdate(final int index)
     {
-        return decrStackSize(index, Integer.MAX_VALUE);
+        return removeItem(index, Integer.MAX_VALUE);
     }
 
     @Override
-    public void setInventorySlotContents(final int index, final ItemStack stack)
+    public void setItem(final int index, final ItemStack stack)
     {
         if (stack.isEmpty()) {
             this.slotMap.remove(index);
@@ -162,19 +162,19 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     }
 
     @Override
-    public void markDirty()
+    public void setChanged()
     {
         onChange();
     }
 
     @Override
-    public boolean isUsableByPlayer(final @NotNull PlayerEntity player)
+    public boolean stillValid(final @NotNull PlayerEntity player)
     {
         return true;
     }
 
     @Override
-    public void clear()
+    public void clearContent()
     {
         this.slotMap.clear();
         onChange();
@@ -195,7 +195,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     }
 
     @Override
-    public int getInventoryStackLimit()
+    public int getMaxStackSize()
     {
         return getMaxBitsForSlot();
     }

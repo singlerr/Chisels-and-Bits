@@ -26,7 +26,7 @@ public interface IMeasuringManager
      * @return A collection of measurements which are active in the given world.
      */
     default Collection<? extends IMeasurement> getInWorld(final World world) {
-        return getInWorld(world.getDimensionKey().getLocation());
+        return getInWorld(world.dimension().location());
     }
 
     /**
@@ -44,7 +44,7 @@ public interface IMeasuringManager
      * @return A collection of measurements which are active for the given player.
      */
     default Collection<? extends IMeasurement> getForPlayer(final PlayerEntity playerEntity) {
-        return getForPlayer(playerEntity.getUniqueID());
+        return getForPlayer(playerEntity.getUUID());
     }
 
     /**
@@ -79,7 +79,7 @@ public interface IMeasuringManager
      * @param playerEntity The player to remove the measurements for.
      */
     default void resetMeasurementsFor(PlayerEntity playerEntity) {
-        resetMeasurementsFor(playerEntity.getUniqueID());
+        resetMeasurementsFor(playerEntity.getUUID());
     }
 
     /**

@@ -40,14 +40,14 @@ public class ModificationTableBlockStateGenerator implements IDataProvider
     }
 
     @Override
-    public void act(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull DirectoryCache cache) throws IOException
     {
         if (ModBlocks.MODIFICATION_TABLE.get().getRegistryName() == null)
             return;
 
         final Map<String, BlockstateVariantJson> variants = new HashMap<>();
 
-        for (final Direction direction : HorizontalBlock.HORIZONTAL_FACING.getAllowedValues())
+        for (final Direction direction : HorizontalBlock.FACING.getPossibleValues())
         {
             final String modelLocation = Constants.MOD_ID + ":block/modification_table";
 
@@ -57,7 +57,7 @@ public class ModificationTableBlockStateGenerator implements IDataProvider
 
             final BlockstateVariantJson variant = new BlockstateVariantJson(model);
 
-            variants.put("facing=" + direction.getName2(), variant);
+            variants.put("facing=" + direction.getName(), variant);
         }
 
         final BlockstateJson blockstate = new BlockstateJson(variants);

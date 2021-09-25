@@ -54,20 +54,20 @@ public class CombinedModel extends BaseBakedBlockModel
             }
         }
 
-        isSideLit = Arrays.stream(args).anyMatch(IBakedModel::isSideLit);
+        isSideLit = Arrays.stream(args).anyMatch(IBakedModel::usesBlockLight);
     }
 
     @NotNull
     @Override
-    public TextureAtlasSprite getParticleTexture()
+    public TextureAtlasSprite getParticleIcon()
     {
         for ( final IBakedModel a : merged )
         {
-            return a.getParticleTexture();
+            return a.getParticleIcon();
         }
 
-        return Minecraft.getInstance().getAtlasSpriteGetter(
-          PlayerContainer.LOCATION_BLOCKS_TEXTURE
+        return Minecraft.getInstance().getTextureAtlas(
+          PlayerContainer.BLOCK_ATLAS
         ).apply(MissingTextureSprite.getLocation());
     }
 
@@ -97,7 +97,7 @@ public class CombinedModel extends BaseBakedBlockModel
     }
 
     @Override
-    public boolean isSideLit()
+    public boolean usesBlockLight()
     {
         return isSideLit;
     }

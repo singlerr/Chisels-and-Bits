@@ -99,10 +99,10 @@ public final class FaceManager
       final Direction face,
       final long primaryStateRenderSeed)
     {
-        final IBakedModel model = solveModel(state, Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getModel(state), primaryStateRenderSeed);
+        final IBakedModel model = solveModel(state, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state), primaryStateRenderSeed);
         final int lv = Configuration.getInstance().getClient().useGetLightValue.get() ? DeprecationHelper.getLightValue(state) : 0;
 
-        final Fluid fluid = state.getFluidState().getFluid();
+        final Fluid fluid = state.getFluidState().getType();
         if (fluid != Fluids.EMPTY)
         {
             final ModelQuadLayer[] mp = new ModelQuadLayer[1];
@@ -117,17 +117,17 @@ public final class FaceManager
 
             if (face.getAxis() == Direction.Axis.Y)
             {
-                mp[0].setSprite(Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(fluid.getAttributes().getStillTexture()));
+                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(fluid.getAttributes().getStillTexture()));
                 mp[0].setUvs(new float[] {Uf, Vf, 0, Vf, Uf, 0, 0, 0});
             }
             else if (face.getAxis() == Direction.Axis.X)
             {
-                mp[0].setSprite(Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(fluid.getAttributes().getFlowingTexture()));
+                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(fluid.getAttributes().getFlowingTexture()));
                 mp[0].setUvs(new float[] {U, 0, U, V, 0, 0, 0, V});
             }
             else
             {
-                mp[0].setSprite(Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(fluid.getAttributes().getFlowingTexture()));
+                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(fluid.getAttributes().getFlowingTexture()));
                 mp[0].setUvs(new float[] {U, 0, 0, 0, U, V, 0, V});
             }
 
@@ -160,7 +160,7 @@ public final class FaceManager
     {
         for ( final BakedQuad q : quads )
         {
-            if (q.getFace() != face)
+            if (q.getDirection() != face)
                 return;
 
             try
@@ -245,7 +245,7 @@ public final class FaceManager
             if (!is.isEmpty())
             {
                 final IBakedModel itemModel =
-                  Minecraft.getInstance().getItemRenderer().getItemModelWithOverrides(is, Minecraft.getInstance().world, Minecraft.getInstance().player);
+                  Minecraft.getInstance().getItemRenderer().getModel(is, Minecraft.getInstance().level, Minecraft.getInstance().player);
 
                 try
                 {
@@ -344,7 +344,7 @@ public final class FaceManager
             {
                 if (model != null)
                 {
-                    texture = model.getParticleTexture();
+                    texture = model.getParticleIcon();
                 }
             }
             catch (final Exception ignored)
@@ -356,7 +356,7 @@ public final class FaceManager
         {
             try
             {
-                texture = Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getTexture(state);
+                texture = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(state);
             }
             catch (final Exception ignored)
             {
@@ -365,7 +365,7 @@ public final class FaceManager
 
         if (texture == null)
         {
-            texture = Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(new ResourceLocation("missingno"));
+            texture = Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(new ResourceLocation("missingno"));
         }
 
         return texture;
@@ -378,7 +378,7 @@ public final class FaceManager
     {
         for (final BakedQuad q : faceQuads)
         {
-            if (q.getFace() == myFace)
+            if (q.getDirection() == myFace)
             {
                 texture = findQuadTexture(q);
             }
@@ -391,7 +391,7 @@ public final class FaceManager
       final BakedQuad q) throws IllegalArgumentException, NullPointerException
     {
         if (q.sprite == null)
-            return Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(MissingTextureSprite.getLocation());
+            return Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(MissingTextureSprite.getLocation());
         return q.sprite;
     }
 
@@ -430,7 +430,7 @@ public final class FaceManager
         final ItemStack is = ItemStackUtils.getItemStackFromBlockState( state );
         if ( !is.isEmpty() )
         {
-            final IBakedModel secondModel = getOverrides( model ).getOverrideModel( model, is, Minecraft.getInstance().world, Minecraft.getInstance().player );
+            final IBakedModel secondModel = getOverrides( model ).resolve( model, is, Minecraft.getInstance().level, Minecraft.getInstance().player );
 
             if ( secondModel != null )
             {
@@ -465,7 +465,7 @@ public final class FaceManager
         {
             return colorCache.get(state, () -> {
                 int out;
-                final Fluid fluid = state.getFluidState().getFluid();
+                final Fluid fluid = state.getFluidState().getType();
                 if ( fluid != Fluids.EMPTY )
                 {
                     out = fluid.getAttributes().getColor();

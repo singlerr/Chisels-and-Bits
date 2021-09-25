@@ -28,6 +28,6 @@ public class BlockStateUtils
             ).findFirst().get();
         }
 
-        return candidate.getDefaultState();
+        return candidate.defaultBlockState();
     }
 }

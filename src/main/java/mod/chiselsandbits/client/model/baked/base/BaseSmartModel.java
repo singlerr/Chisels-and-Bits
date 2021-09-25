@@ -40,10 +40,10 @@ public abstract class BaseSmartModel implements IBakedModel
 
         @Nullable
         @Override
-        public IBakedModel getOverrideModel(
+        public IBakedModel resolve(
           @NotNull final IBakedModel p_239290_1_, @NotNull final ItemStack p_239290_2_, @Nullable final ClientWorld p_239290_3_, @Nullable final LivingEntity p_239290_4_)
         {
-            return parent.func_239290_a_( p_239290_1_, p_239290_2_, p_239290_3_, p_239290_4_ );
+            return parent.resolve( p_239290_1_, p_239290_2_, p_239290_3_, p_239290_4_ );
         }
 
 	}
@@ -54,7 +54,7 @@ public abstract class BaseSmartModel implements IBakedModel
 	}
 
 	@Override
-	public boolean isAmbientOcclusion()
+	public boolean useAmbientOcclusion()
 	{
 		return true;
 	}
@@ -66,23 +66,23 @@ public abstract class BaseSmartModel implements IBakedModel
 	}
 
 	@Override
-	public boolean isBuiltInRenderer()
+	public boolean isCustomRenderer()
 	{
 		return false;
 	}
 
 	@NotNull
     @Override
-	public TextureAtlasSprite getParticleTexture()
+	public TextureAtlasSprite getParticleIcon()
 	{
-        return Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getTexture( Blocks.STONE.getDefaultState() );
+        return Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon( Blocks.STONE.defaultBlockState() );
 	}
 
 	@NotNull
     @Override
-	public ItemCameraTransforms getItemCameraTransforms()
+	public ItemCameraTransforms getTransforms()
 	{
-		return ItemCameraTransforms.DEFAULT;
+		return ItemCameraTransforms.NO_TRANSFORMS;
 	}
 
     @NotNull
@@ -125,7 +125,7 @@ public abstract class BaseSmartModel implements IBakedModel
 		return overrides;
 	}
 
-	public IBakedModel func_239290_a_(
+	public IBakedModel resolve(
 			final IBakedModel originalModel,
 			final ItemStack stack,
 			final World world,

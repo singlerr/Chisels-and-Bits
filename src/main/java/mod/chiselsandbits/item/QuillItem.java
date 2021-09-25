@@ -33,6 +33,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import net.minecraft.item.Item.Properties;
+
 public class QuillItem extends Item implements IQuillItem
 {
 
@@ -53,7 +55,7 @@ public class QuillItem extends Item implements IQuillItem
     @Override
     public ItemStack getInteractionTarget(final ItemStack stack)
     {
-        return isInteracting(stack) ? ItemStack.read(stack.getOrCreateChildTag(CONST_INTERACTION)) : ItemStack.EMPTY;
+        return isInteracting(stack) ? ItemStack.of(stack.getOrCreateTagElement(CONST_INTERACTION)) : ItemStack.EMPTY;
     }
 
     @Override
@@ -84,20 +86,20 @@ public class QuillItem extends Item implements IQuillItem
     }
 
     @Override
-    public int getItemEnchantability() {
+    public int getEnchantmentValue() {
         return 5;
     }
 
     public static void spawnParticles(Vector3d location, ItemStack polishedStack, World world) {
         for (int i = 0; i < 20; i++) {
-            Vector3d motion = VectorUtils.offsetRandomly(Vector3d.ZERO, world.rand, 1 / 8f);
+            Vector3d motion = VectorUtils.offsetRandomly(Vector3d.ZERO, world.random, 1 / 8f);
             world.addParticle(new ItemParticleData(ParticleTypes.ITEM, polishedStack), location.x, location.y,
               location.z, motion.x, motion.y, motion.z);
         }
     }
 
     @Override
-    public void onPlayerStoppedUsing(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull LivingEntity entityLiving, int timeLeft) {
+    public void releaseUsing(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull LivingEntity entityLiving, int timeLeft) {
         if (!(entityLiving instanceof PlayerEntity))
             return;
         PlayerEntity player = (PlayerEntity) entityLiving;
@@ -109,7 +111,7 @@ public class QuillItem extends Item implements IQuillItem
     }
 
     @Override
-    public @NotNull ItemStack onItemUseFinish(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull LivingEntity entityLiving) {
+    public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull LivingEntity entityLiving) {
         if (!(entityLiving instanceof PlayerEntity))
             return stack;
         PlayerEntity player = (PlayerEntity) entityLiving;
@@ -117,9 +119,9 @@ public class QuillItem extends Item implements IQuillItem
             ItemStack target = getInteractionTarget(stack);
             ItemStack pattern = createPattern(player);
 
-            if (worldIn.isRemote) {
+            if (worldIn.isClientSide) {
                 spawnParticles(entityLiving.getEyePosition(1)
-                                 .add(entityLiving.getLookVec()
+                                 .add(entityLiving.getLookAngle()
                                         .scale(.5f)),
                   target, worldIn);
                 return stack;
@@ -127,37 +129,37 @@ public class QuillItem extends Item implements IQuillItem
 
             if (!pattern.isEmpty()) {
                 if (player instanceof FakePlayer) {
-                    player.dropItem(pattern, false, false);
+                    player.drop(pattern, false, false);
                 } else {
                     player.inventory.placeItemBackInInventory(worldIn, pattern);
                 }
             }
             stack.getOrCreateTag().remove(CONST_INTERACTION);
-            stack.damageItem(1, entityLiving, p -> p.sendBreakAnimation(p.getActiveHand()));
+            stack.hurtAndBreak(1, entityLiving, p -> p.broadcastBreakEvent(p.getUsedItemHand()));
         }
 
         return stack;
     }
 
     @Override
-    public @NotNull ActionResult<ItemStack> onItemRightClick(@NotNull World worldIn, PlayerEntity playerIn, @NotNull Hand handIn) {
-        ItemStack itemstack = playerIn.getHeldItem(handIn);
+    public @NotNull ActionResult<ItemStack> use(@NotNull World worldIn, PlayerEntity playerIn, @NotNull Hand handIn) {
+        ItemStack itemstack = playerIn.getItemInHand(handIn);
         ActionResult<ItemStack> FAIL = new ActionResult<>(ActionResultType.FAIL, itemstack);
 
         if (isInteracting(itemstack)) {
-            playerIn.setActiveHand(handIn);
+            playerIn.startUsingItem(handIn);
             return new ActionResult<>(ActionResultType.PASS, itemstack);
         }
 
         Hand otherHand = handIn == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND;
-        ItemStack itemInOtherHand = playerIn.getHeldItem(otherHand);
+        ItemStack itemInOtherHand = playerIn.getItemInHand(otherHand);
         if (createPattern(playerIn).getItem() != Items.PAPER && itemInOtherHand.getItem() == Items.PAPER) {
             ItemStack item = itemInOtherHand.copy();
             ItemStack target = item.split(1);
-            playerIn.setActiveHand(handIn);
+            playerIn.startUsingItem(handIn);
             itemstack.getOrCreateTag()
               .put(CONST_INTERACTION, target.serializeNBT());
-            playerIn.setHeldItem(otherHand, item);
+            playerIn.setItemInHand(otherHand, item);
             return new ActionResult<>(ActionResultType.SUCCESS, itemstack);
         }
 
@@ -172,16 +174,16 @@ public class QuillItem extends Item implements IQuillItem
         }
 
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(playerEntity.getEntityWorld(), blockRayTraceResult.getPos());
+        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(playerEntity.getCommandSenderWorld(), blockRayTraceResult.getBlockPos());
         return areaMutator.createSnapshot().toItemStack().toPatternStack();
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(
+    public void appendHoverText(
       final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
     {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
         Configuration.getInstance().getCommon().helpText(LocalStrings.HelpQuill, tooltip);
     }
 }

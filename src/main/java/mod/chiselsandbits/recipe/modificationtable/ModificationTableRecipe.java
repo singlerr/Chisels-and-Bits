@@ -36,11 +36,11 @@ public class ModificationTableRecipe implements IRecipe<IInventory>
     @Override
     public boolean matches(final IInventory inv, final @NotNull World worldIn)
     {
-        return inv.getStackInSlot(0).getItem() instanceof IPatternItem && !(inv.getStackInSlot(0).getItem() instanceof IMultiUsePatternItem);
+        return inv.getItem(0).getItem() instanceof IPatternItem && !(inv.getItem(0).getItem() instanceof IMultiUsePatternItem);
     }
 
     @Override
-    public @NotNull ItemStack getCraftingResult(final @NotNull IInventory inv)
+    public @NotNull ItemStack assemble(final @NotNull IInventory inv)
     {
         return getAppliedSnapshot(inv).toItemStack().toPatternStack();
     }
@@ -52,7 +52,7 @@ public class ModificationTableRecipe implements IRecipe<IInventory>
 
     public @NotNull IMultiStateSnapshot getAppliedSnapshot(final IInventory inv)
     {
-        final ItemStack multiStateStack = inv.getStackInSlot(0);
+        final ItemStack multiStateStack = inv.getItem(0);
         if (multiStateStack.isEmpty())
             return EmptySnapshot.INSTANCE;
 
@@ -72,13 +72,13 @@ public class ModificationTableRecipe implements IRecipe<IInventory>
     }
 
     @Override
-    public boolean canFit(final int width, final int height)
+    public boolean canCraftInDimensions(final int width, final int height)
     {
         return width * height > 0;
     }
 
     @Override
-    public @NotNull ItemStack getRecipeOutput()
+    public @NotNull ItemStack getResultItem()
     {
         return ItemStack.EMPTY;
     }

@@ -16,34 +16,34 @@ public enum MeasuringType implements IToolModeGroup
 {
     BIT(LocalStrings.TapeMeasureBit.getLocalText(),
       new ResourceLocation(Constants.MOD_ID, "textures/icons/bit.png"),
-      v -> Vector3d.copy(new BlockPos(v.mul(16, 16, 16))).mul(1 / 16d, 1 / 16d, 1 / 16d),
+      v -> Vector3d.atLowerCornerOf(new BlockPos(v.multiply(16, 16, 16))).multiply(1 / 16d, 1 / 16d, 1 / 16d),
       (from, to) -> {
           return new Vector3d(
-            Math.min(from.getX(), to.getX()),
-            Math.min(from.getY(), to.getY()),
-            Math.min(from.getZ(), to.getZ())
+            Math.min(from.x(), to.x()),
+            Math.min(from.y(), to.y()),
+            Math.min(from.z(), to.z())
           );
       },
       (from, to ) -> {
           return new Vector3d(
-            Math.max(from.getX(), to.getX()),
-            Math.max(from.getY(), to.getY()),
-            Math.max(from.getZ(), to.getZ())
+            Math.max(from.x(), to.x()),
+            Math.max(from.y(), to.y()),
+            Math.max(from.z(), to.z())
           );
       }),
-    BLOCK( LocalStrings.TapeMeasureBlock.getLocalText(), new ResourceLocation(Constants.MOD_ID,"textures/icons/block.png"), v -> Vector3d.copy(new BlockPos(v)),
+    BLOCK( LocalStrings.TapeMeasureBlock.getLocalText(), new ResourceLocation(Constants.MOD_ID,"textures/icons/block.png"), v -> Vector3d.atLowerCornerOf(new BlockPos(v)),
       (from, to) -> {
           return new Vector3d(
-            Math.min(from.getX(), to.getX()),
-            Math.min(from.getY(), to.getY()),
-            Math.min(from.getZ(), to.getZ())
+            Math.min(from.x(), to.x()),
+            Math.min(from.y(), to.y()),
+            Math.min(from.z(), to.z())
           );
       },
       (from, to ) -> {
           return new Vector3d(
-            Math.max(from.getX(), to.getX()),
-            Math.max(from.getY(), to.getY()),
-            Math.max(from.getZ(), to.getZ())
+            Math.max(from.x(), to.x()),
+            Math.max(from.y(), to.y()),
+            Math.max(from.z(), to.z())
           );
       }),
     DISTANCE( LocalStrings.TapeMeasureDistance.getLocalText(), new ResourceLocation(Constants.MOD_ID,"textures/icons/line.png"), Function.identity(),

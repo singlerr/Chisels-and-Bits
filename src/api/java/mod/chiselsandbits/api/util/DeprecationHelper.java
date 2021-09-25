@@ -25,7 +25,7 @@ public class DeprecationHelper
 		if ( bitItemStack != null && bitItemStack.getItem() instanceof BlockItem)
 		{
 			final BlockItem blkItem = (BlockItem) bitItemStack.getItem();
-			return blkItem.getBlock().getDefaultState();
+			return blkItem.getBlock().defaultBlockState();
 		}
 
 		return null;
@@ -36,7 +36,7 @@ public class DeprecationHelper
 	{
 	    return DistExecutor.unsafeRunForDist(
           () -> () -> {
-              final String translated = LanguageMap.getInstance().func_230503_a_(string);
+              final String translated = LanguageMap.getInstance().getOrDefault(string);
               if (translated.equals(string))
                   return LanguageHandler.translateKey(string);
 

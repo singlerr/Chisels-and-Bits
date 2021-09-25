@@ -30,11 +30,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import net.minecraft.block.AbstractBlock.Properties;
+
 @SuppressWarnings("deprecation")
 public class ModificationTableBlock extends Block
 {
     private static final ITextComponent      CONTAINER_NAME = new TranslationTextComponent("block." + Constants.MOD_ID + ".modification_table");
-    private static final Property<Direction> FACING         = HorizontalBlock.HORIZONTAL_FACING;
+    private static final Property<Direction> FACING         = HorizontalBlock.FACING;
 
     public ModificationTableBlock(final Properties properties)
     {
@@ -45,37 +47,37 @@ public class ModificationTableBlock extends Block
     @Override
     public BlockState getStateForPlacement(final BlockItemUseContext context)
     {
-        return getDefaultState().with(FACING, context.getPlacementHorizontalFacing());
+        return defaultBlockState().setValue(FACING, context.getHorizontalDirection());
     }
 
     @Override
-    protected void fillStateContainer(final StateContainer.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(final StateContainer.Builder<Block, BlockState> builder)
     {
         builder.add(FACING);
     }
 
     @NotNull
     @Override
-    public ActionResultType onBlockActivated(@NotNull BlockState state, World worldIn, @NotNull BlockPos pos, @NotNull PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
-        if (worldIn.isRemote()) {
+    public ActionResultType use(@NotNull BlockState state, World worldIn, @NotNull BlockPos pos, @NotNull PlayerEntity player, @NotNull Hand handIn, @NotNull BlockRayTraceResult hit) {
+        if (worldIn.isClientSide()) {
             return ActionResultType.SUCCESS;
         } else {
-            player.openContainer(state.getContainer(worldIn, pos));
+            player.openMenu(state.getMenuProvider(worldIn, pos));
             return ActionResultType.CONSUME;
         }
     }
 
     @Nullable
     @Override
-    public INamedContainerProvider getContainer(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos) {
-        return new SimpleNamedContainerProvider((id, inventory, player) -> new ModificationTableContainer(id, inventory, IWorldPosCallable.of(worldIn, pos)), CONTAINER_NAME);
+    public INamedContainerProvider getMenuProvider(@NotNull BlockState state, @NotNull World worldIn, @NotNull BlockPos pos) {
+        return new SimpleNamedContainerProvider((id, inventory, player) -> new ModificationTableContainer(id, inventory, IWorldPosCallable.create(worldIn, pos)), CONTAINER_NAME);
     }
 
     @Override
-    public void addInformation(
+    public void appendHoverText(
       final @NotNull ItemStack stack, @Nullable final IBlockReader worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
     {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
         ChiselsAndBits.getInstance().getConfiguration().getCommon().helpText(LocalStrings.ModificationTableHelp, tooltip);
     }
 

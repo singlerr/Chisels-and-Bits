@@ -35,7 +35,7 @@ public class InteractableItemModel implements IModelGeometry<InteractableItemMod
       final ItemOverrideList overrides,
       final ResourceLocation modelLocation)
     {
-        final IBakedModel innerBakedModel = this.innerModel.bakeModel(
+        final IBakedModel innerBakedModel = this.innerModel.bake(
           bakery,
           spriteGetter,
           modelTransform,
@@ -55,7 +55,7 @@ public class InteractableItemModel implements IModelGeometry<InteractableItemMod
         }
 
         if (this.innerModel == null) {
-            this.innerModelLocation = ModelBakery.MODEL_MISSING;
+            this.innerModelLocation = ModelBakery.MISSING_MODEL_LOCATION;
             this.innerModel = modelGetter.apply(this.innerModelLocation);
         }
 
@@ -63,6 +63,6 @@ public class InteractableItemModel implements IModelGeometry<InteractableItemMod
             throw new IllegalStateException("BlockModel parent has to be a block model.");
         }
 
-        return innerModel.getTextures(modelGetter, missingTextureErrors);
+        return innerModel.getMaterials(modelGetter, missingTextureErrors);
     }
 }

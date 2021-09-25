@@ -64,6 +64,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import net.minecraft.item.Item.Properties;
+
 public class BitItem extends Item implements IChiselingItem, IBitItem, IDocumentableItem
 {
     private static final Logger LOGGER = LogManager.getLogger();
@@ -123,22 +125,22 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
 
     @NotNull
     @Override
-    public ITextComponent getDisplayName(@NotNull final ItemStack stack)
+    public ITextComponent getName(@NotNull final ItemStack stack)
     {
         final BlockState containedStack = getBitState(stack);
         final Block block = containedStack.getBlock();
 
-        ITextComponent stateName = block.asItem().getDisplayName(new ItemStack(block));
+        ITextComponent stateName = block.asItem().getName(new ItemStack(block));
         if (block instanceof FlowingFluidBlock) {
             final FlowingFluidBlock flowingFluidBlock = (FlowingFluidBlock) block;
             stateName = new TranslationTextComponent(flowingFluidBlock.getFluid().getAttributes().getTranslationKey());
         }
 
-        return new TranslationTextComponent(this.getTranslationKey(stack), stateName);
+        return new TranslationTextComponent(this.getDescriptionId(stack), stateName);
     }
 
     @Override
-    public void addInformation(
+    public void appendHoverText(
       @NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<ITextComponent> tooltip, @NotNull final ITooltipFlag flagIn)
     {
         final IChiselMode mode = getMode(stack);
@@ -148,7 +150,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         else {
             tooltip.add(TranslationUtils.build("chiselmode.mode", mode.getDisplayName()));
         }
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }
 
     @Override
@@ -180,7 +182,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
       final ChiselingOperation modeOfOperation,
       final ChiselModeInteractionCallback callback)
     {
-        final ItemStack itemStack = playerEntity.getHeldItem(hand);
+        final ItemStack itemStack = playerEntity.getItemInHand(hand);
         if (itemStack.isEmpty() || itemStack.getItem() != this)
             return currentState;
 
@@ -197,7 +199,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         final ClickProcessingState resultState = callback.run(chiselMode, playerEntity, context);
 
         if (context.isComplete()) {
-            playerEntity.getCooldownTracker().setCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
+            playerEntity.getCooldowns().addCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
         }
 
         return resultState;
@@ -209,14 +211,14 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         //TODO: 1.17 Remove the legacy loading of the blockstate.
         if (!stack.getOrCreateTag().contains(NbtConstants.BLOCK_STATE)) {
             if (!stack.getOrCreateTag().contains(LEGACY_BLOCK_STATE_ID_KEY)) {
-                return Blocks.AIR.getDefaultState();
+                return Blocks.AIR.defaultBlockState();
             }
 
             final BlockState blockState = IBlockStateIdManager.getInstance().getBlockStateFrom(stack.getOrCreateTag().getInt(LEGACY_BLOCK_STATE_ID_KEY));
             stack.getOrCreateTag().remove(LEGACY_BLOCK_STATE_ID_KEY);
             stack.getOrCreateTag().put(NbtConstants.BLOCK_STATE, NBTUtil.writeBlockState(blockState));
         }
-        return NBTUtil.readBlockState(stack.getOrCreateChildTag(NbtConstants.BLOCK_STATE));
+        return NBTUtil.readBlockState(stack.getOrCreateTagElement(NbtConstants.BLOCK_STATE));
     }
 
     @Override
@@ -337,10 +339,10 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
       final Matrix4f projectionMatrix,
       final long finishTimeNano)
     {
-        Vector3d vector3d = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
-        double xView = vector3d.getX();
-        double yView = vector3d.getY();
-        double zView = vector3d.getZ();
+        Vector3d vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        double xView = vector3d.x();
+        double yView = vector3d.y();
+        double zView = vector3d.z();
 
         final ItemStack itemStack = ItemStackUtils.getHighlightItemStackFromPlayer(playerEntity);
         if (itemStack.isEmpty() || itemStack.getItem() != this)
@@ -444,9 +446,9 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
                                                      return new InternalContextFilter(contextPredicate);
                                                  },
                                                  false);
-            WorldRenderer.drawShape(
+            WorldRenderer.renderShape(
               matrixStack,
-              Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
+              Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
               boundingShape,
               inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() -zView,
               0.85f, 0.0f, 0.0f, 0.65f
@@ -467,9 +469,9 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
                                                      return new InternalContextFilter(contextPredicate);
                                                  },
                                                  false);
-            WorldRenderer.drawShape(
+            WorldRenderer.renderShape(
               matrixStack,
-              Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
+              Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
               boundingShape,
               inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() -zView,
               0.0f, 0.85f, 0.0f, 0.65f
@@ -477,7 +479,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
 
             ILocalChiselingContextCache.getInstance().set(ChiselingOperation.PLACING, placingContext);
         }
-        Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().finish(ModRenderTypes.MEASUREMENT_LINES.get());
+        Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
         RenderSystem.enableDepthTest();
     }
 
@@ -501,14 +503,14 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
           },
           false);
         RenderSystem.disableDepthTest();
-        WorldRenderer.drawShape(
+        WorldRenderer.renderShape(
           matrixStack,
-          Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
+          Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
           boundingShape,
           inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() - zView,
-          colorVector.getX(), colorVector.getY(), colorVector.getZ(), 0.65f
+          colorVector.x(), colorVector.y(), colorVector.z(), 0.65f
         );
-        Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().finish(ModRenderTypes.MEASUREMENT_LINES.get());
+        Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
         RenderSystem.enableDepthTest();
         return;
     }
@@ -525,9 +527,9 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     }
 
     @Override
-    public void fillItemGroup(@Nullable final ItemGroup group, @NotNull final NonNullList<ItemStack> items)
+    public void fillItemCategory(@Nullable final ItemGroup group, @NotNull final NonNullList<ItemStack> items)
     {
-        if (group == null || this.getGroup() != group) {
+        if (group == null || this.getItemCategory() != group) {
             return;
         }
 
@@ -535,7 +537,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
             ForgeRegistries.BLOCKS.getValues()
               .forEach(block -> {
                   if (IEligibilityManager.getInstance().canBeChiseled(block)) {
-                    final BlockState blockState = block.getDefaultState();
+                    final BlockState blockState = block.defaultBlockState();
                     final ItemStack resultStack = IBitItemManager.getInstance().create(blockState);
 
                     if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem)
@@ -561,7 +563,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
           .stream()
           .map(block -> {
               if (IEligibilityManager.getInstance().canBeChiseled(block)) {
-                  final BlockState blockState = block.getDefaultState();
+                  final BlockState blockState = block.defaultBlockState();
                   return IBitItemManager.getInstance().create(blockState);
               }
 

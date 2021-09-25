@@ -84,14 +84,14 @@ public class SingleBlockBlockReader implements IBlockReader
 
     @Nullable
     @Override
-    public TileEntity getTileEntity(@NotNull final BlockPos pos)
+    public TileEntity getBlockEntity(@NotNull final BlockPos pos)
     {
         if (pos == this.pos && blk.hasTileEntity(state))
         {
             return blk.createTileEntity(state, this);
         }
 
-        return source == null ? null : source.getTileEntity(pos);
+        return source == null ? null : source.getBlockEntity(pos);
     }
 
     @NotNull
@@ -103,7 +103,7 @@ public class SingleBlockBlockReader implements IBlockReader
             return state;
         }
 
-        return source == null ? Blocks.AIR.getDefaultState() : source.getBlockState(pos);
+        return source == null ? Blocks.AIR.defaultBlockState() : source.getBlockState(pos);
     }
 
     @NotNull

@@ -21,7 +21,7 @@ public class ConversionManager implements IConversionManager
     @Override
     public Optional<Block> getChiseledVariantOf(final Block block)
     {
-        final Material material = block.getDefaultState().getMaterial();
+        final Material material = block.defaultBlockState().getMaterial();
         final Material workingMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(material);
 
         if (!ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.containsKey(workingMaterial))

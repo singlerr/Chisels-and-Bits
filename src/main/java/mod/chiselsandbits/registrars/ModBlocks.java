@@ -27,43 +27,43 @@ public final class ModBlocks
 
     public static final Map<Material, RegistryObject<ChiseledBlock>>     MATERIAL_TO_BLOCK_CONVERSIONS = Maps.newHashMap();
 
-    public static final RegistryObject<BitStorageBlock> BIT_STORAGE = BLOCK_REGISTRAR.register("bit_storage", () -> new BitStorageBlock(AbstractBlock.Properties.create(Material.IRON)
-                                                                                                                                                .hardnessAndResistance(1.5F, 6.0F)
+    public static final RegistryObject<BitStorageBlock> BIT_STORAGE = BLOCK_REGISTRAR.register("bit_storage", () -> new BitStorageBlock(AbstractBlock.Properties.of(Material.METAL)
+                                                                                                                                                .strength(1.5F, 6.0F)
                                                                                                                                                 .harvestTool(ToolType.AXE)
                                                                                                                                                 .harvestLevel(1)
-                                                                                                                                                .setRequiresTool()
-                                                                                                                                                .variableOpacity()
-                                                                                                                                                .notSolid()
-                                                                                                                                                .setAllowsSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
-                                                                                                                                                .setOpaque((p_test_1_, p_test_2_, p_test_3_) -> false)
-                                                                                                                                                .setSuffocates((p_test_1_, p_test_2_, p_test_3_) -> false)
-                                                                                                                                                .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false)));
+                                                                                                                                                .requiresCorrectToolForDrops()
+                                                                                                                                                .dynamicShape()
+                                                                                                                                                .noOcclusion()
+                                                                                                                                                .isValidSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
+                                                                                                                                                .isRedstoneConductor((p_test_1_, p_test_2_, p_test_3_) -> false)
+                                                                                                                                                .isSuffocating((p_test_1_, p_test_2_, p_test_3_) -> false)
+                                                                                                                                                .isViewBlocking((p_test_1_, p_test_2_, p_test_3_) -> false)));
 
-    public static final RegistryObject<ModificationTableBlock> MODIFICATION_TABLE = BLOCK_REGISTRAR.register("modification_table", () -> new ModificationTableBlock(AbstractBlock.Properties.create(Material.IRON)
-                                                                                                                                                .hardnessAndResistance(1.5F, 6.0F)
+    public static final RegistryObject<ModificationTableBlock> MODIFICATION_TABLE = BLOCK_REGISTRAR.register("modification_table", () -> new ModificationTableBlock(AbstractBlock.Properties.of(Material.METAL)
+                                                                                                                                                .strength(1.5F, 6.0F)
                                                                                                                                                 .harvestTool(ToolType.AXE)
                                                                                                                                                 .harvestLevel(1)
-                                                                                                                                                .setRequiresTool()
-                                                                                                                                                .variableOpacity()
-                                                                                                                                                .notSolid()
-                                                                                                                                                .setAllowsSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
-                                                                                                                                                .setOpaque((p_test_1_, p_test_2_, p_test_3_) -> false)
-                                                                                                                                                .setSuffocates((p_test_1_, p_test_2_, p_test_3_) -> false)
-                                                                                                                                                .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false)));
+                                                                                                                                                .requiresCorrectToolForDrops()
+                                                                                                                                                .dynamicShape()
+                                                                                                                                                .noOcclusion()
+                                                                                                                                                .isValidSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
+                                                                                                                                                .isRedstoneConductor((p_test_1_, p_test_2_, p_test_3_) -> false)
+                                                                                                                                                .isSuffocating((p_test_1_, p_test_2_, p_test_3_) -> false)
+                                                                                                                                                .isViewBlocking((p_test_1_, p_test_2_, p_test_3_) -> false)));
 
     public static final RegistryObject<ChiseledPrinterBlock> CHISELED_PRINTER = BLOCK_REGISTRAR.register(
       "chiseled_printer",
-      () -> new ChiseledPrinterBlock(AbstractBlock.Properties.create(Material.IRON)
-                                         .hardnessAndResistance(1.5F, 6.0F)
+      () -> new ChiseledPrinterBlock(AbstractBlock.Properties.of(Material.METAL)
+                                         .strength(1.5F, 6.0F)
                                          .harvestTool(ToolType.PICKAXE)
                                          .harvestLevel(1)
-                                         .setRequiresTool()
-                                         .variableOpacity()
-                                         .notSolid()
-                                         .setAllowsSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
-                                         .setOpaque((p_test_1_, p_test_2_, p_test_3_) -> false)
-                                         .setSuffocates((p_test_1_, p_test_2_, p_test_3_) -> false)
-                                         .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false))
+                                         .requiresCorrectToolForDrops()
+                                         .dynamicShape()
+                                         .noOcclusion()
+                                         .isValidSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
+                                         .isRedstoneConductor((p_test_1_, p_test_2_, p_test_3_) -> false)
+                                         .isSuffocating((p_test_1_, p_test_2_, p_test_3_) -> false)
+                                         .isViewBlocking((p_test_1_, p_test_2_, p_test_3_) -> false))
     );
 
 
@@ -84,11 +84,11 @@ public final class ModBlocks
             BLOCK_REGISTRAR.register(
               "chiseled" + name,
               () -> new ChiseledBlock(AbstractBlock.Properties
-                                         .create(material)
-                                         .hardnessAndResistance(1.5f, 6f)
-                                         .setBlocksVision((p_test_1_, p_test_2_, p_test_3_) -> false)
-                                         .setOpaque((p_test_1_, p_test_2_, p_test_3_) -> false)
-                                         .notSolid())
+                                         .of(material)
+                                         .strength(1.5f, 6f)
+                                         .isViewBlocking((p_test_1_, p_test_2_, p_test_3_) -> false)
+                                         .isRedstoneConductor((p_test_1_, p_test_2_, p_test_3_) -> false)
+                                         .noOcclusion())
             )
           ));
     }

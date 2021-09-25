@@ -24,13 +24,13 @@ public final class ModTileEntityTypes
         throw new IllegalStateException("Tried to initialize: ModTileEntityTypes but this is a Utility class.");
     }
 
-    public static RegistryObject<TileEntityType<ChiseledBlockEntity>> CHISELED = REGISTRAR.register("chiseled", () -> TileEntityType.Builder.create(
+    public static RegistryObject<TileEntityType<ChiseledBlockEntity>> CHISELED = REGISTRAR.register("chiseled", () -> TileEntityType.Builder.of(
       ChiseledBlockEntity::new,
       ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values().stream().map(RegistryObject::get).toArray(Block[]::new)
       ).build(null)
     );
 
-    public static RegistryObject<TileEntityType<BitStorageBlockEntity>> BIT_STORAGE = REGISTRAR.register("bit_storage", () -> TileEntityType.Builder.create(
+    public static RegistryObject<TileEntityType<BitStorageBlockEntity>> BIT_STORAGE = REGISTRAR.register("bit_storage", () -> TileEntityType.Builder.of(
       BitStorageBlockEntity::new,
       ModBlocks.BIT_STORAGE.get()
       ).build(null)
@@ -38,7 +38,7 @@ public final class ModTileEntityTypes
 
     public static final RegistryObject<TileEntityType<ChiseledPrinterBlockEntity>> CHISELED_PRINTER = REGISTRAR.register(
       "chiseled_printer",
-      () -> TileEntityType.Builder.create(
+      () -> TileEntityType.Builder.of(
         ChiseledPrinterBlockEntity::new,
         ModBlocks.CHISELED_PRINTER.get()
       ).build(null)

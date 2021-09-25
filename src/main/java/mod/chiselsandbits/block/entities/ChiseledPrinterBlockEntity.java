@@ -100,7 +100,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
             }
         }
 
-        public int size() {
+        public int getCount() {
             return 1;
         }
     };
@@ -139,9 +139,9 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     @Override
-    public void read(final @NotNull BlockState state, final @NotNull CompoundNBT nbt)
+    public void load(final @NotNull BlockState state, final @NotNull CompoundNBT nbt)
     {
-        super.read(state, nbt);
+        super.load(state, nbt);
 
         tool_handler.ifPresent(h -> h.deserializeNBT(nbt.getCompound("tool")));
         pattern_handler.ifPresent(h -> h.deserializeNBT(nbt.getCompound("pattern")));
@@ -151,9 +151,9 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     @Override
-    public @NotNull CompoundNBT write(final @NotNull CompoundNBT compound)
+    public @NotNull CompoundNBT save(final @NotNull CompoundNBT compound)
     {
-        super.write(compound);
+        super.save(compound);
 
         tool_handler.ifPresent(h -> compound.put("tool", h.serializeNBT()));
         pattern_handler.ifPresent(h -> compound.put("pattern", h.serializeNBT()));
@@ -168,18 +168,18 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     public @NotNull CompoundNBT getUpdateTag()
     {
         final CompoundNBT nbt = new CompoundNBT();
-        write(nbt);
+        save(nbt);
         return nbt;
     }
 
     @Override
     public void tick()
     {
-        if (getWorld() == null || lastTickTime == getWorld().getGameTime() || getWorld().isRemote()) {
+        if (getLevel() == null || lastTickTime == getLevel().getGameTime() || getLevel().isClientSide()) {
             return;
         }
 
-        this.lastTickTime = getWorld().getGameTime();
+        this.lastTickTime = getLevel().getGameTime();
 
         if (couldWork()) {
             if (canWork()) {
@@ -190,11 +190,11 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
                     progress = 0;
                     damageChisel();
                 }
-                markDirty();
+                setChanged();
             }
         } else if (progress != 0) {
             progress = 0;
-            markDirty();
+            setChanged();
         }
     }
 
@@ -279,9 +279,9 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
         if (realisedPattern.getStatistics().isEmpty())
             return ItemStack.EMPTY;
 
-        final BlockState firstState = getPrimaryBlockState() == null ? Blocks.AIR.getDefaultState() : getPrimaryBlockState();
-        final BlockState secondState = getSecondaryBlockState() == null ? Blocks.AIR.getDefaultState() : getSecondaryBlockState();
-        final BlockState thirdState = getTertiaryBlockState() == null ? Blocks.AIR.getDefaultState() : getTertiaryBlockState();
+        final BlockState firstState = getPrimaryBlockState() == null ? Blocks.AIR.defaultBlockState() : getPrimaryBlockState();
+        final BlockState secondState = getSecondaryBlockState() == null ? Blocks.AIR.defaultBlockState() : getSecondaryBlockState();
+        final BlockState thirdState = getTertiaryBlockState() == null ? Blocks.AIR.defaultBlockState() : getTertiaryBlockState();
 
         if (firstState.isAir() && secondState.isAir() && thirdState.isAir())
             return ItemStack.EMPTY;
@@ -294,7 +294,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
 
         final IMultiStateSnapshot modifiableSnapshot = realisedPattern.createSnapshot();
         modifiableSnapshot.mutableStream()
-          .filter(e -> (e.getState() != firstState || firstState == Blocks.AIR.getDefaultState()) && (e.getState() != secondState || secondState == Blocks.AIR.getDefaultState()) && (e.getState() != thirdState || thirdState == Blocks.AIR.getDefaultState()) && e.getState() != Blocks.AIR.getDefaultState())
+          .filter(e -> (e.getState() != firstState || firstState == Blocks.AIR.defaultBlockState()) && (e.getState() != secondState || secondState == Blocks.AIR.defaultBlockState()) && (e.getState() != thirdState || thirdState == Blocks.AIR.defaultBlockState()) && e.getState() != Blocks.AIR.defaultBlockState())
           .forEach(IMutableStateEntryInfo::clear);
 
         if (modifiableSnapshot.getStatics().getStateCounts().getOrDefault(firstState, 0) == 0 &&
@@ -303,9 +303,9 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
         )
             return ItemStack.EMPTY;
 
-        if ((modifiableSnapshot.getStatics().getStateCounts().getOrDefault(firstState, 0) > getAvailablePrimaryBlockState() && firstState != Blocks.AIR.getDefaultState()) ||
-              (modifiableSnapshot.getStatics().getStateCounts().getOrDefault(secondState, 0) > getAvailableSecondaryBlockState() && secondState != Blocks.AIR.getDefaultState())  ||
-              (modifiableSnapshot.getStatics().getStateCounts().getOrDefault(thirdState, 0) > getAvailableTertiaryBlockState() && thirdState != Blocks.AIR.getDefaultState()) )
+        if ((modifiableSnapshot.getStatics().getStateCounts().getOrDefault(firstState, 0) > getAvailablePrimaryBlockState() && firstState != Blocks.AIR.defaultBlockState()) ||
+              (modifiableSnapshot.getStatics().getStateCounts().getOrDefault(secondState, 0) > getAvailableSecondaryBlockState() && secondState != Blocks.AIR.defaultBlockState())  ||
+              (modifiableSnapshot.getStatics().getStateCounts().getOrDefault(thirdState, 0) > getAvailableTertiaryBlockState() && thirdState != Blocks.AIR.defaultBlockState()) )
             return ItemStack.EMPTY;
 
         if (consumeResources) {
@@ -318,9 +318,9 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     private void damageChisel() {
-        if (getWorld() != null && !getWorld().isRemote())
+        if (getLevel() != null && !getLevel().isClientSide())
         {
-            getToolStack().attemptDamageItem(1, getWorld().getRandom(), null);
+            getToolStack().hurt(1, getLevel().getRandom(), null);
         }
     }
 
@@ -344,29 +344,29 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     public int getAvailablePrimaryBlockState() {
-        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiseledPrinterBlock.FACING);
-        final Direction targetedFacing = facing.rotateY();
+        final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
+        final Direction targetedFacing = facing.getClockWise();
 
         return getStorageContents(targetedFacing);
     }
 
     public int getAvailableSecondaryBlockState() {
-        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiseledPrinterBlock.FACING);
-        final Direction targetedFacing = facing.rotateY().rotateY();
+        final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
+        final Direction targetedFacing = facing.getClockWise().getClockWise();
 
         return getStorageContents(targetedFacing);
     }
 
     public int getAvailableTertiaryBlockState() {
-        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiseledPrinterBlock.FACING);
-        final Direction targetedFacing = facing.rotateYCCW();
+        final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
+        final Direction targetedFacing = facing.getCounterClockWise();
 
         return getStorageContents(targetedFacing);
     }
 
     private int getStorageContents(final Direction targetedFacing)
     {
-        final TileEntity targetedTileEntity = Objects.requireNonNull(this.getWorld()).getTileEntity(this.getPos().offset(targetedFacing));
+        final TileEntity targetedTileEntity = Objects.requireNonNull(this.getLevel()).getBlockEntity(this.getBlockPos().relative(targetedFacing));
         if (targetedTileEntity instanceof BitStorageBlockEntity)
         {
             final BitStorageBlockEntity storage = (BitStorageBlockEntity) targetedTileEntity;
@@ -377,62 +377,62 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     public BlockState getPrimaryBlockState() {
-        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiseledPrinterBlock.FACING);
-        final Direction targetedFacing = facing.rotateY();
+        final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
+        final Direction targetedFacing = facing.getClockWise();
 
         return getStorage(targetedFacing);
     }
 
     public BlockState getSecondaryBlockState() {
-        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiseledPrinterBlock.FACING);
-        final Direction targetedFacing = facing.rotateY().rotateY();
+        final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
+        final Direction targetedFacing = facing.getClockWise().getClockWise();
 
         return getStorage(targetedFacing);
     }
 
     public BlockState getTertiaryBlockState() {
-        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiseledPrinterBlock.FACING);
-        final Direction targetedFacing = facing.rotateYCCW();
+        final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
+        final Direction targetedFacing = facing.getCounterClockWise();
 
         return getStorage(targetedFacing);
     }
 
     private BlockState getStorage(final Direction targetedFacing)
     {
-        final TileEntity targetedTileEntity = Objects.requireNonNull(this.getWorld()).getTileEntity(this.getPos().offset(targetedFacing));
+        final TileEntity targetedTileEntity = Objects.requireNonNull(this.getLevel()).getBlockEntity(this.getBlockPos().relative(targetedFacing));
         if (targetedTileEntity instanceof BitStorageBlockEntity)
         {
             final BitStorageBlockEntity storage = (BitStorageBlockEntity) targetedTileEntity;
             return storage.getState();
         }
 
-        return Blocks.AIR.getDefaultState();
+        return Blocks.AIR.defaultBlockState();
     }
 
     public void drainPrimaryStorage(final int amount) {
-        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiseledPrinterBlock.FACING);
-        final Direction targetedFacing = facing.rotateY();
+        final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
+        final Direction targetedFacing = facing.getClockWise();
 
         drainStorage(amount, targetedFacing);
     }
 
     public void drainSecondaryStorage(final int amount) {
-        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiseledPrinterBlock.FACING);
-        final Direction targetedFacing = facing.rotateY().rotateY();
+        final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
+        final Direction targetedFacing = facing.getClockWise().getClockWise();
 
         drainStorage(amount, targetedFacing);
     }
 
     public void drainTertiaryStorage(final int amount) {
-        final Direction facing = Objects.requireNonNull(this.getWorld()).getBlockState(this.getPos()).get(ChiseledPrinterBlock.FACING);
-        final Direction targetedFacing = facing.rotateYCCW();
+        final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
+        final Direction targetedFacing = facing.getCounterClockWise();
 
         drainStorage(amount, targetedFacing);
     }
 
     private void drainStorage(final int amount, final Direction targetedFacing)
     {
-        final TileEntity targetedTileEntity = Objects.requireNonNull(this.getWorld()).getTileEntity(this.getPos().offset(targetedFacing));
+        final TileEntity targetedTileEntity = Objects.requireNonNull(this.getLevel()).getBlockEntity(this.getBlockPos().relative(targetedFacing));
         if (targetedTileEntity instanceof BitStorageBlockEntity)
         {
             final BitStorageBlockEntity storage = (BitStorageBlockEntity) targetedTileEntity;
@@ -441,19 +441,19 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     public void dropInventoryItems(World worldIn, BlockPos pos) {
-        InventoryHelper.spawnItemStack(worldIn,
+        InventoryHelper.dropItemStack(worldIn,
           pos.getX(),
           pos.getY(),
           pos.getZ(),
           getToolStack());
 
-        InventoryHelper.spawnItemStack(worldIn,
+        InventoryHelper.dropItemStack(worldIn,
           pos.getX(),
           pos.getY(),
           pos.getZ(),
           getOutputStack());
 
-        InventoryHelper.spawnItemStack(worldIn,
+        InventoryHelper.dropItemStack(worldIn,
           pos.getX(),
           pos.getY(),
           pos.getZ(),

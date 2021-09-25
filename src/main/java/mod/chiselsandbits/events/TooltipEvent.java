@@ -23,19 +23,19 @@ public class TooltipEvent
     public static void onItemTooltip(final ItemTooltipEvent event)
     {
         if (Minecraft.getInstance().player != null && Configuration.getInstance().getCommon().enableHelp.get())
-            if (Minecraft.getInstance().player.getHeldItemMainhand().getItem() instanceof MagnifyingGlassItem
-                  || Minecraft.getInstance().player.getHeldItemOffhand().getItem() instanceof MagnifyingGlassItem)
+            if (Minecraft.getInstance().player.getMainHandItem().getItem() instanceof MagnifyingGlassItem
+                  || Minecraft.getInstance().player.getOffhandItem().getItem() instanceof MagnifyingGlassItem)
                 if (event.getItemStack().getItem() instanceof BlockItem) {
                     final BlockItem blockItem = (BlockItem) event.getItemStack().getItem();
                     final Block block = blockItem.getBlock();
-                    final BlockState blockState = block.getDefaultState();
+                    final BlockState blockState = block.defaultBlockState();
 
                     final IEligibilityAnalysisResult result = IEligibilityManager.getInstance().analyse(blockState);
 
                     event.getToolTip().add(
                         result.canBeChiseled() || result.isAlreadyChiseled() ?
-                          result.getReason().mergeStyle(TextFormatting.GREEN) :
-                          result.getReason().mergeStyle(TextFormatting.RED)
+                          result.getReason().withStyle(TextFormatting.GREEN) :
+                          result.getReason().withStyle(TextFormatting.RED)
                     );
                 }
     }

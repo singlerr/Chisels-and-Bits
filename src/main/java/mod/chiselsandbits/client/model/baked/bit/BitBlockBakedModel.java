@@ -43,7 +43,7 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
 
         for ( final Direction myFace : Direction.values() )
         {
-            for ( final RenderType layer : RenderType.getBlockRenderTypes() )
+            for ( final RenderType layer : RenderType.chunkBufferLayers() )
             {
                 final ModelQuadLayer[] layers = FaceManager.getInstance().getCachedFace( blockState, myFace, layer,0 );
 
@@ -62,28 +62,28 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
                     switch ( myFace )
                     {
                         case UP:
-                            toB = new Vector3f( to.getX(), from.getY(), to.getZ() );
-                            fromB = new Vector3f( from.getX(), from.getY(), from.getZ() );
+                            toB = new Vector3f( to.x(), from.y(), to.z() );
+                            fromB = new Vector3f( from.x(), from.y(), from.z() );
                             break;
                         case EAST:
-                            toB = new Vector3f( from.getX(), to.getY(), to.getZ() );
-                            fromB = new Vector3f( from.getX(), from.getY(), from.getZ() );
+                            toB = new Vector3f( from.x(), to.y(), to.z() );
+                            fromB = new Vector3f( from.x(), from.y(), from.z() );
                             break;
                         case NORTH:
-                            toB = new Vector3f( to.getX(), to.getY(), to.getZ() );
-                            fromB = new Vector3f( from.getX(), from.getY(), to.getZ() );
+                            toB = new Vector3f( to.x(), to.y(), to.z() );
+                            fromB = new Vector3f( from.x(), from.y(), to.z() );
                             break;
                         case SOUTH:
-                            toB = new Vector3f( to.getX(), to.getY(), from.getZ() );
-                            fromB = new Vector3f( from.getX(), from.getY(), from.getZ() );
+                            toB = new Vector3f( to.x(), to.y(), from.z() );
+                            fromB = new Vector3f( from.x(), from.y(), from.z() );
                             break;
                         case DOWN:
-                            toB = new Vector3f( to.getX(), to.getY(), to.getZ() );
-                            fromB = new Vector3f( from.getX(), to.getY(), from.getZ() );
+                            toB = new Vector3f( to.x(), to.y(), to.z() );
+                            fromB = new Vector3f( from.x(), to.y(), from.z() );
                             break;
                         case WEST:
-                            toB = new Vector3f( to.getX(), to.getY(), to.getZ() );
-                            fromB = new Vector3f( to.getX(), from.getY(), from.getZ() );
+                            toB = new Vector3f( to.x(), to.y(), to.z() );
+                            fromB = new Vector3f( to.x(), from.y(), from.z() );
                             break;
                         default:
                             throw new NullPointerException();
@@ -142,16 +142,16 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
     }
 
     @Override
-    public boolean isSideLit()
+    public boolean usesBlockLight()
     {
         return true;
     }
 
     @NotNull
     @Override
-    public TextureAtlasSprite getParticleTexture()
+    public TextureAtlasSprite getParticleIcon()
     {
-        return Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE).apply(MissingTextureSprite.getLocation());
+        return Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(MissingTextureSprite.getLocation());
     }
 
 }

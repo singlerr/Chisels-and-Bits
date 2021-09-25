@@ -61,8 +61,8 @@ public class DropBlockLootTableGenerator extends LootTableProvider
         @Override
         protected void addTables()
         {
-            this.registerDropSelfLootTable(ModBlocks.CHISELED_PRINTER.get());
-            this.registerDropSelfLootTable(ModBlocks.MODIFICATION_TABLE.get());
+            this.dropSelf(ModBlocks.CHISELED_PRINTER.get());
+            this.dropSelf(ModBlocks.MODIFICATION_TABLE.get());
         }
 
         @Override

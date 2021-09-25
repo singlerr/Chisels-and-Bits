@@ -26,21 +26,21 @@ public class WorldObjectUtils
         final Vector3d bStart = b.getInWorldStartPoint();
         final Vector3d bEnd = b.getInWorldEndPoint();
 
-        return bStart.getX() <= aStart.getX() && aEnd.getX() <= bEnd.getX() &&
-                 bStart.getY() <= aStart.getY() && aEnd.getY() <= bEnd.getY() &&
-                 bStart.getZ() <= aStart.getZ() && aEnd.getZ() <= bEnd.getZ();
+        return bStart.x() <= aStart.x() && aEnd.x() <= bEnd.x() &&
+                 bStart.y() <= aStart.y() && aEnd.y() <= bEnd.y() &&
+                 bStart.z() <= aStart.z() && aEnd.z() <= bEnd.z();
     }
 
     public static boolean isACoveringB(final IWorldObject a, final IWorldObject b) {
         final Vector3d bLowerLeftFront = b.getInWorldStartPoint();
         final Vector3d bUpperRightBack = b.getInWorldEndPoint();
 
-        final Vector3d bLowerLeftBack = new Vector3d(bLowerLeftFront.getX(), bLowerLeftFront.getY(), bUpperRightBack.getZ());
-        final Vector3d bUpperLeftFront = new Vector3d(bLowerLeftFront.getX(), bUpperRightBack.getY(), bLowerLeftFront.getZ());
-        final Vector3d bLowerRightFront = new Vector3d(bUpperRightBack.getX(), bLowerLeftFront.getY(), bLowerLeftFront.getZ());
-        final Vector3d bUpperLeftBack = new Vector3d(bLowerLeftFront.getX(), bUpperRightBack.getY(), bUpperRightBack.getZ());
-        final Vector3d bLowerRightBack = new Vector3d(bUpperRightBack.getX(), bLowerLeftFront.getY(), bUpperRightBack.getZ());
-        final Vector3d bUpperRightFront = new Vector3d(bUpperRightBack.getX(), bUpperRightBack.getY(), bLowerLeftFront.getZ());
+        final Vector3d bLowerLeftBack = new Vector3d(bLowerLeftFront.x(), bLowerLeftFront.y(), bUpperRightBack.z());
+        final Vector3d bUpperLeftFront = new Vector3d(bLowerLeftFront.x(), bUpperRightBack.y(), bLowerLeftFront.z());
+        final Vector3d bLowerRightFront = new Vector3d(bUpperRightBack.x(), bLowerLeftFront.y(), bLowerLeftFront.z());
+        final Vector3d bUpperLeftBack = new Vector3d(bLowerLeftFront.x(), bUpperRightBack.y(), bUpperRightBack.z());
+        final Vector3d bLowerRightBack = new Vector3d(bUpperRightBack.x(), bLowerLeftFront.y(), bUpperRightBack.z());
+        final Vector3d bUpperRightFront = new Vector3d(bUpperRightBack.x(), bUpperRightBack.y(), bLowerLeftFront.z());
 
         return isPointInside(a, bLowerLeftFront) ||
             isPointInside(a, bUpperRightBack) ||
@@ -56,8 +56,8 @@ public class WorldObjectUtils
         final Vector3d aStart = a.getInWorldStartPoint();
         final Vector3d aEnd = a.getInWorldEndPoint();
 
-        return aStart.getX() <= point.getX() && point.getX() <= aEnd.getX() &&
-                 aStart.getY() <= point.getY() && point.getY() <= aEnd.getY() &&
-                 aStart.getZ() <= point.getZ() && point.getZ() <= aEnd.getZ();
+        return aStart.x() <= point.x() && point.x() <= aEnd.x() &&
+                 aStart.y() <= point.y() && point.y() <= aEnd.y() &&
+                 aStart.z() <= point.z() && point.z() <= aEnd.z();
     }
 }

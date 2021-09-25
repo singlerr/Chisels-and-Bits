@@ -46,18 +46,18 @@ public final class MeasurementRenderer
 
     public void renderMeasurements(final RenderWorldLastEvent event)
     {
-        if (Minecraft.getInstance().world == null)
+        if (Minecraft.getInstance().level == null)
         {
             return;
         }
 
-        final Collection<? extends IMeasurement> measurements = MeasuringManager.getInstance().getInWorld(Minecraft.getInstance().world);
+        final Collection<? extends IMeasurement> measurements = MeasuringManager.getInstance().getInWorld(Minecraft.getInstance().level);
 
 
-        Vector3d vector3d = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
-        double xView = vector3d.getX();
-        double yView = vector3d.getY();
-        double zView = vector3d.getZ();
+        Vector3d vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        double xView = vector3d.x();
+        double yView = vector3d.y();
+        double zView = vector3d.z();
 
         measurements.forEach(measurement -> {
             final Vector3d startPos = measurement.getFrom();
@@ -69,59 +69,59 @@ public final class MeasurementRenderer
 
             if (measurement.getMode().getGroup().map(g -> g != MeasuringType.DISTANCE).orElse(false))
             {
-                WorldRenderer.drawShape(
+                WorldRenderer.renderShape(
                   event.getMatrixStack(),
-                  Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
+                  Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
                   boundingShape,
-                  startPos.getX() - xView,
-                  startPos.getY() - yView,
-                  startPos.getZ() - zView,
-                  (float) measurement.getMode().getColorVector().getX(),
-                  (float) measurement.getMode().getColorVector().getY(),
-                  (float) measurement.getMode().getColorVector().getZ(),
+                  startPos.x() - xView,
+                  startPos.y() - yView,
+                  startPos.z() - zView,
+                  (float) measurement.getMode().getColorVector().x(),
+                  (float) measurement.getMode().getColorVector().y(),
+                  (float) measurement.getMode().getColorVector().z(),
                   1f
                 );
 
                 final Vector3d lengths = VectorUtils.absolute(measurement.getTo().subtract(measurement.getFrom()));
-                final Vector3d centerPos = measurement.getFrom().add(measurement.getTo()).mul(0.5, 0.5, 0.5);
+                final Vector3d centerPos = measurement.getFrom().add(measurement.getTo()).multiply(0.5, 0.5, 0.5);
 
-                if (lengths.getY() > 1/16d)
-                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.getY(), new Vector3d(measurement.getFrom().getX(), centerPos.getY(), measurement.getFrom().getZ()));
-                if (lengths.getX() > 1/16d)
-                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.getX(), new Vector3d(centerPos.getX(), measurement.getFrom().getY(), measurement.getFrom().getZ()));
-                if (lengths.getZ() > 1/16d)
-                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.getZ(), new Vector3d(measurement.getFrom().getX(), measurement.getFrom().getY(), centerPos.getZ()));
+                if (lengths.y() > 1/16d)
+                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.y(), new Vector3d(measurement.getFrom().x(), centerPos.y(), measurement.getFrom().z()));
+                if (lengths.x() > 1/16d)
+                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.x(), new Vector3d(centerPos.x(), measurement.getFrom().y(), measurement.getFrom().z()));
+                if (lengths.z() > 1/16d)
+                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.z(), new Vector3d(measurement.getFrom().x(), measurement.getFrom().y(), centerPos.z()));
             }
             else if (measurement.getMode().getGroup().map(g -> g == MeasuringType.DISTANCE).orElse(false))
             {
-                final IVertexBuilder bufferIn = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get());
-                bufferIn.pos(event.getMatrixStack().getLast().getMatrix(),
-                  (float) (measurement.getFrom().getX() - xView),
-                  (float) (measurement.getFrom().getY() - yView),
-                  (float) (measurement.getFrom().getZ() - zView))
-                  .color((float) measurement.getMode().getColorVector().getX(),
-                    (float) measurement.getMode().getColorVector().getY(),
-                    (float) measurement.getMode().getColorVector().getZ(),
+                final IVertexBuilder bufferIn = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get());
+                bufferIn.vertex(event.getMatrixStack().last().pose(),
+                  (float) (measurement.getFrom().x() - xView),
+                  (float) (measurement.getFrom().y() - yView),
+                  (float) (measurement.getFrom().z() - zView))
+                  .color((float) measurement.getMode().getColorVector().x(),
+                    (float) measurement.getMode().getColorVector().y(),
+                    (float) measurement.getMode().getColorVector().z(),
                     1f).endVertex();
 
-                bufferIn.pos(event.getMatrixStack().getLast().getMatrix(),
-                  (float) (measurement.getTo().getX() - xView),
-                  (float) (measurement.getTo().getY() - yView),
-                  (float) (measurement.getTo().getZ() - zView))
-                  .color((float) measurement.getMode().getColorVector().getX(),
-                    (float) measurement.getMode().getColorVector().getY(),
-                    (float) measurement.getMode().getColorVector().getZ(),
+                bufferIn.vertex(event.getMatrixStack().last().pose(),
+                  (float) (measurement.getTo().x() - xView),
+                  (float) (measurement.getTo().y() - yView),
+                  (float) (measurement.getTo().z() - zView))
+                  .color((float) measurement.getMode().getColorVector().x(),
+                    (float) measurement.getMode().getColorVector().y(),
+                    (float) measurement.getMode().getColorVector().z(),
                     1f).endVertex();
 
                 final Vector3d lengths = VectorUtils.absolute(measurement.getTo().subtract(measurement.getFrom()));
                 final double totalLength = lengths.length();
-                final Vector3d centerPos = measurement.getFrom().add(measurement.getTo()).mul(0.5, 0.5, 0.5);
+                final Vector3d centerPos = measurement.getFrom().add(measurement.getTo()).multiply(0.5, 0.5, 0.5);
 
                 if (totalLength > 1/16d)
                     renderMeasurementSize(event.getMatrixStack(), measurement, totalLength, centerPos);
             }
 
-            Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().finish(ModRenderTypes.MEASUREMENT_LINES.get());
+            Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
 
 
         });
@@ -136,30 +136,30 @@ public final class MeasurementRenderer
         final double letterSize = 5.0;
         final double zScale = 0.001;
 
-        final FontRenderer fontRenderer = Minecraft.getInstance().fontRenderer;
+        final FontRenderer fontRenderer = Minecraft.getInstance().font;
         final ITextComponent size = formatLength(measurement.getMode(), length);
         final ITextComponent owner = getOwnerName(measurement.getOwner());
 
         final float scale = getScale(length);
 
-        Vector3d vector3d = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
-        double xView = vector3d.getX();
-        double yView = vector3d.getY();
-        double zView = vector3d.getZ();
+        Vector3d vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        double xView = vector3d.x();
+        double yView = vector3d.y();
+        double zView = vector3d.z();
 
-        matrixStack.push();
-        matrixStack.translate(position.getX() - xView, position.getY() + scale * letterSize - yView, position.getZ() - zView);
+        matrixStack.pushPose();
+        matrixStack.translate(position.x() - xView, position.y() + scale * letterSize - yView, position.z() - zView);
         performBillboardRotations(matrixStack);
         matrixStack.scale(scale, -scale, (float) zScale);
-        matrixStack.translate(-fontRenderer.getStringPropertyWidth(size) * 0.5, 0, 0);
+        matrixStack.translate(-fontRenderer.width(size) * 0.5, 0, 0);
         RenderSystem.disableDepthTest();
-        IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(Tessellator.getInstance().getBuffer());
-        fontRenderer.renderString(size.getString(), 0, 0, measurement.getMode().getColor().getColorValue(), true, matrixStack.getLast().getMatrix(), buffer, true, 0, 15728880);
-        matrixStack.translate(-fontRenderer.getStringPropertyWidth(owner) * 0.5, -fontRenderer.FONT_HEIGHT, 0);
-        fontRenderer.renderString(owner.getString(), 0, 0, measurement.getMode().getColor().getColorValue(), true, matrixStack.getLast().getMatrix(), buffer, true, 0, 15728880);
-        buffer.finish();
+        IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
+        fontRenderer.drawInBatch(size.getString(), 0, 0, measurement.getMode().getColor().getColorValue(), true, matrixStack.last().pose(), buffer, true, 0, 15728880);
+        matrixStack.translate(-fontRenderer.width(owner) * 0.5, -fontRenderer.lineHeight, 0);
+        fontRenderer.drawInBatch(owner.getString(), 0, 0, measurement.getMode().getColor().getColorValue(), true, matrixStack.last().pose(), buffer, true, 0, 15728880);
+        buffer.endBatch();
         RenderSystem.enableDepthTest();
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 
     private ITextComponent formatLength(
@@ -201,19 +201,19 @@ public final class MeasurementRenderer
     private void performBillboardRotations(
       final MatrixStack matrixStack)
     {
-        final Entity view = Minecraft.getInstance().renderViewEntity != null ? Minecraft.getInstance().renderViewEntity : Minecraft.getInstance().player;
+        final Entity view = Minecraft.getInstance().cameraEntity != null ? Minecraft.getInstance().cameraEntity : Minecraft.getInstance().player;
         if (view != null)
         {
-            final float yaw = view.prevRotationYaw + (view.rotationYaw - view.prevRotationYaw) * Minecraft.getInstance().getRenderPartialTicks();
-            matrixStack.rotate(new Quaternion(Vector3f.YP, 180 + -yaw, true));
+            final float yaw = view.yRotO + (view.yRot - view.yRotO) * Minecraft.getInstance().getFrameTime();
+            matrixStack.mulPose(new Quaternion(Vector3f.YP, 180 + -yaw, true));
 
-            final float pitch = view.prevRotationPitch + (view.rotationPitch - view.prevRotationPitch) * Minecraft.getInstance().getRenderPartialTicks();
-            matrixStack.rotate(new Quaternion(Vector3f.XP, -pitch, true));
+            final float pitch = view.xRotO + (view.xRot - view.xRotO) * Minecraft.getInstance().getFrameTime();
+            matrixStack.mulPose(new Quaternion(Vector3f.XP, -pitch, true));
         }
     }
 
     private ITextComponent getOwnerName(final UUID id) {
-        if (id == (Minecraft.getInstance().player != null ? Minecraft.getInstance().player.getUniqueID() : UUID.randomUUID())) {
+        if (id == (Minecraft.getInstance().player != null ? Minecraft.getInstance().player.getUUID() : UUID.randomUUID())) {
             return new TranslationTextComponent(Constants.MOD_ID + ".measurements.owners.you");
         }
 
@@ -221,10 +221,10 @@ public final class MeasurementRenderer
         if (playerInfo == null)
             return new TranslationTextComponent(Constants.MOD_ID + ".measurements.owners.unknown");
 
-        return new TranslationTextComponent(Constants.MOD_ID + ".measurements.owners.by", playerInfo.getDisplayName() != null ? this.formatPlayerDisplayName(playerInfo, playerInfo.getDisplayName().deepCopy()) : this.formatPlayerDisplayName(playerInfo, ScorePlayerTeam.func_237500_a_(playerInfo.getPlayerTeam(), new StringTextComponent(playerInfo.getGameProfile().getName()))));
+        return new TranslationTextComponent(Constants.MOD_ID + ".measurements.owners.by", playerInfo.getTabListDisplayName() != null ? this.formatPlayerDisplayName(playerInfo, playerInfo.getTabListDisplayName().copy()) : this.formatPlayerDisplayName(playerInfo, ScorePlayerTeam.formatNameForTeam(playerInfo.getTeam(), new StringTextComponent(playerInfo.getProfile().getName()))));
     }
 
     private ITextComponent formatPlayerDisplayName(NetworkPlayerInfo p_238524_1_, IFormattableTextComponent p_238524_2_) {
-        return p_238524_1_.getGameType() == GameType.SPECTATOR ? p_238524_2_.mergeStyle(TextFormatting.ITALIC) : p_238524_2_;
+        return p_238524_1_.getGameMode() == GameType.SPECTATOR ? p_238524_2_.withStyle(TextFormatting.ITALIC) : p_238524_2_;
     }
 }

@@ -54,11 +54,11 @@ public class CommandManager
     {
         dispatcher.register(
           Commands.literal("candb")
-            .requires(source -> source.hasPermissionLevel(2))
+            .requires(source -> source.hasPermission(2))
             .then(Commands.literal("fill")
                     .then(Commands.argument("start", Vec3Argument.vec3(false))
                             .then(Commands.argument("end", Vec3Argument.vec3(false))
-                                    .then(Commands.argument("state", BlockStateArgument.blockState())
+                                    .then(Commands.argument("state", BlockStateArgument.block())
                                             .executes(this::runFillCommand)
                                     )
                                     .then(Commands.literal("random")
@@ -83,7 +83,7 @@ public class CommandManager
             )
             .then(Commands.literal("give")
                     .then(Commands.argument("target", EntityArgument.player())
-                            .then(Commands.argument("state", BlockStateArgument.blockState())
+                            .then(Commands.argument("state", BlockStateArgument.block())
                                     .then(Commands.argument("count", IntegerArgumentType.integer(0, 64 * 64))
                                             .executes(this::runGiveCommand)
                                     )
@@ -108,14 +108,14 @@ public class CommandManager
         final Vector3d end = Vec3Argument.getVec3(context, "end");
 
         final IWorldAreaMutator mutator = IMutatorFactory.getInstance().covering(
-          context.getSource().getWorld(),
+          context.getSource().getLevel(),
           start,
           end
         );
 
         if (CommandUtils.hasArgument(context, "state"))
         {
-            final BlockState state = BlockStateArgument.getBlockState(context, "state").getState();
+            final BlockState state = BlockStateArgument.getBlock(context, "state").getState();
             try (final IBatchMutation ignored = mutator.batch())
             {
                 mutator.mutableStream().parallel().forEach(
@@ -142,7 +142,7 @@ public class CommandManager
                       try
                       {
                           entry.clear();
-                          entry.setState(BlockStateUtils.getRandomSupportedDefaultState(context.getSource().getWorld().getRandom()));
+                          entry.setState(BlockStateUtils.getRandomSupportedDefaultState(context.getSource().getLevel().getRandom()));
                       }
                       catch (SpaceOccupiedException e)
                       {
@@ -153,7 +153,7 @@ public class CommandManager
             }
         }
 
-        context.getSource().sendFeedback(new TranslationTextComponent(LocalStrings.CommandFillCompleted.toString()), true);
+        context.getSource().sendSuccess(new TranslationTextComponent(LocalStrings.CommandFillCompleted.toString()), true);
         return 0;
     }
 
@@ -163,7 +163,7 @@ public class CommandManager
         final Vector3d end = Vec3Argument.getVec3(context, "end");
 
         final IWorldAreaMutator mutator = IMutatorFactory.getInstance().covering(
-          context.getSource().getWorld(),
+          context.getSource().getLevel(),
           start,
           end
         );
@@ -184,18 +184,18 @@ public class CommandManager
         final Vector3d end = Vec3Argument.getVec3(context, "end");
 
         final IWorldAreaMutator mutator = IMutatorFactory.getInstance().covering(
-          context.getSource().getWorld(),
+          context.getSource().getLevel(),
           start,
           end
         );
 
-        context.getSource().sendFeedback(new StringTextComponent("Collected the following statistics for the requested area:"), true);
-        context.getSource().sendFeedback(new StringTextComponent("----------------------------------------------------------"), true);
-        context.getSource().sendFeedback(new StringTextComponent("BlockStates:"), true);
-        context.getSource().sendFeedback(new StringTextComponent("############"), true);
+        context.getSource().sendSuccess(new StringTextComponent("Collected the following statistics for the requested area:"), true);
+        context.getSource().sendSuccess(new StringTextComponent("----------------------------------------------------------"), true);
+        context.getSource().sendSuccess(new StringTextComponent("BlockStates:"), true);
+        context.getSource().sendSuccess(new StringTextComponent("############"), true);
         mutator.createSnapshot().getStatics()
           .getStateCounts().forEach((state, count) -> {
-            context.getSource().sendFeedback(new StringTextComponent(" > ").append(state.getBlock().getTranslatedName()).append(new StringTextComponent(": " + count)), true);
+            context.getSource().sendSuccess(new StringTextComponent(" > ").append(state.getBlock().getName()).append(new StringTextComponent(": " + count)), true);
         });
 
         return 0;
@@ -204,7 +204,7 @@ public class CommandManager
     private int runGiveCommand(final CommandContext<CommandSource> context) throws CommandSyntaxException
     {
         final PlayerEntity target = EntityArgument.getPlayer(context, "target");
-        final BlockState state = BlockStateArgument.getBlockState(context, "state").getState();
+        final BlockState state = BlockStateArgument.getBlock(context, "state").getState();
         if (!IEligibilityManager.getInstance().canBeChiseled(state))
             throw GIVE_NOT_CHISELABLE_EXCEPTION.create();
 
@@ -222,7 +222,7 @@ public class CommandManager
     private int startProfiling(final CommandContext<CommandSource> context) throws CommandSyntaxException
     {
         if (ProfilingManager.getInstance().hasProfiler()) {
-            context.getSource().sendErrorMessage(new StringTextComponent("Already profiling!"));
+            context.getSource().sendFailure(new StringTextComponent("Already profiling!"));
             return 1;
         }
 
@@ -236,12 +236,12 @@ public class CommandManager
     private int stopProfiling(final CommandContext<CommandSource> context) throws CommandSyntaxException
     {
         if (!ProfilingManager.getInstance().hasProfiler()) {
-            context.getSource().sendErrorMessage(new StringTextComponent("Not yet profiling!"));
+            context.getSource().sendFailure(new StringTextComponent("Not yet profiling!"));
             return 1;
         }
 
         final IProfilerResult result = IProfilingManager.getInstance().endProfiling(ProfilingManager.getInstance().getProfiler());
-        result.writeAsResponse(line -> context.getSource().sendFeedback(new StringTextComponent(line), true));
+        result.writeAsResponse(line -> context.getSource().sendSuccess(new StringTextComponent(line), true));
 
         ProfilingManager.getInstance().setProfiler(null);
 

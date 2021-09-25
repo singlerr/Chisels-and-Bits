@@ -35,7 +35,7 @@ public class ChiseledPrinterBlockStateGenerator implements IDataProvider
     private ChiseledPrinterBlockStateGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void act(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull DirectoryCache cache) throws IOException
     {
         actOnBlock(cache, ModBlocks.CHISELED_PRINTER.get());
     }
@@ -44,10 +44,10 @@ public class ChiseledPrinterBlockStateGenerator implements IDataProvider
     {
         final Map<String, BlockstateVariantJson> variants = Maps.newHashMap();
 
-        ChiseledPrinterBlock.FACING.getAllowedValues().forEach(dir -> {
+        ChiseledPrinterBlock.FACING.getPossibleValues().forEach(dir -> {
             final String variantKey = String.format("%s=%s", ChiseledPrinterBlock.FACING.getName(), dir);
             String modelFile = Constants.DataGenerator.CHISELED_PRINTER_MODEL.toString();
-            final BlockstateModelJson model = new BlockstateModelJson(modelFile, 0, (int) dir.getOpposite().getHorizontalAngle());
+            final BlockstateModelJson model = new BlockstateModelJson(modelFile, 0, (int) dir.getOpposite().toYRot());
             variants.put(variantKey, new BlockstateVariantJson(model));
         });
 

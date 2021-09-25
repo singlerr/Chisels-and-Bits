@@ -59,7 +59,7 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
           playerEntity,
           context,
-          face -> Vector3d.copy(face.getOpposite().getDirectionVec()),
+          face -> Vector3d.atLowerCornerOf(face.getOpposite().getNormal()),
           Direction::getOpposite,
           false
         );
@@ -114,7 +114,7 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
           playerEntity,
           context,
-          face -> Vector3d.copy(face.getDirectionVec()),
+          face -> Vector3d.atLowerCornerOf(face.getNormal()),
           Function.identity(),
           true
         );
@@ -186,16 +186,16 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         }
 
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        final Vector3d hitVector = blockRayTraceResult.getHitVec().add(
-          placementFacingAdapter.apply(blockRayTraceResult.getFace())
-            .mul(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
+        final Vector3d hitVector = blockRayTraceResult.getLocation().add(
+          placementFacingAdapter.apply(blockRayTraceResult.getDirection())
+            .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
-        final Vector3d hitBlockPosVector = Vector3d.copy(new BlockPos(hitVector));
+        final Vector3d hitBlockPosVector = Vector3d.atLowerCornerOf(new BlockPos(hitVector));
         final Vector3d inBlockHitVector = hitVector.subtract(hitBlockPosVector);
-        final Vector3d inBlockBitVector = inBlockHitVector.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
+        final Vector3d inBlockBitVector = inBlockHitVector.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
 
-        final Direction iterationDirection = iterationAdaptor.apply(blockRayTraceResult.getFace());
+        final Direction iterationDirection = iterationAdaptor.apply(blockRayTraceResult.getDirection());
         switch (iterationDirection)
         {
             case DOWN:
@@ -225,10 +225,10 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     {
         if (bitsPerSide == 1)
         {
-            for (int yOff = 0; yOff < inBlockBitVector.getY(); yOff++)
+            for (int yOff = 0; yOff < inBlockBitVector.y(); yOff++)
             {
                 final Vector3d targetBit = inBlockBitVector.subtract(0, yOff, 0);
-                final Vector3d inWorldOffset = clampVectorToBlock(targetBit.mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                final Vector3d inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
                 final Vector3d inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                 if (context.getInAreaTarget(inWorldTarget)
@@ -251,10 +251,10 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         {
             for (int zOff = -bitsPerSide / 2; zOff < bitsPerSide / 2; zOff++)
             {
-                for (int yOff = 0; yOff < inBlockBitVector.getY(); yOff++)
+                for (int yOff = 0; yOff < inBlockBitVector.y(); yOff++)
                 {
                     final Vector3d targetBit = inBlockBitVector.subtract(xOff, yOff, zOff);
-                    final Vector3d inWorldOffset = clampVectorToBlock(targetBit.mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                    final Vector3d inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
                     final Vector3d inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                     if (context.getInAreaTarget(inWorldTarget)
@@ -277,10 +277,10 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     {
         if (bitsPerSide == 1)
         {
-            for (int yOff = 0; yOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.getY()); yOff++)
+            for (int yOff = 0; yOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.y()); yOff++)
             {
                 final Vector3d targetBit = inBlockBitVector.subtract(0, -yOff, 0);
-                final Vector3d inWorldOffset = clampVectorToBlock(targetBit.mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                final Vector3d inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
                 final Vector3d inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                 if (context.getInAreaTarget(inWorldTarget)
@@ -303,10 +303,10 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         {
             for (int zOff = -bitsPerSide / 2; zOff < bitsPerSide / 2; zOff++)
             {
-                for (int yOff = 0; yOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.getY()); yOff++)
+                for (int yOff = 0; yOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.y()); yOff++)
                 {
                     final Vector3d targetBit = inBlockBitVector.subtract(xOff, -yOff, zOff);
-                    final Vector3d inWorldOffset = clampVectorToBlock(targetBit.mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                    final Vector3d inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
                     final Vector3d inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                     if (context.getInAreaTarget(inWorldTarget)
@@ -329,10 +329,10 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     {
         if (bitsPerSide == 1)
         {
-            for (int zOff = 0; zOff < inBlockBitVector.getZ(); zOff++)
+            for (int zOff = 0; zOff < inBlockBitVector.z(); zOff++)
             {
                 final Vector3d targetBit = inBlockBitVector.subtract(0, 0, zOff);
-                final Vector3d inWorldOffset = clampVectorToBlock(targetBit.mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                final Vector3d inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
                 final Vector3d inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                 if (context.getInAreaTarget(inWorldTarget)
@@ -355,10 +355,10 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         {
             for (int yOff = -bitsPerSide / 2; yOff < bitsPerSide / 2; yOff++)
             {
-                for (int zOff = 0; zOff < inBlockBitVector.getZ(); zOff++)
+                for (int zOff = 0; zOff < inBlockBitVector.z(); zOff++)
                 {
                     final Vector3d targetBit = inBlockBitVector.subtract(xOff, yOff, zOff);
-                    final Vector3d inWorldOffset = clampVectorToBlock(targetBit.mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                    final Vector3d inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
                     final Vector3d inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                     if (context.getInAreaTarget(inWorldTarget)
@@ -381,10 +381,10 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     {
         if (bitsPerSide == 1)
         {
-            for (int zOff = 0; zOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.getZ()); zOff++)
+            for (int zOff = 0; zOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.z()); zOff++)
             {
                 final Vector3d targetBit = inBlockBitVector.subtract(0, 0, -zOff);
-                final Vector3d inWorldOffset = clampVectorToBlock(targetBit.mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                final Vector3d inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
                 final Vector3d inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                 if (context.getInAreaTarget(inWorldTarget)
@@ -407,10 +407,10 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         {
             for (int yOff = -bitsPerSide / 2; yOff < bitsPerSide / 2; yOff++)
             {
-                for (int zOff = 0; zOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.getZ()); zOff++)
+                for (int zOff = 0; zOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.z()); zOff++)
                 {
                     final Vector3d targetBit = inBlockBitVector.subtract(xOff, yOff, -zOff);
-                    final Vector3d inWorldOffset = clampVectorToBlock(targetBit.mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                    final Vector3d inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
                     final Vector3d inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                     if (context.getInAreaTarget(inWorldTarget)
@@ -433,10 +433,10 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     {
         if (bitsPerSide == 1)
         {
-            for (int xOff = 0; xOff < inBlockBitVector.getX(); xOff++)
+            for (int xOff = 0; xOff < inBlockBitVector.x(); xOff++)
             {
                 final Vector3d targetBit = inBlockBitVector.subtract(xOff, 0, 0);
-                final Vector3d inWorldOffset = clampVectorToBlock(targetBit.mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                final Vector3d inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
                 final Vector3d inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                 if (context.getInAreaTarget(inWorldTarget)
@@ -460,10 +460,10 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         {
             for (int yOff = -bitsPerSide / 2; yOff < bitsPerSide / 2; yOff++)
             {
-                for (int xOff = 0; xOff < inBlockBitVector.getX(); xOff++)
+                for (int xOff = 0; xOff < inBlockBitVector.x(); xOff++)
                 {
                     final Vector3d targetBit = inBlockBitVector.subtract(xOff, yOff, zOff);
-                    final Vector3d inWorldOffset = clampVectorToBlock(targetBit.mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                    final Vector3d inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
                     final Vector3d inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                     if (context.getInAreaTarget(inWorldTarget)
@@ -486,10 +486,10 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     {
         if (bitsPerSide == 1)
         {
-            for (int xOff = 0; xOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.getX()); xOff++)
+            for (int xOff = 0; xOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.x()); xOff++)
             {
                 final Vector3d targetBit = inBlockBitVector.subtract(-xOff, 0, 0);
-                final Vector3d inWorldOffset = clampVectorToBlock(targetBit.mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                final Vector3d inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
                 final Vector3d inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                 if (context.getInAreaTarget(inWorldTarget)
@@ -512,10 +512,10 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         {
             for (int yOff = -bitsPerSide / 2; yOff < bitsPerSide / 2; yOff++)
             {
-                for (int xOff = 0; xOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.getX()); xOff++)
+                for (int xOff = 0; xOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.x()); xOff++)
                 {
                     final Vector3d targetBit = inBlockBitVector.subtract(-xOff, yOff, zOff);
-                    final Vector3d inWorldOffset = clampVectorToBlock(targetBit.mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                    final Vector3d inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
                     final Vector3d inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                     if (context.getInAreaTarget(inWorldTarget)
@@ -537,9 +537,9 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     private Vector3d clampVectorToBlock(final Vector3d v)
     {
         return new Vector3d(
-          v.getX() < 0 ? 0 : (v.getX() >= 1 ? 1 - ONE_THOUSANDS : v.getX()),
-          v.getY() < 0 ? 0 : (v.getY() >= 1 ? 1 - ONE_THOUSANDS : v.getY()),
-          v.getZ() < 0 ? 0 : (v.getZ() >= 1 ? 1 - ONE_THOUSANDS : v.getZ())
+          v.x() < 0 ? 0 : (v.x() >= 1 ? 1 - ONE_THOUSANDS : v.x()),
+          v.y() < 0 ? 0 : (v.y() >= 1 ? 1 - ONE_THOUSANDS : v.y()),
+          v.z() < 0 ? 0 : (v.z() >= 1 ? 1 - ONE_THOUSANDS : v.z())
         );
     }
 

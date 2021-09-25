@@ -17,9 +17,9 @@ public class IInventoryBitInventory extends AbstractBitInventory
      * @return A copy of the stack in the slot.
      */
     @Override
-    protected ItemStack getStackInSlot(final int index)
+    protected ItemStack getItem(final int index)
     {
-        return inventory.getStackInSlot(index);
+        return inventory.getItem(index);
     }
 
     /**
@@ -30,7 +30,7 @@ public class IInventoryBitInventory extends AbstractBitInventory
     @Override
     protected int getInventorySize()
     {
-        return inventory.getSizeInventory();
+        return inventory.getContainerSize();
     }
 
     /**
@@ -42,7 +42,7 @@ public class IInventoryBitInventory extends AbstractBitInventory
     @Override
     protected void setSlotContents(final int index, final ItemStack stack)
     {
-        inventory.setInventorySlotContents(index, stack);
+        inventory.setItem(index, stack);
     }
 
     @Override

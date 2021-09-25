@@ -13,9 +13,9 @@ public class BlockPosUtils
 
     public static BlockPos fromCeil(final Vector3d vector3d) {
         return new BlockPos(
-          (int) Math.ceil(vector3d.getX()),
-          (int) Math.ceil(vector3d.getY()),
-          (int) Math.ceil(vector3d.getZ())
+          (int) Math.ceil(vector3d.x()),
+          (int) Math.ceil(vector3d.y()),
+          (int) Math.ceil(vector3d.z())
         );
     }
 }

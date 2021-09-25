@@ -14,7 +14,7 @@ public final class ModItemGroups
 
     public static final ItemGroup CHISELS_AND_BITS = new ItemGroup(Constants.MOD_ID) {
         @Override
-        public ItemStack createIcon()
+        public ItemStack makeIcon()
         {
             return new ItemStack(ModItems.ITEM_CHISEL_STONE.get());
         }

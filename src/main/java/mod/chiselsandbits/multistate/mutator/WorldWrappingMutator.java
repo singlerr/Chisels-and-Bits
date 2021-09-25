@@ -45,14 +45,14 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     {
         this.world = world;
         this.startPoint = new Vector3d(
-          Math.min(startPoint.getX(), endPoint.getX()),
-          Math.min(startPoint.getY(), endPoint.getY()),
-          Math.min(startPoint.getZ(), endPoint.getZ())
+          Math.min(startPoint.x(), endPoint.x()),
+          Math.min(startPoint.y(), endPoint.y()),
+          Math.min(startPoint.z(), endPoint.z())
         );
         this.endPoint = new Vector3d(
-          Math.max(startPoint.getX(), endPoint.getX()),
-          Math.max(startPoint.getY(), endPoint.getY()),
-          Math.max(startPoint.getZ(), endPoint.getZ())
+          Math.max(startPoint.x(), endPoint.x()),
+          Math.max(startPoint.y(), endPoint.y()),
+          Math.max(startPoint.z(), endPoint.z())
         );
     }
 
@@ -151,7 +151,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
-        return isInside(Vector3d.copy(inAreaBlockPosOffset).add(inBlockTarget));
+        return isInside(Vector3d.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget));
     }
 
     @Override
@@ -182,14 +182,14 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
     {
         return BlockPosStreamProvider.getForRange(
-          getInWorldStartPoint().mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
-          getInWorldEndPoint().mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
+          getInWorldStartPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
+          getInWorldEndPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
         )
                  .map(positionMutator::mutate)
-                 .map(position -> Vector3d.copy(position).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
+                 .map(position -> Vector3d.atLowerCornerOf(position).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
                  .map(position -> {
                      final BlockPos blockPos = new BlockPos(position);
-                     final Vector3d inBlockOffset = position.subtract(Vector3d.copy(blockPos));
+                     final Vector3d inBlockOffset = position.subtract(Vector3d.atLowerCornerOf(blockPos));
 
                      return getInBlockTarget(blockPos, inBlockOffset);
                  })
@@ -243,25 +243,25 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
     {
-        if (inAreaTarget.getX() < 0 ||
-              inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0)
+        if (inAreaTarget.x() < 0 ||
+              inAreaTarget.y() < 0 ||
+              inAreaTarget.z() < 0)
         {
             throw new IllegalArgumentException(String.format("The in area target can not have a negative component: %s", inAreaTarget));
         }
 
         final Vector3d actualTarget = getInWorldStartPoint().add(inAreaTarget);
 
-        if (actualTarget.getX() >= getInWorldEndPoint().getX() ||
-              actualTarget.getY() >= getInWorldEndPoint().getY() ||
-              actualTarget.getZ() >= getInWorldEndPoint().getZ())
+        if (actualTarget.x() >= getInWorldEndPoint().x() ||
+              actualTarget.y() >= getInWorldEndPoint().y() ||
+              actualTarget.z() >= getInWorldEndPoint().z())
         {
             throw new IllegalArgumentException(String.format("The in area target is larger then the allowed size:%s", inAreaTarget));
         }
 
         final BlockPos blockPosTarget = new BlockPos(actualTarget);
 
-        final Vector3d inBlockPosTarget = actualTarget.subtract(Vector3d.copy(blockPosTarget));
+        final Vector3d inBlockPosTarget = actualTarget.subtract(Vector3d.atLowerCornerOf(blockPosTarget));
         final ChiselAdaptingWorldMutator innerMutator = new ChiselAdaptingWorldMutator(
           getWorld(), blockPosTarget
         );
@@ -273,19 +273,19 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget) throws SpaceOccupiedException
     {
         final BlockPos startPos = new BlockPos(getInWorldStartPoint());
-        final BlockPos targetPos = startPos.add(inAreaBlockPosOffset);
-        final Vector3d target = Vector3d.copy(targetPos).add(inBlockTarget);
+        final BlockPos targetPos = startPos.offset(inAreaBlockPosOffset);
+        final Vector3d target = Vector3d.atLowerCornerOf(targetPos).add(inBlockTarget);
 
-        if (target.getX() < getInWorldStartPoint().getX() ||
-              target.getY() < getInWorldStartPoint().getY() ||
-              target.getZ() < getInWorldStartPoint().getZ())
+        if (target.x() < getInWorldStartPoint().x() ||
+              target.y() < getInWorldStartPoint().y() ||
+              target.z() < getInWorldStartPoint().z())
         {
             throw new IllegalArgumentException(String.format("The target can not be smaller then the start point: %s", target));
         }
 
-        if (target.getX() >= getInWorldEndPoint().getX() ||
-              target.getY() >= getInWorldEndPoint().getY() ||
-              target.getZ() >= getInWorldEndPoint().getZ())
+        if (target.x() >= getInWorldEndPoint().x() ||
+              target.y() >= getInWorldEndPoint().y() ||
+              target.z() >= getInWorldEndPoint().z())
         {
             throw new IllegalArgumentException(String.format("The target can not be greater then the start point: %s", target));
         }
@@ -305,25 +305,25 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public void clearInAreaTarget(final Vector3d inAreaTarget)
     {
-        if (inAreaTarget.getX() < 0 ||
-              inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0)
+        if (inAreaTarget.x() < 0 ||
+              inAreaTarget.y() < 0 ||
+              inAreaTarget.z() < 0)
         {
             throw new IllegalArgumentException(String.format("The in area target can not have a negative component: %s", inAreaTarget));
         }
 
         final Vector3d actualTarget = getInWorldStartPoint().add(inAreaTarget);
 
-        if (actualTarget.getX() >= getInWorldEndPoint().getX() ||
-              actualTarget.getY() >= getInWorldEndPoint().getY() ||
-              actualTarget.getZ() >= getInWorldEndPoint().getZ())
+        if (actualTarget.x() >= getInWorldEndPoint().x() ||
+              actualTarget.y() >= getInWorldEndPoint().y() ||
+              actualTarget.z() >= getInWorldEndPoint().z())
         {
             throw new IllegalArgumentException(String.format("The in area target is larger then the allowed size:%s", inAreaTarget));
         }
 
         final BlockPos blockPosTarget = new BlockPos(actualTarget);
 
-        final Vector3d inBlockPosTarget = actualTarget.subtract(Vector3d.copy(blockPosTarget));
+        final Vector3d inBlockPosTarget = actualTarget.subtract(Vector3d.atLowerCornerOf(blockPosTarget));
         final ChiselAdaptingWorldMutator innerMutator = new ChiselAdaptingWorldMutator(
           getWorld(), blockPosTarget
         );
@@ -341,19 +341,19 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
         final BlockPos startPos = new BlockPos(getInWorldStartPoint());
-        final BlockPos targetPos = startPos.add(inAreaBlockPosOffset);
-        final Vector3d target = Vector3d.copy(targetPos).add(inBlockTarget);
+        final BlockPos targetPos = startPos.offset(inAreaBlockPosOffset);
+        final Vector3d target = Vector3d.atLowerCornerOf(targetPos).add(inBlockTarget);
 
-        if (target.getX() < getInWorldStartPoint().getX() ||
-              target.getY() < getInWorldStartPoint().getY() ||
-              target.getZ() < getInWorldStartPoint().getZ())
+        if (target.x() < getInWorldStartPoint().x() ||
+              target.y() < getInWorldStartPoint().y() ||
+              target.z() < getInWorldStartPoint().z())
         {
             throw new IllegalArgumentException(String.format("The target can not be smaller then the start point: %s", target));
         }
 
-        if (target.getX() >= getInWorldEndPoint().getX() ||
-              target.getY() >= getInWorldEndPoint().getY() ||
-              target.getZ() >= getInWorldEndPoint().getZ())
+        if (target.x() >= getInWorldEndPoint().x() ||
+              target.y() >= getInWorldEndPoint().y() ||
+              target.z() >= getInWorldEndPoint().z())
         {
             throw new IllegalArgumentException(String.format("The target can not be greater then the start point: %s", target));
         }
@@ -411,25 +411,25 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public VoxelShape provideShape(final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder, final BlockPos offset, final boolean simplify)
     {
-        final VoxelShape areaShape = VoxelShapes.create(getInWorldBoundingBox().offset(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).offset(offset));
+        final VoxelShape areaShape = VoxelShapes.create(getInWorldBoundingBox().move(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).move(offset));
         final VoxelShape containedShape = BlockPosStreamProvider.getForRange(
           getInWorldStartPoint(), getInWorldEndPoint()
         ).map(blockPos -> new ChiselAdaptingWorldMutator(
           getWorld(), blockPos))
-                                            .map(a -> IVoxelShapeManager.getInstance().get(a, new BlockPos(a.getInWorldStartPoint()).add(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).add(offset),
+                                            .map(a -> IVoxelShapeManager.getInstance().get(a, new BlockPos(a.getInWorldStartPoint()).offset(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).offset(offset),
                                               selectablePredicateBuilder, simplify))
                                             .reduce(
                                               VoxelShapes.empty(),
-                                              (voxelShape, bbShape) -> VoxelShapes.combine(voxelShape, bbShape, IBooleanFunction.OR),
-                                              (voxelShape, voxelShape2) -> VoxelShapes.combine(voxelShape, voxelShape2, IBooleanFunction.OR)
+                                              (voxelShape, bbShape) -> VoxelShapes.joinUnoptimized(voxelShape, bbShape, IBooleanFunction.OR),
+                                              (voxelShape, voxelShape2) -> VoxelShapes.joinUnoptimized(voxelShape, voxelShape2, IBooleanFunction.OR)
                                             );
-        final VoxelShape requestedShape = VoxelShapes.combine(
+        final VoxelShape requestedShape = VoxelShapes.joinUnoptimized(
           areaShape,
           containedShape,
           IBooleanFunction.AND
         );
 
-        return simplify ? requestedShape.simplify() : requestedShape;
+        return simplify ? requestedShape.optimize() : requestedShape;
     }
 
     private static final class PositionAdaptingMutableStateEntry implements IMutableStateEntryInfo, IWorldObject
@@ -443,7 +443,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
           final BlockPos position, final IWorld world)
         {
             this.source = source;
-            this.offSet = Vector3d.copy(position);
+            this.offSet = Vector3d.atLowerCornerOf(position);
             this.world = world;
         }
 

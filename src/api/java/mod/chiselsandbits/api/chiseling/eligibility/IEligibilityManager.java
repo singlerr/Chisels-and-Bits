@@ -38,7 +38,7 @@ public interface IEligibilityManager
      * @return True when chiselable or already chiseled.
      */
     default boolean canBeChiseled(@NotNull final Block block) {
-        return analyse(block.getDefaultState()).canBeChiseled();
+        return analyse(block.defaultBlockState()).canBeChiseled();
     }
 
     /**
@@ -70,7 +70,7 @@ public interface IEligibilityManager
      * @return The analysis result.
      */
     default IEligibilityAnalysisResult analyse(@NotNull final Block block) {
-        return analyse(block.getDefaultState());
+        return analyse(block.defaultBlockState());
     }
 
     /**

@@ -38,7 +38,7 @@ public final class ModMetadataKeys
         @Override
         public Vector3d snapshot(final Vector3d value)
         {
-            return new Vector3d(value.getX(), value.getY(), value.getZ());
+            return new Vector3d(value.x(), value.y(), value.z());
         }
     });
 
@@ -47,7 +47,7 @@ public final class ModMetadataKeys
         @Override
         public Vector3d snapshot(final Vector3d value)
         {
-            return new Vector3d(value.getX(), value.getY(), value.getZ());
+            return new Vector3d(value.x(), value.y(), value.z());
         }
     });
 

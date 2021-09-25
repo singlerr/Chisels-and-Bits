@@ -27,12 +27,12 @@ public class FaceRegion
           facing,
           blockState,
           isEdge,
-          facing.getXOffset() == 0 ? start.getX() : (facing.getXOffset() == 1 ? Math.max(start.getX(), end.getX()) : Math.min(start.getX(), end.getX())),
-          facing.getYOffset() == 0 ? start.getY() : (facing.getYOffset() == 1 ? Math.max(start.getY(), end.getY()) : Math.min(start.getY(), end.getY())),
-          facing.getZOffset() == 0 ? start.getZ() : (facing.getZOffset() == 1 ? Math.max(start.getZ(), end.getZ()) : Math.min(start.getZ(), end.getZ())),
-          facing.getXOffset() == 0 ? end.getX() : (facing.getXOffset() == 1 ? Math.max(start.getX(), end.getX()) : Math.min(start.getX(), end.getX())),
-          facing.getYOffset() == 0 ? end.getY() : (facing.getYOffset() == 1 ? Math.max(start.getY(), end.getY()) : Math.min(start.getY(), end.getY())),
-          facing.getZOffset() == 0 ? end.getZ() : (facing.getZOffset() == 1 ? Math.max(start.getZ(), end.getZ()) : Math.min(start.getZ(), end.getZ()))
+          facing.getStepX() == 0 ? start.x() : (facing.getStepX() == 1 ? Math.max(start.x(), end.x()) : Math.min(start.x(), end.x())),
+          facing.getStepY() == 0 ? start.y() : (facing.getStepY() == 1 ? Math.max(start.y(), end.y()) : Math.min(start.y(), end.y())),
+          facing.getStepZ() == 0 ? start.z() : (facing.getStepZ() == 1 ? Math.max(start.z(), end.z()) : Math.min(start.z(), end.z())),
+          facing.getStepX() == 0 ? end.x() : (facing.getStepX() == 1 ? Math.max(start.x(), end.x()) : Math.min(start.x(), end.x())),
+          facing.getStepY() == 0 ? end.y() : (facing.getStepY() == 1 ? Math.max(start.y(), end.y()) : Math.min(start.y(), end.y())),
+          facing.getStepZ() == 0 ? end.z() : (facing.getStepZ() == 1 ? Math.max(start.z(), end.z()) : Math.min(start.z(), end.z()))
         );
     }
 

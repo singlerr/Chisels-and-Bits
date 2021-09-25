@@ -15,12 +15,12 @@ public class WrappingInventory implements IInventory
     private IInventory wrapped = null;
 
     @Override
-    public int getSizeInventory()
+    public int getContainerSize()
     {
         return whenNotNull(
           wrapped,
           0,
-          IInventory::getSizeInventory
+          IInventory::getContainerSize
         );
     }
 
@@ -36,81 +36,81 @@ public class WrappingInventory implements IInventory
 
     @NotNull
     @Override
-    public ItemStack getStackInSlot(final int index)
+    public ItemStack getItem(final int index)
     {
         return whenNotNull(
           wrapped,
           ItemStack.EMPTY,
-          inventory -> inventory.getStackInSlot(index)
+          inventory -> inventory.getItem(index)
         );
     }
 
     @NotNull
     @Override
-    public ItemStack decrStackSize(final int index, final int count)
+    public ItemStack removeItem(final int index, final int count)
     {
         return whenNotNull(
           wrapped,
           ItemStack.EMPTY,
-          inventory -> inventory.decrStackSize(index, count)
+          inventory -> inventory.removeItem(index, count)
         );
     }
 
     @NotNull
     @Override
-    public ItemStack removeStackFromSlot(final int index)
+    public ItemStack removeItemNoUpdate(final int index)
     {
         return whenNotNull(
           wrapped,
           ItemStack.EMPTY,
-          inventory -> inventory.removeStackFromSlot(index)
+          inventory -> inventory.removeItemNoUpdate(index)
         );
     }
 
     @Override
-    public void setInventorySlotContents(final int index, final @NotNull ItemStack stack)
+    public void setItem(final int index, final @NotNull ItemStack stack)
     {
         whenNotNull(
           wrapped,
-          inventory -> inventory.setInventorySlotContents(index, stack)
+          inventory -> inventory.setItem(index, stack)
         );
     }
 
     @Override
-    public void markDirty()
+    public void setChanged()
     {
         whenNotNull(
           wrapped,
-          IInventory::markDirty
+          IInventory::setChanged
         );
     }
 
     @Override
-    public boolean isUsableByPlayer(final @NotNull PlayerEntity player)
+    public boolean stillValid(final @NotNull PlayerEntity player)
     {
         return whenNotNull(
           wrapped,
           false,
-          inventory -> inventory.isUsableByPlayer(player)
+          inventory -> inventory.stillValid(player)
         );
     }
 
     @Override
-    public void clear()
+    public void clearContent()
     {
         whenNotNull(
           wrapped,
-          IClearable::clear
+          IClearable::clearContent
         );
     }
 
     @Override
-    public int getInventoryStackLimit()
+    public int getMaxStackSize()
     {
         return whenNotNull(
           wrapped,
           64,
-          IInventory::getInventoryStackLimit
+          IInventory::getMaxStackSize
         );
     }
 

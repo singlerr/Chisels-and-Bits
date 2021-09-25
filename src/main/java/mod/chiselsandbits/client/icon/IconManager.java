@@ -53,7 +53,7 @@ public class IconManager implements IIconManager
         IResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
         if (resourceManager instanceof IReloadableResourceManager) {
             IReloadableResourceManager reloadableResourceManager = (IReloadableResourceManager) resourceManager;
-            reloadableResourceManager.addReloadListener(iconSpriteUploader);
+            reloadableResourceManager.registerReloadListener(iconSpriteUploader);
         }
 
         registerIcon(ICON_SWAP);
@@ -131,6 +131,6 @@ public class IconManager implements IIconManager
     @Override
     public void bindTexture()
     {
-        Minecraft.getInstance().getTextureManager().bindTexture(IconSpriteUploader.TEXTURE_MAP_NAME);
+        Minecraft.getInstance().getTextureManager().bind(IconSpriteUploader.TEXTURE_MAP_NAME);
     }
 }

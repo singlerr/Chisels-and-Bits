@@ -24,9 +24,9 @@ public final class ClearBagGuiPacket extends ModPacket
     public void server(
       final ServerPlayerEntity player)
     {
-        if (player.openContainer instanceof BagContainer)
+        if (player.containerMenu instanceof BagContainer)
         {
-            ((BagContainer) player.openContainer).clear(stack);
+            ((BagContainer) player.containerMenu).clear(stack);
         }
     }
 
@@ -34,13 +34,13 @@ public final class ClearBagGuiPacket extends ModPacket
     public void readPayload(
       final PacketBuffer buffer)
     {
-        stack = buffer.readItemStack();
+        stack = buffer.readItem();
     }
 
     @Override
     public void writePayload(final PacketBuffer buffer)
     {
-        buffer.writeItemStack(stack);
+        buffer.writeItem(stack);
     }
 
 }

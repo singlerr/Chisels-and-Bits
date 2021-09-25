@@ -31,15 +31,15 @@ public final class BagGuiStackPacket extends ModPacket
             return;
         }
 
-        if (Minecraft.getInstance().player.openContainer == null)
+        if (Minecraft.getInstance().player.containerMenu == null)
         {
             return;
         }
 
-        final Container cc = Minecraft.getInstance().player.openContainer;
+        final Container cc = Minecraft.getInstance().player.containerMenu;
         if (cc instanceof BagContainer)
         {
-            ((BagContainer) cc).customSlots.get(index).putStack(stack);
+            ((BagContainer) cc).customSlots.get(index).set(stack);
         }
     }
 
@@ -48,7 +48,7 @@ public final class BagGuiStackPacket extends ModPacket
       final PacketBuffer buffer)
     {
         index = buffer.readInt();
-        stack = buffer.readItemStack();
+        stack = buffer.readItem();
         stack.setCount(buffer.readVarInt());
     }
 
@@ -59,7 +59,7 @@ public final class BagGuiStackPacket extends ModPacket
 
         final ItemStack networkStack = stack.copy();
         networkStack.setCount(1);
-        buffer.writeItemStack(networkStack);
+        buffer.writeItem(networkStack);
 
         buffer.writeVarInt(stack.getCount());
     }

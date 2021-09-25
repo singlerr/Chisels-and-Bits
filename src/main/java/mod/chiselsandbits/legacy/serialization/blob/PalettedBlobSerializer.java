@@ -16,8 +16,8 @@ import java.util.List;
 public class PalettedBlobSerializer extends BlobSerializer implements IResizeCallback<BlockState>
 {
     private final ObjectIntIdentityMap<BlockState> registry        = GameData.getBlockStateIDMap();
-    private final IPalette<BlockState>             registryPalette = new IdentityPalette<>(GameData.getBlockStateIDMap(), Blocks.AIR.getDefaultState());
-    private       IPalette<BlockState>             palette         = new IdentityPalette<>(GameData.getBlockStateIDMap(), Blocks.AIR.getDefaultState());
+    private final IPalette<BlockState>             registryPalette = new IdentityPalette<>(GameData.getBlockStateIDMap(), Blocks.AIR.defaultBlockState());
+    private       IPalette<BlockState>             palette         = new IdentityPalette<>(GameData.getBlockStateIDMap(), Blocks.AIR.defaultBlockState());
     private int bits = 0;
 
     public PalettedBlobSerializer(final PacketBuffer toInflate)
@@ -47,12 +47,12 @@ public class PalettedBlobSerializer extends BlobSerializer implements IResizeCal
                 this.palette = new HashMapPalette<>(this.registry, this.bits, this, NBTUtil::readBlockState, NBTUtil::writeBlockState);
             } else {
                 this.palette = this.registryPalette;
-                this.bits = MathHelper.log2DeBruijn(this.registry.size());
+                this.bits = MathHelper.ceillog2(this.registry.size());
                 if (forceBits)
                     this.bits = bitsIn;
             }
 
-            this.palette.idFor(Blocks.AIR.getDefaultState());
+            this.palette.idFor(Blocks.AIR.defaultBlockState());
         }
     }
 
@@ -86,7 +86,7 @@ public class PalettedBlobSerializer extends BlobSerializer implements IResizeCal
     @Override
     protected int getStateID(final int indexID)
     {
-        return IBlockStateIdManager.getInstance().getIdFrom(this.palette.get(indexID));
+        return IBlockStateIdManager.getInstance().getIdFrom(this.palette.valueFor(indexID));
     }
 
     @Override

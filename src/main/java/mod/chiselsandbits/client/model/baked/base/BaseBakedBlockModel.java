@@ -8,7 +8,7 @@ public abstract class BaseBakedBlockModel extends BaseBakedPerspectiveModel impl
 {
 
 	@Override
-	final public boolean isAmbientOcclusion()
+	final public boolean useAmbientOcclusion()
 	{
 		return true;
 	}
@@ -20,16 +20,16 @@ public abstract class BaseBakedBlockModel extends BaseBakedPerspectiveModel impl
 	}
 
 	@Override
-	final public boolean isBuiltInRenderer()
+	final public boolean isCustomRenderer()
 	{
 		return false;
 	}
 
 	@SuppressWarnings({"NullableProblems", "deprecation"})
     @Override
-	final public ItemCameraTransforms getItemCameraTransforms()
+	final public ItemCameraTransforms getTransforms()
 	{
-		return ItemCameraTransforms.DEFAULT;
+		return ItemCameraTransforms.NO_TRANSFORMS;
 	}
 
 	@Override

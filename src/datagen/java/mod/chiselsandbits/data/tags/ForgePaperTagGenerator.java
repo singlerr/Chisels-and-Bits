@@ -30,7 +30,7 @@ public class ForgePaperTagGenerator implements IDataProvider
     private ForgePaperTagGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void act(@NotNull final DirectoryCache cache) throws IOException
+    public void run(@NotNull final DirectoryCache cache) throws IOException
     {
         final TagJson tagJson = new TagJson();
         tagJson.setReplace(false);

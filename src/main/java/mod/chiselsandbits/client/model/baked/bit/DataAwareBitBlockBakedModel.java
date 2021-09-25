@@ -9,13 +9,13 @@ import net.minecraft.world.World;
 public class DataAwareBitBlockBakedModel extends BaseSmartModel
 {
     @Override
-    public boolean isSideLit()
+    public boolean usesBlockLight()
     {
         return true;
     }
 
     @Override
-    public IBakedModel func_239290_a_(
+    public IBakedModel resolve(
       final IBakedModel originalModel, final ItemStack stack, final World world, final LivingEntity entity)
     {
         return BitBlockBakedModelManager.getInstance().get(stack);

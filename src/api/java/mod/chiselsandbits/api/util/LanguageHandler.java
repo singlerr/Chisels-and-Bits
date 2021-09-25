@@ -50,7 +50,7 @@ public final class LanguageHandler
      */
     public static void sendPlayerMessage(@NotNull final PlayerEntity player, final String key, final Object... message)
     {
-        player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message), Util.DUMMY_UUID);
+        player.sendMessage(buildChatComponent(key.toLowerCase(Locale.US), message), Util.NIL_UUID);
     }
 
     public static ITextComponent buildChatComponent(final String key, final Object... message)
@@ -102,7 +102,7 @@ public final class LanguageHandler
             else if (object instanceof String)
             {
                 boolean isInArgs = false;
-                for (final Object obj : translation.getFormatArgs())
+                for (final Object obj : translation.getArgs())
                 {
                     if (obj.equals(object))
                     {
@@ -113,7 +113,7 @@ public final class LanguageHandler
 
                 if (!isInArgs)
                 {
-                    translation.appendString(" " + object);
+                    translation.append(" " + object);
                 }
             }
         }
@@ -139,11 +139,11 @@ public final class LanguageHandler
         final String result;
         if (args.length == 0)
         {
-            result = new TranslationTextComponent(key).getUnformattedComponentText();
+            result = new TranslationTextComponent(key).getContents();
         }
         else
         {
-            result = new TranslationTextComponent(key, args).getUnformattedComponentText();
+            result = new TranslationTextComponent(key, args).getContents();
         }
         return result.isEmpty() ? key : result;
     }
@@ -166,13 +166,13 @@ public final class LanguageHandler
 
         for (final PlayerEntity player : players)
         {
-            player.sendMessage(textComponent, Util.DUMMY_UUID);
+            player.sendMessage(textComponent, Util.NIL_UUID);
         }
     }
 
     public static void sendMessageToPlayer(final PlayerEntity player, final String key, final Object... format)
     {
-        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)), Util.DUMMY_UUID);
+        player.sendMessage(new StringTextComponent(translateKeyWithFormat(key, format)), Util.NIL_UUID);
     }
 
     /**
@@ -230,7 +230,7 @@ public final class LanguageHandler
 
             //noinspection ConstantConditions Trust me, Minecraft.getInstance() can be null, when you run Data Generators!
             String locale = DistExecutor.unsafeCallWhenOn(Dist.CLIENT,
-              () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().gameSettings.language);
+              () -> () -> Minecraft.getInstance() == null ? null : Minecraft.getInstance().options.languageCode);
 
             if (locale == null)
             {
@@ -265,7 +265,7 @@ public final class LanguageHandler
         {
             if (isMCloaded)
             {
-                return LanguageMap.getInstance().func_230503_a_(key);
+                return LanguageMap.getInstance().getOrDefault(key);
             }
             else
             {

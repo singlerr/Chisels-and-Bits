@@ -31,7 +31,7 @@ public class BlockBitItemModelGenerator implements IDataProvider
     private BlockBitItemModelGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void act(@NotNull final DirectoryCache cache) throws IOException
+    public void run(@NotNull final DirectoryCache cache) throws IOException
     {
         actOnBlockWithLoader(cache, new ResourceLocation(Constants.MOD_ID, "bit"), ModItems.ITEM_BLOCK_BIT.get());
     }

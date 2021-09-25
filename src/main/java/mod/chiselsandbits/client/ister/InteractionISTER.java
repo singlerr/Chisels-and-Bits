@@ -16,6 +16,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3f;
 import org.jetbrains.annotations.NotNull;
 
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+
 /**
  * This class animates an interaction between the items in the two hands of the players.
  *
@@ -25,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 public class InteractionISTER extends ItemStackTileEntityRenderer
 {
     @Override
-    public void func_239207_a_(
+    public void renderByItem(
       final @NotNull ItemStack stack,
       final ItemCameraTransforms.@NotNull TransformType transformType,
       final @NotNull MatrixStack matrixStack,
@@ -40,39 +42,39 @@ public class InteractionISTER extends ItemStackTileEntityRenderer
 
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         ClientPlayerEntity player = Minecraft.getInstance().player;
-        IBakedModel mainModel = itemRenderer.getItemModelWithOverrides(stack, Minecraft.getInstance().world, null);
+        IBakedModel mainModel = itemRenderer.getModel(stack, Minecraft.getInstance().level, null);
         if (!(mainModel instanceof InteractableBakedItemModel))
         {
             return;
         }
         IBakedModel innerModel = ((InteractableBakedItemModel) mainModel).getInnerModel();
 
-        float partialTicks = Minecraft.getInstance().getRenderPartialTicks();
+        float partialTicks = Minecraft.getInstance().getFrameTime();
 
         boolean leftHand = transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_LEFT_HAND;
         boolean firstPerson = leftHand || transformType == ItemCameraTransforms.TransformType.FIRST_PERSON_RIGHT_HAND;
 
-        matrixStack.push();
+        matrixStack.pushPose();
         matrixStack.translate(.5f, .5f, .5f);
 
         boolean jeiMode = item.isRunningASimulatedInteraction(stack);
 
         if (item.isInteracting(stack)) {
-            matrixStack.push();
+            matrixStack.pushPose();
 
             if (transformType == ItemCameraTransforms.TransformType.GUI) {
                 matrixStack.translate(0.0F, .2f, 1.0F);
                 matrixStack.scale(.75f, .75f, .75f);
             } else {
                 int modifier = leftHand ? -1 : 1;
-                matrixStack.rotate(Vector3f.YP.rotationDegrees(modifier * 40));
+                matrixStack.mulPose(Vector3f.YP.rotationDegrees(modifier * 40));
             }
 
             // Reverse bobbing
             float time = 0;
             if (player != null)
             {
-                time = (float) (!jeiMode ? player.getItemInUseCount()
+                time = (float) (!jeiMode ? player.getUseItemRemainingTicks()
                                         : (-TickHandler.getNonePausedTicks()) % stack.getUseDuration()) - partialTicks + 1.0F;
             }
             if (time / (float) stack.getUseDuration() < 0.8F) {
@@ -84,32 +86,32 @@ public class InteractionISTER extends ItemStackTileEntityRenderer
                     matrixStack.translate(0.0f, bobbing, 0.0F);
             }
 
-            itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.NONE, false, matrixStack, buffer, combinedLight, combinedOverlay, innerModel);
+            itemRenderer.render(stack, ItemCameraTransforms.TransformType.NONE, false, matrixStack, buffer, combinedLight, combinedOverlay, innerModel);
 
-            matrixStack.pop();
+            matrixStack.popPose();
         }
 
         if (firstPerson && player != null) {
-            int itemInUseCount = player.getItemInUseCount();
+            int itemInUseCount = player.getUseItemRemainingTicks();
             if (itemInUseCount > 0) {
                 int modifier = leftHand ? -1 : 1;
                 matrixStack.translate(modifier * .5f, 0, -.25f);
-                matrixStack.rotate(Vector3f.ZP.rotationDegrees(modifier * 40));
-                matrixStack.rotate(Vector3f.ZP.rotationDegrees(modifier * 10));
-                matrixStack.rotate(Vector3f.ZP.rotationDegrees(modifier * 90));
+                matrixStack.mulPose(Vector3f.ZP.rotationDegrees(modifier * 40));
+                matrixStack.mulPose(Vector3f.ZP.rotationDegrees(modifier * 10));
+                matrixStack.mulPose(Vector3f.ZP.rotationDegrees(modifier * 90));
             }
         }
 
         if (!item.isInteracting(stack))
         {
-            itemRenderer.renderItem(stack, ItemCameraTransforms.TransformType.NONE, false, matrixStack, buffer, combinedLight, combinedOverlay, innerModel);
+            itemRenderer.render(stack, ItemCameraTransforms.TransformType.NONE, false, matrixStack, buffer, combinedLight, combinedOverlay, innerModel);
         }
         else
         {
             final ItemStack target = item.getInteractionTarget(stack);
-            itemRenderer.renderItem(target, ItemCameraTransforms.TransformType.NONE, combinedLight, combinedOverlay, matrixStack, buffer);
+            itemRenderer.renderStatic(target, ItemCameraTransforms.TransformType.NONE, combinedLight, combinedOverlay, matrixStack, buffer);
         }
 
-        matrixStack.pop();
+        matrixStack.popPose();
     }
 }

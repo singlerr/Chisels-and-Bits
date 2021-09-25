@@ -60,28 +60,28 @@ public class SimpleGeneratedModel implements IBakedModel
             switch ( side )
             {
                 case UP:
-                    toB = new Vector3f( to.getX(), from.getY(), to.getZ() );
-                    fromB = new Vector3f( from.getX(), from.getY(), from.getZ() );
+                    toB = new Vector3f( to.x(), from.y(), to.z() );
+                    fromB = new Vector3f( from.x(), from.y(), from.z() );
                     break;
                 case EAST:
-                    toB = new Vector3f( from.getX(), to.getY(), to.getZ() );
-                    fromB = new Vector3f( from.getX(), from.getY(), from.getZ() );
+                    toB = new Vector3f( from.x(), to.y(), to.z() );
+                    fromB = new Vector3f( from.x(), from.y(), from.z() );
                     break;
                 case NORTH:
-                    toB = new Vector3f( to.getX(), to.getY(), to.getZ() );
-                    fromB = new Vector3f( from.getX(), from.getY(), to.getZ() );
+                    toB = new Vector3f( to.x(), to.y(), to.z() );
+                    fromB = new Vector3f( from.x(), from.y(), to.z() );
                     break;
                 case SOUTH:
-                    toB = new Vector3f( to.getX(), to.getY(), from.getZ() );
-                    fromB = new Vector3f( from.getX(), from.getY(), from.getZ() );
+                    toB = new Vector3f( to.x(), to.y(), from.z() );
+                    fromB = new Vector3f( from.x(), from.y(), from.z() );
                     break;
                 case DOWN:
-                    toB = new Vector3f( to.getX(), to.getY(), to.getZ() );
-                    fromB = new Vector3f( from.getX(), to.getY(), from.getZ() );
+                    toB = new Vector3f( to.x(), to.y(), to.z() );
+                    fromB = new Vector3f( from.x(), to.y(), from.z() );
                     break;
                 case WEST:
-                    toB = new Vector3f( to.getX(), to.getY(), to.getZ() );
-                    fromB = new Vector3f( to.getX(), from.getY(), from.getZ() );
+                    toB = new Vector3f( to.x(), to.y(), to.z() );
+                    fromB = new Vector3f( to.x(), from.y(), from.z() );
                     break;
                 default:
                     throw new NullPointerException();
@@ -96,7 +96,7 @@ public class SimpleGeneratedModel implements IBakedModel
       final BakedQuad g,
       final Direction myFace)
     {
-        final int[] vertData = g.getVertexData();
+        final int[] vertData = g.getVertices();
         final int wrapAt = vertData.length / 4;
 
         final BakedQuadBuilder b = new BakedQuadBuilder( g.sprite );
@@ -120,7 +120,7 @@ public class SimpleGeneratedModel implements IBakedModel
                         break;
 
                     case NORMAL:
-                        b.put( elementIndex, myFace.getXOffset(), myFace.getYOffset(), myFace.getZOffset() );
+                        b.put( elementIndex, myFace.getStepX(), myFace.getStepY(), myFace.getStepZ() );
                         break;
 
                     case UV:
@@ -182,7 +182,7 @@ public class SimpleGeneratedModel implements IBakedModel
     }
 
     @Override
-    public boolean isAmbientOcclusion()
+    public boolean useAmbientOcclusion()
     {
         return true;
     }
@@ -194,27 +194,27 @@ public class SimpleGeneratedModel implements IBakedModel
     }
 
     @Override
-    public boolean isSideLit()
+    public boolean usesBlockLight()
     {
         return false;
     }
 
     @NotNull
     @Override
-    public ItemCameraTransforms getItemCameraTransforms()
+    public ItemCameraTransforms getTransforms()
     {
-        return ItemCameraTransforms.DEFAULT;
+        return ItemCameraTransforms.NO_TRANSFORMS;
     }
 
     @NotNull
     @Override
-    public TextureAtlasSprite getParticleTexture()
+    public TextureAtlasSprite getParticleIcon()
     {
         return texture;
     }
 
     @Override
-    public boolean isBuiltInRenderer()
+    public boolean isCustomRenderer()
     {
         return false;
     }

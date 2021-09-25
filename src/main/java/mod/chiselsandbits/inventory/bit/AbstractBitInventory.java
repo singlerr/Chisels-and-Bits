@@ -39,7 +39,7 @@ public abstract class AbstractBitInventory implements IBitInventory
     public int getMaxExtractAmount(final BlockState blockState)
     {
         return IntStream.range(0, getInventorySize())
-                 .mapToObj(this::getStackInSlot)
+                 .mapToObj(this::getItem)
                  .filter(stack -> stack.getItem() instanceof IBitItem || stack.getItem() instanceof IBitInventoryItem)
                  .mapToInt(stack -> {
                      if (stack.getItem() instanceof IBitItem) {
@@ -67,7 +67,7 @@ public abstract class AbstractBitInventory implements IBitInventory
      * @param index The index of the slot to read.
      * @return A copy of the stack in the slot.
      */
-    protected abstract ItemStack getStackInSlot(final int index);
+    protected abstract ItemStack getItem(final int index);
 
     /**
      * The size of the inventory.
@@ -93,7 +93,7 @@ public abstract class AbstractBitInventory implements IBitInventory
 
         for (int i = getInventorySize() - 1; i >= 0; i--)
         {
-            final ItemStack stack = getStackInSlot(i);
+            final ItemStack stack = getItem(i);
             if (stack.getItem() instanceof IBitInventoryItem) {
                 final IBitInventoryItem bitInventoryItem = (IBitInventoryItem) stack.getItem();
                 final IBitInventoryItemStack bitInventory = bitInventoryItem.create(stack);
@@ -114,7 +114,7 @@ public abstract class AbstractBitInventory implements IBitInventory
 
         for (int i = getInventorySize() - 1; i >= 0; i--)
         {
-            final ItemStack stack = getStackInSlot(i);
+            final ItemStack stack = getItem(i);
             if (stack.getItem() instanceof IBitItem) {
                 final IBitItem bitItem = (IBitItem) stack.getItem();
                 if (bitItem.getBitState(stack) == blockState) {
@@ -165,7 +165,7 @@ public abstract class AbstractBitInventory implements IBitInventory
     public int getMaxInsertAmount(final BlockState blockState)
     {
         return IntStream.range(0, getInventorySize())
-                 .mapToObj(this::getStackInSlot)
+                 .mapToObj(this::getItem)
                  .filter(stack -> stack.getItem() instanceof IBitItem || stack.getItem() instanceof IBitInventoryItem || stack.isEmpty())
                  .mapToInt(stack -> {
                      if (stack.isEmpty())
@@ -206,7 +206,7 @@ public abstract class AbstractBitInventory implements IBitInventory
         int currentRawCount = 0;
         for (int i = 0; i < getInventorySize(); i++)
         {
-            final ItemStack stack = getStackInSlot(i);
+            final ItemStack stack = getItem(i);
             if (stack.getItem() instanceof IBitItem) {
                 final IBitItem bitItem = (IBitItem) stack.getItem();
                 if (bitItem.getBitState(stack) == blockState) {
@@ -220,7 +220,7 @@ public abstract class AbstractBitInventory implements IBitInventory
         if (currentRawCount == 0) {
             for (int i = 0; i < getInventorySize(); i++)
             {
-                final ItemStack stack = getStackInSlot(i);
+                final ItemStack stack = getItem(i);
                 if (stack.isEmpty()) {
                     final int stackInsertCount = Math.min(toInsert, getMaxBitsForSlot());
 
@@ -241,7 +241,7 @@ public abstract class AbstractBitInventory implements IBitInventory
         if (currentRawCount < getMaxBitsForSlot()) {
             for (int i = 0; i < getInventorySize(); i++)
             {
-                final ItemStack stack = getStackInSlot(i);
+                final ItemStack stack = getItem(i);
                 if (stack.getItem() instanceof IBitItem) {
                     final IBitItem bitItem = (IBitItem) stack.getItem();
                     if (bitItem.getBitState(stack) == blockState) {
@@ -264,7 +264,7 @@ public abstract class AbstractBitInventory implements IBitInventory
 
         for (int i = getInventorySize() - 1; i >= 0; i--)
         {
-            final ItemStack stack = getStackInSlot(i);
+            final ItemStack stack = getItem(i);
             if (stack.getItem() instanceof IBitInventoryItem) {
                 final IBitInventoryItem bitInventoryItem = (IBitInventoryItem) stack.getItem();
                 final IBitInventoryItemStack bitInventory = bitInventoryItem.create(stack);
@@ -288,7 +288,7 @@ public abstract class AbstractBitInventory implements IBitInventory
 
         for (int i = 0; i < getInventorySize(); i++)
         {
-            final ItemStack stack = getStackInSlot(i);
+            final ItemStack stack = getItem(i);
             if (stack.getItem() instanceof IBitItem) {
                 final IBitItem bitItem = (IBitItem) stack.getItem();
                 if (bitItem.getBitState(stack) == blockState) {
@@ -310,7 +310,7 @@ public abstract class AbstractBitInventory implements IBitInventory
 
         for (int i = 0; i < getInventorySize(); i++)
         {
-            final ItemStack stack = getStackInSlot(i);
+            final ItemStack stack = getItem(i);
             if (stack.isEmpty()) {
                 final int stackInsertCount = Math.min(toInsert, getMaxBitsForSlot());
 

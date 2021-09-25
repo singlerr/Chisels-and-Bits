@@ -34,7 +34,7 @@ import java.util.List;
 public class BitStorageBlock extends Block implements ITileEntityProvider
 {
 
-    public static final Property<Direction> FACING = HorizontalBlock.HORIZONTAL_FACING;
+    public static final Property<Direction> FACING = HorizontalBlock.FACING;
 
     public BitStorageBlock(AbstractBlock.Properties properties)
     {
@@ -45,32 +45,32 @@ public class BitStorageBlock extends Block implements ITileEntityProvider
     @Override
     public BlockState getStateForPlacement(final BlockItemUseContext context)
     {
-        return getDefaultState().with(FACING, context.getPlacementHorizontalFacing());
+        return defaultBlockState().setValue(FACING, context.getHorizontalDirection());
     }
 
     @Override
-    protected void fillStateContainer(final StateContainer.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(final StateContainer.Builder<Block, BlockState> builder)
     {
         builder.add(FACING);
     }
 
     @Nullable
     @Override
-    public TileEntity createNewTileEntity(final @NotNull IBlockReader worldIn)
+    public TileEntity newBlockEntity(final @NotNull IBlockReader worldIn)
     {
         return new BitStorageBlockEntity();
     }
 
     @Override
-    public @NotNull ActionResultType onBlockActivated(
+    public @NotNull ActionResultType use(
       final @NotNull BlockState state, final World worldIn, final @NotNull BlockPos pos, final @NotNull PlayerEntity player, final @NotNull Hand handIn, final @NotNull BlockRayTraceResult hit)
     {
-        final TileEntity tileEntity = worldIn.getTileEntity(pos);
+        final TileEntity tileEntity = worldIn.getBlockEntity(pos);
         if (!(tileEntity instanceof BitStorageBlockEntity))
             return ActionResultType.FAIL;
 
         final BitStorageBlockEntity tank = (BitStorageBlockEntity) tileEntity;
-        final ItemStack current = player.inventory.getCurrentItem();
+        final ItemStack current = player.inventory.getSelected();
 
         if (!current.isEmpty())
         {
@@ -92,7 +92,7 @@ public class BitStorageBlock extends Block implements ITileEntityProvider
             }
         }
 
-        if (tank.extractBits(player, hit.getHitVec().x, hit.getHitVec().y, hit.getHitVec().z, pos))
+        if (tank.extractBits(player, hit.getLocation().x, hit.getLocation().y, hit.getLocation().z, pos))
         {
             return ActionResultType.SUCCESS;
         }
@@ -101,7 +101,7 @@ public class BitStorageBlock extends Block implements ITileEntityProvider
     }
 
     @OnlyIn(Dist.CLIENT)
-    public float getAmbientOcclusionLightValue(@NotNull BlockState state, @NotNull IBlockReader worldIn, @NotNull BlockPos pos)
+    public float getShadeBrightness(@NotNull BlockState state, @NotNull IBlockReader worldIn, @NotNull BlockPos pos)
     {
         return 1.0F;
     }
@@ -114,12 +114,12 @@ public class BitStorageBlock extends Block implements ITileEntityProvider
     @Override
     public @NotNull List<ItemStack> getDrops(final @NotNull BlockState state, final LootContext.Builder builder)
     {
-        if (builder.get(LootParameters.BLOCK_ENTITY) == null)
+        if (builder.getOptionalParameter(LootParameters.BLOCK_ENTITY) == null)
         {
             return Lists.newArrayList();
         }
 
-        return Lists.newArrayList(getTankDrop((BitStorageBlockEntity) builder.get(LootParameters.BLOCK_ENTITY)));
+        return Lists.newArrayList(getTankDrop((BitStorageBlockEntity) builder.getOptionalParameter(LootParameters.BLOCK_ENTITY)));
     }
 
     public ItemStack getTankDrop(final BitStorageBlockEntity bitTank)

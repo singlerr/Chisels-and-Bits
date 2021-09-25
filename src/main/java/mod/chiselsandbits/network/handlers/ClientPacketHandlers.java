@@ -19,22 +19,22 @@ public final class ClientPacketHandlers
     }
 
     public static void handleTileEntityUpdatedPacket(final BlockPos blockPos, final CompoundNBT updateTag) {
-        if (Minecraft.getInstance().world != null) {
-            final TileEntity tileEntity = Minecraft.getInstance().world.getTileEntity(blockPos);
-            if (tileEntity != null && tileEntity.getWorld() != null) {
+        if (Minecraft.getInstance().level != null) {
+            final TileEntity tileEntity = Minecraft.getInstance().level.getBlockEntity(blockPos);
+            if (tileEntity != null && tileEntity.getLevel() != null) {
 
                 try(IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Handling tile entity update packet"))
                 {
                     try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Updating tile entity"))
                     {
-                        tileEntity.handleUpdateTag(Minecraft.getInstance().world.getBlockState(blockPos), updateTag);
+                        tileEntity.handleUpdateTag(Minecraft.getInstance().level.getBlockState(blockPos), updateTag);
                     }
 
                     try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Scheduling refresh"))
                     {
-                        tileEntity.getWorld().notifyBlockUpdate(
-                          tileEntity.getPos(),
-                          Blocks.AIR.getDefaultState(),
+                        tileEntity.getLevel().sendBlockUpdated(
+                          tileEntity.getBlockPos(),
+                          Blocks.AIR.defaultBlockState(),
                           tileEntity.getBlockState(),
                           Constants.BlockFlags.DEFAULT_AND_RERENDER
                         );

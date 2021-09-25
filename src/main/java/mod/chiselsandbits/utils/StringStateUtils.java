@@ -48,7 +48,7 @@ public class StringStateUtils
             return 0;
         }
 
-        BlockState state = blk.getDefaultState();
+        BlockState state = blk.defaultBlockState();
 
         // rebuild state...
         for ( int x = 1; x < parts.length; ++x )
@@ -81,7 +81,7 @@ public class StringStateUtils
       final Block blk,
       final String[] nameval )
     {
-        final Property<?> prop = blk.getStateContainer().getProperty(nameval[0]);
+        final Property<?> prop = blk.getStateDefinition().getProperty(nameval[0]);
         if ( prop == null )
         {
             LOGGER.info( nameval[0] + " is not a valid property for " + blk.getRegistryName() );
@@ -92,10 +92,10 @@ public class StringStateUtils
     }
 
     public static <T extends Comparable<T>> BlockState setPropValue(BlockState blockState, Property<T> property, String value) {
-        final Optional<T> pv = property.parseValue( value );
+        final Optional<T> pv = property.getValue( value );
         if ( pv.isPresent() )
         {
-            return blockState.with( property, pv.get());
+            return blockState.setValue( property, pv.get());
         }
         else
         {
@@ -118,7 +118,7 @@ public class StringStateUtils
             stateName.append( '?' );
 
             boolean first = true;
-            for ( final Property<?> p : state.getBlock().getStateContainer().getProperties() )
+            for ( final Property<?> p : state.getBlock().getStateDefinition().getProperties() )
             {
                 if ( !first )
                 {
@@ -127,12 +127,12 @@ public class StringStateUtils
 
                 first = false;
 
-                final Comparable<?> propVal = state.get(p);
+                final Comparable<?> propVal = state.getValue(p);
 
                 String saveAs;
                 if ( propVal instanceof IStringSerializable)
                 {
-                    saveAs = ( (IStringSerializable) propVal ).getString();
+                    saveAs = ( (IStringSerializable) propVal ).getSerializedName();
                 }
                 else
                 {

@@ -18,10 +18,12 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+
 public class BitStorageISTER extends ItemStackTileEntityRenderer
 {
     @Override
-    public void func_239207_a_(
+    public void renderByItem(
       final @NotNull ItemStack stack,
       final ItemCameraTransforms.@NotNull TransformType transformType,
       final MatrixStack matrixStack,
@@ -33,10 +35,10 @@ public class BitStorageISTER extends ItemStackTileEntityRenderer
         final IBakedModel model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(ModBlocks.BIT_STORAGE.getId(), "facing=east"));
 
         Minecraft.getInstance()
-          .getBlockRendererDispatcher()
-          .getBlockModelRenderer()
-          .renderModel(matrixStack.getLast(), buffer.getBuffer(RenderType.getTranslucent()), ModBlocks.BIT_STORAGE
-                                                                                               .get().getDefaultState(), model, 1f, 1f, 1f, combinedLight, combinedOverlay,
+          .getBlockRenderer()
+          .getModelRenderer()
+          .renderModel(matrixStack.last(), buffer.getBuffer(RenderType.translucent()), ModBlocks.BIT_STORAGE
+                                                                                               .get().defaultBlockState(), model, 1f, 1f, 1f, combinedLight, combinedOverlay,
             EmptyModelData.INSTANCE);
 
         final BitStorageBlockEntity tileEntity = new BitStorageBlockEntity();

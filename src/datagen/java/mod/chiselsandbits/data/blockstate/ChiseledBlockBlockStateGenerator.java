@@ -37,7 +37,7 @@ public class ChiseledBlockBlockStateGenerator implements IDataProvider
     private ChiseledBlockBlockStateGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void act(@NotNull final DirectoryCache cache) throws IOException
+    public void run(@NotNull final DirectoryCache cache) throws IOException
     {
         for (Map.Entry<Material, RegistryObject<ChiseledBlock>> entry : ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.entrySet())
         {
@@ -59,14 +59,14 @@ public class ChiseledBlockBlockStateGenerator implements IDataProvider
     {
         final Map<String, BlockstateVariantJson> variants = Maps.newHashMap();
 
-        block.getStateContainer().getProperties().forEach(property -> property.getAllowedValues().forEach(value -> {
+        block.getStateDefinition().getProperties().forEach(property -> property.getPossibleValues().forEach(value -> {
             final String variantKey = String.format("%s=%s", property.getName(), value);
             String modelFile = Constants.DataGenerator.CHISELED_BLOCK_MODEL.toString();
             final BlockstateModelJson model = new BlockstateModelJson(modelFile, 0, 0);
             variants.put(variantKey, new BlockstateVariantJson(model));
         }));
 
-        if (block.getStateContainer().getProperties().isEmpty()) {
+        if (block.getStateDefinition().getProperties().isEmpty()) {
             final String variantKey = "";
             String modelFile = Constants.DataGenerator.CHISELED_BLOCK_MODEL.toString();
             final BlockstateModelJson model = new BlockstateModelJson(modelFile, 0, 0);

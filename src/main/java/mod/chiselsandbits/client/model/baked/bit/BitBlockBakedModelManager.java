@@ -44,7 +44,7 @@ public class BitBlockBakedModelManager
     {
         return get(
           stack,
-          (!Minecraft.getInstance().gameSettings.keyBindSneak.isInvalid() && Minecraft.getInstance().gameSettings.keyBindSneak.isKeyDown()) || (Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown())
+          (!Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown()) || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown())
         );
     }
 
@@ -68,13 +68,13 @@ public class BitBlockBakedModelManager
       BlockState state,
       final boolean large)
     {
-        if (state == Blocks.AIR.getDefaultState() || state == null)
+        if (state == Blocks.AIR.defaultBlockState() || state == null)
         {
             //We are running an empty bit, for display purposes.
             //Lets loop:
             if (alternativeStacks.isEmpty())
             {
-                ModItems.ITEM_BLOCK_BIT.get().fillItemGroup(Objects.requireNonNull(ModItems.ITEM_BLOCK_BIT.get().getGroup()), alternativeStacks);
+                ModItems.ITEM_BLOCK_BIT.get().fillItemCategory(Objects.requireNonNull(ModItems.ITEM_BLOCK_BIT.get().getItemCategory()), alternativeStacks);
             }
 
             final int alternativeIndex = (int) ((Math.floor(TickHandler.getClientTicks() / 20d)) % alternativeStacks.size());
@@ -98,9 +98,9 @@ public class BitBlockBakedModelManager
                     BlockState lookupState = workingState;
                     if (workingState.getBlock() instanceof FlowingFluidBlock)
                     {
-                        lookupState = workingState.with(FlowingFluidBlock.LEVEL, 15);
+                        lookupState = workingState.setValue(FlowingFluidBlock.LEVEL, 15);
                     }
-                    return Minecraft.getInstance().getBlockRendererDispatcher().getModelForState(lookupState);
+                    return Minecraft.getInstance().getBlockRenderer().getBlockModel(lookupState);
                 }
                 else
                 {

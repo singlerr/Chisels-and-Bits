@@ -31,7 +31,7 @@ public class ConfigLangGenerator implements IDataProvider
     private ConfigLangGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void act(@NotNull final DirectoryCache cache) throws IOException
+    public void run(@NotNull final DirectoryCache cache) throws IOException
     {
         final List<String> langKeys = new ArrayList<>(AbstractConfiguration.LANG_KEYS);
         Collections.sort(langKeys);

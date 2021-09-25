@@ -55,7 +55,7 @@ public class ItemStackUtils
         }
         else if (block instanceof CropsBlock)
         {
-            final ItemStack stack = ((CropsBlock) block).getItem(new SingleBlockBlockReader(blockState), BlockPos.ZERO, blockState);
+            final ItemStack stack = ((CropsBlock) block).getCloneItemStack(new SingleBlockBlockReader(blockState), BlockPos.ZERO, blockState);
             if (!stack.isEmpty())
             {
                 return stack.getItem();
@@ -93,14 +93,14 @@ public class ItemStackUtils
             return ItemStack.EMPTY;
         }
 
-        if (playerEntity.getHeldItemMainhand().getItem() instanceof IWithModeItem)
+        if (playerEntity.getMainHandItem().getItem() instanceof IWithModeItem)
         {
-            return playerEntity.getHeldItemMainhand();
+            return playerEntity.getMainHandItem();
         }
 
-        if (playerEntity.getHeldItemOffhand().getItem() instanceof IWithModeItem)
+        if (playerEntity.getOffhandItem().getItem() instanceof IWithModeItem)
         {
-            return playerEntity.getHeldItemOffhand();
+            return playerEntity.getOffhandItem();
         }
 
         return ItemStack.EMPTY;
@@ -113,14 +113,14 @@ public class ItemStackUtils
             return ItemStack.EMPTY;
         }
 
-        if (playerEntity.getHeldItemMainhand().getItem() instanceof IWithHighlightItem)
+        if (playerEntity.getMainHandItem().getItem() instanceof IWithHighlightItem)
         {
-            return playerEntity.getHeldItemMainhand();
+            return playerEntity.getMainHandItem();
         }
 
-        if (playerEntity.getHeldItemOffhand().getItem() instanceof IWithHighlightItem)
+        if (playerEntity.getOffhandItem().getItem() instanceof IWithHighlightItem)
         {
-            return playerEntity.getHeldItemOffhand();
+            return playerEntity.getOffhandItem();
         }
 
         return ItemStack.EMPTY;
@@ -133,14 +133,14 @@ public class ItemStackUtils
             return ItemStack.EMPTY;
         }
 
-        if (playerEntity.getHeldItemMainhand().getItem() instanceof IBitItem)
+        if (playerEntity.getMainHandItem().getItem() instanceof IBitItem)
         {
-            return playerEntity.getHeldItemMainhand();
+            return playerEntity.getMainHandItem();
         }
 
-        if (playerEntity.getHeldItemOffhand().getItem() instanceof IBitItem)
+        if (playerEntity.getOffhandItem().getItem() instanceof IBitItem)
         {
-            return playerEntity.getHeldItemOffhand();
+            return playerEntity.getOffhandItem();
         }
 
         return ItemStack.EMPTY;
@@ -150,21 +150,21 @@ public class ItemStackUtils
     {
         if (playerEntity == null)
         {
-            return Blocks.AIR.getDefaultState();
+            return Blocks.AIR.defaultBlockState();
         }
 
-        if (playerEntity.getHeldItemMainhand().getItem() instanceof IBitItem)
+        if (playerEntity.getMainHandItem().getItem() instanceof IBitItem)
         {
-            return ((IBitItem) playerEntity.getHeldItemMainhand().getItem()).getBitState(playerEntity.getHeldItemMainhand());
+            return ((IBitItem) playerEntity.getMainHandItem().getItem()).getBitState(playerEntity.getMainHandItem());
         }
 
-        if (playerEntity.getHeldItemOffhand().getItem() instanceof IBitItem)
+        if (playerEntity.getOffhandItem().getItem() instanceof IBitItem)
         {
-            return ((IBitItem) playerEntity.getHeldItemOffhand().getItem()).getBitState(playerEntity.getHeldItemOffhand());
+            return ((IBitItem) playerEntity.getOffhandItem().getItem()).getBitState(playerEntity.getOffhandItem());
         }
         ;
 
-        return Blocks.AIR.getDefaultState();
+        return Blocks.AIR.defaultBlockState();
     }
 
     public static BlockState getStateFromItem(
@@ -175,13 +175,13 @@ public class ItemStackUtils
             if (!is.isEmpty() && is.getItem() instanceof BlockItem)
             {
                 final BlockItem blockItem = (BlockItem) is.getItem();
-                return blockItem.getBlock().getDefaultState();
+                return blockItem.getBlock().defaultBlockState();
             }
         }
         catch (final Throwable ignored)
         {
         }
 
-        return Blocks.AIR.getDefaultState();
+        return Blocks.AIR.defaultBlockState();
     }
 }

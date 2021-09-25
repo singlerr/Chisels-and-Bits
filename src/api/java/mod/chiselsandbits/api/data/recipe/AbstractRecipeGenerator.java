@@ -34,7 +34,7 @@ public abstract class AbstractRecipeGenerator implements IDataProvider
         this.itemProvider = itemProvider;}
 
     @Override
-    public final void act(final @NotNull DirectoryCache cache) throws IOException
+    public final void run(final @NotNull DirectoryCache cache) throws IOException
     {
         this.cache = cache;
         generate();
