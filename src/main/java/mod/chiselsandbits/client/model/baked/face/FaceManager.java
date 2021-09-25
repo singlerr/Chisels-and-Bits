@@ -25,15 +25,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
-import org.apache.commons.lang3.tuple.Triple;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("deprecation")
 public final class FaceManager
 {
 
@@ -42,11 +43,11 @@ public final class FaceManager
     private static final Random RANDOM = new Random();
 
     private static final FaceManager INSTANCE = new FaceManager();
-    private final Cache<Triple<BlockState, RenderType, Direction>, ModelQuadLayer[]> cache = CacheBuilder.newBuilder()
-                                                                                                .expireAfterAccess(1, TimeUnit.MINUTES)
-                                                                                                .build();
+    private final Cache<Key, ModelQuadLayer[]> cache = CacheBuilder.newBuilder()
+                                                                .expireAfterAccess(1, TimeUnit.HOURS)
+                                                                .build();
 
-    private final Cache<BlockState, Integer> colorCache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
+    private final Cache<BlockState, Integer> colorCache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
 
     private FaceManager()
     {
@@ -68,7 +69,7 @@ public final class FaceManager
             return null;
         }
 
-        final Triple<BlockState, RenderType, Direction> key = Triple.of(state, layer, face);
+        final Key key = new Key(state, layer, face, primaryStateRenderSeed);
 
         try
         {
@@ -490,6 +491,59 @@ public final class FaceManager
         {
             LOGGER.warn("Failed to determine the color of a blockstate.", e);
             return 0;
+        }
+    }
+
+    private static final class Key {
+        private final BlockState blockState;
+        private final RenderType renderType;
+        private final Direction direction;
+        private final long primaryStateSeed;
+
+        private Key(final BlockState blockState, final RenderType renderType, final Direction direction, final long primaryStateSeed) {
+            this.blockState = blockState;
+            this.renderType = renderType;
+            this.direction = direction;
+            this.primaryStateSeed = primaryStateSeed;
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (!(o instanceof Key))
+            {
+                return false;
+            }
+
+            final Key key = (Key) o;
+
+            if (primaryStateSeed != key.primaryStateSeed)
+            {
+                return false;
+            }
+            if (!Objects.equals(blockState, key.blockState))
+            {
+                return false;
+            }
+            if (!Objects.equals(renderType, key.renderType))
+            {
+                return false;
+            }
+            return direction == key.direction;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = blockState != null ? blockState.hashCode() : 0;
+            result = 31 * result + (renderType != null ? renderType.hashCode() : 0);
+            result = 31 * result + (direction != null ? direction.hashCode() : 0);
+            result = 31 * result + (int) (primaryStateSeed ^ (primaryStateSeed >>> 32));
+            return result;
         }
     }
 }
