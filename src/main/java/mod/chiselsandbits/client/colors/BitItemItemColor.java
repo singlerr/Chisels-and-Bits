@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client.colors;
 
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.item.bit.BitItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -41,6 +42,11 @@ public class BitItemItemColor implements IItemColor
                 return Minecraft.getInstance().getItemColors().getColor(new ItemStack(item, 1), tintValue);
             }
 
+            return 0xffffff;
+        }
+
+        if (!IEligibilityManager.getInstance().canBeChiseled(state))
+        {
             return 0xffffff;
         }
 
