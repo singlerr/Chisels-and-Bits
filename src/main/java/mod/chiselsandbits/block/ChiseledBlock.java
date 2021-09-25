@@ -266,7 +266,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     public boolean propagatesSkylightDown(@NotNull final BlockState state, @NotNull final IBlockReader reader, @NotNull final BlockPos pos)
     {
         return getBlockEntityFromOrThrow(reader, pos)
-                 .map(multiStateBlockEntity -> !multiStateBlockEntity.getStatistics().canPropagateSkylight())
+                 .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().canPropagateSkylight())
                  .orElse(false);
     }
 
@@ -373,12 +373,21 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     @Override
     public float getAmbientOcclusionLightValue(@NotNull final BlockState state, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos)
     {
-        return getBlockEntityFromOrThrow(worldIn, pos)
+        return 1f - 0.8f * getBlockEntityFromOrThrow(worldIn, pos)
                  .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().getFullnessFactor())
-                 .orElse(1f);
+                 .orElse(0f);
     }
 
     //TODO: Check if getOpacity needs to be overridden.
+
+    @Override
+    public int getOpacity(final BlockState state, final IBlockReader worldIn, final BlockPos pos)
+    {
+        return (int) (float) (getBlockEntityFromOrThrow(worldIn, pos)
+                  .map(multiStateBlockEntity -> worldIn.getMaxLightLevel() * multiStateBlockEntity.getStatistics().getFullnessFactor())
+                  .orElse(0f));
+    }
+
     @NotNull
     @Override
     public VoxelShape getShape(@NotNull final BlockState state, @NotNull final IBlockReader worldIn, @NotNull final BlockPos pos, @NotNull final ISelectionContext context)
