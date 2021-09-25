@@ -25,7 +25,7 @@ public class ModelLightMapReader extends BaseModelReader
     {
         hasLightMap = false;
 
-        int eCount = format.getSize();
+        int eCount = format.getVertexSize();
         for ( int x = 0; x < eCount; x++ )
         {
             VertexFormatElement e = format.getElements().get(x);

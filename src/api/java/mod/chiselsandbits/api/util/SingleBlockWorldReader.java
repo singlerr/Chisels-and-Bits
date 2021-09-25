@@ -61,9 +61,9 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements IW
     }
 
     @Override
-    public boolean chunkExists(final int chunkX, final int chunkZ)
+    public boolean hasChunk(final int chunkX, final int chunkZ)
     {
-        return this.reader.chunkExists(chunkX, chunkZ);
+        return this.reader.hasChunk(chunkX, chunkZ);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements IW
     }
 
     @Override
-    public int getSkylightSubtracted()
+    public int getSkyDarken()
     {
         return 15;
     }
@@ -87,15 +87,15 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements IW
 
     @NotNull
     @Override
-    public Biome getNoiseBiomeRaw(final int x, final int y, final int z)
+    public Biome getUncachedNoiseBiome(final int x, final int y, final int z)
     {
-        return this.reader.getNoiseBiomeRaw(x, y, z);
+        return this.reader.getUncachedNoiseBiome(x, y, z);
     }
 
     @Override
-    public boolean isRemote()
+    public boolean isClientSide()
     {
-        return this.reader.isRemote();
+        return this.reader.isClientSide();
     }
 
     @Override
@@ -106,22 +106,22 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements IW
 
     @NotNull
     @Override
-    public DimensionType getDimensionType()
+    public DimensionType dimensionType()
     {
-        return this.reader.getDimensionType();
+        return this.reader.dimensionType();
     }
 
     @Override
-    public float func_230487_a_(@NotNull final Direction p_230487_1_, final boolean p_230487_2_)
+    public float getShade(@NotNull final Direction p_230487_1_, final boolean p_230487_2_)
     {
-        return this.reader.func_230487_a_(p_230487_1_, p_230487_2_);
+        return this.reader.getShade(p_230487_1_, p_230487_2_);
     }
 
     @NotNull
     @Override
-    public WorldLightManager getLightManager()
+    public WorldLightManager getLightEngine()
     {
-        return this.reader.getLightManager();
+        return this.reader.getLightEngine();
     }
 
     @NotNull
@@ -133,22 +133,22 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements IW
 
     @NotNull
     @Override
-    public Stream<VoxelShape> func_230318_c_(
+    public Stream<VoxelShape> getEntityCollisions(
       @Nullable final Entity p_230318_1_, @NotNull final AxisAlignedBB p_230318_2_, @NotNull final Predicate<Entity> p_230318_3_)
     {
-        return this.reader.func_230318_c_(p_230318_1_, p_230318_2_, p_230318_3_);
+        return this.reader.getEntityCollisions(p_230318_1_, p_230318_2_, p_230318_3_);
     }
 
     @Nullable
     @Override
-    public TileEntity getTileEntity(@NotNull final BlockPos pos)
+    public TileEntity getBlockEntity(@NotNull final BlockPos pos)
     {
         if (pos == this.pos && blk.hasTileEntity(state))
         {
             return blk.createTileEntity(state, this);
         }
 
-        return this.reader.getTileEntity(pos);
+        return this.reader.getBlockEntity(pos);
     }
 
     @NotNull

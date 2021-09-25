@@ -59,11 +59,11 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
       final World world, final PlayerEntity playerEntity, final Vector3d from, final Vector3d to, final MeasuringMode mode)
     {
         return new Measurement(
-          playerEntity.getUniqueID(),
+          playerEntity.getUUID(),
           from,
           to,
           mode,
-          world.getDimensionKey().getLocation()
+          world.dimension().location()
         );
     }
 
@@ -132,11 +132,11 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
     public void createAndSend(
       final Vector3d from, final Vector3d to, final MeasuringMode mode
     ) {
-        if (Minecraft.getInstance().world == null || Minecraft.getInstance().player == null)
+        if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null)
             return;
 
         final Measurement measurement = this.create(
-          Minecraft.getInstance().world,
+          Minecraft.getInstance().level,
           Minecraft.getInstance().player,
           from,
           to,

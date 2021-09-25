@@ -56,7 +56,7 @@ public class ModelRenderer
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
 
         this.renderedTexture = glGenTextures();
-        GlStateManager.bindTexture(renderedTexture);
+        GlStateManager._bindTexture(renderedTexture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -78,24 +78,24 @@ public class ModelRenderer
 
         // Set up GL
         glBindFramebuffer(GL_FRAMEBUFFER, framebufferID);
-        GlStateManager.bindTexture(renderedTexture);
+        GlStateManager._bindTexture(renderedTexture);
         glViewport(0, 0, width, height);
         glClearColor(0.0f,0.0f,0.0f,0.0f);
         glClearDepth(1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        Minecraft.getInstance().getTextureManager().bindTexture(PlayerContainer.LOCATION_BLOCKS_TEXTURE);
+        Minecraft.getInstance().getTextureManager().bind(PlayerContainer.BLOCK_ATLAS);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         // TODO figure out where the .25 comes from. Maybe blocks always render too big?
         glOrtho(-1.25, 1.25, -1.25, 1.25, -1000, 3000);
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
-        RenderHelper.enableStandardItemLighting();
-        RenderHelper.setupGui3DDiffuseLighting();
+        RenderHelper.turnBackOn();
+        RenderHelper.setupFor3DItems();
         glDepthFunc(GL_LEQUAL);
 
-        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuffer();
+        BufferBuilder bufferbuilder = Tessellator.getInstance().getBuilder();
         RenderSystem.enableBlend();
         RenderSystem.enableTexture();
         RenderSystem.defaultBlendFunc();
@@ -105,24 +105,24 @@ public class ModelRenderer
 
         // Actually render
         MatrixStack matrixStack = new MatrixStack();
-        boolean sideLitModel = !model.isSideLit();
+        boolean sideLitModel = !model.usesBlockLight();
         if (sideLitModel) {
-            RenderHelper.setupGuiFlatDiffuseLighting();
+            RenderHelper.setupForFlatItems();
         }
         else
         {
-            RenderHelper.setupGui3DDiffuseLighting();
+            RenderHelper.setupFor3DItems();
         }
 
-        final TransformationMatrix tr = TransformationHelper.toTransformation(model.getBakedModel().getItemCameraTransforms().getTransform(TransformType.GUI));
+        final TransformationMatrix tr = TransformationHelper.toTransformation(model.getBakedModel().getTransforms().getTransform(TransformType.GUI));
         final Vector3f translationApplied = tr.getTranslation();
 
         if (!translationApplied.equals(new Vector3f())) {
             translationApplied.mul(-1);
             RenderSystem.translatef(
-              translationApplied.getX(),
-              translationApplied.getY(),
-              translationApplied.getZ()
+              translationApplied.x(),
+              translationApplied.y(),
+              translationApplied.z()
             );
         }
 
@@ -140,52 +140,52 @@ public class ModelRenderer
 
 
         //Deal with none normal Transformtypes
-        model = model.getOverrides().getOverrideModel(model, stack, null, null);
+        model = model.getOverrides().resolve(model, stack, null, null);
         model = model.handlePerspective(TransformType.GUI, matrixStack);
-        if (!model.isBuiltInRenderer()) {
+        if (!model.isCustomRenderer()) {
             bufferbuilder.begin(GL_QUADS, DefaultVertexFormats.BLOCK);
             for(Direction side : DIRECTIONS_AND_NULL)
                 renderQuads(
                   matrixStack, bufferbuilder, model.getQuads(null, side, RANDOM, EmptyModelData.INSTANCE), stack,
-                  LightTexture.packLight(15,15),
+                  LightTexture.pack(15,15),
                   OverlayTexture.NO_OVERLAY
                 );
 
-            bufferbuilder.finishDrawing();
-            WorldVertexBufferUploader.draw(bufferbuilder);
+            bufferbuilder.end();
+            WorldVertexBufferUploader.end(bufferbuilder);
         }
         else
         {
-            IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.getImpl(bufferbuilder);
+            IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.immediate(bufferbuilder);
 
-            stack.getItem().getItemStackTileEntityRenderer().func_239207_a_(
+            stack.getItem().getItemStackTileEntityRenderer().renderByItem(
               stack,
               TransformType.GUI,
               matrixStack,
               buffer,
-              LightTexture.packLight(15,15),
+              LightTexture.pack(15,15),
               OverlayTexture.NO_OVERLAY
             );
 
-            buffer.finish();
+            buffer.endBatch();
         }
 
 
         if (sideLitModel) {
-            RenderHelper.setupGui3DDiffuseLighting();
+            RenderHelper.setupFor3DItems();
         }
 
         final TextureCutter cutter = new TextureCutter(256, 256);
-        exportTo(filename, () -> GlStateManager.bindTexture(renderedTexture), cutter::cutTexture);
+        exportTo(filename, () -> GlStateManager._bindTexture(renderedTexture), cutter::cutTexture);
     }
 
     public void renderQuads(MatrixStack matrixStackIn, IVertexBuilder bufferIn, List<BakedQuad> quadsIn, ItemStack itemStackIn, int combinedLightIn, int combinedOverlayIn) {
         boolean flag = !itemStackIn.isEmpty();
-        MatrixStack.Entry matrixstack$entry = matrixStackIn.getLast();
+        MatrixStack.Entry matrixstack$entry = matrixStackIn.last();
 
         for(BakedQuad bakedquad : quadsIn) {
             int i = -1;
-            if (flag && bakedquad.hasTintIndex()) {
+            if (flag && bakedquad.isTinted()) {
                 i = Minecraft.getInstance().getItemColors().getColor(itemStackIn, bakedquad.getTintIndex());
             }
 
@@ -199,7 +199,7 @@ public class ModelRenderer
 
     public void exportAtlas(Collection<ResourceLocation> spriteMaps) {
         spriteMaps.forEach(sprite -> {
-            exportTo(sprite.getNamespace() + "/" + sprite.getPath(), () -> Minecraft.getInstance().getTextureManager().bindTexture(sprite), Function.identity());
+            exportTo(sprite.getNamespace() + "/" + sprite.getPath(), () -> Minecraft.getInstance().getTextureManager().bind(sprite), Function.identity());
         });
     }
 

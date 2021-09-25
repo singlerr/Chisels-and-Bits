@@ -19,9 +19,9 @@ public final class SortBagGuiPacket extends ModPacket
     public void server(
       final ServerPlayerEntity player)
     {
-        if (player.openContainer instanceof BagContainer)
+        if (player.containerMenu instanceof BagContainer)
         {
-            ((BagContainer) player.openContainer).sort();
+            ((BagContainer) player.containerMenu).sort();
         }
     }
 

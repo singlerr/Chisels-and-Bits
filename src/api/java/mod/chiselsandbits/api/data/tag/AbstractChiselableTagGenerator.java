@@ -38,7 +38,7 @@ public abstract class AbstractChiselableTagGenerator implements IDataProvider
 
 
     @Override
-    public void act(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull DirectoryCache cache) throws IOException
     {
         final TagJson json = new TagJson();
         json.setValues(blocks.stream().map(ForgeRegistryEntry::getRegistryName).filter(Objects::nonNull).map(Object::toString).collect(Collectors.toList()));

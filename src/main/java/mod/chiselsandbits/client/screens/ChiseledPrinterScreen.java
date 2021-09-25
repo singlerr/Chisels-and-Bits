@@ -25,34 +25,34 @@ public class ChiseledPrinterScreen extends ContainerScreen<ChiseledPrinterContai
     @Override
     protected void init()
     {
-        this.xSize = 176;
-        this.ySize = 166;
+        this.imageWidth = 176;
+        this.imageHeight = 166;
 
         super.init();
 
-        this.titleX = (this.xSize - this.font.getStringPropertyWidth(this.title)) / 2;
+        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(@NotNull final MatrixStack matrixStack, final float partialTicks, final int x, final int y)
+    protected void renderBg(@NotNull final MatrixStack matrixStack, final float partialTicks, final int x, final int y)
     {
         renderBackground(matrixStack);
 
         //noinspection deprecation Required.
         RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        Objects.requireNonNull(this.minecraft).getTextureManager().bindTexture(GUI_TEXTURES);
-        this.blit(matrixStack, this.guiLeft, this.guiTop,0, 0, this.xSize, this.ySize);
+        Objects.requireNonNull(this.minecraft).getTextureManager().bind(GUI_TEXTURES);
+        this.blit(matrixStack, this.leftPos, this.topPos,0, 0, this.imageWidth, this.imageHeight);
 
-        if (this.container.getToolStack().isEmpty())
+        if (this.menu.getToolStack().isEmpty())
             return;
 
-        this.itemRenderer.renderItemAndEffectIntoGUI(Objects.requireNonNull(this.minecraft.player), this.container.getToolStack(), this.guiLeft + 81, this.guiTop + 47);
+        this.itemRenderer.renderAndDecorateItem(Objects.requireNonNull(this.minecraft.player), this.menu.getToolStack(), this.leftPos + 81, this.topPos + 47);
 
-        Objects.requireNonNull(this.minecraft).getTextureManager().bindTexture(GUI_TEXTURES);
-        int scaledProgress = this.container.getChiselProgressionScaled();
-        matrixStack.push();
+        Objects.requireNonNull(this.minecraft).getTextureManager().bind(GUI_TEXTURES);
+        int scaledProgress = this.menu.getChiselProgressionScaled();
+        matrixStack.pushPose();
         matrixStack.translate(0,0,400);
-        this.blit(matrixStack, this.guiLeft + 73 + 10 + scaledProgress, this.guiTop + 49, this.xSize + scaledProgress, 0, 16 - scaledProgress, 16);
-        matrixStack.pop();
+        this.blit(matrixStack, this.leftPos + 73 + 10 + scaledProgress, this.topPos + 49, this.imageWidth + scaledProgress, 0, 16 - scaledProgress, 16);
+        matrixStack.popPose();
     }
 }

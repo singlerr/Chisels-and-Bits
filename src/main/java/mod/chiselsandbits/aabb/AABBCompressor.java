@@ -40,15 +40,15 @@ public class AABBCompressor
 
         accessor.streamWithPositionMutator(IPositionMutator.xyz())
           .forEach(stateEntryInfo -> {
-              if (state.getRegionBuildingAxisValue() != stateEntryInfo.getStartPoint().getX()) {
+              if (state.getRegionBuildingAxisValue() != stateEntryInfo.getStartPoint().x()) {
                   state.setCurrentBox(null, null);
               }
-              state.setRegionBuildingAxisValue(stateEntryInfo.getStartPoint().getX());
+              state.setRegionBuildingAxisValue(stateEntryInfo.getStartPoint().x());
 
-              if (state.getFaceBuildingAxisValue() != stateEntryInfo.getStartPoint().getY()) {
+              if (state.getFaceBuildingAxisValue() != stateEntryInfo.getStartPoint().y()) {
                   state.setCurrentBox(null, null);
               }
-              state.setFaceBuildingAxisValue(stateEntryInfo.getStartPoint().getY());
+              state.setFaceBuildingAxisValue(stateEntryInfo.getStartPoint().y());
 
               final Optional<Vector3d> previousCenterPoint = state.getLastCenter();
               final Vector3d centerPoint = stateEntryInfo.getCenterPoint();
@@ -97,7 +97,7 @@ public class AABBCompressor
     {
         for (final Direction offsetDirection :Direction.values())
         {
-            final Vector3d neighborCenter = centerPoint.add(Vector3d.copy(offsetDirection.getDirectionVec()).mul(
+            final Vector3d neighborCenter = centerPoint.add(Vector3d.atLowerCornerOf(offsetDirection.getNormal()).multiply(
               StateEntrySize.current().getSizePerBit(),
               StateEntrySize.current().getSizePerBit(),
               StateEntrySize.current().getSizePerBit()
@@ -186,7 +186,7 @@ public class AABBCompressor
             if (current == null)
                 throw new IllegalStateException("Can not expand current box, if current is not set.");
 
-            final AxisAlignedBB expanded = current.union(entryData);
+            final AxisAlignedBB expanded = current.minmax(entryData);
 
             final Collection<Vector3d> currentlyAssignedToCurrent = stateAssignments.removeAll(current);
 
@@ -210,7 +210,7 @@ public class AABBCompressor
             if (current == null)
                 throw new IllegalStateException(String.format("Can not expand box at: %s, if current is not set.", neighborCenter));
 
-            final AxisAlignedBB expanded = current.union(entryData);
+            final AxisAlignedBB expanded = current.minmax(entryData);
 
             final Collection<Vector3d> currentlyAssignedToCurrent = stateAssignments.removeAll(current);
 

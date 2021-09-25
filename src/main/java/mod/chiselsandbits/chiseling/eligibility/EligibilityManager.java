@@ -76,7 +76,7 @@ public class EligibilityManager implements IEligibilityManager
 
                 final Block blk = state.getBlock();
 
-                if (blk.isIn(ModTags.Blocks.BLOCKED_CHISELABLE))
+                if (blk.is(ModTags.Blocks.BLOCKED_CHISELABLE))
                 {
                     return new EligibilityAnalysisResult(
                       false,
@@ -85,7 +85,7 @@ public class EligibilityManager implements IEligibilityManager
                     );
                 }
 
-                if (blk.isIn(ModTags.Blocks.FORCED_CHISELABLE))
+                if (blk.is(ModTags.Blocks.FORCED_CHISELABLE))
                 {
                     return new EligibilityAnalysisResult(
                       true,
@@ -105,7 +105,7 @@ public class EligibilityManager implements IEligibilityManager
                     final Class<?> wc = ClassUtils.getDeclaringClass(blkClass, pb.MethodName, BlockState.class, LootContext.Builder.class);
                     final boolean quantityDroppedTest = wc == Block.class || wc == AbstractBlock.class || wc == FlowingFluidBlock.class;
 
-                    final boolean isNotSlab = Item.getItemFromBlock(blk) != Items.AIR || state.getBlock() instanceof FlowingFluidBlock;
+                    final boolean isNotSlab = Item.byBlock(blk) != Items.AIR || state.getBlock() instanceof FlowingFluidBlock;
                     boolean itemExistsOrNotSpecialDrops = quantityDroppedTest || isNotSlab;
 
                     // ignore blocks with custom collision.
@@ -115,10 +115,10 @@ public class EligibilityManager implements IEligibilityManager
 
                     // full cube specifically is tied to lighting... so for glass
                     // Compatibility use isFullBlock which can be true for glass.
-                    boolean isFullBlock = state.isSolid() || blk instanceof AbstractGlassBlock || blk instanceof FlowingFluidBlock;
+                    boolean isFullBlock = state.canOcclude() || blk instanceof AbstractGlassBlock || blk instanceof FlowingFluidBlock;
                     final BlockEligibilityAnalysisData info = BlockEligibilityAnalysisData.createFromState(state);
 
-                    final boolean tickingBehavior = blk.ticksRandomly(state) && Configuration.getInstance().getServer().blackListRandomTickingBlocks.get();
+                    final boolean tickingBehavior = blk.isRandomlyTicking(state) && Configuration.getInstance().getServer().blackListRandomTickingBlocks.get();
                     boolean hasBehavior = (blk.hasTileEntity(state) || tickingBehavior);
 
                     final Material remappedMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(

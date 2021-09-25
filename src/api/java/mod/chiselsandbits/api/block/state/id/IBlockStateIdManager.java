@@ -25,7 +25,7 @@ public interface IBlockStateIdManager
      * @return The id of the given blockstate.
      */
     default int getIdFrom(final BlockState blockState) {
-        return Block.getStateId(blockState);
+        return Block.getId(blockState);
     }
 
     /**
@@ -36,6 +36,6 @@ public interface IBlockStateIdManager
      * @return The blockstate which is represented by the given id.
      */
     default BlockState getBlockStateFrom(final int id) {
-        return Block.getStateById(id);
+        return Block.stateById(id);
     }
 }

@@ -29,22 +29,22 @@ public class ClientInitHandler
     public static void onFMLClientSetup(final FMLClientSetupEvent event)
     {
         event.enqueueWork(() -> {
-            ScreenManager.registerFactory(
+            ScreenManager.register(
               ModContainerTypes.BIT_BAG.get(),
               BitBagScreen::new
             );
-            ScreenManager.registerFactory(
+            ScreenManager.register(
               ModContainerTypes.MODIFICATION_TABLE.get(),
               ModificationTableScreen::new
             );
-            ScreenManager.registerFactory(
+            ScreenManager.register(
               ModContainerTypes.CHISELED_PRINTER_CONTAINER.get(),
               ChiseledPrinterScreen::new
             );
         });
 
         event.enqueueWork(() -> {
-            ItemModelsProperties.registerProperty(ModItems.MEASURING_TAPE.get(), new ResourceLocation(Constants.MOD_ID, "is_measuring"), (stack, clientWorld, livingEntity) -> {
+            ItemModelsProperties.register(ModItems.MEASURING_TAPE.get(), new ResourceLocation(Constants.MOD_ID, "is_measuring"), (stack, clientWorld, livingEntity) -> {
                 if (stack.getItem() != ModItems.MEASURING_TAPE.get())
                     return 0;
 

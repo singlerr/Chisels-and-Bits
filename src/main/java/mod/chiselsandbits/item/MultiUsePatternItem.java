@@ -20,6 +20,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import net.minecraft.item.Item.Properties;
+
 public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiUsePatternItem
 {
     public MultiUsePatternItem(final Properties builder)
@@ -41,10 +43,10 @@ public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiU
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(
+    public void appendHoverText(
       final @NotNull ItemStack stack, final @Nullable World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
     {
-        if ((Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown())) {
+        if ((Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown())) {
             tooltip.add(new StringTextComponent("        "));
             tooltip.add(new StringTextComponent("        "));
         }

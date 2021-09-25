@@ -51,14 +51,14 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
     )
 	{
 		super(container, playerInventory, title);
-		ySize = 239;
+		imageHeight = 239;
 	}
 
     @Override
     protected void init()
     {
         super.init();
-        trashBtn = addButton(new GuiIconButton(guiLeft - 18, guiTop, IconManager.getInstance().getTrashIcon(), p_onPress_1_ -> {
+        trashBtn = addButton(new GuiIconButton(leftPos - 18, topPos, IconManager.getInstance().getTrashIcon(), p_onPress_1_ -> {
             if (requireConfirm)
             {
                 dontThrow = true;
@@ -76,34 +76,34 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
         }, (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
             if ( isValidBitItem() )
             {
-                final String msgNotConfirm = !getInHandItem().isEmpty() ? LocalStrings.TrashItem.getLocal( getInHandItem().getDisplayName().getString() ) : LocalStrings.Trash.getLocal();
-                final String msgConfirm = !getInHandItem().isEmpty() ? LocalStrings.ReallyTrashItem.getLocal( getInHandItem().getDisplayName().getString() ) : LocalStrings.ReallyTrash.getLocal();
+                final String msgNotConfirm = !getInHandItem().isEmpty() ? LocalStrings.TrashItem.getLocal( getInHandItem().getHoverName().getString() ) : LocalStrings.Trash.getLocal();
+                final String msgConfirm = !getInHandItem().isEmpty() ? LocalStrings.ReallyTrashItem.getLocal( getInHandItem().getHoverName().getString() ) : LocalStrings.ReallyTrash.getLocal();
 
 
                 final List<ITextComponent> text = Arrays
                                                     .asList( new ITextComponent[] { new StringTextComponent(requireConfirm ? msgNotConfirm : msgConfirm) } );
-                GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().fontRenderer );
+                GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().font );
             }
             else
             {
                 final List<ITextComponent> text = Arrays
-                                                    .asList( new ITextComponent[] { new StringTextComponent(LocalStrings.TrashInvalidItem.getLocal( getInHandItem().getDisplayName().getString() )) } );
-                GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().fontRenderer );
+                                                    .asList( new ITextComponent[] { new StringTextComponent(LocalStrings.TrashInvalidItem.getLocal( getInHandItem().getHoverName().getString() )) } );
+                GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().font );
             }
         }));
 
-        addButton(new GuiIconButton(guiLeft - 18, guiTop + 18, IconManager.getInstance().getSortIcon(),
+        addButton(new GuiIconButton(leftPos - 18, topPos + 18, IconManager.getInstance().getSortIcon(),
           p_onPress_1_ -> ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new SortBagGuiPacket()),
           (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
               final List<ITextComponent> text = Arrays
                                                   .asList(new ITextComponent[] {new StringTextComponent(LocalStrings.Sort.getLocal())});
-              GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().fontRenderer);
+              GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().font);
           }));
     }
 
 	BagContainer getBagContainer()
 	{
-		return container;
+		return menu;
 	}
 
     @Override
@@ -128,18 +128,18 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
 
     @SuppressWarnings("deprecation")
     @Override
-    protected void drawGuiContainerBackgroundLayer(
+    protected void renderBg(
       final @NotNull MatrixStack stack,
       final float partialTicks,
       final int mouseX,
       final int mouseY )
     {
-        final int xOffset = ( width - xSize ) / 2;
-        final int yOffset = ( height - ySize ) / 2;
+        final int xOffset = ( width - imageWidth ) / 2;
+        final int yOffset = ( height - imageHeight ) / 2;
 
         RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        Minecraft.getInstance().getTextureManager().bindTexture( BAG_GUI_TEXTURE );
-        this.blit(stack, xOffset, yOffset, 0, 0, xSize, ySize );
+        Minecraft.getInstance().getTextureManager().bind( BAG_GUI_TEXTURE );
+        this.blit(stack, xOffset, yOffset, 0, 0, imageWidth, imageHeight );
 
         if ( specialFontRenderer == null )
         {
@@ -157,8 +157,8 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
             {
                 font = specialFontRenderer;
                 RenderSystem.pushMatrix();
-                RenderSystem.translatef(guiLeft, guiTop, 0f);
-                moveItems(stack, slot);
+                RenderSystem.translatef(leftPos, topPos, 0f);
+                renderSlot(stack, slot);
                 RenderSystem.popMatrix();
             }
             finally
@@ -166,10 +166,10 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
                 font = defaultFontRenderer;
             }
 
-            if ( isSlotSelected( slot, mouseX, mouseY ) && slot.isEnabled() )
+            if ( isHovering( slot, mouseX, mouseY ) && slot.isActive() )
             {
-                final int xDisplayPos = this.guiLeft + slot.xPos;
-                final int yDisplayPos = this.guiTop + slot.yPos;
+                final int xDisplayPos = this.leftPos + slot.x;
+                final int yDisplayPos = this.topPos + slot.y;
                 hoveredBitSlot = slot;
 
                 RenderSystem.disableDepthTest();
@@ -191,14 +191,14 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
     public boolean mouseClicked(final double mouseX, final double mouseY, final int button)
     {
         // This is what vanilla does...
-        final boolean duplicateButton = button == Minecraft.getInstance().gameSettings.keyBindPickBlock.getKey().getKeyCode() + 100;
+        final boolean duplicateButton = button == Minecraft.getInstance().options.keyPickItem.getKey().getValue() + 100;
 
         Slot slot = getSlotUnderMouse();
         if (slot == null)
             slot = hoveredBitSlot;
-        if ( slot != null && slot.inventory instanceof WrappingInventory && Minecraft.getInstance().player != null)
+        if ( slot != null && slot.container instanceof WrappingInventory && Minecraft.getInstance().player != null)
         {
-            final BagGuiPacket bagGuiPacket = new BagGuiPacket(slot.slotNumber, button, duplicateButton, (Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown()));
+            final BagGuiPacket bagGuiPacket = new BagGuiPacket(slot.index, button, duplicateButton, (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown()));
             bagGuiPacket.doAction( Minecraft.getInstance().player );
 
             ChiselsAndBits.getInstance().getNetworkChannel().sendToServer( bagGuiPacket );
@@ -212,7 +212,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
 
 	private ItemStack getInHandItem()
 	{
-		return Minecraft.getInstance().player == null ? ItemStack.EMPTY : Minecraft.getInstance().player.inventory.getItemStack();
+		return Minecraft.getInstance().player == null ? ItemStack.EMPTY : Minecraft.getInstance().player.inventory.getCarried();
 	}
 
 	boolean requireConfirm = true;
@@ -224,9 +224,9 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
 	}
 
     @Override
-    protected void drawGuiContainerForegroundLayer(final @NotNull MatrixStack matrixStack, final int x, final int y)
+    protected void renderLabels(final @NotNull MatrixStack matrixStack, final int x, final int y)
     {
-        font.func_238407_a_(matrixStack, LanguageMap.getInstance().func_241870_a(ModItems.BIT_BAG_DEFAULT.get().getDisplayName( ItemStack.EMPTY )), 8, 6, 0x404040 );
-        font.drawString(matrixStack, I18n.format( "container.inventory" ), 8, ySize - 93, 0x404040 );
+        font.drawShadow(matrixStack, LanguageMap.getInstance().getVisualOrder(ModItems.BIT_BAG_DEFAULT.get().getName( ItemStack.EMPTY )), 8, 6, 0x404040 );
+        font.draw(matrixStack, I18n.get( "container.inventory" ), 8, imageHeight - 93, 0x404040 );
     }
 }

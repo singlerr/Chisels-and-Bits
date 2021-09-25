@@ -13,13 +13,13 @@ public class MergeSupportingHelperContainer extends Container
     }
 
     @Override
-    public boolean canInteractWith(final @NotNull PlayerEntity playerIn)
+    public boolean stillValid(final @NotNull PlayerEntity playerIn)
     {
         return false;
     }
 
     public boolean doMergeItemStack(final ItemStack stack, final int startIndex, final int endIndex, final boolean reverseDirection)
     {
-        return super.mergeItemStack(stack, startIndex, endIndex, reverseDirection);
+        return super.moveItemStackTo(stack, startIndex, endIndex, reverseDirection);
     }
 }

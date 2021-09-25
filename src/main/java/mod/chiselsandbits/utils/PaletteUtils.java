@@ -27,12 +27,12 @@ public class PaletteUtils
     {
         if (stateIPalette instanceof ArrayPalette)
         {
-            return Arrays.asList(((ArrayPalette<BlockState>) stateIPalette).states);
+            return Arrays.asList(((ArrayPalette<BlockState>) stateIPalette).values);
         }
 
         if (stateIPalette instanceof HashMapPalette)
         {
-            final IntIdentityHashBiMap<BlockState> map = ((HashMapPalette<BlockState>) stateIPalette).statePaletteMap;
+            final IntIdentityHashBiMap<BlockState> map = ((HashMapPalette<BlockState>) stateIPalette).values;
 
             final List<BlockState> dataList = Lists.newArrayList(map);
             dataList.sort(Comparator.comparing(map::getId));
@@ -56,12 +56,12 @@ public class PaletteUtils
         if (stateIPalette instanceof ArrayPalette)
         {
             final ArrayPalette<BlockState> palette = (ArrayPalette<BlockState>) stateIPalette;
-            palette.arraySize = buffer.readVarInt();
+            palette.size = buffer.readVarInt();
 
-            final Object[] statesArray = palette.states;
+            final Object[] statesArray = palette.values;
 
-            for(int i = 0; i < palette.arraySize; ++i) {
-                final Object registryEntry = palette.registry.getByValue(buffer.readVarInt());
+            for(int i = 0; i < palette.size; ++i) {
+                final Object registryEntry = palette.registry.byId(buffer.readVarInt());
                 statesArray[i] = registryEntry;
             }
         }
@@ -69,11 +69,11 @@ public class PaletteUtils
         if (stateIPalette instanceof HashMapPalette)
         {
             final HashMapPalette<BlockState> palette = (HashMapPalette<BlockState>) stateIPalette;
-            palette.statePaletteMap.clear();
+            palette.values.clear();
             int i = buffer.readVarInt();
 
             for(int j = 0; j < i; ++j) {
-                palette.statePaletteMap.add(Objects.requireNonNull(palette.registry.getByValue(buffer.readVarInt())));
+                palette.values.add(Objects.requireNonNull(palette.registry.byId(buffer.readVarInt())));
             }
 
         }

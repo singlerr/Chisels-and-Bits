@@ -8,6 +8,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
+import mod.chiselsandbits.api.data.tag.AbstractChiselableTagGenerator.Mode;
+
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class BlockedChiselableTagGenerator extends AbstractChiselableTagGenerator
 {

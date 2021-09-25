@@ -19,8 +19,8 @@ public enum HoldsSpecificItemInHandKeyConflictContext implements IKeyConflictCon
     @Override
     public boolean isActive()
     {
-        return (Minecraft.getInstance().player.getHeldItemMainhand().getItem() == item.get() ||
-          Minecraft.getInstance().player.getHeldItemOffhand().getItem() == item.get()) && !KeyConflictContext.GUI.isActive();
+        return (Minecraft.getInstance().player.getMainHandItem().getItem() == item.get() ||
+          Minecraft.getInstance().player.getOffhandItem().getItem() == item.get()) && !KeyConflictContext.GUI.isActive();
     }
 
     @Override

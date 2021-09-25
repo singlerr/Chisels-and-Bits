@@ -85,7 +85,7 @@ public interface IChiselingContext extends IStateAccessor
      */
     @NotNull
     default IChiselingContext include(final BlockPos inWorldPosition, final Vector3d relativeInBlockPosition) {
-        return this.include(Vector3d.copy(inWorldPosition).add(relativeInBlockPosition));
+        return this.include(Vector3d.atLowerCornerOf(inWorldPosition).add(relativeInBlockPosition));
     }
 
     /**

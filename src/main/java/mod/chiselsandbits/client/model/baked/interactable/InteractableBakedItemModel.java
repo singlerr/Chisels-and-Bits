@@ -28,9 +28,9 @@ public class InteractableBakedItemModel implements IBakedModel
     }
 
     @Override
-    public boolean isAmbientOcclusion()
+    public boolean useAmbientOcclusion()
     {
-        return innerModel.isAmbientOcclusion();
+        return innerModel.useAmbientOcclusion();
     }
 
     @Override
@@ -40,21 +40,21 @@ public class InteractableBakedItemModel implements IBakedModel
     }
 
     @Override
-    public boolean isSideLit()
+    public boolean usesBlockLight()
     {
-        return innerModel.isSideLit();
+        return innerModel.usesBlockLight();
     }
 
     @Override
-    public boolean isBuiltInRenderer()
+    public boolean isCustomRenderer()
     {
         return true;
     }
 
     @Override
-    public @NotNull TextureAtlasSprite getParticleTexture()
+    public @NotNull TextureAtlasSprite getParticleIcon()
     {
-        return innerModel.getParticleTexture();
+        return innerModel.getParticleIcon();
     }
 
     @Override

@@ -20,7 +20,7 @@ public class TickHandler
         if (event.phase == TickEvent.Phase.START)
         {
             clientTicks++;
-            if (!Minecraft.getInstance().isGamePaused()) {
+            if (!Minecraft.getInstance().isPaused()) {
                 nonePausedTicks++;
             }
         }

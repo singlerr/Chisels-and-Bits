@@ -28,7 +28,7 @@ public interface IInWorldStateEntryInfo extends IStateEntryInfo, IWorldObject
      * @return The start position of this entry in the given world.
      */
     default Vector3d getInWorldStartPoint(){
-        return Vector3d.copy(getBlockPos()).add(getStartPoint());
+        return Vector3d.atLowerCornerOf(getBlockPos()).add(getStartPoint());
     }
 
     /**
@@ -37,7 +37,7 @@ public interface IInWorldStateEntryInfo extends IStateEntryInfo, IWorldObject
      * @return The end position of this entry in the given world.
      */
     default Vector3d getInWorldEndPoint(){
-        return Vector3d.copy(getBlockPos()).add(getEndPoint());
+        return Vector3d.atLowerCornerOf(getBlockPos()).add(getEndPoint());
     }
 
     /**
@@ -46,6 +46,6 @@ public interface IInWorldStateEntryInfo extends IStateEntryInfo, IWorldObject
      * @return The center position of this entry in the given world.
      */
     default Vector3d getInWorldCenterPoint() {
-        return getInWorldStartPoint().add(getInWorldEndPoint()).mul(0.5, 0.5, 0.5);
+        return getInWorldStartPoint().add(getInWorldEndPoint()).multiply(0.5, 0.5, 0.5);
     }
 }

@@ -31,7 +31,7 @@ public class CandBProfiler implements IProfiler
         return profiler -> profiler.endStartSection(name);
     }
 
-    private final Profiler inner = new Profiler(Util.nanoTimeSupplier, () -> 0, false);
+    private final Profiler inner = new Profiler(Util.timeSource, () -> 0, false);
 
     public CandBProfiler()
     {
@@ -41,19 +41,19 @@ public class CandBProfiler implements IProfiler
     @Override
     public void startSection(final String name)
     {
-        inner.startSection(name);
+        inner.push(name);
     }
 
     @Override
     public void startSection(final Supplier<String> nameSupplier)
     {
-        inner.startSection(nameSupplier);
+        inner.push(nameSupplier);
     }
 
     @Override
     public void endSection()
     {
-        inner.endSection();
+        inner.pop();
     }
 
     public IProfilerResult getResult() {

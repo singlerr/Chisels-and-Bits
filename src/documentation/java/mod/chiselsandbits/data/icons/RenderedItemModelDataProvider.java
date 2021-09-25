@@ -45,7 +45,7 @@ public class RenderedItemModelDataProvider implements IDataProvider
     }
 
     @Override
-    public void act(@Nonnull DirectoryCache cache) throws IOException
+    public void run(@Nonnull DirectoryCache cache) throws IOException
     {
         GameInitializationManager.getInstance().initialize(helper);
 

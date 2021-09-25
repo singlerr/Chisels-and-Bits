@@ -31,7 +31,7 @@ public class BagDyeingRecipe extends SpecialRecipe
     }
 
     @Override
-    public @NotNull ItemStack getCraftingResult(
+    public @NotNull ItemStack assemble(
       @NotNull CraftingInventory inv)
     {
         Result output = getOutput(inv);
@@ -51,9 +51,9 @@ public class BagDyeingRecipe extends SpecialRecipe
         ItemStack bag = null;
         ItemStack dye = null;
 
-        for (int x = 0; x < inv.getSizeInventory(); ++x)
+        for (int x = 0; x < inv.getContainerSize(); ++x)
         {
-            ItemStack is = inv.getStackInSlot(x);
+            ItemStack is = inv.getItem(x);
             if (!is.isEmpty())
             {
                 if (is.getItem() == Items.WATER_BUCKET || getDye(is) != null)
@@ -139,7 +139,7 @@ public class BagDyeingRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean canFit(final int width, final int height)
+    public boolean canCraftInDimensions(final int width, final int height)
     {
         return width * height >= 2;
     }

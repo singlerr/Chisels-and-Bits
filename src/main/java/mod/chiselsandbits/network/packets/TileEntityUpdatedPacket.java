@@ -18,7 +18,7 @@ public final class TileEntityUpdatedPacket extends ModPacket
 
     public TileEntityUpdatedPacket(final TileEntity tileEntity)
     {
-        this.blockPos = tileEntity.getPos();
+        this.blockPos = tileEntity.getBlockPos();
         this.updateData = tileEntity.getUpdateTag();
     }
 
@@ -31,14 +31,14 @@ public final class TileEntityUpdatedPacket extends ModPacket
     public void writePayload(final PacketBuffer buffer)
     {
         buffer.writeBlockPos(blockPos);
-        buffer.writeCompoundTag(updateData);
+        buffer.writeNbt(updateData);
     }
 
     @Override
     public void readPayload(final PacketBuffer buffer)
     {
         this.blockPos = buffer.readBlockPos();
-        this.updateData = buffer.readCompoundTag();
+        this.updateData = buffer.readNbt();
     }
 
     @Override

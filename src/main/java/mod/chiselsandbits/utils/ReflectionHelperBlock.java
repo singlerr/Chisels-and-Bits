@@ -28,12 +28,12 @@ public class ReflectionHelperBlock extends Block
 
     public ReflectionHelperBlock()
     {
-        super( AbstractBlock.Properties.create(Material.AIR) );
+        super( AbstractBlock.Properties.of(Material.AIR) );
     }
 
     @Nullable
     @Override
-    public VoxelShape getRenderShape(@Nullable final BlockState state, @Nullable final IBlockReader worldIn, @Nullable final BlockPos pos)
+    public VoxelShape getOcclusionShape(@Nullable final BlockState state, @Nullable final IBlockReader worldIn, @Nullable final BlockPos pos)
     {
         markMethod();
         return null;
@@ -41,7 +41,7 @@ public class ReflectionHelperBlock extends Block
 
     @Nullable
     @Override
-    public VoxelShape getCollisionShape(@Nullable final BlockState state, @Nullable final IBlockReader reader, @Nullable final BlockPos pos)
+    public VoxelShape getBlockSupportShape(@Nullable final BlockState state, @Nullable final IBlockReader reader, @Nullable final BlockPos pos)
     {
         markMethod();
         return null;
@@ -64,7 +64,7 @@ public class ReflectionHelperBlock extends Block
     }
 
     @Override
-    public float getPlayerRelativeBlockHardness(@Nullable final BlockState state, @Nullable final PlayerEntity player, @Nullable final IBlockReader worldIn, @Nullable final BlockPos pos)
+    public float getDestroyProgress(@Nullable final BlockState state, @Nullable final PlayerEntity player, @Nullable final IBlockReader worldIn, @Nullable final BlockPos pos)
     {
         markMethod();
         return 0;

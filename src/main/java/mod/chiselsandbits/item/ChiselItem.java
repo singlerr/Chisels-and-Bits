@@ -51,6 +51,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import net.minecraft.item.Item.Properties;
+
 public class ChiselItem extends ToolItem implements IChiselItem
 {
 
@@ -89,7 +91,7 @@ public class ChiselItem extends ToolItem implements IChiselItem
     }
 
     @Override
-    public void addInformation(
+    public void appendHoverText(
       @NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<ITextComponent> tooltip, @NotNull final ITooltipFlag flagIn)
     {
         final IChiselMode mode = getMode(stack);
@@ -103,7 +105,7 @@ public class ChiselItem extends ToolItem implements IChiselItem
         }
 
 
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }
 
     @NotNull
@@ -160,7 +162,7 @@ public class ChiselItem extends ToolItem implements IChiselItem
       final ClickProcessingState currentState
     )
     {
-        final ItemStack itemStack = playerEntity.getHeldItem(hand);
+        final ItemStack itemStack = playerEntity.getItemInHand(hand);
         if (itemStack.isEmpty() || itemStack.getItem() != this)
         {
             return currentState;
@@ -183,7 +185,7 @@ public class ChiselItem extends ToolItem implements IChiselItem
 
         if (context.isComplete())
         {
-            playerEntity.getCooldownTracker().setCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
+            playerEntity.getCooldowns().addCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
         }
 
         return resultState;
@@ -334,10 +336,10 @@ public class ChiselItem extends ToolItem implements IChiselItem
 
         ILocalChiselingContextCache.getInstance().set(ChiselingOperation.CHISELING, context);
 
-        Vector3d vector3d = Minecraft.getInstance().gameRenderer.getActiveRenderInfo().getProjectedView();
-        double xView = vector3d.getX();
-        double yView = vector3d.getY();
-        double zView = vector3d.getZ();
+        Vector3d vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        double xView = vector3d.x();
+        double yView = vector3d.y();
+        double zView = vector3d.z();
 
         final BlockPos inWorldStartPos = new BlockPos(context.getMutator().get().getInWorldStartPoint());
 
@@ -354,14 +356,14 @@ public class ChiselItem extends ToolItem implements IChiselItem
                                              );
 
         RenderSystem.disableDepthTest();
-        WorldRenderer.drawShape(
+        WorldRenderer.renderShape(
           matrixStack,
-          Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
+          Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
           boundingShape,
           inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() - zView,
           0.95F, 0.0F, 0.0F, 0.65F
         );
-        Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().finish(ModRenderTypes.MEASUREMENT_LINES.get());
+        Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
         RenderSystem.enableDepthTest();
     }
 
@@ -375,7 +377,7 @@ public class ChiselItem extends ToolItem implements IChiselItem
     public int getMaxDamage(final ItemStack stack)
     {
         final IItemTier tier = getTier();
-        return tier.getMaxUses() * StateEntrySize.current().getBitsPerBlock();
+        return tier.getUses() * StateEntrySize.current().getBitsPerBlock();
     }
 
 

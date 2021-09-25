@@ -86,12 +86,12 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     @Override
     public boolean isInside(final Vector3d inAreaTarget)
     {
-        return !(inAreaTarget.getX() < 0) &&
-                 !(inAreaTarget.getY() < 0) &&
-                 !(inAreaTarget.getZ() < 0) &&
-                 !(inAreaTarget.getX() >= 1) &&
-                 !(inAreaTarget.getY() >= 1) &&
-                 !(inAreaTarget.getZ() >= 1);
+        return !(inAreaTarget.x() < 0) &&
+                 !(inAreaTarget.y() < 0) &&
+                 !(inAreaTarget.z() < 0) &&
+                 !(inAreaTarget.x() >= 1) &&
+                 !(inAreaTarget.y() >= 1) &&
+                 !(inAreaTarget.z() >= 1);
     }    /**
      * Gets the target state in the current area, using the offset from the area as well as the in area target offset.
      *
@@ -102,17 +102,17 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     @Override
     public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
     {
-        if (inAreaTarget.getX() < 0 ||
-              inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0 ||
-              inAreaTarget.getX() >= 1 ||
-              inAreaTarget.getY() >= 1 ||
-              inAreaTarget.getZ() >= 1)
+        if (inAreaTarget.x() < 0 ||
+              inAreaTarget.y() < 0 ||
+              inAreaTarget.z() < 0 ||
+              inAreaTarget.x() >= 1 ||
+              inAreaTarget.y() >= 1 ||
+              inAreaTarget.z() >= 1)
         {
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
         load();
 
@@ -227,17 +227,17 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     @Override
     public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
     {
-        if (inAreaTarget.getX() < 0 ||
-              inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0 ||
-              inAreaTarget.getX() >= 1 ||
-              inAreaTarget.getY() >= 1 ||
-              inAreaTarget.getZ() >= 1)
+        if (inAreaTarget.x() < 0 ||
+              inAreaTarget.y() < 0 ||
+              inAreaTarget.z() < 0 ||
+              inAreaTarget.x() >= 1 ||
+              inAreaTarget.y() >= 1 ||
+              inAreaTarget.z() >= 1)
         {
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
         load();
 
@@ -279,21 +279,21 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     @Override
     public void clearInAreaTarget(final Vector3d inAreaTarget)
     {
-        if (inAreaTarget.getX() < 0 ||
-              inAreaTarget.getY() < 0 ||
-              inAreaTarget.getZ() < 0 ||
-              inAreaTarget.getX() >= 1 ||
-              inAreaTarget.getY() >= 1 ||
-              inAreaTarget.getZ() >= 1)
+        if (inAreaTarget.x() < 0 ||
+              inAreaTarget.y() < 0 ||
+              inAreaTarget.z() < 0 ||
+              inAreaTarget.x() >= 1 ||
+              inAreaTarget.y() >= 1 ||
+              inAreaTarget.z() >= 1)
         {
             throw new IllegalArgumentException("Target is not in the current area.");
         }
 
-        final BlockPos inAreaPos = new BlockPos(inAreaTarget.mul(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
+        final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
         load();
 
-        final BlockState blockState = Blocks.AIR.getDefaultState();
+        final BlockState blockState = Blocks.AIR.defaultBlockState();
 
         this.lazyChunkSection.setBlockState(
           inAreaPos.getX(),
@@ -335,7 +335,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         final Material blockMaterial = primaryState.getMaterial();
         final Material conversionMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(blockMaterial);
 
-        final Supplier<ChiseledBlockItem> convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.getOrDefault(conversionMaterial, ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(Material.ROCK));
+        final Supplier<ChiseledBlockItem> convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.getOrDefault(conversionMaterial, ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(Material.STONE));
         final ChiseledBlockItem chiseledBlockItem = convertedItemProvider.get();
 
         return new SingleBlockMultiStateItemStack(chiseledBlockItem, ChunkSectionUtils.cloneSection(this.lazyChunkSection));
@@ -441,9 +441,9 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
 
         load();
 
-        this.lazyChunkSection.getData().count(countMap::put);
+        this.lazyChunkSection.getStates().count(countMap::put);
 
-        BlockState maxState = Blocks.AIR.getDefaultState();
+        BlockState maxState = Blocks.AIR.defaultBlockState();
         int maxCount = 0;
         for (final Map.Entry<BlockState, Integer> blockStateIntegerEntry : countMap.entrySet())
         {
@@ -482,8 +482,8 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
           final StateClearer stateClearer)
         {
             this.blockState = blockState;
-            this.startPoint = Vector3d.copy(startPoint).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
-            this.endPoint = Vector3d.copy(startPoint).mul(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
+            this.startPoint = Vector3d.atLowerCornerOf(startPoint).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
+            this.endPoint = Vector3d.atLowerCornerOf(startPoint).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
             this.stateSetter = stateSetter;
             this.stateClearer = stateClearer;
         }
@@ -534,8 +534,8 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         private Identifier(final ChunkSection section)
         {
             this.identifyingPayload = Arrays.copyOf(
-              section.getData().storage.getBackingLongArray(),
-              section.getData().storage.getBackingLongArray().length
+              section.getStates().storage.getRaw(),
+              section.getStates().storage.getRaw().length
             );
         }
 

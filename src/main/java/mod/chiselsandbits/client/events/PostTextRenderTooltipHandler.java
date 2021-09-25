@@ -19,15 +19,15 @@ public class PostTextRenderTooltipHandler
         if (!(event.getStack().getItem() instanceof IPatternItem))
             return;
 
-        if (!(Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown()))
+        if (!(Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown()))
             return;
 
         final IPatternItem patternItem = (IPatternItem) event.getStack().getItem();
         final ItemStack renderTarget = patternItem.createItemStack(event.getStack()).toBlockStack();
 
-        final float zLevel = Minecraft.getInstance().getItemRenderer().zLevel;
-        Minecraft.getInstance().getItemRenderer().zLevel = 400;
-        Minecraft.getInstance().getItemRenderer().renderItemAndEffectIntoGUI(renderTarget, event.getX() + 4, event.getY() + Minecraft.getInstance().fontRenderer.FONT_HEIGHT + 4);
-        Minecraft.getInstance().getItemRenderer().zLevel = zLevel;
+        final float zLevel = Minecraft.getInstance().getItemRenderer().blitOffset;
+        Minecraft.getInstance().getItemRenderer().blitOffset = 400;
+        Minecraft.getInstance().getItemRenderer().renderAndDecorateItem(renderTarget, event.getX() + 4, event.getY() + Minecraft.getInstance().font.lineHeight + 4);
+        Minecraft.getInstance().getItemRenderer().blitOffset = zLevel;
     }
 }

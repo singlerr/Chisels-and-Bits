@@ -16,10 +16,10 @@ public final class ModRenderLayers
     public static void onClientInit() {
         ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values()
           .stream().map(RegistryObject::get)
-          .forEach(b -> RenderTypeLookup.setRenderLayer(b, input -> RenderType.getBlockRenderTypes().contains(input)));
+          .forEach(b -> RenderTypeLookup.setRenderLayer(b, input -> RenderType.chunkBufferLayers().contains(input)));
 
-        RenderTypeLookup.setRenderLayer(ModBlocks.BIT_STORAGE.get(), RenderType.getCutoutMipped());
+        RenderTypeLookup.setRenderLayer(ModBlocks.BIT_STORAGE.get(), RenderType.cutoutMipped());
 
-        RenderTypeLookup.setRenderLayer(ModBlocks.CHISELED_PRINTER.get(), RenderType.getCutoutMipped());
+        RenderTypeLookup.setRenderLayer(ModBlocks.CHISELED_PRINTER.get(), RenderType.cutoutMipped());
     }
 }

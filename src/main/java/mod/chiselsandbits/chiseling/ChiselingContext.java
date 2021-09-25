@@ -138,14 +138,14 @@ public class ChiselingContext implements IChiselingContext
                 final IWorldAreaMutator worldAreaMutator = getMutator().get();
 
                 Vector3d start = new Vector3d(
-                  Math.min(worldPosition.getX(), worldAreaMutator.getInWorldStartPoint().getX()),
-                  Math.min(worldPosition.getY(), worldAreaMutator.getInWorldStartPoint().getY()),
-                  Math.min(worldPosition.getZ(), worldAreaMutator.getInWorldStartPoint().getZ())
+                  Math.min(worldPosition.x(), worldAreaMutator.getInWorldStartPoint().x()),
+                  Math.min(worldPosition.y(), worldAreaMutator.getInWorldStartPoint().y()),
+                  Math.min(worldPosition.z(), worldAreaMutator.getInWorldStartPoint().z())
                 );
                 Vector3d end = new Vector3d(
-                  Math.max(worldPosition.getX(), worldAreaMutator.getInWorldEndPoint().getX()),
-                  Math.max(worldPosition.getY(), worldAreaMutator.getInWorldEndPoint().getY()),
-                  Math.max(worldPosition.getZ(), worldAreaMutator.getInWorldEndPoint().getZ())
+                  Math.max(worldPosition.x(), worldAreaMutator.getInWorldEndPoint().x()),
+                  Math.max(worldPosition.y(), worldAreaMutator.getInWorldEndPoint().y()),
+                  Math.max(worldPosition.z(), worldAreaMutator.getInWorldEndPoint().z())
                 );
 
                 this.mutator = IMutatorFactory.getInstance().covering(world, start, end);
@@ -240,13 +240,13 @@ public class ChiselingContext implements IChiselingContext
             return true;
 
         final AtomicBoolean broken = new AtomicBoolean(false);
-        this.causingItemStack.damageItem(damage, playerEntity, playerEntity -> {
+        this.causingItemStack.hurtAndBreak(damage, playerEntity, playerEntity -> {
             broken.set(true);
 
             Hand hand = Hand.MAIN_HAND;
-            if (playerEntity.getHeldItemOffhand() == causingItemStack)
+            if (playerEntity.getOffhandItem() == causingItemStack)
                 hand = Hand.OFF_HAND;
-            playerEntity.sendBreakAnimation(hand);
+            playerEntity.broadcastBreakEvent(hand);
         });
 
         return !broken.get();
@@ -320,6 +320,6 @@ public class ChiselingContext implements IChiselingContext
     @Override
     public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
-        return getInAreaTarget(Vector3d.copy(inAreaBlockPosOffset).add(inBlockTarget));
+        return getInAreaTarget(Vector3d.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget));
     }
 }

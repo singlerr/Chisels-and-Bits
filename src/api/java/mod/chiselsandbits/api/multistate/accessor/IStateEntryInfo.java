@@ -41,7 +41,7 @@ public interface IStateEntryInfo extends IAABBOwner
      * @return The center position of this entry in the given block.
      */
     default Vector3d getCenterPoint() {
-        return getStartPoint().add(getEndPoint()).mul(0.5,0.5,0.5);
+        return getStartPoint().add(getEndPoint()).multiply(0.5,0.5,0.5);
     }
 
     @Override

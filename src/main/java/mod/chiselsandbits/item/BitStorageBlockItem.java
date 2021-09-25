@@ -40,10 +40,10 @@ public class BitStorageBlockItem extends BlockItem
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(
+    public void appendHoverText(
       final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
     {
-        super.addInformation( stack, worldIn, tooltip, flagIn );
+        super.appendHoverText( stack, worldIn, tooltip, flagIn );
         if (CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY == null)
             return;
 
@@ -69,14 +69,14 @@ public class BitStorageBlockItem extends BlockItem
     }
 
     @Override
-    protected boolean onBlockPlaced(
+    protected boolean updateCustomBlockEntityTag(
       final @NotNull BlockPos pos, final @NotNull World worldIn, @Nullable final PlayerEntity player, final @NotNull ItemStack stack, final @NotNull BlockState state)
     {
-        super.onBlockPlaced(pos, worldIn, player, stack, state);
-        if (worldIn.isRemote)
+        super.updateCustomBlockEntityTag(pos, worldIn, player, stack, state);
+        if (worldIn.isClientSide)
             return false;
 
-        final TileEntity tileEntity = worldIn.getTileEntity(pos);
+        final TileEntity tileEntity = worldIn.getBlockEntity(pos);
         if (!(tileEntity instanceof BitStorageBlockEntity))
             return false;
 

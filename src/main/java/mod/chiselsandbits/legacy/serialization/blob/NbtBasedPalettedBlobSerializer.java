@@ -27,7 +27,7 @@ public class NbtBasedPalettedBlobSerializer extends BlobSerializer implements IR
     {
         super();
 
-        final CompoundNBT wrapper = toInflate.readCompoundTag();
+        final CompoundNBT wrapper = toInflate.readNbt();
         final ListNBT paletteNBT = Objects.requireNonNull(wrapper).getList("data", Constants.NBT.TAG_COMPOUND);
         this.palette.read(paletteNBT);
     }
@@ -37,12 +37,12 @@ public class NbtBasedPalettedBlobSerializer extends BlobSerializer implements IR
     public void write(final PacketBuffer to)
     {
         final ListNBT paletteNBT = new ListNBT();
-        this.palette.writePaletteToList(paletteNBT);
+        this.palette.write(paletteNBT);
 
         final CompoundNBT wrapper = new CompoundNBT();
         wrapper.put("data", paletteNBT);
 
-        to.writeCompoundTag(wrapper);
+        to.writeNbt(wrapper);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class NbtBasedPalettedBlobSerializer extends BlobSerializer implements IR
     @Override
     protected int getStateID(final int indexID)
     {
-        return IBlockStateIdManager.getInstance().getIdFrom(this.palette.get(indexID));
+        return IBlockStateIdManager.getInstance().getIdFrom(this.palette.valueFor(indexID));
     }
 
     @Override

@@ -23,7 +23,7 @@ public class ChunkSectionUtils
     public static CompoundNBT serializeNBT(final ChunkSection chunkSection) {
         final CompoundNBT compressedSectionData = new CompoundNBT();
 
-        chunkSection.getData().writeChunkPalette(
+        chunkSection.getStates().write(
           compressedSectionData,
           NbtConstants.PALETTE,
           NbtConstants.BLOCK_STATES
@@ -36,12 +36,12 @@ public class ChunkSectionUtils
         if (nbt.isEmpty())
             return;
 
-        chunkSection.getData().readChunkPalette(
+        chunkSection.getStates().read(
           nbt.getList(NbtConstants.PALETTE, Constants.NBT.TAG_COMPOUND),
           nbt.getLongArray(NbtConstants.BLOCK_STATES)
         );
 
-        chunkSection.recalculateRefCounts();
+        chunkSection.recalcBlockCounts();
     }
 
     public static ChunkSection rotate90Degrees(final ChunkSection source, final Direction.Axis axis, final int rotationCount) {
@@ -66,8 +66,8 @@ public class ChunkSectionUtils
                     }
 
                     final BlockPos sourcePos = new BlockPos(workingVector);
-                    final Vector3d offsetPos = rotatedVector.add(centerVector).mul(1000,1000,1000);
-                    final BlockPos targetPos = new BlockPos(new Vector3d(Math.round(offsetPos.getX()), Math.round(offsetPos.getY()), Math.round(offsetPos.getZ())).mul(1/1000d,1/1000d,1/1000d));
+                    final Vector3d offsetPos = rotatedVector.add(centerVector).multiply(1000,1000,1000);
+                    final BlockPos targetPos = new BlockPos(new Vector3d(Math.round(offsetPos.x()), Math.round(offsetPos.y()), Math.round(offsetPos.z())).multiply(1/1000d,1/1000d,1/1000d));
 
                     target.setBlockState(
                       targetPos.getX(),

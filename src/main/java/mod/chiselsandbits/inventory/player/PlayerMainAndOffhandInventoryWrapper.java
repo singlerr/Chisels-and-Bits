@@ -14,7 +14,7 @@ public class PlayerMainAndOffhandInventoryWrapper implements IInventory
     public PlayerMainAndOffhandInventoryWrapper(final PlayerInventory playerInventory) {this.playerInventory = playerInventory;}
 
     @Override
-    public int getSizeInventory()
+    public int getContainerSize()
     {
         return 9*4+1;
     }
@@ -27,58 +27,58 @@ public class PlayerMainAndOffhandInventoryWrapper implements IInventory
 
     @NotNull
     @Override
-    public ItemStack getStackInSlot(int index)
+    public ItemStack getItem(int index)
     {
         if (index == 36)
             index += 4;
 
-        return playerInventory.getStackInSlot(index);
+        return playerInventory.getItem(index);
     }
 
     @NotNull
     @Override
-    public ItemStack decrStackSize(int index, final int count)
+    public ItemStack removeItem(int index, final int count)
     {
         if (index == 36)
             index += 4;
 
-        return playerInventory.decrStackSize(index, count);
+        return playerInventory.removeItem(index, count);
     }
 
     @NotNull
     @Override
-    public ItemStack removeStackFromSlot(int index)
+    public ItemStack removeItemNoUpdate(int index)
     {
         if (index == 36)
             index += 4;
 
-        return playerInventory.removeStackFromSlot(index);
+        return playerInventory.removeItemNoUpdate(index);
     }
 
     @Override
-    public void setInventorySlotContents(int index, @NotNull final ItemStack stack)
+    public void setItem(int index, @NotNull final ItemStack stack)
     {
         if (index == 36)
             index += 4;
 
-        playerInventory.setInventorySlotContents(index, stack);
+        playerInventory.setItem(index, stack);
     }
 
     @Override
-    public void markDirty()
+    public void setChanged()
     {
-        playerInventory.markDirty();
+        playerInventory.setChanged();
     }
 
     @Override
-    public boolean isUsableByPlayer(@NotNull final PlayerEntity player)
+    public boolean stillValid(@NotNull final PlayerEntity player)
     {
-        return playerInventory.isUsableByPlayer(player);
+        return playerInventory.stillValid(player);
     }
 
     @Override
-    public void clear()
+    public void clearContent()
     {
-        playerInventory.clear();
+        playerInventory.clearContent();
     }
 }

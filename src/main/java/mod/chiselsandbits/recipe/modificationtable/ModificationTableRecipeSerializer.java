@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 public class ModificationTableRecipeSerializer extends ForgeRegistryEntry<IRecipeSerializer<?>> implements IRecipeSerializer<ModificationTableRecipe>
 {
     @Override
-    public @NotNull ModificationTableRecipe read(final @NotNull ResourceLocation recipeId, final @NotNull JsonObject json)
+    public @NotNull ModificationTableRecipe fromJson(final @NotNull ResourceLocation recipeId, final @NotNull JsonObject json)
     {
         if (!IChiselsAndBitsAPI.getInstance().getRegistryManager().getModificationTableOperationRegistry().containsKey(recipeId))
             throw new IllegalArgumentException(String.format("No modification table recipe is known for the id: %s", recipeId));
@@ -22,13 +22,13 @@ public class ModificationTableRecipeSerializer extends ForgeRegistryEntry<IRecip
 
     @Nullable
     @Override
-    public ModificationTableRecipe read(final @NotNull ResourceLocation recipeId, final @NotNull PacketBuffer buffer)
+    public ModificationTableRecipe fromNetwork(final @NotNull ResourceLocation recipeId, final @NotNull PacketBuffer buffer)
     {
         return new ModificationTableRecipe(IChiselsAndBitsAPI.getInstance().getRegistryManager().getModificationTableOperationRegistry().getValue(recipeId));
     }
 
     @Override
-    public void write(final @NotNull PacketBuffer buffer, final @NotNull ModificationTableRecipe recipe)
+    public void toNetwork(final @NotNull PacketBuffer buffer, final @NotNull ModificationTableRecipe recipe)
     {
     }
 }

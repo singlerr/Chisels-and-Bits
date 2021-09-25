@@ -31,7 +31,7 @@ public class BitItemItemColor implements IItemColor
             return ((FlowingFluidBlock) state.getBlock()).getFluid().getAttributes().getColor();
         }
 
-        if ((!Minecraft.getInstance().gameSettings.keyBindSneak.isInvalid() && Minecraft.getInstance().gameSettings.keyBindSneak.isKeyDown()) || (Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown()))
+        if ((!Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown()) || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown()))
         {
             final Block block = state.getBlock();
             final Item item = block.asItem();

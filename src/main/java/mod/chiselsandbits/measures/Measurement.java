@@ -64,21 +64,21 @@ public class Measurement implements IMeasurement, IPacketBufferSerializable
     @Override
     public void serializeInto(final @NotNull PacketBuffer packetBuffer)
     {
-        packetBuffer.writeUniqueId(getOwner());
-        packetBuffer.writeDouble(getFrom().getX());
-        packetBuffer.writeDouble(getFrom().getY());
-        packetBuffer.writeDouble(getFrom().getZ());
-        packetBuffer.writeDouble(getTo().getX());
-        packetBuffer.writeDouble(getTo().getY());
-        packetBuffer.writeDouble(getTo().getZ());
+        packetBuffer.writeUUID(getOwner());
+        packetBuffer.writeDouble(getFrom().x());
+        packetBuffer.writeDouble(getFrom().y());
+        packetBuffer.writeDouble(getFrom().z());
+        packetBuffer.writeDouble(getTo().x());
+        packetBuffer.writeDouble(getTo().y());
+        packetBuffer.writeDouble(getTo().z());
         packetBuffer.writeVarInt(mode.ordinal());
-        packetBuffer.writeString(getWorldKey().toString(), Integer.MAX_VALUE / 4);
+        packetBuffer.writeUtf(getWorldKey().toString(), Integer.MAX_VALUE / 4);
     }
 
     @Override
     public void deserializeFrom(final @NotNull PacketBuffer packetBuffer)
     {
-        owner = packetBuffer.readUniqueId();
+        owner = packetBuffer.readUUID();
         from = new Vector3d(
           packetBuffer.readDouble(),
           packetBuffer.readDouble(),
@@ -90,6 +90,6 @@ public class Measurement implements IMeasurement, IPacketBufferSerializable
           packetBuffer.readDouble()
         );
         mode = MeasuringMode.values()[packetBuffer.readVarInt()];
-        worldKey = new ResourceLocation(packetBuffer.readString(Integer.MAX_VALUE / 4));
+        worldKey = new ResourceLocation(packetBuffer.readUtf(Integer.MAX_VALUE / 4));
     }
 }

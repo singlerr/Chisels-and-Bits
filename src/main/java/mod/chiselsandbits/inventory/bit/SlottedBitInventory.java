@@ -37,7 +37,7 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
     }
 
     @Override
-    protected ItemStack getStackInSlot(final int index)
+    protected ItemStack getItem(final int index)
     {
         final BitSlot bitSlot = slotMap.get(index);
         if (bitSlot == null)
@@ -97,7 +97,7 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
     {
         this.slotMap.clear();
 
-        nbt.keySet().forEach(indexRep -> {
+        nbt.getAllKeys().forEach(indexRep -> {
             final int index = Integer.parseInt(indexRep);
             final BitSlot slot = new BitSlot();
             slot.deserializeNBT(nbt.getCompound(indexRep));
@@ -124,7 +124,7 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
 
     protected static final class BitSlot implements INBTSerializable<CompoundNBT>, IPacketBufferSerializable {
 
-        private BlockState state = Blocks.AIR.getDefaultState();
+        private BlockState state = Blocks.AIR.defaultBlockState();
         private ItemStack internalStack = ItemStack.EMPTY;
 
         public BitSlot()
@@ -147,7 +147,7 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
         @Override
         public void deserializeFrom(final @NotNull PacketBuffer packetBuffer)
         {
-            state = GameData.getBlockStateIDMap().getByValue(packetBuffer.readVarInt());
+            state = GameData.getBlockStateIDMap().byId(packetBuffer.readVarInt());
 
             final int count = packetBuffer.readVarInt();
             internalStack = IBitItemManager.getInstance().create(state, count);

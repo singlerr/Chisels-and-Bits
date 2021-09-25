@@ -29,7 +29,7 @@ public class BitBagTagGenerator implements IDataProvider
     private BitBagTagGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void act(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull DirectoryCache cache) throws IOException
     {
         final TagJson json = new TagJson();
         json.setValues(

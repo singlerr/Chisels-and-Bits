@@ -14,13 +14,13 @@ import java.util.Collection;
 
 public enum ChiselRenderType
 {
-    SOLID( RenderType.getSolid(), VoxelType.SOLID ),
-    SOLID_FLUID( RenderType.getSolid(), VoxelType.FLUID ),
-    CUTOUT( RenderType.getCutout(), VoxelType.UNKNOWN ),
-    CUTOUT_MIPPED( RenderType.getCutoutMipped(), VoxelType.UNKNOWN ),
-    TRANSLUCENT( RenderType.getTranslucent(), VoxelType.UNKNOWN ),
-    TRANSLUCENT_FLUID( RenderType.getTranslucent(), VoxelType.FLUID ),
-    TRIPWIRE (RenderType.getTripwire(), VoxelType.UNKNOWN);
+    SOLID( RenderType.solid(), VoxelType.SOLID ),
+    SOLID_FLUID( RenderType.solid(), VoxelType.FLUID ),
+    CUTOUT( RenderType.cutout(), VoxelType.UNKNOWN ),
+    CUTOUT_MIPPED( RenderType.cutoutMipped(), VoxelType.UNKNOWN ),
+    TRANSLUCENT( RenderType.translucent(), VoxelType.UNKNOWN ),
+    TRANSLUCENT_FLUID( RenderType.translucent(), VoxelType.FLUID ),
+    TRIPWIRE (RenderType.tripwire(), VoxelType.UNKNOWN);
 
     public final RenderType layer;
     public final VoxelType type;
@@ -71,7 +71,7 @@ public enum ChiselRenderType
       final boolean isFluid )
     {
         if (layerInfo == null)
-            layerInfo = RenderType.getSolid();
+            layerInfo = RenderType.solid();
 
         if (ChiselRenderType.CUTOUT.layer.equals(layerInfo))
         {

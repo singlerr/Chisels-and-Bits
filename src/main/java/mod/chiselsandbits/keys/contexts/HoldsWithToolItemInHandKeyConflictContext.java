@@ -25,8 +25,8 @@ public final class HoldsWithToolItemInHandKeyConflictContext implements IKeyConf
     public boolean isActive()
     {
         return Minecraft.getInstance().player != null &&
-                 (Minecraft.getInstance().player.getHeldItemMainhand().getItem() instanceof IWithModeItem ||
-                    Minecraft.getInstance().player.getHeldItemOffhand().getItem() instanceof IWithModeItem);
+                 (Minecraft.getInstance().player.getMainHandItem().getItem() instanceof IWithModeItem ||
+                    Minecraft.getInstance().player.getOffhandItem().getItem() instanceof IWithModeItem);
     }
 
     /**

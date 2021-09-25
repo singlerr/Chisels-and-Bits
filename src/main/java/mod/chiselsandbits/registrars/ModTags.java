@@ -23,7 +23,7 @@ public final class ModTags
 
         private static ITag.INamedTag<Item> tag(String name)
         {
-            return ItemTags.makeWrapperTag(Constants.MOD_ID + ":" + name);
+            return ItemTags.bind(Constants.MOD_ID + ":" + name);
         }
     }
 
@@ -35,7 +35,7 @@ public final class ModTags
 
         private static ITag.INamedTag<Block> tag(String name)
         {
-            return BlockTags.makeWrapperTag(Constants.MOD_ID + ":" + name);
+            return BlockTags.bind(Constants.MOD_ID + ":" + name);
         }
     }
 }

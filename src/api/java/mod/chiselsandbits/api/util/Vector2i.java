@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 public class Vector2i implements Comparable<Vector2i>
 {
     public static final Codec<Vector2i> CODEC       =
-      Codec.INT_STREAM.comapFlatMap((stream) -> Util.validateIntStreamSize(stream, 3).map((componentArray) -> new Vector2i(componentArray[0], componentArray[1])),
+      Codec.INT_STREAM.comapFlatMap((stream) -> Util.fixedSize(stream, 3).map((componentArray) -> new Vector2i(componentArray[0], componentArray[1])),
         (vector) -> IntStream.of(vector.getX(), vector.getY()));
     /**
      * An immutable vector with zero as all coordinates.
@@ -130,7 +130,7 @@ public class Vector2i implements Comparable<Vector2i>
      */
     public Vector2i offset(Direction facing, int n)
     {
-        return n == 0 ? this : new Vector2i(this.getX() + facing.getXOffset() * n, this.getY() + facing.getYOffset() * n);
+        return n == 0 ? this : new Vector2i(this.getX() + facing.getStepX() * n, this.getY() + facing.getStepY() * n);
     }
 
     /**
@@ -164,7 +164,7 @@ public class Vector2i implements Comparable<Vector2i>
 
     public boolean withinDistance(IPosition position, double distance)
     {
-        return this.distanceSq(position.getX(), position.getY(), true) < distance * distance;
+        return this.distanceSq(position.x(), position.y(), true) < distance * distance;
     }
 
     /**

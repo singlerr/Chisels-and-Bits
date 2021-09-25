@@ -16,30 +16,30 @@ public class MaterialManager
     private MaterialManager()
     {
         this.registerMapping("wood", Material.WOOD);
-        this.registerMapping("rock", Material.ROCK);
-        this.registerMapping("iron", Material.IRON);
-        this.registerMapping("cloth", Material.CARPET);
+        this.registerMapping("rock", Material.STONE);
+        this.registerMapping("iron", Material.METAL);
+        this.registerMapping("cloth", Material.CLOTH_DECORATION);
         this.registerMapping("ice", Material.ICE);
-        this.registerMapping("packed_ice", Material.PACKED_ICE);
+        this.registerMapping("packed_ice", Material.ICE_SOLID);
         this.registerMapping("clay", Material.CLAY);
         this.registerMapping("glass", Material.GLASS);
         this.registerMapping("sand", Material.SAND);
-        this.registerMapping("ground", Material.EARTH);
-        this.registerMapping("grass", Material.ORGANIC);
-        this.registerMapping("snow", Material.SNOW_BLOCK);
+        this.registerMapping("ground", Material.DIRT);
+        this.registerMapping("grass", Material.GRASS);
+        this.registerMapping("snow", Material.SNOW);
         this.registerMapping("fluid", Material.WATER);
         this.registerMapping("leaves", Material.LEAVES);
-        this.registerMapping("plant", Material.PLANTS);
+        this.registerMapping("plant", Material.PLANT);
         this.registerMapping("wool", Material.WOOL);
         this.registerMapping("nether_wood", Material.NETHER_WOOD);
 
         this.registerRemapping(Material.SPONGE, Material.CLAY);
-        this.registerRemapping(Material.ANVIL, Material.IRON);
-        this.registerRemapping(Material.GOURD, Material.PLANTS);
-        this.registerRemapping(Material.CACTUS, Material.PLANTS);
-        this.registerRemapping(Material.CORAL, Material.ROCK);
-        this.registerRemapping(Material.WEB, Material.PLANTS);
-        this.registerRemapping(Material.TNT, Material.ROCK);
+        this.registerRemapping(Material.HEAVY_METAL, Material.METAL);
+        this.registerRemapping(Material.VEGETABLE, Material.PLANT);
+        this.registerRemapping(Material.CACTUS, Material.PLANT);
+        this.registerRemapping(Material.CORAL, Material.STONE);
+        this.registerRemapping(Material.WEB, Material.PLANT);
+        this.registerRemapping(Material.EXPLOSIVE, Material.STONE);
         this.registerRemapping(Material.LAVA, Material.WATER);
     }
 

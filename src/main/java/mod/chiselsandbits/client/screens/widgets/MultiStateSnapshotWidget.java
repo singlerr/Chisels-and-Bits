@@ -53,9 +53,9 @@ public class MultiStateSnapshotWidget extends Widget
         fill(matrixStack, this.x + 1, this.y + 1, this.x + this.width, this.y + this.height, ColorUtils.pack(ColorUtils.FULL_CHANNEL));
         fill(matrixStack, this.x + 1, this.y + 1, this.x + this.width - 1, this.y + this.height - 1, ColorUtils.pack(ColorUtils.EMPTY_CHANNEL));
 
-        MainWindow mw = Minecraft.getInstance().getMainWindow();
-        double sf = mw.getGuiScaleFactor();
-        GL11.glScissor((int)((this.x) * mw.getGuiScaleFactor()), (int)(mw.getScaledHeight() * sf - height * sf - (y) * sf), (int)(width * sf), (int)(height * sf));
+        MainWindow mw = Minecraft.getInstance().getWindow();
+        double sf = mw.getGuiScale();
+        GL11.glScissor((int)((this.x) * mw.getGuiScale()), (int)(mw.getGuiScaledHeight() * sf - height * sf - (y) * sf), (int)(width * sf), (int)(height * sf));
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
 
         if (!snapshotBlockStack.isEmpty()) {
@@ -71,15 +71,15 @@ public class MultiStateSnapshotWidget extends Widget
     public void renderRotateableItemAndEffectIntoGui() {
         final int x = this.x + this.width / 2 - 8;
         final int y = this.y + this.height / 2 - 8;
-        final IBakedModel bakedmodel = Minecraft.getInstance().getItemRenderer().getItemModelWithOverrides(
+        final IBakedModel bakedmodel = Minecraft.getInstance().getItemRenderer().getModel(
           snapshotBlockStack,
-          Minecraft.getInstance().world,
+          Minecraft.getInstance().level,
           Minecraft.getInstance().player
         );
 
         RenderSystem.pushMatrix();
-        Minecraft.getInstance().getTextureManager().bindTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE);
-        Minecraft.getInstance().getTextureManager().getTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).setBlurMipmapDirect(false, false);
+        Minecraft.getInstance().getTextureManager().bind(AtlasTexture.LOCATION_BLOCKS);
+        Minecraft.getInstance().getTextureManager().getTexture(AtlasTexture.LOCATION_BLOCKS).setFilter(false, false);
         RenderSystem.enableRescaleNormal();
         RenderSystem.enableAlphaTest();
         RenderSystem.defaultAlphaFunc();
@@ -89,32 +89,32 @@ public class MultiStateSnapshotWidget extends Widget
         RenderSystem.translatef((float)x, (float)y, 150);
         RenderSystem.translatef(8.0F, 8.0F, 0.0F);
         RenderSystem.rotatef(
-          (float) (this.facingVector.getX() * VectorUtils.DEG_TO_RAD_FACTOR),
+          (float) (this.facingVector.x() * VectorUtils.DEG_TO_RAD_FACTOR),
           1,0,0
         );
         RenderSystem.rotatef(
-          (float) (this.facingVector.getY() * VectorUtils.DEG_TO_RAD_FACTOR),
+          (float) (this.facingVector.y() * VectorUtils.DEG_TO_RAD_FACTOR),
           0, 1,0
         );
         RenderSystem.rotatef(
-          (float) (this.facingVector.getZ() * VectorUtils.DEG_TO_RAD_FACTOR),
+          (float) (this.facingVector.z() * VectorUtils.DEG_TO_RAD_FACTOR),
           0,0,1
         );
         RenderSystem.scalef(1.0F, -1.0F, 1.0F);
         RenderSystem.scalef(16.0F, 16.0F, 16.0F);
         RenderSystem.scalef(scaleFactor, scaleFactor, scaleFactor);
         MatrixStack matrixstack = new MatrixStack();
-        IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource();
-        boolean flag = !bakedmodel.isSideLit();
+        IRenderTypeBuffer.Impl irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
+        boolean flag = !bakedmodel.usesBlockLight();
         if (flag) {
-            RenderHelper.setupGuiFlatDiffuseLighting();
+            RenderHelper.setupForFlatItems();
         }
 
-        Minecraft.getInstance().getItemRenderer().renderItem(snapshotBlockStack, ItemCameraTransforms.TransformType.GUI, false, matrixstack, irendertypebuffer$impl, 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
-        irendertypebuffer$impl.finish();
+        Minecraft.getInstance().getItemRenderer().render(snapshotBlockStack, ItemCameraTransforms.TransformType.GUI, false, matrixstack, irendertypebuffer$impl, 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
+        irendertypebuffer$impl.endBatch();
         RenderSystem.enableDepthTest();
         if (flag) {
-            RenderHelper.setupGui3DDiffuseLighting();
+            RenderHelper.setupFor3DItems();
         }
 
         RenderSystem.disableAlphaTest();

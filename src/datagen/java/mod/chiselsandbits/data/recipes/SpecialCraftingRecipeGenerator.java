@@ -29,7 +29,7 @@ public class SpecialCraftingRecipeGenerator implements IDataProvider
     private SpecialCraftingRecipeGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void act(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull DirectoryCache cache) throws IOException
     {
         saveRecipe(cache, ModRecipeSerializers.BAG_DYEING.getId());
     }

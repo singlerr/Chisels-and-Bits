@@ -38,6 +38,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import net.minecraft.item.Item.Properties;
+
 public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
 {
     public MeasuringTapeItem(final Properties properties)
@@ -71,7 +73,7 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
     public ClickProcessingState handleRightClickProcessing(
       final PlayerEntity playerEntity, final Hand hand, final BlockPos position, final Direction face, final ClickProcessingState currentState)
     {
-        final ItemStack stack = playerEntity.getHeldItem(hand);
+        final ItemStack stack = playerEntity.getItemInHand(hand);
         if (stack.getItem() != this)
             return ClickProcessingState.DEFAULT;
 
@@ -87,7 +89,7 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
             return ClickProcessingState.DEFAULT;
         }
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        final Vector3d hitVector = blockRayTraceResult.getHitVec();
+        final Vector3d hitVector = blockRayTraceResult.getLocation();
 
         final Optional<Vector3d> startPointHandler = getStart(stack);
         if (!startPointHandler.isPresent()) {
@@ -112,7 +114,7 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
     @Override
     public void inventoryTick(final @NotNull ItemStack stack, final @NotNull World worldIn, final @NotNull Entity entityIn, final int itemSlot, final boolean isSelected)
     {
-        if (!worldIn.isRemote())
+        if (!worldIn.isClientSide())
             return;
 
         if (!(entityIn instanceof PlayerEntity))
@@ -140,7 +142,7 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
             return;
         }
         final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        final Vector3d hitVector = blockRayTraceResult.getHitVec();
+        final Vector3d hitVector = blockRayTraceResult.getLocation();
 
         final Vector3d startPoint = startPointHandler.get();
         final Vector3d endPoint = getMode(stack).getType().adaptPosition(hitVector);
@@ -173,9 +175,9 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
     {
         final CompoundNBT compoundNBT = new CompoundNBT();
 
-        compoundNBT.putDouble("x", start.getX());
-        compoundNBT.putDouble("y", start.getY());
-        compoundNBT.putDouble("z", start.getZ());
+        compoundNBT.putDouble("x", start.x());
+        compoundNBT.putDouble("y", start.y());
+        compoundNBT.putDouble("z", start.z());
 
         stack.getOrCreateTag().put("start", compoundNBT);
     }
@@ -188,17 +190,17 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(
+    public void appendHoverText(
       final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
     {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
         if (KeyBindingManager.getInstance().areBindingsInitialized()) {
             Configuration.getInstance().getCommon().helpText(LocalStrings.HelpTapeMeasure, tooltip,
-              Minecraft.getInstance().gameSettings.keyBindUseItem.func_238171_j_().getString(),
-              Minecraft.getInstance().gameSettings.keyBindUseItem.func_238171_j_().getString(),
-              KeyBindingManager.getInstance().getResetMeasuringTapeKeyBinding().func_238171_j_().getString(),
-              KeyBindingManager.getInstance().getOpenToolMenuKeybinding().func_238171_j_().getString()
+              Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage().getString(),
+              Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage().getString(),
+              KeyBindingManager.getInstance().getResetMeasuringTapeKeyBinding().getTranslatedKeyMessage().getString(),
+              KeyBindingManager.getInstance().getOpenToolMenuKeybinding().getTranslatedKeyMessage().getString()
             );
         }
     }

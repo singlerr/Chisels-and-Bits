@@ -29,7 +29,7 @@ public class IconSpriteUploader extends SpriteUploader
 
     @NotNull
     @Override
-    protected Stream<ResourceLocation> getResourceLocations()
+    protected Stream<ResourceLocation> getResourcesToLoad()
     {
         return this.textures.stream();
     }

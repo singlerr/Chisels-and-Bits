@@ -8,19 +8,15 @@ import net.minecraft.util.math.vector.Vector3d;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -59,10 +55,10 @@ public class AABBCompressorTest
     }
     
     private void RunDirectNeighboringTest(final Direction direction) {
-        final AxisAlignedBB initialBox = AxisAlignedBB.withSizeAtOrigin(1, 1, 1);
-        final AxisAlignedBB neighborBox = initialBox.offset(direction.getXOffset(), direction.getYOffset(), direction.getZOffset());
+        final AxisAlignedBB initialBox = AxisAlignedBB.ofSize(1, 1, 1);
+        final AxisAlignedBB neighborBox = initialBox.move(direction.getStepX(), direction.getStepY(), direction.getStepZ());
 
-        final AxisAlignedBB expectedBox = initialBox.union(neighborBox);
+        final AxisAlignedBB expectedBox = initialBox.minmax(neighborBox);
 
         RunCompressionTest(
           Lists.newArrayList(initialBox, neighborBox),
@@ -87,13 +83,13 @@ public class AABBCompressorTest
                                                          when(mock.getBoundingBox()).thenReturn(box);
                                                          when(mock.getStartPoint()).thenReturn(startPoint);
                                                          when(mock.getEndPoint()).thenReturn(endPoint);
-                                                         when(mock.getCenterPoint()).thenReturn(startPoint.add(endPoint).mul(0.5,0.5,0.5));
+                                                         when(mock.getCenterPoint()).thenReturn(startPoint.add(endPoint).multiply(0.5,0.5,0.5));
 
                                                          return mock;
                                                      })
-                                                     .sorted(Comparator.<IStateEntryInfo, Double>comparing(stateEntryInfo -> stateEntryInfo.getStartPoint().getX())
-                                                               .thenComparing(stateEntryInfo -> stateEntryInfo.getStartPoint().getY())
-                                                               .thenComparing(stateEntryInfo -> stateEntryInfo.getStartPoint().getZ()))
+                                                     .sorted(Comparator.<IStateEntryInfo, Double>comparing(stateEntryInfo -> stateEntryInfo.getStartPoint().x())
+                                                               .thenComparing(stateEntryInfo -> stateEntryInfo.getStartPoint().y())
+                                                               .thenComparing(stateEntryInfo -> stateEntryInfo.getStartPoint().z()))
                                                      .collect(Collectors.toList());
 
         final IAreaAccessor mock = mock(IAreaAccessor.class);

@@ -35,7 +35,7 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
     private final ModelProperty<IBakedModel> MODEL_PROP = new ModelProperty<>();
 
     @Override
-    public boolean isSideLit()
+    public boolean usesBlockLight()
     {
         return true;
     }
@@ -56,7 +56,7 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
     {
         try(IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Extract model data from data"))
         {
-            if (world.getTileEntity(pos) == null)
+            if (world.getBlockEntity(pos) == null)
             {
                 return new ModelDataMap.Builder().build();
             }
@@ -70,7 +70,7 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
                     final ChiseledBlockBakedModel[] models = new ChiseledBlockBakedModel[ChiselRenderType.values().length];
                     int o = 0;
 
-                    final TileEntity tileEntity = world.getTileEntity(pos);
+                    final TileEntity tileEntity = world.getBlockEntity(pos);
                     if (tileEntity instanceof IMultiStateBlockEntity) {
 
                         try(IProfilerSection ignored3 = ProfilingManager.getInstance().withSection("Individual render types building"))
@@ -106,18 +106,18 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
             try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Known render layer model building"))
             {
 
-                final TileEntity tileEntity = world.getTileEntity(pos);
+                final TileEntity tileEntity = world.getBlockEntity(pos);
                 if (!(tileEntity instanceof IMultiStateBlockEntity))
                     return new ModelDataMap.Builder().withInitial(MODEL_PROP, NullBakedModel.instance).build();
 
                 final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntity;
                 if (multiStateBlockEntity.getStatistics().getStateCounts().isEmpty() ||
-                      (multiStateBlockEntity.getStatistics().getStateCounts().size() == 1 && multiStateBlockEntity.getStatistics().getStateCounts().containsKey(Blocks.AIR.getDefaultState()))) {
+                      (multiStateBlockEntity.getStatistics().getStateCounts().size() == 1 && multiStateBlockEntity.getStatistics().getStateCounts().containsKey(Blocks.AIR.defaultBlockState()))) {
                     return new ModelDataMap.Builder().withInitial(MODEL_PROP, NullBakedModel.instance).build();
                 }
 
                 IBakedModel baked;
-                if (RenderType.getBlockRenderTypes().contains(layer) && FluidRenderingManager.getInstance().isFluidRenderType(layer))
+                if (RenderType.chunkBufferLayers().contains(layer) && FluidRenderingManager.getInstance().isFluidRenderType(layer))
                 {
                     try(IProfilerSection ignored3 = ProfilingManager.getInstance().withSection("Solid and fluid model building"))
                     {
@@ -185,7 +185,7 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
     }
 
     @Override
-    public IBakedModel func_239290_a_(
+    public IBakedModel resolve(
       final IBakedModel originalModel, final ItemStack stack, final World world, final LivingEntity entity)
     {
         final Item item = stack.getItem();

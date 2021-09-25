@@ -17,7 +17,7 @@ public class IItemHandlerBitInventory extends AbstractBitInventory
      * @return A copy of the stack in the slot.
      */
     @Override
-    protected ItemStack getStackInSlot(final int index)
+    protected ItemStack getItem(final int index)
     {
         return itemHandler.getStackInSlot(index).copy();
     }

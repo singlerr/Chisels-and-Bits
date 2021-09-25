@@ -56,7 +56,7 @@ public class BlockEligibilityAnalysisData
             final Block blk = state.getBlock();
             final Class<? extends Block> blkClass = blk.getClass();
 
-            reflectBlock.getPlayerRelativeBlockHardness( null, null, null, null );
+            reflectBlock.getDestroyProgress( null, null, null, null );
             final Class<?> b_Class = ClassUtils.getDeclaringClass( blkClass, reflectBlock.MethodName, BlockState.class, PlayerEntity.class, IBlockReader.class, BlockPos.class );
             final boolean test_b = b_Class == Block.class || b_Class == AbstractBlock.class;
 
@@ -73,7 +73,7 @@ public class BlockEligibilityAnalysisData
             // is it perfect?
             if ( test_b && test_c && test_d && !isFluid )
             {
-                final float blockHardness = state.getBlockHardness(new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO);
+                final float blockHardness = state.getDestroySpeed(new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO);
                 final float resistance = blk.getExplosionResistance(state, new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO, new Explosion(null, null,null,
                   null, 0,1,0, 10, false, Explosion.Mode.NONE));
 

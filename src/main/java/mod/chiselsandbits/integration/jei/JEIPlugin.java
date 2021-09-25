@@ -39,7 +39,7 @@ public class JEIPlugin implements IModPlugin
 
         if (IChiselsAndBitsAPI.getInstance().getConfiguration().getClient().injectIntoJEI.get()) {
             final NonNullList<ItemStack> bitStacks = NonNullList.create();
-            ModItems.ITEM_BLOCK_BIT.get().fillItemGroup(ModItems.ITEM_BLOCK_BIT.get().getGroup(), bitStacks);
+            ModItems.ITEM_BLOCK_BIT.get().fillItemCategory(ModItems.ITEM_BLOCK_BIT.get().getItemCategory(), bitStacks);
             if (!bitStacks.isEmpty()) {
                 LOGGER.info("Injecting bits.");
                 ingredientManager.addIngredientsAtRuntime(VanillaTypes.ITEM, bitStacks);

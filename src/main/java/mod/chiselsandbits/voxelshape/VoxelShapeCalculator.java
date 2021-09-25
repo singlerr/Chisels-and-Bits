@@ -26,16 +26,16 @@ public class VoxelShapeCalculator
             AABBManager.getInstance()
               .get(areaAccessor, selectablePredicateBuilder)
               .stream()
-              .map(aabb -> aabb.offset(offset))
+              .map(aabb -> aabb.move(offset))
         .reduce(
           VoxelShapes.empty(),
           (voxelShape, axisAlignedBB) -> {
               final VoxelShape bbShape = VoxelShapes.create(axisAlignedBB);
-              return VoxelShapes.combine(voxelShape, bbShape, IBooleanFunction.OR);
+              return VoxelShapes.joinUnoptimized(voxelShape, bbShape, IBooleanFunction.OR);
           },
-          (voxelShape, voxelShape2) -> VoxelShapes.combine(voxelShape, voxelShape2, IBooleanFunction.OR)
+          (voxelShape, voxelShape2) -> VoxelShapes.joinUnoptimized(voxelShape, voxelShape2, IBooleanFunction.OR)
         );
 
-        return simplify ? shape.simplify() : shape;
+        return simplify ? shape.optimize() : shape;
     }
 }

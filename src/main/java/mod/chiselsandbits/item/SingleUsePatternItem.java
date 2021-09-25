@@ -44,6 +44,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+import net.minecraft.item.Item.Properties;
+
 public class SingleUsePatternItem extends Item implements IPatternItem
 {
 
@@ -73,8 +75,8 @@ public class SingleUsePatternItem extends Item implements IPatternItem
 
     @Override
     @NotNull
-    public ActionResultType onItemUse(@NotNull ItemUseContext context) {
-        final IMultiStateItemStack contents = createItemStack(context.getItem());
+    public ActionResultType useOn(@NotNull ItemUseContext context) {
+        final IMultiStateItemStack contents = createItemStack(context.getItemInHand());
         if (contents.getStatistics().isEmpty()) {
             if (context.getPlayer() == null)
                 return ActionResultType.FAIL;
@@ -85,9 +87,9 @@ public class SingleUsePatternItem extends Item implements IPatternItem
             if (!context.getPlayer().isCrouching())
                 return ActionResultType.FAIL;
 
-            final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getWorld(), context.getPos());
+            final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
             final ItemStack snapshotPatternStack = areaMutator.createSnapshot().toItemStack().toPatternStack();
-            context.getItem().setTag(snapshotPatternStack.getOrCreateTag().copy());
+            context.getItemInHand().setTag(snapshotPatternStack.getOrCreateTag().copy());
             return ActionResultType.SUCCESS;
         }
 
@@ -101,9 +103,9 @@ public class SingleUsePatternItem extends Item implements IPatternItem
         if (context.getPlayer() == null)
             return ActionResultType.FAIL;
 
-        final IAreaAccessor source = this.createItemStack(context.getItem());
+        final IAreaAccessor source = this.createItemStack(context.getItemInHand());
         final IMultiStateSnapshot sourceSnapshot = source.createSnapshot();
-        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getWorld(), context.getPos());
+        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
         final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();
 
         final boolean noCollisions = source.stream().sequential()
@@ -149,11 +151,11 @@ public class SingleUsePatternItem extends Item implements IPatternItem
                 sourceSnapshot.getStatics().getStateCounts().forEach(playerBitInventory::extract);
             }
 
-            final TileEntity tileEntityCandidate = context.getWorld().getTileEntity(context.getPos());
+            final TileEntity tileEntityCandidate = context.getLevel().getBlockEntity(context.getClickedPos());
             if (tileEntityCandidate instanceof IMultiStateBlockEntity) {
                 IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntityCandidate;
-                final Direction placementDirection = context.getPlayer() == null ? Direction.NORTH : context.getPlayer().getHorizontalFacing().getOpposite();
-                final int horizontalIndex = placementDirection.getHorizontalIndex();
+                final Direction placementDirection = context.getPlayer() == null ? Direction.NORTH : context.getPlayer().getDirection().getOpposite();
+                final int horizontalIndex = placementDirection.get2DDataValue();
 
                 int rotationCount = horizontalIndex - 4;
                 if (rotationCount < 0) {
@@ -162,12 +164,12 @@ public class SingleUsePatternItem extends Item implements IPatternItem
 
                 multiStateBlockEntity.rotate(Direction.Axis.Y, rotationCount);
 
-                if (!context.getWorld().isRemote()) {
-                    context.getWorld().notifyBlockUpdate(context.getPos(), Blocks.AIR.getDefaultState(), Blocks.AIR.getDefaultState(), Constants.BlockFlags.DEFAULT);
+                if (!context.getLevel().isClientSide()) {
+                    context.getLevel().sendBlockUpdated(context.getClickedPos(), Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), Constants.BlockFlags.DEFAULT);
 
                     ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
                       new TileEntityUpdatedPacket(tileEntityCandidate),
-                      context.getWorld().getChunkAt(context.getPos())
+                      context.getLevel().getChunkAt(context.getClickedPos())
                     );
                 }
             }
@@ -207,10 +209,10 @@ public class SingleUsePatternItem extends Item implements IPatternItem
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void addInformation(
+    public void appendHoverText(
       final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
     {
-        if ((Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown())) {
+        if ((Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown())) {
             tooltip.add(new StringTextComponent("        "));
             tooltip.add(new StringTextComponent("        "));
         }

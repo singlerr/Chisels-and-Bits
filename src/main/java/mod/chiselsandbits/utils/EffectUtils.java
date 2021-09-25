@@ -34,7 +34,7 @@ public class EffectUtils
         if (!primaryState.getBlock().isAir(primaryState, world, pos))
         {
             VoxelShape voxelshape = primaryState.getShape(world, pos);
-            voxelshape.forEachBox((p_228348_3_, p_228348_5_, p_228348_7_, p_228348_9_, p_228348_11_, p_228348_13_) -> {
+            voxelshape.forAllBoxes((p_228348_3_, p_228348_5_, p_228348_7_, p_228348_9_, p_228348_11_, p_228348_13_) -> {
                 double d1 = Math.min(1.0D, p_228348_9_ - p_228348_3_);
                 double d2 = Math.min(1.0D, p_228348_11_ - p_228348_5_);
                 double d3 = Math.min(1.0D, p_228348_13_ - p_228348_7_);
@@ -54,14 +54,14 @@ public class EffectUtils
                             double d7 = d4 * d1 + p_228348_3_;
                             double d8 = d5 * d2 + p_228348_5_;
                             double d9 = d6 * d3 + p_228348_7_;
-                            manager.addEffect((new DiggingParticle((ClientWorld) renderingWorld,
+                            manager.add((new DiggingParticle((ClientWorld) renderingWorld,
                               (double) pos.getX() + d7,
                               (double) pos.getY() + d8,
                               (double) pos.getZ() + d9,
                               d4 - 0.5D,
                               d5 - 0.5D,
                               d6 - 0.5D,
-                              primaryState)).setBlockPos(pos));
+                              primaryState)).init(pos));
                         }
                     }
                 }
@@ -76,23 +76,23 @@ public class EffectUtils
         if (Minecraft.getInstance().player == null)
             return false;
 
-        final ItemStack hitWith = Minecraft.getInstance().player.getHeldItemMainhand();
+        final ItemStack hitWith = Minecraft.getInstance().player.getMainHandItem();
 
         if (!hitWith.isEmpty() && hitWith.getItem() instanceof INoHitEffectsItem)
         {
             return true;
         }
 
-        final BlockPos pos = blockRayTraceResult.getPos();
+        final BlockPos pos = blockRayTraceResult.getBlockPos();
         final float boxOffset = 0.1F;
 
-        AxisAlignedBB bb = world.getBlockState(pos).getBlock().getShape(primaryState, world, pos, ISelectionContext.dummy()).getBoundingBox();
+        AxisAlignedBB bb = world.getBlockState(pos).getBlock().getShape(primaryState, world, pos, ISelectionContext.empty()).bounds();
 
         double x = RANDOM.nextDouble() * (bb.maxX - bb.minX - boxOffset * 2.0F) + boxOffset + bb.minX;
         double y = RANDOM.nextDouble() * (bb.maxY - bb.minY - boxOffset * 2.0F) + boxOffset + bb.minY;
         double z = RANDOM.nextDouble() * (bb.maxZ - bb.minZ - boxOffset * 2.0F) + boxOffset + bb.minZ;
 
-        switch (blockRayTraceResult.getFace())
+        switch (blockRayTraceResult.getDirection())
         {
             case DOWN:
                 y = bb.minY - boxOffset;
@@ -116,9 +116,9 @@ public class EffectUtils
                 break;
         }
 
-        manager.addEffect((new DiggingParticle((ClientWorld) world, x, y, z, 0.0D, 0.0D, 0.0D, primaryState)).setBlockPos(pos)
-                                   .multiplyVelocity(0.2F)
-                                   .multiplyParticleScaleBy(0.6F));
+        manager.add((new DiggingParticle((ClientWorld) world, x, y, z, 0.0D, 0.0D, 0.0D, primaryState)).init(pos)
+                                   .setPower(0.2F)
+                                   .scale(0.6F));
 
         return true;
     }

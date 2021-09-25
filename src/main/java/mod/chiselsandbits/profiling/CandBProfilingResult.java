@@ -20,7 +20,7 @@ public class CandBProfilingResult implements IProfilerResult
     @Override
     public void writeToFile(final File file)
     {
-        innerResult.writeToFile(file);
+        innerResult.saveResults(file);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class CandBProfilingResult implements IProfilerResult
 
         final FilledProfileResult filledProfileResult = (FilledProfileResult) innerResult;
         lineConsumer.accept("Results:");
-        writeDatapointsAsResponse("root", filledProfileResult::getDataPoints, lineConsumer, " ");
+        writeDatapointsAsResponse("root", filledProfileResult::getTimes, lineConsumer, " ");
     }
 
     private void writeDatapointsAsResponse(final String name, final Function<String, List<DataPoint>> producer, final Consumer<String> lineConsumer, final String indent) {
@@ -39,7 +39,7 @@ public class CandBProfilingResult implements IProfilerResult
 
         dataPoints.forEach(
           dataPoint -> {
-              lineConsumer.accept(String.format("%s> %s: %s (%s)", indent, dataPoint.name.substring(dataPoint.name.lastIndexOf('\u001e') + 1), dataPoint.relTime, dataPoint.rootRelTime));
+              lineConsumer.accept(String.format("%s> %s: %s (%s)", indent, dataPoint.name.substring(dataPoint.name.lastIndexOf('\u001e') + 1), dataPoint.percentage, dataPoint.globalPercentage));
 
               if (!dataPoint.name.equals(name)) {
                   writeDatapointsAsResponse(name + '\u001e' + dataPoint.name, producer, lineConsumer, indent + " ");

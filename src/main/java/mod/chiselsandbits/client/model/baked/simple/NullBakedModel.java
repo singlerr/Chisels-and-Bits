@@ -40,7 +40,7 @@ public class NullBakedModel implements IBakedModel
     }
 
     @Override
-    public boolean isAmbientOcclusion()
+    public boolean useAmbientOcclusion()
     {
         return false;
     }
@@ -52,30 +52,30 @@ public class NullBakedModel implements IBakedModel
     }
 
     @Override
-    public boolean isSideLit()
+    public boolean usesBlockLight()
     {
         return false;
     }
 
     @Override
-    public boolean isBuiltInRenderer()
+    public boolean isCustomRenderer()
     {
         return false;
     }
 
     @NotNull
     @Override
-    public TextureAtlasSprite getParticleTexture()
+    public TextureAtlasSprite getParticleIcon()
     {
-        return Minecraft.getInstance().getAtlasSpriteGetter(PlayerContainer.LOCATION_BLOCKS_TEXTURE)
+        return Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS)
           .apply(MissingTextureSprite.getLocation());
     }
 
     @NotNull
     @Override
-    public ItemCameraTransforms getItemCameraTransforms()
+    public ItemCameraTransforms getTransforms()
     {
-        return ItemCameraTransforms.DEFAULT;
+        return ItemCameraTransforms.NO_TRANSFORMS;
     }
 
     @NotNull

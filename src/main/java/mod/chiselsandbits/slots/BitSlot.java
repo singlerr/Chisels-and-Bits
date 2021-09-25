@@ -18,7 +18,7 @@ public class BitSlot extends Slot
     }
 
     @Override
-    public boolean isItemValid(
+    public boolean mayPlace(
       final @NotNull ItemStack stack)
     {
         return !stack.isEmpty() && stack.getItem() instanceof BitItem;

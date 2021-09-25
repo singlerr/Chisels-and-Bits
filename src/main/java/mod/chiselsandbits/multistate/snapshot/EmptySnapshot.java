@@ -33,7 +33,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
         @Override
         public BlockState getPrimaryState()
         {
-            return Blocks.AIR.getDefaultState();
+            return Blocks.AIR.defaultBlockState();
         }
 
         @Override
@@ -284,7 +284,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
                 @Override
                 public BlockState getPrimaryState()
                 {
-                    return Blocks.AIR.getDefaultState();
+                    return Blocks.AIR.defaultBlockState();
                 }
 
                 @Override

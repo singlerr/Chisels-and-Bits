@@ -126,11 +126,11 @@ public class MinecraftInstanceManager
     }
 
     private void initializeBlockColors() {
-        ReflectionUtils.setField(Minecraft.getInstance(), "blockColors", BlockColors.init());
+        ReflectionUtils.setField(Minecraft.getInstance(), "blockColors", BlockColors.createDefault());
     }
 
     private void initializeItemColors() {
-        ReflectionUtils.setField(Minecraft.getInstance(), "itemColors", ItemColors.init(Minecraft.getInstance().getBlockColors()));
+        ReflectionUtils.setField(Minecraft.getInstance(), "itemColors", ItemColors.createDefault(Minecraft.getInstance().getBlockColors()));
     }
 
     private void initializeModelManager() {
@@ -149,7 +149,7 @@ public class MinecraftInstanceManager
     }
 
     private void initializeBlockRenderDispatcher() {
-        final BlockRendererDispatcher blockRendererDispatcher = new BlockRendererDispatcher(Minecraft.getInstance().getModelManager().getBlockModelShapes(), Minecraft.getInstance().getBlockColors());
+        final BlockRendererDispatcher blockRendererDispatcher = new BlockRendererDispatcher(Minecraft.getInstance().getModelManager().getBlockModelShaper(), Minecraft.getInstance().getBlockColors());
         ReflectionUtils.setField(Minecraft.getInstance(), "blockRenderDispatcher", blockRendererDispatcher);
     }
 
@@ -187,7 +187,7 @@ public class MinecraftInstanceManager
         final IResourceManager resourceManager = (IResourceManager) ReflectionUtils.getField(existingFileHelper, "serverData");
         final NetworkTagManager networkTagManager = new NetworkTagManager();
         AsyncReloadManager.getInstance().reload(resourceManager, networkTagManager);
-        TagRegistryManager.fetchTags(networkTagManager.getTagCollectionSupplier());
-        TagRegistryManager.fetchCustomTagTypes(networkTagManager.getTagCollectionSupplier());
+        TagRegistryManager.resetAll(networkTagManager.getTags());
+        TagRegistryManager.fetchCustomTagTypes(networkTagManager.getTags());
     }
 }

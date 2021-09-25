@@ -27,11 +27,11 @@ public class ModelUVReader extends BaseModelReader
       final int uFaceCoord,
       final int vFaceCoord )
     {
-        minU = texture.getMinU();
-        maxUMinusMin = texture.getMaxU() - minU;
+        minU = texture.getU0();
+        maxUMinusMin = texture.getU1() - minU;
 
-        minV = texture.getMinV();
-        maxVMinusMin = texture.getMaxV() - minV;
+        minV = texture.getV0();
+        maxVMinusMin = texture.getV1() - minV;
 
         uCoord = uFaceCoord;
         vCoord = vFaceCoord;

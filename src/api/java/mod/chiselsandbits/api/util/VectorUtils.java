@@ -37,21 +37,21 @@ public class VectorUtils
         switch (axis) {
             case X:
                 return new Vector3d(
-                  vector3d.getX(),
-                  vector3d.getY() * Math.cos((float) angleInRadian) - vector3d.getZ() * Math.sin((float) angleInRadian),
-                  vector3d.getY() * Math.sin((float) angleInRadian) + vector3d.getZ() * Math.cos((float) angleInRadian)
+                  vector3d.x(),
+                  vector3d.y() * Math.cos((float) angleInRadian) - vector3d.z() * Math.sin((float) angleInRadian),
+                  vector3d.y() * Math.sin((float) angleInRadian) + vector3d.z() * Math.cos((float) angleInRadian)
                 );
             case Y:
                 return new Vector3d(
-                  vector3d.getX() * Math.cos((float) angleInRadian) + vector3d.getZ() * Math.sin((float) angleInRadian),
-                  vector3d.getY(),
-                  -vector3d.getX() * Math.sin((float) angleInRadian) + vector3d.getZ() * Math.cos((float) angleInRadian)
+                  vector3d.x() * Math.cos((float) angleInRadian) + vector3d.z() * Math.sin((float) angleInRadian),
+                  vector3d.y(),
+                  -vector3d.x() * Math.sin((float) angleInRadian) + vector3d.z() * Math.cos((float) angleInRadian)
                 );
             case Z:
                 return new Vector3d(
-                  vector3d.getX() * Math.cos((float) angleInRadian) - vector3d.getY() * Math.sin((float) angleInRadian),
-                  vector3d.getX() * Math.sin((float) angleInRadian) + vector3d.getY() * Math.cos((float) angleInRadian),
-                  vector3d.getZ()
+                  vector3d.x() * Math.cos((float) angleInRadian) - vector3d.y() * Math.sin((float) angleInRadian),
+                  vector3d.x() * Math.sin((float) angleInRadian) + vector3d.y() * Math.cos((float) angleInRadian),
+                  vector3d.z()
                 );
             default:
                 throw new IllegalArgumentException(String.format("Unknown axis: %s", axis));
@@ -69,27 +69,27 @@ public class VectorUtils
     }
 
     public static double getMaximalComponent(final Vector3d v) {
-        final double x = Math.abs(v.getX());
-        final double y = Math.abs(v.getY());
-        final double z = Math.abs(v.getZ());
+        final double x = Math.abs(v.x());
+        final double y = Math.abs(v.y());
+        final double z = Math.abs(v.z());
 
         if (x >= y && x >= z) {
-            return v.getX();
+            return v.x();
         }
 
         if (y >= x && y >= z) {
-            return v.getY();
+            return v.y();
         }
 
         if (z >= x && z >= y) {
-            return v.getZ();
+            return v.z();
         }
 
         return 0;
     }
 
     public static Vector3d invert(final Vector3d v) {
-        return v.mul(-1, -1, -1);
+        return v.multiply(-1, -1, -1);
     }
 
     public static BlockPos invert(final BlockPos v) {
@@ -98,25 +98,25 @@ public class VectorUtils
 
     public static Vector3d minimizeTowardsZero(final Vector3d start, final Vector3d end) {
         return new Vector3d(
-          MathUtil.minimizeTowardsZero(start.getX(), end.getX()),
-          MathUtil.minimizeTowardsZero(start.getY(), end.getY()),
-          MathUtil.minimizeTowardsZero(start.getZ(), end.getZ())
+          MathUtil.minimizeTowardsZero(start.x(), end.x()),
+          MathUtil.minimizeTowardsZero(start.y(), end.y()),
+          MathUtil.minimizeTowardsZero(start.z(), end.z())
         );
     }
 
     public static Vector3d maximizeAwayFromZero(final Vector3d start, final Vector3d end) {
         return new Vector3d(
-          MathUtil.maximizeAwayFromZero(start.getX(), end.getX()),
-          MathUtil.maximizeAwayFromZero(start.getY(), end.getY()),
-          MathUtil.maximizeAwayFromZero(start.getZ(), end.getZ())
+          MathUtil.maximizeAwayFromZero(start.x(), end.x()),
+          MathUtil.maximizeAwayFromZero(start.y(), end.y()),
+          MathUtil.maximizeAwayFromZero(start.z(), end.z())
         );
     }
 
     public static Vector3d absolute(final Vector3d vector3d) {
         return new Vector3d(
-          vector3d.getX() < 0 ? -1 * vector3d.getX() : vector3d.getX(),
-          vector3d.getY() < 0 ? -1 * vector3d.getY() : vector3d.getY(),
-          vector3d.getZ() < 0 ? -1 * vector3d.getZ() : vector3d.getZ()
+          vector3d.x() < 0 ? -1 * vector3d.x() : vector3d.x(),
+          vector3d.y() < 0 ? -1 * vector3d.y() : vector3d.y(),
+          vector3d.z() < 0 ? -1 * vector3d.z() : vector3d.z()
         );
     }
 
@@ -128,27 +128,27 @@ public class VectorUtils
     public static Vector3d minimize(final Vector3d a, final Vector3d b)
     {
         return new Vector3d(
-          Math.min(a.getX(), b.getX()),
-          Math.min(a.getY(), b.getY()),
-          Math.min(a.getZ(), b.getZ())
+          Math.min(a.x(), b.x()),
+          Math.min(a.y(), b.y()),
+          Math.min(a.z(), b.z())
         );
     }
 
     public static Vector3d maximize(final Vector3d a, final Vector3d b)
     {
         return new Vector3d(
-          Math.max(a.getX(), b.getX()),
-          Math.max(a.getY(), b.getY()),
-          Math.max(a.getZ(), b.getZ())
+          Math.max(a.x(), b.x()),
+          Math.max(a.y(), b.y()),
+          Math.max(a.z(), b.z())
         );
     }
 
     public static Vector3d makePositive(final Vector3d inBlockOffset)
     {
         return new Vector3d(
-          MathUtil.makePositive(inBlockOffset.getX()),
-          MathUtil.makePositive(inBlockOffset.getY()),
-          MathUtil.makePositive(inBlockOffset.getZ())
+          MathUtil.makePositive(inBlockOffset.x()),
+          MathUtil.makePositive(inBlockOffset.y()),
+          MathUtil.makePositive(inBlockOffset.z())
         );
     }
 }

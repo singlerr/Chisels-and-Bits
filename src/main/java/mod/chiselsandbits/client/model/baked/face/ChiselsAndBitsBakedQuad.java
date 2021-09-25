@@ -40,7 +40,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
 
         consumer.setTexture(sprite);
         consumer.setQuadTint(getTintIndex());
-        consumer.setQuadOrientation(getFace());
+        consumer.setQuadOrientation(getDirection());
         consumer.setApplyDiffuseLighting(true);
 
         for (int v = 0; v < 4; v++)
@@ -63,12 +63,12 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
       int v,
       int i)
     {
-        return formatData.get(DefaultVertexFormats.BLOCK).unpack(vertexData, v, i);
+        return formatData.get(DefaultVertexFormats.BLOCK).unpack(vertices, v, i);
     }
 
     @NotNull
     @Override
-    public int[] getVertexData()
+    public int[] getVertices()
     {
         return this.processedVertexData;
     }

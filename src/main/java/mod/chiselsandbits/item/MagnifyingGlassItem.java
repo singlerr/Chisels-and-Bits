@@ -20,51 +20,53 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+import net.minecraft.item.Item.Properties;
+
 public class MagnifyingGlassItem extends Item
 {
 
     public MagnifyingGlassItem(Properties properties)
     {
-        super(properties.maxStackSize(1));
+        super(properties.stacksTo(1));
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public ITextComponent getHighlightTip(final ItemStack item, final ITextComponent displayName)
     {
-        if (Minecraft.getInstance().world == null)
+        if (Minecraft.getInstance().level == null)
         {
             return displayName;
         }
 
-        if (Minecraft.getInstance().objectMouseOver == null)
+        if (Minecraft.getInstance().hitResult == null)
         {
             return displayName;
         }
 
-        if (Minecraft.getInstance().objectMouseOver.getType() != RayTraceResult.Type.BLOCK)
+        if (Minecraft.getInstance().hitResult.getType() != RayTraceResult.Type.BLOCK)
         {
             return displayName;
         }
 
-        final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) Minecraft.getInstance().objectMouseOver;
-        final BlockState state = Minecraft.getInstance().world.getBlockState(rayTraceResult.getPos());
+        final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) Minecraft.getInstance().hitResult;
+        final BlockState state = Minecraft.getInstance().level.getBlockState(rayTraceResult.getBlockPos());
 
         final IEligibilityAnalysisResult result = IEligibilityManager.getInstance().analyse(state);
         return result.isAlreadyChiseled() || result.canBeChiseled() ?
-                 result.getReason().mergeStyle(TextFormatting.GREEN) :
-                 result.getReason().mergeStyle(TextFormatting.RED);
+                 result.getReason().withStyle(TextFormatting.GREEN) :
+                 result.getReason().withStyle(TextFormatting.RED);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void addInformation(
+    public void appendHoverText(
       @NotNull final ItemStack stack,
       final World worldIn,
       @NotNull final List<ITextComponent> tooltip,
       @NotNull final ITooltipFlag advanced)
     {
-        super.addInformation(stack, worldIn, tooltip, advanced);
+        super.appendHoverText(stack, worldIn, tooltip, advanced);
         Configuration.getInstance().getCommon().helpText(LocalStrings.HelpMagnifyingGlass, tooltip);
     }
 }

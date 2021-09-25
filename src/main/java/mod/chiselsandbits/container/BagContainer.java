@@ -41,7 +41,7 @@ public class BagContainer extends Container
 
         final int playerInventoryOffset = (7 - 4) * OUTER_SLOT_SIZE;
 
-        final ItemStack is = thePlayer.getHeldItemMainhand();
+        final ItemStack is = thePlayer.getMainHandItem();
         setBag(is);
 
         for (int yOffset = 0; yOffset < 7; ++yOffset)
@@ -65,7 +65,7 @@ public class BagContainer extends Container
 
         for (int xToolbar = 0; xToolbar < 9; ++xToolbar)
         {
-            if (thePlayer.inventory.currentItem == xToolbar)
+            if (thePlayer.inventory.selected == xToolbar)
             {
                 addSlot(bagSlot = new ReadonlySlot(thePlayer.inventory, xToolbar, 8 + xToolbar * OUTER_SLOT_SIZE, 162 + playerInventoryOffset));
             }
@@ -94,7 +94,7 @@ public class BagContainer extends Container
     private void addCustomSlot(
       final BitSlot newSlot)
     {
-        newSlot.slotNumber = customSlots.size();
+        newSlot.index = customSlots.size();
         customSlots.add(newSlot);
         customSlotsItems.add(ItemStack.EMPTY);
     }
@@ -106,16 +106,16 @@ public class BagContainer extends Container
       final boolean holdingShift)
     {
         final Slot slot = customSlots.get(slotNumber);
-        final ItemStack held = thePlayer.inventory.getItemStack();
-        final ItemStack slotStack = slot.getStack();
+        final ItemStack held = thePlayer.inventory.getCarried();
+        final ItemStack slotStack = slot.getItem();
 
         if (duplicateButton && thePlayer.isCreative())
         {
-            if (slot.getHasStack() && held.isEmpty())
+            if (slot.hasItem() && held.isEmpty())
             {
-                final ItemStack is = slot.getStack().copy();
+                final ItemStack is = slot.getItem().copy();
                 is.setCount(is.getMaxStackSize());
-                thePlayer.inventory.setItemStack(is);
+                thePlayer.inventory.setCarried(is);
             }
         }
         else if (holdingShift)
@@ -127,7 +127,7 @@ public class BagContainer extends Container
         }
         else if (mouseButton == 0 && !duplicateButton)
         {
-            if (held.isEmpty() && slot.getHasStack())
+            if (held.isEmpty() && slot.hasItem())
             {
                 final ItemStack pulled = slotStack.copy();
                 pulled.setCount(Math.min(pulled.getMaxStackSize(), pulled.getCount()));
@@ -135,45 +135,45 @@ public class BagContainer extends Container
                 final ItemStack newStackSlot = slotStack.copy();
                 newStackSlot.setCount(pulled.getCount() >= slotStack.getCount() ? 0 : slotStack.getCount() - pulled.getCount());
 
-                slot.putStack(newStackSlot.getCount() <= 0 ? ItemStack.EMPTY : newStackSlot);
-                thePlayer.inventory.setItemStack(pulled);
+                slot.set(newStackSlot.getCount() <= 0 ? ItemStack.EMPTY : newStackSlot);
+                thePlayer.inventory.setCarried(pulled);
             }
-            else if (!held.isEmpty() && slot.getHasStack() && slot.isItemValid(held))
+            else if (!held.isEmpty() && slot.hasItem() && slot.mayPlace(held))
             {
-                if (held.getItem() == slotStack.getItem() && held.getDamage() == slotStack.getDamage() && ItemStack.areItemStackTagsEqual(held, slotStack))
+                if (held.getItem() == slotStack.getItem() && held.getDamageValue() == slotStack.getDamageValue() && ItemStack.tagMatches(held, slotStack))
                 {
                     final ItemStack newStackSlot = slotStack.copy();
                     newStackSlot.setCount(newStackSlot.getCount() + held.getCount());
                     int held_stackSize = 0;
 
-                    if (newStackSlot.getCount() > slot.getSlotStackLimit())
+                    if (newStackSlot.getCount() > slot.getMaxStackSize())
                     {
-                        held_stackSize = newStackSlot.getCount() - slot.getSlotStackLimit();
+                        held_stackSize = newStackSlot.getCount() - slot.getMaxStackSize();
                         newStackSlot.setCount(newStackSlot.getCount() - held_stackSize);
                     }
 
-                    slot.putStack(newStackSlot);
+                    slot.set(newStackSlot);
                     held.setCount(held_stackSize);
-                    thePlayer.inventory.setItemStack(held);
+                    thePlayer.inventory.setCarried(held);
                 }
                 else
                 {
-                    if (!held.isEmpty() && slot.getHasStack() && slotStack.getCount() <= slotStack.getMaxStackSize())
+                    if (!held.isEmpty() && slot.hasItem() && slotStack.getCount() <= slotStack.getMaxStackSize())
                     {
-                        slot.putStack(held);
-                        thePlayer.inventory.setItemStack(slotStack);
+                        slot.set(held);
+                        thePlayer.inventory.setCarried(slotStack);
                     }
                 }
             }
-            else if (!held.isEmpty() && !slot.getHasStack() && slot.isItemValid(held))
+            else if (!held.isEmpty() && !slot.hasItem() && slot.mayPlace(held))
             {
-                slot.putStack(held);
-                thePlayer.inventory.setItemStack(ItemStack.EMPTY);
+                slot.set(held);
+                thePlayer.inventory.setCarried(ItemStack.EMPTY);
             }
         }
         else if (mouseButton == 1 && !duplicateButton)
         {
-            if (held.isEmpty() && slot.getHasStack())
+            if (held.isEmpty() && slot.hasItem())
             {
                 final ItemStack pulled = slotStack.copy();
                 pulled.setCount(Math.max(1, (Math.min(pulled.getMaxStackSize(), pulled.getCount()) + 1) / 2));
@@ -181,57 +181,57 @@ public class BagContainer extends Container
                 final ItemStack newStackSlot = slotStack.copy();
                 newStackSlot.setCount(pulled.getCount() >= slotStack.getCount() ? 0 : slotStack.getCount() - pulled.getCount());
 
-                slot.putStack(newStackSlot.getCount() <= 0 ? ItemStack.EMPTY : newStackSlot);
-                thePlayer.inventory.setItemStack(pulled);
+                slot.set(newStackSlot.getCount() <= 0 ? ItemStack.EMPTY : newStackSlot);
+                thePlayer.inventory.setCarried(pulled);
             }
-            else if (!held.isEmpty() && slot.getHasStack() && slot.isItemValid(held))
+            else if (!held.isEmpty() && slot.hasItem() && slot.mayPlace(held))
             {
-                if (held.getItem() == slotStack.getItem() && held.getDamage() == slotStack.getDamage() && ItemStack.areItemStackTagsEqual(held, slotStack))
+                if (held.getItem() == slotStack.getItem() && held.getDamageValue() == slotStack.getDamageValue() && ItemStack.tagMatches(held, slotStack))
                 {
                     final ItemStack newStackSlot = slotStack.copy();
                     newStackSlot.setCount(newStackSlot.getCount() + 1);
                     int held_quantity = held.getCount() - 1;
 
-                    if (newStackSlot.getCount() > slot.getSlotStackLimit())
+                    if (newStackSlot.getCount() > slot.getMaxStackSize())
                     {
-                        final int diff = newStackSlot.getCount() - slot.getSlotStackLimit();
+                        final int diff = newStackSlot.getCount() - slot.getMaxStackSize();
                         held_quantity += diff;
                         newStackSlot.setCount(newStackSlot.getCount() - diff);
                     }
 
-                    slot.putStack(newStackSlot);
+                    slot.set(newStackSlot);
                     held.setCount(held_quantity);
-                    thePlayer.inventory.setItemStack(!held.isEmpty() ? held : ItemStack.EMPTY);
+                    thePlayer.inventory.setCarried(!held.isEmpty() ? held : ItemStack.EMPTY);
                 }
             }
-            else if (!held.isEmpty() && !slot.getHasStack() && slot.isItemValid(held))
+            else if (!held.isEmpty() && !slot.hasItem() && slot.mayPlace(held))
             {
                 final ItemStack newStackSlot = held.copy();
                 newStackSlot.setCount(newStackSlot.getCount() + 1);
                 held.setCount(held.getCount() - 1);
 
-                slot.putStack(newStackSlot);
-                thePlayer.inventory.setItemStack(!held.isEmpty() ? held : ItemStack.EMPTY);
+                slot.set(newStackSlot);
+                thePlayer.inventory.setCarried(!held.isEmpty() ? held : ItemStack.EMPTY);
             }
         }
     }
 
     @Override
-    public void detectAndSendChanges()
+    public void broadcastChanges()
     {
-        super.detectAndSendChanges();
+        super.broadcastChanges();
 
         for (int slotIdx = 0; slotIdx < customSlots.size(); ++slotIdx)
         {
-            final ItemStack realStack = customSlots.get(slotIdx).getStack();
+            final ItemStack realStack = customSlots.get(slotIdx).getItem();
             ItemStack clientStack = customSlotsItems.get(slotIdx);
 
-            if (!ItemStack.areItemStacksEqual(clientStack, realStack))
+            if (!ItemStack.matches(clientStack, realStack))
             {
                 clientStack = realStack.isEmpty() ? ItemStack.EMPTY : realStack.copy();
                 customSlotsItems.set(slotIdx, clientStack);
 
-                for (final IContainerListener cl : listeners)
+                for (final IContainerListener cl : containerListeners)
                 {
                     if (cl instanceof ServerPlayerEntity)
                     {
@@ -244,7 +244,7 @@ public class BagContainer extends Container
     }
 
     @Override
-    public @NotNull ItemStack transferStackInSlot(
+    public @NotNull ItemStack quickMoveStack(
       final @NotNull PlayerEntity playerIn,
       final int index)
     {
@@ -252,7 +252,7 @@ public class BagContainer extends Container
     }
 
     @Override
-    public boolean canInteractWith(
+    public boolean stillValid(
       @NotNull final PlayerEntity playerIn)
     {
         return bagInv != null && playerIn == thePlayer && hasBagInHand(thePlayer);
@@ -261,9 +261,9 @@ public class BagContainer extends Container
     private boolean hasBagInHand(
       final PlayerEntity player)
     {
-        if (bagInv.toItemStack() != player.getHeldItemMainhand())
+        if (bagInv.toItemStack() != player.getMainHandItem())
         {
-            setBag(player.getHeldItemMainhand());
+            setBag(player.getMainHandItem());
         }
 
         return bagInv != null && bagInv.toItemStack().getItem() instanceof IBitInventoryItem;
@@ -280,21 +280,21 @@ public class BagContainer extends Container
 
         if (!normalToBag)
         {
-            helper.inventorySlots.clear();
-            helper.inventorySlots.addAll(customSlots);
+            helper.slots.clear();
+            helper.slots.addAll(customSlots);
         }
         else
         {
-            helper.inventorySlots.clear();
-            helper.inventorySlots.addAll(inventorySlots);
+            helper.slots.clear();
+            helper.slots.addAll(slots);
             reverse = false;
         }
 
-        final Slot slot = helper.inventorySlots.get(index);
+        final Slot slot = helper.slots.get(index);
 
-        if (slot != null && slot.getHasStack())
+        if (slot != null && slot.hasItem())
         {
-            final ItemStack transferStack = slot.getStack();
+            final ItemStack transferStack = slot.getItem();
             someReturnValue = transferStack.copy();
 
             int extraItems = 0;
@@ -306,13 +306,13 @@ public class BagContainer extends Container
 
             if (normalToBag)
             {
-                helper.inventorySlots.clear();
-                helper.inventorySlots.addAll(customSlots);
+                helper.slots.clear();
+                helper.slots.addAll(customSlots);
             }
             else
             {
-                helper.inventorySlots.clear();
-                helper.inventorySlots.addAll(inventorySlots);
+                helper.slots.clear();
+                helper.slots.addAll(slots);
             }
 
             final Item transferItem = transferStack.getItem();
@@ -323,7 +323,7 @@ public class BagContainer extends Container
             }
             try
             {
-                if (!helper.doMergeItemStack(transferStack, 0, helper.inventorySlots.size(), reverse))
+                if (!helper.doMergeItemStack(transferStack, 0, helper.slots.size(), reverse))
                 {
                     return ItemStack.EMPTY;
                 }
@@ -341,11 +341,11 @@ public class BagContainer extends Container
 
             if (transferStack.isEmpty())
             {
-                slot.putStack(ItemStack.EMPTY);
+                slot.set(ItemStack.EMPTY);
             }
             else
             {
-                slot.onSlotChanged();
+                slot.setChanged();
             }
         }
 
@@ -361,15 +361,15 @@ public class BagContainer extends Container
             bagInv.clear(bitItem.getBitState(stack));
         }
         else {
-            bagInv.clear();
+            bagInv.clearContent();
         }
 
-        ((ServerPlayerEntity) thePlayer).sendContainerToPlayer(this);
+        ((ServerPlayerEntity) thePlayer).refreshContainer(this);
     }
 
     public void sort()
     {
         bagInv.sort();
-        ((ServerPlayerEntity) thePlayer).sendContainerToPlayer(this);
+        ((ServerPlayerEntity) thePlayer).refreshContainer(this);
     }
 }

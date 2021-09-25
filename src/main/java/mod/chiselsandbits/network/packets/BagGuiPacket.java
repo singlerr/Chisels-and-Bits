@@ -45,7 +45,7 @@ public final class BagGuiPacket extends ModPacket
     public void doAction(
 			final PlayerEntity player )
 	{
-		final Container c = player.openContainer;
+		final Container c = player.containerMenu;
 		if ( c instanceof BagContainer)
 		{
 			final BagContainer bc = (BagContainer) c;

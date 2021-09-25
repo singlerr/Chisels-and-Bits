@@ -70,7 +70,7 @@ public class MCCullTest implements ICullTest
 
 		try
 		{
-			return !a.isSideInvisible( b, Direction.NORTH );
+			return !a.skipRendering( b, Direction.NORTH );
 		}
 		catch ( final Throwable t )
 		{

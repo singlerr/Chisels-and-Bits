@@ -61,7 +61,7 @@ public class WikiRecipesDataProvider implements IDataProvider
     }
 
     @Override
-    public void act(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull DirectoryCache cache) throws IOException
     {
         GameInitializationManager.getInstance().initialize(existingFileHelper);
 
@@ -82,9 +82,9 @@ public class WikiRecipesDataProvider implements IDataProvider
 
             final ItemWikiDataObject itemWikiDataObject = new ItemWikiDataObject();
 
-            for (ICraftingRecipe recipe : recipeManager.getRecipesForType(IRecipeType.CRAFTING))
+            for (ICraftingRecipe recipe : recipeManager.getAllRecipesFor(IRecipeType.CRAFTING))
             {
-                if (recipe.getRecipeOutput().getItem() == item && recipe.getIngredients().size() > 0)
+                if (recipe.getResultItem().getItem() == item && recipe.getIngredients().size() > 0)
                 {
                     final String recipeName = String.format("%s_%s_produces_%s_%s",
                       recipe.getId().getNamespace(),
@@ -108,7 +108,7 @@ public class WikiRecipesDataProvider implements IDataProvider
 
                     if (!(item instanceof IDocumentableItem))
                     {
-                        recipeObject.getProducts().add(recipe.getRecipeOutput().getItem().getRegistryName().toString().replace(":", "/"));
+                        recipeObject.getProducts().add(recipe.getResultItem().getItem().getRegistryName().toString().replace(":", "/"));
                     }
                     else
                     {
@@ -127,7 +127,7 @@ public class WikiRecipesDataProvider implements IDataProvider
 
                 if (recipe.getIngredients().size() > 0) {
                     if (recipe.getIngredients().stream().anyMatch(
-                      ingredient -> Arrays.stream(ingredient.getMatchingStacks()).anyMatch(stack -> stack.getItem() == item)
+                      ingredient -> Arrays.stream(ingredient.getItems()).anyMatch(stack -> stack.getItem() == item)
                     )) {
                         final String recipeName = String.format("%s_%s_consumes_%s_%s",
                           recipe.getId().getNamespace(),
@@ -159,7 +159,7 @@ public class WikiRecipesDataProvider implements IDataProvider
 
                         if (!(item instanceof IDocumentableItem))
                         {
-                            recipeObject.getProducts().add(recipe.getRecipeOutput().getItem().getRegistryName().toString().replace(":", "/"));
+                            recipeObject.getProducts().add(recipe.getResultItem().getItem().getRegistryName().toString().replace(":", "/"));
                         }
                         else
                         {
@@ -196,7 +196,7 @@ public class WikiRecipesDataProvider implements IDataProvider
         final List<String> target = recipeObject.getItemFromIndex(index, recipeWidth, recipeHeight);
         if (recipe.getIngredients().size() > index) {
             target.addAll(
-              Arrays.stream(recipe.getIngredients().get(index).getMatchingStacks())
+              Arrays.stream(recipe.getIngredients().get(index).getItems())
                 .map(ItemStack::getItem)
                 .flatMap(stackItem -> {
                     if (!(stackItem instanceof IDocumentableItem))
@@ -219,10 +219,10 @@ public class WikiRecipesDataProvider implements IDataProvider
 
         if (recipe.getIngredients().size() > index)
         {
-            if (!Arrays.stream(recipe.getIngredients().get(index).getMatchingStacks()).anyMatch(s -> s.getItem() == item))
+            if (!Arrays.stream(recipe.getIngredients().get(index).getItems()).anyMatch(s -> s.getItem() == item))
             {
                 target.addAll(
-                  Arrays.stream(recipe.getIngredients().get(index).getMatchingStacks())
+                  Arrays.stream(recipe.getIngredients().get(index).getItems())
                     .map(ItemStack::getItem)
                     .map(Item::getRegistryName)
                     .map(ResourceLocation::toString)

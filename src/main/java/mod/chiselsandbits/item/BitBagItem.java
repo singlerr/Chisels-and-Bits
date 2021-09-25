@@ -40,6 +40,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.minecraft.item.Item.Properties;
+
 public class BitBagItem extends Item implements IBitInventoryItem
 {
 
@@ -49,29 +51,29 @@ public class BitBagItem extends Item implements IBitInventoryItem
 
     public BitBagItem(Properties properties)
     {
-        super(properties.maxStackSize(1));
+        super(properties.stacksTo(1));
     }
 
     @Override
-    public @NotNull ITextComponent getDisplayName(final @NotNull ItemStack stack)
+    public @NotNull ITextComponent getName(final @NotNull ItemStack stack)
     {
         DyeColor color = getDyedColor(stack);
-        final ITextComponent parent = super.getDisplayName(stack);
+        final ITextComponent parent = super.getName(stack);
         if (parent instanceof IFormattableTextComponent && color != null)
         {
-            return ((IFormattableTextComponent) parent).appendString(" - ").append(new TranslationTextComponent("chiselsandbits.color." + color.getTranslationKey()));
+            return ((IFormattableTextComponent) parent).append(" - ").append(new TranslationTextComponent("chiselsandbits.color." + color.getName()));
         }
         else
         {
-            return super.getDisplayName(stack);
+            return super.getName(stack);
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void addInformation(final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
+    public void appendHoverText(final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
     {
-        super.addInformation(stack, worldIn, tooltip, flagIn);
+        super.appendHoverText(stack, worldIn, tooltip, flagIn);
         Configuration.getInstance().getCommon().helpText(LocalStrings.HelpBitBag, tooltip);
 
         if (tooltipCache.needsUpdate(stack))
@@ -81,7 +83,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
         }
 
         final List<ITextComponent> details = tooltipCache.getCached();
-        if (details.size() <= 2 || (Minecraft.getInstance().getMainWindow() != null && Screen.hasShiftDown()))
+        if (details.size() <= 2 || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown()))
         {
             tooltip.addAll(details);
         }
@@ -92,14 +94,14 @@ public class BitBagItem extends Item implements IBitInventoryItem
     }
 
     @Override
-    public @NotNull ActionResult<ItemStack> onItemRightClick(
+    public @NotNull ActionResult<ItemStack> use(
       final World worldIn,
       final PlayerEntity playerIn,
       final @NotNull Hand hand)
     {
-        final ItemStack itemStackIn = playerIn.getHeldItem(hand);
+        final ItemStack itemStackIn = playerIn.getItemInHand(hand);
 
-        if (worldIn.isRemote)
+        if (worldIn.isClientSide)
         {
             ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new OpenBagGuiPacket());
         }
@@ -137,13 +139,13 @@ public class BitBagItem extends Item implements IBitInventoryItem
                 final BlockState blockState = IBlockStateIdManager.getInstance().getBlockStateFrom(id);
                 final ItemStack bitStack = IBitItemManager.getInstance().create(blockState, count);
 
-                inventoryItemStack.setInventorySlotContents(i, bitStack);
+                inventoryItemStack.setItem(i, bitStack);
             }
 
             stack.getOrCreateTag().remove(NbtConstants.CONTENTS);
         }
 
-        inventoryItemStack.deserializeNBT(stack.getOrCreateChildTag(NbtConstants.INVENTORY));
+        inventoryItemStack.deserializeNBT(stack.getOrCreateTagElement(NbtConstants.INVENTORY));
         return inventoryItemStack;
     }
 
@@ -175,9 +177,9 @@ public class BitBagItem extends Item implements IBitInventoryItem
     }
 
     @Override
-    public void fillItemGroup(final @NotNull ItemGroup group, final @NotNull NonNullList<ItemStack> items)
+    public void fillItemCategory(final @NotNull ItemGroup group, final @NotNull NonNullList<ItemStack> items)
     {
-        if (this.isInGroup(group))
+        if (this.allowdedIn(group))
         {
             if (this == ModItems.BIT_BAG_DEFAULT.get())
             {
@@ -220,7 +222,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
                 coloredStack.setTag(copy.getTag());
             }
 
-            coloredStack.getOrCreateTag().putString("color", color.getTranslationKey());
+            coloredStack.getOrCreateTag().putString("color", color.getName());
             return coloredStack;
         }
 
@@ -240,7 +242,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
             String name = stack.getOrCreateTag().getString("color");
             for (DyeColor color : DyeColor.values())
             {
-                if (name.equals(color.getString()))
+                if (name.equals(color.getSerializedName()))
                 {
                     return color;
                 }

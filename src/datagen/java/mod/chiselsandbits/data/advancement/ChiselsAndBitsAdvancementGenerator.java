@@ -35,8 +35,8 @@ public class ChiselsAndBitsAdvancementGenerator extends AbstractAdvancementGener
 
     private static void build(Consumer<Advancement> register)
     {
-        Advancement root = Advancement.Builder.builder()
-                             .withDisplay(ModItems.ITEM_CHISEL_DIAMOND.get(),
+        Advancement root = Advancement.Builder.advancement()
+                             .display(ModItems.ITEM_CHISEL_DIAMOND.get(),
                                new TranslationTextComponent("mod.chiselsandbits.advancements.root.title"),
                                new TranslationTextComponent("mod.chiselsandbits.advancements.root.description"),
                                new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"),
@@ -44,21 +44,21 @@ public class ChiselsAndBitsAdvancementGenerator extends AbstractAdvancementGener
                                true,
                                true,
                                true)
-                             .withCriterion("chisel", InventoryChangeTrigger.Instance.forItems(new ItemPredicate(
+                             .addCriterion("chisel", InventoryChangeTrigger.Instance.hasItems(new ItemPredicate(
                                ModTags.Items.CHISEL,
                                null,
-                               MinMaxBounds.IntBound.UNBOUNDED,
-                               MinMaxBounds.IntBound.UNBOUNDED,
+                               MinMaxBounds.IntBound.ANY,
+                               MinMaxBounds.IntBound.ANY,
                                new EnchantmentPredicate[0],
                                new EnchantmentPredicate[0],
                                null,
                                NBTPredicate.ANY
                              )))
-                             .register(register, Constants.MOD_ID + ":chiselsandbits/root");
+                             .save(register, Constants.MOD_ID + ":chiselsandbits/root");
 
-        Advancement findChiselables = Advancement.Builder.builder()
-                                        .withParent(root)
-                                        .withDisplay(ModItems.MAGNIFYING_GLASS.get(),
+        Advancement findChiselables = Advancement.Builder.advancement()
+                                        .parent(root)
+                                        .display(ModItems.MAGNIFYING_GLASS.get(),
                                           new TranslationTextComponent("mod.chiselsandbits.advancements.find-chiselables.title"),
                                           new TranslationTextComponent("mod.chiselsandbits.advancements.find-chiselables.description"),
                                           new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"),
@@ -66,12 +66,12 @@ public class ChiselsAndBitsAdvancementGenerator extends AbstractAdvancementGener
                                           true,
                                           true,
                                           true)
-                                        .withCriterion("magnifier_glass", InventoryChangeTrigger.Instance.forItems(ModItems.MAGNIFYING_GLASS.get()))
-                                        .register(register, Constants.MOD_ID + ":chiselsandbits/find_chiselables");
+                                        .addCriterion("magnifier_glass", InventoryChangeTrigger.Instance.hasItems(ModItems.MAGNIFYING_GLASS.get()))
+                                        .save(register, Constants.MOD_ID + ":chiselsandbits/find_chiselables");
 
-        Advancement collectBits = Advancement.Builder.builder()
-                                    .withParent(root)
-                                    .withDisplay(ModItems.BIT_BAG_DEFAULT.get(),
+        Advancement collectBits = Advancement.Builder.advancement()
+                                    .parent(root)
+                                    .display(ModItems.BIT_BAG_DEFAULT.get(),
                                       new TranslationTextComponent("mod.chiselsandbits.advancements.collect-bits.title"),
                                       new TranslationTextComponent("mod.chiselsandbits.advancements.collect-bits.description"),
                                       new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"),
@@ -79,21 +79,21 @@ public class ChiselsAndBitsAdvancementGenerator extends AbstractAdvancementGener
                                       true,
                                       true,
                                       true)
-                                    .withCriterion("bit_bag", InventoryChangeTrigger.Instance.forItems(new ItemPredicate(
+                                    .addCriterion("bit_bag", InventoryChangeTrigger.Instance.hasItems(new ItemPredicate(
                                       ModTags.Items.BIT_BAG,
                                       null,
-                                      MinMaxBounds.IntBound.UNBOUNDED,
-                                      MinMaxBounds.IntBound.UNBOUNDED,
+                                      MinMaxBounds.IntBound.ANY,
+                                      MinMaxBounds.IntBound.ANY,
                                       new EnchantmentPredicate[0],
                                       new EnchantmentPredicate[0],
                                       null,
                                       NBTPredicate.ANY
                                     )))
-                                    .register(register, Constants.MOD_ID + ":chiselsandbits/collect_bits");
+                                    .save(register, Constants.MOD_ID + ":chiselsandbits/collect_bits");
 
-        Advancement makeTank = Advancement.Builder.builder()
-                                 .withParent(root)
-                                 .withDisplay(ModBlocks.BIT_STORAGE.get(),
+        Advancement makeTank = Advancement.Builder.advancement()
+                                 .parent(root)
+                                 .display(ModBlocks.BIT_STORAGE.get(),
                                    new TranslationTextComponent("mod.chiselsandbits.advancements.make-tank.title"),
                                    new TranslationTextComponent("mod.chiselsandbits.advancements.make-tank.description"),
                                    new ResourceLocation("textures/gui/advancements/backgrounds/stone.png"),
@@ -101,8 +101,8 @@ public class ChiselsAndBitsAdvancementGenerator extends AbstractAdvancementGener
                                    true,
                                    true,
                                    true)
-                                 .withCriterion("bit_tank", InventoryChangeTrigger.Instance.forItems(ModBlocks.BIT_STORAGE.get()))
-                                 .register(register, Constants.MOD_ID + ":chiselsandbits/make_tank");
+                                 .addCriterion("bit_tank", InventoryChangeTrigger.Instance.hasItems(ModBlocks.BIT_STORAGE.get()))
+                                 .save(register, Constants.MOD_ID + ":chiselsandbits/make_tank");
     }
 
     @Override
