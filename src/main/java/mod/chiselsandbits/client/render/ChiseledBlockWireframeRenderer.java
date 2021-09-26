@@ -4,26 +4,13 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
-import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
-import mod.chiselsandbits.client.model.baked.chiseled.ChiselRenderType;
-import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModel;
-import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModelManager;
-import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockModelRenderer;
-import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.client.model.data.EmptyModelData;
 
-import java.util.Arrays;
 import java.util.function.Predicate;
 
 public class ChiseledBlockWireframeRenderer
@@ -83,15 +70,5 @@ public class ChiseledBlockWireframeRenderer
         RenderSystem.enableDepthTest();
 
         stack.popPose();
-    }
-
-    private IBakedModel buildAccessorModel(final IAreaAccessor accessor, final BlockState primaryState) {
-        //TODO: Possibly cache the result here.
-
-        return new CombinedModel(
-          Arrays.stream(ChiselRenderType.values())
-            .map(renderType -> ChiseledBlockBakedModelManager.getInstance().get(accessor, primaryState, renderType))
-            .toArray(IBakedModel[]::new)
-        );
     }
 }
