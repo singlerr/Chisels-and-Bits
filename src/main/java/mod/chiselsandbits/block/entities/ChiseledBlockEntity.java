@@ -22,32 +22,33 @@ import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
-import mod.chiselsandbits.api.util.*;
+import mod.chiselsandbits.api.util.BlockPosStreamProvider;
+import mod.chiselsandbits.api.util.IPacketBufferSerializable;
+import mod.chiselsandbits.api.util.SingleBlockWorldReader;
+import mod.chiselsandbits.api.util.Vector2i;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
-import mod.chiselsandbits.legacy.LegacyLoadManager;
 import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
 import mod.chiselsandbits.registrars.ModTileEntityTypes;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.Connection;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.core.Vec3i;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
@@ -134,7 +135,6 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
           inAreaPos.getZ()
         );
 
-        // TODO: Replace in 1.17 with isAir()
         return Optional.of(new StateEntry(
           currentState,
           getLevel(),
@@ -194,40 +194,6 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     @Override
     public void deserializeNBT(final CompoundTag nbt)
     {
-        //TODO: 1.17: Delete the legacy loading.
-        if (!nbt.contains(NbtConstants.CHISEL_BLOCK_ENTITY_DATA)) {
-            //We don't have our data. Lets try to load a legacy format.
-            final LevelChunkSection legacyDataSection = LegacyLoadManager.getInstance().attemptLegacyBlockEntityLoad(nbt);
-            if (LevelChunkSection.isEmpty(legacyDataSection)) {
-                //We will fail to load, so lets reset all data.
-                for (int x = 0; x < StateEntrySize.current().getBitsPerBlockSide(); x++)
-                {
-                    for (int y = 0; y < StateEntrySize.current().getBitsPerBlockSide(); y++)
-                    {
-                        for (int z = 0; z < StateEntrySize.current().getBitsPerBlockSide(); z++)
-                        {
-                            this.compressedSection.setBlockState(x, y, z, Blocks.AIR.defaultBlockState(), false);
-                        }
-                    }
-                }
-                this.mutableStatistics.recalculate(this.compressedSection, false);
-                return;
-            }
-
-            //Update a temporary instance of the statistics to make this work.
-            final MutableStatistics legacyStatistics = new MutableStatistics(this::getLevel, this::getBlockPos);
-            legacyStatistics.recalculate(legacyDataSection, false);
-
-            //Now write all data into our nbt structure.
-            final CompoundTag chiselBlockData = new CompoundTag();
-            final CompoundTag compressedSectionData = ChunkSectionUtils.serializeNBT(legacyDataSection);
-            chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
-            chiselBlockData.put(NbtConstants.STATISTICS, legacyStatistics.serializeNBT());
-
-            //Store it in the current nbt.
-            nbt.put(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, chiselBlockData);
-        }
-
         final CompoundTag chiselBlockData = nbt.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
         final CompoundTag compressedSectionData = chiselBlockData.getCompound(NbtConstants.COMPRESSED_STORAGE);
         final CompoundTag statisticsData = chiselBlockData.getCompound(NbtConstants.STATISTICS);
@@ -284,19 +250,22 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     @Override
     public void setChanged()
     {
-        if (getLevel() != null && !getLevel().isClientSide() && this.batchMutations.isEmpty())
+        if (getLevel() != null && this.batchMutations.isEmpty())
         {
-            mutableStatistics.recalculate(this.compressedSection, true);
+            mutableStatistics.recalculate(this.compressedSection);
 
             super.setChanged();
 
             getLevel().getLightEngine().checkBlock(getBlockPos());
             getLevel().sendBlockUpdated(getBlockPos(), Blocks.AIR.defaultBlockState(), getBlockState(), Constants.BlockFlags.DEFAULT);
 
-            ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
-              new TileEntityUpdatedPacket(this),
-              getLevel().getChunkAt(getBlockPos())
-            );
+            if (!getLevel().isClientSide())
+            {
+                ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
+                  new TileEntityUpdatedPacket(this),
+                  getLevel().getChunkAt(getBlockPos())
+                );
+            }
         }
     }
 
@@ -389,7 +358,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             throw new SpaceOccupiedException();
         }
 
-        if (getLevel() == null || getLevel().isClientSide())
+        if (getLevel() == null)
         {
             return;
         }
@@ -471,7 +440,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
 
         final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
-        if (getLevel() == null || getLevel().isClientSide())
+        if (getLevel() == null)
         {
             return;
         }
@@ -544,7 +513,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     @Override
     public void rotate(final Direction.Axis axis, final int rotationCount)
     {
-        if (getLevel() == null || getLevel().isClientSide())
+        if (getLevel() == null)
         {
             return;
         }
@@ -1306,13 +1275,13 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             this.totalLightLevel = 0;
         }
 
-        private void recalculate(final LevelChunkSection source, final boolean updateWorld)
+        private void recalculate(final LevelChunkSection source)
         {
             clear();
 
             source.getStates().count(countMap::put);
             countMap.remove(Blocks.AIR.defaultBlockState());
-            updatePrimaryState(updateWorld);
+            updatePrimaryState(true);
 
             this.totalUsedBlockCount = countMap.values().stream().mapToInt(i -> i).sum();
 
@@ -1397,11 +1366,10 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             {
                 return true;
             }
-            if (!(o instanceof Identifier))
+            if (!(o instanceof final Identifier that))
             {
                 return false;
             }
-            final Identifier that = (Identifier) o;
             return Arrays.equals(identifyingPayload, that.identifyingPayload);
         }
 
@@ -1414,12 +1382,8 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         }
     }
 
-    private static final class BatchMutationLock implements IBatchMutation
+    private record BatchMutationLock(Runnable closeCallback) implements IBatchMutation
     {
-
-        private final Runnable closeCallback;
-
-        private BatchMutationLock(final Runnable closeCallback) {this.closeCallback = closeCallback;}
 
         @Override
         public void close()

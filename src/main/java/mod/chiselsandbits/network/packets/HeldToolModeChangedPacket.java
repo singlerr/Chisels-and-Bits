@@ -13,7 +13,7 @@ public final class HeldToolModeChangedPacket extends ModPacket
 
     public HeldToolModeChangedPacket(final FriendlyByteBuf buffer)
     {
-        super(buffer);
+        readPayload(buffer);
     }
 
     public HeldToolModeChangedPacket(final int modeIndex)

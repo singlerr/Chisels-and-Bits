@@ -15,7 +15,7 @@ public final class BagGuiPacket extends ModPacket
 
     public BagGuiPacket(final FriendlyByteBuf buffer)
     {
-        super(buffer);
+        readPayload(buffer);
     }
 
     public BagGuiPacket(final int slotNumber, final int mouseButton, final boolean duplicateButton, final boolean holdingShift)

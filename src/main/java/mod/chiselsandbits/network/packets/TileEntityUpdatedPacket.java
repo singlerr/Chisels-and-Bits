@@ -24,7 +24,7 @@ public final class TileEntityUpdatedPacket extends ModPacket
 
     public TileEntityUpdatedPacket(final FriendlyByteBuf buffer)
     {
-        super(buffer);
+        readPayload(buffer);
     }
 
     @Override

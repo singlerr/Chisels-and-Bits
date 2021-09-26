@@ -11,7 +11,7 @@ public final class ClearBagGuiPacket extends ModPacket
 
     public ClearBagGuiPacket(final FriendlyByteBuf buffer)
     {
-        super(buffer);
+        readPayload(buffer);
     }
 
     public ClearBagGuiPacket(

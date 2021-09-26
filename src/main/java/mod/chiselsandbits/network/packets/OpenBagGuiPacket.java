@@ -11,7 +11,7 @@ public final class OpenBagGuiPacket extends ModPacket
 {
     public OpenBagGuiPacket(FriendlyByteBuf buffer)
     {
-        super(buffer);
+        readPayload(buffer);
     }
 
     public OpenBagGuiPacket()

@@ -12,7 +12,7 @@ public final class MeasurementsResetPacket extends ModPacket
 
     public MeasurementsResetPacket(final FriendlyByteBuf buffer)
     {
-        super(buffer);
+        readPayload(buffer);
     }
 
     @Override

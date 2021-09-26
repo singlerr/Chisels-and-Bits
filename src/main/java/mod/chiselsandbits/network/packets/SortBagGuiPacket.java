@@ -8,7 +8,7 @@ public final class SortBagGuiPacket extends ModPacket
 {
     public SortBagGuiPacket(FriendlyByteBuf buffer)
     {
-        super(buffer);
+        readPayload(buffer);
     }
 
     public SortBagGuiPacket()

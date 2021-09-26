@@ -10,25 +10,19 @@ import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.LocalStrings;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
-import mod.chiselsandbits.legacy.LegacyLoadManager;
-import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-
-import net.minecraft.world.item.Item.Properties;
 
 public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
 {
@@ -48,18 +42,6 @@ public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
     @Override
     public IMultiStateItemStack createItemStack(final ItemStack stack)
     {
-        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_ENTITY_DATA)){
-            final LevelChunkSection legacyLoadedChunkSection = LegacyLoadManager.getInstance().attemptLegacyBlockEntityLoad(
-              stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_ENTITY_DATA)
-            );
-
-            final IMultiStateSnapshot snapshot = MultiStateSnapshotUtils.createFromSection(legacyLoadedChunkSection);
-            final IMultiStateItemStack multiStateItemStack = snapshot.toItemStack();
-
-            final ItemStack tempStack = multiStateItemStack.toBlockStack();
-            stack.setTag(tempStack.getTag());
-        }
-
         return new SingleBlockMultiStateItemStack(stack);
     }
 
