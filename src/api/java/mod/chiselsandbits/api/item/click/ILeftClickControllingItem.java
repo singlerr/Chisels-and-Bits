@@ -1,9 +1,9 @@
 package mod.chiselsandbits.api.item.click;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
 
 /**
  * Deals with the way items are able to handle left click interactions.
@@ -26,8 +26,8 @@ public interface ILeftClickControllingItem
      * @return The processing state with which the processing of the left click should continue.
      */
     ClickProcessingState handleLeftClickProcessing(
-      final PlayerEntity playerEntity,
-      final Hand hand,
+      final Player playerEntity,
+      final InteractionHand hand,
       final BlockPos position,
       final Direction face,
       final ClickProcessingState currentState
@@ -42,7 +42,7 @@ public interface ILeftClickControllingItem
      *
      * @return True when useable, false when not.
      */
-    default boolean canUse(final PlayerEntity playerEntity) {
+    default boolean canUse(final Player playerEntity) {
         return true;
     }
 }

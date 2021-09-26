@@ -2,17 +2,15 @@ package mod.chiselsandbits.registrars;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.client.ister.BitStorageISTER;
-import mod.chiselsandbits.client.ister.InteractionISTER;
 import mod.chiselsandbits.item.*;
 import mod.chiselsandbits.item.bit.BitItem;
 import mod.chiselsandbits.materials.MaterialManager;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemTier;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Tiers;
+import net.minecraft.world.level.material.Material;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -26,15 +24,15 @@ public final class ModItems
     public static final  Map<Material, RegistryObject<ChiseledBlockItem>> MATERIAL_TO_ITEM_CONVERSIONS = Maps.newHashMap();
     private final static DeferredRegister<Item>                           ITEM_REGISTRAR               = DeferredRegister.create(ForgeRegistries.ITEMS, Constants.MOD_ID);
     public static final  RegistryObject<ChiselItem>                       ITEM_CHISEL_STONE            =
-      ITEM_REGISTRAR.register("chisel_stone", () -> new ChiselItem(ItemTier.STONE, new Item.Properties().tab(CHISELS_AND_BITS).stacksTo(1)));
+      ITEM_REGISTRAR.register("chisel_stone", () -> new ChiselItem(Tiers.STONE, new Item.Properties().tab(CHISELS_AND_BITS).stacksTo(1)));
     public static final  RegistryObject<ChiselItem>                       ITEM_CHISEL_IRON             =
-      ITEM_REGISTRAR.register("chisel_iron", () -> new ChiselItem(ItemTier.IRON, new Item.Properties().tab(CHISELS_AND_BITS).stacksTo(1)));
+      ITEM_REGISTRAR.register("chisel_iron", () -> new ChiselItem(Tiers.IRON, new Item.Properties().tab(CHISELS_AND_BITS).stacksTo(1)));
     public static final  RegistryObject<ChiselItem>                       ITEM_CHISEL_GOLD             =
-      ITEM_REGISTRAR.register("chisel_gold", () -> new ChiselItem(ItemTier.GOLD, new Item.Properties().tab(CHISELS_AND_BITS).stacksTo(1)));
+      ITEM_REGISTRAR.register("chisel_gold", () -> new ChiselItem(Tiers.GOLD, new Item.Properties().tab(CHISELS_AND_BITS).stacksTo(1)));
     public static final  RegistryObject<ChiselItem>                       ITEM_CHISEL_DIAMOND          =
-      ITEM_REGISTRAR.register("chisel_diamond", () -> new ChiselItem(ItemTier.DIAMOND, new Item.Properties().tab(CHISELS_AND_BITS).stacksTo(1)));
+      ITEM_REGISTRAR.register("chisel_diamond", () -> new ChiselItem(Tiers.DIAMOND, new Item.Properties().tab(CHISELS_AND_BITS).stacksTo(1)));
     public static final  RegistryObject<ChiselItem>                       ITEM_CHISEL_NETHERITE        =
-      ITEM_REGISTRAR.register("chisel_netherite", () -> new ChiselItem(ItemTier.NETHERITE, new Item.Properties().tab(CHISELS_AND_BITS).stacksTo(1)));
+      ITEM_REGISTRAR.register("chisel_netherite", () -> new ChiselItem(Tiers.NETHERITE, new Item.Properties().tab(CHISELS_AND_BITS).stacksTo(1)));
     public static final  RegistryObject<BitItem>             ITEM_BLOCK_BIT   =
       ITEM_REGISTRAR.register("block_bit", () -> new BitItem(new Item.Properties().tab(
         CHISELS_AND_BITS)));
@@ -50,8 +48,7 @@ public final class ModItems
     public static final  RegistryObject<BitStorageBlockItem>
                                                                           BIT_STORAGE                  =
       ITEM_REGISTRAR.register("bit_storage", () -> new BitStorageBlockItem(ModBlocks.BIT_STORAGE.get(), new Item.Properties()
-                                                                                                                .tab(CHISELS_AND_BITS)
-                                                                                                                .setISTER(() -> BitStorageISTER::new)));
+                                                                                                                .tab(CHISELS_AND_BITS)));
     public static final  RegistryObject<BlockItem>
                                                                           MODIFICATION_TABLE                  =
       ITEM_REGISTRAR.register("modification_table", () -> new BlockItem(ModBlocks.MODIFICATION_TABLE.get(), new Item.Properties()
@@ -64,10 +61,10 @@ public final class ModItems
       ITEM_REGISTRAR.register("pattern_multi_use", () -> new MultiUsePatternItem(new Item.Properties().tab(CHISELS_AND_BITS)));
 
     public static final RegistryObject<QuillItem> QUILL =
-      ITEM_REGISTRAR.register("quill", () -> new QuillItem(new Item.Properties().tab(CHISELS_AND_BITS).setISTER(() -> InteractionISTER::new)));
+      ITEM_REGISTRAR.register("quill", () -> new QuillItem(new Item.Properties().tab(CHISELS_AND_BITS)));
 
     public static final RegistryObject<SealantItem> SEALANT_ITEM =
-      ITEM_REGISTRAR.register("sealant", () -> new SealantItem(new Item.Properties().tab(CHISELS_AND_BITS).setISTER(() -> InteractionISTER::new)));
+      ITEM_REGISTRAR.register("sealant", () -> new SealantItem(new Item.Properties().tab(CHISELS_AND_BITS)));
 
     public static final RegistryObject<BlockItem> CHISELED_PRINTER =
         ITEM_REGISTRAR.register("chiseled_printer", () -> new BlockItem(ModBlocks.CHISELED_PRINTER.get(), new Item.Properties().tab(CHISELS_AND_BITS)));

@@ -1,8 +1,8 @@
 package mod.chiselsandbits.api.block.state.id;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * The blockstate id manager which manages the blockstate ids for the current session.

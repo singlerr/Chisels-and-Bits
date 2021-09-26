@@ -2,7 +2,7 @@ package mod.chiselsandbits.modification.operation;
 
 import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 
 public class MirrorOverAxisModificationOperation extends ForgeRegistryEntry<IModificationTableOperation> implements IModificationTableOperation

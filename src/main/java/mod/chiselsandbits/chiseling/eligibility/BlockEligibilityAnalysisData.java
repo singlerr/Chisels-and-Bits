@@ -4,14 +4,13 @@ import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.utils.ClassUtils;
 import mod.chiselsandbits.utils.ReflectionHelperBlock;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.Explosion;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraftforge.common.extensions.IForgeBlock;
 
 public class BlockEligibilityAnalysisData
@@ -57,16 +56,16 @@ public class BlockEligibilityAnalysisData
             final Class<? extends Block> blkClass = blk.getClass();
 
             reflectBlock.getDestroyProgress( null, null, null, null );
-            final Class<?> b_Class = ClassUtils.getDeclaringClass( blkClass, reflectBlock.MethodName, BlockState.class, PlayerEntity.class, IBlockReader.class, BlockPos.class );
-            final boolean test_b = b_Class == Block.class || b_Class == AbstractBlock.class;
+            final Class<?> b_Class = ClassUtils.getDeclaringClass( blkClass, reflectBlock.MethodName, BlockState.class, Player.class, BlockGetter.class, BlockPos.class );
+            final boolean test_b = b_Class == Block.class || b_Class == BlockBehaviour.class;
 
             reflectBlock.getExplosionResistance();
             Class<?> exploResistanceClz = ClassUtils.getDeclaringClass( blkClass, reflectBlock.MethodName);
-            final boolean test_c = exploResistanceClz == Block.class || exploResistanceClz == AbstractBlock.class;
+            final boolean test_c = exploResistanceClz == Block.class || exploResistanceClz == BlockBehaviour.class;
 
             reflectBlock.getExplosionResistance( null, null, null, null );
-            exploResistanceClz = ClassUtils.getDeclaringClass( blkClass, reflectBlock.MethodName, BlockState.class, IBlockReader.class, BlockPos.class, Explosion.class );
-            final boolean test_d = exploResistanceClz == Block.class || exploResistanceClz == AbstractBlock.class || exploResistanceClz == null || exploResistanceClz == IForgeBlock.class;
+            exploResistanceClz = ClassUtils.getDeclaringClass( blkClass, reflectBlock.MethodName, BlockState.class, BlockGetter.class, BlockPos.class, Explosion.class );
+            final boolean test_d = exploResistanceClz == Block.class || exploResistanceClz == BlockBehaviour.class || exploResistanceClz == null || exploResistanceClz == IForgeBlock.class;
 
             final boolean isFluid = !state.getFluidState().isEmpty();
 
@@ -75,7 +74,7 @@ public class BlockEligibilityAnalysisData
             {
                 final float blockHardness = state.getDestroySpeed(new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO);
                 final float resistance = blk.getExplosionResistance(state, new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO, new Explosion(null, null,null,
-                  null, 0,1,0, 10, false, Explosion.Mode.NONE));
+                  null, 0,1,0, 10, false, Explosion.BlockInteraction.NONE));
 
                 return new BlockEligibilityAnalysisData( true, blockHardness, resistance );
             }

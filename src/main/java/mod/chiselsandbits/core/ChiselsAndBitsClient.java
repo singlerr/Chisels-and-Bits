@@ -8,7 +8,7 @@ import mod.chiselsandbits.client.registrars.ModBESR;
 import mod.chiselsandbits.client.registrars.ModColors;
 import mod.chiselsandbits.client.registrars.ModRenderLayers;
 import mod.chiselsandbits.keys.KeyBindingManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelRegistryEvent;

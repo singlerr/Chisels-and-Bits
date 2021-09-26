@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.util;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -13,7 +13,7 @@ public interface IPacketBufferSerializable
      *
      * @param packetBuffer The packet buffer to write into.
      */
-    void serializeInto(@NotNull final PacketBuffer packetBuffer);
+    void serializeInto(@NotNull final FriendlyByteBuf packetBuffer);
 
     /**
      * Used to read the data from the packet buffer into the current instance.
@@ -21,5 +21,5 @@ public interface IPacketBufferSerializable
      *
      * @param packetBuffer The packet buffer to read from.
      */
-    void deserializeFrom(@NotNull final PacketBuffer packetBuffer);
+    void deserializeFrom(@NotNull final FriendlyByteBuf packetBuffer);
 }

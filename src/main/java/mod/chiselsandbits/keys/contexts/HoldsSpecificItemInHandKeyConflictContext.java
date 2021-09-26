@@ -2,7 +2,7 @@ package mod.chiselsandbits.keys.contexts;
 
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
 

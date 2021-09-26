@@ -1,11 +1,10 @@
 package mod.chiselsandbits.api.measuring;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -25,7 +24,7 @@ public interface IMeasuringManager
      * @param world The world in question.
      * @return A collection of measurements which are active in the given world.
      */
-    default Collection<? extends IMeasurement> getInWorld(final World world) {
+    default Collection<? extends IMeasurement> getInWorld(final Level world) {
         return getInWorld(world.dimension().location());
     }
 
@@ -43,7 +42,7 @@ public interface IMeasuringManager
      * @param playerEntity The player in question.
      * @return A collection of measurements which are active for the given player.
      */
-    default Collection<? extends IMeasurement> getForPlayer(final PlayerEntity playerEntity) {
+    default Collection<? extends IMeasurement> getForPlayer(final Player playerEntity) {
         return getForPlayer(playerEntity.getUUID());
     }
 
@@ -66,10 +65,10 @@ public interface IMeasuringManager
      * @return The newly created and processed measurement.
      */
     IMeasurement create(
-      final World world,
-      final PlayerEntity playerEntity,
-      final Vector3d from,
-      final Vector3d to,
+      final Level world,
+      final Player playerEntity,
+      final Vec3 from,
+      final Vec3 to,
       final MeasuringMode mode
     );
 
@@ -78,7 +77,7 @@ public interface IMeasuringManager
      *
      * @param playerEntity The player to remove the measurements for.
      */
-    default void resetMeasurementsFor(PlayerEntity playerEntity) {
+    default void resetMeasurementsFor(Player playerEntity) {
         resetMeasurementsFor(playerEntity.getUUID());
     }
 

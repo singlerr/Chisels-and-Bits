@@ -1,24 +1,24 @@
 package mod.chiselsandbits.client.model.baked.interactable;
 
 import com.google.common.collect.Lists;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Random;
 
-public class InteractableBakedItemModel implements IBakedModel
+public class InteractableBakedItemModel implements BakedModel
 {
 
-    private final IBakedModel innerModel;
+    private final BakedModel innerModel;
 
-    public InteractableBakedItemModel(final IBakedModel innerModel) {this.innerModel = innerModel;}
+    public InteractableBakedItemModel(final BakedModel innerModel) {this.innerModel = innerModel;}
 
     @Override
     public @NotNull List<BakedQuad> getQuads(
@@ -58,12 +58,12 @@ public class InteractableBakedItemModel implements IBakedModel
     }
 
     @Override
-    public @NotNull ItemOverrideList getOverrides()
+    public @NotNull ItemOverrides getOverrides()
     {
         return innerModel.getOverrides();
     }
 
-    public IBakedModel getInnerModel()
+    public BakedModel getInnerModel()
     {
         return innerModel;
     }

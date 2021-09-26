@@ -5,23 +5,16 @@ import mod.chiselsandbits.recipe.modificationtable.ModificationTableRecipe;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModContainerTypes;
 import mod.chiselsandbits.registrars.ModRecipeTypes;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.CraftResultInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.util.IWorldPosCallable;
-import net.minecraft.util.IntReferenceHolder;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.world.World;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.*;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -29,13 +22,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
-public class ModificationTableContainer extends Container
+public class ModificationTableContainer extends AbstractContainerMenu
 {
-    private final IWorldPosCallable            worldPosCallable;
-    private final IntReferenceHolder           selectedRecipe = IntReferenceHolder.standalone();
-    private final World                         world;
+    private final ContainerLevelAccess            worldPosCallable;
+    private final DataSlot           selectedRecipe = DataSlot.standalone();
+    private final Level                         world;
     private       List<ModificationTableRecipe> recipes = Lists.newArrayList();
 
     private       ItemStack inputItemStack = ItemStack.EMPTY;
@@ -43,20 +35,20 @@ public class ModificationTableContainer extends Container
     final         Slot                   inputInventorySlot;
     final         Slot                   outputInventorySlot;
     private       Runnable               inventoryUpdateListener = () -> {};
-    public final  IInventory             inputInventory          = new Inventory(1) {
+    public final  Container             inputInventory          = new SimpleContainer(1) {
         public void setChanged() {
             super.setChanged();
             ModificationTableContainer.this.slotsChanged(this);
             ModificationTableContainer.this.inventoryUpdateListener.run();
         }
     };
-    private final CraftResultInventory   inventory               = new CraftResultInventory();
+    private final ResultContainer   inventory               = new ResultContainer();
 
-    public ModificationTableContainer(int windowIdIn, PlayerInventory playerInventoryIn) {
-        this(windowIdIn, playerInventoryIn, IWorldPosCallable.NULL);
+    public ModificationTableContainer(int windowIdIn, Inventory playerInventoryIn) {
+        this(windowIdIn, playerInventoryIn, ContainerLevelAccess.NULL);
     }
 
-    public ModificationTableContainer(int windowIdIn, PlayerInventory playerInventoryIn, final IWorldPosCallable worldPosCallableIn) {
+    public ModificationTableContainer(int windowIdIn, Inventory playerInventoryIn, final ContainerLevelAccess worldPosCallableIn) {
         super(ModContainerTypes.MODIFICATION_TABLE.get(), windowIdIn);
         this.worldPosCallable = worldPosCallableIn;
         this.world = playerInventoryIn.player.level;
@@ -69,7 +61,7 @@ public class ModificationTableContainer extends Container
                 return false;
             }
 
-            public @NotNull ItemStack onTake(@NotNull PlayerEntity thePlayer, @NotNull ItemStack stack) {
+            public void onTake(@NotNull Player thePlayer, @NotNull ItemStack stack) {
                 stack.onCraftedBy(thePlayer.level, thePlayer, stack.getCount());
                 ModificationTableContainer.this.inventory.awardUsedRecipes(thePlayer);
                 ItemStack itemstack = ModificationTableContainer.this.inputInventorySlot.remove(1);
@@ -80,12 +72,12 @@ public class ModificationTableContainer extends Container
                 worldPosCallableIn.execute((p_216954_1_, p_216954_2_) -> {
                     long l = p_216954_1_.getGameTime();
                     if (ModificationTableContainer.this.lastOnTake != l) {
-                        p_216954_1_.playSound(null, p_216954_2_, SoundEvents.UI_STONECUTTER_TAKE_RESULT, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                        p_216954_1_.playSound(null, p_216954_2_, SoundEvents.UI_STONECUTTER_TAKE_RESULT, SoundSource.BLOCKS, 1.0F, 1.0F);
                         ModificationTableContainer.this.lastOnTake = l;
                     }
 
                 });
-                return super.onTake(thePlayer, stack);
+                super.onTake(thePlayer, stack);
             }
         });
 
@@ -128,14 +120,14 @@ public class ModificationTableContainer extends Container
     /**
      * Determines whether supplied player can use this container
      */
-    public boolean stillValid(@NotNull PlayerEntity playerIn) {
+    public boolean stillValid(@NotNull Player playerIn) {
         return stillValid(this.worldPosCallable, playerIn, ModBlocks.MODIFICATION_TABLE.get());
     }
 
     /**
      * Handles the given Button-click on the server, currently only used by enchanting. Name is for legacy.
      */
-    public boolean clickMenuButton(@NotNull PlayerEntity playerIn, int id) {
+    public boolean clickMenuButton(@NotNull Player playerIn, int id) {
         if (this.isValidRecipeIndex(id)) {
             this.selectedRecipe.set(id);
             this.updateRecipeResultSlot();
@@ -151,7 +143,7 @@ public class ModificationTableContainer extends Container
     /**
      * Callback for when the crafting matrix is changed.
      */
-    public void slotsChanged(@NotNull IInventory inventoryIn) {
+    public void slotsChanged(@NotNull Container inventoryIn) {
         ItemStack itemstack = this.inputInventorySlot.getItem();
         if (itemstack.getItem() != this.inputItemStack.getItem()) {
             this.inputItemStack = itemstack.copy();
@@ -160,7 +152,7 @@ public class ModificationTableContainer extends Container
 
     }
 
-    private void updateAvailableRecipes(IInventory inventoryIn, ItemStack stack) {
+    private void updateAvailableRecipes(Container inventoryIn, ItemStack stack) {
         this.recipes.clear();
         this.selectedRecipe.set(-1);
         this.outputInventorySlot.set(ItemStack.EMPTY);
@@ -183,7 +175,7 @@ public class ModificationTableContainer extends Container
         this.broadcastChanges();
     }
 
-    public @NotNull ContainerType<?> getType() {
+    public @NotNull MenuType<?> getType() {
         return ModContainerTypes.MODIFICATION_TABLE.get();
     }
 
@@ -204,7 +196,7 @@ public class ModificationTableContainer extends Container
      * Handle when the stack in slot {@code index} is shift-clicked. Normally this moves the stack between the player
      * inventory and the other inventory(s).
      */
-    public @NotNull ItemStack quickMoveStack(@NotNull PlayerEntity playerIn, int index) {
+    public @NotNull ItemStack quickMoveStack(@NotNull Player playerIn, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
         if (slot != null && slot.hasItem()) {
@@ -222,7 +214,7 @@ public class ModificationTableContainer extends Container
                 if (!this.moveItemStackTo(itemstack1, 2, 38, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (this.world.getRecipeManager().getRecipeFor(ModRecipeTypes.MODIFICATION_TABLE, new Inventory(itemstack1), this.world).isPresent()) {
+            } else if (this.world.getRecipeManager().getRecipeFor(ModRecipeTypes.MODIFICATION_TABLE, new SimpleContainer(itemstack1), this.world).isPresent()) {
                 if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
                     return ItemStack.EMPTY;
                 }
@@ -253,12 +245,10 @@ public class ModificationTableContainer extends Container
     /**
      * Called when the container is closed.
      */
-    public void removed(@NotNull PlayerEntity playerIn) {
+    public void removed(@NotNull Player playerIn) {
         super.removed(playerIn);
         this.inventory.removeItemNoUpdate(1);
-        this.worldPosCallable.execute((p_217079_2_, p_217079_3_) -> {
-            this.clearContainer(playerIn, playerIn.level, this.inputInventory);
-        });
+        this.worldPosCallable.execute((p_217079_2_, p_217079_3_) -> this.clearContainer(playerIn, this.inputInventory));
     }
 
 }

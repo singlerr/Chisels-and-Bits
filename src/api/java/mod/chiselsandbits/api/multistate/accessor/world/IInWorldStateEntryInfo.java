@@ -2,15 +2,13 @@ package mod.chiselsandbits.api.multistate.accessor.world;
 
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.util.IWorldObject;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Represents a single state entry that actually exists in a physical world.
  *
  * @see IStateEntryInfo
- * @see net.minecraft.world.IBlockReader
  * @see IWorldAreaAccessor
  */
 public interface IInWorldStateEntryInfo extends IStateEntryInfo, IWorldObject
@@ -27,8 +25,8 @@ public interface IInWorldStateEntryInfo extends IStateEntryInfo, IWorldObject
      *
      * @return The start position of this entry in the given world.
      */
-    default Vector3d getInWorldStartPoint(){
-        return Vector3d.atLowerCornerOf(getBlockPos()).add(getStartPoint());
+    default Vec3 getInWorldStartPoint(){
+        return Vec3.atLowerCornerOf(getBlockPos()).add(getStartPoint());
     }
 
     /**
@@ -36,8 +34,8 @@ public interface IInWorldStateEntryInfo extends IStateEntryInfo, IWorldObject
      *
      * @return The end position of this entry in the given world.
      */
-    default Vector3d getInWorldEndPoint(){
-        return Vector3d.atLowerCornerOf(getBlockPos()).add(getEndPoint());
+    default Vec3 getInWorldEndPoint(){
+        return Vec3.atLowerCornerOf(getBlockPos()).add(getEndPoint());
     }
 
     /**
@@ -45,7 +43,7 @@ public interface IInWorldStateEntryInfo extends IStateEntryInfo, IWorldObject
      *
      * @return The center position of this entry in the given world.
      */
-    default Vector3d getInWorldCenterPoint() {
+    default Vec3 getInWorldCenterPoint() {
         return getInWorldStartPoint().add(getInWorldEndPoint()).multiply(0.5, 0.5, 0.5);
     }
 }

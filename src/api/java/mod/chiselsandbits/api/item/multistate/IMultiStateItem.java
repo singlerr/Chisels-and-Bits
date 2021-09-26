@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.item.multistate;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**

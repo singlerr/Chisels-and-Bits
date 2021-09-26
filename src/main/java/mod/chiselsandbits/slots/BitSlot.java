@@ -1,15 +1,15 @@
 package mod.chiselsandbits.slots;
 
 import mod.chiselsandbits.item.bit.BitItem;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class BitSlot extends Slot
 {
     public BitSlot(
-      final IInventory inventoryIn,
+      final Container inventoryIn,
       final int index,
       final int xPosition,
       final int yPosition)

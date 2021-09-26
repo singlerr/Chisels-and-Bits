@@ -11,8 +11,8 @@ import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.util.IWithDisplayName;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
 
@@ -49,7 +49,7 @@ public interface IChiselMode extends IForgeRegistryEntry<IChiselMode>, IToolMode
      * @return The processing state, which indicates how the interaction should proceed.
      */
     ClickProcessingState onLeftClickBy(
-      final PlayerEntity playerEntity,
+      final Player playerEntity,
       final IChiselingContext context
     );
 
@@ -62,7 +62,7 @@ public interface IChiselMode extends IForgeRegistryEntry<IChiselMode>, IToolMode
      * @param context The chiseling context.
      */
     void onStoppedLeftClicking(
-      final PlayerEntity playerEntity,
+      final Player playerEntity,
       final IChiselingContext context
     );
 
@@ -75,7 +75,7 @@ public interface IChiselMode extends IForgeRegistryEntry<IChiselMode>, IToolMode
      * @return The processing state, which indicates how the interaction should proceed.
      */
     ClickProcessingState onRightClickBy(
-      final PlayerEntity playerEntity,
+      final Player playerEntity,
       final IChiselingContext context
     );
 
@@ -88,7 +88,7 @@ public interface IChiselMode extends IForgeRegistryEntry<IChiselMode>, IToolMode
      * @param context The chiseling context.
      */
     void onStoppedRightClicking(
-      final PlayerEntity playerEntity,
+      final Player playerEntity,
       final IChiselingContext context
     );
 
@@ -108,7 +108,7 @@ public interface IChiselMode extends IForgeRegistryEntry<IChiselMode>, IToolMode
      * @return True when still valid, false when not.
      */
     default boolean isStillValid(
-      final PlayerEntity playerEntity,
+      final Player playerEntity,
       final IChiselingContext context,
       final ChiselingOperation modeOfOperation
     ) {

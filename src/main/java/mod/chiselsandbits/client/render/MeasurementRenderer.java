@@ -1,8 +1,8 @@
 package mod.chiselsandbits.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import mod.chiselsandbits.api.measuring.IMeasurement;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
 import mod.chiselsandbits.api.measuring.MeasuringType;
@@ -10,26 +10,31 @@ import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.measures.MeasuringManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.network.play.NetworkPlayerInfo;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.scoreboard.ScorePlayerTeam;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraft.util.text.*;
-import net.minecraft.world.GameType;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.renderer.MultiBufferSource;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import com.mojang.math.Quaternion;
+import net.minecraft.world.phys.Vec3;
+import com.mojang.math.Vector3f;
+import net.minecraft.world.level.GameType;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.UUID;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public final class MeasurementRenderer
 {
@@ -54,22 +59,22 @@ public final class MeasurementRenderer
         final Collection<? extends IMeasurement> measurements = MeasuringManager.getInstance().getInWorld(Minecraft.getInstance().level);
 
 
-        Vector3d vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         double xView = vector3d.x();
         double yView = vector3d.y();
         double zView = vector3d.z();
 
         measurements.forEach(measurement -> {
-            final Vector3d startPos = measurement.getFrom();
+            final Vec3 startPos = measurement.getFrom();
 
-            final AxisAlignedBB measurementBB = new AxisAlignedBB(
-              Vector3d.ZERO, measurement.getSize()
+            final AABB measurementBB = new AABB(
+              Vec3.ZERO, measurement.getSize()
             );
-            final VoxelShape boundingShape = VoxelShapes.create(measurementBB);
+            final VoxelShape boundingShape = Shapes.create(measurementBB);
 
             if (measurement.getMode().getGroup().map(g -> g != MeasuringType.DISTANCE).orElse(false))
             {
-                WorldRenderer.renderShape(
+                LevelRenderer.renderShape(
                   event.getMatrixStack(),
                   Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
                   boundingShape,
@@ -82,19 +87,19 @@ public final class MeasurementRenderer
                   1f
                 );
 
-                final Vector3d lengths = VectorUtils.absolute(measurement.getTo().subtract(measurement.getFrom()));
-                final Vector3d centerPos = measurement.getFrom().add(measurement.getTo()).multiply(0.5, 0.5, 0.5);
+                final Vec3 lengths = VectorUtils.absolute(measurement.getTo().subtract(measurement.getFrom()));
+                final Vec3 centerPos = measurement.getFrom().add(measurement.getTo()).multiply(0.5, 0.5, 0.5);
 
                 if (lengths.y() > 1/16d)
-                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.y(), new Vector3d(measurement.getFrom().x(), centerPos.y(), measurement.getFrom().z()));
+                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.y(), new Vec3(measurement.getFrom().x(), centerPos.y(), measurement.getFrom().z()));
                 if (lengths.x() > 1/16d)
-                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.x(), new Vector3d(centerPos.x(), measurement.getFrom().y(), measurement.getFrom().z()));
+                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.x(), new Vec3(centerPos.x(), measurement.getFrom().y(), measurement.getFrom().z()));
                 if (lengths.z() > 1/16d)
-                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.z(), new Vector3d(measurement.getFrom().x(), measurement.getFrom().y(), centerPos.z()));
+                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.z(), new Vec3(measurement.getFrom().x(), measurement.getFrom().y(), centerPos.z()));
             }
             else if (measurement.getMode().getGroup().map(g -> g == MeasuringType.DISTANCE).orElse(false))
             {
-                final IVertexBuilder bufferIn = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get());
+                final VertexConsumer bufferIn = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get());
                 bufferIn.vertex(event.getMatrixStack().last().pose(),
                   (float) (measurement.getFrom().x() - xView),
                   (float) (measurement.getFrom().y() - yView),
@@ -113,9 +118,9 @@ public final class MeasurementRenderer
                     (float) measurement.getMode().getColorVector().z(),
                     1f).endVertex();
 
-                final Vector3d lengths = VectorUtils.absolute(measurement.getTo().subtract(measurement.getFrom()));
+                final Vec3 lengths = VectorUtils.absolute(measurement.getTo().subtract(measurement.getFrom()));
                 final double totalLength = lengths.length();
-                final Vector3d centerPos = measurement.getFrom().add(measurement.getTo()).multiply(0.5, 0.5, 0.5);
+                final Vec3 centerPos = measurement.getFrom().add(measurement.getTo()).multiply(0.5, 0.5, 0.5);
 
                 if (totalLength > 1/16d)
                     renderMeasurementSize(event.getMatrixStack(), measurement, totalLength, centerPos);
@@ -127,22 +132,22 @@ public final class MeasurementRenderer
         });
     }
     private void renderMeasurementSize(
-      final MatrixStack matrixStack,
+      final PoseStack matrixStack,
       final IMeasurement measurement,
       final double length,
-      final Vector3d position
+      final Vec3 position
     )
     {
         final double letterSize = 5.0;
         final double zScale = 0.001;
 
-        final FontRenderer fontRenderer = Minecraft.getInstance().font;
-        final ITextComponent size = formatLength(measurement.getMode(), length);
-        final ITextComponent owner = getOwnerName(measurement.getOwner());
+        final Font fontRenderer = Minecraft.getInstance().font;
+        final Component size = formatLength(measurement.getMode(), length);
+        final Component owner = getOwnerName(measurement.getOwner());
 
         final float scale = getScale(length);
 
-        Vector3d vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         double xView = vector3d.x();
         double yView = vector3d.y();
         double zView = vector3d.z();
@@ -153,16 +158,16 @@ public final class MeasurementRenderer
         matrixStack.scale(scale, -scale, (float) zScale);
         matrixStack.translate(-fontRenderer.width(size) * 0.5, 0, 0);
         RenderSystem.disableDepthTest();
-        IRenderTypeBuffer.Impl buffer = IRenderTypeBuffer.immediate(Tessellator.getInstance().getBuilder());
-        fontRenderer.drawInBatch(size.getString(), 0, 0, measurement.getMode().getColor().getColorValue(), true, matrixStack.last().pose(), buffer, true, 0, 15728880);
+        MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+        fontRenderer.drawInBatch(size.getString(), 0, 0, measurement.getMode().getColor().getTextColor(), true, matrixStack.last().pose(), buffer, true, 0, 15728880);
         matrixStack.translate(-fontRenderer.width(owner) * 0.5, -fontRenderer.lineHeight, 0);
-        fontRenderer.drawInBatch(owner.getString(), 0, 0, measurement.getMode().getColor().getColorValue(), true, matrixStack.last().pose(), buffer, true, 0, 15728880);
+        fontRenderer.drawInBatch(owner.getString(), 0, 0, measurement.getMode().getColor().getTextColor(), true, matrixStack.last().pose(), buffer, true, 0, 15728880);
         buffer.endBatch();
         RenderSystem.enableDepthTest();
         matrixStack.popPose();
     }
 
-    private ITextComponent formatLength(
+    private Component formatLength(
       final MeasuringMode mode,
       final double length
     )
@@ -171,14 +176,14 @@ public final class MeasurementRenderer
 
         if (type == MeasuringType.DISTANCE)
         {
-            return new StringTextComponent(new DecimalFormat("#.0#").format(length));
+            return new TextComponent(new DecimalFormat("#.0#").format(length));
         }
         else if (type == MeasuringType.BLOCK)
         {
-            return new TranslationTextComponent(Constants.MOD_ID + ".measurements.lengths.block", new DecimalFormat("#").format(Math.floor(length)));
+            return new TranslatableComponent(Constants.MOD_ID + ".measurements.lengths.block", new DecimalFormat("#").format(Math.floor(length)));
         }
 
-        return new TranslationTextComponent(Constants.MOD_ID + ".measurements.lengths.bit", new DecimalFormat("#").format(Math.floor(length * 16)));
+        return new TranslatableComponent(Constants.MOD_ID + ".measurements.lengths.bit", new DecimalFormat("#").format(Math.floor(length * 16)));
     }
 
     private float getScale(
@@ -199,32 +204,32 @@ public final class MeasurementRenderer
     }
 
     private void performBillboardRotations(
-      final MatrixStack matrixStack)
+      final PoseStack matrixStack)
     {
         final Entity view = Minecraft.getInstance().cameraEntity != null ? Minecraft.getInstance().cameraEntity : Minecraft.getInstance().player;
         if (view != null)
         {
-            final float yaw = view.yRotO + (view.yRot - view.yRotO) * Minecraft.getInstance().getFrameTime();
-            matrixStack.mulPose(new Quaternion(Vector3f.YP, 180 + -yaw, true));
+            final float yaw = view.yRotO + (view.getYRot() - view.yRotO) * Minecraft.getInstance().getFrameTime();
+            matrixStack.mulPose(new Quaternion(Vector3f.YP, 180 - yaw, true));
 
-            final float pitch = view.xRotO + (view.xRot - view.xRotO) * Minecraft.getInstance().getFrameTime();
+            final float pitch = view.xRotO + (view.getXRot() - view.xRotO) * Minecraft.getInstance().getFrameTime();
             matrixStack.mulPose(new Quaternion(Vector3f.XP, -pitch, true));
         }
     }
 
-    private ITextComponent getOwnerName(final UUID id) {
+    private Component getOwnerName(final UUID id) {
         if (id == (Minecraft.getInstance().player != null ? Minecraft.getInstance().player.getUUID() : UUID.randomUUID())) {
-            return new TranslationTextComponent(Constants.MOD_ID + ".measurements.owners.you");
+            return new TranslatableComponent(Constants.MOD_ID + ".measurements.owners.you");
         }
 
-        final NetworkPlayerInfo playerInfo = Minecraft.getInstance().getConnection() != null ? Minecraft.getInstance().getConnection().getPlayerInfo(id) : null;
+        final PlayerInfo playerInfo = Minecraft.getInstance().getConnection() != null ? Minecraft.getInstance().getConnection().getPlayerInfo(id) : null;
         if (playerInfo == null)
-            return new TranslationTextComponent(Constants.MOD_ID + ".measurements.owners.unknown");
+            return new TranslatableComponent(Constants.MOD_ID + ".measurements.owners.unknown");
 
-        return new TranslationTextComponent(Constants.MOD_ID + ".measurements.owners.by", playerInfo.getTabListDisplayName() != null ? this.formatPlayerDisplayName(playerInfo, playerInfo.getTabListDisplayName().copy()) : this.formatPlayerDisplayName(playerInfo, ScorePlayerTeam.formatNameForTeam(playerInfo.getTeam(), new StringTextComponent(playerInfo.getProfile().getName()))));
+        return new TranslatableComponent(Constants.MOD_ID + ".measurements.owners.by", playerInfo.getTabListDisplayName() != null ? this.formatPlayerDisplayName(playerInfo, playerInfo.getTabListDisplayName().copy()) : this.formatPlayerDisplayName(playerInfo, PlayerTeam.formatNameForTeam(playerInfo.getTeam(), new TextComponent(playerInfo.getProfile().getName()))));
     }
 
-    private ITextComponent formatPlayerDisplayName(NetworkPlayerInfo p_238524_1_, IFormattableTextComponent p_238524_2_) {
-        return p_238524_1_.getGameMode() == GameType.SPECTATOR ? p_238524_2_.withStyle(TextFormatting.ITALIC) : p_238524_2_;
+    private Component formatPlayerDisplayName(PlayerInfo p_238524_1_, MutableComponent p_238524_2_) {
+        return p_238524_1_.getGameMode() == GameType.SPECTATOR ? p_238524_2_.withStyle(ChatFormatting.ITALIC) : p_238524_2_;
     }
 }

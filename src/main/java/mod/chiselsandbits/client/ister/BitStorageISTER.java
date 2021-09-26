@@ -1,38 +1,46 @@
 package mod.chiselsandbits.client.ister;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.registrars.ModBlocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 
-public class BitStorageISTER extends ItemStackTileEntityRenderer
+public class BitStorageISTER extends BlockEntityWithoutLevelRenderer
 {
+    public BitStorageISTER()
+    {
+        super(Minecraft.getInstance().getBlockEntityRenderDispatcher(),
+          Minecraft.getInstance().getEntityModels());
+    }
+
     @Override
     public void renderByItem(
       final @NotNull ItemStack stack,
-      final ItemCameraTransforms.@NotNull TransformType transformType,
-      final MatrixStack matrixStack,
-      final IRenderTypeBuffer buffer,
+      final ItemTransforms.@NotNull TransformType transformType,
+      final PoseStack matrixStack,
+      final MultiBufferSource buffer,
       final int combinedLight,
       final int combinedOverlay)
     {
 
-        final IBakedModel model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(ModBlocks.BIT_STORAGE.getId(), "facing=east"));
+        final BakedModel model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(ModBlocks.BIT_STORAGE.getId(), "facing=east"));
 
         Minecraft.getInstance()
           .getBlockRenderer()
@@ -41,7 +49,7 @@ public class BitStorageISTER extends ItemStackTileEntityRenderer
                                                                                                .get().defaultBlockState(), model, 1f, 1f, 1f, combinedLight, combinedOverlay,
             EmptyModelData.INSTANCE);
 
-        final BitStorageBlockEntity tileEntity = new BitStorageBlockEntity();
+        final BitStorageBlockEntity tileEntity = new BitStorageBlockEntity(BlockPos.ZERO, ModBlocks.BIT_STORAGE.get().defaultBlockState());
         tileEntity
           .getCapability(
             CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY
@@ -59,6 +67,6 @@ public class BitStorageISTER extends ItemStackTileEntityRenderer
                             )
           );
 
-        TileEntityRendererDispatcher.instance.renderItem(tileEntity, matrixStack, buffer, combinedLight, combinedOverlay);
+        Minecraft.getInstance().getBlockEntityRenderDispatcher().renderItem(tileEntity, matrixStack, buffer, combinedLight, combinedOverlay);
     }
 }

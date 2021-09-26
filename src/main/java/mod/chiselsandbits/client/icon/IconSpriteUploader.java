@@ -3,16 +3,16 @@ package mod.chiselsandbits.client.icon;
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.SpriteUploader;
+import net.minecraft.client.resources.TextureAtlasHolder;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-public class IconSpriteUploader extends SpriteUploader
+public class IconSpriteUploader extends TextureAtlasHolder
 {
     private final List<ResourceLocation> textures = Lists.newArrayList();
 

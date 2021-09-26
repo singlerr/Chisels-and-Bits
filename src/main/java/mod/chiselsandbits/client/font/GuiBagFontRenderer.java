@@ -1,20 +1,20 @@
 package mod.chiselsandbits.client.font;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.util.math.vector.Matrix4f;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.renderer.MultiBufferSource;
+import com.mojang.math.Matrix4f;
 import org.jetbrains.annotations.NotNull;
 
-public class GuiBagFontRenderer extends FontRenderer
+public class GuiBagFontRenderer extends Font
 {
-    private final FontRenderer fontRenderer;
+    private final Font fontRenderer;
 
     private final int offsetX, offsetY;
     private final float scale;
 
     public GuiBagFontRenderer(
-      final FontRenderer src,
+      final Font src,
       final int bagStackSize)
     {
         super(src.fonts);
@@ -35,7 +35,7 @@ public class GuiBagFontRenderer extends FontRenderer
     }
 
     @Override
-    public int drawShadow(MatrixStack matrixStack, @NotNull String text, float x, float y, int color)
+    public int drawShadow(PoseStack matrixStack, @NotNull String text, float x, float y, int color)
     {
         try
         {
@@ -57,7 +57,7 @@ public class GuiBagFontRenderer extends FontRenderer
     }
 
     @Override
-    public int draw(MatrixStack matrixStack, @NotNull String text, float x, float y, int color)
+    public int draw(PoseStack matrixStack, @NotNull String text, float x, float y, int color)
     {
         try
         {
@@ -81,7 +81,7 @@ public class GuiBagFontRenderer extends FontRenderer
     @Override
     public int drawInternal(final @NotNull String text, float x, float y, final int color, final @NotNull Matrix4f matrix, final boolean dropShadow, final boolean p_228078_7_)
     {
-        final MatrixStack stack = new MatrixStack();
+        final PoseStack stack = new PoseStack();
         final Matrix4f original = new Matrix4f(matrix);
 
         try
@@ -98,7 +98,8 @@ public class GuiBagFontRenderer extends FontRenderer
         }
         finally
         {
-            matrix.set(original);
+            matrix.setIdentity();
+            matrix.multiply(original);
         }
     }
 
@@ -110,12 +111,12 @@ public class GuiBagFontRenderer extends FontRenderer
       final int color,
       final boolean dropShadow,
       final @NotNull Matrix4f matrix,
-      final @NotNull IRenderTypeBuffer buffer,
+      final @NotNull MultiBufferSource buffer,
       final boolean transparentIn,
       final int colorBackgroundIn,
       final int packedLight)
     {
-        final MatrixStack stack = new MatrixStack();
+        final PoseStack stack = new PoseStack();
         final Matrix4f original = new Matrix4f(matrix);
 
         try
@@ -132,7 +133,8 @@ public class GuiBagFontRenderer extends FontRenderer
         }
         finally
         {
-            matrix.set(original);
+            matrix.setIdentity();
+            matrix.multiply(original);
         }
     }
 

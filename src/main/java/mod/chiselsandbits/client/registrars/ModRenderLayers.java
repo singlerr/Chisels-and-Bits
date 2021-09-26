@@ -1,9 +1,9 @@
 package mod.chiselsandbits.client.registrars;
 
 import mod.chiselsandbits.registrars.ModBlocks;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fmllegacy.RegistryObject;
 
 public final class ModRenderLayers
 {
@@ -16,10 +16,10 @@ public final class ModRenderLayers
     public static void onClientInit() {
         ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values()
           .stream().map(RegistryObject::get)
-          .forEach(b -> RenderTypeLookup.setRenderLayer(b, input -> RenderType.chunkBufferLayers().contains(input)));
+          .forEach(b -> ItemBlockRenderTypes.setRenderLayer(b, input -> RenderType.chunkBufferLayers().contains(input)));
 
-        RenderTypeLookup.setRenderLayer(ModBlocks.BIT_STORAGE.get(), RenderType.cutoutMipped());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.BIT_STORAGE.get(), RenderType.cutoutMipped());
 
-        RenderTypeLookup.setRenderLayer(ModBlocks.CHISELED_PRINTER.get(), RenderType.cutoutMipped());
+        ItemBlockRenderTypes.setRenderLayer(ModBlocks.CHISELED_PRINTER.get(), RenderType.cutoutMipped());
     }
 }

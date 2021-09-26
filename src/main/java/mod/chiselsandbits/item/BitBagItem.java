@@ -13,25 +13,25 @@ import mod.chiselsandbits.inventory.bit.SlottedBitInventoryItemStack;
 import mod.chiselsandbits.network.packets.OpenBagGuiPacket;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.SimpleInstanceCache;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -40,14 +40,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.item.Item.Properties;
+import net.minecraft.world.item.Item.Properties;
 
 public class BitBagItem extends Item implements IBitInventoryItem
 {
 
     private static final int BAG_STORAGE_SLOTS = 63;
 
-    SimpleInstanceCache<ItemStack, List<ITextComponent>> tooltipCache = new SimpleInstanceCache<>(null, new ArrayList<>());
+    SimpleInstanceCache<ItemStack, List<Component>> tooltipCache = new SimpleInstanceCache<>(null, new ArrayList<>());
 
     public BitBagItem(Properties properties)
     {
@@ -55,13 +55,13 @@ public class BitBagItem extends Item implements IBitInventoryItem
     }
 
     @Override
-    public @NotNull ITextComponent getName(final @NotNull ItemStack stack)
+    public @NotNull Component getName(final @NotNull ItemStack stack)
     {
         DyeColor color = getDyedColor(stack);
-        final ITextComponent parent = super.getName(stack);
-        if (parent instanceof IFormattableTextComponent && color != null)
+        final Component parent = super.getName(stack);
+        if (parent instanceof MutableComponent && color != null)
         {
-            return ((IFormattableTextComponent) parent).append(" - ").append(new TranslationTextComponent("chiselsandbits.color." + color.getName()));
+            return ((MutableComponent) parent).append(" - ").append(new TranslatableComponent("chiselsandbits.color." + color.getName()));
         }
         else
         {
@@ -71,7 +71,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public void appendHoverText(final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
+    public void appendHoverText(final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         Configuration.getInstance().getCommon().helpText(LocalStrings.HelpBitBag, tooltip);
@@ -82,22 +82,22 @@ public class BitBagItem extends Item implements IBitInventoryItem
             tooltipCache.updateCachedValue(inventoryItemStack.listContents());
         }
 
-        final List<ITextComponent> details = tooltipCache.getCached();
+        final List<Component> details = tooltipCache.getCached();
         if (details.size() <= 2 || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown()))
         {
             tooltip.addAll(details);
         }
         else
         {
-            tooltip.add(new StringTextComponent(LocalStrings.ShiftDetails.getLocal()));
+            tooltip.add(new TextComponent(LocalStrings.ShiftDetails.getLocal()));
         }
     }
 
     @Override
-    public @NotNull ActionResult<ItemStack> use(
-      final World worldIn,
-      final PlayerEntity playerIn,
-      final @NotNull Hand hand)
+    public @NotNull InteractionResultHolder<ItemStack> use(
+      final Level worldIn,
+      final Player playerIn,
+      final @NotNull InteractionHand hand)
     {
         final ItemStack itemStackIn = playerIn.getItemInHand(hand);
 
@@ -106,7 +106,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
             ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new OpenBagGuiPacket());
         }
 
-        return new ActionResult<>(ActionResultType.SUCCESS, itemStackIn);
+        return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStackIn);
     }
 
     @Override
@@ -177,7 +177,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
     }
 
     @Override
-    public void fillItemCategory(final @NotNull ItemGroup group, final @NotNull NonNullList<ItemStack> items)
+    public void fillItemCategory(final @NotNull CreativeModeTab group, final @NotNull NonNullList<ItemStack> items)
     {
         if (this.allowdedIn(group))
         {
@@ -203,7 +203,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
 
         if (!copy.hasTag())
         {
-            copy.setTag(new CompoundNBT());
+            copy.setTag(new CompoundTag());
         }
 
         if (color == null && bag.getItem() == ModItems.ITEM_BIT_BAG_DYED.get())

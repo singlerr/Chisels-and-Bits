@@ -1,13 +1,15 @@
 package mod.chiselsandbits.client.screens.widgets;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.client.icon.IconManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.network.chat.TextComponent;
 import org.jetbrains.annotations.NotNull;
 
 public class GuiIconButton extends Button
@@ -18,20 +20,18 @@ public class GuiIconButton extends Button
 			final int x,
 			final int y,
 			final TextureAtlasSprite icon,
-            Button.IPressable pressedAction,
-            Button.ITooltip tooltip)
+            Button.OnPress pressedAction,
+            Button.OnTooltip tooltip)
 	{
-		super( x, y, 18, 18, new StringTextComponent(""), pressedAction, tooltip);
+		super( x, y, 18, 18, new TextComponent(""), pressedAction, tooltip);
 		this.icon = icon;
 	}
 
     @Override
-    public void renderButton(final @NotNull MatrixStack matrixStack, final int mouseX, final int mouseY, final float partialTicks)
+    public void renderButton(final @NotNull PoseStack matrixStack, final int mouseX, final int mouseY, final float partialTicks)
     {
         super.renderButton(matrixStack, mouseX, mouseY, partialTicks);
-        IconManager.getInstance().bindTexture();
-        RenderSystem.color4f(1f, 1f, 1f, 1f);
         blit(matrixStack, x + 1, y + 1, 0, 16,16, icon);
-        Minecraft.getInstance().getTextureManager().bind(PlayerContainer.BLOCK_ATLAS);
+        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
     }
 }

@@ -1,6 +1,6 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import java.util.function.Predicate;
 
 public enum VoxelType

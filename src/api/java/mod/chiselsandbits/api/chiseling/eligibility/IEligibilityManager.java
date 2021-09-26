@@ -1,11 +1,9 @@
 package mod.chiselsandbits.api.chiseling.eligibility;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -48,7 +46,7 @@ public interface IEligibilityManager
      *
      * @return True when chiselable or already chiseled.
      */
-    default boolean canBeChiseled(@NotNull final IItemProvider provider)
+    default boolean canBeChiseled(@NotNull final ItemLike provider)
     {
         return analyse(provider).canBeChiseled();
     }
@@ -80,5 +78,5 @@ public interface IEligibilityManager
      *
      * @return The analysis result.
      */
-    IEligibilityAnalysisResult analyse(@NotNull final IItemProvider provider);
+    IEligibilityAnalysisResult analyse(@NotNull final ItemLike provider);
 }

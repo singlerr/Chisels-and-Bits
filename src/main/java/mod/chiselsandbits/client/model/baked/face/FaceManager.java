@@ -9,21 +9,21 @@ import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
 import mod.chiselsandbits.client.model.baked.face.model.ModelVertexRange;
 import mod.chiselsandbits.client.model.baked.simple.SimpleGeneratedModel;
 import mod.chiselsandbits.utils.ItemStackUtils;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.texture.MissingTextureSprite;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -99,7 +99,7 @@ public final class FaceManager
       final Direction face,
       final long primaryStateRenderSeed)
     {
-        final IBakedModel model = solveModel(state, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state), primaryStateRenderSeed);
+        final BakedModel model = solveModel(state, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state), primaryStateRenderSeed);
         final int lv = Configuration.getInstance().getClient().useGetLightValue.get() ? DeprecationHelper.getLightValue(state) : 0;
 
         final Fluid fluid = state.getFluidState().getType();
@@ -117,17 +117,17 @@ public final class FaceManager
 
             if (face.getAxis() == Direction.Axis.Y)
             {
-                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(fluid.getAttributes().getStillTexture()));
+                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluid.getAttributes().getStillTexture()));
                 mp[0].setUvs(new float[] {Uf, Vf, 0, Vf, Uf, 0, 0, 0});
             }
             else if (face.getAxis() == Direction.Axis.X)
             {
-                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(fluid.getAttributes().getFlowingTexture()));
+                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluid.getAttributes().getFlowingTexture()));
                 mp[0].setUvs(new float[] {U, 0, U, V, 0, 0, 0, V});
             }
             else
             {
-                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(fluid.getAttributes().getFlowingTexture()));
+                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluid.getAttributes().getFlowingTexture()));
                 mp[0].setUvs(new float[] {U, 0, 0, 0, U, V, 0, V});
             }
 
@@ -183,19 +183,18 @@ public final class FaceManager
                     int uCoord = 0;
                     int vCoord = 2;
 
-                    switch ( face )
+                    switch (face)
                     {
-                        case NORTH:
-                        case SOUTH:
+                        case NORTH, SOUTH -> {
                             uCoord = 0;
                             vCoord = 1;
-                            break;
-                        case EAST:
-                        case WEST:
+                        }
+                        case EAST, WEST -> {
                             uCoord = 1;
                             vCoord = 2;
-                            break;
-                        default:
+                        }
+                        default -> {
+                        }
                     }
 
                     b = new ModelQuadLayer.ModelQuadLayerBuilder( sprite, uCoord, vCoord );
@@ -207,7 +206,7 @@ public final class FaceManager
 
                 if ( Configuration.getInstance().getClient().enableFaceLightmapExtraction.get() )
                 {
-                    b.lv.setVertexFormat(DefaultVertexFormats.BLOCK);
+                    b.lv.setVertexFormat(DefaultVertexFormat.BLOCK);
                     q.pipe( b.lv );
                 }
             }
@@ -217,9 +216,9 @@ public final class FaceManager
         }
     }
 
-    private static IBakedModel solveModel(
+    private static BakedModel solveModel(
       final BlockState state,
-      final IBakedModel originalModel,
+      final BakedModel originalModel,
       final long primaryStateRenderSeed)
     {
         boolean hasFaces;
@@ -244,8 +243,8 @@ public final class FaceManager
             final ItemStack is = ItemStackUtils.getItemStackFromBlockState(state);
             if (!is.isEmpty())
             {
-                final IBakedModel itemModel =
-                  Minecraft.getInstance().getItemRenderer().getModel(is, Minecraft.getInstance().level, Minecraft.getInstance().player);
+                final BakedModel itemModel =
+                  Minecraft.getInstance().getItemRenderer().getModel(is, Minecraft.getInstance().level, Minecraft.getInstance().player, 0);
 
                 try
                 {
@@ -277,7 +276,7 @@ public final class FaceManager
     }
 
     private static boolean hasFaces(
-      final IBakedModel model,
+      final BakedModel model,
       final BlockState state,
       final Direction f,
       final long primaryStateRenderSeed)
@@ -310,7 +309,7 @@ public final class FaceManager
 
     public static TextureAtlasSprite findTexture(
       final BlockState state,
-      final IBakedModel model,
+      final BakedModel model,
       final Direction myFace,
       final long primaryStateRenderSeed)
     {
@@ -365,7 +364,7 @@ public final class FaceManager
 
         if (texture == null)
         {
-            texture = Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(new ResourceLocation("missingno"));
+            texture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(new ResourceLocation("missingno"));
         }
 
         return texture;
@@ -391,7 +390,7 @@ public final class FaceManager
       final BakedQuad q) throws IllegalArgumentException, NullPointerException
     {
         if (q.sprite == null)
-            return Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(MissingTextureSprite.getLocation());
+            return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(MissingTextureAtlasSprite.getLocation());
         return q.sprite;
     }
 
@@ -399,11 +398,11 @@ public final class FaceManager
         if (sprite == null)
             return true;
 
-        return sprite.getName().equals(MissingTextureSprite.getLocation());
+        return sprite.getName().equals(MissingTextureAtlasSprite.getLocation());
     }
 
     private static List<BakedQuad> getModelQuads(
-      final IBakedModel model,
+      final BakedModel model,
       final BlockState state,
       final Direction f,
       final long primaryStateRenderSeed)
@@ -430,7 +429,7 @@ public final class FaceManager
         final ItemStack is = ItemStackUtils.getItemStackFromBlockState( state );
         if ( !is.isEmpty() )
         {
-            final IBakedModel secondModel = getOverrides( model ).resolve( model, is, Minecraft.getInstance().level, Minecraft.getInstance().player );
+            final BakedModel secondModel = getOverrides( model ).resolve( model, is, Minecraft.getInstance().level, Minecraft.getInstance().player, 0);
 
             if ( secondModel != null )
             {
@@ -448,14 +447,14 @@ public final class FaceManager
         return Collections.emptyList();
     }
 
-    private static ItemOverrideList getOverrides(
-      final IBakedModel model )
+    private static ItemOverrides getOverrides(
+      final BakedModel model )
     {
         if ( model != null )
         {
             return model.getOverrides();
         }
-        return ItemOverrideList.EMPTY;
+        return ItemOverrides.EMPTY;
     }
 
     private int getColorFor(
@@ -494,18 +493,9 @@ public final class FaceManager
         }
     }
 
-    private static final class Key {
-        private final BlockState blockState;
-        private final RenderType renderType;
-        private final Direction direction;
-        private final long primaryStateSeed;
-
-        private Key(final BlockState blockState, final RenderType renderType, final Direction direction, final long primaryStateSeed) {
-            this.blockState = blockState;
-            this.renderType = renderType;
-            this.direction = direction;
-            this.primaryStateSeed = primaryStateSeed;
-        }
+    private record Key(BlockState blockState, RenderType renderType, Direction direction,
+                       long primaryStateSeed)
+    {
 
         @Override
         public boolean equals(final Object o)
@@ -514,12 +504,10 @@ public final class FaceManager
             {
                 return true;
             }
-            if (!(o instanceof Key))
+            if (!(o instanceof final Key key))
             {
                 return false;
             }
-
-            final Key key = (Key) o;
 
             if (primaryStateSeed != key.primaryStateSeed)
             {

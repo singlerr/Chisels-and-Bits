@@ -7,7 +7,7 @@ import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModBlocks;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;

@@ -5,9 +5,9 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.render.MeasurementRenderer;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,7 +20,7 @@ public class WorldRenderLastHandler
     @SubscribeEvent
     public static void renderCustomWorldHighlight(final RenderWorldLastEvent event)
     {
-        final PlayerEntity playerEntity = Minecraft.getInstance().player;
+        final Player playerEntity = Minecraft.getInstance().player;
         if (playerEntity == null)
             return;
 

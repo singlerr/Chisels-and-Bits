@@ -1,9 +1,8 @@
 package mod.chiselsandbits.api.item.withmode;
 
 import mod.chiselsandbits.api.util.IWithDisplayName;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -45,7 +44,7 @@ public interface IRenderableMode extends IWithDisplayName
      * @return The color in a 3d double vector as RGB.
      */
     @NotNull
-    default Vector3d getColorVector() {
-        return new Vector3d(1d, 1d,1d);
+    default Vec3 getColorVector() {
+        return new Vec3(1d, 1d,1d);
     }
 }

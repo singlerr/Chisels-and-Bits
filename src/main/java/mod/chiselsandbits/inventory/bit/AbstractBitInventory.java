@@ -5,8 +5,8 @@ import mod.chiselsandbits.api.inventory.bit.IBitInventoryItem;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.stream.IntStream;
 

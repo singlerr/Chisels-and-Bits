@@ -2,8 +2,8 @@ package mod.chiselsandbits.api.chiseling;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
 
@@ -30,7 +30,7 @@ public interface IChiselingManager
      * @return The context.
      */
     default IChiselingContext getOrCreateContext(
-      final PlayerEntity playerEntity,
+      final Player playerEntity,
       final IChiselMode mode,
       final ChiselingOperation modeOfOperandus,
       final boolean simulation,
@@ -55,7 +55,7 @@ public interface IChiselingManager
      * @return An optional potentially containing the current context of the player.
      */
     Optional<IChiselingContext> get(
-      final PlayerEntity playerEntity,
+      final Player playerEntity,
       final IChiselMode mode
     );
 
@@ -69,7 +69,7 @@ public interface IChiselingManager
      * @return An optional potentially containing the current context of the player.
      */
     Optional<IChiselingContext> get(
-      final PlayerEntity playerEntity,
+      final Player playerEntity,
       final IChiselMode mode,
       final ChiselingOperation modeOfOperandus
     );
@@ -87,7 +87,7 @@ public interface IChiselingManager
      * @return The newly created context.
      */
     IChiselingContext create(
-      final PlayerEntity playerEntity,
+      final Player playerEntity,
       final IChiselMode mode,
       final ChiselingOperation modeOfOperandus,
       final boolean simulation,

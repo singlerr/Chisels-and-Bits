@@ -18,17 +18,16 @@ import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntry
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
-import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.Constants;
 
 import java.util.Objects;
@@ -38,10 +37,10 @@ import java.util.stream.Stream;
 public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
 {
     public static final BlockState DEFAULT_STATE = Blocks.STONE.defaultBlockState();
-    private final IWorld world;
+    private final LevelAccessor world;
     private final BlockPos pos;
 
-    public ChiselAdaptingWorldMutator(final IWorld world, final BlockPos pos)
+    public ChiselAdaptingWorldMutator(final LevelAccessor world, final BlockPos pos)
     {
         this.world = world;
         this.pos = pos;
@@ -57,7 +56,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public IAreaShapeIdentifier createNewShapeIdentifier()
     {
-        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).createNewShapeIdentifier();
@@ -70,7 +69,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public Stream<IStateEntryInfo> stream()
     {
-        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).stream();
@@ -78,7 +77,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
 
         final BlockState currentState = getWorld().getBlockState(getPos());
         if (IEligibilityManager.getInstance().canBeChiseled(currentState) ||
-            currentState.isAir(new SingleBlockBlockReader(currentState, getPos(), getWorld()), getPos()))
+            currentState.isAir())
         {
             return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                      .map(blockPos -> new MutablePreAdaptedStateEntry(
@@ -102,7 +101,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
      * @return An optional potentially containing the state entry of the requested target.
      */
     @Override
-    public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
+    public Optional<IStateEntryInfo> getInAreaTarget(final Vec3 inAreaTarget)
     {
         if (inAreaTarget.x() < 0 ||
               inAreaTarget.y() < 0 ||
@@ -118,7 +117,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             return Optional.empty();
         }
 
-        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).getInAreaTarget(inAreaTarget);
@@ -146,7 +145,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
      * @return An optional potentially containing the state entry of the requested target.
      */
     @Override
-    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
         {
@@ -163,7 +162,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
      * @return True when inside, false when not.
      */
     @Override
-    public boolean isInside(final Vector3d inAreaTarget)
+    public boolean isInside(final Vec3 inAreaTarget)
     {
         return !(inAreaTarget.x() < 0) &&
                  !(inAreaTarget.y() < 0) &&
@@ -181,7 +180,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
      * @return True when inside, false when not.
      */
     @Override
-    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
         {
@@ -194,14 +193,14 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public IMultiStateSnapshot createSnapshot()
     {
-        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).createSnapshot();
         }
 
         final BlockState blockState = getWorld().getBlockState(getPos());
-        final ChunkSection temporarySection = new ChunkSection(0);
+        final LevelChunkSection temporarySection = new LevelChunkSection(0);
         for (int x = 0; x < StateEntrySize.current().getBitsPerBlockSide(); x++)
         {
             for (int y = 0; y < StateEntrySize.current().getBitsPerBlockSide(); y++)
@@ -219,7 +218,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
     {
-        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).streamWithPositionMutator(positionMutator);
@@ -227,7 +226,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
 
         final BlockState currentState = getWorld().getBlockState(getPos());
         if (IEligibilityManager.getInstance().canBeChiseled(currentState) ||
-              currentState.isAir(new SingleBlockBlockReader(currentState, getPos(), getWorld()), getPos()))
+              currentState.isAir())
         {
             return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                      .map(positionMutator::mutate)
@@ -246,7 +245,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     }
 
     @Override
-    public IWorld getWorld()
+    public LevelAccessor getWorld()
     {
         return world;
     }
@@ -257,15 +256,15 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     }
 
     @Override
-    public Vector3d getInWorldStartPoint()
+    public Vec3 getInWorldStartPoint()
     {
-        return Vector3d.atLowerCornerOf(pos);
+        return Vec3.atLowerCornerOf(pos);
     }
 
     @Override
-    public Vector3d getInWorldEndPoint()
+    public Vec3 getInWorldEndPoint()
     {
-        return Vector3d.atLowerCornerOf(pos).add(
+        return Vec3.atLowerCornerOf(pos).add(
           15 * StateEntrySize.current().getSizePerBit(),
           15 * StateEntrySize.current().getSizePerBit(),
           15 * StateEntrySize.current().getSizePerBit()
@@ -280,7 +279,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public Stream<IMutableStateEntryInfo> mutableStream()
     {
-        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).mutableStream();
@@ -306,7 +305,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
 
     @SuppressWarnings("deprecation")
     @Override
-    public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
+    public void setInAreaTarget(final BlockState blockState, final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
         if (inAreaTarget.x() < 0 ||
               inAreaTarget.y() < 0 ||
@@ -324,7 +323,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
               "The chisel adapting world mutator can only mutate blocks with an in area offset smaller then 1. Requested was: " + inAreaTarget);
         }
 
-        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             ((IMultiStateBlockEntity) tileEntity).setInAreaTarget(blockState, inAreaTarget);
@@ -332,8 +331,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
 
         final BlockState currentState = getWorld().getBlockState(getPos());
-        //TODO: On 1.17 update: Replace with normal isAir()
-        if (!currentState.isAir(getWorld(), getPos()))
+        if (!currentState.isAir())
         {
             throw new SpaceOccupiedException();
         }
@@ -348,7 +346,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
               Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.UPDATE_NEIGHBORS
             );
 
-            final TileEntity convertedTileEntity = getWorld().getBlockEntity(getPos());
+            final BlockEntity convertedTileEntity = getWorld().getBlockEntity(getPos());
             if (convertedTileEntity instanceof IMultiStateBlockEntity)
             {
                 ((IMultiStateBlockEntity) convertedTileEntity).initializeWith(currentState);
@@ -361,7 +359,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     }
 
     @Override
-    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
         {
@@ -378,7 +376,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
      */
     @SuppressWarnings("deprecation")
     @Override
-    public void clearInAreaTarget(final Vector3d inAreaTarget)
+    public void clearInAreaTarget(final Vec3 inAreaTarget)
     {
         if (inAreaTarget.x() < 0 ||
               inAreaTarget.y() < 0 ||
@@ -396,7 +394,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
               "The chisel adapting world mutator can only mutate blocks with an in area offset smaller then 1. Requested was: " + inAreaTarget);
         }
 
-        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             ((IMultiStateBlockEntity) tileEntity).clearInAreaTarget(inAreaTarget);
@@ -404,8 +402,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
 
         final BlockState currentState = getWorld().getBlockState(getPos());
-        //TODO: On 1.17 update: Replace with normal isAir()
-        if (currentState.isAir(getWorld(), getPos()))
+        if (currentState.isAir())
         {
             return;
         }
@@ -420,7 +417,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
               Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.UPDATE_NEIGHBORS
             );
 
-            final TileEntity convertedTileEntity = getWorld().getBlockEntity(getPos());
+            final BlockEntity convertedTileEntity = getWorld().getBlockEntity(getPos());
             if (convertedTileEntity instanceof IMultiStateBlockEntity)
             {
                 ((IMultiStateBlockEntity) convertedTileEntity).initializeWith(currentState);
@@ -439,7 +436,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
      * @param inBlockTarget        The offset in the targeted block.
      */
     @Override
-    public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
         {
@@ -458,7 +455,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public Stream<IInWorldMutableStateEntryInfo> inWorldMutableStream()
     {
-        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).inWorldMutableStream();
@@ -466,7 +463,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
 
         final BlockState currentState = getWorld().getBlockState(getPos());
         if (IEligibilityManager.getInstance().canBeChiseled(currentState) ||
-            currentState.isAir(new SingleBlockBlockReader(currentState, getPos(), getWorld()), getPos()))
+            currentState.isAir())
         {
             return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                      .map(blockPos -> new MutablePreAdaptedStateEntry(
@@ -494,7 +491,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     @Override
     public IBatchMutation batch()
     {
-        final TileEntity tileEntity = getWorld().getBlockEntity(getPos());
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
         if (tileEntity instanceof IMultiStateBlockEntity)
         {
             return ((IMultiStateBlockEntity) tileEntity).batch();
@@ -502,8 +499,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
 
         BlockState currentState = getWorld().getBlockState(getPos());
         BlockState initializationState = currentState;
-        //TODO: On 1.17 update: Replace with normal isAir()
-        if (currentState.isAir(getWorld(), getPos()))
+        if (currentState.isAir())
         {
             //This happens when placing into an empty blockspace.
             //We will assume a simple rock as the base material. The TE will fix itself after the placement.
@@ -521,7 +517,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
               Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.UPDATE_NEIGHBORS
             );
 
-            final TileEntity convertedTileEntity = getWorld().getBlockEntity(getPos());
+            final BlockEntity convertedTileEntity = getWorld().getBlockEntity(getPos());
             if (convertedTileEntity instanceof IMultiStateBlockEntity)
             {
                 ((IMultiStateBlockEntity) convertedTileEntity).initializeWith(initializationState);
@@ -540,9 +536,9 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
     {
 
         private final BlockState blockState;
-        private final IWorld     world;
-        private final Vector3d     startPoint;
-        private final Vector3d     endPoint;
+        private final LevelAccessor     world;
+        private final Vec3     startPoint;
+        private final Vec3     endPoint;
         private final BlockPos     blockPos;
 
         private final StateSetter  setCallback;
@@ -550,16 +546,16 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
 
         public MutablePreAdaptedStateEntry(
           final BlockState blockState,
-          final IWorld world,
+          final LevelAccessor world,
           final BlockPos blockPos,
-          final Vector3i inBlockOffset,
+          final Vec3i inBlockOffset,
           final StateSetter setCallback,
           final StateClearer clearCallback)
         {
             this.blockState = blockState;
             this.world = world;
             this.blockPos = blockPos;
-            this.startPoint = Vector3d.atLowerCornerOf(inBlockOffset).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
+            this.startPoint = Vec3.atLowerCornerOf(inBlockOffset).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
             this.setCallback = setCallback;
             this.clearCallback = clearCallback;
             this.endPoint = this.startPoint.add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
@@ -582,7 +578,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
          * @return The start position of this entry in the given block.
          */
         @Override
-        public Vector3d getStartPoint()
+        public Vec3 getStartPoint()
         {
             return startPoint;
         }
@@ -593,7 +589,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
          * @return The start position of this entry in the given block.
          */
         @Override
-        public Vector3d getEndPoint()
+        public Vec3 getEndPoint()
         {
             return endPoint;
         }
@@ -604,7 +600,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
          * @return The world.
          */
         @Override
-        public IWorld getWorld()
+        public LevelAccessor getWorld()
         {
             return world;
         }
@@ -654,11 +650,10 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             {
                 return true;
             }
-            if (!(o instanceof PreAdaptedShapeIdentifier))
+            if (!(o instanceof final PreAdaptedShapeIdentifier that))
             {
                 return false;
             }
-            final PreAdaptedShapeIdentifier that = (PreAdaptedShapeIdentifier) o;
             return blockState == that.blockState;
         }
 

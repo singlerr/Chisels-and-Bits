@@ -1,8 +1,8 @@
 package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.api.util.MathUtil;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public class AABBUtils
         throw new IllegalStateException("Can not instantiate an instance of: AABBUtils. This is a utility class");
     }
 
-    public static boolean areBoxesNeighbors(@NotNull final AxisAlignedBB l, @NotNull final AxisAlignedBB r,@NotNull final Direction direction) {
+    public static boolean areBoxesNeighbors(@NotNull final AABB l, @NotNull final AABB r,@NotNull final Direction direction) {
         final double endOfL = getDirectionalValue(l, direction);
         final double startOfR = getDirectionalValue(r, direction.getOpposite());
 
@@ -36,7 +36,7 @@ public class AABBUtils
         ));
     }
 
-    public static double getDirectionalValue(@NotNull final AxisAlignedBB bb, @NotNull final Direction direction) {
+    public static double getDirectionalValue(@NotNull final AABB bb, @NotNull final Direction direction) {
         return direction.getAxisDirection() == Direction.AxisDirection.POSITIVE ?
                  bb.max(direction.getAxis()) :
                  bb.min(direction.getAxis());

@@ -24,9 +24,6 @@ public class GameInitializationManager
 
         initialized = true;
 
-        GLFWInitializationManager.getInstance().initialize();
         MinecraftInstanceManager.getInstance().initialize(existingFileHelper);
-
-        ModelLoadingHandler.loadAndBake();
     }
 }

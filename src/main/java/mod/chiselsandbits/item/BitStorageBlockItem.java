@@ -4,20 +4,23 @@ import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.util.DeprecationHelper;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import mod.chiselsandbits.client.ister.BitStorageISTER;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.IItemRenderProperties;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
@@ -28,6 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BitStorageBlockItem extends BlockItem
 {
@@ -41,7 +45,7 @@ public class BitStorageBlockItem extends BlockItem
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(
-      final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
+      final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
     {
         super.appendHoverText( stack, worldIn, tooltip, flagIn );
         if (CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY == null)
@@ -63,24 +67,23 @@ public class BitStorageBlockItem extends BlockItem
 
     @Nullable
     @Override
-    public ICapabilityProvider initCapabilities(final ItemStack stack, @Nullable final CompoundNBT nbt)
+    public ICapabilityProvider initCapabilities(final ItemStack stack, @Nullable final CompoundTag nbt)
     {
         return new FluidHandlerItemStack(stack, FluidAttributes.BUCKET_VOLUME);
     }
 
     @Override
     protected boolean updateCustomBlockEntityTag(
-      final @NotNull BlockPos pos, final @NotNull World worldIn, @Nullable final PlayerEntity player, final @NotNull ItemStack stack, final @NotNull BlockState state)
+      final @NotNull BlockPos pos, final @NotNull Level worldIn, @Nullable final Player player, final @NotNull ItemStack stack, final @NotNull BlockState state)
     {
         super.updateCustomBlockEntityTag(pos, worldIn, player, stack, state);
         if (worldIn.isClientSide)
             return false;
 
-        final TileEntity tileEntity = worldIn.getBlockEntity(pos);
-        if (!(tileEntity instanceof BitStorageBlockEntity))
+        final BlockEntity tileEntity = worldIn.getBlockEntity(pos);
+        if (!(tileEntity instanceof final BitStorageBlockEntity tileEntityBitStorage))
             return false;
 
-        final BitStorageBlockEntity tileEntityBitStorage = (BitStorageBlockEntity) tileEntity;
         tileEntityBitStorage
           .getCapability(
             CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY
@@ -99,5 +102,17 @@ public class BitStorageBlockItem extends BlockItem
           );
 
         return true;
+    }
+
+    @Override
+    public void initializeClient(final Consumer<IItemRenderProperties> consumer)
+    {
+        consumer.accept(new IItemRenderProperties() {
+            @Override
+            public BlockEntityWithoutLevelRenderer getItemStackRenderer()
+            {
+                return new BitStorageISTER();
+            }
+        });
     }
 }

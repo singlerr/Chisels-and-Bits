@@ -12,15 +12,15 @@ import mod.chiselsandbits.keys.contexts.SpecificScreenOpenKeyConflictContext;
 import mod.chiselsandbits.network.packets.HeldToolModeChangedPacket;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.KeyMapping;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fmlclient.registry.ClientRegistry;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
@@ -28,10 +28,10 @@ import java.util.List;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class KeyBindingManager
 {
-    private KeyBinding openToolMenuKeybinding = null;
-    private KeyBinding cycleToolMenuLeftKeybinding = null;
-    private KeyBinding cycleToolMenuRightKeybinding = null;
-    private KeyBinding resetMeasuringTapeKeyBinding = null;
+    private KeyMapping openToolMenuKeybinding = null;
+    private KeyMapping cycleToolMenuLeftKeybinding = null;
+    private KeyMapping cycleToolMenuRightKeybinding = null;
+    private KeyMapping resetMeasuringTapeKeyBinding = null;
 
     private boolean toolMenuKeyWasDown = false;
     private int toolModeSelectionPlusCoolDown = 15;
@@ -51,30 +51,30 @@ public class KeyBindingManager
 
     public void onModInitialization() {
         ClientRegistry.registerKeyBinding(openToolMenuKeybinding =
-                                            new KeyBinding("key.modded-tool.open",
+                                            new KeyMapping("key.modded-tool.open",
                                               HoldsWithToolItemInHandKeyConflictContext.getInstance(),
-                                              InputMappings.Type.KEYSYM,
+                                              InputConstants.Type.KEYSYM,
                                               GLFW.GLFW_KEY_R,
                                               "key.chiselsandbits.category"));
 
         ClientRegistry.registerKeyBinding(cycleToolMenuLeftKeybinding =
-                                            new KeyBinding("key.modded-tool.cycle.left",
+                                            new KeyMapping("key.modded-tool.cycle.left",
                                               SpecificScreenOpenKeyConflictContext.RADIAL_TOOL_MENU,
-                                              InputMappings.Type.KEYSYM,
-                                              InputMappings.UNKNOWN.getValue(),
+                                              InputConstants.Type.KEYSYM,
+                                              InputConstants.UNKNOWN.getValue(),
                                               "key.chiselsandbits.category"));
 
         ClientRegistry.registerKeyBinding(cycleToolMenuRightKeybinding =
-                                            new KeyBinding("key.modded-tool.cycle.right",
+                                            new KeyMapping("key.modded-tool.cycle.right",
                                               SpecificScreenOpenKeyConflictContext.RADIAL_TOOL_MENU,
-                                              InputMappings.Type.KEYSYM,
-                                              InputMappings.UNKNOWN.getValue(),
+                                              InputConstants.Type.KEYSYM,
+                                              InputConstants.UNKNOWN.getValue(),
                                               "key.chiselsandbits.category"));
 
         ClientRegistry.registerKeyBinding(resetMeasuringTapeKeyBinding =
-                                            new KeyBinding("key.measuring-tape.reset",
+                                            new KeyMapping("key.measuring-tape.reset",
                                               HoldsSpecificItemInHandKeyConflictContext.MEASURING_TAPE,
-                                              KeyModifier.SHIFT, InputMappings.Type.MOUSE, 1,
+                                              KeyModifier.SHIFT, InputConstants.Type.MOUSE, 1,
                                               "key.chiselsandbits.category"));
 
     }
@@ -120,8 +120,7 @@ public class KeyBindingManager
             toolMenuKeyWasDown = true;
         }
 
-        if (mc.screen instanceof RadialToolModeSelectionScreen) {
-            final RadialToolModeSelectionScreen<?> radialToolMenuScreen = (RadialToolModeSelectionScreen<?>) mc.screen;
+        if (mc.screen instanceof final RadialToolModeSelectionScreen<?> radialToolMenuScreen) {
 
             if (toolModeSelectionPlusCoolDown == 0 && isCycleToolMenuRightKeyPressed())
                 radialToolMenuScreen.onMoveSelectionToTheRight();
@@ -171,21 +170,17 @@ public class KeyBindingManager
             toolModeSelectionMinusCoolDown = 15;
     }
 
-    public boolean isKeyDown(KeyBinding keybinding)
+    public boolean isKeyDown(KeyMapping keybinding)
     {
         if (keybinding.isUnbound())
             return false;
 
-        boolean isDown = false;
-        switch (keybinding.getKey().getType())
-        {
-            case KEYSYM:
-                isDown = InputMappings.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), keybinding.getKey().getValue());
-                break;
-            case MOUSE:
-                isDown = GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), keybinding.getKey().getValue()) == GLFW.GLFW_PRESS;
-                break;
-        }
+        boolean isDown = switch (keybinding.getKey().getType())
+                           {
+                               case KEYSYM -> InputConstants.isKeyDown(Minecraft.getInstance().getWindow().getWindow(), keybinding.getKey().getValue());
+                               case MOUSE -> GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), keybinding.getKey().getValue()) == GLFW.GLFW_PRESS;
+                               default -> false;
+                           };
         return isDown && keybinding.getKeyConflictContext().isActive() && keybinding.getKeyModifier().isActive(keybinding.getKeyConflictContext());
     }
 
@@ -193,7 +188,7 @@ public class KeyBindingManager
         return resetMeasuringTapeKeyBinding != null;
     }
 
-    public KeyBinding getResetMeasuringTapeKeyBinding()
+    public KeyMapping getResetMeasuringTapeKeyBinding()
     {
         if (resetMeasuringTapeKeyBinding == null)
             throw new IllegalStateException("Keybindings have not been initialized.");
@@ -201,7 +196,7 @@ public class KeyBindingManager
         return resetMeasuringTapeKeyBinding;
     }
 
-    public KeyBinding getOpenToolMenuKeybinding()
+    public KeyMapping getOpenToolMenuKeybinding()
     {
         if (openToolMenuKeybinding == null)
             throw new IllegalStateException("Keybindings have not been initialized.");
@@ -209,7 +204,7 @@ public class KeyBindingManager
         return openToolMenuKeybinding;
     }
 
-    public KeyBinding getCycleToolMenuLeftKeybinding()
+    public KeyMapping getCycleToolMenuLeftKeybinding()
     {
         if (cycleToolMenuLeftKeybinding == null)
             throw new IllegalStateException("Keybindings have not been initialized.");
@@ -217,7 +212,7 @@ public class KeyBindingManager
         return cycleToolMenuLeftKeybinding;
     }
 
-    public KeyBinding getCycleToolMenuRightKeybinding()
+    public KeyMapping getCycleToolMenuRightKeybinding()
     {
         if (cycleToolMenuRightKeybinding == null)
             throw new IllegalStateException("Keybindings have not been initialized.");

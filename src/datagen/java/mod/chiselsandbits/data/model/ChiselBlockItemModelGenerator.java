@@ -5,16 +5,16 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.block.ChiseledBlock;
 import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.registrars.ModBlocks;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Material;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.DataProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.fmllegacy.RegistryObject;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ChiselBlockItemModelGenerator implements IDataProvider
+public class ChiselBlockItemModelGenerator implements DataProvider
 {
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
@@ -36,7 +36,7 @@ public class ChiselBlockItemModelGenerator implements IDataProvider
     private ChiselBlockItemModelGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void run(@NotNull final DirectoryCache cache) throws IOException
+    public void run(@NotNull final HashCache cache) throws IOException
     {
         for (Map.Entry<Material, RegistryObject<ChiseledBlock>> entry : ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.entrySet())
         {
@@ -52,7 +52,7 @@ public class ChiselBlockItemModelGenerator implements IDataProvider
         return "Chisel block item model generator";
     }
 
-    public void actOnBlockWithParent(final DirectoryCache cache, final Block block, final ResourceLocation parent) throws IOException
+    public void actOnBlockWithParent(final HashCache cache, final Block block, final ResourceLocation parent) throws IOException
     {
         final ItemModelJson json = new ItemModelJson();
         json.setParent(parent.toString());
@@ -60,7 +60,7 @@ public class ChiselBlockItemModelGenerator implements IDataProvider
         saveBlockJson(cache, json, Objects.requireNonNull(block.getRegistryName()).getPath());
     }
 
-    public void actOnBlockWithLoader(final DirectoryCache cache, final ResourceLocation loader, final String materialName) throws IOException
+    public void actOnBlockWithLoader(final HashCache cache, final ResourceLocation loader, final String materialName) throws IOException
     {
         final ItemModelJson json = new ItemModelJson();
         json.setParent("item/generated");
@@ -69,11 +69,11 @@ public class ChiselBlockItemModelGenerator implements IDataProvider
         saveBlockJson(cache, json, "chiseled" + materialName);
     }
 
-    private void saveBlockJson(final DirectoryCache cache, final ItemModelJson json, final String name) throws IOException
+    private void saveBlockJson(final HashCache cache, final ItemModelJson json, final String name) throws IOException
     {
         final Path itemModelFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.ITEM_MODEL_DIR);
         final Path itemModelPath = itemModelFolder.resolve(name + ".json");
 
-        IDataProvider.save(Constants.DataGenerator.GSON, cache, json.serialize(), itemModelPath);
+        DataProvider.save(Constants.DataGenerator.GSON, cache, json.serialize(), itemModelPath);
     }
 }

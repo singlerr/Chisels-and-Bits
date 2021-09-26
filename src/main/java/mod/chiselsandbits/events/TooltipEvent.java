@@ -5,11 +5,11 @@ import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.item.MagnifyingGlassItem;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.BlockItem;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.ChatFormatting;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -34,8 +34,8 @@ public class TooltipEvent
 
                     event.getToolTip().add(
                         result.canBeChiseled() || result.isAlreadyChiseled() ?
-                          result.getReason().withStyle(TextFormatting.GREEN) :
-                          result.getReason().withStyle(TextFormatting.RED)
+                          result.getReason().withStyle(ChatFormatting.GREEN) :
+                          result.getReason().withStyle(ChatFormatting.RED)
                     );
                 }
     }

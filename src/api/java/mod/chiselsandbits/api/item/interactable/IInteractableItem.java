@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.item.interactable;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Represents an item which can be used to interact with other items in the other hand.

@@ -2,9 +2,9 @@ package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.container.BagContainer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.NotNull;
 
 public final class BagGuiStackPacket extends ModPacket
@@ -12,7 +12,7 @@ public final class BagGuiStackPacket extends ModPacket
     private int       index = -1;
     private ItemStack stack;
 
-    public BagGuiStackPacket(final PacketBuffer buffer)
+    public BagGuiStackPacket(final FriendlyByteBuf buffer)
     {
         super(buffer);
     }
@@ -36,7 +36,7 @@ public final class BagGuiStackPacket extends ModPacket
             return;
         }
 
-        final Container cc = Minecraft.getInstance().player.containerMenu;
+        final AbstractContainerMenu cc = Minecraft.getInstance().player.containerMenu;
         if (cc instanceof BagContainer)
         {
             ((BagContainer) cc).customSlots.get(index).set(stack);
@@ -45,7 +45,7 @@ public final class BagGuiStackPacket extends ModPacket
 
     @Override
     public void readPayload(
-      final PacketBuffer buffer)
+      final FriendlyByteBuf buffer)
     {
         index = buffer.readInt();
         stack = buffer.readItem();
@@ -53,7 +53,7 @@ public final class BagGuiStackPacket extends ModPacket
     }
 
     @Override
-    public void writePayload(final PacketBuffer buffer)
+    public void writePayload(final FriendlyByteBuf buffer)
     {
         buffer.writeInt(index);
 

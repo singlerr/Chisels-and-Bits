@@ -4,13 +4,14 @@ import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.withhighlight.IWithHighlightItem;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
-import net.minecraft.block.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.IFluidBlock;
@@ -53,9 +54,9 @@ public class ItemStackUtils
         {
             return Items.LAVA_BUCKET;
         }
-        else if (block instanceof CropsBlock)
+        else if (block instanceof CropBlock)
         {
-            final ItemStack stack = ((CropsBlock) block).getCloneItemStack(new SingleBlockBlockReader(blockState), BlockPos.ZERO, blockState);
+            final ItemStack stack = ((CropBlock) block).getCloneItemStack(new SingleBlockBlockReader(blockState), BlockPos.ZERO, blockState);
             if (!stack.isEmpty())
             {
                 return stack.getItem();
@@ -64,7 +65,7 @@ public class ItemStackUtils
             return Items.WHEAT_SEEDS;
         }
         // oh no...
-        else if (block instanceof FarmlandBlock || block instanceof GrassPathBlock)
+        else if (block instanceof FarmBlock || block instanceof DirtPathBlock)
         {
             return Blocks.DIRT.asItem();
         }
@@ -86,7 +87,7 @@ public class ItemStackUtils
         }
     }
 
-    public static ItemStack getModeItemStackFromPlayer(@Nullable final PlayerEntity playerEntity)
+    public static ItemStack getModeItemStackFromPlayer(@Nullable final Player playerEntity)
     {
         if (playerEntity == null)
         {
@@ -106,7 +107,7 @@ public class ItemStackUtils
         return ItemStack.EMPTY;
     }
 
-    public static ItemStack getHighlightItemStackFromPlayer(@Nullable final PlayerEntity playerEntity)
+    public static ItemStack getHighlightItemStackFromPlayer(@Nullable final Player playerEntity)
     {
         if (playerEntity == null)
         {
@@ -126,7 +127,7 @@ public class ItemStackUtils
         return ItemStack.EMPTY;
     }
 
-    public static ItemStack getBitItemStackFromPlayer(@Nullable final PlayerEntity playerEntity)
+    public static ItemStack getBitItemStackFromPlayer(@Nullable final Player playerEntity)
     {
         if (playerEntity == null)
         {
@@ -146,7 +147,7 @@ public class ItemStackUtils
         return ItemStack.EMPTY;
     }
 
-    public static BlockState getHeldBitBlockStateFromPlayer(@Nullable final PlayerEntity playerEntity)
+    public static BlockState getHeldBitBlockStateFromPlayer(@Nullable final Player playerEntity)
     {
         if (playerEntity == null)
         {

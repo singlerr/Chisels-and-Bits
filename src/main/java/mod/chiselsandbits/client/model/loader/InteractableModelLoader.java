@@ -5,8 +5,8 @@ import com.google.gson.JsonObject;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.model.InteractableItemModel;
 import mod.chiselsandbits.client.model.baked.interactable.InteractableBakedItemModel;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.IModelLoader;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 public final class InteractableModelLoader implements IModelLoader<InteractableItemModel>
 {
     @Override
-    public void onResourceManagerReload(@NotNull final IResourceManager resourceManager)
+    public void onResourceManagerReload(@NotNull final ResourceManager resourceManager)
     {
         //The models clean up their own inner caches, since they are not static.
     }

@@ -3,7 +3,7 @@ package mod.chiselsandbits.materials;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import net.minecraft.block.material.Material;
+import net.minecraft.world.level.material.Material;
 
 import java.util.Map;
 
@@ -37,7 +37,6 @@ public class MaterialManager
         this.registerRemapping(Material.HEAVY_METAL, Material.METAL);
         this.registerRemapping(Material.VEGETABLE, Material.PLANT);
         this.registerRemapping(Material.CACTUS, Material.PLANT);
-        this.registerRemapping(Material.CORAL, Material.STONE);
         this.registerRemapping(Material.WEB, Material.PLANT);
         this.registerRemapping(Material.EXPLOSIVE, Material.STONE);
         this.registerRemapping(Material.LAVA, Material.WATER);

@@ -11,22 +11,21 @@ import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.block.ChiseledPrinterBlock;
 import mod.chiselsandbits.container.ChiseledPrinterContainer;
 import mod.chiselsandbits.registrars.ModTileEntityTypes;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.IIntArray;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.Containers;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.NonNullLazy;
@@ -41,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableTileEntity, INamedContainerProvider
+public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvider
 {
     private final LazyOptional<EmptyHandler>     empty_handler = LazyOptional.of(NonNullLazy.of(EmptyHandler::new));
     private final LazyOptional<ItemStackHandler> tool_handler  = LazyOptional.of(NonNullLazy.of(() -> new ItemStackHandler(1) {
@@ -84,7 +83,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
         }
     }));
 
-    protected final IIntArray stationData = new IIntArray() {
+    protected final ContainerData stationData = new ContainerData() {
         public int get(int index) {
             if (index == 0)
             {
@@ -109,9 +108,9 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     private       long                     lastTickTime                = 0L;
     private final MutableObject<ItemStack> currentRealisedWorkingStack = new MutableObject<>(ItemStack.EMPTY);
 
-    public ChiseledPrinterBlockEntity()
+    public ChiseledPrinterBlockEntity(BlockPos pos, BlockState state)
     {
-        super(ModTileEntityTypes.CHISELED_PRINTER.get());
+        super(ModTileEntityTypes.CHISELED_PRINTER.get(), pos, state);
     }
 
     @NotNull
@@ -138,10 +137,12 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
         return empty_handler.cast();
     }
 
+
+
     @Override
-    public void load(final @NotNull BlockState state, final @NotNull CompoundNBT nbt)
+    public void load(final @NotNull CompoundTag nbt)
     {
-        super.load(state, nbt);
+        super.load(nbt);
 
         tool_handler.ifPresent(h -> h.deserializeNBT(nbt.getCompound("tool")));
         pattern_handler.ifPresent(h -> h.deserializeNBT(nbt.getCompound("pattern")));
@@ -151,7 +152,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     @Override
-    public @NotNull CompoundNBT save(final @NotNull CompoundNBT compound)
+    public @NotNull CompoundTag save(final @NotNull CompoundTag compound)
     {
         super.save(compound);
 
@@ -165,14 +166,13 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     @Override
-    public @NotNull CompoundNBT getUpdateTag()
+    public @NotNull CompoundTag getUpdateTag()
     {
-        final CompoundNBT nbt = new CompoundNBT();
+        final CompoundTag nbt = new CompoundTag();
         save(nbt);
         return nbt;
     }
 
-    @Override
     public void tick()
     {
         if (getLevel() == null || lastTickTime == getLevel().getGameTime() || getLevel().isClientSide()) {
@@ -197,6 +197,8 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
             setChanged();
         }
     }
+
+
 
     public IItemHandlerModifiable getPatternHandler() {
         return pattern_handler.orElseThrow(() -> new IllegalStateException("Missing empty handler."));
@@ -326,7 +328,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
 
     @Nullable
     @Override
-    public Container createMenu(final int containerId, @NotNull final PlayerInventory playerInventory, @NotNull final PlayerEntity playerEntity)
+    public AbstractContainerMenu createMenu(final int containerId, @NotNull final Inventory playerInventory, @NotNull final Player playerEntity)
     {
         return new ChiseledPrinterContainer(
           containerId,
@@ -338,7 +340,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     }
 
     @Override
-    public @NotNull ITextComponent getDisplayName()
+    public @NotNull Component getDisplayName()
     {
         return LocalStrings.ChiselStationName.getLocalText();
     }
@@ -366,7 +368,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
 
     private int getStorageContents(final Direction targetedFacing)
     {
-        final TileEntity targetedTileEntity = Objects.requireNonNull(this.getLevel()).getBlockEntity(this.getBlockPos().relative(targetedFacing));
+        final BlockEntity targetedTileEntity = Objects.requireNonNull(this.getLevel()).getBlockEntity(this.getBlockPos().relative(targetedFacing));
         if (targetedTileEntity instanceof BitStorageBlockEntity)
         {
             final BitStorageBlockEntity storage = (BitStorageBlockEntity) targetedTileEntity;
@@ -399,7 +401,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
 
     private BlockState getStorage(final Direction targetedFacing)
     {
-        final TileEntity targetedTileEntity = Objects.requireNonNull(this.getLevel()).getBlockEntity(this.getBlockPos().relative(targetedFacing));
+        final BlockEntity targetedTileEntity = Objects.requireNonNull(this.getLevel()).getBlockEntity(this.getBlockPos().relative(targetedFacing));
         if (targetedTileEntity instanceof BitStorageBlockEntity)
         {
             final BitStorageBlockEntity storage = (BitStorageBlockEntity) targetedTileEntity;
@@ -432,7 +434,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
 
     private void drainStorage(final int amount, final Direction targetedFacing)
     {
-        final TileEntity targetedTileEntity = Objects.requireNonNull(this.getLevel()).getBlockEntity(this.getBlockPos().relative(targetedFacing));
+        final BlockEntity targetedTileEntity = Objects.requireNonNull(this.getLevel()).getBlockEntity(this.getBlockPos().relative(targetedFacing));
         if (targetedTileEntity instanceof BitStorageBlockEntity)
         {
             final BitStorageBlockEntity storage = (BitStorageBlockEntity) targetedTileEntity;
@@ -440,20 +442,20 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
         }
     }
 
-    public void dropInventoryItems(World worldIn, BlockPos pos) {
-        InventoryHelper.dropItemStack(worldIn,
+    public void dropInventoryItems(Level worldIn, BlockPos pos) {
+        Containers.dropItemStack(worldIn,
           pos.getX(),
           pos.getY(),
           pos.getZ(),
           getToolStack());
 
-        InventoryHelper.dropItemStack(worldIn,
+        Containers.dropItemStack(worldIn,
           pos.getX(),
           pos.getY(),
           pos.getZ(),
           getOutputStack());
 
-        InventoryHelper.dropItemStack(worldIn,
+        Containers.dropItemStack(worldIn,
           pos.getX(),
           pos.getY(),
           pos.getZ(),

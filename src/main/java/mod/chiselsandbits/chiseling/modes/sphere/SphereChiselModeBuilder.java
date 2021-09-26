@@ -1,12 +1,12 @@
 package mod.chiselsandbits.chiseling.modes.sphere;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
 
 public class SphereChiselModeBuilder
 {
     private int                       diameter;
-    private IFormattableTextComponent displayName;
+    private MutableComponent displayName;
     private ResourceLocation iconName;
 
     public SphereChiselModeBuilder setDiameter(final int diameter)
@@ -15,7 +15,7 @@ public class SphereChiselModeBuilder
         return this;
     }
 
-    public SphereChiselModeBuilder setDisplayName(final IFormattableTextComponent displayName)
+    public SphereChiselModeBuilder setDisplayName(final MutableComponent displayName)
     {
         this.displayName = displayName;
         return this;

@@ -3,17 +3,17 @@ package mod.chiselsandbits.client.colors;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.item.bit.BitItem;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowingFluidBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.color.item.ItemColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
-public class BitItemItemColor implements IItemColor
+public class BitItemItemColor implements ItemColor
 {
     private static final int TINT_MASK = 0xff;
     private static final int TINT_BITS = 8;
@@ -27,8 +27,8 @@ public class BitItemItemColor implements IItemColor
             return 0xffffff;
 
         final BlockState state = ((BitItem) stack.getItem()).getBitState(stack);
-        if(state.getBlock() instanceof FlowingFluidBlock) {
-            return ((FlowingFluidBlock) state.getBlock()).getFluid().getAttributes().getColor();
+        if(state.getBlock() instanceof LiquidBlock) {
+            return ((LiquidBlock) state.getBlock()).getFluid().getAttributes().getColor();
         }
 
         if ((!Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown()) || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown()))

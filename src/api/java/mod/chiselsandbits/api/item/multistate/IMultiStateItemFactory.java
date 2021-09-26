@@ -4,7 +4,7 @@ import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.exceptions.StateEntryInfoIsToBigException;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Can create multistate items from a given source.

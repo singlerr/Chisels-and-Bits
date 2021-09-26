@@ -4,12 +4,12 @@ import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraftforge.common.util.Constants;
 
 public class ChunkSectionUtils
@@ -20,8 +20,8 @@ public class ChunkSectionUtils
         throw new IllegalStateException("Can not instantiate an instance of: ChunkSectionUtils. This is a utility class");
     }
 
-    public static CompoundNBT serializeNBT(final ChunkSection chunkSection) {
-        final CompoundNBT compressedSectionData = new CompoundNBT();
+    public static CompoundTag serializeNBT(final LevelChunkSection chunkSection) {
+        final CompoundTag compressedSectionData = new CompoundTag();
 
         chunkSection.getStates().write(
           compressedSectionData,
@@ -32,7 +32,7 @@ public class ChunkSectionUtils
         return compressedSectionData;
     }
 
-    public static void deserializeNBT(final ChunkSection chunkSection, final CompoundNBT nbt) {
+    public static void deserializeNBT(final LevelChunkSection chunkSection, final CompoundTag nbt) {
         if (nbt.isEmpty())
             return;
 
@@ -44,13 +44,13 @@ public class ChunkSectionUtils
         chunkSection.recalcBlockCounts();
     }
 
-    public static ChunkSection rotate90Degrees(final ChunkSection source, final Direction.Axis axis, final int rotationCount) {
+    public static LevelChunkSection rotate90Degrees(final LevelChunkSection source, final Direction.Axis axis, final int rotationCount) {
         if (rotationCount == 0)
             return source;
 
-        final Vector3d centerVector = new Vector3d(7.5d, 7.5d, 7.5d);
+        final Vec3 centerVector = new Vec3(7.5d, 7.5d, 7.5d);
 
-        final ChunkSection target = new ChunkSection(0);
+        final LevelChunkSection target = new LevelChunkSection(0);
 
         for (int x = 0; x < 16; x++)
         {
@@ -58,16 +58,16 @@ public class ChunkSectionUtils
             {
                 for (int z = 0; z < 16; z++)
                 {
-                    final Vector3d workingVector = new Vector3d(x, y, z);
-                    Vector3d rotatedVector = workingVector.subtract(centerVector);
+                    final Vec3 workingVector = new Vec3(x, y, z);
+                    Vec3 rotatedVector = workingVector.subtract(centerVector);
                     for (int i = 0; i < rotationCount; i++)
                     {
                         rotatedVector = VectorUtils.rotate90Degrees(rotatedVector, axis);
                     }
 
                     final BlockPos sourcePos = new BlockPos(workingVector);
-                    final Vector3d offsetPos = rotatedVector.add(centerVector).multiply(1000,1000,1000);
-                    final BlockPos targetPos = new BlockPos(new Vector3d(Math.round(offsetPos.x()), Math.round(offsetPos.y()), Math.round(offsetPos.z())).multiply(1/1000d,1/1000d,1/1000d));
+                    final Vec3 offsetPos = rotatedVector.add(centerVector).multiply(1000,1000,1000);
+                    final BlockPos targetPos = new BlockPos(new Vec3(Math.round(offsetPos.x()), Math.round(offsetPos.y()), Math.round(offsetPos.z())).multiply(1/1000d,1/1000d,1/1000d));
 
                     target.setBlockState(
                       targetPos.getX(),
@@ -86,16 +86,16 @@ public class ChunkSectionUtils
         return target;
     }
 
-    public static ChunkSection cloneSection(final ChunkSection lazyChunkSection)
+    public static LevelChunkSection cloneSection(final LevelChunkSection lazyChunkSection)
     {
-        final ChunkSection clone = new ChunkSection(0);
+        final LevelChunkSection clone = new LevelChunkSection(0);
         deserializeNBT(clone, serializeNBT(lazyChunkSection));
 
         return clone;
     }
 
     public static void fillFromBottom(
-      final ChunkSection chunkSection,
+      final LevelChunkSection chunkSection,
       final BlockState blockState,
       final int amount
     ) {
@@ -123,9 +123,9 @@ public class ChunkSectionUtils
         }
     }
 
-    public static ChunkSection mirror(final ChunkSection lazyChunkSection, final Direction.Axis axis)
+    public static LevelChunkSection mirror(final LevelChunkSection lazyChunkSection, final Direction.Axis axis)
     {
-        final ChunkSection result = new ChunkSection(0);
+        final LevelChunkSection result = new LevelChunkSection(0);
 
         for (int y = 0; y < StateEntrySize.current().getBitsPerBlockSide(); y++)
         {

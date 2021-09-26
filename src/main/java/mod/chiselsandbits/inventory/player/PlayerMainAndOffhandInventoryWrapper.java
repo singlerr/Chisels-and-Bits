@@ -1,17 +1,17 @@
 package mod.chiselsandbits.inventory.player;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class PlayerMainAndOffhandInventoryWrapper implements IInventory
+public class PlayerMainAndOffhandInventoryWrapper implements Container
 {
 
-    private final PlayerInventory playerInventory;
+    private final Inventory playerInventory;
 
-    public PlayerMainAndOffhandInventoryWrapper(final PlayerInventory playerInventory) {this.playerInventory = playerInventory;}
+    public PlayerMainAndOffhandInventoryWrapper(final Inventory playerInventory) {this.playerInventory = playerInventory;}
 
     @Override
     public int getContainerSize()
@@ -71,7 +71,7 @@ public class PlayerMainAndOffhandInventoryWrapper implements IInventory
     }
 
     @Override
-    public boolean stillValid(@NotNull final PlayerEntity player)
+    public boolean stillValid(@NotNull final Player player)
     {
         return playerInventory.stillValid(player);
     }

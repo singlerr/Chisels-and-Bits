@@ -8,17 +8,17 @@ import mod.chiselsandbits.client.model.baked.base.BaseSmartModel;
 import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
 import mod.chiselsandbits.profiling.ProfilingManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockDisplayReader;
-import net.minecraft.world.World;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.client.model.data.ModelProperty;
@@ -32,7 +32,7 @@ import static net.minecraftforge.client.MinecraftForgeClient.getRenderLayer;
 
 public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
 {
-    private final ModelProperty<IBakedModel> MODEL_PROP = new ModelProperty<>();
+    private final ModelProperty<BakedModel> MODEL_PROP = new ModelProperty<>();
 
     @Override
     public boolean usesBlockLight()
@@ -41,7 +41,7 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
     }
 
     @Override
-    public IBakedModel handleBlockState(final BlockState state, final Random random, final IModelData modelData)
+    public BakedModel handleBlockState(final BlockState state, final Random random, final IModelData modelData)
     {
         if (!modelData.hasProperty(MODEL_PROP))
             return NullBakedModel.instance;
@@ -52,7 +52,7 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
     @NotNull
     @Override
     public IModelData getModelData(
-      @NotNull final IBlockDisplayReader world, @NotNull final BlockPos pos, @NotNull final BlockState state, @NotNull final IModelData modelData)
+      @NotNull final BlockAndTintGetter world, @NotNull final BlockPos pos, @NotNull final BlockState state, @NotNull final IModelData modelData)
     {
         try(IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Extract model data from data"))
         {
@@ -70,7 +70,7 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
                     final ChiseledBlockBakedModel[] models = new ChiseledBlockBakedModel[ChiselRenderType.values().length];
                     int o = 0;
 
-                    final TileEntity tileEntity = world.getBlockEntity(pos);
+                    final BlockEntity tileEntity = world.getBlockEntity(pos);
                     if (tileEntity instanceof IMultiStateBlockEntity) {
 
                         try(IProfilerSection ignored3 = ProfilingManager.getInstance().withSection("Individual render types building"))
@@ -106,7 +106,7 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
             try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Known render layer model building"))
             {
 
-                final TileEntity tileEntity = world.getBlockEntity(pos);
+                final BlockEntity tileEntity = world.getBlockEntity(pos);
                 if (!(tileEntity instanceof IMultiStateBlockEntity))
                     return new ModelDataMap.Builder().withInitial(MODEL_PROP, NullBakedModel.instance).build();
 
@@ -116,7 +116,7 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
                     return new ModelDataMap.Builder().withInitial(MODEL_PROP, NullBakedModel.instance).build();
                 }
 
-                IBakedModel baked;
+                BakedModel baked;
                 if (RenderType.chunkBufferLayers().contains(layer) && FluidRenderingManager.getInstance().isFluidRenderType(layer))
                 {
                     try(IProfilerSection ignored3 = ProfilingManager.getInstance().withSection("Solid and fluid model building"))
@@ -185,8 +185,8 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
     }
 
     @Override
-    public IBakedModel resolve(
-      final IBakedModel originalModel, final ItemStack stack, final World world, final LivingEntity entity)
+    public BakedModel resolve(
+      final BakedModel originalModel, final ItemStack stack, final Level world, final LivingEntity entity)
     {
         final Item item = stack.getItem();
         if (!(item instanceof IMultiStateItem))
@@ -195,25 +195,25 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
         final IMultiStateItem multiStateItem = (IMultiStateItem) item;
         final IMultiStateItemStack multiStateItemStack = multiStateItem.createItemStack(stack);
 
-        final IBakedModel[] typedModels;
+        final BakedModel[] typedModels;
         try(IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Building individual render type models"))
         {
             typedModels = Arrays.stream(VoxelType.values())
                             .map(ChiselRenderType::getRenderTypes)
                             .filter(types -> !types.isEmpty())
                             .map(types -> {
-                                final IBakedModel[] models = types.stream()
+                                final BakedModel[] models = types.stream()
                                                                .map(type ->  ChiseledBlockBakedModelManager.getInstance().get(multiStateItemStack, type))
                                                                .filter(Optional::isPresent)
                                                                .map(Optional::get)
                                                                .filter(model -> !model.isEmpty())
-                                                               .toArray(IBakedModel[]::new);
+                                                               .toArray(BakedModel[]::new);
                                 if (models.length == 0)
                                     return ChiseledBlockBakedModel.EMPTY;
 
                                 return new CombinedModel(models);
                             })
-                            .toArray(IBakedModel[]::new);
+                            .toArray(BakedModel[]::new);
         }
 
 

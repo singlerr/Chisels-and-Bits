@@ -1,6 +1,6 @@
 package mod.chiselsandbits.item;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -18,29 +18,31 @@ import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.client.render.ModRenderTypes;
 import mod.chiselsandbits.registrars.ModBlocks;
+import mod.chiselsandbits.registrars.ModTags;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.IItemTier;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ToolItem;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.DiggerItem;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import com.mojang.math.Matrix4f;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.ForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,9 +53,9 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import net.minecraft.item.Item.Properties;
+import net.minecraft.world.item.Item.Properties;
 
-public class ChiselItem extends ToolItem implements IChiselItem
+public class ChiselItem extends DiggerItem implements IChiselItem
 {
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -78,21 +80,21 @@ public class ChiselItem extends ToolItem implements IChiselItem
     };
 
     public ChiselItem(
-      final IItemTier tier,
+      final Tier tier,
       final Properties builderIn)
     {
         super(
           0.1F,
           -2.8F,
           tier,
-          ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values().stream().map(RegistryObject::get).collect(Collectors.toSet()),
+          ModTags.Blocks.CHISELED_BLOCK,
           builderIn
         );
     }
 
     @Override
     public void appendHoverText(
-      @NotNull final ItemStack stack, @Nullable final World worldIn, @NotNull final List<ITextComponent> tooltip, @NotNull final ITooltipFlag flagIn)
+      @NotNull final ItemStack stack, @Nullable final Level worldIn, @NotNull final List<Component> tooltip, @NotNull final TooltipFlag flagIn)
     {
         final IChiselMode mode = getMode(stack);
         if (mode.getGroup().isPresent())
@@ -112,7 +114,7 @@ public class ChiselItem extends ToolItem implements IChiselItem
     @Override
     public IChiselMode getMode(final ItemStack stack)
     {
-        final CompoundNBT stackNbt = stack.getOrCreateTag();
+        final CompoundTag stackNbt = stack.getOrCreateTag();
         if (stackNbt.contains(NbtConstants.CHISEL_MODE))
         {
             final String chiselModeName = stackNbt.getString(NbtConstants.CHISEL_MODE);
@@ -155,8 +157,8 @@ public class ChiselItem extends ToolItem implements IChiselItem
 
     @Override
     public ClickProcessingState handleLeftClickProcessing(
-      final PlayerEntity playerEntity,
-      final Hand hand,
+      final Player playerEntity,
+      final InteractionHand hand,
       final BlockPos position,
       final Direction face,
       final ClickProcessingState currentState
@@ -192,13 +194,13 @@ public class ChiselItem extends ToolItem implements IChiselItem
     }
 
     @Override
-    public boolean canUse(final PlayerEntity playerEntity)
+    public boolean canUse(final Player playerEntity)
     {
         return ChiselingManager.getInstance().canChisel(playerEntity);
     }
 
     @Override
-    public boolean shouldDrawDefaultHighlight(@NotNull final PlayerEntity playerEntity)
+    public boolean shouldDrawDefaultHighlight(@NotNull final Player playerEntity)
     {
         final ItemStack itemStack = ItemStackUtils.getHighlightItemStackFromPlayer(playerEntity);
         if (itemStack.isEmpty() || itemStack.getItem() != this)
@@ -274,9 +276,9 @@ public class ChiselItem extends ToolItem implements IChiselItem
     @Override
     @OnlyIn(Dist.CLIENT)
     public void renderHighlight(
-      final PlayerEntity playerEntity,
-      final WorldRenderer worldRenderer,
-      final MatrixStack matrixStack,
+      final Player playerEntity,
+      final LevelRenderer worldRenderer,
+      final PoseStack matrixStack,
       final float partialTicks,
       final Matrix4f projectionMatrix,
       final long finishTimeNano)
@@ -336,7 +338,7 @@ public class ChiselItem extends ToolItem implements IChiselItem
 
         ILocalChiselingContextCache.getInstance().set(ChiselingOperation.CHISELING, context);
 
-        Vector3d vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         double xView = vector3d.x();
         double yView = vector3d.y();
         double zView = vector3d.z();
@@ -356,7 +358,8 @@ public class ChiselItem extends ToolItem implements IChiselItem
                                              );
 
         RenderSystem.disableDepthTest();
-        WorldRenderer.renderShape(
+        GameRenderer.getRendertypeLinesShader().LINE_WIDTH.set(2F);
+        LevelRenderer.renderShape(
           matrixStack,
           Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
           boundingShape,
@@ -364,6 +367,7 @@ public class ChiselItem extends ToolItem implements IChiselItem
           0.95F, 0.0F, 0.0F, 0.65F
         );
         Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
+        GameRenderer.getRendertypeLinesShader().LINE_WIDTH.set(1f);
         RenderSystem.enableDepthTest();
     }
 
@@ -376,7 +380,7 @@ public class ChiselItem extends ToolItem implements IChiselItem
     @Override
     public int getMaxDamage(final ItemStack stack)
     {
-        final IItemTier tier = getTier();
+        final Tier tier = getTier();
         return tier.getUses() * StateEntrySize.current().getBitsPerBlock();
     }
 

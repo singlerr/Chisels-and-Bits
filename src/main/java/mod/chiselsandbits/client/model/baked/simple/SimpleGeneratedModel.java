@@ -1,14 +1,16 @@
 package mod.chiselsandbits.client.model.baked.simple;
 
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
+import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.util.constants.Constants;
-import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.model.*;
+import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.pipeline.BakedQuadBuilder;
 import net.minecraftforge.client.model.pipeline.LightUtil;
@@ -21,7 +23,7 @@ import java.util.List;
 import java.util.Random;
 
 @SuppressWarnings("deprecation")
-public class SimpleGeneratedModel implements IBakedModel
+public class SimpleGeneratedModel implements BakedModel
 {
 
     @SuppressWarnings("unchecked")
@@ -49,42 +51,41 @@ public class SimpleGeneratedModel implements IBakedModel
         final Vector3f to = new Vector3f( 0.0f, 0.0f, 0.0f );
         final Vector3f from = new Vector3f( 16.0f, 16.0f, 16.0f );
 
-        final ModelRotation mr = ModelRotation.X0_Y0;
+        final BlockModelRotation mr = BlockModelRotation.X0_Y0;
 
         for ( final Direction side : Direction.values() )
         {
-            final BlockPartFace bpf = new BlockPartFace( side, 1, "", uv );
+            final BlockElementFace bpf = new BlockElementFace( side, 1, "", uv );
 
             Vector3f toB, fromB;
 
-            switch ( side )
+            switch (side)
             {
-                case UP:
-                    toB = new Vector3f( to.x(), from.y(), to.z() );
-                    fromB = new Vector3f( from.x(), from.y(), from.z() );
-                    break;
-                case EAST:
-                    toB = new Vector3f( from.x(), to.y(), to.z() );
-                    fromB = new Vector3f( from.x(), from.y(), from.z() );
-                    break;
-                case NORTH:
-                    toB = new Vector3f( to.x(), to.y(), to.z() );
-                    fromB = new Vector3f( from.x(), from.y(), to.z() );
-                    break;
-                case SOUTH:
-                    toB = new Vector3f( to.x(), to.y(), from.z() );
-                    fromB = new Vector3f( from.x(), from.y(), from.z() );
-                    break;
-                case DOWN:
-                    toB = new Vector3f( to.x(), to.y(), to.z() );
-                    fromB = new Vector3f( from.x(), to.y(), from.z() );
-                    break;
-                case WEST:
-                    toB = new Vector3f( to.x(), to.y(), to.z() );
-                    fromB = new Vector3f( to.x(), from.y(), from.z() );
-                    break;
-                default:
-                    throw new NullPointerException();
+                case UP -> {
+                    toB = new Vector3f(to.x(), from.y(), to.z());
+                    fromB = new Vector3f(from.x(), from.y(), from.z());
+                }
+                case EAST -> {
+                    toB = new Vector3f(from.x(), to.y(), to.z());
+                    fromB = new Vector3f(from.x(), from.y(), from.z());
+                }
+                case NORTH -> {
+                    toB = new Vector3f(to.x(), to.y(), to.z());
+                    fromB = new Vector3f(from.x(), from.y(), to.z());
+                }
+                case SOUTH -> {
+                    toB = new Vector3f(to.x(), to.y(), from.z());
+                    fromB = new Vector3f(from.x(), from.y(), from.z());
+                }
+                case DOWN -> {
+                    toB = new Vector3f(to.x(), to.y(), to.z());
+                    fromB = new Vector3f(from.x(), to.y(), from.z());
+                }
+                case WEST -> {
+                    toB = new Vector3f(to.x(), to.y(), to.z());
+                    fromB = new Vector3f(to.x(), from.y(), from.z());
+                }
+                default -> throw new NullPointerException();
             }
 
             final BakedQuad g = faceBakery.bakeQuad( toB, fromB, bpf, texture, side, mr, null, false, new ResourceLocation(Constants.MOD_ID, "simple"));
@@ -105,9 +106,9 @@ public class SimpleGeneratedModel implements IBakedModel
 
         for ( int vertNum = 0; vertNum < 4; vertNum++ )
         {
-            for ( int elementIndex = 0; elementIndex < DefaultVertexFormats.BLOCK.getElements().size(); elementIndex++ )
+            for ( int elementIndex = 0; elementIndex < DefaultVertexFormat.BLOCK.getElements().size(); elementIndex++ )
             {
-                final VertexFormatElement element = DefaultVertexFormats.BLOCK.getElements().get(elementIndex);
+                final VertexFormatElement element = DefaultVertexFormat.BLOCK.getElements().get(elementIndex);
                 switch ( element.getUsage() )
                 {
                     case POSITION:
@@ -201,9 +202,9 @@ public class SimpleGeneratedModel implements IBakedModel
 
     @NotNull
     @Override
-    public ItemCameraTransforms getTransforms()
+    public ItemTransforms getTransforms()
     {
-        return ItemCameraTransforms.NO_TRANSFORMS;
+        return ItemTransforms.NO_TRANSFORMS;
     }
 
     @NotNull
@@ -221,8 +222,8 @@ public class SimpleGeneratedModel implements IBakedModel
 
     @NotNull
     @Override
-    public ItemOverrideList getOverrides()
+    public ItemOverrides getOverrides()
     {
-        return ItemOverrideList.EMPTY;
+        return ItemOverrides.EMPTY;
     }
 }

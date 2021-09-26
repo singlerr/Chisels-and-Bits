@@ -5,8 +5,8 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -46,7 +46,7 @@ public interface IVoxelShapeManager
     default VoxelShape get(
       final IAreaAccessor accessor,
       final BlockPos offset) {
-        return get(accessor, offset, ignored -> iStateEntryInfo -> !iStateEntryInfo.getState().isAir(new SingleBlockBlockReader(iStateEntryInfo.getState()), BlockPos.ZERO), true);
+        return get(accessor, offset, ignored -> iStateEntryInfo -> !iStateEntryInfo.getState().isAir(), true);
     }
 
     /**
@@ -110,7 +110,7 @@ public interface IVoxelShapeManager
     default Optional<VoxelShape> getCached(
       final IAreaShapeIdentifier identifier,
       final BlockPos offset) {
-        return getCached(identifier, offset, iStateEntryInfo -> !iStateEntryInfo.getState().isAir(new SingleBlockBlockReader(iStateEntryInfo.getState()), BlockPos.ZERO));
+        return getCached(identifier, offset, iStateEntryInfo -> !iStateEntryInfo.getState().isAir());
     };
 
     /**

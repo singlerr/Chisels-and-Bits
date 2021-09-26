@@ -1,7 +1,7 @@
 package mod.chiselsandbits.client.screens;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.constants.Constants;
@@ -10,20 +10,20 @@ import mod.chiselsandbits.container.ModificationTableContainer;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import mod.chiselsandbits.recipe.modificationtable.ModificationTableRecipe;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.SimpleSound;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class ModificationTableScreen extends ContainerScreen<ModificationTableContainer>
+public class ModificationTableScreen extends AbstractContainerScreen<ModificationTableContainer>
 {
     private static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(Constants.MOD_ID, "textures/gui/container/modification_table.png");
     private               float            sliderProgress;
@@ -40,7 +40,7 @@ public class ModificationTableScreen extends ContainerScreen<ModificationTableCo
     private MultiStateSnapshotWidget snapshotWidget;
     private int lastRenderedSelectedRecipeIndex = -1;
 
-    public ModificationTableScreen(ModificationTableContainer containerIn, PlayerInventory playerInv, ITextComponent titleIn) {
+    public ModificationTableScreen(ModificationTableContainer containerIn, Inventory playerInv, Component titleIn) {
         super(containerIn, playerInv, titleIn);
         containerIn.setInventoryUpdateListener(this::onInventoryUpdate);
         --this.titleLabelY;
@@ -52,22 +52,20 @@ public class ModificationTableScreen extends ContainerScreen<ModificationTableCo
     protected void init()
     {
         super.init();
-        this.snapshotWidget = this.addButton(new MultiStateSnapshotWidget(this.leftPos + 51,this.topPos + 71, 66,28, new TranslationTextComponent(Constants.MOD_ID + ".screen.widgets.multistate.preview")));
+        this.snapshotWidget = this.addRenderableWidget(new MultiStateSnapshotWidget(this.leftPos + 51,this.topPos + 71, 66,28, new TranslatableComponent(Constants.MOD_ID + ".screen.widgets.multistate.preview")));
     }
 
-    public void render(@NotNull MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(@NotNull PoseStack matrixStack, int mouseX, int mouseY, float partialTicks) {
         super.render(matrixStack, mouseX, mouseY, partialTicks);
         this.renderTooltip(matrixStack, mouseX, mouseY);
     }
 
     @SuppressWarnings("deprecation")
-    protected void renderBg(@NotNull MatrixStack matrixStack, float partialTicks, int x, int y) {
+    protected void renderBg(@NotNull PoseStack matrixStack, float partialTicks, int x, int y) {
         this.renderBackground(matrixStack);
-        RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-        if (this.minecraft != null)
-        {
-            this.minecraft.getTextureManager().bind(BACKGROUND_TEXTURE);
-        }
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE);
         int i = this.leftPos;
         int j = this.topPos;
         this.blit(matrixStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
@@ -87,7 +85,7 @@ public class ModificationTableScreen extends ContainerScreen<ModificationTableCo
         }
     }
 
-    protected void renderTooltip(@NotNull MatrixStack matrixStack, int x, int y) {
+    protected void renderTooltip(@NotNull PoseStack matrixStack, int x, int y) {
         super.renderTooltip(matrixStack, x, y);
         if (this.hasItemsInInputSlot) {
             int i = this.leftPos + 52;
@@ -100,14 +98,14 @@ public class ModificationTableScreen extends ContainerScreen<ModificationTableCo
                 int j1 = i + i1 % 4 * 16;
                 int k1 = j + i1 / 4 * 18 + 2;
                 if (x >= j1 && x < j1 + 16 && y >= k1 && y < k1 + 18) {
-                    this.renderWrappedToolTip(matrixStack, Lists.newArrayList(list.get(l).getDisplayName()), x, y, this.font);
+                    this.renderComponentToolTip(matrixStack, Lists.newArrayList(list.get(l).getDisplayName()), x, y, this.font);
                 }
             }
         }
 
     }
 
-    private void renderButtons(MatrixStack matrixStack, int x, int y, int p_238853_4_, int p_238853_5_, int p_238853_6_) {
+    private void renderButtons(PoseStack matrixStack, int x, int y, int p_238853_4_, int p_238853_5_, int p_238853_6_) {
         for(int i = this.recipeIndexOffset; i < p_238853_6_ && i < this.menu.getRecipeListSize(); ++i) {
             int j = i - this.recipeIndexOffset;
             int k = p_238853_4_ + j % 4 * 16;
@@ -155,7 +153,7 @@ public class ModificationTableScreen extends ContainerScreen<ModificationTableCo
                 if (this.minecraft != null && this.minecraft.player != null && d0 >= 0.0D && d1 >= 0.0D && d0 < 16.0D && d1 < 18.0D
                       && this.menu.clickMenuButton(this.minecraft.player, l))
                 {
-                    Minecraft.getInstance().getSoundManager().play(SimpleSound.forUI(SoundEvents.UI_STONECUTTER_SELECT_RECIPE, 1.0F));
+                    Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_SELECT_RECIPE, 1.0F));
                     if (this.minecraft.gameMode != null)
                     {
                         this.minecraft.gameMode.handleInventoryButtonClick((this.menu).containerId, l);
@@ -179,7 +177,7 @@ public class ModificationTableScreen extends ContainerScreen<ModificationTableCo
             int i = this.topPos + 14;
             int j = i + 54;
             this.sliderProgress = ((float)mouseY - (float)i - 7.5F) / ((float)(j - i) - 15.0F);
-            this.sliderProgress = MathHelper.clamp(this.sliderProgress, 0.0F, 1.0F);
+            this.sliderProgress = Mth.clamp(this.sliderProgress, 0.0F, 1.0F);
             this.recipeIndexOffset = (int)((double)(this.sliderProgress * (float)this.getHiddenRows()) + 0.5D) * 4;
             return true;
         } else {
@@ -198,7 +196,7 @@ public class ModificationTableScreen extends ContainerScreen<ModificationTableCo
         if (this.canScroll()) {
             int i = this.getHiddenRows();
             this.sliderProgress = (float)((double)this.sliderProgress - delta / (double)i);
-            this.sliderProgress = MathHelper.clamp(this.sliderProgress, 0.0F, 1.0F);
+            this.sliderProgress = Mth.clamp(this.sliderProgress, 0.0F, 1.0F);
             this.recipeIndexOffset = (int)((double)(this.sliderProgress * (float)i) + 0.5D) * 4;
         }
 

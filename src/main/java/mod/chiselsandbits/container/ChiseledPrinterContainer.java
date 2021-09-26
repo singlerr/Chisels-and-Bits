@@ -3,19 +3,19 @@ package mod.chiselsandbits.container;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.pattern.IPatternItem;
 import mod.chiselsandbits.registrars.ModContainerTypes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIntArray;
-import net.minecraft.util.IntArray;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
-public class ChiseledPrinterContainer extends Container
+public class ChiseledPrinterContainer extends AbstractContainerMenu
 {
 
     public static final int PLAYER_INVENTORY_ROWS = 3;
@@ -25,24 +25,24 @@ public class ChiseledPrinterContainer extends Container
     public static final int SLOT_SIZE = 18;
     public static final int PLAYER_TOOLBAR_Y_OFFSET = 142;
 
-    private final IIntArray stationData;
+    private final ContainerData stationData;
 
     private final IItemHandlerModifiable toolHandler;
 
     public ChiseledPrinterContainer(
       final int id,
-      final PlayerInventory playerInventory)
+      final Inventory playerInventory)
     {
-        this(id, playerInventory, new ItemStackHandler(1), new ItemStackHandler(1), new ItemStackHandler(1), new IntArray(1));
+        this(id, playerInventory, new ItemStackHandler(1), new ItemStackHandler(1), new ItemStackHandler(1), new SimpleContainerData(1));
     }
 
     public ChiseledPrinterContainer(
       final int id,
-      final PlayerInventory playerInventory,
+      final Inventory playerInventory,
       final IItemHandlerModifiable patternHandler,
       final IItemHandlerModifiable toolHandler,
       final IItemHandlerModifiable resultHandler,
-      final IIntArray stationData)
+      final ContainerData stationData)
     {
         super(ModContainerTypes.CHISELED_PRINTER_CONTAINER.get(), id);
         this.stationData = stationData;
@@ -113,7 +113,7 @@ public class ChiseledPrinterContainer extends Container
     }
 
     @Override
-    public boolean stillValid(final PlayerEntity playerIn)
+    public boolean stillValid(final Player playerIn)
     {
         return true;
     }
@@ -131,7 +131,7 @@ public class ChiseledPrinterContainer extends Container
 
     @NotNull
     @Override
-    public ItemStack quickMoveStack(final PlayerEntity playerIn, final int index)
+    public ItemStack quickMoveStack(final Player playerIn, final int index)
     {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);

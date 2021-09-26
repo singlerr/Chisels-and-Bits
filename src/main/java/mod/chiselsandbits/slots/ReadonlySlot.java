@@ -1,16 +1,16 @@
 package mod.chiselsandbits.slots;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class ReadonlySlot extends Slot
 {
 
     public ReadonlySlot(
-      final IInventory inventoryIn,
+      final Container inventoryIn,
       final int index,
       final int xPosition,
       final int yPosition)
@@ -27,7 +27,7 @@ public class ReadonlySlot extends Slot
 
     @Override
     public boolean mayPickup(
-      final @NotNull PlayerEntity playerIn)
+      final @NotNull Player playerIn)
     {
         return false;
     }

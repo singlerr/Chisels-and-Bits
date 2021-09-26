@@ -2,8 +2,8 @@ package mod.chiselsandbits.profiling;
 
 import mod.chiselsandbits.api.profiling.IProfiler;
 import mod.chiselsandbits.api.profiling.IProfilerResult;
-import net.minecraft.profiler.Profiler;
-import net.minecraft.util.Util;
+import net.minecraft.util.profiling.ActiveProfiler;
+import net.minecraft.Util;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -31,7 +31,7 @@ public class CandBProfiler implements IProfiler
         return profiler -> profiler.endStartSection(name);
     }
 
-    private final Profiler inner = new Profiler(Util.timeSource, () -> 0, false);
+    private final ActiveProfiler inner = new ActiveProfiler(Util.timeSource, () -> 0, false);
 
     public CandBProfiler()
     {

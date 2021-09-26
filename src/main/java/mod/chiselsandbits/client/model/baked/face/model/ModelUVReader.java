@@ -2,8 +2,8 @@ package mod.chiselsandbits.client.model.baked.face.model;
 
 import mod.chiselsandbits.utils.ModelUtil;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;

@@ -1,6 +1,6 @@
 package mod.chiselsandbits.client.model.baked.face.model;
 
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 
 public class ModelVertexRange extends BaseModelReader
 {

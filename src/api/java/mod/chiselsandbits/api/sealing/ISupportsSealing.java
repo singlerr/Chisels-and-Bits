@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.sealing;
 
 import mod.chiselsandbits.api.exceptions.SealingNotSupportedException;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 /**

@@ -7,13 +7,13 @@ import com.ldtteam.datagenerators.blockstate.BlockstateVariantJson;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.block.ChiseledPrinterBlock;
 import mod.chiselsandbits.registrars.ModBlocks;
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.DataProvider;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ChiseledPrinterBlockStateGenerator implements IDataProvider
+public class ChiseledPrinterBlockStateGenerator implements DataProvider
 {
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
@@ -35,12 +35,12 @@ public class ChiseledPrinterBlockStateGenerator implements IDataProvider
     private ChiseledPrinterBlockStateGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void run(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull HashCache cache) throws IOException
     {
         actOnBlock(cache, ModBlocks.CHISELED_PRINTER.get());
     }
 
-    public void actOnBlock(final DirectoryCache cache, final Block block) throws IOException
+    public void actOnBlock(final HashCache cache, final Block block) throws IOException
     {
         final Map<String, BlockstateVariantJson> variants = Maps.newHashMap();
 
@@ -55,7 +55,7 @@ public class ChiseledPrinterBlockStateGenerator implements IDataProvider
         final Path blockstateFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.BLOCKSTATE_DIR);
         final Path blockstatePath = blockstateFolder.resolve(Objects.requireNonNull(block.getRegistryName()).getPath() + ".json");
 
-        IDataProvider.save(Constants.DataGenerator.GSON, cache, blockstateJson.serialize(), blockstatePath);
+        DataProvider.save(Constants.DataGenerator.GSON, cache, blockstateJson.serialize(), blockstatePath);
     }
 
     @Override

@@ -5,18 +5,18 @@ import com.ldtteam.datagenerators.recipes.RecipeIngredientKeyJson;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.util.ParamValidator;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
+import net.minecraft.world.item.Item;
+import net.minecraft.tags.Tag;
 import net.minecraftforge.common.Tags;
 
 import java.io.IOException;
 
 public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenerator
 {
-    private final ITag.INamedTag<?> rodTag;
-    private final ITag.INamedTag<?> ingredientTag;
+    private final Tag.Named<?> rodTag;
+    private final Tag.Named<?> ingredientTag;
 
-    protected AbstractChiselRecipeGenerator(final DataGenerator generator, final Item result, final ITag.INamedTag<?> ingredientTag)
+    protected AbstractChiselRecipeGenerator(final DataGenerator generator, final Item result, final Tag.Named<?> ingredientTag)
     {
         super(generator, ParamValidator.isInstanceOf(result, IChiselItem.class));
         this.ingredientTag = ingredientTag;
@@ -26,8 +26,8 @@ public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenera
     protected AbstractChiselRecipeGenerator(
       final DataGenerator generator,
       final Item result,
-      final ITag.INamedTag<?> rodTag,
-      final ITag.INamedTag<?> ingredientTag)
+      final Tag.Named<?> rodTag,
+      final Tag.Named<?> ingredientTag)
     {
         super(generator, ParamValidator.isInstanceOf(result, IChiselItem.class));
         this.rodTag = rodTag;

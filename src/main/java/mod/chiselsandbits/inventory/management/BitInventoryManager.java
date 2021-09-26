@@ -8,9 +8,9 @@ import mod.chiselsandbits.inventory.bit.IItemHandlerBitInventory;
 import mod.chiselsandbits.inventory.bit.IModifiableItemHandlerBitInventory;
 import mod.chiselsandbits.inventory.bit.IllegalBitInventory;
 import mod.chiselsandbits.inventory.player.PlayerMainAndOffhandInventoryWrapper;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
@@ -28,9 +28,9 @@ public class BitInventoryManager implements IBitInventoryManager
     }
 
     @Override
-    public IBitInventory create(final PlayerEntity playerEntity)
+    public IBitInventory create(final Player playerEntity)
     {
-        return this.create(new PlayerMainAndOffhandInventoryWrapper(playerEntity.inventory));
+        return this.create(new PlayerMainAndOffhandInventoryWrapper(playerEntity.getInventory()));
     }
 
     @Override
@@ -43,7 +43,7 @@ public class BitInventoryManager implements IBitInventoryManager
     }
 
     @Override
-    public IBitInventory create(final IInventory inventory)
+    public IBitInventory create(final Container inventory)
     {
         return new IInventoryBitInventory(inventory);
     }

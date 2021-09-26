@@ -3,8 +3,8 @@ package mod.chiselsandbits.registrars;
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.utils.TranslationUtils;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 
 public final class ModChiselModeGroups
 {
@@ -22,7 +22,7 @@ public final class ModChiselModeGroups
         }
 
         @Override
-        public ITextComponent getDisplayName()
+        public Component getDisplayName()
         {
             return TranslationUtils.build(
               "chiselmode.cubed"
@@ -38,7 +38,7 @@ public final class ModChiselModeGroups
         }
 
         @Override
-        public ITextComponent getDisplayName()
+        public Component getDisplayName()
         {
             return TranslationUtils.build(
               "chiselmode.snap"
@@ -54,7 +54,7 @@ public final class ModChiselModeGroups
         }
 
         @Override
-        public ITextComponent getDisplayName()
+        public Component getDisplayName()
         {
             return TranslationUtils.build(
               "chiselmode.line"
@@ -70,7 +70,7 @@ public final class ModChiselModeGroups
         }
 
         @Override
-        public ITextComponent getDisplayName()
+        public Component getDisplayName()
         {
             return TranslationUtils.build(
               "chiselmode.plane"
@@ -86,7 +86,7 @@ public final class ModChiselModeGroups
         }
 
         @Override
-        public ITextComponent getDisplayName()
+        public Component getDisplayName()
         {
             return TranslationUtils.build(
               "chiselmode.connected_material"
@@ -103,7 +103,7 @@ public final class ModChiselModeGroups
         }
 
         @Override
-        public ITextComponent getDisplayName()
+        public Component getDisplayName()
         {
             return TranslationUtils.build(
               "chiselmode.sphere"

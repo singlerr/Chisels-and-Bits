@@ -20,16 +20,16 @@ import mod.chiselsandbits.api.util.BlockStateUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.utils.CommandUtils;
-import net.minecraft.block.BlockState;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.arguments.BlockStateArgument;
-import net.minecraft.command.arguments.EntityArgument;
-import net.minecraft.command.arguments.Vec3Argument;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.blocks.BlockStateArgument;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.coordinates.Vec3Argument;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,7 +42,7 @@ public class CommandManager
     {
     }
 
-    private static final SimpleCommandExceptionType GIVE_NOT_CHISELABLE_EXCEPTION = new SimpleCommandExceptionType(new TranslationTextComponent(LocalStrings.CommandGiveErrorBlockStateNotChiselable
+    private static final SimpleCommandExceptionType GIVE_NOT_CHISELABLE_EXCEPTION = new SimpleCommandExceptionType(new TranslatableComponent(LocalStrings.CommandGiveErrorBlockStateNotChiselable
                                                                                                                                      .toString()));
 
     public static CommandManager getInstance()
@@ -50,7 +50,7 @@ public class CommandManager
         return INSTANCE;
     }
 
-    public void register(final CommandDispatcher<CommandSource> dispatcher)
+    public void register(final CommandDispatcher<CommandSourceStack> dispatcher)
     {
         dispatcher.register(
           Commands.literal("candb")
@@ -102,10 +102,10 @@ public class CommandManager
         );
     }
 
-    private int runFillCommand(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    private int runFillCommand(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
-        final Vector3d start = Vec3Argument.getVec3(context, "start");
-        final Vector3d end = Vec3Argument.getVec3(context, "end");
+        final Vec3 start = Vec3Argument.getVec3(context, "start");
+        final Vec3 end = Vec3Argument.getVec3(context, "end");
 
         final IWorldAreaMutator mutator = IMutatorFactory.getInstance().covering(
           context.getSource().getLevel(),
@@ -153,14 +153,14 @@ public class CommandManager
             }
         }
 
-        context.getSource().sendSuccess(new TranslationTextComponent(LocalStrings.CommandFillCompleted.toString()), true);
+        context.getSource().sendSuccess(new TranslatableComponent(LocalStrings.CommandFillCompleted.toString()), true);
         return 0;
     }
 
-    private int runClearCommand(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    private int runClearCommand(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
-        final Vector3d start = Vec3Argument.getVec3(context, "start");
-        final Vector3d end = Vec3Argument.getVec3(context, "end");
+        final Vec3 start = Vec3Argument.getVec3(context, "start");
+        final Vec3 end = Vec3Argument.getVec3(context, "end");
 
         final IWorldAreaMutator mutator = IMutatorFactory.getInstance().covering(
           context.getSource().getLevel(),
@@ -178,10 +178,10 @@ public class CommandManager
         return 0;
     }
 
-    private int runStatsCommand(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    private int runStatsCommand(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
-        final Vector3d start = Vec3Argument.getVec3(context, "start");
-        final Vector3d end = Vec3Argument.getVec3(context, "end");
+        final Vec3 start = Vec3Argument.getVec3(context, "start");
+        final Vec3 end = Vec3Argument.getVec3(context, "end");
 
         final IWorldAreaMutator mutator = IMutatorFactory.getInstance().covering(
           context.getSource().getLevel(),
@@ -189,21 +189,21 @@ public class CommandManager
           end
         );
 
-        context.getSource().sendSuccess(new StringTextComponent("Collected the following statistics for the requested area:"), true);
-        context.getSource().sendSuccess(new StringTextComponent("----------------------------------------------------------"), true);
-        context.getSource().sendSuccess(new StringTextComponent("BlockStates:"), true);
-        context.getSource().sendSuccess(new StringTextComponent("############"), true);
+        context.getSource().sendSuccess(new TextComponent("Collected the following statistics for the requested area:"), true);
+        context.getSource().sendSuccess(new TextComponent("----------------------------------------------------------"), true);
+        context.getSource().sendSuccess(new TextComponent("BlockStates:"), true);
+        context.getSource().sendSuccess(new TextComponent("############"), true);
         mutator.createSnapshot().getStatics()
           .getStateCounts().forEach((state, count) -> {
-            context.getSource().sendSuccess(new StringTextComponent(" > ").append(state.getBlock().getName()).append(new StringTextComponent(": " + count)), true);
+            context.getSource().sendSuccess(new TextComponent(" > ").append(state.getBlock().getName()).append(new TextComponent(": " + count)), true);
         });
 
         return 0;
     }
 
-    private int runGiveCommand(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    private int runGiveCommand(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
-        final PlayerEntity target = EntityArgument.getPlayer(context, "target");
+        final Player target = EntityArgument.getPlayer(context, "target");
         final BlockState state = BlockStateArgument.getBlock(context, "state").getState();
         if (!IEligibilityManager.getInstance().canBeChiseled(state))
             throw GIVE_NOT_CHISELABLE_EXCEPTION.create();
@@ -219,10 +219,10 @@ public class CommandManager
         return 0;
     }
 
-    private int startProfiling(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    private int startProfiling(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
         if (ProfilingManager.getInstance().hasProfiler()) {
-            context.getSource().sendFailure(new StringTextComponent("Already profiling!"));
+            context.getSource().sendFailure(new TextComponent("Already profiling!"));
             return 1;
         }
 
@@ -233,15 +233,15 @@ public class CommandManager
         return 0;
     }
 
-    private int stopProfiling(final CommandContext<CommandSource> context) throws CommandSyntaxException
+    private int stopProfiling(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
         if (!ProfilingManager.getInstance().hasProfiler()) {
-            context.getSource().sendFailure(new StringTextComponent("Not yet profiling!"));
+            context.getSource().sendFailure(new TextComponent("Not yet profiling!"));
             return 1;
         }
 
         final IProfilerResult result = IProfilingManager.getInstance().endProfiling(ProfilingManager.getInstance().getProfiler());
-        result.writeAsResponse(line -> context.getSource().sendSuccess(new StringTextComponent(line), true));
+        result.writeAsResponse(line -> context.getSource().sendSuccess(new TextComponent(line), true));
 
         ProfilingManager.getInstance().setProfiler(null);
 

@@ -1,16 +1,16 @@
 package mod.chiselsandbits.api.inventory.bit;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
 /**
  * A bit inventory which can be converted to an itemstack.
  */
-public interface IBitInventoryItemStack extends IBitInventory, IInventory
+public interface IBitInventoryItemStack extends IBitInventory, Container
 {
 
     /**
@@ -25,7 +25,7 @@ public interface IBitInventoryItemStack extends IBitInventory, IInventory
      *
      * @return The contents.
      */
-    List<ITextComponent> listContents();
+    List<Component> listContents();
 
     /**
      * Calculates the fullness ratio of the itemstack inventory.

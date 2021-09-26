@@ -4,18 +4,18 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModBlocks;
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.LootTableProvider;
-import net.minecraft.data.loot.BlockLootTables;
-import net.minecraft.loot.LootParameterSet;
-import net.minecraft.loot.LootParameterSets;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.ValidationTracker;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.data.loot.BlockLoot;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.ValidationContext;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -40,23 +40,23 @@ public class DropBlockLootTableGenerator extends LootTableProvider
     }
 
     @Override
-    protected void validate(final @NotNull Map<ResourceLocation, LootTable> map, final @NotNull ValidationTracker validationtracker)
+    protected void validate(final @NotNull Map<ResourceLocation, LootTable> map, final @NotNull ValidationContext validationtracker)
     {
         //Noop
     }
 
     @Override
-    protected @NotNull List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootParameterSet>> getTables()
+    protected @NotNull List<Pair<Supplier<Consumer<BiConsumer<ResourceLocation, LootTable.Builder>>>, LootContextParamSet>> getTables()
     {
         return ImmutableList.of(
           Pair.of(
             Provider::new,
-            LootParameterSets.BLOCK
+            LootContextParamSets.BLOCK
           )
         );
     }
 
-    private static final class Provider extends BlockLootTables {
+    private static final class Provider extends BlockLoot {
 
         @Override
         protected void addTables()

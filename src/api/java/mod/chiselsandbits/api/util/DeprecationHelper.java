@@ -1,12 +1,12 @@
 package mod.chiselsandbits.api.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.SoundType;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.LanguageMap;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.locale.Language;
 import net.minecraftforge.fml.DistExecutor;
 
 @SuppressWarnings( "deprecation" )
@@ -16,7 +16,7 @@ public class DeprecationHelper
 	public static int getLightValue(
 			final BlockState state )
 	{
-		return state.getBlock().getLightValue( state, new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO );
+		return state.getBlock().getLightBlock( state, new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO );
 	}
 
 	public static BlockState getStateFromItem(
@@ -36,7 +36,7 @@ public class DeprecationHelper
 	{
 	    return DistExecutor.unsafeRunForDist(
           () -> () -> {
-              final String translated = LanguageMap.getInstance().getOrDefault(string);
+              final String translated = Language.getInstance().getOrDefault(string);
               if (translated.equals(string))
                   return LanguageHandler.translateKey(string);
 
@@ -62,6 +62,6 @@ public class DeprecationHelper
     public static SoundType getSoundType(
       Block block )
     {
-        return block.getBlock().soundType;
+        return block.soundType;
     }
 }

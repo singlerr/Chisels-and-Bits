@@ -5,18 +5,18 @@ import com.ldtteam.datagenerators.tags.TagJson;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.DataProvider;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class BitBagTagGenerator implements IDataProvider
+public class BitBagTagGenerator implements DataProvider
 {
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
@@ -29,7 +29,7 @@ public class BitBagTagGenerator implements IDataProvider
     private BitBagTagGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void run(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull HashCache cache) throws IOException
     {
         final TagJson json = new TagJson();
         json.setValues(
@@ -42,7 +42,7 @@ public class BitBagTagGenerator implements IDataProvider
         final Path tagFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.ITEM_TAGS_DIR);
         final Path chiselableTagPath = tagFolder.resolve("bit_bag.json");
 
-        IDataProvider.save(Constants.DataGenerator.GSON, cache, json.serialize(), chiselableTagPath);
+        DataProvider.save(Constants.DataGenerator.GSON, cache, json.serialize(), chiselableTagPath);
     }
 
     @Override

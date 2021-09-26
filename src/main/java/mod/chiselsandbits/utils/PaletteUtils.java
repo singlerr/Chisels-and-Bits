@@ -1,13 +1,13 @@
 package mod.chiselsandbits.utils;
 
 import com.google.common.collect.Lists;
-import net.minecraft.block.BlockState;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.IntIdentityHashBiMap;
-import net.minecraft.util.palette.ArrayPalette;
-import net.minecraft.util.palette.HashMapPalette;
-import net.minecraft.util.palette.IPalette;
-import net.minecraft.util.palette.IdentityPalette;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.CrudeIncrementalIntIdentityHashBiMap;
+import net.minecraft.world.level.chunk.LinearPalette;
+import net.minecraft.world.level.chunk.HashMapPalette;
+import net.minecraft.world.level.chunk.Palette;
+import net.minecraft.world.level.chunk.GlobalPalette;
 import net.minecraftforge.registries.GameData;
 
 import java.util.Arrays;
@@ -23,16 +23,16 @@ public class PaletteUtils
         throw new IllegalStateException("Can not instantiate an instance of: PaletteUtils. This is a utility class");
     }
 
-    public static List<BlockState> getOrderedListInPalette(final IPalette<BlockState> stateIPalette)
+    public static List<BlockState> getOrderedListInPalette(final Palette<BlockState> stateIPalette)
     {
-        if (stateIPalette instanceof ArrayPalette)
+        if (stateIPalette instanceof LinearPalette)
         {
-            return Arrays.asList(((ArrayPalette<BlockState>) stateIPalette).values);
+            return Arrays.asList(((LinearPalette<BlockState>) stateIPalette).values);
         }
 
         if (stateIPalette instanceof HashMapPalette)
         {
-            final IntIdentityHashBiMap<BlockState> map = ((HashMapPalette<BlockState>) stateIPalette).values;
+            final CrudeIncrementalIntIdentityHashBiMap<BlockState> map = ((HashMapPalette<BlockState>) stateIPalette).values;
 
             final List<BlockState> dataList = Lists.newArrayList(map);
             dataList.sort(Comparator.comparing(map::getId));
@@ -40,7 +40,7 @@ public class PaletteUtils
             return dataList;
         }
 
-        if (stateIPalette instanceof IdentityPalette)
+        if (stateIPalette instanceof GlobalPalette)
         {
             final List<BlockState> dataList = Lists.newArrayList(GameData.getBlockStateIDMap());
             dataList.sort(Comparator.comparing(GameData.getBlockStateIDMap()::getId));
@@ -51,11 +51,11 @@ public class PaletteUtils
         throw new IllegalArgumentException("The given palette type is unknown.");
     }
 
-    public static void read(final IPalette<BlockState> stateIPalette, final PacketBuffer buffer)
+    public static void read(final Palette<BlockState> stateIPalette, final FriendlyByteBuf buffer)
     {
-        if (stateIPalette instanceof ArrayPalette)
+        if (stateIPalette instanceof LinearPalette)
         {
-            final ArrayPalette<BlockState> palette = (ArrayPalette<BlockState>) stateIPalette;
+            final LinearPalette<BlockState> palette = (LinearPalette<BlockState>) stateIPalette;
             palette.size = buffer.readVarInt();
 
             final Object[] statesArray = palette.values;

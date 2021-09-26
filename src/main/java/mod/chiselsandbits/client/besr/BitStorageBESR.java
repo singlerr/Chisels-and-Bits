@@ -1,7 +1,7 @@
 package mod.chiselsandbits.client.besr;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
@@ -13,36 +13,35 @@ import mod.chiselsandbits.client.util.FluidCuboidUtils;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Atlases;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderTypeLookup;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraftforge.client.model.data.EmptyModelData;
 import net.minecraftforge.fluids.FluidStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class BitStorageBESR extends TileEntityRenderer<BitStorageBlockEntity>
+public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity>
 {
 
-    private static final SimpleMaxSizedCache<CacheKey, ChunkSection> STORAGE_CONTENTS_BLOB_CACHE = new SimpleMaxSizedCache<>(Configuration.getInstance().getClient().bitStorageContentCacheSize.get());
+    private static final SimpleMaxSizedCache<CacheKey, LevelChunkSection> STORAGE_CONTENTS_BLOB_CACHE = new SimpleMaxSizedCache<>(Configuration.getInstance().getClient().bitStorageContentCacheSize.get());
 
-    public BitStorageBESR(TileEntityRendererDispatcher dispatcher)
+    public BitStorageBESR()
     {
-        super(dispatcher);
     }
 
     @Override
     public void render(
       final BitStorageBlockEntity te,
       final float partialTicks,
-      final MatrixStack matrixStackIn,
-      final IRenderTypeBuffer buffer,
+      final @NotNull PoseStack matrixStackIn,
+      final @NotNull MultiBufferSource buffer,
       final int combinedLightIn,
       final int combinedOverlayIn)
     {
@@ -51,13 +50,13 @@ public class BitStorageBESR extends TileEntityRenderer<BitStorageBlockEntity>
             if (fluidStack != null)
             {
                 RenderType.chunkBufferLayers().forEach(renderType -> {
-                    if (!RenderTypeLookup.canRenderInLayer(fluidStack.getFluid().defaultFluidState(), renderType))
+                    if (!ItemBlockRenderTypes.canRenderInLayer(fluidStack.getFluid().defaultFluidState(), renderType))
                         return;
 
                     if (renderType == RenderType.translucent() && Minecraft.useShaderTransparency())
-                        renderType = Atlases.translucentCullBlockSheet();
+                        renderType = Sheets.translucentCullBlockSheet();
 
-                    final IVertexBuilder builder = buffer.getBuffer(renderType);
+                    final VertexConsumer builder = buffer.getBuffer(renderType);
 
                     final float fullness = (float) fluidStack.getAmount() / (float) BitStorageBlockEntity.MAX_CONTENTS;
 
@@ -82,9 +81,9 @@ public class BitStorageBESR extends TileEntityRenderer<BitStorageBlockEntity>
             return;
 
         final CacheKey cacheKey = new CacheKey(IBlockStateIdManager.getInstance().getIdFrom(state), bits);
-        ChunkSection innerModelBlob = STORAGE_CONTENTS_BLOB_CACHE.get(cacheKey);
+        LevelChunkSection innerModelBlob = STORAGE_CONTENTS_BLOB_CACHE.get(cacheKey);
         if (innerModelBlob == null) {
-            innerModelBlob = new ChunkSection(1);
+            innerModelBlob = new LevelChunkSection(1);
             ChunkSectionUtils.fillFromBottom(
               innerModelBlob,
               state,
@@ -96,7 +95,7 @@ public class BitStorageBESR extends TileEntityRenderer<BitStorageBlockEntity>
         matrixStackIn.pushPose();
         matrixStackIn.translate(2/16f, 2/16f, 2/16f);
         matrixStackIn.scale(12/16f, 12/16f, 12/16f);
-        final ChunkSection finalInnerModelBlob = innerModelBlob;
+        final LevelChunkSection finalInnerModelBlob = innerModelBlob;
         RenderType.chunkBufferLayers().forEach(renderType -> {
             final ChiseledBlockBakedModel innerModel = ChiseledBlockBakedModelManager.getInstance().get(
               MultiStateSnapshotUtils.createFromSection(finalInnerModelBlob),
@@ -139,11 +138,10 @@ public class BitStorageBESR extends TileEntityRenderer<BitStorageBlockEntity>
             {
                 return true;
             }
-            if (!(o instanceof CacheKey))
+            if (!(o instanceof final CacheKey cacheKey))
             {
                 return false;
             }
-            final CacheKey cacheKey = (CacheKey) o;
             return blockStateId == cacheKey.blockStateId &&
                      bitCount == cacheKey.bitCount;
         }

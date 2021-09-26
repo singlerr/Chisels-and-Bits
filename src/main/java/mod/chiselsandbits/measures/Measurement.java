@@ -3,9 +3,9 @@ package mod.chiselsandbits.measures;
 import mod.chiselsandbits.api.measuring.IMeasurement;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -14,8 +14,8 @@ public class Measurement implements IMeasurement, IPacketBufferSerializable
 {
 
     private UUID owner;
-    private Vector3d from;
-    private Vector3d         to;
+    private Vec3 from;
+    private Vec3         to;
     private MeasuringMode    mode;
     private ResourceLocation worldKey;
 
@@ -23,7 +23,7 @@ public class Measurement implements IMeasurement, IPacketBufferSerializable
     {
     }
 
-    public Measurement(final UUID owner, final Vector3d from, final Vector3d to, final MeasuringMode mode, final ResourceLocation worldKey) {
+    public Measurement(final UUID owner, final Vec3 from, final Vec3 to, final MeasuringMode mode, final ResourceLocation worldKey) {
         this.owner = owner;
         this.from = mode.getType().adaptStartPosition(from, to);
         this.to = mode.getType().adaptEndPosition(from, to);
@@ -38,13 +38,13 @@ public class Measurement implements IMeasurement, IPacketBufferSerializable
     }
 
     @Override
-    public Vector3d getFrom()
+    public Vec3 getFrom()
     {
         return from;
     }
 
     @Override
-    public Vector3d getTo()
+    public Vec3 getTo()
     {
         return to;
     }
@@ -62,7 +62,7 @@ public class Measurement implements IMeasurement, IPacketBufferSerializable
     }
 
     @Override
-    public void serializeInto(final @NotNull PacketBuffer packetBuffer)
+    public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
     {
         packetBuffer.writeUUID(getOwner());
         packetBuffer.writeDouble(getFrom().x());
@@ -76,15 +76,15 @@ public class Measurement implements IMeasurement, IPacketBufferSerializable
     }
 
     @Override
-    public void deserializeFrom(final @NotNull PacketBuffer packetBuffer)
+    public void deserializeFrom(final @NotNull FriendlyByteBuf packetBuffer)
     {
         owner = packetBuffer.readUUID();
-        from = new Vector3d(
+        from = new Vec3(
           packetBuffer.readDouble(),
           packetBuffer.readDouble(),
           packetBuffer.readDouble()
         );
-        to = new Vector3d(
+        to = new Vec3(
           packetBuffer.readDouble(),
           packetBuffer.readDouble(),
           packetBuffer.readDouble()

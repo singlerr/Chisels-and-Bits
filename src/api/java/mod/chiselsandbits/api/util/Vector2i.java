@@ -2,10 +2,10 @@ package mod.chiselsandbits.api.util;
 
 import com.google.common.base.MoreObjects;
 import com.mojang.serialization.Codec;
-import net.minecraft.dispenser.IPosition;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.core.Position;
+import net.minecraft.core.Direction;
+import net.minecraft.Util;
+import net.minecraft.util.Mth;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.stream.IntStream;
@@ -25,7 +25,7 @@ public class Vector2i implements Comparable<Vector2i>
 
     public Vector2i(double xIn, double yIn)
     {
-        this(MathHelper.floor(xIn), MathHelper.floor(yIn));
+        this(Mth.floor(xIn), Mth.floor(yIn));
     }
 
     public Vector2i(int xIn, int yIn)
@@ -162,7 +162,7 @@ public class Vector2i implements Comparable<Vector2i>
         return d1 * d1 + d2 * d2;
     }
 
-    public boolean withinDistance(IPosition position, double distance)
+    public boolean withinDistance(Position position, double distance)
     {
         return this.distanceSq(position.x(), position.y(), true) < distance * distance;
     }

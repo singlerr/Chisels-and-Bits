@@ -4,10 +4,10 @@ import mod.chiselsandbits.aabb.AABBManager;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessorWithVoxelShape;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -28,12 +28,12 @@ public class VoxelShapeCalculator
               .stream()
               .map(aabb -> aabb.move(offset))
         .reduce(
-          VoxelShapes.empty(),
+          Shapes.empty(),
           (voxelShape, axisAlignedBB) -> {
-              final VoxelShape bbShape = VoxelShapes.create(axisAlignedBB);
-              return VoxelShapes.joinUnoptimized(voxelShape, bbShape, IBooleanFunction.OR);
+              final VoxelShape bbShape = Shapes.create(axisAlignedBB);
+              return Shapes.joinUnoptimized(voxelShape, bbShape, BooleanOp.OR);
           },
-          (voxelShape, voxelShape2) -> VoxelShapes.joinUnoptimized(voxelShape, voxelShape2, IBooleanFunction.OR)
+          (voxelShape, voxelShape2) -> Shapes.joinUnoptimized(voxelShape, voxelShape2, BooleanOp.OR)
         );
 
         return simplify ? shape.optimize() : shape;

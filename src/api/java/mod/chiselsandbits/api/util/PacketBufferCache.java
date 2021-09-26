@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.util;
 
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class PacketBufferCache
 {
@@ -12,19 +12,19 @@ public class PacketBufferCache
         return INSTANCE;
     }
 
-    private ThreadLocal<PacketBuffer> cache = new ThreadLocal<PacketBuffer>();
+    private ThreadLocal<FriendlyByteBuf> cache = new ThreadLocal<FriendlyByteBuf>();
 
     private PacketBufferCache()
     {
     }
 
-    public PacketBuffer get()
+    public FriendlyByteBuf get()
     {
-        PacketBuffer bb = cache.get();
+        FriendlyByteBuf bb = cache.get();
 
         if ( bb == null )
         {
-            bb = new PacketBuffer( Unpooled.buffer() );
+            bb = new FriendlyByteBuf( Unpooled.buffer() );
             cache.set( bb );
         }
 

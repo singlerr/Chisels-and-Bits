@@ -3,14 +3,14 @@ package mod.chiselsandbits.legacy.serialization.blob;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.legacy.LegacyLoadManager;
 import mod.chiselsandbits.utils.PaletteUtils;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ObjectIntIdentityMap;
-import net.minecraft.util.palette.HashMapPalette;
-import net.minecraft.util.palette.IResizeCallback;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.IdMapper;
+import net.minecraft.world.level.chunk.HashMapPalette;
+import net.minecraft.world.level.chunk.PaletteResize;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.registries.GameData;
 import org.jetbrains.annotations.NotNull;
@@ -18,42 +18,42 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Objects;
 
-public class NbtBasedPalettedBlobSerializer extends BlobSerializer implements IResizeCallback<BlockState>
+public class NbtBasedPalettedBlobSerializer extends BlobSerializer implements PaletteResize<BlockState>
 {
-    private final ObjectIntIdentityMap<BlockState> registry = GameData.getBlockStateIDMap();
-    private final HashMapPalette<BlockState>       palette  = new HashMapPalette<>(this.registry, 16, this, NBTUtil::readBlockState, NBTUtil::writeBlockState);
+    private final IdMapper<BlockState> registry = GameData.getBlockStateIDMap();
+    private final HashMapPalette<BlockState>       palette  = new HashMapPalette<>(this.registry, 16, this, NbtUtils::readBlockState, NbtUtils::writeBlockState);
 
-    public NbtBasedPalettedBlobSerializer(final PacketBuffer toInflate)
+    public NbtBasedPalettedBlobSerializer(final FriendlyByteBuf toInflate)
     {
         super();
 
-        final CompoundNBT wrapper = toInflate.readNbt();
-        final ListNBT paletteNBT = Objects.requireNonNull(wrapper).getList("data", Constants.NBT.TAG_COMPOUND);
+        final CompoundTag wrapper = toInflate.readNbt();
+        final ListTag paletteNBT = Objects.requireNonNull(wrapper).getList("data", Constants.NBT.TAG_COMPOUND);
         this.palette.read(paletteNBT);
     }
 
 
     @Override
-    public void write(final PacketBuffer to)
+    public void write(final FriendlyByteBuf to)
     {
-        final ListNBT paletteNBT = new ListNBT();
+        final ListTag paletteNBT = new ListTag();
         this.palette.write(paletteNBT);
 
-        final CompoundNBT wrapper = new CompoundNBT();
+        final CompoundTag wrapper = new CompoundTag();
         wrapper.put("data", paletteNBT);
 
         to.writeNbt(wrapper);
     }
 
     @Override
-    protected int readStateID(final PacketBuffer buffer)
+    protected int readStateID(final FriendlyByteBuf buffer)
     {
         //Not needed because of different palette system.
         return 0;
     }
 
     @Override
-    protected void writeStateID(final PacketBuffer buffer, final int key)
+    protected void writeStateID(final FriendlyByteBuf buffer, final int key)
     {
         //Noop
     }

@@ -13,12 +13,12 @@ import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.VectorUtils;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
@@ -29,10 +29,10 @@ import java.util.stream.Stream;
 public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
 {
     private Map<BlockPos, IMultiStateSnapshot> snapshots;
-    private Vector3d                           startPoint;
-    private Vector3d                           endPoint;
+    private Vec3                           startPoint;
+    private Vec3                           endPoint;
 
-    public MultiBlockMultiStateSnapshot(final Map<BlockPos, IMultiStateSnapshot> snapshots, final Vector3d startPoint, final Vector3d endPoint)
+    public MultiBlockMultiStateSnapshot(final Map<BlockPos, IMultiStateSnapshot> snapshots, final Vec3 startPoint, final Vec3 endPoint)
     {
         this.snapshots = snapshots;
         this.startPoint = startPoint;
@@ -74,11 +74,11 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
      * @return True when inside, false when not.
      */
     @Override
-    public boolean isInside(final Vector3d inAreaTarget)
+    public boolean isInside(final Vec3 inAreaTarget)
     {
         final BlockPos inAreaOffset = new BlockPos(inAreaTarget);
 
-        return isInside(inAreaOffset, inAreaTarget.subtract(Vector3d.atLowerCornerOf(inAreaOffset)));
+        return isInside(inAreaOffset, inAreaTarget.subtract(Vec3.atLowerCornerOf(inAreaOffset)));
     }
 
     /**
@@ -89,7 +89,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
      * @return True when inside, false when not.
      */
     @Override
-    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
         final BlockPos targetPos = new BlockPos(startPoint).offset(inAreaBlockPosOffset);
 
@@ -122,10 +122,10 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
           endPoint.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
         )
                  .map(positionMutator::mutate)
-                 .map(position -> Vector3d.atLowerCornerOf(position).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
+                 .map(position -> Vec3.atLowerCornerOf(position).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
                  .map(position -> {
                      final BlockPos blockPos = new BlockPos(position);
-                     final Vector3d inBlockOffset = position.subtract(Vector3d.atLowerCornerOf(blockPos));
+                     final Vec3 inBlockOffset = position.subtract(Vec3.atLowerCornerOf(blockPos));
 
                      return getInBlockTarget(blockPos, inBlockOffset);
                  })
@@ -140,11 +140,11 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
      * @return An optional potentially containing the state entry of the requested target.
      */
     @Override
-    public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
+    public Optional<IStateEntryInfo> getInAreaTarget(final Vec3 inAreaTarget)
     {
         final BlockPos inAreaOffset = new BlockPos(inAreaTarget);
 
-        return getInBlockTarget(inAreaOffset, inAreaTarget.subtract(Vector3d.atLowerCornerOf(inAreaOffset)));
+        return getInBlockTarget(inAreaOffset, inAreaTarget.subtract(Vec3.atLowerCornerOf(inAreaOffset)));
     }
 
     /**
@@ -155,7 +155,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
      * @return An optional potentially containing the state entry of the requested target.
      */
     @Override
-    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
         final BlockPos targetPos = new BlockPos(startPoint).offset(inAreaBlockPosOffset);
 
@@ -181,12 +181,12 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     }
 
     @Override
-    public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
+    public void setInAreaTarget(final BlockState blockState, final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
-        final Vector3d workingTarget = inAreaTarget.add(this.startPoint);
+        final Vec3 workingTarget = inAreaTarget.add(this.startPoint);
 
         final BlockPos offset = new BlockPos(workingTarget);
-        final Vector3d inBlockTarget = new Vector3d(
+        final Vec3 inBlockTarget = new Vec3(
           workingTarget.x() - offset.getX(),
           workingTarget.y() - offset.getY(),
           workingTarget.z() - offset.getZ()
@@ -200,9 +200,9 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     }
 
     @Override
-    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
-        final Vector3d workingTarget = Vector3d.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget);
+        final Vec3 workingTarget = Vec3.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget);
         if (workingTarget.x() < startPoint.x() ||
               workingTarget.y() < startPoint.y() ||
               workingTarget.z() < startPoint.z() ||
@@ -229,12 +229,12 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
      * @param inAreaTarget The in area offset.
      */
     @Override
-    public void clearInAreaTarget(final Vector3d inAreaTarget)
+    public void clearInAreaTarget(final Vec3 inAreaTarget)
     {
-        final Vector3d workingTarget = inAreaTarget.add(this.startPoint);
+        final Vec3 workingTarget = inAreaTarget.add(this.startPoint);
 
         final BlockPos offset = new BlockPos(workingTarget);
-        final Vector3d inBlockTarget = new Vector3d(
+        final Vec3 inBlockTarget = new Vec3(
           workingTarget.x() - offset.getX(),
           workingTarget.y() - offset.getY(),
           workingTarget.z() - offset.getZ()
@@ -253,9 +253,9 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
      * @param inBlockTarget        The offset in the targeted block.
      */
     @Override
-    public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
-        final Vector3d workingTarget = Vector3d.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget);
+        final Vec3 workingTarget = Vec3.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget);
         if (workingTarget.x() < startPoint.x() ||
               workingTarget.y() < startPoint.y() ||
               workingTarget.z() < startPoint.z() ||
@@ -333,7 +333,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
             }
 
             @Override
-            public float getRelativeBlockHardness(final PlayerEntity player)
+            public float getRelativeBlockHardness(final Player player)
             {
                 throw new NotImplementedException("Is a snapshot");
             }
@@ -349,15 +349,15 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public void rotate(final Direction.Axis axis, final int rotationCount)
     {
-        final Vector3d center = this.startPoint.add(this.endPoint).multiply(0.5, 0.5, 0.5);
+        final Vec3 center = this.startPoint.add(this.endPoint).multiply(0.5, 0.5, 0.5);
 
         final Map<BlockPos, IMultiStateSnapshot> rotatedParts = this.snapshots
                                                                   .entrySet().stream()
                                                                   .collect(
                                                                     Collectors.toMap(
                                                                       e -> {
-                                                                          final Vector3d offSetPos = Vector3d.atLowerCornerOf(e.getKey()).subtract(center);
-                                                                          final Vector3d rotatedOffset = VectorUtils.rotateMultipleTimes90Degrees(offSetPos, axis, rotationCount);
+                                                                          final Vec3 offSetPos = Vec3.atLowerCornerOf(e.getKey()).subtract(center);
+                                                                          final Vec3 rotatedOffset = VectorUtils.rotateMultipleTimes90Degrees(offSetPos, axis, rotationCount);
                                                                           return new BlockPos(startPoint.add(rotatedOffset));
                                                                       },
                                                                       e -> {
@@ -368,10 +368,10 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
                                                                     )
                                                                   );
 
-        final Vector3d rotatedStartPoint = VectorUtils.rotateMultipleTimes90Degrees(startPoint.subtract(center), axis, rotationCount).add(center);
-        final Vector3d rotatedEndPoint = VectorUtils.rotateMultipleTimes90Degrees(endPoint.subtract(center), axis, rotationCount).add(center);
-        final Vector3d newStartPoint = VectorUtils.minimize(rotatedStartPoint, rotatedEndPoint);
-        final Vector3d newEndPoint = VectorUtils.maximize(rotatedStartPoint, rotatedEndPoint);
+        final Vec3 rotatedStartPoint = VectorUtils.rotateMultipleTimes90Degrees(startPoint.subtract(center), axis, rotationCount).add(center);
+        final Vec3 rotatedEndPoint = VectorUtils.rotateMultipleTimes90Degrees(endPoint.subtract(center), axis, rotationCount).add(center);
+        final Vec3 newStartPoint = VectorUtils.minimize(rotatedStartPoint, rotatedEndPoint);
+        final Vec3 newEndPoint = VectorUtils.maximize(rotatedStartPoint, rotatedEndPoint);
 
         this.snapshots = rotatedParts;
         this.startPoint = newStartPoint;
@@ -381,7 +381,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public void mirror(final Direction.Axis axis)
     {
-        final Vector3d center = this.startPoint.add(this.endPoint).multiply(0.5, 0.5, 0.5);
+        final Vec3 center = this.startPoint.add(this.endPoint).multiply(0.5, 0.5, 0.5);
 
         this.snapshots = this.snapshots
                            .entrySet().stream()

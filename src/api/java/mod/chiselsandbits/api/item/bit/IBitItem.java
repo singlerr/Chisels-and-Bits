@@ -4,8 +4,8 @@ import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.item.click.IRightClickControllingItem;
 import mod.chiselsandbits.api.item.withhighlight.IWithHighlightItem;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Represents an item which is a single bit.

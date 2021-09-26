@@ -10,12 +10,12 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.LevelAccessor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -26,14 +26,14 @@ import java.util.function.Predicate;
 
 public class ChiselingContext implements IChiselingContext
 {
-    private final IWorld             world;
+    private final LevelAccessor             world;
     private final IChiselMode        chiselMode;
     private final ChiselingOperation modeOfOperandus;
     private final boolean            simulation;
     private final Runnable           onCompleteCallback;
     private final ItemStack          causingItemStack;
     private final boolean      supportsDamaging;
-    private final PlayerEntity playerEntity;
+    private final Player playerEntity;
 
     private boolean           complete = false;
     private IWorldAreaMutator                                   mutator       = null;
@@ -41,13 +41,13 @@ public class ChiselingContext implements IChiselingContext
     private Map<IMetadataKey<?>, Object> metadataKeyMap = Maps.newHashMap();
 
     public ChiselingContext(
-      final IWorld world,
+      final LevelAccessor world,
       final IChiselMode chiselMode,
       final ChiselingOperation modeOfOperandus,
       final boolean simulation,
       final Runnable onCompleteCallback,
       final ItemStack causingItemStack,
-      final PlayerEntity playerEntity)
+      final Player playerEntity)
     {
         this.world = world;
         this.chiselMode = chiselMode;
@@ -68,12 +68,12 @@ public class ChiselingContext implements IChiselingContext
     }
 
     private ChiselingContext(
-      final IWorld world,
+      final LevelAccessor world,
       final IChiselMode chiselMode,
       final ChiselingOperation modeOfOperandus,
       final boolean complete,
       final IWorldAreaMutator mutator,
-      final PlayerEntity playerEntity)
+      final Player playerEntity)
     {
         this.world = world;
         this.chiselMode = chiselMode;
@@ -88,11 +88,11 @@ public class ChiselingContext implements IChiselingContext
     }
 
     private ChiselingContext(
-      final IWorld world,
+      final LevelAccessor world,
       final IChiselMode chiselMode,
       final ChiselingOperation modeOfOperandus,
       final boolean complete,
-      final PlayerEntity playerEntity)
+      final Player playerEntity)
     {
         this.world = world;
         this.chiselMode = chiselMode;
@@ -117,7 +117,7 @@ public class ChiselingContext implements IChiselingContext
     }
 
     @Override
-    public @NotNull IWorld getWorld()
+    public @NotNull LevelAccessor getWorld()
     {
         return world;
     }
@@ -129,7 +129,7 @@ public class ChiselingContext implements IChiselingContext
     }
 
     @Override
-    public @NotNull IChiselingContext include(final Vector3d worldPosition)
+    public @NotNull IChiselingContext include(final Vec3 worldPosition)
     {
         if (getMutator().map(m -> !m.isInside(worldPosition)).orElse(true))
         {
@@ -137,12 +137,12 @@ public class ChiselingContext implements IChiselingContext
             {
                 final IWorldAreaMutator worldAreaMutator = getMutator().get();
 
-                Vector3d start = new Vector3d(
+                Vec3 start = new Vec3(
                   Math.min(worldPosition.x(), worldAreaMutator.getInWorldStartPoint().x()),
                   Math.min(worldPosition.y(), worldAreaMutator.getInWorldStartPoint().y()),
                   Math.min(worldPosition.z(), worldAreaMutator.getInWorldStartPoint().z())
                 );
-                Vector3d end = new Vector3d(
+                Vec3 end = new Vec3(
                   Math.max(worldPosition.x(), worldAreaMutator.getInWorldEndPoint().x()),
                   Math.max(worldPosition.y(), worldAreaMutator.getInWorldEndPoint().y()),
                   Math.max(worldPosition.z(), worldAreaMutator.getInWorldEndPoint().z())
@@ -243,9 +243,9 @@ public class ChiselingContext implements IChiselingContext
         this.causingItemStack.hurtAndBreak(damage, playerEntity, playerEntity -> {
             broken.set(true);
 
-            Hand hand = Hand.MAIN_HAND;
+            InteractionHand hand = InteractionHand.MAIN_HAND;
             if (playerEntity.getOffhandItem() == causingItemStack)
-                hand = Hand.OFF_HAND;
+                hand = InteractionHand.OFF_HAND;
             playerEntity.broadcastBreakEvent(hand);
         });
 
@@ -299,7 +299,7 @@ public class ChiselingContext implements IChiselingContext
     }
 
     @Override
-    public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
+    public Optional<IStateEntryInfo> getInAreaTarget(final Vec3 inAreaTarget)
     {
         if (getMutator().isPresent() && getMutator().map(m -> m.isInside(inAreaTarget)).orElse(false))
         {
@@ -307,7 +307,7 @@ public class ChiselingContext implements IChiselingContext
         }
 
         final BlockPos position = new BlockPos(inAreaTarget);
-        final Vector3d inBlockOffset = inAreaTarget.subtract(position.getX(), position.getY(), position.getZ());
+        final Vec3 inBlockOffset = inAreaTarget.subtract(position.getX(), position.getY(), position.getZ());
 
         return IMutatorFactory.getInstance().in(
           getWorld(),
@@ -318,8 +318,8 @@ public class ChiselingContext implements IChiselingContext
     }
 
     @Override
-    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
-        return getInAreaTarget(Vector3d.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget));
+        return getInAreaTarget(Vec3.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget));
     }
 }

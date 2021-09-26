@@ -3,7 +3,7 @@ package mod.chiselsandbits.client.model.loader;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import mod.chiselsandbits.client.model.ChiseledBlockModel;
-import net.minecraft.resources.IResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.client.model.IModelLoader;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,7 +22,7 @@ public final class ChiseledBlockModelLoader implements IModelLoader<ChiseledBloc
     }
 
     @Override
-    public void onResourceManagerReload(@NotNull final IResourceManager resourceManager)
+    public void onResourceManagerReload(@NotNull final ResourceManager resourceManager)
     {
     }
 

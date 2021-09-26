@@ -1,11 +1,11 @@
 package mod.chiselsandbits.api.chiseling.conversion;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
 
 import java.util.Optional;
 
@@ -51,7 +51,7 @@ public interface IConversionManager
      * @param provider The item provider to convert.
      * @return An optional, containing the converted block, if the given item in the provider represents a convertible block.
      */
-    default Optional<Block> getChiseledVariantOf(final IItemProvider provider) {
+    default Optional<Block> getChiseledVariantOf(final ItemLike provider) {
         final Item targetItem = provider.asItem();
         if (targetItem instanceof BlockItem)
             return getChiseledVariantOf(((BlockItem) targetItem).getBlock());

@@ -1,10 +1,10 @@
 package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.container.BagContainer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.network.FriendlyByteBuf;
 
 public final class BagGuiPacket extends ModPacket
 {
@@ -13,7 +13,7 @@ public final class BagGuiPacket extends ModPacket
 	private boolean duplicateButton = false;
 	private boolean holdingShift = false;
 
-    public BagGuiPacket(final PacketBuffer buffer)
+    public BagGuiPacket(final FriendlyByteBuf buffer)
     {
         super(buffer);
     }
@@ -28,13 +28,13 @@ public final class BagGuiPacket extends ModPacket
 
     @Override
 	public void server(
-			final ServerPlayerEntity player )
+			final ServerPlayer player )
 	{
 		doAction( player );
 	}
 
     @Override
-    public void writePayload(final PacketBuffer buffer)
+    public void writePayload(final FriendlyByteBuf buffer)
     {
         buffer.writeInt( slotNumber );
         buffer.writeInt( mouseButton );
@@ -43,9 +43,9 @@ public final class BagGuiPacket extends ModPacket
     }
 
     public void doAction(
-			final PlayerEntity player )
+			final Player player )
 	{
-		final Container c = player.containerMenu;
+		final AbstractContainerMenu c = player.containerMenu;
 		if ( c instanceof BagContainer)
 		{
 			final BagContainer bc = (BagContainer) c;
@@ -55,7 +55,7 @@ public final class BagGuiPacket extends ModPacket
 
 	@Override
 	public void readPayload(
-			final PacketBuffer buffer )
+			final FriendlyByteBuf buffer )
 	{
         slotNumber = buffer.readInt();
         mouseButton = buffer.readInt();

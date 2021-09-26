@@ -3,8 +3,8 @@ package mod.chiselsandbits.api.multistate.accessor;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.stream.Stream;
 
@@ -36,7 +36,7 @@ public interface IAreaAccessor extends IStateAccessor
      * @param inAreaTarget The area target to check.
      * @return True when inside, false when not.
      */
-    boolean isInside(final Vector3d inAreaTarget);
+    boolean isInside(final Vec3 inAreaTarget);
 
     /**
      * Indicates if the given target (with the given block position offset) is inside of the current accessor.
@@ -47,7 +47,7 @@ public interface IAreaAccessor extends IStateAccessor
      */
     boolean isInside(
       BlockPos inAreaBlockPosOffset,
-      Vector3d inBlockTarget
+      Vec3 inBlockTarget
     );
 
     /**

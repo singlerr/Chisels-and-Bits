@@ -1,16 +1,16 @@
 package mod.chiselsandbits.client.util;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Matrix3f;
-import net.minecraft.util.math.vector.Matrix4f;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.core.Direction;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
 import net.minecraftforge.fluids.FluidStack;
 
-import static net.minecraft.util.Direction.*;
+import static net.minecraft.core.Direction.*;
 
 public class FluidCuboidUtils
 {
@@ -25,8 +25,8 @@ public class FluidCuboidUtils
      */
     public static void renderScaledFluidCuboid(
       FluidStack fluid,
-      MatrixStack matrices,
-      IVertexBuilder renderer,
+      PoseStack matrices,
+      VertexConsumer renderer,
       int combinedLight,
       final int combinedOverlay, float x1,
       float y1,
@@ -43,8 +43,8 @@ public class FluidCuboidUtils
      */
     public static void renderFluidCuboid(
       FluidStack fluid,
-      MatrixStack matrices,
-      IVertexBuilder renderer,
+      PoseStack matrices,
+      VertexConsumer renderer,
       int combinedLight,
       final int combinedOverlay,
       float x1,
@@ -63,8 +63,8 @@ public class FluidCuboidUtils
      */
     public static void renderFluidCuboid(
       FluidStack fluid,
-      MatrixStack matrices,
-      IVertexBuilder renderer,
+      PoseStack matrices,
+      VertexConsumer renderer,
       int combinedLight,
       final int combinedOverlay,
       float x1,
@@ -76,9 +76,9 @@ public class FluidCuboidUtils
       int color)
     {
         TextureAtlasSprite still =
-          Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(fluid.getFluid().getAttributes().getStillTexture(fluid));
+          Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluid.getFluid().getAttributes().getStillTexture(fluid));
         TextureAtlasSprite flowing =
-          Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(fluid.getFluid().getAttributes().getFlowingTexture(fluid));
+          Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(fluid.getFluid().getAttributes().getFlowingTexture(fluid));
 
         renderFluidCuboid(still, flowing, color, matrices, renderer, combinedOverlay, combinedLight, x1, y1, z1, x2, y2, z2);
     }
@@ -87,8 +87,8 @@ public class FluidCuboidUtils
       TextureAtlasSprite still,
       TextureAtlasSprite flowing,
       int color,
-      MatrixStack matrices,
-      IVertexBuilder renderer,
+      PoseStack matrices,
+      VertexConsumer renderer,
       final int combinedOverlay,
       int combinedLight,
       float x1,
@@ -112,14 +112,14 @@ public class FluidCuboidUtils
     }
 
     public static void putTexturedQuad(
-      IVertexBuilder renderer, MatrixStack.Entry matrix, TextureAtlasSprite sprite, float w, float h, float d, Direction face,
+      VertexConsumer renderer, PoseStack.Pose matrix, TextureAtlasSprite sprite, float w, float h, float d, Direction face,
       int color, final int overlay, int brightness, boolean flowing)
     {
         putTexturedQuad(renderer, matrix, sprite, w, h, d, face, color, overlay, brightness, flowing, false, false);
     }
 
     public static void putTexturedQuad(
-      IVertexBuilder renderer, MatrixStack.Entry matrix, TextureAtlasSprite sprite, float w, float h, float d, Direction face,
+      VertexConsumer renderer, PoseStack.Pose matrix, TextureAtlasSprite sprite, float w, float h, float d, Direction face,
       int color, final int overlay, int brightness, boolean flowing, boolean flipHorizontally, boolean flipVertically)
     {
         int l1 = brightness >> 0x10 & 0xFFFF;
@@ -139,7 +139,7 @@ public class FluidCuboidUtils
     /* Fluid cuboids */
 // x and x+w has to be within [0,1], same for y/h and z/d
     public static void putTexturedQuad(
-      IVertexBuilder renderer, MatrixStack.Entry matrices, TextureAtlasSprite sprite, float w, float h, float d, Direction face,
+      VertexConsumer renderer, PoseStack.Pose matrices, TextureAtlasSprite sprite, float w, float h, float d, Direction face,
       int r, int g, int b, int a, int light1, int light2, final int overlay1, final int overlay2, boolean flowing, boolean flipHorizontally, boolean flipVertically)
     {
         // safety

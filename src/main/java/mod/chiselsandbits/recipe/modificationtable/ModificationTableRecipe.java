@@ -9,20 +9,20 @@ import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import mod.chiselsandbits.registrars.ModRecipeSerializers;
 import mod.chiselsandbits.registrars.ModRecipeTypes;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
-public class ModificationTableRecipe implements IRecipe<IInventory>
+public class ModificationTableRecipe implements Recipe<Container>
 {
     private final IModificationTableOperation operation;
 
@@ -34,23 +34,23 @@ public class ModificationTableRecipe implements IRecipe<IInventory>
     }
 
     @Override
-    public boolean matches(final IInventory inv, final @NotNull World worldIn)
+    public boolean matches(final Container inv, final @NotNull Level worldIn)
     {
         return inv.getItem(0).getItem() instanceof IPatternItem && !(inv.getItem(0).getItem() instanceof IMultiUsePatternItem);
     }
 
     @Override
-    public @NotNull ItemStack assemble(final @NotNull IInventory inv)
+    public @NotNull ItemStack assemble(final @NotNull Container inv)
     {
         return getAppliedSnapshot(inv).toItemStack().toPatternStack();
     }
 
-    public @NotNull ItemStack getCraftingBlockResult(final IInventory inv)
+    public @NotNull ItemStack getCraftingBlockResult(final Container inv)
     {
         return getAppliedSnapshot(inv).toItemStack().toBlockStack();
     }
 
-    public @NotNull IMultiStateSnapshot getAppliedSnapshot(final IInventory inv)
+    public @NotNull IMultiStateSnapshot getAppliedSnapshot(final Container inv)
     {
         final ItemStack multiStateStack = inv.getItem(0);
         if (multiStateStack.isEmpty())
@@ -66,8 +66,8 @@ public class ModificationTableRecipe implements IRecipe<IInventory>
         return getOperation().apply(snapshot);
     }
 
-    public ITextComponent getDisplayName() {
-        return new TranslationTextComponent(
+    public Component getDisplayName() {
+        return new TranslatableComponent(
           Objects.requireNonNull(this.getOperation().getRegistryName()).getNamespace() + ".recipes.chisel.pattern.modification." + this.getOperation().getRegistryName().getPath());
     }
 
@@ -90,13 +90,13 @@ public class ModificationTableRecipe implements IRecipe<IInventory>
     }
 
     @Override
-    public @NotNull IRecipeSerializer<?> getSerializer()
+    public @NotNull RecipeSerializer<?> getSerializer()
     {
         return ModRecipeSerializers.MODIFICATION_TABLE.get();
     }
 
     @Override
-    public @NotNull IRecipeType<?> getType()
+    public @NotNull RecipeType<?> getType()
     {
         return ModRecipeTypes.MODIFICATION_TABLE;
     }

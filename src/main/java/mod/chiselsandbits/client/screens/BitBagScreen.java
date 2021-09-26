@@ -1,6 +1,6 @@
 package mod.chiselsandbits.client.screens;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.config.Configuration;
@@ -17,24 +17,26 @@ import mod.chiselsandbits.network.packets.ClearBagGuiPacket;
 import mod.chiselsandbits.network.packets.SortBagGuiPacket;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.resources.I18n;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.LanguageMap;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraftforge.fml.client.gui.GuiUtils;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraftforge.fmlclient.gui.GuiUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class BitBagScreen extends ContainerScreen<BagContainer>
+public class BitBagScreen extends AbstractContainerScreen<BagContainer>
 {
 
 	private static final ResourceLocation BAG_GUI_TEXTURE = new ResourceLocation( Constants.MOD_ID, "textures/gui/container/bitbag.png" );
@@ -46,8 +48,8 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
 
 	public BitBagScreen(
 			final BagContainer container,
-            final PlayerInventory playerInventory,
-            final ITextComponent title
+            final Inventory playerInventory,
+            final Component title
     )
 	{
 		super(container, playerInventory, title);
@@ -58,7 +60,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
     protected void init()
     {
         super.init();
-        trashBtn = addButton(new GuiIconButton(leftPos - 18, topPos, IconManager.getInstance().getTrashIcon(), p_onPress_1_ -> {
+        trashBtn = addRenderableWidget(new GuiIconButton(leftPos - 18, topPos, IconManager.getInstance().getTrashIcon(), p_onPress_1_ -> {
             if (requireConfirm)
             {
                 dontThrow = true;
@@ -80,23 +82,23 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
                 final String msgConfirm = !getInHandItem().isEmpty() ? LocalStrings.ReallyTrashItem.getLocal( getInHandItem().getHoverName().getString() ) : LocalStrings.ReallyTrash.getLocal();
 
 
-                final List<ITextComponent> text = Arrays
-                                                    .asList( new ITextComponent[] { new StringTextComponent(requireConfirm ? msgNotConfirm : msgConfirm) } );
+                final List<Component> text = Arrays
+                                                    .asList( new Component[] { new TextComponent(requireConfirm ? msgNotConfirm : msgConfirm) } );
                 GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().font );
             }
             else
             {
-                final List<ITextComponent> text = Arrays
-                                                    .asList( new ITextComponent[] { new StringTextComponent(LocalStrings.TrashInvalidItem.getLocal( getInHandItem().getHoverName().getString() )) } );
+                final List<Component> text = Arrays
+                                                    .asList( new Component[] { new TextComponent(LocalStrings.TrashInvalidItem.getLocal( getInHandItem().getHoverName().getString() )) } );
                 GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().font );
             }
         }));
 
-        addButton(new GuiIconButton(leftPos - 18, topPos + 18, IconManager.getInstance().getSortIcon(),
+        addRenderableWidget(new GuiIconButton(leftPos - 18, topPos + 18, IconManager.getInstance().getSortIcon(),
           p_onPress_1_ -> ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new SortBagGuiPacket()),
           (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
-              final List<ITextComponent> text = Arrays
-                                                  .asList(new ITextComponent[] {new StringTextComponent(LocalStrings.Sort.getLocal())});
+              final List<Component> text = Arrays
+                                                  .asList(new Component[] {new TextComponent(LocalStrings.Sort.getLocal())});
               GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().font);
           }));
     }
@@ -117,7 +119,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
 
     @Override
     public void render(
-      final @NotNull MatrixStack stack,
+      final @NotNull PoseStack stack,
       final int mouseX,
       final int mouseY,
       final float partialTicks )
@@ -129,7 +131,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
     @SuppressWarnings("deprecation")
     @Override
     protected void renderBg(
-      final @NotNull MatrixStack stack,
+      final @NotNull PoseStack stack,
       final float partialTicks,
       final int mouseX,
       final int mouseY )
@@ -137,8 +139,10 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
         final int xOffset = ( width - imageWidth ) / 2;
         final int yOffset = ( height - imageHeight ) / 2;
 
-        RenderSystem.color4f( 1.0F, 1.0F, 1.0F, 1.0F );
-        Minecraft.getInstance().getTextureManager().bind( BAG_GUI_TEXTURE );
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, BAG_GUI_TEXTURE);
+
         this.blit(stack, xOffset, yOffset, 0, 0, imageWidth, imageHeight );
 
         if ( specialFontRenderer == null )
@@ -151,15 +155,15 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
         {
             final Slot slot = getBagContainer().customSlots.get( slotIdx );
 
-            final FontRenderer defaultFontRenderer = font;
+            final Font defaultFontRenderer = font;
 
             try
             {
                 font = specialFontRenderer;
-                RenderSystem.pushMatrix();
-                RenderSystem.translatef(leftPos, topPos, 0f);
+                stack.pushPose();
+                stack.translate(leftPos, topPos, 0f);
                 renderSlot(stack, slot);
-                RenderSystem.popMatrix();
+                stack.popPose();
             }
             finally
             {
@@ -212,7 +216,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
 
 	private ItemStack getInHandItem()
 	{
-		return Minecraft.getInstance().player == null ? ItemStack.EMPTY : Minecraft.getInstance().player.inventory.getCarried();
+		return Minecraft.getInstance().player == null ? ItemStack.EMPTY : Minecraft.getInstance().player.getInventory().getSelected();
 	}
 
 	boolean requireConfirm = true;
@@ -224,9 +228,9 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
 	}
 
     @Override
-    protected void renderLabels(final @NotNull MatrixStack matrixStack, final int x, final int y)
+    protected void renderLabels(final @NotNull PoseStack matrixStack, final int x, final int y)
     {
-        font.drawShadow(matrixStack, LanguageMap.getInstance().getVisualOrder(ModItems.BIT_BAG_DEFAULT.get().getName( ItemStack.EMPTY )), 8, 6, 0x404040 );
+        font.drawShadow(matrixStack, Language.getInstance().getVisualOrder(ModItems.BIT_BAG_DEFAULT.get().getName( ItemStack.EMPTY )), 8, 6, 0x404040 );
         font.draw(matrixStack, I18n.get( "container.inventory" ), 8, imageHeight - 93, 0x404040 );
     }
 }

@@ -2,7 +2,6 @@ package mod.chiselsandbits.keys.contexts;
 
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 
 public final class HoldsWithToolItemInHandKeyConflictContext implements IKeyConflictContext
@@ -19,7 +18,7 @@ public final class HoldsWithToolItemInHandKeyConflictContext implements IKeyConf
     }
 
     /**
-     * @return true if conditions are met to activate {@link KeyBinding}s with this context
+     * @return true if conditions are met to activate keybindings with this context
      */
     @Override
     public boolean isActive()
@@ -31,7 +30,7 @@ public final class HoldsWithToolItemInHandKeyConflictContext implements IKeyConf
 
     /**
      * @param other The other context.
-     * @return true if the other context can have {@link KeyBinding} conflicts with this one. This will be called on both contexts to check for conflicts.
+     * @return true if the other context can have keybindings conflicts with this one. This will be called on both contexts to check for conflicts.
      */
     @Override
     public boolean conflicts(final IKeyConflictContext other)

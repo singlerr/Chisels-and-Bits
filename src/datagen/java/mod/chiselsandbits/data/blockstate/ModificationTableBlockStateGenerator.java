@@ -6,14 +6,14 @@ import com.ldtteam.datagenerators.blockstate.BlockstateVariantJson;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.utils.DataGeneratorConstants;
-import net.minecraft.block.HorizontalBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
-import net.minecraft.util.Direction;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.DataProvider;
+import net.minecraft.core.Direction;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ModificationTableBlockStateGenerator implements IDataProvider
+public class ModificationTableBlockStateGenerator implements DataProvider
 {
 
     @SubscribeEvent
@@ -40,14 +40,14 @@ public class ModificationTableBlockStateGenerator implements IDataProvider
     }
 
     @Override
-    public void run(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull HashCache cache) throws IOException
     {
         if (ModBlocks.MODIFICATION_TABLE.get().getRegistryName() == null)
             return;
 
         final Map<String, BlockstateVariantJson> variants = new HashMap<>();
 
-        for (final Direction direction : HorizontalBlock.FACING.getPossibleValues())
+        for (final Direction direction : HorizontalDirectionalBlock.FACING.getPossibleValues())
         {
             final String modelLocation = Constants.MOD_ID + ":block/modification_table";
 
@@ -65,22 +65,18 @@ public class ModificationTableBlockStateGenerator implements IDataProvider
         final Path blockstateFolder = this.generator.getOutputFolder().resolve(DataGeneratorConstants.BLOCKSTATE_DIR);
         final Path blockstatePath = blockstateFolder.resolve(Objects.requireNonNull(ModBlocks.MODIFICATION_TABLE.get().getRegistryName()).getPath() + ".json");
 
-        IDataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(blockstate), blockstatePath);
+        DataProvider.save(DataGeneratorConstants.GSON, cache, DataGeneratorConstants.serialize(blockstate), blockstatePath);
     }
 
     private int getYFromDirection(final Direction direction)
     {
-        switch (direction)
-        {
-            default:
-                return 0;
-            case EAST:
-                return 90;
-            case SOUTH:
-                return 180;
-            case WEST:
-                return 270;
-        }
+        return switch (direction)
+                 {
+                     default -> 0;
+                     case EAST -> 90;
+                     case SOUTH -> 180;
+                     case WEST -> 270;
+                 };
     }
 
     @Override

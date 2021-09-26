@@ -1,15 +1,15 @@
 package mod.chiselsandbits.client.model.baked.simple;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.texture.MissingTextureSprite;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.Direction;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.core.Direction;
 import net.minecraftforge.client.model.data.IModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Random;
 
 @SuppressWarnings("deprecation")
-public class NullBakedModel implements IBakedModel
+public class NullBakedModel implements BakedModel
 {
 
     public static final NullBakedModel instance = new NullBakedModel();
@@ -67,22 +67,22 @@ public class NullBakedModel implements IBakedModel
     @Override
     public TextureAtlasSprite getParticleIcon()
     {
-        return Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS)
-          .apply(MissingTextureSprite.getLocation());
+        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+          .apply(MissingTextureAtlasSprite.getLocation());
     }
 
     @NotNull
     @Override
-    public ItemCameraTransforms getTransforms()
+    public ItemTransforms getTransforms()
     {
-        return ItemCameraTransforms.NO_TRANSFORMS;
+        return ItemTransforms.NO_TRANSFORMS;
     }
 
     @NotNull
     @Override
-    public ItemOverrideList getOverrides()
+    public ItemOverrides getOverrides()
     {
-        return ItemOverrideList.EMPTY;
+        return ItemOverrides.EMPTY;
     }
 
 }

@@ -1,12 +1,12 @@
 package mod.chiselsandbits.chiseling.modes.cubed;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
 
 public class CubedChiselModeBuilder {
     private int                       bitsPerSide;
     private boolean                   aligned = false;
-    private IFormattableTextComponent displayName;
+    private MutableComponent displayName;
     private ResourceLocation iconName;
 
     public CubedChiselModeBuilder setBitsPerSide(final int bitsPerSide)
@@ -21,7 +21,7 @@ public class CubedChiselModeBuilder {
         return this;
     }
 
-    public CubedChiselModeBuilder setDisplayName(final IFormattableTextComponent displayName)
+    public CubedChiselModeBuilder setDisplayName(final MutableComponent displayName)
     {
         this.displayName = displayName;
         return this;

@@ -3,8 +3,9 @@ package mod.chiselsandbits.client.screens;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.*;
+import com.mojang.math.Matrix4f;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.withmode.IRenderableMode;
@@ -15,17 +16,12 @@ import mod.chiselsandbits.network.packets.HeldToolModeChangedPacket;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.WorldVertexBufferUploader;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.opengl.GL11;
 
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -58,7 +54,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
     private       IRenderableMode mainSelectedToolMode;
     private       M               selectedOuterToolMode;
 
-    private RadialToolModeSelectionScreen(final IWithModeItem<M> toolModeItem, final ItemStack sourceStack, final ITextComponent itemName)
+    private RadialToolModeSelectionScreen(final IWithModeItem<M> toolModeItem, final ItemStack sourceStack, final Component itemName)
     {
         super(TranslationUtils.build("guis.titles.tool-mode", itemName));
 
@@ -101,7 +97,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
 
     @Override
     @SuppressWarnings("deprecation")
-    public void render(final MatrixStack matrixStack, final int mouseX, final int mouseY, final float partialTicks)
+    public void render(final PoseStack matrixStack, final int mouseX, final int mouseY, final float partialTicks)
     {
         // center of screen
         float centerX = Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2F;
@@ -110,18 +106,17 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
         matrixStack.pushPose();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.defaultAlphaFunc();
         matrixStack.translate(centerX, centerY, 0);
         RenderSystem.disableTexture();
 
         renderTorus(matrixStack, mouseX, mouseY, centerX, centerY);
 
-        RenderSystem.color4f(1F, 1F, 1F, 1F);
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
         matrixStack.popPose();
     }
 
     @SuppressWarnings("unchecked")
-    private void renderTorus(final @NotNull MatrixStack matrix, final int mouseX, final int mouseY, final float centerX, final float centerY)
+    private void renderTorus(final @NotNull PoseStack matrix, final int mouseX, final int mouseY, final float centerX, final float centerY)
     {
         handleSelectableTorusRendering(
           matrix,
@@ -170,11 +165,12 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
         }
     }
 
-    private static void drawTorus(MatrixStack matrix, float startAngle, float sizeAngle, float inner, float outer)
+    private static void drawTorus(PoseStack matrix, float startAngle, float sizeAngle, float inner, float outer)
     {
-        BufferBuilder vertexBuffer = Tessellator.getInstance().getBuilder();
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        BufferBuilder vertexBuffer = Tesselator.getInstance().getBuilder();
         Matrix4f matrix4f = matrix.last().pose();
-        vertexBuffer.begin(GL11.GL_QUAD_STRIP, DefaultVertexFormats.POSITION);
+        vertexBuffer.begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION);
         float draws = DRAWS * (sizeAngle / 360F);
         for (int i = 0; i <= draws; i++)
         {
@@ -183,11 +179,11 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
             vertexBuffer.vertex(matrix4f, (float) (inner * Math.cos(angle)), (float) (inner * Math.sin(angle)), 0).endVertex();
         }
         vertexBuffer.end();
-        WorldVertexBufferUploader.end(vertexBuffer);
+        BufferUploader.end(vertexBuffer);
     }
 
     private static void handleSelectableTorusRendering(
-      @NotNull final MatrixStack matrixStack,
+      @NotNull final PoseStack matrixStack,
       final int mouseX,
       final int mouseY,
       final float centerX,
@@ -202,7 +198,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
       final List<? extends IRenderableMode> candidates,
       final Supplier<IRenderableMode> currentGetter,
       final Consumer<IRenderableMode> currentSetter,
-      final FontRenderer font
+      final Font font
     )
     {
         drawSelectableOptions(
@@ -256,7 +252,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
     }
 
     private static void drawSelectableOptions(
-      @NotNull final MatrixStack stack,
+      @NotNull final PoseStack stack,
       final float sectionStartAngle,
       final float sectionArcAngle,
       final float innerRadius,
@@ -267,7 +263,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
       final float mouseY,
       final float centerX,
       final float centerY,
-      @NotNull final FontRenderer fontRenderer,
+      @NotNull final Font fontRenderer,
       final float iconScaleFactor,
       @NotNull final List<? extends IRenderableMode> modes,
       @NotNull final Supplier<IRenderableMode> currentlySelectedModeSupplier,
@@ -332,7 +328,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
                     }
                 }
 
-                RenderSystem.color4f(0.8F, 0.8F, 0.8F, 0.3F);
+                RenderSystem.setShaderColor(0.8F, 0.8F, 0.8F, 0.3F);
                 drawTorus(stack, startOfMouseArcAngle - 90, mouseArcAngle, innerRadius, outerRadius);
             }
 
@@ -378,7 +374,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
 
     @SuppressWarnings("deprecation")
     private static void drawSelectableSection(
-      @NotNull final MatrixStack stack,
+      @NotNull final PoseStack stack,
       final float sectionArcAngle,
       final float innerRadius,
       final float outerRadius,
@@ -393,7 +389,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
 
         final float sectionStartAngle = itemRenderAngle - (itemArcAngle / 2);
 
-        RenderSystem.color4f(0.3f, 0.3f, 0.3f, 0.3f);
+        RenderSystem.setShaderColor(0.3f, 0.3f, 0.3f, 0.3f);
         drawTorus(
           stack,
           sectionStartAngle,
@@ -404,7 +400,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
 
         if (isSelected)
         {
-            RenderSystem.color4f(0.4F, 0.4F, 0.4F, 0.7F);
+            RenderSystem.setShaderColor(0.4F, 0.4F, 0.4F, 0.7F);
             drawTorus(
               stack,
               sectionStartAngle,
@@ -416,7 +412,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
 
         if (isHovered)
         {
-            RenderSystem.color4f(0.7F, 0.7F, 0.7F, 0.7F);
+            RenderSystem.setShaderColor(0.7F, 0.7F, 0.7F, 0.7F);
             drawTorus(
               stack,
               sectionStartAngle,
@@ -428,13 +424,13 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
     }
 
     private static void renderModeIcon(
-      final @NotNull MatrixStack stack,
+      final @NotNull PoseStack stack,
       final float innerRadius,
       final float outerRadius,
       final float itemTargetAngle,
       final float iconScaleFactor,
       final @NotNull IRenderableMode mode,
-      final FontRenderer fontRenderer)
+      final Font fontRenderer)
     {
         float workingAngle = itemTargetAngle - 90;
         while (workingAngle < 0)
@@ -445,7 +441,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
         final float itemCenterX = (float) Math.cos(Math.toRadians(workingAngle)) * (innerRadius + outerRadius) / 2F;
         final float itemCenterY = (float) Math.sin(Math.toRadians(workingAngle)) * (innerRadius + outerRadius) / 2F;
 
-        final ITextComponent name = mode.getDisplayName();
+        final Component name = mode.getDisplayName();
         final int fontWidth = fontRenderer.width(name);
 
         final int itemHeight = mode.shouldRenderDisplayNameInMenu() ?
@@ -456,13 +452,14 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
         final float iconStartY = itemCenterY - (itemHeight / 2f);
 
         stack.pushPose();
-        RenderSystem.color4f(
+        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+        RenderSystem.setShaderColor(
           (float) mode.getColorVector().x(),
           (float) mode.getColorVector().y(),
           (float) mode.getColorVector().z(),
           1
         );
-        Minecraft.getInstance().getTextureManager().bind(mode.getIcon());
+        RenderSystem.setShaderTexture(0, mode.getIcon());
         blit(stack, (int) iconStartX, (int) iconStartY, (int) (DEFAULT_ICON_SIZE * iconScaleFactor), (int) (DEFAULT_ICON_SIZE * iconScaleFactor), 0, 0, 18, 18, 18, 18);
         stack.pushPose();
 

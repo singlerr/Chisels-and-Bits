@@ -14,22 +14,23 @@ import mod.chiselsandbits.registrars.ModTags;
 import mod.chiselsandbits.utils.ClassUtils;
 import mod.chiselsandbits.utils.ReflectionHelperBlock;
 import mod.chiselsandbits.utils.TranslationUtils;
-import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.loot.LootContext;
-import net.minecraft.util.IItemProvider;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("ConstantConditions")
 public class EligibilityManager implements IEligibilityManager
@@ -76,7 +77,7 @@ public class EligibilityManager implements IEligibilityManager
 
                 final Block blk = state.getBlock();
 
-                if (blk.is(ModTags.Blocks.BLOCKED_CHISELABLE))
+                if (ModTags.Blocks.BLOCKED_CHISELABLE.contains(blk))
                 {
                     return new EligibilityAnalysisResult(
                       false,
@@ -85,7 +86,7 @@ public class EligibilityManager implements IEligibilityManager
                     );
                 }
 
-                if (blk.is(ModTags.Blocks.FORCED_CHISELABLE))
+                if (ModTags.Blocks.FORCED_CHISELABLE.contains(blk))
                 {
                     return new EligibilityAnalysisResult(
                       true,
@@ -103,23 +104,23 @@ public class EligibilityManager implements IEligibilityManager
                     // custom dropping behavior?
                     pb.getDrops(state, null);
                     final Class<?> wc = ClassUtils.getDeclaringClass(blkClass, pb.MethodName, BlockState.class, LootContext.Builder.class);
-                    final boolean quantityDroppedTest = wc == Block.class || wc == AbstractBlock.class || wc == FlowingFluidBlock.class;
+                    final boolean quantityDroppedTest = wc == Block.class || wc == BlockBehaviour.class || wc == LiquidBlock.class;
 
-                    final boolean isNotSlab = Item.byBlock(blk) != Items.AIR || state.getBlock() instanceof FlowingFluidBlock;
+                    final boolean isNotSlab = Item.byBlock(blk) != Items.AIR || state.getBlock() instanceof LiquidBlock;
                     boolean itemExistsOrNotSpecialDrops = quantityDroppedTest || isNotSlab;
 
                     // ignore blocks with custom collision.
                     pb.getShape(null, null, null, null);
-                    Class<?> collisionClass = ClassUtils.getDeclaringClass(blkClass, pb.MethodName, BlockState.class, IBlockReader.class, BlockPos.class, ISelectionContext.class);
-                    boolean noCustomCollision = collisionClass == Block.class || collisionClass == AbstractBlock.class || blk.getClass() == SlimeBlock.class || collisionClass == FlowingFluidBlock.class;
+                    Class<?> collisionClass = ClassUtils.getDeclaringClass(blkClass, pb.MethodName, BlockState.class, BlockGetter.class, BlockPos.class, CollisionContext.class);
+                    boolean noCustomCollision = collisionClass == Block.class || collisionClass == BlockBehaviour.class || blk.getClass() == SlimeBlock.class || collisionClass == LiquidBlock.class;
 
                     // full cube specifically is tied to lighting... so for glass
                     // Compatibility use isFullBlock which can be true for glass.
-                    boolean isFullBlock = state.canOcclude() || blk instanceof AbstractGlassBlock || blk instanceof FlowingFluidBlock;
+                    boolean isFullBlock = state.canOcclude() || blk instanceof AbstractGlassBlock || blk instanceof LiquidBlock;
                     final BlockEligibilityAnalysisData info = BlockEligibilityAnalysisData.createFromState(state);
 
                     final boolean tickingBehavior = blk.isRandomlyTicking(state) && Configuration.getInstance().getServer().blackListRandomTickingBlocks.get();
-                    boolean hasBehavior = (blk.hasTileEntity(state) || tickingBehavior);
+                    boolean hasBehavior = (blk instanceof EntityBlock || tickingBehavior);
 
                     final Material remappedMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(
                       state.getMaterial()
@@ -242,13 +243,13 @@ public class EligibilityManager implements IEligibilityManager
     }
 
     /**
-     * Performs a chiselability analysis on the given {@link IItemProvider}.
+     * Performs a chiselability analysis on the given {@link ItemLike}.
      *
-     * @param provider The {@link IItemProvider} to analyze.
+     * @param provider The {@link ItemLike} to analyze.
      * @return The analysis result.
      */
     @Override
-    public IEligibilityAnalysisResult analyse(@NotNull final IItemProvider provider)
+    public IEligibilityAnalysisResult analyse(@NotNull final ItemLike provider)
     {
         final Item item = provider.asItem();
         if (item instanceof BlockItem) {

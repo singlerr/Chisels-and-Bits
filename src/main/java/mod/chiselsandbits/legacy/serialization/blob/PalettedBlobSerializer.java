@@ -2,25 +2,26 @@ package mod.chiselsandbits.legacy.serialization.blob;
 
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.utils.PaletteUtils;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ObjectIntIdentityMap;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.palette.*;
+import net.minecraft.core.IdMapper;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.*;
 import net.minecraftforge.registries.GameData;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class PalettedBlobSerializer extends BlobSerializer implements IResizeCallback<BlockState>
+public class PalettedBlobSerializer extends BlobSerializer implements PaletteResize<BlockState>
 {
-    private final ObjectIntIdentityMap<BlockState> registry        = GameData.getBlockStateIDMap();
-    private final IPalette<BlockState>             registryPalette = new IdentityPalette<>(GameData.getBlockStateIDMap(), Blocks.AIR.defaultBlockState());
-    private       IPalette<BlockState>             palette         = new IdentityPalette<>(GameData.getBlockStateIDMap(), Blocks.AIR.defaultBlockState());
+    private final IdMapper<BlockState> registry        = GameData.getBlockStateIDMap();
+    private final Palette<BlockState>             registryPalette = new GlobalPalette<>(GameData.getBlockStateIDMap(), Blocks.AIR.defaultBlockState());
+    private       Palette<BlockState>             palette         = new GlobalPalette<>(GameData.getBlockStateIDMap(), Blocks.AIR.defaultBlockState());
     private int bits = 0;
 
-    public PalettedBlobSerializer(final PacketBuffer toInflate)
+    public PalettedBlobSerializer(final FriendlyByteBuf toInflate)
     {
         super();
         this.setBits(4);
@@ -42,12 +43,12 @@ public class PalettedBlobSerializer extends BlobSerializer implements IResizeCal
             this.bits = bitsIn;
             if (this.bits <= 8) {
                 this.bits = 4;
-                this.palette = new ArrayPalette<>(this.registry, this.bits, this, NBTUtil::readBlockState);
+                this.palette = new LinearPalette<>(this.registry, this.bits, this, NbtUtils::readBlockState);
             } else if (this.bits < 17) {
-                this.palette = new HashMapPalette<>(this.registry, this.bits, this, NBTUtil::readBlockState, NBTUtil::writeBlockState);
+                this.palette = new HashMapPalette<>(this.registry, this.bits, this, NbtUtils::readBlockState, NbtUtils::writeBlockState);
             } else {
                 this.palette = this.registryPalette;
-                this.bits = MathHelper.ceillog2(this.registry.size());
+                this.bits = Mth.ceillog2(this.registry.size());
                 if (forceBits)
                     this.bits = bitsIn;
             }
@@ -58,21 +59,21 @@ public class PalettedBlobSerializer extends BlobSerializer implements IResizeCal
 
 
     @Override
-    public void write(final PacketBuffer to)
+    public void write(final FriendlyByteBuf to)
     {
         to.writeVarInt(this.bits);
         this.palette.write(to);
     }
 
     @Override
-    protected int readStateID(final PacketBuffer buffer)
+    protected int readStateID(final FriendlyByteBuf buffer)
     {
         //Not needed because of different palette system.
         return 0;
     }
 
     @Override
-    protected void writeStateID(final PacketBuffer buffer, final int key)
+    protected void writeStateID(final FriendlyByteBuf buffer, final int key)
     {
         //Noop
     }
@@ -96,9 +97,9 @@ public class PalettedBlobSerializer extends BlobSerializer implements IResizeCal
     }
 
     @Override
-    public int onResize(final int newBitSize, final BlockState violatingBlockState)
+    public int onResize(final int newBitSize, final @NotNull BlockState violatingBlockState)
     {
-        final IPalette<BlockState> currentPalette = this.palette;
+        final Palette<BlockState> currentPalette = this.palette;
         this.setBits(newBitSize);
 
         final List<BlockState> ids = PaletteUtils.getOrderedListInPalette(currentPalette);

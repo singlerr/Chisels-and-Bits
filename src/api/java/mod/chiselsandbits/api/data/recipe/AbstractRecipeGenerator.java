@@ -8,10 +8,9 @@ import com.ldtteam.datagenerators.recipes.shaped.ShapedRecipeJson;
 import com.ldtteam.datagenerators.recipes.shapeless.ShapelessRecipeJson;
 import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
-import net.minecraft.item.crafting.ShapelessRecipe;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.HashCache;
+import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -21,20 +20,20 @@ import java.util.Map;
 import java.util.Objects;
 
 @SuppressWarnings("unused")
-public abstract class AbstractRecipeGenerator implements IDataProvider
+public abstract class AbstractRecipeGenerator implements DataProvider
 {
 
     private final DataGenerator    generator;
-    private final IItemProvider itemProvider;
+    private final ItemLike itemProvider;
 
-    private DirectoryCache cache = null;
+    private HashCache cache = null;
 
-    protected AbstractRecipeGenerator(final DataGenerator generator, final IItemProvider itemProvider) {
+    protected AbstractRecipeGenerator(final DataGenerator generator, final ItemLike itemProvider) {
         this.generator = generator;
         this.itemProvider = itemProvider;}
 
     @Override
-    public final void run(final @NotNull DirectoryCache cache) throws IOException
+    public final void run(final @NotNull HashCache cache) throws IOException
     {
         this.cache = cache;
         generate();
@@ -163,7 +162,7 @@ public abstract class AbstractRecipeGenerator implements IDataProvider
         final Path recipeFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.RECIPES_DIR);
         final Path recipePath = recipeFolder.resolve(Objects.requireNonNull(this.itemProvider.asItem().getRegistryName()).getPath() + ".json");
 
-        IDataProvider.save(Constants.DataGenerator.GSON, cache, shapedRecipeJson.serialize(), recipePath);
+        DataProvider.save(Constants.DataGenerator.GSON, cache, shapedRecipeJson.serialize(), recipePath);
     }
 
     private void save(final ShapelessRecipeJson shapelessRecipeJson) throws IOException
@@ -173,7 +172,7 @@ public abstract class AbstractRecipeGenerator implements IDataProvider
         final Path recipeFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.RECIPES_DIR);
         final Path recipePath = recipeFolder.resolve(Objects.requireNonNull(this.itemProvider.asItem().getRegistryName()).getPath() + ".json");
 
-        IDataProvider.save(Constants.DataGenerator.GSON, cache, shapelessRecipeJson.serialize(), recipePath);
+        DataProvider.save(Constants.DataGenerator.GSON, cache, shapelessRecipeJson.serialize(), recipePath);
     }
 
     @Override

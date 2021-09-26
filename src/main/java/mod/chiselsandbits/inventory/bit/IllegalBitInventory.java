@@ -1,7 +1,7 @@
 package mod.chiselsandbits.inventory.bit;
 
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class IllegalBitInventory implements IBitInventory
 {

@@ -1,14 +1,6 @@
 package mod.chiselsandbits.api.util;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.color.BlockColors;
-import net.minecraft.client.renderer.model.ModelManager;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.renderer.texture.SpriteMap;
-import net.minecraft.util.ResourceLocation;
-
 import java.lang.reflect.Field;
-import java.util.Map;
 
 public class ReflectionUtils
 {

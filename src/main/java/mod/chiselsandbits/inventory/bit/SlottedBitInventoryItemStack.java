@@ -7,12 +7,12 @@ import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -24,9 +24,9 @@ import java.util.stream.Collectors;
 
 public class SlottedBitInventoryItemStack extends SlottedBitInventory implements IBitInventoryItemStack
 {
-    private final Function<CompoundNBT, ItemStack> saveBuilder;
+    private final Function<CompoundTag, ItemStack> saveBuilder;
 
-    public SlottedBitInventoryItemStack(final int size, final Function<CompoundNBT, ItemStack> saveBuilder)
+    public SlottedBitInventoryItemStack(final int size, final Function<CompoundTag, ItemStack> saveBuilder)
     {
         super(size);
 
@@ -36,16 +36,16 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     @Override
     public ItemStack toItemStack()
     {
-        final CompoundNBT compoundNBT = this.serializeNBT();
+        final CompoundTag compoundNBT = this.serializeNBT();
         return this.saveBuilder.apply(compoundNBT);
     }
 
     @Override
-    public List<ITextComponent> listContents()
+    public List<Component> listContents()
     {
         return getContents().stream()
           .sorted(Comparator.comparingInt(BitSlot::getCount).reversed())
-          .map(slot -> new TranslationTextComponent("chiselsandbits.bitbag.contents.enum.entry", slot.getCount(), slot.getState().getBlock().getName()))
+          .map(slot -> new TranslatableComponent("chiselsandbits.bitbag.contents.enum.entry", slot.getCount(), slot.getState().getBlock().getName()))
           .collect(Collectors.toList());
     }
 
@@ -168,7 +168,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     }
 
     @Override
-    public boolean stillValid(final @NotNull PlayerEntity player)
+    public boolean stillValid(final @NotNull Player player)
     {
         return true;
     }

@@ -2,20 +2,20 @@ package mod.chiselsandbits.legacy.serialization.blob;
 
 import mod.chiselsandbits.legacy.LegacyLoadManager;
 import mod.chiselsandbits.utils.StringStateUtils;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 public class CrossWorldBlobSerializer extends BlobSerializer
 {
 
 	public CrossWorldBlobSerializer(
-			final PacketBuffer toInflate )
+			final FriendlyByteBuf toInflate )
 	{
 		super( toInflate );
 	}
 
 	@Override
 	protected int readStateID(
-			final PacketBuffer buffer )
+			final FriendlyByteBuf buffer )
 	{
 		final String name = buffer.readUtf();
 		return StringStateUtils.getStateIDFromName( name );
@@ -23,7 +23,7 @@ public class CrossWorldBlobSerializer extends BlobSerializer
 
 	@Override
 	protected void writeStateID(
-			final PacketBuffer buffer,
+			final FriendlyByteBuf buffer,
 			final int key )
 	{
 		final String stateName = StringStateUtils.getNameFromStateID( key );

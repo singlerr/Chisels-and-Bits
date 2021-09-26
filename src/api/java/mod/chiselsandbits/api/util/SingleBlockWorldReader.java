@@ -1,23 +1,24 @@
 package mod.chiselsandbits.api.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.DimensionType;
-import net.minecraft.world.IWorldReader;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeManager;
-import net.minecraft.world.border.WorldBorder;
-import net.minecraft.world.chunk.ChunkStatus;
-import net.minecraft.world.chunk.IChunk;
-import net.minecraft.world.gen.Heightmap;
-import net.minecraft.world.lighting.WorldLightManager;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.lighting.LevelLightEngine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,29 +26,29 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 @SuppressWarnings("deprecation")
-public class SingleBlockWorldReader extends SingleBlockBlockReader implements IWorldReader
+public class SingleBlockWorldReader extends SingleBlockBlockReader implements LevelReader
 {
-    private final IWorldReader reader;
+    private final LevelReader reader;
 
-    public SingleBlockWorldReader(final BlockState state, final Block blk, final IWorldReader reader)
+    public SingleBlockWorldReader(final BlockState state, final Block blk, final LevelReader reader)
     {
         super(state, blk, reader);
         this.reader = reader;
     }
 
-    public SingleBlockWorldReader(final BlockState state, final IWorldReader reader)
+    public SingleBlockWorldReader(final BlockState state, final LevelReader reader)
     {
         super(state, state.getBlock(), reader);
         this.reader = reader;
     }
 
-    public SingleBlockWorldReader(final BlockState state, final Block blk, final BlockPos pos, final IWorldReader reader)
+    public SingleBlockWorldReader(final BlockState state, final Block blk, final BlockPos pos, final LevelReader reader)
     {
         super(state, blk, pos, reader);
         this.reader = reader;
     }
 
-    public SingleBlockWorldReader(final BlockState state, final BlockPos pos, final IWorldReader reader)
+    public SingleBlockWorldReader(final BlockState state, final BlockPos pos, final LevelReader reader)
     {
         super(state, pos, reader);
         this.reader = reader;
@@ -55,7 +56,7 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements IW
 
     @Nullable
     @Override
-    public IChunk getChunk(final int x, final int z, @NotNull final ChunkStatus requiredStatus, final boolean nonnull)
+    public ChunkAccess getChunk(final int x, final int z, @NotNull final ChunkStatus requiredStatus, final boolean nonnull)
     {
         return this.reader.getChunk(x, z, requiredStatus, nonnull);
     }
@@ -67,7 +68,7 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements IW
     }
 
     @Override
-    public int getHeight(@NotNull final Heightmap.Type heightmapType, final int x, final int z)
+    public int getHeight(@NotNull final Heightmap.Types heightmapType, final int x, final int z)
     {
         return this.reader.getHeight(heightmapType, x, z);
     }
@@ -119,7 +120,7 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements IW
 
     @NotNull
     @Override
-    public WorldLightManager getLightEngine()
+    public LevelLightEngine getLightEngine()
     {
         return this.reader.getLightEngine();
     }
@@ -134,18 +135,18 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements IW
     @NotNull
     @Override
     public Stream<VoxelShape> getEntityCollisions(
-      @Nullable final Entity p_230318_1_, @NotNull final AxisAlignedBB p_230318_2_, @NotNull final Predicate<Entity> p_230318_3_)
+      @Nullable final Entity p_230318_1_, @NotNull final AABB p_230318_2_, @NotNull final Predicate<Entity> p_230318_3_)
     {
         return this.reader.getEntityCollisions(p_230318_1_, p_230318_2_, p_230318_3_);
     }
 
     @Nullable
     @Override
-    public TileEntity getBlockEntity(@NotNull final BlockPos pos)
+    public BlockEntity getBlockEntity(@NotNull final BlockPos pos)
     {
-        if (pos == this.pos && blk.hasTileEntity(state))
+        if (pos == this.pos && blk instanceof EntityBlock)
         {
-            return blk.createTileEntity(state, this);
+            return ((EntityBlock) blk).newBlockEntity(this.pos, state);
         }
 
         return this.reader.getBlockEntity(pos);

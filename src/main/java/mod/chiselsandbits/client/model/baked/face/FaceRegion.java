@@ -1,8 +1,8 @@
 package mod.chiselsandbits.client.model.baked.face;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
 
 public class FaceRegion
 {
@@ -17,8 +17,8 @@ public class FaceRegion
     private double maxZ;
 
     public static FaceRegion createFrom3DObjectWithFacing(
-      final Vector3d start,
-      final Vector3d end,
+      final Vec3 start,
+      final Vec3 end,
       final Direction facing,
       final BlockState blockState,
       final boolean isEdge

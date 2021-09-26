@@ -1,11 +1,11 @@
 package mod.chiselsandbits.container.helper;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class MergeSupportingHelperContainer extends Container
+public class MergeSupportingHelperContainer extends AbstractContainerMenu
 {
     public MergeSupportingHelperContainer()
     {
@@ -13,7 +13,7 @@ public class MergeSupportingHelperContainer extends Container
     }
 
     @Override
-    public boolean stillValid(final @NotNull PlayerEntity playerIn)
+    public boolean stillValid(final @NotNull Player playerIn)
     {
         return false;
     }

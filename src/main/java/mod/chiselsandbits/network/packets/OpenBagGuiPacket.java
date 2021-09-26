@@ -2,15 +2,14 @@ package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.container.BagContainer;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.SimpleNamedContainerProvider;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleMenuProvider;
 
 public final class OpenBagGuiPacket extends ModPacket
 {
-    public OpenBagGuiPacket(PacketBuffer buffer)
+    public OpenBagGuiPacket(FriendlyByteBuf buffer)
     {
         super(buffer);
     }
@@ -21,23 +20,23 @@ public final class OpenBagGuiPacket extends ModPacket
 
     @Override
 	public void server(
-			final ServerPlayerEntity player )
+			final ServerPlayer player )
 	{
-	    player.openMenu(new SimpleNamedContainerProvider(
+	    player.openMenu(new SimpleMenuProvider(
           (id, playerInventory, playerEntity) -> new BagContainer(id, playerInventory),
-          new TranslationTextComponent(LocalStrings.ContainerBitBag.toString())
+          new TranslatableComponent(LocalStrings.ContainerBitBag.toString())
         ));
 	}
 
     @Override
-    public void writePayload(final PacketBuffer buffer)
+    public void writePayload(final FriendlyByteBuf buffer)
     {
 
     }
 
     @Override
 	public void readPayload(
-			final PacketBuffer buffer )
+			final FriendlyByteBuf buffer )
 	{
 		// no data..
 	}

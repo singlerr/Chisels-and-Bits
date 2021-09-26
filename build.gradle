@@ -4,15 +4,17 @@ buildscript {
     repositories {
         mavenLocal()
         maven { url = 'https://ldtteam.jfrog.io/ldtteam/modding/' }
+        maven { url = 'https://maven.parchmentmc.org' }
         mavenCentral()
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.25', changing: true
+        classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 
 plugins {
-    id "com.matthewprenger.cursegradle" version "1.0.9"
+    id "com.matthewprenger.cursegradle" version "1.0.10"
 }
 
 repositories {
@@ -44,6 +46,8 @@ afterEvaluate {
 }
 
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.parchmentmc.librarian.forgegradle'
+apply plugin: 'maven-publish'
 
 sourceSets {
     api {
@@ -115,7 +119,7 @@ version = System.getenv().containsKey("VERSION") ? System.getenv().get("VERSION"
 group = modGroup
 archivesBaseName = modBaseName
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 minecraft {
     mappings channel: "${project.mcpChannel}", version: "${project.mcpVersion}"
@@ -172,10 +176,6 @@ minecraft {
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
-            args '--all', '--output', file('src/datagen/generated/chiselsandbits'),
-                    '--mod', 'chiselsandbits',
-                    '--existing', sourceSets.main.resources.srcDirs[0]
-
             mods {
                 chiselsandbits {
                     source sourceSets.main
@@ -184,8 +184,9 @@ minecraft {
             }
         }
 
-        generateData {
+        generateData { rc ->
             workingDirectory project.file('run')
+            parent project.minecraft.runs.data
 
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', ''
@@ -195,6 +196,7 @@ minecraft {
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
+            rc.getArgs().clear()
             args '--all', '--output', file('src/datagen/generated/chiselsandbits'),
                     '--mod', 'chiselsandbits',
                     '--existing', sourceSets.main.resources.srcDirs[0]
@@ -204,6 +206,12 @@ minecraft {
                     source sourceSets.main
                     source sourceSets.api
                     source sourceSets.datagen
+                }
+            }
+
+            project.afterEvaluate {
+                lazyToken('minecraft_classpath') {
+                    project.configurations.datagenLibrary.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
                 }
             }
         }
@@ -232,8 +240,22 @@ minecraft {
                     source sourceSets.documentation
                 }
             }
+
+            project.afterEvaluate {
+                lazyToken('minecraft_classpath') {
+                    project.configurations.documentationLibrary.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
+                }
+            }
         }
     }
+}
+
+configurations {
+    datagenLibrary
+    datagenImplementation.extendsFrom datagenLibrary
+
+    documentationLibrary
+    documentationImplementation.extendsFrom documentationLibrary
 }
 
 dependencies {
@@ -248,13 +270,13 @@ dependencies {
     runtimeOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}")
 
     // Add spark to track performance issues.
-    runtimeOnly fg.deobf("curse.maven:spark-361579:3245792")
+    // runtimeOnly fg.deobf("curse.maven:spark-361579:3245792")
 
     // data generators.
     apiImplementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
     implementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
-    datagenImplementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
-    documentationImplementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
+    datagenLibrary "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
+    documentationLibrary "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
 
     // unit testing
     testImplementation 'junit:junit:4.11'

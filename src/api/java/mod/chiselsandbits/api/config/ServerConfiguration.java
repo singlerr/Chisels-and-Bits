@@ -1,11 +1,7 @@
 package mod.chiselsandbits.api.config;
-import com.google.common.collect.Lists;
-import mod.chiselsandbits.api.multistate.StateEntrySize;
-import net.minecraft.block.BlockState;
-import net.minecraftforge.common.ForgeConfigSpec;
 
-import java.util.List;
-import java.util.Objects;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 /**
  * Mod server configuration.

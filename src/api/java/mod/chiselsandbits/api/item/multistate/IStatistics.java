@@ -1,13 +1,13 @@
 package mod.chiselsandbits.api.item.multistate;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.util.INBTSerializable;
 
 /**
  * The statistics of a multi state itemstack.
  */
-public interface IStatistics extends INBTSerializable<CompoundNBT>
+public interface IStatistics extends INBTSerializable<CompoundTag>
 {
 
     /**

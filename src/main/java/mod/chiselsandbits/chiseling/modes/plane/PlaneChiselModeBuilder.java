@@ -1,12 +1,12 @@
 package mod.chiselsandbits.chiseling.modes.plane;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
 
 public class PlaneChiselModeBuilder
 {
     private int                       depth;
-    private IFormattableTextComponent displayName;
+    private MutableComponent displayName;
     private ResourceLocation iconName;
     private boolean filterOnTarget = false;
 
@@ -16,7 +16,7 @@ public class PlaneChiselModeBuilder
         return this;
     }
 
-    public PlaneChiselModeBuilder setDisplayName(final IFormattableTextComponent displayName)
+    public PlaneChiselModeBuilder setDisplayName(final MutableComponent displayName)
     {
         this.displayName = displayName;
         return this;

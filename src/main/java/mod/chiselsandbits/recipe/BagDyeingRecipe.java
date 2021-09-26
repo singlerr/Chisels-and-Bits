@@ -3,19 +3,19 @@ package mod.chiselsandbits.recipe;
 import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.registrars.ModRecipeSerializers;
-import net.minecraft.inventory.CraftingInventory;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.DyeItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.item.crafting.SpecialRecipe;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
-public class BagDyeingRecipe extends SpecialRecipe
+public class BagDyeingRecipe extends CustomRecipe
 {
 
     public BagDyeingRecipe(
@@ -25,14 +25,14 @@ public class BagDyeingRecipe extends SpecialRecipe
     }
 
     @Override
-    public boolean matches(final @NotNull CraftingInventory inv, final @NotNull World worldIn)
+    public boolean matches(final @NotNull CraftingContainer inv, final @NotNull Level worldIn)
     {
         return !getOutput(inv).getBag().isEmpty();
     }
 
     @Override
     public @NotNull ItemStack assemble(
-      @NotNull CraftingInventory inv)
+      @NotNull CraftingContainer inv)
     {
         Result output = getOutput(inv);
 
@@ -46,7 +46,7 @@ public class BagDyeingRecipe extends SpecialRecipe
 
     @NotNull
     private Result getOutput(
-      CraftingInventory inv)
+      CraftingContainer inv)
     {
         ItemStack bag = null;
         ItemStack dye = null;
@@ -145,7 +145,7 @@ public class BagDyeingRecipe extends SpecialRecipe
     }
 
     @Override
-    public @NotNull IRecipeSerializer<?> getSerializer()
+    public @NotNull RecipeSerializer<?> getSerializer()
     {
         return ModRecipeSerializers.BAG_DYEING.get();
     }

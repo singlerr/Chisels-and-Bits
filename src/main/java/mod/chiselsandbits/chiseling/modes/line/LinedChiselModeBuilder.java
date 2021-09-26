@@ -1,12 +1,12 @@
 package mod.chiselsandbits.chiseling.modes.line;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.MutableComponent;
 
 public class LinedChiselModeBuilder
 {
     private int                       bitsPerSide;
-    private IFormattableTextComponent displayName;
+    private MutableComponent displayName;
     private ResourceLocation iconName;
 
     public LinedChiselModeBuilder setBitsPerSide(final int bitsPerSide)
@@ -15,7 +15,7 @@ public class LinedChiselModeBuilder
         return this;
     }
 
-    public LinedChiselModeBuilder setDisplayName(final IFormattableTextComponent displayName)
+    public LinedChiselModeBuilder setDisplayName(final MutableComponent displayName)
     {
         this.displayName = displayName;
         return this;

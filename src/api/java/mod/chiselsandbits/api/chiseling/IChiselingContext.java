@@ -6,9 +6,9 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.LevelAccessor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
@@ -39,7 +39,7 @@ public interface IChiselingContext extends IStateAccessor
      * @return The {@link IWorld}.
      */
     @NotNull
-    IWorld getWorld();
+    LevelAccessor getWorld();
 
     /**
      * Returns the current {@link IChiselMode} for which this context is valid.
@@ -65,7 +65,7 @@ public interface IChiselingContext extends IStateAccessor
      * @return The context, possibly with a mutated {@link IWorldAreaMutator}.
      */
     @NotNull
-    IChiselingContext include(final Vector3d worldPosition);
+    IChiselingContext include(final Vec3 worldPosition);
 
     /**
      * Includes the given exact position in the world of this context, retrievable via {@link #getWorld()}, in
@@ -84,8 +84,8 @@ public interface IChiselingContext extends IStateAccessor
      * @return The context, possibly with a mutated {@link IWorldAreaMutator}.
      */
     @NotNull
-    default IChiselingContext include(final BlockPos inWorldPosition, final Vector3d relativeInBlockPosition) {
-        return this.include(Vector3d.atLowerCornerOf(inWorldPosition).add(relativeInBlockPosition));
+    default IChiselingContext include(final BlockPos inWorldPosition, final Vec3 relativeInBlockPosition) {
+        return this.include(Vec3.atLowerCornerOf(inWorldPosition).add(relativeInBlockPosition));
     }
 
     /**

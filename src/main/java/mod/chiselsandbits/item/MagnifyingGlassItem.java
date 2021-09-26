@@ -4,23 +4,23 @@ import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityAnalysisResult;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.util.LocalStrings;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import net.minecraft.item.Item.Properties;
+import net.minecraft.world.item.Item.Properties;
 
 public class MagnifyingGlassItem extends Item
 {
@@ -32,7 +32,7 @@ public class MagnifyingGlassItem extends Item
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public ITextComponent getHighlightTip(final ItemStack item, final ITextComponent displayName)
+    public Component getHighlightTip(final ItemStack item, final Component displayName)
     {
         if (Minecraft.getInstance().level == null)
         {
@@ -44,27 +44,27 @@ public class MagnifyingGlassItem extends Item
             return displayName;
         }
 
-        if (Minecraft.getInstance().hitResult.getType() != RayTraceResult.Type.BLOCK)
+        if (Minecraft.getInstance().hitResult.getType() != HitResult.Type.BLOCK)
         {
             return displayName;
         }
 
-        final BlockRayTraceResult rayTraceResult = (BlockRayTraceResult) Minecraft.getInstance().hitResult;
+        final BlockHitResult rayTraceResult = (BlockHitResult) Minecraft.getInstance().hitResult;
         final BlockState state = Minecraft.getInstance().level.getBlockState(rayTraceResult.getBlockPos());
 
         final IEligibilityAnalysisResult result = IEligibilityManager.getInstance().analyse(state);
         return result.isAlreadyChiseled() || result.canBeChiseled() ?
-                 result.getReason().withStyle(TextFormatting.GREEN) :
-                 result.getReason().withStyle(TextFormatting.RED);
+                 result.getReason().withStyle(ChatFormatting.GREEN) :
+                 result.getReason().withStyle(ChatFormatting.RED);
     }
 
     @Override
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(
       @NotNull final ItemStack stack,
-      final World worldIn,
-      @NotNull final List<ITextComponent> tooltip,
-      @NotNull final ITooltipFlag advanced)
+      final Level worldIn,
+      @NotNull final List<Component> tooltip,
+      @NotNull final TooltipFlag advanced)
     {
         super.appendHoverText(stack, worldIn, tooltip, advanced);
         Configuration.getInstance().getCommon().helpText(LocalStrings.HelpMagnifyingGlass, tooltip);

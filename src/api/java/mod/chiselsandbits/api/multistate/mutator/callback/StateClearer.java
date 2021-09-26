@@ -1,10 +1,10 @@
 package mod.chiselsandbits.api.multistate.mutator.callback;
 
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 @FunctionalInterface
 public interface StateClearer
 {
 
-    void accept(Vector3d pos);
+    void accept(Vec3 pos);
 }

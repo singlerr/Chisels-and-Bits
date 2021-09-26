@@ -9,12 +9,12 @@ import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.registries.GameData;
 import org.jetbrains.annotations.NotNull;
@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 
-public class SlottedBitInventory extends AbstractBitInventory implements IWatchableBitInventory, INBTSerializable<CompoundNBT>
+public class SlottedBitInventory extends AbstractBitInventory implements IWatchableBitInventory, INBTSerializable<CompoundTag>
 {
     protected final int size;
     protected final Int2ObjectMap<BitSlot> slotMap = new Int2ObjectArrayMap<>();
@@ -83,9 +83,9 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
     }
 
     @Override
-    public CompoundNBT serializeNBT()
+    public CompoundTag serializeNBT()
     {
-        final CompoundNBT data = new CompoundNBT();
+        final CompoundTag data = new CompoundTag();
 
         this.slotMap.forEach((index, slot) -> data.put(index.toString(), slot.serializeNBT()));
 
@@ -93,7 +93,7 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
     }
 
     @Override
-    public void deserializeNBT(final CompoundNBT nbt)
+    public void deserializeNBT(final CompoundTag nbt)
     {
         this.slotMap.clear();
 
@@ -122,7 +122,7 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
         return this.slotMap.isEmpty() || this.slotMap.values().stream().allMatch(slot -> slot.getCount() == 0);
     }
 
-    protected static final class BitSlot implements INBTSerializable<CompoundNBT>, IPacketBufferSerializable {
+    protected static final class BitSlot implements INBTSerializable<CompoundTag>, IPacketBufferSerializable {
 
         private BlockState state = Blocks.AIR.defaultBlockState();
         private ItemStack internalStack = ItemStack.EMPTY;
@@ -138,14 +138,14 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
         }
 
         @Override
-        public void serializeInto(final @NotNull PacketBuffer packetBuffer)
+        public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
         {
             packetBuffer.writeVarInt(GameData.getBlockStateIDMap().getId(state));
             packetBuffer.writeVarInt(getCount());
         }
 
         @Override
-        public void deserializeFrom(final @NotNull PacketBuffer packetBuffer)
+        public void deserializeFrom(final @NotNull FriendlyByteBuf packetBuffer)
         {
             state = GameData.getBlockStateIDMap().byId(packetBuffer.readVarInt());
 
@@ -154,20 +154,20 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
         }
 
         @Override
-        public CompoundNBT serializeNBT()
+        public CompoundTag serializeNBT()
         {
-            final CompoundNBT data = new CompoundNBT();
+            final CompoundTag data = new CompoundTag();
 
-            data.put(NbtConstants.BLOCK_STATE, NBTUtil.writeBlockState(state));
+            data.put(NbtConstants.BLOCK_STATE, NbtUtils.writeBlockState(state));
             data.putInt(NbtConstants.COUNT, getCount());
 
             return data;
         }
 
         @Override
-        public void deserializeNBT(final CompoundNBT nbt)
+        public void deserializeNBT(final CompoundTag nbt)
         {
-            state = NBTUtil.readBlockState(nbt.getCompound(NbtConstants.BLOCK_STATE));
+            state = NbtUtils.readBlockState(nbt.getCompound(NbtConstants.BLOCK_STATE));
             final int count = nbt.getInt(NbtConstants.COUNT);
             internalStack = IBitItemManager.getInstance().create(state, count);
         }

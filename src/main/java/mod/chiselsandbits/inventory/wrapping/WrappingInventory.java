@@ -1,18 +1,18 @@
 package mod.chiselsandbits.inventory.wrapping;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IClearable;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Clearable;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static mod.chiselsandbits.utils.NullUtils.whenNotNull;
 
-public class WrappingInventory implements IInventory
+public class WrappingInventory implements Container
 {
     @Nullable
-    private IInventory wrapped = null;
+    private Container wrapped = null;
 
     @Override
     public int getContainerSize()
@@ -20,7 +20,7 @@ public class WrappingInventory implements IInventory
         return whenNotNull(
           wrapped,
           0,
-          IInventory::getContainerSize
+          Container::getContainerSize
         );
     }
 
@@ -30,7 +30,7 @@ public class WrappingInventory implements IInventory
         return whenNotNull(
           wrapped,
           true,
-          IInventory::isEmpty
+          Container::isEmpty
         );
     }
 
@@ -81,12 +81,12 @@ public class WrappingInventory implements IInventory
     {
         whenNotNull(
           wrapped,
-          IInventory::setChanged
+          Container::setChanged
         );
     }
 
     @Override
-    public boolean stillValid(final @NotNull PlayerEntity player)
+    public boolean stillValid(final @NotNull Player player)
     {
         return whenNotNull(
           wrapped,
@@ -100,7 +100,7 @@ public class WrappingInventory implements IInventory
     {
         whenNotNull(
           wrapped,
-          IClearable::clearContent
+          Clearable::clearContent
         );
     }
 
@@ -110,17 +110,17 @@ public class WrappingInventory implements IInventory
         return whenNotNull(
           wrapped,
           64,
-          IInventory::getMaxStackSize
+          Container::getMaxStackSize
         );
     }
 
     @Nullable
-    public IInventory getWrapped()
+    public Container getWrapped()
     {
         return wrapped;
     }
 
-    public void setWrapped(@Nullable final IInventory wrapped)
+    public void setWrapped(@Nullable final Container wrapped)
     {
         this.wrapped = wrapped;
     }

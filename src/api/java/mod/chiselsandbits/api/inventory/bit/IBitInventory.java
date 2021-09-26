@@ -1,8 +1,8 @@
 package mod.chiselsandbits.api.inventory.bit;
 
 import mod.chiselsandbits.api.item.bit.IBitItem;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Represents an inventory in which bits are contained.

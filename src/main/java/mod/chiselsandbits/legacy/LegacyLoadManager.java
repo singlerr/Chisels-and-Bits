@@ -3,11 +3,11 @@ package mod.chiselsandbits.legacy;
 import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.legacy.serialization.blob.*;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,7 +30,7 @@ public class LegacyLoadManager
 
     private static final String LEGACY_BYTE_VOXEL_ARRAY_KEY = "X";
 
-    private static final ChunkSection EMPTY_SECTION = new ChunkSection(0);
+    private static final LevelChunkSection EMPTY_SECTION = new LevelChunkSection(0);
 
     public static LegacyLoadManager getInstance()
     {
@@ -41,7 +41,7 @@ public class LegacyLoadManager
     {
     }
 
-    public ChunkSection attemptLegacyBlockEntityLoad(final CompoundNBT entityNbt) {
+    public LevelChunkSection attemptLegacyBlockEntityLoad(final CompoundTag entityNbt) {
         if (!entityNbt.contains(LEGACY_BYTE_VOXEL_ARRAY_KEY))
             return EMPTY_SECTION;
 
@@ -62,7 +62,7 @@ public class LegacyLoadManager
         }
     }
 
-    private ChunkSection attemptLegacyBlockEntityLoad(final ByteArrayInputStream byteArrayInputStream) throws IOException
+    private LevelChunkSection attemptLegacyBlockEntityLoad(final ByteArrayInputStream byteArrayInputStream) throws IOException
     {
         final InflaterInputStream inflaterInputStream = new InflaterInputStream(byteArrayInputStream);
         final ByteBuffer byteBuffer = ByteBuffer.allocate(3145728);
@@ -77,11 +77,11 @@ public class LegacyLoadManager
         }
         while (remainingBytes > 0);
 
-        final PacketBuffer packetBuffer = new PacketBuffer(Unpooled.wrappedBuffer(byteBuffer));
+        final FriendlyByteBuf packetBuffer = new FriendlyByteBuf(Unpooled.wrappedBuffer(byteBuffer));
         return attemptLegacyBlockEntityLoad(packetBuffer, byteBuffer);
     }
 
-    private ChunkSection attemptLegacyBlockEntityLoad(final PacketBuffer packetBuffer, final ByteBuffer byteBuffer) {
+    private LevelChunkSection attemptLegacyBlockEntityLoad(final FriendlyByteBuf packetBuffer, final ByteBuffer byteBuffer) {
         final int packagedVersion = packetBuffer.readInt();
         final BlobSerializer serializer = getBlobSerializerFromVersion(packagedVersion, packetBuffer);
 
@@ -89,7 +89,7 @@ public class LegacyLoadManager
         final int bytesOfInterest = packetBuffer.readInt();
 
         final BitStream bits = BitStream.valueOf(byteOffset, ByteBuffer.wrap(byteBuffer.array(), packetBuffer.readerIndex(), bytesOfInterest));
-        final ChunkSection resultingSection = new ChunkSection(0);
+        final LevelChunkSection resultingSection = new LevelChunkSection(0);
 
         for (int i = 0; i < ARRAY_SIZE; i++)
         {
@@ -104,7 +104,7 @@ public class LegacyLoadManager
         return resultingSection;
     }
 
-    private BlobSerializer getBlobSerializerFromVersion(final int version, final PacketBuffer source) {
+    private BlobSerializer getBlobSerializerFromVersion(final int version, final FriendlyByteBuf source) {
         if (version == VERSION_COMPACT)
         {
             return new BlobSerializer(source);

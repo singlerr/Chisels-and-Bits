@@ -2,23 +2,20 @@ package mod.chiselsandbits.aabb;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.AABB;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public class AABBManager
 {
@@ -30,7 +27,7 @@ public class AABBManager
         return INSTANCE;
     }
 
-    private final Cache<Key, Collection<AxisAlignedBB>> cache = CacheBuilder.newBuilder()
+    private final Cache<Key, Collection<AABB>> cache = CacheBuilder.newBuilder()
         .expireAfterAccess(1, TimeUnit.MINUTES)
         .build();
 
@@ -38,7 +35,7 @@ public class AABBManager
     {
     }
 
-    public Collection<AxisAlignedBB> get(
+    public Collection<AABB> get(
       final IAreaAccessor accessor,
       final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder
     ) {

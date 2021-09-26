@@ -1,10 +1,10 @@
 package mod.chiselsandbits.client.model.baked.base;
 
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 
-public abstract class BaseBakedBlockModel extends BaseBakedPerspectiveModel implements IBakedModel
+public abstract class BaseBakedBlockModel extends BaseBakedPerspectiveModel implements BakedModel
 {
 
 	@Override
@@ -27,15 +27,15 @@ public abstract class BaseBakedBlockModel extends BaseBakedPerspectiveModel impl
 
 	@SuppressWarnings({"NullableProblems", "deprecation"})
     @Override
-	final public ItemCameraTransforms getTransforms()
+	final public ItemTransforms getTransforms()
 	{
-		return ItemCameraTransforms.NO_TRANSFORMS;
+		return ItemTransforms.NO_TRANSFORMS;
 	}
 
 	@Override
-	public ItemOverrideList getOverrides()
+	public ItemOverrides getOverrides()
 	{
-		return ItemOverrideList.EMPTY;
+		return ItemOverrides.EMPTY;
 	}
 
 }

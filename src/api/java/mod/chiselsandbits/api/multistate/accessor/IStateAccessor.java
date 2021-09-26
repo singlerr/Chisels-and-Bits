@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.multistate.accessor;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
@@ -14,7 +14,7 @@ public interface IStateAccessor
      * @return An optional potentially containing the state entry of the requested target.
      */
     Optional<IStateEntryInfo> getInAreaTarget(
-      Vector3d inAreaTarget
+      Vec3 inAreaTarget
     );
 
     /**
@@ -26,6 +26,6 @@ public interface IStateAccessor
      */
     Optional<IStateEntryInfo> getInBlockTarget(
       BlockPos inAreaBlockPosOffset,
-      Vector3d inBlockTarget
+      Vec3 inBlockTarget
     );
 }

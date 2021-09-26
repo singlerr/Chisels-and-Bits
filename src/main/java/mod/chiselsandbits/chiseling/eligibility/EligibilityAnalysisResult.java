@@ -1,16 +1,16 @@
 package mod.chiselsandbits.chiseling.eligibility;
 
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityAnalysisResult;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 public class EligibilityAnalysisResult implements IEligibilityAnalysisResult
 {
 
     private final boolean canBeChiseled;
     private final boolean isAlreadyChiseled;
-    private final IFormattableTextComponent displayName;
+    private final MutableComponent displayName;
 
-    public EligibilityAnalysisResult(final boolean canBeChiseled, final boolean isAlreadyChiseled, final IFormattableTextComponent displayName) {
+    public EligibilityAnalysisResult(final boolean canBeChiseled, final boolean isAlreadyChiseled, final MutableComponent displayName) {
         this.canBeChiseled = canBeChiseled;
         this.isAlreadyChiseled = isAlreadyChiseled;
         this.displayName = displayName;
@@ -44,7 +44,7 @@ public class EligibilityAnalysisResult implements IEligibilityAnalysisResult
      * @return The displayable reason.
      */
     @Override
-    public IFormattableTextComponent getReason()
+    public MutableComponent getReason()
     {
         return displayName;
     }

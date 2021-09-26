@@ -6,9 +6,9 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -56,7 +56,7 @@ public class VoxelShapeManager implements IVoxelShapeManager
               () -> {
                 final VoxelShape calculatedShape = VoxelShapeCalculator.calculate(accessor, offset, selectablePredicateBuilder, simplify);
                 if (calculatedShape.isEmpty())
-                    return VoxelShapes.empty();
+                    return Shapes.empty();
 
                 return calculatedShape;
             });
@@ -64,7 +64,7 @@ public class VoxelShapeManager implements IVoxelShapeManager
         catch (ExecutionException e)
         {
             LOGGER.warn("Failed to calculate voxelshape.", e);
-            return VoxelShapes.empty();
+            return Shapes.empty();
         }
     }
 

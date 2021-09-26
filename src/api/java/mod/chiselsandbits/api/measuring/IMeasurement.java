@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.measuring;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
 
@@ -22,21 +22,21 @@ public interface IMeasurement
      *
      * @return The start point of the measurement.
      */
-    Vector3d getFrom();
+    Vec3 getFrom();
 
     /**
      * The top right back corner of the measurement.
      *
      * @return The end point of the measurement.
      */
-    Vector3d getTo();
+    Vec3 getTo();
 
     /**
      * The size of the measurement.
      *
      * @return The size of the measurement.
      */
-    default Vector3d getSize() {
+    default Vec3 getSize() {
         return getTo().subtract(getFrom());
     }
 

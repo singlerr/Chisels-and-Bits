@@ -1,19 +1,23 @@
 package mod.chiselsandbits.client.model.baked.bit;
 
+import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
 import mod.chiselsandbits.client.model.baked.face.FaceManager;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.*;
-import net.minecraft.client.renderer.texture.MissingTextureSprite;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.BlockElementFace;
+import net.minecraft.client.renderer.block.model.BlockFaceUV;
+import net.minecraft.client.renderer.block.model.FaceBakery;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,7 +43,7 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
         final Vector3f to = new Vector3f( BIT_BEGIN, BIT_BEGIN, BIT_BEGIN );
         final Vector3f from = new Vector3f( BIT_END, BIT_END, BIT_END );
 
-        final ModelRotation mr = ModelRotation.X0_Y0;
+        final BlockModelRotation mr = BlockModelRotation.X0_Y0;
 
         for ( final Direction myFace : Direction.values() )
         {
@@ -55,7 +59,7 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
                 for ( final ModelQuadLayer quadLayer : layers )
                 {
                     final BlockFaceUV uv = new BlockFaceUV( getFaceUvs( myFace ), 0 );
-                    final BlockPartFace bpf = new BlockPartFace( myFace, 0, "", uv );
+                    final BlockElementFace bpf = new BlockElementFace( myFace, 0, "", uv );
 
                     Vector3f toB, fromB;
 
@@ -151,7 +155,7 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
     @Override
     public TextureAtlasSprite getParticleIcon()
     {
-        return Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(MissingTextureSprite.getLocation());
+        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(MissingTextureAtlasSprite.getLocation());
     }
 
 }

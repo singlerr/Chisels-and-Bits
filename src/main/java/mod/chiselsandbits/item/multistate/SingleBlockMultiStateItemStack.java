@@ -21,21 +21,21 @@ import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -47,18 +47,18 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
 {
 
     private final ItemStack    sourceStack;
-    private final ChunkSection compressedSection;
+    private final LevelChunkSection compressedSection;
     private final Statistics statistics = new Statistics();
 
     public SingleBlockMultiStateItemStack(final ItemStack sourceStack)
     {
         this.sourceStack = sourceStack;
-        this.compressedSection = new ChunkSection(0);
+        this.compressedSection = new LevelChunkSection(0);
 
         this.deserializeNBT(sourceStack.getOrCreateTagElement(NbtConstants.CHISELED_DATA));
     }
 
-    public SingleBlockMultiStateItemStack(final Item item, final ChunkSection compressedSection)
+    public SingleBlockMultiStateItemStack(final Item item, final LevelChunkSection compressedSection)
     {
         if (!(item instanceof IMultiStateItem))
             throw new IllegalArgumentException("The given item is not a MultiState Item");
@@ -110,7 +110,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
      */
     @SuppressWarnings("deprecation")
     @Override
-    public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
+    public Optional<IStateEntryInfo> getInAreaTarget(final Vec3 inAreaTarget)
     {
         if (inAreaTarget.x() < 0 ||
               inAreaTarget.y() < 0 ||
@@ -146,7 +146,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
      * @return An optional potentially containing the state entry of the requested target.
      */
     @Override
-    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
         {
@@ -165,7 +165,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
      * @return True when inside, false when not.
      */
     @Override
-    public boolean isInside(final Vector3d inAreaTarget)
+    public boolean isInside(final Vec3 inAreaTarget)
     {
         return !(inAreaTarget.x() < 0) &&
                  !(inAreaTarget.y() < 0) &&
@@ -183,7 +183,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
      * @return True when inside, false when not.
      */
     @Override
-    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
         {
@@ -232,7 +232,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
      */
     @SuppressWarnings("deprecation")
     @Override
-    public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
+    public void setInAreaTarget(final BlockState blockState, final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
         if (inAreaTarget.x() < 0 ||
               inAreaTarget.y() < 0 ||
@@ -252,9 +252,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
           inAreaPos.getZ()
         );
 
-        if (!currentState.isAir(new SingleBlockBlockReader(
-          currentState
-        ), BlockPos.ZERO))
+        if (!currentState.isAir())
         {
             throw new SpaceOccupiedException();
         }
@@ -286,7 +284,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
      * @param inBlockTarget        The offset in the targeted block.
      */
     @Override
-    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
         {
@@ -306,7 +304,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
      */
     @SuppressWarnings("deprecation")
     @Override
-    public void clearInAreaTarget(final Vector3d inAreaTarget)
+    public void clearInAreaTarget(final Vec3 inAreaTarget)
     {
         if (inAreaTarget.x() < 0 ||
               inAreaTarget.y() < 0 ||
@@ -354,7 +352,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
      * @param inBlockTarget        The offset in the targeted block.
      */
     @Override
-    public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
         {
@@ -372,7 +370,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
      * @param packetBuffer The packet buffer to write into.
      */
     @Override
-    public void serializeInto(@NotNull final PacketBuffer packetBuffer)
+    public void serializeInto(@NotNull final FriendlyByteBuf packetBuffer)
     {
         compressedSection.getStates().write(packetBuffer);
     }
@@ -383,19 +381,19 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
      * @param packetBuffer The packet buffer to read from.
      */
     @Override
-    public void deserializeFrom(@NotNull final PacketBuffer packetBuffer)
+    public void deserializeFrom(@NotNull final FriendlyByteBuf packetBuffer)
     {
         compressedSection.getStates().read(packetBuffer);
     }
 
     @Override
-    public CompoundNBT serializeNBT()
+    public CompoundTag serializeNBT()
     {
-        final CompoundNBT nbt = new CompoundNBT();
+        final CompoundTag nbt = new CompoundTag();
 
-        final CompoundNBT chiselBlockData = new CompoundNBT();
-        final CompoundNBT compressedSectionData = ChunkSectionUtils.serializeNBT(this.compressedSection);
-        final CompoundNBT statisticsData = this.statistics.serializeNBT();
+        final CompoundTag chiselBlockData = new CompoundTag();
+        final CompoundTag compressedSectionData = ChunkSectionUtils.serializeNBT(this.compressedSection);
+        final CompoundTag statisticsData = this.statistics.serializeNBT();
 
         chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
         chiselBlockData.put(NbtConstants.STATISTICS, statisticsData);
@@ -406,11 +404,11 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     }
 
     @Override
-    public void deserializeNBT(final CompoundNBT nbt)
+    public void deserializeNBT(final CompoundTag nbt)
     {
-        final CompoundNBT chiselBlockData = nbt.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
-        final CompoundNBT compressedSectionData = chiselBlockData.getCompound(NbtConstants.COMPRESSED_STORAGE);
-        final CompoundNBT statisticsData = chiselBlockData.getCompound(NbtConstants.STATISTICS);
+        final CompoundTag chiselBlockData = nbt.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
+        final CompoundTag compressedSectionData = chiselBlockData.getCompound(NbtConstants.COMPRESSED_STORAGE);
+        final CompoundTag statisticsData = chiselBlockData.getCompound(NbtConstants.STATISTICS);
 
         ChunkSectionUtils.deserializeNBT(
           this.compressedSection,
@@ -489,7 +487,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     {
         private final long[] dataArray;
 
-        private ShapeIdentifier(final ChunkSection chunkSection)
+        private ShapeIdentifier(final LevelChunkSection chunkSection)
         {
             dataArray = Arrays.copyOf(
               chunkSection.getStates().storage.getRaw(),
@@ -504,11 +502,10 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
             {
                 return true;
             }
-            if (!(o instanceof ShapeIdentifier))
+            if (!(o instanceof final ShapeIdentifier that))
             {
                 return false;
             }
-            final ShapeIdentifier that = (ShapeIdentifier) o;
             return Arrays.equals(dataArray, that.dataArray);
         }
 
@@ -523,29 +520,29 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     {
 
         private final BlockState state;
-        private final Vector3d   startPoint;
-        private final Vector3d   endPoint;
+        private final Vec3   startPoint;
+        private final Vec3   endPoint;
 
         private final StateSetter  stateSetter;
         private final StateClearer stateClearer;
 
         public StateEntry(
           final BlockState state,
-          final Vector3i startPoint,
+          final Vec3i startPoint,
           final StateSetter stateSetter,
           final StateClearer stateClearer)
         {
             this(
               state,
-              Vector3d.atLowerCornerOf(startPoint).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()),
-              Vector3d.atLowerCornerOf(startPoint).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()),
+              Vec3.atLowerCornerOf(startPoint).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()),
+              Vec3.atLowerCornerOf(startPoint).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()),
               stateSetter, stateClearer);
         }
 
         private StateEntry(
           final BlockState state,
-          final Vector3d startPoint,
-          final Vector3d endPoint,
+          final Vec3 startPoint,
+          final Vec3 endPoint,
           final StateSetter stateSetter,
           final StateClearer stateClearer)
         {
@@ -563,13 +560,13 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         }
 
         @Override
-        public Vector3d getStartPoint()
+        public Vec3 getStartPoint()
         {
             return startPoint;
         }
 
         @Override
-        public Vector3d getEndPoint()
+        public Vec3 getEndPoint()
         {
             return endPoint;
         }
@@ -646,18 +643,18 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         }
 
         @Override
-        public CompoundNBT serializeNBT()
+        public CompoundTag serializeNBT()
         {
-            final CompoundNBT nbt = new CompoundNBT();
+            final CompoundTag nbt = new CompoundTag();
 
-            nbt.put(NbtConstants.PRIMARY_STATE, NBTUtil.writeBlockState(this.primaryState));
+            nbt.put(NbtConstants.PRIMARY_STATE, NbtUtils.writeBlockState(this.primaryState));
 
-            final ListNBT blockStateList = new ListNBT();
+            final ListTag blockStateList = new ListTag();
             for (final Map.Entry<BlockState, Integer> blockStateIntegerEntry : this.countMap.entrySet())
             {
-                final CompoundNBT stateNbt = new CompoundNBT();
+                final CompoundTag stateNbt = new CompoundTag();
 
-                stateNbt.put(NbtConstants.BLOCK_STATE, NBTUtil.writeBlockState(blockStateIntegerEntry.getKey()));
+                stateNbt.put(NbtConstants.BLOCK_STATE, NbtUtils.writeBlockState(blockStateIntegerEntry.getKey()));
                 stateNbt.putInt(NbtConstants.COUNT, blockStateIntegerEntry.getValue());
 
                 blockStateList.add(stateNbt);
@@ -669,25 +666,25 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         }
 
         @Override
-        public void deserializeNBT(final CompoundNBT nbt)
+        public void deserializeNBT(final CompoundTag nbt)
         {
             this.countMap.clear();
 
-            this.primaryState = NBTUtil.readBlockState(nbt.getCompound(NbtConstants.PRIMARY_STATE));
+            this.primaryState = NbtUtils.readBlockState(nbt.getCompound(NbtConstants.PRIMARY_STATE));
 
-            final ListNBT blockStateList = nbt.getList(NbtConstants.BLOCK_STATES, Constants.NBT.TAG_COMPOUND);
+            final ListTag blockStateList = nbt.getList(NbtConstants.BLOCK_STATES, Constants.NBT.TAG_COMPOUND);
             for (int i = 0; i < blockStateList.size(); i++)
             {
-                final CompoundNBT stateNbt = blockStateList.getCompound(i);
+                final CompoundTag stateNbt = blockStateList.getCompound(i);
 
                 this.countMap.put(
-                  NBTUtil.readBlockState(stateNbt.getCompound(NbtConstants.BLOCK_STATE)),
+                  NbtUtils.readBlockState(stateNbt.getCompound(NbtConstants.BLOCK_STATE)),
                   stateNbt.getInt(NbtConstants.COUNT)
                 );
             }
         }
 
-        public void initializeFrom(final ChunkSection compressedSection)
+        public void initializeFrom(final LevelChunkSection compressedSection)
         {
             this.clear();
 

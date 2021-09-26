@@ -2,9 +2,9 @@ package mod.chiselsandbits.aabb;
 
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.assertj.core.util.Lists;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,10 +55,10 @@ public class AABBCompressorTest
     }
     
     private void RunDirectNeighboringTest(final Direction direction) {
-        final AxisAlignedBB initialBox = AxisAlignedBB.ofSize(1, 1, 1);
-        final AxisAlignedBB neighborBox = initialBox.move(direction.getStepX(), direction.getStepY(), direction.getStepZ());
+        final AABB initialBox = AABB.ofSize(Vec3.ZERO, 1d, 1d, 1d);
+        final AABB neighborBox = initialBox.move(direction.getStepX(), direction.getStepY(), direction.getStepZ());
 
-        final AxisAlignedBB expectedBox = initialBox.minmax(neighborBox);
+        final AABB expectedBox = initialBox.minmax(neighborBox);
 
         RunCompressionTest(
           Lists.newArrayList(initialBox, neighborBox),
@@ -68,15 +68,15 @@ public class AABBCompressorTest
     }
 
     private void RunCompressionTest(
-      final Collection<AxisAlignedBB> sources,
-      final Collection<AxisAlignedBB> expectedResults,
+      final Collection<AABB> sources,
+      final Collection<AABB> expectedResults,
       final String testName
     ) {
         final List<IStateEntryInfo> entrySources = sources
                                                      .stream()
                                                      .map(box -> {
-                                                         final Vector3d startPoint = new Vector3d(box.minX, box.minY, box.minZ);
-                                                         final Vector3d endPoint = new Vector3d(box.maxX, box.maxY, box.maxZ);
+                                                         final Vec3 startPoint = new Vec3(box.minX, box.minY, box.minZ);
+                                                         final Vec3 endPoint = new Vec3(box.maxX, box.maxY, box.maxZ);
 
                                                          final IStateEntryInfo mock = mock(IStateEntryInfo.class);
 
@@ -107,10 +107,10 @@ public class AABBCompressorTest
     private void RunCompressionTest(
       final IAreaAccessor areaAccessor,
       final Predicate<IStateEntryInfo> selectionPredicate,
-      final Collection<AxisAlignedBB> expectedResults,
+      final Collection<AABB> expectedResults,
       final String testName
     ) {
-        final Collection<AxisAlignedBB> calculatedResults = AABBCompressor.compressStates(
+        final Collection<AABB> calculatedResults = AABBCompressor.compressStates(
           areaAccessor, selectionPredicate
         );
 

@@ -4,11 +4,12 @@ import com.google.gson.JsonObject;
 import mod.chiselsandbits.api.config.AbstractConfiguration;
 import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.DataProvider;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ConfigLangGenerator implements IDataProvider
+public class ConfigLangGenerator implements DataProvider
 {
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
@@ -31,7 +32,7 @@ public class ConfigLangGenerator implements IDataProvider
     private ConfigLangGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void run(@NotNull final DirectoryCache cache) throws IOException
+    public void run(@NotNull final HashCache cache) throws IOException
     {
         final List<String> langKeys = new ArrayList<>(AbstractConfiguration.LANG_KEYS);
         Collections.sort(langKeys);
@@ -45,7 +46,7 @@ public class ConfigLangGenerator implements IDataProvider
         final Path configLangFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.CONFIG_LANG_DIR);
         final Path langPath = configLangFolder.resolve("config.json");
 
-        IDataProvider.save(Constants.DataGenerator.GSON, cache, returnValue, langPath);
+        DataProvider.save(Constants.DataGenerator.GSON, cache, returnValue, langPath);
     }
 
     @NotNull

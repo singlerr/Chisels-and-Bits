@@ -1,7 +1,6 @@
 package mod.chiselsandbits.item;
 
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SealingNotSupportedException;
@@ -17,25 +16,24 @@ import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.LocalStrings;
-import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
 import mod.chiselsandbits.registrars.ModItems;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.*;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.util.Constants;
@@ -43,8 +41,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-
-import net.minecraft.item.Item.Properties;
 
 public class SingleUsePatternItem extends Item implements IPatternItem
 {
@@ -75,33 +71,33 @@ public class SingleUsePatternItem extends Item implements IPatternItem
 
     @Override
     @NotNull
-    public ActionResultType useOn(@NotNull ItemUseContext context) {
+    public InteractionResult useOn(@NotNull UseOnContext context) {
         final IMultiStateItemStack contents = createItemStack(context.getItemInHand());
         if (contents.getStatistics().isEmpty()) {
             if (context.getPlayer() == null)
-                return ActionResultType.FAIL;
+                return InteractionResult.FAIL;
 
             if (!context.getPlayer().isCreative())
-                return ActionResultType.FAIL;
+                return InteractionResult.FAIL;
 
             if (!context.getPlayer().isCrouching())
-                return ActionResultType.FAIL;
+                return InteractionResult.FAIL;
 
             final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
             final ItemStack snapshotPatternStack = areaMutator.createSnapshot().toItemStack().toPatternStack();
             context.getItemInHand().setTag(snapshotPatternStack.getOrCreateTag().copy());
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
 
-        return this.tryPlace(new BlockItemUseContext(context));
+        return this.tryPlace(new BlockPlaceContext(context));
     }
 
     @NotNull
-    public ActionResultType tryPlace(@NotNull final BlockItemUseContext context)
+    public InteractionResult tryPlace(@NotNull final BlockPlaceContext context)
     {
         if (context.getPlayer() == null)
-            return ActionResultType.FAIL;
+            return InteractionResult.FAIL;
 
         final IAreaAccessor source = this.createItemStack(context.getItemInHand());
         final IMultiStateSnapshot sourceSnapshot = source.createSnapshot();
@@ -151,9 +147,8 @@ public class SingleUsePatternItem extends Item implements IPatternItem
                 sourceSnapshot.getStatics().getStateCounts().forEach(playerBitInventory::extract);
             }
 
-            final TileEntity tileEntityCandidate = context.getLevel().getBlockEntity(context.getClickedPos());
-            if (tileEntityCandidate instanceof IMultiStateBlockEntity) {
-                IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntityCandidate;
+            final BlockEntity tileEntityCandidate = context.getLevel().getBlockEntity(context.getClickedPos());
+            if (tileEntityCandidate instanceof IMultiStateBlockEntity multiStateBlockEntity) {
                 final Direction placementDirection = context.getPlayer() == null ? Direction.NORTH : context.getPlayer().getDirection().getOpposite();
                 final int horizontalIndex = placementDirection.get2DDataValue();
 
@@ -177,16 +172,16 @@ public class SingleUsePatternItem extends Item implements IPatternItem
             return determineSuccessResult(context);
         }
 
-        return ActionResultType.FAIL;
+        return InteractionResult.FAIL;
     }
 
-    protected ActionResultType determineSuccessResult(final BlockItemUseContext context) {
+    protected InteractionResult determineSuccessResult(final BlockPlaceContext context) {
         if (context.getPlayer() != null && context.getPlayer().isCreative())
         {
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ActionResultType.CONSUME;
+        return InteractionResult.CONSUME;
     }
 
     @Override
@@ -210,11 +205,11 @@ public class SingleUsePatternItem extends Item implements IPatternItem
     @Override
     @OnlyIn(Dist.CLIENT)
     public void appendHoverText(
-      final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
+      final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
     {
         if ((Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown())) {
-            tooltip.add(new StringTextComponent("        "));
-            tooltip.add(new StringTextComponent("        "));
+            tooltip.add(new TextComponent("        "));
+            tooltip.add(new TextComponent("        "));
         }
 
         Configuration.getInstance().getCommon().helpText(LocalStrings.HelpSimplePattern, tooltip);

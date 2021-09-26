@@ -6,14 +6,14 @@ import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.client.events.TickHandler;
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
 import mod.chiselsandbits.registrars.ModItems;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.FlowingFluidBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.NonNullList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,8 +25,8 @@ public class BitBlockBakedModelManager
 {
     private static final Logger                         LOGGER            = LogManager.getLogger();
     private static final BitBlockBakedModelManager      INSTANCE          = new BitBlockBakedModelManager();
-    private final        Cache<BlockState, IBakedModel> modelCache        = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
-    private final        Cache<BlockState, IBakedModel> largeModelCache   = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
+    private final        Cache<BlockState, BakedModel> modelCache        = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
+    private final        Cache<BlockState, BakedModel> largeModelCache   = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
     private final        NonNullList<ItemStack>         alternativeStacks = NonNullList.create();
 
     private BitBlockBakedModelManager()
@@ -38,7 +38,7 @@ public class BitBlockBakedModelManager
         return INSTANCE;
     }
 
-    public IBakedModel get(
+    public BakedModel get(
       ItemStack stack
     )
     {
@@ -48,7 +48,7 @@ public class BitBlockBakedModelManager
         );
     }
 
-    public IBakedModel get(
+    public BakedModel get(
       ItemStack stack,
       final boolean large)
     {
@@ -64,7 +64,7 @@ public class BitBlockBakedModelManager
         );
     }
 
-    public IBakedModel get(
+    public BakedModel get(
       BlockState state,
       final boolean large)
     {
@@ -88,7 +88,7 @@ public class BitBlockBakedModelManager
             state = ((IBitItem) stack.getItem()).getBitState(stack);
         }
 
-        final Cache<BlockState, IBakedModel> target = large ? largeModelCache : modelCache;
+        final Cache<BlockState, BakedModel> target = large ? largeModelCache : modelCache;
         final BlockState workingState = state;
         try
         {
@@ -96,9 +96,9 @@ public class BitBlockBakedModelManager
                 if (large)
                 {
                     BlockState lookupState = workingState;
-                    if (workingState.getBlock() instanceof FlowingFluidBlock)
+                    if (workingState.getBlock() instanceof LiquidBlock)
                     {
-                        lookupState = workingState.setValue(FlowingFluidBlock.LEVEL, 15);
+                        lookupState = workingState.setValue(LiquidBlock.LEVEL, 15);
                     }
                     return Minecraft.getInstance().getBlockRenderer().getBlockModel(lookupState);
                 }

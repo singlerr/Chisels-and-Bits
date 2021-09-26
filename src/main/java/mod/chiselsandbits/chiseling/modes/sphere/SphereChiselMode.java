@@ -17,22 +17,21 @@ import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.RayTracingUtils;
-import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
@@ -46,10 +45,10 @@ import java.util.function.Predicate;
 public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
 {
     private final int diameter;
-    private final IFormattableTextComponent displayName;
+    private final MutableComponent displayName;
     private final ResourceLocation          iconName;
 
-    SphereChiselMode(final int diameter, final IFormattableTextComponent displayName, final ResourceLocation iconName)
+    SphereChiselMode(final int diameter, final MutableComponent displayName, final ResourceLocation iconName)
     {
         this.diameter = diameter;
         this.displayName = displayName;
@@ -58,12 +57,12 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
 
     @Override
     public ClickProcessingState onLeftClickBy(
-      final PlayerEntity playerEntity, final IChiselingContext context)
+      final Player playerEntity, final IChiselingContext context)
     {
-        final Either<ClickProcessingState, Vector3d> rayTraceHandle = this.processRayTraceIntoContext(
+        final Either<ClickProcessingState, Vec3> rayTraceHandle = this.processRayTraceIntoContext(
           playerEntity,
           context,
-          face -> Vector3d.atLowerCornerOf(face.getOpposite().getNormal()),
+          face -> Vec3.atLowerCornerOf(face.getOpposite().getNormal()),
           facing -> facing.multiply(-1, -1, -1)
         );
 
@@ -75,7 +74,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
         if (rayTraceHandle.left().isPresent())
             return rayTraceHandle.left().get();
 
-        if (!rayTraceHandle.right().isPresent())
+        if (rayTraceHandle.right().isEmpty())
             throw new IllegalArgumentException("Missing both a click processing result as well as a center vector for sphere processing");
 
         context.setMetadata(ModMetadataKeys.ANCHOR.get(), rayTraceHandle.right().get());
@@ -117,19 +116,19 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
     }
 
     @Override
-    public void onStoppedLeftClicking(final PlayerEntity playerEntity, final IChiselingContext context)
+    public void onStoppedLeftClicking(final Player playerEntity, final IChiselingContext context)
     {
         //Noop.
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    public ClickProcessingState onRightClickBy(final PlayerEntity playerEntity, final IChiselingContext context)
+    public ClickProcessingState onRightClickBy(final Player playerEntity, final IChiselingContext context)
     {
-        final Either<ClickProcessingState, Vector3d> rayTraceHandle = this.processRayTraceIntoContext(
+        final Either<ClickProcessingState, Vec3> rayTraceHandle = this.processRayTraceIntoContext(
           playerEntity,
           context,
-          face -> Vector3d.atLowerCornerOf(face.getNormal()),
+          face -> Vec3.atLowerCornerOf(face.getNormal()),
           Function.identity()
         );
 
@@ -139,21 +138,21 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
         if (rayTraceHandle.left().isPresent())
             return rayTraceHandle.left().get();
 
-        if (!rayTraceHandle.right().isPresent())
+        if (rayTraceHandle.right().isEmpty())
             throw new IllegalArgumentException("Missing both a click processing result as well as a center vector for sphere processing");
 
         context.setMetadata(ModMetadataKeys.ANCHOR.get(), rayTraceHandle.right().get());
 
         return context.getMutator().map(mutator -> {
             final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
-            if (heldBlockState.isAir(new SingleBlockBlockReader(heldBlockState), BlockPos.ZERO))
+            if (heldBlockState.isAir())
                 return ClickProcessingState.DEFAULT;
 
             final Predicate<IStateEntryInfo> filter = context.getStateFilter()
                                                         .map(factory -> factory.apply(mutator))
                                                         .orElse((s) -> true);
             final int missingBitCount = (int) mutator.stream()
-                                                .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO) && filter.test(state))
+                                                .filter(state -> state.getState().isAir() && filter.test(state))
                                                 .count();
 
             final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
@@ -169,7 +168,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
                        mutator.batch())
                 {
                     mutator.inWorldMutableStream()
-                      .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO) && filter.test(state))
+                      .filter(state -> state.getState().isAir() && filter.test(state))
                       .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                 }
             }
@@ -179,7 +178,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
     }
 
     @Override
-    public void onStoppedRightClicking(final PlayerEntity playerEntity, final IChiselingContext context)
+    public void onStoppedRightClicking(final Player playerEntity, final IChiselingContext context)
     {
         //Noop.
     }
@@ -191,64 +190,63 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
     }
 
     @Override
-    public boolean isStillValid(final PlayerEntity playerEntity, final IChiselingContext context, final ChiselingOperation modeOfOperation)
+    public boolean isStillValid(final Player playerEntity, final IChiselingContext context, final ChiselingOperation modeOfOperation)
     {
-        final Optional<Vector3d> rayTraceHandle = this.processRayTraceIntoCenter(
+        final Optional<Vec3> rayTraceHandle = this.processRayTraceIntoCenter(
           playerEntity,
-          face -> Vector3d.atLowerCornerOf(face.getNormal()),
+          face -> Vec3.atLowerCornerOf(face.getNormal()),
           Function.identity()
         );
 
-        final Optional<Vector3d> contextAnchor = context.getMetadata(ModMetadataKeys.ANCHOR.get());
-        return rayTraceHandle.map(d -> contextAnchor.filter(d::equals).isPresent()).orElseGet(() -> !contextAnchor.isPresent());
+        final Optional<Vec3> contextAnchor = context.getMetadata(ModMetadataKeys.ANCHOR.get());
+        return rayTraceHandle.map(d -> contextAnchor.filter(d::equals).isPresent()).orElseGet(contextAnchor::isEmpty);
     }
 
-    private Either<ClickProcessingState, Vector3d> processRayTraceIntoContext(
-      final PlayerEntity playerEntity,
+    private Either<ClickProcessingState, Vec3> processRayTraceIntoContext(
+      final Player playerEntity,
       final IChiselingContext context,
-      final Function<Direction, Vector3d> placementFacingAdapter,
-      final Function<Vector3d, Vector3d> fullFacingVectorAdapter
+      final Function<Direction, Vec3> placementFacingAdapter,
+      final Function<Vec3, Vec3> fullFacingVectorAdapter
     ) {
-        final RayTraceResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
-        if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK || !(rayTraceResult instanceof BlockRayTraceResult))
+        final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
+        if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
         {
             return Either.left(ClickProcessingState.DEFAULT);
         }
 
-        final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        final Vector3d hitVector = blockRayTraceResult.getLocation().add(
+        final Vec3 hitVector = blockRayTraceResult.getLocation().add(
           placementFacingAdapter.apply(blockRayTraceResult.getDirection())
             .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
-        final Vector3d centeredHitVector = Vector3d.atLowerCornerOf(
+        final Vec3 centeredHitVector = Vec3.atLowerCornerOf(
           new BlockPos(
             hitVector.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
           )
         ).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
 
-        final Vector3d center = centeredHitVector.add(
-          new Vector3d(
+        final Vec3 center = centeredHitVector.add(
+          new Vec3(
             (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide(),
             (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide(),
             (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide()
           ).multiply(
-            fullFacingVectorAdapter.apply(Vector3d.atLowerCornerOf(blockRayTraceResult.getDirection().getNormal())
+            fullFacingVectorAdapter.apply(Vec3.atLowerCornerOf(blockRayTraceResult.getDirection().getNormal())
             )
           )
         );
 
         context.setStateFilter(areaAccessor -> {
             if (areaAccessor instanceof IWorldAreaAccessor)
-                return new SphereAreaFilter(((IWorldAreaAccessor) areaAccessor).getInWorldStartPoint(), center);
+                return new SphereAreaFilter(context.getModeOfOperandus(), ((IWorldAreaAccessor) areaAccessor).getInWorldStartPoint(), center);
 
-            return new SphereAreaFilter(Vector3d.ZERO, center);
+            return new SphereAreaFilter(context.getModeOfOperandus(), Vec3.ZERO, center);
         });
 
         BlockPosStreamProvider.getForRange(diameter)
           .forEach(bitPos -> {
-              final Vector3d target = center
-                .add(Vector3d.atLowerCornerOf(bitPos.subtract(new Vector3i(diameter / 2, diameter / 2, diameter / 2))).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+              final Vec3 target = center
+                .add(Vec3.atLowerCornerOf(bitPos.subtract(new Vec3i(diameter / 2, diameter / 2, diameter / 2))).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
 
               context.include(
                 target
@@ -258,36 +256,35 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
         return Either.right(center);
     }
 
-    private Optional<Vector3d> processRayTraceIntoCenter(
-      final PlayerEntity playerEntity,
-      final Function<Direction, Vector3d> placementFacingAdapter,
-      final Function<Vector3d, Vector3d> fullFacingVectorAdapter
+    private Optional<Vec3> processRayTraceIntoCenter(
+      final Player playerEntity,
+      final Function<Direction, Vec3> placementFacingAdapter,
+      final Function<Vec3, Vec3> fullFacingVectorAdapter
     ) {
-        final RayTraceResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
-        if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK || !(rayTraceResult instanceof BlockRayTraceResult))
+        final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
+        if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
         {
             return Optional.empty();
         }
 
-        final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        final Vector3d hitVector = blockRayTraceResult.getLocation().add(
+        final Vec3 hitVector = blockRayTraceResult.getLocation().add(
           placementFacingAdapter.apply(blockRayTraceResult.getDirection())
             .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
-        final Vector3d centeredHitVector = Vector3d.atLowerCornerOf(
+        final Vec3 centeredHitVector = Vec3.atLowerCornerOf(
           new BlockPos(
             hitVector.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
           )
         ).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
 
-        final Vector3d center = centeredHitVector.add(
-          new Vector3d(
+        final Vec3 center = centeredHitVector.add(
+          new Vec3(
             (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide(),
             (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide(),
             (diameter / 2d) / StateEntrySize.current().getBitsPerBlockSide()
           ).multiply(
-            fullFacingVectorAdapter.apply(Vector3d.atLowerCornerOf(blockRayTraceResult.getDirection().getNormal())
+            fullFacingVectorAdapter.apply(Vec3.atLowerCornerOf(blockRayTraceResult.getDirection().getNormal())
             )
           )
         );
@@ -302,7 +299,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
     }
 
     @Override
-    public ITextComponent getDisplayName()
+    public Component getDisplayName()
     {
         return this.displayName;
     }
@@ -318,10 +315,12 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
 
     private final class SphereAreaFilter implements Predicate<IStateEntryInfo> {
 
-        private final Vector3d startPoint;
-        private final Vector3d center;
+        private final ChiselingOperation operation;
+        private final Vec3 startPoint;
+        private final Vec3 center;
 
-        private SphereAreaFilter(final Vector3d startPoint, final Vector3d center) {
+        private SphereAreaFilter(final ChiselingOperation operation, final Vec3 startPoint, final Vec3 center) {
+            this.operation = operation;
             this.startPoint = startPoint;
             this.center = center;
         }
@@ -329,13 +328,11 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
         @Override
         public boolean test(final IStateEntryInfo stateEntryInfo)
         {
-            if (!(stateEntryInfo instanceof IInWorldStateEntryInfo))
+            if (!(stateEntryInfo instanceof final IInWorldStateEntryInfo inWorldStateEntryInfo))
                 return false;
 
-            final IInWorldStateEntryInfo inWorldStateEntryInfo = (IInWorldStateEntryInfo) stateEntryInfo;
-
             return inWorldStateEntryInfo.getInWorldStartPoint().distanceTo(center) <= (diameter / 2f / StateEntrySize.current().getBitsPerBlockSide()) &&
-              !stateEntryInfo.getState().isAir();
+                     (!stateEntryInfo.getState().isAir() || operation.processesAir());
         }
 
         @Override
@@ -345,12 +342,10 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
             {
                 return true;
             }
-            if (!(o instanceof SphereAreaFilter))
+            if (!(o instanceof final SphereAreaFilter that))
             {
                 return false;
             }
-
-            final SphereAreaFilter that = (SphereAreaFilter) o;
 
             if (!Objects.equals(startPoint, that.startPoint))
             {

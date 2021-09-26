@@ -4,19 +4,19 @@ import com.google.gson.JsonObject;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModRecipeSerializers;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.DataProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class SpecialCraftingRecipeGenerator implements IDataProvider
+public class SpecialCraftingRecipeGenerator implements DataProvider
 {
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
@@ -29,12 +29,12 @@ public class SpecialCraftingRecipeGenerator implements IDataProvider
     private SpecialCraftingRecipeGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void run(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull HashCache cache) throws IOException
     {
         saveRecipe(cache, ModRecipeSerializers.BAG_DYEING.getId());
     }
 
-    private void saveRecipe(final DirectoryCache cache, final ResourceLocation location) throws IOException
+    private void saveRecipe(final HashCache cache, final ResourceLocation location) throws IOException
     {
         final JsonObject object = new JsonObject();
         object.addProperty("type", location.toString());
@@ -42,7 +42,7 @@ public class SpecialCraftingRecipeGenerator implements IDataProvider
         final Path recipeFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.RECIPES_DIR);
         final Path recipePath = recipeFolder.resolve(location.getPath() + ".json");
 
-        IDataProvider.save(Constants.DataGenerator.GSON, cache, object, recipePath);
+        DataProvider.save(Constants.DataGenerator.GSON, cache, object, recipePath);
     }
 
     @Override

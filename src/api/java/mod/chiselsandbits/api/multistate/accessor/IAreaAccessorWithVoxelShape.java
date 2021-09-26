@@ -1,8 +1,8 @@
 package mod.chiselsandbits.api.multistate.accessor;
 
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.function.Function;
 import java.util.function.Predicate;

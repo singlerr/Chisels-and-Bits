@@ -12,9 +12,9 @@ import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.utils.AABBUtils;
 import mod.chiselsandbits.utils.DirectionUtils;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.Collection;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class AABBCompressor
         throw new IllegalStateException("Can not instantiate an instance of: AABBCompressor. This is a utility class");
     }
 
-    public static Collection<AxisAlignedBB> compressStates(
+    public static Collection<AABB> compressStates(
       final IAreaAccessor accessor,
       final Predicate<IStateEntryInfo> selectablePredicate)
     {
@@ -50,21 +50,21 @@ public class AABBCompressor
               }
               state.setFaceBuildingAxisValue(stateEntryInfo.getStartPoint().y());
 
-              final Optional<Vector3d> previousCenterPoint = state.getLastCenter();
-              final Vector3d centerPoint = stateEntryInfo.getCenterPoint();
+              final Optional<Vec3> previousCenterPoint = state.getLastCenter();
+              final Vec3 centerPoint = stateEntryInfo.getCenterPoint();
               state.onNextEntry(centerPoint);
 
               final Optional<Direction> stepDirection = previousCenterPoint.flatMap(
                 d -> DirectionUtils.getDirectionVectorBetweenIfAligned(centerPoint, d)
               );
 
-              final Optional<AxisAlignedBB> potentialEntryData = buildBoundingBox(stateEntryInfo, selectablePredicate);
+              final Optional<AABB> potentialEntryData = buildBoundingBox(stateEntryInfo, selectablePredicate);
 
               if (!potentialEntryData.isPresent()) {
                   state.setCurrentBox(null, centerPoint);
                   return;
               }
-              final AxisAlignedBB entryData = potentialEntryData.get();
+              final AABB entryData = potentialEntryData.get();
 
               if (state.getCurrentBox() != null) {
                   if (stepDirection
@@ -93,19 +93,19 @@ public class AABBCompressor
         return Lists.newArrayList(state.getBoxes());
     }
 
-    private static boolean attemptMergeWithNeighbors(final BuildingState state, final Vector3d centerPoint, final AxisAlignedBB entryData)
+    private static boolean attemptMergeWithNeighbors(final BuildingState state, final Vec3 centerPoint, final AABB entryData)
     {
         for (final Direction offsetDirection :Direction.values())
         {
-            final Vector3d neighborCenter = centerPoint.add(Vector3d.atLowerCornerOf(offsetDirection.getNormal()).multiply(
+            final Vec3 neighborCenter = centerPoint.add(Vec3.atLowerCornerOf(offsetDirection.getNormal()).multiply(
               StateEntrySize.current().getSizePerBit(),
               StateEntrySize.current().getSizePerBit(),
               StateEntrySize.current().getSizePerBit()
               ));
-            final Optional<AxisAlignedBB> potentialNeighborBox = state.getBoxFor(neighborCenter);
+            final Optional<AABB> potentialNeighborBox = state.getBoxFor(neighborCenter);
 
             if (potentialNeighborBox.isPresent()) {
-                final AxisAlignedBB neighborBox = potentialNeighborBox.get();
+                final AABB neighborBox = potentialNeighborBox.get();
                 if (AABBUtils.areBoxesNeighbors(entryData, neighborBox, offsetDirection)) {
                     state.expandBoxAt(neighborCenter, entryData, centerPoint);
                     return true;
@@ -115,7 +115,7 @@ public class AABBCompressor
         return false;
     }
 
-    public static Optional<AxisAlignedBB> buildBoundingBox(
+    public static Optional<AABB> buildBoundingBox(
       final IStateEntryInfo stateEntryInfo,
       final Predicate<IStateEntryInfo> selectablePredicate) {
         if (!selectablePredicate.test(stateEntryInfo))
@@ -128,11 +128,11 @@ public class AABBCompressor
         private double regionBuildingAxis = Double.NEGATIVE_INFINITY;
         private double faceBuildingAxis = Double.NEGATIVE_INFINITY;
 
-        private Vector3d lastCenterPoint = null;
-        private AxisAlignedBB currentBox;
+        private Vec3 lastCenterPoint = null;
+        private AABB currentBox;
 
-        private final Map<Vector3d, AxisAlignedBB>      boxAssignments   = Maps.newHashMap();
-        private final Multimap<AxisAlignedBB, Vector3d> stateAssignments = HashMultimap.create();
+        private final Map<Vec3, AABB>      boxAssignments   = Maps.newHashMap();
+        private final Multimap<AABB, Vec3> stateAssignments = HashMultimap.create();
 
         public double getRegionBuildingAxisValue()
         {
@@ -154,12 +154,12 @@ public class AABBCompressor
             this.faceBuildingAxis = faceBuildingAxis;
         }
 
-        public AxisAlignedBB getCurrentBox()
+        public AABB getCurrentBox()
         {
             return currentBox;
         }
 
-        public void setCurrentBox(final AxisAlignedBB currentBox, final Vector3d centerPoint)
+        public void setCurrentBox(final AABB currentBox, final Vec3 centerPoint)
         {
             this.currentBox = currentBox;
             if (currentBox != null) {
@@ -168,27 +168,27 @@ public class AABBCompressor
             }
         }
 
-        public Optional<AxisAlignedBB> getBoxFor(final Vector3d target) {
+        public Optional<AABB> getBoxFor(final Vec3 target) {
             return Optional.ofNullable(boxAssignments.get(target));
         }
 
-        public Optional<Vector3d> getLastCenter() {
+        public Optional<Vec3> getLastCenter() {
             return Optional.ofNullable(lastCenterPoint);
         }
 
-        public void onNextEntry(final Vector3d lastCenterPoint) {
+        public void onNextEntry(final Vec3 lastCenterPoint) {
             this.lastCenterPoint = lastCenterPoint;
         }
 
-        public void expandCurrentBoxToInclude(final AxisAlignedBB entryData, final Vector3d centerPoint)
+        public void expandCurrentBoxToInclude(final AABB entryData, final Vec3 centerPoint)
         {
-            final AxisAlignedBB current = this.getCurrentBox();
+            final AABB current = this.getCurrentBox();
             if (current == null)
                 throw new IllegalStateException("Can not expand current box, if current is not set.");
 
-            final AxisAlignedBB expanded = current.minmax(entryData);
+            final AABB expanded = current.minmax(entryData);
 
-            final Collection<Vector3d> currentlyAssignedToCurrent = stateAssignments.removeAll(current);
+            final Collection<Vec3> currentlyAssignedToCurrent = stateAssignments.removeAll(current);
 
             currentlyAssignedToCurrent.forEach(v -> boxAssignments.put(v, expanded));
             stateAssignments.putAll(expanded, currentlyAssignedToCurrent);
@@ -199,20 +199,20 @@ public class AABBCompressor
             this.currentBox = expanded;
         }
 
-        public Collection<AxisAlignedBB> getBoxes()
+        public Collection<AABB> getBoxes()
         {
             return stateAssignments.keySet();
         }
 
-        public void expandBoxAt(final Vector3d neighborCenter, final AxisAlignedBB entryData, final Vector3d centerPoint)
+        public void expandBoxAt(final Vec3 neighborCenter, final AABB entryData, final Vec3 centerPoint)
         {
-            final AxisAlignedBB current = boxAssignments.get(neighborCenter);
+            final AABB current = boxAssignments.get(neighborCenter);
             if (current == null)
                 throw new IllegalStateException(String.format("Can not expand box at: %s, if current is not set.", neighborCenter));
 
-            final AxisAlignedBB expanded = current.minmax(entryData);
+            final AABB expanded = current.minmax(entryData);
 
-            final Collection<Vector3d> currentlyAssignedToCurrent = stateAssignments.removeAll(current);
+            final Collection<Vec3> currentlyAssignedToCurrent = stateAssignments.removeAll(current);
 
             currentlyAssignedToCurrent.forEach(v -> boxAssignments.put(v, expanded));
             stateAssignments.putAll(expanded, currentlyAssignedToCurrent);

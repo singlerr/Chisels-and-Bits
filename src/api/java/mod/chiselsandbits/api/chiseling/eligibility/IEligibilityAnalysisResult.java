@@ -1,7 +1,6 @@
 package mod.chiselsandbits.api.chiseling.eligibility;
 
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.MutableComponent;
 
 /**
  * The results of an eligibility analysis.
@@ -28,5 +27,5 @@ public interface IEligibilityAnalysisResult
      *
      * @return The displayable reason.
      */
-    IFormattableTextComponent getReason();
+    MutableComponent getReason();
 }

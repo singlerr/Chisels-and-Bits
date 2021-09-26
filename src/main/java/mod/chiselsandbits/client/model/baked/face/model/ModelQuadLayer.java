@@ -1,7 +1,7 @@
 package mod.chiselsandbits.client.model.baked.face.model;
 
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 public class ModelQuadLayer

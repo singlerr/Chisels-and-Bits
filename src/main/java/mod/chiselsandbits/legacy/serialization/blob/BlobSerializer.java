@@ -1,6 +1,6 @@
 package mod.chiselsandbits.legacy.serialization.blob;
 
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 
 import java.util.Collections;
 import java.util.Map;
@@ -15,7 +15,7 @@ public class BlobSerializer
 	protected     int                   bitsPerIntMinus1;
 
 	public BlobSerializer(
-			final PacketBuffer toInflate )
+			final FriendlyByteBuf toInflate )
 	{
 		types = toInflate.readInt();
 		palette = new int[types];
@@ -40,7 +40,7 @@ public class BlobSerializer
     }
 
 	public void write(
-			final PacketBuffer to )
+			final FriendlyByteBuf to )
 	{
 		// palette size...
 		to.writeInt( palette.length );
@@ -53,13 +53,13 @@ public class BlobSerializer
 	}
 
 	protected int readStateID(
-			final PacketBuffer buffer )
+			final FriendlyByteBuf buffer )
 	{
 		return buffer.readInt();
 	}
 
 	protected void writeStateID(
-			final PacketBuffer buffer,
+			final FriendlyByteBuf buffer,
 			final int key )
 	{
 		buffer.writeInt( key );

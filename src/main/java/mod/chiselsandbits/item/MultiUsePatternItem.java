@@ -5,14 +5,14 @@ import mod.chiselsandbits.api.exceptions.SealingNotSupportedException;
 import mod.chiselsandbits.api.item.pattern.IMultiUsePatternItem;
 import mod.chiselsandbits.api.util.LocalStrings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import net.minecraft.item.Item.Properties;
+import net.minecraft.world.item.Item.Properties;
 
 public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiUsePatternItem
 {
@@ -30,9 +30,9 @@ public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiU
     }
 
     @Override
-    protected ActionResultType determineSuccessResult(final BlockItemUseContext context)
+    protected InteractionResult determineSuccessResult(final BlockPlaceContext context)
     {
-        return ActionResultType.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -44,11 +44,11 @@ public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiU
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(
-      final @NotNull ItemStack stack, final @Nullable World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
+      final @NotNull ItemStack stack, final @Nullable Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
     {
         if ((Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown())) {
-            tooltip.add(new StringTextComponent("        "));
-            tooltip.add(new StringTextComponent("        "));
+            tooltip.add(new TextComponent("        "));
+            tooltip.add(new TextComponent("        "));
         }
 
         Configuration.getInstance().getCommon().helpText(LocalStrings.HelpSealedPattern, tooltip);

@@ -1,12 +1,12 @@
 package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.state.Property;
-import net.minecraft.util.IStringSerializable;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -130,9 +130,9 @@ public class StringStateUtils
                 final Comparable<?> propVal = state.getValue(p);
 
                 String saveAs;
-                if ( propVal instanceof IStringSerializable)
+                if ( propVal instanceof StringRepresentable)
                 {
-                    saveAs = ( (IStringSerializable) propVal ).getSerializedName();
+                    saveAs = ( (StringRepresentable) propVal ).getSerializedName();
                 }
                 else
                 {

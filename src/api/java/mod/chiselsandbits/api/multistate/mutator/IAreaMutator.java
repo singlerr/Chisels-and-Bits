@@ -2,10 +2,10 @@ package mod.chiselsandbits.api.multistate.mutator;
 
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,7 +30,7 @@ public interface IAreaMutator extends IAreaAccessor
      */
     void setInAreaTarget(
       BlockState blockState,
-      Vector3d inAreaTarget
+      Vec3 inAreaTarget
     ) throws SpaceOccupiedException;
 
     /**
@@ -43,7 +43,7 @@ public interface IAreaMutator extends IAreaAccessor
     void setInBlockTarget(
       BlockState blockState,
       BlockPos inAreaBlockPosOffset,
-      Vector3d inBlockTarget
+      Vec3 inBlockTarget
     ) throws SpaceOccupiedException;
 
     /**
@@ -52,7 +52,7 @@ public interface IAreaMutator extends IAreaAccessor
      * @param inAreaTarget The in area offset.
      */
     void clearInAreaTarget(
-      Vector3d inAreaTarget
+      Vec3 inAreaTarget
     );
 
     /**
@@ -63,7 +63,7 @@ public interface IAreaMutator extends IAreaAccessor
      */
     void clearInBlockTarget(
       BlockPos inAreaBlockPosOffset,
-      Vector3d inBlockTarget
+      Vec3 inBlockTarget
     );
 
     /**
@@ -74,7 +74,7 @@ public interface IAreaMutator extends IAreaAccessor
      */
     default void overrideInAreaTarget(
       BlockState blockState,
-      Vector3d inAreaTarget
+      Vec3 inAreaTarget
     )
     {
         try
@@ -97,7 +97,7 @@ public interface IAreaMutator extends IAreaAccessor
     default void overrideInAreaTarget(
       BlockState blockState,
       BlockPos inAreaBlockPosOffset,
-      Vector3d inBlockTarget
+      Vec3 inBlockTarget
     ) {
         try
         {

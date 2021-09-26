@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.multistate.accessor.sortable;
 
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.core.Vec3i;
 
 /**
  * Represents an object which can mutate the order of the coordinate members
@@ -21,7 +21,7 @@ public interface IPositionMutator
      *
      * @return The mutated output.
      */
-    Vector3i mutate(final Vector3i input);
+    Vec3i mutate(final Vec3i input);
 
     /**
      * Creates a new mutator which chains the current and the next mutator into one.
@@ -51,7 +51,7 @@ public interface IPositionMutator
      * @return The identity mutator.
      */
     static IPositionMutator xyz() {
-        return input -> new Vector3i(input.getX(), input.getY(), input.getZ());
+        return input -> new Vec3i(input.getX(), input.getY(), input.getZ());
     }
 
     /**
@@ -60,7 +60,7 @@ public interface IPositionMutator
      * @return The mutator which switches the Y and Z coordinate members
      */
     static IPositionMutator xzy() {
-        return input -> new Vector3i(input.getX(), input.getZ(), input.getY());
+        return input -> new Vec3i(input.getX(), input.getZ(), input.getY());
     }
 
     /**
@@ -69,7 +69,7 @@ public interface IPositionMutator
      * @return The mutator which switches the X and Z coordinate members
      */
     static IPositionMutator zyx() {
-        return input -> new Vector3i(input.getZ(), input.getY(), input.getX());
+        return input -> new Vec3i(input.getZ(), input.getY(), input.getX());
     }
 
 
@@ -79,7 +79,7 @@ public interface IPositionMutator
      * @return The mutator which switches the X and Y coordinate members
      */
     static IPositionMutator yxz() {
-        return input -> new Vector3i(input.getY(), input.getX(), input.getZ());
+        return input -> new Vec3i(input.getY(), input.getX(), input.getZ());
     }
 
     /**

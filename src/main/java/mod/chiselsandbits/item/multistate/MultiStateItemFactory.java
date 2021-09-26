@@ -1,13 +1,9 @@
 package mod.chiselsandbits.item.multistate;
 
-import mod.chiselsandbits.api.exceptions.StateEntryInfoIsToBigException;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.api.util.SingleBlockBlockReader;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
-import org.apache.commons.lang3.NotImplementedException;
+import net.minecraft.world.item.ItemStack;
 
 public class MultiStateItemFactory implements IMultiStateItemFactory
 {
@@ -32,8 +28,7 @@ public class MultiStateItemFactory implements IMultiStateItemFactory
     @Override
     public ItemStack createBlockFrom(final IStateEntryInfo stateEntryInfo)
     {
-        //TODO: Fix this in 1.17
-        if (stateEntryInfo.getState().isAir(new SingleBlockBlockReader(stateEntryInfo.getState()), BlockPos.ZERO))
+        if (stateEntryInfo.getState().isAir())
             return ItemStack.EMPTY;
 
         return IBitItemManager.getInstance().create(stateEntryInfo.getState());

@@ -17,13 +17,13 @@ import mod.chiselsandbits.api.util.IWorldObject;
 import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.multistate.snapshot.MultiBlockMultiStateSnapshot;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.IBooleanFunction;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IWorld;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.LevelAccessor;
 
 import java.util.Collection;
 import java.util.Map;
@@ -37,19 +37,19 @@ import java.util.stream.Stream;
 public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWithVoxelShape
 {
 
-    private final IWorld   world;
-    private final Vector3d startPoint;
-    private final Vector3d endPoint;
+    private final LevelAccessor   world;
+    private final Vec3 startPoint;
+    private final Vec3 endPoint;
 
-    public WorldWrappingMutator(final IWorld world, final Vector3d startPoint, final Vector3d endPoint)
+    public WorldWrappingMutator(final LevelAccessor world, final Vec3 startPoint, final Vec3 endPoint)
     {
         this.world = world;
-        this.startPoint = new Vector3d(
+        this.startPoint = new Vec3(
           Math.min(startPoint.x(), endPoint.x()),
           Math.min(startPoint.y(), endPoint.y()),
           Math.min(startPoint.z(), endPoint.z())
         );
-        this.endPoint = new Vector3d(
+        this.endPoint = new Vec3(
           Math.max(startPoint.x(), endPoint.x()),
           Math.max(startPoint.y(), endPoint.y()),
           Math.max(startPoint.z(), endPoint.z())
@@ -111,7 +111,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
      * @return An optional potentially containing the state entry of the requested target.
      */
     @Override
-    public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
+    public Optional<IStateEntryInfo> getInAreaTarget(final Vec3 inAreaTarget)
     {
         return Optional.empty();
     }
@@ -124,7 +124,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
      * @return An optional potentially containing the state entry of the requested target.
      */
     @Override
-    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
         return Optional.empty();
     }
@@ -136,7 +136,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
      * @return True when inside, false when not.
      */
     @Override
-    public boolean isInside(final Vector3d inAreaTarget)
+    public boolean isInside(final Vec3 inAreaTarget)
     {
         return getInWorldBoundingBox().contains(inAreaTarget);
     }
@@ -149,9 +149,9 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
      * @return True when inside, false when not.
      */
     @Override
-    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
-        return isInside(Vector3d.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget));
+        return isInside(Vec3.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget));
     }
 
     @Override
@@ -186,10 +186,10 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
           getInWorldEndPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
         )
                  .map(positionMutator::mutate)
-                 .map(position -> Vector3d.atLowerCornerOf(position).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
+                 .map(position -> Vec3.atLowerCornerOf(position).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
                  .map(position -> {
                      final BlockPos blockPos = new BlockPos(position);
-                     final Vector3d inBlockOffset = position.subtract(Vector3d.atLowerCornerOf(blockPos));
+                     final Vec3 inBlockOffset = position.subtract(Vec3.atLowerCornerOf(blockPos));
 
                      return getInBlockTarget(blockPos, inBlockOffset);
                  })
@@ -198,19 +198,19 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     }
 
     @Override
-    public IWorld getWorld()
+    public LevelAccessor getWorld()
     {
         return world;
     }
 
     @Override
-    public Vector3d getInWorldStartPoint()
+    public Vec3 getInWorldStartPoint()
     {
         return startPoint;
     }
 
     @Override
-    public Vector3d getInWorldEndPoint()
+    public Vec3 getInWorldEndPoint()
     {
         return endPoint;
     }
@@ -241,7 +241,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     }
 
     @Override
-    public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
+    public void setInAreaTarget(final BlockState blockState, final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
         if (inAreaTarget.x() < 0 ||
               inAreaTarget.y() < 0 ||
@@ -250,7 +250,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
             throw new IllegalArgumentException(String.format("The in area target can not have a negative component: %s", inAreaTarget));
         }
 
-        final Vector3d actualTarget = getInWorldStartPoint().add(inAreaTarget);
+        final Vec3 actualTarget = getInWorldStartPoint().add(inAreaTarget);
 
         if (actualTarget.x() >= getInWorldEndPoint().x() ||
               actualTarget.y() >= getInWorldEndPoint().y() ||
@@ -261,7 +261,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
 
         final BlockPos blockPosTarget = new BlockPos(actualTarget);
 
-        final Vector3d inBlockPosTarget = actualTarget.subtract(Vector3d.atLowerCornerOf(blockPosTarget));
+        final Vec3 inBlockPosTarget = actualTarget.subtract(Vec3.atLowerCornerOf(blockPosTarget));
         final ChiselAdaptingWorldMutator innerMutator = new ChiselAdaptingWorldMutator(
           getWorld(), blockPosTarget
         );
@@ -270,11 +270,11 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     }
 
     @Override
-    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
         final BlockPos startPos = new BlockPos(getInWorldStartPoint());
         final BlockPos targetPos = startPos.offset(inAreaBlockPosOffset);
-        final Vector3d target = Vector3d.atLowerCornerOf(targetPos).add(inBlockTarget);
+        final Vec3 target = Vec3.atLowerCornerOf(targetPos).add(inBlockTarget);
 
         if (target.x() < getInWorldStartPoint().x() ||
               target.y() < getInWorldStartPoint().y() ||
@@ -303,7 +303,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
      * @param inAreaTarget The in area offset.
      */
     @Override
-    public void clearInAreaTarget(final Vector3d inAreaTarget)
+    public void clearInAreaTarget(final Vec3 inAreaTarget)
     {
         if (inAreaTarget.x() < 0 ||
               inAreaTarget.y() < 0 ||
@@ -312,7 +312,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
             throw new IllegalArgumentException(String.format("The in area target can not have a negative component: %s", inAreaTarget));
         }
 
-        final Vector3d actualTarget = getInWorldStartPoint().add(inAreaTarget);
+        final Vec3 actualTarget = getInWorldStartPoint().add(inAreaTarget);
 
         if (actualTarget.x() >= getInWorldEndPoint().x() ||
               actualTarget.y() >= getInWorldEndPoint().y() ||
@@ -323,7 +323,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
 
         final BlockPos blockPosTarget = new BlockPos(actualTarget);
 
-        final Vector3d inBlockPosTarget = actualTarget.subtract(Vector3d.atLowerCornerOf(blockPosTarget));
+        final Vec3 inBlockPosTarget = actualTarget.subtract(Vec3.atLowerCornerOf(blockPosTarget));
         final ChiselAdaptingWorldMutator innerMutator = new ChiselAdaptingWorldMutator(
           getWorld(), blockPosTarget
         );
@@ -338,11 +338,11 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
      * @param inBlockTarget        The offset in the targeted block.
      */
     @Override
-    public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
         final BlockPos startPos = new BlockPos(getInWorldStartPoint());
         final BlockPos targetPos = startPos.offset(inAreaBlockPosOffset);
-        final Vector3d target = Vector3d.atLowerCornerOf(targetPos).add(inBlockTarget);
+        final Vec3 target = Vec3.atLowerCornerOf(targetPos).add(inBlockTarget);
 
         if (target.x() < getInWorldStartPoint().x() ||
               target.y() < getInWorldStartPoint().y() ||
@@ -411,7 +411,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public VoxelShape provideShape(final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder, final BlockPos offset, final boolean simplify)
     {
-        final VoxelShape areaShape = VoxelShapes.create(getInWorldBoundingBox().move(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).move(offset));
+        final VoxelShape areaShape = Shapes.create(getInWorldBoundingBox().move(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).move(offset));
         final VoxelShape containedShape = BlockPosStreamProvider.getForRange(
           getInWorldStartPoint(), getInWorldEndPoint()
         ).map(blockPos -> new ChiselAdaptingWorldMutator(
@@ -419,14 +419,14 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
                                             .map(a -> IVoxelShapeManager.getInstance().get(a, new BlockPos(a.getInWorldStartPoint()).offset(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).offset(offset),
                                               selectablePredicateBuilder, simplify))
                                             .reduce(
-                                              VoxelShapes.empty(),
-                                              (voxelShape, bbShape) -> VoxelShapes.joinUnoptimized(voxelShape, bbShape, IBooleanFunction.OR),
-                                              (voxelShape, voxelShape2) -> VoxelShapes.joinUnoptimized(voxelShape, voxelShape2, IBooleanFunction.OR)
+                                              Shapes.empty(),
+                                              (voxelShape, bbShape) -> Shapes.joinUnoptimized(voxelShape, bbShape, BooleanOp.OR),
+                                              (voxelShape, voxelShape2) -> Shapes.joinUnoptimized(voxelShape, voxelShape2, BooleanOp.OR)
                                             );
-        final VoxelShape requestedShape = VoxelShapes.joinUnoptimized(
+        final VoxelShape requestedShape = Shapes.joinUnoptimized(
           areaShape,
           containedShape,
-          IBooleanFunction.AND
+          BooleanOp.AND
         );
 
         return simplify ? requestedShape.optimize() : requestedShape;
@@ -435,15 +435,15 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     private static final class PositionAdaptingMutableStateEntry implements IMutableStateEntryInfo, IWorldObject
     {
         private final IMutableStateEntryInfo source;
-        private final Vector3d               offSet;
-        private final IWorld                 world;
+        private final Vec3               offSet;
+        private final LevelAccessor                 world;
 
         private PositionAdaptingMutableStateEntry(
           final IMutableStateEntryInfo source,
-          final BlockPos position, final IWorld world)
+          final BlockPos position, final LevelAccessor world)
         {
             this.source = source;
-            this.offSet = Vector3d.atLowerCornerOf(position);
+            this.offSet = Vec3.atLowerCornerOf(position);
             this.world = world;
         }
 
@@ -464,7 +464,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
          * @return The start position of this entry in the given block.
          */
         @Override
-        public Vector3d getStartPoint()
+        public Vec3 getStartPoint()
         {
             return source.getStartPoint().add(offSet);
         }
@@ -475,7 +475,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
          * @return The start position of this entry in the given block.
          */
         @Override
-        public Vector3d getEndPoint()
+        public Vec3 getEndPoint()
         {
             return source.getEndPoint().add(offSet);
         }
@@ -506,7 +506,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
          * @return The world.
          */
         @Override
-        public IWorld getWorld()
+        public LevelAccessor getWorld()
         {
             return world;
         }
@@ -517,7 +517,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
          * @return The start point.
          */
         @Override
-        public Vector3d getInWorldStartPoint()
+        public Vec3 getInWorldStartPoint()
         {
             return getStartPoint();
         }
@@ -528,7 +528,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
          * @return The end point.
          */
         @Override
-        public Vector3d getInWorldEndPoint()
+        public Vec3 getInWorldEndPoint()
         {
             return getEndPoint();
         }
@@ -553,10 +553,10 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
 
     private static final class Identifier implements IAreaShapeIdentifier {
         private final Collection<IAreaShapeIdentifier> inners;
-        private final Vector3d startPoint;
-        private final Vector3d endPoint;
+        private final Vec3 startPoint;
+        private final Vec3 endPoint;
 
-        public Identifier(final Collection<IAreaShapeIdentifier> innerSnapshots, final Vector3d startPoint, final Vector3d endPoint)
+        public Identifier(final Collection<IAreaShapeIdentifier> innerSnapshots, final Vec3 startPoint, final Vec3 endPoint)
         {
             this.inners = innerSnapshots;
             this.startPoint = startPoint;

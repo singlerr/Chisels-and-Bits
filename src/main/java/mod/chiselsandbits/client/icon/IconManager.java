@@ -1,17 +1,19 @@
 package mod.chiselsandbits.client.icon;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.client.icon.IIconManager;
 import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class IconManager implements IIconManager
@@ -50,9 +52,8 @@ public class IconManager implements IIconManager
 
     private void initialize() {
         this.iconSpriteUploader = new IconSpriteUploader();
-        IResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-        if (resourceManager instanceof IReloadableResourceManager) {
-            IReloadableResourceManager reloadableResourceManager = (IReloadableResourceManager) resourceManager;
+        ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
+        if (resourceManager instanceof ReloadableResourceManager reloadableResourceManager) {
             reloadableResourceManager.registerReloadListener(iconSpriteUploader);
         }
 
@@ -131,6 +132,8 @@ public class IconManager implements IIconManager
     @Override
     public void bindTexture()
     {
-        Minecraft.getInstance().getTextureManager().bind(IconSpriteUploader.TEXTURE_MAP_NAME);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
     }
 }

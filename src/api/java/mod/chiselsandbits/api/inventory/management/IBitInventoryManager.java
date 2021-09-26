@@ -2,9 +2,9 @@ package mod.chiselsandbits.api.inventory.management;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 
 /**
@@ -26,7 +26,7 @@ public interface IBitInventoryManager
      * @param playerEntity The player inventory.
      * @return The bit inventory which represents the players inventory.
      */
-    IBitInventory create(final PlayerEntity playerEntity);
+    IBitInventory create(final Player playerEntity);
 
     /**
      * Creates a new bit inventory wrapping the given {@link IItemHandler}.
@@ -48,7 +48,7 @@ public interface IBitInventoryManager
      * @param inventory The inventory.
      * @return The bit inventory which represents the inventory.
      */
-    IBitInventory create(final IInventory inventory);
+    IBitInventory create(final Container inventory);
 
     /**
      * Creates a new bit inventory wrapping the given itemstack.

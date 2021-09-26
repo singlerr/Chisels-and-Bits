@@ -7,9 +7,9 @@ import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.util.constants.Constants;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -42,7 +42,7 @@ public class ChiselingManager implements IChiselingManager
      * @return An optional potentially containing the current context of the player.
      */
     @Override
-    public Optional<IChiselingContext> get(final PlayerEntity playerEntity, final IChiselMode mode)
+    public Optional<IChiselingContext> get(final Player playerEntity, final IChiselMode mode)
     {
         final UUID playerId = playerEntity.getUUID();
         final ResourceLocation worldId = playerEntity.getCommandSenderWorld().dimension().location();
@@ -55,7 +55,7 @@ public class ChiselingManager implements IChiselingManager
     }
 
     @Override
-    public Optional<IChiselingContext> get(final PlayerEntity playerEntity, final IChiselMode mode, final ChiselingOperation modeOfOperandus)
+    public Optional<IChiselingContext> get(final Player playerEntity, final IChiselMode mode, final ChiselingOperation modeOfOperandus)
     {
         final UUID playerId = playerEntity.getUUID();
         final ResourceLocation worldId = playerEntity.getCommandSenderWorld().dimension().location();
@@ -71,7 +71,7 @@ public class ChiselingManager implements IChiselingManager
     }
 
     @Override
-    public IChiselingContext create(final PlayerEntity playerEntity, final IChiselMode mode, final ChiselingOperation modeOfOperandus, final boolean simulation, final ItemStack causingItemStack)
+    public IChiselingContext create(final Player playerEntity, final IChiselMode mode, final ChiselingOperation modeOfOperandus, final boolean simulation, final ItemStack causingItemStack)
     {
         final UUID playerId = playerEntity.getUUID();
         final ResourceLocation worldId = playerEntity.getCommandSenderWorld().dimension().location();
@@ -104,7 +104,7 @@ public class ChiselingManager implements IChiselingManager
         return newContext;
     }
 
-    public boolean canChisel(final PlayerEntity playerEntity) {
+    public boolean canChisel(final Player playerEntity) {
         validateOrSetup();
 
         final UUID playerId = playerEntity.getUUID();

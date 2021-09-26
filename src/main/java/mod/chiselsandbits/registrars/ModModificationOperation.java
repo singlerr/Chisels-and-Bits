@@ -4,9 +4,9 @@ import mod.chiselsandbits.api.modification.operation.IModificationTableOperation
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.modification.operation.MirrorOverAxisModificationOperation;
 import mod.chiselsandbits.modification.operation.RotateAroundAxisModificationOperation;
-import net.minecraft.util.Direction;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.core.Direction;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;

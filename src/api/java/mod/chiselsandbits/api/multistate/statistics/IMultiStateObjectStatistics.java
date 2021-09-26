@@ -1,8 +1,8 @@
 package mod.chiselsandbits.api.multistate.statistics;
 
-import net.minecraft.block.AirBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Map;
 
@@ -14,7 +14,7 @@ public interface IMultiStateObjectStatistics
 
     /**
      * The primary blockstate.
-     * If the multistate block is empty, then {@link AirBlock#getDefaultState()} is returned.
+     * If the multistate block is empty, then {@link AirBlock#defaultBlockState()} is returned.
      * Generally speaking this is the blockstate that occurs the most often
      * in the multistate block.
      * But this is not guaranteed.
@@ -74,7 +74,7 @@ public interface IMultiStateObjectStatistics
      *
      * @return The relative block hardness.
      */
-    float getRelativeBlockHardness(final PlayerEntity player);
+    float getRelativeBlockHardness(final Player player);
 
     /**
      * Indicates if the current multistate block is empty.

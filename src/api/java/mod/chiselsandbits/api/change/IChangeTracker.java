@@ -2,8 +2,8 @@ package mod.chiselsandbits.api.change;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 
 /**
  * The change tracker for tracking changes to bit blocks.
@@ -29,5 +29,5 @@ public interface IChangeTracker
      * @param blockPos The position of the breaking in the world.
      * @param snapshot The resulting snapshot.
      */
-    void onBlockBroken(final World world, final BlockPos blockPos, final IMultiStateSnapshot snapshot);
+    void onBlockBroken(final Level world, final BlockPos blockPos, final IMultiStateSnapshot snapshot);
 }

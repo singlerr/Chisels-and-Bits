@@ -1,6 +1,6 @@
 package mod.chiselsandbits.inventory.bit;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 public class IModifiableItemHandlerBitInventory extends IItemHandlerBitInventory

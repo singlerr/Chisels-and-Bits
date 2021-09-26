@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.aabb;
 
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.world.phys.AABB;
 
 public interface IAABBOwner
 {
@@ -9,5 +9,5 @@ public interface IAABBOwner
      *
      * @return The axis aligned bounding box.
      */
-    AxisAlignedBB getBoundingBox();
+    AABB getBoundingBox();
 }

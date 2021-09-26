@@ -6,29 +6,31 @@ import mod.chiselsandbits.api.item.tool.ISealantItem;
 import mod.chiselsandbits.api.sealing.ISupportsSealing;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.VectorUtils;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particles.ItemParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
+import mod.chiselsandbits.client.ister.InteractionISTER;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.IItemRenderProperties;
 import net.minecraftforge.common.util.FakePlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-
-import net.minecraft.item.Item.Properties;
+import java.util.function.Consumer;
 
 public class SealantItem extends Item implements ISealantItem
 {
@@ -85,31 +87,29 @@ public class SealantItem extends Item implements ISealantItem
         return 5;
     }
 
-    public static void spawnParticles(Vector3d location, ItemStack polishedStack, World world) {
+    public static void spawnParticles(Vec3 location, ItemStack polishedStack, Level world) {
         for (int i = 0; i < 20; i++) {
-            Vector3d motion = VectorUtils.offsetRandomly(Vector3d.ZERO, world.random, 1 / 8f);
-            world.addParticle(new ItemParticleData(ParticleTypes.ITEM, polishedStack), location.x, location.y,
+            Vec3 motion = VectorUtils.offsetRandomly(Vec3.ZERO, world.random, 1 / 8f);
+            world.addParticle(new ItemParticleOption(ParticleTypes.ITEM, polishedStack), location.x, location.y,
               location.z, motion.x, motion.y, motion.z);
         }
     }
 
     @Override
-    public void releaseUsing(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull LivingEntity entityLiving, int timeLeft) {
-        if (!(entityLiving instanceof PlayerEntity))
+    public void releaseUsing(@NotNull ItemStack stack, @NotNull Level worldIn, @NotNull LivingEntity entityLiving, int timeLeft) {
+        if (!(entityLiving instanceof Player player))
             return;
-        PlayerEntity player = (PlayerEntity) entityLiving;
         if (isInteracting(stack)) {
             ItemStack interactionTarget = getInteractionTarget(stack);
-            player.inventory.placeItemBackInInventory(worldIn, interactionTarget);
+            player.getInventory().placeItemBackInInventory(interactionTarget);
             stack.getOrCreateTag().remove(CONST_INTERACTION);
         }
     }
 
     @Override
-    public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull LivingEntity entityLiving) {
-        if (!(entityLiving instanceof PlayerEntity))
+    public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level worldIn, @NotNull LivingEntity entityLiving) {
+        if (!(entityLiving instanceof Player player))
             return stack;
-        PlayerEntity player = (PlayerEntity) entityLiving;
         if (isInteracting(stack)) {
             ItemStack target = getInteractionTarget(stack);
             ItemStack pattern = createPattern(target);
@@ -126,7 +126,7 @@ public class SealantItem extends Item implements ISealantItem
                 if (player instanceof FakePlayer) {
                     player.drop(pattern, false, false);
                 } else {
-                    player.inventory.placeItemBackInInventory(worldIn, pattern);
+                    player.getInventory().placeItemBackInInventory(pattern);
                 }
             }
             stack.getOrCreateTag().remove(CONST_INTERACTION);
@@ -137,16 +137,15 @@ public class SealantItem extends Item implements ISealantItem
     }
 
     @Override
-    public @NotNull ActionResult<ItemStack> use(@NotNull World worldIn, PlayerEntity playerIn, @NotNull Hand handIn) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level worldIn, Player playerIn, @NotNull InteractionHand handIn) {
         ItemStack itemstack = playerIn.getItemInHand(handIn);
-        ActionResult<ItemStack> FAIL = new ActionResult<>(ActionResultType.FAIL, itemstack);
 
         if (isInteracting(itemstack)) {
             playerIn.startUsingItem(handIn);
-            return new ActionResult<>(ActionResultType.PASS, itemstack);
+            return new InteractionResultHolder<>(InteractionResult.PASS, itemstack);
         }
 
-        Hand otherHand = handIn == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND;
+        InteractionHand otherHand = handIn == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         ItemStack itemInOtherHand = playerIn.getItemInHand(otherHand);
         if (createPattern(itemInOtherHand).getItem() != itemInOtherHand.getItem() && itemInOtherHand.getItem() instanceof ISupportsSealing) {
             ItemStack item = itemInOtherHand.copy();
@@ -155,10 +154,10 @@ public class SealantItem extends Item implements ISealantItem
             itemstack.getOrCreateTag()
               .put(CONST_INTERACTION, target.serializeNBT());
             playerIn.setItemInHand(otherHand, item);
-            return new ActionResult<>(ActionResultType.SUCCESS, itemstack);
+            return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemstack);
         }
 
-        return new ActionResult<>(ActionResultType.SUCCESS, itemstack);
+        return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemstack);
     }
 
     private static ItemStack createPattern(final ItemStack targetStack) {
@@ -179,9 +178,21 @@ public class SealantItem extends Item implements ISealantItem
     @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(
-      final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
+      final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         Configuration.getInstance().getCommon().helpText(LocalStrings.HelpSealant, tooltip);
+    }
+
+    @Override
+    public void initializeClient(final Consumer<IItemRenderProperties> consumer)
+    {
+        consumer.accept(new IItemRenderProperties() {
+            @Override
+            public BlockEntityWithoutLevelRenderer getItemStackRenderer()
+            {
+                return new InteractionISTER();
+            }
+        });
     }
 }

@@ -1,14 +1,14 @@
 package mod.chiselsandbits.inventory.bit;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.Container;
+import net.minecraft.world.item.ItemStack;
 
 public class IInventoryBitInventory extends AbstractBitInventory
 {
 
-    private final IInventory inventory;
+    private final Container inventory;
 
-    public IInventoryBitInventory(final IInventory inventory) {this.inventory = inventory;}
+    public IInventoryBitInventory(final Container inventory) {this.inventory = inventory;}
 
     /**
      * Gets a copy of the stack that is in the given slot.

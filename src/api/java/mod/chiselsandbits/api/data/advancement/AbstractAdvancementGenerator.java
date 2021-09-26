@@ -4,9 +4,9 @@ import com.google.common.collect.Sets;
 import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.DataProvider;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public abstract class AbstractAdvancementGenerator implements IDataProvider
+public abstract class AbstractAdvancementGenerator implements DataProvider
 {
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -31,7 +31,7 @@ public abstract class AbstractAdvancementGenerator implements IDataProvider
     }
 
     @Override
-    public void run(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull HashCache cache) throws IOException
     {
         Path outputFolder = this.generator.getOutputFolder();
         Set<ResourceLocation> set = Sets.newHashSet();
@@ -42,7 +42,7 @@ public abstract class AbstractAdvancementGenerator implements IDataProvider
                 Path path1 = getPath(outputFolder, advancement);
 
                 try {
-                    IDataProvider.save(Constants.DataGenerator.GSON, cache, advancement.deconstruct().serializeToJson(), path1);
+                    DataProvider.save(Constants.DataGenerator.GSON, cache, advancement.deconstruct().serializeToJson(), path1);
                 } catch (IOException ioexception) {
                     LOGGER.error("Couldn't save advancement {}", path1, ioexception);
                 }

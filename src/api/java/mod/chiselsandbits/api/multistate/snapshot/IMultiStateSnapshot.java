@@ -3,7 +3,7 @@ package mod.chiselsandbits.api.multistate.snapshot;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.mutator.IAreaMutator;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 public interface IMultiStateSnapshot extends IAreaMutator, Cloneable
 {

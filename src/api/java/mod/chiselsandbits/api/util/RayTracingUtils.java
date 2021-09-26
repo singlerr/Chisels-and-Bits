@@ -1,13 +1,10 @@
 package mod.chiselsandbits.api.util;
 
-import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
+import net.minecraft.core.Vec3i;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
 
 /**
@@ -27,8 +24,8 @@ public class RayTracingUtils
      * @param playerEntity The player to run a raytrace for.
      * @return The raytrace result.
      */
-    public static RayTraceResult rayTracePlayer(final PlayerEntity playerEntity) {
-        final ModifiableAttributeInstance reachAttribute = playerEntity.getAttribute(ForgeMod.REACH_DISTANCE.get());
+    public static HitResult rayTracePlayer(final Player playerEntity) {
+        final AttributeInstance reachAttribute = playerEntity.getAttribute(ForgeMod.REACH_DISTANCE.get());
         if (reachAttribute == null)
         {
             return playerEntity.pick(5d, 0.5f, true);
@@ -40,10 +37,10 @@ public class RayTracingUtils
         return playerEntity.pick(reachDistance, 0.5f, true);
     }
 
-    public static Vector3i getFullFacingVector(final PlayerEntity playerEntity) {
-        final Vector3d facingVector = playerEntity.getLookAngle();
+    public static Vec3i getFullFacingVector(final Player playerEntity) {
+        final Vec3 facingVector = playerEntity.getLookAngle();
 
-        return new Vector3i(
+        return new Vec3i(
           facingVector.x() < 0 ? -1 : 1,
           facingVector.y() < 0 ? -1 : 1,
           facingVector.z() < 0 ? -1 : 1

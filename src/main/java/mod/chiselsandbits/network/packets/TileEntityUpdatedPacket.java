@@ -1,10 +1,10 @@
 package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.network.handlers.ClientPacketHandlers;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 
@@ -14,28 +14,28 @@ public final class TileEntityUpdatedPacket extends ModPacket
 {
 
     private BlockPos blockPos;
-    private CompoundNBT updateData;
+    private CompoundTag updateData;
 
-    public TileEntityUpdatedPacket(final TileEntity tileEntity)
+    public TileEntityUpdatedPacket(final BlockEntity tileEntity)
     {
         this.blockPos = tileEntity.getBlockPos();
         this.updateData = tileEntity.getUpdateTag();
     }
 
-    public TileEntityUpdatedPacket(final PacketBuffer buffer)
+    public TileEntityUpdatedPacket(final FriendlyByteBuf buffer)
     {
         super(buffer);
     }
 
     @Override
-    public void writePayload(final PacketBuffer buffer)
+    public void writePayload(final FriendlyByteBuf buffer)
     {
         buffer.writeBlockPos(blockPos);
         buffer.writeNbt(updateData);
     }
 
     @Override
-    public void readPayload(final PacketBuffer buffer)
+    public void readPayload(final FriendlyByteBuf buffer)
     {
         this.blockPos = buffer.readBlockPos();
         this.updateData = buffer.readNbt();

@@ -1,9 +1,9 @@
 package mod.chiselsandbits.api.item.withhighlight;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.vector.Matrix4f;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.world.entity.player.Player;
+import com.mojang.math.Matrix4f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ public interface IWithHighlightItem
      * @return True to let minecraft handle the highlight rendering, false when not.
      */
     @OnlyIn(Dist.CLIENT)
-    boolean shouldDrawDefaultHighlight(@NotNull final PlayerEntity playerEntity);
+    boolean shouldDrawDefaultHighlight(@NotNull final Player playerEntity);
 
     /**
      * Renders the highlight for the current item.
@@ -37,5 +37,5 @@ public interface IWithHighlightItem
      * @param projectionMatrix The projection matrix used to render the world.
      * @param finishTimeNano The finish time of the world renderer in nano seconds.
      */
-    void renderHighlight(PlayerEntity playerEntity, WorldRenderer worldRenderer, MatrixStack matrixStack, float partialTicks, Matrix4f projectionMatrix, long finishTimeNano);
+    void renderHighlight(Player playerEntity, LevelRenderer worldRenderer, PoseStack matrixStack, float partialTicks, Matrix4f projectionMatrix, long finishTimeNano);
 }

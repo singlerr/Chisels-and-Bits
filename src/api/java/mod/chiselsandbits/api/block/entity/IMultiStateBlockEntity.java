@@ -6,9 +6,9 @@ import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
-import net.minecraft.block.BlockState;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.util.INBTSerializable;
 
 /**
@@ -17,7 +17,7 @@ import net.minecraftforge.common.util.INBTSerializable;
  */
 public interface IMultiStateBlockEntity extends IWorldAreaAccessor,
                                                           IWorldAreaMutator,
-                                                          INBTSerializable<CompoundNBT>,
+                                                          INBTSerializable<CompoundTag>,
                                                           IPacketBufferSerializable,
                                                           IBatchedAreaMutator
 {

@@ -1,14 +1,14 @@
 package mod.chiselsandbits.client.model.baked.face.model;
 
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
 import org.jetbrains.annotations.NotNull;
 
 public class ModelLightMapReader extends BaseModelReader
 {
     private       int          lv          = 0;
-    private VertexFormat format      = DefaultVertexFormats.BLOCK;
+    private VertexFormat format      = DefaultVertexFormat.BLOCK;
     private boolean      hasLightMap = false;
 
     public ModelLightMapReader()

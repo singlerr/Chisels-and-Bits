@@ -2,8 +2,8 @@ package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.api.util.MathUtil;
 import mod.chiselsandbits.api.util.VectorUtils;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.Direction;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -30,12 +30,12 @@ public class DirectionUtils
         return list;
     }
 
-    public static Optional<Direction> getDirectionVectorBetweenIfAligned(final Vector3d l, final Vector3d r) {
+    public static Optional<Direction> getDirectionVectorBetweenIfAligned(final Vec3 l, final Vec3 r) {
         return getDirectionVectorIfAligned(l.subtract(r));
     }
 
-    public static Optional<Direction> getDirectionVectorIfAligned(final Vector3d vector) {
-        final Vector3d scaledToOne = VectorUtils.scaleToOne(vector);
+    public static Optional<Direction> getDirectionVectorIfAligned(final Vec3 vector) {
+        final Vec3 scaledToOne = VectorUtils.scaleToOne(vector);
 
         if (MathUtil.almostEqual(scaledToOne.x(), 0)) {
             if (MathUtil.almostEqual(scaledToOne.y(), 0)) {

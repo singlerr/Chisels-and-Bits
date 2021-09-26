@@ -1,9 +1,9 @@
 package mod.chiselsandbits.client.culling;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.block.StainedGlassBlock;
-import net.minecraft.util.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.StainedGlassBlock;
+import net.minecraft.core.Direction;
 import net.minecraftforge.fluids.IFluidBlock;
 
 /**
@@ -38,25 +38,25 @@ public class MCCullTest implements ICullTest
             return aFluidBlock.getFluid() != bFluidBlock.getFluid();
 		}
 
-        if (a.getBlock() instanceof FlowingFluidBlock && b.getBlock() instanceof FlowingFluidBlock)
+        if (a.getBlock() instanceof LiquidBlock && b.getBlock() instanceof LiquidBlock)
         {
-            final FlowingFluidBlock aFluidBlock = (FlowingFluidBlock) a.getBlock();
-            final FlowingFluidBlock bFluidBlock = (FlowingFluidBlock) b.getBlock();
+            final LiquidBlock aFluidBlock = (LiquidBlock) a.getBlock();
+            final LiquidBlock bFluidBlock = (LiquidBlock) b.getBlock();
 
             return aFluidBlock.getFluid() != bFluidBlock.getFluid();
         }
 
-        if (a.getBlock() instanceof IFluidBlock && b.getBlock() instanceof FlowingFluidBlock)
+        if (a.getBlock() instanceof IFluidBlock && b.getBlock() instanceof LiquidBlock)
         {
             final IFluidBlock aFluidBlock = (IFluidBlock) a.getBlock();
-            final FlowingFluidBlock bFluidBlock = (FlowingFluidBlock) b.getBlock();
+            final LiquidBlock bFluidBlock = (LiquidBlock) b.getBlock();
 
             return aFluidBlock.getFluid() != bFluidBlock.getFluid();
         }
 
-        if (a.getBlock() instanceof FlowingFluidBlock && b.getBlock() instanceof IFluidBlock)
+        if (a.getBlock() instanceof LiquidBlock && b.getBlock() instanceof IFluidBlock)
         {
-            final FlowingFluidBlock aFluidBlock = (FlowingFluidBlock) a.getBlock();
+            final LiquidBlock aFluidBlock = (LiquidBlock) a.getBlock();
             final IFluidBlock bFluidBlock = (IFluidBlock) b.getBlock();
 
             return aFluidBlock.getFluid() != bFluidBlock.getFluid();

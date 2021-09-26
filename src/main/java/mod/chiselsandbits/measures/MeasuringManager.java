@@ -11,11 +11,11 @@ import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import mod.chiselsandbits.network.packets.MeasurementUpdatedPacket;
 import mod.chiselsandbits.network.packets.MeasurementsUpdatedPacket;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -56,7 +56,7 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
 
     @Override
     public Measurement create(
-      final World world, final PlayerEntity playerEntity, final Vector3d from, final Vector3d to, final MeasuringMode mode)
+      final Level world, final Player playerEntity, final Vec3 from, final Vec3 to, final MeasuringMode mode)
     {
         return new Measurement(
           playerEntity.getUUID(),
@@ -80,7 +80,7 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
     }
 
     @Override
-    public void serializeInto(final @NotNull PacketBuffer packetBuffer)
+    public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
     {
         packetBuffer.writeVarInt(measurements.size());
         measurements.values().forEach(m -> {
@@ -90,7 +90,7 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
     }
 
     @Override
-    public void deserializeFrom(final @NotNull PacketBuffer packetBuffer)
+    public void deserializeFrom(final @NotNull FriendlyByteBuf packetBuffer)
     {
         measurements.clear();
         Collection<Measurement> measurements = IntStream.range(0, packetBuffer.readVarInt())
@@ -130,7 +130,7 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
 
     @OnlyIn(Dist.CLIENT)
     public void createAndSend(
-      final Vector3d from, final Vector3d to, final MeasuringMode mode
+      final Vec3 from, final Vec3 to, final MeasuringMode mode
     ) {
         if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null)
             return;

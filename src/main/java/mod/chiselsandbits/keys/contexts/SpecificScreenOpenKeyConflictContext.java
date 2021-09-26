@@ -2,8 +2,7 @@ package mod.chiselsandbits.keys.contexts;
 
 import mod.chiselsandbits.client.screens.RadialToolModeSelectionScreen;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 
 public enum SpecificScreenOpenKeyConflictContext implements IKeyConflictContext
@@ -16,7 +15,7 @@ public enum SpecificScreenOpenKeyConflictContext implements IKeyConflictContext
     SpecificScreenOpenKeyConflictContext(final Class<? extends Screen> guiScreenClass) {this.guiScreenClass = guiScreenClass;}
 
     /**
-     * @return true if conditions are met to activate {@link KeyBinding}s with this context
+     * @return true if conditions are met to activate keybindings with this context
      */
     @Override
     public boolean isActive()
@@ -26,7 +25,7 @@ public enum SpecificScreenOpenKeyConflictContext implements IKeyConflictContext
 
     /**
      * @param other The other conflict context.
-     * @return true if the other context can have {@link KeyBinding} conflicts with this one. This will be called on both contexts to check for conflicts.
+     * @return true if the other context can have keybindings conflicts with this one. This will be called on both contexts to check for conflicts.
      */
     @Override
     public boolean conflicts(final IKeyConflictContext other)

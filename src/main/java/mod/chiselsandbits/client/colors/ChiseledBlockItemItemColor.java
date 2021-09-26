@@ -1,15 +1,15 @@
 package mod.chiselsandbits.client.colors;
 
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.color.item.ItemColor;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class ChiseledBlockItemItemColor implements IItemColor
+public class ChiseledBlockItemItemColor implements ItemColor
 {
     private static final int TINT_MASK = 0xff;
     private static final int TINT_BITS = 8;

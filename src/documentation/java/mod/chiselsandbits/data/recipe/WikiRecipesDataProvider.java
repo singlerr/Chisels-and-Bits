@@ -1,48 +1,43 @@
 package mod.chiselsandbits.data.recipe;
 
-import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
 import mod.chiselsandbits.api.util.ReflectionUtils;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.data.icons.RenderedItemModelDataProvider;
-import mod.chiselsandbits.data.init.AsyncReloadManager;
 import mod.chiselsandbits.data.init.GameInitializationManager;
 import mod.chiselsandbits.data.recipe.data.ItemWikiDataObject;
 import mod.chiselsandbits.data.recipe.data.RecipeObject;
 import mod.chiselsandbits.data.recipe.data.RecipesObject;
 import mod.chiselsandbits.utils.DataGeneratorConstants;
-import net.minecraft.client.Minecraft;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.ICraftingRecipe;
-import net.minecraft.item.crafting.IRecipeType;
-import net.minecraft.item.crafting.ShapedRecipe;
-import net.minecraft.profiler.EmptyProfiler;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.tags.NetworkTagManager;
-import net.minecraft.tags.TagRegistryManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.HashCache;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.profiling.InactiveProfiler;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraftforge.common.crafting.IShapedRecipe;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.function.Function;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class WikiRecipesDataProvider implements IDataProvider
+public class WikiRecipesDataProvider implements DataProvider
 {
 
     @SubscribeEvent
@@ -61,15 +56,15 @@ public class WikiRecipesDataProvider implements IDataProvider
     }
 
     @Override
-    public void run(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull HashCache cache) throws IOException
     {
         GameInitializationManager.getInstance().initialize(existingFileHelper);
 
         final ExtendedRecipeManager recipeManager = new ExtendedRecipeManager();
-        final IResourceManager resourceManager = (IResourceManager) ReflectionUtils.getField(existingFileHelper, "serverData");
+        final ResourceManager resourceManager = (ResourceManager) ReflectionUtils.getField(existingFileHelper, "serverData");
 
-        final Map<ResourceLocation, JsonElement> recipeData = recipeManager.prepare(resourceManager, EmptyProfiler.INSTANCE);
-        recipeManager.apply(recipeData, resourceManager, EmptyProfiler.INSTANCE);
+        final Map<ResourceLocation, JsonElement> recipeData = recipeManager.prepare(resourceManager, InactiveProfiler.INSTANCE);
+        recipeManager.apply(recipeData, resourceManager, InactiveProfiler.INSTANCE);
 
 
 
@@ -82,7 +77,7 @@ public class WikiRecipesDataProvider implements IDataProvider
 
             final ItemWikiDataObject itemWikiDataObject = new ItemWikiDataObject();
 
-            for (ICraftingRecipe recipe : recipeManager.getAllRecipesFor(IRecipeType.CRAFTING))
+            for (CraftingRecipe recipe : recipeManager.getAllRecipesFor(RecipeType.CRAFTING))
             {
                 if (recipe.getResultItem().getItem() == item && recipe.getIngredients().size() > 0)
                 {
@@ -122,7 +117,7 @@ public class WikiRecipesDataProvider implements IDataProvider
                     itemWikiDataObject.getRecipes().add(recipeName);
 
                     final Path outputFile = this.dataGenerator.getOutputFolder().resolve("recipes").resolve(recipeName + ".json");
-                    IDataProvider.save(DataGeneratorConstants.GSONLang, cache, DataGeneratorConstants.GSON.toJsonTree(recipesObject), outputFile);
+                    DataProvider.save(DataGeneratorConstants.GSONLang, cache, DataGeneratorConstants.GSON.toJsonTree(recipesObject), outputFile);
                 }
 
                 if (recipe.getIngredients().size() > 0) {
@@ -173,7 +168,7 @@ public class WikiRecipesDataProvider implements IDataProvider
                         itemWikiDataObject.getUsages().add(recipeName);
 
                         final Path outputFile = this.dataGenerator.getOutputFolder().resolve("recipes").resolve(recipeName + ".json");
-                        IDataProvider.save(DataGeneratorConstants.GSONLang, cache, DataGeneratorConstants.GSON.toJsonTree(recipesObject), outputFile);
+                        DataProvider.save(DataGeneratorConstants.GSONLang, cache, DataGeneratorConstants.GSON.toJsonTree(recipesObject), outputFile);
                     }
                 }
             }
@@ -184,12 +179,12 @@ public class WikiRecipesDataProvider implements IDataProvider
                   item.getRegistryName().getPath());
 
                 final Path outputFile = this.dataGenerator.getOutputFolder().resolve("recipes").resolve(dataName + ".json");
-                IDataProvider.save(DataGeneratorConstants.GSONLang, cache, DataGeneratorConstants.GSON.toJsonTree(itemWikiDataObject), outputFile);
+                DataProvider.save(DataGeneratorConstants.GSONLang, cache, DataGeneratorConstants.GSON.toJsonTree(itemWikiDataObject), outputFile);
             }
         }
     }
 
-    private void setRecipeItem(final ICraftingRecipe recipe, final RecipeObject recipeObject, int index) {
+    private void setRecipeItem(final CraftingRecipe recipe, final RecipeObject recipeObject, int index) {
         final int recipeWidth = recipe instanceof ShapedRecipe ? ((ShapedRecipe) recipe).getWidth() : 3;
         final int recipeHeight = recipe instanceof ShapedRecipe ? ((ShapedRecipe) recipe).getHeight() : 3;
 
@@ -210,7 +205,7 @@ public class WikiRecipesDataProvider implements IDataProvider
         }
     }
 
-    private void setRecipeItemWhenNotSource(final Item item, final ICraftingRecipe recipe, final RecipeObject recipeObject, final int index)
+    private void setRecipeItemWhenNotSource(final Item item, final CraftingRecipe recipe, final RecipeObject recipeObject, final int index)
     {
         final int recipeWidth = recipe instanceof ShapedRecipe ? ((ShapedRecipe) recipe).getWidth() : 3;
         final int recipeHeight = recipe instanceof ShapedRecipe ? ((ShapedRecipe) recipe).getHeight() : 3;

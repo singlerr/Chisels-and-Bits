@@ -2,16 +2,16 @@ package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.utils.ItemStackUtils;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
 
 public final class HeldToolModeChangedPacket extends ModPacket
 {
 
     private int modeIndex;
 
-    public HeldToolModeChangedPacket(final PacketBuffer buffer)
+    public HeldToolModeChangedPacket(final FriendlyByteBuf buffer)
     {
         super(buffer);
     }
@@ -22,19 +22,19 @@ public final class HeldToolModeChangedPacket extends ModPacket
     }
 
     @Override
-    public void writePayload(final PacketBuffer buffer)
+    public void writePayload(final FriendlyByteBuf buffer)
     {
         buffer.writeVarInt(this.modeIndex);
     }
 
     @Override
-    public void readPayload(final PacketBuffer buffer)
+    public void readPayload(final FriendlyByteBuf buffer)
     {
         this.modeIndex = buffer.readVarInt();
     }
 
     @Override
-    public void server(final ServerPlayerEntity playerEntity)
+    public void server(final ServerPlayer playerEntity)
     {
         final ItemStack stack = ItemStackUtils.getModeItemStackFromPlayer(playerEntity);
         if (stack.getItem() instanceof IWithModeItem) {

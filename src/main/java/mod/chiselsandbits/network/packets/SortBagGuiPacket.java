@@ -1,12 +1,12 @@
 package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.container.BagContainer;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
 
 public final class SortBagGuiPacket extends ModPacket
 {
-    public SortBagGuiPacket(PacketBuffer buffer)
+    public SortBagGuiPacket(FriendlyByteBuf buffer)
     {
         super(buffer);
     }
@@ -17,7 +17,7 @@ public final class SortBagGuiPacket extends ModPacket
 
     @Override
     public void server(
-      final ServerPlayerEntity player)
+      final ServerPlayer player)
     {
         if (player.containerMenu instanceof BagContainer)
         {
@@ -26,13 +26,13 @@ public final class SortBagGuiPacket extends ModPacket
     }
 
     @Override
-    public void writePayload(final PacketBuffer buffer)
+    public void writePayload(final FriendlyByteBuf buffer)
     {
     }
 
     @Override
     public void readPayload(
-      PacketBuffer buffer)
+      FriendlyByteBuf buffer)
     {
     }
 }

@@ -2,12 +2,12 @@ package mod.chiselsandbits.registrars;
 
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.recipe.modificationtable.ModificationTableRecipe;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeType;
 
 public final class ModRecipeTypes
 {
-    public static IRecipeType<ModificationTableRecipe> MODIFICATION_TABLE = register("modification_table");
+    public static RecipeType<ModificationTableRecipe> MODIFICATION_TABLE = register("modification_table");
 
     /**
      * Registers a new recipe type, prefixing with the mod ID
@@ -16,7 +16,7 @@ public final class ModRecipeTypes
      * @return  Registered recipe type
      */
     @SuppressWarnings("SameParameterValue")
-    static <T extends IRecipe<?>> IRecipeType<T> register(String name) {
-        return IRecipeType.register(Constants.MOD_ID + ":" + name);
+    static <T extends Recipe<?>> RecipeType<T> register(String name) {
+        return RecipeType.register(Constants.MOD_ID + ":" + name);
     }
 }

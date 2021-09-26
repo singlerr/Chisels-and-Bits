@@ -5,13 +5,13 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModModificationOperation;
 import mod.chiselsandbits.registrars.ModRecipeSerializers;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.IFinishedRecipe;
-import net.minecraft.data.RecipeProvider;
-import net.minecraft.item.crafting.IRecipeSerializer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,44 +34,42 @@ public class ModificationOperationRecipeProvider extends RecipeProvider
     }
 
     @Override
-    protected void buildShapelessRecipes(final @NotNull Consumer<IFinishedRecipe> consumer)
+    protected void buildCraftingRecipes(final @NotNull Consumer<FinishedRecipe> consumer)
     {
         ModModificationOperation.REGISTRY_SUPPLIER.get().forEach(
-          operation -> {
-              consumer.accept(new IFinishedRecipe() {
-                  @Override
-                  public void serializeRecipeData(final @NotNull JsonObject json)
-                  {
+          operation -> consumer.accept(new FinishedRecipe() {
+              @Override
+              public void serializeRecipeData(final @NotNull JsonObject json)
+              {
 
-                  }
+              }
 
-                  @Override
-                  public @NotNull ResourceLocation getId()
-                  {
-                      return Objects.requireNonNull(operation.getRegistryName());
-                  }
+              @Override
+              public @NotNull ResourceLocation getId()
+              {
+                  return Objects.requireNonNull(operation.getRegistryName());
+              }
 
-                  @Override
-                  public @NotNull IRecipeSerializer<?> getType()
-                  {
-                      return ModRecipeSerializers.MODIFICATION_TABLE.get();
-                  }
+              @Override
+              public @NotNull RecipeSerializer<?> getType()
+              {
+                  return ModRecipeSerializers.MODIFICATION_TABLE.get();
+              }
 
-                  @Nullable
-                  @Override
-                  public JsonObject serializeAdvancement()
-                  {
-                      return null;
-                  }
+              @Nullable
+              @Override
+              public JsonObject serializeAdvancement()
+              {
+                  return null;
+              }
 
-                  @Nullable
-                  @Override
-                  public ResourceLocation getAdvancementId()
-                  {
-                      return null;
-                  }
-              });
-          }
+              @Nullable
+              @Override
+              public ResourceLocation getAdvancementId()
+              {
+                  return null;
+              }
+          })
         );
     }
 

@@ -1,11 +1,14 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
 import com.google.common.collect.Lists;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormatElement;
+import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
-import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
@@ -15,28 +18,27 @@ import mod.chiselsandbits.client.model.baked.face.FaceRegion;
 import mod.chiselsandbits.client.model.baked.face.IFaceBuilder;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
 import mod.chiselsandbits.utils.ModelUtil;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.*;
-import net.minecraft.client.renderer.texture.MissingTextureSprite;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.BlockElementFace;
+import net.minecraft.client.renderer.block.model.BlockFaceUV;
+import net.minecraft.client.renderer.block.model.FaceBakery;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.inventory.container.PlayerContainer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.model.data.IModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
-
 
 @SuppressWarnings("deprecation")
 public class ChiseledBlockBakedModel extends BaseBakedBlockModel
@@ -64,13 +66,13 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
         {
             final FaceBakery faceBakery = new FaceBakery();
 
-            final ModelRotation mr = ModelRotation.X0_Y0;
+            final BlockModelRotation mr = BlockModelRotation.X0_Y0;
 
             final float[] defUVs = new float[] {0, 0, 1, 1};
             final BlockFaceUV uv = new BlockFaceUV(defUVs, 0);
-            final BlockPartFace bpf = new BlockPartFace(myFace, 0, "", uv);
+            final BlockElementFace bpf = new BlockElementFace(myFace, 0, "", uv);
 
-            final TextureAtlasSprite texture = Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(new ResourceLocation("missingno"));
+            final TextureAtlasSprite texture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(new ResourceLocation("missingno"));
             final BakedQuad q = faceBakery.bakeQuad(to, from, bpf, texture, myFace, mr, null, true, new ResourceLocation(Constants.MOD_ID, "chiseled_block"));
 
             final int[] vertData = q.getVertices();
@@ -80,17 +82,16 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 
             switch (myFace)
             {
-                case NORTH:
-                case SOUTH:
+                case NORTH, SOUTH -> {
                     a = 0;
                     b = 1;
-                    break;
-                case EAST:
-                case WEST:
+                }
+                case EAST, WEST -> {
                     a = 1;
                     b = 2;
-                    break;
-                default:
+                }
+                default -> {
+                }
             }
 
             final int p = vertData.length / 4;
@@ -179,11 +180,11 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
       final BlockState state,
       final ChiselRenderType layer,
       final IAreaAccessor data,
-      final Function<Vector3d, BlockState> neighborStateSupplier,
+      final Function<Vec3, BlockState> neighborStateSupplier,
       final long primaryStateRenderSeed)
     {
         chiselRenderType = layer;
-        IBakedModel originalModel = null;
+        BakedModel originalModel = null;
 
         if (state != null && state.getBlock() != Blocks.AIR)
         {
@@ -223,13 +224,13 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 
     IFaceBuilder getBuilder()
     {
-        return new ChiselsAndBitsBakedQuad.Builder(DefaultVertexFormats.BLOCK);
+        return new ChiselsAndBitsBakedQuad.Builder(DefaultVertexFormat.BLOCK);
     }
 
     private void generateFaces(
       final ChiseledBlockModelBuilder builder,
       final IAreaAccessor accessor,
-      final Function<Vector3d, BlockState> neighborStateSupplier,
+      final Function<Vec3, BlockState> neighborStateSupplier,
       final long primaryStateRenderSeed)
     {
         final List<List<FaceRegion>> resultingFaces = new ArrayList<>();
@@ -239,8 +240,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
           resultingFaces,
           IPositionMutator.xzy(),
           X_Faces,
-          Vector3d::x,
-          Vector3d::z,
+          Vec3::x,
+          Vec3::z,
           neighborStateSupplier
         );
         processFaces(
@@ -248,8 +249,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
           resultingFaces,
           IPositionMutator.yzx(),
           Y_Faces,
-          Vector3d::y,
-          Vector3d::z,
+          Vec3::y,
+          Vec3::z,
           neighborStateSupplier
         );
         processFaces(
@@ -257,8 +258,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
           resultingFaces,
           IPositionMutator.zyx(),
           Z_Faces,
-          Vector3d::z,
-          Vector3d::y,
+          Vec3::z,
+          Vec3::y,
           neighborStateSupplier
         );
 
@@ -416,9 +417,9 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
       final List<List<FaceRegion>> resultingRegions,
       final IPositionMutator analysisOrder,
       final Direction[] potentialDirections,
-      final Function<Vector3d, Double> regionBuildingAxisValueExtractor,
-      final Function<Vector3d, Double> faceBuildingAxisValueExtractor,
-      final Function<Vector3d, BlockState> neighborStateSupplier) {
+      final Function<Vec3, Double> regionBuildingAxisValueExtractor,
+      final Function<Vec3, Double> faceBuildingAxisValueExtractor,
+      final Function<Vec3, BlockState> neighborStateSupplier) {
         final ArrayList<FaceRegion> regions = Lists.newArrayList();
         final ICullTest test = chiselRenderType.getTest();
 
@@ -451,7 +452,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                     neighborStateSupplier
                   );
 
-                  if (!potentialRegionData.isPresent()) {
+                  if (potentialRegionData.isEmpty()) {
                       state.setCurrentRegion(null);
                       return;
                   }
@@ -479,38 +480,38 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
       final Direction facing,
       final IStateEntryInfo target,
       final ICullTest test,
-      final Function<Vector3d, BlockState> neighborStateSupplier)
+      final Function<Vec3, BlockState> neighborStateSupplier)
     {
         return Optional.of(target)
           .filter(stateEntryInfo -> {
-              final Vector3d faceOffSet = Vector3d.atLowerCornerOf(facing.getNormal()).multiply(
+              final Vec3 faceOffSet = Vec3.atLowerCornerOf(facing.getNormal()).multiply(
                 StateEntrySize.current().getSizePerBit(),
                 StateEntrySize.current().getSizePerBit(),
                 StateEntrySize.current().getSizePerBit()
               );
-              final Vector3d offsetTarget = stateEntryInfo.getStartPoint().add(faceOffSet);
+              final Vec3 offsetTarget = stateEntryInfo.getStartPoint().add(faceOffSet);
 
               if (!blob.isInside(offsetTarget)) {
                   final BlockState externalNeighborState = neighborStateSupplier.apply(offsetTarget);
 
                   return Optional.of(externalNeighborState)
                            .map(neighborState -> test.isVisible(stateEntryInfo.getState(), neighborState))
-                           .orElseGet(() -> !stateEntryInfo.getState().isAir(new SingleBlockBlockReader(stateEntryInfo.getState()), BlockPos.ZERO));
+                           .orElseGet(() -> !stateEntryInfo.getState().isAir());
               }
 
               //TODO: Replace isAir in 1.17
               return blob.getInAreaTarget(offsetTarget)
                 .map(IStateEntryInfo::getState)
                 .map(neighborState -> test.isVisible(stateEntryInfo.getState(), neighborState))
-                .orElseGet(() -> !stateEntryInfo.getState().isAir(new SingleBlockBlockReader(stateEntryInfo.getState()), BlockPos.ZERO));
+                .orElseGet(() -> !stateEntryInfo.getState().isAir());
           })
           .map(stateEntryInfo -> {
-              final Vector3d faceOffSet = Vector3d.atLowerCornerOf(facing.getNormal()).multiply(
+              final Vec3 faceOffSet = Vec3.atLowerCornerOf(facing.getNormal()).multiply(
                 StateEntrySize.current().getSizePerBit(),
                 StateEntrySize.current().getSizePerBit(),
                 StateEntrySize.current().getSizePerBit()
               );
-              final Vector3d offsetTarget = stateEntryInfo.getStartPoint().add(faceOffSet);
+              final Vec3 offsetTarget = stateEntryInfo.getStartPoint().add(faceOffSet);
 
               return FaceRegion.createFrom3DObjectWithFacing(
                 stateEntryInfo.getStartPoint(),
@@ -551,28 +552,26 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 
         switch (face)
         {
-            case UP:
-            case DOWN:
+            case UP, DOWN -> {
                 to_u = (float) to[0];
                 to_v = (float) to[2];
                 from_u = (float) from[0];
                 from_v = (float) from[2];
-                break;
-            case SOUTH:
-            case NORTH:
+            }
+            case SOUTH, NORTH -> {
                 to_u = (float) to[0];
                 to_v = (float) to[1];
                 from_u = (float) from[0];
                 from_v = (float) from[1];
-                break;
-            case EAST:
-            case WEST:
+            }
+            case EAST, WEST -> {
                 to_u = (float) to[1];
                 to_v = (float) to[2];
                 from_u = (float) from[1];
                 from_v = (float) from[2];
-                break;
-            default:
+            }
+            default -> {
+            }
         }
 
         uvs[0] = u(quadsUV, to_u, to_v) * 16; // 0
@@ -646,7 +645,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
     @Override
     public TextureAtlasSprite getParticleIcon()
     {
-        return Minecraft.getInstance().getTextureAtlas(PlayerContainer.BLOCK_ATLAS).apply(MissingTextureSprite.getLocation());
+        return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(MissingTextureAtlasSprite.getLocation());
     }
 
     private static final class FaceBuildingState {

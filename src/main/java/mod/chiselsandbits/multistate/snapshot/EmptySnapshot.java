@@ -10,15 +10,15 @@ import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -67,7 +67,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
         }
 
         @Override
-        public float getRelativeBlockHardness(final PlayerEntity player)
+        public float getRelativeBlockHardness(final Player player)
         {
             return 0;
         }
@@ -110,7 +110,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
      * @return An optional potentially containing the state entry of the requested target.
      */
     @Override
-    public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
+    public Optional<IStateEntryInfo> getInAreaTarget(final Vec3 inAreaTarget)
     {
         return Optional.empty();
     }
@@ -123,7 +123,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
      * @return An optional potentially containing the state entry of the requested target.
      */
     @Override
-    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
         return Optional.empty();
     }
@@ -135,7 +135,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
      * @return True when inside, false when not.
      */
     @Override
-    public boolean isInside(final Vector3d inAreaTarget)
+    public boolean isInside(final Vec3 inAreaTarget)
     {
         return false;
     }
@@ -148,7 +148,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
      * @return True when inside, false when not.
      */
     @Override
-    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
         return false;
     }
@@ -188,7 +188,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
      * @param inAreaTarget The in area offset.
      */
     @Override
-    public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
+    public void setInAreaTarget(final BlockState blockState, final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
 
     }
@@ -201,7 +201,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
      * @param inBlockTarget        The offset in the targeted block.
      */
     @Override
-    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
 
     }
@@ -212,7 +212,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
      * @param inAreaTarget The in area offset.
      */
     @Override
-    public void clearInAreaTarget(final Vector3d inAreaTarget)
+    public void clearInAreaTarget(final Vec3 inAreaTarget)
     {
 
     }
@@ -224,7 +224,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
      * @param inBlockTarget        The offset in the targeted block.
      */
     @Override
-    public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+    public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
 
     }
@@ -294,13 +294,13 @@ public class EmptySnapshot implements IMultiStateSnapshot
                 }
 
                 @Override
-                public CompoundNBT serializeNBT()
+                public CompoundTag serializeNBT()
                 {
-                    return new CompoundNBT();
+                    return new CompoundTag();
                 }
 
                 @Override
-                public void deserializeNBT(final CompoundNBT nbt)
+                public void deserializeNBT(final CompoundTag nbt)
                 {
 
                 }
@@ -355,7 +355,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
          * @return An optional potentially containing the state entry of the requested target.
          */
         @Override
-        public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
+        public Optional<IStateEntryInfo> getInAreaTarget(final Vec3 inAreaTarget)
         {
             return Optional.empty();
         }
@@ -368,7 +368,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
          * @return An optional potentially containing the state entry of the requested target.
          */
         @Override
-        public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+        public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
         {
             return Optional.empty();
         }
@@ -380,7 +380,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
          * @return True when inside, false when not.
          */
         @Override
-        public boolean isInside(final Vector3d inAreaTarget)
+        public boolean isInside(final Vec3 inAreaTarget)
         {
             return false;
         }
@@ -393,7 +393,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
          * @return True when inside, false when not.
          */
         @Override
-        public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+        public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
         {
             return false;
         }
@@ -433,7 +433,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
          * @param inAreaTarget The in area offset.
          */
         @Override
-        public void setInAreaTarget(final BlockState blockState, final Vector3d inAreaTarget) throws SpaceOccupiedException
+        public void setInAreaTarget(final BlockState blockState, final Vec3 inAreaTarget) throws SpaceOccupiedException
         {
 
         }
@@ -446,7 +446,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
          * @param inBlockTarget        The offset in the targeted block.
          */
         @Override
-        public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget) throws SpaceOccupiedException
+        public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
         {
 
         }
@@ -457,7 +457,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
          * @param inAreaTarget The in area offset.
          */
         @Override
-        public void clearInAreaTarget(final Vector3d inAreaTarget)
+        public void clearInAreaTarget(final Vec3 inAreaTarget)
         {
 
         }
@@ -469,7 +469,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
          * @param inBlockTarget        The offset in the targeted block.
          */
         @Override
-        public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
+        public void clearInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
         {
 
         }
@@ -480,7 +480,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
          * @param packetBuffer The packet buffer to write into.
          */
         @Override
-        public void serializeInto(@NotNull final PacketBuffer packetBuffer)
+        public void serializeInto(@NotNull final FriendlyByteBuf packetBuffer)
         {
 
         }
@@ -491,19 +491,19 @@ public class EmptySnapshot implements IMultiStateSnapshot
          * @param packetBuffer The packet buffer to read from.
          */
         @Override
-        public void deserializeFrom(@NotNull final PacketBuffer packetBuffer)
+        public void deserializeFrom(@NotNull final FriendlyByteBuf packetBuffer)
         {
 
         }
 
         @Override
-        public CompoundNBT serializeNBT()
+        public CompoundTag serializeNBT()
         {
-            return new CompoundNBT();
+            return new CompoundTag();
         }
 
         @Override
-        public void deserializeNBT(final CompoundNBT nbt)
+        public void deserializeNBT(final CompoundTag nbt)
         {
 
         }

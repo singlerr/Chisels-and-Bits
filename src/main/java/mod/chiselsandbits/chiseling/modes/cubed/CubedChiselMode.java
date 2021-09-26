@@ -17,16 +17,16 @@ import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
@@ -39,10 +39,10 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
 {
     private final int                       bitsPerSide;
     private final boolean                   aligned;
-    private final IFormattableTextComponent displayName;
+    private final MutableComponent displayName;
     private final ResourceLocation          iconName;
 
-    CubedChiselMode(final int bitsPerSide, final boolean aligned, final IFormattableTextComponent displayName, final ResourceLocation iconName)
+    CubedChiselMode(final int bitsPerSide, final boolean aligned, final MutableComponent displayName, final ResourceLocation iconName)
     {
         this.bitsPerSide = bitsPerSide;
         this.aligned = aligned;
@@ -52,12 +52,12 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
 
     @Override
     public ClickProcessingState onLeftClickBy(
-      final PlayerEntity playerEntity, final IChiselingContext context)
+      final Player playerEntity, final IChiselingContext context)
     {
         final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
           playerEntity,
           context,
-          face -> Vector3d.atLowerCornerOf(face.getOpposite().getNormal()),
+          face -> Vec3.atLowerCornerOf(face.getOpposite().getNormal()),
           Function.identity()
         );
 
@@ -98,19 +98,19 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     }
 
     @Override
-    public void onStoppedLeftClicking(final PlayerEntity playerEntity, final IChiselingContext context)
+    public void onStoppedLeftClicking(final Player playerEntity, final IChiselingContext context)
     {
         //Noop.
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    public ClickProcessingState onRightClickBy(final PlayerEntity playerEntity, final IChiselingContext context)
+    public ClickProcessingState onRightClickBy(final Player playerEntity, final IChiselingContext context)
     {
         final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
           playerEntity,
           context,
-          face -> Vector3d.atLowerCornerOf(face.getNormal()),
+          face -> Vec3.atLowerCornerOf(face.getNormal()),
           facingVector -> aligned ? facingVector : facingVector.multiply(1, -1, 1)
         );
 
@@ -121,13 +121,13 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
               final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
-              if (heldBlockState.isAir(new SingleBlockBlockReader(heldBlockState), BlockPos.ZERO))
+              if (heldBlockState.isAir())
               {
                   return ClickProcessingState.DEFAULT;
               }
 
               final int missingBitCount = (int) mutator.stream()
-                                                  .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO))
+                                                  .filter(state -> state.getState().isAir())
                                                   .count();
 
               final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
@@ -144,7 +144,7 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
                          mutator.batch())
                   {
                       mutator.inWorldMutableStream()
-                        .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO))
+                        .filter(state -> state.getState().isAir())
                         .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                   }
               }
@@ -155,7 +155,7 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     }
 
     @Override
-    public void onStoppedRightClicking(final PlayerEntity playerEntity, final IChiselingContext context)
+    public void onStoppedRightClicking(final Player playerEntity, final IChiselingContext context)
     {
         //Noop.
     }
@@ -167,32 +167,31 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     }
 
     private Optional<ClickProcessingState> processRayTraceIntoContext(
-      final PlayerEntity playerEntity,
+      final Player playerEntity,
       final IChiselingContext context,
-      final Function<Direction, Vector3d> placementFacingAdapter,
-      final Function<Vector3d, Vector3d> fullFacingVectorAdapter
+      final Function<Direction, Vec3> placementFacingAdapter,
+      final Function<Vec3, Vec3> fullFacingVectorAdapter
     )
     {
-        final RayTraceResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
-        if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK || !(rayTraceResult instanceof BlockRayTraceResult))
+        final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
+        if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
         {
             return Optional.of(ClickProcessingState.DEFAULT);
         }
 
-        final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        final Vector3d hitVector = blockRayTraceResult.getLocation().add(
+        final Vec3 hitVector = blockRayTraceResult.getLocation().add(
           placementFacingAdapter.apply(blockRayTraceResult.getDirection())
             .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
-        Vector3d alignmentOffset = Vector3d.ZERO;
-        final Vector3d fullFacingVector = fullFacingVectorAdapter.apply(aligned ? new Vector3d(1, 1, 1) : Vector3d.atLowerCornerOf(
+        Vec3 alignmentOffset = Vec3.ZERO;
+        final Vec3 fullFacingVector = fullFacingVectorAdapter.apply(aligned ? new Vec3(1, 1, 1) : Vec3.atLowerCornerOf(
           RayTracingUtils.getFullFacingVector(playerEntity)
         ));
 
         if (aligned)
         {
-            final Vector3d inBlockOffset = hitVector.subtract(Vector3d.atLowerCornerOf(new BlockPos(hitVector)));
+            final Vec3 inBlockOffset = hitVector.subtract(Vec3.atLowerCornerOf(new BlockPos(hitVector)));
             final BlockPos bitsInBlockOffset = new BlockPos(inBlockOffset.multiply(StateEntrySize.current().getBitsPerBlockSide(),
               StateEntrySize.current().getBitsPerBlockSide(),
               StateEntrySize.current().getBitsPerBlockSide()));
@@ -211,16 +210,16 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
 
             final BlockPos targetedBitsInBlockOffset = bitsInBlockOffset.subtract(targetedStartPoint);
 
-            alignmentOffset = Vector3d.atLowerCornerOf(targetedBitsInBlockOffset)
+            alignmentOffset = Vec3.atLowerCornerOf(targetedBitsInBlockOffset)
                                 .multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
         }
 
-        final Vector3d finalAlignmentOffset = alignmentOffset.multiply(fullFacingVector);
+        final Vec3 finalAlignmentOffset = alignmentOffset.multiply(fullFacingVector);
         BlockPosStreamProvider.getForRange(bitsPerSide)
           .forEach(bitPos -> context.include(
             hitVector
               .subtract(finalAlignmentOffset)
-              .add(Vector3d.atLowerCornerOf(bitPos)
+              .add(Vec3.atLowerCornerOf(bitPos)
                      .multiply(fullFacingVector)
                      .multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
           ));
@@ -235,7 +234,7 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     }
 
     @Override
-    public ITextComponent getDisplayName()
+    public Component getDisplayName()
     {
         return this.displayName;
     }

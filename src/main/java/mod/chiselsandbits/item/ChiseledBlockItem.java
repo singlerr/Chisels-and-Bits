@@ -14,21 +14,21 @@ import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.legacy.LegacyLoadManager;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
-import net.minecraft.block.Block;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import net.minecraft.item.Item.Properties;
+import net.minecraft.world.item.Item.Properties;
 
 public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
 {
@@ -49,7 +49,7 @@ public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
     public IMultiStateItemStack createItemStack(final ItemStack stack)
     {
         if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_ENTITY_DATA)){
-            final ChunkSection legacyLoadedChunkSection = LegacyLoadManager.getInstance().attemptLegacyBlockEntityLoad(
+            final LevelChunkSection legacyLoadedChunkSection = LegacyLoadManager.getInstance().attemptLegacyBlockEntityLoad(
               stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_ENTITY_DATA)
             );
 
@@ -65,7 +65,7 @@ public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
 
     @NotNull
     @Override
-    public ActionResultType place(@NotNull final BlockItemUseContext context)
+    public InteractionResult place(@NotNull final BlockPlaceContext context)
     {
         final IAreaAccessor source = this.createItemStack(context.getItemInHand());
         final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
@@ -106,15 +106,15 @@ public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
                 );
             }
 
-            return ActionResultType.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ActionResultType.FAIL;
+        return InteractionResult.FAIL;
     }
 
     @Override
     public void appendHoverText(
-      final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
+      final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         Configuration.getInstance().getCommon().helpText(LocalStrings.HelpBitBag, tooltip);

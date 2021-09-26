@@ -2,12 +2,12 @@ package mod.chiselsandbits.client.colors;
 
 import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.registrars.ModItems;
-import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.color.item.ItemColor;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-public class BitBagItemColor implements IItemColor
+public class BitBagItemColor implements ItemColor
 {
     @Override
     public int getColor(final @NotNull ItemStack stack, final int vertexColor)
@@ -16,7 +16,7 @@ public class BitBagItemColor implements IItemColor
         {
             DyeColor color = BitBagItem.getDyedColor( stack );
             if ( color != null )
-                return color.getColorValue();
+                return color.getTextColor();
         }
 
         return -1;

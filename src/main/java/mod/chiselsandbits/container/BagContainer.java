@@ -10,31 +10,31 @@ import mod.chiselsandbits.network.packets.BagGuiStackPacket;
 import mod.chiselsandbits.registrars.ModContainerTypes;
 import mod.chiselsandbits.slots.BitSlot;
 import mod.chiselsandbits.slots.ReadonlySlot;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.IContainerListener;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BagContainer extends Container
+public class BagContainer extends AbstractContainerMenu
 {
     static final int OUTER_SLOT_SIZE = 18;
     final public List<Slot>      customSlots      = new ArrayList<>();
     final public List<ItemStack> customSlotsItems = new ArrayList<>();
-    final PlayerEntity      thePlayer;
+    final Player      thePlayer;
     final WrappingInventory visibleInventory = new WrappingInventory();
 
     IBitInventoryItemStack bagInv;
     ReadonlySlot           bagSlot;
 
-    public BagContainer(final int id, final PlayerInventory playerInventory)
+    public BagContainer(final int id, final Inventory playerInventory)
     {
         super(ModContainerTypes.BIT_BAG.get(), id);
         thePlayer = playerInventory.player;
@@ -56,7 +56,7 @@ public class BagContainer extends Container
         {
             for (int yPlayerInventory = 0; yPlayerInventory < 9; ++yPlayerInventory)
             {
-                addSlot(new Slot(thePlayer.inventory,
+                addSlot(new Slot(thePlayer.getInventory(),
                   yPlayerInventory + xPlayerInventory * 9 + 9,
                   8 + yPlayerInventory * OUTER_SLOT_SIZE,
                   104 + xPlayerInventory * OUTER_SLOT_SIZE + playerInventoryOffset));
@@ -65,13 +65,13 @@ public class BagContainer extends Container
 
         for (int xToolbar = 0; xToolbar < 9; ++xToolbar)
         {
-            if (thePlayer.inventory.selected == xToolbar)
+            if (thePlayer.getInventory().selected == xToolbar)
             {
-                addSlot(bagSlot = new ReadonlySlot(thePlayer.inventory, xToolbar, 8 + xToolbar * OUTER_SLOT_SIZE, 162 + playerInventoryOffset));
+                addSlot(bagSlot = new ReadonlySlot(thePlayer.getInventory(), xToolbar, 8 + xToolbar * OUTER_SLOT_SIZE, 162 + playerInventoryOffset));
             }
             else
             {
-                addSlot(new Slot(thePlayer.inventory, xToolbar, 8 + xToolbar * OUTER_SLOT_SIZE, 162 + playerInventoryOffset));
+                addSlot(new Slot(thePlayer.getInventory(), xToolbar, 8 + xToolbar * OUTER_SLOT_SIZE, 162 + playerInventoryOffset));
             }
         }
     }
@@ -79,9 +79,8 @@ public class BagContainer extends Container
     private void setBag(
       final ItemStack bagItem)
     {
-        if (!bagItem.isEmpty() && bagItem.getItem() instanceof IBitInventoryItem)
+        if (!bagItem.isEmpty() && bagItem.getItem() instanceof final IBitInventoryItem bitInventoryItem)
         {
-            final IBitInventoryItem bitInventoryItem = (IBitInventoryItem) bagItem.getItem();
             bagInv = bitInventoryItem.create(bagItem);
             visibleInventory.setWrapped(bagInv);
         }
@@ -106,7 +105,7 @@ public class BagContainer extends Container
       final boolean holdingShift)
     {
         final Slot slot = customSlots.get(slotNumber);
-        final ItemStack held = thePlayer.inventory.getCarried();
+        final ItemStack held = getCarried();
         final ItemStack slotStack = slot.getItem();
 
         if (duplicateButton && thePlayer.isCreative())
@@ -115,7 +114,7 @@ public class BagContainer extends Container
             {
                 final ItemStack is = slot.getItem().copy();
                 is.setCount(is.getMaxStackSize());
-                thePlayer.inventory.setCarried(is);
+                setCarried(is);
             }
         }
         else if (holdingShift)
@@ -136,7 +135,7 @@ public class BagContainer extends Container
                 newStackSlot.setCount(pulled.getCount() >= slotStack.getCount() ? 0 : slotStack.getCount() - pulled.getCount());
 
                 slot.set(newStackSlot.getCount() <= 0 ? ItemStack.EMPTY : newStackSlot);
-                thePlayer.inventory.setCarried(pulled);
+                setCarried(pulled);
             }
             else if (!held.isEmpty() && slot.hasItem() && slot.mayPlace(held))
             {
@@ -154,21 +153,21 @@ public class BagContainer extends Container
 
                     slot.set(newStackSlot);
                     held.setCount(held_stackSize);
-                    thePlayer.inventory.setCarried(held);
+                    setCarried(held);
                 }
                 else
                 {
                     if (!held.isEmpty() && slot.hasItem() && slotStack.getCount() <= slotStack.getMaxStackSize())
                     {
                         slot.set(held);
-                        thePlayer.inventory.setCarried(slotStack);
+                        setCarried(slotStack);
                     }
                 }
             }
             else if (!held.isEmpty() && !slot.hasItem() && slot.mayPlace(held))
             {
                 slot.set(held);
-                thePlayer.inventory.setCarried(ItemStack.EMPTY);
+                setCarried(ItemStack.EMPTY);
             }
         }
         else if (mouseButton == 1 && !duplicateButton)
@@ -182,7 +181,7 @@ public class BagContainer extends Container
                 newStackSlot.setCount(pulled.getCount() >= slotStack.getCount() ? 0 : slotStack.getCount() - pulled.getCount());
 
                 slot.set(newStackSlot.getCount() <= 0 ? ItemStack.EMPTY : newStackSlot);
-                thePlayer.inventory.setCarried(pulled);
+                setCarried(pulled);
             }
             else if (!held.isEmpty() && slot.hasItem() && slot.mayPlace(held))
             {
@@ -201,7 +200,7 @@ public class BagContainer extends Container
 
                     slot.set(newStackSlot);
                     held.setCount(held_quantity);
-                    thePlayer.inventory.setCarried(!held.isEmpty() ? held : ItemStack.EMPTY);
+                    setCarried(!held.isEmpty() ? held : ItemStack.EMPTY);
                 }
             }
             else if (!held.isEmpty() && !slot.hasItem() && slot.mayPlace(held))
@@ -211,7 +210,7 @@ public class BagContainer extends Container
                 held.setCount(held.getCount() - 1);
 
                 slot.set(newStackSlot);
-                thePlayer.inventory.setCarried(!held.isEmpty() ? held : ItemStack.EMPTY);
+                setCarried(!held.isEmpty() ? held : ItemStack.EMPTY);
             }
         }
     }
@@ -231,12 +230,12 @@ public class BagContainer extends Container
                 clientStack = realStack.isEmpty() ? ItemStack.EMPTY : realStack.copy();
                 customSlotsItems.set(slotIdx, clientStack);
 
-                for (final IContainerListener cl : containerListeners)
+                for (final ContainerListener cl : containerListeners)
                 {
-                    if (cl instanceof ServerPlayerEntity)
+                    if (cl instanceof ServerPlayer)
                     {
                         final BagGuiStackPacket packet = new BagGuiStackPacket(slotIdx, clientStack);
-                        ChiselsAndBits.getInstance().getNetworkChannel().sendToPlayer(packet, (ServerPlayerEntity) cl);
+                        ChiselsAndBits.getInstance().getNetworkChannel().sendToPlayer(packet, (ServerPlayer) cl);
                     }
                 }
             }
@@ -245,7 +244,7 @@ public class BagContainer extends Container
 
     @Override
     public @NotNull ItemStack quickMoveStack(
-      final @NotNull PlayerEntity playerIn,
+      final @NotNull Player playerIn,
       final int index)
     {
         return transferStack(index, true);
@@ -253,13 +252,13 @@ public class BagContainer extends Container
 
     @Override
     public boolean stillValid(
-      @NotNull final PlayerEntity playerIn)
+      @NotNull final Player playerIn)
     {
         return bagInv != null && playerIn == thePlayer && hasBagInHand(thePlayer);
     }
 
     private boolean hasBagInHand(
-      final PlayerEntity player)
+      final Player player)
     {
         if (bagInv.toItemStack() != player.getMainHandItem())
         {
@@ -316,9 +315,8 @@ public class BagContainer extends Container
             }
 
             final Item transferItem = transferStack.getItem();
-            if (transferItem instanceof IBitItem)
+            if (transferItem instanceof final IBitItem bitItem)
             {
-                final IBitItem bitItem = (IBitItem) transferItem;
                 bitItem.onMergeOperationWithBagBeginning();
             }
             try
@@ -332,9 +330,8 @@ public class BagContainer extends Container
             {
                 // add the extra items back on...
                 transferStack.setCount(transferStack.getCount() + extraItems);
-                if (transferItem instanceof IBitItem)
+                if (transferItem instanceof final IBitItem bitItem)
                 {
-                    final IBitItem bitItem = (IBitItem) transferItem;
                     bitItem.onMergeOperationWithBagEnding();
                 }
             }
@@ -355,21 +352,20 @@ public class BagContainer extends Container
     public void clear(
       final ItemStack stack)
     {
-        if (!stack.isEmpty() && stack.getItem() instanceof IBitItem)
+        if (!stack.isEmpty() && stack.getItem() instanceof final IBitItem bitItem)
         {
-            final IBitItem bitItem = (IBitItem) stack.getItem();
             bagInv.clear(bitItem.getBitState(stack));
         }
         else {
             bagInv.clearContent();
         }
 
-        ((ServerPlayerEntity) thePlayer).refreshContainer(this);
+        transferState(this);
     }
 
     public void sort()
     {
         bagInv.sort();
-        ((ServerPlayerEntity) thePlayer).refreshContainer(this);
+        transferState(this);
     }
 }

@@ -1,15 +1,15 @@
 package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.container.BagContainer;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
 
 public final class ClearBagGuiPacket extends ModPacket
 {
     private ItemStack stack = null;
 
-    public ClearBagGuiPacket(final PacketBuffer buffer)
+    public ClearBagGuiPacket(final FriendlyByteBuf buffer)
     {
         super(buffer);
     }
@@ -22,7 +22,7 @@ public final class ClearBagGuiPacket extends ModPacket
 
     @Override
     public void server(
-      final ServerPlayerEntity player)
+      final ServerPlayer player)
     {
         if (player.containerMenu instanceof BagContainer)
         {
@@ -32,13 +32,13 @@ public final class ClearBagGuiPacket extends ModPacket
 
     @Override
     public void readPayload(
-      final PacketBuffer buffer)
+      final FriendlyByteBuf buffer)
     {
         stack = buffer.readItem();
     }
 
     @Override
-    public void writePayload(final PacketBuffer buffer)
+    public void writePayload(final FriendlyByteBuf buffer)
     {
         buffer.writeItem(stack);
     }

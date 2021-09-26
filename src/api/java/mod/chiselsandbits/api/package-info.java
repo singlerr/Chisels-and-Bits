@@ -2,6 +2,5 @@
 @MethodsReturnNonnullByDefault
 package mod.chiselsandbits.api;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
 import javax.annotation.ParametersAreNonnullByDefault;
-
-import mcp.MethodsReturnNonnullByDefault;

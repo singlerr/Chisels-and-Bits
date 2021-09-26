@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.util;
 
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.network.chat.Component;
 
 /**
  * Represents an object that is translatable.
@@ -13,5 +13,5 @@ public interface IWithDisplayName
      *
      * @return The display name.
      */
-    ITextComponent getDisplayName();
+    Component getDisplayName();
 }

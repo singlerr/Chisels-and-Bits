@@ -1,17 +1,14 @@
 package mod.chiselsandbits.registrars;
 
 import mod.chiselsandbits.api.chiseling.metadata.IMetadataKey;
-import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.chiseling.metadata.SimpleMetadataKey;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -33,21 +30,21 @@ public final class ModMetadataKeys
                                                                                              .disableSaving()
     );
 
-    public static final RegistryObject<IMetadataKey<Vector3d>> ANCHOR = KEY_REGISTRAR.register("anchor", () -> new SimpleMetadataKey<Vector3d>() {
+    public static final RegistryObject<IMetadataKey<Vec3>> ANCHOR = KEY_REGISTRAR.register("anchor", () -> new SimpleMetadataKey<Vec3>() {
 
         @Override
-        public Vector3d snapshot(final Vector3d value)
+        public Vec3 snapshot(final Vec3 value)
         {
-            return new Vector3d(value.x(), value.y(), value.z());
+            return new Vec3(value.x(), value.y(), value.z());
         }
     });
 
-    public static final RegistryObject<IMetadataKey<Vector3d>> END_POINT = KEY_REGISTRAR.register("endpoint", () -> new SimpleMetadataKey<Vector3d>() {
+    public static final RegistryObject<IMetadataKey<Vec3>> END_POINT = KEY_REGISTRAR.register("endpoint", () -> new SimpleMetadataKey<Vec3>() {
 
         @Override
-        public Vector3d snapshot(final Vector3d value)
+        public Vec3 snapshot(final Vec3 value)
         {
-            return new Vector3d(value.x(), value.y(), value.z());
+            return new Vec3(value.x(), value.y(), value.z());
         }
     });
 

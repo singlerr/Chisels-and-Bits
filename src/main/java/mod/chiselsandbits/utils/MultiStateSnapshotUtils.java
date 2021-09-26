@@ -8,8 +8,8 @@ import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import mod.chiselsandbits.multistate.snapshot.LazilyDecodingSingleBlockMultiStateSnapshot;
-import net.minecraft.block.BlockState;
-import net.minecraft.world.chunk.ChunkSection;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -26,10 +26,10 @@ public class MultiStateSnapshotUtils
         throw new IllegalStateException("Can not instantiate an instance of: MultiStateSnapshotUtils. This is a utility class");
     }
 
-    private static final Cache<BlockState, ChunkSection> FILLED_SECTION_CACHE = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
+    private static final Cache<BlockState, LevelChunkSection> FILLED_SECTION_CACHE = CacheBuilder.newBuilder().expireAfterAccess(5, TimeUnit.MINUTES)
         .build();
 
-    public static IMultiStateSnapshot createFromSection(final ChunkSection chunkSection) {
+    public static IMultiStateSnapshot createFromSection(final LevelChunkSection chunkSection) {
         return new LazilyDecodingSingleBlockMultiStateSnapshot(
           ChunkSectionUtils.serializeNBT(chunkSection)
         );
@@ -38,10 +38,10 @@ public class MultiStateSnapshotUtils
     public static IMultiStateSnapshot createFilledWith(final BlockState blockState) {
         try
         {
-            final ChunkSection chunkSection = FILLED_SECTION_CACHE.get(
+            final LevelChunkSection chunkSection = FILLED_SECTION_CACHE.get(
               blockState,
               () -> {
-                  final ChunkSection result = new ChunkSection(0);
+                  final LevelChunkSection result = new LevelChunkSection(0);
                   BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                     .forEach(pos -> result.setBlockState(pos.getX(), pos.getY(), pos.getZ(), blockState));
 

@@ -1,19 +1,19 @@
 package mod.chiselsandbits.client.model.baked.base;
 
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
-import net.minecraft.world.World;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.client.model.data.IModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,12 +22,12 @@ import java.util.List;
 import java.util.Random;
 
 @SuppressWarnings("deprecation")
-public abstract class BaseSmartModel implements IBakedModel
+public abstract class BaseSmartModel implements BakedModel
 {
 
-	private final ItemOverrideList overrides;
+	private final ItemOverrides overrides;
 
-	private static class OverrideHelper extends ItemOverrideList
+	private static class OverrideHelper extends ItemOverrides
 	{
 		final BaseSmartModel parent;
 
@@ -40,12 +40,15 @@ public abstract class BaseSmartModel implements IBakedModel
 
         @Nullable
         @Override
-        public IBakedModel resolve(
-          @NotNull final IBakedModel p_239290_1_, @NotNull final ItemStack p_239290_2_, @Nullable final ClientWorld p_239290_3_, @Nullable final LivingEntity p_239290_4_)
+        public BakedModel resolve(
+          final @NotNull BakedModel p_173465_,
+          final @NotNull ItemStack p_173466_,
+          @Nullable final ClientLevel p_173467_,
+          @Nullable final LivingEntity p_173468_,
+          final int p_173469_)
         {
-            return parent.resolve( p_239290_1_, p_239290_2_, p_239290_3_, p_239290_4_ );
+            return parent.resolve(p_173465_, p_173466_, p_173467_, p_173468_);
         }
-
 	}
 
 	public BaseSmartModel()
@@ -80,9 +83,9 @@ public abstract class BaseSmartModel implements IBakedModel
 
 	@NotNull
     @Override
-	public ItemCameraTransforms getTransforms()
+	public ItemTransforms getTransforms()
 	{
-		return ItemCameraTransforms.NO_TRANSFORMS;
+		return ItemTransforms.NO_TRANSFORMS;
 	}
 
     @NotNull
@@ -90,7 +93,7 @@ public abstract class BaseSmartModel implements IBakedModel
     public List<BakedQuad> getQuads(
       @Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand, @NotNull final IModelData extraData)
     {
-        final IBakedModel model = handleBlockState( state, rand, extraData );
+        final BakedModel model = handleBlockState( state, rand, extraData );
         return model.getQuads( state, side, rand, extraData );
     }
 
@@ -98,18 +101,18 @@ public abstract class BaseSmartModel implements IBakedModel
     @Override
     public List<BakedQuad> getQuads(@Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand)
     {
-        final IBakedModel model = handleBlockState( state, rand );
+        final BakedModel model = handleBlockState( state, rand );
         return model.getQuads( state, side, rand );
     }
 
-	public IBakedModel handleBlockState(
+	public BakedModel handleBlockState(
 			final BlockState state,
 			final Random rand )
 	{
 		return NullBakedModel.instance;
 	}
 
-	public IBakedModel handleBlockState(
+	public BakedModel handleBlockState(
 	  final BlockState state,
       final Random random,
       final IModelData modelData
@@ -120,15 +123,15 @@ public abstract class BaseSmartModel implements IBakedModel
 
 	@NotNull
     @Override
-	public ItemOverrideList getOverrides()
+	public ItemOverrides getOverrides()
 	{
 		return overrides;
 	}
 
-	public IBakedModel resolve(
-			final IBakedModel originalModel,
+	public BakedModel resolve(
+			final BakedModel originalModel,
 			final ItemStack stack,
-			final World world,
+			final Level world,
 			final LivingEntity entity )
 	{
 		return originalModel;

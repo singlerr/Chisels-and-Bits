@@ -1,8 +1,8 @@
 package mod.chiselsandbits.api.item.bit;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.injection.invoke.arg.ArgumentIndexOutOfBoundsException;
 
 /**

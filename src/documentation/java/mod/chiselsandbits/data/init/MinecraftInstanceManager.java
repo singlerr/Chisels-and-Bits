@@ -2,20 +2,21 @@ package mod.chiselsandbits.data.init;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.util.ReflectionUtils;
-import net.minecraft.client.GameSettings;
+import net.minecraft.client.Options;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ItemRenderer;
-import net.minecraft.client.renderer.RenderTypeBuffers;
-import net.minecraft.client.renderer.color.BlockColors;
-import net.minecraft.client.renderer.color.ItemColors;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.tags.NetworkTagManager;
-import net.minecraft.tags.TagRegistryManager;
-import net.minecraft.util.Timer;
-import net.minecraft.util.datafix.DataFixesManager;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.tags.TagManager;
+import net.minecraft.tags.StaticTags;
+import net.minecraft.client.Timer;
+import net.minecraft.util.datafix.DataFixers;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.common.model.animation.CapabilityAnimation;
 import net.minecraftforge.energy.CapabilityEnergy;
@@ -48,23 +49,15 @@ public class MinecraftInstanceManager
 
         isInitialized = true;
 
-        IResourceManager resourceManager = (IResourceManager) ReflectionUtils.getField(helper, "clientResources");
+        ResourceManager resourceManager = (ResourceManager) ReflectionUtils.getField(helper, "clientResources");
 
         createMinecraft();
         initializeTimer();
         initializeRenderSystem();
         initializeResourceManager(resourceManager);
         initializeTextureManager(resourceManager);
-        initializeBlockColors();
-        initializeItemColors();
-        initializeModelManager();
-        initializeItemRenderer();
-        initializeBlockRenderDispatcher();
-        initializeGameRenderer(resourceManager);
         initializeDataFixer();
         initializeGameSettings();
-
-        initializeForge();
 
         initializeTags(helper);
     }
@@ -114,80 +107,33 @@ public class MinecraftInstanceManager
         RenderSystem.initGameThread(false);
     }
 
-    private void initializeResourceManager(final IResourceManager resourceManager)
+    private void initializeResourceManager(final ResourceManager resourceManager)
     {
         ReflectionUtils.setField(Minecraft.getInstance(), "resourceManager", resourceManager);
     }
 
-    private void initializeTextureManager(final IResourceManager resourceManager)
+    private void initializeTextureManager(final ResourceManager resourceManager)
     {
         final TextureManager textureManager = new TextureManager(resourceManager);
         ReflectionUtils.setField(Minecraft.getInstance(), "textureManager", textureManager);
     }
 
-    private void initializeBlockColors() {
-        ReflectionUtils.setField(Minecraft.getInstance(), "blockColors", BlockColors.createDefault());
-    }
-
-    private void initializeItemColors() {
-        ReflectionUtils.setField(Minecraft.getInstance(), "itemColors", ItemColors.createDefault(Minecraft.getInstance().getBlockColors()));
-    }
-
-    private void initializeModelManager() {
-        final ExtendedModelManager modelManager = new ExtendedModelManager(Minecraft.getInstance().getTextureManager(), Minecraft.getInstance().getBlockColors(), 0);
-        ReflectionUtils.setField(Minecraft.getInstance(), "modelManager", modelManager);
-    }
-
-    private void initializeItemRenderer()
-    {
-        final ItemRenderer itemRenderer = new ItemRenderer(
-          Minecraft.getInstance().getTextureManager(),
-          Minecraft.getInstance().getModelManager(),
-          Minecraft.getInstance().getItemColors()
-        );
-        ReflectionUtils.setField(Minecraft.getInstance(), "itemRenderer", itemRenderer);
-    }
-
-    private void initializeBlockRenderDispatcher() {
-        final BlockRendererDispatcher blockRendererDispatcher = new BlockRendererDispatcher(Minecraft.getInstance().getModelManager().getBlockModelShaper(), Minecraft.getInstance().getBlockColors());
-        ReflectionUtils.setField(Minecraft.getInstance(), "blockRenderDispatcher", blockRendererDispatcher);
-    }
-
-    private void initializeGameRenderer(final IResourceManager resourceManager) {
-        final GameRenderer gameRenderer = new GameRenderer(Minecraft.getInstance(), resourceManager, new RenderTypeBuffers());
-        ReflectionUtils.setField(Minecraft.getInstance(), "gameRenderer", gameRenderer);
-    }
-
     private void initializeDataFixer()
     {
-        ReflectionUtils.setField(Minecraft.getInstance(), "dataFixer", DataFixesManager.getDataFixer());
+        ReflectionUtils.setField(Minecraft.getInstance(), "dataFixer", DataFixers.getDataFixer());
     }
 
     private void initializeGameSettings()
     {
-        final GameSettings gameSettings = new GameSettings(Minecraft.getInstance(), new File("./"));
+        final Options gameSettings = new Options(Minecraft.getInstance(), new File("./"));
         ReflectionUtils.setField(Minecraft.getInstance(), "gameSettings", gameSettings);
-    }
-
-    private void initializeForge()
-    {
-        initializeCapabilities();
-    }
-
-    private void initializeCapabilities()
-    {
-        CapabilityItemHandler.register();
-        CapabilityFluidHandler.register();
-        CapabilityAnimation.register();
-        CapabilityEnergy.register();
     }
 
     private void initializeTags(ExistingFileHelper existingFileHelper)
     {
-        final IResourceManager resourceManager = (IResourceManager) ReflectionUtils.getField(existingFileHelper, "serverData");
-        final NetworkTagManager networkTagManager = new NetworkTagManager();
+        final ResourceManager resourceManager = (ResourceManager) ReflectionUtils.getField(existingFileHelper, "serverData");
+        final TagManager networkTagManager = new TagManager(new RegistryAccess.RegistryHolder());
         AsyncReloadManager.getInstance().reload(resourceManager, networkTagManager);
-        TagRegistryManager.resetAll(networkTagManager.getTags());
-        TagRegistryManager.fetchCustomTagTypes(networkTagManager.getTags());
+        StaticTags.resetAll(networkTagManager.getTags());
     }
 }

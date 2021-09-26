@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.inventory.bit;
 
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Represents an item which is a bit inventory.

@@ -1,8 +1,8 @@
 package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.measures.MeasuringManager;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.FriendlyByteBuf;
 
 public final class MeasurementsResetPacket extends ModPacket
 {
@@ -10,23 +10,23 @@ public final class MeasurementsResetPacket extends ModPacket
     {
     }
 
-    public MeasurementsResetPacket(final PacketBuffer buffer)
+    public MeasurementsResetPacket(final FriendlyByteBuf buffer)
     {
         super(buffer);
     }
 
     @Override
-    public void writePayload(final PacketBuffer buffer)
+    public void writePayload(final FriendlyByteBuf buffer)
     {
     }
 
     @Override
-    public void readPayload(final PacketBuffer buffer)
+    public void readPayload(final FriendlyByteBuf buffer)
     {
     }
 
     @Override
-    public void server(final ServerPlayerEntity playerEntity)
+    public void server(final ServerPlayer playerEntity)
     {
         MeasuringManager.getInstance().resetMeasurementsFor(playerEntity);
     }

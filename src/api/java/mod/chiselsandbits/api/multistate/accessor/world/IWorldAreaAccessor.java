@@ -3,9 +3,7 @@ package mod.chiselsandbits.api.multistate.accessor.world;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.IWorldObject;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.core.BlockPos;
 
 import java.util.stream.Stream;
 

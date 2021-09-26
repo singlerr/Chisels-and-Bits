@@ -1,17 +1,17 @@
 package mod.chiselsandbits.utils;
 
 import com.google.common.collect.Lists;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootContext;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.BlockGetter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -28,12 +28,12 @@ public class ReflectionHelperBlock extends Block
 
     public ReflectionHelperBlock()
     {
-        super( AbstractBlock.Properties.of(Material.AIR) );
+        super( BlockBehaviour.Properties.of(Material.AIR) );
     }
 
     @Nullable
     @Override
-    public VoxelShape getOcclusionShape(@Nullable final BlockState state, @Nullable final IBlockReader worldIn, @Nullable final BlockPos pos)
+    public VoxelShape getOcclusionShape(@Nullable final BlockState state, @Nullable final BlockGetter worldIn, @Nullable final BlockPos pos)
     {
         markMethod();
         return null;
@@ -41,7 +41,7 @@ public class ReflectionHelperBlock extends Block
 
     @Nullable
     @Override
-    public VoxelShape getBlockSupportShape(@Nullable final BlockState state, @Nullable final IBlockReader reader, @Nullable final BlockPos pos)
+    public VoxelShape getBlockSupportShape(@Nullable final BlockState state, @Nullable final BlockGetter reader, @Nullable final BlockPos pos)
     {
         markMethod();
         return null;
@@ -49,7 +49,7 @@ public class ReflectionHelperBlock extends Block
 
     @Nullable
     @Override
-    public VoxelShape getShape(@Nullable final BlockState state, @Nullable final IBlockReader worldIn, @Nullable final BlockPos pos, @Nullable final ISelectionContext context)
+    public VoxelShape getShape(@Nullable final BlockState state, @Nullable final BlockGetter worldIn, @Nullable final BlockPos pos, @Nullable final CollisionContext context)
     {
         markMethod();
         return null;
@@ -57,14 +57,14 @@ public class ReflectionHelperBlock extends Block
 
     @Nullable
     @Override
-    public VoxelShape getCollisionShape(@Nullable final BlockState state, @Nullable final IBlockReader worldIn, @Nullable final BlockPos pos, @Nullable final ISelectionContext context)
+    public VoxelShape getCollisionShape(@Nullable final BlockState state, @Nullable final BlockGetter worldIn, @Nullable final BlockPos pos, @Nullable final CollisionContext context)
     {
         markMethod();
         return null;
     }
 
     @Override
-    public float getDestroyProgress(@Nullable final BlockState state, @Nullable final PlayerEntity player, @Nullable final IBlockReader worldIn, @Nullable final BlockPos pos)
+    public float getDestroyProgress(@Nullable final BlockState state, @Nullable final Player player, @Nullable final BlockGetter worldIn, @Nullable final BlockPos pos)
     {
         markMethod();
         return 0;

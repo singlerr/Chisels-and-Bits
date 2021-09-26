@@ -11,13 +11,13 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.registrars.ModTags;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.Items;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 import java.io.IOException;
 import java.util.List;
@@ -98,7 +98,7 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
 
     private final List<RecipeIngredientKeyJson> ingredientKeyJsonList;
 
-    private SimpleItemsRecipeGenerator(final DataGenerator generator, final IItemProvider result, final String pattern, final Map<String, RecipeIngredientKeyJson> ingredientKeyJsonMap)
+    private SimpleItemsRecipeGenerator(final DataGenerator generator, final ItemLike result, final String pattern, final Map<String, RecipeIngredientKeyJson> ingredientKeyJsonMap)
     {
         super(generator, result);
         this.shapeless = false;
@@ -109,7 +109,7 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
 
     public SimpleItemsRecipeGenerator(
       final DataGenerator generator,
-      final IItemProvider itemProvider,
+      final ItemLike itemProvider,
       final List<RecipeIngredientKeyJson> ingredientKeyJsonList)
     {
         super(generator, itemProvider);

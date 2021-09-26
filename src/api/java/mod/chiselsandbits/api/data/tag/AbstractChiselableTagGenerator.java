@@ -2,10 +2,10 @@ package mod.chiselsandbits.api.data.tag;
 
 import com.ldtteam.datagenerators.tags.TagJson;
 import mod.chiselsandbits.api.util.constants.Constants;
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.DataProvider;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +17,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public abstract class AbstractChiselableTagGenerator implements IDataProvider
+public abstract class AbstractChiselableTagGenerator implements DataProvider
 {
 
     public enum Mode
@@ -38,7 +38,7 @@ public abstract class AbstractChiselableTagGenerator implements IDataProvider
 
 
     @Override
-    public void run(final @NotNull DirectoryCache cache) throws IOException
+    public void run(final @NotNull HashCache cache) throws IOException
     {
         final TagJson json = new TagJson();
         json.setValues(blocks.stream().map(ForgeRegistryEntry::getRegistryName).filter(Objects::nonNull).map(Object::toString).collect(Collectors.toList()));
@@ -46,7 +46,7 @@ public abstract class AbstractChiselableTagGenerator implements IDataProvider
         final Path tagFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.BLOCK_TAGS_DIR);
         final Path chiselableTagPath = tagFolder.resolve("chiselable/" + mode.toString().toLowerCase() + ".json");
 
-        IDataProvider.save(Constants.DataGenerator.GSON, cache, json.serialize(), chiselableTagPath);
+        DataProvider.save(Constants.DataGenerator.GSON, cache, json.serialize(), chiselableTagPath);
     }
 
     @Override

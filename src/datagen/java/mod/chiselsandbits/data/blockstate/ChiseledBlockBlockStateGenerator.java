@@ -8,15 +8,15 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.block.ChiseledBlock;
 import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.registrars.ModBlocks;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Material;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.DataProvider;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.fmllegacy.RegistryObject;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import java.util.Map;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ChiseledBlockBlockStateGenerator implements IDataProvider
+public class ChiseledBlockBlockStateGenerator implements DataProvider
 {
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
@@ -37,7 +37,7 @@ public class ChiseledBlockBlockStateGenerator implements IDataProvider
     private ChiseledBlockBlockStateGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void run(@NotNull final DirectoryCache cache) throws IOException
+    public void run(@NotNull final HashCache cache) throws IOException
     {
         for (Map.Entry<Material, RegistryObject<ChiseledBlock>> entry : ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.entrySet())
         {
@@ -55,7 +55,7 @@ public class ChiseledBlockBlockStateGenerator implements IDataProvider
         return "Chiseled block blockstate generator";
     }
 
-    public void actOnBlock(final DirectoryCache cache, final Block block, final String materialName) throws IOException
+    public void actOnBlock(final HashCache cache, final Block block, final String materialName) throws IOException
     {
         final Map<String, BlockstateVariantJson> variants = Maps.newHashMap();
 
@@ -79,6 +79,6 @@ public class ChiseledBlockBlockStateGenerator implements IDataProvider
                                                                materialName
                                                                + ".json");
 
-        IDataProvider.save(Constants.DataGenerator.GSON, cache, blockstateJson.serialize(), blockstatePath);
+        DataProvider.save(Constants.DataGenerator.GSON, cache, blockstateJson.serialize(), blockstatePath);
     }
 }

@@ -4,12 +4,12 @@ import mod.chiselsandbits.api.data.recipe.AbstractChiselRecipeGenerator;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.item.Item;
-import net.minecraft.tags.ITag;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ChiselRecipeGenerator extends AbstractChiselRecipeGenerator
@@ -28,12 +28,12 @@ public class ChiselRecipeGenerator extends AbstractChiselRecipeGenerator
     private ChiselRecipeGenerator(
       final DataGenerator generator,
       final Item result,
-      final ITag.INamedTag<?> ingredientTag)
+      final Tag.Named<?> ingredientTag)
     {
         super(generator, result, ingredientTag);
     }
 
-    private ChiselRecipeGenerator(final DataGenerator generator, final Item result, final ITag.INamedTag<?> rodTag, final ITag.INamedTag<?> ingredientTag)
+    private ChiselRecipeGenerator(final DataGenerator generator, final Item result, final Tag.Named<?> rodTag, final Tag.Named<?> ingredientTag)
     {
         super(generator, result, rodTag, ingredientTag);
     }

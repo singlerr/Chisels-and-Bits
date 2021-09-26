@@ -4,13 +4,13 @@ import com.ldtteam.datagenerators.models.item.ItemModelJson;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.DirectoryCache;
-import net.minecraft.data.IDataProvider;
-import net.minecraft.item.Item;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.data.HashCache;
+import net.minecraft.data.DataProvider;
+import net.minecraft.world.item.Item;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class BlockBitItemModelGenerator implements IDataProvider
+public class BlockBitItemModelGenerator implements DataProvider
 {
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
@@ -31,7 +31,7 @@ public class BlockBitItemModelGenerator implements IDataProvider
     private BlockBitItemModelGenerator(final DataGenerator generator) {this.generator = generator;}
 
     @Override
-    public void run(@NotNull final DirectoryCache cache) throws IOException
+    public void run(@NotNull final HashCache cache) throws IOException
     {
         actOnBlockWithLoader(cache, new ResourceLocation(Constants.MOD_ID, "bit"), ModItems.ITEM_BLOCK_BIT.get());
     }
@@ -43,7 +43,7 @@ public class BlockBitItemModelGenerator implements IDataProvider
         return "Chisel block item model generator";
     }
 
-    public void actOnBlockWithLoader(final DirectoryCache cache, final ResourceLocation loader, final Item item) throws IOException
+    public void actOnBlockWithLoader(final HashCache cache, final ResourceLocation loader, final Item item) throws IOException
     {
         final ItemModelJson json = new ItemModelJson();
         json.setParent("item/generated");
@@ -52,11 +52,11 @@ public class BlockBitItemModelGenerator implements IDataProvider
         saveItemJson(cache, json, Objects.requireNonNull(item.getRegistryName()).getPath());
     }
 
-    private void saveItemJson(final DirectoryCache cache, final ItemModelJson json, final String name) throws IOException
+    private void saveItemJson(final HashCache cache, final ItemModelJson json, final String name) throws IOException
     {
         final Path itemModelFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.ITEM_MODEL_DIR);
         final Path itemModelPath = itemModelFolder.resolve(name + ".json");
 
-        IDataProvider.save(Constants.DataGenerator.GSON, cache, json.serialize(), itemModelPath);
+        DataProvider.save(Constants.DataGenerator.GSON, cache, json.serialize(), itemModelPath);
     }
 }

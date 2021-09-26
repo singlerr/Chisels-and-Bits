@@ -3,9 +3,9 @@ package mod.chiselsandbits.chiseling.conversion;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.registrars.ModBlocks;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Material;
+import net.minecraftforge.fmllegacy.RegistryObject;
 
 import java.util.Optional;
 

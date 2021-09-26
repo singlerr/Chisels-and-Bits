@@ -1,24 +1,23 @@
 package mod.chiselsandbits.profiling;
 
 import mod.chiselsandbits.api.profiling.IProfilerResult;
-import net.minecraft.profiler.DataPoint;
-import net.minecraft.profiler.FilledProfileResult;
-import net.minecraft.profiler.IProfileResult;
+import net.minecraft.util.profiling.FilledProfileResults;
+import net.minecraft.util.profiling.ProfileResults;
+import net.minecraft.util.profiling.ResultField;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class CandBProfilingResult implements IProfilerResult
 {
-    private final IProfileResult innerResult;
+    private final ProfileResults innerResult;
 
-    public CandBProfilingResult(final IProfileResult innerResult) {this.innerResult = innerResult;}
+    public CandBProfilingResult(final ProfileResults innerResult) {this.innerResult = innerResult;}
 
     @Override
-    public void writeToFile(final File file)
+    public void writeToFile(final Path file)
     {
         innerResult.saveResults(file);
     }
@@ -26,16 +25,15 @@ public class CandBProfilingResult implements IProfilerResult
     @Override
     public void writeAsResponse(final Consumer<String> lineConsumer)
     {
-        if (!(innerResult instanceof FilledProfileResult))
+        if (!(innerResult instanceof final FilledProfileResults filledProfileResult))
             return;
 
-        final FilledProfileResult filledProfileResult = (FilledProfileResult) innerResult;
         lineConsumer.accept("Results:");
         writeDatapointsAsResponse("root", filledProfileResult::getTimes, lineConsumer, " ");
     }
 
-    private void writeDatapointsAsResponse(final String name, final Function<String, List<DataPoint>> producer, final Consumer<String> lineConsumer, final String indent) {
-        final List<DataPoint> dataPoints = producer.apply(name);
+    private void writeDatapointsAsResponse(final String name, final Function<String, List<ResultField>> producer, final Consumer<String> lineConsumer, final String indent) {
+        final List<ResultField> dataPoints = producer.apply(name);
 
         dataPoints.forEach(
           dataPoint -> {

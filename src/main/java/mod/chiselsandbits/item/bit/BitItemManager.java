@@ -4,9 +4,9 @@ import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.registrars.ModItems;
-import net.minecraft.block.BlockState;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTUtil;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.NbtUtils;
 
 public class BitItemManager implements IBitItemManager
 {
@@ -55,7 +55,7 @@ public class BitItemManager implements IBitItemManager
 
         final ItemStack resultStack = new ItemStack(ModItems.ITEM_BLOCK_BIT.get());
 
-        resultStack.getOrCreateTag().put(NbtConstants.BLOCK_STATE, NBTUtil.writeBlockState(blockState));
+        resultStack.getOrCreateTag().put(NbtConstants.BLOCK_STATE, NbtUtils.writeBlockState(blockState));
         resultStack.setCount(count);
 
         return resultStack;

@@ -3,7 +3,7 @@ package mod.chiselsandbits.api.multistate.mutator;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.world.IInWorldStateEntryInfo;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 
 public interface IMutableStateEntryInfo extends IStateEntryInfo
 {

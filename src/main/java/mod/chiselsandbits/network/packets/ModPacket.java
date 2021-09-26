@@ -1,8 +1,8 @@
 package mod.chiselsandbits.network.packets;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 
 public abstract class ModPacket
 {
@@ -11,12 +11,12 @@ public abstract class ModPacket
     {
     }
 
-    public ModPacket(PacketBuffer buffer) {
+    public ModPacket(FriendlyByteBuf buffer) {
         readPayload(buffer);
     }
 
     public void server(
-			final ServerPlayerEntity playerEntity )
+			final ServerPlayer playerEntity )
 	{
 		throw new RuntimeException( getClass().getName() + " is not a server packet." );
 	}
@@ -27,10 +27,10 @@ public abstract class ModPacket
 	}
 
 	abstract public void writePayload(
-			PacketBuffer buffer );
+			FriendlyByteBuf buffer );
 
 	abstract public void readPayload(
-			PacketBuffer buffer );
+			FriendlyByteBuf buffer );
 
 	public void processPacket(
 			final NetworkEvent.Context context,

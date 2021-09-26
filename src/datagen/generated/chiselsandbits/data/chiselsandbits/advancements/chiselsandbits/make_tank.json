@@ -22,7 +22,9 @@
       "conditions": {
         "items": [
           {
-            "item": "chiselsandbits:bit_storage"
+            "items": [
+              "chiselsandbits:bit_storage"
+            ]
           }
         ]
       }

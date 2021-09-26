@@ -3,9 +3,9 @@ package mod.chiselsandbits.multistate.mutator;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IWorld;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.LevelAccessor;
 
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.*;
 
@@ -30,7 +30,7 @@ public class MutatorFactory implements IMutatorFactory
      * @return The mutator.
      */
     @Override
-    public IWorldAreaMutator in(final IWorld world, final BlockPos pos)
+    public IWorldAreaMutator in(final LevelAccessor world, final BlockPos pos)
     {
         return new ChiselAdaptingWorldMutator(world, pos);
     }
@@ -44,12 +44,12 @@ public class MutatorFactory implements IMutatorFactory
      * @return The mutator.
      */
     @Override
-    public IWorldAreaMutator covering(final IWorld world, final BlockPos from, final BlockPos to)
+    public IWorldAreaMutator covering(final LevelAccessor world, final BlockPos from, final BlockPos to)
     {
         return new WorldWrappingMutator(
           world,
-          Vector3d.atLowerCornerOf(from),
-          Vector3d.atLowerCornerOf(to).add(new Vector3d(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())
+          Vec3.atLowerCornerOf(from),
+          Vec3.atLowerCornerOf(to).add(new Vec3(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit())
                                   .multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
                                   .subtract(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS)
           )
@@ -65,12 +65,12 @@ public class MutatorFactory implements IMutatorFactory
      * @return The mutator.
      */
     @Override
-    public IWorldAreaMutator covering(final IWorld world, final Vector3d from, final Vector3d to)
+    public IWorldAreaMutator covering(final LevelAccessor world, final Vec3 from, final Vec3 to)
     {
         return new WorldWrappingMutator(
           world,
-          Vector3d.atLowerCornerOf(new BlockPos(from.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()))).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS),
-          Vector3d.atLowerCornerOf(new BlockPos(to.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()))).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).subtract(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS)
+          Vec3.atLowerCornerOf(new BlockPos(from.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()))).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS),
+          Vec3.atLowerCornerOf(new BlockPos(to.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()))).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).subtract(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS)
         );
     }
 }

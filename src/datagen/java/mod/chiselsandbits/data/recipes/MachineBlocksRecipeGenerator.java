@@ -7,14 +7,14 @@ import mod.chiselsandbits.api.data.recipe.AbstractRecipeGenerator;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModTags;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.IItemProvider;
+import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 import java.io.IOException;
 import java.util.Map;
@@ -72,7 +72,7 @@ public class MachineBlocksRecipeGenerator extends AbstractRecipeGenerator
     private final String pattern;
     private final Map<String, RecipeIngredientKeyJson> ingredientKeyJsonMap;
 
-    private MachineBlocksRecipeGenerator(final DataGenerator generator, final IItemProvider result, final String pattern, final Map<String, RecipeIngredientKeyJson> ingredientKeyJsonMap)
+    private MachineBlocksRecipeGenerator(final DataGenerator generator, final ItemLike result, final String pattern, final Map<String, RecipeIngredientKeyJson> ingredientKeyJsonMap)
     {
         super(generator, result);
         this.pattern = pattern;
