@@ -296,7 +296,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
             @Override
             public CompoundTag serializeNBT()
             {
-                return null;
+                return new CompoundTag();
             }
 
             @Override
