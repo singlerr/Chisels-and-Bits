@@ -134,8 +134,8 @@ public class ChiseledBlockBakedModelManager
                     {
                         final BlockPos offsetPos = position.relative(value);
                         final BlockState state = blockReader.getBlockState(offsetPos);
-                        final TileEntity tileEntity = blockReader.getBlockEntity(offsetPos);
-                        if (!(tileEntity instanceof IMultiStateBlockEntity))
+                        final BlockEntity blockEntity = blockReader.getBlockEntity(offsetPos);
+                        if (!(blockEntity instanceof IMultiStateBlockEntity))
                         {
                             neighborhoodMap.put(value, new NeighborhoodData(state));
                         }
@@ -143,7 +143,7 @@ public class ChiseledBlockBakedModelManager
                         {
                             neighborhoodMap.put(value, new NeighborhoodData(
                                 state,
-                                ((IMultiStateBlockEntity) tileEntity).createNewShapeIdentifier()
+                                ((IMultiStateBlockEntity) blockEntity).createNewShapeIdentifier()
                               )
                             );
                         }
