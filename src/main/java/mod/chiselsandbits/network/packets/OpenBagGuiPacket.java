@@ -12,7 +12,7 @@ public final class OpenBagGuiPacket extends ModPacket
 {
     public OpenBagGuiPacket(PacketBuffer buffer)
     {
-        super(buffer);
+        readPayload(buffer);
     }
 
     public OpenBagGuiPacket()

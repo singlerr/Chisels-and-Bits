@@ -14,7 +14,7 @@ public final class BagGuiStackPacket extends ModPacket
 
     public BagGuiStackPacket(final PacketBuffer buffer)
     {
-        super(buffer);
+        readPayload(buffer);
     }
 
     public BagGuiStackPacket(final int index, @NotNull final ItemStack stack)

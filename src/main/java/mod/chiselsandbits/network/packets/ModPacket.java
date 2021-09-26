@@ -11,10 +11,6 @@ public abstract class ModPacket
     {
     }
 
-    public ModPacket(PacketBuffer buffer) {
-        readPayload(buffer);
-    }
-
     public void server(
 			final ServerPlayerEntity playerEntity )
 	{

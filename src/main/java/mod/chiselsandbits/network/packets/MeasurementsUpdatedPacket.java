@@ -9,7 +9,7 @@ public final class MeasurementsUpdatedPacket extends ModPacket
 
     public MeasurementsUpdatedPacket(final PacketBuffer buffer)
     {
-        super(buffer);
+        readPayload(buffer);
     }
 
     public MeasurementsUpdatedPacket()

@@ -17,7 +17,7 @@ public final class MeasurementUpdatedPacket extends ModPacket
 
     public MeasurementUpdatedPacket(final PacketBuffer buffer)
     {
-        super(buffer);
+        readPayload(buffer);
     }
 
     @Override

@@ -5,6 +5,15 @@ package mod.chiselsandbits.api.chiseling;
  */
 public enum ChiselingOperation
 {
-    CHISELING,
-    PLACING;
+    CHISELING(false),
+    PLACING(true);
+
+    private final boolean processesAir;
+
+    ChiselingOperation(final boolean processesAir) {this.processesAir = processesAir;}
+
+    public boolean processesAir()
+    {
+        return processesAir;
+    }
 }

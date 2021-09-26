@@ -240,9 +240,9 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
 
         context.setStateFilter(areaAccessor -> {
             if (areaAccessor instanceof IWorldAreaAccessor)
-                return new SphereAreaFilter(((IWorldAreaAccessor) areaAccessor).getInWorldStartPoint(), center);
+                return new SphereAreaFilter(context.getModeOfOperandus(), ((IWorldAreaAccessor) areaAccessor).getInWorldStartPoint(), center);
 
-            return new SphereAreaFilter(Vector3d.ZERO, center);
+            return new SphereAreaFilter(context.getModeOfOperandus(), Vector3d.ZERO, center);
         });
 
         BlockPosStreamProvider.getForRange(diameter)
@@ -318,10 +318,12 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
 
     private final class SphereAreaFilter implements Predicate<IStateEntryInfo> {
 
+        private final ChiselingOperation modeOfOperandus;
         private final Vector3d startPoint;
         private final Vector3d center;
 
-        private SphereAreaFilter(final Vector3d startPoint, final Vector3d center) {
+        private SphereAreaFilter(final ChiselingOperation modeOfOperandus, final Vector3d startPoint, final Vector3d center) {
+            this.modeOfOperandus = modeOfOperandus;
             this.startPoint = startPoint;
             this.center = center;
         }
@@ -335,7 +337,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
             final IInWorldStateEntryInfo inWorldStateEntryInfo = (IInWorldStateEntryInfo) stateEntryInfo;
 
             return inWorldStateEntryInfo.getInWorldStartPoint().distanceTo(center) <= (diameter / 2f / StateEntrySize.current().getBitsPerBlockSide()) &&
-              !stateEntryInfo.getState().isAir();
+                     (!stateEntryInfo.getState().isAir() || modeOfOperandus.processesAir());
         }
 
         @Override

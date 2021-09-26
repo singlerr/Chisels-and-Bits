@@ -75,7 +75,27 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     private final List<ItemStack> availableBitStacks = Lists.newLinkedList();
 
     private final ThreadLocal<Boolean> threadLocalBitMergeOperationInProgress = ThreadLocal.withInitial(() -> false);
-    public static final Predicate<IStateEntryInfo> DEFAULT_CONTEXT_PREDICATE = ChiselItem.DEFAULT_CONTEXT_PREDICATE;
+    public static final Predicate<IStateEntryInfo> DEFAULT_CHISEL_CONTEXT_PREDICATE = ChiselItem.DEFAULT_CONTEXT_PREDICATE;
+    public static final Predicate<IStateEntryInfo> DEFAULT_PLACING_CONTEXT_PREDICATE      = new Predicate<IStateEntryInfo>()
+    {
+        @Override
+        public boolean test(final IStateEntryInfo iStateEntryInfo)
+        {
+            return true;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return 1;
+        }
+
+        @Override
+        public boolean equals(final Object obj)
+        {
+            return obj == this;
+        }
+    };
 
     public BitItem(final Properties properties)
     {
@@ -441,7 +461,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
                                                  areaAccessor -> {
                                                      final Predicate<IStateEntryInfo> contextPredicate = chiselingContext.getStateFilter()
                                                                                                            .map(factory -> factory.apply(areaAccessor))
-                                                                                                           .orElse(DEFAULT_CONTEXT_PREDICATE);
+                                                                                                           .orElse(DEFAULT_CHISEL_CONTEXT_PREDICATE);
 
                                                      return new InternalContextFilter(contextPredicate);
                                                  },
@@ -464,7 +484,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
                                                  areaAccessor -> {
                                                      final Predicate<IStateEntryInfo> contextPredicate = placingContext.getStateFilter()
                                                        .map(factory -> factory.apply(areaAccessor))
-                                                       .orElse(DEFAULT_CONTEXT_PREDICATE);
+                                                       .orElse(DEFAULT_PLACING_CONTEXT_PREDICATE);
 
                                                      return new InternalContextFilter(contextPredicate);
                                                  },
@@ -497,7 +517,9 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
           areaAccessor -> {
               final Predicate<IStateEntryInfo> contextPredicate = currentContextSnapshot.getStateFilter()
                                                                     .map(factory -> factory.apply(areaAccessor))
-                                                                    .orElse(DEFAULT_CONTEXT_PREDICATE);
+                                                                    .orElse(currentContextSnapshot.getModeOfOperandus() == ChiselingOperation.CHISELING ?
+                                                                              DEFAULT_CHISEL_CONTEXT_PREDICATE :
+                                                                             DEFAULT_PLACING_CONTEXT_PREDICATE);
 
               return new InternalContextFilter(contextPredicate);
           },

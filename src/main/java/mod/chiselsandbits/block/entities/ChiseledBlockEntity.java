@@ -283,7 +283,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     @Override
     public void setChanged()
     {
-        if (getLevel() != null && !getLevel().isClientSide() && this.batchMutations.isEmpty())
+        if (getLevel() != null && this.batchMutations.isEmpty())
         {
             mutableStatistics.recalculate(this.compressedSection, true);
 
@@ -292,10 +292,13 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
             getLevel().getLightEngine().checkBlock(getBlockPos());
             getLevel().sendBlockUpdated(getBlockPos(), Blocks.AIR.defaultBlockState(), getBlockState(), Constants.BlockFlags.DEFAULT);
 
-            ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
-              new TileEntityUpdatedPacket(this),
-              getLevel().getChunkAt(getBlockPos())
-            );
+            if (!getLevel().isClientSide())
+            {
+                ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
+                  new TileEntityUpdatedPacket(this),
+                  getLevel().getChunkAt(getBlockPos())
+                );
+            }
         }
     }
 
@@ -392,7 +395,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
             throw new SpaceOccupiedException();
         }
 
-        if (getLevel() == null || getLevel().isClientSide())
+        if (getLevel() == null)
         {
             return;
         }
@@ -474,7 +477,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
 
         final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
-        if (getLevel() == null || getLevel().isClientSide())
+        if (getLevel() == null)
         {
             return;
         }
@@ -547,7 +550,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     @Override
     public void rotate(final Direction.Axis axis, final int rotationCount)
     {
-        if (getLevel() == null || getLevel().isClientSide())
+        if (getLevel() == null)
         {
             return;
         }
