@@ -771,6 +771,12 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         }
 
         @Override
+        public boolean isEmpty()
+        {
+            return this.countMap.size() == 1 && this.countMap.getOrDefault(Blocks.AIR.defaultBlockState(), 0) == 4096;
+        }
+
+        @Override
         public Map<BlockState, Integer> getStateCounts()
         {
             return Collections.unmodifiableMap(countMap);

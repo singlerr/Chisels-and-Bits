@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.multistate.statistics;
 
+import mod.chiselsandbits.api.item.multistate.IStatistics;
 import net.minecraft.block.AirBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -9,12 +10,12 @@ import java.util.Map;
 /**
  * The statistics of a multistate block.
  */
-public interface IMultiStateObjectStatistics
+public interface IMultiStateObjectStatistics extends IStatistics
 {
 
     /**
      * The primary blockstate.
-     * If the multistate block is empty, then {@link AirBlock#getDefaultState()} is returned.
+     * If the multistate block is empty, then {@link AirBlock#defaultBlockState()} is returned.
      * Generally speaking this is the blockstate that occurs the most often
      * in the multistate block.
      * But this is not guaranteed.

@@ -382,9 +382,27 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         this.stateObjectStatistics = new IMultiStateObjectStatistics()
         {
             @Override
+            public CompoundNBT serializeNBT()
+            {
+                return new CompoundNBT();
+            }
+
+            @Override
+            public void deserializeNBT(final CompoundNBT nbt)
+            {
+
+            }
+
+            @Override
             public BlockState getPrimaryState()
             {
                 return determinePrimaryState();
+            }
+
+            @Override
+            public boolean isEmpty()
+            {
+                return !determinePrimaryState().isAir();
             }
 
             @Override
@@ -447,7 +465,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         int maxCount = 0;
         for (final Map.Entry<BlockState, Integer> blockStateIntegerEntry : countMap.entrySet())
         {
-            if (maxCount < blockStateIntegerEntry.getValue())
+            if (maxCount < blockStateIntegerEntry.getValue() && !blockStateIntegerEntry.getKey().isAir())
             {
                 maxState = blockStateIntegerEntry.getKey();
                 maxCount = blockStateIntegerEntry.getValue();
