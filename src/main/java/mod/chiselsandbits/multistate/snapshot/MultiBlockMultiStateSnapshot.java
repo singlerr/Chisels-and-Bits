@@ -13,6 +13,7 @@ import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.VectorUtils;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.player.Player;
@@ -293,9 +294,28 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
         return new IMultiStateObjectStatistics()
         {
             @Override
+            public CompoundTag serializeNBT()
+            {
+                return null;
+            }
+
+            @Override
+            public void deserializeNBT(final CompoundTag nbt)
+            {
+
+            }
+
+            @Override
             public BlockState getPrimaryState()
             {
                 return getStateCounts().entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).map(Map.Entry::getKey).orElse(Blocks.AIR.defaultBlockState());
+            }
+
+            @Override
+            public boolean isEmpty()
+            {
+                final Map<BlockState, Integer> stateMap = getStateCounts();
+                return stateMap.size() == 1 && stateMap.getOrDefault(Blocks.AIR.defaultBlockState(), 0) > 0;
             }
 
             @Override

@@ -31,9 +31,27 @@ public class EmptySnapshot implements IMultiStateSnapshot
 
     private static final IMultiStateObjectStatistics EMPTY_STATISTICS = new IMultiStateObjectStatistics() {
         @Override
+        public CompoundTag serializeNBT()
+        {
+            return new CompoundTag();
+        }
+
+        @Override
+        public void deserializeNBT(final CompoundTag nbt)
+        {
+
+        }
+
+        @Override
         public BlockState getPrimaryState()
         {
             return Blocks.AIR.defaultBlockState();
+        }
+
+        @Override
+        public boolean isEmpty()
+        {
+            return true;
         }
 
         @Override

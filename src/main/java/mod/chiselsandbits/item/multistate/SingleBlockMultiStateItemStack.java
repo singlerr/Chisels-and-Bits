@@ -637,7 +637,9 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         }
 
         private void updatePrimaryState() {
-            primaryState = this.countMap.entrySet().stream().min((o1, o2) -> -1 * (o1.getValue() - o2.getValue()))
+            primaryState = this.countMap.entrySet().stream()
+                             .filter(entry -> !entry.getKey().isAir())
+                             .min((o1, o2) -> -1 * (o1.getValue() - o2.getValue()))
                              .map(Map.Entry::getKey)
                              .orElseGet(Blocks.AIR::defaultBlockState);
         }

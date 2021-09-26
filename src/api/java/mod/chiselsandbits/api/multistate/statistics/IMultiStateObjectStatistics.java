@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.multistate.statistics;
 
+import mod.chiselsandbits.api.item.multistate.IStatistics;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -9,7 +10,7 @@ import java.util.Map;
 /**
  * The statistics of a multistate block.
  */
-public interface IMultiStateObjectStatistics
+public interface IMultiStateObjectStatistics extends IStatistics
 {
 
     /**
