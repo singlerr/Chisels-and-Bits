@@ -21,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.BlockGetter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -117,9 +118,17 @@ public class ChiseledBlockBakedModelManager
     public ChiseledBlockBakedModel get(
       final IAreaAccessor accessor,
       final BlockState primaryState,
+      final ChiselRenderType renderType
+    ) {
+        return this.get(accessor, primaryState, renderType, null, BlockPos.ZERO);
+    }
+
+    public ChiseledBlockBakedModel get(
+      final IAreaAccessor accessor,
+      final BlockState primaryState,
       final ChiselRenderType renderType,
       @Nullable BlockGetter blockReader,
-      @Nullable BlockPos position
+      @NotNull BlockPos position
     )
     {
         try (IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Block based chiseled block model"))
