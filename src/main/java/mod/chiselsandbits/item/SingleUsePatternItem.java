@@ -163,9 +163,9 @@ public class SingleUsePatternItem extends Item implements IPatternItem
                 }
 
                 multiStateBlockEntity.rotate(Direction.Axis.Y, rotationCount);
+                context.getLevel().sendBlockUpdated(context.getClickedPos(), Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), Constants.BlockFlags.DEFAULT);
 
                 if (!context.getLevel().isClientSide()) {
-                    context.getLevel().sendBlockUpdated(context.getClickedPos(), Blocks.AIR.defaultBlockState(), Blocks.AIR.defaultBlockState(), Constants.BlockFlags.DEFAULT);
 
                     ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
                       new TileEntityUpdatedPacket(tileEntityCandidate),

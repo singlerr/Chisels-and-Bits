@@ -13,7 +13,9 @@ import java.util.function.Supplier;
 
 public enum ModRenderTypes
 {
-    MEASUREMENT_LINES(() -> Internal.MEASUREMENT_LINES);
+    MEASUREMENT_LINES(() -> Internal.MEASUREMENT_LINES),
+    WIREFRAME_LINES(() -> Internal.WIREFRAME_LINES),
+    WIREFRAME_BODY(() -> Internal.WIREFRAME_BODY);
 
     private final Supplier<RenderType> typeSupplier;
 
@@ -34,6 +36,37 @@ public enum ModRenderTypes
             .setLayeringState(VIEW_OFFSET_Z_LAYERING)
             .setTransparencyState(GLINT_TRANSPARENCY)
             .setOutputState(TRANSLUCENT_TARGET)
+            .setWriteMaskState(COLOR_WRITE)
+            .setCullState(NO_CULL)
+            .setDepthTestState(RenderState.NO_DEPTH_TEST)
+            .setFogState(NO_FOG)
+            .createCompositeState(false));
+
+        private static final RenderType WIREFRAME_LINES = RenderType.create(Constants.MOD_ID + ":wireframe_lines",
+          DefaultVertexFormats.POSITION_COLOR,
+          1,
+          256,
+          RenderType.State.builder()
+            .setLineState(new RenderState.LineState(OptionalDouble.of(4d)))
+            .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+            .setTransparencyState(GLINT_TRANSPARENCY)
+            .setOutputState(TRANSLUCENT_TARGET)
+            .setWriteMaskState(COLOR_WRITE)
+            .setCullState(NO_CULL)
+            .setDepthTestState(RenderState.NO_DEPTH_TEST)
+            .setFogState(NO_FOG)
+            .createCompositeState(false));
+
+        private static final RenderType WIREFRAME_BODY = RenderType.create(Constants.MOD_ID + ":wireframe_body",
+          DefaultVertexFormats.BLOCK,
+          7,
+          2097152,
+          true,
+          false,
+          RenderType.State.builder()
+            .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+            .setTransparencyState(RenderState.NO_TRANSPARENCY)
+            .setOutputState(RenderState.TRANSLUCENT_TARGET)
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
             .setDepthTestState(RenderState.NO_DEPTH_TEST)

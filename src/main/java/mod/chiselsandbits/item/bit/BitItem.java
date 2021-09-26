@@ -534,7 +534,6 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         );
         Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
         RenderSystem.enableDepthTest();
-        return;
     }
 
     @Override

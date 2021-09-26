@@ -1,9 +1,11 @@
 package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.api.item.bit.IBitItem;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.withhighlight.IWithHighlightItem;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
+import mod.chiselsandbits.item.ChiseledBlockItem;
 import net.minecraft.block.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
@@ -119,6 +121,26 @@ public class ItemStackUtils
         }
 
         if (playerEntity.getOffhandItem().getItem() instanceof IWithHighlightItem)
+        {
+            return playerEntity.getOffhandItem();
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+    public static ItemStack getMultiStateItemStackFromPlayer(@Nullable final PlayerEntity playerEntity)
+    {
+        if (playerEntity == null)
+        {
+            return ItemStack.EMPTY;
+        }
+
+        if (playerEntity.getMainHandItem().getItem() instanceof IMultiStateItem)
+        {
+            return playerEntity.getMainHandItem();
+        }
+
+        if (playerEntity.getOffhandItem().getItem() instanceof IMultiStateItem)
         {
             return playerEntity.getOffhandItem();
         }
