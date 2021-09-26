@@ -35,18 +35,83 @@ public class ChiseledBlockBakedModelManager
 
     private static final ChiseledBlockBakedModelManager INSTANCE = new ChiseledBlockBakedModelManager();
 
+    public static final class NeighborhoodData
+    {
+        private final BlockState           blockState;
+        private final IAreaShapeIdentifier identifier;
+
+        public NeighborhoodData(final BlockState blockState, final IAreaShapeIdentifier identifier)
+        {
+            this.blockState = blockState;
+            this.identifier = identifier;
+        }
+
+        public NeighborhoodData(final BlockState blockState)
+        {
+            this.blockState = blockState;
+            this.identifier = IAreaShapeIdentifier.DUMMY;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = blockState != null ? blockState.hashCode() : 0;
+            result = 31 * result + (identifier != null ? identifier.hashCode() : 0);
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object o)
+        {
+            if (this == o)
+            {
+                return true;
+            }
+            if (!(o instanceof NeighborhoodData))
+            {
+                return false;
+            }
+
+            final NeighborhoodData that = (NeighborhoodData) o;
+
+            if (!Objects.equals(blockState, that.blockState))
+            {
+                return false;
+            }
+            return Objects.equals(identifier, that.identifier);
+        }
+    }
+    private final Cache<Key, ChiseledBlockBakedModel> cache = CacheBuilder.newBuilder()
+      .maximumSize(Configuration.getInstance().getClient().modelCacheSize.get() * RenderType.chunkBufferLayers().size())
+      .expireAfterAccess(1, TimeUnit.HOURS)
+      .build();
+
+    private ChiseledBlockBakedModelManager()
+    {
+    }
+
     public static ChiseledBlockBakedModelManager getInstance()
     {
         return INSTANCE;
     }
 
-    private final Cache<Key, ChiseledBlockBakedModel> cache = CacheBuilder.newBuilder()
-        .maximumSize(Configuration.getInstance().getClient().modelCacheSize.get() * RenderType.chunkBufferLayers().size())
-        .expireAfterAccess(1, TimeUnit.HOURS)
-        .build();
-
-    private ChiseledBlockBakedModelManager()
+    public Optional<ChiseledBlockBakedModel> get(
+      final IMultiStateItemStack multiStateItemStack,
+      final ChiselRenderType renderType
+    )
     {
+        try (IProfilerSection ignored = ProfilingManager.getInstance().withSection("Item based chiseled block model"))
+        {
+            return Optional.of(
+              get(
+                multiStateItemStack,
+                multiStateItemStack.getStatistics().getPrimaryState(),
+                renderType,
+                null,
+                BlockPos.ZERO
+              )
+            );
+        }
     }
 
     public ChiseledBlockBakedModel get(
@@ -55,16 +120,33 @@ public class ChiseledBlockBakedModelManager
       final ChiselRenderType renderType,
       @Nullable BlockGetter blockReader,
       @Nullable BlockPos position
-    ) {
-        try(IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Block based chiseled block model")) {
-            final EnumMap<Direction, BlockState> neighborhoodMap = new EnumMap<>(Direction.class);
+    )
+    {
+        try (IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Block based chiseled block model"))
+        {
+            final EnumMap<Direction, NeighborhoodData> neighborhoodMap = new EnumMap<>(Direction.class);
 
-            try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Key building")) {
-                if (blockReader != null && position != null) {
+            try (IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Key building"))
+            {
+                if (blockReader != null && position != null)
+                {
                     for (final Direction value : Direction.values())
                     {
                         final BlockPos offsetPos = position.relative(value);
-                        neighborhoodMap.put(value, blockReader.getBlockState(offsetPos));
+                        final BlockState state = blockReader.getBlockState(offsetPos);
+                        final TileEntity tileEntity = blockReader.getBlockEntity(offsetPos);
+                        if (!(tileEntity instanceof IMultiStateBlockEntity))
+                        {
+                            neighborhoodMap.put(value, new NeighborhoodData(state));
+                        }
+                        else
+                        {
+                            neighborhoodMap.put(value, new NeighborhoodData(
+                                state,
+                                ((IMultiStateBlockEntity) tileEntity).createNewShapeIdentifier()
+                              )
+                            );
+                        }
                     }
                 }
             }
@@ -75,7 +157,8 @@ public class ChiseledBlockBakedModelManager
             {
                 return cache.get(key,
                   () -> {
-                      try (IProfilerSection ignored3 = ProfilingManager.getInstance().withSection("Cache mis")) {
+                      try (IProfilerSection ignored3 = ProfilingManager.getInstance().withSection("Cache mis"))
+                      {
                           return new ChiseledBlockBakedModel(
                             primaryState,
                             renderType,
@@ -98,8 +181,8 @@ public class ChiseledBlockBakedModelManager
                                     final Vec3 inBlockOffsetTarget = VectorUtils.makePositive(inBlockOffset);
 
                                     return blockEntity.getInAreaTarget(inBlockOffsetTarget)
-                                             .map(IStateEntryInfo::getState)
-                                             .orElse(Blocks.AIR.defaultBlockState());
+                                      .map(IStateEntryInfo::getState)
+                                      .orElse(Blocks.AIR.defaultBlockState());
                                 }
 
                                 return blockReader.getBlockState(targetPosition);
@@ -117,41 +200,36 @@ public class ChiseledBlockBakedModelManager
         }
     }
 
-    public Optional<ChiseledBlockBakedModel> get(
-      final IMultiStateItemStack multiStateItemStack,
-      final ChiselRenderType renderType
-    ) {
-        try(IProfilerSection ignored = ProfilingManager.getInstance().withSection("Item based chiseled block model"))
-        {
-            return Optional.of(
-              get(
-                multiStateItemStack,
-                multiStateItemStack.getStatistics().getPrimaryState(),
-                renderType,
-                null,
-                BlockPos.ZERO
-              )
-            );
-        }
-    }
-
-    private static final class Key {
-        private final IAreaShapeIdentifier identifier;
-        private final BlockState primaryState;
-        private final ChiselRenderType renderType;
-        private final EnumMap<Direction, BlockState> neighborhoodMap;
-        private final long renderSeed;
+    private static final class Key
+    {
+        private final IAreaShapeIdentifier                 identifier;
+        private final BlockState                           primaryState;
+        private final ChiselRenderType                     renderType;
+        private final EnumMap<Direction, NeighborhoodData> neighborhoodMap;
+        private final long                                 renderSeed;
 
         private Key(
           final IAreaShapeIdentifier identifier,
           final BlockState primaryState,
           final ChiselRenderType renderType,
-          final EnumMap<Direction, BlockState> neighborhoodMap, final long renderSeed) {
+          final EnumMap<Direction, NeighborhoodData> neighborhoodMap, final long renderSeed)
+        {
             this.identifier = identifier;
             this.primaryState = primaryState;
             this.renderType = renderType;
             this.neighborhoodMap = neighborhoodMap;
             this.renderSeed = renderSeed;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = identifier != null ? identifier.hashCode() : 0;
+            result = 31 * result + (primaryState != null ? primaryState.hashCode() : 0);
+            result = 31 * result + (renderType != null ? renderType.hashCode() : 0);
+            result = 31 * result + (neighborhoodMap != null ? neighborhoodMap.hashCode() : 0);
+            result = 31 * result + (int) (renderSeed ^ (renderSeed >>> 32));
+            return result;
         }
 
         @Override
@@ -185,17 +263,6 @@ public class ChiseledBlockBakedModelManager
                 return false;
             }
             return Objects.equals(neighborhoodMap, key.neighborhoodMap);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int result = identifier != null ? identifier.hashCode() : 0;
-            result = 31 * result + (primaryState != null ? primaryState.hashCode() : 0);
-            result = 31 * result + (renderType != null ? renderType.hashCode() : 0);
-            result = 31 * result + (neighborhoodMap != null ? neighborhoodMap.hashCode() : 0);
-            result = 31 * result + (int) (renderSeed ^ (renderSeed >>> 32));
-            return result;
         }
     }
 }
