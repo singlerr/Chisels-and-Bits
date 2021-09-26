@@ -58,10 +58,9 @@ public class ChiseledBlockWireframeRenderer
     {
     }
 
-    public void renderShape(final MatrixStack stack, final IAreaAccessor accessor, final BlockState primaryState, final BlockPos position) {
+    public void renderShape(final MatrixStack stack, final IAreaAccessor accessor, final BlockPos position) {
         stack.pushPose();
 
-        final IBakedModel bakedModel = buildAccessorModel(accessor, primaryState);
         final VoxelShape wireFrame = VoxelShapeManager.getInstance().get(
           accessor,
           accessor1 -> NONE_AIR_PREDICATE
@@ -72,29 +71,13 @@ public class ChiseledBlockWireframeRenderer
         double yView = vector3d.y();
         double zView = vector3d.z();
 
-        stack.pushPose();
-        stack.translate(position.getX() - xView, position.getY() - yView, position.getZ() - zView);
-
-        Minecraft.getInstance().getBlockRenderer().getModelRenderer()
-          .renderModel(stack.last(),
-            Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.WIREFRAME_BODY.get()),
-            primaryState,
-            bakedModel,
-            48/255f, 120/255f, 201/255f, //Block Color does not matter
-            15728880, //Full brightness
-            OverlayTexture.NO_OVERLAY,
-            EmptyModelData.INSTANCE);
-        Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.WIREFRAME_BODY.get());
-
-        stack.popPose();
-
         RenderSystem.disableDepthTest();
         WorldRenderer.renderShape(
           stack,
           Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.WIREFRAME_LINES.get()),
           wireFrame,
           position.getX() - xView, position.getY() - yView, position.getZ() - zView,
-          1f, 1f, 1f, 1f
+          48/255f, 120/255f, 201/255f, 1f
         );
         Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.WIREFRAME_LINES.get());
         RenderSystem.enableDepthTest();

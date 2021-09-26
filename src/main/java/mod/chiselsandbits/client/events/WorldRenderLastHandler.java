@@ -87,7 +87,6 @@ public class WorldRenderLastHandler
         ChiseledBlockWireframeRenderer.getInstance().renderShape(
           event.getMatrixStack(),
           multiStateItemStack,
-          multiStateItemStack.getStatistics().getPrimaryState(),
           blockRayTraceResult.getBlockPos().offset(blockRayTraceResult.getDirection().getNormal())
         );
     }
