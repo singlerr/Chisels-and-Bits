@@ -96,6 +96,10 @@ public class ChiseledBlockBakedModelManager
         return INSTANCE;
     }
 
+    public void clearCache() {
+        cache.asMap().clear();
+    }
+
     public Optional<ChiseledBlockBakedModel> get(
       final IMultiStateItemStack multiStateItemStack,
       final ChiselRenderType renderType

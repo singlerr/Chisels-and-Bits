@@ -32,6 +32,10 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
 
     private static final SimpleMaxSizedCache<CacheKey, LevelChunkSection> STORAGE_CONTENTS_BLOB_CACHE = new SimpleMaxSizedCache<>(Configuration.getInstance().getClient().bitStorageContentCacheSize.get());
 
+    public static void clearCache() {
+        STORAGE_CONTENTS_BLOB_CACHE.clear();
+    }
+
     public BitStorageBESR()
     {
     }

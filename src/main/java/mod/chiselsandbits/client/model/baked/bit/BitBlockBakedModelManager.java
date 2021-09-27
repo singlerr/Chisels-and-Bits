@@ -38,6 +38,11 @@ public class BitBlockBakedModelManager
         return INSTANCE;
     }
 
+    public void clearCache() {
+        modelCache.asMap().clear();
+        largeModelCache.asMap().clear();
+    }
+
     public BakedModel get(
       ItemStack stack
     )

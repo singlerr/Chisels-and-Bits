@@ -3,6 +3,7 @@ package mod.chiselsandbits.client.icon;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.client.icon.IIconManager;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.client.reloading.ClientResourceReloadingManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -47,7 +48,10 @@ public class IconManager implements IIconManager
         //We use this event since this is virtually the only time we can init the IconManager and have it load the custom atlas.
         //Guard for doing stupid shit when data gen is running :D
         if (Minecraft.getInstance() != null)
+        {
+            ClientResourceReloadingManager.setup();
             IconManager.getInstance().initialize();
+        }
     }
 
     private void initialize() {

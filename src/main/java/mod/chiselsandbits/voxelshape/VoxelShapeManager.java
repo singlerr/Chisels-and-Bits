@@ -83,6 +83,11 @@ public class VoxelShapeManager implements IVoxelShapeManager
         return Optional.ofNullable(cache.getIfPresent(key));
     }
 
+    public void clearCache()
+    {
+        this.cache.asMap().clear();
+    }
+
     private static final class Key {
         private final IAreaShapeIdentifier identifier;
         private final BlockPos offset;

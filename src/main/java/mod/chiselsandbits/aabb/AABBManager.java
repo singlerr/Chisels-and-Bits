@@ -60,6 +60,11 @@ public class AABBManager
         }
     }
 
+    public void clearCache()
+    {
+        this.cache.asMap().clear();
+    }
+
     private static final class Key {
         private final IAreaShapeIdentifier identifier;
         private final Predicate<IStateEntryInfo> predicate;

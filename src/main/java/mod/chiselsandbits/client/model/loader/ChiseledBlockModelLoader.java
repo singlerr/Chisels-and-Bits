@@ -27,7 +27,7 @@ public final class ChiseledBlockModelLoader implements IModelLoader<ChiseledBloc
     }
 
     @Override
-    public ChiseledBlockModel read(@NotNull final JsonDeserializationContext deserializationContext, @NotNull final JsonObject modelContents)
+    public @NotNull ChiseledBlockModel read(@NotNull final JsonDeserializationContext deserializationContext, @NotNull final JsonObject modelContents)
     {
         return new ChiseledBlockModel();
     }
