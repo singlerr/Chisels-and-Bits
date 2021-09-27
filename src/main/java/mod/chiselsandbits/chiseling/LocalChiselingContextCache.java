@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Optional;
 
@@ -38,5 +39,10 @@ public class LocalChiselingContextCache implements ILocalChiselingContextCache
     public void clear(ChiselingOperation operation)
     {
         this.contexts.remove(operation);
+    }
+
+    public void clearCache()
+    {
+        Arrays.stream(ChiselingOperation.values()).forEach(this::clear);
     }
 }

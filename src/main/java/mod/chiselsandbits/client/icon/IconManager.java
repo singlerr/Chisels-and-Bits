@@ -2,6 +2,7 @@ package mod.chiselsandbits.client.icon;
 
 import mod.chiselsandbits.api.client.icon.IIconManager;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.client.reloading.ClientResourceReloadingManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.IReloadableResourceManager;
@@ -11,7 +12,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class IconManager implements IIconManager
@@ -45,7 +45,10 @@ public class IconManager implements IIconManager
         //We use this event since this is virtually the only time we can init the IconManager and have it load the custom atlas.
         //Guard for doing stupid shit when data gen is running :D
         if (Minecraft.getInstance() != null)
+        {
+            ClientResourceReloadingManager.setup();
             IconManager.getInstance().initialize();
+        }
     }
 
     private void initialize() {

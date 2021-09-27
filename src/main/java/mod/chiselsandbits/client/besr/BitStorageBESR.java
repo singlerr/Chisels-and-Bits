@@ -32,6 +32,10 @@ public class BitStorageBESR extends TileEntityRenderer<BitStorageBlockEntity>
 
     private static final SimpleMaxSizedCache<CacheKey, ChunkSection> STORAGE_CONTENTS_BLOB_CACHE = new SimpleMaxSizedCache<>(Configuration.getInstance().getClient().bitStorageContentCacheSize.get());
 
+    public static void clearCache() {
+        STORAGE_CONTENTS_BLOB_CACHE.clear();
+    }
+
     public BitStorageBESR(TileEntityRendererDispatcher dispatcher)
     {
         super(dispatcher);

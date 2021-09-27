@@ -58,6 +58,11 @@ public final class FaceManager
         return INSTANCE;
     }
 
+    public void clearCache() {
+        cache.asMap().clear();
+        colorCache.asMap().clear();
+    }
+
     public ModelQuadLayer[] getCachedFace(
       final BlockState state,
       final Direction face,
