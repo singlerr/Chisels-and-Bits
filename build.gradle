@@ -184,9 +184,9 @@ minecraft {
             }
         }
 
-        generateData { rc ->
-            workingDirectory project.file('run')
+        generateData { run ->
             parent project.minecraft.runs.data
+            workingDirectory project.file('run')
 
             // Recommended logging data for a userdev environment
             property 'forge.logging.markers', ''
@@ -196,7 +196,7 @@ minecraft {
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
-            rc.getArgs().clear()
+            inheritArgs false
             args '--all', '--output', file('src/datagen/generated/chiselsandbits'),
                     '--mod', 'chiselsandbits',
                     '--existing', sourceSets.main.resources.srcDirs[0]
@@ -228,6 +228,7 @@ minecraft {
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
 
+            inheritArgs false
             args '--all', '--output', file('src/documentation/generated/chiselsandbits'),
                     '--mod', 'chiselsandbits',
                     '--existing', sourceSets.main.resources.srcDirs[0],

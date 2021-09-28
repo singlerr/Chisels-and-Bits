@@ -73,9 +73,9 @@ public class ModificationTableBlockStateGenerator implements DataProvider
         return switch (direction)
                  {
                      default -> 0;
-                     case EAST -> 90;
-                     case SOUTH -> 180;
-                     case WEST -> 270;
+                     case WEST -> 90;
+                     case NORTH -> 180;
+                     case EAST -> 270;
                  };
     }
 
