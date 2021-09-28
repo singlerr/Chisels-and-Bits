@@ -27,7 +27,7 @@ public class PostTextRenderTooltipHandler
 
         final float zLevel = Minecraft.getInstance().getItemRenderer().blitOffset;
         Minecraft.getInstance().getItemRenderer().blitOffset = 400;
-        Minecraft.getInstance().getItemRenderer().renderAndDecorateItem(renderTarget, event.getX() + 4, event.getY() + Minecraft.getInstance().font.lineHeight + 4);
+        Minecraft.getInstance().getItemRenderer().renderAndDecorateItem(renderTarget, event.getX() + 4, event.getY() + Minecraft.getInstance().font.lineHeight * 2 + 4);
         Minecraft.getInstance().getItemRenderer().blitOffset = zLevel;
     }
 }
