@@ -20,10 +20,10 @@ import static mod.chiselsandbits.api.util.StateEntryPredicates.NOT_AIR;
  */
 public interface IChiseledBlockItem extends IMultiStateItem, IWireframeProvidingItem
 {
-
     @Override
     default VoxelShape getWireFrame(
-      final ItemStack stack, final Player player, final BlockHitResult rayTraceResult) {
+      final ItemStack stack, final Player player, final BlockHitResult rayTraceResult)
+    {
         return IVoxelShapeManager.getInstance().get(
           createItemStack(stack),
           accessor -> NOT_AIR
@@ -31,22 +31,27 @@ public interface IChiseledBlockItem extends IMultiStateItem, IWireframeProviding
     }
 
     @Override
-    default Vec3 getWireFrameColor(ItemStack heldStack, Player playerEntity, BlockHitResult blockRayTraceResult) {
+    default Vec3 getWireFrameColor(ItemStack heldStack, Player playerEntity, BlockHitResult blockRayTraceResult)
+    {
         return canPlace(heldStack, playerEntity, blockRayTraceResult) ?
                  SUCCESSFUL_PATTERN_PLACEMENT_COLOR :
                  NOT_FITTING_PATTERN_PLACEMENT_COLOR;
     }
 
     @Override
-    default BlockPos getTargetedBlockPos(ItemStack heldStack, Player playerEntity, BlockHitResult blockRayTraceResult) {
-        return blockRayTraceResult.getBlockPos().offset(blockRayTraceResult.getDirection().getNormal());
+    default Vec3 getTargetedBlockPos(ItemStack heldStack, Player playerEntity, BlockHitResult blockRayTraceResult)
+    {
+        return !playerEntity.isCrouching() ?
+                 Vec3.atLowerCornerOf(blockRayTraceResult.getBlockPos().offset(blockRayTraceResult.getDirection().getNormal()))
+                 :
+                   blockRayTraceResult.getLocation();
     }
 
     /**
      * Indicates if the stacks block can be placed at the position targeted by the player.
      *
-     * @param heldStack The stack with the broken block.
-     * @param playerEntity The player in question.
+     * @param heldStack           The stack with the broken block.
+     * @param playerEntity        The player in question.
      * @param blockRayTraceResult The block ray trace result for the player in the current context.
      * @return True when the block in the stack can be placed, false when not.
      */

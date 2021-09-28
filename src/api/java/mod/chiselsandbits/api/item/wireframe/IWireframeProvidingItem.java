@@ -50,7 +50,7 @@ public interface IWireframeProvidingItem
      * @param blockRayTraceResult The block ray trace result for the current context.
      * @return The position to render the wire frame.
      */
-    BlockPos getTargetedBlockPos(
+    Vec3 getTargetedBlockPos(
       ItemStack heldStack,
       Player playerEntity,
       BlockHitResult blockRayTraceResult

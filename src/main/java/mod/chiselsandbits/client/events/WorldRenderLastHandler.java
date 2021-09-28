@@ -71,7 +71,7 @@ public class WorldRenderLastHandler
             return;
 
         final Item heldItem = heldStack.getItem();
-        if (!(heldItem instanceof IWireframeProvidingItem))
+        if (!(heldItem instanceof final IWireframeProvidingItem wireframeItem))
             return;
 
         final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
@@ -81,11 +81,9 @@ public class WorldRenderLastHandler
         if (!(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
             return;
 
-        final IWireframeProvidingItem wireframeItem = (IWireframeProvidingItem) heldItem;
-
         final VoxelShape wireFrame = wireframeItem.getWireFrame(heldStack, playerEntity, blockRayTraceResult);
         final Vec3 color = wireframeItem.getWireFrameColor(heldStack, playerEntity, blockRayTraceResult);
-        final BlockPos targetedRenderPos = wireframeItem.getTargetedBlockPos(heldStack, playerEntity, blockRayTraceResult);
+        final Vec3 targetedRenderPos = wireframeItem.getTargetedBlockPos(heldStack, playerEntity, blockRayTraceResult);
 
         ChiseledBlockWireframeRenderer.getInstance().renderShape(
           event.getMatrixStack(),

@@ -12,6 +12,7 @@ import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.pattern.placement.PlacementResult;
+import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.registrars.ModPatternPlacementTypes;
 import net.minecraft.core.BlockPos;
@@ -65,12 +66,19 @@ public class MergePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
     @Override
     public PlacementResult performPlacement(final IMultiStateSnapshot source, final BlockPlaceContext context, final boolean simulate)
     {
-        final BlockPos targetedPosition = context.getClickedPos().offset(context.getClickedFace().getOpposite().getNormal());
-        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), targetedPosition);
+        final Vec3 targetedPosition = context.getPlayer().isCrouching() ?
+                                            context.getClickLocation()
+                                            : Vec3.atLowerCornerOf(context.getClickedPos().offset(context.getClickedFace().getOpposite().getNormal()));
+        final IWorldAreaMutator areaMutator =
+          IMutatorFactory.getInstance().covering(
+            context.getLevel(),
+            targetedPosition,
+            targetedPosition.add(0.9999,0.9999,0.9999)
+          );
 
-        final BlockState targetState = context.getLevel().getBlockState(targetedPosition);
-        final boolean isChiseledBlock = targetState
-          .getBlock() instanceof IMultiStateBlock;
+        final boolean isChiseledBlock = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
+                                          .map(pos -> context.getLevel().getBlockState(pos))
+                                          .allMatch(state -> state.getBlock() instanceof IMultiStateBlock);
 
         if (!isChiseledBlock)
         {
@@ -121,7 +129,8 @@ public class MergePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
             Integer::sum
           ));
 
-        final boolean hasRequiredBits = context.getPlayer().isCreative() || totalAddedBits.entrySet().stream().allMatch(e -> playerBitInventory.canInsert(e.getKey(), e.getValue()));
+        final boolean hasRequiredBits =
+          context.getPlayer().isCreative() || totalAddedBits.entrySet().stream().allMatch(e -> playerBitInventory.canInsert(e.getKey(), e.getValue()));
 
         if (!hasRequiredBits)
         {
@@ -164,10 +173,15 @@ public class MergePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
     }
 
     @Override
-    public BlockPos getTargetedBlockPos(
+    public Vec3 getTargetedPosition(
       final ItemStack heldStack, final Player player, final BlockHitResult blockHitResult)
     {
-        return blockHitResult.getBlockPos();
+        if (player.isCrouching())
+        {
+            return blockHitResult.getLocation();
+        }
+
+        return Vec3.atLowerCornerOf(blockHitResult.getBlockPos());
     }
 
     @Override

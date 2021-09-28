@@ -2,24 +2,12 @@ package mod.chiselsandbits.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3d;
-import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.client.model.baked.chiseled.ChiselRenderType;
-import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModelManager;
-import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
-import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.client.model.data.EmptyModelData;
 
-import java.util.Arrays;
 import java.util.function.Predicate;
 
 public class ChiseledBlockWireframeRenderer
@@ -54,7 +42,7 @@ public class ChiseledBlockWireframeRenderer
     {
     }
 
-    public void renderShape(final PoseStack stack, final VoxelShape wireFrame, final BlockPos position, final Vec3 color) {
+    public void renderShape(final PoseStack stack, final VoxelShape wireFrame, final Vec3 position, final Vec3 color) {
         stack.pushPose();
 
         Vec3 vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
@@ -68,7 +56,7 @@ public class ChiseledBlockWireframeRenderer
           stack,
           Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.WIREFRAME_LINES.get()),
           wireFrame,
-          position.getX() - xView, position.getY() - yView, position.getZ() - zView,
+          position.x() - xView, position.y() - yView, position.z() - zView,
           (float) color.x(), (float) color.y(), (float) color.z() , 1f
         );
         Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.WIREFRAME_LINES.get());

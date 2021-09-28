@@ -10,16 +10,16 @@ import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.pattern.placement.PlacementResult;
+import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -49,9 +49,20 @@ public class PlacePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
     public PlacementResult performPlacement(
       final IMultiStateSnapshot source, final BlockPlaceContext context, final boolean simulate)
     {
-        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
+        final Vec3 targetedPosition = context.getPlayer().isCrouching() ?
+                                            context.getClickLocation()
+                                            : Vec3.atLowerCornerOf(context.getClickedPos());
+        final IWorldAreaMutator areaMutator =
+          IMutatorFactory.getInstance().covering(
+            context.getLevel(),
+            targetedPosition,
+            targetedPosition.add(1,1,1)
+          );
 
-        final boolean isAir = context.getLevel().getBlockState(context.getClickedPos()).isAir();
+        final boolean isAir = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
+          .map(context.getLevel()::getBlockState)
+          .allMatch(BlockBehaviour.BlockStateBase::isAir);
+
         if (!isAir)
         {
             return PlacementResult.failure(NOT_FITTING_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotAnAirBlock.getText());
@@ -101,10 +112,15 @@ public class PlacePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
     }
 
     @Override
-    public BlockPos getTargetedBlockPos(
+    public Vec3 getTargetedPosition(
       final ItemStack heldStack, final Player playerEntity, final BlockHitResult blockRayTraceResult)
     {
-        return blockRayTraceResult.getBlockPos().offset(blockRayTraceResult.getDirection().getNormal());
+        if (playerEntity.isCrouching())
+        {
+            return blockRayTraceResult.getLocation();
+        }
+
+        return Vec3.atLowerCornerOf(blockRayTraceResult.getBlockPos().offset(blockRayTraceResult.getDirection().getNormal()));
     }
 
     @Override

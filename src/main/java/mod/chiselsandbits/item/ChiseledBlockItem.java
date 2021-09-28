@@ -3,7 +3,6 @@ package mod.chiselsandbits.item;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.chiseled.IChiseledBlockItem;
-import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
@@ -11,6 +10,7 @@ import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
@@ -21,7 +21,9 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,28 +55,37 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     public InteractionResult place(@NotNull final BlockPlaceContext context)
     {
         final IAreaAccessor source = this.createItemStack(context.getItemInHand());
-        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
+        final IWorldAreaMutator areaMutator = context.getPlayer().isCrouching() ?
+                                                IMutatorFactory.getInstance().covering(
+                                                  context.getLevel(),
+                                                  context.getClickLocation(),
+                                                  context.getClickLocation().add(1d, 1d, 1d)
+                                                )
+                                                :
+                                                  IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
         final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();
 
         final boolean noCollisions = source.stream().sequential()
-                .allMatch(stateEntryInfo -> {
-                    try
-                    {
-                        attemptTarget.setInAreaTarget(
-                          stateEntryInfo.getState(),
-                          stateEntryInfo.getStartPoint()
-                        );
+          .allMatch(stateEntryInfo -> {
+              try
+              {
+                  attemptTarget.setInAreaTarget(
+                    stateEntryInfo.getState(),
+                    stateEntryInfo.getStartPoint()
+                  );
 
-                        return true;
-                    }
-                    catch (SpaceOccupiedException exception)
-                    {
-                        return false;
-                    }
-                });
+                  return true;
+              }
+              catch (SpaceOccupiedException exception)
+              {
+                  return false;
+              }
+          });
 
-        if (noCollisions) {
-            try (IBatchMutation ignored = areaMutator.batch()) {
+        if (noCollisions)
+        {
+            try (IBatchMutation ignored = areaMutator.batch())
+            {
                 source.stream().sequential().forEach(
                   stateEntryInfo -> {
                       try
@@ -109,8 +120,11 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     public boolean canPlace(final ItemStack heldStack, final Player playerEntity, final BlockHitResult blockRayTraceResult)
     {
         final IAreaAccessor source = this.createItemStack(heldStack);
-        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(playerEntity.level, getTargetedBlockPos(
-          heldStack, playerEntity, blockRayTraceResult));
+        final Vec3 target = getTargetedBlockPos(heldStack, playerEntity, blockRayTraceResult);
+        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().covering(
+          playerEntity.level,
+          target,
+          target.add(1,1,1));
         final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();
 
         final boolean noCollision = source.stream()

@@ -55,5 +55,5 @@ public interface IPatternPlacementType extends IForgeRegistryEntry<IPatternPlace
      * @param blockRayTraceResult The block ray trace result in the current context.
      * @return The position of the potential placement.
      */
-    BlockPos getTargetedBlockPos(ItemStack heldStack, Player player, BlockHitResult blockRayTraceResult);
+    Vec3 getTargetedPosition(ItemStack heldStack, Player player, BlockHitResult blockRayTraceResult);
 }
