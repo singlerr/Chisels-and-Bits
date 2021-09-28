@@ -5,6 +5,7 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import org.jetbrains.annotations.NotNull;
 
 public final class ModChiselModeGroups
 {
@@ -16,7 +17,7 @@ public final class ModChiselModeGroups
 
     public static IToolModeGroup CUBED = new IToolModeGroup() {
         @Override
-        public ResourceLocation getIcon()
+        public @NotNull ResourceLocation getIcon()
         {
             return new ResourceLocation(Constants.MOD_ID,"textures/icons/cube_medium.png");
         }
@@ -32,7 +33,7 @@ public final class ModChiselModeGroups
 
     public static IToolModeGroup CUBED_ALIGNED = new IToolModeGroup() {
         @Override
-        public ResourceLocation getIcon()
+        public @NotNull ResourceLocation getIcon()
         {
             return new ResourceLocation(Constants.MOD_ID,"textures/icons/snap4.png");
         }
@@ -48,7 +49,7 @@ public final class ModChiselModeGroups
 
     public static IToolModeGroup LINE = new IToolModeGroup() {
         @Override
-        public ResourceLocation getIcon()
+        public @NotNull ResourceLocation getIcon()
         {
             return new ResourceLocation(Constants.MOD_ID,"textures/icons/line.png");
         }
@@ -64,7 +65,7 @@ public final class ModChiselModeGroups
 
     public static IToolModeGroup PLANE = new IToolModeGroup() {
         @Override
-        public ResourceLocation getIcon()
+        public @NotNull ResourceLocation getIcon()
         {
             return new ResourceLocation(Constants.MOD_ID,"textures/icons/plane.png");
         }
@@ -80,7 +81,7 @@ public final class ModChiselModeGroups
 
     public static IToolModeGroup PLANE_FILTERED = new IToolModeGroup() {
         @Override
-        public ResourceLocation getIcon()
+        public @NotNull ResourceLocation getIcon()
         {
             return new ResourceLocation(Constants.MOD_ID,"textures/icons/connected_material.png");
         }
@@ -97,7 +98,7 @@ public final class ModChiselModeGroups
 
     public static IToolModeGroup SPHERE = new IToolModeGroup() {
         @Override
-        public ResourceLocation getIcon()
+        public @NotNull ResourceLocation getIcon()
         {
             return new ResourceLocation(Constants.MOD_ID,"textures/icons/sphere_medium.png");
         }

@@ -304,7 +304,7 @@ public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implement
     }
 
     @Override
-    public ResourceLocation getIcon()
+    public @NotNull ResourceLocation getIcon()
     {
         return iconName;
     }

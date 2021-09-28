@@ -340,7 +340,7 @@ public class ChiseledPrinterBlockEntity extends TileEntity implements ITickableT
     @Override
     public @NotNull ITextComponent getDisplayName()
     {
-        return LocalStrings.ChiselStationName.getLocalText();
+        return LocalStrings.ChiselStationName.getText();
     }
 
     public int getAvailablePrimaryBlockState() {

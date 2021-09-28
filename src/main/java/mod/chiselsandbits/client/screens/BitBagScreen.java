@@ -7,10 +7,9 @@ import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.font.GuiBagFontRenderer;
-import mod.chiselsandbits.client.screens.widgets.GuiIconButton;
 import mod.chiselsandbits.client.icon.IconManager;
+import mod.chiselsandbits.client.screens.widgets.GuiIconButton;
 import mod.chiselsandbits.container.BagContainer;
-import mod.chiselsandbits.container.helper.MergeSupportingHelperContainer;
 import mod.chiselsandbits.inventory.wrapping.WrappingInventory;
 import mod.chiselsandbits.network.packets.BagGuiPacket;
 import mod.chiselsandbits.network.packets.ClearBagGuiPacket;
@@ -27,11 +26,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.LanguageMap;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.client.gui.GuiUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class BitBagScreen extends ContainerScreen<BagContainer>
@@ -76,18 +74,15 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
         }, (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
             if ( isValidBitItem() )
             {
-                final String msgNotConfirm = !getInHandItem().isEmpty() ? LocalStrings.TrashItem.getLocal( getInHandItem().getHoverName().getString() ) : LocalStrings.Trash.getLocal();
-                final String msgConfirm = !getInHandItem().isEmpty() ? LocalStrings.ReallyTrashItem.getLocal( getInHandItem().getHoverName().getString() ) : LocalStrings.ReallyTrash.getLocal();
+                final ITextComponent msgNotConfirm = !getInHandItem().isEmpty() ? LocalStrings.TrashItem.getText( getInHandItem().getHoverName().getString() ) : LocalStrings.Trash.getText();
+                final ITextComponent msgConfirm = !getInHandItem().isEmpty() ? LocalStrings.ReallyTrashItem.getText( getInHandItem().getHoverName().getString() ) : LocalStrings.ReallyTrash.getText();
 
-
-                final List<ITextComponent> text = Arrays
-                                                    .asList( new ITextComponent[] { new StringTextComponent(requireConfirm ? msgNotConfirm : msgConfirm) } );
+                final List<ITextComponent> text = Collections.singletonList(requireConfirm ? msgNotConfirm : msgConfirm);
                 GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().font );
             }
             else
             {
-                final List<ITextComponent> text = Arrays
-                                                    .asList( new ITextComponent[] { new StringTextComponent(LocalStrings.TrashInvalidItem.getLocal( getInHandItem().getHoverName().getString() )) } );
+                final List<ITextComponent> text = Collections.singletonList(LocalStrings.TrashInvalidItem.getText(getInHandItem().getHoverName().getString()));
                 GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().font );
             }
         }));
@@ -95,8 +90,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
         addButton(new GuiIconButton(leftPos - 18, topPos + 18, IconManager.getInstance().getSortIcon(),
           p_onPress_1_ -> ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new SortBagGuiPacket()),
           (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
-              final List<ITextComponent> text = Arrays
-                                                  .asList(new ITextComponent[] {new StringTextComponent(LocalStrings.Sort.getLocal())});
+              final List<ITextComponent> text = Collections.singletonList(LocalStrings.Sort.getText());
               GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().font);
           }));
     }

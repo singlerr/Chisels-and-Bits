@@ -2,9 +2,7 @@ package mod.chiselsandbits.client.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.util.math.BlockPos;
@@ -45,26 +43,22 @@ public class ChiseledBlockWireframeRenderer
     {
     }
 
-    public void renderShape(final MatrixStack stack, final IAreaAccessor accessor, final BlockPos position) {
+    public void renderShape(final MatrixStack stack, final VoxelShape wireFrame, final BlockPos position, final Vector3d color) {
         stack.pushPose();
-
-        final VoxelShape wireFrame = VoxelShapeManager.getInstance().get(
-          accessor,
-          accessor1 -> NONE_AIR_PREDICATE
-        );
 
         Vector3d vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         double xView = vector3d.x();
         double yView = vector3d.y();
         double zView = vector3d.z();
 
+        //48/255f, 120/255f, 201/255f
         RenderSystem.disableDepthTest();
         WorldRenderer.renderShape(
           stack,
           Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.WIREFRAME_LINES.get()),
           wireFrame,
           position.getX() - xView, position.getY() - yView, position.getZ() - zView,
-          48/255f, 120/255f, 201/255f, 1f
+          (float) color.x(), (float) color.y(), (float) color.z() , 1f
         );
         Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.WIREFRAME_LINES.get());
         RenderSystem.enableDepthTest();

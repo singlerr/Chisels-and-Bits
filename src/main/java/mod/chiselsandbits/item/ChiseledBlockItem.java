@@ -2,6 +2,7 @@ package mod.chiselsandbits.item;
 
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
+import mod.chiselsandbits.api.item.chiseled.IChiseledBlockItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
@@ -16,10 +17,12 @@ import mod.chiselsandbits.legacy.LegacyLoadManager;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResultType;
+import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
@@ -30,7 +33,7 @@ import java.util.List;
 
 import net.minecraft.item.Item.Properties;
 
-public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
+public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
 {
 
     public ChiseledBlockItem(final Block blockIn, final Properties builder)
@@ -118,5 +121,33 @@ public class ChiseledBlockItem extends BlockItem implements IMultiStateItem
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
         Configuration.getInstance().getCommon().helpText(LocalStrings.HelpBitBag, tooltip);
+    }
+
+    @Override
+    public boolean canPlace(final ItemStack heldStack, final PlayerEntity playerEntity, final BlockRayTraceResult blockRayTraceResult)
+    {
+        final IAreaAccessor source = this.createItemStack(heldStack);
+        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(playerEntity.level, getTargetedBlockPos(
+          heldStack, playerEntity, blockRayTraceResult));
+        final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();
+
+        final boolean noCollision = source.stream()
+          .allMatch(stateEntryInfo -> {
+              try
+              {
+                  attemptTarget.setInAreaTarget(
+                    stateEntryInfo.getState(),
+                    stateEntryInfo.getStartPoint()
+                  );
+
+                  return true;
+              }
+              catch (SpaceOccupiedException exception)
+              {
+                  return false;
+              }
+          });
+
+        return noCollision;
     }
 }

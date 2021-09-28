@@ -197,10 +197,10 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
 
         if (KeyBindingManager.getInstance().areBindingsInitialized()) {
             Configuration.getInstance().getCommon().helpText(LocalStrings.HelpTapeMeasure, tooltip,
-              Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage().getString(),
-              Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage().getString(),
-              KeyBindingManager.getInstance().getResetMeasuringTapeKeyBinding().getTranslatedKeyMessage().getString(),
-              KeyBindingManager.getInstance().getOpenToolMenuKeybinding().getTranslatedKeyMessage().getString()
+              Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(),
+              Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(),
+              KeyBindingManager.getInstance().getResetMeasuringTapeKeyBinding().getTranslatedKeyMessage(),
+              KeyBindingManager.getInstance().getOpenToolMenuKeybinding().getTranslatedKeyMessage()
             );
         }
     }

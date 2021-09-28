@@ -8,7 +8,6 @@ import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
-import mod.chiselsandbits.inventory.bit.IllegalBitInventory;
 import mod.chiselsandbits.inventory.bit.SlottedBitInventoryItemStack;
 import mod.chiselsandbits.network.packets.OpenBagGuiPacket;
 import mod.chiselsandbits.registrars.ModItems;
@@ -29,7 +28,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -39,8 +37,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.item.Item.Properties;
 
 public class BitBagItem extends Item implements IBitInventoryItem
 {
@@ -89,7 +85,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
         }
         else
         {
-            tooltip.add(new StringTextComponent(LocalStrings.ShiftDetails.getLocal()));
+            tooltip.add(LocalStrings.ShiftDetails.getText());
         }
     }
 

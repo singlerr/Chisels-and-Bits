@@ -544,7 +544,7 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     }
 
     @Override
-    public ResourceLocation getIcon()
+    public @NotNull ResourceLocation getIcon()
     {
         return iconName;
     }

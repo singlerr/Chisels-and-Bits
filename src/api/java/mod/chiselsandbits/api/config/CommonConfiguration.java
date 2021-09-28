@@ -2,7 +2,6 @@ package mod.chiselsandbits.api.config;
 
 import mod.chiselsandbits.api.util.LocalStrings;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
@@ -32,28 +31,11 @@ public class CommonConfiguration extends AbstractConfiguration
     public void helpText(
       final LocalStrings string,
       final List<ITextComponent> tooltip,
-      final String... variables )
+      final Object... variables )
     {
         if ( enableHelp.get() )
         {
-            int varOffset = 0;
-
-            final String[] lines = string.getLocal().split( ";" );
-            for ( String a : lines )
-            {
-                while ( a.contains( "{}" ) && variables.length > varOffset )
-                {
-                    final int offset = a.indexOf( "{}" );
-                    if ( offset >= 0 )
-                    {
-                        final String pre = a.substring( 0, offset );
-                        final String post = a.substring( offset + 2 );
-                        a = String.format("%s%s%s", pre, variables[varOffset++], post);
-                    }
-                }
-
-                tooltip.add( new StringTextComponent(a));
-            }
+            tooltip.add(string.getText(variables));
         }
     }
 }

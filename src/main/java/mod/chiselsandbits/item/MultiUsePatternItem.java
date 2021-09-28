@@ -3,6 +3,7 @@ package mod.chiselsandbits.item;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SealingNotSupportedException;
 import mod.chiselsandbits.api.item.pattern.IMultiUsePatternItem;
+import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.util.LocalStrings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -46,11 +47,21 @@ public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiU
     public void appendHoverText(
       final @NotNull ItemStack stack, final @Nullable World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
     {
+        final IPatternPlacementType mode = getMode(stack);
+        if (mode.getGroup().isPresent())
+        {
+            tooltip.add(LocalStrings.PatternItemTooltipModeGrouped.getText(mode.getGroup().get().getDisplayName(), mode.getDisplayName()));
+        }
+        else
+        {
+            tooltip.add(LocalStrings.PatternItemTooltipModeSimple.getText(mode.getDisplayName()));
+        }
+
         if ((Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown())) {
             tooltip.add(new StringTextComponent("        "));
             tooltip.add(new StringTextComponent("        "));
-        }
 
-        Configuration.getInstance().getCommon().helpText(LocalStrings.HelpSealedPattern, tooltip);
+            Configuration.getInstance().getCommon().helpText(LocalStrings.HelpSealedPattern, tooltip);
+        }
     }
 }

@@ -79,7 +79,7 @@ public enum MeasuringMode implements IToolMode<MeasuringType>
     }
 
     @Override
-    public ResourceLocation getIcon()
+    public @NotNull ResourceLocation getIcon()
     {
         return icon;
     }

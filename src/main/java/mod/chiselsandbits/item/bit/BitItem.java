@@ -17,11 +17,11 @@ import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.util.StateEntryPredicates;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.client.render.ModRenderTypes;
-import mod.chiselsandbits.item.ChiselItem;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
@@ -64,7 +64,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import net.minecraft.item.Item.Properties;
+import static mod.chiselsandbits.api.util.StateEntryPredicates.ALL;
+import static mod.chiselsandbits.api.util.StateEntryPredicates.NOT_AIR;
 
 public class BitItem extends Item implements IChiselingItem, IBitItem, IDocumentableItem
 {
@@ -75,27 +76,6 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     private final List<ItemStack> availableBitStacks = Lists.newLinkedList();
 
     private final ThreadLocal<Boolean> threadLocalBitMergeOperationInProgress = ThreadLocal.withInitial(() -> false);
-    public static final Predicate<IStateEntryInfo> DEFAULT_CHISEL_CONTEXT_PREDICATE = ChiselItem.DEFAULT_CONTEXT_PREDICATE;
-    public static final Predicate<IStateEntryInfo> DEFAULT_PLACING_CONTEXT_PREDICATE      = new Predicate<IStateEntryInfo>()
-    {
-        @Override
-        public boolean test(final IStateEntryInfo iStateEntryInfo)
-        {
-            return true;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return 1;
-        }
-
-        @Override
-        public boolean equals(final Object obj)
-        {
-            return obj == this;
-        }
-    };
 
     public BitItem(final Properties properties)
     {
@@ -461,7 +441,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
                                                  areaAccessor -> {
                                                      final Predicate<IStateEntryInfo> contextPredicate = chiselingContext.getStateFilter()
                                                                                                            .map(factory -> factory.apply(areaAccessor))
-                                                                                                           .orElse(DEFAULT_CHISEL_CONTEXT_PREDICATE);
+                                                                                                           .orElse(NOT_AIR);
 
                                                      return new InternalContextFilter(contextPredicate);
                                                  },
@@ -484,7 +464,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
                                                  areaAccessor -> {
                                                      final Predicate<IStateEntryInfo> contextPredicate = placingContext.getStateFilter()
                                                        .map(factory -> factory.apply(areaAccessor))
-                                                       .orElse(DEFAULT_PLACING_CONTEXT_PREDICATE);
+                                                       .orElse(ALL);
 
                                                      return new InternalContextFilter(contextPredicate);
                                                  },
@@ -518,8 +498,8 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
               final Predicate<IStateEntryInfo> contextPredicate = currentContextSnapshot.getStateFilter()
                                                                     .map(factory -> factory.apply(areaAccessor))
                                                                     .orElse(currentContextSnapshot.getModeOfOperandus() == ChiselingOperation.CHISELING ?
-                                                                              DEFAULT_CHISEL_CONTEXT_PREDICATE :
-                                                                             DEFAULT_PLACING_CONTEXT_PREDICATE);
+                                                                              NOT_AIR :
+                                                                             ALL);
 
               return new InternalContextFilter(contextPredicate);
           },

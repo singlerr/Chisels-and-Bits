@@ -13,6 +13,7 @@ import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.util.StateEntryPredicates;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.chiseling.ChiselingManager;
@@ -51,31 +52,10 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import net.minecraft.item.Item.Properties;
-
 public class ChiselItem extends ToolItem implements IChiselItem
 {
 
     private static final Logger LOGGER = LogManager.getLogger();
-    public static final Predicate<IStateEntryInfo> DEFAULT_CONTEXT_PREDICATE = new Predicate<IStateEntryInfo>() {
-        @Override
-        public boolean test(final IStateEntryInfo iStateEntryInfo)
-        {
-            return !iStateEntryInfo.getState().isAir();
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return 0;
-        }
-
-        @Override
-        public boolean equals(final Object obj)
-        {
-            return obj == this;
-        }
-    };
 
     public ChiselItem(
       final IItemTier tier,
@@ -348,7 +328,7 @@ public class ChiselItem extends ToolItem implements IChiselItem
                                              areaAccessor -> {
                                                  final Predicate<IStateEntryInfo> contextPredicate = context.getStateFilter()
                                                                                                        .map(factory -> factory.apply(areaAccessor))
-                                                                                                       .orElse(DEFAULT_CONTEXT_PREDICATE);
+                                                                                                       .orElse(StateEntryPredicates.NOT_AIR);
 
                                                  return new InternalContextFilter(contextPredicate);
                                              },
