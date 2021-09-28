@@ -43,7 +43,7 @@ public class ChiseledBlockWireframeRenderer
     {
     }
 
-    public void renderShape(final MatrixStack stack, final VoxelShape wireFrame, final BlockPos position, final Vector3d color) {
+    public void renderShape(final MatrixStack stack, final VoxelShape wireFrame, final Vector3d position, final Vector3d color) {
         stack.pushPose();
 
         Vector3d vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
@@ -57,7 +57,7 @@ public class ChiseledBlockWireframeRenderer
           stack,
           Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.WIREFRAME_LINES.get()),
           wireFrame,
-          position.getX() - xView, position.getY() - yView, position.getZ() - zView,
+          position.x() - xView, position.y() - yView, position.z() - zView,
           (float) color.x(), (float) color.y(), (float) color.z() , 1f
         );
         Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.WIREFRAME_LINES.get());

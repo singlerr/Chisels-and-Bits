@@ -1,5 +1,6 @@
 package mod.chiselsandbits.pattern.placement;
 
+import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
@@ -10,14 +11,15 @@ import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.pattern.placement.PlacementResult;
+import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
@@ -48,9 +50,20 @@ public class PlacePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
     public PlacementResult performPlacement(
       final IMultiStateSnapshot source, final BlockItemUseContext context, final boolean simulate)
     {
-        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
+        final Vector3d targetedPosition = context.getPlayer().isCrouching() ?
+                                            context.getClickLocation()
+                                            : Vector3d.atLowerCornerOf(context.getClickedPos());
+        final IWorldAreaMutator areaMutator =
+          IMutatorFactory.getInstance().covering(
+            context.getLevel(),
+            targetedPosition,
+            targetedPosition.add(1,1,1)
+          );
 
-        final boolean isAir = context.getLevel().getBlockState(context.getClickedPos()).isAir();
+        final boolean isAir = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
+          .map(context.getLevel()::getBlockState)
+          .allMatch(AbstractBlock.AbstractBlockState::isAir);
+
         if (!isAir)
         {
             return PlacementResult.failure(NOT_FITTING_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotAnAirBlock.getText());
@@ -100,10 +113,15 @@ public class PlacePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
     }
 
     @Override
-    public BlockPos getTargetedBlockPos(
+    public Vector3d getTargetedPosition(
       final ItemStack heldStack, final PlayerEntity playerEntity, final BlockRayTraceResult blockRayTraceResult)
     {
-        return blockRayTraceResult.getBlockPos().offset(blockRayTraceResult.getDirection().getNormal());
+        if (playerEntity.isCrouching())
+        {
+            return blockRayTraceResult.getLocation();
+        }
+
+        return Vector3d.atLowerCornerOf(blockRayTraceResult.getBlockPos().offset(blockRayTraceResult.getDirection().getNormal()));
     }
 
     @Override

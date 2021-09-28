@@ -2,7 +2,6 @@ package mod.chiselsandbits.api.item.wireframe;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
@@ -49,7 +48,7 @@ public interface IWireframeProvidingItem
      * @param blockRayTraceResult The block ray trace result for the current context.
      * @return The position to render the wire frame.
      */
-    BlockPos getTargetedBlockPos(
+    Vector3d getTargetedBlockPos(
       ItemStack heldStack,
       PlayerEntity playerEntity,
       BlockRayTraceResult blockRayTraceResult

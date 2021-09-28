@@ -6,12 +6,14 @@ import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
+import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.pattern.placement.PlacementResult;
+import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.registrars.ModPatternPlacementTypes;
 import net.minecraft.block.BlockState;
@@ -30,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static mod.chiselsandbits.api.util.ColorUtils.MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR;
 import static mod.chiselsandbits.api.util.ColorUtils.NOT_FITTING_PATTERN_PLACEMENT_COLOR;
@@ -64,35 +67,52 @@ public class ImposePatternPlacementType extends ForgeRegistryEntry<IPatternPlace
     @Override
     public PlacementResult performPlacement(final IMultiStateSnapshot source, final BlockItemUseContext context, final boolean simulate)
     {
-        final BlockPos targetedPosition = context.getClickedPos().offset(context.getClickedFace().getOpposite().getNormal());
-        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), targetedPosition);
+        final Vector3d targetedPosition = context.getPlayer().isCrouching() ?
+                                            context.getClickLocation()
+                                            : Vector3d.atLowerCornerOf(context.getClickedPos().offset(context.getClickedFace().getOpposite().getNormal()));
+        final IWorldAreaMutator areaMutator =
+          IMutatorFactory.getInstance().covering(
+            context.getLevel(),
+            targetedPosition,
+            targetedPosition.add(0.9999,0.9999,0.9999)
+          );
 
-        final BlockState targetState = context.getLevel().getBlockState(targetedPosition);
-        final boolean isChiseledBlock = targetState
-          .getBlock() instanceof IMultiStateBlock;
+        final boolean isChiseledBlock = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
+          .map(pos -> context.getLevel().getBlockState(pos))
+          .allMatch(state -> state.getBlock() instanceof IMultiStateBlock);
 
         if (isChiseledBlock)
         {
             return PlacementResult.failure(NOT_FITTING_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotASolidBlock.getText());
         }
 
-        final boolean isSupported = IEligibilityManager.getInstance().canBeChiseled(
-          targetState
-        );
+        final boolean isSupported = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
+          .map(pos -> context.getLevel().getBlockState(pos))
+          .allMatch(IEligibilityManager.getInstance()::canBeChiseled);
 
         if (!isSupported)
         {
             return PlacementResult.failure(NOT_FITTING_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotASupportedBlock.getText());
         }
 
-        final int totalBitCount = source.getStatics().getStateCounts().entrySet()
-          .stream().filter(e -> !e.getKey().isAir())
-          .mapToInt(Map.Entry::getValue)
-          .sum();
+        final Map<BlockState, Integer> extractedBitsCount = source.stream()
+                                                              .filter(s -> !s.getState().isAir())
+                                                              .map(IStateEntryInfo::getStartPoint)
+                                                              .map(areaMutator::getInAreaTarget)
+                                                              .filter(Optional::isPresent)
+                                                              .map(Optional::get)
+                                                              .filter(s -> !s.getState().isAir())
+                                                              .collect(
+                                                                Collectors.toMap(
+                                                                  IStateEntryInfo::getState,
+                                                                  s -> 1,
+                                                                  Integer::sum
+                                                                )
+                                                              );
 
         final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(context.getPlayer());
         final boolean hasRequiredSpace = context.getPlayer().isCreative() ||
-                                           playerBitInventory.canInsert(targetState, totalBitCount);
+                                           extractedBitsCount.entrySet().stream().allMatch(e -> playerBitInventory.canInsert(e.getKey(), e.getValue()));
 
         if (!hasRequiredSpace)
         {
@@ -136,10 +156,7 @@ public class ImposePatternPlacementType extends ForgeRegistryEntry<IPatternPlace
 
         if (!context.getPlayer().isCreative())
         {
-            playerBitInventory.insert(
-              targetState,
-              totalBitCount
-            );
+            extractedBitsCount.forEach(playerBitInventory::insert);
             source.getStatics().getStateCounts().forEach(playerBitInventory::extract);
         }
 
@@ -147,10 +164,15 @@ public class ImposePatternPlacementType extends ForgeRegistryEntry<IPatternPlace
     }
 
     @Override
-    public BlockPos getTargetedBlockPos(
+    public Vector3d getTargetedPosition(
       final ItemStack heldStack, final PlayerEntity playerEntity, final BlockRayTraceResult blockRayTraceResult)
     {
-        return blockRayTraceResult.getBlockPos();
+        if (playerEntity.isCrouching())
+        {
+            return blockRayTraceResult.getLocation();
+        }
+
+        return Vector3d.atLowerCornerOf(blockRayTraceResult.getBlockPos());
     }
 
     @Override

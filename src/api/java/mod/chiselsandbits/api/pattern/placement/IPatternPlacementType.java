@@ -7,7 +7,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
@@ -55,5 +54,5 @@ public interface IPatternPlacementType extends IForgeRegistryEntry<IPatternPlace
      * @param blockRayTraceResult The block ray trace result in the current context.
      * @return The position of the potential placement.
      */
-    BlockPos getTargetedBlockPos(ItemStack heldStack, PlayerEntity playerEntity, BlockRayTraceResult blockRayTraceResult);
+    Vector3d getTargetedPosition(ItemStack heldStack, PlayerEntity playerEntity, BlockRayTraceResult blockRayTraceResult);
 }

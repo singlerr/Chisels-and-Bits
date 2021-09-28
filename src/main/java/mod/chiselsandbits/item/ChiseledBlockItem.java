@@ -3,7 +3,6 @@ package mod.chiselsandbits.item;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.chiseled.IChiseledBlockItem;
-import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
@@ -23,6 +22,7 @@ import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkSection;
@@ -30,8 +30,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-
-import net.minecraft.item.Item.Properties;
 
 public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
 {
@@ -41,58 +39,42 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
         super(blockIn, builder);
     }
 
-    /**
-     * Creates an itemstack aware context wrapper that gives access to the multistate information contained within the given itemstack.
-     *
-     * @param stack The stack to get an {@link IMultiStateItemStack} for.
-     * @return The {@link IMultiStateItemStack} that represents the data in the given itemstack.
-     */
-    @NotNull
-    @Override
-    public IMultiStateItemStack createItemStack(final ItemStack stack)
-    {
-        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_ENTITY_DATA)){
-            final ChunkSection legacyLoadedChunkSection = LegacyLoadManager.getInstance().attemptLegacyBlockEntityLoad(
-              stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_ENTITY_DATA)
-            );
-
-            final IMultiStateSnapshot snapshot = MultiStateSnapshotUtils.createFromSection(legacyLoadedChunkSection);
-            final IMultiStateItemStack multiStateItemStack = snapshot.toItemStack();
-
-            final ItemStack tempStack = multiStateItemStack.toBlockStack();
-            stack.setTag(tempStack.getTag());
-        }
-
-        return new SingleBlockMultiStateItemStack(stack);
-    }
-
     @NotNull
     @Override
     public ActionResultType place(@NotNull final BlockItemUseContext context)
     {
         final IAreaAccessor source = this.createItemStack(context.getItemInHand());
-        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
+        final IWorldAreaMutator areaMutator = context.getPlayer().isCrouching() ?
+                                                IMutatorFactory.getInstance().covering(
+                                                  context.getLevel(),
+                                                  context.getClickLocation(),
+                                                  context.getClickLocation().add(1d, 1d, 1d)
+                                                )
+                                                :
+                                                  IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
         final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();
 
         final boolean noCollisions = source.stream().sequential()
-                .allMatch(stateEntryInfo -> {
-                    try
-                    {
-                        attemptTarget.setInAreaTarget(
-                          stateEntryInfo.getState(),
-                          stateEntryInfo.getStartPoint()
-                        );
+          .allMatch(stateEntryInfo -> {
+              try
+              {
+                  attemptTarget.setInAreaTarget(
+                    stateEntryInfo.getState(),
+                    stateEntryInfo.getStartPoint()
+                  );
 
-                        return true;
-                    }
-                    catch (SpaceOccupiedException exception)
-                    {
-                        return false;
-                    }
-                });
+                  return true;
+              }
+              catch (SpaceOccupiedException exception)
+              {
+                  return false;
+              }
+          });
 
-        if (noCollisions) {
-            try (IBatchMutation ignored = areaMutator.batch()) {
+        if (noCollisions)
+        {
+            try (IBatchMutation ignored = areaMutator.batch())
+            {
                 source.stream().sequential().forEach(
                   stateEntryInfo -> {
                       try
@@ -115,6 +97,32 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
         return ActionResultType.FAIL;
     }
 
+    /**
+     * Creates an itemstack aware context wrapper that gives access to the multistate information contained within the given itemstack.
+     *
+     * @param stack The stack to get an {@link IMultiStateItemStack} for.
+     * @return The {@link IMultiStateItemStack} that represents the data in the given itemstack.
+     */
+    @NotNull
+    @Override
+    public IMultiStateItemStack createItemStack(final ItemStack stack)
+    {
+        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_ENTITY_DATA))
+        {
+            final ChunkSection legacyLoadedChunkSection = LegacyLoadManager.getInstance().attemptLegacyBlockEntityLoad(
+              stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_ENTITY_DATA)
+            );
+
+            final IMultiStateSnapshot snapshot = MultiStateSnapshotUtils.createFromSection(legacyLoadedChunkSection);
+            final IMultiStateItemStack multiStateItemStack = snapshot.toItemStack();
+
+            final ItemStack tempStack = multiStateItemStack.toBlockStack();
+            stack.setTag(tempStack.getTag());
+        }
+
+        return new SingleBlockMultiStateItemStack(stack);
+    }
+
     @Override
     public void appendHoverText(
       final @NotNull ItemStack stack, @Nullable final World worldIn, final @NotNull List<ITextComponent> tooltip, final @NotNull ITooltipFlag flagIn)
@@ -127,8 +135,11 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     public boolean canPlace(final ItemStack heldStack, final PlayerEntity playerEntity, final BlockRayTraceResult blockRayTraceResult)
     {
         final IAreaAccessor source = this.createItemStack(heldStack);
-        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(playerEntity.level, getTargetedBlockPos(
-          heldStack, playerEntity, blockRayTraceResult));
+        final Vector3d target = getTargetedBlockPos(heldStack, playerEntity, blockRayTraceResult);
+        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().covering(
+          playerEntity.level,
+          target,
+          target.add(1,1,1));
         final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();
 
         final boolean noCollision = source.stream()

@@ -1,7 +1,6 @@
 package mod.chiselsandbits.pattern.placement;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
-import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
@@ -12,6 +11,7 @@ import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.pattern.placement.PlacementResult;
+import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.registrars.ModPatternPlacementTypes;
 import net.minecraft.block.BlockState;
@@ -65,12 +65,19 @@ public class CarvePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
     @Override
     public PlacementResult performPlacement(final IMultiStateSnapshot source, final BlockItemUseContext context, final boolean simulate)
     {
-        final BlockPos targetedPosition = context.getClickedPos().offset(context.getClickedFace().getOpposite().getNormal());
-        final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), targetedPosition);
+        final Vector3d targetedPosition = context.getPlayer().isCrouching() ?
+                                            context.getClickLocation()
+                                            : Vector3d.atLowerCornerOf(context.getClickedPos().offset(context.getClickedFace().getOpposite().getNormal()));
+        final IWorldAreaMutator areaMutator =
+          IMutatorFactory.getInstance().covering(
+            context.getLevel(),
+            targetedPosition,
+            targetedPosition.add(0.9999,0.9999,0.9999)
+          );
 
-        final BlockState targetState = context.getLevel().getBlockState(targetedPosition);
-        final boolean isChiseledBlock = targetState
-          .getBlock() instanceof IMultiStateBlock;
+        final boolean isChiseledBlock = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
+          .map(pos -> context.getLevel().getBlockState(pos))
+          .allMatch(state -> state.getBlock() instanceof IMultiStateBlock);
 
         if (!isChiseledBlock)
         {
@@ -115,9 +122,7 @@ public class CarvePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
             source.stream()
               .filter(s -> !s.getState().isAir())
               .forEach(
-                stateEntryInfo -> {
-                    areaMutator.clearInAreaTarget(stateEntryInfo.getStartPoint());
-                }
+                stateEntryInfo -> areaMutator.clearInAreaTarget(stateEntryInfo.getStartPoint())
               );
         }
 
@@ -130,10 +135,15 @@ public class CarvePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
     }
 
     @Override
-    public BlockPos getTargetedBlockPos(
+    public Vector3d getTargetedPosition(
       final ItemStack heldStack, final PlayerEntity playerEntity, final BlockRayTraceResult blockRayTraceResult)
     {
-        return blockRayTraceResult.getBlockPos();
+        if (playerEntity.isCrouching())
+        {
+            return blockRayTraceResult.getLocation();
+        }
+
+        return Vector3d.atLowerCornerOf(blockRayTraceResult.getBlockPos());
     }
 
     @Override

@@ -87,7 +87,7 @@ public class WorldRenderLastHandler
 
         final VoxelShape wireFrame = wireframeItem.getWireFrame(heldStack, playerEntity, blockRayTraceResult);
         final Vector3d color = wireframeItem.getWireFrameColor(heldStack, playerEntity, blockRayTraceResult);
-        final BlockPos targetedRenderPos = wireframeItem.getTargetedBlockPos(heldStack, playerEntity, blockRayTraceResult);
+        final Vector3d targetedRenderPos = wireframeItem.getTargetedBlockPos(heldStack, playerEntity, blockRayTraceResult);
 
         ChiseledBlockWireframeRenderer.getInstance().renderShape(
           event.getMatrixStack(),

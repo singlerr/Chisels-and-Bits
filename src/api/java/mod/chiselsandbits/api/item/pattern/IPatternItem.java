@@ -6,12 +6,10 @@ import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.pattern.placement.PlacementResult;
 import mod.chiselsandbits.api.sealing.ISupportsSealing;
-import mod.chiselsandbits.api.util.ColorUtils;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.vector.Vector3d;
@@ -52,7 +50,7 @@ public interface IPatternItem extends IMultiStateItem, ISupportsSealing, IWithMo
     }
 
     @Override
-    default BlockPos getTargetedBlockPos(ItemStack heldStack, PlayerEntity playerEntity, BlockRayTraceResult blockRayTraceResult) {
-        return getMode(heldStack).getTargetedBlockPos(heldStack, playerEntity, blockRayTraceResult);
+    default Vector3d getTargetedBlockPos(ItemStack heldStack, PlayerEntity playerEntity, BlockRayTraceResult blockRayTraceResult) {
+        return getMode(heldStack).getTargetedPosition(heldStack, playerEntity, blockRayTraceResult);
     }
 }
