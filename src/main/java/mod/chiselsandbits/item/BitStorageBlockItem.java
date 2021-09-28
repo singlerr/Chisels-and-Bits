@@ -1,23 +1,23 @@
 package mod.chiselsandbits.item;
 
 import mod.chiselsandbits.api.config.Configuration;
-import mod.chiselsandbits.api.util.DeprecationHelper;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.client.ister.BitStorageISTER;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.IItemRenderProperties;
@@ -60,7 +60,8 @@ public class BitStorageBlockItem extends BlockItem
         }
         else
         {
-            Configuration.getInstance().getCommon().helpText( LocalStrings.HelpBitTankFilled, tooltip, DeprecationHelper.translateToLocal(fluid.getTranslationKey()),
+            Configuration.getInstance().getCommon().helpText( LocalStrings.HelpBitTankFilled, tooltip,
+              new TranslatableComponent(fluid.getTranslationKey()),
               String.valueOf((int) Math.floor(fluid.getAmount() * 4.096)));
         }
     }

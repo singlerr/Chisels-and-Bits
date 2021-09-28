@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
@@ -53,6 +54,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -356,7 +358,18 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                                      areaAccessor -> new CollisionPredicate(pos.immutable(), worldIn)))
                                    .orElse(Shapes.empty());
 
-        return shape.isEmpty() ? Shapes.block() : shape;
+        if (shape.isEmpty()) {
+            final boolean justFluids = getBlockEntityFromOrThrow(worldIn, pos)
+                                         .map(IAreaAccessor::stream)
+                                         .map(stream -> stream
+                                           .allMatch(stateEntry -> stateEntry.getState().isAir() || !stateEntry.getState().getFluidState().isEmpty())
+                                         )
+                                         .orElse(false);
+
+            return justFluids ? shape : Shapes.block();
+        }
+
+        return shape;
     }
 
     @NotNull

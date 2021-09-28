@@ -14,7 +14,7 @@ import java.util.function.Function;
 
 public enum MeasuringType implements IToolModeGroup
 {
-    BIT(LocalStrings.TapeMeasureBit.getLocalText(),
+    BIT(LocalStrings.TapeMeasureBit.getText(),
       new ResourceLocation(Constants.MOD_ID, "textures/icons/bit.png"),
       v -> Vec3.atLowerCornerOf(new BlockPos(v.multiply(16, 16, 16))).multiply(1 / 16d, 1 / 16d, 1 / 16d),
       (from, to) -> {
@@ -31,7 +31,7 @@ public enum MeasuringType implements IToolModeGroup
             Math.max(from.z(), to.z())
           );
       }),
-    BLOCK( LocalStrings.TapeMeasureBlock.getLocalText(), new ResourceLocation(Constants.MOD_ID,"textures/icons/block.png"), v -> Vec3.atLowerCornerOf(new BlockPos(v)),
+    BLOCK( LocalStrings.TapeMeasureBlock.getText(), new ResourceLocation(Constants.MOD_ID,"textures/icons/block.png"), v -> Vec3.atLowerCornerOf(new BlockPos(v)),
       (from, to) -> {
           return new Vec3(
             Math.min(from.x(), to.x()),
@@ -46,7 +46,7 @@ public enum MeasuringType implements IToolModeGroup
             Math.max(from.z(), to.z())
           );
       }),
-    DISTANCE( LocalStrings.TapeMeasureDistance.getLocalText(), new ResourceLocation(Constants.MOD_ID,"textures/icons/line.png"), Function.identity(),
+    DISTANCE( LocalStrings.TapeMeasureDistance.getText(), new ResourceLocation(Constants.MOD_ID,"textures/icons/line.png"), Function.identity(),
       (from, to) -> from,
       (from, to) -> to);
 
@@ -70,7 +70,7 @@ public enum MeasuringType implements IToolModeGroup
     }
 
     @Override
-    public ResourceLocation getIcon()
+    public @NotNull ResourceLocation getIcon()
     {
         return icon;
     }

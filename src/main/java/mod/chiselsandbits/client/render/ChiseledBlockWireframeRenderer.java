@@ -2,6 +2,7 @@ package mod.chiselsandbits.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3d;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.client.model.baked.chiseled.ChiselRenderType;
@@ -53,40 +54,26 @@ public class ChiseledBlockWireframeRenderer
     {
     }
 
-    public void renderShape(final PoseStack stack, final IAreaAccessor accessor, final BlockState primaryState, final BlockPos position) {
+    public void renderShape(final PoseStack stack, final VoxelShape wireFrame, final BlockPos position, final Vec3 color) {
         stack.pushPose();
-
-        final VoxelShape wireFrame = VoxelShapeManager.getInstance().get(
-          accessor,
-          accessor1 -> NONE_AIR_PREDICATE
-        );
 
         Vec3 vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         double xView = vector3d.x();
         double yView = vector3d.y();
         double zView = vector3d.z();
 
+        //48/255f, 120/255f, 201/255f
         RenderSystem.disableDepthTest();
         LevelRenderer.renderShape(
           stack,
           Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.WIREFRAME_LINES.get()),
           wireFrame,
           position.getX() - xView, position.getY() - yView, position.getZ() - zView,
-          48/255f, 120/255f, 201/255f, 1f
+          (float) color.x(), (float) color.y(), (float) color.z() , 1f
         );
         Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.WIREFRAME_LINES.get());
         RenderSystem.enableDepthTest();
 
         stack.popPose();
-    }
-
-    private BakedModel buildAccessorModel(final IAreaAccessor accessor, final BlockState primaryState) {
-        //TODO: Possibly cache the result here.
-
-        return new CombinedModel(
-          Arrays.stream(ChiselRenderType.values())
-            .map(renderType -> ChiseledBlockBakedModelManager.getInstance().get(accessor, primaryState, renderType))
-            .toArray(BakedModel[]::new)
-        );
     }
 }

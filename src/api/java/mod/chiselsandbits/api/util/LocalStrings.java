@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.util;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public enum LocalStrings
 {
@@ -119,11 +119,28 @@ public enum LocalStrings
     LongModificationTableHelp("modification.table.help.long"),
 
     CommandGiveErrorBlockStateNotChiselable("command.give.blockstate.not-chiselable"),
-    CommandFillCompleted("command.fill.completed");
+    CommandFillCompleted("command.fill.completed"),
+
+    PatternItemTooltipModeGrouped("pattern.item.tooltip.mode.grouped"),
+    PatternItemTooltipModeSimple("pattern.item.tooltip.mode.simple"),
+
+    PatternPlacementModePlacement("pattern.placement.mode.placement"),
+    PatternPlacementModeRemoval("pattern.placement.mode.removal"),
+    PatternPlacementModeImposement("pattern.placement.mode.imposement"),
+    PatternPlacementModeMerge("pattern.placement.mode.merge"),
+    PatternPlacementModeCarving("pattern.placement.mode.carving"),
+
+    PatternPlacementCollision("pattern.placement.failure.collision"),
+    PatternPlacementNoBitSpace("pattern.placement.failure.no.bit.space"),
+    PatternPlacementNotEnoughBits("pattern.placement.failure.no.bits"),
+    PatternPlacementNotASolidBlock("pattern.placement.failure.not.a.solid.block"),
+    PatternPlacementNotAChiseledBlock("pattern.placement.failure.not.a.chiseled.block"),
+    PatternPlacementNotAnAirBlock("pattern.placement.failure.not.a.air.block"),
+    PatternPlacementNotASupportedBlock("pattern.placement.failure.not.a.supported.block");
 
     private final String string;
 
-    private LocalStrings(
+    LocalStrings(
       final String postFix)
     {
         string = "mod.chiselsandbits." + postFix;
@@ -135,26 +152,15 @@ public enum LocalStrings
         return string;
     }
 
-    public Component getLocalText()
+    public Component getText()
     {
-        return new TextComponent(getLocal());
+        return new TranslatableComponent(string);
     }
 
-    public String getLocal()
-    {
-        return DeprecationHelper.translateToLocal(string);
-    }
-
-    public Component getLocalText(
+    public Component getText(
       final Object... args
     )
     {
-        return new TextComponent(getLocal(args));
-    }
-
-    public String getLocal(
-      final Object... args)
-    {
-        return DeprecationHelper.translateToLocal(string, args);
+        return new TranslatableComponent(string, args);
     }
 }

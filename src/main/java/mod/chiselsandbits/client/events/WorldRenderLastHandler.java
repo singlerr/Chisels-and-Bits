@@ -1,7 +1,6 @@
 package mod.chiselsandbits.client.events;
 
-import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
-import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
+import mod.chiselsandbits.api.item.wireframe.IWireframeProvidingItem;
 import mod.chiselsandbits.api.item.withhighlight.IWithHighlightItem;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.api.util.constants.Constants;
@@ -9,11 +8,14 @@ import mod.chiselsandbits.client.render.ChiseledBlockWireframeRenderer;
 import mod.chiselsandbits.client.render.MeasurementRenderer;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -69,7 +71,7 @@ public class WorldRenderLastHandler
             return;
 
         final Item heldItem = heldStack.getItem();
-        if (!(heldItem instanceof final IMultiStateItem multiStateItem))
+        if (!(heldItem instanceof IWireframeProvidingItem))
             return;
 
         final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
@@ -79,13 +81,17 @@ public class WorldRenderLastHandler
         if (!(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
             return;
 
-        final IMultiStateItemStack multiStateItemStack = multiStateItem.createItemStack(heldStack);
+        final IWireframeProvidingItem wireframeItem = (IWireframeProvidingItem) heldItem;
+
+        final VoxelShape wireFrame = wireframeItem.getWireFrame(heldStack, playerEntity, blockRayTraceResult);
+        final Vec3 color = wireframeItem.getWireFrameColor(heldStack, playerEntity, blockRayTraceResult);
+        final BlockPos targetedRenderPos = wireframeItem.getTargetedBlockPos(heldStack, playerEntity, blockRayTraceResult);
 
         ChiseledBlockWireframeRenderer.getInstance().renderShape(
           event.getMatrixStack(),
-          multiStateItemStack,
-          multiStateItemStack.getStatistics().getPrimaryState(),
-          blockRayTraceResult.getBlockPos().offset(blockRayTraceResult.getDirection().getNormal())
+          wireFrame,
+          targetedRenderPos,
+          color
         );
     }
 }

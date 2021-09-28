@@ -2,11 +2,13 @@ package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
+import mod.chiselsandbits.api.item.pattern.IPatternItem;
 import mod.chiselsandbits.api.item.withhighlight.IWithHighlightItem;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.item.ChiseledBlockItem;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -147,6 +149,41 @@ public class ItemStackUtils
         }
 
         return ItemStack.EMPTY;
+    }
+
+    public static ItemStack getPatternItemStackFromPlayer(@Nullable final Player playerEntity)
+    {
+        if (playerEntity == null)
+        {
+            return ItemStack.EMPTY;
+        }
+
+        if (playerEntity.getMainHandItem().getItem() instanceof IPatternItem)
+        {
+            return playerEntity.getMainHandItem();
+        }
+
+        if (playerEntity.getOffhandItem().getItem() instanceof IPatternItem)
+        {
+            return playerEntity.getOffhandItem();
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+    public static InteractionHand getPatternHandFromPlayer(@Nullable final Player playerEntity)
+    {
+        if (playerEntity == null)
+        {
+            return InteractionHand.MAIN_HAND;
+        }
+
+        if (playerEntity.getOffhandItem().getItem() instanceof IPatternItem)
+        {
+            return InteractionHand.OFF_HAND;
+        }
+
+        return InteractionHand.MAIN_HAND;
     }
 
     public static ItemStack getBitItemStackFromPlayer(@Nullable final Player playerEntity)

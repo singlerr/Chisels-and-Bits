@@ -8,7 +8,6 @@ import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
-import mod.chiselsandbits.inventory.bit.IllegalBitInventory;
 import mod.chiselsandbits.inventory.bit.SlottedBitInventoryItemStack;
 import mod.chiselsandbits.network.packets.OpenBagGuiPacket;
 import mod.chiselsandbits.registrars.ModItems;
@@ -89,7 +88,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
         }
         else
         {
-            tooltip.add(new TextComponent(LocalStrings.ShiftDetails.getLocal()));
+            tooltip.add(LocalStrings.ShiftDetails.getText());
         }
     }
 

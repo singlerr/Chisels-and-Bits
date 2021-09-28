@@ -1,12 +1,17 @@
 package mod.chiselsandbits.api.util;
 
-import org.lwjgl.system.CallbackI;
+import com.mojang.math.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 public class ColorUtils
 {
 
     public static final int FULL_CHANNEL = 255;
     public static final int EMPTY_CHANNEL = 0;
+
+    public static final Vec3     SUCCESSFUL_PATTERN_PLACEMENT_COLOR            = new Vec3(48/255f, 120/255f, 201/255f);
+    public static final Vec3 NOT_FITTING_PATTERN_PLACEMENT_COLOR           = new Vec3(183/255f, 65/255f, 14/255f);
+    public static final Vec3 MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR = new Vec3(255/255f, 219/255f, 88/255f);
 
     private ColorUtils()
     {

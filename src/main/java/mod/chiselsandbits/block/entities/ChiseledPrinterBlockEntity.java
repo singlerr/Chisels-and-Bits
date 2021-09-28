@@ -342,7 +342,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
     @Override
     public @NotNull Component getDisplayName()
     {
-        return LocalStrings.ChiselStationName.getLocalText();
+        return LocalStrings.ChiselStationName.getText();
     }
 
     public int getAvailablePrimaryBlockState() {
