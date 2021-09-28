@@ -74,11 +74,11 @@ public class ModificationTableBlockStateGenerator implements IDataProvider
         {
             default:
                 return 0;
-            case EAST:
-                return 90;
-            case SOUTH:
-                return 180;
             case WEST:
+                return 90;
+            case NORTH:
+                return 180;
+            case EAST:
                 return 270;
         }
     }
