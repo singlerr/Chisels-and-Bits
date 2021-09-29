@@ -511,6 +511,13 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             initializationState = Blocks.AIR.defaultBlockState();
         }
 
+        if (!IEligibilityManager.getInstance().canBeChiseled(currentState))
+        {
+            return () -> {
+                //Noop
+            };
+        }
+
         final Optional<Block> optionalWithConvertedBlock = IConversionManager.getInstance().getChiseledVariantOf(currentState);
         if (optionalWithConvertedBlock.isPresent())
         {
