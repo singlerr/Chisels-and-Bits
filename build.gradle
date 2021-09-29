@@ -252,6 +252,8 @@ dependencies {
 
     // Add spark to track performance issues.
     runtimeOnly fg.deobf("curse.maven:spark-361579:3245792")
+    // Add DynTress as a test mod
+    runtimeOnly fg.deobf("curse.maven:dynamictrees-252818:3414224")
 
     // data generators.
     apiImplementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
