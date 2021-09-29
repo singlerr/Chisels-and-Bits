@@ -46,7 +46,7 @@ public class RemovalPatternPlacementType extends ForgeRegistryEntry<IPatternPlac
     public VoxelShape buildVoxelShapeForWireframe(
       final IMultiStateSnapshot sourceSnapshot, final PlayerEntity player, final Vector3d targetedPoint, final Direction hitFace)
     {
-        final BlockPos targetedPosition = new BlockPos(targetedPoint).offset(hitFace.getOpposite().getNormal());
+        final BlockPos targetedPosition = hitFace.getAxisDirection() == Direction.AxisDirection.NEGATIVE ? new BlockPos(targetedPoint) : new BlockPos(targetedPoint).offset(hitFace.getOpposite().getNormal());
         final VoxelShape targetingShape = BlockPosStreamProvider.getForRange(
           player.isCrouching() ? targetedPoint : Vector3d.atLowerCornerOf(targetedPosition) ,
           player.isCrouching() ? targetedPoint.add(0.9999, 0.9999,0.9999): Vector3d.atLowerCornerOf(targetedPosition)
