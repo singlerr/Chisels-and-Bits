@@ -85,23 +85,8 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public Stream<IStateEntryInfo> stream()
     {
-        final BlockPos startBlockPos = new BlockPos(getInWorldStartPoint());
-        final BlockPos endBlockPos = new BlockPos(getInWorldEndPoint());
-
-        Stream<BlockPos> positionStream = startBlockPos.equals(endBlockPos) ? Stream.of(startBlockPos) : BlockPosStreamProvider.getForRange(
-          startBlockPos.getX(), startBlockPos.getY(), startBlockPos.getZ(),
-          endBlockPos.getX(), endBlockPos.getY(), endBlockPos.getZ()
-        );
-
-        return positionStream
-          .flatMap(blockPos -> new ChiselAdaptingWorldMutator(getWorld(), blockPos)
-            .inWorldMutableStream()
-            .filter(entry ->  this.getInWorldBoundingBox().intersects(entry.getBoundingBox()) || entry.getBoundingBox().intersects(this.getInWorldBoundingBox()))
-            .map(s -> new PositionAdaptingMutableStateEntry(
-              s,
-              blockPos,
-              world
-              )));
+        return inWorldMutableStream()
+                 .map(IStateEntryInfo.class::cast);
     }
 
     /**
