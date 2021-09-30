@@ -15,6 +15,7 @@ import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
+import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
@@ -28,6 +29,7 @@ import mod.chiselsandbits.item.bit.BitItemManager;
 import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
 import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.multistate.mutator.MutatorFactory;
+import mod.chiselsandbits.neighborhood.BlockNeighborhoodBuilder;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModChiselModes;
 import mod.chiselsandbits.registries.RegistryManager;
@@ -203,5 +205,11 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull IChangeTrackerManager getChangeTrackerManager()
     {
         return ChangeTrackerManger.getInstance();
+    }
+
+    @Override
+    public @NotNull IBlockNeighborhoodBuilder getBlockNeighborhoodBuilder()
+    {
+        return BlockNeighborhoodBuilder.getInstance();
     }
 }

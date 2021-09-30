@@ -3,7 +3,6 @@ package mod.chiselsandbits.block;
 import com.google.common.collect.Sets;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
-import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.Configuration;
@@ -14,8 +13,11 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
+import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
+import mod.chiselsandbits.api.util.StateEntryPredicates;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.utils.EffectUtils;
@@ -52,7 +54,6 @@ import net.minecraftforge.common.ToolAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -314,7 +315,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     {
         final VoxelShape shape = getBlockEntityFromOrThrow(reader, pos)
                                    .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity,
-                                     areaAccessor -> new CollisionPredicate(pos, reader)))
+                                     areaAccessor -> StateEntryPredicates.COLLIDEABLE_ONLY))
                                    .orElse(Shapes.empty());
 
         return shape.isEmpty() ? Shapes.block() : shape;
@@ -355,7 +356,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     {
         final VoxelShape shape = getBlockEntityFromOrThrow(worldIn, pos)
                                    .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity,
-                                     areaAccessor -> new CollisionPredicate(pos.immutable(), worldIn)))
+                                     areaAccessor -> StateEntryPredicates.COLLIDEABLE_ONLY))
                                    .orElse(Shapes.empty());
 
         if (shape.isEmpty()) {
@@ -438,71 +439,5 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     public BlockEntity newBlockEntity(final BlockPos pos, final BlockState state)
     {
         return new ChiseledBlockEntity(pos, state);
-    }
-
-    private static final class CollisionPredicate implements Predicate<IStateEntryInfo>
-    {
-
-        private final BlockPos pos;
-        private final BlockGetter reader;
-
-        private CollisionPredicate(final BlockPos pos, final BlockGetter reader) {
-            this.pos = pos;
-            this.reader = reader;
-        }
-
-        @Override
-        public boolean test(final IStateEntryInfo stateEntryInfo)
-        {
-            return stateEntryInfo.getState().getFluidState().isEmpty() && !stateEntryInfo.getState().isAir();
-        }
-
-        @Override
-        public boolean equals(final Object o)
-        {
-            if (this == o)
-            {
-                return true;
-            }
-            if (!(o instanceof CollisionPredicate))
-            {
-                return false;
-            }
-
-            final CollisionPredicate that = (CollisionPredicate) o;
-
-            if (!Objects.equals(pos, that.pos))
-            {
-                return false;
-            }
-
-            if (reader instanceof Level && !(that.reader instanceof Level))
-            {
-                return false;
-            }
-
-            if (reader instanceof Level) {
-                return ((Level) reader).dimension().getRegistryName().equals(((Level) that.reader).dimension().getRegistryName());
-            }
-
-            return Objects.equals(reader, that.reader);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int result = pos != null ? pos.hashCode() : 0;
-            result = 31 * result + (reader != null ? (reader instanceof Level ? ((Level) reader).dimension().location().hashCode() : reader.hashCode()) : 0);
-            return result;
-        }
-
-        @Override
-        public String toString()
-        {
-            return "CollisionPredicate{" +
-                     "pos=" + pos +
-                     ", reader=" + (reader != null ? (reader instanceof Level ? ((Level) reader).dimension().location().toString() : reader.toString()) : "NULL") +
-                     '}';
-        }
     }
 }

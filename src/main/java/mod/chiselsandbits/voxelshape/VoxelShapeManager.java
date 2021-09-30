@@ -1,33 +1,30 @@
 package mod.chiselsandbits.voxelshape;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
+import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
+import mod.chiselsandbits.utils.SimpleMaxSizedCache;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class VoxelShapeManager implements IVoxelShapeManager
 {
     private static final Logger LOGGER = LogManager.getLogger();
-
     private static final VoxelShapeManager INSTANCE = new VoxelShapeManager();
 
-    private final Cache<Key, VoxelShape> cache = CacheBuilder.newBuilder()
-                                                                           .expireAfterAccess(5, TimeUnit.MINUTES)
-                                                                           .build();
+    private final SimpleMaxSizedCache<Key, VoxelShape> cache = new SimpleMaxSizedCache<>(
+      IChiselsAndBitsAPI.getInstance().getConfiguration().getCommon().collisionBoxCacheSize::get
+    );
 
     private VoxelShapeManager()
     {
@@ -45,27 +42,20 @@ public class VoxelShapeManager implements IVoxelShapeManager
       final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder,
       final boolean simplify)
     {
-        try {
-            final Key cacheKey = new Key(
-              accessor.createNewShapeIdentifier(),
-              offset,
-              selectablePredicateBuilder.apply(accessor),
-              simplify);
+        final Key cacheKey = new Key(
+          accessor.createNewShapeIdentifier(),
+          offset,
+          selectablePredicateBuilder.apply(accessor),
+          simplify);
 
-            return cache.get(cacheKey,
-              () -> {
-                final VoxelShape calculatedShape = VoxelShapeCalculator.calculate(accessor, offset, selectablePredicateBuilder, simplify);
-                if (calculatedShape.isEmpty())
-                    return Shapes.empty();
+        return cache.get(cacheKey,
+          () -> {
+            final VoxelShape calculatedShape = VoxelShapeCalculator.calculate(accessor, offset, selectablePredicateBuilder, simplify);
+            if (calculatedShape.isEmpty())
+                return Shapes.empty();
 
-                return calculatedShape;
-            });
-        }
-        catch (ExecutionException e)
-        {
-            LOGGER.warn("Failed to calculate voxelshape.", e);
-            return Shapes.empty();
-        }
+            return calculatedShape;
+        });
     }
 
     @Override
@@ -80,12 +70,12 @@ public class VoxelShapeManager implements IVoxelShapeManager
           offset, selectablePredicate,
           simplify);
 
-        return Optional.ofNullable(cache.getIfPresent(key));
+        return cache.getIfPresent(key);
     }
 
     public void clearCache()
     {
-        this.cache.asMap().clear();
+        this.cache.clear();
     }
 
     private static final class Key {

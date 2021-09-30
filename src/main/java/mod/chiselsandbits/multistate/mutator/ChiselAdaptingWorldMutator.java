@@ -507,7 +507,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             initializationState = Blocks.AIR.defaultBlockState();
         }
 
-        if (!IEligibilityManager.getInstance().canBeChiseled(currentState))
+        if (!IEligibilityManager.getInstance().canBeChiseled(currentState) && !currentState.isAir())
         {
             return () -> {
                 //Noop
@@ -527,8 +527,9 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             final BlockEntity convertedTileEntity = getWorld().getBlockEntity(getPos());
             if (convertedTileEntity instanceof IMultiStateBlockEntity)
             {
+                final IBatchMutation batchMutation = ((IMultiStateBlockEntity) convertedTileEntity).batch();
                 ((IMultiStateBlockEntity) convertedTileEntity).initializeWith(initializationState);
-                return ((IMultiStateBlockEntity) convertedTileEntity).batch();
+                return batchMutation;
             }
 
             throw new IllegalStateException("Conversion of the existing block of type: " + currentState + " into a chiseled variant failed.");

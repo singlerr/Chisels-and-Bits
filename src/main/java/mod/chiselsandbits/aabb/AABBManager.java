@@ -2,9 +2,11 @@ package mod.chiselsandbits.aabb;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
+import mod.chiselsandbits.utils.SimpleMaxSizedCache;
 import net.minecraft.world.phys.AABB;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,16 +22,15 @@ import java.util.function.Predicate;
 public class AABBManager
 {
     private static final AABBManager INSTANCE = new AABBManager();
-    private static final Logger LOGGER = LogManager.getLogger();
 
     public static AABBManager getInstance()
     {
         return INSTANCE;
     }
 
-    private final Cache<Key, Collection<AABB>> cache = CacheBuilder.newBuilder()
-        .expireAfterAccess(1, TimeUnit.MINUTES)
-        .build();
+    private final SimpleMaxSizedCache<Key, Collection<AABB>> cache = new SimpleMaxSizedCache<>(
+      IChiselsAndBitsAPI.getInstance().getConfiguration().getCommon().collisionBoxCacheSize::get
+    );
 
     private AABBManager()
     {
@@ -46,23 +47,15 @@ public class AABBManager
           selectablePredicate
         );
 
-        try
-        {
-            return cache.get(
-              cacheKey,
-              () -> AABBCompressor.compressStates(accessor, selectablePredicate)
-            );
-        }
-        catch (ExecutionException e)
-        {
-            LOGGER.warn("Failed to calculate the bounding boxes for an area.", e);
-            return Collections.emptyList();
-        }
+        return cache.get(
+          cacheKey,
+          () -> AABBCompressor.compressStates(accessor, selectablePredicate)
+        );
     }
 
     public void clearCache()
     {
-        this.cache.asMap().clear();
+        this.cache.clear();
     }
 
     private static final class Key {

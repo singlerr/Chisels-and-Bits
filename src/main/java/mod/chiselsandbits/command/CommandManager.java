@@ -118,7 +118,7 @@ public class CommandManager
             final BlockState state = BlockStateArgument.getBlock(context, "state").getState();
             try (final IBatchMutation ignored = mutator.batch())
             {
-                mutator.mutableStream().parallel().forEach(
+                mutator.mutableStream().forEach(
                   entry -> {
                       try
                       {
