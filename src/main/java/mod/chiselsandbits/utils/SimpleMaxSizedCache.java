@@ -15,7 +15,7 @@ public class SimpleMaxSizedCache<K, V>
 
     private final LinkedHashMap<K, V> cache = new LinkedHashMap<>();
 
-    private LongSupplier maxSizeSupplier;
+    private final LongSupplier maxSizeSupplier;
 
     public SimpleMaxSizedCache(final long maxSize)
     {
@@ -37,37 +37,29 @@ public class SimpleMaxSizedCache<K, V>
         }
     }
 
-    public V get(final K key) {
+    public synchronized V get(final K key) {
         return cache.get(key);
     }
 
-    public V get(final K key, final Supplier<V> valueSupplier) {
+    public synchronized V get(final K key, final Supplier<V> valueSupplier) {
         if (!cache.containsKey(key))
             evictFromCacheIfNeeded();
 
         return cache.computeIfAbsent(key, (k) -> valueSupplier.get());
     }
 
-    public Optional<V> getIfPresent(final K key) {
+    public synchronized Optional<V> getIfPresent(final K key) {
         return Optional.ofNullable(get(key));
     }
 
-    public void put(final K key, final V value) {
+    public synchronized void put(final K key, final V value) {
         if (!cache.containsKey(key))
             evictFromCacheIfNeeded();
 
         cache.put(key, value);
     }
 
-    public Set<K> keySet() {
-        return cache.keySet();
-    }
-
-    public Collection<V> values() {
-        return cache.values();
-    }
-
-    public void clear() {
+    public synchronized void clear() {
         this.cache.clear();
     }
 }
