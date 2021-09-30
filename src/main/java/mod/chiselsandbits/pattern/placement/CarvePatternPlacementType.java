@@ -128,7 +128,7 @@ public class CarvePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
 
         if (!context.getPlayer().isCreative())
         {
-            totalRemovedBits.forEach(playerBitInventory::insert);
+            totalRemovedBits.forEach(playerBitInventory::insertOrDiscard);
         }
 
         return PlacementResult.success();

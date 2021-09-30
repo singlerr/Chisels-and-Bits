@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import mod.chiselsandbits.aabb.AABBManager;
 import mod.chiselsandbits.api.reloading.ICacheClearingHandler;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.change.ChangeTrackerManger;
 import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.resources.IResourceManager;
@@ -58,6 +59,7 @@ public class DataReloadingResourceManager implements IResourceManagerReloadListe
 
         registerCacheClearer(AABBManager.getInstance()::clearCache)
           .registerCacheClearer(VoxelShapeManager.getInstance()::clearCache)
-          .registerCacheClearer(LocalChiselingContextCache.getInstance()::clearCache);
+          .registerCacheClearer(LocalChiselingContextCache.getInstance()::clearCache)
+          .registerCacheClearer(ChangeTrackerManger.getInstance()::clearCache);
     }
 }

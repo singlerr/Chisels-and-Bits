@@ -3,6 +3,7 @@ package mod.chiselsandbits.api;
 import mod.chiselsandbits.api.addons.IChiselsAndBitsAddon;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.change.IChangeTracker;
+import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
@@ -60,14 +61,6 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     IConversionManager getConversionManager();
-
-    /**
-     * The chiseling change tracker.
-     *
-     * @return The change tracker.
-     */
-    @NotNull
-    IChangeTracker getChangeTracker();
 
     /**
      * Manager which deals with calculating, and optionally caching, the voxel shapes, which
@@ -180,6 +173,15 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     ILocalChiselingContextCache getLocalChiselingContextCache();
+
+    /**
+     * The change tracker manager.
+     * Gives access to each players change tracker.
+     *
+     * @return The change tracker manager
+     */
+    @NotNull
+    IChangeTrackerManager getChangeTrackerManager();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

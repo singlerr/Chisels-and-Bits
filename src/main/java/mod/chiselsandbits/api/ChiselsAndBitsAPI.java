@@ -3,6 +3,7 @@ package mod.chiselsandbits.api;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.change.IChangeTracker;
+import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
@@ -18,6 +19,7 @@ import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.change.ChangeTracker;
+import mod.chiselsandbits.change.ChangeTrackerManger;
 import mod.chiselsandbits.chiseling.conversion.ConversionManager;
 import mod.chiselsandbits.chiseling.eligibility.EligibilityManager;
 import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
@@ -79,18 +81,6 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public IConversionManager getConversionManager()
     {
         return ConversionManager.getInstance();
-    }
-
-    /**
-     * The chiseling change tracker.
-     *
-     * @return The change tracker.
-     */
-    @NotNull
-    @Override
-    public IChangeTracker getChangeTracker()
-    {
-        return ChangeTracker.getInstance();
     }
 
     /**
@@ -207,5 +197,11 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull ILocalChiselingContextCache getLocalChiselingContextCache()
     {
         return LocalChiselingContextCache.getInstance();
+    }
+
+    @Override
+    public @NotNull IChangeTrackerManager getChangeTrackerManager()
+    {
+        return ChangeTrackerManger.getInstance();
     }
 }

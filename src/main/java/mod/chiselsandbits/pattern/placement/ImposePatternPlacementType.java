@@ -156,7 +156,7 @@ public class ImposePatternPlacementType extends ForgeRegistryEntry<IPatternPlace
 
         if (!context.getPlayer().isCreative())
         {
-            extractedBitsCount.forEach(playerBitInventory::insert);
+            extractedBitsCount.forEach(playerBitInventory::insertOrDiscard);
             source.getStatics().getStateCounts().forEach(playerBitInventory::extract);
         }
 

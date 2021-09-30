@@ -3,6 +3,7 @@ package mod.chiselsandbits.block;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.change.IChangeTracker;
+import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
@@ -124,8 +125,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
               .ifPresent(multiStateBlockEntity -> {
                   final IMultiStateSnapshot multiStateSnapshot = multiStateBlockEntity.createSnapshot();
 
-                  IChangeTracker.getInstance().onBlockBroken(
-                    world,
+                  IChangeTrackerManager.getInstance().getChangeTracker(player).onBlockBroken(
                     pos,
                     multiStateSnapshot
                   );

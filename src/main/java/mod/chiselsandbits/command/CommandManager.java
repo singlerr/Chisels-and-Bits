@@ -214,7 +214,7 @@ public class CommandManager
 
         final int insertionCount = Math.min(inventory.getMaxInsertAmount(state), count);
 
-        inventory.insert(state, insertionCount);
+        inventory.insertOrDiscard(state, insertionCount);
 
         return 0;
     }
