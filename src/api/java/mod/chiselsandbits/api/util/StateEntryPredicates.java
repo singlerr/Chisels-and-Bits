@@ -51,4 +51,24 @@ public class StateEntryPredicates
             return obj == this;
         }
     };
+
+    public static final Predicate<IStateEntryInfo> COLLIDEABLE_ONLY = new Predicate<IStateEntryInfo>() {
+        @Override
+        public boolean test(final IStateEntryInfo iStateEntryInfo)
+        {
+            return iStateEntryInfo.getState().getFluidState().isEmpty() && !iStateEntryInfo.getState().isAir();
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return 2;
+        }
+
+        @Override
+        public boolean equals(final Object obj)
+        {
+            return obj == this;
+        }
+    };
 }

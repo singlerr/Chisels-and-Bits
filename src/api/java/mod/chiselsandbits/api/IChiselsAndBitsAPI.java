@@ -16,6 +16,7 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
+import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
@@ -182,6 +183,15 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     IChangeTrackerManager getChangeTrackerManager();
+
+    /**
+     * Gives access to the block neighborhood builder.
+     * Allows for building block specific cache keys when the block environment is required.
+     *
+     * @return The block neighborhood builder.
+     */
+    @NotNull
+    IBlockNeighborhoodBuilder getBlockNeighborhoodBuilder();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

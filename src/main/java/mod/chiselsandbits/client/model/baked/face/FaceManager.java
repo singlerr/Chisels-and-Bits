@@ -1,14 +1,14 @@
 package mod.chiselsandbits.client.model.baked.face;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
+import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.util.DeprecationHelper;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
 import mod.chiselsandbits.client.model.baked.face.model.ModelVertexRange;
 import mod.chiselsandbits.client.model.baked.simple.SimpleGeneratedModel;
 import mod.chiselsandbits.utils.ItemStackUtils;
+import mod.chiselsandbits.utils.SimpleMaxSizedCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -25,6 +25,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.registries.GameData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -32,22 +33,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 public final class FaceManager
 {
-
-    private static final Logger LOGGER = LogManager.getLogger();
-
     private static final Random RANDOM = new Random();
 
-    private static final FaceManager INSTANCE = new FaceManager();
-    private final Cache<Key, ModelQuadLayer[]> cache = CacheBuilder.newBuilder()
-                                                                .expireAfterAccess(1, TimeUnit.HOURS)
-                                                                .build();
+    private static final FaceManager                                INSTANCE = new FaceManager();
 
-    private final Cache<BlockState, Integer> colorCache = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.HOURS).build();
+    private final        SimpleMaxSizedCache<Key, ModelQuadLayer[]> cache    = new SimpleMaxSizedCache<>(
+      IChiselsAndBitsAPI.getInstance().getConfiguration().getClient().faceLayerCacheSize::get
+    );
+    private final SimpleMaxSizedCache<BlockState, Integer> colorCache = new SimpleMaxSizedCache<>(
+      GameData.getBlockStateIDMap()::size
+    );
 
     private FaceManager()
     {
@@ -59,8 +57,8 @@ public final class FaceManager
     }
 
     public void clearCache() {
-        cache.asMap().clear();
-        colorCache.asMap().clear();
+        cache.clear();
+        colorCache.clear();
     }
 
     public ModelQuadLayer[] getCachedFace(
@@ -76,27 +74,19 @@ public final class FaceManager
 
         final Key key = new Key(state, layer, face, primaryStateRenderSeed);
 
-        try
-        {
-            return cache.get(key, () -> {
-                final RenderType original = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
-                try
-                {
-                    ForgeHooksClient.setRenderLayer(layer);
-                    return buildFaceQuadLayers(state, face, primaryStateRenderSeed);
-                }
-                finally
-                {
-                    // restore previous layer.
-                    ForgeHooksClient.setRenderLayer(original);
-                }
-            });
-        }
-        catch (ExecutionException e)
-        {
-            LOGGER.error("Failed to determine face cache entry.", e);
-            return new ModelQuadLayer[0];
-        }
+        return cache.get(key, () -> {
+            final RenderType original = net.minecraftforge.client.MinecraftForgeClient.getRenderLayer();
+            try
+            {
+                ForgeHooksClient.setRenderLayer(layer);
+                return buildFaceQuadLayers(state, face, primaryStateRenderSeed);
+            }
+            finally
+            {
+                // restore previous layer.
+                ForgeHooksClient.setRenderLayer(original);
+            }
+        });
     }
 
     private ModelQuadLayer[] buildFaceQuadLayers(
@@ -466,37 +456,29 @@ public final class FaceManager
     private int getColorFor(
       final BlockState state)
     {
-        try
-        {
-            return colorCache.get(state, () -> {
-                int out;
-                final Fluid fluid = state.getFluidState().getType();
-                if ( fluid != Fluids.EMPTY )
+        return colorCache.get(state, () -> {
+            int out;
+            final Fluid fluid = state.getFluidState().getType();
+            if ( fluid != Fluids.EMPTY )
+            {
+                out = fluid.getAttributes().getColor();
+            }
+            else
+            {
+                final ItemStack target = ItemStackUtils.getItemStackFromBlockState( state );
+
+                if ( target.isEmpty() )
                 {
-                    out = fluid.getAttributes().getColor();
+                    out = 0xffffff;
                 }
                 else
                 {
-                    final ItemStack target = ItemStackUtils.getItemStackFromBlockState( state );
-
-                    if ( target.isEmpty() )
-                    {
-                        out = 0xffffff;
-                    }
-                    else
-                    {
-                        out = Minecraft.getInstance().getItemColors().getColor( target, 0);
-                    }
+                    out = Minecraft.getInstance().getItemColors().getColor( target, 0);
                 }
+            }
 
-                return out;
-            });
-        }
-        catch (ExecutionException e)
-        {
-            LOGGER.warn("Failed to determine the color of a blockstate.", e);
-            return 0;
-        }
+            return out;
+        });
     }
 
     private static final class Key {

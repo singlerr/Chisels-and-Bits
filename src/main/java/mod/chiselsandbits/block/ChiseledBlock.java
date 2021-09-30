@@ -2,7 +2,6 @@ package mod.chiselsandbits.block;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
-import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.Configuration;
@@ -13,8 +12,11 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
+import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
+import mod.chiselsandbits.api.util.StateEntryPredicates;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.utils.EffectUtils;
@@ -51,12 +53,8 @@ import net.minecraftforge.common.ToolType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Predicate;
-
-import net.minecraft.block.AbstractBlock.Properties;
 
 @SuppressWarnings("deprecation")
 public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLoggable
@@ -368,7 +366,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     {
         final VoxelShape shape = getBlockEntityFromOrThrow(reader, pos)
                                    .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity,
-                                     areaAccessor -> new CollisionPredicate(pos, reader)))
+                                     areaAccessor -> StateEntryPredicates.COLLIDEABLE_ONLY))
                                    .orElse(VoxelShapes.empty());
 
         return shape.isEmpty() ? VoxelShapes.block() : shape;
@@ -385,7 +383,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     //TODO: Check if getOpacity needs to be overridden.
 
     @Override
-    public int getLightBlock(final BlockState state, final IBlockReader worldIn, final BlockPos pos)
+    public int getLightBlock(final @NotNull BlockState state, final @NotNull IBlockReader worldIn, final @NotNull BlockPos pos)
     {
         return (int) (float) (getBlockEntityFromOrThrow(worldIn, pos)
                   .map(multiStateBlockEntity -> worldIn.getMaxLightLevel() * multiStateBlockEntity.getStatistics().getFullnessFactor())
@@ -409,7 +407,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     {
         final VoxelShape shape = getBlockEntityFromOrThrow(worldIn, pos)
                                    .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity,
-                                     areaAccessor -> new CollisionPredicate(pos.immutable(), worldIn)))
+                                     areaAccessor -> StateEntryPredicates.COLLIDEABLE_ONLY))
                                    .orElse(VoxelShapes.empty());
 
         if (shape.isEmpty()) {
@@ -484,71 +482,5 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     public @NotNull Fluid takeLiquid(final @NotNull IWorld worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state)
     {
         return Fluids.EMPTY;
-    }
-
-    private static final class CollisionPredicate implements Predicate<IStateEntryInfo>
-    {
-
-        private final BlockPos pos;
-        private final IBlockReader reader;
-
-        private CollisionPredicate(final BlockPos pos, final IBlockReader reader) {
-            this.pos = pos;
-            this.reader = reader;
-        }
-
-        @Override
-        public boolean test(final IStateEntryInfo stateEntryInfo)
-        {
-            return stateEntryInfo.getState().getFluidState().isEmpty() && !stateEntryInfo.getState().isAir();
-        }
-
-        @Override
-        public boolean equals(final Object o)
-        {
-            if (this == o)
-            {
-                return true;
-            }
-            if (!(o instanceof CollisionPredicate))
-            {
-                return false;
-            }
-
-            final CollisionPredicate that = (CollisionPredicate) o;
-
-            if (!Objects.equals(pos, that.pos))
-            {
-                return false;
-            }
-
-            if (reader instanceof World && !(that.reader instanceof World))
-            {
-                return false;
-            }
-
-            if (reader instanceof World) {
-                return ((World) reader).dimension().getRegistryName().equals(((World) that.reader).dimension().getRegistryName());
-            }
-
-            return Objects.equals(reader, that.reader);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int result = pos != null ? pos.hashCode() : 0;
-            result = 31 * result + (reader != null ? (reader instanceof World ? ((World) reader).dimension().location().hashCode() : reader.hashCode()) : 0);
-            return result;
-        }
-
-        @Override
-        public String toString()
-        {
-            return "CollisionPredicate{" +
-                     "pos=" + pos +
-                     ", reader=" + (reader != null ? (reader instanceof World ? ((World) reader).dimension().location().toString() : reader.toString()) : "NULL") +
-                     '}';
-        }
     }
 }

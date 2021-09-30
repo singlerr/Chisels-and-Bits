@@ -28,6 +28,7 @@ public class ClientConfiguration extends AbstractConfiguration
     public ForgeConfigSpec.BooleanValue enableMouseIndicatorInRadialMenu;
 
     public ForgeConfigSpec.LongValue modelCacheSize;
+    public ForgeConfigSpec.LongValue faceLayerCacheSize;
 
     public ForgeConfigSpec.BooleanValue injectIntoJEI;
 
@@ -42,10 +43,10 @@ public class ClientConfiguration extends AbstractConfiguration
         
         enableRightClickModeChange = defineBoolean(builder, "enable-right-click-mode-change", false);
         invertBitBagFullness = defineBoolean(builder, "invert-bit-bag-fullness", false);
-        enableToolbarIcons = defineBoolean(builder, "enable.toolbar.icons", true);;
-        perChiselMode = defineBoolean(builder, "per-chisel-mode", true);;
-        chatModeNotification = defineBoolean(builder, "chat-mode-notification", true);;
-        itemNameModeDisplay = defineBoolean(builder, "item-name-mode-display", true);;
+        enableToolbarIcons = defineBoolean(builder, "enable.toolbar.icons", true);
+        perChiselMode = defineBoolean(builder, "per-chisel-mode", true);
+        chatModeNotification = defineBoolean(builder, "chat-mode-notification", true);
+        itemNameModeDisplay = defineBoolean(builder, "item-name-mode-display", true);
         addBrokenBlocksToCreativeClipboard = defineBoolean(builder, "clipboard.add-broken-blocks", false);
         maxUndoLevel = defineInteger(builder, "undo.max-count", 10);
         maxTapeMeasures = defineInteger(builder, "tape-measure.max-count", 10);
@@ -60,7 +61,8 @@ public class ClientConfiguration extends AbstractConfiguration
         enableFaceLightmapExtraction = defineBoolean(builder, "lighting.face-lightmap-extraction", true);
         useGetLightValue = defineBoolean(builder, "lighting.use-value", true);
         disableCustomVertexFormats = defineBoolean(builder, "vertexformats.custom.disabled", true);
-        modelCacheSize = defineLong(builder, "models.cache.size", 1000, 0, 2000);
+        modelCacheSize = defineLong(builder, "models.cache.size", 10000, 3500, 20000);
+        faceLayerCacheSize = defineLong(builder, "faces.cache.size", 10000, 3500, 20000);
 
         finishCategory(builder);
         createCategory(builder, "client.gui");
