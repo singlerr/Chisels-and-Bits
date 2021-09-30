@@ -16,7 +16,7 @@ public class BitInventoryUtils
     }
 
     public static void insertIntoOrSpawn(final Player playerEntity, final BlockState blockState, final int count) {
-        if (playerEntity == null || playerEntity.getCommandSenderWorld().isClientSide())
+        if (playerEntity == null || playerEntity.getCommandSenderWorld().isClientSide() || count <= 0)
             return;
 
         final IBitInventory inventory = IBitInventoryManager.getInstance().create(playerEntity);

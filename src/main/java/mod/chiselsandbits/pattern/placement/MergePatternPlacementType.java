@@ -165,7 +165,7 @@ public class MergePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
 
         if (!context.getPlayer().isCreative())
         {
-            totalRemovedBits.forEach(playerBitInventory::insert);
+            totalRemovedBits.forEach(playerBitInventory::insertOrDiscard);
             totalAddedBits.forEach(playerBitInventory::extract);
         }
 

@@ -91,7 +91,7 @@ public interface IBitInventory
     int getMaxInsertAmount(final BlockState blockState);
 
     /**
-     * Inserts exactly one bit with the given blockstate from the
+     * Inserts exactly one bit with the given blockstate from
      * the current inventory.
      *
      * @param blockState The blockstate.
@@ -102,7 +102,7 @@ public interface IBitInventory
     }
 
     /**
-     * Inserts a given amount of bits with the given blockstate from the
+     * Inserts a given amount of bits with the given blockstate from
      * the current inventory.
      *
      * @param blockState The blockstate.
@@ -110,6 +110,17 @@ public interface IBitInventory
      * @throws IllegalArgumentException when insertion is not possible.
      */
     void insert(final BlockState blockState, final int count) throws IllegalArgumentException;
+
+    /**
+     * Inserts a given amount of bits with the given blockstate from
+     * the current inventory, discards bits that don't fit.
+     *
+     * @param blockState The blockstate.
+     * @param count The amount of bits to insert.
+     */
+    default void insertOrDiscard(final BlockState blockState, final int count) {
+        insert(blockState, Math.min(getMaxInsertAmount(blockState), count));
+    }
 
     /**
      * Indicates if this inventory is empty or not.

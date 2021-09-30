@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
+import mod.chiselsandbits.api.multistate.accessor.identifier.ILongArrayBackedAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
@@ -540,7 +541,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         }
     }
 
-    private static class Identifier implements IAreaShapeIdentifier
+    private static class Identifier implements ILongArrayBackedAreaShapeIdentifier
     {
         private final long[] identifyingPayload;
 
@@ -565,11 +566,18 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
             {
                 return true;
             }
-            if (!(o instanceof final Identifier that))
+            if (!(o instanceof ILongArrayBackedAreaShapeIdentifier))
             {
                 return false;
             }
-            return Arrays.equals(identifyingPayload, that.identifyingPayload);
+            final ILongArrayBackedAreaShapeIdentifier that = (ILongArrayBackedAreaShapeIdentifier) o;
+            return Arrays.equals(identifyingPayload, that.getBackingData());
+        }
+
+        @Override
+        public long[] getBackingData()
+        {
+            return identifyingPayload;
         }
     }
 

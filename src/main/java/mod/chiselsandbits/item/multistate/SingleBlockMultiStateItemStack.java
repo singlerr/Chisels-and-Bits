@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.item.pattern.IPatternItem;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import mod.chiselsandbits.api.multistate.accessor.identifier.ILongArrayBackedAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
@@ -483,7 +484,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
                  );
     }
 
-    private static final class ShapeIdentifier implements IAreaShapeIdentifier
+    private static final class ShapeIdentifier implements ILongArrayBackedAreaShapeIdentifier
     {
         private final long[] dataArray;
 
@@ -502,17 +503,24 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
             {
                 return true;
             }
-            if (!(o instanceof final ShapeIdentifier that))
+            if (!(o instanceof ILongArrayBackedAreaShapeIdentifier))
             {
                 return false;
             }
-            return Arrays.equals(dataArray, that.dataArray);
+            final ILongArrayBackedAreaShapeIdentifier that = (ILongArrayBackedAreaShapeIdentifier) o;
+            return Arrays.equals(dataArray, that.getBackingData());
         }
 
         @Override
         public int hashCode()
         {
             return Arrays.hashCode(dataArray);
+        }
+
+        @Override
+        public long[] getBackingData()
+        {
+            return dataArray;
         }
     }
 

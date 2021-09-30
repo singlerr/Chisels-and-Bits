@@ -157,7 +157,7 @@ public class RemovalPatternPlacementType extends ForgeRegistryEntry<IPatternPlac
 
         if (!context.getPlayer().isCreative())
         {
-            totalRemovedBits.forEach(playerBitInventory::insert);
+            totalRemovedBits.forEach(playerBitInventory::insertOrDiscard);
         }
 
         return PlacementResult.success();

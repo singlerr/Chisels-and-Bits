@@ -14,6 +14,7 @@ import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
+import mod.chiselsandbits.api.multistate.accessor.identifier.ILongArrayBackedAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
@@ -549,15 +550,17 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             return;
         }
 
-        BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
-          .forEach(blockPos -> this.compressedSection.setBlockState(
-            blockPos.getX(),
-            blockPos.getY(),
-            blockPos.getZ(),
-            currentState
-          ));
+        try(IBatchMutation batchMutation = batch()) {
+            BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
+              .forEach(blockPos -> this.compressedSection.setBlockState(
+                blockPos.getX(),
+                blockPos.getY(),
+                blockPos.getZ(),
+                currentState
+              ));
 
-        this.mutableStatistics.initializeWith(currentState);
+            this.mutableStatistics.initializeWith(currentState);
+        }
     }
 
     /**
@@ -1346,7 +1349,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         }
     }
 
-    private static final class Identifier implements IAreaShapeIdentifier
+    private static final class Identifier implements ILongArrayBackedAreaShapeIdentifier
     {
 
         private final long[] identifyingPayload;
@@ -1372,11 +1375,12 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             {
                 return true;
             }
-            if (!(o instanceof final Identifier that))
+            if (!(o instanceof ILongArrayBackedAreaShapeIdentifier))
             {
                 return false;
             }
-            return Arrays.equals(identifyingPayload, that.identifyingPayload);
+            final ILongArrayBackedAreaShapeIdentifier that = (ILongArrayBackedAreaShapeIdentifier) o;
+            return Arrays.equals(identifyingPayload, that.getBackingData());
         }
 
         @Override
@@ -1385,6 +1389,12 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             return "Identifier{" +
                      "identifyingPayload=" + Arrays.toString(identifyingPayload) +
                      '}';
+        }
+
+        @Override
+        public long[] getBackingData()
+        {
+            return identifyingPayload;
         }
     }
 
