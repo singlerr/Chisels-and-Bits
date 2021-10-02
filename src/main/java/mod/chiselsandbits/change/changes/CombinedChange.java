@@ -2,6 +2,7 @@ package mod.chiselsandbits.change.changes;
 
 import mod.chiselsandbits.api.change.changes.IChange;
 import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
+import net.minecraft.entity.player.PlayerEntity;
 
 import java.util.Collection;
 
@@ -12,32 +13,46 @@ public class CombinedChange implements IChange
     public CombinedChange(final Collection<IChange> changes) {this.changes = changes;}
 
     @Override
-    public boolean canUndo()
-    {
-        return changes.stream().allMatch(IChange::canUndo);
-    }
-
-    @Override
-    public boolean canRedo()
-    {
-        return changes.stream().allMatch(IChange::canRedo);
-    }
-
-    @Override
-    public void undo() throws IllegalChangeAttempt
+    public boolean canUndo(final PlayerEntity player)
     {
         for (IChange change : changes)
         {
-            change.undo();
+            if (!change.canUndo(player))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean canRedo(final PlayerEntity player)
+    {
+        for (IChange change : changes)
+        {
+            if (!change.canRedo(player))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public void undo(final PlayerEntity player) throws IllegalChangeAttempt
+    {
+        for (IChange change : changes)
+        {
+            change.undo(player);
         }
     }
 
     @Override
-    public void redo() throws IllegalChangeAttempt
+    public void redo(final PlayerEntity player) throws IllegalChangeAttempt
     {
         for (IChange change : changes)
         {
-            change.redo();
+            change.redo(player);
         }
     }
 }

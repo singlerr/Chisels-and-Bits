@@ -2,10 +2,9 @@ package mod.chiselsandbits.utils;
 
 import org.apache.commons.lang3.Validate;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.IntSupplier;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
@@ -13,7 +12,8 @@ import java.util.function.Supplier;
 public class SimpleMaxSizedCache<K, V>
 {
 
-    private final LinkedHashMap<K, V> cache = new LinkedHashMap<>();
+    private final Map<K, V> cache = new HashMap<>();
+    private final Queue<K> keyQueue = new LinkedList<>();
 
     private final LongSupplier maxSizeSupplier;
 
@@ -32,8 +32,8 @@ public class SimpleMaxSizedCache<K, V>
     }
 
     private void evictFromCacheIfNeeded() {
-        if (cache.size() == maxSizeSupplier.getAsLong()) {
-            cache.remove(cache.keySet().iterator().next());
+        while (cache.size() >= maxSizeSupplier.getAsLong()) {
+            cache.remove(keyQueue.poll());
         }
     }
 
@@ -45,7 +45,14 @@ public class SimpleMaxSizedCache<K, V>
         if (!cache.containsKey(key))
             evictFromCacheIfNeeded();
 
-        return cache.computeIfAbsent(key, (k) -> valueSupplier.get());
+        if (!cache.containsKey(key))
+        {
+            final V value = valueSupplier.get();
+            put(key, value);
+            return value;
+        }
+
+        return cache.get(key);
     }
 
     public synchronized Optional<V> getIfPresent(final K key) {
@@ -56,6 +63,8 @@ public class SimpleMaxSizedCache<K, V>
         if (!cache.containsKey(key))
             evictFromCacheIfNeeded();
 
+        if (!keyQueue.contains(key))
+            keyQueue.add(key);
         cache.put(key, value);
     }
 

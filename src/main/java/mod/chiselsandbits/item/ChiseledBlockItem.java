@@ -1,5 +1,7 @@
 package mod.chiselsandbits.item;
 
+import mod.chiselsandbits.api.change.IChangeTrackerManager;
+import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.chiseled.IChiseledBlockItem;
@@ -73,7 +75,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
 
         if (noCollisions)
         {
-            try (IBatchMutation ignored = areaMutator.batch())
+            try (IBatchMutation ignored = areaMutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(context.getPlayer())))
             {
                 source.stream().sequential().forEach(
                   stateEntryInfo -> {

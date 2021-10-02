@@ -2,6 +2,7 @@ package mod.chiselsandbits.chiseling.modes.sphere;
 
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Either;
+import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
@@ -82,7 +83,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
 
         return context.getMutator().map(mutator -> {
             try (IBatchMutation ignored =
-                   mutator.batch())
+                   mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
             {
                 final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
 
@@ -166,7 +167,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
                 }
 
                 try (IBatchMutation ignored =
-                       mutator.batch())
+                       mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
                 {
                     mutator.inWorldMutableStream()
                       .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO) && filter.test(state))

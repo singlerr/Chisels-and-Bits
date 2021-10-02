@@ -1,114 +1,32 @@
 package mod.chiselsandbits.change;
 
+import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.change.IChangeTracker;
-import mod.chiselsandbits.api.change.ICombiningChangeTracker;
 import mod.chiselsandbits.api.change.changes.IChange;
+import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
-import mod.chiselsandbits.change.changes.BlockBrokenChange;
-import mod.chiselsandbits.change.changes.BlockPlacedChange;
 import mod.chiselsandbits.change.changes.BlockUpdatedChange;
 import mod.chiselsandbits.change.changes.CombinedChange;
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ChangeTracker implements IChangeTracker
 {
+    protected final LinkedList<IChange> changes = new LinkedList<>();
+    protected final ThreadLocal<Integer> currentIndex = new ThreadLocal<>();
 
-    protected final Deque<IChange> changes = new LinkedList<>();
-    protected final PlayerEntity player;
-
-    public ChangeTracker(final PlayerEntity player) {this.player = player;}
+    public ChangeTracker() {
+        this.currentIndex.set(0);
+    }
 
     public void reset() {
         changes.clear();
-    }
-
-    @Override
-    public void onBlocksBroken(final Map<BlockPos, IMultiStateSnapshot> snapshots)
-    {
-        changes.addFirst(
-          new CombinedChange(
-            snapshots.entrySet().stream()
-              .map(e -> new BlockBrokenChange(
-                player.level,
-                player,
-                e.getKey(),
-                e.getValue(),
-                false
-              ))
-              .collect(Collectors.toSet())
-          )
-        );
-    }
-
-    @Override
-    public void onLastBitsRemoved(final Map<BlockPos, IMultiStateSnapshot> snapshots)
-    {
-        changes.addFirst(
-          new CombinedChange(
-            snapshots.entrySet().stream()
-              .map(e -> new BlockBrokenChange(
-                player.level,
-                player,
-                e.getKey(),
-                e.getValue(),
-                true
-              ))
-              .collect(Collectors.toSet())
-          )
-        );
-    }
-
-    @Override
-    public void onBlocksPlaced(
-      final Map<BlockPos, BlockState> initialStates, final Map<BlockPos, IMultiStateSnapshot> targetStates)
-    {
-        if (!initialStates.keySet().containsAll(targetStates.keySet()) || !targetStates.keySet().containsAll(initialStates.keySet()))
-            throw new IllegalArgumentException("Initial States and Target States reference difference block positions");
-
-        changes.addFirst(
-          new CombinedChange(
-            initialStates.entrySet().stream()
-              .map(e -> new BlockPlacedChange(
-                player.level,
-                player,
-                e.getKey(),
-                e.getValue(),
-                targetStates.get(e.getKey()),
-                false
-              ))
-              .collect(Collectors.toSet())
-          )
-        );
-    }
-
-    @Override
-    public void onFirstBitsPlaced(
-      final Map<BlockPos, BlockState> initialStates, final Map<BlockPos, IMultiStateSnapshot> targetStates)
-    {
-        if (!initialStates.keySet().containsAll(targetStates.keySet()) || !targetStates.keySet().containsAll(initialStates.keySet()))
-            throw new IllegalArgumentException("Initial States and Target States reference difference block positions");
-
-        changes.addFirst(
-          new CombinedChange(
-            initialStates.entrySet().stream()
-              .map(e -> new BlockPlacedChange(
-                player.level,
-                player,
-                e.getKey(),
-                e.getValue(),
-                targetStates.get(e.getKey()),
-                true
-              ))
-              .collect(Collectors.toSet())
-          )
-        );
     }
 
     @Override
@@ -122,8 +40,6 @@ public class ChangeTracker implements IChangeTracker
           new CombinedChange(
             beforeStates.entrySet().stream()
               .map(e -> new BlockUpdatedChange(
-                player.level,
-                player,
                 e.getKey(),
                 e.getValue(),
                 afterState.get(e.getKey())
@@ -131,17 +47,74 @@ public class ChangeTracker implements IChangeTracker
               .collect(Collectors.toSet())
           )
         );
-    }
 
-    @Override
-    public ICombiningChangeTracker openToCombine()
-    {
-        return new CombiningChangeTracker(player, changes::add);
+        final int maxSize = IChiselsAndBitsAPI.getInstance().getConfiguration().getServer().changeTrackerSize.get();
+        if (changes.size() > maxSize) {
+            while(changes.size() > maxSize) {
+                changes.removeLast();
+            }
+        }
     }
 
     @Override
     public Deque<IChange> getChanges()
     {
         return new LinkedList<>(changes);
+    }
+
+    public Optional<IChange> getCurrentUndo()
+    {
+        if (getChanges().size() <= currentIndex.get() || currentIndex.get() < 0) {
+            return Optional.empty();
+        }
+
+        return Optional.of(changes.get(currentIndex.get()));
+    }
+
+    public Optional<IChange> getCurrentRedo()
+    {
+        if (getChanges().size() <= currentIndex.get() || currentIndex.get() < 1) {
+            return Optional.empty();
+        }
+
+        return Optional.of(changes.get(currentIndex.get() - 1));
+    }
+
+    @Override
+    public boolean canUndo(final PlayerEntity player)
+    {
+        return getCurrentUndo().map(c -> c.canUndo(player)).orElse(false);
+    }
+
+    @Override
+    public boolean canRedo(final PlayerEntity player)
+    {
+        return getCurrentRedo().map(c -> c.canRedo(player)).orElse(false);
+    }
+
+    @Override
+    public void undo(final PlayerEntity player) throws IllegalChangeAttempt
+    {
+        if (!canUndo(player))
+            throw new IllegalChangeAttempt();
+
+        if (getCurrentUndo().isPresent()) {
+            final IChange change = getCurrentUndo().get();
+            change.undo(player);
+            currentIndex.set(Math.max(changes.size(), currentIndex.get() + 1));
+        }
+    }
+
+    @Override
+    public void redo(final PlayerEntity player) throws IllegalChangeAttempt
+    {
+        if (!canRedo(player))
+            throw new IllegalChangeAttempt();
+
+        if (getCurrentRedo().isPresent()) {
+            final IChange change = getCurrentRedo().get();
+            change.redo(player);
+            currentIndex.set(Math.max(0, currentIndex.get() - 1));
+        }
     }
 }

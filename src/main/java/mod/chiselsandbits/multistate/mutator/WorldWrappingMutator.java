@@ -1,5 +1,6 @@
 package mod.chiselsandbits.multistate.mutator;
 
+import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
@@ -381,6 +382,36 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     }
 
     @Override
+    public IBatchMutation batch(final IChangeTracker changeTracker)
+    {
+        final Map<BlockPos, IMultiStateSnapshot> before = BlockPosStreamProvider.getForRange(
+            getInWorldStartPoint(), getInWorldEndPoint()
+          ).map(blockPos -> new ChiselAdaptingWorldMutator(
+            getWorld(), blockPos))
+          .collect(Collectors.toMap(
+            ChiselAdaptingWorldMutator::getPos,
+            ChiselAdaptingWorldMutator::createSnapshot
+          ));
+
+        final IBatchMutation innerMutation = batch();
+        return () -> {
+            final Map<BlockPos, IMultiStateSnapshot> after = BlockPosStreamProvider.getForRange(
+                getInWorldStartPoint(), getInWorldEndPoint()
+              ).map(blockPos -> new ChiselAdaptingWorldMutator(
+                getWorld(), blockPos))
+              .collect(Collectors.toMap(
+                ChiselAdaptingWorldMutator::getPos,
+                ChiselAdaptingWorldMutator::createSnapshot
+              ));
+
+            innerMutation.close();
+            changeTracker.onBlocksUpdated(
+              before, after
+            );
+        };
+    }
+
+    @Override
     public VoxelShape provideShape(final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder, final BlockPos offset, final boolean simplify)
     {
         final VoxelShape areaShape = VoxelShapes.create(getInWorldBoundingBox().move(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).move(offset));
@@ -402,108 +433,6 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
         );
 
         return simplify ? requestedShape.optimize() : requestedShape;
-    }
-
-    private static final class PositionAdaptingMutableStateEntry implements IMutableStateEntryInfo, IWorldObject
-    {
-        private final IMutableStateEntryInfo source;
-        private final Vector3d               offSet;
-        private final IWorld                 world;
-
-        private PositionAdaptingMutableStateEntry(
-          final IMutableStateEntryInfo source,
-          final BlockPos position, final IWorld world)
-        {
-            this.source = source;
-            this.offSet = Vector3d.atLowerCornerOf(position);
-            this.world = world;
-        }
-
-        /**
-         * The state that this entry represents.
-         *
-         * @return The state.
-         */
-        @Override
-        public BlockState getState()
-        {
-            return source.getState();
-        }
-
-        /**
-         * The start (lowest on all three axi) position of the state that this entry occupies.
-         *
-         * @return The start position of this entry in the given block.
-         */
-        @Override
-        public Vector3d getStartPoint()
-        {
-            return source.getStartPoint().add(offSet);
-        }
-
-        /**
-         * The end (highest on all three axi) position of the state that this entry occupies.
-         *
-         * @return The start position of this entry in the given block.
-         */
-        @Override
-        public Vector3d getEndPoint()
-        {
-            return source.getEndPoint().add(offSet);
-        }
-
-        /**
-         * Sets the current entries state.
-         *
-         * @param blockState The new blockstate of the entry.
-         */
-        @Override
-        public void setState(final BlockState blockState) throws SpaceOccupiedException
-        {
-            source.setState(blockState);
-        }
-
-        /**
-         * Clears the current state entries blockstate. Effectively setting the current blockstate to air.
-         */
-        @Override
-        public void clear()
-        {
-            source.clear();
-        }
-
-        /**
-         * The world the object is in.
-         *
-         * @return The world.
-         */
-        @Override
-        public IWorld getWorld()
-        {
-            return world;
-        }
-
-        /**
-         * The start point of the object in the world.
-         *
-         * @return The start point.
-         */
-        @Override
-        public Vector3d getInWorldStartPoint()
-        {
-            return getStartPoint();
-        }
-
-        /**
-         * The end point of the object in the world.
-         *
-         * @return The end point.
-         */
-        @Override
-        public Vector3d getInWorldEndPoint()
-        {
-            return getEndPoint();
-        }
     }
 
     private static final class BatchMutationLock implements IBatchMutation

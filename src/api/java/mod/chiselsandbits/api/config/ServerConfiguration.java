@@ -17,7 +17,7 @@ public class ServerConfiguration extends AbstractConfiguration
     public ForgeConfigSpec.BooleanValue compatabilityMode;
     public ForgeConfigSpec.IntValue bagStackSize;
     public ForgeConfigSpec.EnumValue<StateEntrySize> bitSize;
-
+    public ForgeConfigSpec.IntValue changeTrackerSize;
 
     protected ServerConfiguration(final ForgeConfigSpec.Builder builder)
     {
@@ -26,6 +26,7 @@ public class ServerConfiguration extends AbstractConfiguration
         blackListRandomTickingBlocks = defineBoolean(builder, "server.balancing.random-ticking-blocks.blacklisted", false);
         compatabilityMode = defineBoolean(builder, "server.balancing.compatibility-mode.enabled", false);
         bagStackSize = defineInteger(builder, "server.balancing.bag.stack-size", 512);
+        changeTrackerSize = defineInteger(builder, "server.balancing.change-tracker.size", 10, 20, 40);
 
         finishCategory(builder);
 

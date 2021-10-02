@@ -8,6 +8,7 @@ import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
@@ -658,6 +659,18 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
             }
         }));
         return this.batchMutations.get(id);
+    }
+
+    @Override
+    public IBatchMutation batch(final IChangeTracker changeTracker)
+    {
+        final IBatchMutation innerMutation = batch();
+        final IMultiStateSnapshot before = this.createSnapshot();
+        return () -> {
+            final IMultiStateSnapshot after = this.createSnapshot();
+            innerMutation.close();
+            changeTracker.onBlockUpdated(getBlockPos(), before, after);
+        };
     }
 
     public void setModelData(final IModelData modelData)

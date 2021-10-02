@@ -4,74 +4,88 @@ import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.change.changes.IChange;
 import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
+import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.utils.BitInventoryUtils;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class BlockUpdatedChange implements IChange
 {
-    private final World world;
-    private final PlayerEntity player;
-
     private final BlockPos blockPos;
     private final IMultiStateSnapshot before;
     private final IMultiStateSnapshot after;
 
     public BlockUpdatedChange(
-      final World world,
-      final PlayerEntity player,
       final BlockPos blockPos,
       final IMultiStateSnapshot before,
       final IMultiStateSnapshot after) {
-        this.world = world;
-        this.player = player;
         this.blockPos = blockPos;
         this.before = before;
         this.after = after;
     }
 
     @Override
-    public boolean canUndo()
+    public boolean canUndo(final PlayerEntity player)
     {
-        final TileEntity tileEntity = world.getBlockEntity(blockPos);
-        if (!(tileEntity instanceof IMultiStateBlockEntity))
-            return false;
+        final TileEntity tileEntity = player.level.getBlockEntity(blockPos);
+        if (!(tileEntity instanceof IMultiStateBlockEntity)) {
+            final BlockState currentState = player.level.getBlockState(blockPos);
+            return after.getStatics().getStateCounts().size() == 1 && after.getStatics().getStateCounts().getOrDefault(currentState, 0) == 4096;
+        }
 
         final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntity;
-        return after.createNewShapeIdentifier().equals(multiStateBlockEntity.createNewShapeIdentifier()) && hasRequiredUndoBits();
+        return after.createNewShapeIdentifier().equals(multiStateBlockEntity.createNewShapeIdentifier()) && hasRequiredUndoBits(player);
     }
 
     @Override
-    public boolean canRedo()
+    public boolean canRedo(final PlayerEntity player)
     {
-        final TileEntity tileEntity = world.getBlockEntity(blockPos);
+        final TileEntity tileEntity = player.level.getBlockEntity(blockPos);
         if (!(tileEntity instanceof IMultiStateBlockEntity))
-            return false;
+        {
+            final BlockState currentState = player.level.getBlockState(blockPos);
+            return before.getStatics().getStateCounts().size() == 1 && before.getStatics().getStateCounts().getOrDefault(currentState, 0) == 4096;
+        }
 
         final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntity;
-        return before.createNewShapeIdentifier().equals(multiStateBlockEntity.createNewShapeIdentifier()) && hasRequiredRedoBits();
+        return before.createNewShapeIdentifier().equals(multiStateBlockEntity.createNewShapeIdentifier()) && hasRequiredRedoBits(player);
     }
 
     @Override
-    public void undo() throws IllegalChangeAttempt
+    public void undo(final PlayerEntity player) throws IllegalChangeAttempt
     {
-        if (!canUndo())
+        if (!canUndo(player))
             throw new IllegalChangeAttempt();
 
-        final TileEntity tileEntity = world.getBlockEntity(blockPos);
-        if (!(tileEntity instanceof IMultiStateBlockEntity))
-            throw new IllegalChangeAttempt();
+        TileEntity tileEntity = player.level.getBlockEntity(blockPos);
+        if (!(tileEntity instanceof IMultiStateBlockEntity)) {
+            BlockState currentState = player.level.getBlockState(blockPos);
+            BlockState initializationState = currentState;
+            final Optional<Block> convertedState = IConversionManager.getInstance().getChiseledVariantOf(currentState);
+            if (!convertedState.isPresent())
+                throw new IllegalChangeAttempt();
+
+            player.level.setBlock(blockPos, convertedState.get().defaultBlockState(), Constants.BlockFlags.DEFAULT);
+            tileEntity = player.level.getBlockEntity(blockPos);
+            if (!(tileEntity instanceof IMultiStateBlockEntity))
+                throw new IllegalChangeAttempt();
+
+            ((IMultiStateBlockEntity) tileEntity).initializeWith(initializationState);
+        }
 
         final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntity;
         final Map<BlockState, Integer> afterStates = after.getStatics().getStateCounts();
@@ -102,24 +116,45 @@ public class BlockUpdatedChange implements IChange
             );
         }
 
-        final IBitInventory bitInventory = IBitInventoryManager.getInstance().create(player);
-        difference.forEach((state, diff) -> {
-            if (diff < 0)
-                bitInventory.extract(state, -diff);
-            else
-                BitInventoryUtils.insertIntoOrSpawn(player, state, diff);
-        });
+        if (!player.isCreative()) {
+            final IBitInventory bitInventory = IBitInventoryManager.getInstance().create(player);
+            difference.forEach((state, diff) -> {
+                if (state.isAir())
+                    return;
+
+                if (diff < 0)
+                    bitInventory.extract(state, -diff);
+                else
+                    BitInventoryUtils.insertIntoOrSpawn(player, state, diff);
+            });
+        }
     }
 
     @Override
-    public void redo() throws IllegalChangeAttempt
+    public void redo(final PlayerEntity player) throws IllegalChangeAttempt
     {
-        if (!canUndo())
+        if (!canRedo(player))
             throw new IllegalChangeAttempt();
 
-        final TileEntity tileEntity = world.getBlockEntity(blockPos);
-        if (!(tileEntity instanceof IMultiStateBlockEntity))
-            throw new IllegalChangeAttempt();
+        TileEntity tileEntity = player.level.getBlockEntity(blockPos);
+        if (!(tileEntity instanceof IMultiStateBlockEntity)) {
+            BlockState currentState = player.level.getBlockState(blockPos);
+            BlockState initializationState = currentState;
+            if (currentState.isAir()) {
+                currentState = Blocks.STONE.defaultBlockState();
+            }
+
+            final Optional<Block> convertedState = IConversionManager.getInstance().getChiseledVariantOf(currentState);
+            if (!convertedState.isPresent())
+                throw new IllegalChangeAttempt();
+
+            player.level.setBlock(blockPos, convertedState.get().defaultBlockState(), Constants.BlockFlags.DEFAULT);
+            tileEntity = player.level.getBlockEntity(blockPos);
+            if (!(tileEntity instanceof IMultiStateBlockEntity))
+                throw new IllegalChangeAttempt();
+
+            ((IMultiStateBlockEntity) tileEntity).initializeWith(initializationState);
+        }
 
         final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntity;
         final Map<BlockState, Integer> afterStates = after.getStatics().getStateCounts();
@@ -150,16 +185,22 @@ public class BlockUpdatedChange implements IChange
             );
         }
 
-        final IBitInventory bitInventory = IBitInventoryManager.getInstance().create(player);
-        difference.forEach((state, diff) -> {
-            if (diff < 0)
-                bitInventory.extract(state, -diff);
-            else
-                BitInventoryUtils.insertIntoOrSpawn(player, state, diff);
-        });
+        if (!player.isCreative())
+        {
+            final IBitInventory bitInventory = IBitInventoryManager.getInstance().create(player);
+            difference.forEach((state, diff) -> {
+                if (diff < 0)
+                    bitInventory.extract(state, -diff);
+                else
+                    BitInventoryUtils.insertIntoOrSpawn(player, state, diff);
+            });
+        }
     }
 
-    private boolean hasRequiredUndoBits() {
+    private boolean hasRequiredUndoBits(final PlayerEntity player) {
+        if (player.isCreative())
+            return true;
+
         final Map<BlockState, Integer> afterStates = after.getStatics().getStateCounts();
         final Map<BlockState, Integer> beforeStates = before.getStatics().getStateCounts();
 
@@ -178,7 +219,10 @@ public class BlockUpdatedChange implements IChange
                  .allMatch(e -> bitInventory.canExtract(e.getKey(), -e.getValue()));
     }
 
-    private boolean hasRequiredRedoBits() {
+    private boolean hasRequiredRedoBits(final PlayerEntity player) {
+        if (player.isCreative())
+            return  true;
+
         final Map<BlockState, Integer> afterStates = after.getStatics().getStateCounts();
         final Map<BlockState, Integer> beforeStates = before.getStatics().getStateCounts();
 

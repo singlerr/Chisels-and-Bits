@@ -19,6 +19,7 @@ public class ChangeTrackerManger implements IChangeTrackerManager
     }
 
     private final Map<UUID, ChangeTracker> changeTrackers = Maps.newConcurrentMap();
+    private final ChangeTracker clientChangeTracker = new ChangeTracker();
 
     private ChangeTrackerManger()
     {
@@ -27,9 +28,12 @@ public class ChangeTrackerManger implements IChangeTrackerManager
     @Override
     public @NotNull IChangeTracker getChangeTracker(final PlayerEntity player)
     {
+        if (player.level.isClientSide())
+            return clientChangeTracker;
+
         return changeTrackers.computeIfAbsent(
           player.getUUID(),
-          id -> new ChangeTracker(player)
+          id -> new ChangeTracker()
         );
     }
 
