@@ -127,12 +127,12 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
         {
             getBlockEntityFromOrThrow(world, pos)
               .ifPresent(multiStateBlockEntity -> {
-                  final IMultiStateSnapshot multiStateSnapshot = multiStateBlockEntity.createSnapshot();
+                  /*final IMultiStateSnapshot multiStateSnapshot = multiStateBlockEntity.createSnapshot();
 
                   IChangeTrackerManager.getInstance().getChangeTracker(player).onBlockBroken(
                     pos,
                     multiStateSnapshot
-                  );
+                  );*/
               });
         }
 
