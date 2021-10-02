@@ -2,6 +2,7 @@ package mod.chiselsandbits.multistate.mutator;
 
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
@@ -538,6 +539,30 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         return () -> {
             //Noop
         };
+    }
+
+    @Override
+    public IBatchMutation batch(final IChangeTracker changeTracker)
+    {
+        final BlockState currentState = getWorld().getBlockState(getPos());
+        if (!IEligibilityManager.getInstance().canBeChiseled(currentState) && !currentState.isAir())
+        {
+            return () -> {
+                //Noop
+            };
+        }
+
+        final IBatchMutation innerMutation = batch();
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
+        if (tileEntity instanceof IMultiStateBlockEntity) {
+            final IMultiStateSnapshot before = ((IMultiStateBlockEntity) tileEntity).createSnapshot();
+            return () -> {
+                final IMultiStateSnapshot after = ((IMultiStateBlockEntity) tileEntity).createSnapshot();
+                innerMutation.close();
+                changeTracker.onBlockUpdated(getPos(), before, after);
+            };
+        }
+        return innerMutation;
     }
 
     private static class MutablePreAdaptedStateEntry implements IInWorldMutableStateEntryInfo

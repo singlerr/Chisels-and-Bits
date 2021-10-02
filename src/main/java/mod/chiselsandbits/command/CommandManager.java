@@ -5,6 +5,9 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import mod.chiselsandbits.api.change.IChangeTracker;
+import mod.chiselsandbits.api.change.IChangeTrackerManager;
+import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
@@ -91,14 +94,24 @@ public class CommandManager
                             )
                     )
             )
-          .then(Commands.literal("profiling")
+            .then(Commands.literal("profiling")
                     .then(Commands.literal("start")
                             .executes(this::startProfiling)
                     )
                     .then(Commands.literal("stop")
                             .executes(this::stopProfiling)
                     )
-          )
+            )
+            .then(Commands.literal("undo")
+              .then(Commands.argument("target", EntityArgument.player())
+                .executes(this::undoFor)
+              )
+            )
+            .then(Commands.literal("redo")
+              .then(Commands.argument("target", EntityArgument.player())
+                .executes(this::redoFor)
+              )
+            )
         );
     }
 
@@ -116,7 +129,8 @@ public class CommandManager
         if (CommandUtils.hasArgument(context, "state"))
         {
             final BlockState state = BlockStateArgument.getBlock(context, "state").getState();
-            try (final IBatchMutation ignored = mutator.batch())
+            try (final IBatchMutation ignored = context.getSource().getEntity() != null ? mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(context.getSource().getPlayerOrException())) :
+                                                  mutator.batch())
             {
                 mutator.mutableStream().forEach(
                   entry -> {
@@ -135,7 +149,8 @@ public class CommandManager
         }
         else
         {
-            try (final IBatchMutation ignored = mutator.batch())
+            try (final IBatchMutation ignored = context.getSource().getEntity() != null ? mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(context.getSource().getPlayerOrException())) :
+                                                                                                                                                                                                            mutator.batch())
             {
                 mutator.mutableStream().forEach(
                   entry -> {
@@ -168,7 +183,8 @@ public class CommandManager
           end
         );
 
-        try (final IBatchMutation ignored = mutator.batch())
+        try (final IBatchMutation ignored = context.getSource().getEntity() != null ? mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(context.getSource().getPlayerOrException())) :
+                                                                                                                                                                                                       mutator.batch())
         {
             mutator.mutableStream().forEach(
               IMutableStateEntryInfo::clear
@@ -246,5 +262,49 @@ public class CommandManager
         ProfilingManager.getInstance().setProfiler(null);
 
         return 0;
+    }
+
+    private int redoFor(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
+    {
+        final Player target = EntityArgument.getPlayer(context, "target");
+        final IChangeTracker tracker = IChangeTrackerManager.getInstance().getChangeTracker(target);
+        if (tracker.getChanges().isEmpty())
+        {
+            context.getSource().sendFailure(new TextComponent("No changes available to redo"));
+            return 1;
+        }
+
+        try
+        {
+            tracker.redo(target);
+            return 0;
+        }
+        catch (IllegalChangeAttempt e)
+        {
+            context.getSource().sendFailure(new TextComponent("Can not redo"));
+            return 2;
+        }
+    }
+
+    private int undoFor(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
+    {
+        final Player target = EntityArgument.getPlayer(context, "target");
+        final IChangeTracker tracker = IChangeTrackerManager.getInstance().getChangeTracker(target);
+        if (tracker.getChanges().isEmpty())
+        {
+            context.getSource().sendFailure(new TextComponent("No changes available to undo"));
+            return 1;
+        }
+
+        try
+        {
+            tracker.undo(target);
+            return 0;
+        }
+        catch (IllegalChangeAttempt e)
+        {
+            context.getSource().sendFailure(new TextComponent("Can not undo"));
+            return 2;
+        }
     }
 }

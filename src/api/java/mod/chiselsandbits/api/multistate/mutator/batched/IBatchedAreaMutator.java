@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.multistate.mutator.batched;
 
+import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.multistate.mutator.IAreaMutator;
 
 /**
@@ -16,4 +17,13 @@ public interface IBatchedAreaMutator extends IAreaMutator
      * @return The batch mutation lock.
      */
     IBatchMutation batch();
+
+    /**
+     * Triggers a batch mutation start for block placement.
+     * Enables tracking of the changes.
+     *
+     * @param changeTracker The change tracker to apply the changes to.
+     * @return The batch mutation, which will record the changes automatically.
+     */
+    IBatchMutation batch(final IChangeTracker changeTracker);
 }

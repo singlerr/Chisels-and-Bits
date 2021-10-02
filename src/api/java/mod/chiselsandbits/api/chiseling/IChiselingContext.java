@@ -7,6 +7,7 @@ import mod.chiselsandbits.api.multistate.accessor.IStateAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.LevelAccessor;
 import org.jetbrains.annotations.NotNull;

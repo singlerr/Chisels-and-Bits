@@ -1,6 +1,7 @@
 package mod.chiselsandbits.chiseling.modes.cubed;
 
 import com.google.common.collect.Maps;
+import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
@@ -69,7 +70,7 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         context.setComplete();
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
               try (IBatchMutation ignored =
-                     mutator.batch())
+                     mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
               {
                   final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
 
@@ -141,7 +142,7 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
                   }
 
                   try (IBatchMutation ignored =
-                         mutator.batch())
+                         mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
                   {
                       mutator.inWorldMutableStream()
                         .filter(state -> state.getState().isAir())

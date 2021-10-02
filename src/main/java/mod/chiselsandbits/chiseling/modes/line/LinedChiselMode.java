@@ -1,6 +1,7 @@
 package mod.chiselsandbits.chiseling.modes.line;
 
 import com.google.common.collect.Maps;
+import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
@@ -68,7 +69,7 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
               try (IBatchMutation ignored =
-                     mutator.batch())
+                     mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
               {
                   context.setComplete();
 
@@ -142,7 +143,7 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
                   }
 
                   try (IBatchMutation ignored =
-                         mutator.batch())
+                         mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
                   {
                       mutator.inWorldMutableStream()
                         .filter(state -> state.getState().isAir())
