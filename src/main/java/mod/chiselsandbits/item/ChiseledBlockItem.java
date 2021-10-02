@@ -103,7 +103,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
             }
 
 
-            if (context.getPlayer() == null || !context.getPlayer().getAbilities().instabuild) {
+            if (context.getPlayer() == null || !context.getPlayer().isCreative()) {
                 context.getItemInHand().shrink(1);
             }
             return InteractionResult.SUCCESS;
