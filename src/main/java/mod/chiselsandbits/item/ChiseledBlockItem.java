@@ -102,6 +102,10 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
                 );
             }
 
+
+            if (context.getPlayer() == null || !context.getPlayer().getAbilities().instabuild) {
+                context.getItemInHand().shrink(1);
+            }
             return InteractionResult.SUCCESS;
         }
 
