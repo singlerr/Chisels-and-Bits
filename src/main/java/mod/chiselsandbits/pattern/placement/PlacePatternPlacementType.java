@@ -56,7 +56,7 @@ public class PlacePatternPlacementType extends ForgeRegistryEntry<IPatternPlacem
           IMutatorFactory.getInstance().covering(
             context.getLevel(),
             targetedPosition,
-            targetedPosition.add(1,1,1)
+            targetedPosition.add(0.9999,0.9999,0.9999)
           );
 
         final boolean isAir = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
