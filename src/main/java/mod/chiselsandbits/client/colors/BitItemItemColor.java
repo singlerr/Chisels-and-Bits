@@ -9,6 +9,7 @@ import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.item.AirItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -50,6 +51,10 @@ public class BitItemItemColor implements IItemColor
             return 0xffffff;
         }
 
-        return Minecraft.getInstance().getItemColors().getColor(new ItemStack(state.getBlock(), 1), tint);
+        final ItemStack workingStack = new ItemStack(state.getBlock(), 1);
+        if (workingStack.getItem() instanceof AirItem)
+            return 0xffffff;
+
+        return Minecraft.getInstance().getItemColors().getColor(workingStack, tint);
     }
 }

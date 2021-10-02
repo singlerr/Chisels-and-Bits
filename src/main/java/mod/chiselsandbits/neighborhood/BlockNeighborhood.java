@@ -1,7 +1,11 @@
 package mod.chiselsandbits.neighborhood;
 
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
+import net.minecraft.block.BlockState;
 import net.minecraft.util.Direction;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Objects;
@@ -33,5 +37,17 @@ public final class BlockNeighborhood implements IBlockNeighborhood
     public int hashCode()
     {
         return neighborhoodMap != null ? neighborhoodMap.hashCode() : 0;
+    }
+
+    @Override
+    public @NotNull BlockState getBlockState(final Direction direction)
+    {
+        return neighborhoodMap.get(direction).getBlockState();
+    }
+
+    @Override
+    public @Nullable IAreaAccessor getAreaAccessor(final Direction direction)
+    {
+        return neighborhoodMap.get(direction).getAccessor();
     }
 }

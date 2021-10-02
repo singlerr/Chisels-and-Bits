@@ -1,6 +1,5 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
-import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
@@ -11,21 +10,17 @@ import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.api.util.VectorUtils;
-import mod.chiselsandbits.neighborhood.BlockNeighborhoodEntry;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.IBlockReader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.EnumMap;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -101,16 +96,15 @@ public class ChiseledBlockBakedModelManager {
                                     renderType,
                                     accessor,
                                     targetOffset -> {
-                                        final Vector3d nearNormalVector = targetOffset.multiply(
-                                                StateEntrySize.current().getBitsPerBlock(),
-                                                StateEntrySize.current().getBitsPerBlock(),
-                                                StateEntrySize.current().getBitsPerBlock()
-                                        );
+                                        final Vector3d nominalTargetOffset = Vector3d.ZERO.add(targetOffset);
+                                        final BlockPos nominalTargetBlockOffset = new BlockPos(nominalTargetOffset);
+                                        final Vector3d inBlockOffset = nominalTargetOffset.subtract(Vector3d.atLowerCornerOf(nominalTargetBlockOffset));
+                                        final Vector3d inBlockOffsetTarget = VectorUtils.makePositive(inBlockOffset);
 
                                         final Direction offsetDirection = Direction.getNearest(
-                                                nearNormalVector.x(),
-                                                nearNormalVector.y(),
-                                                nearNormalVector.z()
+                                          nominalTargetBlockOffset.getX(),
+                                          nominalTargetBlockOffset.getY(),
+                                          nominalTargetBlockOffset.getZ()
                                         );
 
                                         IAreaAccessor neighborAccessor;
@@ -125,11 +119,6 @@ public class ChiseledBlockBakedModelManager {
                                         }
 
                                         if (neighborAccessor != null) {
-                                            final Vector3d nominalTargetOffset = Vector3d.ZERO.add(targetOffset);
-                                            final BlockPos nominalTargetBlockOffset = new BlockPos(nominalTargetOffset);
-                                            final Vector3d inBlockOffset = nominalTargetOffset.subtract(Vector3d.atLowerCornerOf(nominalTargetBlockOffset));
-                                            final Vector3d inBlockOffsetTarget = VectorUtils.makePositive(inBlockOffset);
-
                                             return neighborAccessor.getInAreaTarget(inBlockOffsetTarget)
                                                     .map(IStateEntryInfo::getState)
                                                     .orElse(Blocks.AIR.defaultBlockState());

@@ -58,6 +58,7 @@ public class NetworkChannel
         registerMessage(index++, MeasurementUpdatedPacket.class, MeasurementUpdatedPacket::new);
         registerMessage(index++, MeasurementsUpdatedPacket.class, MeasurementsUpdatedPacket::new);
         registerMessage(index++, MeasurementsResetPacket.class, MeasurementsResetPacket::new);
+        registerMessage(index++, NeighborBlockUpdatedPacket.class, NeighborBlockUpdatedPacket::new);
     }
 
     /**

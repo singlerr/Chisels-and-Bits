@@ -72,7 +72,6 @@ public interface IPositionMutator
         return input -> new Vector3i(input.getZ(), input.getY(), input.getX());
     }
 
-
     /**
      * The yxz operator.
      *
@@ -83,12 +82,21 @@ public interface IPositionMutator
     }
 
     /**
+     * The zxy operator.
+     *
+     * @return The mutator which switches the X with the Z and then the Y with the moved X coordinate members
+     */
+    static IPositionMutator zxy() {
+        return input -> new Vector3i(input.getZ(), input.getX(), input.getY());
+    }
+
+    /**
      * The yzx operator
      * Is a combination of xzy and zyx.
      *
      * @return The mutator which first switches the Y and Z and then the X and Z coordinates.
      */
     static IPositionMutator yzx() {
-        return xzy().then(zyx());
+        return zyx().then(yxz());
     }
 }

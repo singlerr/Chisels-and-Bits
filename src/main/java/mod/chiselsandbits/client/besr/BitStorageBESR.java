@@ -14,6 +14,7 @@ import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Atlases;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
@@ -106,11 +107,8 @@ public class BitStorageBESR extends TileEntityRenderer<BitStorageBlockEntity>
               MultiStateSnapshotUtils.createFromSection(finalInnerModelBlob),
               state,
               ChiselRenderType.fromLayer(renderType, te.getMyFluid() != null),
-              new SingleBlockBlockReader(
-                state,
-                te.getBlockPos(),
-                te.getLevel()
-              ),
+              null,
+              null,
               te.getBlockPos()
             );
 

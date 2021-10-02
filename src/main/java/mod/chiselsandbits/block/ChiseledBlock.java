@@ -1,5 +1,6 @@
 package mod.chiselsandbits.block;
 
+import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
@@ -19,6 +20,9 @@ import mod.chiselsandbits.api.util.SingleBlockWorldReader;
 import mod.chiselsandbits.api.util.StateEntryPredicates;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
+import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
+import mod.chiselsandbits.network.NetworkChannel;
+import mod.chiselsandbits.network.packets.NeighborBlockUpdatedPacket;
 import mod.chiselsandbits.utils.EffectUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -41,12 +45,14 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.*;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ToolType;
@@ -482,5 +488,25 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
     public @NotNull Fluid takeLiquid(final @NotNull IWorld worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state)
     {
         return Fluids.EMPTY;
+    }
+
+    @Override
+    public void neighborChanged(
+      final @NotNull BlockState state,
+      final World level,
+      final @NotNull BlockPos position,
+      final @NotNull Block block,
+      final @NotNull BlockPos otherPosition,
+      final boolean update)
+    {
+        final TileEntity tileEntity = level.getBlockEntity(position);
+        if (level.isClientSide() && tileEntity instanceof ChiseledBlockEntity) {
+            ChiseledBlockModelDataManager.getInstance().updateModelData((ChiseledBlockEntity) tileEntity);
+        } else if (!level.isClientSide() && tileEntity instanceof ChiseledBlockEntity) {
+            ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
+                new NeighborBlockUpdatedPacket(position, otherPosition),
+                level.getChunkAt(position)
+            );
+        }
     }
 }
