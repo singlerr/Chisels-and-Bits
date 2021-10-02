@@ -29,6 +29,7 @@ public class ClientConfiguration extends AbstractConfiguration
 
     public ForgeConfigSpec.LongValue modelCacheSize;
     public ForgeConfigSpec.LongValue faceLayerCacheSize;
+    public ForgeConfigSpec.IntValue modelBuildingThreadCount;
 
     public ForgeConfigSpec.BooleanValue injectIntoJEI;
 
@@ -63,6 +64,8 @@ public class ClientConfiguration extends AbstractConfiguration
         disableCustomVertexFormats = defineBoolean(builder, "vertexformats.custom.disabled", true);
         modelCacheSize = defineLong(builder, "models.cache.size", 10000, 3500, 20000);
         faceLayerCacheSize = defineLong(builder, "faces.cache.size", 10000, 3500, 20000);
+        modelBuildingThreadCount = defineInteger(builder, "models.builder.threadcount", 1, Runtime.getRuntime().availableProcessors() - 2, Runtime.getRuntime()
+          .availableProcessors());
 
         finishCategory(builder);
         createCategory(builder, "client.gui");

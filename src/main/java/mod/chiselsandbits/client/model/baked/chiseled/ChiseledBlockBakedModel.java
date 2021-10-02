@@ -247,7 +247,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
         processFaces(
           accessor,
           resultingFaces,
-          IPositionMutator.yzx(),
+          IPositionMutator.zxy(),
           Y_Faces,
           Vec3::y,
           Vec3::z,
@@ -429,7 +429,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 
             accessor.streamWithPositionMutator(analysisOrder)
               .filter(this.chiselRenderType::isRequiredForRendering)
-              .forEachOrdered(stateEntryInfo -> {
+              .forEach(stateEntryInfo -> {
                   if (state.getRegionBuildingAxisValue() != regionBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint())) {
                       if (!regions.isEmpty()) {
                           resultingRegions.add(Lists.newArrayList(regions));

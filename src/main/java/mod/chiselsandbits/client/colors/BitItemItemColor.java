@@ -3,6 +3,7 @@ package mod.chiselsandbits.client.colors;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.item.bit.BitItem;
+import net.minecraft.world.item.AirItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -50,6 +51,10 @@ public class BitItemItemColor implements ItemColor
             return 0xffffff;
         }
 
-        return Minecraft.getInstance().getItemColors().getColor(new ItemStack(state.getBlock(), 1), tint);
+        final ItemStack workingStack = new ItemStack(state.getBlock(), 1);
+        if (workingStack.getItem() instanceof AirItem)
+            return 0xffffff;
+
+        return Minecraft.getInstance().getItemColors().getColor(workingStack, tint);
     }
 }

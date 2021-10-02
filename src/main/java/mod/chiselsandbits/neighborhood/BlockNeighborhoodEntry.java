@@ -1,5 +1,6 @@
 package mod.chiselsandbits.neighborhood;
 
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -7,18 +8,21 @@ import java.util.Objects;
 
 public final class BlockNeighborhoodEntry
 {
-    private final BlockState           blockState;
+    private final BlockState    blockState;
+    private final IAreaAccessor accessor;
     private final IAreaShapeIdentifier identifier;
 
-    public BlockNeighborhoodEntry(final BlockState blockState, final IAreaShapeIdentifier identifier)
+    public BlockNeighborhoodEntry(final BlockState blockState, final IAreaAccessor accessor)
     {
         this.blockState = blockState;
-        this.identifier = identifier;
+        this.accessor = accessor;
+        this.identifier = this.accessor.createNewShapeIdentifier();
     }
 
     public BlockNeighborhoodEntry(final BlockState blockState)
     {
         this.blockState = blockState;
+        this.accessor = null;
         this.identifier = IAreaShapeIdentifier.DUMMY;
     }
 
@@ -49,5 +53,20 @@ public final class BlockNeighborhoodEntry
             return false;
         }
         return Objects.equals(identifier, that.identifier);
+    }
+
+    public BlockState getBlockState()
+    {
+        return blockState;
+    }
+
+    public IAreaAccessor getAccessor()
+    {
+        return accessor;
+    }
+
+    public IAreaShapeIdentifier getIdentifier()
+    {
+        return identifier;
     }
 }

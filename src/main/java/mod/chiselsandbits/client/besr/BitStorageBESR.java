@@ -105,11 +105,8 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
               MultiStateSnapshotUtils.createFromSection(finalInnerModelBlob),
               state,
               ChiselRenderType.fromLayer(renderType, te.getMyFluid() != null),
-              new SingleBlockBlockReader(
-                state,
-                te.getBlockPos(),
-                te.getLevel()
-              ),
+              null,
+              null,
               te.getBlockPos()
             );
 

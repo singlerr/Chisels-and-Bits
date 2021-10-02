@@ -28,6 +28,7 @@ import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
 import mod.chiselsandbits.api.util.Vector2i;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
 import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
 import mod.chiselsandbits.registrars.ModTileEntityTypes;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
@@ -50,6 +51,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
@@ -66,6 +69,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     private final MutableStatistics mutableStatistics;
     private final Map<UUID, IBatchMutation> batchMutations = Maps.newConcurrentMap();
     private       LevelChunkSection      compressedSection;
+    private IModelData modelData = new ModelDataMap.Builder().build();
 
     public ChiseledBlockEntity(BlockPos position, BlockState state)
     {
@@ -205,6 +209,8 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         );
 
         mutableStatistics.deserializeNBT(statisticsData);
+
+        ChiseledBlockModelDataManager.getInstance().updateModelData(this);
     }
 
     @Override
@@ -259,6 +265,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
 
             getLevel().getLightEngine().checkBlock(getBlockPos());
             getLevel().sendBlockUpdated(getBlockPos(), Blocks.AIR.defaultBlockState(), getBlockState(), Constants.BlockFlags.DEFAULT);
+            getLevel().updateNeighborsAt(getBlockPos(), getLevel().getBlockState(getBlockPos()).getBlock());
 
             if (!getLevel().isClientSide())
             {
@@ -311,6 +318,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     {
         compressedSection.read(packetBuffer);
         mutableStatistics.deserializeFrom(packetBuffer);
+        ChiseledBlockModelDataManager.getInstance().updateModelData(this);
     }
 
     /**
@@ -586,14 +594,16 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
     {
         return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
-                 .map(positionMutator::mutate)
-                 .map(blockPos -> new StateEntry(
-                   compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
-                   getLevel(),
-                   getBlockPos(),
-                   blockPos,
-                   this::setInAreaTarget,
-                   this::clearInAreaTarget)
+                 .map(blockPos -> {
+                     final Vec3i pos = positionMutator.mutate(blockPos);
+                       return new StateEntry(
+                         compressedSection.getBlockState(pos.getX(), pos.getY(), pos.getZ()),
+                         getLevel(),
+                         getBlockPos(),
+                         pos,
+                         this::setInAreaTarget,
+                         this::clearInAreaTarget);
+                   }
                  );
     }
 
@@ -611,6 +621,18 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             }
         }));
         return this.batchMutations.get(id);
+    }
+
+    public void setModelData(final IModelData modelData)
+    {
+        this.modelData = modelData;
+    }
+
+    @NotNull
+    @Override
+    public IModelData getModelData()
+    {
+        return this.modelData;
     }
 
     private static final class StateEntry implements IInWorldMutableStateEntryInfo

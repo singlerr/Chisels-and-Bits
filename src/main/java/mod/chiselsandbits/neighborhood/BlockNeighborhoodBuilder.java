@@ -43,7 +43,7 @@ public final class BlockNeighborhoodBuilder implements IBlockNeighborhoodBuilder
                     } else {
                         neighborhoodMap.put(value, new BlockNeighborhoodEntry(
                                         state,
-                                        accessor.createNewShapeIdentifier()
+                                        accessor.createSnapshot()
                                 )
                         );
                     }

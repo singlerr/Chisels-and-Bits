@@ -1,6 +1,6 @@
 package mod.chiselsandbits.block;
 
-import com.google.common.collect.Sets;
+import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
@@ -10,18 +10,14 @@ import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
-import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
-import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
-import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
-import mod.chiselsandbits.api.util.SingleBlockWorldReader;
 import mod.chiselsandbits.api.util.StateEntryPredicates;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
-import mod.chiselsandbits.utils.EffectUtils;
-import net.minecraft.client.particle.ParticleEngine;
+import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
+import mod.chiselsandbits.network.packets.NeighborBlockUpdatedPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -40,7 +36,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -48,20 +43,10 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.ToolAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static net.minecraftforge.common.ToolActions.*;
 
 @SuppressWarnings("deprecation")
 public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWaterloggedBlock
@@ -439,5 +424,25 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     public BlockEntity newBlockEntity(final BlockPos pos, final BlockState state)
     {
         return new ChiseledBlockEntity(pos, state);
+    }
+
+    @Override
+    public void neighborChanged(
+      final @NotNull BlockState state,
+      final Level level,
+      final @NotNull BlockPos position,
+      final @NotNull Block block,
+      final @NotNull BlockPos otherPosition,
+      final boolean update)
+    {
+        final BlockEntity tileEntity = level.getBlockEntity(position);
+        if (level.isClientSide() && tileEntity instanceof ChiseledBlockEntity) {
+            ChiseledBlockModelDataManager.getInstance().updateModelData((ChiseledBlockEntity) tileEntity);
+        } else if (!level.isClientSide() && tileEntity instanceof ChiseledBlockEntity) {
+            ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
+                new NeighborBlockUpdatedPacket(position, otherPosition),
+                level.getChunkAt(position)
+            );
+        }
     }
 }
