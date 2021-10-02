@@ -101,12 +101,12 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
         {
             getBlockEntityFromOrThrow(world, pos)
               .ifPresent(multiStateBlockEntity -> {
-                  final IMultiStateSnapshot multiStateSnapshot = multiStateBlockEntity.createSnapshot();
+                  /*final IMultiStateSnapshot multiStateSnapshot = multiStateBlockEntity.createSnapshot();
 
                   IChangeTrackerManager.getInstance().getChangeTracker(player).onBlockBroken(
                     pos,
                     multiStateSnapshot
-                  );
+                  );*/
               });
         }
 
