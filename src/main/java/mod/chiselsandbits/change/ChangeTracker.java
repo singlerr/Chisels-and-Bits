@@ -1,14 +1,21 @@
 package mod.chiselsandbits.change;
 
+import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.change.changes.IChange;
 import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
-import mod.chiselsandbits.change.changes.BlockUpdatedChange;
+import mod.chiselsandbits.change.changes.BitChange;
 import mod.chiselsandbits.change.changes.CombinedChange;
+import mod.chiselsandbits.network.packets.ChangeTrackerUpdatedPacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.Deque;
 import java.util.LinkedList;
@@ -18,15 +25,20 @@ import java.util.stream.Collectors;
 
 public class ChangeTracker implements IChangeTracker
 {
-    protected final LinkedList<IChange> changes = new LinkedList<>();
-    protected final ThreadLocal<Integer> currentIndex = new ThreadLocal<>();
+    protected final Player player;
+    protected final LinkedList<CombinedChange> changes = new LinkedList<>();
+    protected int currentIndex = 0;
 
-    public ChangeTracker() {
-        this.currentIndex.set(0);
+    public ChangeTracker()
+    {
+        this.player = null;
     }
+
+    public ChangeTracker(final Player player) {this.player = player;}
 
     public void reset() {
         changes.clear();
+        sendUpdate();
     }
 
     @Override
@@ -39,7 +51,7 @@ public class ChangeTracker implements IChangeTracker
         changes.addFirst(
           new CombinedChange(
             beforeStates.entrySet().stream()
-              .map(e -> new BlockUpdatedChange(
+              .map(e -> new BitChange(
                 e.getKey(),
                 e.getValue(),
                 afterState.get(e.getKey())
@@ -48,12 +60,15 @@ public class ChangeTracker implements IChangeTracker
           )
         );
 
+        currentIndex = 0;
+
         final int maxSize = IChiselsAndBitsAPI.getInstance().getConfiguration().getServer().changeTrackerSize.get();
         if (changes.size() > maxSize) {
             while(changes.size() > maxSize) {
                 changes.removeLast();
             }
         }
+        sendUpdate();
     }
 
     @Override
@@ -64,20 +79,20 @@ public class ChangeTracker implements IChangeTracker
 
     public Optional<IChange> getCurrentUndo()
     {
-        if (getChanges().size() <= currentIndex.get() || currentIndex.get() < 0) {
+        if (getChanges().size() <= currentIndex || currentIndex < 0) {
             return Optional.empty();
         }
 
-        return Optional.of(changes.get(currentIndex.get()));
+        return Optional.of(changes.get(currentIndex));
     }
 
     public Optional<IChange> getCurrentRedo()
     {
-        if (getChanges().size() <= currentIndex.get() || currentIndex.get() < 1) {
+        if (getChanges().size() < currentIndex || currentIndex < 1) {
             return Optional.empty();
         }
 
-        return Optional.of(changes.get(currentIndex.get() - 1));
+        return Optional.of(changes.get(currentIndex - 1));
     }
 
     @Override
@@ -101,7 +116,8 @@ public class ChangeTracker implements IChangeTracker
         if (getCurrentUndo().isPresent()) {
             final IChange change = getCurrentUndo().get();
             change.undo(player);
-            currentIndex.set(Math.max(changes.size(), currentIndex.get() + 1));
+            currentIndex = Math.min(changes.size(), currentIndex + 1);
+            sendUpdate();
         }
     }
 
@@ -114,7 +130,35 @@ public class ChangeTracker implements IChangeTracker
         if (getCurrentRedo().isPresent()) {
             final IChange change = getCurrentRedo().get();
             change.redo(player);
-            currentIndex.set(Math.max(0, currentIndex.get() - 1));
+            currentIndex = Math.max(0, currentIndex - 1);
+            sendUpdate();
+        }
+    }
+
+    @Override
+    public CompoundTag serializeNBT()
+    {
+        final CompoundTag tag = new CompoundTag();
+        tag.put("changes", this.changes.stream().map(INBTSerializable::serializeNBT).collect(Collectors.toCollection(ListTag::new)));
+        tag.putInt("index", this.currentIndex);
+        return tag;
+    }
+
+    @Override
+    public void deserializeNBT(final CompoundTag nbt)
+    {
+        this.changes.clear();
+        this.changes.addAll(nbt.getList("changes", Constants.NBT.TAG_COMPOUND).stream().map(CombinedChange::new).collect(Collectors.toList()));
+        this.currentIndex = nbt.getInt("index");
+    }
+
+    private void sendUpdate() {
+        if (player != null && player instanceof ServerPlayer)
+        {
+            ChiselsAndBits.getInstance().getNetworkChannel().sendToPlayer(
+              new ChangeTrackerUpdatedPacket(this.serializeNBT()),
+              (ServerPlayer) player
+            );
         }
     }
 }

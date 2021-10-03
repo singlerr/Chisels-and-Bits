@@ -1,5 +1,6 @@
 package mod.chiselsandbits.network.packets;
 
+import mod.chiselsandbits.network.handlers.ClientPacketHandlers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -40,13 +41,6 @@ public class NeighborBlockUpdatedPacket extends ModPacket
     @Override
     public void client()
     {
-        Minecraft.getInstance().level.getBlockState(toUpdate)
-          .neighborChanged(
-            Minecraft.getInstance().level,
-            toUpdate,
-            Minecraft.getInstance().level.getBlockState(from).getBlock(),
-            from,
-            false
-          );
+        ClientPacketHandlers.handleNeighborUpdated(toUpdate, from);
     }
 }

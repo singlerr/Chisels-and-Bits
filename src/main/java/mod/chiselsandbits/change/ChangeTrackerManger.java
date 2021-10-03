@@ -33,7 +33,7 @@ public class ChangeTrackerManger implements IChangeTrackerManager
 
         return changeTrackers.computeIfAbsent(
           player.getUUID(),
-          id -> new ChangeTracker()
+          id -> new ChangeTracker(player)
         );
     }
 

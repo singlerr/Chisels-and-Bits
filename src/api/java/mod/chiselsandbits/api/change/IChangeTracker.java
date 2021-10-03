@@ -4,11 +4,11 @@ import com.google.common.collect.ImmutableMap;
 import mod.chiselsandbits.api.change.changes.IChange;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.Deque;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * The change tracker for tracking changes to bit blocks.

@@ -5,11 +5,13 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.item.withmode.IRenderableMode;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.client.events.TickHandler;
 import mod.chiselsandbits.client.screens.RadialToolModeSelectionScreen;
 import mod.chiselsandbits.keys.contexts.HoldsSpecificItemInHandKeyConflictContext;
 import mod.chiselsandbits.keys.contexts.HoldsWithToolItemInHandKeyConflictContext;
 import mod.chiselsandbits.keys.contexts.SpecificScreenOpenKeyConflictContext;
 import mod.chiselsandbits.network.packets.HeldToolModeChangedPacket;
+import mod.chiselsandbits.network.packets.RequestChangeTrackerOperation;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.KeyMapping;
@@ -32,11 +34,14 @@ public class KeyBindingManager
     private KeyMapping cycleToolMenuLeftKeybinding = null;
     private KeyMapping cycleToolMenuRightKeybinding = null;
     private KeyMapping resetMeasuringTapeKeyBinding = null;
+    private KeyMapping undoOperationKeyBinding = null;
+    private KeyMapping redoOperationKeyBinding = null;
 
     private boolean toolMenuKeyWasDown = false;
     private int toolModeSelectionPlusCoolDown = 15;
     private int toolModeSelectionMinusCoolDown = 15;
 
+    private long lastChangeTime = -10;
 
     private static final KeyBindingManager INSTANCE = new KeyBindingManager();
 
@@ -51,32 +56,43 @@ public class KeyBindingManager
 
     public void onModInitialization() {
         ClientRegistry.registerKeyBinding(openToolMenuKeybinding =
-                                            new KeyMapping("key.modded-tool.open",
+                                            new KeyMapping("mod.chiselsandbits.keys.key.modded-tool.open",
                                               HoldsWithToolItemInHandKeyConflictContext.getInstance(),
                                               InputConstants.Type.KEYSYM,
                                               GLFW.GLFW_KEY_R,
-                                              "key.chiselsandbits.category"));
+                                              "mod.chiselsandbits.keys.category"));
 
         ClientRegistry.registerKeyBinding(cycleToolMenuLeftKeybinding =
-                                            new KeyMapping("key.modded-tool.cycle.left",
+                                            new KeyMapping("mod.chiselsandbits.keys.key.modded-tool.cycle.left",
                                               SpecificScreenOpenKeyConflictContext.RADIAL_TOOL_MENU,
                                               InputConstants.Type.KEYSYM,
                                               InputConstants.UNKNOWN.getValue(),
-                                              "key.chiselsandbits.category"));
+                                              "mod.chiselsandbits.keys.category"));
 
         ClientRegistry.registerKeyBinding(cycleToolMenuRightKeybinding =
-                                            new KeyMapping("key.modded-tool.cycle.right",
+                                            new KeyMapping("mod.chiselsandbits.keys.key.modded-tool.cycle.right",
                                               SpecificScreenOpenKeyConflictContext.RADIAL_TOOL_MENU,
                                               InputConstants.Type.KEYSYM,
                                               InputConstants.UNKNOWN.getValue(),
-                                              "key.chiselsandbits.category"));
+                                              "mod.chiselsandbits.keys.category"));
 
         ClientRegistry.registerKeyBinding(resetMeasuringTapeKeyBinding =
-                                            new KeyMapping("key.measuring-tape.reset",
+                                            new KeyMapping("mod.chiselsandbits.keys.key.measuring-tape.reset",
                                               HoldsSpecificItemInHandKeyConflictContext.MEASURING_TAPE,
                                               KeyModifier.SHIFT, InputConstants.Type.MOUSE, 1,
-                                              "key.chiselsandbits.category"));
+                                              "mod.chiselsandbits.keys.category"));
 
+        ClientRegistry.registerKeyBinding(undoOperationKeyBinding =
+                                           new KeyMapping("mod.chiselsandbits.keys.key.undo",
+                                             HoldsSpecificItemInHandKeyConflictContext.CHISELABLE_ITEM,
+                                             KeyModifier.CONTROL, InputConstants.Type.KEYSYM, InputConstants.KEY_Z,
+                                             "mod.chiselsandbits.keys.category"));
+
+        ClientRegistry.registerKeyBinding(redoOperationKeyBinding =
+                                            new KeyMapping("mod.chiselsandbits.keys.key.redo",
+                                              HoldsSpecificItemInHandKeyConflictContext.CHISELABLE_ITEM,
+                                              KeyModifier.CONTROL, InputConstants.Type.KEYSYM, InputConstants.KEY_Y,
+                                              "mod.chiselsandbits.keys.category"));
     }
 
     @SubscribeEvent
@@ -168,6 +184,16 @@ public class KeyBindingManager
 
         if (!isCycleToolMenuLeftKeyPressed())
             toolModeSelectionMinusCoolDown = 15;
+
+        if (isUndoOperationKeyPressed() && (TickHandler.getClientTicks() - lastChangeTime) > 10) {
+            ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new RequestChangeTrackerOperation(false));
+            lastChangeTime = TickHandler.getClientTicks();
+        }
+
+        if (isRedoOperationKeyPressed() && (TickHandler.getClientTicks() - lastChangeTime) > 10) {
+            ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new RequestChangeTrackerOperation(true));
+            lastChangeTime = TickHandler.getClientTicks();
+        }
     }
 
     public boolean isKeyDown(KeyMapping keybinding)
@@ -220,6 +246,22 @@ public class KeyBindingManager
         return cycleToolMenuRightKeybinding;
     }
 
+    public KeyMapping getUndoOperationKeyBinding()
+    {
+        if (undoOperationKeyBinding == null)
+            throw new IllegalStateException("Keybindings have not been initialized.");
+
+        return undoOperationKeyBinding;
+    }
+
+    public KeyMapping getRedoOperationKeyBinding()
+    {
+        if (redoOperationKeyBinding == null)
+            throw new IllegalStateException("Keybindings have not been initialized.");
+
+        return redoOperationKeyBinding;
+    }
+
     public boolean isResetMeasuringTapeKeyPressed() {return isKeyDown(getResetMeasuringTapeKeyBinding()); }
 
     public boolean isOpenToolMenuKeyPressed() {
@@ -232,5 +274,13 @@ public class KeyBindingManager
 
     public boolean isCycleToolMenuRightKeyPressed() {
         return isKeyDown(getCycleToolMenuRightKeybinding());
+    }
+
+    public boolean isUndoOperationKeyPressed() {
+        return isKeyDown(getUndoOperationKeyBinding());
+    }
+
+    public boolean isRedoOperationKeyPressed() {
+        return isKeyDown(getRedoOperationKeyBinding());
     }
 }

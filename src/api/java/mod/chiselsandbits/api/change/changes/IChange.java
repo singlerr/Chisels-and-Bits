@@ -1,11 +1,13 @@
 package mod.chiselsandbits.api.change.changes;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.util.INBTSerializable;
 
 /**
  * Represents a single change that has been created with bits.
  */
-public interface IChange
+public interface IChange extends INBTSerializable<CompoundTag>
 {
     /**
      * Checks if the change can still be undone.
