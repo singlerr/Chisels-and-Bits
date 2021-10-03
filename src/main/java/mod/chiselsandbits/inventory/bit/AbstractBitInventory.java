@@ -1,5 +1,7 @@
 package mod.chiselsandbits.inventory.bit;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItem;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
@@ -7,7 +9,13 @@ import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.util.Tuple;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 public abstract class AbstractBitInventory implements IBitInventory
@@ -326,5 +334,41 @@ public abstract class AbstractBitInventory implements IBitInventory
             if (toInsert <= 0)
                 return;
         }
+    }
+
+    @Override
+    public Map<BlockState, Integer> getContainedStates()
+    {
+        return IntStream.range(0, getInventorySize())
+          .mapToObj(this::getItem)
+          .filter(stack -> stack.getItem() instanceof IBitItem || stack.getItem() instanceof IBitInventoryItem)
+          .map((Function<ItemStack, HashMap<BlockState, Integer>>) stack -> {
+              if (stack.getItem() instanceof IBitItem) {
+                  final IBitItem bitItem = (IBitItem) stack.getItem();
+                  return Maps.newHashMap(ImmutableMap.of(bitItem.getBitState(stack), stack.getCount()));
+              }
+
+              if (stack.getItem() instanceof IBitInventoryItem) {
+                  final IBitInventoryItem bitInventoryItem = (IBitInventoryItem) stack.getItem();
+                  final IBitInventory bitInventory = bitInventoryItem.create(stack);
+                  return Maps.newHashMap(bitInventory.getContainedStates());
+              }
+
+              return Maps.newHashMap(ImmutableMap.of());
+          })
+          .reduce(
+            Maps.newHashMap(),
+            (blockStateIntegerHashMap, blockStateIntegerHashMap2) -> {
+                final HashMap<BlockState, Integer> result = Maps.newHashMap(blockStateIntegerHashMap);
+                blockStateIntegerHashMap2.forEach((state, count) -> {
+                    if (!result.containsKey(state))
+                        result.put(state, count);
+                    else
+                        result.put(state, result.get(state) + count);
+                });
+
+                return result;
+            }
+          );
     }
 }

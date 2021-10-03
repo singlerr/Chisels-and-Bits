@@ -3,7 +3,6 @@ package mod.chiselsandbits.block;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
-import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
@@ -12,7 +11,9 @@ import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.util.ArrayUtils;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
+import mod.chiselsandbits.api.util.SingleBlockWorldReader;
 import mod.chiselsandbits.api.util.StateEntryPredicates;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
@@ -46,6 +47,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @SuppressWarnings("deprecation")
@@ -91,26 +93,6 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                      );
                  })
                  .orElse(true);
-    }
-
-    @Override
-    public boolean removedByPlayer(
-      final BlockState state, final Level world, final BlockPos pos, final Player player, final boolean willHarvest, final FluidState fluid)
-    {
-        if (!willHarvest && Configuration.getInstance().getClient().addBrokenBlocksToCreativeClipboard.get())
-        {
-            getBlockEntityFromOrThrow(world, pos)
-              .ifPresent(multiStateBlockEntity -> {
-                  /*final IMultiStateSnapshot multiStateSnapshot = multiStateBlockEntity.createSnapshot();
-
-                  IChangeTrackerManager.getInstance().getChangeTracker(player).onBlockBroken(
-                    pos,
-                    multiStateSnapshot
-                  );*/
-              });
-        }
-
-        return super.removedByPlayer(state, world, pos, player, willHarvest, fluid);
     }
 
     @Override
@@ -314,10 +296,8 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                  .orElse(0f);
     }
 
-    //TODO: Check if getOpacity needs to be overridden.
-
     @Override
-    public int getLightBlock(final BlockState state, final BlockGetter worldIn, final BlockPos pos)
+    public int getLightBlock(final @NotNull BlockState state, final @NotNull BlockGetter worldIn, final @NotNull BlockPos pos)
     {
         return (int) (float) (getBlockEntityFromOrThrow(worldIn, pos)
                   .map(multiStateBlockEntity -> worldIn.getMaxLightLevel() * multiStateBlockEntity.getStatistics().getFullnessFactor())
@@ -413,7 +393,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     }
 
     @Override
-    public ItemStack pickupBlock(final LevelAccessor p_154560_, final BlockPos p_154561_, final BlockState p_154562_)
+    public @NotNull ItemStack pickupBlock(final @NotNull LevelAccessor p_154560_, final @NotNull BlockPos p_154561_, final @NotNull BlockState p_154562_)
     {
         return ItemStack.EMPTY;
     }
@@ -421,7 +401,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(final BlockPos pos, final BlockState state)
+    public BlockEntity newBlockEntity(final @NotNull BlockPos pos, final @NotNull BlockState state)
     {
         return new ChiseledBlockEntity(pos, state);
     }
@@ -444,5 +424,57 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                 level.getChunkAt(position)
             );
         }
+    }
+
+    @Override
+    public float[] getBeaconColorMultiplier(final BlockState state, final LevelReader world, final BlockPos pos, final BlockPos beaconPos)
+    {
+        return getBlockEntityFromOrThrow(world, pos)
+                 .filter(e -> e.getStatistics().getStateCounts().keySet()
+                                .stream()
+                                .filter(entryState -> !entryState.isAir())
+                                .allMatch(entryState -> entryState.getBeaconColorMultiplier(
+                                  new SingleBlockWorldReader(
+                                    e.getStatistics().getPrimaryState(),
+                                    pos,
+                                    world
+                                  ),
+                                  pos,
+                                  beaconPos
+                                ) != null)
+                 )
+                 .flatMap(e -> e.getStatistics().getStateCounts().entrySet()
+                   .stream()
+                   .filter(entryState -> !entryState.getKey().isAir())
+                   .map(entryState -> ArrayUtils.multiply(entryState.getKey().getBeaconColorMultiplier(
+                     new SingleBlockWorldReader(
+                       e.getStatistics().getPrimaryState(),
+                       pos,
+                       world
+                     ),
+                     pos,
+                     beaconPos
+                   ), entryState.getValue())).reduce((floats, floats2) -> {
+                       if (floats.length != floats2.length)
+                           return null;
+
+                       if (floats == null)
+                           return null;
+
+                       if (floats2 == null)
+                           return null;
+
+                       final float[] result = new float[floats.length];
+                       for (int i = 0; i < floats.length; i++)
+                       {
+                           result[i] = floats[i] + floats2[i];
+                       }
+                       return result;
+                   })
+                   .filter(Objects::nonNull)
+                   .flatMap(summedResult -> getBlockEntityFromOrThrow(world, pos)
+                     .map(entity -> ArrayUtils.multiply(summedResult, 1f / (entity.getStatistics().getFullnessFactor() * StateEntrySize.current().getBitsPerBlock())))
+                   )
+                ).orElse(null);
     }
 }

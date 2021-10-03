@@ -4,6 +4,8 @@ import mod.chiselsandbits.api.item.bit.IBitItem;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Map;
+
 /**
  * Represents an inventory in which bits are contained.
  */
@@ -153,4 +155,10 @@ public interface IBitInventory
         resultStack.setCount(maxRemainingOnStack);
         return resultStack;
     }
+
+    /**
+     * Returns the summed contained states of all bits in the inventory.
+     * @return The contained state count of all bits in the inventory.
+     */
+    Map<BlockState, Integer> getContainedStates();
 }

@@ -3,6 +3,9 @@ package mod.chiselsandbits.inventory.bit;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.Collections;
+import java.util.Map;
+
 public class IllegalBitInventory implements IBitInventory
 {
     /**
@@ -85,5 +88,11 @@ public class IllegalBitInventory implements IBitInventory
     public boolean isEmpty()
     {
         return true;
+    }
+
+    @Override
+    public Map<BlockState, Integer> getContainedStates()
+    {
+        return Collections.emptyMap();
     }
 }

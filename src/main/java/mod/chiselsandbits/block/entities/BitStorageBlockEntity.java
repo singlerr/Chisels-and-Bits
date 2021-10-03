@@ -1,11 +1,15 @@
 package mod.chiselsandbits.block.entities;
 
+import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
 import mod.chiselsandbits.block.BitStorageBlock;
@@ -27,6 +31,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.items.IItemHandler;
@@ -35,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
+import javax.swing.plaf.nimbus.State;
 import java.util.Objects;
 
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
@@ -42,11 +48,6 @@ import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 public class BitStorageBlockEntity extends BlockEntity implements IItemHandler, IFluidHandler
 {
 
-    public static final int MAX_CONTENTS = 4096;
-    // best conversion...
-    // 125mb = 512bits
-    public static final int MB_PER_BIT_CONVERSION  = 125;
-    public static final int BITS_PER_MB_CONVERSION = 512;
     private final LazyOptional<IItemHandler>  itemHandler  = LazyOptional.of(() -> this);
     private final LazyOptional<IFluidHandler> fluidHandler = LazyOptional.of(() -> this);
     private BlockState state   = null;
@@ -205,6 +206,14 @@ public class BitStorageBlockEntity extends BlockEntity implements IItemHandler, 
         return stack;
     }
 
+    public int insertBits(
+      final int count,
+      final BlockState state,
+      final boolean simulate)
+    {
+        return attemptSolidBitStackInsertion(IBitItemManager.getInstance().create(state, count), simulate, state).getCount();
+    }
+
     @Override
     public @NotNull ItemStack extractItem(
       final int slot,
@@ -218,7 +227,7 @@ public class BitStorageBlockEntity extends BlockEntity implements IItemHandler, 
     public int getSlotLimit(
       final int slot)
     {
-        return BITS_PER_MB_CONVERSION;
+        return StateEntrySize.current().getBitsPerBlock();
     }
 
     @Override
@@ -251,7 +260,7 @@ public class BitStorageBlockEntity extends BlockEntity implements IItemHandler, 
         if (canInsert)
         {
             final int merged = bits + stack.getCount();
-            final int amount = Math.min(merged, MAX_CONTENTS);
+            final int amount = Math.min(merged, StateEntrySize.current().getBitsPerBlock());
 
             if (!simulate)
             {
@@ -305,7 +314,7 @@ public class BitStorageBlockEntity extends BlockEntity implements IItemHandler, 
         if (canInsert)
         {
             final int merged = bits + stack.getCount();
-            final int amount = Math.min(merged, MAX_CONTENTS);
+            final int amount = Math.min(merged, StateEntrySize.current().getBitsPerBlock());
 
             if (!simulate)
             {
@@ -380,14 +389,6 @@ public class BitStorageBlockEntity extends BlockEntity implements IItemHandler, 
         return false;
     }
 
-    /**
-     * Dosn't limit to stack size...
-     *
-     * @param slot
-     * @param amount
-     * @param simulate
-     * @return
-     */
     public @Nonnull
     ItemStack extractBits(
       final int slot,
@@ -501,7 +502,7 @@ public class BitStorageBlockEntity extends BlockEntity implements IItemHandler, 
         {
             final IBitInventory bitInventory = IBitInventoryManager.getInstance().create(playerIn);
             final int extractionAmount = Math.min(
-              MAX_CONTENTS - bits,
+              StateEntrySize.current().getBitsPerBlock() - bits,
               bitInventory.getMaxExtractAmount(state)
             );
 
@@ -555,8 +556,7 @@ public class BitStorageBlockEntity extends BlockEntity implements IItemHandler, 
             return FluidStack.EMPTY;
         }
 
-        int mb = (bits - bits % BITS_PER_MB_CONVERSION) / BITS_PER_MB_CONVERSION;
-        mb *= MB_PER_BIT_CONVERSION;
+        int mb = (int) (((float) bits / StateEntrySize.current().getBitsPerBlock()) * 1000);
 
         if (mb > 0 && myFluid != null)
         {
@@ -569,7 +569,7 @@ public class BitStorageBlockEntity extends BlockEntity implements IItemHandler, 
     @Override
     public int getTankCapacity(final int tank)
     {
-        return MAX_CONTENTS;
+        return FluidAttributes.BUCKET_VOLUME;
     }
 
     @Override
@@ -596,25 +596,18 @@ public class BitStorageBlockEntity extends BlockEntity implements IItemHandler, 
             return 0;
         }
 
-        final int possibleAmount = resource.getAmount() - resource.getAmount() % MB_PER_BIT_CONVERSION;
-
-        if (possibleAmount > 0)
+        if (resource.getAmount() > 0)
         {
-            final int bitCount = possibleAmount * BITS_PER_MB_CONVERSION / MB_PER_BIT_CONVERSION;
+            final int bitCount = (int) (resource.getAmount() * (StateEntrySize.current().getBitsPerBlock() / 1000f));
             final ItemStack bitItems = getFluidBitStack(resource.getFluid(), bitCount);
             final ItemStack leftOver = insertItem(0, bitItems, action.simulate());
 
             if (leftOver.isEmpty())
             {
-                return possibleAmount;
+                return resource.getAmount();
             }
 
-            int mbUsedUp = leftOver.getCount();
-
-            // round up...
-            mbUsedUp *= MB_PER_BIT_CONVERSION;
-            mbUsedUp += BITS_PER_MB_CONVERSION - 1;
-            mbUsedUp /= BITS_PER_MB_CONVERSION;
+            int mbUsedUp = (int) (leftOver.getCount() / (StateEntrySize.current().getBitsPerBlock() / 1000f));
 
             return resource.getAmount() - mbUsedUp;
         }
@@ -635,16 +628,16 @@ public class BitStorageBlockEntity extends BlockEntity implements IItemHandler, 
 
         if (a != null && resource.containsFluid(a)) // right type of fluid.
         {
-            final int aboutHowMuch = resource.getAmount();
+            final int requestedMbAmount = resource.getAmount();
 
-            final int mbThatCanBeRemoved = Math.min(a.getAmount(), aboutHowMuch - aboutHowMuch % MB_PER_BIT_CONVERSION);
+            final int mbThatCanBeRemoved = Math.min(a.getAmount(), requestedMbAmount);
             if (mbThatCanBeRemoved > 0)
             {
                 a.setAmount(mbThatCanBeRemoved);
 
                 if (action.execute())
                 {
-                    final int bitCount = mbThatCanBeRemoved * BITS_PER_MB_CONVERSION / MB_PER_BIT_CONVERSION;
+                    final int bitCount = (int) (mbThatCanBeRemoved * (StateEntrySize.current().getBitsPerBlock() / 1000f));
                     extractBits(0, bitCount, false);
                 }
 
@@ -668,16 +661,15 @@ public class BitStorageBlockEntity extends BlockEntity implements IItemHandler, 
 
         if (a != null) // right type of fluid.
         {
-            final int aboutHowMuch = maxDrain;
 
-            final int mbThatCanBeRemoved = Math.min(a.getAmount(), aboutHowMuch - aboutHowMuch % MB_PER_BIT_CONVERSION);
+            final int mbThatCanBeRemoved = Math.min(a.getAmount(), maxDrain);
             if (mbThatCanBeRemoved > 0)
             {
                 a.setAmount(mbThatCanBeRemoved);
 
                 if (action.execute())
                 {
-                    final int bitCount = mbThatCanBeRemoved * BITS_PER_MB_CONVERSION / MB_PER_BIT_CONVERSION;
+                    final int bitCount = (int) (mbThatCanBeRemoved * (StateEntrySize.current().getBitsPerBlock() / 1000f));
                     extractBits(0, bitCount, false);
                 }
 

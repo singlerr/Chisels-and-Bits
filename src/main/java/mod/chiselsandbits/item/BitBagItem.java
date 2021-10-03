@@ -1,36 +1,35 @@
 package mod.chiselsandbits.item;
 
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.block.bitbag.IBitBagAcceptingBlock;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItem;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.inventory.bit.SlottedBitInventoryItemStack;
 import mod.chiselsandbits.network.packets.OpenBagGuiPacket;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.SimpleInstanceCache;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -38,8 +37,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.world.item.Item.Properties;
 
 public class BitBagItem extends Item implements IBitInventoryItem
 {
@@ -99,6 +96,18 @@ public class BitBagItem extends Item implements IBitInventoryItem
       final @NotNull InteractionHand hand)
     {
         final ItemStack itemStackIn = playerIn.getItemInHand(hand);
+
+        if (playerIn != null) {
+            final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerIn);
+            if (rayTraceResult.getType() == HitResult.Type.BLOCK && rayTraceResult instanceof BlockHitResult) {
+                final BlockHitResult blockRayTraceResult = (BlockHitResult) rayTraceResult;
+                final BlockState hitBlockState = worldIn.getBlockState(blockRayTraceResult.getBlockPos());
+                if (hitBlockState.getBlock() instanceof IBitBagAcceptingBlock) {
+                    ((IBitBagAcceptingBlock) hitBlockState.getBlock()).onBitBagInteraction(itemStackIn, playerIn, blockRayTraceResult);
+                    return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStackIn);
+                }
+            }
+        }
 
         if (worldIn.isClientSide)
         {

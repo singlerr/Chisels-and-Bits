@@ -1,7 +1,12 @@
 package mod.chiselsandbits.block;
 
 import com.google.common.collect.Lists;
+import mod.chiselsandbits.api.block.bitbag.IBitBagAcceptingBlock;
+import mod.chiselsandbits.api.inventory.bit.IBitInventory;
+import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
+import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
@@ -33,9 +39,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @SuppressWarnings("deprecation")
-public class BitStorageBlock extends Block implements EntityBlock
+public class BitStorageBlock extends Block implements EntityBlock, IBitBagAcceptingBlock
 {
 
     public static final Property<Direction> FACING = HorizontalDirectionalBlock.FACING;
@@ -74,6 +82,9 @@ public class BitStorageBlock extends Block implements EntityBlock
             return InteractionResult.FAIL;
 
         final ItemStack current = player.getInventory().getSelected();
+
+        if (current.getItem() instanceof BitBagItem)
+            return InteractionResult.PASS;
 
         if (!current.isEmpty())
         {
@@ -146,5 +157,54 @@ public class BitStorageBlock extends Block implements EntityBlock
                             )
           );
         return tankStack;
+    }
+
+    @Override
+    public void onBitBagInteraction(final ItemStack bitBagStack, final Player player, final BlockHitResult blockRayTraceResult)
+    {
+        final BlockEntity tileEntity = player.level.getBlockEntity(blockRayTraceResult.getBlockPos());
+        if (!(tileEntity instanceof BitStorageBlockEntity))
+            return;
+
+        final BitStorageBlockEntity tank = (BitStorageBlockEntity) tileEntity;
+        final IBitInventory bitInventory = IBitInventoryManager.getInstance().create(bitBagStack);
+
+        final BlockState containedState = tank.getState();
+        final Fluid containedFluid = tank.getMyFluid();
+
+        if (player.isCrouching() && (containedFluid != null || containedState != null)) {
+            final BlockState toInsertState = containedFluid != null ? containedFluid.defaultFluidState().createLegacyBlock() : containedState;
+            final int maxAmountToInsert = bitInventory.getMaxInsertAmount(toInsertState);
+            final int bitCountToInsert = Math.min(tank.getBits(), maxAmountToInsert);
+
+            tank.extractBits(0, bitCountToInsert, false);
+            bitInventory.insert(toInsertState, bitCountToInsert);
+        }
+        else if ((containedFluid != null || containedState != null) && tank.getBits() != 0) {
+            final BlockState toExtractState = containedFluid != null ? containedFluid.defaultFluidState().createLegacyBlock() : containedState;
+            final int maxAmountToInsert = StateEntrySize.current().getBitsPerBlock() - tank.getBits();
+            final int bitCountToInsert = Math.min(bitInventory.getMaxExtractAmount(toExtractState), maxAmountToInsert);
+
+            tank.insertBits(bitCountToInsert, toExtractState, false);
+            bitInventory.extract(toExtractState, bitCountToInsert);
+        }
+        else if (!player.isCrouching()) {
+            final Optional<BlockState> toExtractCandidate =
+                bitInventory.getContainedStates()
+                  .entrySet()
+                  .stream()
+                  .max(Map.Entry.comparingByValue())
+                  .map(Map.Entry::getKey);
+            if (toExtractCandidate.isPresent()) {
+                final BlockState toExtractState = toExtractCandidate.get();
+                final int maxAmountToInsert = StateEntrySize.current().getBitsPerBlock();
+                final int bitCountToInsert = Math.min(bitInventory.getMaxExtractAmount(toExtractState), maxAmountToInsert);
+
+                tank.insertBits(bitCountToInsert, toExtractState, false);
+                bitInventory.extract(toExtractState, bitCountToInsert);
+            }
+        }
+
+
     }
 }

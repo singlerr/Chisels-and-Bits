@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.config.Configuration;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.client.model.baked.chiseled.ChiselRenderType;
@@ -62,7 +63,7 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
 
                     final VertexConsumer builder = buffer.getBuffer(renderType);
 
-                    final float fullness = (float) fluidStack.getAmount() / (float) BitStorageBlockEntity.MAX_CONTENTS;
+                    final float fullness = (float) fluidStack.getAmount() / (float) StateEntrySize.current().getBitsPerBlock();
 
                     FluidCuboidUtils.renderScaledFluidCuboid(
                       fluidStack,
