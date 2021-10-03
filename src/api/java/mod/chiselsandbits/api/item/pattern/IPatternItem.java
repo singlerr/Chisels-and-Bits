@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.item.pattern;
 
+import mod.chiselsandbits.api.item.change.IChangeTrackingItem;
 import mod.chiselsandbits.api.item.wireframe.IWireframeProvidingItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
@@ -19,7 +20,7 @@ import static mod.chiselsandbits.api.util.ColorUtils.SUCCESSFUL_PATTERN_PLACEMEN
 /**
  * Represents an item that can be a pattern
  */
-public interface IPatternItem extends IMultiStateItem, ISupportsSealing, IWithModeItem<IPatternPlacementType>, IWireframeProvidingItem
+public interface IPatternItem extends IMultiStateItem, ISupportsSealing, IWithModeItem<IPatternPlacementType>, IWireframeProvidingItem, IChangeTrackingItem
 {
     @Override
     default VoxelShape getWireFrame(

@@ -84,13 +84,13 @@ public class KeyBindingManager
 
         ClientRegistry.registerKeyBinding(undoOperationKeyBinding =
                                            new KeyBinding("mod.chiselsandbits.keys.key.undo",
-                                             HoldsSpecificItemInHandKeyConflictContext.CHISELABLE_ITEM,
+                                             HoldsSpecificItemInHandKeyConflictContext.CHANGE_TRACKING_ITEM,
                                              KeyModifier.CONTROL, InputMappings.Type.KEYSYM, 90,
                                              "mod.chiselsandbits.keys.category"));
 
         ClientRegistry.registerKeyBinding(redoOperationKeyBinding =
                                             new KeyBinding("mod.chiselsandbits.keys.key.redo",
-                                              HoldsSpecificItemInHandKeyConflictContext.CHISELABLE_ITEM,
+                                              HoldsSpecificItemInHandKeyConflictContext.CHANGE_TRACKING_ITEM,
                                               KeyModifier.CONTROL, InputMappings.Type.KEYSYM, 89,
                                               "mod.chiselsandbits.keys.category"));
     }

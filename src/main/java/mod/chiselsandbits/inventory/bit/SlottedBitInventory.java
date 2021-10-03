@@ -55,6 +55,13 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
     @Override
     protected void setSlotContents(final int index, final ItemStack stack)
     {
+        if (stack.isEmpty())
+        {
+            slotMap.remove(index);
+            onChange();
+            return;
+        }
+
         if (!(stack.getItem() instanceof IBitItem))
             throw new IllegalArgumentException("Can not insert a none bit item into the inventory.");
 

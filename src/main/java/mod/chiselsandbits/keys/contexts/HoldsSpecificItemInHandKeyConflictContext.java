@@ -1,6 +1,6 @@
 package mod.chiselsandbits.keys.contexts;
 
-import mod.chiselsandbits.api.item.chisel.IChiselingItem;
+import mod.chiselsandbits.api.item.change.IChangeTrackingItem;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
@@ -12,7 +12,7 @@ import java.util.function.Predicate;
 public enum HoldsSpecificItemInHandKeyConflictContext implements IKeyConflictContext
 {
     MEASURING_TAPE(item -> ModItems.MEASURING_TAPE.get() == item),
-    CHISELABLE_ITEM(item -> item instanceof IChiselingItem);
+    CHANGE_TRACKING_ITEM(item -> item instanceof IChangeTrackingItem);
 
     private final Predicate<Item> item;
 

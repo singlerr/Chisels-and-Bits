@@ -3,25 +3,21 @@ package mod.chiselsandbits.block;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
-import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
-import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
-import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
-import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
+import mod.chiselsandbits.api.util.ArrayUtils;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
 import mod.chiselsandbits.api.util.StateEntryPredicates;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
-import mod.chiselsandbits.network.NetworkChannel;
 import mod.chiselsandbits.network.packets.NeighborBlockUpdatedPacket;
 import mod.chiselsandbits.utils.EffectUtils;
 import net.minecraft.block.Block;
@@ -45,22 +41,20 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.*;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ToolType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 @SuppressWarnings("deprecation")
 public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLoggable
@@ -117,26 +111,6 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
                      );
                  })
                  .orElse(true);
-    }
-
-    @Override
-    public boolean removedByPlayer(
-      final BlockState state, final World world, final BlockPos pos, final PlayerEntity player, final boolean willHarvest, final FluidState fluid)
-    {
-        if (!willHarvest && Configuration.getInstance().getClient().addBrokenBlocksToCreativeClipboard.get())
-        {
-            getBlockEntityFromOrThrow(world, pos)
-              .ifPresent(multiStateBlockEntity -> {
-                  /*final IMultiStateSnapshot multiStateSnapshot = multiStateBlockEntity.createSnapshot();
-
-                  IChangeTrackerManager.getInstance().getChangeTracker(player).onBlockBroken(
-                    pos,
-                    multiStateSnapshot
-                  );*/
-              });
-        }
-
-        return super.removedByPlayer(state, world, pos, player, willHarvest, fluid);
     }
 
     @Override
@@ -508,5 +482,57 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
                 level.getChunkAt(position)
             );
         }
+    }
+
+    @Override
+    public float[] getBeaconColorMultiplier(final BlockState state, final IWorldReader world, final BlockPos pos, final BlockPos beaconPos)
+    {
+        return getBlockEntityFromOrThrow(world, pos)
+                 .filter(e -> e.getStatistics().getStateCounts().keySet()
+                                .stream()
+                                .filter(entryState -> !entryState.isAir())
+                                .allMatch(entryState -> entryState.getBeaconColorMultiplier(
+                                  new SingleBlockWorldReader(
+                                    e.getStatistics().getPrimaryState(),
+                                    pos,
+                                    world
+                                  ),
+                                  pos,
+                                  beaconPos
+                                ) != null)
+                 )
+                 .flatMap(e -> e.getStatistics().getStateCounts().entrySet()
+                   .stream()
+                   .filter(entryState -> !entryState.getKey().isAir())
+                   .map(entryState -> ArrayUtils.multiply(entryState.getKey().getBeaconColorMultiplier(
+                     new SingleBlockWorldReader(
+                       e.getStatistics().getPrimaryState(),
+                       pos,
+                       world
+                     ),
+                     pos,
+                     beaconPos
+                   ), entryState.getValue())).reduce((floats, floats2) -> {
+                       if (floats.length != floats2.length)
+                           return null;
+
+                       if (floats == null)
+                           return null;
+
+                       if (floats2 == null)
+                           return null;
+
+                       final float[] result = new float[floats.length];
+                       for (int i = 0; i < floats.length; i++)
+                       {
+                           result[i] = floats[i] + floats2[i];
+                       }
+                       return result;
+                   })
+                   .filter(Objects::nonNull)
+                   .flatMap(summedResult -> getBlockEntityFromOrThrow(world, pos)
+                     .map(entity -> ArrayUtils.multiply(summedResult, 1f / (entity.getStatistics().getFullnessFactor() * StateEntrySize.current().getBitsPerBlock())))
+                   )
+                ).orElse(null);
     }
 }

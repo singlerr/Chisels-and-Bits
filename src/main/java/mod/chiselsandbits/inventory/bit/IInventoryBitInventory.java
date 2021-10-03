@@ -1,7 +1,10 @@
 package mod.chiselsandbits.inventory.bit;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+
+import java.util.Map;
 
 public class IInventoryBitInventory extends AbstractBitInventory
 {

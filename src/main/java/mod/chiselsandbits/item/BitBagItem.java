@@ -1,12 +1,14 @@
 package mod.chiselsandbits.item;
 
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.block.bitbag.IBitBagAcceptingBlock;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItem;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.inventory.bit.SlottedBitInventoryItemStack;
 import mod.chiselsandbits.network.packets.OpenBagGuiPacket;
@@ -17,6 +19,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.DyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -26,6 +29,8 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -96,6 +101,22 @@ public class BitBagItem extends Item implements IBitInventoryItem
       final @NotNull Hand hand)
     {
         final ItemStack itemStackIn = playerIn.getItemInHand(hand);
+
+        if (playerIn != null) {
+            final RayTraceResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerIn);
+            if (rayTraceResult.getType() == RayTraceResult.Type.BLOCK && rayTraceResult instanceof BlockRayTraceResult) {
+                final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
+                final BlockState hitBlockState = worldIn.getBlockState(blockRayTraceResult.getBlockPos());
+                if (hitBlockState.getBlock() instanceof IBitBagAcceptingBlock) {
+                    ((IBitBagAcceptingBlock) hitBlockState.getBlock()).onBitBagInteraction(itemStackIn, playerIn, blockRayTraceResult);
+                    if (playerIn instanceof ServerPlayerEntity)
+                    {
+                        ((ServerPlayerEntity) playerIn).refreshContainer(playerIn.inventoryMenu);
+                    }
+                    return new ActionResult<>(ActionResultType.SUCCESS, itemStackIn);
+                }
+            }
+        }
 
         if (worldIn.isClientSide)
         {
