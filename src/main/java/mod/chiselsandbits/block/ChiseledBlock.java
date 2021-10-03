@@ -131,10 +131,20 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                      );
                      final Vec3 hitDelta = hitVec.subtract(accuratePos).add(faceOffset);
 
-                     return e.getInAreaTarget(hitDelta);
+                     try {
+                         return e.getInAreaTarget(hitDelta);
+                     } catch (IllegalArgumentException exception) {
+                         //Because people do stupid stuff.
+                         return Optional.empty();
+                     }
                  })
                  .map(targetedStateEntry -> IMultiStateItemFactory.getInstance().createBlockFrom(targetedStateEntry))
-                 .orElse(ItemStack.EMPTY);
+                 .orElseGet(() -> getBlockEntityFromOrThrow(world, pos)
+                   .map(e -> {
+                       final IMultiStateSnapshot snapshot = e.createSnapshot();
+                       return snapshot.toItemStack().toBlockStack();
+                   })
+                   .orElse(ItemStack.EMPTY));
     }
 
     @Override
