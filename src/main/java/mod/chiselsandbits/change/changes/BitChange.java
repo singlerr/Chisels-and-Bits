@@ -8,34 +8,46 @@ import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
+import org.apache.commons.lang3.Validate;
 
 import java.util.Map;
 import java.util.Optional;
 
-public class BlockUpdatedChange implements IChange
+public class BitChange implements IChange
 {
-    private final BlockPos blockPos;
-    private final IMultiStateSnapshot before;
-    private final IMultiStateSnapshot after;
+    private BlockPos blockPos;
+    private IMultiStateSnapshot before;
+    private IMultiStateSnapshot after;
 
-    public BlockUpdatedChange(
+    public BitChange(
       final BlockPos blockPos,
       final IMultiStateSnapshot before,
       final IMultiStateSnapshot after) {
         this.blockPos = blockPos;
         this.before = before;
         this.after = after;
+    }
+
+    public BitChange(final INBT tag)
+    {
+        Validate.isInstanceOf(CompoundNBT.class, tag);
+        this.deserializeNBT((CompoundNBT) tag);
     }
 
     @Override
@@ -83,8 +95,6 @@ public class BlockUpdatedChange implements IChange
             tileEntity = player.level.getBlockEntity(blockPos);
             if (!(tileEntity instanceof IMultiStateBlockEntity))
                 throw new IllegalChangeAttempt();
-
-            ((IMultiStateBlockEntity) tileEntity).initializeWith(initializationState);
         }
 
         final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntity;
@@ -152,8 +162,6 @@ public class BlockUpdatedChange implements IChange
             tileEntity = player.level.getBlockEntity(blockPos);
             if (!(tileEntity instanceof IMultiStateBlockEntity))
                 throw new IllegalChangeAttempt();
-
-            ((IMultiStateBlockEntity) tileEntity).initializeWith(initializationState);
         }
 
         final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntity;
@@ -239,5 +247,36 @@ public class BlockUpdatedChange implements IChange
         return difference.entrySet().stream()
           .filter(e -> e.getValue() < 0)
           .allMatch(e -> bitInventory.canExtract(e.getKey(), -e.getValue()));
+    }
+
+    @Override
+    public CompoundNBT serializeNBT()
+    {
+        final CompoundNBT tag = new CompoundNBT();
+
+        tag.put("pos", NBTUtil.writeBlockPos(this.blockPos));
+        tag.put("before", this.before.toItemStack().toBlockStack().serializeNBT());
+        tag.put("after", this.after.toItemStack().toBlockStack().serializeNBT());
+
+        return tag;
+    }
+
+    @Override
+    public void deserializeNBT(final CompoundNBT nbt)
+    {
+        this.blockPos = NBTUtil.readBlockPos(nbt.getCompound("pos"));
+        this.before = deserializeSnapshot(nbt.getCompound("before"));
+        this.after = deserializeSnapshot(nbt.getCompound("after"));
+    }
+
+    private static IMultiStateSnapshot deserializeSnapshot(final CompoundNBT nbt)  {
+        final ItemStack stack = ItemStack.of(nbt);
+        if (stack.isEmpty())
+            return EmptySnapshot.INSTANCE;
+
+        if (!(stack.getItem() instanceof IMultiStateItem))
+            return EmptySnapshot.INSTANCE;
+
+        return ((IMultiStateItem) stack.getItem()).createItemStack(stack).createSnapshot();
     }
 }

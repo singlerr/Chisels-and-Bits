@@ -1,7 +1,6 @@
 package mod.chiselsandbits.api.util;
 
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public enum LocalStrings
@@ -137,7 +136,11 @@ public enum LocalStrings
     PatternPlacementNotASolidBlock("pattern.placement.failure.not.a.solid.block"),
     PatternPlacementNotAChiseledBlock("pattern.placement.failure.not.a.chiseled.block"),
     PatternPlacementNotAnAirBlock("pattern.placement.failure.not.a.air.block"),
-    PatternPlacementNotASupportedBlock("pattern.placement.failure.not.a.supported.block");
+    PatternPlacementNotASupportedBlock("pattern.placement.failure.not.a.supported.block"),
+    CanNotUndo("change-tracking.undo.failed"),
+    UndoSuccessful("change-tracking.undo.success"),
+    CanNotRedo("change-tracking.redo.failed"),
+    RedoSuccessful("change-tracking.redo.success");
 
     private final String string;
 
@@ -153,12 +156,12 @@ public enum LocalStrings
         return string;
     }
 
-    public ITextComponent getText()
+    public IFormattableTextComponent getText()
     {
         return new TranslationTextComponent(string);
     }
 
-    public ITextComponent getText(
+    public IFormattableTextComponent getText(
       final Object... args
     )
     {

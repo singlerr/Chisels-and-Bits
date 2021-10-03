@@ -299,7 +299,6 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
 
             getLevel().getLightEngine().checkBlock(getBlockPos());
             getLevel().sendBlockUpdated(getBlockPos(), Blocks.AIR.defaultBlockState(), getBlockState(), Constants.BlockFlags.DEFAULT);
-            getLevel().updateNeighborsAt(getBlockPos(), getLevel().getBlockState(getBlockPos()).getBlock());
 
             if (!getLevel().isClientSide())
             {
@@ -307,6 +306,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
                   new TileEntityUpdatedPacket(this),
                   getLevel().getChunkAt(getBlockPos())
                 );
+                getLevel().updateNeighborsAt(getBlockPos(), getLevel().getBlockState(getBlockPos()).getBlock());
             }
         }
     }
