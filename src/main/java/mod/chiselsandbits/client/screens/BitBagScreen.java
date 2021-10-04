@@ -72,7 +72,9 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer>
             {
                 requireConfirm = true;
                 // server side!
-                ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new ClearBagGuiPacket(getInHandItem()));
+                final ClearBagGuiPacket packet = new ClearBagGuiPacket(getInHandItem());
+                ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(packet);
+                packet.execute(Minecraft.getInstance().player);
             }
         }, (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
             if ( isValidBitItem() )
@@ -91,7 +93,11 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer>
         }));
 
         addRenderableWidget(new GuiIconButton(leftPos - 18, topPos + 18, IconManager.getInstance().getSortIcon(),
-          p_onPress_1_ -> ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new SortBagGuiPacket()),
+          p_onPress_1_ -> {
+            final SortBagGuiPacket packet = new SortBagGuiPacket();
+            ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(packet);
+            packet.execute(Minecraft.getInstance().player);
+          },
           (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
               final List<Component> text = Collections.singletonList(LocalStrings.Sort.getText());
               GuiUtils.drawHoveringText(p_onTooltip_2_, text, p_onTooltip_3_, p_onTooltip_4_, width, height, -1, Minecraft.getInstance().font);
@@ -140,12 +146,18 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer>
 
         this.blit(stack, xOffset, yOffset, 0, 0, imageWidth, imageHeight );
 
+        PoseStack posestack = RenderSystem.getModelViewStack();
+        posestack.pushPose();
+        posestack.translate((double)this.leftPos, (double)this.topPos, 0.0D);
+        RenderSystem.applyModelViewMatrix();
         if ( specialFontRenderer == null )
         {
             specialFontRenderer = new GuiBagFontRenderer( font, Configuration.getInstance().getServer().bagStackSize.get() );
         }
 
         hoveredBitSlot = null;
+        stack.pushPose();
+        //stack.translate(xOffset, yOffset, 0d);
         for ( int slotIdx = 0; slotIdx < getBagContainer().customSlots.size(); ++slotIdx )
         {
             final Slot slot = getBagContainer().customSlots.get( slotIdx );
@@ -155,10 +167,8 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer>
             try
             {
                 font = specialFontRenderer;
-                stack.pushPose();
-                stack.translate(leftPos, topPos, 0f);
+                RenderSystem.setShader(GameRenderer::getPositionTexShader);
                 renderSlot(stack, slot);
-                stack.popPose();
             }
             finally
             {
@@ -167,8 +177,8 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer>
 
             if ( isHovering( slot, mouseX, mouseY ) && slot.isActive() )
             {
-                final int xDisplayPos = this.leftPos + slot.x;
-                final int yDisplayPos = this.topPos + slot.y;
+                final int xDisplayPos = slot.x;
+                final int yDisplayPos = slot.y;
                 hoveredBitSlot = slot;
 
                 RenderSystem.disableDepthTest();
@@ -179,6 +189,10 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer>
                 RenderSystem.enableDepthTest();
             }
         }
+
+        posestack.popPose();
+        RenderSystem.applyModelViewMatrix();
+        stack.popPose();
 
         if ( !trashBtn.isMouseOver(mouseX, mouseY) )
         {
@@ -211,7 +225,7 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer>
 
 	private ItemStack getInHandItem()
 	{
-		return Minecraft.getInstance().player == null ? ItemStack.EMPTY : Minecraft.getInstance().player.getInventory().getSelected();
+		return Minecraft.getInstance().player == null ? ItemStack.EMPTY : Minecraft.getInstance().player.containerMenu.getCarried();
 	}
 
 	boolean requireConfirm = true;

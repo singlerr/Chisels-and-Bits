@@ -16,7 +16,7 @@ public class IconSpriteUploader extends TextureAtlasHolder
 {
     private final List<ResourceLocation> textures = Lists.newArrayList();
 
-    static final ResourceLocation TEXTURE_MAP_NAME = new ResourceLocation(Constants.MOD_ID, "textures/atlas/icons.png");
+    public static final ResourceLocation TEXTURE_MAP_NAME = new ResourceLocation(Constants.MOD_ID, "textures/atlas/icons.png");
 
     public IconSpriteUploader()
     {

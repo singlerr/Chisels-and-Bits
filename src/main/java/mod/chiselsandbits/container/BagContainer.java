@@ -360,6 +360,8 @@ public class BagContainer extends AbstractContainerMenu
             bagInv.clearContent();
         }
 
+        setCarried(ItemStack.EMPTY);
+
         transferState(this);
     }
 

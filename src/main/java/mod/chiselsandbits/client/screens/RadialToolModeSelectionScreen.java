@@ -151,7 +151,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
               OUTER_TORUS_OUTER,
               (this.mainToolModeList.indexOf(this.mainSelectedToolMode) * (360f / this.mainToolModeList.size())),
               (360f / this.mainToolModeList.size()),
-              0.6f,
+              0.8f,
               this.outerToolModes.get((IToolModeGroup) this.mainSelectedToolMode),
               () -> this.selectedOuterToolMode,
               (mode) -> {
