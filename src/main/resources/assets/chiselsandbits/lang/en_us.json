@@ -622,5 +622,6 @@
   "mod.chiselsandbits.keys.key.modded-tool.cycle.right": "Cycle Tool mode to the right",
   "mod.chiselsandbits.keys.key.measuring-tape.reset": "Reset measuring tape measurements",
   "mod.chiselsandbits.keys.key.undo": "Undo last chiseling operation",
-  "mod.chiselsandbits.keys.key.redo": "Redo last undone chiseling operation"
+  "mod.chiselsandbits.keys.key.redo": "Redo last undone chiseling operation",
+  "mod.chiselsandbits.test": "Placeholder text during development"
 }
