@@ -1,6 +1,7 @@
 package mod.chiselsandbits.events;
 
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.measures.MeasuringManager;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -13,5 +14,6 @@ public class PlayerLoggedInEventHandler
     public static void onPlayerLoggedIn(final PlayerEvent.PlayerLoggedInEvent event)
     {
         MeasuringManager.getInstance().syncToAll();
+        ChiselingManager.getInstance().resetLastChiselCountdown(event.getPlayer());
     }
 }

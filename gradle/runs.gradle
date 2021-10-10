@@ -1,0 +1,43 @@
+project.minecraft {
+    runs { runSpecContainer ->
+        def generateDataSpec = runSpecContainer.maybeCreate("generateData")
+        generateDataSpec.parent runSpecContainer.maybeCreate("data")
+        generateDataSpec.workingDirectory project.file('run')
+        generateDataSpec.property 'forge.logging.markers', ''
+        generateDataSpec.property 'forge.logging.console.level', 'info'
+        generateDataSpec.property 'mixin.env.remapRefMap', 'true'
+        generateDataSpec.property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+        generateDataSpec.inheritArgs false
+        generateDataSpec.args '--all', '--output', file('src/datagen/generated/chiselsandbits'),
+                '--mod', 'chiselsandbits',
+                '--existing', sourceSets.main.resources.srcDirs[0]
+        generateDataSpec.mods {
+            chiselsandbits {
+                source sourceSets.main
+                source sourceSets.api
+                source sourceSets.datagen
+            }
+        }
+
+        def generateDocumentationSpec = runSpecContainer.maybeCreate("generateDocumentation")
+        generateDocumentationSpec.workingDirectory project.file('run')
+        generateDocumentationSpec.parent runSpecContainer.maybeCreate("data")
+        generateDocumentationSpec.property 'forge.logging.markers', ''
+        generateDocumentationSpec.property 'forge.logging.console.level', 'info'
+        generateDocumentationSpec.property 'mixin.env.remapRefMap', 'true'
+        generateDocumentationSpec.property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+        generateDocumentationSpec.inheritArgs false
+        generateDocumentationSpec.args '--all', '--output', file('src/documentation/generated/chiselsandbits'),
+                '--mod', 'chiselsandbits',
+                '--existing', sourceSets.main.resources.srcDirs[0],
+                '--existing', file('src/datagen/generated/chiselsandbits')
+        generateDocumentationSpec.mods {
+            chiselsandbits {
+                source sourceSets.main
+                source sourceSets.api
+                source sourceSets.documentation
+            }
+        }
+    }
+
+}

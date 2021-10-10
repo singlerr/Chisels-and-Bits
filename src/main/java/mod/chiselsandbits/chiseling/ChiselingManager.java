@@ -139,4 +139,9 @@ public class ChiselingManager implements IChiselingManager
             activeThreadId.set(activeInstanceId);
         }
     }
+
+    public void resetLastChiselCountdown(final PlayerEntity player)
+    {
+        this.lastUsedChiselMoments.get().row(player.getUUID()).clear();
+    }
 }

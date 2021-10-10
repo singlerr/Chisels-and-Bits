@@ -26,7 +26,7 @@ public class AsyncReloadManager extends ThreadTaskExecutor<Runnable>
 
     private AsyncReloadManager()
     {
-        super("C&B - Data Driven Runner");
+        super("Chisels and Bits - Data Driven Runner");
     }
 
     public void reload(IResourceManager resourceManager, IFutureReloadListener reloadListener) {
