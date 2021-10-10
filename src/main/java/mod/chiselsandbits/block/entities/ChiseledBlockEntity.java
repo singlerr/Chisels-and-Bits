@@ -243,7 +243,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     {
         final CompoundTag nbt = super.save(compound);
         final CompoundTag chiselBlockData = new CompoundTag();
-        final CompoundTag compressedSectionData = ChunkSectionUtils.serializeNBT(this.compressedSection);
+        final CompoundTag compressedSectionData = ChunkSectionUtils.serializeNBTCompressed(this.compressedSection);
         chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
         chiselBlockData.put(NbtConstants.STATISTICS, mutableStatistics.serializeNBT());
 

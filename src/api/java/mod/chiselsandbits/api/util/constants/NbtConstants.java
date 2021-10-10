@@ -12,6 +12,8 @@ public class NbtConstants
 
     public static final String CHISEL_BLOCK_ENTITY_DATA = "chiselBlockData";
     public static final String COMPRESSED_STORAGE = "compressedStorage";
+    public static final String DATA_IS_COMPRESSED = "isCompressed";
+    public static final String COMPRESSED_DATA = "compressedData";
     public static final String PALETTE = "palette";
     public static final String BLOCK_STATES  = "blockStates";
     public static final String COLUMN_BLOCK_LIST = "columnBlockList";

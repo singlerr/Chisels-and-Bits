@@ -1,9 +1,16 @@
 package mod.chiselsandbits.utils;
 
+import com.google.common.io.ByteArrayDataInput;
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
+import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
@@ -11,9 +18,18 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraftforge.common.util.Constants;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.zip.DataFormatException;
 
 public class ChunkSectionUtils
 {
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private ChunkSectionUtils()
     {
@@ -32,9 +48,61 @@ public class ChunkSectionUtils
         return compressedSectionData;
     }
 
+    public static CompoundTag serializeNBTCompressed(final LevelChunkSection chunkSection) {
+        final CompoundTag compressedSectionData = new CompoundTag();
+
+        chunkSection.getStates().write(
+          compressedSectionData,
+          NbtConstants.PALETTE,
+          NbtConstants.BLOCK_STATES
+        );
+
+        try
+        {
+            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            NbtIo.writeCompressed(compressedSectionData, outputStream);
+            final byte[] compressedData = outputStream.toByteArray();
+            final CompoundTag gzipCompressedTag = new CompoundTag();
+            gzipCompressedTag.putBoolean(NbtConstants.DATA_IS_COMPRESSED, true);
+            gzipCompressedTag.putByteArray(NbtConstants.COMPRESSED_DATA, compressedData);
+            return gzipCompressedTag;
+        }
+        catch (Exception e)
+        {
+            LOGGER.error("Failed to compress chiseled block data.", e);
+            return compressedSectionData;
+        }
+    }
+
     public static void deserializeNBT(final LevelChunkSection chunkSection, final CompoundTag nbt) {
         if (nbt.isEmpty())
             return;
+
+        if (nbt.contains(NbtConstants.DATA_IS_COMPRESSED, Tag.TAG_BYTE)
+              && nbt.getBoolean(NbtConstants.DATA_IS_COMPRESSED)
+              && nbt.contains(NbtConstants.COMPRESSED_DATA, Tag.TAG_BYTE_ARRAY)) {
+            try
+            {
+                final byte[] compressedData = nbt.getByteArray(NbtConstants.COMPRESSED_DATA);
+                final ByteArrayInputStream inputStream = new ByteArrayInputStream(compressedData);
+                final CompoundTag compoundTag = NbtIo.readCompressed(inputStream);
+
+                chunkSection.getStates().read(
+                  compoundTag.getList(NbtConstants.PALETTE, Constants.NBT.TAG_COMPOUND),
+                  compoundTag.getLongArray(NbtConstants.BLOCK_STATES)
+                );
+
+                chunkSection.recalcBlockCounts();
+                return;
+            }
+            catch (Exception e)
+            {
+                LOGGER.error("Failed to decompress chiseled block entity data. Resetting data.");
+                ChunkSectionUtils.fillFromBottom(chunkSection, Blocks.AIR.defaultBlockState(), StateEntrySize.current().getBitsPerBlock());
+                chunkSection.recalcBlockCounts();
+                return;
+            }
+        }
 
         chunkSection.getStates().read(
           nbt.getList(NbtConstants.PALETTE, Constants.NBT.TAG_COMPOUND),

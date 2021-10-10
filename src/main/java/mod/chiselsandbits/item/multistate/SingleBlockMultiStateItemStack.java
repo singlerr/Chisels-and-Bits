@@ -393,7 +393,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         final CompoundTag nbt = new CompoundTag();
 
         final CompoundTag chiselBlockData = new CompoundTag();
-        final CompoundTag compressedSectionData = ChunkSectionUtils.serializeNBT(this.compressedSection);
+        final CompoundTag compressedSectionData = ChunkSectionUtils.serializeNBTCompressed(this.compressedSection);
         final CompoundTag statisticsData = this.statistics.serializeNBT();
 
         chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
