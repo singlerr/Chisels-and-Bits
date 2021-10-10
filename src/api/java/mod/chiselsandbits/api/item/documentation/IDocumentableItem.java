@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Map;
 
 /**
- * Represents an item that is documented via the C&B documentation export system.
+ * Represents an item that is documented via the Chisels and Bits documentation export system.
  */
 public interface IDocumentableItem
 {

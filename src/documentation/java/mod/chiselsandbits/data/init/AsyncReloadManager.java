@@ -22,7 +22,7 @@ public class AsyncReloadManager extends BlockableEventLoop<Runnable>
 
     private AsyncReloadManager()
     {
-        super("C&B - Data Driven Runner");
+        super("Chisels and Bits - Data Driven Runner");
     }
 
     public void reload(ResourceManager resourceManager, PreparableReloadListener reloadListener) {

@@ -217,7 +217,7 @@ public class ChiseledBlockModelDataExecutor
               runnable -> {
                   final Thread thread = new Thread(runnable);
                   thread.setContextClassLoader(classLoader);
-                  thread.setName(String.format("C&B Model builder #%s", genericThreadCounter.incrementAndGet()));
+                  thread.setName(String.format("Chisels and Bits Model builder #%s", genericThreadCounter.incrementAndGet()));
                   thread.setDaemon(true);
                   return thread;
               }

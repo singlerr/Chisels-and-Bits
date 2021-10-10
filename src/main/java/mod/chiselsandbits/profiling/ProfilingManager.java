@@ -32,7 +32,7 @@ public class ProfilingManager implements IProfilingManager
     public IProfilerResult endProfiling(final IProfiler profiler)
     {
         if (!(profiler instanceof CandBProfiler))
-            throw new IllegalArgumentException("Profiler is not a C&B Profiler");
+            throw new IllegalArgumentException("Profiler is not a Chisels and Bits Profiler");
 
         final CandBProfiler candBProfiler = (CandBProfiler) profiler;
 

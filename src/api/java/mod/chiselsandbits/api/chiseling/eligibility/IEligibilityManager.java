@@ -40,9 +40,9 @@ public interface IEligibilityManager
     }
 
     /**
-     * Checks if a given {@link IItemProvider} can be chiseled or is already chiseled.
+     * Checks if a given {@link ItemLike} can be chiseled or is already chiseled.
      *
-     * @param provider The given {@link IItemProvider} in question.
+     * @param provider The given {@link ItemLike} in question.
      *
      * @return True when chiselable or already chiseled.
      */
@@ -72,9 +72,9 @@ public interface IEligibilityManager
     }
 
     /**
-     * Performs a chiselability analysis on the given {@link IItemProvider}.
+     * Performs a chiselability analysis on the given {@link ItemLike}.
      *
-     * @param provider The {@link IItemProvider} to analyze.
+     * @param provider The {@link ItemLike} to analyze.
      *
      * @return The analysis result.
      */

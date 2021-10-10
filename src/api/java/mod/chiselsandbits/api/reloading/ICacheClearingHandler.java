@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.reloading;
 
 /**
- * Invoked by C&Bs reloading handler.
+ * Invoked by Chisels and Bitss reloading handler.
  */
 @FunctionalInterface
 public interface ICacheClearingHandler

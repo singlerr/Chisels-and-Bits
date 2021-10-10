@@ -35,9 +35,9 @@ public interface IChiselingContext extends IStateAccessor
     Optional<IWorldAreaMutator> getMutator();
 
     /**
-     * The {@link IWorld} in which the current chiseling context is valid.
+     * The {@link LevelAccessor} in which the current chiseling context is valid.
      *
-     * @return The {@link IWorld}.
+     * @return The {@link LevelAccessor}.
      */
     @NotNull
     LevelAccessor getWorld();

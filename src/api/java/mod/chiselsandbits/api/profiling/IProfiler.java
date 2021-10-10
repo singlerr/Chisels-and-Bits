@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * A profiler used to track the time certain operations inside C&B take.
+ * A profiler used to track the time certain operations inside Chisels and Bits take.
  */
 public interface IProfiler
 {

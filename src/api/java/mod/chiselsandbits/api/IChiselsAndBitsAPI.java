@@ -158,7 +158,7 @@ public interface IChiselsAndBitsAPI
     }
 
     /**
-     * The profiling manager, allows for the profiling of operations related C&B.
+     * The profiling manager, allows for the profiling of operations related Chisels and Bits.
      *
      * @return The profiling manager.
      */
