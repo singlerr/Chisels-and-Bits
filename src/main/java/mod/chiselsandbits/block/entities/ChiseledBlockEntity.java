@@ -276,7 +276,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     {
         final CompoundNBT nbt = super.save(compound);
         final CompoundNBT chiselBlockData = new CompoundNBT();
-        final CompoundNBT compressedSectionData = ChunkSectionUtils.serializeNBT(this.compressedSection);
+        final CompoundNBT compressedSectionData = ChunkSectionUtils.serializeNBTCompressed(this.compressedSection);
         chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
         chiselBlockData.put(NbtConstants.STATISTICS, mutableStatistics.serializeNBT());
 
