@@ -1,6 +1,6 @@
 package mod.chiselsandbits.registrars;
 
-import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
+import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.modification.operation.MirrorOverAxisModificationOperation;
 import mod.chiselsandbits.modification.operation.RotateAroundAxisModificationOperation;
@@ -15,30 +15,30 @@ import java.util.function.Supplier;
 
 public final class ModModificationOperation
 {
-    private static final DeferredRegister<IModificationTableOperation> OPERATION_REGISTRAR = DeferredRegister.create(IModificationTableOperation.class, Constants.MOD_ID);
+    private static final DeferredRegister<IModificationOperation> OPERATION_REGISTRAR = DeferredRegister.create(IModificationOperation.class, Constants.MOD_ID);
 
-    public static final Supplier<IForgeRegistry<IModificationTableOperation>> REGISTRY_SUPPLIER = OPERATION_REGISTRAR.makeRegistry("modification_operation", () -> new RegistryBuilder<IModificationTableOperation>()
+    public static final Supplier<IForgeRegistry<IModificationOperation>> REGISTRY_SUPPLIER = OPERATION_REGISTRAR.makeRegistry("modification_operation", () -> new RegistryBuilder<IModificationOperation>()
       .allowModification()
       .disableOverrides()
       .disableSaving()
     );
     
-    public static final RegistryObject<IModificationTableOperation> ROTATE_AROUND_X = OPERATION_REGISTRAR.register(
+    public static final RegistryObject<IModificationOperation> ROTATE_AROUND_X = OPERATION_REGISTRAR.register(
       "rotate_around_x", () -> RotateAroundAxisModificationOperation.Builder.create().withAxis(Direction.Axis.X).build()
     );
-    public static final RegistryObject<IModificationTableOperation> ROTATE_AROUND_Y = OPERATION_REGISTRAR.register(
+    public static final RegistryObject<IModificationOperation> ROTATE_AROUND_Y = OPERATION_REGISTRAR.register(
       "rotate_around_y", () -> RotateAroundAxisModificationOperation.Builder.create().withAxis(Direction.Axis.Y).build()
     );
-    public static final RegistryObject<IModificationTableOperation> ROTATE_AROUND_Z = OPERATION_REGISTRAR.register(
+    public static final RegistryObject<IModificationOperation> ROTATE_AROUND_Z = OPERATION_REGISTRAR.register(
       "rotate_around_z", () -> RotateAroundAxisModificationOperation.Builder.create().withAxis(Direction.Axis.Z).build()
     );
-    public static final RegistryObject<IModificationTableOperation> MIRROR_OVER_X = OPERATION_REGISTRAR.register(
+    public static final RegistryObject<IModificationOperation> MIRROR_OVER_X   = OPERATION_REGISTRAR.register(
       "mirror_over_x", () -> MirrorOverAxisModificationOperation.Builder.create().withAxis(Direction.Axis.X).build()
     );
-    public static final RegistryObject<IModificationTableOperation> MIRROR_OVER_Y = OPERATION_REGISTRAR.register(
+    public static final RegistryObject<IModificationOperation> MIRROR_OVER_Y   = OPERATION_REGISTRAR.register(
       "mirror_over_y", () -> MirrorOverAxisModificationOperation.Builder.create().withAxis(Direction.Axis.Y).build()
     );
-    public static final RegistryObject<IModificationTableOperation> MIRROR_OVER_Z = OPERATION_REGISTRAR.register(
+    public static final RegistryObject<IModificationOperation> MIRROR_OVER_Z   = OPERATION_REGISTRAR.register(
       "mirror_over_z", () -> MirrorOverAxisModificationOperation.Builder.create().withAxis(Direction.Axis.Z).build()
     );
 

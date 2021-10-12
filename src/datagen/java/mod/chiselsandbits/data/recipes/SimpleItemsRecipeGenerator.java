@@ -89,6 +89,18 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
             )
           )
         );
+
+        event.getGenerator().addProvider(
+          new SimpleItemsRecipeGenerator(
+            event.getGenerator(),
+            ModItems.WRENCH.get(),
+            " pb; pp;p  ",
+            ImmutableMap.of(
+              "p", new RecipeIngredientKeyJson(new RecipeIngredientJson(ItemTags.PLANKS.getName().toString(), true)),
+              "b", new RecipeIngredientKeyJson(new RecipeIngredientJson(ModItems.ITEM_BLOCK_BIT.getId().toString(), false))
+            )
+          )
+        );
     }
 
     private final boolean shapeless;

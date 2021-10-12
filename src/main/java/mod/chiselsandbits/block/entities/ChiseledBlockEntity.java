@@ -546,6 +546,31 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         }
     }
 
+    @Override
+    public void mirror(final Direction.Axis axis)
+    {
+        if (getLevel() == null)
+        {
+            return;
+        }
+
+        //Large operation, better batch this together to prevent weird updates.
+        try(final IBatchMutation ignored = batch()) {
+            this.compressedSection = ChunkSectionUtils.mirror(
+              this.compressedSection,
+              axis
+            );
+            this.mutableStatistics.clear();
+
+            BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
+              .forEach(position -> this.mutableStatistics.onBlockStateAdded(
+                this.compressedSection.getBlockState(position.getX(), position.getY(), position.getZ()),
+                position,
+                shouldUpdateWorld()
+              ));
+        }
+    }
+
     /**
      * Initializes the block entity so that all its state entries have the given state as their state.
      *

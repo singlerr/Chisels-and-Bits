@@ -56,8 +56,6 @@ public class MinecraftInstanceManager
         initializeRenderSystem();
         initializeResourceManager(resourceManager);
         initializeTextureManager(resourceManager);
-        initializeDataFixer();
-        initializeGameSettings();
 
         initializeTags(helper);
     }
@@ -116,17 +114,6 @@ public class MinecraftInstanceManager
     {
         final TextureManager textureManager = new TextureManager(resourceManager);
         ReflectionUtils.setField(Minecraft.getInstance(), "textureManager", textureManager);
-    }
-
-    private void initializeDataFixer()
-    {
-        ReflectionUtils.setField(Minecraft.getInstance(), "dataFixer", DataFixers.getDataFixer());
-    }
-
-    private void initializeGameSettings()
-    {
-        final Options gameSettings = new Options(Minecraft.getInstance(), new File("./"));
-        ReflectionUtils.setField(Minecraft.getInstance(), "gameSettings", gameSettings);
     }
 
     private void initializeTags(ExistingFileHelper existingFileHelper)

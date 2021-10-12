@@ -14,6 +14,7 @@ import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
+import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
@@ -192,6 +193,13 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     IBlockNeighborhoodBuilder getBlockNeighborhoodBuilder();
+
+    /**
+     * The default mode for performing modification operations if no other is supplied.
+     * @return The default modification operation.
+     */
+    @NotNull
+    IModificationOperation getDefaultModificationOperation();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

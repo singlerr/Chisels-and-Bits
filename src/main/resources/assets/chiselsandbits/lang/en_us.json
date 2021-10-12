@@ -22,7 +22,7 @@
   "item.chiselsandbits.block_bit": "%s Bit",
   "item.chiselsandbits.bit_bag": "Chiseled Bit Bag",
   "item.chiselsandbits.bit_bag_dyed": "Chiseled Bit Bag",
-  "item.chiselsandbits.wrench_wood": "Wooden Wrench",
+  "item.chiselsandbits.wrench": "Wooden Wrench",
   "item.chiselsandbits.positiveprint": "Positive Chisel Design",
   "item.chiselsandbits.positiveprint_written": "Positive Chisel Design - Written",
   "item.chiselsandbits.negativeprint": "Negative Chisel Design",
@@ -623,5 +623,10 @@
   "mod.chiselsandbits.keys.key.measuring-tape.reset": "Reset measuring tape measurements",
   "mod.chiselsandbits.keys.key.undo": "Undo last chiseling operation",
   "mod.chiselsandbits.keys.key.redo": "Redo last undone chiseling operation",
-  "mod.chiselsandbits.test": "Placeholder text during development"
+  "mod.chiselsandbits.test": "Placeholder text during development",
+  "mod.chiselsandbits.pattern.modification.group.mirror": "Mirror",
+  "mod.chiselsandbits.pattern.modification.group.rotate": "Rotate",
+  "mod.chiselsandbits.pattern.modification.across.axis.x": "X",
+  "mod.chiselsandbits.pattern.modification.across.axis.y": "Y",
+  "mod.chiselsandbits.pattern.modification.across.axis.z": "Z"
 }

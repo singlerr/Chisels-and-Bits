@@ -69,6 +69,10 @@ public final class ModItems
     public static final RegistryObject<BlockItem> CHISELED_PRINTER =
         ITEM_REGISTRAR.register("chiseled_printer", () -> new BlockItem(ModBlocks.CHISELED_PRINTER.get(), new Item.Properties().tab(CHISELS_AND_BITS)));
 
+    public static final RegistryObject<WrenchItem> WRENCH =
+      ITEM_REGISTRAR.register("wrench", () -> new WrenchItem(new Item.Properties().tab(CHISELS_AND_BITS)));
+
+
     private ModItems()
     {
         throw new IllegalStateException("Tried to initialize: ModItems but this is a Utility class.");

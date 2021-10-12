@@ -1,7 +1,7 @@
 package mod.chiselsandbits.registries;
 
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
-import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
+import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.registrars.ModChiselModes;
 import mod.chiselsandbits.registrars.ModModificationOperation;
@@ -33,7 +33,7 @@ public class RegistryManager implements IRegistryManager
     }
 
     @Override
-    public @NotNull IForgeRegistry<IModificationTableOperation> getModificationTableOperationRegistry()
+    public @NotNull IForgeRegistry<IModificationOperation> getModificationOperationRegistry()
     {
         return ModModificationOperation.REGISTRY_SUPPLIER.get();
     }

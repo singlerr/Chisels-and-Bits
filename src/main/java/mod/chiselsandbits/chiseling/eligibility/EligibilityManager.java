@@ -34,7 +34,7 @@ public class EligibilityManager implements IEligibilityManager
     private static final EligibilityManager INSTANCE = new EligibilityManager();
 
     private static final SimpleMaxSizedCache<BlockState, IEligibilityAnalysisResult> cache =
-        new SimpleMaxSizedCache<>(GameData.getBlockStateIDMap()::size);
+        new SimpleMaxSizedCache<>(() -> GameData.getBlockStateIDMap().size() == 0 ? 1000 : GameData.getBlockStateIDMap().size());
 
     private EligibilityManager()
     {
