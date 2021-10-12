@@ -8,6 +8,8 @@ import net.minecraftforge.eventbus.api.Event;
 public class ClickProcessingState
 {
 
+    public static final ClickProcessingState ALLOW = new ClickProcessingState(true, Event.Result.ALLOW);
+    public static final ClickProcessingState DENIED = new ClickProcessingState(true, Event.Result.DENY);
     public static final ClickProcessingState DEFAULT = new ClickProcessingState(false, Event.Result.DEFAULT);
 
     private final boolean      shouldCancel;

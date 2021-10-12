@@ -1,17 +1,14 @@
 package mod.chiselsandbits.registrars;
 
 import mod.chiselsandbits.api.chiseling.metadata.IMetadataKey;
-import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.chiseling.metadata.SimpleMetadataKey;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegistryBuilder;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 

@@ -4,7 +4,7 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.item.pattern.IMultiUsePatternItem;
 import mod.chiselsandbits.api.item.pattern.IPatternItem;
-import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
+import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import mod.chiselsandbits.registrars.ModRecipeSerializers;
@@ -24,11 +24,11 @@ import java.util.Objects;
 
 public class ModificationTableRecipe implements IRecipe<IInventory>
 {
-    private final IModificationTableOperation operation;
+    private final IModificationOperation operation;
 
-    public ModificationTableRecipe(final IModificationTableOperation operation) {this.operation = operation;}
+    public ModificationTableRecipe(final IModificationOperation operation) {this.operation = operation;}
 
-    public IModificationTableOperation getOperation()
+    public IModificationOperation getOperation()
     {
         return operation;
     }
@@ -61,9 +61,11 @@ public class ModificationTableRecipe implements IRecipe<IInventory>
 
         final IMultiStateItem item = (IMultiStateItem) multiStateStack.getItem();
         final IMultiStateItemStack multiStateItemStack = item.createItemStack(multiStateStack);
-        final IMultiStateSnapshot snapshot = multiStateItemStack.createSnapshot();
+        final IMultiStateSnapshot snapshot = multiStateItemStack.createSnapshot().clone();
 
-        return getOperation().apply(snapshot);
+        getOperation().apply(snapshot);
+
+        return snapshot;
     }
 
     public ITextComponent getDisplayName() {

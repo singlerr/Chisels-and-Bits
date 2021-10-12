@@ -2,7 +2,7 @@ package mod.chiselsandbits.api.registries;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
-import mod.chiselsandbits.api.modification.operation.IModificationTableOperation;
+import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,8 +26,8 @@ public interface IRegistryManager
     /**
      * The forge registry used for modifications of single use patterns.
      *
-     * @return The modification table operation registry.
+     * @return The modification operation registry.
      */
     @NotNull
-    IForgeRegistry<IModificationTableOperation> getModificationTableOperationRegistry();
+    IForgeRegistry<IModificationOperation> getModificationOperationRegistry();
 }
