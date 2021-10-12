@@ -326,6 +326,31 @@
       "chiselsandbits_sealant_produces_chiselsandbits_sealant"
     ],
     "usages": []
+  },
+
+  {
+    "id": "wrench",
+    "name": "Wrench",
+    "url": "wrench",
+    "features": [
+      "Used to modify already placed bit blocks in the same way the modification table can modify patterns."
+    ],
+    "controls": [
+      {
+        "button": "Right Click",
+        "action": "Applies the current modification mode to the targeted block."
+      },
+      {
+        "button": "R",
+        "action": "Opens up the modification selection menu."
+      }
+    ],
+    "version": "1.0",
+    "icon": "wrench.png",
+    "recipes": [
+      "chiselsandbits_wrench_produces_chiselsandbits_wrench"
+    ],
+    "usages": []
   }
 
 ]

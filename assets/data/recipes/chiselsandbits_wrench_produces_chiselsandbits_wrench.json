@@ -2,81 +2,18 @@
   "recipes": [
     {
       "firstRow": {
-        "firstItem": [
-          "minecraft/orange_wool",
-          "minecraft/black_wool",
-          "minecraft/gray_wool",
-          "minecraft/purple_wool",
-          "minecraft/pink_wool",
-          "minecraft/white_wool",
-          "minecraft/magenta_wool",
-          "minecraft/yellow_wool",
-          "minecraft/blue_wool",
-          "minecraft/light_gray_wool",
-          "minecraft/cyan_wool",
-          "minecraft/red_wool",
-          "minecraft/brown_wool",
-          "minecraft/green_wool",
-          "minecraft/light_blue_wool",
-          "minecraft/lime_wool"
-        ],
+        "firstItem": [],
         "secondItem": [
-          "minecraft/orange_wool",
-          "minecraft/black_wool",
-          "minecraft/gray_wool",
-          "minecraft/purple_wool",
-          "minecraft/pink_wool",
-          "minecraft/white_wool",
-          "minecraft/magenta_wool",
-          "minecraft/yellow_wool",
-          "minecraft/blue_wool",
-          "minecraft/light_gray_wool",
-          "minecraft/cyan_wool",
-          "minecraft/red_wool",
-          "minecraft/brown_wool",
-          "minecraft/green_wool",
-          "minecraft/light_blue_wool",
-          "minecraft/lime_wool"
+          "minecraft/oak_planks",
+          "minecraft/spruce_planks",
+          "minecraft/birch_planks",
+          "minecraft/crimson_planks",
+          "minecraft/dark_oak_planks",
+          "minecraft/jungle_planks",
+          "minecraft/warped_planks",
+          "minecraft/acacia_planks"
         ],
         "thirdItem": [
-          "minecraft/orange_wool",
-          "minecraft/black_wool",
-          "minecraft/gray_wool",
-          "minecraft/purple_wool",
-          "minecraft/pink_wool",
-          "minecraft/white_wool",
-          "minecraft/magenta_wool",
-          "minecraft/yellow_wool",
-          "minecraft/blue_wool",
-          "minecraft/light_gray_wool",
-          "minecraft/cyan_wool",
-          "minecraft/red_wool",
-          "minecraft/brown_wool",
-          "minecraft/green_wool",
-          "minecraft/light_blue_wool",
-          "minecraft/lime_wool"
-        ]
-      },
-      "secondRow": {
-        "firstItem": [
-          "minecraft/orange_wool",
-          "minecraft/black_wool",
-          "minecraft/gray_wool",
-          "minecraft/purple_wool",
-          "minecraft/pink_wool",
-          "minecraft/white_wool",
-          "minecraft/magenta_wool",
-          "minecraft/yellow_wool",
-          "minecraft/blue_wool",
-          "minecraft/light_gray_wool",
-          "minecraft/cyan_wool",
-          "minecraft/red_wool",
-          "minecraft/brown_wool",
-          "minecraft/green_wool",
-          "minecraft/light_blue_wool",
-          "minecraft/lime_wool"
-        ],
-        "secondItem": [
           "chiselsandbits/bit_minecraft_wet_sponge",
           "chiselsandbits/bit_minecraft_copper_ore",
           "chiselsandbits/bit_minecraft_dead_bubble_coral_block",
@@ -407,84 +344,47 @@
           "chiselsandbits/bit_minecraft_oak_log",
           "chiselsandbits/bit_minecraft_yellow_concrete",
           "chiselsandbits/bit_minecraft_white_stained_glass"
+        ]
+      },
+      "secondRow": {
+        "firstItem": [],
+        "secondItem": [
+          "minecraft/oak_planks",
+          "minecraft/spruce_planks",
+          "minecraft/birch_planks",
+          "minecraft/crimson_planks",
+          "minecraft/dark_oak_planks",
+          "minecraft/jungle_planks",
+          "minecraft/warped_planks",
+          "minecraft/acacia_planks"
         ],
         "thirdItem": [
-          "minecraft/orange_wool",
-          "minecraft/black_wool",
-          "minecraft/gray_wool",
-          "minecraft/purple_wool",
-          "minecraft/pink_wool",
-          "minecraft/white_wool",
-          "minecraft/magenta_wool",
-          "minecraft/yellow_wool",
-          "minecraft/blue_wool",
-          "minecraft/light_gray_wool",
-          "minecraft/cyan_wool",
-          "minecraft/red_wool",
-          "minecraft/brown_wool",
-          "minecraft/green_wool",
-          "minecraft/light_blue_wool",
-          "minecraft/lime_wool"
+          "minecraft/oak_planks",
+          "minecraft/spruce_planks",
+          "minecraft/birch_planks",
+          "minecraft/crimson_planks",
+          "minecraft/dark_oak_planks",
+          "minecraft/jungle_planks",
+          "minecraft/warped_planks",
+          "minecraft/acacia_planks"
         ]
       },
       "thirdRow": {
         "firstItem": [
-          "minecraft/orange_wool",
-          "minecraft/black_wool",
-          "minecraft/gray_wool",
-          "minecraft/purple_wool",
-          "minecraft/pink_wool",
-          "minecraft/white_wool",
-          "minecraft/magenta_wool",
-          "minecraft/yellow_wool",
-          "minecraft/blue_wool",
-          "minecraft/light_gray_wool",
-          "minecraft/cyan_wool",
-          "minecraft/red_wool",
-          "minecraft/brown_wool",
-          "minecraft/green_wool",
-          "minecraft/light_blue_wool",
-          "minecraft/lime_wool"
+          "minecraft/oak_planks",
+          "minecraft/spruce_planks",
+          "minecraft/birch_planks",
+          "minecraft/crimson_planks",
+          "minecraft/dark_oak_planks",
+          "minecraft/jungle_planks",
+          "minecraft/warped_planks",
+          "minecraft/acacia_planks"
         ],
-        "secondItem": [
-          "minecraft/orange_wool",
-          "minecraft/black_wool",
-          "minecraft/gray_wool",
-          "minecraft/purple_wool",
-          "minecraft/pink_wool",
-          "minecraft/white_wool",
-          "minecraft/magenta_wool",
-          "minecraft/yellow_wool",
-          "minecraft/blue_wool",
-          "minecraft/light_gray_wool",
-          "minecraft/cyan_wool",
-          "minecraft/red_wool",
-          "minecraft/brown_wool",
-          "minecraft/green_wool",
-          "minecraft/light_blue_wool",
-          "minecraft/lime_wool"
-        ],
-        "thirdItem": [
-          "minecraft/orange_wool",
-          "minecraft/black_wool",
-          "minecraft/gray_wool",
-          "minecraft/purple_wool",
-          "minecraft/pink_wool",
-          "minecraft/white_wool",
-          "minecraft/magenta_wool",
-          "minecraft/yellow_wool",
-          "minecraft/blue_wool",
-          "minecraft/light_gray_wool",
-          "minecraft/cyan_wool",
-          "minecraft/red_wool",
-          "minecraft/brown_wool",
-          "minecraft/green_wool",
-          "minecraft/light_blue_wool",
-          "minecraft/lime_wool"
-        ]
+        "secondItem": [],
+        "thirdItem": []
       },
       "products": [
-        "chiselsandbits/bit_bag"
+        "chiselsandbits/wrench"
       ],
       "isShapeless": false
     }
