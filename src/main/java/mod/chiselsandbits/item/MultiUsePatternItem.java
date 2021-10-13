@@ -31,7 +31,7 @@ public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiU
     }
 
     @Override
-    protected ActionResultType determineSuccessResult(final BlockItemUseContext context)
+    protected ActionResultType determineSuccessResult(final BlockItemUseContext context, final ItemStack resultingStack)
     {
         return ActionResultType.SUCCESS;
     }
