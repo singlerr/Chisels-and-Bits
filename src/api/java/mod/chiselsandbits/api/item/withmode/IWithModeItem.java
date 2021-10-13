@@ -16,6 +16,16 @@ public interface IWithModeItem<M extends IToolMode>
 {
 
     /**
+     * Indicates to the ux system that this item requires an additional
+     * update when the player closes the interface.
+     *
+     * @return True when the update is required, false when not.
+     */
+    default boolean requiresUpdateOnClosure() {
+        return true;
+    }
+
+    /**
      * Returns the current mode of the itemstack.
      * @param stack The stack in question.
      * @return The mode the given stack has.

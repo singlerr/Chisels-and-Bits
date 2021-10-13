@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.item.multistate;
 
-import mod.chiselsandbits.api.multistate.mutator.IAreaMutator;
+import mod.chiselsandbits.api.multistate.mutator.IGenerallyModifiableAreaMutator;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -9,7 +9,7 @@ import net.minecraftforge.common.util.INBTSerializable;
 /**
  * The itemstack sensitive version of the multistate item.
  */
-public interface IMultiStateItemStack extends  IAreaMutator,
+public interface IMultiStateItemStack extends IGenerallyModifiableAreaMutator,
                                                 INBTSerializable<CompoundNBT>,
                                                 IPacketBufferSerializable
 {

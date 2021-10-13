@@ -2,6 +2,9 @@ package mod.chiselsandbits.api.item.chiseled;
 
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.wireframe.IWireframeProvidingItem;
+import mod.chiselsandbits.api.item.withmode.IToolMode;
+import mod.chiselsandbits.api.item.withmode.IWithModeItem;
+import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -16,7 +19,7 @@ import static mod.chiselsandbits.api.util.StateEntryPredicates.NOT_AIR;
 /**
  * Represents items which represent a broken chiseled block.
  */
-public interface IChiseledBlockItem extends IMultiStateItem, IWireframeProvidingItem
+public interface IChiseledBlockItem extends IMultiStateItem, IWireframeProvidingItem, IWithModeItem<IModificationOperation>
 {
     @Override
     default VoxelShape getWireFrame(

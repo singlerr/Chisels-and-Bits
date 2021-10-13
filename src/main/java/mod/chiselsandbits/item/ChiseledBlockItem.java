@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.chiseled.IChiseledBlockItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
+import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
@@ -15,6 +16,7 @@ import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.legacy.LegacyLoadManager;
+import mod.chiselsandbits.registrars.ModModificationOperation;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
@@ -31,6 +33,7 @@ import net.minecraft.world.chunk.ChunkSection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 
 public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
@@ -166,5 +169,30 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
           });
 
         return noCollision;
+    }
+
+    @Override
+    public @NotNull IModificationOperation getMode(final ItemStack stack)
+    {
+        return ModModificationOperation.ROTATE_AROUND_X.get();
+    }
+
+    @Override
+    public void setMode(final ItemStack stack, final IModificationOperation mode)
+    {
+        final IMultiStateItemStack multiStateItemStack = this.createItemStack(stack);
+        mode.apply(multiStateItemStack);
+    }
+
+    @Override
+    public @NotNull Collection<IModificationOperation> getPossibleModes()
+    {
+        return ModModificationOperation.REGISTRY_SUPPLIER.get().getValues();
+    }
+
+    @Override
+    public boolean requiresUpdateOnClosure()
+    {
+        return false;
     }
 }
