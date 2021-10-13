@@ -132,16 +132,17 @@ public class SingleUsePatternItem extends Item implements IPatternItem
         context.getPlayer().setItemInHand(context.getHand(), resultingStack);
 
         return resultType.isSuccess() ?
-                 determineSuccessResult(context) :
+                 determineSuccessResult(context, resultingStack) :
                  InteractionResult.FAIL;
     }
 
-    protected InteractionResult determineSuccessResult(final BlockPlaceContext context) {
+    protected InteractionResult determineSuccessResult(final BlockPlaceContext context, final ItemStack stack) {
         if (context.getPlayer() != null && context.getPlayer().isCreative())
         {
             return InteractionResult.SUCCESS;
         }
 
+        stack.shrink(1);
         return InteractionResult.CONSUME;
     }
 

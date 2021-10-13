@@ -29,7 +29,7 @@ public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiU
     }
 
     @Override
-    protected InteractionResult determineSuccessResult(final BlockPlaceContext context)
+    protected InteractionResult determineSuccessResult(final BlockPlaceContext context, final ItemStack resultingStack)
     {
         return InteractionResult.SUCCESS;
     }
