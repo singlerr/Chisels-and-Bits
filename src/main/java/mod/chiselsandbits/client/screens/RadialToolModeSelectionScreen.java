@@ -476,7 +476,10 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
     @Override
     public void removed()
     {
-        updateSelection();
+        if (toolModeItem.requiresUpdateOnClosure())
+        {
+            updateSelection();
+        }
     }
 
     @Override

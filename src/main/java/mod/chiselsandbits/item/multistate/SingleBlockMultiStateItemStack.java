@@ -31,6 +31,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.Vec3i;
@@ -48,7 +49,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
 {
 
     private final ItemStack    sourceStack;
-    private final LevelChunkSection compressedSection;
+    private LevelChunkSection compressedSection;
     private final Statistics statistics = new Statistics();
 
     public SingleBlockMultiStateItemStack(final ItemStack sourceStack)
@@ -482,6 +483,42 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
                      this::clearInAreaTarget
                    )
                  );
+    }
+
+    @Override
+    public void rotate(final Direction.Axis axis, final int rotationCount)
+    {
+        this.compressedSection = ChunkSectionUtils.rotate90Degrees(
+          this.compressedSection,
+          axis,
+          rotationCount
+        );
+
+        this.statistics.clear();
+
+        BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
+          .forEach(position -> this.statistics.onBlockStateAdded(
+            this.compressedSection.getBlockState(position.getX(), position.getY(), position.getZ())
+          ));
+
+        this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
+    }
+
+    @Override
+    public void mirror(final Direction.Axis axis)
+    {
+        this.compressedSection = ChunkSectionUtils.mirror(
+          this.compressedSection,
+          axis
+        );
+        this.statistics.clear();
+
+        BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
+          .forEach(position -> this.statistics.onBlockStateAdded(
+            this.compressedSection.getBlockState(position.getX(), position.getY(), position.getZ())
+          ));
+
+        this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
     }
 
     private static final class ShapeIdentifier implements ILongArrayBackedAreaShapeIdentifier

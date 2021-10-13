@@ -525,5 +525,17 @@ public class EmptySnapshot implements IMultiStateSnapshot
         {
 
         }
+
+        @Override
+        public void rotate(final Direction.Axis axis, final int rotationCount)
+        {
+
+        }
+
+        @Override
+        public void mirror(final Direction.Axis axis)
+        {
+
+        }
     }
 }
