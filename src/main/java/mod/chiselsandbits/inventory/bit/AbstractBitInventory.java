@@ -238,6 +238,7 @@ public abstract class AbstractBitInventory implements IBitInventory
                         final ItemStack newStack = IBitItemManager.getInstance().create(blockState, stackInsertCount);
 
                         setSlotContents(i, newStack);
+                        break;
                     }
                 }
 
