@@ -3,9 +3,11 @@ package mod.chiselsandbits;
 import mod.chiselsandbits.api.ChiselsAndBitsAPI;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.config.Configuration;
+import mod.chiselsandbits.api.plugin.IChiselsAndBitsPlugin;
 import mod.chiselsandbits.api.util.LanguageHandler;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.network.NetworkChannel;
+import mod.chiselsandbits.plugin.PluginManger;
 import mod.chiselsandbits.registrars.*;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -40,6 +42,9 @@ public class ChiselsAndBits
         ModTags.init();
 
         networkChannel.registerCommonMessages();
+
+        PluginManger.getInstance().detect();
+        PluginManger.getInstance().run(IChiselsAndBitsPlugin::onConstruction);
 	}
 
 	public static ChiselsAndBits getInstance()

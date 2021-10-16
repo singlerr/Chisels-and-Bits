@@ -17,6 +17,7 @@ import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
+import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
@@ -31,6 +32,7 @@ import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
 import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.multistate.mutator.MutatorFactory;
 import mod.chiselsandbits.neighborhood.BlockNeighborhoodBuilder;
+import mod.chiselsandbits.plugin.PluginManger;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModChiselModes;
 import mod.chiselsandbits.registrars.ModModificationOperation;
@@ -219,5 +221,11 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull IModificationOperation getDefaultModificationOperation()
     {
         return ModModificationOperation.ROTATE_AROUND_X.get();
+    }
+
+    @Override
+    public @NotNull IChiselsAndBitsPluginManager getPluginManager()
+    {
+        return PluginManger.getInstance();
     }
 }

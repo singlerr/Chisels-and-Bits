@@ -18,6 +18,7 @@ import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
+import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
@@ -200,6 +201,14 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     IModificationOperation getDefaultModificationOperation();
+
+    /**
+     * Gives access to the plugin manager that is used to process chisels and bits plugins
+     * @return The plugin manager
+     */
+    @NotNull
+    IChiselsAndBitsPluginManager getPluginManager();
+
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;
