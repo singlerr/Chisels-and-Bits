@@ -20,10 +20,7 @@ import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
 import mod.chiselsandbits.network.packets.NeighborBlockUpdatedPacket;
 import mod.chiselsandbits.utils.EffectUtils;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.IWaterLoggable;
+import net.minecraft.block.*;
 import net.minecraft.block.material.PushReaction;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.Entity;
@@ -544,5 +541,18 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, IWaterLogg
                      .map(entity -> ArrayUtils.multiply(summedResult, 1f / (entity.getStatistics().getFullnessFactor() * StateEntrySize.current().getBitsPerBlock())))
                    )
                 ).orElse(null);
+    }
+
+    @Override
+    public SoundType getSoundType(final BlockState state, final IWorldReader world, final BlockPos pos, @Nullable final Entity entity)
+    {
+        return getBlockEntityFromOrThrow(world, pos)
+          .map(blockEntity -> blockEntity.getStatistics().getPrimaryState())
+          .map(blockState -> blockState.getSoundType(
+            new SingleBlockWorldReader(blockState, pos, world),
+            pos,
+            entity
+          ))
+          .orElse(SoundType.STONE);
     }
 }
