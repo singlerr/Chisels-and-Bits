@@ -3,6 +3,9 @@ dependencies {
     compileOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}:api")
     runtimeOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}")
 
+    implementation fg.deobf("com.jozufozu.flywheel:Flywheel:${project.flyWheelVersion}")
+    implementation fg.deobf("com.simibubi.create:Create:${project.createVersion}")
+
     apiLibrary "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
     library "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
     datagenLibrary "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
