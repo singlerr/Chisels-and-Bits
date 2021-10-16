@@ -329,6 +329,27 @@
   },
 
   {
+    "id": "unseal",
+    "name": "Sealant remover",
+    "url": "unseal",
+    "features": [
+      "Used to remove a previously applied seal from a sealed pattern."
+    ],
+    "controls": [
+      {
+        "button": "Right Click /w Sealed Pattern in other Hand",
+        "action": "Removes the seal from the pattern in your other hand."
+      }
+    ],
+    "version": "1.0",
+    "icon": "unseal.png",
+    "recipes": [
+      "chiselsandbits_unseal_produces_chiselsandbits_unseal"
+    ],
+    "usages": []
+  },
+
+  {
     "id": "wrench",
     "name": "Wrench",
     "url": "wrench",

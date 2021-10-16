@@ -1,0 +1,27 @@
+{
+  "recipes": [
+    {
+      "firstRow": {
+        "firstItem": [
+          "minecraft/wet_sponge"
+        ],
+        "secondItem": [],
+        "thirdItem": []
+      },
+      "secondRow": {
+        "firstItem": [],
+        "secondItem": [],
+        "thirdItem": []
+      },
+      "thirdRow": {
+        "firstItem": [],
+        "secondItem": [],
+        "thirdItem": []
+      },
+      "products": [
+        "chiselsandbits/unseal"
+      ],
+      "isShapeless": true
+    }
+  ]
+}
