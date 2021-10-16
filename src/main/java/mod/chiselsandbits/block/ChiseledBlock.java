@@ -29,10 +29,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -486,5 +483,18 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                      .map(entity -> ArrayUtils.multiply(summedResult, 1f / (entity.getStatistics().getFullnessFactor() * StateEntrySize.current().getBitsPerBlock())))
                    )
                 ).orElse(null);
+    }
+
+    @Override
+    public SoundType getSoundType(final BlockState state, final LevelReader world, final BlockPos pos, @Nullable final Entity entity)
+    {
+        return getBlockEntityFromOrThrow(world, pos)
+                 .map(blockEntity -> blockEntity.getStatistics().getPrimaryState())
+                 .map(blockState -> blockState.getSoundType(
+                   new SingleBlockWorldReader(blockState, pos, world),
+                   pos,
+                   entity
+                 ))
+                 .orElse(SoundType.STONE);
     }
 }
