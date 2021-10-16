@@ -50,7 +50,7 @@ public class ExtendedModelManager extends ModelManager
         if (spriteMap == null)
             throw new IllegalStateException("SpriteMap not initialized.");
 
-        final Map<ResourceLocation, AtlasTexture> textureMap = (Map<ResourceLocation, AtlasTexture>) ReflectionUtils.getField(spriteMap, "atlasTextures");
+        final Map<ResourceLocation, AtlasTexture> textureMap = (Map<ResourceLocation, AtlasTexture>) ReflectionUtils.getField(spriteMap, "atlases");
         return textureMap.keySet();
     }
 }

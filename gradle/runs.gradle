@@ -11,12 +11,10 @@ project.minecraft {
         generateDataSpec.args '--all', '--output', file('src/datagen/generated/chiselsandbits'),
                 '--mod', 'chiselsandbits',
                 '--existing', sourceSets.main.resources.srcDirs[0],
-                '--launchTarget', 'forgedatauserdev',
-                '--assetIndex', '1.17',
-                '--assetsDir', tasks.downloadAssets.getOutput().getAbsolutePath(),
+                '--launchTarget', 'fmluserdevdata',
                 '--gameDir', '.',
-                '--fml.forgeVersion', '37.0.71',
-                '--fml.mcVersion', '1.17.1',
+                '--fml.forgeVersion', '36.1.16',
+                '--fml.mcVersion', '1.16.5',
                 '--fml.forgeGroup', 'net.minecraftforge',
                 '--fml.mcpVersion', '20210706.113038'
         generateDataSpec.mods {
@@ -39,12 +37,10 @@ project.minecraft {
                 '--mod', 'chiselsandbits',
                 '--existing', sourceSets.main.resources.srcDirs[0],
                 '--existing', file('src/datagen/generated/chiselsandbits'),
-                '--launchTarget', 'forgedatauserdev',
-                '--assetIndex', '1.17',
-                '--assetsDir', tasks.downloadAssets.getOutput().getAbsolutePath(),
+                '--launchTarget', 'fmluserdevdata',
                 '--gameDir', '.',
-                '--fml.forgeVersion', '37.0.71',
-                '--fml.mcVersion', '1.17.1',
+                '--fml.forgeVersion', '36.1.16',
+                '--fml.mcVersion', '1.16.5',
                 '--fml.forgeGroup', 'net.minecraftforge',
                 '--fml.mcpVersion', '20210706.113038'
         generateDocumentationSpec.mods {

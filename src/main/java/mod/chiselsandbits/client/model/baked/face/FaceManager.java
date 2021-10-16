@@ -44,7 +44,7 @@ public final class FaceManager
       IChiselsAndBitsAPI.getInstance().getConfiguration().getClient().faceLayerCacheSize::get
     );
     private final SimpleMaxSizedCache<BlockState, Integer> colorCache = new SimpleMaxSizedCache<>(
-      GameData.getBlockStateIDMap()::size
+      () -> GameData.getBlockStateIDMap().size() > 0 ? GameData.getBlockStateIDMap().size() : 1000
     );
 
     private FaceManager()

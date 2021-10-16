@@ -150,7 +150,7 @@ public class MinecraftInstanceManager
 
     private void initializeBlockRenderDispatcher() {
         final BlockRendererDispatcher blockRendererDispatcher = new BlockRendererDispatcher(Minecraft.getInstance().getModelManager().getBlockModelShaper(), Minecraft.getInstance().getBlockColors());
-        ReflectionUtils.setField(Minecraft.getInstance(), "blockRenderDispatcher", blockRendererDispatcher);
+        ReflectionUtils.setField(Minecraft.getInstance(), "blockRenderer", blockRendererDispatcher);
     }
 
     private void initializeGameRenderer(final IResourceManager resourceManager) {
@@ -160,13 +160,13 @@ public class MinecraftInstanceManager
 
     private void initializeDataFixer()
     {
-        ReflectionUtils.setField(Minecraft.getInstance(), "dataFixer", DataFixesManager.getDataFixer());
+        ReflectionUtils.setField(Minecraft.getInstance(), "fixerUpper", DataFixesManager.getDataFixer());
     }
 
     private void initializeGameSettings()
     {
         final GameSettings gameSettings = new GameSettings(Minecraft.getInstance(), new File("./"));
-        ReflectionUtils.setField(Minecraft.getInstance(), "gameSettings", gameSettings);
+        ReflectionUtils.setField(Minecraft.getInstance(), "options", gameSettings);
     }
 
     private void initializeForge()
