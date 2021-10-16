@@ -4,7 +4,9 @@ import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SealingNotSupportedException;
 import mod.chiselsandbits.api.item.pattern.IMultiUsePatternItem;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
+import mod.chiselsandbits.api.sealing.ISupportsUnsealing;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -61,5 +63,18 @@ public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiU
 
             Configuration.getInstance().getCommon().helpText(LocalStrings.HelpSealedPattern, tooltip);
         }
+    }
+
+    @Override
+    public @NotNull ItemStack unseal(@NotNull final ItemStack source) throws SealingNotSupportedException
+    {
+        if (source.getItem() instanceof ISupportsUnsealing)
+        {
+            final ItemStack seal = new ItemStack(ModItems.SINGLE_USE_PATTERN_ITEM.get());
+            seal.setTag(source.getOrCreateTag().copy());
+            return seal;
+        }
+
+        return source;
     }
 }

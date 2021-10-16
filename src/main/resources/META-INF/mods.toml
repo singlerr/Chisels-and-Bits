@@ -3,7 +3,7 @@ loaderVersion="[28,)"
 license="GLGPLv3"
 [[mods]] #mandatory
 modId="chiselsandbits"
-version="${file.jarVersion}"
+version="${version}"
 displayName="Chisels & bits"
 authors="OrionOnline, LDTTeam, AlgorithmX2 "
 description='''

@@ -14,6 +14,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.world.item.Items;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -98,6 +99,16 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
             ImmutableMap.of(
               "p", new RecipeIngredientKeyJson(new RecipeIngredientJson(ItemTags.PLANKS.getName().toString(), true)),
               "b", new RecipeIngredientKeyJson(new RecipeIngredientJson(ModItems.ITEM_BLOCK_BIT.getId().toString(), false))
+            )
+          )
+        );
+
+        event.getGenerator().addProvider(
+          new SimpleItemsRecipeGenerator(
+            event.getGenerator(),
+            ModItems.UNSEAL_ITEM.get(),
+            ImmutableList.of(
+              new RecipeIngredientKeyJson(new RecipeIngredientJson(Blocks.WET_SPONGE.getRegistryName().toString(), false))
             )
           )
         );

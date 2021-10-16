@@ -72,6 +72,8 @@ public final class ModItems
     public static final RegistryObject<WrenchItem> WRENCH =
       ITEM_REGISTRAR.register("wrench", () -> new WrenchItem(new Item.Properties().tab(CHISELS_AND_BITS)));
 
+    public static final RegistryObject<UnsealItem> UNSEAL_ITEM =
+      ITEM_REGISTRAR.register("unseal", () -> new UnsealItem(new Item.Properties().tab(CHISELS_AND_BITS)));
 
     private ModItems()
     {
