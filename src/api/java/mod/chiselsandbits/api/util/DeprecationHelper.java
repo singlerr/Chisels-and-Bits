@@ -16,7 +16,7 @@ public class DeprecationHelper
 	public static int getLightValue(
 			final BlockState state )
 	{
-		return state.getBlock().getLightBlock( state, new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO );
+		return state.getBlock().getLightEmission( state, new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO );
 	}
 
 	public static BlockState getStateFromItem(
