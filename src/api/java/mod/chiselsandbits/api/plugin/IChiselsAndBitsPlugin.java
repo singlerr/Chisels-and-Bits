@@ -1,5 +1,8 @@
 package mod.chiselsandbits.api.plugin;
 
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
 /**
  * Represents a plugin for ChiselsAndBits.
  *
@@ -24,8 +27,15 @@ public interface IChiselsAndBitsPlugin
     default void onConstruction() {};
 
     /**
-     * Called after ChiselsAndBitss common setup completes.
+     * Called after ChiselsAndBits common setup completes.
      * Allows for the registration of static (none world specific) data.
      */
     default void onCommonSetup() {};
+
+    /**
+     * Called after ChiselsAndBits client setup completes.
+     * Allows for the registration of static (none world specific) data.
+     */
+    @OnlyIn(Dist.CLIENT)
+    default void onClientSetup() {};
 }
