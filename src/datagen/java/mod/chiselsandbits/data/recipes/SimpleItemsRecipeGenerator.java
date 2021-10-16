@@ -10,6 +10,7 @@ import mod.chiselsandbits.api.data.recipe.AbstractRecipeGenerator;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.registrars.ModTags;
+import net.minecraft.block.Blocks;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.item.Items;
 import net.minecraft.tags.ItemTags;
@@ -98,6 +99,16 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
             ImmutableMap.of(
               "p", new RecipeIngredientKeyJson(new RecipeIngredientJson(ItemTags.PLANKS.getName().toString(), true)),
               "b", new RecipeIngredientKeyJson(new RecipeIngredientJson(ModItems.ITEM_BLOCK_BIT.getId().toString(), false))
+            )
+          )
+        );
+
+        event.getGenerator().addProvider(
+          new SimpleItemsRecipeGenerator(
+            event.getGenerator(),
+            ModItems.UNSEAL_ITEM.get(),
+            ImmutableList.of(
+              new RecipeIngredientKeyJson(new RecipeIngredientJson(Blocks.WET_SPONGE.getRegistryName().toString(), false))
             )
           )
         );

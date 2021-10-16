@@ -2,8 +2,8 @@ package mod.chiselsandbits.item;
 
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SealingNotSupportedException;
-import mod.chiselsandbits.api.item.tool.ISealantItem;
-import mod.chiselsandbits.api.sealing.ISupportsSealing;
+import mod.chiselsandbits.api.item.tool.IUnsealItem;
+import mod.chiselsandbits.api.sealing.ISupportsUnsealing;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.VectorUtils;
 import net.minecraft.client.util.ITooltipFlag;
@@ -28,15 +28,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import net.minecraft.item.Item.Properties;
-
-public class SealantItem extends Item implements ISealantItem
+public class UnsealItem extends Item implements IUnsealItem
 {
 
     private final String CONST_INTERACTION = "Interaction";
     private final String CONST_SIMULATION = "Simulation";
 
-    public SealantItem(final Properties properties)
+    public UnsealItem(final Properties properties)
     {
         super(properties);
     }
@@ -97,10 +95,10 @@ public class SealantItem extends Item implements ISealantItem
     public void releaseUsing(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull LivingEntity entityLiving, int timeLeft) {
         if (!(entityLiving instanceof PlayerEntity))
             return;
-        PlayerEntity player = (PlayerEntity) entityLiving;
         if (isInteracting(stack)) {
+            final PlayerEntity player = (PlayerEntity) entityLiving;
             ItemStack interactionTarget = getInteractionTarget(stack);
-            player.inventory.placeItemBackInInventory(worldIn, interactionTarget);
+            player.inventory.placeItemBackInInventory(player.level, interactionTarget);
             stack.getOrCreateTag().remove(CONST_INTERACTION);
         }
     }
@@ -109,7 +107,8 @@ public class SealantItem extends Item implements ISealantItem
     public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull World worldIn, @NotNull LivingEntity entityLiving) {
         if (!(entityLiving instanceof PlayerEntity))
             return stack;
-        PlayerEntity player = (PlayerEntity) entityLiving;
+
+        final PlayerEntity player = (PlayerEntity) entityLiving;
         if (isInteracting(stack)) {
             ItemStack target = getInteractionTarget(stack);
             ItemStack pattern = createPattern(target);
@@ -126,7 +125,7 @@ public class SealantItem extends Item implements ISealantItem
                 if (player instanceof FakePlayer) {
                     player.drop(pattern, false, false);
                 } else {
-                    player.inventory.placeItemBackInInventory(worldIn, pattern);
+                    player.inventory.placeItemBackInInventory(player.level, pattern);
                 }
             }
             stack.getOrCreateTag().remove(CONST_INTERACTION);
@@ -139,7 +138,6 @@ public class SealantItem extends Item implements ISealantItem
     @Override
     public @NotNull ActionResult<ItemStack> use(@NotNull World worldIn, PlayerEntity playerIn, @NotNull Hand handIn) {
         ItemStack itemstack = playerIn.getItemInHand(handIn);
-        ActionResult<ItemStack> FAIL = new ActionResult<>(ActionResultType.FAIL, itemstack);
 
         if (isInteracting(itemstack)) {
             playerIn.startUsingItem(handIn);
@@ -148,7 +146,7 @@ public class SealantItem extends Item implements ISealantItem
 
         Hand otherHand = handIn == Hand.MAIN_HAND ? Hand.OFF_HAND : Hand.MAIN_HAND;
         ItemStack itemInOtherHand = playerIn.getItemInHand(otherHand);
-        if (createPattern(itemInOtherHand).getItem() != itemInOtherHand.getItem() && itemInOtherHand.getItem() instanceof ISupportsSealing) {
+        if (createPattern(itemInOtherHand).getItem() != itemInOtherHand.getItem() && itemInOtherHand.getItem() instanceof ISupportsUnsealing) {
             ItemStack item = itemInOtherHand.copy();
             ItemStack target = item.split(1);
             playerIn.startUsingItem(handIn);
@@ -162,10 +160,10 @@ public class SealantItem extends Item implements ISealantItem
     }
 
     private static ItemStack createPattern(final ItemStack targetStack) {
-        if (targetStack.getItem() instanceof ISupportsSealing) {
+        if (targetStack.getItem() instanceof ISupportsUnsealing) {
             try
             {
-                return ((ISupportsSealing) targetStack.getItem()).seal(targetStack);
+                return ((ISupportsUnsealing) targetStack.getItem()).unseal(targetStack);
             }
             catch (SealingNotSupportedException e)
             {

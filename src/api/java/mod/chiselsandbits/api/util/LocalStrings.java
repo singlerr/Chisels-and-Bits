@@ -83,6 +83,9 @@ public enum LocalStrings
     HelpSealant("help.sealant"),
     LongHelpSealant("help.sealant.long"),
 
+    HelpUnseal("help.unseal"),
+    LongHelpUnseal("help.unseal.long"),
+
     TapeMeasureBit("tapemeasure.bit"),
     TapeMeasureBlock("tapemeasure.block"),
     TapeMeasureDistance("tapemeasure.distance"),
