@@ -129,6 +129,7 @@ public class ChiselItem extends ToolItem implements IChiselItem
         return IChiselMode.getRegistry()
                  .getValues()
                  .stream()
+                 .filter(mode -> !mode.requiresPlaceableEditStack())
                  .sorted(Comparator.comparing(((ForgeRegistry<IChiselMode>) IChiselMode.getRegistry())::getID))
                  .collect(Collectors.toList());
     }

@@ -15,6 +15,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.IForgeRegistryEntry;
+import org.apache.logging.log4j.core.appender.rolling.action.IfAll;
 
 import java.util.Optional;
 
@@ -134,5 +135,14 @@ public interface IChiselMode extends IForgeRegistryEntry<IChiselMode>, IToolMode
             return false;
 
         return context.getMutator().get().getInWorldBoundingBox().equals(snapshot.getMutator().get().getInWorldBoundingBox());
+    }
+
+    /**
+     * Indicates that this mode is only available on a stack which has a placeable mode.
+     * Useful when placement and removal perform the same task AND requires a bit to be held.
+     * @return True when a "bit" needs to be held.
+     */
+    default boolean requiresPlaceableEditStack() {
+        return false;
     }
 }

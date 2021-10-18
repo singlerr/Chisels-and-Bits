@@ -99,7 +99,17 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public Optional<IStateEntryInfo> getInAreaTarget(final Vector3d inAreaTarget)
     {
-        return Optional.empty();
+        if (!isInside(inAreaTarget))
+            return Optional.empty();
+
+        final BlockPos exactPosition = new BlockPos(inAreaTarget);
+        final Vector3d exactInBlockOffset = inAreaTarget.subtract(
+          exactPosition.getX(),
+          exactPosition.getY(),
+          exactPosition.getZ()
+        );
+
+        return getInBlockTarget(exactPosition, exactInBlockOffset);
     }
 
     /**
@@ -112,7 +122,11 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public Optional<IStateEntryInfo> getInBlockTarget(final BlockPos inAreaBlockPosOffset, final Vector3d inBlockTarget)
     {
-        return Optional.empty();
+        if (!isInside(inAreaBlockPosOffset, inBlockTarget))
+            return Optional.empty();
+
+        return new ChiselAdaptingWorldMutator(getWorld(), inAreaBlockPosOffset)
+                                                     .getInAreaTarget(inBlockTarget);
     }
 
     /**

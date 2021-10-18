@@ -3,11 +3,11 @@ package mod.chiselsandbits.chiseling.modes.line;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.IFormattableTextComponent;
 
-public class LinedChiselModeBuilder
-{
+public class LinedChiselModeBuilder {
     private int                       bitsPerSide;
     private IFormattableTextComponent displayName;
-    private ResourceLocation iconName;
+    private IFormattableTextComponent multiLineDisplayName;
+    private ResourceLocation          iconName;
 
     public LinedChiselModeBuilder setBitsPerSide(final int bitsPerSide)
     {
@@ -21,6 +21,12 @@ public class LinedChiselModeBuilder
         return this;
     }
 
+    public LinedChiselModeBuilder setMultiLineDisplayName(final IFormattableTextComponent multiLineDisplayName)
+    {
+        this.multiLineDisplayName = multiLineDisplayName;
+        return this;
+    }
+
     public LinedChiselModeBuilder setIconName(final ResourceLocation iconName)
     {
         this.iconName = iconName;
@@ -29,6 +35,6 @@ public class LinedChiselModeBuilder
 
     public LinedChiselMode createLinedChiselMode()
     {
-        return new LinedChiselMode(bitsPerSide, displayName, iconName);
+        return new LinedChiselMode(bitsPerSide, displayName, multiLineDisplayName, iconName);
     }
 }
