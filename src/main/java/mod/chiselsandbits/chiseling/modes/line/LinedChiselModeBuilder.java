@@ -7,7 +7,8 @@ public class LinedChiselModeBuilder
 {
     private int                       bitsPerSide;
     private MutableComponent displayName;
-    private ResourceLocation iconName;
+    private MutableComponent multiLineDisplayName;
+    private ResourceLocation          iconName;
 
     public LinedChiselModeBuilder setBitsPerSide(final int bitsPerSide)
     {
@@ -21,6 +22,12 @@ public class LinedChiselModeBuilder
         return this;
     }
 
+    public LinedChiselModeBuilder setMultiLineDisplayName(final MutableComponent multiLineDisplayName)
+    {
+        this.multiLineDisplayName = multiLineDisplayName;
+        return this;
+    }
+
     public LinedChiselModeBuilder setIconName(final ResourceLocation iconName)
     {
         this.iconName = iconName;
@@ -29,6 +36,6 @@ public class LinedChiselModeBuilder
 
     public LinedChiselMode createLinedChiselMode()
     {
-        return new LinedChiselMode(bitsPerSide, displayName, iconName);
+        return new LinedChiselMode(bitsPerSide, displayName, multiLineDisplayName, iconName);
     }
 }

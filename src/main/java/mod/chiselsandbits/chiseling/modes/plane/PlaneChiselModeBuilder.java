@@ -7,8 +7,9 @@ public class PlaneChiselModeBuilder
 {
     private int                       depth;
     private MutableComponent displayName;
-    private ResourceLocation iconName;
-    private boolean filterOnTarget = false;
+    private MutableComponent multiLineDisplayName;
+    private ResourceLocation          iconName;
+    private boolean                   filterOnTarget = false;
 
     public PlaneChiselModeBuilder setDepth(final int depth)
     {
@@ -22,19 +23,26 @@ public class PlaneChiselModeBuilder
         return this;
     }
 
+    public PlaneChiselModeBuilder setMultiLineDisplayName(final MutableComponent multiLineDisplayName)
+    {
+        this.multiLineDisplayName = multiLineDisplayName;
+        return this;
+    }
+
     public PlaneChiselModeBuilder setIconName(final ResourceLocation iconName)
     {
         this.iconName = iconName;
         return this;
     }
 
-    public PlaneChiselModeBuilder withFilterOnTarget() {
+    public PlaneChiselModeBuilder withFilterOnTarget()
+    {
         this.filterOnTarget = true;
         return this;
     }
 
-    public PlaneChiseledMode createPlaneChiselMode()
+    public PlaneChiselMode createPlaneChiselMode()
     {
-        return new PlaneChiseledMode(depth, displayName, iconName, filterOnTarget);
+        return new PlaneChiselMode(depth, displayName, multiLineDisplayName, iconName, filterOnTarget);
     }
 }

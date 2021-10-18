@@ -14,6 +14,7 @@ import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.RayTracingUtils;
+import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
@@ -39,17 +40,24 @@ import java.util.function.Predicate;
 
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.ONE_THOUSANDS;
 
-public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
+public class PlaneChiselMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
 {
     private final int                       depth;
     private final MutableComponent displayName;
+    private final MutableComponent multiLineDisplayName;
     private final ResourceLocation          iconName;
     private final boolean filterOnTarget;
 
-    PlaneChiseledMode(final int depth, final MutableComponent displayName, final ResourceLocation iconName, final boolean filterOnTarget)
+    PlaneChiselMode(
+      final int depth,
+      final MutableComponent displayName,
+      final MutableComponent multiLineDisplayName,
+      final ResourceLocation iconName,
+      final boolean filterOnTarget)
     {
         this.depth = depth;
         this.displayName = displayName;
+        this.multiLineDisplayName = multiLineDisplayName;
         this.iconName = iconName;
         this.filterOnTarget = filterOnTarget;
     }
@@ -298,6 +306,12 @@ public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implement
     public Component getDisplayName()
     {
         return this.displayName;
+    }
+
+    @Override
+    public Component getMultiLineDisplayName()
+    {
+        return this.multiLineDisplayName;
     }
 
     @NotNull

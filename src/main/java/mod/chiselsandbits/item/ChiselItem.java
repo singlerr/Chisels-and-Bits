@@ -133,6 +133,7 @@ public class ChiselItem extends DiggerItem implements IChiselItem
         return IChiselMode.getRegistry()
                  .getValues()
                  .stream()
+                 .filter(mode -> !mode.requiresPlaceableEditStack())
                  .sorted(Comparator.comparing(((ForgeRegistry<IChiselMode>) IChiselMode.getRegistry())::getID))
                  .collect(Collectors.toList());
     }

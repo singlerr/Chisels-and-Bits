@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.multistate;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * The size of state entries in the current instance.
@@ -98,6 +99,28 @@ public enum StateEntrySize
     public float getSizePerBit()
     {
         return sizePerBit;
+    }
+
+    /**
+     * Returns the vector used to scale down another vector with the size of a single bit.
+     * Useful for passing to {@link net.minecraft.world.phys.Vec3#multiply(Vec3)}
+     *
+     * @return The scaling vector.
+     */
+    public Vec3 getSizePerBitScalingVector()
+    {
+        return new Vec3(sizePerBit, sizePerBit, sizePerBit);
+    }
+
+    /**
+     * Returns the vector used to scale up another vector with the amount of bits on a given side.
+     * Useful for passing to {@link Vec3#multiply(Vec3)}
+     *
+     * @return The scaling vector.
+     */
+    public Vec3 getBitsPerBlockSideScalingVector()
+    {
+        return new Vec3(bitsPerBlockSide, bitsPerBlockSide, bitsPerBlockSide);
     }
 
     /**

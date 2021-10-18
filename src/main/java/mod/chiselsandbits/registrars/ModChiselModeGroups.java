@@ -1,6 +1,7 @@
 package mod.chiselsandbits.registrars;
 
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
+import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.resources.ResourceLocation;
@@ -95,7 +96,6 @@ public final class ModChiselModeGroups
         }
     };
 
-
     public static IToolModeGroup SPHERE = new IToolModeGroup() {
         @Override
         public @NotNull ResourceLocation getIcon()
@@ -109,6 +109,20 @@ public final class ModChiselModeGroups
             return TranslationUtils.build(
               "chiselmode.sphere"
             );
+        }
+    };
+
+    public static IToolModeGroup CONNECTED_PLANE = new IToolModeGroup() {
+        @Override
+        public @NotNull ResourceLocation getIcon()
+        {
+            return new ResourceLocation(Constants.MOD_ID,"textures/icons/connected_plane.png");
+        }
+
+        @Override
+        public Component getDisplayName()
+        {
+            return LocalStrings.ChiselModeConnectedPlane.getText();
         }
     };
 }

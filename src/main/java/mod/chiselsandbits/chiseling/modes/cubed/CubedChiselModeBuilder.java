@@ -5,9 +5,10 @@ import net.minecraft.network.chat.MutableComponent;
 
 public class CubedChiselModeBuilder {
     private int                       bitsPerSide;
-    private boolean                   aligned = false;
+    private boolean                   aligned;
     private MutableComponent displayName;
-    private ResourceLocation iconName;
+    private MutableComponent multiLineDisplayName;
+    private ResourceLocation          iconName;
 
     public CubedChiselModeBuilder setBitsPerSide(final int bitsPerSide)
     {
@@ -27,6 +28,12 @@ public class CubedChiselModeBuilder {
         return this;
     }
 
+    public CubedChiselModeBuilder setMultiLineDisplayName(final MutableComponent multiLineDisplayName)
+    {
+        this.multiLineDisplayName = multiLineDisplayName;
+        return this;
+    }
+
     public CubedChiselModeBuilder setIconName(final ResourceLocation iconName)
     {
         this.iconName = iconName;
@@ -35,6 +42,6 @@ public class CubedChiselModeBuilder {
 
     public CubedChiselMode createCubedChiselMode()
     {
-        return new CubedChiselMode(bitsPerSide, aligned, displayName, iconName);
+        return new CubedChiselMode(bitsPerSide, aligned, displayName, multiLineDisplayName, iconName);
     }
 }

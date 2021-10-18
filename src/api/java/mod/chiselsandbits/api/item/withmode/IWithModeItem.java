@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @param <M> The enum specifying the mode.
  */
-public interface IWithModeItem<M extends IToolMode>
+public interface IWithModeItem<M extends IToolMode<?>>
 {
 
     /**

@@ -40,12 +40,18 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
 {
     private final int                       bitsPerSide;
     private final MutableComponent displayName;
+    private final MutableComponent multiLineDisplayName;
     private final ResourceLocation          iconName;
 
-    LinedChiselMode(final int bitsPerSide, final MutableComponent displayName, final ResourceLocation iconName)
+    LinedChiselMode(
+      final int bitsPerSide,
+      final MutableComponent displayName,
+      final MutableComponent multiLineDisplayName,
+      final ResourceLocation iconName)
     {
         this.bitsPerSide = bitsPerSide;
         this.displayName = displayName;
+        this.multiLineDisplayName = multiLineDisplayName;
         this.iconName = iconName;
     }
 
@@ -537,6 +543,12 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     public Component getDisplayName()
     {
         return this.displayName;
+    }
+
+    @Override
+    public MutableComponent getMultiLineDisplayName()
+    {
+        return this.multiLineDisplayName;
     }
 
     @NotNull

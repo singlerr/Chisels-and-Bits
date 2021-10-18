@@ -20,6 +20,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,8 +40,9 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
     private static final float MAIN_SELECT_RADIUS  = 10;
     private static final float OUTER_SELECT_RADIUS = 83;
 
-    private static final int DEFAULT_ICON_SIZE        = 16;
-    private static final int DEFAULT_ICON_TEXT_SPACER = 6;
+    private static final int DEFAULT_ICON_SIZE              = 16;
+    private static final int INNER_DEFAULT_ICON_TEXT_SPACER = 6;
+    private static final int OUTER_DEFAULT_ICON_TEXT_SPACER = 2;
 
     private final IWithModeItem<M> toolModeItem;
     private final ItemStack        sourceStack;
@@ -131,6 +133,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
           0f,
           360f,
           1f,
+          INNER_DEFAULT_ICON_TEXT_SPACER,
           this.mainToolModeList,
           () -> this.mainSelectedToolMode,
           this::onMainToolModeHover,
@@ -152,6 +155,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
               (this.mainToolModeList.indexOf(this.mainSelectedToolMode) * (360f / this.mainToolModeList.size())),
               (360f / this.mainToolModeList.size()),
               0.8f,
+              OUTER_DEFAULT_ICON_TEXT_SPACER,
               this.outerToolModes.get((IToolModeGroup) this.mainSelectedToolMode),
               () -> this.selectedOuterToolMode,
               (mode) -> {
@@ -195,6 +199,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
       final float startAngle,
       final float sectionArcAngle,
       final float iconScaleFactor,
+      final int iconTextSpacer,
       final List<? extends IRenderableMode> candidates,
       final Supplier<IRenderableMode> currentGetter,
       final Consumer<IRenderableMode> currentSetter,
@@ -215,6 +220,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
           centerY,
           font,
           iconScaleFactor,
+          iconTextSpacer,
           candidates,
           currentGetter,
           currentSetter
@@ -265,7 +271,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
       final float centerY,
       @NotNull final Font fontRenderer,
       final float iconScaleFactor,
-      @NotNull final List<? extends IRenderableMode> modes,
+      final int iconTextSpacer, @NotNull final List<? extends IRenderableMode> modes,
       @NotNull final Supplier<IRenderableMode> currentlySelectedModeSupplier,
       @NotNull final Consumer<IRenderableMode> currentlyHoveredModeCallback
     )
@@ -346,7 +352,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
         modes.forEach(mode -> {
             final int modeIndex = modes.indexOf(mode);
             final float itemTargetAngle = ((modeIndex + 0.5f) * itemArcAngle) + sectionStartAngle;
-            renderModeIcon(stack, innerRadius, outerRadius, itemTargetAngle, iconScaleFactor, mode, fontRenderer);
+            renderModeIcon(stack, innerRadius, outerRadius, itemTargetAngle, iconScaleFactor, iconTextSpacer, mode, fontRenderer);
         });
         RenderSystem.disableTexture();
     }
@@ -429,6 +435,7 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
       final float outerRadius,
       final float itemTargetAngle,
       final float iconScaleFactor,
+      final int iconTextSpacer,
       final @NotNull IRenderableMode mode,
       final Font fontRenderer)
     {
@@ -441,11 +448,11 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
         final float itemCenterX = (float) Math.cos(Math.toRadians(workingAngle)) * (innerRadius + outerRadius) / 2F;
         final float itemCenterY = (float) Math.sin(Math.toRadians(workingAngle)) * (innerRadius + outerRadius) / 2F;
 
-        final Component name = mode.getDisplayName();
-        final int fontWidth = fontRenderer.width(name);
+        final Component name = mode.getMultiLineDisplayName();
+        final List<FormattedCharSequence> lines = fontRenderer.split(name, 75);
 
         final int itemHeight = mode.shouldRenderDisplayNameInMenu() ?
-                                 (int) ((DEFAULT_ICON_SIZE * iconScaleFactor) + DEFAULT_ICON_TEXT_SPACER + fontRenderer.lineHeight)
+                                 (int) ((DEFAULT_ICON_SIZE * iconScaleFactor) + INNER_DEFAULT_ICON_TEXT_SPACER + (fontRenderer.lineHeight * lines.size()))
                                  : (int) (DEFAULT_ICON_SIZE * iconScaleFactor);
 
         final float iconStartX = itemCenterX - ((DEFAULT_ICON_SIZE * iconScaleFactor) / 2f);
@@ -466,7 +473,13 @@ public class RadialToolModeSelectionScreen<M extends IToolMode<?>> extends Scree
         if (mode.shouldRenderDisplayNameInMenu()) {
             stack.translate(itemCenterX, itemCenterY, 0);
             stack.scale(0.6F * iconScaleFactor, 0.6F * iconScaleFactor, 0.6F * iconScaleFactor);
-            fontRenderer.draw(stack, mode.getDisplayName(), fontWidth / -2f, DEFAULT_ICON_TEXT_SPACER, 0xCCFFFFFF);
+
+            int offset = 0;
+            for (final FormattedCharSequence line : lines)
+            {
+                fontRenderer.draw(stack, line, fontRenderer.width(line) / -2f, iconTextSpacer + offset, 0xCCFFFFFF);
+                offset += fontRenderer.lineHeight;
+            }
         }
 
         stack.popPose();

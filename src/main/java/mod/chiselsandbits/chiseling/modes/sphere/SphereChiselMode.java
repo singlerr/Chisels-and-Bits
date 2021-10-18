@@ -47,12 +47,18 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
 {
     private final int diameter;
     private final MutableComponent displayName;
+    private final MutableComponent multiLineDisplayName;
     private final ResourceLocation          iconName;
 
-    SphereChiselMode(final int diameter, final MutableComponent displayName, final ResourceLocation iconName)
+    SphereChiselMode(
+      final int diameter,
+      final MutableComponent displayName,
+      final MutableComponent multiLineDisplayName,
+      final ResourceLocation iconName)
     {
         this.diameter = diameter;
         this.displayName = displayName;
+        this.multiLineDisplayName = multiLineDisplayName;
         this.iconName = iconName;
     }
 
@@ -303,6 +309,12 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
     public Component getDisplayName()
     {
         return this.displayName;
+    }
+
+    @Override
+    public Component getMultiLineDisplayName()
+    {
+        return this.multiLineDisplayName;
     }
 
     @NotNull
