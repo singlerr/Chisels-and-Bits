@@ -1,10 +1,8 @@
 package mod.chiselsandbits.chiseling.modes.line;
 
 import com.google.common.collect.Maps;
-import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
-import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
@@ -20,7 +18,6 @@ import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
@@ -44,12 +41,18 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
 {
     private final int                       bitsPerSide;
     private final IFormattableTextComponent displayName;
+    private final IFormattableTextComponent multiLineDisplayName;
     private final ResourceLocation          iconName;
 
-    LinedChiselMode(final int bitsPerSide, final IFormattableTextComponent displayName, final ResourceLocation iconName)
+    LinedChiselMode(
+      final int bitsPerSide,
+      final IFormattableTextComponent displayName,
+      final IFormattableTextComponent multiLineDisplayName,
+      final ResourceLocation iconName)
     {
         this.bitsPerSide = bitsPerSide;
         this.displayName = displayName;
+        this.multiLineDisplayName = multiLineDisplayName;
         this.iconName = iconName;
     }
 
@@ -554,6 +557,12 @@ public class LinedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     public ITextComponent getDisplayName()
     {
         return this.displayName;
+    }
+
+    @Override
+    public ITextComponent getMultiLineDisplayName()
+    {
+        return this.multiLineDisplayName;
     }
 
     @NotNull

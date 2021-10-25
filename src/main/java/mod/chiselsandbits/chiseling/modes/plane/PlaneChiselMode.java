@@ -11,12 +11,10 @@ import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
-import mod.chiselsandbits.chiseling.modes.sphere.SphereChiselMode;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
@@ -42,17 +40,24 @@ import java.util.function.Predicate;
 
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.ONE_THOUSANDS;
 
-public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
+public class PlaneChiselMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
 {
     private final int                       depth;
     private final IFormattableTextComponent displayName;
+    private final IFormattableTextComponent multiLineDisplayName;
     private final ResourceLocation          iconName;
     private final boolean filterOnTarget;
 
-    PlaneChiseledMode(final int depth, final IFormattableTextComponent displayName, final ResourceLocation iconName, final boolean filterOnTarget)
+    PlaneChiselMode(
+      final int depth,
+      final IFormattableTextComponent displayName,
+      final IFormattableTextComponent multiLineDisplayName,
+      final ResourceLocation iconName,
+      final boolean filterOnTarget)
     {
         this.depth = depth;
         this.displayName = displayName;
+        this.multiLineDisplayName = multiLineDisplayName;
         this.iconName = iconName;
         this.filterOnTarget = filterOnTarget;
     }
@@ -316,6 +321,12 @@ public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implement
         return this.displayName;
     }
 
+    @Override
+    public ITextComponent getMultiLineDisplayName()
+    {
+        return this.multiLineDisplayName;
+    }
+
     @NotNull
     @Override
     public Optional<IToolModeGroup> getGroup()
@@ -323,7 +334,7 @@ public class PlaneChiseledMode extends ForgeRegistryEntry<IChiselMode> implement
         return Optional.of(filterOnTarget ? ModChiselModeGroups.PLANE_FILTERED : ModChiselModeGroups.PLANE);
     }
 
-    private final class BlockStateAreaFilter implements Predicate<IStateEntryInfo>
+    private static final class BlockStateAreaFilter implements Predicate<IStateEntryInfo>
     {
         private final BlockState targetState;
         private final int stateHash;

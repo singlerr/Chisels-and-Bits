@@ -15,7 +15,6 @@ import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
-import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.block.BlockState;
@@ -41,13 +40,20 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     private final int                       bitsPerSide;
     private final boolean                   aligned;
     private final IFormattableTextComponent displayName;
+    private final IFormattableTextComponent multiLineDisplayName;
     private final ResourceLocation          iconName;
 
-    CubedChiselMode(final int bitsPerSide, final boolean aligned, final IFormattableTextComponent displayName, final ResourceLocation iconName)
+    CubedChiselMode(
+      final int bitsPerSide,
+      final boolean aligned,
+      final IFormattableTextComponent displayName,
+      final IFormattableTextComponent multiLineDisplayName,
+      final ResourceLocation iconName)
     {
         this.bitsPerSide = bitsPerSide;
         this.aligned = aligned;
         this.displayName = displayName;
+        this.multiLineDisplayName = multiLineDisplayName;
         this.iconName = iconName;
     }
 
@@ -239,6 +245,12 @@ public class CubedChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     public ITextComponent getDisplayName()
     {
         return this.displayName;
+    }
+
+    @Override
+    public ITextComponent getMultiLineDisplayName()
+    {
+        return this.multiLineDisplayName;
     }
 
     @NotNull

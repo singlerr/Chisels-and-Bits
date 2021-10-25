@@ -70,5 +70,6 @@ public class SimpleMaxSizedCache<K, V>
 
     public synchronized void clear() {
         this.cache.clear();
+        this.keyQueue.clear();
     }
 }
