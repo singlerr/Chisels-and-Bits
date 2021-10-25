@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
+import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
@@ -26,6 +27,7 @@ import mod.chiselsandbits.change.ChangeTrackerManger;
 import mod.chiselsandbits.chiseling.conversion.ConversionManager;
 import mod.chiselsandbits.chiseling.eligibility.EligibilityManager;
 import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
+import mod.chiselsandbits.client.chiseling.preview.render.ChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.inventory.management.BitInventoryManager;
 import mod.chiselsandbits.item.bit.BitItemManager;
 import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
@@ -38,6 +40,8 @@ import mod.chiselsandbits.registrars.ModChiselModes;
 import mod.chiselsandbits.registrars.ModModificationOperation;
 import mod.chiselsandbits.registries.RegistryManager;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
@@ -227,5 +231,12 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull IChiselsAndBitsPluginManager getPluginManager()
     {
         return PluginManger.getInstance();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public @NotNull IChiselContextPreviewRendererRegistry getChiselContextPreviewRendererRegistry()
+    {
+        return ChiselContextPreviewRendererRegistry.getInstance();
     }
 }

@@ -1,6 +1,14 @@
 package mod.chiselsandbits.api.config;
 
+import com.google.common.collect.Lists;
+import mod.chiselsandbits.api.util.VectorUtils;
+import mod.chiselsandbits.api.util.constants.Constants;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.util.math.vector.Vector4f;
 import net.minecraftforge.common.ForgeConfigSpec;
+
+import java.util.List;
 
 /**
  * Mod client configuration.
@@ -8,17 +16,21 @@ import net.minecraftforge.common.ForgeConfigSpec;
  */
 public class ClientConfiguration extends AbstractConfiguration
 {
-    public ForgeConfigSpec.BooleanValue enableRightClickModeChange;
-    public ForgeConfigSpec.BooleanValue invertBitBagFullness;
-    public ForgeConfigSpec.BooleanValue enableToolbarIcons;
-    public ForgeConfigSpec.BooleanValue perChiselMode;
+    public ForgeConfigSpec.BooleanValue             enableRightClickModeChange;
+    public ForgeConfigSpec.BooleanValue             invertBitBagFullness;
+    public ForgeConfigSpec.BooleanValue             enableToolbarIcons;
+    public ForgeConfigSpec.BooleanValue             perChiselMode;
     public ForgeConfigSpec.BooleanValue chatModeNotification;
     public ForgeConfigSpec.BooleanValue itemNameModeDisplay;
     public ForgeConfigSpec.BooleanValue addBrokenBlocksToCreativeClipboard;
     public ForgeConfigSpec.IntValue maxUndoLevel;
     public ForgeConfigSpec.IntValue maxTapeMeasures;
     public ForgeConfigSpec.BooleanValue displayMeasuringTapeInChat;
-    public ForgeConfigSpec.DoubleValue radialMenuVolume;
+    public ForgeConfigSpec.DoubleValue              radialMenuVolume;
+    public ForgeConfigSpec.ConfigValue<List<? extends Float>> previewChiselingColor;
+    public ForgeConfigSpec.ConfigValue<List<? extends Float>>    previewPlacementColor;
+    public ForgeConfigSpec.ConfigValue<String> previewRenderer;
+
     public ForgeConfigSpec.LongValue bitStorageContentCacheSize;
     public ForgeConfigSpec.DoubleValue maxDrawnRegionSize;
     public ForgeConfigSpec.BooleanValue enableFaceLightmapExtraction;
@@ -32,6 +44,7 @@ public class ClientConfiguration extends AbstractConfiguration
     public ForgeConfigSpec.IntValue modelBuildingThreadCount;
 
     public ForgeConfigSpec.BooleanValue injectIntoJEI;
+
 
     /**
      * Builds client configuration.
@@ -53,7 +66,11 @@ public class ClientConfiguration extends AbstractConfiguration
         maxTapeMeasures = defineInteger(builder, "tape-measure.max-count", 10);
         displayMeasuringTapeInChat = defineBoolean(builder, "tape-measure.display-in-chat", true);
         radialMenuVolume = defineDouble(builder, "radial.menu.volume", 0.1f);
-        
+
+        previewRenderer = defineString(builder, "preview.renderer", Constants.MOD_ID + ":default");
+        previewChiselingColor = defineList(builder, "preview.chisel.color", Lists.newArrayList(0.85f, 0.0f, 0.0f, 0.65f), value -> true);
+        previewPlacementColor = defineList(builder, "preview.placement.color", Lists.newArrayList(0.0f, 0.85f, 0.0f, 0.65f), (value) -> true);
+
         finishCategory(builder);
         createCategory(builder, "client.performance");
 
@@ -64,7 +81,7 @@ public class ClientConfiguration extends AbstractConfiguration
         disableCustomVertexFormats = defineBoolean(builder, "vertexformats.custom.disabled", true);
         modelCacheSize = defineLong(builder, "models.cache.size", 10000, 3500, 20000);
         faceLayerCacheSize = defineLong(builder, "faces.cache.size", 10000, 3500, 20000);
-        modelBuildingThreadCount = defineInteger(builder, "models.builder.threadcount", 1, Runtime.getRuntime().availableProcessors() - 2, Runtime.getRuntime()
+        modelBuildingThreadCount = defineInteger(builder, "models.builder.threadcount", 1, 1, Runtime.getRuntime()
           .availableProcessors());
 
         finishCategory(builder);
