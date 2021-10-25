@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client.colors;
 
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.util.SingleBlockWorldReader;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.color.IBlockColor;

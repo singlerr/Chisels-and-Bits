@@ -42,7 +42,7 @@ public class ChiseledBlockModelDataExecutor
     private static       ExecutorService              recalculationService;
     private static final Multimap<ChunkPos, BlockPos> positionsInProcessing = Multimaps.synchronizedSetMultimap(HashMultimap.create());
 
-    public static void updateModelDataCore(final ChiseledBlockEntity tileEntity)
+    public static void updateModelDataCore(final ChiseledBlockEntity tileEntity, final Runnable onCompleteCallback)
     {
         ensureThreadPoolSetup();
 
@@ -192,6 +192,7 @@ public class ChiseledBlockModelDataExecutor
                 .build();
           }, recalculationService)
           .thenAcceptAsync(tileEntity::setModelData, recalculationService)
+          .thenRunAsync(onCompleteCallback, recalculationService)
           .thenRunAsync(() -> {
               positionsInProcessing.remove(new ChunkPos(tileEntity.getBlockPos()), tileEntity.getBlockPos());
           }, recalculationService)

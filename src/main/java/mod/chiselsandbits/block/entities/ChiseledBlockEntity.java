@@ -31,6 +31,7 @@ import mod.chiselsandbits.legacy.LegacyLoadManager;
 import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
 import mod.chiselsandbits.registrars.ModTileEntityTypes;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
+import mod.chiselsandbits.utils.CompressionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -44,6 +45,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3i;
@@ -54,16 +57,22 @@ import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import java.util.zip.DataFormatException;
 
 @SuppressWarnings("deprecation")
 public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockEntity
 {
+    private static final Logger LOGGER = LogManager.getLogger();
+
     public static final float ONE_THOUSANDS       = 1 / 1000f;
     private final MutableStatistics mutableStatistics;
     private final Map<UUID, IBatchMutation> batchMutations = Maps.newConcurrentMap();
@@ -196,8 +205,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         this.deserializeNBT(nbt);
     }
 
-    @Override
-    public void deserializeNBT(final CompoundNBT nbt)
+    public boolean deserializeOrUpdateNBTData(final CompoundNBT nbt)
     {
         //TODO: 1.17: Delete the legacy loading.
         if (!nbt.contains(NbtConstants.CHISEL_BLOCK_ENTITY_DATA)) {
@@ -216,7 +224,7 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
                     }
                 }
                 this.mutableStatistics.recalculate(this.compressedSection, false);
-                return;
+                return true;
             }
 
             //Update a temporary instance of the statistics to make this work.
@@ -243,6 +251,16 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         );
 
         mutableStatistics.deserializeNBT(statisticsData);
+        return false;
+    }
+
+    @Override
+    public void deserializeNBT(final CompoundNBT nbt)
+    {
+        if (deserializeOrUpdateNBTData(nbt))
+        {
+            return;
+        }
 
         ChiseledBlockModelDataManager.getInstance().updateModelData(this);
     }
@@ -263,7 +281,19 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
     @Override
     public void handleUpdateTag(final BlockState state, final CompoundNBT tag)
     {
-        final byte[] compressedStorageData = tag.getByteArray(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
+        byte[] compressedStorageData = tag.getByteArray(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
+
+        if (tag.contains(NbtConstants.DATA_IS_COMPRESSED) && tag.getBoolean(NbtConstants.DATA_IS_COMPRESSED)) {
+            try
+            {
+                compressedStorageData = CompressionUtils.decompress(compressedStorageData);
+            }
+            catch (IOException | DataFormatException e)
+            {
+                LOGGER.error("Failed to update the block entity data on a chiseled block!", e);
+                return;
+            }
+        }
 
         final ByteBuf buffer = Unpooled.wrappedBuffer(compressedStorageData);
         this.deserializeFrom(new PacketBuffer(buffer));
@@ -335,7 +365,18 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
         final byte[] data = buffer.array();
         buffer.release();
 
-        updateTag.putByteArray(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, data);
+        try
+        {
+            final byte[] compressedData = CompressionUtils.compress(data);
+            updateTag.putBoolean(NbtConstants.DATA_IS_COMPRESSED, true);
+            updateTag.putByteArray(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, compressedData);
+        }
+        catch (IOException e)
+        {
+            LOGGER.warn("Failed to compress network data.", e);
+            updateTag.putBoolean(NbtConstants.DATA_IS_COMPRESSED, false);
+            updateTag.putByteArray(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, data);
+        }
 
         return updateTag;
     }
@@ -580,6 +621,41 @@ public class ChiseledBlockEntity extends TileEntity implements IMultiStateBlockE
                 position,
                 shouldUpdateWorld()
               ));
+        }
+    }
+
+    @Override
+    public void rotate(final @NotNull Rotation rotation)
+    {
+        switch (rotation) {
+
+            case NONE:
+                break;
+            case CLOCKWISE_90:
+                this.rotate(Direction.Axis.Y, 1);
+                break;
+            case CLOCKWISE_180:
+                this.rotate(Direction.Axis.Y, 2);
+                break;
+            case COUNTERCLOCKWISE_90:
+                this.rotate(Direction.Axis.Y, 3);
+                break;
+        }
+    }
+
+    @Override
+    public void mirror(final Mirror mirror)
+    {
+        switch (mirror) {
+
+            case NONE:
+                break;
+            case LEFT_RIGHT:
+                this.mirror(Direction.Axis.X);
+                break;
+            case FRONT_BACK:
+                this.mirror(Direction.Axis.Z);
+                break;
         }
     }
 
