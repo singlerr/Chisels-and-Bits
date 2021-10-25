@@ -82,9 +82,9 @@ public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implement
         if (values.size() <= index || index < 0)
             return defaultValue;
 
-        final Float value = values.get(index);
-        if (0 <= value && value <= 1f)
-            return value;
+        final Number value = values.get(index);
+        if (0 <= value.floatValue() && value.floatValue() <= 1f)
+            return value.floatValue();
 
         return defaultValue;
     }
