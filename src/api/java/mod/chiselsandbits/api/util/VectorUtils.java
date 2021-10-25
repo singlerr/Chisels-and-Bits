@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.util;
 
+import com.mojang.math.Vector4f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
@@ -149,5 +150,12 @@ public class VectorUtils
           MathUtil.makePositive(inBlockOffset.y()),
           MathUtil.makePositive(inBlockOffset.z())
         );
+    }
+
+    public static boolean allValuesBetweenInclusive(final Vector4f vector4f, final float min, final float max) {
+        return min <= vector4f.x() && vector4f.x() <= max &&
+                 min <= vector4f.y() && vector4f.y() <= max &&
+                 min <= vector4f.z() && vector4f.z() <= max &&
+                 min <= vector4f.w() && vector4f.w() <= max;
     }
 }

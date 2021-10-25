@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
+import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
@@ -18,9 +19,12 @@ import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
+import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -200,6 +204,21 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     IModificationOperation getDefaultModificationOperation();
+
+    /**
+     * Gives access to the plugin manager that is used to process chisels and bits plugins
+     * @return The plugin manager
+     */
+    @NotNull
+    IChiselsAndBitsPluginManager getPluginManager();
+
+    /**
+     * Gives access to the chisel context preview renderer registry.
+     * @return The registry.
+     */
+    @OnlyIn(Dist.CLIENT)
+    @NotNull
+    IChiselContextPreviewRendererRegistry getChiselContextPreviewRendererRegistry();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

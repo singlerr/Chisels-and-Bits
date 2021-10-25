@@ -8,6 +8,7 @@ import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
+import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
@@ -319,39 +320,9 @@ public class ChiselItem extends DiggerItem implements IChiselItem
             return;
         }
 
+        IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
+                                                             .renderExistingContextsBoundingBox(matrixStack, context);
         ILocalChiselingContextCache.getInstance().set(ChiselingOperation.CHISELING, context);
-
-        Vec3 vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        double xView = vector3d.x();
-        double yView = vector3d.y();
-        double zView = vector3d.z();
-
-        final BlockPos inWorldStartPos = new BlockPos(context.getMutator().get().getInWorldStartPoint());
-
-        final VoxelShape boundingShape = VoxelShapeManager.getInstance()
-                                           .get(context.getMutator().get(),
-                                             areaAccessor -> {
-                                                 final Predicate<IStateEntryInfo> contextPredicate = context.getStateFilter()
-                                                                                                       .map(factory -> factory.apply(areaAccessor))
-                                                                                                       .orElse(StateEntryPredicates.NOT_AIR);
-
-                                                 return new InternalContextFilter(contextPredicate);
-                                             },
-                                             false
-                                             );
-
-        RenderSystem.disableDepthTest();
-        GameRenderer.getRendertypeLinesShader().LINE_WIDTH.set(2F);
-        LevelRenderer.renderShape(
-          matrixStack,
-          Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
-          boundingShape,
-          inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() - zView,
-          0.95F, 0.0F, 0.0F, 0.65F
-        );
-        Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
-        GameRenderer.getRendertypeLinesShader().LINE_WIDTH.set(1f);
-        RenderSystem.enableDepthTest();
     }
 
     @Override
