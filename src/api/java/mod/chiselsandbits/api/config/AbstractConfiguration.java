@@ -1,13 +1,16 @@
 package mod.chiselsandbits.api.config;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import mod.chiselsandbits.api.util.DeprecationHelper;
 import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraftforge.common.ForgeConfigSpec.*;
+import net.minecraftforge.common.util.NonNullSupplier;
 
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 public abstract class AbstractConfiguration
 {

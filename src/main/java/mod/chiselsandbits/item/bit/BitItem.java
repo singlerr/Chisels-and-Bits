@@ -10,6 +10,7 @@ import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
+import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
@@ -338,11 +339,6 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
       final Matrix4f projectionMatrix,
       final long finishTimeNano)
     {
-        Vector3d vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        double xView = vector3d.x();
-        double yView = vector3d.y();
-        double zView = vector3d.z();
-
         final ItemStack itemStack = ItemStackUtils.getHighlightItemStackFromPlayer(playerEntity);
         if (itemStack.isEmpty() || itemStack.getItem() != this)
             return;
@@ -377,7 +373,8 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
                 );
             }
 
-            renderExistingContextsBoundingBox(matrixStack, xView, yView, zView, currentContextSnapshot);
+            IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
+                                                                 .renderExistingContextsBoundingBox(matrixStack, currentContextSnapshot);
             return;
         }
         else if (potentialChiselingContext.isPresent()
@@ -386,7 +383,8 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
 
             final IChiselingContext chiselingContext = potentialChiselingContext.get();
 
-            renderExistingContextsBoundingBox(matrixStack, xView, yView, zView, chiselingContext);
+            IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
+              .renderExistingContextsBoundingBox(matrixStack, chiselingContext);
 
             if (potentialPlacingContext.isPresent()
                   && potentialPlacingContext.get().getMode() == chiselMode
@@ -394,7 +392,8 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
 
                 final IChiselingContext placingContext = potentialPlacingContext.get();
 
-                renderExistingContextsBoundingBox(matrixStack, xView, yView, zView, placingContext);
+                IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
+                  .renderExistingContextsBoundingBox(matrixStack, placingContext);
             }
             return;
         }
@@ -404,7 +403,8 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
 
             final IChiselingContext context = potentialPlacingContext.get();
 
-            renderExistingContextsBoundingBox(matrixStack, xView, yView, zView, context);
+            IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
+              .renderExistingContextsBoundingBox(matrixStack, context);
             return;
         }
 
@@ -434,83 +434,15 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
 
         RenderSystem.disableDepthTest();
         if (chiselingContext.getMutator().isPresent()) {
-            final BlockPos inWorldStartPos = new BlockPos(chiselingContext.getMutator().get().getInWorldStartPoint());
-            final VoxelShape boundingShape = VoxelShapeManager.getInstance()
-                                               .get(chiselingContext.getMutator().get(),
-                                                 areaAccessor -> {
-                                                     final Predicate<IStateEntryInfo> contextPredicate = chiselingContext.getStateFilter()
-                                                                                                           .map(factory -> factory.apply(areaAccessor))
-                                                                                                           .orElse(NOT_AIR);
-
-                                                     return new InternalContextFilter(contextPredicate);
-                                                 },
-                                                 false);
-            WorldRenderer.renderShape(
-              matrixStack,
-              Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
-              boundingShape,
-              inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() -zView,
-              0.85f, 0.0f, 0.0f, 0.65f
-            );
-
+            IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
+              .renderExistingContextsBoundingBox(matrixStack, chiselingContext);
             ILocalChiselingContextCache.getInstance().set(ChiselingOperation.CHISELING, chiselingContext);
         }
         if (placingContext.getMutator().isPresent()) {
-            final BlockPos inWorldStartPos = new BlockPos(placingContext.getMutator().get().getInWorldStartPoint());
-
-            final VoxelShape boundingShape = VoxelShapeManager.getInstance()
-                                               .get(placingContext.getMutator().get(),
-                                                 areaAccessor -> {
-                                                     final Predicate<IStateEntryInfo> contextPredicate = placingContext.getStateFilter()
-                                                       .map(factory -> factory.apply(areaAccessor))
-                                                       .orElse(ALL);
-
-                                                     return new InternalContextFilter(contextPredicate);
-                                                 },
-                                                 false);
-            WorldRenderer.renderShape(
-              matrixStack,
-              Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
-              boundingShape,
-              inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() -zView,
-              0.0f, 0.85f, 0.0f, 0.65f
-            );
-
+            IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
+              .renderExistingContextsBoundingBox(matrixStack, placingContext);
             ILocalChiselingContextCache.getInstance().set(ChiselingOperation.PLACING, placingContext);
         }
-        Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
-        RenderSystem.enableDepthTest();
-    }
-
-    private void renderExistingContextsBoundingBox(final MatrixStack matrixStack, final double xView, final double yView, final double zView, final IChiselingContext currentContextSnapshot)
-    {
-        if (!currentContextSnapshot.getMutator().isPresent())
-            return;
-
-        final Vector3f colorVector = currentContextSnapshot.getModeOfOperandus() == ChiselingOperation.CHISELING ?
-                                       new Vector3f(0.85f, 0.0f, 0.0f) :
-                                       new Vector3f(0.0f, 0.85f, 0.0f);
-        final BlockPos inWorldStartPos = new BlockPos(currentContextSnapshot.getMutator().get().getInWorldStartPoint());
-
-        final VoxelShape boundingShape = VoxelShapeManager.getInstance().get(currentContextSnapshot.getMutator().get(),
-          areaAccessor -> {
-              final Predicate<IStateEntryInfo> contextPredicate = currentContextSnapshot.getStateFilter()
-                                                                    .map(factory -> factory.apply(areaAccessor))
-                                                                    .orElse(currentContextSnapshot.getModeOfOperandus() == ChiselingOperation.CHISELING ?
-                                                                              NOT_AIR :
-                                                                             ALL);
-
-              return new InternalContextFilter(contextPredicate);
-          },
-          false);
-        RenderSystem.disableDepthTest();
-        WorldRenderer.renderShape(
-          matrixStack,
-          Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
-          boundingShape,
-          inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() - zView,
-          colorVector.x(), colorVector.y(), colorVector.z(), 0.65f
-        );
         Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
         RenderSystem.enableDepthTest();
     }
@@ -574,41 +506,5 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
             stack -> "bit_" + this.getBitState(stack).getBlock().getRegistryName().toString().replace(":", "_"),
             Function.identity()
           ));
-    }
-
-    private static final class InternalContextFilter implements Predicate<IStateEntryInfo> {
-
-        private final Predicate<IStateEntryInfo> placingContextPredicate;
-
-        private InternalContextFilter(final Predicate<IStateEntryInfo> placingContextPredicate) {this.placingContextPredicate = placingContextPredicate;}
-
-        @Override
-        public boolean test(final IStateEntryInfo s)
-        {
-            return (s.getState().isAir() || IEligibilityManager.getInstance().canBeChiseled(s.getState())) && placingContextPredicate.test(s);
-        }
-
-        @Override
-        public boolean equals(final Object o)
-        {
-            if (this == o)
-            {
-                return true;
-            }
-            if (!(o instanceof InternalContextFilter))
-            {
-                return false;
-            }
-
-            final InternalContextFilter that = (InternalContextFilter) o;
-
-            return Objects.equals(placingContextPredicate, that.placingContextPredicate);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return placingContextPredicate != null ? placingContextPredicate.hashCode() : 0;
-        }
     }
 }
