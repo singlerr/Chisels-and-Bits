@@ -3,6 +3,8 @@ package mod.chiselsandbits.registrars;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.chiseling.modes.connected.material.ConnectedMaterialChiselingMode;
+import mod.chiselsandbits.chiseling.modes.connected.material.ConnectedMaterialChiselingModeBuilder;
 import mod.chiselsandbits.chiseling.modes.connected.plane.ConnectedPlaneChiselingModeBuilder;
 import mod.chiselsandbits.chiseling.modes.cubed.CubedChiselModeBuilder;
 import mod.chiselsandbits.chiseling.modes.line.LinedChiselModeBuilder;
@@ -155,43 +157,39 @@ public final class ModChiselModes
     );
     public static final RegistryObject<IChiselMode> CONNECTED_MATERIAL_ONE = MODE_REGISTRAR.register(
       "connected_material_1",
-      () -> new PlaneChiselModeBuilder()
+      () -> new ConnectedMaterialChiselingModeBuilder()
         .setDepth(1)
         .setDisplayName(LocalStrings.ChiselModePlane.getText())
         .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane.getText())
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane.png"))
-        .withFilterOnTarget()
-        .createPlaneChiselMode()
+        .createConnectedMaterialChiselingMode()
     );
     public static final RegistryObject<IChiselMode> CONNECTED_MATERIAL_TWO = MODE_REGISTRAR.register(
       "connected_material_2",
-      () -> new PlaneChiselModeBuilder()
+      () -> new ConnectedMaterialChiselingModeBuilder()
         .setDepth(2)
         .setDisplayName(LocalStrings.ChiselModePlane2.getText())
         .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane2.getText())
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane2.png"))
-        .withFilterOnTarget()
-        .createPlaneChiselMode()
+        .createConnectedMaterialChiselingMode()
     );
     public static final RegistryObject<IChiselMode> CONNECTED_MATERIAL_FOUR = MODE_REGISTRAR.register(
       "connected_material_4",
-      () -> new PlaneChiselModeBuilder()
+      () -> new ConnectedMaterialChiselingModeBuilder()
         .setDepth(4)
         .setDisplayName(LocalStrings.ChiselModePlane4.getText())
         .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane4.getText())
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane4.png"))
-        .withFilterOnTarget()
-        .createPlaneChiselMode()
+        .createConnectedMaterialChiselingMode()
     );
     public static final RegistryObject<IChiselMode> CONNECTED_MATERIAL_EIGHT = MODE_REGISTRAR.register(
       "connected_material_8",
-      () -> new PlaneChiselModeBuilder()
+      () -> new ConnectedMaterialChiselingModeBuilder()
         .setDepth(8)
         .setDisplayName(LocalStrings.ChiselModePlane8.getText())
         .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLinePlane8.getText())
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane8.png"))
-        .withFilterOnTarget()
-        .createPlaneChiselMode()
+        .createConnectedMaterialChiselingMode()
     );
     public static final RegistryObject<IChiselMode> SMALL_SPHERE = MODE_REGISTRAR.register(
       "small_sphere",
