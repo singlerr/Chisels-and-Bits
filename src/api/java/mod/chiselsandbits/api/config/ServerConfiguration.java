@@ -21,18 +21,18 @@ public class ServerConfiguration extends AbstractConfiguration
 
     protected ServerConfiguration(final ForgeConfigSpec.Builder builder)
     {
-        createCategory(builder, "server.balancing");
+        createCategory(builder, "balancing");
 
-        blackListRandomTickingBlocks = defineBoolean(builder, "server.balancing.random-ticking-blocks.blacklisted", false);
-        compatabilityMode = defineBoolean(builder, "server.balancing.compatibility-mode.enabled", false);
-        bagStackSize = defineInteger(builder, "server.balancing.bag.stack-size", 512);
-        changeTrackerSize = defineInteger(builder, "server.balancing.change-tracker.size", 10, 20, 40);
+        blackListRandomTickingBlocks = defineBoolean(builder, "blacklist-random-ticking-blocks", false);
+        compatabilityMode = defineBoolean(builder, "enable-compatibility-mode", false);
+        bagStackSize = defineInteger(builder, "bit-bag-stack-size", 512);
+        changeTrackerSize = defineInteger(builder, "change-tracker-size", 10, 20, 40);
 
         finishCategory(builder);
 
-        createCategory(builder, "server.style");
+        createCategory(builder, "style");
 
-        bitSize = defineEnum(builder, "server.style.bitsize", StateEntrySize.ONE_SIXTEENTH);
+        bitSize = defineEnum(builder, "bit-size", StateEntrySize.ONE_SIXTEENTH);
 
         finishCategory(builder);
     }

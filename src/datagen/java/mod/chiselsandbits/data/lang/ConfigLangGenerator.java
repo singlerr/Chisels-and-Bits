@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ConfigLangGenerator implements IDataProvider
@@ -34,7 +36,7 @@ public class ConfigLangGenerator implements IDataProvider
     public void run(@NotNull final DirectoryCache cache) throws IOException
     {
         final List<String> langKeys = new ArrayList<>(AbstractConfiguration.LANG_KEYS);
-        Collections.sort(langKeys);
+        langKeys.sort(Comparator.comparing(s -> s.replace(".comment", "")));
         final JsonObject returnValue = new JsonObject();
 
         for (String langKey : langKeys)

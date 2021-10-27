@@ -14,15 +14,13 @@ public class CommonConfiguration extends AbstractConfiguration
 
     public CommonConfiguration(ForgeConfigSpec.Builder builder)
     {
-        createCategory(builder, "common.help");
+        createCategory(builder, "help");
 
-        enableHelp = defineBoolean(builder, "common.help.enabled", true);
+        enableHelp = defineBoolean(builder, "enabled-in-tooltips", true);
 
-        finishCategory(builder);
+        swapToCategory(builder, "performance.caches.sizes");
 
-        createCategory(builder, "common.performance");
-
-        collisionBoxCacheSize = defineLong(builder, "common.performance.collisions.cache.size", 10000L);
+        collisionBoxCacheSize = defineLong(builder, "collision-boxes", 10000L);
 
         finishCategory(builder);
     }
