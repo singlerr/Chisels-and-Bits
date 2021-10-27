@@ -1,29 +1,53 @@
 package mod.chiselsandbits.api.config;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import mod.chiselsandbits.api.util.DeprecationHelper;
 import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraftforge.common.ForgeConfigSpec.*;
-import net.minecraftforge.common.util.NonNullSupplier;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 public abstract class AbstractConfiguration
 {
-
     public static final Set<String> LANG_KEYS = Sets.newLinkedHashSet();
 
-    private static String currentCategory = "";
+    private static       String              currentCategory      = "";
+    private static final LinkedList<String> categoryStack = new LinkedList<>();
+    private static final LinkedList<Integer> additionalDepthCount = new LinkedList<>();
 
-    protected static void createCategory(final Builder builder, final String key)
+    public AbstractConfiguration()
     {
+        categoryStack.push("");
+    }
+
+    protected static void createCategory(final Builder builder, String key)
+    {
+        final String originalKey = key;
+        if (!currentCategory.isEmpty())
+            key = currentCategory + "." + key;
+
+        final String[] keySections = key.split("\\.");
+        if (keySections.length > 1) {
+            String workingKey = "";
+            for (int i = 0; i < keySections.length - 1; i++)
+            {
+                if (!workingKey.isEmpty())
+                    workingKey += ".";
+
+                workingKey += keySections[i];
+                final String translation = DeprecationHelper.translateToLocal(commentTKey(workingKey));
+                builder.comment(translation == null || translation.isEmpty() ? workingKey : translation).push(workingKey);
+            }
+        }
+
         final String translation = DeprecationHelper.translateToLocal(commentTKey(key));
         builder.comment(translation == null || translation.isEmpty() ? key : translation).push(key);
         currentCategory = key;
+        additionalDepthCount.addFirst(originalKey.split("\\.").length);
+        categoryStack.push(key);
     }
 
     protected static void swapToCategory(final Builder builder, final String key)
@@ -34,29 +58,21 @@ public abstract class AbstractConfiguration
 
     protected static void finishCategory(final Builder builder)
     {
-        builder.pop();
-        currentCategory = "";
+        if (currentCategory.isEmpty())
+            return;
+
+        final int popCount = additionalDepthCount.removeFirst();
+        for (int i = 0; i < popCount; i++)
+        {
+            builder.pop();
+        }
+        categoryStack.removeFirst();
+        currentCategory = categoryStack.peekFirst();
     }
 
     private static String nameTKey(final String key)
     {
-        final String tKey = currentCategory.isEmpty() ? String.format("mod.%s.config.%s", Constants.MOD_ID, key) : String.format("mod.%s.config.%s.%s", Constants.MOD_ID, currentCategory, key);
-
-        final String[] tKeyParts = tKey.split("\\.");
-        String workingKey = "";
-        for (int i = 0; i < tKeyParts.length; i++)
-        {
-            final String tKeyPart = tKeyParts[i];
-            workingKey = workingKey.isEmpty() ? tKeyPart : String.format("%s.%s", workingKey, tKeyPart);
-
-            if (i < 3)
-                continue;
-
-            LANG_KEYS.add(workingKey);
-            LANG_KEYS.add(String.format("%s.comment", workingKey));
-        }
-
-        return tKey;
+        return currentCategory.isEmpty() ? String.format("mod.%s.config.%s", Constants.MOD_ID, key) : String.format("mod.%s.config.%s.%s", Constants.MOD_ID, currentCategory, key);
     }
 
     private static String commentTKey(final String key)

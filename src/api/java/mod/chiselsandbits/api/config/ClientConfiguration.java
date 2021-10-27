@@ -49,41 +49,38 @@ public class ClientConfiguration extends AbstractConfiguration
      */
     protected ClientConfiguration(final ForgeConfigSpec.Builder builder)
     {
-        createCategory(builder, "client.settings");
-        
-        enableRightClickModeChange = defineBoolean(builder, "enable-right-click-mode-change", false);
-        invertBitBagFullness = defineBoolean(builder, "invert-bit-bag-fullness", false);
-        enableToolbarIcons = defineBoolean(builder, "enable.toolbar.icons", true);
-        perChiselMode = defineBoolean(builder, "per-chisel-mode", true);
-        chatModeNotification = defineBoolean(builder, "chat-mode-notification", true);
-        itemNameModeDisplay = defineBoolean(builder, "item-name-mode-display", true);
-        addBrokenBlocksToCreativeClipboard = defineBoolean(builder, "clipboard.add-broken-blocks", false);
-        maxUndoLevel = defineInteger(builder, "undo.max-count", 10);
-        maxTapeMeasures = defineInteger(builder, "tape-measure.max-count", 10);
-        displayMeasuringTapeInChat = defineBoolean(builder, "tape-measure.display-in-chat", true);
-        radialMenuVolume = defineDouble(builder, "radial.menu.volume", 0.1f);
+        createCategory(builder, "settings.bit-bag");
 
-        previewRenderer = defineString(builder, "preview.renderer", Constants.MOD_ID + ":default");
-        previewChiselingColor = defineList(builder, "preview.chisel.color", Lists.newArrayList(0.85f, 0.0f, 0.0f, 0.65f), value -> true);
-        previewPlacementColor = defineList(builder, "preview.placement.color", Lists.newArrayList(0.0f, 0.85f, 0.0f, 0.65f), (value) -> true);
+        invertBitBagFullness = defineBoolean(builder, "invert-durability-bar-indication", false);
 
-        finishCategory(builder);
-        createCategory(builder, "client.performance");
+        swapToCategory(builder, "settings.chiseling-previews");
 
-        bitStorageContentCacheSize = defineLong(builder, "bit-storage.contents.cache.size", 100, 0, Long.MAX_VALUE);
-        maxDrawnRegionSize = defineDouble(builder, "max-drawn-region.size", 4);
-        enableFaceLightmapExtraction = defineBoolean(builder, "lighting.face-lightmap-extraction", true);
-        useGetLightValue = defineBoolean(builder, "lighting.use-value", true);
-        disableCustomVertexFormats = defineBoolean(builder, "vertexformats.custom.disabled", true);
-        modelCacheSize = defineLong(builder, "models.cache.size", 10000, 3500, 20000);
-        faceLayerCacheSize = defineLong(builder, "faces.cache.size", 10000, 3500, 20000);
-        modelBuildingThreadCount = defineInteger(builder, "models.builder.threadcount", 1, 1, Runtime.getRuntime()
+        previewRenderer = defineString(builder, "renderer", Constants.MOD_ID + ":default");
+
+        swapToCategory(builder, "settings.chiseling-previews.default.colors");
+
+        previewChiselingColor = defineList(builder, "chisel.color", Lists.newArrayList(0.85f, 0.0f, 0.0f, 0.65f), value -> true);
+        previewPlacementColor = defineList(builder, "placement.color", Lists.newArrayList(0.0f, 0.85f, 0.0f, 0.65f), (value) -> true);
+
+        swapToCategory(builder, "performance.caches.sizes");
+
+        bitStorageContentCacheSize = defineLong(builder, "bit-storage-content-models", 100, 0, Long.MAX_VALUE);
+        modelCacheSize = defineLong(builder, "block-models", 10000, 3500, 20000);
+        faceLayerCacheSize = defineLong(builder, "block-faces", 10000, 3500, 20000);
+
+        swapToCategory(builder, "performance.model-building");
+
+        modelBuildingThreadCount = defineInteger(builder, "thead-count", Math.max(1, Runtime.getRuntime().availableProcessors()) / 2, 1, Runtime.getRuntime()
           .availableProcessors());
 
-        finishCategory(builder);
-        createCategory(builder, "client.gui");
+        swapToCategory(builder, "performance.lighting");
 
-        enableMouseIndicatorInRadialMenu = defineBoolean(builder, "radial-menu.mouse-indicator", false);
+        enableFaceLightmapExtraction = defineBoolean(builder, "extract-lighting-values-from-faces", true);
+        useGetLightValue = defineBoolean(builder, "extract-lighting-values-from-blockstates", true);
+
+        swapToCategory(builder, "gui.radial-menu");
+
+        enableMouseIndicatorInRadialMenu = defineBoolean(builder, "display-mouse-indicator", false);
 
         finishCategory(builder);
         createCategory(builder, "compat.jei");
@@ -91,6 +88,5 @@ public class ClientConfiguration extends AbstractConfiguration
         injectIntoJEI = defineBoolean(builder, "inject-bits", true);
 
         finishCategory(builder);
-
     }
 }

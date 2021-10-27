@@ -15,8 +15,8 @@ project.minecraft {
                 '--assetIndex', '1.17',
                 '--assetsDir', tasks.downloadAssets.getOutput().getAbsolutePath(),
                 '--gameDir', '.',
-                '--fml.forgeVersion', '37.0.71',
-                '--fml.mcVersion', '1.17.1',
+                '--fml.forgeVersion', project.forgeVersion,
+                '--fml.mcVersion', project.exactMinecraftVersion,
                 '--fml.forgeGroup', 'net.minecraftforge',
                 '--fml.mcpVersion', '20210706.113038'
         generateDataSpec.mods {
@@ -43,8 +43,8 @@ project.minecraft {
                 '--assetIndex', '1.17',
                 '--assetsDir', tasks.downloadAssets.getOutput().getAbsolutePath(),
                 '--gameDir', '.',
-                '--fml.forgeVersion', '37.0.71',
-                '--fml.mcVersion', '1.17.1',
+                '--fml.forgeVersion', project.forgeVersion,
+                '--fml.mcVersion', project.exactMinecraftVersion,
                 '--fml.forgeGroup', 'net.minecraftforge',
                 '--fml.mcpVersion', '20210706.113038'
         generateDocumentationSpec.mods {
