@@ -39,12 +39,12 @@ public abstract class AbstractConfiguration
 
                 workingKey += keySections[i];
                 final String translation = DeprecationHelper.translateToLocal(commentTKey(workingKey));
-                builder.comment(translation == null || translation.isEmpty() ? workingKey : translation).push(workingKey);
+                builder.comment(translation == null || translation.isEmpty() ? workingKey : translation).push(keySections[i]);
             }
         }
 
         final String translation = DeprecationHelper.translateToLocal(commentTKey(key));
-        builder.comment(translation == null || translation.isEmpty() ? key : translation).push(key);
+        builder.comment(translation == null || translation.isEmpty() ? key : translation).push(keySections[keySections.length - 1]);
         currentCategory = key;
         additionalDepthCount.addFirst(originalKey.split("\\.").length);
         categoryStack.push(key);

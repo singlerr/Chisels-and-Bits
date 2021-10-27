@@ -30,8 +30,8 @@
   "mod.chiselsandbits.config.settings.chiseling-previews.comment": "",
   "mod.chiselsandbits.config.settings.chiseling-previews.default.comment": "",
   "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.comment": "",
-  "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.chisel.color.comment": "",
-  "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.placement.color.comment": "",
+  "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.chiseling.comment": "",
+  "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.placement.comment": "",
   "mod.chiselsandbits.config.settings.chiseling-previews.renderer.comment": "",
   "mod.chiselsandbits.config.style.comment": "",
   "mod.chiselsandbits.config.style.bit-size.comment": ""
