@@ -360,8 +360,6 @@
   "mod.chiselsandbits.pattern.modification.across.axis.x": "X",
   "mod.chiselsandbits.pattern.modification.across.axis.y": "Y",
   "mod.chiselsandbits.pattern.modification.across.axis.z": "Z",
-
-
   "mod.chiselsandbits.config.balancing.comment": "Config options related to balancing the mod.",
   "mod.chiselsandbits.config.balancing.bit-bag-stack-size.comment": "The max size of the stacks of bits in the bit bag.",
   "mod.chiselsandbits.config.balancing.blacklist-random-ticking-blocks.comment": "Disallow blocks which tick randomly from being chiseled.",
@@ -393,8 +391,8 @@
   "mod.chiselsandbits.config.settings.chiseling-previews.comment": "Configures the chiseling and placement previews.",
   "mod.chiselsandbits.config.settings.chiseling-previews.default.comment": "Configures the default chiseling and placement preview.",
   "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.comment": "Configures the colors of the outlines that the chiseling and placement preview have.",
-  "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.chisel.color.comment": "The color for the chiseling preview outline.",
-  "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.placement.color.comment": "The color for the placement preview outline.",
+  "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.chiseling.comment": "The color for the chiseling preview outline.",
+  "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.placement.comment": "The color for the placement preview outline.",
   "mod.chiselsandbits.config.settings.chiseling-previews.renderer.comment": "Sets which preview renderer is in use. Currently C&B provides: `chiselsandbits:default` (Simple outline rendering) and `chiselsandbits:noop` (No preview) as options.",
   "mod.chiselsandbits.config.style.comment": "Configures the different gameplay style options.",
   "mod.chiselsandbits.config.style.bit-size.comment": "Configures the size of a single bit, relative to one block."

@@ -63,8 +63,8 @@ public class ClientConfiguration extends AbstractConfiguration
 
         swapToCategory(builder, "settings.chiseling-previews.default.colors");
 
-        previewChiselingColor = defineList(builder, "chisel.color", Lists.newArrayList(0.85f, 0.0f, 0.0f, 0.65f), value -> true);
-        previewPlacementColor = defineList(builder, "placement.color", Lists.newArrayList(0.0f, 0.85f, 0.0f, 0.65f), (value) -> true);
+        previewChiselingColor = defineList(builder, "chiseling", Lists.newArrayList(0.85f, 0.0f, 0.0f, 0.65f), value -> true);
+        previewPlacementColor = defineList(builder, "placement", Lists.newArrayList(0.0f, 0.85f, 0.0f, 0.65f), (value) -> true);
 
         swapToCategory(builder, "performance.caches.sizes");
 
