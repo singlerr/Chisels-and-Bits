@@ -27,6 +27,7 @@ public interface IAreaMutator extends IAreaAccessor
      *
      * @param blockState   The blockstate.
      * @param inAreaTarget The in area offset.
+     * @throws SpaceOccupiedException When the space is not clear and as such the bit can not be set.
      */
     void setInAreaTarget(
       BlockState blockState,
@@ -39,6 +40,7 @@ public interface IAreaMutator extends IAreaAccessor
      * @param blockState           The blockstate.
      * @param inAreaBlockPosOffset The offset of blocks in the current area.
      * @param inBlockTarget        The offset in the targeted block.
+     * @throws SpaceOccupiedException When the space is not clear and as such the bit can not be set.
      */
     void setInBlockTarget(
       BlockState blockState,

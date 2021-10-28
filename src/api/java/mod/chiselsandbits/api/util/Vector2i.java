@@ -65,6 +65,7 @@ public class Vector2i implements Comparable<Vector2i>
 
     /**
      * Gets the X coordinate.
+     * @return The x part of the coordinate.
      */
     public int getX()
     {
@@ -73,12 +74,17 @@ public class Vector2i implements Comparable<Vector2i>
 
     /**
      * Gets the Y coordinate.
+     * @return The y part of the coordinate.
      */
     public int getY()
     {
         return this.y;
     }
 
+    /**
+     * Sets the Y coordinate.
+     * @param yIn The new y part of the coordinate
+     */
     protected void setY(int yIn)
     {
         this.y = yIn;
@@ -86,6 +92,7 @@ public class Vector2i implements Comparable<Vector2i>
 
     /**
      * Sets the X coordinate.
+     * @param xIn The new x part of the coordinate.
      */
     protected void setX(int xIn)
     {
