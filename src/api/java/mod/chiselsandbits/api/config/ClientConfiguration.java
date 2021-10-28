@@ -26,6 +26,7 @@ public class ClientConfiguration extends AbstractConfiguration
     public ForgeConfigSpec.ConfigValue<List<? extends Float>> previewChiselingColor;
     public ForgeConfigSpec.ConfigValue<List<? extends Float>>    previewPlacementColor;
     public ForgeConfigSpec.ConfigValue<String> previewRenderer;
+    public ForgeConfigSpec.ConfigValue<String> toolModeRenderer;
 
     public ForgeConfigSpec.LongValue bitStorageContentCacheSize;
     public ForgeConfigSpec.DoubleValue maxDrawnRegionSize;
@@ -52,6 +53,10 @@ public class ClientConfiguration extends AbstractConfiguration
         createCategory(builder, "settings.bit-bag");
 
         invertBitBagFullness = defineBoolean(builder, "invert-durability-bar-indication", false);
+
+        swapToCategory(builder, "settings.selected-tool-mode-icons");
+
+        toolModeRenderer = defineString(builder, "renderer", Constants.MOD_ID + ":group");
 
         swapToCategory(builder, "settings.chiseling-previews");
 
