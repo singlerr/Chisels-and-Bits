@@ -428,7 +428,7 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
     @Override
     public @NotNull Optional<IToolModeGroup> getGroup()
     {
-        return Optional.of(ModChiselModeGroups.CONNECTED_PLANE);
+        return Optional.of(ModChiselModeGroups.CONNECTED_MATERIAL);
     }
 
     @Override

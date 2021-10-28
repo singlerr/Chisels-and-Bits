@@ -9,7 +9,6 @@ public class PlaneChiselModeBuilder
     private IFormattableTextComponent displayName;
     private IFormattableTextComponent multiLineDisplayName;
     private ResourceLocation          iconName;
-    private boolean                   filterOnTarget = false;
 
     public PlaneChiselModeBuilder setDepth(final int depth)
     {
@@ -35,14 +34,8 @@ public class PlaneChiselModeBuilder
         return this;
     }
 
-    public PlaneChiselModeBuilder withFilterOnTarget()
-    {
-        this.filterOnTarget = true;
-        return this;
-    }
-
     public PlaneChiselMode createPlaneChiselMode()
     {
-        return new PlaneChiselMode(depth, displayName, multiLineDisplayName, iconName, filterOnTarget);
+        return new PlaneChiselMode(depth, displayName, multiLineDisplayName, iconName);
     }
 }

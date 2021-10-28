@@ -80,22 +80,6 @@ public final class ModChiselModeGroups
         }
     };
 
-    public static IToolModeGroup PLANE_FILTERED = new IToolModeGroup() {
-        @Override
-        public @NotNull ResourceLocation getIcon()
-        {
-            return new ResourceLocation(Constants.MOD_ID,"textures/icons/connected_material.png");
-        }
-
-        @Override
-        public ITextComponent getDisplayName()
-        {
-            return TranslationUtils.build(
-              "chiselmode.connected_material"
-            );
-        }
-    };
-
     public static IToolModeGroup SPHERE = new IToolModeGroup() {
         @Override
         public @NotNull ResourceLocation getIcon()
@@ -123,6 +107,20 @@ public final class ModChiselModeGroups
         public ITextComponent getDisplayName()
         {
             return LocalStrings.ChiselModeConnectedPlane.getText();
+        }
+    };
+
+    public static IToolModeGroup CONNECTED_MATERIAL = new IToolModeGroup() {
+        @Override
+        public @NotNull ResourceLocation getIcon()
+        {
+            return new ResourceLocation(Constants.MOD_ID,"textures/icons/connected_material.png");
+        }
+
+        @Override
+        public ITextComponent getDisplayName()
+        {
+            return LocalStrings.ChiselModeConnectedMaterial.getText();
         }
     };
 }
