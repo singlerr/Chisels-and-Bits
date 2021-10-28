@@ -10,12 +10,16 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
+import mod.chiselsandbits.api.util.BlockPosStreamProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.BlockEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -113,7 +117,22 @@ public class ChiselingContext implements IChiselingContext
     @Override
     public @NotNull Optional<IWorldAreaMutator> getMutator()
     {
-        return Optional.ofNullable(mutator);
+        if (mutator == null || playerEntity == null || !(world instanceof Level))
+            return Optional.ofNullable(mutator);
+
+        if (BlockPosStreamProvider.getForRange(mutator.getInWorldStartPoint(), mutator.getInWorldEndPoint())
+          .anyMatch(position -> {
+              BlockEvent.BreakEvent event = new BlockEvent.BreakEvent((Level) world, position, world.getBlockState(position), playerEntity);
+              MinecraftForge.EVENT_BUS.post(event);
+              return event.isCanceled();
+          })) {
+            //We are not allowed to edit the current area.
+            //Nuke it.
+            mutator = null;
+            return Optional.empty();
+        }
+
+        return Optional.of(mutator);
     }
 
     @Override
