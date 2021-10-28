@@ -10,12 +10,16 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
+import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.BlockEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -113,7 +117,22 @@ public class ChiselingContext implements IChiselingContext
     @Override
     public @NotNull Optional<IWorldAreaMutator> getMutator()
     {
-        return Optional.ofNullable(mutator);
+        if (mutator == null || playerEntity == null || !(world instanceof World))
+            return Optional.ofNullable(mutator);
+
+        if (BlockPosStreamProvider.getForRange(mutator.getInWorldStartPoint(), mutator.getInWorldEndPoint())
+          .anyMatch(position -> {
+              BlockEvent.BreakEvent event = new BlockEvent.BreakEvent((World) world, position, world.getBlockState(position), playerEntity);
+              MinecraftForge.EVENT_BUS.post(event);
+              return event.isCanceled();
+          })) {
+            //We are not allowed to edit the current area.
+            //Nuke it.
+            mutator = null;
+            return Optional.empty();
+        }
+
+        return Optional.of(mutator);
     }
 
     @Override
