@@ -33,6 +33,8 @@
   "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.chiseling.comment": "",
   "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.placement.comment": "",
   "mod.chiselsandbits.config.settings.chiseling-previews.renderer.comment": "",
+  "mod.chiselsandbits.config.settings.selected-tool-mode-icons.comment": "",
+  "mod.chiselsandbits.config.settings.selected-tool-mode-icons.renderer.comment": "",
   "mod.chiselsandbits.config.style.comment": "",
   "mod.chiselsandbits.config.style.bit-size.comment": ""
 }

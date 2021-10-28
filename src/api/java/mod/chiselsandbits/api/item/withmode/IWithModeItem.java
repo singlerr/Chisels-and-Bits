@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Represents an item with several different operational modes.
+ * Represents an item with several operational modes.
  *
  * @param <M> The enum specifying the mode.
  */

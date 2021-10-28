@@ -10,6 +10,7 @@ import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
 import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
@@ -219,6 +220,14 @@ public interface IChiselsAndBitsAPI
     @OnlyIn(Dist.CLIENT)
     @NotNull
     IChiselContextPreviewRendererRegistry getChiselContextPreviewRendererRegistry();
+
+    /**
+     * Gives access to the selected tool mode icon renderer registry.
+     * @return The registry.
+     */
+    @OnlyIn(Dist.CLIENT)
+    @NotNull
+    ISelectedToolModeIconRendererRegistry getSelectedToolModeIconRenderer();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;
