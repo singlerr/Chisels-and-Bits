@@ -46,20 +46,17 @@ public class PlaneChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     private final MutableComponent displayName;
     private final MutableComponent multiLineDisplayName;
     private final ResourceLocation          iconName;
-    private final boolean filterOnTarget;
 
     PlaneChiselMode(
       final int depth,
       final MutableComponent displayName,
       final MutableComponent multiLineDisplayName,
-      final ResourceLocation iconName,
-      final boolean filterOnTarget)
+      final ResourceLocation iconName)
     {
         this.depth = depth;
         this.displayName = displayName;
         this.multiLineDisplayName = multiLineDisplayName;
         this.iconName = iconName;
-        this.filterOnTarget = filterOnTarget;
     }
     @Override
     public ClickProcessingState onLeftClickBy(
@@ -206,13 +203,6 @@ public class PlaneChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
         final Vec3 inBlockHitVector = hitVector.subtract(hitBlockPosVector);
         final Vec3 inBlockBitVector = inBlockHitVector.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
 
-        if (context.getWorld() != null && filterOnTarget)
-        {
-            final IAreaAccessor worldAreaAccessor = IMutatorFactory.getInstance().in(context.getWorld(), new BlockPos(hitBlockPosVector));
-            final BlockState filterState = worldAreaAccessor.getInAreaTarget(inBlockHitVector).map(IStateEntryInfo::getState).orElse(Blocks.AIR.defaultBlockState());
-            context.setStateFilter(areaAccessor -> new BlockStateAreaFilter(filterState));
-        }
-
         final Direction iterationDirection = iterationAdaptor.apply(blockRayTraceResult.getDirection());
         switch (iterationDirection)
         {
@@ -318,44 +308,6 @@ public class PlaneChiselMode extends ForgeRegistryEntry<IChiselMode> implements 
     @Override
     public Optional<IToolModeGroup> getGroup()
     {
-        return Optional.of(filterOnTarget ? ModChiselModeGroups.PLANE_FILTERED : ModChiselModeGroups.PLANE);
-    }
-
-    private static final class BlockStateAreaFilter implements Predicate<IStateEntryInfo>
-    {
-        private final BlockState targetState;
-        private final int stateHash;
-
-        private BlockStateAreaFilter(final BlockState targetState) {
-            this.targetState = targetState;
-            this.stateHash = targetState.hashCode();
-        }
-
-        @Override
-        public boolean test(final IStateEntryInfo stateEntryInfo)
-        {
-            return stateHash == stateEntryInfo.getState().hashCode();
-        }
-
-        @Override
-        public boolean equals(final Object o)
-        {
-            if (this == o)
-            {
-                return true;
-            }
-            if (!(o instanceof final BlockStateAreaFilter that))
-            {
-                return false;
-            }
-
-            return targetState.equals(that.targetState);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return stateHash;
-        }
+        return Optional.of(ModChiselModeGroups.PLANE);
     }
 }
