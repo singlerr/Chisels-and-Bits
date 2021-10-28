@@ -83,6 +83,15 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/snap8.png"))
         .createCubedChiselMode()
     );
+    public static final RegistryObject<IChiselMode> FULL_BLOCK = MODE_REGISTRAR.register(
+      "full_cube",
+      () -> new CubedChiselModeBuilder().setBitsPerSide(16)
+        .setAligned(true)
+        .setDisplayName(LocalStrings.ChiselModeCubeFull.getText())
+        .setMultiLineDisplayName(LocalStrings.ChiselModeCubeFull.getText())
+        .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/same_material.png"))
+        .createCubedChiselMode()
+    );
     public static final RegistryObject<IChiselMode> LINE_ONE = MODE_REGISTRAR.register(
       "line_1",
       () -> new LinedChiselModeBuilder()
