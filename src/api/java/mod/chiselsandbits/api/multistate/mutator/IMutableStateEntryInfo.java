@@ -11,6 +11,7 @@ public interface IMutableStateEntryInfo extends IStateEntryInfo
      * Sets the current entries state.
      *
      * @param blockState The new blockstate of the entry.
+     * @throws SpaceOccupiedException When the space is not clear and as such the bit can not be set.
      */
     void setState(final BlockState blockState) throws SpaceOccupiedException;
 
