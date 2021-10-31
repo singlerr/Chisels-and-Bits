@@ -2,13 +2,12 @@ package mod.chiselsandbits.api;
 
 import mod.chiselsandbits.api.addons.IChiselsAndBitsAddon;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
+import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
-import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
 import mod.chiselsandbits.api.config.Configuration;
@@ -24,6 +23,8 @@ import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -228,6 +229,20 @@ public interface IChiselsAndBitsAPI
     @OnlyIn(Dist.CLIENT)
     @NotNull
     ISelectedToolModeIconRendererRegistry getSelectedToolModeIconRenderer();
+
+    /**
+     * Returns the tag used in the eligibility system to force compatibility.
+     * @return The forced compatibility tag.
+     */
+    @NotNull
+    Tag.Named<Block> getForcedTag();
+
+    /**
+     * Returns the tag used in the eligibility system to block compatibility.
+     * @return The blocked compatibility tag.
+     */
+    @NotNull
+    Tag.Named<Block> getBlockedTag();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

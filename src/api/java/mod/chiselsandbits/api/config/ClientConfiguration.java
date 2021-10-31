@@ -71,7 +71,7 @@ public class ClientConfiguration extends AbstractConfiguration
 
         bitStorageContentCacheSize = defineLong(builder, "bit-storage-content-models", 100, 0, Long.MAX_VALUE);
         modelCacheSize = defineLong(builder, "block-models", 10000, 3500, 20000);
-        faceLayerCacheSize = defineLong(builder, "block-faces", 10000, 3500, 20000);
+        faceLayerCacheSize = defineLong(builder, "block-faces", 1000000, 350000, 2000000);
 
         swapToCategory(builder, "performance.model-building");
 

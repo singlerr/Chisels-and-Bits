@@ -27,6 +27,7 @@
   "mod.chiselsandbits.chisel.support.supported.tag": "",
   "mod.chiselsandbits.chiselmode.connected_material": "",
   "mod.chiselsandbits.chiselmode.connected_plane": "",
+  "mod.chiselsandbits.chiselmode.cube_full": "",
   "mod.chiselsandbits.chiselmode.cube_large": "",
   "mod.chiselsandbits.chiselmode.cube_medium": "",
   "mod.chiselsandbits.chiselmode.cube_small": "",
@@ -37,6 +38,7 @@
   "mod.chiselsandbits.chiselmode.line8": "",
   "mod.chiselsandbits.chiselmode.multiline.connected_material": "",
   "mod.chiselsandbits.chiselmode.multiline.connected_plane": "",
+  "mod.chiselsandbits.chiselmode.multiline.cube_full": "",
   "mod.chiselsandbits.chiselmode.multiline.cube_large": "",
   "mod.chiselsandbits.chiselmode.multiline.cube_medium": "",
   "mod.chiselsandbits.chiselmode.multiline.cube_small": "",
@@ -145,5 +147,16 @@
   "mod.chiselsandbits.positivepatternmode.replace": "",
   "mod.chiselsandbits.tapemeasure.bit": "",
   "mod.chiselsandbits.tapemeasure.block": "",
-  "mod.chiselsandbits.tapemeasure.distance": ""
+  "mod.chiselsandbits.tapemeasure.distance": "",
+  "mod.chiselsandbits.ui-components.change-tracker.operations.clear.name": "",
+  "mod.chiselsandbits.ui-components.change-tracker.operations.name": "",
+  "mod.chiselsandbits.ui-components.change-tracker.operations.redo.name": "",
+  "mod.chiselsandbits.ui-components.change-tracker.operations.undo.name": "",
+  "mod.chiselsandbits.ui-components.tool-menu.group-selector.name": "",
+  "mod.chiselsandbits.ui-components.tool-menu.mode-selector.name": "",
+  "mod.chiselsandbits.ui-components.tool-menu.page-selector.name": "",
+  "mod.chiselsandbits.ui-components.tool-menu.page-selector.next.name": "",
+  "mod.chiselsandbits.ui-components.tool-menu.page-selector.previous.name": "",
+  "mod.chiselsandbits.ui-components.tool-menu.selector.name": "",
+  "mod.chiselsandbits.ui-screens.tool-menu.name": ""
 }

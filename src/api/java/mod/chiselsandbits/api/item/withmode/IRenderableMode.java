@@ -20,6 +20,15 @@ public interface IRenderableMode extends IWithDisplayName
     ResourceLocation getIcon();
 
     /**
+     * Indicates if the mode is currently active and as such should be rendered or not.
+     *
+     * @return True for active modes, false for not.
+     */
+    default boolean isActive() {
+        return true;
+    }
+
+    /**
      * Indicates if the name of the mode should be rendered.
      *
      * @return {@code true} when the name should be rendered.

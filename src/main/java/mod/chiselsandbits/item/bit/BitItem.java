@@ -156,6 +156,9 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     @Override
     public void setMode(final ItemStack stack, final IChiselMode mode)
     {
+        if (mode == null)
+            return;
+
         stack.getOrCreateTag().putString(NbtConstants.CHISEL_MODE, Objects.requireNonNull(mode.getRegistryName()).toString());
     }
 

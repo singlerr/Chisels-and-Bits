@@ -2,11 +2,10 @@ package mod.chiselsandbits.keys;
 
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.api.item.withmode.IRenderableMode;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.events.TickHandler;
-import mod.chiselsandbits.client.screens.RadialToolModeSelectionScreen;
+import mod.chiselsandbits.client.screens.ToolModeSelectionScreen;
 import mod.chiselsandbits.keys.contexts.HoldsSpecificItemInHandKeyConflictContext;
 import mod.chiselsandbits.keys.contexts.HoldsWithToolItemInHandKeyConflictContext;
 import mod.chiselsandbits.keys.contexts.SpecificScreenOpenKeyConflictContext;
@@ -104,7 +103,6 @@ public class KeyBindingManager
         getInstance().handleKeyPresses();
     }
 
-    @SuppressWarnings("unchecked")
     public void handleKeyPresses() {
         Minecraft mc = Minecraft.getInstance();
 
@@ -121,8 +119,7 @@ public class KeyBindingManager
                         if (!inHand.isEmpty() && inHand.getItem() instanceof IWithModeItem)
                         {
                             try {
-                                final IWithModeItem<? extends IRenderableMode> withModeItem = (IWithModeItem<? extends IRenderableMode>) inHand.getItem();
-                                mc.setScreen(RadialToolModeSelectionScreen.create(withModeItem, inHand));
+                                mc.setScreen(ToolModeSelectionScreen.create(inHand));
                             } catch (ClassCastException ignored) {
                             }
                         }
@@ -136,15 +133,7 @@ public class KeyBindingManager
             toolMenuKeyWasDown = true;
         }
 
-        if (mc.screen instanceof final RadialToolModeSelectionScreen<?> radialToolMenuScreen) {
-
-            if (toolModeSelectionPlusCoolDown == 0 && isCycleToolMenuRightKeyPressed())
-                radialToolMenuScreen.onMoveSelectionToTheRight();
-
-            if (toolModeSelectionMinusCoolDown == 0 && isCycleToolMenuLeftKeyPressed())
-                radialToolMenuScreen.onMoveSelectionToTheLeft();
-        }
-        else if (ItemStackUtils.getModeItemStackFromPlayer(Minecraft.getInstance().player).getItem() instanceof IWithModeItem)
+        if (ItemStackUtils.getModeItemStackFromPlayer(Minecraft.getInstance().player).getItem() instanceof IWithModeItem)
         {
             final ItemStack stack = ItemStackUtils.getModeItemStackFromPlayer(Minecraft.getInstance().player);
             final IWithModeItem<?> withModeItem = (IWithModeItem<?>) stack.getItem();

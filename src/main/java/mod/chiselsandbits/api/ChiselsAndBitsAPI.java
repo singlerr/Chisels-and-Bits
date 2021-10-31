@@ -2,13 +2,12 @@ package mod.chiselsandbits.api;
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
-import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
+import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
-import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
 import mod.chiselsandbits.api.config.Configuration;
@@ -23,11 +22,10 @@ import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
-import mod.chiselsandbits.change.ChangeTracker;
 import mod.chiselsandbits.change.ChangeTrackerManger;
+import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
 import mod.chiselsandbits.chiseling.conversion.ConversionManager;
 import mod.chiselsandbits.chiseling.eligibility.EligibilityManager;
-import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
 import mod.chiselsandbits.client.chiseling.preview.render.ChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.client.tool.mode.icon.SelectedToolModeRendererRegistry;
 import mod.chiselsandbits.inventory.management.BitInventoryManager;
@@ -40,8 +38,11 @@ import mod.chiselsandbits.plugin.PluginManger;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModChiselModes;
 import mod.chiselsandbits.registrars.ModModificationOperation;
+import mod.chiselsandbits.registrars.ModTags;
 import mod.chiselsandbits.registries.RegistryManager;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -247,5 +248,17 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull ISelectedToolModeIconRendererRegistry getSelectedToolModeIconRenderer()
     {
         return SelectedToolModeRendererRegistry.getInstance();
+    }
+
+    @Override
+    public @NotNull Tag.Named<Block> getForcedTag()
+    {
+        return ModTags.Blocks.FORCED_CHISELABLE;
+    }
+
+    @Override
+    public @NotNull Tag.Named<Block> getBlockedTag()
+    {
+        return ModTags.Blocks.BLOCKED_CHISELABLE;
     }
 }

@@ -59,7 +59,7 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer>
     protected void init()
     {
         super.init();
-        trashBtn = addRenderableWidget(new GuiIconButton(leftPos - 18, topPos, IconManager.getInstance().getTrashIcon(), p_onPress_1_ -> {
+        trashBtn = addRenderableWidget(new GuiIconButton(leftPos - 20, topPos, IconManager.getInstance().getTrashIcon(), p_onPress_1_ -> {
             if (requireConfirm)
             {
                 dontThrow = true;
@@ -92,7 +92,7 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer>
             }
         }));
 
-        addRenderableWidget(new GuiIconButton(leftPos - 18, topPos + 18, IconManager.getInstance().getSortIcon(),
+        addRenderableWidget(new GuiIconButton(leftPos - 20, topPos + 22, IconManager.getInstance().getSortIcon(),
           p_onPress_1_ -> {
             final SortBagGuiPacket packet = new SortBagGuiPacket();
             ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(packet);

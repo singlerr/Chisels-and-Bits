@@ -77,6 +77,13 @@ public class ChangeTracker implements IChangeTracker
         return new LinkedList<>(changes);
     }
 
+    @Override
+    public void clear()
+    {
+        changes.clear();
+        sendUpdate();
+    }
+
     public Optional<IChange> getCurrentUndo()
     {
         if (getChanges().size() <= currentIndex || currentIndex < 0) {

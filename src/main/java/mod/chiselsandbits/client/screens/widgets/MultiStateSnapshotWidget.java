@@ -3,6 +3,7 @@ package mod.chiselsandbits.client.screens.widgets;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import mod.chiselsandbits.api.client.screen.widget.AbstractChiselsAndBitsWidget;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
@@ -26,8 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.platform.Lighting;
-
-public class MultiStateSnapshotWidget extends AbstractWidget
+public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
 {
 
     private static double GUISCALE;
@@ -146,11 +146,5 @@ public class MultiStateSnapshotWidget extends AbstractWidget
 
     protected void scissorEnd() {
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
-    }
-
-    @Override
-    public void updateNarration(final NarrationElementOutput p_169152_)
-    {
-
     }
 }

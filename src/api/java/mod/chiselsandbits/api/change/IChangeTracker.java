@@ -43,4 +43,9 @@ public interface IChangeTracker extends IChange
      * @return The changes last performed and recorded by this tracker.
      */
     Deque<IChange> getChanges();
+
+    /**
+     * Clears the tracker from all currently stored changes.
+     */
+    void clear();
 }
