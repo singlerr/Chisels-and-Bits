@@ -24,6 +24,8 @@ import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
+import net.minecraft.block.Block;
+import net.minecraft.tags.ITag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -228,6 +230,20 @@ public interface IChiselsAndBitsAPI
     @OnlyIn(Dist.CLIENT)
     @NotNull
     ISelectedToolModeIconRendererRegistry getSelectedToolModeIconRenderer();
+
+    /**
+     * Returns the tag used in the eligibility system to force compatibility.
+     * @return The forced compatibility tag.
+     */
+    @NotNull
+    ITag.INamedTag<Block> getForcedTag();
+
+    /**
+     * Returns the tag used in the eligibility system to block compatibility.
+     * @return The blocked compatibility tag.
+     */
+    @NotNull
+    ITag.INamedTag<Block> getBlockedTag();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

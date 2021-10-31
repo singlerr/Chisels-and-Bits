@@ -184,7 +184,19 @@ public enum LocalStrings
     CanNotUndo("change-tracking.undo.failed"),
     UndoSuccessful("change-tracking.undo.success"),
     CanNotRedo("change-tracking.redo.failed"),
-    RedoSuccessful("change-tracking.redo.success");
+    RedoSuccessful("change-tracking.redo.success"),
+
+    ToolMenuPageSelectorName("ui-components.tool-menu.page-selector.name"),
+    ToolMenuPreviousPageName("ui-components.tool-menu.page-selector.previous.name"),
+    ToolMenuNextPageName("ui-components.tool-menu.page-selector.next.name"),
+    ToolMenuGroupSelectorName("ui-components.tool-menu.group-selector.name"),
+    ToolMenuModeSelectorName("ui-components.tool-menu.mode-selector.name"),
+    ToolMenuSelectorName("ui-components.tool-menu.selector.name"),
+    ToolMenuScreenName("ui-screens.tool-menu.name"),
+    ChangeTrackerOperations("ui-components.change-tracker.operations.name"),
+    ChangeTrackerOperationsButtonUndoName("ui-components.change-tracker.operations.undo.name"),
+    ChangeTrackerOperationsButtonRedoName("ui-components.change-tracker.operations.redo.name"),
+    ChangeTrackerOperationsButtonClearName("ui-components.change-tracker.operations.clear.name");
 
     private final String string;
 

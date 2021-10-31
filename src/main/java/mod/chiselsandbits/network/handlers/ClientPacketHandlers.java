@@ -3,7 +3,9 @@ package mod.chiselsandbits.network.handlers;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
+import mod.chiselsandbits.api.client.screen.AbstractChiselsAndBitsScreen;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
+import mod.chiselsandbits.client.screens.widgets.ChangeTrackerOperationsWidget;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -69,6 +71,14 @@ public final class ClientPacketHandlers
 
     public static void handleChangeTrackerUpdated(final CompoundNBT tag) {
         IChangeTrackerManager.getInstance().getChangeTracker(Minecraft.getInstance().player).deserializeNBT(tag);
+        if(Minecraft.getInstance().screen instanceof AbstractChiselsAndBitsScreen)
+        {
+            ((AbstractChiselsAndBitsScreen) Minecraft.getInstance().screen).getWidgets()
+              .stream()
+              .filter(ChangeTrackerOperationsWidget.class::isInstance)
+              .map(ChangeTrackerOperationsWidget.class::cast)
+              .forEach(ChangeTrackerOperationsWidget::updateState);
+        }
     }
 
     public static void handleNeighborUpdated(final BlockPos toUpdate, final BlockPos from) {

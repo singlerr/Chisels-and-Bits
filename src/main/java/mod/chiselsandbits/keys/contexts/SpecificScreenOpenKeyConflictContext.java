@@ -1,6 +1,6 @@
 package mod.chiselsandbits.keys.contexts;
 
-import mod.chiselsandbits.client.screens.RadialToolModeSelectionScreen;
+import mod.chiselsandbits.client.screens.ToolModeSelectionScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.settings.KeyBinding;
@@ -9,7 +9,7 @@ import net.minecraftforge.client.settings.IKeyConflictContext;
 public enum SpecificScreenOpenKeyConflictContext implements IKeyConflictContext
 {
 
-    RADIAL_TOOL_MENU(RadialToolModeSelectionScreen.class);
+    RADIAL_TOOL_MENU(ToolModeSelectionScreen.class);
 
     private final Class<? extends Screen> guiScreenClass;
 

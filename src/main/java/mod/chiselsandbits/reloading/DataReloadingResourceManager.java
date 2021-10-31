@@ -7,8 +7,10 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.change.ChangeTrackerManger;
 import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
+import net.minecraft.profiler.IProfiler;
+import net.minecraft.resources.IFutureReloadListener;
 import net.minecraft.resources.IResourceManager;
-import net.minecraft.resources.IResourceManagerReloadListener;
+import net.minecraft.util.Unit;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -17,9 +19,11 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class DataReloadingResourceManager implements IResourceManagerReloadListener
+public class DataReloadingResourceManager implements IFutureReloadListener
 {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final DataReloadingResourceManager INSTANCE = new DataReloadingResourceManager();
@@ -47,8 +51,7 @@ public class DataReloadingResourceManager implements IResourceManagerReloadListe
         return this;
     }
 
-    @Override
-    public void onResourceManagerReload(final @NotNull IResourceManager manager)
+    public void onResourceManagerReload()
     {
         LOGGER.info("Resetting common caches");
         this.cacheClearingHandlers.forEach(ICacheClearingHandler::clear);
@@ -61,5 +64,23 @@ public class DataReloadingResourceManager implements IResourceManagerReloadListe
           .registerCacheClearer(VoxelShapeManager.getInstance()::clearCache)
           .registerCacheClearer(LocalChiselingContextCache.getInstance()::clearCache)
           .registerCacheClearer(ChangeTrackerManger.getInstance()::clearCache);
+    }
+
+    @Override
+    public @NotNull CompletableFuture<Void> reload(
+      final IStage stage,
+      final @NotNull IResourceManager manager,
+      final @NotNull IProfiler preparationProfiler,
+      final @NotNull IProfiler reloadProfiler,
+      final @NotNull Executor backgroundExecutor,
+      final @NotNull Executor gameExecutor)
+    {
+        return stage.wait(Unit.INSTANCE).thenRunAsync(() -> {
+            reloadProfiler.startTick();
+            reloadProfiler.push("C&B Data reload");
+            this.onResourceManagerReload();
+            reloadProfiler.pop();
+            reloadProfiler.endTick();
+        }, gameExecutor);
     }
 }

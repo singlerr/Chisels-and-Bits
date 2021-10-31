@@ -48,6 +48,9 @@ public interface IWithModeItem<M extends IToolMode<?>>
      * @param modeIndex The modes index to set on the stack.
      */
     default void setMode(final ItemStack stack, final int modeIndex) {
+        if (modeIndex == -1)
+            return;
+
         final List<M> modes = Lists.newArrayList(getPossibleModes());
         setMode(stack, modes.get(modeIndex));
     }

@@ -61,6 +61,7 @@ public class NetworkChannel
         registerMessage(index++, NeighborBlockUpdatedPacket.class, NeighborBlockUpdatedPacket::new);
         registerMessage(index++, ChangeTrackerUpdatedPacket.class, ChangeTrackerUpdatedPacket::new);
         registerMessage(index++, RequestChangeTrackerOperation.class, RequestChangeTrackerOperation::new);
+        registerMessage(index++, ClearChangeTrackerPacket.class, ClearChangeTrackerPacket::new);
     }
 
     /**

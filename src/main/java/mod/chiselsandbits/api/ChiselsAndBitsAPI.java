@@ -40,8 +40,11 @@ import mod.chiselsandbits.plugin.PluginManger;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModChiselModes;
 import mod.chiselsandbits.registrars.ModModificationOperation;
+import mod.chiselsandbits.registrars.ModTags;
 import mod.chiselsandbits.registries.RegistryManager;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
+import net.minecraft.block.Block;
+import net.minecraft.tags.ITag;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
@@ -247,5 +250,17 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull ISelectedToolModeIconRendererRegistry getSelectedToolModeIconRenderer()
     {
         return SelectedToolModeRendererRegistry.getInstance();
+    }
+
+    @Override
+    public @NotNull ITag.INamedTag<Block> getForcedTag()
+    {
+        return ModTags.Blocks.FORCED_CHISELABLE;
+    }
+
+    @Override
+    public @NotNull ITag.INamedTag<Block> getBlockedTag()
+    {
+        return ModTags.Blocks.BLOCKED_CHISELABLE;
     }
 }

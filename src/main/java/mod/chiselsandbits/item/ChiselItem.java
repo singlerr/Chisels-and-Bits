@@ -120,6 +120,9 @@ public class ChiselItem extends ToolItem implements IChiselItem
     @Override
     public void setMode(final ItemStack stack, final IChiselMode mode)
     {
+        if (mode == null)
+            return;
+
         stack.getOrCreateTag().putString(NbtConstants.CHISEL_MODE, Objects.requireNonNull(mode.getRegistryName()).toString());
     }
 

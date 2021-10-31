@@ -56,7 +56,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
     protected void init()
     {
         super.init();
-        trashBtn = addButton(new GuiIconButton(leftPos - 18, topPos, IconManager.getInstance().getTrashIcon(), p_onPress_1_ -> {
+        trashBtn = addButton(new GuiIconButton(leftPos - 20, topPos, IconManager.getInstance().getTrashIcon(), p_onPress_1_ -> {
             if (requireConfirm)
             {
                 dontThrow = true;
@@ -87,7 +87,7 @@ public class BitBagScreen extends ContainerScreen<BagContainer>
             }
         }));
 
-        addButton(new GuiIconButton(leftPos - 18, topPos + 18, IconManager.getInstance().getSortIcon(),
+        addButton(new GuiIconButton(leftPos - 20, topPos + 22, IconManager.getInstance().getSortIcon(),
           p_onPress_1_ -> ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new SortBagGuiPacket()),
           (p_onTooltip_1_, p_onTooltip_2_, p_onTooltip_3_, p_onTooltip_4_) -> {
               final List<ITextComponent> text = Collections.singletonList(LocalStrings.Sort.getText());
