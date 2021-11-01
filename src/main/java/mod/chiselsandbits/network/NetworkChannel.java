@@ -5,10 +5,13 @@ import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.fml.LogicalSide;
+import net.minecraftforge.fmllegacy.LogicalSidedProvider;
 import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import net.minecraftforge.fmllegacy.network.NetworkRegistry;
 import net.minecraftforge.fmllegacy.network.PacketDistributor;
@@ -151,7 +154,8 @@ public class NetworkChannel
      */
     public void sendToEveryone(final ModPacket msg)
     {
-        rawChannel.send(PacketDistributor.ALL.noArg(), msg);
+        final MinecraftServer server = LogicalSidedProvider.INSTANCE.get(LogicalSide.SERVER);
+        server.getPlayerList().getPlayers().forEach(player -> sendToPlayer(msg, player));
     }
 
     /**
@@ -196,6 +200,6 @@ public class NetworkChannel
      */
     public void sendToTrackingChunk(final ModPacket msg, final LevelChunk chunk)
     {
-        rawChannel.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), msg);
+        ((ServerChunkCache)chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(serverPlayer -> sendToPlayer(msg, serverPlayer));
     }
 }
