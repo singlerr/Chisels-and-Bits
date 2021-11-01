@@ -7,10 +7,9 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.network.packets.HeldToolModeChangedPacket;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -29,10 +28,9 @@ public class ScrollEventHandler
         if (stack.isEmpty())
             return;
 
-        if (!(stack.getItem() instanceof IWithModeItem))
+        if (!(stack.getItem() instanceof final IWithModeItem<?> toolModeItem))
             return;
 
-        final IWithModeItem<?> toolModeItem = (IWithModeItem<?>) stack.getItem();
         final List<?> modes = Lists.newArrayList(toolModeItem.getPossibleModes());
         int workingIndex = modes.indexOf(toolModeItem.getMode(stack));
 

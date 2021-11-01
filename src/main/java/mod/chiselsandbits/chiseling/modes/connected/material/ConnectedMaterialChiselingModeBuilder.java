@@ -1,14 +1,14 @@
 package mod.chiselsandbits.chiseling.modes.connected.material;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.IFormattableTextComponent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 public class ConnectedMaterialChiselingModeBuilder
 {
     private int                       depth;
-    private IFormattableTextComponent displayName;
-    private IFormattableTextComponent multiLineDisplayName;
-    private ResourceLocation          iconName;
+    private MutableComponent          displayName;
+    private MutableComponent multiLineDisplayName;
+    private ResourceLocation iconName;
 
     public ConnectedMaterialChiselingModeBuilder setDepth(final int depth)
     {
@@ -16,13 +16,13 @@ public class ConnectedMaterialChiselingModeBuilder
         return this;
     }
 
-    public ConnectedMaterialChiselingModeBuilder setDisplayName(final IFormattableTextComponent displayName)
+    public ConnectedMaterialChiselingModeBuilder setDisplayName(final MutableComponent displayName)
     {
         this.displayName = displayName;
         return this;
     }
 
-    public ConnectedMaterialChiselingModeBuilder setMultiLineDisplayName(final IFormattableTextComponent multiLineDisplayName)
+    public ConnectedMaterialChiselingModeBuilder setMultiLineDisplayName(final MutableComponent multiLineDisplayName)
     {
         this.multiLineDisplayName = multiLineDisplayName;
         return this;

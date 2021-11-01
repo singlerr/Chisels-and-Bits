@@ -17,22 +17,21 @@ import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.IQuadFunction;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
-import mod.chiselsandbits.chiseling.modes.connected.plane.ConnectedPlaneChiselingMode;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3i;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
@@ -42,19 +41,17 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
-import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.ONE_THOUSANDS;
-
 public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
 {
     private final int                       depth;
-    private final     IFormattableTextComponent displayName;
-    private final     IFormattableTextComponent multiLineDisplayName;
-    private final     ResourceLocation          iconName;
+    private final MutableComponent          displayName;
+    private final MutableComponent multiLineDisplayName;
+    private final ResourceLocation iconName;
 
     public ConnectedMaterialChiselingMode(
       final int depth,
-      final IFormattableTextComponent displayName,
-      final IFormattableTextComponent multiLineDisplayName,
+      final MutableComponent displayName,
+      final MutableComponent multiLineDisplayName,
       final ResourceLocation iconName) {
         this.depth = depth;
         this.displayName = displayName;
@@ -64,19 +61,19 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
 
     @Override
     public ClickProcessingState onLeftClickBy(
-      final PlayerEntity playerEntity, final IChiselingContext context)
+      final Player Player, final IChiselingContext context)
     {
         final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
-          playerEntity,
+          Player,
           context,
           Direction::getOpposite,
-          face -> Vector3d.atLowerCornerOf(face.getOpposite().getNormal()),
+          face -> Vec3.atLowerCornerOf(face.getOpposite().getNormal()),
           IQuadFunction.fourthIdentity(),
           position -> IMutatorFactory.getInstance().in(
             context.getWorld(),
             new BlockPos(position)
           ),
-          direction -> Vector3i.ZERO
+          direction -> Vec3i.ZERO
         );
 
         if (context.isSimulation())
@@ -86,7 +83,7 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
               try (IBatchMutation ignored =
-                     mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
+                     mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(Player)))
               {
                   context.setComplete();
 
@@ -110,7 +107,7 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
                     });
 
                   resultingBitCount.forEach((blockState, count) -> BitInventoryUtils.insertIntoOrSpawn(
-                    playerEntity,
+                    Player,
                     blockState,
                     count
                   ));
@@ -122,44 +119,44 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
     }
 
     @Override
-    public void onStoppedLeftClicking(final PlayerEntity playerEntity, final IChiselingContext context)
+    public void onStoppedLeftClicking(final Player Player, final IChiselingContext context)
     {
         //NOOP
     }
 
     @Override
-    public ClickProcessingState onRightClickBy(final PlayerEntity playerEntity, final IChiselingContext context)
+    public ClickProcessingState onRightClickBy(final Player Player, final IChiselingContext context)
     {
         final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
-          playerEntity,
+          Player,
           context,
           UnaryOperator.identity(),
-          face -> Vector3d.atLowerCornerOf(face.getNormal()),
+          face -> Vec3.atLowerCornerOf(face.getNormal()),
           (hitPos, inBlockTargetedPosition, hitFace, candidatePosition) -> {
               if (inBlockTargetedPosition.equals(candidatePosition)) {
-                  return Vector3d.atLowerCornerOf(hitPos)
+                  return Vec3.atLowerCornerOf(hitPos)
                     .add(inBlockTargetedPosition)
-                    .add(Vector3d.atLowerCornerOf(
+                    .add(Vec3.atLowerCornerOf(
                           hitFace.getOpposite().getNormal()
                         )
                         .multiply(StateEntrySize.current().getSizePerBitScalingVector())
                     );
               }
 
-              final Vector3d relevantAxisCandidate = candidatePosition.multiply(
+              final Vec3 relevantAxisCandidate = candidatePosition.multiply(
                 Math.abs(hitFace.getNormal().getX()),
                 Math.abs(hitFace.getNormal().getY()),
                 Math.abs(hitFace.getNormal().getZ())
               );
-              final Vector3d noneRelevantAxisCandidates = candidatePosition.subtract(relevantAxisCandidate);
-              final Vector3d relevantAxisTarget = inBlockTargetedPosition.multiply(
+              final Vec3 noneRelevantAxisCandidates = candidatePosition.subtract(relevantAxisCandidate);
+              final Vec3 relevantAxisTarget = inBlockTargetedPosition.multiply(
                 Math.abs(hitFace.getNormal().getX()),
                 Math.abs(hitFace.getNormal().getY()),
                 Math.abs(hitFace.getNormal().getZ())
               );
 
-              final Vector3d offset = candidatePosition.subtract(inBlockTargetedPosition);
-              final Vector3d relevantAxisOffset = offset.multiply(
+              final Vec3 offset = candidatePosition.subtract(inBlockTargetedPosition);
+              final Vec3 relevantAxisOffset = offset.multiply(
                 Math.abs(hitFace.getNormal().getX()),
                 Math.abs(hitFace.getNormal().getY()),
                 Math.abs(hitFace.getNormal().getZ())
@@ -167,7 +164,7 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
 
               return noneRelevantAxisCandidates.add(relevantAxisTarget).subtract(relevantAxisOffset)
                 .add(hitPos.getX(), hitPos.getY(), hitPos.getZ())
-                .add(Vector3d.atLowerCornerOf(
+                .add(Vec3.atLowerCornerOf(
                       hitFace.getOpposite().getNormal()
                     )
                     .multiply(StateEntrySize.current().getSizePerBitScalingVector())
@@ -178,7 +175,7 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
             new BlockPos(position.subtract(1, 1, 1)),
             new BlockPos(position.add(1, 1, 1))
           ),
-          direction -> new Vector3i(
+          direction -> new Vec3i(
             direction.getNormal().getX() * depth,
             direction.getNormal().getY() * depth,
             direction.getNormal().getZ() * depth
@@ -191,8 +188,8 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
         }
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
-              final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
-              if (heldBlockState.isAir(new SingleBlockBlockReader(heldBlockState), BlockPos.ZERO))
+              final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(Player);
+              if (heldBlockState.isAir())
               {
                   return ClickProcessingState.DEFAULT;
               }
@@ -202,24 +199,24 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
                 .orElse((state) -> true);
 
               final int missingBitCount = (int) mutator.stream()
-                .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO) && filter.test(state))
+                .filter(state -> state.getState().isAir() && filter.test(state))
                 .count();
 
-              final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
+              final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(Player);
 
               context.setComplete();
-              if (playerBitInventory.canExtract(heldBlockState, missingBitCount) || playerEntity.isCreative())
+              if (playerBitInventory.canExtract(heldBlockState, missingBitCount) || Player.isCreative())
               {
-                  if (!playerEntity.isCreative())
+                  if (!Player.isCreative())
                   {
                       playerBitInventory.extract(heldBlockState, missingBitCount);
                   }
 
                   try (IBatchMutation ignored =
-                         mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
+                         mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(Player)))
                   {
                       mutator.inWorldMutableStream()
-                        .filter(state -> state.getState().isAir(new SingleBlockBlockReader(state.getState()), BlockPos.ZERO) && filter.test(state))
+                        .filter(state -> state.getState().isAir() && filter.test(state))
                         .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                   }
               }
@@ -230,44 +227,44 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
     }
 
     @Override
-    public void onStoppedRightClicking(final PlayerEntity playerEntity, final IChiselingContext context)
+    public void onStoppedRightClicking(final Player Player, final IChiselingContext context)
     {
         //NOOP
     }
 
     @Override
-    public boolean isStillValid(final PlayerEntity playerEntity, final IChiselingContext context, final ChiselingOperation modeOfOperation)
+    public boolean isStillValid(final Player Player, final IChiselingContext context, final ChiselingOperation modeOfOperation)
     {
-        final Optional<Set<Vector3i>> validPositions = context.getMetadata(ModMetadataKeys.VALID_POSITIONS.get());
+        final Optional<Set<Vec3i>> validPositions = context.getMetadata(ModMetadataKeys.VALID_POSITIONS.get());
         final Optional<Direction> targetedSide = context.getMetadata(ModMetadataKeys.TARGETED_SIDE.get());
         final Optional<BlockPos> targetedBlockPos = context.getMetadata(ModMetadataKeys.TARGETED_BLOCK.get());
 
         if (!validPositions.isPresent() || !targetedSide.isPresent() || !targetedBlockPos.isPresent())
             return false;
 
-        final RayTraceResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
-        if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK || !(rayTraceResult instanceof BlockRayTraceResult))
+        final HitResult hitResult = RayTracingUtils.rayTracePlayer(Player);
+        if (hitResult.getType() != HitResult.Type.BLOCK || !(hitResult instanceof BlockHitResult))
         {
             return false;
         }
 
-        final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        if (blockRayTraceResult.getDirection() != targetedSide.get())
+        final BlockHitResult blockHitResult = (BlockHitResult) hitResult;
+        if (blockHitResult.getDirection() != targetedSide.get())
             return false;
 
-        final Function<Direction, Vector3d> placementFacingAdapter = modeOfOperation == ChiselingOperation.CHISELING ?
-                                                                       face -> Vector3d.atLowerCornerOf(face.getOpposite().getNormal()) :
-                                                                                                                                          face -> Vector3d.atLowerCornerOf(face.getNormal());
+        final Function<Direction, Vec3> placementFacingAdapter = modeOfOperation == ChiselingOperation.CHISELING ?
+                                                                       face -> Vec3.atLowerCornerOf(face.getOpposite().getNormal()) :
+                                                                                                                                          face -> Vec3.atLowerCornerOf(face.getNormal());
 
-        final Vector3d hitVector = blockRayTraceResult.getLocation().add(
-          placementFacingAdapter.apply(blockRayTraceResult.getDirection())
+        final Vec3 hitVector = blockHitResult.getLocation().add(
+          placementFacingAdapter.apply(blockHitResult.getDirection())
             .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
         final BlockPos hitPos = new BlockPos(hitVector);
-        final Vector3d hitBlockPosVector = Vector3d.atLowerCornerOf(hitPos);
-        final Vector3d inBlockHitVector = hitVector.subtract(hitBlockPosVector);
-        final Vector3i selectedPosition = new Vector3i(
+        final Vec3 hitBlockPosVector = Vec3.atLowerCornerOf(hitPos);
+        final Vec3 inBlockHitVector = hitVector.subtract(hitBlockPosVector);
+        final Vec3i selectedPosition = new Vec3i(
           inBlockHitVector.x() * StateEntrySize.current().getBitsPerBlockSide(),
           inBlockHitVector.y() * StateEntrySize.current().getBitsPerBlockSide(),
           inBlockHitVector.z() * StateEntrySize.current().getBitsPerBlockSide()
@@ -283,80 +280,80 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
     }
 
     private Optional<ClickProcessingState> processRayTraceIntoContext(
-      final PlayerEntity playerEntity,
+      final Player Player,
       final IChiselingContext context,
       final UnaryOperator<Direction> searchDirectionAdapter,
-      final Function<Direction, Vector3d> placementFacingAdapter,
-      final IQuadFunction<BlockPos, Vector3d, Direction, Vector3d, Vector3d> stateExtractionAdapter,
-      final Function<Vector3d, IAreaAccessor> areaAccessorBuilder,
-      final Function<Direction, Vector3i> filterOffsetProducer
+      final Function<Direction, Vec3> placementFacingAdapter,
+      final IQuadFunction<BlockPos, Vec3, Direction, Vec3, Vec3> stateExtractionAdapter,
+      final Function<Vec3, IAreaAccessor> areaAccessorBuilder,
+      final Function<Direction, Vec3i> filterOffsetProducer
     )
     {
-        final RayTraceResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
-        if (rayTraceResult.getType() != RayTraceResult.Type.BLOCK || !(rayTraceResult instanceof BlockRayTraceResult))
+        final HitResult hitResult = RayTracingUtils.rayTracePlayer(Player);
+        if (hitResult.getType() != HitResult.Type.BLOCK || !(hitResult instanceof BlockHitResult))
         {
             return Optional.of(ClickProcessingState.DEFAULT);
         }
 
-        final BlockRayTraceResult blockRayTraceResult = (BlockRayTraceResult) rayTraceResult;
-        final Vector3d hitVector = blockRayTraceResult.getLocation().add(
-          placementFacingAdapter.apply(blockRayTraceResult.getDirection())
+        final BlockHitResult blockHitResult = (BlockHitResult) hitResult;
+        final Vec3 hitVector = blockHitResult.getLocation().add(
+          placementFacingAdapter.apply(blockHitResult.getDirection())
             .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
         );
 
         final BlockPos hitPos = new BlockPos(hitVector);
-        final Vector3d hitBlockPosVector = Vector3d.atLowerCornerOf(hitPos);
-        final Vector3d inBlockHitVector = hitVector.subtract(hitBlockPosVector);
+        final Vec3 hitBlockPosVector = Vec3.atLowerCornerOf(hitPos);
+        final Vec3 inBlockHitVector = hitVector.subtract(hitBlockPosVector);
 
-        final Deque<Vector3i> toProcess = new LinkedList<>();
+        final Deque<Vec3i> toProcess = new LinkedList<>();
         final IAreaAccessor worldAccessor = areaAccessorBuilder.apply(hitVector);
 
-        final Set<Vector3i> processed = new HashSet<>();
-        final Set<Vector3i> validPositions = new HashSet<>();
+        final Set<Vec3i> processed = new HashSet<>();
+        final Set<Vec3i> validPositions = new HashSet<>();
 
-        final Set<Vector3i> offsets = new HashSet<>();
-        offsets.add(searchDirectionAdapter.apply(blockRayTraceResult.getDirection()).getNormal());
+        final Set<Vec3i> offsets = new HashSet<>();
+        offsets.add(searchDirectionAdapter.apply(blockHitResult.getDirection()).getNormal());
         Arrays.stream(Direction.values())
-          .filter(direction -> direction.getAxis() != blockRayTraceResult.getDirection().getAxis())
+          .filter(direction -> direction.getAxis() != blockHitResult.getDirection().getAxis())
           .map(Direction::getNormal)
           .forEach(offsets::add);
 
-        final Vector3i selectedPosition = new Vector3i(
+        final Vec3i selectedPosition = new Vec3i(
           inBlockHitVector.x() * StateEntrySize.current().getBitsPerBlockSide(),
           inBlockHitVector.y() * StateEntrySize.current().getBitsPerBlockSide(),
           inBlockHitVector.z() * StateEntrySize.current().getBitsPerBlockSide()
         );
         toProcess.addLast(selectedPosition);
 
-        final Vector3i relevantSelectedAxisVector =
-          new Vector3i(
-            selectedPosition.getX() * Math.abs(blockRayTraceResult.getDirection().getNormal().getX()),
-            selectedPosition.getY() * Math.abs(blockRayTraceResult.getDirection().getNormal().getY()),
-            selectedPosition.getZ() * Math.abs(blockRayTraceResult.getDirection().getNormal().getZ())
+        final Vec3i relevantSelectedAxisVector =
+          new Vec3i(
+            selectedPosition.getX() * Math.abs(blockHitResult.getDirection().getNormal().getX()),
+            selectedPosition.getY() * Math.abs(blockHitResult.getDirection().getNormal().getY()),
+            selectedPosition.getZ() * Math.abs(blockHitResult.getDirection().getNormal().getZ())
           );
 
-        final Vector3d selectedInBlockPosition = Vector3d.atLowerCornerOf(
+        final Vec3 selectedInBlockPosition = Vec3.atLowerCornerOf(
           selectedPosition
         ).multiply(
           StateEntrySize.current().getSizePerBitScalingVector()
         );
 
         final Optional<IStateEntryInfo> targetedInfo = worldAccessor.getInAreaTarget(
-          stateExtractionAdapter.apply(hitPos, selectedInBlockPosition, blockRayTraceResult.getDirection(), selectedInBlockPosition)
+          stateExtractionAdapter.apply(hitPos, selectedInBlockPosition, blockHitResult.getDirection(), selectedInBlockPosition)
         );
 
         if (!targetedInfo.isPresent())
             return Optional.of(ClickProcessingState.DEFAULT);
 
         while(!toProcess.isEmpty()) {
-            final Vector3i targetedPosition = toProcess.removeFirst();
-            final Vector3d targetedInBlockPosition = Vector3d.atLowerCornerOf(
+            final Vec3i targetedPosition = toProcess.removeFirst();
+            final Vec3 targetedInBlockPosition = Vec3.atLowerCornerOf(
               targetedPosition
             ).multiply(
               StateEntrySize.current().getSizePerBitScalingVector()
             );
             final Optional<IStateEntryInfo> targetCandidate = worldAccessor.getInAreaTarget(
-              stateExtractionAdapter.apply(hitPos, selectedInBlockPosition, blockRayTraceResult.getDirection(), targetedInBlockPosition)
+              stateExtractionAdapter.apply(hitPos, selectedInBlockPosition, blockHitResult.getDirection(), targetedInBlockPosition)
             );
 
             processed.add(targetedPosition);
@@ -374,7 +371,7 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
                 }
 
                 offsets.forEach(offset -> {
-                    final Vector3i newTarget = new Vector3i(
+                    final Vec3i newTarget = new Vec3i(
                       targetedPosition.getX() + offset.getX(),
                       targetedPosition.getY() + offset.getY(),
                       targetedPosition.getZ() + offset.getZ()
@@ -383,16 +380,16 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
                           newTarget.getY() >= 0 && newTarget.getY() < StateEntrySize.current().getBitsPerBlockSide() &&
                           newTarget.getZ() >= 0 && newTarget.getZ() < StateEntrySize.current().getBitsPerBlockSide()) {
 
-                        final Vector3i relevantNewTargetAxisVector =
-                          new Vector3i(
-                            newTarget.getX() * Math.abs(blockRayTraceResult.getDirection().getNormal().getX()),
-                            newTarget.getY() * Math.abs(blockRayTraceResult.getDirection().getNormal().getY()),
-                            newTarget.getZ() * Math.abs(blockRayTraceResult.getDirection().getNormal().getZ())
+                        final Vec3i relevantNewTargetAxisVector =
+                          new Vec3i(
+                            newTarget.getX() * Math.abs(blockHitResult.getDirection().getNormal().getX()),
+                            newTarget.getY() * Math.abs(blockHitResult.getDirection().getNormal().getY()),
+                            newTarget.getZ() * Math.abs(blockHitResult.getDirection().getNormal().getZ())
                           );
 
                         final int targetedDepth = Math.abs(
-                          relevantSelectedAxisVector.get(blockRayTraceResult.getDirection().getAxis()) -
-                            relevantNewTargetAxisVector.get(blockRayTraceResult.getDirection().getAxis())
+                          relevantSelectedAxisVector.get(blockHitResult.getDirection().getAxis()) -
+                            relevantNewTargetAxisVector.get(blockHitResult.getDirection().getAxis())
                         );
 
                         if (targetedDepth <= depth - 1) {
@@ -408,12 +405,12 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
             }
         }
 
-        context.include(hitPos, Vector3d.ZERO);
-        context.include(hitPos, new Vector3d(0.9999, 0.9999, 0.9999));
-        context.setStateFilter(accessor -> new SelectedBitStateFilter(filterOffsetProducer.apply(blockRayTraceResult.getDirection()), validPositions));
+        context.include(hitPos, Vec3.ZERO);
+        context.include(hitPos, new Vec3(0.9999, 0.9999, 0.9999));
+        context.setStateFilter(accessor -> new SelectedBitStateFilter(filterOffsetProducer.apply(blockHitResult.getDirection()), validPositions));
 
         context.setMetadata(ModMetadataKeys.VALID_POSITIONS.get(), validPositions);
-        context.setMetadata(ModMetadataKeys.TARGETED_SIDE.get(), blockRayTraceResult.getDirection());
+        context.setMetadata(ModMetadataKeys.TARGETED_SIDE.get(), blockHitResult.getDirection());
         context.setMetadata(ModMetadataKeys.TARGETED_BLOCK.get(), hitPos);
 
         return Optional.empty();
@@ -432,23 +429,23 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
     }
 
     @Override
-    public ITextComponent getDisplayName()
+    public Component getDisplayName()
     {
         return displayName;
     }
 
     @Override
-    public ITextComponent getMultiLineDisplayName()
+    public Component getMultiLineDisplayName()
     {
         return multiLineDisplayName;
     }
 
     private static final class SelectedBitStateFilter implements Predicate<IStateEntryInfo> {
 
-        private final Vector3i offset;
-        private final Set<Vector3i> validPositions;
+        private final Vec3i offset;
+        private final Set<Vec3i> validPositions;
 
-        public SelectedBitStateFilter(final Vector3i offset, final Set<Vector3i> validPositions)
+        public SelectedBitStateFilter(final Vec3i offset, final Set<Vec3i> validPositions)
         {
             this.offset = offset;
             this.validPositions = validPositions;
@@ -457,7 +454,7 @@ public class ConnectedMaterialChiselingMode extends ForgeRegistryEntry<IChiselMo
         @Override
         public boolean test(final IStateEntryInfo iStateEntryInfo)
         {
-            final Vector3i position = new Vector3i(
+            final Vec3i position = new Vec3i(
               iStateEntryInfo.getStartPoint().x() * StateEntrySize.current().getBitsPerBlockSide(),
               iStateEntryInfo.getStartPoint().y() * StateEntrySize.current().getBitsPerBlockSide(),
               iStateEntryInfo.getStartPoint().z() * StateEntrySize.current().getBitsPerBlockSide()
