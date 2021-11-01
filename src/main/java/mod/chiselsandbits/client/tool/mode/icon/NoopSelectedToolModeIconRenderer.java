@@ -1,16 +1,10 @@
 package mod.chiselsandbits.client.tool.mode.icon;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRenderer;
-import mod.chiselsandbits.api.item.withmode.IRenderableMode;
-import mod.chiselsandbits.api.item.withmode.IToolMode;
-import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.constants.Constants;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 public class NoopSelectedToolModeIconRenderer implements ISelectedToolModeIconRenderer
 {
@@ -23,7 +17,7 @@ public class NoopSelectedToolModeIconRenderer implements ISelectedToolModeIconRe
     }
 
     @Override
-    public void render(final MatrixStack matrixStack, final ItemStack stack)
+    public void render(final PoseStack matrixStack, final ItemStack stack)
     {
         //Noop
     }

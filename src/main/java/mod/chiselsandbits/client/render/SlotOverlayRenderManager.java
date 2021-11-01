@@ -1,8 +1,8 @@
 package mod.chiselsandbits.client.render;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.client.tool.mode.icon.SelectedToolModeRendererRegistry;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 public class SlotOverlayRenderManager
 {
@@ -17,7 +17,7 @@ public class SlotOverlayRenderManager
     {
     }
 
-    public void renderSlot(final int xOffset, final int yOffSet, final MatrixStack matrixStack, final ItemStack stack)
+    public void renderSlot(final int xOffset, final int yOffSet, final PoseStack matrixStack, final ItemStack stack)
     {
         matrixStack.pushPose();
         matrixStack.translate(xOffset, yOffSet, 0);

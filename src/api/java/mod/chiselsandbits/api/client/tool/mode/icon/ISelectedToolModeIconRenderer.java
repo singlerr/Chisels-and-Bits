@@ -1,8 +1,8 @@
 package mod.chiselsandbits.api.client.tool.mode.icon;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Used to render the icons on the hot bar for the selected tool mode.
@@ -24,5 +24,5 @@ public interface ISelectedToolModeIconRenderer
      * @param matrixStack The matrix stack.
      * @param stack The stack.
      */
-    void render(MatrixStack matrixStack, ItemStack stack);
+    void render(PoseStack matrixStack, ItemStack stack);
 }

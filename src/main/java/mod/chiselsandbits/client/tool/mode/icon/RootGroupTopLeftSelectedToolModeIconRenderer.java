@@ -1,16 +1,16 @@
 package mod.chiselsandbits.client.tool.mode.icon;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRenderer;
 import mod.chiselsandbits.api.item.withmode.IRenderableMode;
 import mod.chiselsandbits.api.item.withmode.IToolMode;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.constants.Constants;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 
 public class RootGroupTopLeftSelectedToolModeIconRenderer implements ISelectedToolModeIconRenderer
 {
@@ -23,12 +23,11 @@ public class RootGroupTopLeftSelectedToolModeIconRenderer implements ISelectedTo
     }
 
     @Override
-    public void render(final MatrixStack matrixStack, final ItemStack stack)
+    public void render(final PoseStack matrixStack, final ItemStack stack)
     {
-        if (!(stack.getItem() instanceof IWithModeItem))
+        if (!(stack.getItem() instanceof final IWithModeItem<?> modeItem))
             return;
 
-        final IWithModeItem<?> modeItem = (IWithModeItem<?>) stack.getItem();
         final IToolMode<?> mode = modeItem.getMode(stack);
         final IRenderableMode renderableMode = getRootRenderableMode(mode);
 
@@ -37,14 +36,15 @@ public class RootGroupTopLeftSelectedToolModeIconRenderer implements ISelectedTo
         matrixStack.scale(1/3f, 1/3f, 1);
         matrixStack.pushPose();
 
-        RenderSystem.color4f(
+        RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+        RenderSystem.setShaderColor(
           (float) renderableMode.getColorVector().x(),
           (float) renderableMode.getColorVector().y(),
           (float) renderableMode.getColorVector().z(),
           1
         );
-        Minecraft.getInstance().getTextureManager().bind(renderableMode.getIcon());
-        AbstractGui.blit(matrixStack, 0, 0, 16,16, 0, 0, 18, 18, 18, 18);
+        RenderSystem.setShaderTexture(0, mode.getIcon());
+        GuiComponent.blit(matrixStack, 0, 0, 16,16, 0, 0, 18, 18, 18, 18);
 
         matrixStack.popPose();
         matrixStack.popPose();

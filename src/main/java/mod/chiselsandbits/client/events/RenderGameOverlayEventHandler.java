@@ -4,8 +4,8 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.render.SlotOverlayRenderManager;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.client.gui.ForgeIngameGui;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -14,8 +14,8 @@ public class RenderGameOverlayEventHandler
 {
 
     @SubscribeEvent
-    public static void onPostRenderHotBar(final RenderGameOverlayEvent.Post event) {
-        if (event.getType()  != RenderGameOverlayEvent.ElementType.HOTBAR)
+    public static void onPostRenderHotBar(final RenderGameOverlayEvent.PostLayer event) {
+        if (event.getOverlay() != ForgeIngameGui.HOTBAR_ELEMENT)
             return;
 
         int centerOfScreen = Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2;
@@ -24,7 +24,7 @@ public class RenderGameOverlayEventHandler
             int xOffset = centerOfScreen - 90 + slotIndex * 20 + 2;
             int yOffSet = Minecraft.getInstance().getWindow().getGuiScaledHeight() - 16 - 3;
 
-            SlotOverlayRenderManager.getInstance().renderSlot(xOffset, yOffSet, event.getMatrixStack(), Minecraft.getInstance().player.inventory.items.get(slotIndex));
+            SlotOverlayRenderManager.getInstance().renderSlot(xOffset, yOffSet, event.getMatrixStack(), Minecraft.getInstance().player.getInventory().items.get(slotIndex));
         }
     }
 }

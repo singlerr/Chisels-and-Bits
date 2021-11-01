@@ -1,14 +1,10 @@
 package mod.chiselsandbits.client.tool.mode.icon;
 
 import com.google.common.collect.Maps;
-import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRenderer;
-import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRenderer;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
 import mod.chiselsandbits.api.config.Configuration;
-import mod.chiselsandbits.client.chiseling.preview.render.ConfigurableColoredVoxelShapeChiselContextPreviewRenderer;
-import mod.chiselsandbits.client.chiseling.preview.render.NoopChiselContextPreviewRenderer;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
 
