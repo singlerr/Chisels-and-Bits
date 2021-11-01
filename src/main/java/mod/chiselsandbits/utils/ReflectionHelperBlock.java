@@ -1,6 +1,7 @@
 package mod.chiselsandbits.utils;
 
 import com.google.common.collect.Lists;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -75,6 +76,13 @@ public class ReflectionHelperBlock extends Block
     {
         markMethod();
         return 0;
+    }
+
+    @Override
+    public float getExplosionResistance(final BlockState state, final BlockGetter world, final BlockPos pos, final Explosion explosion)
+    {
+        markMethod();
+        return 0f;
     }
 
     @Nullable

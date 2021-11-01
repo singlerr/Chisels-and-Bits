@@ -3,9 +3,16 @@ package mod.chiselsandbits.client.model.baked.bit;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import mod.chiselsandbits.api.item.bit.IBitItem;
+import mod.chiselsandbits.api.util.SingleBlockBlockReader;
+import mod.chiselsandbits.api.util.SingleBlockWorldReader;
 import mod.chiselsandbits.client.events.TickHandler;
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
 import mod.chiselsandbits.registrars.ModItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -44,18 +51,24 @@ public class BitBlockBakedModelManager
     }
 
     public BakedModel get(
-      ItemStack stack
-    )
+      ItemStack stack,
+      final Level world,
+      final LivingEntity entity)
     {
         return get(
           stack,
+          world,
+          entity,
           (!Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown()) || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown())
         );
     }
 
     public BakedModel get(
       ItemStack stack,
-      final boolean large)
+      final Level world,
+      final LivingEntity entity,
+      final boolean large
+    )
     {
         if (!(stack.getItem() instanceof IBitItem))
         {
@@ -63,15 +76,29 @@ public class BitBlockBakedModelManager
             return NullBakedModel.instance;
         }
 
-        return get(
+        final BakedModel model = get(
+          stack,
+          large,
           ((IBitItem) stack.getItem()).getBitState(stack),
-          large
+          world,
+          entity
+        );
+
+        return model.getOverrides().resolve(
+          model,
+          stack,
+          null,
+          null,
+          0
         );
     }
 
     public BakedModel get(
+      final ItemStack stack,
+      final boolean large,
       BlockState state,
-      final boolean large)
+      final Level level,
+      final LivingEntity entity)
     {
         if (state == Blocks.AIR.defaultBlockState() || state == null)
         {
@@ -84,13 +111,13 @@ public class BitBlockBakedModelManager
 
             final int alternativeIndex = (int) ((Math.floor(TickHandler.getClientTicks() / 20d)) % alternativeStacks.size());
 
-            final ItemStack stack = this.alternativeStacks.get(alternativeIndex);
-            if (!(stack.getItem() instanceof IBitItem))
+            final ItemStack alternativeStack = this.alternativeStacks.get(alternativeIndex);
+            if (!(alternativeStack.getItem() instanceof IBitItem))
             {
                 throw new IllegalStateException("BitItem returned none bit item stack!");
             }
 
-            state = ((IBitItem) stack.getItem()).getBitState(stack);
+            state = ((IBitItem) alternativeStack.getItem()).getBitState(alternativeStack);
         }
 
         final Cache<BlockState, BakedModel> target = large ? largeModelCache : modelCache;
@@ -100,12 +127,17 @@ public class BitBlockBakedModelManager
             return target.get(state, () -> {
                 if (large)
                 {
-                    BlockState lookupState = workingState;
+                    ItemStack lookupStack = new ItemStack(workingState.getBlock());
                     if (workingState.getBlock() instanceof LiquidBlock)
                     {
-                        lookupState = workingState.setValue(LiquidBlock.LEVEL, 15);
+                        lookupStack = new ItemStack(((LiquidBlock) workingState.getBlock()).getFluid().getBucket());
                     }
-                    return Minecraft.getInstance().getBlockRenderer().getBlockModel(lookupState);
+                    return Minecraft.getInstance().getItemRenderer().getModel(
+                      lookupStack,
+                      level,
+                      entity,
+                      0
+                    );
                 }
                 else
                 {

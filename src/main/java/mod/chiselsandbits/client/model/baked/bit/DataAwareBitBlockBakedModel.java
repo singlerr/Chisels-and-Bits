@@ -18,6 +18,6 @@ public class DataAwareBitBlockBakedModel extends BaseSmartModel
     public BakedModel resolve(
       final BakedModel originalModel, final ItemStack stack, final Level world, final LivingEntity entity)
     {
-        return BitBlockBakedModelManager.getInstance().get(stack);
+        return BitBlockBakedModelManager.getInstance().get(stack, world, entity);
     }
 }

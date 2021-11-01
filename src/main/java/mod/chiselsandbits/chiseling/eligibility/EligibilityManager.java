@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.registries.GameData;
 import org.jetbrains.annotations.NotNull;
 
@@ -143,7 +144,7 @@ public class EligibilityManager implements IEligibilityManager
                       ));
                 }
 
-                if (!state.getFluidState().isEmpty())
+                if (!state.getFluidState().isEmpty() && state.getBlock() instanceof LiquidBlock)
                 {
                     return new EligibilityAnalysisResult(
                       true,
