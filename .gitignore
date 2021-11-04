@@ -1,8 +1,10 @@
 /bin/
 
 /.gradle/
+**/.gradle/
 /.settings/
 /build/
+**/build/
 /.classpath
 /config/
 /logs/
@@ -30,6 +32,7 @@ out/*
 run/*
 out
 run/
+**/run/
 .cache
 src/documentation/generated/
 src/main/resources/assets/chiselsandbits/lang/*

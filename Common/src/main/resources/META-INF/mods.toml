@@ -1,0 +1,13 @@
+modLoader="javafml"
+loaderVersion="[28,)"
+license="GLGPLv3"
+[[mods]] #mandatory
+modId="chiselsandbits"
+version="${version}"
+displayName="Chisels & bits"
+authors="OrionOnline, LDTTeam, AlgorithmX2 "
+description='''
+a mod about Sculpting, Decorating and Aesthetics.
+
+Ported to 1.16.x by the LDTTeam.
+'''
