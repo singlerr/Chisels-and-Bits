@@ -18,6 +18,7 @@ import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.RayTracingUtils;
+import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
@@ -33,8 +34,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -43,7 +42,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
+public class SphereChiselMode extends SimpleChiselsAndBitsRegistryEntry implements IChiselMode
 {
     private final int diameter;
     private final MutableComponent displayName;
@@ -118,7 +117,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
 
             }
 
-            return new ClickProcessingState(true, Event.Result.ALLOW);
+            return ClickProcessingState.ALLOW;
         }).orElse(ClickProcessingState.DEFAULT);
     }
 
@@ -180,7 +179,7 @@ public class SphereChiselMode extends ForgeRegistryEntry<IChiselMode> implements
                 }
             }
 
-            return new ClickProcessingState(true, Event.Result.ALLOW);
+            return ClickProcessingState.ALLOW;
         }).orElse(ClickProcessingState.DEFAULT);
     }
 

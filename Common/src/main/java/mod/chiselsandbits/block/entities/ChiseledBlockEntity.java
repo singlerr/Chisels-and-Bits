@@ -32,7 +32,7 @@ import mod.chiselsandbits.platforms.core.access.IAccessManager;
 import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelData;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataBuilder;
-import mod.chiselsandbits.platforms.core.registrars.IBlockEntityRegistrar;
+import mod.chiselsandbits.registrars.ModBlockEntityTypes;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.core.BlockPos;
@@ -71,7 +71,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
 
     public ChiseledBlockEntity(BlockPos position, BlockState state)
     {
-        super(IBlockEntityRegistrar.getInstance().getChiseled().get(), position, state);
+        super(ModBlockEntityTypes.CHISELED.get(), position, state);
         compressedSection = new LevelChunkSection(0); //We always use a minimal y level to lookup. Makes calculations internally easier.
         mutableStatistics = new MutableStatistics(this::getLevel, this::getBlockPos);
     }

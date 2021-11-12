@@ -1,12 +1,12 @@
 package mod.chiselsandbits.client.model.baked.face;
 
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import mod.chiselsandbits.platforms.core.client.models.vertices.IVertexConsumer;
+import mod.chiselsandbits.utils.LightUtil;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraftforge.client.model.pipeline.IVertexConsumer;
-import net.minecraftforge.client.model.pipeline.LightUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -103,7 +103,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
         @Override
         public void put(
           final int element,
-          @NotNull final float... data)
+          final float... data)
         {
             for (int i = 0; i < 4; i++)
             {

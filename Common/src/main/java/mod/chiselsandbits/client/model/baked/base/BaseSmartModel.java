@@ -1,20 +1,21 @@
 package mod.chiselsandbits.client.model.baked.base;
 
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
+import mod.chiselsandbits.platforms.core.client.models.IDataAwareBakedModel;
+import mod.chiselsandbits.platforms.core.client.models.data.IModelData;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +23,7 @@ import java.util.List;
 import java.util.Random;
 
 @SuppressWarnings("deprecation")
-public abstract class BaseSmartModel implements BakedModel
+public abstract class BaseSmartModel implements BakedModel, IDataAwareBakedModel
 {
 
 	private final ItemOverrides overrides;
@@ -88,13 +89,16 @@ public abstract class BaseSmartModel implements BakedModel
 		return ItemTransforms.NO_TRANSFORMS;
 	}
 
-    @NotNull
     @Override
+	@NotNull
     public List<BakedQuad> getQuads(
-      @Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand, @NotNull final IModelData extraData)
+			@Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand, @NotNull final IModelData extraData)
     {
         final BakedModel model = handleBlockState( state, rand, extraData );
-        return model.getQuads( state, side, rand, extraData );
+		if (model instanceof IDataAwareBakedModel dataAwareBakedModel)
+			return dataAwareBakedModel.getQuads(state, side, rand, extraData);
+
+        return model.getQuads( state, side, rand);
     }
 
     @NotNull

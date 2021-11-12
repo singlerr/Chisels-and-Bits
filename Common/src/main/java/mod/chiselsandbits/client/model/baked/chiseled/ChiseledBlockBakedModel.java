@@ -33,7 +33,6 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.model.data.IModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -618,14 +617,6 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
         result[0] = toX;
         result[1] = toY;
         result[2] = toZ;
-    }
-
-    @NotNull
-    @Override
-    public List<BakedQuad> getQuads(
-      @Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand, @NotNull final IModelData extraData)
-    {
-        return getList(side);
     }
 
     @NotNull

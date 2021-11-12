@@ -3,22 +3,15 @@ package mod.chiselsandbits.client.icon;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.client.icon.IIconManager;
 import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.client.reloading.ClientResourceReloadingManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ColorHandlerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
 
 import static mod.chiselsandbits.client.icon.IconSpriteUploader.TEXTURE_MAP_NAME;
 
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class IconManager implements IIconManager
 {
     private static final IconManager INSTANCE = new IconManager();
@@ -44,19 +37,7 @@ public class IconManager implements IIconManager
     {
     }
 
-    @SubscribeEvent
-    public static void onBlockColorHandler(final ColorHandlerEvent.Block event)
-    {
-        //We use this event since this is virtually the only time we can init the IconManager and have it load the custom atlas.
-        //Guard for doing stupid shit when data gen is running :D
-        if (Minecraft.getInstance() != null)
-        {
-            ClientResourceReloadingManager.setup();
-            IconManager.getInstance().initialize();
-        }
-    }
-
-    private void initialize() {
+    public void initialize() {
         this.iconSpriteUploader = new IconSpriteUploader();
         ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
         if (resourceManager instanceof ReloadableResourceManager reloadableResourceManager) {

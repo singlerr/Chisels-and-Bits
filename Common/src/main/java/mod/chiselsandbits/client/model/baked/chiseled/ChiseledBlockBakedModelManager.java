@@ -1,9 +1,7 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
-import mod.chiselsandbits.api.config.Configuration;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
-import mod.chiselsandbits.api.multistate.StateEntrySize;
-import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
@@ -13,14 +11,12 @@ import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.level.BlockGetter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +28,7 @@ public class ChiseledBlockBakedModelManager {
     private static final ChiseledBlockBakedModelManager INSTANCE = new ChiseledBlockBakedModelManager();
 
     private final SimpleMaxSizedCache<Key, ChiseledBlockBakedModel> cache = new SimpleMaxSizedCache<>(
-            () -> Configuration.getInstance().getClient().modelCacheSize.get() * RenderType.chunkBufferLayers().size()
+            () -> IClientConfiguration.getInstance().getModelCacheSize().get() * RenderType.chunkBufferLayers().size()
     );
 
     private ChiseledBlockBakedModelManager() {

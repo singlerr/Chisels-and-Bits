@@ -21,32 +21,14 @@ public class FormatInfo
 
         for ( int x = 0; x < indexLengths.length; ++x )
         {
-            finalLengths[x] = format.getElements().get( x ).getElementCount();
+            finalLengths[x] = format.getElements().get( x ).getCount();
             indexLengths[x] = finalLengths[x];
 
-            switch ( format.getElements().get( x ).getUsage() )
-            {
-                default:
-                case GENERIC:
-                case PADDING:
-                    indexLengths[x] = 0;
-                    break;
-
-                case COLOR:
-                    indexLengths[x] = 4;
-                    break;
-
-                case NORMAL:
-                    indexLengths[x] = 3;
-                    break;
-
-                case POSITION:
-                    indexLengths[x] = 3;
-                    break;
-
-                case UV:
-                    indexLengths[x] = 2;
-                    break;
+            switch (format.getElements().get(x).getUsage()) {
+                case GENERIC, PADDING -> indexLengths[x] = 0;
+                case COLOR -> indexLengths[x] = 4;
+                case NORMAL, POSITION -> indexLengths[x] = 3;
+                case UV -> indexLengths[x] = 2;
             }
 
             offsets[x] = total;

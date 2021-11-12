@@ -10,13 +10,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 @SuppressWarnings("ConstantConditions")
-public final class ModTileEntityTypes
+public final class ModBlockEntityTypes
 {
 
 
     private static final IRegistrar<BlockEntityType<?>> REGISTRAR = IRegistrar.create(BlockEntityType.class, Constants.MOD_ID);
 
-    private ModTileEntityTypes()
+    private ModBlockEntityTypes()
     {
         throw new IllegalStateException("Tried to initialize: ModTileEntityTypes but this is a Utility class.");
     }

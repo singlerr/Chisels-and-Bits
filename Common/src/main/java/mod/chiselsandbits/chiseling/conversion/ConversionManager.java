@@ -2,7 +2,7 @@ package mod.chiselsandbits.chiseling.conversion;
 
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.materials.MaterialManager;
-import mod.chiselsandbits.platforms.core.registrars.IBlockRegistrar;
+import mod.chiselsandbits.registrars.ModBlocks;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Material;
 
@@ -24,10 +24,10 @@ public class ConversionManager implements IConversionManager
         final Material material = block.defaultBlockState().getMaterial();
         final Material workingMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(material);
 
-        if (!IBlockRegistrar.getInstance().getMaterialToChiseledBlockConversions().containsKey(workingMaterial))
+        if (!ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.containsKey(workingMaterial))
             return Optional.empty();
 
-        return Optional.of(IBlockRegistrar.getInstance().getMaterialToChiseledBlockConversions().get(workingMaterial)).map(Supplier::get);
+        return Optional.of(ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.get(workingMaterial)).map(Supplier::get);
     }
 
     private ConversionManager()

@@ -1,24 +1,30 @@
 package mod.chiselsandbits.utils;
 
 import com.google.common.collect.Lists;
-import net.minecraft.world.level.Explosion;
+import mod.chiselsandbits.platforms.core.block.IBlockWithWorldlyProperties;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.*;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.level.BlockGetter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 @SuppressWarnings({"deprecation", "NullableProblems"})
-public class ReflectionHelperBlock extends Block
+public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyProperties
 {
     public String MethodName;
 
@@ -76,6 +82,60 @@ public class ReflectionHelperBlock extends Block
     {
         markMethod();
         return 0;
+    }
+
+    @Override
+    public float getFriction(BlockState state, LevelReader levelReader, BlockPos pos, @Nullable Entity entity) {
+        markMethod();
+        return 0f;
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter blockGetter, BlockPos pos) {
+        markMethod();
+        return 0;
+    }
+
+    @Override
+    public boolean canHarvestBlock(BlockState state, BlockGetter blockGetter, BlockPos pos, Player player) {
+        markMethod();
+        return false;
+    }
+
+    @Override
+    public ItemStack getPickBlock(BlockState state, HitResult target, BlockGetter blockGetter, BlockPos pos, Player player) {
+        markMethod();
+        return null;
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, LevelAccessor levelAccessor, BlockPos pos, Rotation rotation) {
+        markMethod();
+        return null;
+    }
+
+    @Override
+    public boolean shouldCheckWeakPower(BlockState state, LevelReader levelReader, BlockPos pos, Direction side) {
+        markMethod();
+        return false;
+    }
+
+    @Override
+    public boolean shouldDisplayFluidOverlay(BlockState state, BlockAndTintGetter blockAndTintGetter, BlockPos pos, FluidState fluidState) {
+        markMethod();
+        return false;
+    }
+
+    @Override
+    public float[] getBeaconColorMultiplier(BlockState state, LevelReader levelReader, BlockPos pos, BlockPos beaconPos) {
+        markMethod();
+        return new float[0];
+    }
+
+    @Override
+    public SoundType getSoundType(BlockState state, LevelReader levelReader, BlockPos pos, @Nullable Entity entity) {
+        markMethod();
+        return null;
     }
 
     @Override

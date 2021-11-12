@@ -7,8 +7,8 @@ import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.block.ChiseledBlock;
 import mod.chiselsandbits.materials.MaterialManager;
-import mod.chiselsandbits.platforms.core.registrars.IBlockRegistrar;
 import mod.chiselsandbits.platforms.core.registries.IPlatformRegistryManager;
+import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModTags;
 import mod.chiselsandbits.utils.ClassUtils;
 import mod.chiselsandbits.utils.ReflectionHelperBlock;
@@ -115,7 +115,7 @@ public class EligibilityManager implements IEligibilityManager
                 final Material remappedMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(
                   state.getMaterial()
                 );
-                final boolean supportedMaterial = IBlockRegistrar.getInstance().getMaterialToChiseledBlockConversions().containsKey(remappedMaterial);
+                final boolean supportedMaterial = ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.containsKey(remappedMaterial);
 
                 if (!supportedMaterial) {
                     return new EligibilityAnalysisResult(

@@ -65,18 +65,18 @@ public class ModelQuadLayer
 
     public static class ModelQuadLayerBuilder
     {
-        public final ModelQuadLayer cache = new ModelQuadLayer();
-        public final ModelLightMapReader lv;
-        public ModelUVReader uvr;
+        private final ModelQuadLayer cache = new ModelQuadLayer();
+        private final ModelLightMapReader lightValueExtractor;
+        private ModelUVReader uvExtractor;
 
         public ModelQuadLayerBuilder(
           final TextureAtlasSprite sprite,
           final int uCoord,
           final int vCoord )
         {
-            cache.sprite = sprite;
-            lv = new ModelLightMapReader();
-            uvr = new ModelUVReader( sprite, uCoord, vCoord );
+            getCache().sprite = sprite;
+            lightValueExtractor = new ModelLightMapReader();
+            setUvExtractor(new ModelUVReader( sprite, uCoord, vCoord ));
         }
 
         public ModelQuadLayer build(
@@ -84,21 +84,37 @@ public class ModelQuadLayer
           final int color,
           final int lightValue )
         {
-            cache.light = Math.max( lightValue, lv.getLv() );
-            cache.uvs = uvr.getQuadUVs();
-            cache.color = cache.tint != -1 ? color : 0xffffffff;
+            getCache().light = Math.max( lightValue, getLightValueExtractor().getLv() );
+            getCache().uvs = getUvExtractor().getQuadUVs();
+            getCache().color = getCache().tint != -1 ? color : 0xffffffff;
 
-            if ( 0x00 <= cache.tint && cache.tint <= 0xff )
+            if ( 0x00 <= getCache().tint && getCache().tint <= 0xff )
             {
-                cache.color = 0xffffffff;
-                cache.tint = ( IBlockStateIdManager.getInstance().getIdFrom(state) << 8 ) | cache.tint;
+                getCache().color = 0xffffffff;
+                getCache().tint = ( IBlockStateIdManager.getInstance().getIdFrom(state) << 8 ) | getCache().tint;
             }
             else
             {
-                cache.tint = -1;
+                getCache().tint = -1;
             }
 
+            return getCache();
+        }
+
+        public ModelQuadLayer getCache() {
             return cache;
+        }
+
+        public ModelLightMapReader getLightValueExtractor() {
+            return lightValueExtractor;
+        }
+
+        public ModelUVReader getUvExtractor() {
+            return uvExtractor;
+        }
+
+        public void setUvExtractor(ModelUVReader uvExtractor) {
+            this.uvExtractor = uvExtractor;
         }
     };
 

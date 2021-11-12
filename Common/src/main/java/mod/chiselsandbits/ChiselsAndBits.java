@@ -29,7 +29,7 @@ public class ChiselsAndBits
 
         ModBlocks.onModConstruction();
         ModItems.onModConstruction();
-        ModTileEntityTypes.onModConstruction();
+        ModBlockEntityTypes.onModConstruction();
         ModChiselModes.onModConstruction();
         ModContainerTypes.onModConstruction();
         ModRecipeSerializers.onModConstruction();

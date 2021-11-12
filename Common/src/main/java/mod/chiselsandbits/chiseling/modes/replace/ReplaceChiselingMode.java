@@ -1,7 +1,6 @@
 package mod.chiselsandbits.chiseling.modes.replace;
 
 import com.google.common.collect.Maps;
-import cpw.mods.modlauncher.api.LamdbaExceptionUtils;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -16,6 +15,8 @@ import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.RayTracingUtils;
+import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
+import mod.chiselsandbits.platforms.core.util.LambdaExceptionUtils;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
@@ -30,15 +31,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class ReplaceChiselingMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
+public class ReplaceChiselingMode extends SimpleChiselsAndBitsRegistryEntry implements IChiselMode
 {
     private final MutableComponent displayName;
     private final MutableComponent multiLineDisplayName;
@@ -96,7 +95,7 @@ public class ReplaceChiselingMode extends ForgeRegistryEntry<IChiselMode> implem
 
                   mutator.inWorldMutableStream()
                     .filter(filter)
-                    .forEach(LamdbaExceptionUtils.rethrowConsumer(state -> {
+                    .forEach(LambdaExceptionUtils.rethrowConsumer(state -> {
                         final BlockState currentState = state.getState();
 
                         if (context.tryDamageItem()) {
@@ -118,7 +117,7 @@ public class ReplaceChiselingMode extends ForgeRegistryEntry<IChiselMode> implem
                   ));
               }
 
-              return new ClickProcessingState(true, Event.Result.ALLOW);
+              return ClickProcessingState.ALLOW;
           }).orElse(ClickProcessingState.DEFAULT)
         );
     }

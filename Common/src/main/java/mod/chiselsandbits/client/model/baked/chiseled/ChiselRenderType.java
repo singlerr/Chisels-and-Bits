@@ -6,8 +6,8 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.client.culling.MCCullTest;
+import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 
 import java.security.InvalidParameterException;
 import java.util.Collection;
@@ -60,10 +60,10 @@ public enum ChiselRenderType
             return false;
 
         if (this.type.isFluid()) {
-            return ItemBlockRenderTypes.canRenderInLayer(stateEntryInfo.getState().getFluidState(), this.layer);
+            return IRenderingManager.getInstance().canRenderInType(stateEntryInfo.getState().getFluidState(), this.layer);
         }
 
-        return ItemBlockRenderTypes.canRenderInLayer(stateEntryInfo.getState(), this.layer);
+        return IRenderingManager.getInstance().canRenderInType(stateEntryInfo.getState(), this.layer);
     }
 
     public static ChiselRenderType fromLayer(

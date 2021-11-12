@@ -1,6 +1,8 @@
 package mod.chiselsandbits.client.model.baked.base;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import mod.chiselsandbits.client.util.TransformationUtils;
+import mod.chiselsandbits.platforms.core.client.models.ITransformAwareBakedModel;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import com.mojang.math.Quaternion;
@@ -9,7 +11,7 @@ import com.mojang.math.Vector3f;
 
 import java.util.Random;
 
-public abstract class BaseBakedPerspectiveModel implements BakedModel
+public abstract class BaseBakedPerspectiveModel implements BakedModel, ITransformAwareBakedModel
 {
 
     protected static final Random RANDOM = new Random();
@@ -53,29 +55,29 @@ public abstract class BaseBakedPerspectiveModel implements BakedModel
         switch ( cameraTransformType )
         {
             case FIRST_PERSON_LEFT_HAND:
-                firstPerson_lefthand.push(mat);
+                TransformationUtils.push(mat, firstPerson_lefthand);
                 return this;
             case FIRST_PERSON_RIGHT_HAND:
-                firstPerson_righthand.push(mat);
+                TransformationUtils.push(mat, firstPerson_righthand);
                 return this;
             case THIRD_PERSON_LEFT_HAND:
-                thirdPerson_lefthand.push(mat);
+                TransformationUtils.push(mat, thirdPerson_lefthand);
                 return this;
             case THIRD_PERSON_RIGHT_HAND:
-                thirdPerson_righthand.push(mat);
+                TransformationUtils.push(mat, thirdPerson_righthand);
             case FIXED:
-                fixed.push(mat);
+                TransformationUtils.push(mat, fixed);
                 return this;
             case GROUND:
-                ground.push(mat);
+                TransformationUtils.push(mat, ground);
                 return this;
             case GUI:
-                gui.push(mat);
+                TransformationUtils.push(mat, gui);
                 return this;
             default:
         }
 
-        fixed.push(mat);
+        TransformationUtils.push(mat, fixed);
         return this;
     }
 }

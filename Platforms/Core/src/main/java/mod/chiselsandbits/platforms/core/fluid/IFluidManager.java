@@ -2,6 +2,7 @@ package mod.chiselsandbits.platforms.core.fluid;
 
 import mod.chiselsandbits.platforms.core.IChiselsAndBitsPlatformCore;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
 
 import java.util.Optional;
 
@@ -71,4 +72,14 @@ public interface IFluidManager
      * @return The color packed into an int.
      */
     int getFluidColor(FluidInformation fluid);
+
+    /**
+     * Gives access to the color of the fluid.
+     *
+     * @param fluid The fluid.
+     * @return The color packed into an int.
+     */
+    default int getFluidColor(final Fluid fluid) {
+        return getFluidColor(new FluidInformation(fluid));
+    }
 }

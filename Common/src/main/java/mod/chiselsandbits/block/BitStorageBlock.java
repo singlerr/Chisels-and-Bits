@@ -9,7 +9,7 @@ import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
-import mod.chiselsandbits.platforms.core.registrars.IItemRegistrar;
+import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @SuppressWarnings("deprecation")
@@ -124,12 +125,12 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
             return Lists.newArrayList();
         }
 
-        return Lists.newArrayList(getTankDrop((BitStorageBlockEntity) builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY)));
+        return Lists.newArrayList(getTankDrop((BitStorageBlockEntity) Objects.requireNonNull(builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY))));
     }
 
     public ItemStack getTankDrop(final BitStorageBlockEntity bitTank)
     {
-        final ItemStack tankStack = new ItemStack(IItemRegistrar.getInstance().getBitStorageBlockItem().get());
+        final ItemStack tankStack = new ItemStack(ModItems.BIT_STORAGE.get());
         if (bitTank.containsFluid())
         {
             final Optional<FluidInformation> fluidInformation = bitTank.getFluid();

@@ -493,4 +493,25 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                  ))
                  .orElse(SoundType.STONE);
     }
+
+    @Override
+    public float getExplosionResistance(BlockState state, BlockGetter blockGetter, BlockPos position, Explosion explosion) {
+        return (float) (double) (getBlockEntityFromOrThrow(blockGetter, position)
+                .map(e -> e.getStatistics().getStateCounts().entrySet()
+                        .stream()
+                        .filter(entryState -> !entryState.getKey().isAir())
+                        .mapToDouble(entryState -> ILevelBasedPropertyAccessor.getInstance().
+                                getExplosionResistance(
+                                        new SingleBlockBlockReader(
+                                                entryState.getKey(),
+                                                position,
+                                                blockGetter
+                                        ),
+                                        position,
+                                        explosion
+                                ) * entryState.getValue()
+                        )
+                        .sum() / (e.getStatistics().getFullnessFactor() * StateEntrySize.current().getBitsPerBlock())
+                ).orElse(0d));
+    }
 }

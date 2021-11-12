@@ -16,7 +16,7 @@ import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.IQuadFunction;
 import mod.chiselsandbits.api.util.RayTracingUtils;
-import mod.chiselsandbits.api.util.SingleBlockBlockReader;
+import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
@@ -32,14 +32,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
-import java.util.function.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
-public class ConnectedPlaneChiselingMode extends ForgeRegistryEntry<IChiselMode> implements IChiselMode
+public class ConnectedPlaneChiselingMode extends SimpleChiselsAndBitsRegistryEntry implements IChiselMode
 {
     private final int                       depth;
     private final MutableComponent          displayName;
@@ -111,7 +111,7 @@ public class ConnectedPlaneChiselingMode extends ForgeRegistryEntry<IChiselMode>
                   ));
               }
 
-              return new ClickProcessingState(true, Event.Result.ALLOW);
+              return ClickProcessingState.ALLOW;
           }).orElse(ClickProcessingState.DEFAULT)
         );
     }
@@ -219,7 +219,7 @@ public class ConnectedPlaneChiselingMode extends ForgeRegistryEntry<IChiselMode>
                   }
               }
 
-              return new ClickProcessingState(true, Event.Result.ALLOW);
+              return ClickProcessingState.ALLOW;
           }).orElse(ClickProcessingState.DEFAULT)
         );
     }

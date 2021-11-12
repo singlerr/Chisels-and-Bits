@@ -11,7 +11,7 @@ import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.block.ChiseledPrinterBlock;
 import mod.chiselsandbits.container.ChiseledPrinterContainer;
 import mod.chiselsandbits.platforms.core.item.IItemComparisonHelper;
-import mod.chiselsandbits.platforms.core.registrars.IBlockEntityRegistrar;
+import mod.chiselsandbits.registrars.ModBlockEntityTypes;
 import mod.chiselsandbits.utils.container.SimpleContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.Optional;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvider, WorldlyContainer
 {
     private final   MutableObject<ItemStack>  currentRealisedWorkingStack = new MutableObject<>(ItemStack.EMPTY);
@@ -71,7 +72,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
 
     public ChiseledPrinterBlockEntity(BlockPos pos, BlockState state)
     {
-        super(IBlockEntityRegistrar.getInstance().getChiseledPrinter().get(), pos, state);
+        super(ModBlockEntityTypes.CHISELED_PRINTER.get(), pos, state);
     }
 
     @Override

@@ -1,43 +1,9 @@
 package mod.chiselsandbits.client.model.data;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
-import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
-import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
-import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
-import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
-import mod.chiselsandbits.client.model.baked.chiseled.ChiselRenderType;
-import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModel;
-import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModelManager;
-import mod.chiselsandbits.client.model.baked.chiseled.FluidRenderingManager;
-import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
-import mod.chiselsandbits.profiling.ProfilingManager;
-import mod.chiselsandbits.registrars.ModModelProperties;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.model.ModelDataManager;
-import net.minecraftforge.client.model.data.ModelDataMap;
-import net.minecraftforge.fml.DistExecutor;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static net.minecraftforge.client.MinecraftForgeClient.getRenderLayer;
+import java.util.Objects;
 
 public class ChiseledBlockModelDataManager
 {
@@ -53,8 +19,8 @@ public class ChiseledBlockModelDataManager
     {
     }
 
-    public void updateModelData(final ChiseledBlockEntity tileEntity) {
-        if (!tileEntity.hasLevel() || !tileEntity.getLevel().isClientSide() || tileEntity == null)
+    public void updateModelData(@Nullable final ChiseledBlockEntity tileEntity) {
+        if (tileEntity == null || !tileEntity.hasLevel() || !Objects.requireNonNull(tileEntity.getLevel()).isClientSide())
             return;
 
         ChiseledBlockModelDataExecutor.updateModelDataCore(tileEntity);

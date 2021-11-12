@@ -2,21 +2,13 @@ package mod.chiselsandbits.client.model.loader;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
-import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.model.InteractableItemModel;
-import mod.chiselsandbits.client.model.baked.interactable.InteractableBakedItemModel;
-import net.minecraft.server.packs.resources.ResourceManager;
+import mod.chiselsandbits.platforms.core.client.models.loaders.IModelSpecificationLoader;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.model.IModelLoader;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.NotNull;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public final class InteractableModelLoader implements IModelLoader<InteractableItemModel>
+public final class InteractableModelLoader implements IModelSpecificationLoader<InteractableItemModel>
 {
     @Override
     public void onResourceManagerReload(@NotNull final ResourceManager resourceManager)

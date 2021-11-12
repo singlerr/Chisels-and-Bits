@@ -3,7 +3,7 @@ package mod.chiselsandbits.client.chiseling.preview.render;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRenderer;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
-import mod.chiselsandbits.api.config.Configuration;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
@@ -30,7 +30,7 @@ public class ChiselContextPreviewRendererRegistry implements IChiselContextPrevi
     @Override
     public IChiselContextPreviewRenderer getCurrent()
     {
-        return rendererMap.getOrDefault(new ResourceLocation(Configuration.getInstance().getClient().previewRenderer.get()),
+        return rendererMap.getOrDefault(new ResourceLocation(IClientConfiguration.getInstance().getPreviewRenderer().get()),
           rendererMap.get(ConfigurableColoredVoxelShapeChiselContextPreviewRenderer.ID));
     }
 

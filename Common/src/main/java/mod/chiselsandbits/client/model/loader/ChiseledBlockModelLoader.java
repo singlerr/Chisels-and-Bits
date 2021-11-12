@@ -3,11 +3,11 @@ package mod.chiselsandbits.client.model.loader;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import mod.chiselsandbits.client.model.ChiseledBlockModel;
+import mod.chiselsandbits.platforms.core.client.models.loaders.IModelSpecificationLoader;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraftforge.client.model.IModelLoader;
 import org.jetbrains.annotations.NotNull;
 
-public final class ChiseledBlockModelLoader implements IModelLoader<ChiseledBlockModel>
+public final class ChiseledBlockModelLoader implements IModelSpecificationLoader<ChiseledBlockModel>
 {
 
     private static final ChiseledBlockModelLoader INSTANCE = new ChiseledBlockModelLoader();

@@ -12,7 +12,7 @@ import mod.chiselsandbits.block.BitStorageBlock;
 import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
-import mod.chiselsandbits.platforms.core.registrars.IBlockEntityRegistrar;
+import mod.chiselsandbits.registrars.ModBlockEntityTypes;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.core.BlockPos;
@@ -40,7 +40,7 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
 
     public BitStorageBlockEntity(BlockPos pos, BlockState state)
     {
-        super(IBlockEntityRegistrar.getInstance().getBitStorage().get(), pos, state);
+        super(ModBlockEntityTypes.BIT_STORAGE.get(), pos, state);
     }
 
     @Override

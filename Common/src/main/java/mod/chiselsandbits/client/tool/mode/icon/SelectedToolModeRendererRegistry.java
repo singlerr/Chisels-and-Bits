@@ -3,7 +3,7 @@ package mod.chiselsandbits.client.tool.mode.icon;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRenderer;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
-import mod.chiselsandbits.api.config.Configuration;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
@@ -30,7 +30,7 @@ public class SelectedToolModeRendererRegistry implements ISelectedToolModeIconRe
     @Override
     public ISelectedToolModeIconRenderer getCurrent()
     {
-        return rendererMap.getOrDefault(new ResourceLocation(Configuration.getInstance().getClient().toolModeRenderer.get()),
+        return rendererMap.getOrDefault(new ResourceLocation(IClientConfiguration.getInstance().getToolModeRenderer().get()),
           rendererMap.get(RootGroupTopLeftSelectedToolModeIconRenderer.ID));
     }
 

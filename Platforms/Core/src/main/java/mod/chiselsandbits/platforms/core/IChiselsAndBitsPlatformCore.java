@@ -5,6 +5,7 @@ import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
 import mod.chiselsandbits.platforms.core.chiseling.eligibility.IPlatformEligibilityOptions;
 import mod.chiselsandbits.platforms.core.client.IClientManager;
 import mod.chiselsandbits.platforms.core.entity.IEntityInformationManager;
+import mod.chiselsandbits.platforms.core.event.IEventFirer;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
 import mod.chiselsandbits.platforms.core.item.IItemComparisonHelper;
 import mod.chiselsandbits.platforms.core.registries.IPlatformRegistryManager;
@@ -97,6 +98,14 @@ public interface IChiselsAndBitsPlatformCore
      */
     @NotNull
     IPlatformEligibilityOptions getPlatformEligibilityManager();
+
+    /**
+     * Gives access to a system which can fire event data on the given platform.
+     *
+     * @return The system to fire the events.
+     */
+    @NotNull
+    IEventFirer getEventFirer();
 
     class Holder {
         private static IChiselsAndBitsPlatformCore apiInstance;

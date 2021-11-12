@@ -6,8 +6,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -98,4 +100,14 @@ public interface ILevelBasedPropertyAccessor
      * @return The sound type of the blockstate on the given position for the given entity.
      */
     SoundType getSoundType(BlockGetter blockGetter, BlockPos pos, Entity entity);
+
+    /**
+     * Determines the explosion resistance of the blockstate in the given position against the given explosion.
+     *
+     * @param blockGetter The block getter to pull contextual information from.
+     * @param position The position in question.
+     * @param explosion The explosion to get the resistance against for.
+     * @return The explosion resistance.
+     */
+    float getExplosionResistance(BlockGetter blockGetter, BlockPos position, Explosion explosion);
 }

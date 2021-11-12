@@ -3,6 +3,7 @@ package mod.chiselsandbits.platforms.core.client;
 import mod.chiselsandbits.platforms.core.IChiselsAndBitsPlatformCore;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataBuilder;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataKey;
+import mod.chiselsandbits.platforms.core.client.models.data.IModelDataManager;
 import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,4 +47,14 @@ public interface IClientManager
      */
     @NotNull
     <T> IModelDataKey<T> createNewModelDataKey();
+
+    /**
+     * The current model data manager.
+     * Allows the model data to be managed on the current level.
+     *
+     * @return The model data manager.
+     */
+    @NotNull
+    IModelDataManager getModelDataManager();
+
 }

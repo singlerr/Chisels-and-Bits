@@ -5,6 +5,7 @@ import mod.chiselsandbits.platforms.core.registries.deferred.IRegistrarManager;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 
 /**
  * Gives access to the platforms registries at runtime.
@@ -48,4 +49,11 @@ public interface IPlatformRegistryManager
      * @return The id to object map for blockstates.
      */
     ISizedIdMap<BlockState> getBlockStateIdMap();
+
+    /**
+     * Gives access to the fluid registry.
+     *
+     * @return The fluid registry of the current game.
+     */
+    IPlatformRegistry<Fluid> getFluids();
 }

@@ -3,6 +3,8 @@ package mod.chiselsandbits.client.colors;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.item.bit.BitItem;
+import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
+import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.AirItem;
 import net.minecraft.world.item.Items;
@@ -27,7 +29,9 @@ public class ChiseledBlockItemItemColor implements ItemColor
     {
         final BlockState state = IBlockStateIdManager.getInstance().getBlockStateFrom( tint >> TINT_BITS );
         if(state.getBlock() instanceof LiquidBlock) {
-            return ((LiquidBlock) state.getBlock()).getFluid().getAttributes().getColor();
+            return IFluidManager.getInstance().getFluidColor(new FluidInformation(
+                    state.getFluidState().getType()
+            ));
         }
 
         if ((!Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown()) || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown()))
@@ -38,7 +42,7 @@ public class ChiseledBlockItemItemColor implements ItemColor
 
             if (item != Items.AIR)
             {
-                return Minecraft.getInstance().getItemColors().getColor(new ItemStack(item, 1), tintValue);
+                return Minecraft.getInstance().itemColors.getColor(new ItemStack(item, 1), tintValue);
             }
 
             return 0xffffff;
@@ -56,6 +60,6 @@ public class ChiseledBlockItemItemColor implements ItemColor
         final Block block = state.getBlock();
         final Item itemFromBlock = block.asItem();
         int tintValue = tint & TINT_MASK;
-        return Minecraft.getInstance().getItemColors().getColor( new ItemStack(itemFromBlock, 1), tintValue );
+        return Minecraft.getInstance().itemColors.getColor( new ItemStack(itemFromBlock, 1), tintValue );
     }
 }

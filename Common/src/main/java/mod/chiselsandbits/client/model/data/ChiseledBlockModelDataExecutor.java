@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
@@ -16,6 +16,9 @@ import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModel;
 import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModelManager;
 import mod.chiselsandbits.client.model.baked.chiseled.FluidRenderingManager;
 import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
+import mod.chiselsandbits.platforms.core.client.models.data.IModelDataBuilder;
+import mod.chiselsandbits.platforms.core.client.models.data.IModelDataManager;
+import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModModelProperties;
 import net.minecraft.client.Minecraft;
@@ -25,17 +28,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.model.ModelDataManager;
-import net.minecraftforge.client.model.data.ModelDataMap;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static net.minecraftforge.client.MinecraftForgeClient.getRenderLayer;
 
 public class ChiseledBlockModelDataExecutor
 {
@@ -48,9 +48,9 @@ public class ChiseledBlockModelDataExecutor
 
         positionsInProcessing.put(new ChunkPos(tileEntity.getBlockPos()), tileEntity.getBlockPos());
         final IBlockNeighborhood neighborhood = IBlockNeighborhoodBuilder.getInstance().build(
-          direction -> tileEntity.getLevel().getBlockState(tileEntity.getBlockPos().offset(direction.getNormal())),
+          direction -> Objects.requireNonNull(tileEntity.getLevel()).getBlockState(tileEntity.getBlockPos().offset(direction.getNormal())),
           direction -> {
-              final BlockEntity otherTileEntity = tileEntity.getLevel().getBlockEntity(tileEntity.getBlockPos().offset(direction.getNormal()));
+              final BlockEntity otherTileEntity = Objects.requireNonNull(tileEntity.getLevel()).getBlockEntity(tileEntity.getBlockPos().offset(direction.getNormal()));
               if (otherTileEntity instanceof IAreaAccessor)
                   return (IAreaAccessor) otherTileEntity;
 
@@ -63,8 +63,8 @@ public class ChiseledBlockModelDataExecutor
 
               try(IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Extract model data from data"))
               {
-                  final RenderType currentType = getRenderLayer();
-                  ForgeHooksClient.setRenderLayer(null);
+                  final RenderType currentType = IRenderingManager.getInstance().getCurrentRenderType().orElse(null);
+                  IRenderingManager.getInstance().setCurrentRenderType(null);
                   try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Unknown render layer model building"))
                   {
                       final ChiseledBlockBakedModel[] models = new ChiseledBlockBakedModel[ChiselRenderType.values().length];
@@ -102,7 +102,7 @@ public class ChiseledBlockModelDataExecutor
                       {
                           try(IProfilerSection ignored3 = ProfilingManager.getInstance().withSection("Known render layer model building for: " + chunkBufferLayer.toString()))
                           {
-                              ForgeHooksClient.setRenderLayer(chunkBufferLayer);
+                              IRenderingManager.getInstance().setCurrentRenderType(chunkBufferLayer);
                               if (tileEntity.getStatistics().getStateCounts().isEmpty() ||
                                     (tileEntity.getStatistics().getStateCounts().size() == 1 && tileEntity.getStatistics().getStateCounts().containsKey(Blocks.AIR.defaultBlockState()))) {
                                   continue;
@@ -179,10 +179,10 @@ public class ChiseledBlockModelDataExecutor
                       }
                   }
 
-                  ForgeHooksClient.setRenderLayer(currentType);
+                  IRenderingManager.getInstance().setCurrentRenderType(currentType);
               }
 
-              return new ModelDataMap.Builder()
+              return IModelDataBuilder.create()
                 .withInitial(
                   ModModelProperties.UNKNOWN_LAYER_MODEL_PROPERTY, unknownRenderTypeModel
                 )
@@ -192,13 +192,11 @@ public class ChiseledBlockModelDataExecutor
                 .build();
           }, recalculationService)
           .thenAcceptAsync(tileEntity::setModelData, recalculationService)
-          .thenRunAsync(() -> {
-              positionsInProcessing.remove(new ChunkPos(tileEntity.getBlockPos()), tileEntity.getBlockPos());
-          }, recalculationService)
+          .thenRunAsync(() -> positionsInProcessing.remove(new ChunkPos(tileEntity.getBlockPos()), tileEntity.getBlockPos()), recalculationService)
           .thenRunAsync(() -> {
               if (Minecraft.getInstance().level == tileEntity.getLevel()) {
-                  ModelDataManager.requestModelDataRefresh(tileEntity);
-                  Minecraft.getInstance().level.sendBlockUpdated(
+                  IModelDataManager.getInstance().requestModelDataRefresh(tileEntity);
+                  Objects.requireNonNull(Minecraft.getInstance().level).sendBlockUpdated(
                     tileEntity.getBlockPos(),
                     tileEntity.getBlockState(),
                     tileEntity.getBlockState(),
@@ -213,7 +211,7 @@ public class ChiseledBlockModelDataExecutor
             final ClassLoader classLoader = ChiselsAndBits.class.getClassLoader();
             final AtomicInteger genericThreadCounter = new AtomicInteger();
             recalculationService = Executors.newFixedThreadPool(
-              IChiselsAndBitsAPI.getInstance().getConfiguration().getClient().modelBuildingThreadCount.get(),
+              IClientConfiguration.getInstance().getModelBuildingThreadCount().get(),
               runnable -> {
                   final Thread thread = new Thread(runnable);
                   thread.setContextClassLoader(classLoader);

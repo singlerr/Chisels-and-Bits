@@ -2,7 +2,7 @@ package mod.chiselsandbits.container;
 
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.pattern.IPatternItem;
-import mod.chiselsandbits.platforms.core.registrars.IContainerRegistrar;
+import mod.chiselsandbits.registrars.ModContainerTypes;
 import mod.chiselsandbits.utils.container.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -41,7 +41,7 @@ public class ChiseledPrinterContainer extends AbstractContainerMenu
       final SimpleContainer resultHandler,
       final ContainerData stationData)
     {
-        super(IContainerRegistrar.getInstance().getChiseledPrinter().get(), id);
+        super(ModContainerTypes.CHISELED_PRINTER_CONTAINER.get(), id);
         this.stationData = stationData;
         this.toolHandler = toolHandler;
 

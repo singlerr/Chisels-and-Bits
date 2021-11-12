@@ -1,15 +1,14 @@
 package mod.chiselsandbits.client.model.baked.simple;
 
 import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,19 +68,6 @@ public class CombinedModel extends BaseBakedBlockModel
         return Minecraft.getInstance().getTextureAtlas(
           InventoryMenu.BLOCK_ATLAS
         ).apply(MissingTextureAtlasSprite.getLocation());
-    }
-
-    @NotNull
-    @Override
-    public List<BakedQuad> getQuads(
-      @Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand, @NotNull final IModelData extraData)
-    {
-        if ( side != null )
-        {
-            return face[side.ordinal()];
-        }
-
-        return generic;
     }
 
     @NotNull

@@ -1,10 +1,10 @@
 package mod.chiselsandbits.client.model.baked.face.model;
 
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import mod.chiselsandbits.platforms.core.client.models.vertices.IVertexConsumer;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraftforge.client.model.pipeline.IVertexConsumer;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class BaseModelReader implements IVertexConsumer

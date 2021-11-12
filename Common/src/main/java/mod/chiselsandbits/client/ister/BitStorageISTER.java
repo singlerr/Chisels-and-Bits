@@ -5,8 +5,8 @@ import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
-import mod.chiselsandbits.platforms.core.registrars.IBlockRegistrar;
 import mod.chiselsandbits.platforms.core.registries.IPlatformRegistryManager;
+import mod.chiselsandbits.registrars.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -40,14 +40,14 @@ public class BitStorageISTER extends BlockEntityWithoutLevelRenderer
 
         final BakedModel model = Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(
           IPlatformRegistryManager.getInstance().getBlockRegistry()
-            .getKey(IBlockRegistrar.getInstance().getBitStorageBlock().get())
+            .getKey(ModBlocks.BIT_STORAGE.get())
           , "facing=east"));
 
         IRenderingManager.getInstance()
-          .renderModel(matrixStack.last(), buffer.getBuffer(RenderType.translucent()), IBlockRegistrar.getInstance().getBitStorageBlock()
+          .renderModel(matrixStack.last(), buffer.getBuffer(RenderType.translucent()), ModBlocks.BIT_STORAGE
                                                                                                .get().defaultBlockState(), model, 1f, 1f, 1f, combinedLight, combinedOverlay);
 
-        final BitStorageBlockEntity blockEntity = new BitStorageBlockEntity(BlockPos.ZERO, IBlockRegistrar.getInstance().getBitStorageBlock().get().defaultBlockState());
+        final BitStorageBlockEntity blockEntity = new BitStorageBlockEntity(BlockPos.ZERO, ModBlocks.BIT_STORAGE.get().defaultBlockState());
         final Optional<FluidInformation> fluidInformation = IFluidManager.getInstance().get(stack);
         fluidInformation.ifPresent(blockEntity::insertBitsFromFluid);
         Minecraft.getInstance().getBlockEntityRenderDispatcher().renderItem(blockEntity, matrixStack, buffer, combinedLight, combinedOverlay);

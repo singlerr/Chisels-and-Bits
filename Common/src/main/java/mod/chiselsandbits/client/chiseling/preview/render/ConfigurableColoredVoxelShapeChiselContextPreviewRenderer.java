@@ -6,7 +6,7 @@ import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRenderer;
-import mod.chiselsandbits.api.config.Configuration;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.render.ModRenderTypes;
@@ -60,8 +60,8 @@ public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implement
             false);
 
         final List<? extends Float> color = currentContextSnapshot.getModeOfOperandus() == ChiselingOperation.CHISELING ?
-                                 Configuration.getInstance().getClient().previewChiselingColor.get() :
-                                 Configuration.getInstance().getClient().previewPlacementColor.get();
+                                 IClientConfiguration.getInstance().getPreviewChiselingColor().get() :
+                                 IClientConfiguration.getInstance().getPreviewPlacementColor().get();
 
         RenderSystem.disableDepthTest();
         LevelRenderer.renderShape(

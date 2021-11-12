@@ -1,6 +1,19 @@
 accessWidener	v1	named
+extendable   class      net/minecraft/client/gui/Font
+extendable   class      net/minecraft/client/renderer/block/model/ItemOverrides
+extendable   method     net/minecraft/client/gui/Font drawInternal (Ljava/lang/String;FFILcom/mojang/math/Matrix4f;ZZ)I
+extendable   method     net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
 accessible   class      net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
 accessible   class      net/minecraft/world/inventory/MenuType$MenuSupplier
 accessible   method     net/minecraft/world/inventory/MenuType <init> (Lnet/minecraft/world/inventory/MenuType$MenuSupplier;)V
 accessible   method     net/minecraft/tags/ItemTags bind (Ljava/lang/String;)Lnet/minecraft/tags/Tag$Named;
 accessible   method     net/minecraft/tags/BlockTags bind (Ljava/lang/String;)Lnet/minecraft/tags/Tag$Named;
+accessible   method     net/minecraft/client/renderer/LevelRenderer renderShape (Lcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;Lnet/minecraft/world/phys/shapes/VoxelShape;DDDFFFF)V
+accessible   field      net/minecraft/client/Minecraft itemColors Lnet/minecraft/client/color/item/ItemColors;
+accessible   field      net/minecraft/client/gui/Font fonts Ljava/util/function/Function;
+accessible   field      net/minecraft/world/inventory/AbstractContainerMenu containerListeners Ljava/util/List;
+accessible   field      com/mojang/blaze3d/vertex/VertexFormat offsets Lit/unimi/dsi/fastutil/ints/IntList;
+accessible   field      com/mojang/blaze3d/vertex/VertexFormat vertexSize I
+accessible   field      com/mojang/blaze3d/vertex/VertexFormat vertexArrayObject I
+accessible   field      com/mojang/blaze3d/vertex/VertexFormat vertexBufferObject I
+accessible   field      com/mojang/blaze3d/vertex/VertexFormat indexBufferObject I

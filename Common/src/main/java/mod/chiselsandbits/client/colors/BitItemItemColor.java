@@ -1,18 +1,19 @@
 package mod.chiselsandbits.client.colors;
 
-import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.item.bit.BitItem;
-import net.minecraft.world.item.AirItem;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.LiquidBlock;
+import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
+import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.color.item.ItemColor;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.AirItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BitItemItemColor implements ItemColor
 {
@@ -29,7 +30,10 @@ public class BitItemItemColor implements ItemColor
 
         final BlockState state = ((BitItem) stack.getItem()).getBitState(stack);
         if(state.getBlock() instanceof LiquidBlock) {
-            return ((LiquidBlock) state.getBlock()).getFluid().getAttributes().getColor();
+            return IFluidManager.getInstance().getFluidColor(new FluidInformation(
+                    state.getFluidState().getType(),
+                    1
+            ));
         }
 
         if ((!Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown()) || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown()))
@@ -40,7 +44,7 @@ public class BitItemItemColor implements ItemColor
 
             if (item != Items.AIR)
             {
-                return Minecraft.getInstance().getItemColors().getColor(new ItemStack(item, 1), tintValue);
+                return Minecraft.getInstance().itemColors.getColor(new ItemStack(item, 1), tintValue);
             }
 
             return 0xffffff;
@@ -55,6 +59,6 @@ public class BitItemItemColor implements ItemColor
         if (workingStack.getItem() instanceof AirItem)
             return 0xffffff;
 
-        return Minecraft.getInstance().getItemColors().getColor(workingStack, tint);
+        return Minecraft.getInstance().itemColors.getColor(workingStack, tint);
     }
 }

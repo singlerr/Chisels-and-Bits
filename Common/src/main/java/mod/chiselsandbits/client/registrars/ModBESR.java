@@ -1,7 +1,7 @@
 package mod.chiselsandbits.client.registrars;
 
 import mod.chiselsandbits.client.besr.BitStorageBESR;
-import mod.chiselsandbits.registrars.ModTileEntityTypes;
+import mod.chiselsandbits.registrars.ModBlockEntityTypes;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 
 public final class ModBESR
@@ -13,6 +13,6 @@ public final class ModBESR
     }
 
     public static void onClientInit() {
-        BlockEntityRenderers.register(ModTileEntityTypes.BIT_STORAGE.get(), context -> new BitStorageBESR());
+        BlockEntityRenderers.register(ModBlockEntityTypes.BIT_STORAGE.get(), context -> new BitStorageBESR());
     }
 }

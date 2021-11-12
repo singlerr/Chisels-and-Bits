@@ -1,24 +1,20 @@
 package mod.chiselsandbits.client.ister;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.item.interactable.IInteractableItem;
-import mod.chiselsandbits.client.events.TickHandler;
 import mod.chiselsandbits.client.model.baked.interactable.InteractableBakedItemModel;
+import mod.chiselsandbits.client.time.TickHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.util.Mth;
-import com.mojang.math.Vector3f;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-
-import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
 
 /**
  * This class animates an interaction between the items in the two hands of the players.
@@ -43,10 +39,9 @@ public class InteractionISTER extends BlockEntityWithoutLevelRenderer
       final int combinedLight,
       final int combinedOverlay)
     {
-        if (!(stack.getItem() instanceof IInteractableItem)) {
+        if (!(stack.getItem() instanceof final IInteractableItem item)) {
             return;
         }
-        final IInteractableItem item = (IInteractableItem) stack.getItem();
 
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         LocalPlayer player = Minecraft.getInstance().player;

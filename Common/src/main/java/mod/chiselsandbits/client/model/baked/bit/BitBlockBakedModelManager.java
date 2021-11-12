@@ -3,24 +3,19 @@ package mod.chiselsandbits.client.model.baked.bit;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import mod.chiselsandbits.api.item.bit.IBitItem;
-import mod.chiselsandbits.api.util.SingleBlockBlockReader;
-import mod.chiselsandbits.api.util.SingleBlockWorldReader;
-import mod.chiselsandbits.client.events.TickHandler;
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
+import mod.chiselsandbits.client.time.TickHandler;
 import mod.chiselsandbits.registrars.ModItems;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.NonNullList;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -130,7 +125,7 @@ public class BitBlockBakedModelManager
                     ItemStack lookupStack = new ItemStack(workingState.getBlock());
                     if (workingState.getBlock() instanceof LiquidBlock)
                     {
-                        lookupStack = new ItemStack(((LiquidBlock) workingState.getBlock()).getFluid().getBucket());
+                        lookupStack = new ItemStack(workingState.getFluidState().getType().getBucket());
                     }
                     return Minecraft.getInstance().getItemRenderer().getModel(
                       lookupStack,
