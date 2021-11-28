@@ -29,8 +29,6 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -106,7 +104,6 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
         return InteractionResult.FAIL;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public float getShadeBrightness(@NotNull BlockState state, @NotNull BlockGetter worldIn, @NotNull BlockPos pos)
     {
         return 1.0F;
@@ -130,7 +127,7 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
 
     public ItemStack getTankDrop(final BitStorageBlockEntity bitTank)
     {
-        final ItemStack tankStack = new ItemStack(ModItems.BIT_STORAGE.get());
+        final ItemStack tankStack = new ItemStack(ModItems.ITEM_BIT_STORAGE.get());
         if (bitTank.containsFluid())
         {
             final Optional<FluidInformation> fluidInformation = bitTank.getFluid();

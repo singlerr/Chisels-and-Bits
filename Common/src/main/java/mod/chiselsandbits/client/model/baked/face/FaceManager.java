@@ -7,6 +7,7 @@ import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
 import mod.chiselsandbits.client.model.baked.face.model.ModelVertexRange;
 import mod.chiselsandbits.client.model.baked.simple.SimpleGeneratedModel;
 import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
+import mod.chiselsandbits.platforms.core.client.rendering.type.IRenderTypeManager;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
 import mod.chiselsandbits.platforms.core.registries.IPlatformRegistryManager;
@@ -66,12 +67,12 @@ public final class FaceManager {
         final Key key = new Key(state, layer, face, primaryStateRenderSeed);
 
         return cache.get(key, () -> {
-            final Optional<RenderType> original = IRenderingManager.getInstance().getCurrentRenderType();
+            final Optional<RenderType> original = IRenderTypeManager.getInstance().getCurrentRenderType();
             try {
-                IRenderingManager.getInstance().setCurrentRenderType(layer);
+                IRenderTypeManager.getInstance().setCurrentRenderType(layer);
                 return buildFaceQuadLayers(state, face, primaryStateRenderSeed);
             } finally {
-                IRenderingManager.getInstance().setCurrentRenderType(original.orElse(null));
+                IRenderTypeManager.getInstance().setCurrentRenderType(original.orElse(null));
             }
         });
     }
@@ -97,13 +98,13 @@ public final class FaceManager {
             final float Vf = 1.0f;
 
             if (face.getAxis() == Direction.Axis.Y) {
-                mp[0].setSprite(IRenderingManager.getInstance().getStillFluidTexture(fluid));
+                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(IRenderingManager.getInstance().getStillFluidTexture(fluid)));
                 mp[0].setUvs(new float[]{Uf, Vf, 0, Vf, Uf, 0, 0, 0});
             } else if (face.getAxis() == Direction.Axis.X) {
-                mp[0].setSprite(IRenderingManager.getInstance().getFlowingFluidTexture(fluid));
+                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(IRenderingManager.getInstance().getFlowingFluidTexture(fluid)));
                 mp[0].setUvs(new float[]{U, 0, U, V, 0, 0, 0, V});
             } else {
-                mp[0].setSprite(IRenderingManager.getInstance().getFlowingFluidTexture(fluid));
+                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(IRenderingManager.getInstance().getFlowingFluidTexture(fluid)));
                 mp[0].setUvs(new float[]{U, 0, 0, 0, U, V, 0, V});
             }
 

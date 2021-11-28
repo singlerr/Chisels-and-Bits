@@ -1,14 +1,13 @@
 package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.network.handlers.ClientPacketHandlers;
+import mod.chiselsandbits.platforms.core.dist.DistExecutor;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.BlockPos;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
 
-import static net.minecraftforge.api.distmarker.Dist.CLIENT;
+import static mod.chiselsandbits.platforms.core.dist.Dist.CLIENT;
 
 public final class TileEntityUpdatedPacket extends ModPacket
 {

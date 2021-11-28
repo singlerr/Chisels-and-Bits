@@ -1,40 +1,38 @@
 package mod.chiselsandbits.client.render;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.measuring.IMeasurement;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
 import mod.chiselsandbits.api.measuring.MeasuringType;
 import mod.chiselsandbits.api.util.VectorUtils;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.measures.MeasuringManager;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.multiplayer.PlayerInfo;
-import net.minecraft.client.renderer.MultiBufferSource;
-import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.scores.PlayerTeam;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.shapes.Shapes;
-import com.mojang.math.Quaternion;
-import net.minecraft.world.phys.Vec3;
-import com.mojang.math.Vector3f;
-import net.minecraft.world.level.GameType;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-
-import java.text.DecimalFormat;
-import java.util.Collection;
-import java.util.UUID;
-
-import net.minecraft.ChatFormatting;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.scores.PlayerTeam;
+
+import java.text.DecimalFormat;
+import java.util.Collection;
+import java.util.UUID;
 
 public final class MeasurementRenderer
 {
@@ -49,7 +47,7 @@ public final class MeasurementRenderer
         return INSTANCE;
     }
 
-    public void renderMeasurements(final RenderWorldLastEvent event)
+    public void renderMeasurements(final PoseStack poseStack)
     {
         if (Minecraft.getInstance().level == null)
         {
@@ -75,7 +73,7 @@ public final class MeasurementRenderer
             if (measurement.getMode().getGroup().map(g -> g != MeasuringType.DISTANCE).orElse(false))
             {
                 LevelRenderer.renderShape(
-                  event.getMatrixStack(),
+                  poseStack,
                   Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
                   boundingShape,
                   startPos.x() - xView,
@@ -91,16 +89,16 @@ public final class MeasurementRenderer
                 final Vec3 centerPos = measurement.getFrom().add(measurement.getTo()).multiply(0.5, 0.5, 0.5);
 
                 if (lengths.y() > 1/16d)
-                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.y(), new Vec3(measurement.getFrom().x(), centerPos.y(), measurement.getFrom().z()));
+                    renderMeasurementSize(poseStack, measurement, lengths.y(), new Vec3(measurement.getFrom().x(), centerPos.y(), measurement.getFrom().z()));
                 if (lengths.x() > 1/16d)
-                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.x(), new Vec3(centerPos.x(), measurement.getFrom().y(), measurement.getFrom().z()));
+                    renderMeasurementSize(poseStack, measurement, lengths.x(), new Vec3(centerPos.x(), measurement.getFrom().y(), measurement.getFrom().z()));
                 if (lengths.z() > 1/16d)
-                    renderMeasurementSize(event.getMatrixStack(), measurement, lengths.z(), new Vec3(measurement.getFrom().x(), measurement.getFrom().y(), centerPos.z()));
+                    renderMeasurementSize(poseStack, measurement, lengths.z(), new Vec3(measurement.getFrom().x(), measurement.getFrom().y(), centerPos.z()));
             }
             else if (measurement.getMode().getGroup().map(g -> g == MeasuringType.DISTANCE).orElse(false))
             {
                 final VertexConsumer bufferIn = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get());
-                bufferIn.vertex(event.getMatrixStack().last().pose(),
+                bufferIn.vertex(poseStack.last().pose(),
                   (float) (measurement.getFrom().x() - xView),
                   (float) (measurement.getFrom().y() - yView),
                   (float) (measurement.getFrom().z() - zView))
@@ -109,7 +107,7 @@ public final class MeasurementRenderer
                     (float) measurement.getMode().getColorVector().z(),
                     1f).endVertex();
 
-                bufferIn.vertex(event.getMatrixStack().last().pose(),
+                bufferIn.vertex(poseStack.last().pose(),
                   (float) (measurement.getTo().x() - xView),
                   (float) (measurement.getTo().y() - yView),
                   (float) (measurement.getTo().z() - zView))
@@ -123,7 +121,7 @@ public final class MeasurementRenderer
                 final Vec3 centerPos = measurement.getFrom().add(measurement.getTo()).multiply(0.5, 0.5, 0.5);
 
                 if (totalLength > 1/16d)
-                    renderMeasurementSize(event.getMatrixStack(), measurement, totalLength, centerPos);
+                    renderMeasurementSize(poseStack, measurement, totalLength, centerPos);
             }
 
             Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());

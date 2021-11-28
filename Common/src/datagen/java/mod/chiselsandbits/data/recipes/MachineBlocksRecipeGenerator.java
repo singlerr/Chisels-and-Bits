@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.ldtteam.datagenerators.recipes.RecipeIngredientJson;
 import com.ldtteam.datagenerators.recipes.RecipeIngredientKeyJson;
 import mod.chiselsandbits.api.data.recipe.AbstractRecipeGenerator;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModTags;
 import net.minecraft.world.level.block.Blocks;

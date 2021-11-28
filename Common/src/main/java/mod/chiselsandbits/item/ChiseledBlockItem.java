@@ -1,8 +1,6 @@
 package mod.chiselsandbits.item;
 
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
-import mod.chiselsandbits.api.chiseling.IChiselingContext;
-import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.chiseled.IChiseledBlockItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
@@ -12,8 +10,8 @@ import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.registrars.ModModificationOperation;
 import net.minecraft.network.chat.Component;
@@ -25,7 +23,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -122,7 +119,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
       final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        Configuration.getInstance().getCommon().helpText(LocalStrings.HelpBitBag, tooltip);
+        HelpTextUtils.build(LocalStrings.HelpBitBag, tooltip);
     }
 
     @Override
@@ -136,7 +133,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
           target.add(1,1,1));
         final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();
 
-        final boolean noCollision = source.stream()
+        return source.stream()
           .allMatch(stateEntryInfo -> {
               try
               {
@@ -152,8 +149,6 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
                   return false;
               }
           });
-
-        return noCollision;
     }
 
     @Override

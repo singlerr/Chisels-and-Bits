@@ -3,16 +3,16 @@ package mod.chiselsandbits.inventory.bit;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import mod.chiselsandbits.api.config.Configuration;
+import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -93,10 +93,10 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
             if (count == 0)
                 continue;
 
-            while (count > Configuration.getInstance().getServer().bagStackSize.get() && count > 0) {
-                this.slotMap.put(slotIndex, new BitSlot(e.getKey(), Configuration.getInstance().getServer().bagStackSize.get()));
+            while (count > IServerConfiguration.getInstance().getBagStackSize().get() && count > 0) {
+                this.slotMap.put(slotIndex, new BitSlot(e.getKey(), IServerConfiguration.getInstance().getBagStackSize().get()));
                 slotIndex++;
-                count -= Configuration.getInstance().getServer().bagStackSize.get();
+                count -= IServerConfiguration.getInstance().getBagStackSize().get();
             }
 
             if (count > 0) {
@@ -147,11 +147,10 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
             return;
         }
 
-        if (!(stack.getItem() instanceof IBitItem)) {
+        if (!(stack.getItem() instanceof final IBitItem bitItem)) {
             return;
         }
 
-        final IBitItem bitItem = (IBitItem) stack.getItem();
         final BlockState state = bitItem.getBitState(stack);
 
         final BitSlot bitSlot = this.slotMap.getOrDefault(index, new BitSlot());
@@ -191,7 +190,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     @Override
     protected int getMaxBitsForSlot()
     {
-        return Configuration.getInstance().getServer().bagStackSize.get();
+        return IServerConfiguration.getInstance().getBagStackSize().get();
     }
 
     @Override

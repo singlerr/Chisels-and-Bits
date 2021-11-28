@@ -6,8 +6,8 @@ import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.client.model.baked.base.BaseSmartModel;
 import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
-import mod.chiselsandbits.platforms.core.client.models.data.IModelData;
-import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
+import mod.chiselsandbits.platforms.core.client.models.data.IBlockModelData;
+import mod.chiselsandbits.platforms.core.client.rendering.type.IRenderTypeManager;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModModelProperties;
 import net.minecraft.client.resources.model.BakedModel;
@@ -31,16 +31,16 @@ public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
     }
 
     @Override
-    public BakedModel handleBlockState(final BlockState state, final Random random, final IModelData modelData)
+    public BakedModel handleBlockState(final BlockState state, final Random random, final IBlockModelData modelData)
     {
         if (!modelData.hasProperty(ModModelProperties.KNOWN_LAYER_MODEL_PROPERTY) && !modelData.hasProperty(ModModelProperties.UNKNOWN_LAYER_MODEL_PROPERTY))
             return NullBakedModel.instance;
 
-        if (!modelData.hasProperty(ModModelProperties.KNOWN_LAYER_MODEL_PROPERTY) || IRenderingManager.getInstance().getCurrentRenderType().isEmpty())
+        if (!modelData.hasProperty(ModModelProperties.KNOWN_LAYER_MODEL_PROPERTY) || IRenderTypeManager.getInstance().getCurrentRenderType().isEmpty())
             return modelData.getData(ModModelProperties.UNKNOWN_LAYER_MODEL_PROPERTY);
 
         return modelData.getData(ModModelProperties.KNOWN_LAYER_MODEL_PROPERTY).getOrDefault(
-          IRenderingManager.getInstance().getCurrentRenderType().get(),
+          IRenderTypeManager.getInstance().getCurrentRenderType().get(),
           NullBakedModel.instance
         );
     }

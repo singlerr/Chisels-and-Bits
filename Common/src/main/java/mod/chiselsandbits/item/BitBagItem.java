@@ -3,15 +3,16 @@ package mod.chiselsandbits.item;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.bitbag.IBitBagAcceptingBlock;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import mod.chiselsandbits.api.config.Configuration;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItem;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
+import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.inventory.bit.SlottedBitInventoryItemStack;
 import mod.chiselsandbits.network.packets.OpenBagGuiPacket;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.SimpleInstanceCache;
 import net.minecraft.client.Minecraft;
@@ -30,8 +31,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,12 +64,11 @@ public class BitBagItem extends Item implements IBitInventoryItem
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
-        Configuration.getInstance().getCommon().helpText(LocalStrings.HelpBitBag, tooltip);
+        HelpTextUtils.build(LocalStrings.HelpBitBag, tooltip);
 
         if (tooltipCache.needsUpdate(stack))
         {
@@ -157,7 +155,6 @@ public class BitBagItem extends Item implements IBitInventoryItem
         return inventoryItemStack;
     }
 
-    @Override
     public boolean showDurabilityBar(
       final ItemStack stack)
     {
@@ -170,7 +167,6 @@ public class BitBagItem extends Item implements IBitInventoryItem
         return !inventoryItemStack. isEmpty();
     }
 
-    @Override
     public double getDurabilityForDisplay(
       final ItemStack stack)
     {
@@ -181,7 +177,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
         final IBitInventoryItemStack inventoryItemStack = item.create(stack);
 
         final double filledRatio = inventoryItemStack.getFilledRatio();
-        return Math.min(1.0d, Math.max(0.0d, Configuration.getInstance().getClient().invertBitBagFullness.get() ? filledRatio : 1.0 - filledRatio));
+        return Math.min(1.0d, Math.max(0.0d, IClientConfiguration.getInstance().getInvertBitBagFullness().get() ? filledRatio : 1.0 - filledRatio));
     }
 
     @Override
@@ -260,10 +256,8 @@ public class BitBagItem extends Item implements IBitInventoryItem
         return null;
     }
 
-    @Override
     public boolean shouldCauseReequipAnimation(final ItemStack oldStack, final ItemStack newStack, final boolean slotChanged)
     {
         return false;
     }
-
 }

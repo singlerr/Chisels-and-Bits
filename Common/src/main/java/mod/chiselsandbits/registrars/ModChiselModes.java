@@ -2,7 +2,7 @@ package mod.chiselsandbits.registrars;
 
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.util.LocalStrings;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.chiseling.modes.connected.material.ConnectedMaterialChiselingModeBuilder;
 import mod.chiselsandbits.chiseling.modes.connected.plane.ConnectedPlaneChiselingModeBuilder;
 import mod.chiselsandbits.chiseling.modes.cubed.CubedChiselModeBuilder;
@@ -14,14 +14,17 @@ import mod.chiselsandbits.platforms.core.registries.IChiselsAndBitsRegistry;
 import mod.chiselsandbits.platforms.core.registries.deferred.ICustomRegistrar;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistryObject;
 import net.minecraft.resources.ResourceLocation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.function.Supplier;
 
 @SuppressWarnings("unused")
 public final class ModChiselModes
 {
-    private static final ICustomRegistrar<IChiselMode> MODE_REGISTRAR = ICustomRegistrar.create(IChiselMode.class, Constants.MOD_ID);
-    public static final  IRegistryObject<IChiselMode>  SINGLE_BIT     = MODE_REGISTRAR.register(
+    private static final Logger                                         LOGGER                   = LogManager.getLogger();
+    private static final ICustomRegistrar<IChiselMode>                  MODE_REGISTRAR           = ICustomRegistrar.create(IChiselMode.class, Constants.MOD_ID);
+    public static final  IRegistryObject<IChiselMode>                   SINGLE_BIT               = MODE_REGISTRAR.register(
       "single_bit",
       () -> new CubedChiselModeBuilder().setBitsPerSide(1)
         .setDisplayName(LocalStrings.ChiselModeSingle.getText())
@@ -29,7 +32,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/bit.png"))
         .createCubedChiselMode()
     );
-    public static final  IRegistryObject<IChiselMode>  SMALL_BIT      = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   SMALL_BIT                = MODE_REGISTRAR.register(
       "small_bit",
       () -> new CubedChiselModeBuilder().setBitsPerSide(2)
         .setDisplayName(LocalStrings.ChiselModeCubeSmall.getText())
@@ -37,7 +40,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/cube_small.png"))
         .createCubedChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> MEDIUM_BIT = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   MEDIUM_BIT               = MODE_REGISTRAR.register(
       "medium_bit",
       () -> new CubedChiselModeBuilder().setBitsPerSide(4)
         .setDisplayName(LocalStrings.ChiselModeCubeMedium.getText())
@@ -45,7 +48,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/cube_medium.png"))
         .createCubedChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> LARGE_BIT = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   LARGE_BIT                = MODE_REGISTRAR.register(
       "large_bit",
       () -> new CubedChiselModeBuilder().setBitsPerSide(8)
         .setDisplayName(LocalStrings.ChiselModeCubeLarge.getText())
@@ -53,7 +56,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/cube_large.png"))
         .createCubedChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> SMALL_BIT_ALIGNED = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   SMALL_BIT_ALIGNED        = MODE_REGISTRAR.register(
       "small_bit_aligned",
       () -> new CubedChiselModeBuilder().setBitsPerSide(2)
         .setAligned(true)
@@ -62,7 +65,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/snap2.png"))
         .createCubedChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> MEDIUM_BIT_ALIGNED = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   MEDIUM_BIT_ALIGNED       = MODE_REGISTRAR.register(
       "medium_bit_aligned",
       () -> new CubedChiselModeBuilder().setBitsPerSide(4)
         .setAligned(true)
@@ -71,7 +74,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/snap4.png"))
         .createCubedChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> LARGE_BIT_ALIGNED = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   LARGE_BIT_ALIGNED        = MODE_REGISTRAR.register(
       "large_bit_aligned",
       () -> new CubedChiselModeBuilder().setBitsPerSide(8)
         .setAligned(true)
@@ -80,7 +83,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/snap8.png"))
         .createCubedChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> FULL_BLOCK = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   FULL_BLOCK               = MODE_REGISTRAR.register(
       "full_cube",
       () -> new CubedChiselModeBuilder().setBitsPerSide(16)
         .setAligned(true)
@@ -89,7 +92,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/same_material.png"))
         .createCubedChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> LINE_ONE = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   LINE_ONE                 = MODE_REGISTRAR.register(
       "line_1",
       () -> new LinedChiselModeBuilder()
         .setBitsPerSide(1)
@@ -98,7 +101,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/line.png"))
         .createLinedChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> LINE_TWO = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   LINE_TWO                 = MODE_REGISTRAR.register(
       "line_2",
       () -> new LinedChiselModeBuilder()
         .setBitsPerSide(2)
@@ -107,7 +110,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/line2.png"))
         .createLinedChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> LINE_FOUR = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   LINE_FOUR                = MODE_REGISTRAR.register(
       "line_4",
       () -> new LinedChiselModeBuilder()
         .setBitsPerSide(4)
@@ -116,7 +119,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/line4.png"))
         .createLinedChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> LINE_EIGHT = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   LINE_EIGHT               = MODE_REGISTRAR.register(
       "line_8",
       () -> new LinedChiselModeBuilder()
         .setBitsPerSide(8)
@@ -125,7 +128,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/line8.png"))
         .createLinedChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> PLANE_ONE = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   PLANE_ONE                = MODE_REGISTRAR.register(
       "plane_1",
       () -> new PlaneChiselModeBuilder()
         .setDepth(1)
@@ -134,7 +137,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane.png"))
         .createPlaneChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> PLANE_TWO = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   PLANE_TWO                = MODE_REGISTRAR.register(
       "plane_2",
       () -> new PlaneChiselModeBuilder()
         .setDepth(2)
@@ -143,7 +146,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane2.png"))
         .createPlaneChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> PLANE_FOUR = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   PLANE_FOUR               = MODE_REGISTRAR.register(
       "plane_4",
       () -> new PlaneChiselModeBuilder()
         .setDepth(4)
@@ -152,7 +155,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane4.png"))
         .createPlaneChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> PLANE_EIGHT = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   PLANE_EIGHT              = MODE_REGISTRAR.register(
       "plane_8",
       () -> new PlaneChiselModeBuilder()
         .setDepth(8)
@@ -161,7 +164,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane8.png"))
         .createPlaneChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> CONNECTED_MATERIAL_ONE = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   CONNECTED_MATERIAL_ONE   = MODE_REGISTRAR.register(
       "connected_material_1",
       () -> new ConnectedMaterialChiselingModeBuilder()
         .setDepth(1)
@@ -170,7 +173,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane.png"))
         .createConnectedMaterialChiselingMode()
     );
-    public static final IRegistryObject<IChiselMode> CONNECTED_MATERIAL_TWO = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   CONNECTED_MATERIAL_TWO   = MODE_REGISTRAR.register(
       "connected_material_2",
       () -> new ConnectedMaterialChiselingModeBuilder()
         .setDepth(2)
@@ -179,7 +182,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane2.png"))
         .createConnectedMaterialChiselingMode()
     );
-    public static final IRegistryObject<IChiselMode> CONNECTED_MATERIAL_FOUR = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   CONNECTED_MATERIAL_FOUR  = MODE_REGISTRAR.register(
       "connected_material_4",
       () -> new ConnectedMaterialChiselingModeBuilder()
         .setDepth(4)
@@ -188,7 +191,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane4.png"))
         .createConnectedMaterialChiselingMode()
     );
-    public static final IRegistryObject<IChiselMode> CONNECTED_MATERIAL_EIGHT = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   CONNECTED_MATERIAL_EIGHT = MODE_REGISTRAR.register(
       "connected_material_8",
       () -> new ConnectedMaterialChiselingModeBuilder()
         .setDepth(8)
@@ -197,7 +200,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane8.png"))
         .createConnectedMaterialChiselingMode()
     );
-    public static final IRegistryObject<IChiselMode> SMALL_SPHERE = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   SMALL_SPHERE             = MODE_REGISTRAR.register(
       "small_sphere",
       () -> new SphereChiselModeBuilder().setDiameter(4)
         .setDisplayName(LocalStrings.ChiselModeSphereSmall.getText())
@@ -205,7 +208,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/sphere_small.png"))
         .createSphereChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> MEDIUM_SPHERE = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   MEDIUM_SPHERE            = MODE_REGISTRAR.register(
       "medium_sphere",
       () -> new SphereChiselModeBuilder().setDiameter(8)
         .setDisplayName(LocalStrings.ChiselModeSphereMedium.getText())
@@ -213,7 +216,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/sphere_medium.png"))
         .createSphereChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> LARGE_SPHERE = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   LARGE_SPHERE             = MODE_REGISTRAR.register(
       "large_sphere",
       () -> new SphereChiselModeBuilder().setDiameter(16)
         .setDisplayName(LocalStrings.ChiselModeSphereLarge.getText())
@@ -221,7 +224,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/sphere_large.png"))
         .createSphereChiselMode()
     );
-    public static final IRegistryObject<IChiselMode> CONNECTED_PLANE_ONE = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   CONNECTED_PLANE_ONE      = MODE_REGISTRAR.register(
       "connected_plane_1",
       () -> new ConnectedPlaneChiselingModeBuilder()
         .setDepth(1)
@@ -230,7 +233,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane.png"))
         .createConnectedPlaneChiselingMode()
     );
-    public static final IRegistryObject<IChiselMode> CONNECTED_PLANE_TWO = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   CONNECTED_PLANE_TWO      = MODE_REGISTRAR.register(
       "connected_plane_2",
       () -> new ConnectedPlaneChiselingModeBuilder()
         .setDepth(2)
@@ -239,7 +242,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane2.png"))
         .createConnectedPlaneChiselingMode()
     );
-    public static final IRegistryObject<IChiselMode> CONNECTED_PLANE_FOUR = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   CONNECTED_PLANE_FOUR     = MODE_REGISTRAR.register(
       "connected_plane_4",
       () -> new ConnectedPlaneChiselingModeBuilder()
         .setDepth(4)
@@ -248,7 +251,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane4.png"))
         .createConnectedPlaneChiselingMode()
     );
-    public static final IRegistryObject<IChiselMode> CONNECTED_PLANE_EIGHT = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   CONNECTED_PLANE_EIGHT    = MODE_REGISTRAR.register(
       "connected_plane_8",
       () -> new ConnectedPlaneChiselingModeBuilder()
         .setDepth(8)
@@ -257,7 +260,7 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/plane8.png"))
         .createConnectedPlaneChiselingMode()
     );
-    public static final IRegistryObject<IChiselMode>             REPLACE  = MODE_REGISTRAR.register(
+    public static final  IRegistryObject<IChiselMode>                   REPLACE                  = MODE_REGISTRAR.register(
       "replace",
       () -> new ReplaceChiselingModeBuilder()
         .setDisplayName(LocalStrings.ChiselModeReplace.getText())
@@ -265,7 +268,8 @@ public final class ModChiselModes
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/replace.png"))
         .createReplaceChiselingMode()
     );
-    public static Supplier<IChiselsAndBitsRegistry<IChiselMode>> REGISTRY = () -> {throw new IllegalStateException("Registry is not setup yet. Use a Deferred Register!");};
+    public static        Supplier<IChiselsAndBitsRegistry<IChiselMode>> REGISTRY                 =
+      () -> {throw new IllegalStateException("Registry is not setup yet. Use a Deferred Register!");};
 
     private ModChiselModes()
     {
@@ -274,6 +278,7 @@ public final class ModChiselModes
 
     public static void onModConstruction()
     {
-        REGISTRY = MODE_REGISTRAR.makeRegistry("chisel_mode", IChiselsAndBitsRegistry.Builder::simple);
+        REGISTRY = MODE_REGISTRAR.makeRegistry(IChiselsAndBitsRegistry.Builder::simple);
+        LOGGER.info("Loaded chisel mode configuration.");
     }
 }

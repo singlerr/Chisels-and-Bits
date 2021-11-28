@@ -5,7 +5,7 @@ import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 
-public class ClearChangeTrackerPacket extends ModPacket
+public final class ClearChangeTrackerPacket extends ModPacket
 {
     public ClearChangeTrackerPacket(FriendlyByteBuf byteBuf)
     {

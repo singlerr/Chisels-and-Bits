@@ -3,16 +3,16 @@ package mod.chiselsandbits.platforms.core.client.rendering;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mod.chiselsandbits.platforms.core.client.IClientManager;
+import mod.chiselsandbits.platforms.core.client.rendering.type.IRenderTypeManager;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Optional;
 
 /**
  * Gives access to the platforms specific rendering tasks.
@@ -54,30 +54,12 @@ public interface IRenderingManager
       int combinedOverlay);
 
     /**
-     * Indicates if the blockstate needs to be rendered in the render type.
-     *
-     * @param blockState The block state in question.
-     * @param renderType The render type.
-     * @return True when rendering in the given render type is required, false when not.
-     */
-    boolean canRenderInType(final BlockState blockState, final RenderType renderType);
-
-    /**
-     * Indicates if the fluidState needs to be rendered in the render type.
-     *
-     * @param fluidState The fluid state in question.
-     * @param renderType The render type.
-     * @return True when rendering in the given render type is required, false when not.
-     */
-    boolean canRenderInType(final FluidState fluidState, final RenderType renderType);
-
-    /**
      * Gains access to the texture that is used to render a flowing fluid.
      *
      * @param fluidInformation The fluid to get the texture for.
      * @return The texture.
      */
-    TextureAtlasSprite getFlowingFluidTexture(final FluidInformation fluidInformation);
+    ResourceLocation getFlowingFluidTexture(final FluidInformation fluidInformation);
 
     /**
      * Gains access to the texture that is used to render a flowing fluid.
@@ -85,7 +67,7 @@ public interface IRenderingManager
      * @param fluid The fluid to get the texture for.
      * @return The texture.
      */
-    TextureAtlasSprite getFlowingFluidTexture(final Fluid fluid);
+    ResourceLocation getFlowingFluidTexture(final Fluid fluid);
 
     /**
      * Gains access to the texture that is used to render a still fluid.
@@ -93,7 +75,7 @@ public interface IRenderingManager
      * @param fluidInformation The fluid to get the texture for.
      * @return The texture.
      */
-    TextureAtlasSprite getStillFluidTexture(final FluidInformation fluidInformation);
+    ResourceLocation getStillFluidTexture(final FluidInformation fluidInformation);
 
     /**
      * Gains access to the texture that is used to render a still fluid.
@@ -101,22 +83,22 @@ public interface IRenderingManager
      * @param fluid The fluid to get the texture for.
      * @return The texture.
      */
-    TextureAtlasSprite getStillFluidTexture(final Fluid fluid);
+    ResourceLocation getStillFluidTexture(final Fluid fluid);
 
     /**
-     * The currently used {@link RenderType} for the platform.
-     * Might be empty if not rendering in a layered world rendering context.
+     * The render type manager.
+     * Deals with the render types which are available on different platforms.
      *
-     * @return The current rendering type.
+     * @return The render type manager.
      */
     @NotNull
-    Optional<RenderType> getCurrentRenderType();
+    IRenderTypeManager getRenderTypeManager();
 
     /**
-     * Sets the current {@link RenderType}, if null is passed in then no
-     * layered rendering is performed.
+     * Registers a new BEWLR (ISTER) for a specific item.
      *
-     * @param renderType The new current {@link RenderType}, might be null.
+     * @param item The item to register the BEWLR for.
+     * @param renderer The BEWLR to register.
      */
-    void setCurrentRenderType(RenderType renderType);
+    void registerISTER(final Item item, final BlockEntityWithoutLevelRenderer renderer);
 }

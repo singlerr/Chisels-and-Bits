@@ -2,7 +2,7 @@ package mod.chiselsandbits.client.icon;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.client.icon.IIconManager;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;

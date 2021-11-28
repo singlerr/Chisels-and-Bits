@@ -1,7 +1,7 @@
 package mod.chiselsandbits.recipe;
 
 import mod.chiselsandbits.item.BitBagItem;
-import mod.chiselsandbits.registrars.ModItems;
+import mod.chiselsandbits.platforms.core.item.IDyeItemHelper;
 import mod.chiselsandbits.registrars.ModRecipeSerializers;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.DyeColor;
@@ -12,7 +12,6 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 
 public class BagDyeingRecipe extends CustomRecipe
@@ -96,46 +95,16 @@ public class BagDyeingRecipe extends CustomRecipe
     private DyeColor getDye(
       ItemStack is)
     {
-        if (Tags.Items.DYES_WHITE.contains(is.getItem()))
-            return DyeColor.WHITE;
-        if (Tags.Items.DYES_ORANGE.contains(is.getItem()))
-            return DyeColor.ORANGE;
-        if (Tags.Items.DYES_MAGENTA.contains(is.getItem()))
-            return DyeColor.MAGENTA;
-        if (Tags.Items.DYES_LIGHT_BLUE.contains(is.getItem()))
-            return DyeColor.LIGHT_BLUE;
-        if (Tags.Items.DYES_YELLOW.contains(is.getItem()))
-            return DyeColor.YELLOW;
-        if (Tags.Items.DYES_LIME.contains(is.getItem()))
-            return DyeColor.LIME;
-        if (Tags.Items.DYES_PINK.contains(is.getItem()))
-            return DyeColor.PINK;
-        if (Tags.Items.DYES_GRAY.contains(is.getItem()))
-            return DyeColor.GRAY;
-        if (Tags.Items.DYES_LIGHT_GRAY.contains(is.getItem()))
-            return DyeColor.LIGHT_GRAY;
-        if (Tags.Items.DYES_CYAN.contains(is.getItem()))
-            return DyeColor.CYAN;
-        if (Tags.Items.DYES_PURPLE.contains(is.getItem()))
-            return DyeColor.PURPLE;
-        if (Tags.Items.DYES_BLUE.contains(is.getItem()))
-            return DyeColor.BLUE;
-        if (Tags.Items.DYES_BROWN.contains(is.getItem()))
-            return DyeColor.BROWN;
-        if (Tags.Items.DYES_GREEN.contains(is.getItem()))
-            return DyeColor.GREEN;
-        if (Tags.Items.DYES_RED.contains(is.getItem()))
-            return DyeColor.RED;
-        if (Tags.Items.DYES_BLACK.contains(is.getItem()))
-            return DyeColor.BLACK;
-        
-        if (is.getItem() instanceof DyeItem)
-        {
-            final DyeItem item = (DyeItem) is.getItem();
-            return item.getDyeColor();
-        }
+        return IDyeItemHelper.getInstance()
+                 .getColorFromItem(is)
+                 .orElseGet(() -> {
+                     if (is.getItem() instanceof final DyeItem item)
+                     {
+                         return item.getDyeColor();
+                     }
 
-        return null;
+                     return null;
+                 });
     }
 
     @Override

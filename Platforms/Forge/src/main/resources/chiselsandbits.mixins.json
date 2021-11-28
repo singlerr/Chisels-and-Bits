@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "mod.chiselsandbits.forge.platform.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "refmap": "chiselsandbits.refmap.json",
+  "mixins": [],
+  "client": [
+    "BlockRenderDispatcherMixin",
+    "ItemRendererMixin"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

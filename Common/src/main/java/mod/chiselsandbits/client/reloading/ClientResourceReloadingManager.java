@@ -47,8 +47,7 @@ public class ClientResourceReloadingManager implements ResourceManagerReloadList
     public static void setup() {
         LOGGER.info("Setting up client reloading resource manager.");
         ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-        if (resourceManager instanceof ReloadableResourceManager) {
-            ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) resourceManager;
+        if (resourceManager instanceof ReloadableResourceManager reloadableResourceManager) {
             reloadableResourceManager.registerReloadListener(ClientResourceReloadingManager.getInstance());
         }
 

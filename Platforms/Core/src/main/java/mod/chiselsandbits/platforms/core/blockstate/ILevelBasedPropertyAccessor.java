@@ -84,22 +84,22 @@ public interface ILevelBasedPropertyAccessor
     /**
      * Returns the beacon color multiplier of the blockstate on the given position in the block getter for the given beacon position.
      *
-     * @param blockGetter The block getter to pull the multiplier from.
+     * @param levelReader The level reader to pull the multiplier from.
      * @param pos The position to get the blockstate from.
      * @param beaconPos The position of the beacon.
      * @return The color multiplier for the beacon.
      */
-    float[] getBeaconColorMultiplier(BlockGetter blockGetter, BlockPos pos, BlockPos beaconPos);
+    float[] getBeaconColorMultiplier(LevelReader levelReader, BlockPos pos, BlockPos beaconPos);
 
     /**
      * Returns the sound type of the blockstate on the given position for the given entity.
      *
-     * @param blockGetter The block getter to pull the blockstate out of.
+     * @param levelReader The level reader to pull the blockstate out of.
      * @param pos The position to get the sound type for.
      * @param entity The entity to get the sound type for.
      * @return The sound type of the blockstate on the given position for the given entity.
      */
-    SoundType getSoundType(BlockGetter blockGetter, BlockPos pos, Entity entity);
+    SoundType getSoundType(final LevelReader levelReader, BlockPos pos, Entity entity);
 
     /**
      * Determines the explosion resistance of the blockstate in the given position against the given explosion.

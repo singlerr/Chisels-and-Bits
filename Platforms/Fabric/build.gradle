@@ -6,14 +6,26 @@ plugins {
 
 archivesBaseName = "${mod_name}-fabric-${minecraft_version}"
 
+repositories {
+    maven {
+        name 'LDTTeam - Modding'
+        url 'https://ldtteam.jfrog.io/ldtteam/modding/'
+    }
+}
+
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
     mappings loom.officialMojangMappings()
+
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
     implementation project(":Common")
     implementation project(":API")
     implementation project(":Platforms:Core")
+
+    compileOnly 'org.jetbrains:annotations:16.0.2'
+    testCompileOnly 'org.jetbrains:annotations:16.0.2'
 }
 
 loom {
@@ -31,6 +43,8 @@ loom {
             runDir("${this.name}/run")
         }
     }
+
+    accessWidenerPath = project.rootProject.file("Platforms/Core/src/main/resources/${mod_id}.accesswidener")
 }
 
 

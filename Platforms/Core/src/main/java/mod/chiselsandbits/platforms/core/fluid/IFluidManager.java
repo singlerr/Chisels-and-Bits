@@ -1,6 +1,7 @@
 package mod.chiselsandbits.platforms.core.fluid;
 
 import mod.chiselsandbits.platforms.core.IChiselsAndBitsPlatformCore;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 
@@ -82,4 +83,12 @@ public interface IFluidManager
     default int getFluidColor(final Fluid fluid) {
         return getFluidColor(new FluidInformation(fluid));
     }
+
+    /**
+     * Gets the display name of the fluid.
+     *
+     * @param fluid The fluid to get the display name from.
+     * @return The display name of the fluid.
+     */
+    Component getDisplayName(Fluid fluid);
 }

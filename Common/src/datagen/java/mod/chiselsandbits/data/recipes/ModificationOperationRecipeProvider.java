@@ -1,7 +1,7 @@
 package mod.chiselsandbits.data.recipes;
 
 import com.google.gson.JsonObject;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModModificationOperation;
 import mod.chiselsandbits.registrars.ModRecipeSerializers;
 import net.minecraft.data.DataGenerator;

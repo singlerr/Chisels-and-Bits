@@ -2,7 +2,7 @@ package mod.chiselsandbits.block;
 
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.container.ModificationTableContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

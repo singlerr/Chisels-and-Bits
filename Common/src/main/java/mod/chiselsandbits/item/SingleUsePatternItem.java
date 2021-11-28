@@ -1,6 +1,5 @@
 package mod.chiselsandbits.item;
 
-import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SealingNotSupportedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.item.pattern.IMultiUsePatternItem;
@@ -11,6 +10,7 @@ import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.pattern.placement.PlacementResult;
+import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
@@ -29,8 +29,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,10 +44,10 @@ public class SingleUsePatternItem extends Item implements IPatternItem
     }
 
     @Override
-    public Component getHighlightTip(final ItemStack item, final Component displayName)
+    public @NotNull Component getName(final ItemStack item)
     {
         if (!item.getOrCreateTag().contains("highlight"))
-            return super.getHighlightTip(item, displayName);
+            return super.getName(item);
 
         final String highlightTextJson = item.getOrCreateTag().getString("highlight");
         return Component.Serializer.fromJson(highlightTextJson).withStyle(ChatFormatting.RED);
@@ -165,7 +163,6 @@ public class SingleUsePatternItem extends Item implements IPatternItem
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void appendHoverText(
       final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
     {
@@ -183,18 +180,18 @@ public class SingleUsePatternItem extends Item implements IPatternItem
             tooltip.add(new TextComponent("        "));
             tooltip.add(new TextComponent("        "));
 
-            Configuration.getInstance().getCommon().helpText(LocalStrings.HelpSimplePattern, tooltip);
+            HelpTextUtils.build(LocalStrings.HelpSimplePattern, tooltip);
         }
     }
 
     @Override
     public @NotNull IPatternPlacementType getMode(final ItemStack stack)
     {
-        return ModPatternPlacementTypes.REGISTRY_SUPPLIER.get().getValue(
+        return ModPatternPlacementTypes.REGISTRY_SUPPLIER.get().get(
           stack.getOrCreateTag().contains("mode") ?
             new ResourceLocation(stack.getOrCreateTag().getString("mode")) :
             ModPatternPlacementTypes.PLACEMENT.getId()
-        );
+        ).orElse(ModPatternPlacementTypes.PLACEMENT.get());
     }
 
     @Override

@@ -2,7 +2,7 @@ package mod.chiselsandbits.client.tool.mode.icon;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRenderer;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 

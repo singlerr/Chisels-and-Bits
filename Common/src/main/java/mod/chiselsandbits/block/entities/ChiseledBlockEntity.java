@@ -25,12 +25,11 @@ import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntry
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.*;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
 import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
-import mod.chiselsandbits.platforms.core.access.IAccessManager;
 import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
-import mod.chiselsandbits.platforms.core.client.models.data.IModelData;
+import mod.chiselsandbits.platforms.core.client.models.data.IBlockModelData;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataBuilder;
 import mod.chiselsandbits.registrars.ModBlockEntityTypes;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
@@ -67,7 +66,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     private final MutableStatistics mutableStatistics;
     private final Map<UUID, IBatchMutation> batchMutations = Maps.newConcurrentMap();
     private LevelChunkSection compressedSection;
-    private IModelData        modelData = IModelDataBuilder.create().build();
+    private IBlockModelData   modelData = IModelDataBuilder.create().build();
 
     public ChiseledBlockEntity(BlockPos position, BlockState state)
     {
@@ -645,13 +644,13 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         };
     }
 
-    public void setModelData(final IModelData modelData)
+    public void setModelData(final IBlockModelData modelData)
     {
         this.modelData = modelData;
     }
 
     @NotNull
-    public IModelData getModelData()
+    public IBlockModelData getBlockModelData()
     {
         return this.modelData;
     }
@@ -1400,8 +1399,8 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         private Identifier(final LevelChunkSection section)
         {
             this.identifyingPayload = Arrays.copyOf(
-              IAccessManager.getInstance().getStorageFrom(section).getRaw(),
-              IAccessManager.getInstance().getStorageFrom(section).getRaw().length
+              section.states.storage.getRaw(),
+              section.states.storage.getRaw().length
             );
         }
 

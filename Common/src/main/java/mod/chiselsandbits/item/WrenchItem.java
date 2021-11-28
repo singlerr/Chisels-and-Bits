@@ -8,7 +8,7 @@ import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.RayTracingUtils;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -20,7 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.registries.ForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class WrenchItem extends Item implements IWithModeItem<IModificationOperation>, IRightClickControllingItem
@@ -48,8 +48,8 @@ public class WrenchItem extends Item implements IWithModeItem<IModificationOpera
         {
             final String modeName = stackNbt.getString(NbtConstants.MODIFICATION_MODE);
             try {
-                final IModificationOperation registryMode = IModificationOperation.getRegistry().getValue(new ResourceLocation(modeName));
-                return Objects.requireNonNullElseGet(registryMode, IModificationOperation::getDefaultMode);
+                final Optional<IModificationOperation> registryMode = IModificationOperation.getRegistry().get(new ResourceLocation(modeName));
+                return registryMode.orElseGet(IModificationOperation::getDefaultMode);
             }
             catch (IllegalArgumentException illegalArgumentException) {
                 LOGGER.error(String.format("An ItemStack got loaded with a name that is not a valid modification mode: %s", modeName));
@@ -70,7 +70,7 @@ public class WrenchItem extends Item implements IWithModeItem<IModificationOpera
     @Override
     public Collection<IModificationOperation> getPossibleModes()
     {
-        return IModificationOperation.getRegistry().getValues().stream().sorted(Comparator.comparing(((ForgeRegistry<IModificationOperation>) IModificationOperation.getRegistry())::getID)).collect(Collectors.toList());
+        return IModificationOperation.getRegistry().getValues().stream().sorted(Comparator.comparing(IModificationOperation::getRegistryName)).collect(Collectors.toList());
     }
 
     @Override

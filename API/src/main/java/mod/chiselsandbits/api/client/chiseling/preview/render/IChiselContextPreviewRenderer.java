@@ -3,13 +3,10 @@ package mod.chiselsandbits.api.client.chiseling.preview.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**
  * Renderer which is used to render the chiseling preview.
  */
-@OnlyIn(Dist.CLIENT)
 public interface IChiselContextPreviewRenderer
 {
 

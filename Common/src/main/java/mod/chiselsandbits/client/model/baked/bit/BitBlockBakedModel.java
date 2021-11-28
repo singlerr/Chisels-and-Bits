@@ -1,7 +1,7 @@
 package mod.chiselsandbits.client.model.baked.bit;
 
 import com.mojang.math.Vector3f;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
 import mod.chiselsandbits.client.model.baked.face.FaceManager;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;

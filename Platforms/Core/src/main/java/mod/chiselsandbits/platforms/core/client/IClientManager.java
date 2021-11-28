@@ -1,9 +1,11 @@
 package mod.chiselsandbits.platforms.core.client;
 
 import mod.chiselsandbits.platforms.core.IChiselsAndBitsPlatformCore;
+import mod.chiselsandbits.platforms.core.client.key.IKeyBindingManager;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataBuilder;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataKey;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataManager;
+import mod.chiselsandbits.platforms.core.client.rendering.IColorManager;
 import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,5 +58,25 @@ public interface IClientManager
      */
     @NotNull
     IModelDataManager getModelDataManager();
+
+    /**
+     * The color manager for this platform.
+     * Allows the setting of the rendering colors for items and blocks on the current platform.
+     *
+     * @return The color manager.
+     */
+    @NotNull
+    IColorManager getColorManager();
+
+    /**
+     * The key binding manager for this platform.
+     * Allows for the registration of new key bindings.
+     *
+     * @return The key binding manager.
+     */
+    @NotNull
+    IKeyBindingManager getKeyBindingManager();
+
+
 
 }

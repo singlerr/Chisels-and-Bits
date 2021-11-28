@@ -2,42 +2,41 @@ package mod.chiselsandbits;
 
 import mod.chiselsandbits.api.ChiselsAndBitsAPI;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import mod.chiselsandbits.api.config.Configuration;
-import mod.chiselsandbits.api.util.LanguageHandler;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.api.config.IChiselsAndBitsConfiguration;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
+import mod.chiselsandbits.config.ChiselsAndBitsConfiguration;
 import mod.chiselsandbits.network.NetworkChannel;
 import mod.chiselsandbits.registrars.*;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
 
-@Mod(Constants.MOD_ID)
 public class ChiselsAndBits
 {
 	private static ChiselsAndBits     instance;
 	private final  NetworkChannel     networkChannel = new NetworkChannel(Constants.MOD_ID);
 
-	private final Configuration configuration;
+	private final IChiselsAndBitsConfiguration configuration;
 
 	public ChiselsAndBits()
 	{
 	    instance = this;
 
-        LanguageHandler.loadLangPath("assets/chiselsandbits/lang/%s.json");
-
-        this.configuration = new Configuration(ModLoadingContext.get().getActiveContainer());
+        this.configuration = new ChiselsAndBitsConfiguration();
         IChiselsAndBitsAPI.Holder.setInstance(ChiselsAndBitsAPI.getInstance());
 
-        ModBlocks.onModConstruction();
-        ModItems.onModConstruction();
         ModBlockEntityTypes.onModConstruction();
+        ModBlocks.onModConstruction();
+        ModChiselModeGroups.onModConstruction();
         ModChiselModes.onModConstruction();
         ModContainerTypes.onModConstruction();
-        ModRecipeSerializers.onModConstruction();
-        ModModificationOperation.onModConstruction();
+        ModItemGroups.onModConstruction();
+        ModItems.onModConstruction();
         ModMetadataKeys.onModConstruction();
+        ModModelProperties.onModConstruction();
+        ModModificationOperation.onModConstruction();
+        ModModificationOperationGroups.onModConstruction();
         ModPatternPlacementTypes.onModConstruction();
-
-        ModTags.init();
+        ModRecipeSerializers.onModConstruction();
+        ModRecipeTypes.onModConstruction();
+        ModTags.onModConstruction();
 
         networkChannel.registerCommonMessages();
 	}
@@ -47,7 +46,7 @@ public class ChiselsAndBits
 		return instance;
 	}
 
-    public Configuration getConfiguration()
+    public IChiselsAndBitsConfiguration getConfiguration()
     {
         return configuration;
     }

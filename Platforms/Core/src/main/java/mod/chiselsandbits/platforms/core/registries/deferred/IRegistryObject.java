@@ -1,7 +1,5 @@
 package mod.chiselsandbits.platforms.core.registries.deferred;
 
-import mod.chiselsandbits.platforms.core.registries.IChiselsAndBitsRegistry;
-import mod.chiselsandbits.platforms.core.registries.IChiselsAndBitsRegistryEntry;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,23 +12,6 @@ import java.util.stream.Stream;
 
 public interface IRegistryObject<T> extends Supplier<T>
 {
-
-    static <T extends IChiselsAndBitsRegistryEntry, U extends T> IRegistryObject<U> of(final ResourceLocation name, Supplier<Class<? super T>> registryType) {
-        return IRegistrarManager.getInstance().newRegistryObject(name, registryType);
-    }
-
-    static <T extends IChiselsAndBitsRegistryEntry, U extends T> IRegistryObject<U> of(final ResourceLocation name, IChiselsAndBitsRegistry<T> registry) {
-        return IRegistrarManager.getInstance().newRegistryObject(name, registry);
-    }
-
-    static <T extends IChiselsAndBitsRegistryEntry, U extends T> IRegistryObject<U> of(final ResourceLocation name, final Class<T> baseType, String modid) {
-        return IRegistrarManager.getInstance().newRegistryObject(name, baseType, modid);
-    }
-
-    private static <T extends IChiselsAndBitsRegistryEntry> IRegistryObject<T> empty() {
-        return IRegistrarManager.getInstance().emptyRegistryObject();
-    }
-
     /**
      * Directly retrieves the wrapped Registry Object. This value will automatically be updated when the backing registry is updated.
      * Will throw NPE if the value is null, use isPresent to check first. Or use any of the other guarded functions.
@@ -83,9 +64,6 @@ public interface IRegistryObject<T> extends Supplier<T>
      * and if the result is non-null, return an {@code Optional} describing the
      * result.  Otherwise return an empty {@code Optional}.
      *
-     * @apiNote This method supports post-processing on optional values, without
-     * the need to explicitly check for a return status.
-     *
      * @param <U> The type of the result of the mapping function
      * @param mapper a mapping function to apply to the mod object, if present
      * @return an {@code Optional} describing the result of applying a mapping
@@ -118,9 +96,6 @@ public interface IRegistryObject<T> extends Supplier<T>
      * If a mod object is present, lazily apply the provided mapping function to it,
      * returning a supplier for the transformed result. If this object is empty, or the
      * mapping function returns {@code null}, the supplier will return {@code null}.
-     *
-     * @apiNote This method supports post-processing on optional values, without
-     * the need to explicitly check for a return status.
      *
      * @param <U> The type of the result of the mapping function
      * @param mapper A mapping function to apply to the mod object, if present
@@ -155,10 +130,6 @@ public interface IRegistryObject<T> extends Supplier<T>
     /**
      * Return the contained mod object, if present, otherwise throw an exception
      * to be created by the provided supplier.
-     *
-     * @apiNote A method reference to the exception constructor with an empty
-     * argument list can be used as the supplier. For example,
-     * {@code IllegalStateException::new}
      *
      * @param <X> Type of the exception to be thrown
      * @param exceptionSupplier The supplier which will return the exception to

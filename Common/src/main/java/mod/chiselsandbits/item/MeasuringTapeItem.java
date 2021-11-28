@@ -2,10 +2,10 @@ package mod.chiselsandbits.item;
 
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.measuring.IMeasuringTapeItem;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
+import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.keys.KeyBindingManager;
@@ -26,9 +26,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.eventbus.api.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,17 +77,16 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
         }
 
         final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
-        if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof BlockHitResult))
+        if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
         {
             return ClickProcessingState.DEFAULT;
         }
-        final BlockHitResult blockRayTraceResult = (BlockHitResult) rayTraceResult;
         final Vec3 hitVector = blockRayTraceResult.getLocation();
 
         final Optional<Vec3> startPointHandler = getStart(stack);
-        if (!startPointHandler.isPresent()) {
+        if (startPointHandler.isEmpty()) {
             setStart(stack, getMode(stack).getType().adaptPosition(hitVector));
-            return new ClickProcessingState(true, Event.Result.ALLOW);
+            return ClickProcessingState.ALLOW;
         }
 
         final Vec3 startPoint = startPointHandler.get();
@@ -104,7 +100,7 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
 
         clear(stack);
 
-        return new ClickProcessingState(true, Event.Result.ALLOW);
+        return ClickProcessingState.ALLOW;
     }
 
     @Override
@@ -113,16 +109,14 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
         if (!worldIn.isClientSide())
             return;
 
-        if (!(entityIn instanceof Player))
+        if (!(entityIn instanceof final Player playerEntity))
             return;
-
-        final Player playerEntity = (Player) entityIn;
 
         if (stack.getItem() != this)
             return;
 
         final Optional<Vec3> startPointHandler = getStart(stack);
-        if (!startPointHandler.isPresent()) {
+        if (startPointHandler.isEmpty()) {
             return;
         }
 
@@ -133,11 +127,10 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
         }
 
         final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
-        if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof BlockHitResult))
+        if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
         {
             return;
         }
-        final BlockHitResult blockRayTraceResult = (BlockHitResult) rayTraceResult;
         final Vec3 hitVector = blockRayTraceResult.getLocation();
 
         final Vec3 startPoint = startPointHandler.get();
@@ -184,7 +177,6 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
         stack.getOrCreateTag().remove("start");
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(
       final @NotNull ItemStack stack, @Nullable final Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
@@ -192,7 +184,8 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
         if (KeyBindingManager.getInstance().areBindingsInitialized()) {
-            Configuration.getInstance().getCommon().helpText(LocalStrings.HelpTapeMeasure, tooltip,
+            HelpTextUtils.build(
+              LocalStrings.HelpTapeMeasure, tooltip,
               Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(),
               Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(),
               KeyBindingManager.getInstance().getResetMeasuringTapeKeyBinding().getTranslatedKeyMessage(),

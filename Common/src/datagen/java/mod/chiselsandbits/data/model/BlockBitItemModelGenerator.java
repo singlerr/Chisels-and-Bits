@@ -1,7 +1,7 @@
 package mod.chiselsandbits.data.model;
 
 import com.ldtteam.datagenerators.models.item.ItemModelJson;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.HashCache;

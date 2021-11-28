@@ -1,61 +1,42 @@
 package mod.chiselsandbits.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.math.Matrix4f;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
-import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
-import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
+import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
-import mod.chiselsandbits.api.multistate.StateEntrySize;
-import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.api.util.StateEntryPredicates;
-import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.chiseling.ChiselingManager;
-import mod.chiselsandbits.client.render.ModRenderTypes;
-import mod.chiselsandbits.registrars.ModBlocks;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.registrars.ModTags;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
-import mod.chiselsandbits.voxelshape.VoxelShapeManager;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Tier;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.DiggerItem;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import com.mojang.math.Matrix4f;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DiggerItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fmllegacy.RegistryObject;
-import net.minecraftforge.registries.ForgeRegistry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import net.minecraft.world.item.Item.Properties;
 
 public class ChiselItem extends DiggerItem implements IChiselItem
 {
@@ -103,13 +84,13 @@ public class ChiselItem extends DiggerItem implements IChiselItem
             final String chiselModeName = stackNbt.getString(NbtConstants.CHISEL_MODE);
             try
             {
-                final IChiselMode registryMode = IChiselMode.getRegistry().getValue(new ResourceLocation(chiselModeName));
-                if (registryMode == null)
+                final Optional<IChiselMode> registryMode = IChiselMode.getRegistry().get(new ResourceLocation(chiselModeName));
+                if (registryMode.isEmpty())
                 {
                     return IChiselMode.getDefaultMode();
                 }
 
-                return registryMode;
+                return registryMode.get();
             }
             catch (IllegalArgumentException illegalArgumentException)
             {
@@ -138,7 +119,7 @@ public class ChiselItem extends DiggerItem implements IChiselItem
                  .getValues()
                  .stream()
                  .filter(mode -> !mode.requiresPlaceableEditStack())
-                 .sorted(Comparator.comparing(((ForgeRegistry<IChiselMode>) IChiselMode.getRegistry())::getID))
+                 .sorted(Comparator.comparing(IChiselMode::getRegistryName))
                  .collect(Collectors.toList());
     }
 
@@ -215,7 +196,7 @@ public class ChiselItem extends DiggerItem implements IChiselItem
               currentContextSnapshot
             );
 
-            return !currentContextSnapshot.getMutator().isPresent();
+            return currentContextSnapshot.getMutator().isEmpty();
         }
 
         final Optional<IChiselingContext> localCachedContext = ILocalChiselingContextCache
@@ -238,7 +219,7 @@ public class ChiselItem extends DiggerItem implements IChiselItem
                 return false;
             }
 
-            return !context.getMutator().isPresent();
+            return context.getMutator().isEmpty();
         }
 
         final IChiselingContext context = IChiselingManager.getInstance().create(
@@ -257,11 +238,10 @@ public class ChiselItem extends DiggerItem implements IChiselItem
         //Store it in the local cache.
         ILocalChiselingContextCache.getInstance().set(ChiselingOperation.CHISELING, context);
 
-        return !context.getMutator().isPresent();
+        return context.getMutator().isEmpty();
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void renderHighlight(
       final Player playerEntity,
       final LevelRenderer worldRenderer,
@@ -315,7 +295,7 @@ public class ChiselItem extends DiggerItem implements IChiselItem
             );
         }
 
-        if (!context.getMutator().isPresent())
+        if (context.getMutator().isEmpty())
         {
             ILocalChiselingContextCache.getInstance().clear(ChiselingOperation.CHISELING);
             //No bit was included in the chiseling action
@@ -332,49 +312,5 @@ public class ChiselItem extends DiggerItem implements IChiselItem
     public boolean isDamageableDuringChiseling()
     {
         return true;
-    }
-
-    @Override
-    public int getMaxDamage(final ItemStack stack)
-    {
-        final Tier tier = getTier();
-        return tier.getUses() * StateEntrySize.current().getBitsPerBlock();
-    }
-
-
-    private static final class InternalContextFilter implements Predicate<IStateEntryInfo> {
-
-        private final Predicate<IStateEntryInfo> placingContextPredicate;
-
-        private InternalContextFilter(final Predicate<IStateEntryInfo> placingContextPredicate) {this.placingContextPredicate = placingContextPredicate;}
-
-        @Override
-        public boolean test(final IStateEntryInfo s)
-        {
-            return (s.getState().isAir() || IEligibilityManager.getInstance().canBeChiseled(s.getState())) && placingContextPredicate.test(s);
-        }
-
-        @Override
-        public boolean equals(final Object o)
-        {
-            if (this == o)
-            {
-                return true;
-            }
-            if (!(o instanceof InternalContextFilter))
-            {
-                return false;
-            }
-
-            final InternalContextFilter that = (InternalContextFilter) o;
-
-            return Objects.equals(placingContextPredicate, that.placingContextPredicate);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return placingContextPredicate != null ? placingContextPredicate.hashCode() : 0;
-        }
     }
 }

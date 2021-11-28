@@ -2,7 +2,7 @@ package mod.chiselsandbits.item.bit;
 
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;

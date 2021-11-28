@@ -1,9 +1,9 @@
 package mod.chiselsandbits.keys.contexts;
 
 import mod.chiselsandbits.client.screens.ToolModeSelectionScreen;
+import mod.chiselsandbits.platforms.core.client.key.IKeyConflictContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraftforge.client.settings.IKeyConflictContext;
 
 public enum SpecificScreenOpenKeyConflictContext implements IKeyConflictContext
 {

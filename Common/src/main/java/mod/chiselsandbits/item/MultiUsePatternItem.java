@@ -1,10 +1,10 @@
 package mod.chiselsandbits.item;
 
-import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.exceptions.SealingNotSupportedException;
 import mod.chiselsandbits.api.item.pattern.IMultiUsePatternItem;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.sealing.ISupportsUnsealing;
+import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.client.Minecraft;
@@ -16,8 +16,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +40,6 @@ public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiU
         throw new SealingNotSupportedException();
     }
 
-    @OnlyIn(Dist.CLIENT)
     @Override
     public void appendHoverText(
       final @NotNull ItemStack stack, final @Nullable Level worldIn, final @NotNull List<Component> tooltip, final @NotNull TooltipFlag flagIn)
@@ -61,7 +58,9 @@ public class MultiUsePatternItem extends SingleUsePatternItem implements IMultiU
             tooltip.add(new TextComponent("        "));
             tooltip.add(new TextComponent("        "));
 
-            Configuration.getInstance().getCommon().helpText(LocalStrings.HelpSealedPattern, tooltip);
+            HelpTextUtils.build(
+              LocalStrings.HelpSealedPattern, tooltip
+            );
         }
     }
 

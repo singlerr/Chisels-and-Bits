@@ -6,7 +6,6 @@ import mod.chiselsandbits.api.item.pattern.IPatternItem;
 import mod.chiselsandbits.api.item.withhighlight.IWithHighlightItem;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
-import mod.chiselsandbits.item.ChiseledBlockItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -16,9 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.IFluidBlock;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,10 +34,11 @@ public class ItemStackUtils
      */
     public static ItemStack getItemStackFromBlockState(@NotNull final BlockState blockState)
     {
-        if (blockState.getBlock() instanceof IFluidBlock)
+        if (blockState.getBlock() instanceof LiquidBlock liquidBlock)
         {
-            return FluidUtil.getFilledBucket(new FluidStack(((IFluidBlock) blockState.getBlock()).getFluid(), 1000));
+            return new ItemStack(liquidBlock.getFluidState(blockState).getType().getBucket());
         }
+
         final Item item = getItem(blockState);
         if (item != Items.AIR && item != null)
         {

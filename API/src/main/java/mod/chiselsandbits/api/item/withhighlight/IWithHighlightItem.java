@@ -1,11 +1,9 @@
 package mod.chiselsandbits.api.item.withhighlight;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.world.entity.player.Player;
-import com.mojang.math.Matrix4f;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -24,7 +22,6 @@ public interface IWithHighlightItem
      *
      * @return True to let minecraft handle the highlight rendering, false when not.
      */
-    @OnlyIn(Dist.CLIENT)
     boolean shouldDrawDefaultHighlight(@NotNull final Player playerEntity);
 
     /**

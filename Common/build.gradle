@@ -5,6 +5,13 @@ plugins {
 
 archivesBaseName = "${mod_name}-common-${minecraft_version}"
 
+repositories {
+    maven {
+        name 'LDTTeam - Modding'
+        url 'https://ldtteam.jfrog.io/ldtteam/modding/'
+    }
+}
+
 minecraft {
     version minecraft_version
     accessWideners project.rootProject.file("Platforms/Core/src/main/resources/${mod_id}.accesswidener")
@@ -12,10 +19,15 @@ minecraft {
 
 dependencies {
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.4'
+
     implementation project(':API')
     implementation project(':Platforms:Core')
+
     testImplementation project(':API')
     testImplementation project(':Platforms:Core')
+
+    implementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
+
     compileOnly 'org.jetbrains:annotations:16.0.2'
     testCompileOnly 'org.jetbrains:annotations:16.0.2'
 }

@@ -28,9 +28,8 @@ public interface ICustomRegistrar<T extends IChiselsAndBitsRegistryEntry> extend
     /**
      * Register a new registry for this registrar.
      *
-     * @param registryName The name of the registry.
      * @param registryBuilder A supplier which can configure and return a registry builder to build the registry.
      * @return A supplier for the registry.
      */
-    Supplier<IChiselsAndBitsRegistry<T>> makeRegistry(String registryName, Supplier<IChiselsAndBitsRegistry.Builder<T>> registryBuilder);
+    Supplier<IChiselsAndBitsRegistry<T>> makeRegistry(Supplier<IChiselsAndBitsRegistry.Builder<T>> registryBuilder);
 }

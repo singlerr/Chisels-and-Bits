@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "chiselsandbits",
+  "version": "${version}",
+
+  "name": "Chisels & Bits",
+  "description": "A mod about Sculpting, Decorating and Aesthetics.",
+  "authors": [
+    "OrionDevelopment"
+  ],
+  "contact": {
+    "homepage": "https://wiki.chisels-and-bits.com/",
+    "sources": "https://github.com/ChiselsAndBits/ChiselsAndBits"
+  },
+
+  "license": "LGPL-3.0",
+  "icon": "assets/modid/logo.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "mod.chiselsandbits.ChiselsAndBitsMod"
+    ]
+  },
+  "mixins": [
+    "chiselsandbits.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.17.x",
+    "java": ">=16"
+  },
+  "suggests": {
+  },
+  "accessWidener" : "chiselsandbits.accesswidener"
+}

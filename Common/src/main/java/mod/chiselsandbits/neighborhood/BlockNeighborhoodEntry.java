@@ -41,12 +41,10 @@ public final class BlockNeighborhoodEntry
         {
             return true;
         }
-        if (!(o instanceof BlockNeighborhoodEntry))
+        if (!(o instanceof final BlockNeighborhoodEntry that))
         {
             return false;
         }
-
-        final BlockNeighborhoodEntry that = (BlockNeighborhoodEntry) o;
 
         if (!Objects.equals(blockState, that.blockState))
         {

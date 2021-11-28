@@ -3,9 +3,9 @@ package mod.chiselsandbits.registries;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.registries.IRegistryManager;
+import mod.chiselsandbits.platforms.core.registries.IChiselsAndBitsRegistry;
 import mod.chiselsandbits.registrars.ModChiselModes;
 import mod.chiselsandbits.registrars.ModModificationOperation;
-import net.minecraftforge.registries.IForgeRegistry;
 import org.jetbrains.annotations.NotNull;
 
 public class RegistryManager implements IRegistryManager
@@ -27,13 +27,13 @@ public class RegistryManager implements IRegistryManager
      * @return The registry.
      */
     @Override
-    public IForgeRegistry<IChiselMode> getChiselModeRegistry()
+    public IChiselsAndBitsRegistry<IChiselMode> getChiselModeRegistry()
     {
         return ModChiselModes.REGISTRY.get();
     }
 
     @Override
-    public @NotNull IForgeRegistry<IModificationOperation> getModificationOperationRegistry()
+    public @NotNull IChiselsAndBitsRegistry<IModificationOperation> getModificationOperationRegistry()
     {
         return ModModificationOperation.REGISTRY_SUPPLIER.get();
     }

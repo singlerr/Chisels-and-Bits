@@ -1,8 +1,9 @@
 package mod.chiselsandbits.item.bit;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Matrix4f;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -11,49 +12,40 @@ import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
-import mod.chiselsandbits.api.config.Configuration;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
-import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.client.render.ModRenderTypes;
+import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
+import mod.chiselsandbits.platforms.core.registries.IPlatformRegistryManager;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
-import mod.chiselsandbits.voxelshape.VoxelShapeManager;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.core.NonNullList;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import com.mojang.math.Matrix4f;
-import net.minecraft.world.phys.Vec3;
-import com.mojang.math.Vector3f;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistry;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -61,11 +53,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static mod.chiselsandbits.api.util.StateEntryPredicates.ALL;
-import static mod.chiselsandbits.api.util.StateEntryPredicates.NOT_AIR;
 
 public class BitItem extends Item implements IChiselingItem, IBitItem, IDocumentableItem
 {
@@ -106,13 +94,13 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         {
             final String chiselModeName = stackNbt.getString(NbtConstants.CHISEL_MODE);
             try {
-                final IChiselMode registryMode = IChiselMode.getRegistry().getValue(new ResourceLocation(chiselModeName));
-                if (registryMode == null)
+                final Optional<IChiselMode> registryMode = IChiselMode.getRegistry().get(new ResourceLocation(chiselModeName));
+                if (registryMode.isEmpty())
                 {
                     return IChiselMode.getDefaultMode();
                 }
 
-                return registryMode;
+                return registryMode.get();
             }
             catch (IllegalArgumentException illegalArgumentException) {
                 LOGGER.error(String.format("An ItemStack got loaded with a name that is not a valid chisel mode: %s", chiselModeName));
@@ -133,7 +121,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         Component stateName = block.asItem().getName(new ItemStack(block));
         if (block instanceof LiquidBlock) {
             final LiquidBlock flowingFluidBlock = (LiquidBlock) block;
-            stateName = new TranslatableComponent(flowingFluidBlock.getFluid().getAttributes().getTranslationKey());
+            stateName = IFluidManager.getInstance().getDisplayName(flowingFluidBlock.getFluidState(flowingFluidBlock.defaultBlockState()).getType());
         }
 
         return new TranslatableComponent(this.getDescriptionId(stack), stateName);
@@ -166,7 +154,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     @Override
     public Collection<IChiselMode> getPossibleModes()
     {
-        return IChiselMode.getRegistry().getValues().stream().sorted(Comparator.comparing(((ForgeRegistry<IChiselMode>) IChiselMode.getRegistry())::getID)).collect(Collectors.toList());
+        return IChiselMode.getRegistry().getValues().stream().sorted(Comparator.comparing(IChiselMode::getRegistryName)).collect(Collectors.toList());
     }
 
     @Override
@@ -236,14 +224,16 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         this.threadLocalBitMergeOperationInProgress.set(false);
     }
 
-    @Override
+
+    //TODO: Figure this out!
+/*    @Override
     public int getItemStackLimit(final ItemStack stack)
     {
         if (this.threadLocalBitMergeOperationInProgress.get())
             return Configuration.getInstance().getServer().bagStackSize.get();
 
         return super.getItemStackLimit(stack);
-    }
+    }*/
 
     @Override
     public boolean shouldDrawDefaultHighlight(@NotNull final Player playerEntity)
@@ -333,7 +323,6 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
     public void renderHighlight(
       final Player playerEntity,
       final LevelRenderer worldRenderer,
@@ -469,7 +458,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         }
 
         if (availableBitStacks.isEmpty()) {
-            ForgeRegistries.BLOCKS.getValues()
+            IPlatformRegistryManager.getInstance().getBlockRegistry().getValues()
               .forEach(block -> {
                   if (IEligibilityManager.getInstance().canBeChiseled(block)) {
                     final BlockState blockState = block.defaultBlockState();
@@ -494,7 +483,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     @Override
     public Map<String, ItemStack> getDocumentableInstances(final Item item)
     {
-        return ForgeRegistries.BLOCKS.getValues()
+        return IPlatformRegistryManager.getInstance().getBlockRegistry().getValues()
           .stream()
           .map(block -> {
               if (IEligibilityManager.getInstance().canBeChiseled(block)) {
@@ -506,7 +495,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
           })
           .filter(stack -> !stack.isEmpty())
           .collect(Collectors.toMap(
-            stack -> "bit_" + this.getBitState(stack).getBlock().getRegistryName().toString().replace(":", "_"),
+            stack -> "bit_" + IPlatformRegistryManager.getInstance().getBlockRegistry().getKey(this.getBitState(stack).getBlock()).toString().replace(":", "_"),
             Function.identity()
           ));
     }

@@ -1,23 +1,27 @@
 package mod.chiselsandbits.registrars;
 
 import mod.chiselsandbits.api.modification.operation.IModificationOperation;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.modification.operation.MirrorOverAxisModificationOperation;
 import mod.chiselsandbits.modification.operation.RotateAroundAxisModificationOperation;
 import mod.chiselsandbits.platforms.core.registries.IChiselsAndBitsRegistry;
 import mod.chiselsandbits.platforms.core.registries.deferred.ICustomRegistrar;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistryObject;
 import net.minecraft.core.Direction;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.function.Supplier;
 
 public final class ModModificationOperation
 {
+    private static final Logger                                   LOGGER              = LogManager.getLogger();
     private static final ICustomRegistrar<IModificationOperation> OPERATION_REGISTRAR = ICustomRegistrar.create(IModificationOperation.class, Constants.MOD_ID);
 
-    public static final Supplier<IChiselsAndBitsRegistry<IModificationOperation>> REGISTRY_SUPPLIER = OPERATION_REGISTRAR.makeRegistry("modification_operation",
-      IChiselsAndBitsRegistry.Builder::simple);
-    
+    public static final Supplier<IChiselsAndBitsRegistry<IModificationOperation>> REGISTRY_SUPPLIER = OPERATION_REGISTRAR.makeRegistry(
+      IChiselsAndBitsRegistry.Builder::simple
+    );
+
     public static final IRegistryObject<IModificationOperation> ROTATE_AROUND_X = OPERATION_REGISTRAR.register(
       "rotate_around_x", () -> RotateAroundAxisModificationOperation.Builder.create().withAxis(Direction.Axis.X).build()
     );
@@ -41,4 +45,10 @@ public final class ModModificationOperation
     {
         throw new IllegalStateException("Can not instantiate an instance of: ModModificationOperation. This is a utility class");
     }
+
+    public static void onModConstruction()
+    {
+        LOGGER.info("Loaded modification operation configuration.");
+    }
+
 }

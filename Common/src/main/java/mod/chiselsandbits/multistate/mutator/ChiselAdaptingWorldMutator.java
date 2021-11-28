@@ -29,7 +29,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.Constants;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -344,7 +343,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             getWorld().setBlock(
               getPos(),
               convertedBlock.defaultBlockState(),
-              Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.UPDATE_NEIGHBORS
+              Block.UPDATE_ALL
             );
 
             final BlockEntity convertedTileEntity = getWorld().getBlockEntity(getPos());
@@ -415,7 +414,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             getWorld().setBlock(
               getPos(),
               convertedBlock.defaultBlockState(),
-              Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.UPDATE_NEIGHBORS
+              Block.UPDATE_ALL
             );
 
             final BlockEntity convertedTileEntity = getWorld().getBlockEntity(getPos());
@@ -522,7 +521,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             getWorld().setBlock(
               getPos(),
               convertedBlock.defaultBlockState(),
-              Constants.BlockFlags.BLOCK_UPDATE | Constants.BlockFlags.UPDATE_NEIGHBORS
+              Block.UPDATE_ALL
             );
 
             final BlockEntity convertedTileEntity = getWorld().getBlockEntity(getPos());

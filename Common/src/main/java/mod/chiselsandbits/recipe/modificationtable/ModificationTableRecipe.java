@@ -56,10 +56,9 @@ public class ModificationTableRecipe implements Recipe<Container>
         if (multiStateStack.isEmpty())
             return EmptySnapshot.INSTANCE;
 
-        if (!(multiStateStack.getItem() instanceof IMultiStateItem))
+        if (!(multiStateStack.getItem() instanceof final IMultiStateItem item))
             return EmptySnapshot.INSTANCE;
 
-        final IMultiStateItem item = (IMultiStateItem) multiStateStack.getItem();
         final IMultiStateItemStack multiStateItemStack = item.createItemStack(multiStateStack);
         final IMultiStateSnapshot snapshot = multiStateItemStack.createSnapshot().clone();
 

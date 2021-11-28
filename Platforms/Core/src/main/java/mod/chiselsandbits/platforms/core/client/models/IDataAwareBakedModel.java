@@ -1,6 +1,6 @@
 package mod.chiselsandbits.platforms.core.client.models;
 
-import mod.chiselsandbits.platforms.core.client.models.data.IModelData;
+import mod.chiselsandbits.platforms.core.client.models.data.IBlockModelData;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
@@ -15,5 +15,5 @@ public interface IDataAwareBakedModel extends BakedModel {
 
 
     @NotNull List<BakedQuad> getQuads(
-            @Nullable BlockState state, @Nullable Direction side, @NotNull Random rand, @NotNull IModelData extraData);
+            @Nullable BlockState state, @Nullable Direction side, @NotNull Random rand, @NotNull IBlockModelData extraData);
 }

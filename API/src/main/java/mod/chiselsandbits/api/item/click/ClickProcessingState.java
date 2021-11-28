@@ -7,6 +7,7 @@ public class ClickProcessingState
 {
 
     public static final ClickProcessingState ALLOW = new ClickProcessingState(true, ProcessingResult.ALLOW);
+    public static final ClickProcessingState ALLOW_NO_CANCEL = new ClickProcessingState(false, ProcessingResult.ALLOW);
     public static final ClickProcessingState DENIED = new ClickProcessingState(true, ProcessingResult.DENY);
     public static final ClickProcessingState DEFAULT = new ClickProcessingState(false, ProcessingResult.DEFAULT);
 

@@ -390,4 +390,11 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
             saveAndUpdate();
         }
     }
+
+    public void setContents(final BlockState blockState, final int count)
+    {
+        this.state = blockState;
+        this.bits = count;
+        saveAndUpdate();
+    }
 }

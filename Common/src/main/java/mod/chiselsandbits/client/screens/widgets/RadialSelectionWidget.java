@@ -4,17 +4,15 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Matrix4f;
 import mod.chiselsandbits.api.client.screen.widget.AbstractChiselsAndBitsWidget;
-import mod.chiselsandbits.api.config.Configuration;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.withmode.IRenderableMode;
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -262,7 +260,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
 
         if (isMouseInSection && hoveredItemIndex >= 0 && hoveredItemIndex < modes.size() && modes.get(hoveredItemIndex).isActive())
         {
-            if (Configuration.getInstance().getClient().enableMouseIndicatorInRadialMenu.get())
+            if (IClientConfiguration.getInstance().getEnableMouseIndicatorInRadialMenu().get())
             {
                 float startOfMouseArcAngle = mouseAngle - (itemArcAngle / 2);
                 float mouseArcAngle = itemArcAngle;

@@ -18,50 +18,8 @@ public interface IRegistrarManager
      * @return The deferred registrar manager.
      */
     static IRegistrarManager getInstance() {
-        return IPlatformRegistryManager.getInstance().getDeferredRegistrarManager();
+        return IPlatformRegistryManager.getInstance().getRegistrarManager();
     }
-
-    /**
-     * Creates a new registry object for the given registry name.
-     *
-     * @param name The name of the object.
-     * @param registryType A supplier that supplies the type of the registry to populate it in.
-     * @param <U> The type of the object.
-     * @param <T> The type of the registry, has to be a super type of U.
-     * @return The registry object.
-     */
-    <U extends T, T extends IChiselsAndBitsRegistryEntry> IRegistryObject<U> newRegistryObject(ResourceLocation name, Supplier<Class<? super T>> registryType);
-
-    /**
-     * Creates a new registry object for the given registry name.
-     *
-     * @param name The name of the object.
-     * @param registryType The registry to populate it in.
-     * @param <U> The type of the object.
-     * @param <T> The type of the registry, has to be a super type of U.
-     * @return The registry object.
-     */
-    <U extends T, T extends IChiselsAndBitsRegistryEntry> IRegistryObject<U> newRegistryObject(ResourceLocation name, IChiselsAndBitsRegistry<T> registryType);
-
-    /**
-     * Creates a new registry object for the given registry name.
-     *
-     * @param name The name of the object to create.
-     * @param baseType The base type of the object.
-     * @param modId The mod id.
-     * @param <U> The type of the object.
-     * @param <T> The typed of the registry, has to be a super type of U.
-     * @return The registry object.
-     */
-    <U extends T, T extends IChiselsAndBitsRegistryEntry> IRegistryObject<U> newRegistryObject(ResourceLocation name, Class<T> baseType, String modId);
-
-    /**
-     * Gets the empty registry object for the platform.
-     *
-     * @param <T> The type of the empty registry object.
-     * @return The empty registry object.
-     */
-    <T extends IChiselsAndBitsRegistryEntry> IRegistryObject<T> emptyRegistryObject();
 
     /**
      * Returns a new registrar for the type given in the namespace of the mod id.

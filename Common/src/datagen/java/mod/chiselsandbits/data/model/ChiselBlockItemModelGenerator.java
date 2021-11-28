@@ -1,7 +1,7 @@
 package mod.chiselsandbits.data.model;
 
 import com.ldtteam.datagenerators.models.item.ItemModelJson;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.block.ChiseledBlock;
 import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.registrars.ModBlocks;

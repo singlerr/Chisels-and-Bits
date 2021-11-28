@@ -1,17 +1,15 @@
 package mod.chiselsandbits.client.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
-import mod.chiselsandbits.api.util.constants.Constants;
+import com.mojang.blaze3d.vertex.PoseStack;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.container.ChiseledPrinterContainer;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
 
 public class ChiseledPrinterScreen extends AbstractContainerScreen<ChiseledPrinterContainer>
 {

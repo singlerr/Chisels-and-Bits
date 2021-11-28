@@ -1,7 +1,7 @@
 package mod.chiselsandbits.data.tags;
 
 import mod.chiselsandbits.api.data.tag.AbstractChiselableTagGenerator;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.data.ExistingFileHelper;

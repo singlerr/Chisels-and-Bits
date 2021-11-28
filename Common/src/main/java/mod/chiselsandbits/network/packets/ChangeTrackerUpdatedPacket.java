@@ -4,7 +4,7 @@ import mod.chiselsandbits.network.handlers.ClientPacketHandlers;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 
-public class ChangeTrackerUpdatedPacket extends ModPacket
+public final class ChangeTrackerUpdatedPacket extends ModPacket
 {
     private CompoundTag tag;
 

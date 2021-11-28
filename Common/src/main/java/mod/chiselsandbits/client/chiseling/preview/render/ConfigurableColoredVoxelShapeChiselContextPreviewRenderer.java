@@ -8,7 +8,7 @@ import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRenderer;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.client.render.ModRenderTypes;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.client.Minecraft;

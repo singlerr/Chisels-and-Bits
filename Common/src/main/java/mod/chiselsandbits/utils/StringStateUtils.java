@@ -1,19 +1,19 @@
 package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.platforms.core.registries.IPlatformRegistryManager;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.util.StringRepresentable;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -32,23 +32,16 @@ public class StringStateUtils
     {
         final String parts[] = name.split( "[?&]" );
 
-        try
-        {
-            parts[0] = URLDecoder.decode( parts[0], "UTF-8" );
-        }
-        catch ( final UnsupportedEncodingException e )
-        {
-            LOGGER.error( "Failed to reload Property from store data : " + name, e );
-        }
+        parts[0] = URLDecoder.decode( parts[0], StandardCharsets.UTF_8);
 
-        final Block blk = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(parts[0]));
+        final Optional<Block> blk = IPlatformRegistryManager.getInstance().getBlockRegistry().getValue(new ResourceLocation(parts[0]));
 
-        if ( blk == null || blk == Blocks.AIR )
+        if ( blk.isEmpty() || blk.get() instanceof AirBlock)
         {
             return 0;
         }
 
-        BlockState state = blk.defaultBlockState();
+        BlockState state = blk.get().defaultBlockState();
 
         // rebuild state...
         for ( int x = 1; x < parts.length; ++x )
@@ -60,10 +53,10 @@ public class StringStateUtils
                     final String[] nameValues = parts[x].split( "[=]" );
                     if ( nameValues.length == 2 )
                     {
-                        nameValues[0] = URLDecoder.decode( nameValues[0], "UTF-8" );
-                        nameValues[1] = URLDecoder.decode( nameValues[1], "UTF-8" );
+                        nameValues[0] = URLDecoder.decode( nameValues[0], StandardCharsets.UTF_8);
+                        nameValues[1] = URLDecoder.decode( nameValues[1], StandardCharsets.UTF_8);
 
-                        state = withState( state, blk, nameValues );
+                        state = withState( state, blk.get(), nameValues );
                     }
                 }
             }
@@ -84,7 +77,7 @@ public class StringStateUtils
         final Property<?> prop = blk.getStateDefinition().getProperty(nameval[0]);
         if ( prop == null )
         {
-            LOGGER.info( nameval[0] + " is not a valid property for " + blk.getRegistryName() );
+            LOGGER.info( nameval[0] + " is not a valid property for " + IPlatformRegistryManager.getInstance().getBlockRegistry().getKey(blk) );
             return state;
         }
 
@@ -99,7 +92,7 @@ public class StringStateUtils
         }
         else
         {
-            LOGGER.info( value + " is not a valid value of " + property.getName() + " for " + blockState.getBlock().getRegistryName() );
+            LOGGER.info( value + " is not a valid value of " + property.getName() + " for " + IPlatformRegistryManager.getInstance().getBlockRegistry().getKey(blockState.getBlock()) );
             return blockState;
         }
     }
@@ -112,44 +105,37 @@ public class StringStateUtils
 
         String sname = "air?";
 
-        try
+        final StringBuilder stateName = new StringBuilder( URLEncoder.encode( Objects.requireNonNull(IPlatformRegistryManager.getInstance().getBlockRegistry().getKey(blk)).toString(), StandardCharsets.UTF_8) );
+        stateName.append( '?' );
+
+        boolean first = true;
+        for ( final Property<?> p : state.getBlock().getStateDefinition().getProperties() )
         {
-            final StringBuilder stateName = new StringBuilder( URLEncoder.encode( Objects.requireNonNull(blk.getRegistryName()).toString(), "UTF-8" ) );
-            stateName.append( '?' );
-
-            boolean first = true;
-            for ( final Property<?> p : state.getBlock().getStateDefinition().getProperties() )
+            if ( !first )
             {
-                if ( !first )
-                {
-                    stateName.append( '&' );
-                }
-
-                first = false;
-
-                final Comparable<?> propVal = state.getValue(p);
-
-                String saveAs;
-                if ( propVal instanceof StringRepresentable)
-                {
-                    saveAs = ( (StringRepresentable) propVal ).getSerializedName();
-                }
-                else
-                {
-                    saveAs = propVal.toString();
-                }
-
-                stateName.append( URLEncoder.encode( p.getName(), "UTF-8" ) );
-                stateName.append( '=' );
-                stateName.append( URLEncoder.encode( saveAs, "UTF-8" ) );
+                stateName.append( '&' );
             }
 
-            sname = stateName.toString();
+            first = false;
+
+            final Comparable<?> propVal = state.getValue(p);
+
+            String saveAs;
+            if ( propVal instanceof StringRepresentable)
+            {
+                saveAs = ( (StringRepresentable) propVal ).getSerializedName();
+            }
+            else
+            {
+                saveAs = propVal.toString();
+            }
+
+            stateName.append( URLEncoder.encode( p.getName(), StandardCharsets.UTF_8) );
+            stateName.append( '=' );
+            stateName.append( URLEncoder.encode( saveAs, StandardCharsets.UTF_8) );
         }
-        catch ( final UnsupportedEncodingException e )
-        {
-            LOGGER.error( "Failed to Serialize State", e );
-        }
+
+        sname = stateName.toString();
 
         return sname;
     }

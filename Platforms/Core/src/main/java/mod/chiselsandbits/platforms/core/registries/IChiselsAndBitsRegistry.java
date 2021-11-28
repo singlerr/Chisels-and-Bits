@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Represents a registry that can be used to register expandable systems to.
@@ -34,6 +35,13 @@ public interface IChiselsAndBitsRegistry<T extends IChiselsAndBitsRegistryEntry>
      * @return An optional with the lookup result, empty if the name is not used by any object in the registry.
      */
     Optional<T> get(final ResourceLocation name);
+
+    /**
+     * Callback executor for each of the values in the registry.
+     *
+     * @param consumer The callback to execute.
+     */
+    void forEach(final Consumer<T> consumer);
 
     /**
      * Builder specifications for creating new chisels and bits registries.

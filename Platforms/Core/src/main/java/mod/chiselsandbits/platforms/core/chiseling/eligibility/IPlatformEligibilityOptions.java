@@ -16,7 +16,7 @@ public interface IPlatformEligibilityOptions
      * @return The platform's eligibility manager.
      */
     static IPlatformEligibilityOptions getInstance() {
-        return IChiselsAndBitsPlatformCore.getInstance().getPlatformEligibilityManager();
+        return IChiselsAndBitsPlatformCore.getInstance().getPlatformEligibilityOptions();
     }
 
     /**

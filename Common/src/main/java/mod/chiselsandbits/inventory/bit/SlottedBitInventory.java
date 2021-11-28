@@ -7,16 +7,16 @@ import mod.chiselsandbits.api.inventory.bit.watchable.IWatch;
 import mod.chiselsandbits.api.inventory.bit.watchable.IWatchableBitInventory;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
+import mod.chiselsandbits.api.util.INBTSerializable;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.item.ItemStack;
+import mod.chiselsandbits.platforms.core.registries.IPlatformRegistryManager;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.registries.GameData;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -62,10 +62,9 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
             return;
         }
 
-        if (!(stack.getItem() instanceof IBitItem))
+        if (!(stack.getItem() instanceof final IBitItem bitItem))
             throw new IllegalArgumentException("Can not insert a none bit item into the inventory.");
 
-        final IBitItem bitItem = (IBitItem) stack.getItem();
         final BlockState state = bitItem.getBitState(stack);
 
         BitSlot slot = slotMap.get(index);
@@ -147,14 +146,14 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
         @Override
         public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
         {
-            packetBuffer.writeVarInt(GameData.getBlockStateIDMap().getId(state));
+            packetBuffer.writeVarInt(IPlatformRegistryManager.getInstance().getBlockStateIdMap().getId(state));
             packetBuffer.writeVarInt(getCount());
         }
 
         @Override
         public void deserializeFrom(final @NotNull FriendlyByteBuf packetBuffer)
         {
-            state = GameData.getBlockStateIDMap().byId(packetBuffer.readVarInt());
+            state = IPlatformRegistryManager.getInstance().getBlockStateIdMap().byId(packetBuffer.readVarInt());
 
             final int count = packetBuffer.readVarInt();
             internalStack = IBitItemManager.getInstance().create(state, count);

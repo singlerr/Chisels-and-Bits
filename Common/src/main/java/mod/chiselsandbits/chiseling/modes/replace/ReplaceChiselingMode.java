@@ -15,6 +15,7 @@ import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.RayTracingUtils;
+import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
 import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
 import mod.chiselsandbits.platforms.core.util.LambdaExceptionUtils;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
@@ -37,7 +38,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class ReplaceChiselingMode extends SimpleChiselsAndBitsRegistryEntry implements IChiselMode
+public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements IChiselMode
 {
     private final MutableComponent displayName;
     private final MutableComponent multiLineDisplayName;

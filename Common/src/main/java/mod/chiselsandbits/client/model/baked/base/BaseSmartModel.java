@@ -2,7 +2,7 @@ package mod.chiselsandbits.client.model.baked.base;
 
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
 import mod.chiselsandbits.platforms.core.client.models.IDataAwareBakedModel;
-import mod.chiselsandbits.platforms.core.client.models.data.IModelData;
+import mod.chiselsandbits.platforms.core.client.models.data.IBlockModelData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -92,7 +92,7 @@ public abstract class BaseSmartModel implements BakedModel, IDataAwareBakedModel
     @Override
 	@NotNull
     public List<BakedQuad> getQuads(
-			@Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand, @NotNull final IModelData extraData)
+			@Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand, @NotNull final IBlockModelData extraData)
     {
         final BakedModel model = handleBlockState( state, rand, extraData );
 		if (model instanceof IDataAwareBakedModel dataAwareBakedModel)
@@ -119,7 +119,7 @@ public abstract class BaseSmartModel implements BakedModel, IDataAwareBakedModel
 	public BakedModel handleBlockState(
 	  final BlockState state,
       final Random random,
-      final IModelData modelData
+      final IBlockModelData modelData
     )
     {
         return NullBakedModel.instance;

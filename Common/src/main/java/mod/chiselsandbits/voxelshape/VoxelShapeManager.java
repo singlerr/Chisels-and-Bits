@@ -1,6 +1,6 @@
 package mod.chiselsandbits.voxelshape;
 
-import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.config.ICommonConfiguration;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
@@ -23,7 +23,7 @@ public class VoxelShapeManager implements IVoxelShapeManager
     private static final VoxelShapeManager INSTANCE = new VoxelShapeManager();
 
     private final SimpleMaxSizedCache<Key, VoxelShape> cache = new SimpleMaxSizedCache<>(
-      IChiselsAndBitsAPI.getInstance().getConfiguration().getCommon().collisionBoxCacheSize::get
+      ICommonConfiguration.getInstance().getCollisionBoxCacheSize().get()
     );
 
     private VoxelShapeManager()
@@ -109,12 +109,10 @@ public class VoxelShapeManager implements IVoxelShapeManager
             {
                 return true;
             }
-            if (!(o instanceof Key))
+            if (!(o instanceof final Key key))
             {
                 return false;
             }
-
-            final Key key = (Key) o;
 
             if (simplify != key.simplify)
             {

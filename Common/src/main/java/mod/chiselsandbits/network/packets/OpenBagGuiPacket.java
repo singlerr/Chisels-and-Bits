@@ -31,14 +31,12 @@ public final class OpenBagGuiPacket extends ModPacket
     @Override
     public void writePayload(final FriendlyByteBuf buffer)
     {
-
     }
 
     @Override
 	public void readPayload(
 			final FriendlyByteBuf buffer )
 	{
-		// no data..
 	}
 
 }

@@ -2,7 +2,7 @@ package mod.chiselsandbits.platforms.core.registries;
 
 import net.minecraft.resources.ResourceLocation;
 
-public class SimpleChiselsAndBitsRegistryEntry implements IChiselsAndBitsRegistryEntry
+public class SimpleChiselsAndBitsRegistryEntry<V> implements IChiselsAndBitsRegistryEntry
 {
     private ResourceLocation name;
 
@@ -12,8 +12,10 @@ public class SimpleChiselsAndBitsRegistryEntry implements IChiselsAndBitsRegistr
         return name;
     }
 
-    public void setRegistryName(final ResourceLocation name)
+    @SuppressWarnings("unchecked")
+    public V setRegistryName(final ResourceLocation name)
     {
         this.name = name;
+        return (V) this;
     }
 }

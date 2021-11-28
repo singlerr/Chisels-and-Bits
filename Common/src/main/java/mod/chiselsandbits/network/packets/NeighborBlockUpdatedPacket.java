@@ -1,11 +1,10 @@
 package mod.chiselsandbits.network.packets;
 
 import mod.chiselsandbits.network.handlers.ClientPacketHandlers;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 
-public class NeighborBlockUpdatedPacket extends ModPacket
+public final class NeighborBlockUpdatedPacket extends ModPacket
 {
 
     private BlockPos toUpdate = BlockPos.ZERO;

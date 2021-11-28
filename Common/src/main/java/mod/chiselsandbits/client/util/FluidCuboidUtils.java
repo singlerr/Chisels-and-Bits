@@ -7,8 +7,11 @@ import com.mojang.math.Matrix4f;
 import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 
 import static net.minecraft.core.Direction.*;
 
@@ -75,15 +78,15 @@ public class FluidCuboidUtils
       float z2,
       int color)
     {
-        TextureAtlasSprite still = IRenderingManager.getInstance().getStillFluidTexture(fluid);
-        TextureAtlasSprite flowing = IRenderingManager.getInstance().getFlowingFluidTexture(fluid);
+        ResourceLocation still = IRenderingManager.getInstance().getStillFluidTexture(fluid);
+        ResourceLocation flowing = IRenderingManager.getInstance().getFlowingFluidTexture(fluid);
 
         renderFluidCuboid(still, flowing, color, matrices, renderer, combinedOverlay, combinedLight, x1, y1, z1, x2, y2, z2);
     }
 
     public static void renderFluidCuboid(
-      TextureAtlasSprite still,
-      TextureAtlasSprite flowing,
+      ResourceLocation still,
+      ResourceLocation flowing,
       int color,
       PoseStack matrices,
       VertexConsumer renderer,
@@ -99,13 +102,16 @@ public class FluidCuboidUtils
         matrices.pushPose();
         matrices.translate(x1, y1, z1);
 
+        final TextureAtlasSprite stillSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(still);
+        final TextureAtlasSprite flowingSprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(flowing);
+
         // x/y/z2 - x/y/z1 is because we need the width/height/depth
-        putTexturedQuad(renderer, matrices.last(), still, x2 - x1, y2 - y1, z2 - z1, DOWN, color, combinedOverlay, combinedLight, false);
-        putTexturedQuad(renderer, matrices.last(), flowing, x2 - x1, y2 - y1, z2 - z1, NORTH, color, combinedOverlay, combinedLight, true);
-        putTexturedQuad(renderer, matrices.last(), flowing, x2 - x1, y2 - y1, z2 - z1, Direction.EAST, color, combinedOverlay, combinedLight, true);
-        putTexturedQuad(renderer, matrices.last(), flowing, x2 - x1, y2 - y1, z2 - z1, Direction.SOUTH, color, combinedOverlay, combinedLight, true);
-        putTexturedQuad(renderer, matrices.last(), flowing, x2 - x1, y2 - y1, z2 - z1, Direction.WEST, color, combinedOverlay, combinedLight, true);
-        putTexturedQuad(renderer, matrices.last(), still, x2 - x1, y2 - y1, z2 - z1, UP, color, combinedOverlay, combinedLight, false);
+        putTexturedQuad(renderer, matrices.last(), stillSprite, x2 - x1, y2 - y1, z2 - z1, DOWN, color, combinedOverlay, combinedLight, false);
+        putTexturedQuad(renderer, matrices.last(), flowingSprite, x2 - x1, y2 - y1, z2 - z1, NORTH, color, combinedOverlay, combinedLight, true);
+        putTexturedQuad(renderer, matrices.last(), flowingSprite, x2 - x1, y2 - y1, z2 - z1, Direction.EAST, color, combinedOverlay, combinedLight, true);
+        putTexturedQuad(renderer, matrices.last(), flowingSprite, x2 - x1, y2 - y1, z2 - z1, Direction.SOUTH, color, combinedOverlay, combinedLight, true);
+        putTexturedQuad(renderer, matrices.last(), flowingSprite, x2 - x1, y2 - y1, z2 - z1, Direction.WEST, color, combinedOverlay, combinedLight, true);
+        putTexturedQuad(renderer, matrices.last(), stillSprite, x2 - x1, y2 - y1, z2 - z1, UP, color, combinedOverlay, combinedLight, false);
         matrices.popPose();
     }
 

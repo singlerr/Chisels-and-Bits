@@ -2,7 +2,7 @@ package mod.chiselsandbits.network.packets;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraft.world.entity.player.Player;
 
 public abstract class ModPacket
 {
@@ -29,16 +29,16 @@ public abstract class ModPacket
 			FriendlyByteBuf buffer );
 
 	public void processPacket(
-			final NetworkEvent.Context context,
+			final Player senderOnServer,
             final Boolean onServer)
 	{
 		if (!onServer)
 		{
 			client();
 		}
-		else
+		else if (senderOnServer instanceof ServerPlayer serverPlayer)
 		{
-			server( context.getSender() );
+			server( serverPlayer );
 		}
 	}
 

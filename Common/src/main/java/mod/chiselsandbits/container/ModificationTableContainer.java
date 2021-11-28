@@ -15,8 +15,6 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -97,22 +95,18 @@ public class ModificationTableContainer extends AbstractContainerMenu
     /**
      * Returns the index of the selected recipe.
      */
-    @OnlyIn(Dist.CLIENT)
     public int getSelectedRecipe() {
         return this.selectedRecipe.get();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public List<ModificationTableRecipe> getRecipeList() {
         return this.recipes;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public int getRecipeListSize() {
         return this.recipes.size();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public boolean hasItemsInInputSlot() {
         return this.inputInventorySlot.hasItem() && !this.recipes.isEmpty();
     }
@@ -179,7 +173,6 @@ public class ModificationTableContainer extends AbstractContainerMenu
         return ModContainerTypes.MODIFICATION_TABLE.get();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void setInventoryUpdateListener(Runnable listenerIn) {
         this.inventoryUpdateListener = listenerIn;
     }

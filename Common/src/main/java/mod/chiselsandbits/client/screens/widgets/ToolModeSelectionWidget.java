@@ -10,11 +10,10 @@ import mod.chiselsandbits.api.item.withmode.IToolMode;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
 import mod.chiselsandbits.api.util.LocalStrings;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.network.packets.HeldToolModeChangedPacket;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -291,10 +290,8 @@ public class ToolModeSelectionWidget<M extends IToolMode<G>, G extends IToolMode
         removeWidget(currentGroupSelectionWidget);
     }
 
-    private void removeWidget(final Widget widget) {
-        owner.getButtons().remove(widget);
-        if (widget instanceof GuiEventListener)
-            owner.getWidgets().remove(widget);
+    private void removeWidget(final GuiEventListener widget) {
+        owner.removeWidget(widget);
     }
 
     private void onPageSelected(IRenderableMode iRenderableMode)

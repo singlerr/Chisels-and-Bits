@@ -14,8 +14,9 @@ import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.pattern.placement.PlacementResult;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
+import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
 import mod.chiselsandbits.registrars.ModPatternPlacementTypes;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -26,7 +27,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.registries.ForgeRegistryEntry;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -35,9 +35,9 @@ import java.util.stream.Collectors;
 
 import static mod.chiselsandbits.api.util.ColorUtils.MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR;
 import static mod.chiselsandbits.api.util.ColorUtils.NOT_FITTING_PATTERN_PLACEMENT_COLOR;
-import static mod.chiselsandbits.api.util.constants.Constants.MOD_ID;
+import static mod.chiselsandbits.platforms.core.util.constants.Constants.MOD_ID;
 
-public class CarvePatternPlacementType extends ForgeRegistryEntry<IPatternPlacementType> implements IPatternPlacementType
+public class CarvePatternPlacementType extends AbstractCustomRegistryEntry implements IPatternPlacementType
 {
     @Override
     public @NotNull ResourceLocation getIcon()

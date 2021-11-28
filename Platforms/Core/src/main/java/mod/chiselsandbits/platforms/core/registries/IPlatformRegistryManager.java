@@ -27,7 +27,7 @@ public interface IPlatformRegistryManager
      *
      * @return The deferred registrar manager.
      */
-    IRegistrarManager getDeferredRegistrarManager();
+    IRegistrarManager getRegistrarManager();
 
     /**
      * Gives access to the item registry.

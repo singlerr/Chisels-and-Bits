@@ -4,15 +4,12 @@ import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItem;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.inventory.bit.IInventoryBitInventory;
-import mod.chiselsandbits.inventory.bit.IItemHandlerBitInventory;
-import mod.chiselsandbits.inventory.bit.IModifiableItemHandlerBitInventory;
 import mod.chiselsandbits.inventory.bit.IllegalBitInventory;
 import mod.chiselsandbits.inventory.player.PlayerMainAndOffhandInventoryWrapper;
-import net.minecraft.world.entity.player.Player;
+import mod.chiselsandbits.platforms.core.inventory.bit.IAdaptingBitInventoryManager;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
 
 public class BitInventoryManager implements IBitInventoryManager
 {
@@ -34,12 +31,13 @@ public class BitInventoryManager implements IBitInventoryManager
     }
 
     @Override
-    public IBitInventory create(final IItemHandler itemHandler)
+    public IBitInventory create(final Object target)
     {
-        if (itemHandler instanceof IItemHandlerModifiable)
-            return new IModifiableItemHandlerBitInventory((IItemHandlerModifiable) itemHandler);
-
-        return new IItemHandlerBitInventory(itemHandler);
+        return IAdaptingBitInventoryManager.getInstance()
+                 .create(target)
+                 .filter(IBitInventory.class::isInstance)
+                 .map(IBitInventory.class::cast)
+                 .orElseThrow(() -> new IllegalArgumentException("The given target object is not supported on the current platform!"));
     }
 
     @Override

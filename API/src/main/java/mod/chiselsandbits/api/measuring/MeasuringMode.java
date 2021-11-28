@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.measuring;
 
 import mod.chiselsandbits.api.item.withmode.IToolMode;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;

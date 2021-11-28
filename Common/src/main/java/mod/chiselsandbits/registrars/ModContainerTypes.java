@@ -1,23 +1,25 @@
 package mod.chiselsandbits.registrars;
 
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.container.BagContainer;
 import mod.chiselsandbits.container.ChiseledPrinterContainer;
 import mod.chiselsandbits.container.ModificationTableContainer;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistrar;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistryObject;
 import net.minecraft.world.inventory.MenuType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class ModContainerTypes
 {
+    private static final Logger LOGGER = LogManager.getLogger();
 
+    private static final IRegistrar<MenuType<?>> CONTAINER_TYPE_REGISTRAR = IRegistrar.create(MenuType.class, Constants.MOD_ID);
 
     private ModContainerTypes()
     {
         throw new IllegalStateException("Can not instantiate an instance of: ModContainers. This is a utility class");
     }
-
-    private static final IRegistrar<MenuType<?>> CONTAINER_TYPE_REGISTRAR = IRegistrar.create(MenuType.class, Constants.MOD_ID);
 
     public static final IRegistryObject<MenuType<BagContainer>> BIT_BAG = CONTAINER_TYPE_REGISTRAR.register(
       "bag",
@@ -33,4 +35,10 @@ public final class ModContainerTypes
       "chiseled_printer",
       () -> new MenuType<>(ChiseledPrinterContainer::new)
     );
+
+    public static void onModConstruction()
+    {
+        LOGGER.info("Loaded container type configuration.");
+    }
+
 }

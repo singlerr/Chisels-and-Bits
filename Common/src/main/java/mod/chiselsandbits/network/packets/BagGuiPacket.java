@@ -46,10 +46,9 @@ public final class BagGuiPacket extends ModPacket
 			final Player player )
 	{
 		final AbstractContainerMenu c = player.containerMenu;
-		if ( c instanceof BagContainer)
+		if (c instanceof final BagContainer bc)
 		{
-			final BagContainer bc = (BagContainer) c;
-			bc.handleCustomSlotAction( slotNumber, mouseButton, duplicateButton, holdingShift );
+            bc.handleCustomSlotAction( slotNumber, mouseButton, duplicateButton, holdingShift );
 		}
 	}
 

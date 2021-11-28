@@ -1,7 +1,7 @@
 package mod.chiselsandbits.data.advancement;
 
 import mod.chiselsandbits.api.data.advancement.AbstractAdvancementGenerator;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.registrars.ModTags;

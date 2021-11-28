@@ -2,7 +2,6 @@ package mod.chiselsandbits.network.handlers;
 
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
-import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.client.screen.AbstractChiselsAndBitsScreen;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
@@ -15,7 +14,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.Constants;
 
 import java.util.Optional;
 
@@ -38,10 +36,10 @@ public final class ClientPacketHandlers
                 }
 
                 final Optional<Block> convertedState = IConversionManager.getInstance().getChiseledVariantOf(currentState);
-                if (!convertedState.isPresent())
+                if (convertedState.isEmpty())
                     return;
 
-                Minecraft.getInstance().level.setBlock(blockPos, convertedState.get().defaultBlockState(), Constants.BlockFlags.DEFAULT);
+                Minecraft.getInstance().level.setBlock(blockPos, convertedState.get().defaultBlockState(), Block.UPDATE_ALL);
                 tileEntity = Minecraft.getInstance().level.getBlockEntity(blockPos);
                 if (!(tileEntity instanceof IMultiStateBlockEntity))
                     return;
@@ -53,7 +51,7 @@ public final class ClientPacketHandlers
                 {
                     try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Updating tile entity"))
                     {
-                        tileEntity.handleUpdateTag(updateTag);
+                        tileEntity.load(updateTag);
                     }
 
                     try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Scheduling refresh"))
@@ -62,7 +60,7 @@ public final class ClientPacketHandlers
                           tileEntity.getBlockPos(),
                           Blocks.AIR.defaultBlockState(),
                           tileEntity.getBlockState(),
-                          Constants.BlockFlags.DEFAULT_AND_RERENDER
+                          Block.UPDATE_ALL
                         );
                     }
                 }

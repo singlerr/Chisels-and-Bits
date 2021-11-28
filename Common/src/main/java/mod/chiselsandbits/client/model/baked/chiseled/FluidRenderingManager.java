@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
 import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
+import mod.chiselsandbits.platforms.core.client.rendering.type.IRenderTypeManager;
 import mod.chiselsandbits.platforms.core.registries.IPlatformRegistryManager;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.material.Fluid;
@@ -35,7 +36,7 @@ public class FluidRenderingManager
             final RenderType renderType = blockRenderTypes.get(i);
             for (final Fluid fluid : IPlatformRegistryManager.getInstance().getFluids().getValues())
             {
-                if (IRenderingManager.getInstance().canRenderInType(fluid.defaultFluidState(), renderType))
+                if (IRenderTypeManager.getInstance().canRenderInType(fluid.defaultFluidState(), renderType))
                 {
                     renderTypes.set(i);
                     break;

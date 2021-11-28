@@ -13,6 +13,7 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.RayTracingUtils;
+import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
 import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.utils.BitInventoryUtils;
@@ -36,7 +37,7 @@ import java.util.function.Predicate;
 
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.ONE_THOUSANDS;
 
-public class PlaneChiselMode extends SimpleChiselsAndBitsRegistryEntry implements IChiselMode
+public class PlaneChiselMode extends AbstractCustomRegistryEntry implements IChiselMode
 {
     private final int                       depth;
     private final MutableComponent displayName;

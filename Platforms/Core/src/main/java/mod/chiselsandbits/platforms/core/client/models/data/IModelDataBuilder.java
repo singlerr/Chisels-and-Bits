@@ -1,8 +1,6 @@
 package mod.chiselsandbits.platforms.core.client.models.data;
 
-import mod.chiselsandbits.platforms.core.IChiselsAndBitsPlatformCore;
 import mod.chiselsandbits.platforms.core.client.IClientManager;
-import net.minecraft.client.resources.model.BakedModel;
 
 /**
  * Builder for a new model data instances.
@@ -25,7 +23,7 @@ public interface IModelDataBuilder
      *
      * @return The model data from the current setup.
      */
-    IModelData build();
+    IBlockModelData build();
 
     /**
      * Adds a new value and a key to the builder's configuration.

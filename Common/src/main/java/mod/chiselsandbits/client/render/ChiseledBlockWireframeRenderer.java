@@ -13,7 +13,8 @@ import java.util.function.Predicate;
 public class ChiseledBlockWireframeRenderer
 {
     private static final ChiseledBlockWireframeRenderer INSTANCE = new ChiseledBlockWireframeRenderer();
-    private static final Predicate<IStateEntryInfo> NONE_AIR_PREDICATE = new Predicate<IStateEntryInfo>() {
+    private static final Predicate<IStateEntryInfo> NONE_AIR_PREDICATE = new Predicate<>()
+    {
         @Override
         public boolean test(final IStateEntryInfo iStateEntryInfo)
         {

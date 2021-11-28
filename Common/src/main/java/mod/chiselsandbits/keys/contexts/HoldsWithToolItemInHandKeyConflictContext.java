@@ -1,8 +1,8 @@
 package mod.chiselsandbits.keys.contexts;
 
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
+import mod.chiselsandbits.platforms.core.client.key.IKeyConflictContext;
 import net.minecraft.client.Minecraft;
-import net.minecraftforge.client.settings.IKeyConflictContext;
 
 public final class HoldsWithToolItemInHandKeyConflictContext implements IKeyConflictContext
 {

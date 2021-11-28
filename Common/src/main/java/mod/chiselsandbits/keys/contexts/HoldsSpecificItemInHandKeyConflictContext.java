@@ -1,11 +1,10 @@
 package mod.chiselsandbits.keys.contexts;
 
 import mod.chiselsandbits.api.item.change.IChangeTrackingItem;
+import mod.chiselsandbits.platforms.core.client.key.IKeyConflictContext;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.client.settings.IKeyConflictContext;
-import net.minecraftforge.client.settings.KeyConflictContext;
 
 import java.util.function.Predicate;
 
@@ -22,7 +21,7 @@ public enum HoldsSpecificItemInHandKeyConflictContext implements IKeyConflictCon
     public boolean isActive()
     {
         return Minecraft.getInstance().player != null && (item.test(Minecraft.getInstance().player.getMainHandItem().getItem()) ||
-          item.test(Minecraft.getInstance().player.getOffhandItem().getItem())) && !KeyConflictContext.GUI.isActive();
+          item.test(Minecraft.getInstance().player.getOffhandItem().getItem())) && !IKeyConflictContext.getGui().isActive();
     }
 
     @Override

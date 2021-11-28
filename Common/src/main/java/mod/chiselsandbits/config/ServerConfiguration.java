@@ -1,0 +1,64 @@
+package mod.chiselsandbits.config;
+
+import mod.chiselsandbits.api.config.IServerConfiguration;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.config.ConfigurationType;
+import mod.chiselsandbits.platforms.core.config.IConfigurationBuilder;
+import mod.chiselsandbits.platforms.core.config.IConfigurationManager;
+
+import java.util.function.Supplier;
+
+public class ServerConfiguration implements IServerConfiguration
+{
+    
+    private final Supplier<Boolean> blockListRandomTickingBlocks;
+    private final Supplier<Boolean> compatibilityMode;
+    private final Supplier<Integer>        bagStackSize;
+    private final Supplier<StateEntrySize> bitSize;
+    private final Supplier<Integer>        changeTrackerSize;
+
+    public ServerConfiguration() {
+        final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(
+          ConfigurationType.SYNCED, Constants.MOD_ID + "-server"
+        );
+
+        blockListRandomTickingBlocks = builder.defineBoolean("balancing.blacklist-random-ticking-blocks", false);
+        compatibilityMode = builder.defineBoolean("balancing.enable-compatibility-mode", false);
+        bagStackSize = builder.defineInteger("balancing.bit-bag-stack-size", 512, 64, 1024);
+        bitSize = builder.defineEnum("style.bit-size", StateEntrySize.ONE_SIXTEENTH);
+        changeTrackerSize = builder.defineInteger("balancing.change-tracker-size", 20, 10, 40);
+
+        builder.setup();
+    }
+
+    @Override
+    public Supplier<Boolean> getBlackListRandomTickingBlocks()
+    {
+        return blockListRandomTickingBlocks;
+    }
+
+    @Override
+    public Supplier<Boolean> getCompatabilityMode()
+    {
+        return compatibilityMode;
+    }
+
+    @Override
+    public Supplier<Integer> getBagStackSize()
+    {
+        return bagStackSize;
+    }
+
+    @Override
+    public Supplier<StateEntrySize> getBitSize()
+    {
+        return bitSize;
+    }
+
+    @Override
+    public Supplier<Integer> getChangeTrackerSize()
+    {
+        return changeTrackerSize;
+    }
+}

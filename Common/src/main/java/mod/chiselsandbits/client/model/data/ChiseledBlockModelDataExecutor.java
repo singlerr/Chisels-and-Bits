@@ -19,6 +19,7 @@ import mod.chiselsandbits.client.model.baked.simple.CombinedModel;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataBuilder;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataManager;
 import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
+import mod.chiselsandbits.platforms.core.client.rendering.type.IRenderTypeManager;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModModelProperties;
 import net.minecraft.client.Minecraft;
@@ -63,8 +64,8 @@ public class ChiseledBlockModelDataExecutor
 
               try(IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Extract model data from data"))
               {
-                  final RenderType currentType = IRenderingManager.getInstance().getCurrentRenderType().orElse(null);
-                  IRenderingManager.getInstance().setCurrentRenderType(null);
+                  final RenderType currentType = IRenderTypeManager.getInstance().getCurrentRenderType().orElse(null);
+                  IRenderTypeManager.getInstance().setCurrentRenderType(null);
                   try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Unknown render layer model building"))
                   {
                       final ChiseledBlockBakedModel[] models = new ChiseledBlockBakedModel[ChiselRenderType.values().length];
@@ -102,7 +103,7 @@ public class ChiseledBlockModelDataExecutor
                       {
                           try(IProfilerSection ignored3 = ProfilingManager.getInstance().withSection("Known render layer model building for: " + chunkBufferLayer.toString()))
                           {
-                              IRenderingManager.getInstance().setCurrentRenderType(chunkBufferLayer);
+                              IRenderTypeManager.getInstance().setCurrentRenderType(chunkBufferLayer);
                               if (tileEntity.getStatistics().getStateCounts().isEmpty() ||
                                     (tileEntity.getStatistics().getStateCounts().size() == 1 && tileEntity.getStatistics().getStateCounts().containsKey(Blocks.AIR.defaultBlockState()))) {
                                   continue;
@@ -179,7 +180,7 @@ public class ChiseledBlockModelDataExecutor
                       }
                   }
 
-                  IRenderingManager.getInstance().setCurrentRenderType(currentType);
+                  IRenderTypeManager.getInstance().setCurrentRenderType(currentType);
               }
 
               return IModelDataBuilder.create()

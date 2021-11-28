@@ -11,15 +11,11 @@ import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import mod.chiselsandbits.network.packets.MeasurementUpdatedPacket;
 import mod.chiselsandbits.network.packets.MeasurementsUpdatedPacket;
 import net.minecraft.client.Minecraft;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -76,7 +72,9 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
 
     public void syncToAll()
     {
-        ChiselsAndBits.getInstance().getNetworkChannel().sendToEveryone(new MeasurementsUpdatedPacket());
+        ChiselsAndBits.getInstance().getNetworkChannel().sendToEveryone(
+          new MeasurementsUpdatedPacket()
+        );
     }
 
     @Override
@@ -128,7 +126,6 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
         this.syncToAll();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void createAndSend(
       final Vec3 from, final Vec3 to, final MeasuringMode mode
     ) {

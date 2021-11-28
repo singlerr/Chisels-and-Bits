@@ -1,7 +1,7 @@
 package mod.chiselsandbits.data.recipes;
 
 import mod.chiselsandbits.api.data.recipe.AbstractChiselRecipeGenerator;
-import mod.chiselsandbits.api.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.tags.Tag;

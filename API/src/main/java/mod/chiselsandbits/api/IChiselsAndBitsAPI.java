@@ -25,8 +25,6 @@ import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import net.minecraft.tags.Tag;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -217,7 +215,6 @@ public interface IChiselsAndBitsAPI
      * Gives access to the chisel context preview renderer registry.
      * @return The registry.
      */
-    @OnlyIn(Dist.CLIENT)
     @NotNull
     IChiselContextPreviewRendererRegistry getChiselContextPreviewRendererRegistry();
 
@@ -225,7 +222,6 @@ public interface IChiselsAndBitsAPI
      * Gives access to the selected tool mode icon renderer registry.
      * @return The registry.
      */
-    @OnlyIn(Dist.CLIENT)
     @NotNull
     ISelectedToolModeIconRendererRegistry getSelectedToolModeIconRenderer();
 

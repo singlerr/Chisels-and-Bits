@@ -1,30 +1,22 @@
 package mod.chiselsandbits.utils;
 
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.util.VectorUtils;
-import mod.chiselsandbits.api.util.constants.NbtConstants;
-import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraftforge.common.util.Constants;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.zip.DataFormatException;
 
 public class ChunkSectionUtils
 {
@@ -88,7 +80,7 @@ public class ChunkSectionUtils
                 final CompoundTag compoundTag = NbtIo.readCompressed(inputStream);
 
                 chunkSection.getStates().read(
-                  compoundTag.getList(NbtConstants.PALETTE, Constants.NBT.TAG_COMPOUND),
+                  compoundTag.getList(NbtConstants.PALETTE, Tag.TAG_COMPOUND),
                   compoundTag.getLongArray(NbtConstants.BLOCK_STATES)
                 );
 
@@ -105,7 +97,7 @@ public class ChunkSectionUtils
         }
 
         chunkSection.getStates().read(
-          nbt.getList(NbtConstants.PALETTE, Constants.NBT.TAG_COMPOUND),
+          nbt.getList(NbtConstants.PALETTE, Tag.TAG_COMPOUND),
           nbt.getLongArray(NbtConstants.BLOCK_STATES)
         );
 

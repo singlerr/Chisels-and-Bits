@@ -6,7 +6,7 @@ public interface ICommonConfiguration
 {
     /**
      * The common configuration.
-     * Elements in this configuration are relevant for both the server and the client side of C&B.
+     * Elements in this configuration are relevant for both the server and the client side of C{@literal &}B.
      * This configuration does not need to be in-sync with the server values.
      *
      * @return The common configuration.

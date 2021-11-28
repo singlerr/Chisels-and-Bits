@@ -11,6 +11,7 @@ import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModel;
 import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModelManager;
 import mod.chiselsandbits.client.util.FluidCuboidUtils;
 import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
+import mod.chiselsandbits.platforms.core.client.rendering.type.IRenderTypeManager;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
@@ -29,7 +30,6 @@ import java.util.Objects;
 
 public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity>
 {
-
     private static final SimpleMaxSizedCache<CacheKey, LevelChunkSection> STORAGE_CONTENTS_BLOB_CACHE = new SimpleMaxSizedCache<>(IClientConfiguration.getInstance().getBitStorageContentCacheSize()::get);
 
     public static void clearCache() {
@@ -55,7 +55,7 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
             if (fluidStack != null)
             {
                 RenderType.chunkBufferLayers().forEach(renderType -> {
-                    if (!IRenderingManager.getInstance().canRenderInType(fluidStack.fluid().defaultFluidState(), renderType))
+                    if (!IRenderTypeManager.getInstance().canRenderInType(fluidStack.fluid().defaultFluidState(), renderType))
                         return;
 
                     if (renderType == RenderType.translucent() && Minecraft.useShaderTransparency())

@@ -9,7 +9,7 @@ import mod.chiselsandbits.api.client.screen.widget.AbstractChiselsAndBitsWidget;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.client.icon.IconManager;
 import mod.chiselsandbits.network.packets.ClearChangeTrackerPacket;
-import mod.chiselsandbits.network.packets.RequestChangeTrackerOperation;
+import mod.chiselsandbits.network.packets.RequestChangeTrackerOperationPacket;
 import net.minecraft.client.Minecraft;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,7 +58,7 @@ public class ChangeTrackerOperationsWidget extends AbstractChiselsAndBitsWidget
             this.y,
             LocalStrings.ChangeTrackerOperationsButtonUndoName.getText(),
             IconManager.getInstance().getUndoIcon(),
-            button -> ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new RequestChangeTrackerOperation(false)),
+            button -> ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new RequestChangeTrackerOperationPacket(false)),
             (button, matrixStack, mouseX, mouseY) -> {
                 if (button.active) {
                     owner.renderTooltip(matrixStack, LocalStrings.ChangeTrackerOperationsButtonUndoName.getText(), mouseX, mouseY);
@@ -73,7 +73,7 @@ public class ChangeTrackerOperationsWidget extends AbstractChiselsAndBitsWidget
             this.y + WIDTH + ELEMENT_SEPARATOR,
             LocalStrings.ChangeTrackerOperationsButtonRedoName.getText(),
             IconManager.getInstance().getRedoIcon(),
-            button -> ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new RequestChangeTrackerOperation(true)),
+            button -> ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new RequestChangeTrackerOperationPacket(true)),
             (button, matrixStack, mouseX, mouseY) -> {
                 if (button.active) {
                     owner.renderTooltip(matrixStack, LocalStrings.ChangeTrackerOperationsButtonRedoName.getText(), mouseX, mouseY);
