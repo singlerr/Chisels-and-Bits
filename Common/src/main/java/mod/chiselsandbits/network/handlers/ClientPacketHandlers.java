@@ -1,6 +1,7 @@
 package mod.chiselsandbits.network.handlers;
 
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
+import mod.chiselsandbits.api.block.entity.INetworkUpdateableEntity;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.client.screen.AbstractChiselsAndBitsScreen;
@@ -51,7 +52,13 @@ public final class ClientPacketHandlers
                 {
                     try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Updating tile entity"))
                     {
-                        tileEntity.load(updateTag);
+                        if (tileEntity instanceof INetworkUpdateableEntity networkUpdateableEntity) {
+                            networkUpdateableEntity.handleUpdateTag(updateTag);
+                        }
+                        else
+                        {
+                            tileEntity.load(updateTag);
+                        }
                     }
 
                     try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Scheduling refresh"))

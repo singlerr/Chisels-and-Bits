@@ -4,6 +4,7 @@ import mod.chiselsandbits.client.registrars.ModColors;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -11,14 +12,14 @@ import net.minecraftforge.fml.common.Mod;
 public class ColorRegistrarHandler
 {
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.NORMAL)
     public static void registerBlockColors(
       final ColorHandlerEvent.Block event )
     {
         ModColors.onBlockColorHandler();
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.NORMAL)
     public static void registerItemColors(
       final ColorHandlerEvent.Item event )
     {

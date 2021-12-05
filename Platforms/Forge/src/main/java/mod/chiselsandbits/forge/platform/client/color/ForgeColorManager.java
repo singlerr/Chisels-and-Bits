@@ -2,12 +2,17 @@ package mod.chiselsandbits.forge.platform.client.color;
 
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.platforms.core.client.rendering.IColorManager;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ColorHandlerEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import java.util.List;
 import java.util.function.Consumer;
 
+@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ForgeColorManager implements IColorManager
 {
     private static final ForgeColorManager INSTANCE = new ForgeColorManager();
@@ -36,7 +41,7 @@ public class ForgeColorManager implements IColorManager
         itemColorSetters.add(configurator);
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onBlockColorHandler(final ColorHandlerEvent.Block event)
     {
         ForgeColorManager.getInstance().blockColorSetters.forEach(
@@ -44,7 +49,7 @@ public class ForgeColorManager implements IColorManager
         );
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onItemColorHandler(final ColorHandlerEvent.Item event)
     {
         ForgeColorManager.getInstance().itemColorSetters.forEach(

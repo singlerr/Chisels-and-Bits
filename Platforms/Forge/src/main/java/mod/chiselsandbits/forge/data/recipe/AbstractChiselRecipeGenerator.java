@@ -1,22 +1,22 @@
 package mod.chiselsandbits.forge.data.recipe;
 
-import com.ldtteam.datagenerators.recipes.RecipeIngredientJson;
-import com.ldtteam.datagenerators.recipes.RecipeIngredientKeyJson;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.util.ParamValidator;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.world.item.Item;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.common.Tags;
 
-import java.io.IOException;
+import java.util.function.Consumer;
 
 public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenerator
 {
-    private final Tag.Named<?> rodTag;
-    private final Tag.Named<?> ingredientTag;
+    private final Tag<Item> rodTag;
+    private final Tag<Item> ingredientTag;
 
-    protected AbstractChiselRecipeGenerator(final DataGenerator generator, final Item result, final Tag.Named<?> ingredientTag)
+    protected AbstractChiselRecipeGenerator(final DataGenerator generator, final Item result, Tag<Item> ingredientTag)
     {
         super(generator, ParamValidator.isInstanceOf(result, IChiselItem.class));
         this.ingredientTag = ingredientTag;
@@ -26,26 +26,25 @@ public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenera
     protected AbstractChiselRecipeGenerator(
       final DataGenerator generator,
       final Item result,
-      final Tag.Named<?> rodTag,
-      final Tag.Named<?> ingredientTag)
+      final Tag<Item> rodTag,
+      final Tag<Item> ingredientTag)
     {
         super(generator, ParamValidator.isInstanceOf(result, IChiselItem.class));
         this.rodTag = rodTag;
         this.ingredientTag = ingredientTag;
     }
 
-
     @Override
-    protected final void generate() throws IOException
+    protected void buildCraftingRecipes(final Consumer<FinishedRecipe> writer)
     {
-        addShapedRecipe(
-          "st ",
-          "   ",
-          "   ",
-          "s",
-          new RecipeIngredientKeyJson(new RecipeIngredientJson(rodTag.getName().toString(), true)),
-          "t",
-          new RecipeIngredientKeyJson(new RecipeIngredientJson(ingredientTag.getName().toString(), true))
-        );
+        ShapedRecipeBuilder.shaped(getItemProvider())
+          .pattern("st ")
+          .pattern("   ")
+          .pattern("   ")
+          .define('s', rodTag)
+          .define('t', ingredientTag)
+          .unlockedBy("has_rod", has(rodTag))
+          .unlockedBy("has_ingredient", has(ingredientTag))
+          .save(writer);
     }
 }

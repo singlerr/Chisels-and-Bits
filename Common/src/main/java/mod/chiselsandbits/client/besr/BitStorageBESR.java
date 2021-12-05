@@ -10,6 +10,7 @@ import mod.chiselsandbits.client.model.baked.chiseled.ChiselRenderType;
 import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModel;
 import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModelManager;
 import mod.chiselsandbits.client.util.FluidCuboidUtils;
+import mod.chiselsandbits.platforms.core.client.rendering.IColorManager;
 import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
 import mod.chiselsandbits.platforms.core.client.rendering.type.IRenderTypeManager;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
@@ -18,6 +19,7 @@ import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
@@ -113,9 +115,20 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
 
             if (!innerModel.isEmpty())
             {
-                final float r = te.getFluid().map(IFluidManager.getInstance()::getFluidColor).map(color -> (color >> 16) & 0xff).orElse(255) / 255f;
-                final float g = te.getFluid().map(IFluidManager.getInstance()::getFluidColor).map(color -> (color >> 8) & 0xff).orElse(255) / 255f;
-                final float b = te.getFluid().map(IFluidManager.getInstance()::getFluidColor).map(color -> color & 0xff).orElse(255) / 255f;
+                float r;
+                float g;
+                float b;
+                if (te.containsFluid()) {
+                    r = te.getFluid().map(IFluidManager.getInstance()::getFluidColor).map(color -> (color >> 16) & 0xff).orElse(255) / 255f;
+                    g = te.getFluid().map(IFluidManager.getInstance()::getFluidColor).map(color -> (color >> 8) & 0xff).orElse(255) / 255f;
+                    b = te.getFluid().map(IFluidManager.getInstance()::getFluidColor).map(color -> color & 0xff).orElse(255) / 255f;
+                } else {
+                    final int color = Minecraft.getInstance().getBlockColors().getColor(state, te.getLevel(), te.getBlockPos());
+                    r = ((color >> 16) & 0xff) / 255f;
+                    g = ((color >> 8) & 0xff) / 255f;
+                    b = (color  & 0xff) / 255f;
+                }
+
 
                 IRenderingManager.getInstance().renderModel(poseStack.last(), buffer.getBuffer(renderType), state, innerModel, r, g, b, combinedLightIn, combinedOverlayIn);
             }

@@ -4,9 +4,11 @@
   "package": "mod.chiselsandbits.forge.platform.mixin",
   "compatibilityLevel": "JAVA_16",
   "refmap": "chiselsandbits.refmap.json",
-  "mixins": [],
+  "mixins": [
+  ],
   "client": [
     "BlockRenderDispatcherMixin",
+    "ModelDataManagerMixin",
     "ItemRendererMixin"
   ],
   "server": [],

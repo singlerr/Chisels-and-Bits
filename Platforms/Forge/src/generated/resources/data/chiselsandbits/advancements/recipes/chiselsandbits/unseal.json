@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "chiselsandbits:unseal"
+    ]
+  },
+  "criteria": {
+    "has_item_a": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:wet_sponge"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "chiselsandbits:unseal"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_item_a",
+      "has_the_recipe"
+    ]
+  ]
+}

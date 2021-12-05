@@ -27,12 +27,12 @@ public class ChiselRecipeGenerator extends AbstractChiselRecipeGenerator
     private ChiselRecipeGenerator(
       final DataGenerator generator,
       final Item result,
-      final Tag.Named<?> ingredientTag)
+      final Tag<Item> ingredientTag)
     {
         super(generator, result, ingredientTag);
     }
 
-    private ChiselRecipeGenerator(final DataGenerator generator, final Item result, final Tag.Named<?> rodTag, final Tag.Named<?> ingredientTag)
+    private ChiselRecipeGenerator(final DataGenerator generator, final Item result, final Tag<Item> rodTag, final Tag<Item> ingredientTag)
     {
         super(generator, result, rodTag, ingredientTag);
     }

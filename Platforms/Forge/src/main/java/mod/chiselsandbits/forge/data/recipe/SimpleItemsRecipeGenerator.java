@@ -2,15 +2,17 @@ package mod.chiselsandbits.forge.data.recipe;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.ldtteam.datagenerators.recipes.RecipeIngredientJson;
-import com.ldtteam.datagenerators.recipes.RecipeIngredientKeyJson;
+import mod.chiselsandbits.forge.utils.CollectorUtils;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.registrars.ModTags;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
@@ -18,10 +20,12 @@ import net.minecraftforge.common.Tags;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
@@ -35,8 +39,10 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
             ModItems.BIT_BAG_DEFAULT.get(),
             "www;wbw;www",
             ImmutableMap.of(
-              "b", new RecipeIngredientKeyJson(new RecipeIngredientJson(ModItems.ITEM_BLOCK_BIT.getId().toString(), false)),
-              "w", new RecipeIngredientKeyJson(new RecipeIngredientJson(ItemTags.WOOL.getName().toString(), true))
+              'w', ItemTags.WOOL
+            ),
+            ImmutableMap.of(
+              'b', ModItems.ITEM_BLOCK_BIT.get()
             )
           )
         );
@@ -47,10 +53,11 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
             ModItems.MAGNIFYING_GLASS.get(),
             "cg ;s  ;   ",
             ImmutableMap.of(
-              "c", new RecipeIngredientKeyJson(new RecipeIngredientJson(ModTags.Items.CHISEL.getName().toString(), true)),
-              "g", new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.GLASS.getName().toString(), true)),
-              "s", new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.RODS_WOODEN.getName().toString(), true))
-            )
+              'c', ModTags.Items.CHISEL,
+              'g', Tags.Items.GLASS,
+              's', Tags.Items.RODS_WOODEN
+            ),
+            ImmutableMap.of()
           )
         );
 
@@ -60,10 +67,11 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
             ModItems.MEASURING_TAPE.get(),
             "  s;isy;ii ",
             ImmutableMap.of(
-              "i", new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.INGOTS_IRON.getName().toString(), true)),
-              "s", new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.STRING.getName().toString(), true)),
-              "y", new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.DYES_YELLOW.getName().toString(), true))
-            )
+              'i', Tags.Items.INGOTS_IRON,
+              's', Tags.Items.STRING,
+              'y', Tags.Items.DYES_YELLOW
+            ),
+            ImmutableMap.of()
           )
         );
 
@@ -72,10 +80,11 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
             event.getGenerator(),
             ModItems.QUILL.get(),
             ImmutableList.of(
-              new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.FEATHERS.getName().toString(), true)),
-              new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.DYES_BLACK.getName().toString(), true)),
-              new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.DYES_YELLOW.getName().toString(), true))
-            )
+              Tags.Items.FEATHERS,
+              Tags.Items.DYES_BLACK,
+              Tags.Items.DYES_YELLOW
+            ),
+            ImmutableList.of()
           )
         );
 
@@ -84,8 +93,10 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
             event.getGenerator(),
             ModItems.SEALANT_ITEM.get(),
             ImmutableList.of(
-              new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.SLIMEBALLS.getName().toString(), true)),
-              new RecipeIngredientKeyJson(new RecipeIngredientJson(Items.HONEY_BOTTLE.getRegistryName().toString(), false))
+              Tags.Items.SLIMEBALLS
+            ),
+            ImmutableList.of(
+              Items.HONEY_BOTTLE
             )
           )
         );
@@ -96,8 +107,10 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
             ModItems.WRENCH.get(),
             " pb; pp;p  ",
             ImmutableMap.of(
-              "p", new RecipeIngredientKeyJson(new RecipeIngredientJson(ItemTags.PLANKS.getName().toString(), true)),
-              "b", new RecipeIngredientKeyJson(new RecipeIngredientJson(ModItems.ITEM_BLOCK_BIT.getId().toString(), false))
+              'p', ItemTags.PLANKS
+            ),
+            ImmutableMap.of(
+              'b', ModItems.ITEM_BLOCK_BIT.get()
             )
           )
         );
@@ -106,8 +119,9 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
           new SimpleItemsRecipeGenerator(
             event.getGenerator(),
             ModItems.UNSEAL_ITEM.get(),
+            ImmutableList.of(),
             ImmutableList.of(
-              new RecipeIngredientKeyJson(new RecipeIngredientJson(Blocks.WET_SPONGE.getRegistryName().toString(), false))
+              Blocks.WET_SPONGE
             )
           )
         );
@@ -115,38 +129,64 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
 
     private final boolean shapeless;
 
-    private final String pattern;
-    private final Map<String, RecipeIngredientKeyJson> ingredientKeyJsonMap;
+    private final List<String>              pattern;
+    private final Map<Character, Tag<Item>> tagMap;
+    private final Map<Character, ItemLike>  itemMap;
 
-    private final List<RecipeIngredientKeyJson> ingredientKeyJsonList;
-
-    private SimpleItemsRecipeGenerator(final DataGenerator generator, final ItemLike result, final String pattern, final Map<String, RecipeIngredientKeyJson> ingredientKeyJsonMap)
+    public SimpleItemsRecipeGenerator(
+      final DataGenerator generator,
+      final ItemLike itemProvider,
+      final String pattern,
+      final Map<Character, Tag<Item>> tagMap, final Map<Character, ItemLike> itemMap)
     {
-        super(generator, result);
+        super(generator, itemProvider);
         this.shapeless = false;
-        this.pattern = pattern;
-        this.ingredientKeyJsonMap = ingredientKeyJsonMap;
-        this.ingredientKeyJsonList = Lists.newArrayList();
+        this.pattern = Arrays.asList(pattern.split(";"));
+        this.tagMap = tagMap;
+        this.itemMap = itemMap;
     }
 
     public SimpleItemsRecipeGenerator(
       final DataGenerator generator,
       final ItemLike itemProvider,
-      final List<RecipeIngredientKeyJson> ingredientKeyJsonList)
+      final List<Tag<Item>> tagMap,
+      final List<ItemLike> itemMap)
     {
         super(generator, itemProvider);
         this.shapeless = true;
-        this.pattern = "";
-        this.ingredientKeyJsonMap = Maps.newHashMap();
-        this.ingredientKeyJsonList = ingredientKeyJsonList;
+        this.pattern = ImmutableList.of("   ", "   ", "   ");
+        this.tagMap = tagMap.stream().collect(CollectorUtils.toEnumeratedCharacterKeyedMap());
+        this.itemMap = itemMap.stream().collect(CollectorUtils.toEnumeratedCharacterKeyedMap());
     }
 
     @Override
-    protected void generate() throws IOException
+    protected void buildCraftingRecipes(final @NotNull Consumer<FinishedRecipe> writer)
     {
-        if (!this.shapeless)
-            this.addShapedRecipe(pattern, ingredientKeyJsonMap);
+        if (this.shapeless) {
+            final ShapelessRecipeBuilder builder = ShapelessRecipeBuilder.shapeless(getItemProvider());
+            tagMap.forEach((ingredientKey, tag) -> {
+                builder.requires(tag);
+                builder.unlockedBy("has_tag_" + ingredientKey, has(tag));
+            });
+            itemMap.forEach((ingredientKey, item) -> {
+                builder.requires(item);
+                builder.unlockedBy("has_item_" + ingredientKey, has(item));
+            });
+            builder.save(writer);
+        }
         else
-            this.addShapelessRecipe(ingredientKeyJsonList);
+        {
+            final ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(getItemProvider());
+            pattern.forEach(builder::pattern);
+            tagMap.forEach((ingredientKey, tag) -> {
+                builder.define(ingredientKey, tag);
+                builder.unlockedBy("has_" + ingredientKey, has(tag));
+            });
+            itemMap.forEach((ingredientKey, item) -> {
+                builder.define(ingredientKey, item);
+                builder.unlockedBy("has_" + ingredientKey, has(item));
+            });
+            builder.save(writer);
+        }
     }
 }

@@ -2,6 +2,7 @@ package mod.chiselsandbits.forge.platform.client.model.data;
 
 import mod.chiselsandbits.platforms.core.client.models.data.IBlockModelData;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataKey;
+import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,5 +45,10 @@ public class ForgeBlockModelDataPlatformDelegate implements IBlockModelData
         final ModelProperty<T> property = ((ForgeModelPropertyPlatformDelegate<T>) prop).getProperty();
 
         return (T) delegate.setData(property, data);
+    }
+
+    public IModelData getDelegate()
+    {
+        return delegate;
     }
 }

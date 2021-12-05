@@ -1,5 +1,6 @@
 package mod.chiselsandbits.forge.client.events;
 
+import mod.chiselsandbits.keys.KeyBindingManager;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.client.logic.ToolNameHighlightTickHandler;
 import net.minecraftforge.api.distmarker.Dist;
@@ -17,5 +18,14 @@ public class ClientTickHandler
     public static void handleClientTickForMagnifyingGlass(final TickEvent.ClientTickEvent event)
     {
         ToolNameHighlightTickHandler.handleClientTickForMagnifyingGlass();
+    }
+
+    @SubscribeEvent
+    public static void handleClientTickForKeybindings(final TickEvent.ClientTickEvent event)
+    {
+        if (event.phase != TickEvent.Phase.START)
+            return;
+
+        KeyBindingManager.getInstance().handleKeyPresses();
     }
 }

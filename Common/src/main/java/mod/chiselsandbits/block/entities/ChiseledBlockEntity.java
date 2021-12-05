@@ -7,6 +7,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
+import mod.chiselsandbits.api.block.entity.INetworkUpdateableEntity;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
@@ -25,6 +26,7 @@ import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntry
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.*;
+import mod.chiselsandbits.platforms.core.entity.block.IBlockEntityWithModelData;
 import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
 import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
@@ -60,7 +62,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 @SuppressWarnings("deprecation")
-public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlockEntity
+public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlockEntity, INetworkUpdateableEntity, IBlockEntityWithModelData
 {
     public static final float ONE_THOUSANDS       = 1 / 1000f;
     private final MutableStatistics mutableStatistics;
@@ -198,7 +200,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     @Override
     public void deserializeNBT(final CompoundTag nbt)
     {
-        final CompoundTag chiselBlockData = nbt.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
+        final CompoundTag chiselBlockData =  nbt.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
         final CompoundTag compressedSectionData = chiselBlockData.getCompound(NbtConstants.COMPRESSED_STORAGE);
         final CompoundTag statisticsData = chiselBlockData.getCompound(NbtConstants.STATISTICS);
 
@@ -288,6 +290,16 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         updateTag.putByteArray(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, data);
 
         return updateTag;
+    }
+
+    @Override
+    public void handleUpdateTag(final CompoundTag tag)
+    {
+        final byte[] compressedStorageData = tag.getByteArray(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
+
+        final ByteBuf buffer = Unpooled.wrappedBuffer(compressedStorageData);
+        this.deserializeFrom(new FriendlyByteBuf(buffer));
+        buffer.release();
     }
 
     @Override

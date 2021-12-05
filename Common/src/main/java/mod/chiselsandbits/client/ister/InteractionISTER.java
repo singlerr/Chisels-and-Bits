@@ -5,6 +5,7 @@ import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.item.interactable.IInteractableItem;
 import mod.chiselsandbits.client.model.baked.interactable.InteractableBakedItemModel;
 import mod.chiselsandbits.client.time.TickHandler;
+import mod.chiselsandbits.platforms.core.client.models.IDelegatingBakedModel;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -46,6 +47,11 @@ public class InteractionISTER extends BlockEntityWithoutLevelRenderer
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
         LocalPlayer player = Minecraft.getInstance().player;
         BakedModel mainModel = itemRenderer.getModel(stack, Minecraft.getInstance().level, null, 0);
+
+        if (mainModel instanceof IDelegatingBakedModel delegatingBakedModel) {
+            mainModel = delegatingBakedModel.getDelegate();
+        }
+
         if (!(mainModel instanceof InteractableBakedItemModel))
         {
             return;

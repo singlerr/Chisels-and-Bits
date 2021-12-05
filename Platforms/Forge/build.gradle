@@ -52,7 +52,7 @@ minecraft {
             arg "--mixin=chiselsandbits.mixins.json"
             jvmArgs "-Dmixin.debug=true", "-Dmixin.debug.export=true"
             mods {
-                modClientRun {
+                chiselsandbits {
                     source sourceSets.main
                     source project(":Common").sourceSets.main
                     source project(":API").sourceSets.main
@@ -66,7 +66,7 @@ minecraft {
             ideaModule "${rootProject.name}.${project.name}.main"
             taskName 'Server'
             mods {
-                modServerRun {
+                chiselsandbits {
                     source sourceSets.main
                     source project(":Common").sourceSets.main
                     source project(":API").sourceSets.main
@@ -78,13 +78,13 @@ minecraft {
         data {
             workingDirectory project.file('run')
             ideaModule "${rootProject.name}.${project.name}.main"
-            args '--mod', mod_id, '--all',
-                    '--output', file('src/generated/resources/'),
+            args '--mod', mod_id,
+                    '--output', file("src/generated/resources/"),
                     '--existing', file('src/main/resources/'),
                     '--existing', project(":Common").file('src/main/resources/')
             taskName 'Data'
             mods {
-                modDataRun {
+                chiselsandbits {
                     source sourceSets.main
                     source project(":Common").sourceSets.main
                     source project(":API").sourceSets.main

@@ -130,7 +130,7 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
     {
         return ILevelBasedPropertyAccessor.getInstance().getLightEmission(
           new SingleBlockWorldReader(
-            state,
+            state == null ? Blocks.AIR.defaultBlockState() : state,
             getBlockPos(),
             getLevel()
           ),
@@ -167,6 +167,7 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
             if (current.getItem() instanceof IBitItem bitItem)
             {
                 if (bitItem.getBitState(current) == state || state == null) {
+                    state = bitItem.getBitState(current);
                     final int maxToInsert = StateEntrySize.current().getBitsPerBlock() - bits;
                     final int toInsert = Math.min(maxToInsert, current.getCount());
 
@@ -306,11 +307,12 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
         if (index != 0)
             return ItemStack.EMPTY;
 
+        final BlockState currentState = state;
         final int toRemove = Math.min(count, bits);
         bits -= toRemove;
 
         saveAndUpdate();
-        return IBitItemManager.getInstance().create(state, toRemove);
+        return IBitItemManager.getInstance().create(currentState, toRemove);
     }
 
     @Override

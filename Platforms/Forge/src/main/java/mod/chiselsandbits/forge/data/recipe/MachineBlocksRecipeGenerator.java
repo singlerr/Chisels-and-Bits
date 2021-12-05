@@ -1,23 +1,27 @@
 package mod.chiselsandbits.forge.data.recipe;
 
 import com.google.common.collect.ImmutableMap;
-import com.ldtteam.datagenerators.recipes.RecipeIngredientJson;
-import com.ldtteam.datagenerators.recipes.RecipeIngredientKeyJson;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModTags;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.function.Consumer;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class MachineBlocksRecipeGenerator extends AbstractRecipeGenerator
@@ -29,11 +33,13 @@ public class MachineBlocksRecipeGenerator extends AbstractRecipeGenerator
           new MachineBlocksRecipeGenerator(
             event.getGenerator(),
             ModBlocks.CHISELED_PRINTER.get(),
-            " c ;t t;sss",
+            " c ;l l;sss",
             ImmutableMap.of(
-              "c", new RecipeIngredientKeyJson(new RecipeIngredientJson(ModTags.Items.CHISEL.getName().toString(), true)),
-              "t", new RecipeIngredientKeyJson(new RecipeIngredientJson(Objects.requireNonNull(Blocks.SMOOTH_STONE_SLAB.getRegistryName()).toString(), false)),
-              "s", new RecipeIngredientKeyJson(new RecipeIngredientJson(ModTags.Items.CHISEL.getName().toString(), true))
+              'c', ModTags.Items.CHISEL,
+              'l', ItemTags.LOGS
+            ),
+            ImmutableMap.of(
+              's', Blocks.SMOOTH_STONE_SLAB
             )
           )
         );
@@ -44,12 +50,13 @@ public class MachineBlocksRecipeGenerator extends AbstractRecipeGenerator
             ModBlocks.MODIFICATION_TABLE.get(),
             "scs;nbn;ppp",
             ImmutableMap.of(
-              "s", new RecipeIngredientKeyJson(new RecipeIngredientJson(ItemTags.WOODEN_SLABS.getName().toString(), true)),
-              "n", new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.NUGGETS_IRON.getName().toString(), true)),
-              "b", new RecipeIngredientKeyJson(new RecipeIngredientJson(ItemTags.LOGS.getName().toString(), true)),
-              "p", new RecipeIngredientKeyJson(new RecipeIngredientJson(ItemTags.PLANKS.getName().toString(), true)),
-              "c", new RecipeIngredientKeyJson(new RecipeIngredientJson(ModTags.Items.CHISEL.getName().toString(), true))
-            )
+              's', ItemTags.WOODEN_SLABS,
+              'n', Tags.Items.NUGGETS_IRON,
+              'b', ItemTags.LOGS,
+              'p', ItemTags.PLANKS,
+              'c', ModTags.Items.CHISEL
+            ),
+            ImmutableMap.of()
           )
         );
 
@@ -59,28 +66,46 @@ public class MachineBlocksRecipeGenerator extends AbstractRecipeGenerator
             ModBlocks.BIT_STORAGE.get(),
             "igi;glg;ici",
             ImmutableMap.of(
-              "g", new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.GLASS.getName().toString(), true)),
-              "l", new RecipeIngredientKeyJson(new RecipeIngredientJson(ItemTags.LOGS.getName().toString(), true)),
-              "i", new RecipeIngredientKeyJson(new RecipeIngredientJson(Tags.Items.INGOTS_IRON.getName().toString(), true)),
-              "c", new RecipeIngredientKeyJson(new RecipeIngredientJson(ModTags.Items.CHISEL.getName().toString(), true))
-            )
+              'g', Tags.Items.GLASS,
+              'l', ItemTags.LOGS,
+              'i', Tags.Items.INGOTS_IRON,
+              'c', ModTags.Items.CHISEL
+            ),
+            ImmutableMap.of()
           )
         );
     }
 
-    private final String pattern;
-    private final Map<String, RecipeIngredientKeyJson> ingredientKeyJsonMap;
+    private final List<String>                            pattern;
+    private final Map<Character, Tag<Item>>               tagMap;
+    private final Map<Character, ItemLike> itemMap;
 
-    private MachineBlocksRecipeGenerator(final DataGenerator generator, final ItemLike result, final String pattern, final Map<String, RecipeIngredientKeyJson> ingredientKeyJsonMap)
+    private MachineBlocksRecipeGenerator(
+      final DataGenerator generator,
+      final ItemLike result,
+      final String pattern,
+      final Map<Character, Tag<Item>> tagMap,
+      final Map<Character, ItemLike> itemMap)
     {
         super(generator, result);
-        this.pattern = pattern;
-        this.ingredientKeyJsonMap = ingredientKeyJsonMap;
+        this.pattern = Arrays.asList(pattern.split(";"));
+        this.tagMap = tagMap;
+        this.itemMap = itemMap;
     }
 
     @Override
-    protected void generate() throws IOException
+    protected void buildCraftingRecipes(final @NotNull Consumer<FinishedRecipe> writer)
     {
-        this.addShapedRecipe(pattern, ingredientKeyJsonMap);
+        final ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(getItemProvider());
+        pattern.forEach(builder::pattern);
+        tagMap.forEach((ingredientKey, tag) -> {
+            builder.define(ingredientKey, tag);
+            builder.unlockedBy("has_" + ingredientKey, has(tag));
+        });
+        itemMap.forEach((ingredientKey, item) -> {
+            builder.define(ingredientKey, item);
+            builder.unlockedBy("has_" + ingredientKey, has(item));
+        });
+        builder.save(writer);
     }
 }
