@@ -4,8 +4,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.*;
+import net.minecraft.world.level.block.BeaconBeamBlock;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -16,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Defines a block whose properties are determined by a backing block entity on a given position.
  */
-public interface IBlockWithWorldlyProperties extends ItemLike
+public interface IBlockWithWorldlyProperties extends ItemLike, BeaconBeamBlock
 {
     /**
      * Gets the friction of the block on the given position.
@@ -127,4 +129,14 @@ public interface IBlockWithWorldlyProperties extends ItemLike
      * @return The explosion resistance.
      */
     float getExplosionResistance(BlockState state, BlockGetter blockGetter, BlockPos position, Explosion explosion);
+
+    /**
+     * Default override implementation allows for simpler patching of the required methods.
+     *
+     * @return The default colors.
+     */
+    @Override
+    default DyeColor getColor() {
+        return DyeColor.LIGHT_BLUE;
+    }
 }

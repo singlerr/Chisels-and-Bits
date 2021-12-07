@@ -21,14 +21,14 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import java.util.function.BiConsumer;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ChiselsAndBitsClient
+public class ForgeChiselsAndBitsClient
 {
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void onModelRegistry(final ModelRegistryEvent event)
     {
-        ChiselsAndBitsClient.onModelRegistry(
+        ForgeChiselsAndBitsClient.onModelRegistry(
           ModelLoaderRegistry::registerLoader
         );
     }

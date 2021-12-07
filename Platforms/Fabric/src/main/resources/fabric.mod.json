@@ -19,7 +19,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "mod.chiselsandbits.ChiselsAndBitsMod"
+      "mod.chiselsandbits.fabric.FabricChiselsAndBitsMod"
     ]
   },
   "mixins": [
@@ -34,5 +34,5 @@
   },
   "suggests": {
   },
-  "accessWidener" : "chiselsandbits.accesswidener"
+  "accessWidener" : "chiselsandbits.accesswidner"
 }

@@ -7,6 +7,7 @@ import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.config.ChiselsAndBitsConfiguration;
 import mod.chiselsandbits.network.NetworkChannel;
 import mod.chiselsandbits.registrars.*;
+import mod.chiselsandbits.utils.LanguageHandler;
 
 public class ChiselsAndBits
 {
@@ -18,6 +19,7 @@ public class ChiselsAndBits
 	public ChiselsAndBits()
 	{
 	    instance = this;
+        LanguageHandler.loadLangPath("assets/chiselsandbits/lang/%s.json");
 
         this.configuration = new ChiselsAndBitsConfiguration();
         IChiselsAndBitsAPI.Holder.setInstance(ChiselsAndBitsAPI.getInstance());

@@ -1,10 +1,9 @@
 package mod.chiselsandbits.forge.platform.configuration;
 
 import com.google.common.collect.Sets;
+import mod.chiselsandbits.utils.LanguageHandler;
 import mod.chiselsandbits.platforms.core.config.IConfigurationBuilder;
 import mod.chiselsandbits.platforms.core.dist.DistExecutor;
-import mod.chiselsandbits.utils.LanguageHandler;
-import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.locale.Language;
 import net.minecraftforge.common.ForgeConfigSpec;
 
@@ -37,7 +36,7 @@ public class ForgeDelegateConfigurationBuilder implements IConfigurationBuilder
     }
 
     @Override
-    public <T> Supplier<List<? extends T>> defineList(final String key, final List<T> defaultValue)
+    public <T> Supplier<List<? extends T>> defineList(final String key, final List<T> defaultValue, final Class<T> containedType)
     {
         keys.add(key + ".comment");
         builder.comment(translateToLocal(key + ".comment"));
@@ -53,7 +52,7 @@ public class ForgeDelegateConfigurationBuilder implements IConfigurationBuilder
     }
 
     @Override
-    public Supplier<Long> defineLong(final String key, final int defaultValue, final int minValue, final long maxValue)
+    public Supplier<Long> defineInt(final String key, final long defaultValue, final long minValue, final long maxValue)
     {
         keys.add(key + ".comment");
         builder.comment(translateToLocal(key + ".comment"));

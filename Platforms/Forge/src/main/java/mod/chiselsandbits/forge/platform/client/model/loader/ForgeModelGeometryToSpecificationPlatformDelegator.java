@@ -34,7 +34,7 @@ public final class ForgeModelGeometryToSpecificationPlatformDelegator<T extends 
       final ResourceLocation modelLocation)
     {
         return new ForgeBakedModelDelegate(delegate.bake(
-          bakery, spriteGetter, modelTransform, overrides, modelLocation
+          bakery, spriteGetter, modelTransform, modelLocation
         ));
     }
 

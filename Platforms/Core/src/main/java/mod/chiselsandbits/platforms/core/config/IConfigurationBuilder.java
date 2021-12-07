@@ -22,10 +22,11 @@ public interface IConfigurationBuilder
      *
      * @param key The key to use.
      * @param defaultValue The default value.
+     * @param containedType The type of the values in the list.
      * @param <T> The type contained in the list.
      * @return The value provider.
      */
-    <T> Supplier<List<? extends T>> defineList(String key, List<T> defaultValue);
+    <T> Supplier<List<? extends T>> defineList(String key, List<T> defaultValue, final Class<T> containedType);
 
     /**
      * Defines a new string property with the given key and default value.
@@ -45,7 +46,7 @@ public interface IConfigurationBuilder
      * @param maxValue The maximal value.
      * @return The value provider.
      */
-    Supplier<Long> defineLong(String key, int defaultValue, int minValue, long maxValue);
+    Supplier<Long> defineInt(String key, long defaultValue, long minValue, long maxValue);
 
     /**
      * Defines a new integer property with the given key and default value.

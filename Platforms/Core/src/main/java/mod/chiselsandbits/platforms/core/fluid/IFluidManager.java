@@ -44,6 +44,7 @@ public interface IFluidManager
      *
      * @param stack The stack to extract from.
      * @param amount The amount to extract.
+     * @return The resulting itemstack from the extraction.
      */
     ItemStack extractFrom(final ItemStack stack, final long amount);
 

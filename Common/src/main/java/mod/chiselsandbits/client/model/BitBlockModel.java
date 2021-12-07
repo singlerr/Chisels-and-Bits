@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import mod.chiselsandbits.client.model.baked.bit.DataAwareBitBlockBakedModel;
 import mod.chiselsandbits.platforms.core.client.models.loaders.IModelSpecification;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +19,6 @@ public class BitBlockModel implements IModelSpecification<BitBlockModel>
       final ModelBakery bakery,
       final Function<Material, TextureAtlasSprite> spriteGetter,
       final ModelState modelTransform,
-      final ItemOverrides overrides,
       final ResourceLocation modelLocation)
     {
         return new DataAwareBitBlockBakedModel();

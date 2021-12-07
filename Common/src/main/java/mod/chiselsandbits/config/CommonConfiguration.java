@@ -20,7 +20,7 @@ public class CommonConfiguration implements ICommonConfiguration
         );
 
         enableHelp = builder.defineBoolean("help.enabled-in-tooltips", true);
-        collisionBoxCacheSize = builder.defineLong("performance.caches.sizes.collision-boxes", 10000, 0, Long.MAX_VALUE);
+        collisionBoxCacheSize = builder.defineInt("performance.caches.sizes.collision-boxes", 10000, 0, Long.MAX_VALUE);
 
         builder.setup();
     }

@@ -1,7 +1,6 @@
 package mod.chiselsandbits.platforms.core.client.models.loaders;
 
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.ResourceLocation;
@@ -16,7 +15,7 @@ import java.util.function.Function;
  */
 public interface IModelSpecification<T extends IModelSpecification<T>>
 {
-    BakedModel bake(ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation);
+    BakedModel bake(ModelBakery bakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelTransform, ResourceLocation modelLocation);
 
     Collection<Material> getTextures(Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors);
 }
