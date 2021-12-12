@@ -31,4 +31,12 @@ public final class FabricConfigurationSpec
         this.reset();
         this.source.setConfig(jsonObject);
     }
+
+    public void forceGetAll() {
+        this.values.forEach(FabricConfigurationValue::get);
+    }
+
+    public void writeAll() {
+        this.values.forEach(FabricConfigurationValue::write);
+    }
 }

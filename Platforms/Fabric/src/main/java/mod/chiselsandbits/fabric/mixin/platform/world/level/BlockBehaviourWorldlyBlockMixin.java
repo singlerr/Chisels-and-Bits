@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(BlockBehaviour.class)
-public class BlockBehaviourWorldlyBlockMixin
+public abstract class BlockBehaviourWorldlyBlockMixin
 {
 
     @Redirect(

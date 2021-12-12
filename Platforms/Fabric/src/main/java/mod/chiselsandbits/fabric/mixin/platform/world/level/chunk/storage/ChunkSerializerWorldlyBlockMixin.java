@@ -1,4 +1,4 @@
-package mod.chiselsandbits.fabric.mixin.platform.level.chunk.storage;
+package mod.chiselsandbits.fabric.mixin.platform.world.level.chunk.storage;
 
 import mod.chiselsandbits.platforms.core.block.IBlockWithWorldlyProperties;
 import net.minecraft.core.BlockPos;

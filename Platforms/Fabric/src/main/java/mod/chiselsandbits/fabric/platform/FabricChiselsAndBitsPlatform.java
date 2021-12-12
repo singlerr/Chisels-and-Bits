@@ -3,6 +3,7 @@ package mod.chiselsandbits.fabric.platform;
 import mod.chiselsandbits.fabric.platform.chiseling.eligibilty.FabricPlatformEligibilityOptions;
 import mod.chiselsandbits.fabric.platform.client.FabricClientManager;
 import mod.chiselsandbits.fabric.platform.configuration.FabricConfigurationManager;
+import mod.chiselsandbits.fabric.platform.creativetab.FabricCreativeTabManager;
 import mod.chiselsandbits.fabric.platform.dist.FabricDistributionManager;
 import mod.chiselsandbits.fabric.platform.entity.FabricEntityInformationManager;
 import mod.chiselsandbits.fabric.platform.event.FabricEventFirer;
@@ -21,6 +22,7 @@ import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
 import mod.chiselsandbits.platforms.core.chiseling.eligibility.IPlatformEligibilityOptions;
 import mod.chiselsandbits.platforms.core.client.IClientManager;
 import mod.chiselsandbits.platforms.core.config.IConfigurationManager;
+import mod.chiselsandbits.platforms.core.creativetab.ICreativeTabManager;
 import mod.chiselsandbits.platforms.core.dist.IDistributionManager;
 import mod.chiselsandbits.platforms.core.entity.IEntityInformationManager;
 import mod.chiselsandbits.platforms.core.entity.IPlayerInventoryManager;
@@ -145,4 +147,9 @@ public final class FabricChiselsAndBitsPlatform implements IChiselsAndBitsPlatfo
         return FabricServerLifecycleManager.getInstance().getServer();
     }
 
+    @Override
+    public @NotNull ICreativeTabManager getCreativeTabManager()
+    {
+        return FabricCreativeTabManager.getInstance();
+    }
 }

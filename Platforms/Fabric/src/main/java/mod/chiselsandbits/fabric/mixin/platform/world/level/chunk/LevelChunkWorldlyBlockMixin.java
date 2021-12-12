@@ -1,4 +1,4 @@
-package mod.chiselsandbits.fabric.mixin.platform.level.chunk;
+package mod.chiselsandbits.fabric.mixin.platform.world.level.chunk;
 
 import mod.chiselsandbits.platforms.core.block.IBlockWithWorldlyProperties;
 import net.minecraft.core.BlockPos;
@@ -29,6 +29,7 @@ public abstract class LevelChunkWorldlyBlockMixin implements ChunkAccess
 
     /**
      * @author Chisels & Bits
+     * @reason It is not possible to efficiently inject into the lambda for now.
      */
     @Overwrite
     public Stream<BlockPos> getLights()

@@ -35,6 +35,7 @@ public final class FabricConfigurationBuilder implements IConfigurationBuilder
           source,
           key,
           JsonElement::getAsBoolean,
+          JsonPrimitive::new,
           defaultValue
         );
 
@@ -62,6 +63,7 @@ public final class FabricConfigurationBuilder implements IConfigurationBuilder
 
               return list;
           },
+          GSON::toJsonTree,
           defaultValue
         );
 
@@ -77,6 +79,7 @@ public final class FabricConfigurationBuilder implements IConfigurationBuilder
           source,
           key,
           JsonElement::getAsString,
+          JsonPrimitive::new,
           defaultValue
         );
 
@@ -92,6 +95,7 @@ public final class FabricConfigurationBuilder implements IConfigurationBuilder
           source,
           key,
           JsonElement::getAsLong,
+          JsonPrimitive::new,
           defaultValue,
           val -> Math.max(minValue, Math.min(maxValue, val))
         );
@@ -108,6 +112,7 @@ public final class FabricConfigurationBuilder implements IConfigurationBuilder
           source,
           key,
           JsonElement::getAsInt,
+          JsonPrimitive::new,
           defaultValue,
           val -> Math.max(minValue, Math.min(maxValue, val))
         );
@@ -151,6 +156,7 @@ public final class FabricConfigurationBuilder implements IConfigurationBuilder
 
               throw new IllegalStateException("Reached unreachable code");
           },
+          (enumValue) -> new JsonPrimitive(enumValue.name()),
           defaultValue
         );
 

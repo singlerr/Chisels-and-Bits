@@ -29,7 +29,7 @@ public class ChiselsAndBits
         ModChiselModeGroups.onModConstruction();
         ModChiselModes.onModConstruction();
         ModContainerTypes.onModConstruction();
-        ModItemGroups.onModConstruction();
+        ModCreativeTabs.onModConstruction();
         ModItems.onModConstruction();
         ModMetadataKeys.onModConstruction();
         ModModelProperties.onModConstruction();

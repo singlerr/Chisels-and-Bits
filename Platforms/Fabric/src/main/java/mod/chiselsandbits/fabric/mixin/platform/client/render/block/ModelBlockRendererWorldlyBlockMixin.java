@@ -24,7 +24,7 @@ public abstract class ModelBlockRendererWorldlyBlockMixin
         target = "Lnet/minecraft/world/level/block/state/BlockState;getLightEmission()I"
       )
     )
-    private static int redirectGetBlockStateLightEmission(BlockState blockState, BlockAndTintGetter blockAndTintGetter, BakedModel bakedModel, BlockState givenState, BlockPos blockPos, PoseStack poseStack, VertexConsumer vertexConsumer, boolean bl, Random random, long l, int i)
+    private int redirectGetBlockStateLightEmission(BlockState blockState, BlockAndTintGetter blockAndTintGetter, BakedModel bakedModel, BlockState givenState, BlockPos blockPos, PoseStack poseStack, VertexConsumer vertexConsumer, boolean bl, Random random, long l, int i)
     {
         if (blockState.getBlock() instanceof IBlockWithWorldlyProperties blockWithWorldlyProperties)
         {

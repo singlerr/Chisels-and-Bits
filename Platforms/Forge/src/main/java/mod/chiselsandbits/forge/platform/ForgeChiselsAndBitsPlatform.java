@@ -2,6 +2,7 @@ package mod.chiselsandbits.forge.platform;
 
 import mod.chiselsandbits.forge.platform.client.ForgeClientManager;
 import mod.chiselsandbits.forge.platform.configuration.ForgeConfigurationManager;
+import mod.chiselsandbits.forge.platform.creativetab.ForgeCreativeTabManager;
 import mod.chiselsandbits.forge.platform.distribution.ForgeDistributionManager;
 import mod.chiselsandbits.forge.platform.eligibility.ForgeEligibilityOptions;
 import mod.chiselsandbits.forge.platform.entity.ForgeEntityInformationManager;
@@ -20,6 +21,7 @@ import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
 import mod.chiselsandbits.platforms.core.chiseling.eligibility.IPlatformEligibilityOptions;
 import mod.chiselsandbits.platforms.core.client.IClientManager;
 import mod.chiselsandbits.platforms.core.config.IConfigurationManager;
+import mod.chiselsandbits.platforms.core.creativetab.ICreativeTabManager;
 import mod.chiselsandbits.platforms.core.dist.IDistributionManager;
 import mod.chiselsandbits.platforms.core.entity.IEntityInformationManager;
 import mod.chiselsandbits.platforms.core.entity.IPlayerInventoryManager;
@@ -131,5 +133,11 @@ public class ForgeChiselsAndBitsPlatform implements IChiselsAndBitsPlatformCore
     public @NotNull MinecraftServer getCurrentServer()
     {
         return ServerLifecycleHooks.getCurrentServer();
+    }
+
+    @Override
+    public @NotNull ICreativeTabManager getCreativeTabManager()
+    {
+        return ForgeCreativeTabManager.getInstance();
     }
 }

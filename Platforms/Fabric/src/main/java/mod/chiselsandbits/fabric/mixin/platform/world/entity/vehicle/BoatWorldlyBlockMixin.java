@@ -27,6 +27,7 @@ public abstract class BoatWorldlyBlockMixin extends Entity
 
     /**
      * @author Chisels & Bits
+     * @reason It is not possible to properly inject the callback into the getFriction() call, while also capturing the required data.
      */
     @Overwrite
     public float getGroundFriction()

@@ -20,6 +20,9 @@
   "entrypoints": {
     "main": [
       "mod.chiselsandbits.fabric.FabricChiselsAndBitsMod"
+    ],
+    "client": [
+      "mod.chiselsandbits.fabric.client.FabricChiselsAndBitsClient"
     ]
   },
   "mixins": [
@@ -34,5 +37,5 @@
   },
   "suggests": {
   },
-  "accessWidener" : "chiselsandbits.accesswidner"
+  "accessWidener" : "chiselsandbits.accesswidener"
 }

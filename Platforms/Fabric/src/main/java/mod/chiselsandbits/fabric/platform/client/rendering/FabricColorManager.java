@@ -2,6 +2,7 @@ package mod.chiselsandbits.fabric.platform.client.rendering;
 
 import mod.chiselsandbits.fabric.mixin.platform.client.MinecraftAccessor;
 import mod.chiselsandbits.platforms.core.client.rendering.IColorManager;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.client.Minecraft;
 
 import java.util.function.Consumer;
@@ -22,7 +23,7 @@ public final class FabricColorManager implements IColorManager
     @Override
     public void setupBlockColors(final Consumer<IBlockColorSetter> configurator)
     {
-        final IBlockColorSetter setter = (colorManager, blocks) -> Minecraft.getInstance().getBlockColors().register(colorManager, blocks);
+        final IBlockColorSetter setter = ColorProviderRegistry.BLOCK::register;
 
         configurator.accept(setter);
     }
@@ -30,7 +31,7 @@ public final class FabricColorManager implements IColorManager
     @Override
     public void setupItemColors(final Consumer<IItemColorSetter> configurator)
     {
-        final IItemColorSetter setter = (colorManager, items) -> ((MinecraftAccessor) Minecraft.getInstance()).getItemColors().register(colorManager, items);
+        final IItemColorSetter setter = ColorProviderRegistry.ITEM::register;
 
         configurator.accept(setter);
     }

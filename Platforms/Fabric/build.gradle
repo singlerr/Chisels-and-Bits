@@ -52,6 +52,7 @@ processResources {
     from project(":Common").sourceSets.main.resources
     from project(":API").sourceSets.main.resources
     from project(":Platforms:Core").sourceSets.main.resources
+
     inputs.property "version", project.version
 
     filesMatching("fabric.mod.json") {

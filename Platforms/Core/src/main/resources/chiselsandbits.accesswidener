@@ -6,6 +6,7 @@ extendable   method     net/minecraft/client/renderer/block/model/ItemOverrides 
 extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk
 extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask
 extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask
+extendable   class      net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
 accessible   class      net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
 accessible   class      net/minecraft/world/inventory/MenuType$MenuSupplier
 accessible   method     net/minecraft/world/inventory/MenuType <init> (Lnet/minecraft/world/inventory/MenuType$MenuSupplier;)V
@@ -16,6 +17,8 @@ accessible   method     net/minecraft/client/renderer/blockentity/BlockEntityRen
 accessible   method     net/minecraft/client/renderer/RenderType create (Ljava/lang/String;Lcom/mojang/blaze3d/vertex/VertexFormat;Lcom/mojang/blaze3d/vertex/VertexFormat$Mode;IZZLnet/minecraft/client/renderer/RenderType$CompositeState;)Lnet/minecraft/client/renderer/RenderType$CompositeRenderType;
 accessible   method     net/minecraft/client/gui/screens/inventory/AbstractContainerScreen renderSlot (Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/world/inventory/Slot;)V
 accessible   method     net/minecraft/client/gui/screens/inventory/AbstractContainerScreen isHovering (Lnet/minecraft/world/inventory/Slot;DD)Z
+accessible   method     net/minecraft/client/gui/screens/MenuScreens register (Lnet/minecraft/world/inventory/MenuType;Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;)V
+accessible   method     net/minecraft/client/renderer/item/ItemProperties register (Lnet/minecraft/world/item/Item;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/client/renderer/item/ClampedItemPropertyFunction;)V
 accessible   field      net/minecraft/client/Minecraft itemColors Lnet/minecraft/client/color/item/ItemColors;
 accessible   field      net/minecraft/client/gui/Font fonts Ljava/util/function/Function;
 accessible   field      net/minecraft/world/inventory/AbstractContainerMenu containerListeners Ljava/util/List;

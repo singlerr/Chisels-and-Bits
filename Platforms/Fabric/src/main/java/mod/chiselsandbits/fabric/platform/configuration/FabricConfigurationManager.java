@@ -24,7 +24,9 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +37,8 @@ public final class FabricConfigurationManager implements IConfigurationManager
     private static final Gson GSON = new GsonBuilder()
       .create();
 
-    private static final FabricConfigurationManager INSTANCE = new FabricConfigurationManager();
     private static final ResourceLocation CONFIG_SYNC_CHANNEL_ID = new ResourceLocation(Constants.MOD_ID, "config_sync");
+    private static final FabricConfigurationManager INSTANCE = new FabricConfigurationManager();
 
     public static FabricConfigurationManager getInstance()
     {
@@ -96,7 +98,8 @@ public final class FabricConfigurationManager implements IConfigurationManager
     public IConfigurationBuilder createBuilder(
       final ConfigurationType type, final String name)
     {
-        final JsonObject localConfig = loadLocalConfig(name);
+
+        final JsonObject localConfig = doesLocalConfigExist(name) ? loadLocalConfig(name) : new JsonObject();
         final FabricConfigurationSource source = new FabricConfigurationSource(name, localConfig);
 
         return new FabricConfigurationBuilder(source, fabricConfigurationSpec -> {
@@ -108,6 +111,11 @@ public final class FabricConfigurationManager implements IConfigurationManager
             {
                 noneSyncedSources.add(fabricConfigurationSpec);
             }
+
+            fabricConfigurationSpec.forceGetAll();
+            fabricConfigurationSpec.writeAll();
+
+            saveLocalConfig(name, source.getConfig());
         });
     }
 
@@ -125,6 +133,33 @@ public final class FabricConfigurationManager implements IConfigurationManager
             fileReader.close();
 
             return containedElement.getAsJsonObject();
+        }
+        catch (IOException e)
+        {
+            throw new IllegalStateException("Failed to open and read configuration file: " + name, e);
+        }
+    }
+
+    private boolean doesLocalConfigExist(final String name) {
+        final Path configPath = Path.of("./", "configs", name + ".json");
+        return Files.exists(configPath);
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    private void saveLocalConfig(final String name, final JsonObject config) {
+        try
+        {
+            final Path configPath = Path.of("./", "configs", name + ".json");
+            if (Files.exists(configPath))
+                Files.delete(configPath);
+
+            configPath.toFile().getParentFile().mkdirs();
+            Files.createFile(configPath);
+
+            final FileWriter fileWriter = new FileWriter(configPath.toAbsolutePath().toFile().getAbsolutePath());
+            GSON.toJson(config, fileWriter);
+
+            fileWriter.close();
         }
         catch (IOException e)
         {

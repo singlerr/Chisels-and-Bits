@@ -12,9 +12,11 @@ public class FabricVerifyableConfigurationValue<T> extends FabricConfigurationVa
       final FabricConfigurationSource source,
       final String key,
       final Function<JsonElement, T> adapter,
-      final T defaultValue, final Function<T, T> verifier)
+      final Function<T, JsonElement> writer,
+      final T defaultValue,
+      final Function<T, T> verifier)
     {
-        super(source, key, adapter, defaultValue);
+        super(source, key, adapter, writer, defaultValue);
         this.verifier = verifier;
     }
 

@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
-import static mod.chiselsandbits.registrars.ModItemGroups.CHISELS_AND_BITS;
+import static mod.chiselsandbits.registrars.ModCreativeTabs.CHISELS_AND_BITS;
 
 public final class ModItems
 {

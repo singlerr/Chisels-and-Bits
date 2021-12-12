@@ -4,6 +4,7 @@ import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
 import mod.chiselsandbits.platforms.core.chiseling.eligibility.IPlatformEligibilityOptions;
 import mod.chiselsandbits.platforms.core.client.IClientManager;
 import mod.chiselsandbits.platforms.core.config.IConfigurationManager;
+import mod.chiselsandbits.platforms.core.creativetab.ICreativeTabManager;
 import mod.chiselsandbits.platforms.core.dist.IDistributionManager;
 import mod.chiselsandbits.platforms.core.entity.IEntityInformationManager;
 import mod.chiselsandbits.platforms.core.entity.IPlayerInventoryManager;
@@ -170,6 +171,14 @@ public interface IChiselsAndBitsPlatformCore
      */
     @NotNull
     MinecraftServer getCurrentServer();
+
+    /**
+     * The manager for handling creative tabs on the platform.
+     *
+     * @return The platforms creative tab manager.
+     */
+    @NotNull
+    ICreativeTabManager getCreativeTabManager();
 
     class Holder {
         private static IChiselsAndBitsPlatformCore apiInstance;

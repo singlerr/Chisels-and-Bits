@@ -15,9 +15,9 @@ import java.util.function.Function;
 public class FabricModelSpecificationUnbakedModelDelegate<S extends IModelSpecification<S>> implements UnbakedModel
 {
 
-    private final S specification;
+    private final IModelSpecification<S> specification;
 
-    public FabricModelSpecificationUnbakedModelDelegate(final S specification) {this.specification = specification;}
+    public FabricModelSpecificationUnbakedModelDelegate(final IModelSpecification<S> specification) {this.specification = specification;}
 
     @Override
     public Collection<ResourceLocation> getDependencies()

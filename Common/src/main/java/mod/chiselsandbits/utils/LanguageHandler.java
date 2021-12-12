@@ -88,7 +88,7 @@ public final class LanguageHandler
             final String defaultLocale = "en_us";
 
             //noinspection ConstantConditions Trust me, Minecraft.getInstance() can be null, when you run Data Generators!
-            String locale = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> (Minecraft.getInstance() == null) ? defaultLocale : Minecraft.getInstance().options.languageCode);
+            String locale = DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> (Minecraft.getInstance() == null || Minecraft.getInstance().options == null) ? defaultLocale : Minecraft.getInstance().options.languageCode);
 
             if (locale == null)
             {
