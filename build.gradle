@@ -60,8 +60,16 @@ subprojects { it ->
     }
 
     tasks.withType(JavaCompile).configureEach {
-
         it.options.encoding = 'UTF-8'
         it.options.release = 16
     }
+
+    tasks.withType(Javadoc.class, {task ->
+        task.options.tags(
+                'apiNote:a:API Note:',
+                'implSpec:a:Implementation Requirements:',
+                'implNote:a:Implementation Note:',
+                'reason:a:The reason for adding an @Overwrite'
+        )
+    })
 }

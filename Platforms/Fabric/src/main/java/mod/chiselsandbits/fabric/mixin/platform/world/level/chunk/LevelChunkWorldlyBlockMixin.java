@@ -28,7 +28,7 @@ public abstract class LevelChunkWorldlyBlockMixin implements ChunkAccess
     @Shadow public abstract Level getLevel();
 
     /**
-     * @author Chisels & Bits
+     * @author Chisels and Bits
      * @reason It is not possible to efficiently inject into the lambda for now.
      */
     @Overwrite

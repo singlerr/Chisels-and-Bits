@@ -3,9 +3,9 @@ extendable   class      net/minecraft/client/gui/Font
 extendable   class      net/minecraft/client/renderer/block/model/ItemOverrides
 extendable   method     net/minecraft/client/gui/Font drawInternal (Ljava/lang/String;FFILcom/mojang/math/Matrix4f;ZZ)I
 extendable   method     net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
-extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk
-extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask
-extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask
+# extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk
+# extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask
+# extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask
 extendable   class      net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
 accessible   class      net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
 accessible   class      net/minecraft/world/inventory/MenuType$MenuSupplier
@@ -34,6 +34,6 @@ accessible   field      net/minecraft/client/gui/Gui toolHighlightTimer I
 accessible   field      net/minecraft/client/renderer/ItemBlockRenderTypes TYPE_BY_BLOCK Ljava/util/Map;
 accessible   field      net/minecraft/client/renderer/BlockEntityWithoutLevelRenderer blockEntityRenderDispatcher Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher;
 accessible   field      net/minecraft/client/renderer/BlockEntityWithoutLevelRenderer entityModelSet Lnet/minecraft/client/model/geom/EntityModelSet;
-mutable   field      net/minecraft/client/renderer/block/BlockRenderDispatcher blockEntityRenderer net/minecraft/client/renderer/BlockEntityWithoutLevelRenderer
+mutable   field      net/minecraft/client/renderer/block/BlockRenderDispatcher blockEntityRenderer Lnet/minecraft/client/renderer/BlockEntityWithoutLevelRenderer;
 mutable   field      net/minecraft/client/renderer/entity/ItemRenderer blockEntityRenderer Lnet/minecraft/client/renderer/BlockEntityWithoutLevelRenderer;
 mutable   field      net/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher blockRenderDispatcher Ljava/util/function/Supplier;
