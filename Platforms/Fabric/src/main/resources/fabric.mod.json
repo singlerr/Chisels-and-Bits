@@ -14,7 +14,7 @@
   },
 
   "license": "LGPL-3.0",
-  "icon": "assets/modid/logo.png",
+  "icon": "assets/chiselsandbits/textures/logo.png",
 
   "environment": "*",
   "entrypoints": {

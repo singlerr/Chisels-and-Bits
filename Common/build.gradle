@@ -17,6 +17,8 @@ minecraft {
     accessWideners project.rootProject.file("Platforms/Core/src/main/resources/${mod_id}.accesswidener")
 }
 
+project.sourceSets.main.resources.srcDir "src/datagen/generated"
+
 dependencies {
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.4'
 

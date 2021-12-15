@@ -56,7 +56,7 @@ public final class FabricConfigurationManager implements IConfigurationManager
                 public void receive(
                   final Minecraft minecraft, final ClientPacketListener clientPacketListener, final FriendlyByteBuf friendlyByteBuf, final PacketSender packetSender)
                 {
-                    final JsonElement jsonElement = GSON.fromJson(friendlyByteBuf.readUtf(Integer.MAX_VALUE), JsonElement.class);
+                    final JsonElement jsonElement = GSON.fromJson(friendlyByteBuf.readUtf(Integer.MAX_VALUE / 4), JsonElement.class);
                     if (!jsonElement.isJsonObject())
                         throw new JsonParseException("The synced configs must be send in an object!");
 

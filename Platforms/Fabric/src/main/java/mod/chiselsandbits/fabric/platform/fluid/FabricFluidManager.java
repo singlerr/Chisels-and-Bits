@@ -8,11 +8,13 @@ import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 
 import java.util.Optional;
 
@@ -33,8 +35,12 @@ public class FabricFluidManager implements IFluidManager
     public Optional<FluidInformation> get(final ItemStack stack)
     {
         try(Transaction context = Transaction.openOuter()) {
-            final Iterable<StorageView<FluidVariant>> fluids = FluidStorage.ITEM.find(stack, ContainerItemContext.withInitial(stack))
-              .iterable(context);
+            final Storage<FluidVariant> target = FluidStorage.ITEM.find(stack, ContainerItemContext.withInitial(stack));
+            if (target == null)
+                return Optional.empty();
+
+            final Iterable<StorageView<FluidVariant>> fluids;
+            fluids = target.iterable(context);
 
             if (!fluids.iterator().hasNext())
                 return Optional.empty();

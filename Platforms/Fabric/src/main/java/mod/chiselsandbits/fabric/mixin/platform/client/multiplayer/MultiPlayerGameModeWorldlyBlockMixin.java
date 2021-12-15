@@ -21,7 +21,7 @@ public abstract class MultiPlayerGameModeWorldlyBlockMixin
         target = "Lnet/minecraft/world/level/block/state/BlockState;getSoundType()Lnet/minecraft/world/level/block/SoundType;"
       )
     )
-    private static SoundType redirectGetBlockStateSoundType(BlockState blockState, BlockPos blockPos)
+    private SoundType redirectGetBlockStateSoundType(BlockState blockState, BlockPos blockPos)
     {
         if (blockState.getBlock() instanceof IBlockWithWorldlyProperties blockWithWorldlyProperties)
         {

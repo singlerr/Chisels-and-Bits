@@ -64,13 +64,13 @@ public final class FabricKeyBindingManager implements IKeyBindingManager
     @Override
     public boolean isKeyConflictOfActive(final KeyMapping keybinding)
     {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isKeyModifierActive(final KeyMapping keybinding)
     {
-        return false;
+        return true;
     }
 
     private static final class FabricGuiKeyConflictContext implements IKeyConflictContext {

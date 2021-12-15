@@ -1,9 +1,7 @@
 package mod.chiselsandbits.fabric.platform.client.rendering;
 
-import mod.chiselsandbits.fabric.mixin.platform.client.MinecraftAccessor;
 import mod.chiselsandbits.platforms.core.client.rendering.IColorManager;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
-import net.minecraft.client.Minecraft;
 
 import java.util.function.Consumer;
 

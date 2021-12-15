@@ -133,7 +133,7 @@ public final class FabricConfigurationBuilder implements IConfigurationBuilder
                   throw new JsonParseException("Enum: " + key + " is not a primitive");
 
               final JsonPrimitive primitive = jsonElement.getAsJsonPrimitive();
-              if (!primitive.isString() || !primitive.isNumber())
+              if (!primitive.isString() && !primitive.isNumber())
                   throw new JsonParseException("Enum: " + key + " is not a string or number");
 
               final T[] values = defaultValue.getDeclaringClass().getEnumConstants();

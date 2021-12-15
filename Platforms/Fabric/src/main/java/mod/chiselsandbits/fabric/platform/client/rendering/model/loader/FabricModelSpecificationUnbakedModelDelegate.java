@@ -37,6 +37,6 @@ public class FabricModelSpecificationUnbakedModelDelegate<S extends IModelSpecif
     public BakedModel bake(
       final ModelBakery modelBakery, final Function<Material, TextureAtlasSprite> function, final ModelState modelState, final ResourceLocation resourceLocation)
     {
-        return specification.bake(modelBakery, function, modelState, resourceLocation);
+        return new FabricBakedModelDelegate(specification.bake(modelBakery, function, modelState, resourceLocation));
     }
 }

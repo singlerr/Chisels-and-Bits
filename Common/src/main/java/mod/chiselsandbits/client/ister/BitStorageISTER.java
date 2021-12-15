@@ -52,7 +52,8 @@ public class BitStorageISTER extends BlockEntityWithoutLevelRenderer
           , "facing=east"));
 
         matrixStack.pushPose();
-        GUI.apply(true, matrixStack);
+
+        //model.getTransforms().getTransform(transformType).apply(true, matrixStack);
 
         IRenderingManager.getInstance()
           .renderModel(matrixStack.last(), buffer.getBuffer(RenderType.translucent()), ModBlocks.BIT_STORAGE

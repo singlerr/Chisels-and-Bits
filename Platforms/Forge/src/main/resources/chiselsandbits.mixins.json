@@ -7,9 +7,8 @@
   "mixins": [
   ],
   "client": [
-    "BlockRenderDispatcherMixin",
-    "ModelDataManagerMixin",
-    "ItemRendererMixin"
+    "BlockEntityWithoutLevelRendererMixin",
+    "ModelDataManagerMixin"
   ],
   "server": [],
   "injectors": {

@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import mod.chiselsandbits.client.model.baked.interactable.InteractableBakedItemModel;
 import mod.chiselsandbits.platforms.core.client.models.loaders.IModelSpecification;
 import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.renderer.block.model.ItemModelGenerator;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.ResourceLocation;
@@ -14,9 +15,12 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.function.Function;
 
+import static net.minecraft.client.resources.model.ModelBakery.GENERATION_MARKER;
+
 public class InteractableItemModel implements IModelSpecification<InteractableItemModel>
 {
     private static final Logger LOGGER = LogManager.getLogger();
+    private static final ItemModelGenerator ITEM_MODEL_GENERATOR = new ItemModelGenerator();
 
     private ResourceLocation innerModelLocation;
     private UnbakedModel innerModel;
@@ -33,6 +37,12 @@ public class InteractableItemModel implements IModelSpecification<InteractableIt
       final ModelState modelTransform,
       final ResourceLocation modelLocation)
     {
+        if (this.innerModel instanceof BlockModel blockModel) {
+            if (blockModel.getRootModel() == GENERATION_MARKER) {
+                return new InteractableBakedItemModel(ITEM_MODEL_GENERATOR.generateBlockModel(spriteGetter, blockModel).bake(bakery, blockModel, spriteGetter, modelTransform, modelLocation, false));
+            }
+        }
+
         final BakedModel innerBakedModel = this.innerModel.bake(
           bakery,
           spriteGetter,

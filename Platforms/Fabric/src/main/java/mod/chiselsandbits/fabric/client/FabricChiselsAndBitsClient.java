@@ -102,7 +102,7 @@ public class FabricChiselsAndBitsClient implements ClientModInitializer
 
         HudRenderCallback.EVENT.register((poseStack, v) -> SlotOverlayRenderHandler.renderSlotOverlays(poseStack));
 
-        WorldRenderEvents.LAST.register(context -> {
+        WorldRenderEvents.END.register(context -> {
             SelectedObjectRenderHandler.renderCustomWorldHighlight(
               context.worldRenderer(),
               context.matrixStack(),
