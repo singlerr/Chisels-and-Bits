@@ -193,8 +193,6 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     @Override
     public void load( @NotNull final CompoundTag nbt)
     {
-        super.load(nbt);
-
         this.deserializeNBT(nbt);
     }
 
@@ -203,14 +201,20 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     {
         final CompoundTag chiselBlockData =  nbt.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
         final CompoundTag compressedSectionData = chiselBlockData.getCompound(NbtConstants.COMPRESSED_STORAGE);
-        final CompoundTag statisticsData = chiselBlockData.getCompound(NbtConstants.STATISTICS);
 
         ChunkSectionUtils.deserializeNBT(
           this.compressedSection,
           compressedSectionData
         );
 
-        mutableStatistics.deserializeNBT(statisticsData);
+        if (chiselBlockData.contains(NbtConstants.STATISTICS)) {
+            final CompoundTag statisticsData = chiselBlockData.getCompound(NbtConstants.STATISTICS);
+            mutableStatistics.deserializeNBT(statisticsData);
+        }
+        else
+        {
+            mutableStatistics.recalculate(this.compressedSection);
+        }
 
         ChiseledBlockModelDataManager.getInstance().updateModelData(this);
     }
@@ -275,7 +279,13 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     public CompoundTag getUpdateTag()
     {
         //Special compound version which just contains the bit array!
-        return saveWithFullMetadata();
+        final CompoundTag compound = new CompoundTag();
+        final CompoundTag chiselBlockData = new CompoundTag();
+        final CompoundTag compressedSectionData = ChunkSectionUtils.serializeNBTCompressed(this.compressedSection);
+        chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
+        compound.put(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, chiselBlockData);
+
+        return compound;
     }
 
     @Override
