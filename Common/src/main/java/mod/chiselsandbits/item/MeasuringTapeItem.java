@@ -53,6 +53,9 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
     @Override
     public void setMode(final ItemStack stack, final MeasuringMode mode)
     {
+        if (mode == null)
+            return;
+
         stack.getOrCreateTag().putString("mode", mode.toString());
     }
 
@@ -66,41 +69,44 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
     public ClickProcessingState handleRightClickProcessing(
       final Player playerEntity, final InteractionHand hand, final BlockPos position, final Direction face, final ClickProcessingState currentState)
     {
+        ClickProcessingState result = ClickProcessingState.DEFAULT;
         final ItemStack stack = playerEntity.getItemInHand(hand);
-        if (stack.getItem() != this)
-            return ClickProcessingState.DEFAULT;
-
-        if (KeyBindingManager.getInstance().isResetMeasuringTapeKeyPressed()) {
-            clear(stack);
-            ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new MeasurementsResetPacket());
-            return ClickProcessingState.DEFAULT;
-        }
-
-        final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
-        if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
+        if (stack.getItem() == this)
         {
-            return ClickProcessingState.DEFAULT;
+            if (KeyBindingManager.getInstance().isResetMeasuringTapeKeyPressed())
+            {
+                clear(stack);
+                ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new MeasurementsResetPacket());
+            }
+            else
+            {
+                final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
+                if (rayTraceResult.getType() == HitResult.Type.BLOCK && rayTraceResult instanceof final BlockHitResult blockRayTraceResult)
+                {
+                    final Vec3 hitVector = blockRayTraceResult.getLocation();
+                    final Optional<Vec3> startPointHandler = getStart(stack);
+                    if (startPointHandler.isEmpty())
+                    {
+                        setStart(stack, getMode(stack).getType().adaptPosition(hitVector));
+                        result = ClickProcessingState.ALLOW;
+                    }
+                    else
+                    {
+                        final Vec3 startPoint = startPointHandler.get();
+                        final Vec3 endPoint = getMode(stack).getType().adaptPosition(hitVector);
+                        MeasuringManager.getInstance().createAndSend(
+                          startPoint,
+                          endPoint,
+                          getMode(stack)
+                        );
+                        clear(stack);
+                        result = ClickProcessingState.ALLOW;
+                    }
+                }
+            }
         }
-        final Vec3 hitVector = blockRayTraceResult.getLocation();
 
-        final Optional<Vec3> startPointHandler = getStart(stack);
-        if (startPointHandler.isEmpty()) {
-            setStart(stack, getMode(stack).getType().adaptPosition(hitVector));
-            return ClickProcessingState.ALLOW;
-        }
-
-        final Vec3 startPoint = startPointHandler.get();
-        final Vec3 endPoint = getMode(stack).getType().adaptPosition(hitVector);
-
-        MeasuringManager.getInstance().createAndSend(
-          startPoint,
-          endPoint,
-          getMode(stack)
-        );
-
-        clear(stack);
-
-        return ClickProcessingState.ALLOW;
+        return result;
     }
 
     @Override

@@ -20,7 +20,7 @@ public class SlotOverlayRenderManager
     public void renderSlot(final int xOffset, final int yOffSet, final PoseStack matrixStack, final ItemStack stack)
     {
         matrixStack.pushPose();
-        matrixStack.translate(xOffset, yOffSet, 0);
+        matrixStack.translate(xOffset, yOffSet, 100);
         matrixStack.pushPose();
 
         SelectedToolModeRendererRegistry.getInstance().getCurrent()

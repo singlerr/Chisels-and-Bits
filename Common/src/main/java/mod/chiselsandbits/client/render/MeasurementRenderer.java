@@ -66,10 +66,11 @@ public final class MeasurementRenderer
             final Vec3 startPos = measurement.getFrom();
 
             final AABB measurementBB = new AABB(
-              Vec3.ZERO, measurement.getSize()
+              Vec3.ZERO, measurement.getSize().add(0.0001d, 0.0001d, 0.0001d)
             );
             final VoxelShape boundingShape = Shapes.create(measurementBB);
 
+            RenderSystem.disableDepthTest();
             if (measurement.getMode().getGroup().map(g -> g != MeasuringType.DISTANCE).orElse(false))
             {
                 LevelRenderer.renderShape(
@@ -125,7 +126,7 @@ public final class MeasurementRenderer
             }
 
             Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
-
+            RenderSystem.enableDepthTest();
 
         });
     }

@@ -16,9 +16,11 @@ import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -81,6 +83,19 @@ public class FabricChiselsAndBitsMod implements ModInitializer {
             );
 
             return mapResult(level, result.getNextState());
+        });
+
+        UseItemCallback.EVENT.register((player, level, interactionHand) -> {
+            final ClickProcessingState result = RightClickInteractionHandler.rightClickOnItem(
+              level,
+              player,
+              interactionHand,
+              player.getItemInHand(interactionHand),
+              false,
+              ClickProcessingState.ProcessingResult.DEFAULT
+            );
+
+            return new InteractionResultHolder<>(mapResult(level, result.getNextState()), player.getItemInHand(interactionHand));
         });
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> ServerStartHandler.onServerStart());
