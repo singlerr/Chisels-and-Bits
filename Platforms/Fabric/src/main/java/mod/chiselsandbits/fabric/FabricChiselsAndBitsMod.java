@@ -84,22 +84,6 @@ public class FabricChiselsAndBitsMod implements ModInitializer {
         });
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> ServerStartHandler.onServerStart());
-
-        ClientPickBlockGatherCallback.EVENT.register((player, result) -> {
-            if (result instanceof BlockHitResult blockHitResult
-                  && Minecraft.getInstance().level.getBlockState(blockHitResult.getBlockPos()).getBlock() instanceof IMultiStateBlock multiStateBlock &&
-            Minecraft.getInstance().level.getBlockEntity(blockHitResult.getBlockPos()) instanceof IMultiStateBlockEntity multiStateBlockEntity) {
-                return multiStateBlock.getPickBlock(
-                  Minecraft.getInstance().level.getBlockState(blockHitResult.getBlockPos()),
-                  result,
-                  Minecraft.getInstance().level,
-                  ((BlockHitResult) result).getBlockPos(),
-                  player
-                );
-            }
-
-            return ItemStack.EMPTY;
-        });
     }
 
 

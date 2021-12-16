@@ -1,5 +1,7 @@
 package mod.chiselsandbits.fabric.client;
 
+import mod.chiselsandbits.api.block.IMultiStateBlock;
+import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.client.icon.IconManager;
 import mod.chiselsandbits.client.logic.*;
 import mod.chiselsandbits.client.model.loader.BitBlockModelLoader;
@@ -25,9 +27,13 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
 
 public class FabricChiselsAndBitsClient implements ClientModInitializer
 {
@@ -114,6 +120,22 @@ public class FabricChiselsAndBitsClient implements ClientModInitializer
             MeasurementsRenderHandler.renderMeasurements(context.matrixStack());
 
             MultiStateBlockPreviewRenderHandler.renderMultiStateBlockPreview(context.matrixStack());
+        });
+
+        ClientPickBlockGatherCallback.EVENT.register((player, result) -> {
+            if (result instanceof BlockHitResult blockHitResult
+                  && Minecraft.getInstance().level.getBlockState(blockHitResult.getBlockPos()).getBlock() instanceof IMultiStateBlock multiStateBlock &&
+                  Minecraft.getInstance().level.getBlockEntity(blockHitResult.getBlockPos()) instanceof IMultiStateBlockEntity multiStateBlockEntity) {
+                return multiStateBlock.getCloneItemStack(
+                  Minecraft.getInstance().level.getBlockState(blockHitResult.getBlockPos()),
+                  result,
+                  Minecraft.getInstance().level,
+                  ((BlockHitResult) result).getBlockPos(),
+                  player
+                );
+            }
+
+            return ItemStack.EMPTY;
         });
     }
 

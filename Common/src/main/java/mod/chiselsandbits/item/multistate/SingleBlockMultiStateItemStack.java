@@ -26,6 +26,7 @@ import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
@@ -55,7 +56,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     public SingleBlockMultiStateItemStack(final ItemStack sourceStack)
     {
         this.sourceStack = sourceStack;
-        this.compressedSection = new LevelChunkSection(0);
+        this.compressedSection = new LevelChunkSection(0, BuiltinRegistries.BIOME);
 
         this.deserializeNBT(sourceStack.getOrCreateTagElement(NbtConstants.CHISELED_DATA));
     }
@@ -528,8 +529,8 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         private ShapeIdentifier(final LevelChunkSection chunkSection)
         {
             dataArray = Arrays.copyOf(
-              chunkSection.getStates().storage.getRaw(),
-              chunkSection.getStates().storage.getRaw().length
+              chunkSection.getStates().data.storage().getRaw(),
+              chunkSection.getStates().data.storage().getRaw().length
             );
         }
 
@@ -540,11 +541,10 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
             {
                 return true;
             }
-            if (!(o instanceof ILongArrayBackedAreaShapeIdentifier))
+            if (!(o instanceof final ILongArrayBackedAreaShapeIdentifier that))
             {
                 return false;
             }
-            final ILongArrayBackedAreaShapeIdentifier that = (ILongArrayBackedAreaShapeIdentifier) o;
             return Arrays.equals(dataArray, that.getBackingData());
         }
 

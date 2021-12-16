@@ -2,6 +2,7 @@ package mod.chiselsandbits.fabric.mixin.platform.world.level.chunk;
 
 import mod.chiselsandbits.platforms.core.block.IBlockWithWorldlyProperties;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ProtoChunk;
@@ -10,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(ProtoChunk.class)
-public abstract class ProtoChunkWorldlyBlockMixin implements ChunkAccess
+public abstract class ProtoChunkWorldlyBlockMixin implements BlockGetter
 {
 
     @Redirect(

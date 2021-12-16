@@ -34,7 +34,7 @@ import mod.chiselsandbits.platforms.core.network.INetworkChannelManager;
 import mod.chiselsandbits.platforms.core.plugin.IPlatformPluginManager;
 import mod.chiselsandbits.platforms.core.registries.IPlatformRegistryManager;
 import net.minecraft.server.MinecraftServer;
-import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import org.jetbrains.annotations.NotNull;
 
 public class ForgeChiselsAndBitsPlatform implements IChiselsAndBitsPlatformCore

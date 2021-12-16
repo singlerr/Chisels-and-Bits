@@ -41,13 +41,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ChiseledBlockModelDataExecutor
 {
     private static       ExecutorService              recalculationService;
-    private static final Multimap<ChunkPos, BlockPos> positionsInProcessing = Multimaps.synchronizedSetMultimap(HashMultimap.create());
 
     public static void updateModelDataCore(final ChiseledBlockEntity tileEntity)
     {
         ensureThreadPoolSetup();
 
-        positionsInProcessing.put(new ChunkPos(tileEntity.getBlockPos()), tileEntity.getBlockPos());
         final IBlockNeighborhood neighborhood = IBlockNeighborhoodBuilder.getInstance().build(
           direction -> Objects.requireNonNull(tileEntity.getLevel()).getBlockState(tileEntity.getBlockPos().offset(direction.getNormal())),
           direction -> {
@@ -193,7 +191,6 @@ public class ChiseledBlockModelDataExecutor
                 .build();
           }, recalculationService)
           .thenAcceptAsync(tileEntity::setModelData, recalculationService)
-          .thenRunAsync(() -> positionsInProcessing.remove(new ChunkPos(tileEntity.getBlockPos()), tileEntity.getBlockPos()), recalculationService)
           .thenRunAsync(() -> {
               if (Minecraft.getInstance().level == tileEntity.getLevel()) {
                   IModelDataManager.getInstance().requestModelDataRefresh(tileEntity);

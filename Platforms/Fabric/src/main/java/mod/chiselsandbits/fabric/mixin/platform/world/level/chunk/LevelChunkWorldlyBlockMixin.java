@@ -2,11 +2,17 @@ package mod.chiselsandbits.fabric.mixin.platform.world.level.chunk;
 
 import mod.chiselsandbits.platforms.core.block.IBlockWithWorldlyProperties;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelHeightAccessor;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.*;
+import net.minecraft.world.level.levelgen.blending.BlendingData;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -16,12 +22,20 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 @Mixin(value = LevelChunk.class, priority = Integer.MIN_VALUE)
-public abstract class LevelChunkWorldlyBlockMixin implements ChunkAccess
+public abstract class LevelChunkWorldlyBlockMixin extends ChunkAccess
 {
 
-    @Shadow @Final private ChunkPos chunkPos;
-
-    @Shadow public abstract int getMinBuildHeight();
+    public LevelChunkWorldlyBlockMixin(
+      final ChunkPos chunkPos,
+      final UpgradeData upgradeData,
+      final LevelHeightAccessor levelHeightAccessor,
+      final Registry<Biome> registry,
+      final long l,
+      @Nullable final LevelChunkSection[] levelChunkSections,
+      @Nullable final BlendingData blendingData)
+    {
+        super(chunkPos, upgradeData, levelHeightAccessor, registry, l, levelChunkSections, blendingData);
+    }
 
     @Shadow public abstract BlockState getBlockState(final BlockPos param0);
 
@@ -34,7 +48,8 @@ public abstract class LevelChunkWorldlyBlockMixin implements ChunkAccess
     @Overwrite
     public Stream<BlockPos> getLights()
     {
-        return StreamSupport.stream(BlockPos.betweenClosed(this.chunkPos.getMinBlockX(),
+        return StreamSupport.stream(BlockPos.betweenClosed(
+          this.chunkPos.getMinBlockX(),
           this.getMinBuildHeight(),
           this.chunkPos.getMinBlockZ(),
           this.chunkPos.getMaxBlockX(),
@@ -50,4 +65,6 @@ public abstract class LevelChunkWorldlyBlockMixin implements ChunkAccess
             return blockState.getLightEmission() != 0;
         });
     }
+
+
 }

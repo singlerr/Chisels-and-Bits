@@ -26,19 +26,20 @@ import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntry
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.*;
-import mod.chiselsandbits.platforms.core.entity.block.IBlockEntityWithModelData;
-import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
 import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
 import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
 import mod.chiselsandbits.platforms.core.client.models.data.IBlockModelData;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataBuilder;
+import mod.chiselsandbits.platforms.core.entity.block.IBlockEntityWithModelData;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.registrars.ModBlockEntityTypes;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
@@ -73,7 +74,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     public ChiseledBlockEntity(BlockPos position, BlockState state)
     {
         super(ModBlockEntityTypes.CHISELED.get(), position, state);
-        compressedSection = new LevelChunkSection(0); //We always use a minimal y level to lookup. Makes calculations internally easier.
+        compressedSection = new LevelChunkSection(0, BuiltinRegistries.BIOME); //We always use a minimal y level to lookup. Makes calculations internally easier.
         mutableStatistics = new MutableStatistics(this::getLevel, this::getBlockPos);
     }
 
@@ -217,24 +218,19 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     @Override
     public CompoundTag serializeNBT()
     {
-        final CompoundTag nbt = new CompoundTag();
-        return save(nbt);
+        return saveWithFullMetadata();
     }
 
-    @NotNull
     @Override
-    public CompoundTag save(@NotNull final CompoundTag compound)
+    public void saveAdditional(@NotNull final CompoundTag compound)
     {
-        super.save(compound);
-        final CompoundTag nbt = super.save(compound);
+        super.saveAdditional(compound);
         final CompoundTag chiselBlockData = new CompoundTag();
         final CompoundTag compressedSectionData = ChunkSectionUtils.serializeNBTCompressed(this.compressedSection);
         chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
         chiselBlockData.put(NbtConstants.STATISTICS, mutableStatistics.serializeNBT());
 
-        nbt.put(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, chiselBlockData);
-
-        return nbt;
+        compound.put(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, chiselBlockData);
     }
 
     /**
@@ -271,7 +267,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket()
     {
-        return new ClientboundBlockEntityDataPacket(worldPosition, 255, getUpdateTag());
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @NotNull
@@ -279,27 +275,13 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     public CompoundTag getUpdateTag()
     {
         //Special compound version which just contains the bit array!
-        final CompoundTag updateTag = super.getUpdateTag();
-
-        final ByteBuf buffer = Unpooled.buffer();
-        final FriendlyByteBuf innerPacketBuffer = new FriendlyByteBuf(buffer);
-        this.serializeInto(innerPacketBuffer);
-        final byte[] data = buffer.array();
-        buffer.release();
-
-        updateTag.putByteArray(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, data);
-
-        return updateTag;
+        return saveWithFullMetadata();
     }
 
     @Override
     public void handleUpdateTag(final CompoundTag tag)
     {
-        final byte[] compressedStorageData = tag.getByteArray(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
-
-        final ByteBuf buffer = Unpooled.wrappedBuffer(compressedStorageData);
-        this.deserializeFrom(new FriendlyByteBuf(buffer));
-        buffer.release();
+        this.load(tag);
     }
 
     @Override
@@ -1411,8 +1393,8 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         private Identifier(final LevelChunkSection section)
         {
             this.identifyingPayload = Arrays.copyOf(
-              section.states.storage.getRaw(),
-              section.states.storage.getRaw().length
+              section.states.data.storage().getRaw(),
+              section.states.data.storage().getRaw().length
             );
         }
 

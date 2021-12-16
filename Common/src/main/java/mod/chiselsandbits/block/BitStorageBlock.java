@@ -115,6 +115,15 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
     }
 
     @Override
+    public @NotNull ItemStack getCloneItemStack(final BlockGetter blockGetter, final @NotNull BlockPos blockPos, final @NotNull BlockState state)
+    {
+        if (!(blockGetter.getBlockEntity(blockPos) instanceof BitStorageBlockEntity bitStorageBlockEntity))
+            return super.getCloneItemStack(blockGetter, blockPos, state);
+
+        return getTankDrop(bitStorageBlockEntity);
+    }
+
+    @Override
     public @NotNull List<ItemStack> getDrops(final @NotNull BlockState state, final LootContext.Builder builder)
     {
         if (builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY) == null)

@@ -88,25 +88,19 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
     }
 
     @Override
-    public @NotNull CompoundTag save(final @NotNull CompoundTag compound)
+    public void saveAdditional(final @NotNull CompoundTag compound)
     {
-        super.save(compound);
-
         tool_handler.ifPresent(h -> compound.put("tool", h.serializeNBT()));
         pattern_handler.ifPresent(h -> compound.put("pattern", h.serializeNBT()));
         result_handler.ifPresent(h -> compound.put("result", h.serializeNBT()));
 
         compound.putInt("progress", progress);
-
-        return compound;
     }
 
     @Override
     public @NotNull CompoundTag getUpdateTag()
     {
-        final CompoundTag nbt = new CompoundTag();
-        save(nbt);
-        return nbt;
+        return saveWithFullMetadata();
     }
 
     public void tick()

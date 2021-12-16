@@ -125,7 +125,9 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:16.0.2'
     testCompileOnly 'org.jetbrains:annotations:16.0.2'
 
-    forgeLibrary "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
+    forgeLibrary ("com.ldtteam:datagenerators:${project.dataGeneratorsVersion}") {
+        transitive = false
+    }
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 }
 

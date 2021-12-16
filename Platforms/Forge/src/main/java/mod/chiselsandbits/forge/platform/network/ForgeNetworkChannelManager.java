@@ -3,7 +3,7 @@ package mod.chiselsandbits.forge.platform.network;
 import mod.chiselsandbits.platforms.core.network.INetworkChannel;
 import mod.chiselsandbits.platforms.core.network.INetworkChannelManager;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fmllegacy.network.NetworkRegistry;
+import net.minecraftforge.network.NetworkRegistry;
 
 import java.util.function.Predicate;
 import java.util.function.Supplier;

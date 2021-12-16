@@ -22,6 +22,7 @@ import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -200,7 +201,7 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
 
         final BlockState blockState = getWorld().getBlockState(getPos());
-        final LevelChunkSection temporarySection = new LevelChunkSection(0);
+        final LevelChunkSection temporarySection = new LevelChunkSection(0, BuiltinRegistries.BIOME);
         for (int x = 0; x < StateEntrySize.current().getBitsPerBlockSide(); x++)
         {
             for (int y = 0; y < StateEntrySize.current().getBitsPerBlockSide(); y++)

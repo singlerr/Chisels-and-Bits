@@ -75,27 +75,25 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
         }
     }
 
+
     @Override
-    public @NotNull CompoundTag save(final @NotNull CompoundTag compound)
+    public void saveAdditional(final @NotNull CompoundTag compound)
     {
-        final CompoundTag nbt = super.save(compound);
-        nbt.put("state", state == null ? new CompoundTag() : NbtUtils.writeBlockState(state));
-        nbt.putInt("bits", bits);
-        return nbt;
+        super.saveAdditional(compound);
+        compound.put("state", state == null ? new CompoundTag() : NbtUtils.writeBlockState(state));
+        compound.putInt("bits", bits);
     }
 
     @Override
     public ClientboundBlockEntityDataPacket getUpdatePacket()
     {
-        final CompoundTag t = new CompoundTag();
-        return new ClientboundBlockEntityDataPacket(getBlockPos(), 0, save(t));
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
     public @NotNull CompoundTag getUpdateTag()
     {
-        final CompoundTag nbttagcompound = new CompoundTag();
-        return save(nbttagcompound);
+        return saveWithFullMetadata();
     }
 
     private void saveAndUpdate()

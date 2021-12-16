@@ -1,29 +1,28 @@
 package mod.chiselsandbits.api.util;
 
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.List;
 
 @SuppressWarnings("deprecation")
 public class SingleBlockWorldReader extends SingleBlockBlockReader implements LevelReader
@@ -134,10 +133,9 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements Le
 
     @NotNull
     @Override
-    public Stream<VoxelShape> getEntityCollisions(
-      @Nullable final Entity p_230318_1_, @NotNull final AABB p_230318_2_, @NotNull final Predicate<Entity> p_230318_3_)
+    public List<VoxelShape> getEntityCollisions(@Nullable final Entity entity, final @NotNull AABB aabb)
     {
-        return this.reader.getEntityCollisions(p_230318_1_, p_230318_2_, p_230318_3_);
+        return this.reader.getEntityCollisions(entity, aabb);
     }
 
     @Nullable

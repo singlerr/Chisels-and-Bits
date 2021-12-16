@@ -55,7 +55,7 @@ public class GuiIconButton extends AbstractChiselsAndBitsButton
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
-        int i = this.getYImage(this.isHovered());
+        int i = this.getYImage(this.isHovered);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
@@ -68,7 +68,7 @@ public class GuiIconButton extends AbstractChiselsAndBitsButton
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
 
-        if (this.isHovered()) {
+        if (this.isHovered) {
             this.renderToolTip(matrixStack, mouseX, mouseY);
         }
     }

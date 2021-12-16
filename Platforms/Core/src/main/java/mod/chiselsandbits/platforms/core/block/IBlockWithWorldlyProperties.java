@@ -62,7 +62,7 @@ public interface IBlockWithWorldlyProperties extends ItemLike, BeaconBeamBlock
      * @param player The player in question.
      * @return The stack as the result of the middle-click operation.
      */
-    ItemStack getPickBlock(BlockState state, HitResult target, BlockGetter blockGetter, BlockPos pos, Player player);
+    ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter blockGetter, BlockPos pos, Player player);
 
     /**
      * Used to rotate the given blockstate around.

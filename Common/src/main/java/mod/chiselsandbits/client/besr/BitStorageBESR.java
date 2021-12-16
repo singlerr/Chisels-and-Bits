@@ -10,7 +10,6 @@ import mod.chiselsandbits.client.model.baked.chiseled.ChiselRenderType;
 import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModel;
 import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModelManager;
 import mod.chiselsandbits.client.util.FluidCuboidUtils;
-import mod.chiselsandbits.platforms.core.client.rendering.IColorManager;
 import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
 import mod.chiselsandbits.platforms.core.client.rendering.type.IRenderTypeManager;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
@@ -19,11 +18,11 @@ import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.jetbrains.annotations.NotNull;
@@ -90,7 +89,7 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
         final CacheKey cacheKey = new CacheKey(IBlockStateIdManager.getInstance().getIdFrom(state), bits);
         LevelChunkSection innerModelBlob = STORAGE_CONTENTS_BLOB_CACHE.get(cacheKey);
         if (innerModelBlob == null) {
-            innerModelBlob = new LevelChunkSection(1);
+            innerModelBlob = new LevelChunkSection(1, BuiltinRegistries.BIOME);
             ChunkSectionUtils.fillFromBottom(
               innerModelBlob,
               state,

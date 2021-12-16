@@ -92,7 +92,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     }
 
     @Override
-    public ItemStack getPickBlock(final BlockState state, final HitResult target, final BlockGetter blockGetter, final BlockPos pos, final Player player)
+    public ItemStack getCloneItemStack(final BlockState state, final HitResult target, final BlockGetter blockGetter, final BlockPos pos, final Player player)
     {
         if (!(target instanceof final BlockHitResult blockRayTraceResult))
         {
@@ -102,43 +102,43 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
         if (player.isCrouching())
         {
             return getBlockEntityFromOrThrow(blockGetter, pos)
-                     .map(e -> {
-                         final IMultiStateSnapshot snapshot = e.createSnapshot();
-                         return snapshot.toItemStack().toBlockStack();
-                     })
-                     .orElse(ItemStack.EMPTY);
+              .map(e -> {
+                  final IMultiStateSnapshot snapshot = e.createSnapshot();
+                  return snapshot.toItemStack().toBlockStack();
+              })
+              .orElse(ItemStack.EMPTY);
         }
 
         return getBlockEntityFromOrThrow(blockGetter, pos)
-                 .flatMap(e -> {
-                     final Vec3 hitVec = blockRayTraceResult.getLocation();
-                     final BlockPos blockPos = blockRayTraceResult.getBlockPos();
-                     final Vec3 accuratePos = new Vec3(
-                       blockPos.getX(),
-                       blockPos.getY(),
-                       blockPos.getZ()
-                     );
-                     final Vec3 faceOffset = new Vec3(
-                       blockRayTraceResult.getDirection().getOpposite().getStepX() * StateEntrySize.current().getSizePerHalfBit(),
-                       blockRayTraceResult.getDirection().getOpposite().getStepY() * StateEntrySize.current().getSizePerHalfBit(),
-                       blockRayTraceResult.getDirection().getOpposite().getStepZ() * StateEntrySize.current().getSizePerHalfBit()
-                     );
-                     final Vec3 hitDelta = hitVec.subtract(accuratePos).add(faceOffset);
+          .flatMap(e -> {
+              final Vec3 hitVec = blockRayTraceResult.getLocation();
+              final BlockPos blockPos = blockRayTraceResult.getBlockPos();
+              final Vec3 accuratePos = new Vec3(
+                blockPos.getX(),
+                blockPos.getY(),
+                blockPos.getZ()
+              );
+              final Vec3 faceOffset = new Vec3(
+                blockRayTraceResult.getDirection().getOpposite().getStepX() * StateEntrySize.current().getSizePerHalfBit(),
+                blockRayTraceResult.getDirection().getOpposite().getStepY() * StateEntrySize.current().getSizePerHalfBit(),
+                blockRayTraceResult.getDirection().getOpposite().getStepZ() * StateEntrySize.current().getSizePerHalfBit()
+              );
+              final Vec3 hitDelta = hitVec.subtract(accuratePos).add(faceOffset);
 
-                     try {
-                         return e.getInAreaTarget(hitDelta);
-                     } catch (IllegalArgumentException exception) {
-                         //Because people do stupid stuff.
-                         return Optional.empty();
-                     }
-                 })
-                 .map(targetedStateEntry -> IMultiStateItemFactory.getInstance().createBlockFrom(targetedStateEntry))
-                 .orElseGet(() -> getBlockEntityFromOrThrow(blockGetter, pos)
-                   .map(e -> {
-                       final IMultiStateSnapshot snapshot = e.createSnapshot();
-                       return snapshot.toItemStack().toBlockStack();
-                   })
-                   .orElse(ItemStack.EMPTY));
+              try {
+                  return e.getInAreaTarget(hitDelta);
+              } catch (IllegalArgumentException exception) {
+                  //Because people do stupid stuff.
+                  return Optional.empty();
+              }
+          })
+          .map(targetedStateEntry -> IMultiStateItemFactory.getInstance().createBlockFrom(targetedStateEntry))
+          .orElseGet(() -> getBlockEntityFromOrThrow(blockGetter, pos)
+            .map(e -> {
+                final IMultiStateSnapshot snapshot = e.createSnapshot();
+                return snapshot.toItemStack().toBlockStack();
+            })
+            .orElse(ItemStack.EMPTY));
     }
 
     @Override

@@ -1,16 +1,21 @@
 package mod.chiselsandbits.utils;
 
+import com.mojang.serialization.Codec;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,34 +25,24 @@ import java.io.ByteArrayOutputStream;
 
 public class ChunkSectionUtils
 {
-
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final     Codec<PalettedContainer<BlockState>> BLOCK_STATE_CODEC =
+      PalettedContainer.codec(Block.BLOCK_STATE_REGISTRY, BlockState.CODEC, PalettedContainer.Strategy.SECTION_STATES, Blocks.AIR.defaultBlockState());
+    private static final Logger LOGGER            = LogManager.getLogger();
 
     private ChunkSectionUtils()
     {
         throw new IllegalStateException("Can not instantiate an instance of: ChunkSectionUtils. This is a utility class");
     }
 
-    public static CompoundTag serializeNBT(final LevelChunkSection chunkSection) {
-        final CompoundTag compressedSectionData = new CompoundTag();
-
-        chunkSection.getStates().write(
-          compressedSectionData,
-          NbtConstants.PALETTE,
-          NbtConstants.BLOCK_STATES
-        );
-
-        return compressedSectionData;
+    public static Tag serializeNBT(final LevelChunkSection chunkSection) {
+        return BLOCK_STATE_CODEC.encodeStart(NbtOps.INSTANCE, chunkSection.getStates()).getOrThrow(false, LOGGER::error);
     }
 
     public static CompoundTag serializeNBTCompressed(final LevelChunkSection chunkSection) {
-        final CompoundTag compressedSectionData = new CompoundTag();
+        final Tag outputTag = BLOCK_STATE_CODEC.encodeStart(NbtOps.INSTANCE, chunkSection.getStates()).getOrThrow(false, LOGGER::error);
 
-        chunkSection.getStates().write(
-          compressedSectionData,
-          NbtConstants.PALETTE,
-          NbtConstants.BLOCK_STATES
-        );
+        if (!(outputTag instanceof CompoundTag compressedSectionData))
+            throw new IllegalStateException("Serialized into incompatible tag type: " + outputTag.getType().getPrettyName());
 
         try
         {
@@ -66,23 +61,25 @@ public class ChunkSectionUtils
         }
     }
 
-    public static void deserializeNBT(final LevelChunkSection chunkSection, final CompoundTag nbt) {
-        if (nbt.isEmpty())
+    public static void deserializeNBT(final LevelChunkSection chunkSection, final Tag tag) {
+        if (!(tag instanceof CompoundTag compoundTag))
             return;
 
-        if (nbt.contains(NbtConstants.DATA_IS_COMPRESSED, Tag.TAG_BYTE)
-              && nbt.getBoolean(NbtConstants.DATA_IS_COMPRESSED)
-              && nbt.contains(NbtConstants.COMPRESSED_DATA, Tag.TAG_BYTE_ARRAY)) {
+        if (compoundTag.isEmpty())
+            return;
+
+        if (compoundTag.contains(NbtConstants.DATA_IS_COMPRESSED, Tag.TAG_BYTE)
+              && compoundTag.getBoolean(NbtConstants.DATA_IS_COMPRESSED)
+              && compoundTag.contains(NbtConstants.COMPRESSED_DATA, Tag.TAG_BYTE_ARRAY)) {
             try
             {
-                final byte[] compressedData = nbt.getByteArray(NbtConstants.COMPRESSED_DATA);
+                final byte[] compressedData = compoundTag.getByteArray(NbtConstants.COMPRESSED_DATA);
                 final ByteArrayInputStream inputStream = new ByteArrayInputStream(compressedData);
-                final CompoundTag compoundTag = NbtIo.readCompressed(inputStream);
+                final CompoundTag decompressedCompoundTag = NbtIo.readCompressed(inputStream);
 
-                chunkSection.getStates().read(
-                  compoundTag.getList(NbtConstants.PALETTE, Tag.TAG_COMPOUND),
-                  compoundTag.getLongArray(NbtConstants.BLOCK_STATES)
-                );
+                chunkSection.states = BLOCK_STATE_CODEC.parse(NbtOps.INSTANCE, decompressedCompoundTag)
+                  .promotePartial(LOGGER::error)
+                  .getOrThrow(false, LOGGER::error);
 
                 chunkSection.recalcBlockCounts();
                 return;
@@ -96,10 +93,9 @@ public class ChunkSectionUtils
             }
         }
 
-        chunkSection.getStates().read(
-          nbt.getList(NbtConstants.PALETTE, Tag.TAG_COMPOUND),
-          nbt.getLongArray(NbtConstants.BLOCK_STATES)
-        );
+        chunkSection.states = BLOCK_STATE_CODEC.parse(NbtOps.INSTANCE, compoundTag)
+          .promotePartial(LOGGER::error)
+          .getOrThrow(false, LOGGER::error);
 
         chunkSection.recalcBlockCounts();
     }
@@ -110,7 +106,7 @@ public class ChunkSectionUtils
 
         final Vec3 centerVector = new Vec3(7.5d, 7.5d, 7.5d);
 
-        final LevelChunkSection target = new LevelChunkSection(0);
+        final LevelChunkSection target = new LevelChunkSection(0, BuiltinRegistries.BIOME);
 
         for (int x = 0; x < 16; x++)
         {
@@ -148,7 +144,7 @@ public class ChunkSectionUtils
 
     public static LevelChunkSection cloneSection(final LevelChunkSection lazyChunkSection)
     {
-        final LevelChunkSection clone = new LevelChunkSection(0);
+        final LevelChunkSection clone = new LevelChunkSection(0, BuiltinRegistries.BIOME);
         deserializeNBT(clone, serializeNBT(lazyChunkSection));
 
         return clone;
@@ -185,7 +181,7 @@ public class ChunkSectionUtils
 
     public static LevelChunkSection mirror(final LevelChunkSection lazyChunkSection, final Direction.Axis axis)
     {
-        final LevelChunkSection result = new LevelChunkSection(0);
+        final LevelChunkSection result = new LevelChunkSection(0, BuiltinRegistries.BIOME);
 
         for (int y = 0; y < StateEntrySize.current().getBitsPerBlockSide(); y++)
         {

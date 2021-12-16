@@ -9,6 +9,7 @@ extendable   method     net/minecraft/client/renderer/block/model/ItemOverrides 
 extendable   class      net/minecraft/client/gui/screens/MenuScreens$ScreenConstructor
 accessible   class      net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier
 accessible   class      net/minecraft/world/inventory/MenuType$MenuSupplier
+accessible   class      net/minecraft/world/level/chunk/PalettedContainer$Data
 accessible   method     net/minecraft/world/inventory/MenuType <init> (Lnet/minecraft/world/inventory/MenuType$MenuSupplier;)V
 accessible   method     net/minecraft/tags/ItemTags bind (Ljava/lang/String;)Lnet/minecraft/tags/Tag$Named;
 accessible   method     net/minecraft/tags/BlockTags bind (Ljava/lang/String;)Lnet/minecraft/tags/Tag$Named;
@@ -29,7 +30,7 @@ accessible   field      com/mojang/blaze3d/vertex/VertexFormat vertexBufferObjec
 accessible   field      com/mojang/blaze3d/vertex/VertexFormat indexBufferObject I
 accessible   field      net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
 accessible   field      net/minecraft/world/level/chunk/LevelChunkSection states Lnet/minecraft/world/level/chunk/PalettedContainer;
-accessible   field      net/minecraft/world/level/chunk/PalettedContainer storage Lnet/minecraft/util/BitStorage;
+accessible   field      net/minecraft/world/level/chunk/PalettedContainer data Lnet/minecraft/world/level/chunk/PalettedContainer$Data;
 accessible   field      net/minecraft/client/gui/Gui toolHighlightTimer I
 accessible   field      net/minecraft/client/renderer/ItemBlockRenderTypes TYPE_BY_BLOCK Ljava/util/Map;
 accessible   field      net/minecraft/client/renderer/BlockEntityWithoutLevelRenderer blockEntityRenderDispatcher Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher;
@@ -37,3 +38,4 @@ accessible   field      net/minecraft/client/renderer/BlockEntityWithoutLevelRen
 mutable   field      net/minecraft/client/renderer/block/BlockRenderDispatcher blockEntityRenderer Lnet/minecraft/client/renderer/BlockEntityWithoutLevelRenderer;
 mutable   field      net/minecraft/client/renderer/entity/ItemRenderer blockEntityRenderer Lnet/minecraft/client/renderer/BlockEntityWithoutLevelRenderer;
 mutable   field      net/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher blockRenderDispatcher Ljava/util/function/Supplier;
+mutable   field      net/minecraft/world/level/chunk/LevelChunkSection states Lnet/minecraft/world/level/chunk/PalettedContainer;

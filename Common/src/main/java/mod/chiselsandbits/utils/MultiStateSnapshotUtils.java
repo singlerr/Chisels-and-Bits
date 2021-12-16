@@ -8,6 +8,7 @@ import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import mod.chiselsandbits.multistate.snapshot.LazilyDecodingSingleBlockMultiStateSnapshot;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.apache.logging.log4j.LogManager;
@@ -41,7 +42,7 @@ public class MultiStateSnapshotUtils
             final LevelChunkSection chunkSection = FILLED_SECTION_CACHE.get(
               blockState,
               () -> {
-                  final LevelChunkSection result = new LevelChunkSection(0);
+                  final LevelChunkSection result = new LevelChunkSection(0, BuiltinRegistries.BIOME);
                   BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                     .forEach(pos -> result.setBlockState(pos.getX(), pos.getY(), pos.getZ(), blockState));
 

@@ -5,8 +5,8 @@ import mod.chiselsandbits.platforms.core.client.key.IKeyBindingManager;
 import mod.chiselsandbits.platforms.core.client.key.IKeyConflictContext;
 import mod.chiselsandbits.platforms.core.client.key.KeyModifier;
 import net.minecraft.client.KeyMapping;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.fmlclient.registry.ClientRegistry;
 
 public class ForgeKeyBindingManager implements IKeyBindingManager
 {

@@ -23,7 +23,9 @@ import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,12 +44,12 @@ import java.util.stream.Stream;
 public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateSnapshot
 {
 
-    private CompoundTag                 lazyNbtCompound;
-    private boolean                     loaded                = false;
-    private LevelChunkSection                lazyChunkSection      = new LevelChunkSection(0);
+    private Tag     lazyNbtCompound;
+    private boolean loaded                = false;
+    private LevelChunkSection                lazyChunkSection      = new LevelChunkSection(0, BuiltinRegistries.BIOME);
     private IMultiStateObjectStatistics stateObjectStatistics = null;
 
-    public LazilyDecodingSingleBlockMultiStateSnapshot(final CompoundTag lazyNbtCompound) {this.lazyNbtCompound = lazyNbtCompound;}
+    public LazilyDecodingSingleBlockMultiStateSnapshot(final Tag lazyNbtCompound) {this.lazyNbtCompound = lazyNbtCompound;}
 
     /**
      * Creates a new area shape identifier.
@@ -170,7 +172,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     {
         if (!loaded)
         {
-            final CompoundTag copyNbtCompound = lazyNbtCompound.copy();
+            final Tag copyNbtCompound = lazyNbtCompound.copy();
             return new LazilyDecodingSingleBlockMultiStateSnapshot(copyNbtCompound);
         }
 
@@ -548,8 +550,8 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         private Identifier(final LevelChunkSection section)
         {
             this.identifyingPayload = Arrays.copyOf(
-              section.getStates().storage.getRaw(),
-              section.getStates().storage.getRaw().length
+              section.getStates().data.storage().getRaw(),
+              section.getStates().data.storage().getRaw().length
             );
         }
 
@@ -566,11 +568,10 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
             {
                 return true;
             }
-            if (!(o instanceof ILongArrayBackedAreaShapeIdentifier))
+            if (!(o instanceof final ILongArrayBackedAreaShapeIdentifier that))
             {
                 return false;
             }
-            final ILongArrayBackedAreaShapeIdentifier that = (ILongArrayBackedAreaShapeIdentifier) o;
             return Arrays.equals(identifyingPayload, that.getBackingData());
         }
 

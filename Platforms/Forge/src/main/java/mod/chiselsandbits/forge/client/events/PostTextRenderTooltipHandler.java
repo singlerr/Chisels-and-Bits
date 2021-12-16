@@ -10,13 +10,14 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PostTextRenderTooltipHandler
 {
-    @SubscribeEvent
-    public static void onRenderTooltipPostText(final RenderTooltipEvent.PostText event)
-    {
-        PatternContentInTooltipHandler.doRenderContent(
-          event.getStack(),
-          event.getX(),
-          event.getY()
-        );
-    }
+    //TODO: REPLACE WITH VANILLA LOGIC
+    //@SubscribeEvent
+    //public static void onRenderTooltipPostText(final RenderTooltipEvent.PostText event)
+    //{
+    //    PatternContentInTooltipHandler.doRenderContent(
+    //      event.getStack(),
+    //      event.getX(),
+    //      event.getY()
+    //    );
+    //}
 }

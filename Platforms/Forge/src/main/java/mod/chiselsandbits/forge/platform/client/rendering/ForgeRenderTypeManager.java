@@ -29,13 +29,13 @@ public class ForgeRenderTypeManager implements IRenderTypeManager
     @Override
     public @NotNull Optional<RenderType> getCurrentRenderType()
     {
-        return Optional.ofNullable(MinecraftForgeClient.getRenderLayer());
+        return Optional.ofNullable(MinecraftForgeClient.getRenderType());
     }
 
     @Override
     public void setCurrentRenderType(final RenderType renderType)
     {
-        ForgeHooksClient.setRenderLayer(renderType);
+        ForgeHooksClient.setRenderType(renderType);
     }
 
     @Override

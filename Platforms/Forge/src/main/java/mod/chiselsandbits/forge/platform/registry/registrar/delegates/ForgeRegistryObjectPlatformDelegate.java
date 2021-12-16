@@ -2,8 +2,8 @@ package mod.chiselsandbits.forge.platform.registry.registrar.delegates;
 
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistryObject;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.IForgeRegistryEntry;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
