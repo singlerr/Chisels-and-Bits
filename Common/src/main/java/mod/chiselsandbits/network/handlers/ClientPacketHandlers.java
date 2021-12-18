@@ -58,17 +58,17 @@ public final class ClientPacketHandlers
                         else
                         {
                             tileEntity.load(updateTag);
-                        }
-                    }
 
-                    try(IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Scheduling refresh"))
-                    {
-                        tileEntity.getLevel().sendBlockUpdated(
-                          tileEntity.getBlockPos(),
-                          Blocks.AIR.defaultBlockState(),
-                          tileEntity.getBlockState(),
-                          Block.UPDATE_ALL
-                        );
+                            try(IProfilerSection ignored3 = ProfilingManager.getInstance().withSection("Scheduling refresh"))
+                            {
+                                tileEntity.getLevel().sendBlockUpdated(
+                                  tileEntity.getBlockPos(),
+                                  Blocks.AIR.defaultBlockState(),
+                                  tileEntity.getBlockState(),
+                                  Block.UPDATE_ALL
+                                );
+                            }
+                        }
                     }
                 }
             }

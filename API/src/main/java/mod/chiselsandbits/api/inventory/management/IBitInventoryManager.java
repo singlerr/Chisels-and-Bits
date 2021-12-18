@@ -12,6 +12,11 @@ import net.minecraft.world.item.ItemStack;
 public interface IBitInventoryManager
 {
 
+    /**
+     * Gives access to the bit inventory manager.
+     *
+     * @return The bit inventory manager.
+     */
     static IBitInventoryManager getInstance() {
         return IChiselsAndBitsAPI.getInstance().getBitInventoryManager();
     }

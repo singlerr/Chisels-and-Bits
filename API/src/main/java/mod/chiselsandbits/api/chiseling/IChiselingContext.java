@@ -202,4 +202,9 @@ public interface IChiselingContext extends IStateAccessor
      * @param <T> The type of the metadata.
      */
     <T> void setMetadata(IMetadataKey<T> key, T value);
+
+    /**
+     * Resets the mutator that is used to handle the current selected area.
+     */
+    void resetMutator();
 }

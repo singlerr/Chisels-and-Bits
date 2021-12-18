@@ -5,13 +5,27 @@ package mod.chiselsandbits.api.chiseling;
  */
 public enum ChiselingOperation
 {
+    /**
+     * The current operation is a chisel.
+     * As such it removes the bit underneath the cursor.
+     */
     CHISELING(false),
+
+    /**
+     * The current operation is a bit.
+     * As such it places the bit underneath the cursor.
+     */
     PLACING(true);
 
     private final boolean processesAir;
 
     ChiselingOperation(final boolean processesAir) {this.processesAir = processesAir;}
 
+    /**
+     * Indicates if this operation processes air.
+     *
+     * @return {@code true} if this operation processes air, {@code false} otherwise.
+     */
     public boolean processesAir()
     {
         return processesAir;

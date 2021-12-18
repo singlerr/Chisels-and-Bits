@@ -1,6 +1,8 @@
 package mod.chiselsandbits.utils;
 
 import mod.chiselsandbits.api.item.bit.IBitItem;
+import mod.chiselsandbits.api.item.click.ILeftClickControllingItem;
+import mod.chiselsandbits.api.item.click.IRightClickControllingItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.pattern.IPatternItem;
 import mod.chiselsandbits.api.item.withhighlight.IWithHighlightItem;
@@ -196,6 +198,46 @@ public class ItemStackUtils
         }
 
         if (playerEntity.getOffhandItem().getItem() instanceof IBitItem)
+        {
+            return playerEntity.getOffhandItem();
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+    public static ItemStack getLeftClickControllingItemStackFromPlayer(@Nullable final Player playerEntity)
+    {
+        if (playerEntity == null)
+        {
+            return ItemStack.EMPTY;
+        }
+
+        if (playerEntity.getMainHandItem().getItem() instanceof ILeftClickControllingItem)
+        {
+            return playerEntity.getMainHandItem();
+        }
+
+        if (playerEntity.getOffhandItem().getItem() instanceof ILeftClickControllingItem)
+        {
+            return playerEntity.getOffhandItem();
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+    public static ItemStack getRightClickControllingItemStackFromPlayer(@Nullable final Player playerEntity)
+    {
+        if (playerEntity == null)
+        {
+            return ItemStack.EMPTY;
+        }
+
+        if (playerEntity.getMainHandItem().getItem() instanceof IRightClickControllingItem)
+        {
+            return playerEntity.getMainHandItem();
+        }
+
+        if (playerEntity.getOffhandItem().getItem() instanceof IRightClickControllingItem)
         {
             return playerEntity.getOffhandItem();
         }

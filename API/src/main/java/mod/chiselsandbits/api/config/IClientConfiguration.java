@@ -61,6 +61,15 @@ public interface IClientConfiguration
     Supplier<String> getToolModeRenderer();
 
     /**
+     * Indicates if the block picking behaviour of chiseled blocks needs to be inverted.
+     * By default, a bit is picked from a chiseled block, if this is true however
+     * then the full block is picked and shift needs to be held to pick the bit.
+     *
+     * @return A configuration supplier which indicates if the block picking behaviour of chiseled blocks needs to be inverted.
+     */
+    Supplier<Boolean> getInvertPickBlockBehaviour();
+
+    /**
      * Indicates the size of the bit storage content model cache size.
      *
      * @return A configuration supplier that indicates the current bit storage content cache size.

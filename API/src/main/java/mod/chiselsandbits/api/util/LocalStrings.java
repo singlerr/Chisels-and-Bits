@@ -1,6 +1,5 @@
 package mod.chiselsandbits.api.util;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 

@@ -5,6 +5,10 @@ import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
+/**
+ * Utility class for processing help texts,
+ * most notably used in tooltips of items and blocks.
+ */
 public class HelpTextUtils
 {
 

@@ -50,7 +50,7 @@ public class AbstractChiselsAndBitsScreen extends Screen implements IChiselsAndB
     }
 
     @Override
-    protected <T extends Widget> @NotNull T addRenderableOnly(final T widget)
+    protected <T extends Widget> @NotNull T addRenderableOnly(final @NotNull T widget)
     {
         final T resultingWidget =  super.addRenderableOnly(widget);
         if (resultingWidget instanceof Widget) {
@@ -79,7 +79,7 @@ public class AbstractChiselsAndBitsScreen extends Screen implements IChiselsAndB
     }
 
     @Override
-    public void removeWidget(final GuiEventListener listener)
+    public void removeWidget(final @NotNull GuiEventListener listener)
     {
         super.removeWidget(listener);
         if (listener instanceof IChiselsAndBitsWidget)
@@ -120,13 +120,18 @@ public class AbstractChiselsAndBitsScreen extends Screen implements IChiselsAndB
         return isInitialized;
     }
 
+    /**
+     * Returns the widgets which are included in the screen.
+     *
+     * @return The widgets on this screen.
+     */
     public List<IChiselsAndBitsWidget> getWidgets()
     {
         return widgets;
     }
 
     @Override
-    public void render(final PoseStack poseStack, final int mouseX, final int mouseY, final float partialTickTime)
+    public void render(final @NotNull PoseStack poseStack, final int mouseX, final int mouseY, final float partialTickTime)
     {
         final  List<Widget> renderTargets = new ArrayList<>(this.renderables);
         for(Widget widget : renderTargets) {

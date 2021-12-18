@@ -31,7 +31,7 @@ public class ForgeDelegateConfigurationBuilder implements IConfigurationBuilder
     public Supplier<Boolean> defineBoolean(final String key, final boolean defaultValue)
     {
         keys.add(key + ".comment");
-        builder.comment(translateToLocal(key + ".comment"));
+        builder.comment(translateToLocal( "mod.chiselsandbits.config." + key + ".comment"));
         return builder.define(key, defaultValue)::get;
     }
 

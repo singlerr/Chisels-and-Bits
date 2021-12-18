@@ -27,11 +27,21 @@ public class AbstractChiselsAndBitsWidget extends AbstractWidget implements IChi
         super(x, y, width, height, narration);
     }
 
+    /**
+     * Gives access to the current instance of minecraft.
+     *
+     * @return The current instance of minecraft.
+     */
     @NotNull
     public Minecraft getMinecraft() {
         return Minecraft.getInstance();
     }
 
+    /**
+     * The font used in this widget.
+     *
+     * @return The font used to render text in this widget.
+     */
     @NotNull
     public Font getFont() {
         return Minecraft.getInstance().font;

@@ -2,8 +2,6 @@ package mod.chiselsandbits.api.multistate.mutator.world;
 
 import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IAreaMutator;
-import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
-import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchedAreaMutator;
 
 import java.util.stream.Stream;

@@ -113,6 +113,17 @@ public enum StateEntrySize
     }
 
     /**
+     * Returns the vector used to scale down another vector with the size of half a bit.
+     * Useful for passing to {@link net.minecraft.world.phys.Vec3#multiply(Vec3)}
+     *
+     * @return The scaling vector.
+     */
+    public Vec3 getSizePerHalfBitScalingVector()
+    {
+        return new Vec3(sizePerHalfBit, sizePerHalfBit, sizePerHalfBit);
+    }
+
+    /**
      * Returns the vector used to scale up another vector with the amount of bits on a given side.
      * Useful for passing to {@link Vec3#multiply(Vec3)}
      *

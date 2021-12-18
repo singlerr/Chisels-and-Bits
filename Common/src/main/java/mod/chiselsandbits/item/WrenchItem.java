@@ -108,4 +108,10 @@ public class WrenchItem extends Item implements IWithModeItem<IModificationOpera
 
         return ClickProcessingState.ALLOW;
     }
+
+    @Override
+    public void onRightClickProcessingEnd(final Player player, final ItemStack stack)
+    {
+        //Noop
+    }
 }

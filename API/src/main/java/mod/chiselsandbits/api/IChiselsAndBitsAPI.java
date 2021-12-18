@@ -17,6 +17,7 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
+import mod.chiselsandbits.api.multistate.accessor.IAccessorFactory;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
@@ -43,6 +44,14 @@ public interface IChiselsAndBitsAPI
         return Holder.getInstance();
     }
 
+    /**
+     * Gives access to the factory that can produce different accessors.
+     *
+     * @return The factory used to create new accessors.
+     */
+    @NotNull
+    IAccessorFactory getAccessorFactory();
+    
     /**
      * Gives access to the factory that can produce different mutators.
      *

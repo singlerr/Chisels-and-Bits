@@ -41,7 +41,7 @@ public class ConfigLangGenerator implements DataProvider
 
         for (String langKey : langKeys)
         {
-            returnValue.addProperty(langKey, "");
+            returnValue.addProperty("mod.chiselsandbits.config." + langKey, "");
         }
 
         final Path configLangFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.CONFIG_LANG_DIR);

@@ -18,6 +18,7 @@ public class ClientConfiguration implements IClientConfiguration
     private final Supplier<List<? extends Float>> previewPlacementColor;
     private final Supplier<String>                previewRenderer;
     private final Supplier<String>                toolModeRenderer;
+    private final Supplier<Boolean>               invertPickBlockBehaviour;
     private final Supplier<Long>                  bitStorageContentCacheSize;
     private final Supplier<Boolean>               faceLightMapExtraction;
     private final Supplier<Boolean>               blockLightEmissionExtraction;
@@ -25,7 +26,6 @@ public class ClientConfiguration implements IClientConfiguration
     private final Supplier<Long>                  modelCacheSize;
     private final Supplier<Long>                  faceLayerCacheSize;
     private final Supplier<Integer>               modelBuildingThreadCount;
-
     public ClientConfiguration()
     {
         final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(ConfigurationType.CLIENT_ONLY, Constants.MOD_ID + "-client");
@@ -35,6 +35,7 @@ public class ClientConfiguration implements IClientConfiguration
         previewPlacementColor = builder.defineList("settings.chiseling-previews.default.colors.placement", Lists.newArrayList(0.0f, 0.85f, 0.0f, 0.65f), Float.class);
         previewRenderer = builder.defineString("settings.chiseling-previews.renderer", Constants.MOD_ID + ":default");
         toolModeRenderer = builder.defineString("settings.selected-tool-mode-icons.renderer", Constants.MOD_ID + ":group");
+        invertPickBlockBehaviour = builder.defineBoolean("settings.invert-pick-block-behaviour", false);
         bitStorageContentCacheSize = builder.defineInt("performance.caches.sizes.bit-storage-content-models", 100, 0, Long.MAX_VALUE);
         faceLightMapExtraction = builder.defineBoolean("performance.lighting.extract-lighting-values-from-faces", true);
         blockLightEmissionExtraction = builder.defineBoolean("performance.lighting.extract-lighting-values-from-blockstates", true);
@@ -75,6 +76,12 @@ public class ClientConfiguration implements IClientConfiguration
     public Supplier<String> getToolModeRenderer()
     {
         return toolModeRenderer;
+    }
+
+    @Override
+    public Supplier<Boolean> getInvertPickBlockBehaviour()
+    {
+        return invertPickBlockBehaviour;
     }
 
     @Override

@@ -1,8 +1,8 @@
 package mod.chiselsandbits.forge.events;
 
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
-import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.logic.RightClickInteractionHandler;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

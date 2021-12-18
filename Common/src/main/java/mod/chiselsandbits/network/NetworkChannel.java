@@ -4,7 +4,6 @@ import mod.chiselsandbits.network.packets.*;
 import mod.chiselsandbits.platforms.core.network.INetworkChannel;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.chunk.LevelChunk;
 
@@ -60,6 +59,7 @@ public class NetworkChannel
         registerMessage(index++, ChangeTrackerUpdatedPacket.class, ChangeTrackerUpdatedPacket::new);
         registerMessage(index++, RequestChangeTrackerOperationPacket.class, RequestChangeTrackerOperationPacket::new);
         registerMessage(index++, ClearChangeTrackerPacket.class, ClearChangeTrackerPacket::new);
+        registerMessage(index++, InputTrackerStatusUpdatePacket.class, InputTrackerStatusUpdatePacket::new);
     }
 
     /**

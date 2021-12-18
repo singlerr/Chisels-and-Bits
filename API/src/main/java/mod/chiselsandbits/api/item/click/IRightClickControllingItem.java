@@ -4,6 +4,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Deals with the way items are able to handle left click interactions.
@@ -31,6 +32,16 @@ public interface IRightClickControllingItem
       final BlockPos position,
       final Direction face,
       final ClickProcessingState currentState
+    );
+
+    /**
+     * Invoked by the platform to indicate to this item that a right-clicking procedure has ended.
+     * @param player The player who stopped right-clicking.
+     * @param stack The stack on which the clicking ended.
+     */
+    void onRightClickProcessingEnd(
+      final Player player,
+      final ItemStack stack
     );
 
     /**

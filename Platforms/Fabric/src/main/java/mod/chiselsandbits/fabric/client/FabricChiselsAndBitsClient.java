@@ -2,7 +2,7 @@ package mod.chiselsandbits.fabric.client;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
-import mod.chiselsandbits.client.icon.IconManager;
+import mod.chiselsandbits.client.input.FrameBasedInputTracker;
 import mod.chiselsandbits.client.logic.*;
 import mod.chiselsandbits.client.model.loader.BitBlockModelLoader;
 import mod.chiselsandbits.client.model.loader.ChiseledBlockModelLoader;
@@ -22,7 +22,6 @@ import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModContainerTypes;
 import mod.chiselsandbits.registrars.ModItems;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -120,6 +119,8 @@ public class FabricChiselsAndBitsClient implements ClientModInitializer
             MeasurementsRenderHandler.renderMeasurements(context.matrixStack());
 
             MultiStateBlockPreviewRenderHandler.renderMultiStateBlockPreview(context.matrixStack());
+
+            FrameBasedInputTracker.getInstance().onRenderFrame();
         });
 
         ClientPickBlockGatherCallback.EVENT.register((player, result) -> {

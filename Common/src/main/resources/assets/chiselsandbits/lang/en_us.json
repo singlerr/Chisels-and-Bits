@@ -333,6 +333,7 @@
   "mod.chiselsandbits.config.settings.chiseling-previews.renderer.comment": "Sets which preview renderer is in use. Currently C&B provides: `chiselsandbits:default` (Simple outline rendering) and `chiselsandbits:noop` (No preview) as options.",
   "mod.chiselsandbits.config.settings.selected-tool-mode-icons.comment": "Configures the tool mode icons used to render the selected tool modes of tools in the hot bar.",
   "mod.chiselsandbits.config.settings.selected-tool-mode-icons.renderer.comment": "Sets which tool mode icon renderer is in use. Currently C&B provides: `chiselsandbits:group` (Render the group icon in the top right corner) and `chiselsandbits:noop` (No icon) as options.",
+  "mod.chiselsandbits.config.settings.invert-pick-block-behaviour.comment": "Configures if the block picking behavior should be inverted. When true then a normal middle-click will get the full chiseled block and a shift-middle-click gets the bit. If this is false then the behaviours are swapped.",
   "mod.chiselsandbits.config.style.comment": "Configures the different gameplay style options.",
   "mod.chiselsandbits.config.style.bit-size.comment": "Configures the size of a single bit, relative to one block."
 }

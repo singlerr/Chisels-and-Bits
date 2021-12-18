@@ -8,6 +8,9 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Random;
 
+/**
+ * Utility class for handling {@link BlockState}s.
+ */
 public class BlockStateUtils
 {
 
@@ -16,8 +19,14 @@ public class BlockStateUtils
         throw new IllegalStateException("Can not instantiate an instance of: BlockStateUtils. This is a utility class");
     }
 
+    /**
+     * Gets a random chiselable blockstate from the blocks in the registry.
+     *
+     * @param random The random to get the random ids from.
+     * @return The default random state of a supported chiselable block.
+     */
     @SuppressWarnings("OptionalGetWithoutIsPresent")
-    public static final BlockState getRandomSupportedDefaultState(final Random random) {
+    public static BlockState getRandomSupportedDefaultState(final Random random) {
         final IPlatformRegistry<Block> blocks = IPlatformRegistryManager.getInstance().getBlockRegistry();
 
         Block candidate = blocks.getValues().stream().skip(

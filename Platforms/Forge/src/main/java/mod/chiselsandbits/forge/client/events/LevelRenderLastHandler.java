@@ -1,5 +1,6 @@
 package mod.chiselsandbits.forge.client.events;
 
+import mod.chiselsandbits.client.input.FrameBasedInputTracker;
 import mod.chiselsandbits.client.logic.MeasurementsRenderHandler;
 import mod.chiselsandbits.client.logic.MultiStateBlockPreviewRenderHandler;
 import mod.chiselsandbits.client.logic.SelectedObjectRenderHandler;
@@ -10,7 +11,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-public class WorldRenderLastHandler
+public class LevelRenderLastHandler
 {
 
     @SubscribeEvent
@@ -35,5 +36,11 @@ public class WorldRenderLastHandler
     public static void renderMultiStateBlockPreview(final RenderLevelLastEvent event)
     {
         MultiStateBlockPreviewRenderHandler.renderMultiStateBlockPreview(event.getPoseStack());
+    }
+
+    @SubscribeEvent
+    public static void processAdditionalInputTracking(final RenderLevelLastEvent event)
+    {
+        FrameBasedInputTracker.getInstance().onRenderFrame();
     }
 }

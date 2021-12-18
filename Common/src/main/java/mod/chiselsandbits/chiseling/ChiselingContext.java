@@ -314,6 +314,12 @@ public class ChiselingContext implements IChiselingContext
     }
 
     @Override
+    public void resetMutator()
+    {
+        this.mutator = null;;
+    }
+
+    @Override
     public Optional<IStateEntryInfo> getInAreaTarget(final Vec3 inAreaTarget)
     {
         if (getMutator().isPresent() && getMutator().map(m -> m.isInside(inAreaTarget)).orElse(false))

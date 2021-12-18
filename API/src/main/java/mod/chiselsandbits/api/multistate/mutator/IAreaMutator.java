@@ -11,6 +11,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.stream.Stream;
 
+/**
+ * A mutator for a given area.
+ */
 public interface IAreaMutator extends IAreaAccessor
 {
 

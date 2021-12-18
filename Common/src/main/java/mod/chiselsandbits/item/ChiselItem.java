@@ -8,10 +8,12 @@ import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.chiseling.ChiselingManager;
+import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.registrars.ModTags;
@@ -24,6 +26,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.ItemStack;
@@ -159,6 +162,28 @@ public class ChiselItem extends DiggerItem implements IChiselItem
         }
 
         return resultState;
+    }
+
+    @Override
+    public void onLeftClickProcessingEnd(final Player player, final ItemStack stack)
+    {
+        final IChiselMode chiselMode = getMode(stack);
+        Optional<IChiselingContext> context = IChiselingManager.getInstance().get(
+          player,
+          chiselMode,
+          ChiselingOperation.CHISELING);
+
+        if (context.isEmpty()) {
+            context = LocalChiselingContextCache.getInstance().get(ChiselingOperation.CHISELING);
+        }
+
+        context.ifPresent(c -> {
+            chiselMode.onStoppedLeftClicking(player, c);
+            if (c.isComplete()) {
+                player.getCooldowns().addCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
+                LocalChiselingContextCache.getInstance().clear(ChiselingOperation.CHISELING);
+            }
+        });
     }
 
     @Override

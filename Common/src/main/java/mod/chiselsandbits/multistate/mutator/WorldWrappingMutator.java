@@ -448,6 +448,16 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
         return simplify ? requestedShape.optimize() : requestedShape;
     }
 
+    @Override
+    public String toString()
+    {
+        return "WorldWrappingMutator{" +
+                 "world=" + world +
+                 ", startPoint=" + startPoint +
+                 ", endPoint=" + endPoint +
+                 '}';
+    }
+
     private static final class BatchMutationLock implements IBatchMutation
     {
 

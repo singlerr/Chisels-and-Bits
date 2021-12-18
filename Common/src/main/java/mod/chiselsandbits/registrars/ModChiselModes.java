@@ -2,6 +2,7 @@ package mod.chiselsandbits.registrars;
 
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.chiseling.modes.draw.DrawChiselModeBuilder;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.chiseling.modes.connected.material.ConnectedMaterialChiselingModeBuilder;
 import mod.chiselsandbits.chiseling.modes.connected.plane.ConnectedPlaneChiselingModeBuilder;
@@ -31,6 +32,15 @@ public final class ModChiselModes
         .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineSingle.getText())
         .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/bit.png"))
         .createCubedChiselMode()
+    );
+
+    public static final IRegistryObject<IChiselMode>                    DRAW                     = MODE_REGISTRAR.register(
+      "draw",
+      () -> new DrawChiselModeBuilder()
+              .setDisplayName(LocalStrings.ChiselModeDrawnRegion.getText())
+              .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineDrawnRegion.getText())
+              .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/drawn_region.png"))
+              .createDrawChiselMode()
     );
     public static final  IRegistryObject<IChiselMode>                   SMALL_BIT                = MODE_REGISTRAR.register(
       "small_bit",

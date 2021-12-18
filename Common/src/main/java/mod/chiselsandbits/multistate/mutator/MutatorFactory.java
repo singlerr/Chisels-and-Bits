@@ -1,6 +1,7 @@
 package mod.chiselsandbits.multistate.mutator;
 
 import mod.chiselsandbits.api.multistate.StateEntrySize;
+import mod.chiselsandbits.api.multistate.accessor.IAccessorFactory;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import net.minecraft.core.BlockPos;
@@ -9,7 +10,7 @@ import net.minecraft.world.phys.Vec3;
 
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.ONE_THOUSANDS;
 
-public class MutatorFactory implements IMutatorFactory
+public class MutatorFactory implements IMutatorFactory, IAccessorFactory
 {
     private static final MutatorFactory INSTANCE = new MutatorFactory();
 

@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.item.INoHitEffectsItem;
 import mod.chiselsandbits.api.item.click.IRightClickControllingItem;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -35,4 +36,14 @@ public interface IMeasuringTapeItem extends INoHitEffectsItem, IWithModeItem<Mea
      * @param stack The stack to clear the measurement state from.
      */
     void clear(@NotNull final ItemStack stack);
+
+    /**
+     * Invoked by the platform to indicate to this item that a right-clicking procedure has ended.
+     * @param player The player who stopped right-clicking.
+     * @param stack The stack on which the clicking ended.
+     */
+    @Override
+    default void onRightClickProcessingEnd(final Player player, final ItemStack stack) {
+        //Noop -> Measurement tapes don't care for continuous clicking.
+    }
 }

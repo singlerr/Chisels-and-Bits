@@ -12,11 +12,13 @@ import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
+import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.chiseling.ChiselingManager;
@@ -36,6 +38,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -78,6 +81,29 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
           playerEntity, hand, currentState, ChiselingOperation.CHISELING, IChiselMode::onLeftClickBy
         );
     }
+    
+    @Override
+    public void onLeftClickProcessingEnd(final Player player, final ItemStack stack)
+    {
+        final IChiselMode chiselMode = getMode(stack);
+        Optional<IChiselingContext> context = IChiselingManager.getInstance().get(
+          player,
+          chiselMode,
+          ChiselingOperation.CHISELING);
+
+        if (context.isEmpty()) {
+            context = LocalChiselingContextCache.getInstance().get(ChiselingOperation.CHISELING);
+        }
+
+        context.ifPresent(c -> {
+            chiselMode.onStoppedLeftClicking(player, c);
+            if (c.isComplete()) {
+                player.getCooldowns().addCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
+                LocalChiselingContextCache.getInstance().clear(ChiselingOperation.CHISELING);
+            }
+        });
+    }
+
 
     @Override
     public boolean canUse(final Player playerEntity)
@@ -164,6 +190,28 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         return handleClickProcessing(
           playerEntity, hand, currentState, ChiselingOperation.PLACING, IChiselMode::onRightClickBy
         );
+    }
+
+    @Override
+    public void onRightClickProcessingEnd(final Player player, final ItemStack stack)
+    {
+        final IChiselMode chiselMode = getMode(stack);
+        Optional<IChiselingContext> context = IChiselingManager.getInstance().get(
+          player,
+          chiselMode,
+          ChiselingOperation.CHISELING);
+
+        if (context.isEmpty()) {
+            context = LocalChiselingContextCache.getInstance().get(ChiselingOperation.CHISELING);
+        }
+
+        context.ifPresent(c -> {
+            chiselMode.onStoppedRightClicking(player, c);
+            if (c.isComplete()) {
+                player.getCooldowns().addCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
+                LocalChiselingContextCache.getInstance().clear(ChiselingOperation.PLACING);
+            }
+        });
     }
 
     private ClickProcessingState handleClickProcessing(

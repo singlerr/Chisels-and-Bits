@@ -4,6 +4,7 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
@@ -99,7 +100,10 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
             return ItemStack.EMPTY;
         }
 
-        if (player.isCrouching())
+        if (
+          (!IClientConfiguration.getInstance().getInvertPickBlockBehaviour().get() && player.isCrouching()) ||
+          (IClientConfiguration.getInstance().getInvertPickBlockBehaviour().get() && !player.isCrouching())
+        )
         {
             return getBlockEntityFromOrThrow(blockGetter, pos)
               .map(e -> {
@@ -400,7 +404,6 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     {
         return ItemStack.EMPTY;
     }
-
 
     @Nullable
     @Override
