@@ -17,7 +17,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
     public static final ConcurrentHashMap<VertexFormat, FormatInfo> formatData = new ConcurrentHashMap<>();
 
     private static int[] packData(
-      float[][][] unpackedData)
+      float[][][] unpackedData, final Direction orientation)
     {
         FormatInfo fi = formatData.get(DefaultVertexFormat.BLOCK);
 
@@ -27,7 +27,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
             formatData.put(DefaultVertexFormat.BLOCK, fi);
         }
 
-        return fi.pack(unpackedData);
+        return fi.pack(unpackedData, orientation);
     }
 
     private static float[] getRawPart(
@@ -59,7 +59,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
       final Direction orientation,
       final TextureAtlasSprite sprite)
     {
-        super(buildProcessedVertexData(packData(unpackedData)), tint, orientation, sprite, true);
+        super(buildProcessedVertexData(packData(unpackedData, orientation)), tint, orientation, sprite, false);
     }
 
     public static class Builder implements IVertexConsumer, IFaceBuilder

@@ -34,13 +34,13 @@ loom {
             client()
             setConfigName("Fabric Client")
             ideConfigGenerated(true)
-            runDir(project.file("run").toPath().relativize(project.file("/").toPath()).toString())
+            runDir(project.rootProject.projectDir.toPath().relativize(project(":Platforms:Fabric").file("run").toPath()).toString())
         }
         server {
             server()
             setConfigName("Fabric Server")
             ideConfigGenerated(true)
-            runDir(project.file("run").toPath().relativize(project.file("/").toPath()).toString())
+            runDir(project.rootProject.projectDir.toPath().relativize(project(":Platforms:Fabric").file("run").toPath()).toString())
         }
     }
 

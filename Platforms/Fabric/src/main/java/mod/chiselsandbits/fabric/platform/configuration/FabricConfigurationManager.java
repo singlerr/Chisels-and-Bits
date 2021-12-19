@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
@@ -22,10 +23,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -122,7 +120,8 @@ public final class FabricConfigurationManager implements IConfigurationManager
     private JsonObject loadLocalConfig(final String name) {
         try
         {
-            final Path configPath = Path.of("./", "configs", name + ".json");
+            final File configurationDirectory = FabricLoader.getInstance().getConfigDirectory();
+            final Path configPath = Path.of(configurationDirectory.getAbsolutePath(), name + ".json");
 
             final FileReader fileReader = new FileReader(configPath.toAbsolutePath().toFile().getAbsolutePath());
 
@@ -141,7 +140,8 @@ public final class FabricConfigurationManager implements IConfigurationManager
     }
 
     private boolean doesLocalConfigExist(final String name) {
-        final Path configPath = Path.of("./", "configs", name + ".json");
+        final File configurationDirectory = FabricLoader.getInstance().getConfigDirectory();
+        final Path configPath = Path.of(configurationDirectory.getAbsolutePath(), name + ".json");
         return Files.exists(configPath);
     }
 
@@ -149,7 +149,8 @@ public final class FabricConfigurationManager implements IConfigurationManager
     private void saveLocalConfig(final String name, final JsonObject config) {
         try
         {
-            final Path configPath = Path.of("./", "configs", name + ".json");
+            final File configurationDirectory = FabricLoader.getInstance().getConfigDirectory();
+            final Path configPath = Path.of(configurationDirectory.getAbsolutePath(), name + ".json");
             if (Files.exists(configPath))
                 Files.delete(configPath);
 

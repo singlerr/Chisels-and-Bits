@@ -31,6 +31,9 @@ import net.minecraft.world.level.material.Fluids;
 
 import java.util.*;
 
+import static net.minecraft.core.Direction.*;
+import static net.minecraft.core.Direction.EAST;
+
 public final class FaceManager {
     private static final Random RANDOM = new Random();
 
@@ -42,6 +45,7 @@ public final class FaceManager {
     private final SimpleMaxSizedCache<BlockState, Integer> colorCache = new SimpleMaxSizedCache<>(
             () -> IPlatformRegistryManager.getInstance().getBlockStateIdMap().size() == 0 ? 1000 : IPlatformRegistryManager.getInstance().getBlockStateIdMap().size()
     );
+
 
     private FaceManager() {
     }
