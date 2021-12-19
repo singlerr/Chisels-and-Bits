@@ -3,9 +3,11 @@ package mod.chiselsandbits;
 import mod.chiselsandbits.api.ChiselsAndBitsAPI;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.config.IChiselsAndBitsConfiguration;
+import mod.chiselsandbits.api.plugin.IChiselsAndBitsPlugin;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.config.ChiselsAndBitsConfiguration;
 import mod.chiselsandbits.network.NetworkChannel;
+import mod.chiselsandbits.plugin.PluginManger;
 import mod.chiselsandbits.registrars.*;
 import mod.chiselsandbits.utils.LanguageHandler;
 
@@ -41,6 +43,9 @@ public class ChiselsAndBits
         ModTags.onModConstruction();
 
         networkChannel.registerCommonMessages();
+
+        PluginManger.getInstance().detect();
+        PluginManger.getInstance().run(IChiselsAndBitsPlugin::onConstruction);
 	}
 
 	public static ChiselsAndBits getInstance()
@@ -55,5 +60,9 @@ public class ChiselsAndBits
 
     public NetworkChannel getNetworkChannel() {
 	    return networkChannel;
+    }
+
+    public void onCommonConstruction() {
+        PluginManger.getInstance().run(IChiselsAndBitsPlugin::onCommonSetup);
     }
 }

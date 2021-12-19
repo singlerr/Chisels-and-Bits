@@ -42,7 +42,7 @@ public class ChiseledBlockModelDataExecutor
 {
     private static       ExecutorService              recalculationService;
 
-    public static void updateModelDataCore(final ChiseledBlockEntity tileEntity)
+    public static void updateModelDataCore(final ChiseledBlockEntity tileEntity, final Runnable onCompleteCallback)
     {
         ensureThreadPoolSetup();
 
@@ -191,6 +191,7 @@ public class ChiseledBlockModelDataExecutor
                 .build();
           }, recalculationService)
           .thenAcceptAsync(tileEntity::setModelData, recalculationService)
+          .thenRunAsync(onCompleteCallback, recalculationService)
           .thenRunAsync(() -> {
               if (Minecraft.getInstance().level == tileEntity.getLevel()) {
                   IModelDataManager.getInstance().requestModelDataRefresh(tileEntity);

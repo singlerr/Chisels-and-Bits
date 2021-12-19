@@ -19,6 +19,7 @@ import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.accessor.IAccessorFactory;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
+import mod.chiselsandbits.api.permissions.IPermissionHandler;
 import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
@@ -35,6 +36,7 @@ import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
 import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.multistate.mutator.MutatorFactory;
 import mod.chiselsandbits.neighborhood.BlockNeighborhoodBuilder;
+import mod.chiselsandbits.permissions.PermissionHandler;
 import mod.chiselsandbits.plugin.PluginManger;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModChiselModes;
@@ -267,5 +269,11 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull Tag.Named<Block> getBlockedTag()
     {
         return ModTags.Blocks.BLOCKED_CHISELABLE;
+    }
+
+    @Override
+    public @NotNull IPermissionHandler getPermissionHandler()
+    {
+        return PermissionHandler.getInstance();
     }
 }

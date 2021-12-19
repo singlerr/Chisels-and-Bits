@@ -7,6 +7,7 @@ import java.util.Objects;
 
 public class ChiseledBlockModelDataManager
 {
+    private static final Runnable NOOP = () -> {};
     private static final ChiseledBlockModelDataManager INSTANCE = new ChiseledBlockModelDataManager();
 
     public static ChiseledBlockModelDataManager getInstance()
@@ -20,10 +21,24 @@ public class ChiseledBlockModelDataManager
     }
 
     public void updateModelData(@Nullable final ChiseledBlockEntity tileEntity) {
-        if (tileEntity == null || !tileEntity.hasLevel() || !Objects.requireNonNull(tileEntity.getLevel()).isClientSide())
-            return;
+        this.updateModelData(tileEntity, NOOP, false);
+    }
 
-        ChiseledBlockModelDataExecutor.updateModelDataCore(tileEntity);
+    public void updateModelData(
+      final ChiseledBlockEntity tileEntity,
+      final Runnable onCompleteCallback,
+      final boolean force
+    )
+    {
+        if (!force)
+        {
+            if (!tileEntity.hasLevel() || !tileEntity.getLevel().isClientSide() || tileEntity == null)
+            {
+                return;
+            }
+        }
+
+        ChiseledBlockModelDataExecutor.updateModelDataCore(tileEntity, onCompleteCallback);
     }
 
 }

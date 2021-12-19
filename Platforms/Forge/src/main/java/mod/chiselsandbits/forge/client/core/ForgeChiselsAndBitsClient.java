@@ -1,5 +1,6 @@
 package mod.chiselsandbits.forge.client.core;
 
+import mod.chiselsandbits.client.core.ChiselsAndBitsClient;
 import mod.chiselsandbits.forge.platform.client.model.loader.ForgePlatformModelLoaderPlatformDelegate;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.client.model.loader.BitBlockModelLoader;
@@ -23,6 +24,8 @@ import java.util.function.BiConsumer;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ForgeChiselsAndBitsClient
 {
+
+    private static ChiselsAndBitsClient instance;
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
@@ -54,6 +57,8 @@ public class ForgeChiselsAndBitsClient
     @SubscribeEvent
     public static void onInitialize(final FMLClientSetupEvent clientSetupEvent)
     {
+        instance = new ChiselsAndBitsClient();
+
         KeyBindingManager.getInstance().onModInitialization();
 
         ModRenderLayers.onClientInit();

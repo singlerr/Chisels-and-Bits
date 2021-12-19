@@ -7,7 +7,6 @@ import mod.chiselsandbits.forge.platform.distribution.ForgeDistributionManager;
 import mod.chiselsandbits.forge.platform.eligibility.ForgeEligibilityOptions;
 import mod.chiselsandbits.forge.platform.entity.ForgeEntityInformationManager;
 import mod.chiselsandbits.forge.platform.entity.ForgePlayerInventoryManager;
-import mod.chiselsandbits.forge.platform.event.ForgeEventFirer;
 import mod.chiselsandbits.forge.platform.fluid.ForgeFluidManager;
 import mod.chiselsandbits.forge.platform.inventory.bit.ForgeAdaptingBitInventoryManager;
 import mod.chiselsandbits.forge.platform.item.DyeItemHelper;
@@ -25,7 +24,6 @@ import mod.chiselsandbits.platforms.core.creativetab.ICreativeTabManager;
 import mod.chiselsandbits.platforms.core.dist.IDistributionManager;
 import mod.chiselsandbits.platforms.core.entity.IEntityInformationManager;
 import mod.chiselsandbits.platforms.core.entity.IPlayerInventoryManager;
-import mod.chiselsandbits.platforms.core.event.IEventFirer;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
 import mod.chiselsandbits.platforms.core.inventory.bit.IAdaptingBitInventoryManager;
 import mod.chiselsandbits.platforms.core.item.IDyeItemHelper;
@@ -79,12 +77,6 @@ public class ForgeChiselsAndBitsPlatform implements IChiselsAndBitsPlatformCore
     public @NotNull IPlatformEligibilityOptions getPlatformEligibilityOptions()
     {
         return ForgeEligibilityOptions.getInstance();
-    }
-
-    @Override
-    public @NotNull IEventFirer getEventFirer()
-    {
-        return ForgeEventFirer.getInstance();
     }
 
     @Override

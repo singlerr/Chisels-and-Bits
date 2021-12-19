@@ -10,8 +10,7 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
-import mod.chiselsandbits.api.util.BlockPosStreamProvider;
-import mod.chiselsandbits.platforms.core.event.IEventFirer;
+import mod.chiselsandbits.api.permissions.IPermissionHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -119,9 +118,9 @@ public class ChiselingContext implements IChiselingContext
         if (mutator == null || playerEntity == null || !(world instanceof Level))
             return Optional.ofNullable(mutator);
 
-        if (BlockPosStreamProvider.getForRange(mutator.getInWorldStartPoint(), mutator.getInWorldEndPoint())
-          .anyMatch(position -> !IEventFirer.getInstance()
-                  .canBreakBlock((Level) world, position, playerEntity))) {
+        if (!IPermissionHandler.getInstance().canManipulate(
+          playerEntity, mutator
+        )) {
             //We are not allowed to edit the current area.
             //Nuke it.
             mutator = null;
@@ -316,7 +315,7 @@ public class ChiselingContext implements IChiselingContext
     @Override
     public void resetMutator()
     {
-        this.mutator = null;;
+        this.mutator = null;
     }
 
     @Override

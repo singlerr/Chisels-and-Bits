@@ -20,6 +20,7 @@ import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAccessorFactory;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
+import mod.chiselsandbits.api.permissions.IPermissionHandler;
 import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
@@ -247,6 +248,15 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     Tag.Named<Block> getBlockedTag();
+
+    /**
+     * Returns the permission handler which is used to check if a particular area
+     * is chiselable or not.
+     *
+     * @return The permission handler.
+     */
+    @NotNull
+    IPermissionHandler getPermissionHandler();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

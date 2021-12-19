@@ -6,7 +6,6 @@ import mod.chiselsandbits.fabric.platform.configuration.FabricConfigurationManag
 import mod.chiselsandbits.fabric.platform.creativetab.FabricCreativeTabManager;
 import mod.chiselsandbits.fabric.platform.dist.FabricDistributionManager;
 import mod.chiselsandbits.fabric.platform.entity.FabricEntityInformationManager;
-import mod.chiselsandbits.fabric.platform.event.FabricEventFirer;
 import mod.chiselsandbits.fabric.platform.fluid.FabricFluidManager;
 import mod.chiselsandbits.fabric.platform.inventory.FabricAdaptingBitInventoryManager;
 import mod.chiselsandbits.fabric.platform.inventory.FabricPlayerInventoryManager;
@@ -26,7 +25,6 @@ import mod.chiselsandbits.platforms.core.creativetab.ICreativeTabManager;
 import mod.chiselsandbits.platforms.core.dist.IDistributionManager;
 import mod.chiselsandbits.platforms.core.entity.IEntityInformationManager;
 import mod.chiselsandbits.platforms.core.entity.IPlayerInventoryManager;
-import mod.chiselsandbits.platforms.core.event.IEventFirer;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
 import mod.chiselsandbits.platforms.core.inventory.bit.IAdaptingBitInventoryManager;
 import mod.chiselsandbits.platforms.core.item.IDyeItemHelper;
@@ -34,7 +32,6 @@ import mod.chiselsandbits.platforms.core.item.IItemComparisonHelper;
 import mod.chiselsandbits.platforms.core.network.INetworkChannelManager;
 import mod.chiselsandbits.platforms.core.plugin.IPlatformPluginManager;
 import mod.chiselsandbits.platforms.core.registries.IPlatformRegistryManager;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.NotNull;
 
@@ -91,12 +88,6 @@ public final class FabricChiselsAndBitsPlatform implements IChiselsAndBitsPlatfo
     public @NotNull IPlatformEligibilityOptions getPlatformEligibilityOptions()
     {
         return FabricPlatformEligibilityOptions.getInstance();
-    }
-
-    @Override
-    public @NotNull IEventFirer getEventFirer()
-    {
-        return FabricEventFirer.getInstance();
     }
 
     @Override

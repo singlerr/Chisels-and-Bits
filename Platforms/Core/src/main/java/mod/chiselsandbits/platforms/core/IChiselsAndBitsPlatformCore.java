@@ -8,7 +8,6 @@ import mod.chiselsandbits.platforms.core.creativetab.ICreativeTabManager;
 import mod.chiselsandbits.platforms.core.dist.IDistributionManager;
 import mod.chiselsandbits.platforms.core.entity.IEntityInformationManager;
 import mod.chiselsandbits.platforms.core.entity.IPlayerInventoryManager;
-import mod.chiselsandbits.platforms.core.event.IEventFirer;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
 import mod.chiselsandbits.platforms.core.inventory.bit.IAdaptingBitInventoryManager;
 import mod.chiselsandbits.platforms.core.item.IDyeItemHelper;
@@ -98,14 +97,6 @@ public interface IChiselsAndBitsPlatformCore
      */
     @NotNull
     IPlatformEligibilityOptions getPlatformEligibilityOptions();
-
-    /**
-     * Gives access to a system which can fire event data on the given platform.
-     *
-     * @return The system to fire the events.
-     */
-    @NotNull
-    IEventFirer getEventFirer();
 
     /**
      * Gives access to the player inventory manager.
