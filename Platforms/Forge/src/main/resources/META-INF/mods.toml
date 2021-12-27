@@ -7,7 +7,7 @@ modId="chiselsandbits"
 version="${version}"
 displayName="Chisels & bits"
 authors="OrionOnline, LDTTeam, AlgorithmX2 "
-logoFile="logo.png"
+logoFile="logo-forge.png"
 description='''
 A mod about Sculpting, Decorating and Aesthetics.
 

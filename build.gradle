@@ -1,3 +1,27 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        maven { url = 'https://maven.parchmentmc.org' }
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            name = 'ajoberstar-backup'
+            url = 'https://ajoberstar.org/bintray-backup/'
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0"
+        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.0"
+        classpath "org.zaproxy.gradle:gradle-plugin-crowdin:0.2.1"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3"
+        classpath 'org.ajoberstar:grgit:3.3'
+        classpath 'org.parchmentmc:librarian:1.+'
+    }
+}
+
 repositories {
     maven {
         name 'LDTTeam - Modding'
@@ -8,6 +32,8 @@ repositories {
 subprojects { it ->
     if (!it.getChildProjects().isEmpty())
         return;
+
+    apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/main/gradle/modules/util.gradle'
 
     apply plugin: 'java'
 
@@ -33,14 +59,11 @@ subprojects { it ->
     }
 
     repositories {
-
         mavenCentral()
-
         maven {
             name = 'Sponge / Mixin'
             url = 'https://repo.spongepowered.org/repository/maven-public/'
         }
-
         maven {
             name = 'BlameJared Maven (CrT / Bookshelf)'
             url = 'https://maven.blamejared.com'
@@ -72,4 +95,35 @@ subprojects { it ->
                 'reason:a:The reason for adding an @Overwrite'
         )
     })
+}
+
+task("createChangelog") {
+    group = 'upload'
+
+    doLast {
+        def teamCityURL = "https://buildsystem.ldtteam.com/"
+        project.rootProject.file("build/changelog.md").parentFile.mkdirs()
+        def file = new FileOutputStream(project.rootProject.file("build/changelog.md"))
+        def out = new BufferedOutputStream(file)
+        def changesXML = new XmlSlurper().parse(teamCityURL + "guestAuth/app/rest/changes?locator=build:(id:" + teamcity["teamcity.build.id"] + ")")
+
+        def changes = changesXML.change
+        out << "# Chisels & Bits Changelog \n"
+        out << "## Version: _" + version + "_ \n"
+
+        out << "### Changes: \n"
+        if (changes.size() > 0) {
+            for (int i = 0; i < changes.size(); i++) {
+                def changeDetailsURL = teamCityURL + "guestAuth/app/rest/changes/id:" + changes[i].@id.text()
+                def changeDetailsXml = new XmlSlurper().parse(changeDetailsURL)
+                def changeComment = changeDetailsXml.comment.text().trim()
+
+                out << "* " + changeComment + "\n"
+            }
+        } else {
+            out << "_No Changes detected!_"
+        }
+
+        out.close()
+    }
 }

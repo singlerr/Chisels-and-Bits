@@ -1,0 +1,12 @@
+projects:
+  - id: 479625
+    sources:
+      - dir: "%crowdin_download_path%"
+        crowdinPath:
+          dir: "/lang"
+          filename: "entries.json"
+        exportPattern:
+          dir: "/lang"
+          filename: "%locale_with_underscore%.json"
+        includes:
+          - pattern: "en_us.json"

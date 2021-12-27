@@ -14,7 +14,7 @@
   },
 
   "license": "LGPL-3.0",
-  "icon": "logo.png",
+  "icon": "logo-fabric.png",
 
   "environment": "*",
   "entrypoints": {
