@@ -4,6 +4,7 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.fabric.integration.forge.ForgeTags;
 import mod.chiselsandbits.fabric.platform.FabricChiselsAndBitsPlatform;
+import mod.chiselsandbits.fabric.platform.server.FabricServerLifecycleManager;
 import mod.chiselsandbits.logic.*;
 import mod.chiselsandbits.platforms.core.IChiselsAndBitsPlatformCore;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
@@ -91,6 +92,9 @@ public class FabricChiselsAndBitsMod implements ModInitializer {
         });
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> ServerStartHandler.onServerStart());
+
+        ServerLifecycleEvents.SERVER_STARTING.register(FabricServerLifecycleManager.getInstance()::setServer);
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> FabricServerLifecycleManager.getInstance().clearServer());
     }
 
 

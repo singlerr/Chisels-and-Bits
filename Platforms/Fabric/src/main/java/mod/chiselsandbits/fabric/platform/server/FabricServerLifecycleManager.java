@@ -16,8 +16,6 @@ public final class FabricServerLifecycleManager
 
     private FabricServerLifecycleManager()
     {
-        ServerLifecycleEvents.SERVER_STARTING.register(this::setServer);
-        ServerLifecycleEvents.SERVER_STOPPED.register(server -> this.clearServer());
     }
 
     public MinecraftServer getServer()

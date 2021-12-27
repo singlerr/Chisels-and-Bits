@@ -28,42 +28,8 @@ public final class FabricNetworkChannel implements INetworkChannel
     {
         this.name = name;
 
-        ServerPlayNetworking.registerGlobalReceiver(name, (minecraftServer, serverPlayer, serverGamePacketListener, friendlyByteBuf, packetSender) -> {
-            final int messageId = friendlyByteBuf.readVarInt();
-            final NetworkMessageSpecification<?> spec = messageSpecifications.get(messageId);
-            handleMessageReceive(
-              spec,
-              friendlyByteBuf,
-              true,
-              serverPlayer,
-              minecraftServer::execute
-            );
-        });
-
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientPlayNetworking.registerGlobalReceiver(name,
-          (minecraft, clientPacketListener, friendlyByteBuf, packetSender) -> {
-              final int messageId = friendlyByteBuf.readVarInt();
-              final NetworkMessageSpecification<?> spec = messageSpecifications.get(messageId);
-              handleMessageReceive(
-                spec,
-                friendlyByteBuf,
-                false,
-                Minecraft.getInstance().player,
-                Minecraft.getInstance()::execute
-              );
-          }));
-    }
-
-    public <T> void handleMessageReceive(
-      final NetworkMessageSpecification<T> specification,
-      final FriendlyByteBuf friendlyByteBuf,
-      final boolean server,
-      final Player player,
-      final Consumer<Runnable> executor
-    )
-    {
-        final T message = specification.creator.apply(friendlyByteBuf);
-        specification.executionHandler.execute(message, server, player, executor);
+        FabricNetworkChannelServerMessageProcessor.registerServerChannel(name, messageSpecifications::get);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> FabricNetworkChannelClientMessageProcessor.registerClientChannel(name, messageSpecifications::get));
     }
 
     @SuppressWarnings("unchecked")
@@ -130,7 +96,7 @@ public final class FabricNetworkChannel implements INetworkChannel
           .orElseThrow();
     }
 
-    private static final class NetworkMessageSpecification<T>
+    static final class NetworkMessageSpecification<T>
     {
         private final int                            id;
         private final Class<T>                       msgClass;
@@ -149,6 +115,31 @@ public final class FabricNetworkChannel implements INetworkChannel
             this.serializer = serializer;
             this.creator = creator;
             this.executionHandler = executionHandler;
+        }
+
+        public int getId()
+        {
+            return id;
+        }
+
+        public Class<T> getMsgClass()
+        {
+            return msgClass;
+        }
+
+        public BiConsumer<T, FriendlyByteBuf> getSerializer()
+        {
+            return serializer;
+        }
+
+        public Function<FriendlyByteBuf, T> getCreator()
+        {
+            return creator;
+        }
+
+        public MessageExecutionHandler<T> getExecutionHandler()
+        {
+            return executionHandler;
         }
     }
 }
