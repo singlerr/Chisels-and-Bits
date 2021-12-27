@@ -185,7 +185,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
     {
         if (this.allowdedIn(group))
         {
-            if (this == ModItems.BIT_BAG_DEFAULT.get())
+            if (this == ModItems.ITEM_BIT_BAG_DEFAULT.get())
             {
                 items.add(new ItemStack(this));
             }
@@ -212,7 +212,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
 
         if (color == null && bag.getItem() == ModItems.ITEM_BIT_BAG_DYED.get())
         {
-            final ItemStack unColoredStack = new ItemStack(ModItems.BIT_BAG_DEFAULT.get());
+            final ItemStack unColoredStack = new ItemStack(ModItems.ITEM_BIT_BAG_DEFAULT.get());
             unColoredStack.setTag(copy.getTag());
             unColoredStack.getOrCreateTag().remove("color");
             return unColoredStack;
@@ -220,7 +220,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
         else if (color != null)
         {
             ItemStack coloredStack = copy;
-            if (coloredStack.getItem() == ModItems.BIT_BAG_DEFAULT.get())
+            if (coloredStack.getItem() == ModItems.ITEM_BIT_BAG_DEFAULT.get())
             {
                 coloredStack = new ItemStack(ModItems.ITEM_BIT_BAG_DYED.get());
                 coloredStack.setTag(copy.getTag());

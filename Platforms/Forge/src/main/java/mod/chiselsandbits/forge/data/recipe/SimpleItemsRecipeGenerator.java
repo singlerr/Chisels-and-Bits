@@ -36,7 +36,7 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
         event.getGenerator().addProvider(
           new SimpleItemsRecipeGenerator(
             event.getGenerator(),
-            ModItems.BIT_BAG_DEFAULT.get(),
+            ModItems.ITEM_BIT_BAG_DEFAULT.get(),
             "www;wbw;www",
             ImmutableMap.of(
               'w', ItemTags.WOOL

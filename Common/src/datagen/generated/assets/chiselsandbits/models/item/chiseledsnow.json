@@ -1,4 +1,4 @@
 {
-  "parent": "item/generated",
+  "parent": "minecraft:item/generated",
   "loader": "chiselsandbits:chiseled_block"
 }

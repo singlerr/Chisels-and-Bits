@@ -13,12 +13,17 @@ apply plugin: 'java'
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'maven-publish'
 
 repositories {
     maven {
         name 'LDTTeam - Modding'
         url 'https://ldtteam.jfrog.io/ldtteam/modding/'
+    }
+    maven {
+        name "tterrag maven"
+        url "https://maven.tterrag.com/"
     }
 }
 
@@ -51,6 +56,8 @@ minecraft {
             taskName 'Client'
             arg "--mixin=chiselsandbits.mixins.json"
             jvmArgs "-Dmixin.debug=true", "-Dmixin.debug.export=true"
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 chiselsandbits {
                     source sourceSets.main
@@ -67,6 +74,8 @@ minecraft {
             taskName 'Server'
             arg "--mixin=chiselsandbits.mixins.json"
             jvmArgs "-Dmixin.debug=true", "-Dmixin.debug.export=true"
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             mods {
                 chiselsandbits {
                     source sourceSets.main
@@ -80,6 +89,8 @@ minecraft {
         data {
             workingDirectory project.file('run')
             ideaModule "${rootProject.name}.${project.name}.main"
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             args '--mod', mod_id,
                     '--output', project(":Common").file("src/datagen/generated"),
                     '--existing', file('src/main/resources/'),
@@ -125,9 +136,6 @@ dependencies {
     compileOnly 'org.jetbrains:annotations:16.0.2'
     testCompileOnly 'org.jetbrains:annotations:16.0.2'
 
-    forgeLibrary ("com.ldtteam:datagenerators:${project.dataGeneratorsVersion}") {
-        transitive = false
-    }
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 }
 

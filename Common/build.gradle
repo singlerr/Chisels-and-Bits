@@ -28,8 +28,6 @@ dependencies {
     testImplementation project(':API')
     testImplementation project(':Platforms:Core')
 
-    implementation "com.ldtteam:datagenerators:${project.dataGeneratorsVersion}"
-
     compileOnly 'org.jetbrains:annotations:16.0.2'
     testCompileOnly 'org.jetbrains:annotations:16.0.2'
 }
