@@ -1,0 +1,37 @@
+package mod.chiselsandbits.measures;
+
+import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.measuring.MeasuringMode;
+import mod.chiselsandbits.network.packets.MeasurementUpdatedPacket;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.phys.Vec3;
+
+public class MeasurementNetworkUtil
+{
+
+    private MeasurementNetworkUtil()
+    {
+        throw new IllegalStateException("Can not instantiate an instance of: MeasurementNetworkUtil. This is a utility class");
+    }
+
+    public static void createAndSend(
+      final Vec3 from, final Vec3 to, final MeasuringMode mode
+    ) {
+        if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null)
+        {
+            return;
+        }
+
+        final Measurement measurement = MeasuringManager.getInstance().create(
+          Minecraft.getInstance().level,
+          Minecraft.getInstance().player,
+          from,
+          to,
+          mode
+        );
+
+        final MeasurementUpdatedPacket packet = new MeasurementUpdatedPacket(measurement);
+
+        ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(packet);
+    }
+}

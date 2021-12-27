@@ -130,21 +130,6 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
     public void createAndSend(
       final Vec3 from, final Vec3 to, final MeasuringMode mode
     ) {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null)
-                return;
-
-            final Measurement measurement = this.create(
-              Minecraft.getInstance().level,
-              Minecraft.getInstance().player,
-              from,
-              to,
-              mode
-            );
-
-            final MeasurementUpdatedPacket packet = new MeasurementUpdatedPacket(measurement);
-
-            ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(packet);
-        });
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MeasurementNetworkUtil.createAndSend(from, to, mode));
     }
 }
