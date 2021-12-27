@@ -38,7 +38,7 @@ public final class ModColors
               configuration
                 .register(new BitItemItemColor(), ModItems.ITEM_BLOCK_BIT.get());
               configuration
-                .register(new BitBagItemColor(), ModItems.BIT_BAG_DEFAULT.get(), ModItems.ITEM_BIT_BAG_DYED.get());
+                .register(new BitBagItemColor(), ModItems.ITEM_BIT_BAG_DEFAULT.get(), ModItems.ITEM_BIT_BAG_DYED.get());
           }
         );
     }

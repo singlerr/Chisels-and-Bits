@@ -36,13 +36,13 @@ public final class ModItems
     public static final  IRegistryObject<BitItem>                          ITEM_BLOCK_BIT               =
       ITEM_REGISTRAR.register("block_bit", () -> new BitItem(new Item.Properties().tab(
         CHISELS_AND_BITS)));
-    public static final  IRegistryObject<MagnifyingGlassItem>              MAGNIFYING_GLASS             =
+    public static final  IRegistryObject<MagnifyingGlassItem> MAGNIFYING_GLASS     =
       ITEM_REGISTRAR.register("magnifying_glass", () -> new MagnifyingGlassItem(new Item.Properties().tab(
         CHISELS_AND_BITS)));
-    public static final  IRegistryObject<BitBagItem>                       BIT_BAG_DEFAULT              =
+    public static final  IRegistryObject<BitBagItem>          ITEM_BIT_BAG_DEFAULT =
       ITEM_REGISTRAR.register("bit_bag", () -> new BitBagItem(new Item.Properties().tab(
         CHISELS_AND_BITS)));
-    public static final  IRegistryObject<BitBagItem>                       ITEM_BIT_BAG_DYED            =
+    public static final  IRegistryObject<BitBagItem>          ITEM_BIT_BAG_DYED    =
       ITEM_REGISTRAR.register("bit_bag_dyed", () -> new BitBagItem(new Item.Properties().tab(
         CHISELS_AND_BITS)));
     public static final  IRegistryObject<BitStorageBlockItem>

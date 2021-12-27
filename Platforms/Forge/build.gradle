@@ -13,6 +13,7 @@ apply plugin: 'java'
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'maven-publish'
 
 repositories {
@@ -137,10 +138,6 @@ dependencies {
 
     implementation fg.deobf("com.jozufozu.flywheel:Flywheel-Forge:${project.flyWheelVersion}")
     implementation fg.deobf("com.simibubi.create:Create:${project.createVersion}")
-
-    forgeLibrary ("com.ldtteam:datagenerators:${project.dataGeneratorsVersion}") {
-        transitive = false
-    }
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 }
 

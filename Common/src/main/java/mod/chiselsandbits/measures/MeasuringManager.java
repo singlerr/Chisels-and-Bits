@@ -10,6 +10,8 @@ import mod.chiselsandbits.api.measuring.MeasuringMode;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import mod.chiselsandbits.network.packets.MeasurementUpdatedPacket;
 import mod.chiselsandbits.network.packets.MeasurementsUpdatedPacket;
+import mod.chiselsandbits.platforms.core.dist.Dist;
+import mod.chiselsandbits.platforms.core.dist.DistExecutor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -105,8 +107,7 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
 
               return measurementList;
           })
-          .flatMap(Collection::stream)
-          .collect(Collectors.toList());
+          .flatMap(Collection::stream).toList();
 
         measurements.forEach(measurement -> {
             if (!this.measurements.contains(measurement.getWorldKey(), measurement.getOwner()))
@@ -129,19 +130,21 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
     public void createAndSend(
       final Vec3 from, final Vec3 to, final MeasuringMode mode
     ) {
-        if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null)
-            return;
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null)
+                return;
 
-        final Measurement measurement = this.create(
-          Minecraft.getInstance().level,
-          Minecraft.getInstance().player,
-          from,
-          to,
-          mode
-        );
+            final Measurement measurement = this.create(
+              Minecraft.getInstance().level,
+              Minecraft.getInstance().player,
+              from,
+              to,
+              mode
+            );
 
-        final MeasurementUpdatedPacket packet = new MeasurementUpdatedPacket(measurement);
+            final MeasurementUpdatedPacket packet = new MeasurementUpdatedPacket(measurement);
 
-        ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(packet);
+            ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(packet);
+        });
     }
 }

@@ -38,9 +38,8 @@ public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenera
     protected void buildCraftingRecipes(final Consumer<FinishedRecipe> writer)
     {
         ShapedRecipeBuilder.shaped(getItemProvider())
-          .pattern("st ")
-          .pattern("   ")
-          .pattern("   ")
+          .pattern("st")
+          .pattern("  ")
           .define('s', rodTag)
           .define('t', ingredientTag)
           .unlockedBy("has_rod", has(rodTag))

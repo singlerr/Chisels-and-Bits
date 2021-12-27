@@ -18,11 +18,18 @@ public final class ModTags
         public static Tag.Named<Item> CHISEL  = tag("chisel");
         public static Tag.Named<Item> BIT_BAG = tag("bit_bag");
 
+        public static Tag.Named<Item> FORGE_PAPER = forge("paper");
+
         private static void init() {}
 
         private static Tag.Named<Item> tag(String name)
         {
             return ItemTags.bind(Constants.MOD_ID + ":" + name);
+        }
+
+        private static Tag.Named<Item> forge(String name)
+        {
+            return ItemTags.bind( "forge:" + name);
         }
     }
 
