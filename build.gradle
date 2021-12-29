@@ -22,6 +22,8 @@ buildscript {
     }
 }
 
+apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/main/gradle/modules/util.gradle'
+
 repositories {
     maven {
         name 'LDTTeam - Modding'
@@ -29,13 +31,24 @@ repositories {
     }
 }
 
-subprojects { it ->
-    if (!it.getChildProjects().isEmpty())
+version = opc.buildVersionNumberWithOffset(
+        (System.getenv().containsKey("Version") ? System.getenv("Version") : project.modVersion),
+        project.exactMinecraftVersion,
+        opc.getProperty("sourceVersionName"),
+        opc.getIntProperty("sourceVersionElementIndex"),
+        opc.getIntProperty("mcVersionElementIndex")
+)
+
+subprojects { subProject ->
+    if (!subProject.getChildProjects().isEmpty())
         return;
 
     apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/main/gradle/modules/util.gradle'
 
     apply plugin: 'java'
+    apply plugin: 'maven-publish'
+
+    subProject.version = rootProject.version
 
     java.toolchain.languageVersion = JavaLanguageVersion.of(17)
     java.withSourcesJar()
@@ -95,6 +108,82 @@ subprojects { it ->
                 'reason:a:The reason for adding an @Overwrite'
         )
     })
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {pub ->
+                from subProject.components.java
+
+                pom {
+                    url = subProject.githubUrl
+                    licenses {
+                        license {
+                            name = 'GNU GENERAL PUBLIC LICENSE Version 3'
+                            url = 'https://www.gnu.org/licenses/gpl-3.0.en.html'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'OrionDevelopment'
+                            name = 'Marc Hermans'
+                            email = 'marc.hermans@ldtteam.com'
+                        }
+                    }
+                    scm {
+                        connection = subProject.gitUrl
+                        developerConnection = subProject.gitConnectUrl
+                        url = subProject.projectUrl
+                    }
+                }
+
+                //Replace all deobf dependencies with normal jar references.
+                pom.withXml { xmlProvider ->
+                    def dependencies = asNode().dependencies
+                    def allDeps = dependencies.'*';
+
+                    allDeps.findAll {
+                        println it
+                    }
+
+                    // Remove forge deps
+                    allDeps.findAll() { el ->
+                        el.artifactId.text() == 'forge' && el.groupId.text() == 'net.minecraftforge'
+                    }.forEach() { el ->
+                        el.parent().remove(el)
+                    }
+                    //remove forgegradle's mapped suffix from versions & set as optional so anyone else doesn't inherit them
+                    allDeps.findAll() { el ->
+                        el.version.text().contains('_mapped_')
+                    }.each { el ->
+                        def version = el.version
+                        version.each {
+                            it.setValue(it.text().substring(0, it.text().indexOf('_mapped_')))
+                        }
+                    }
+                }
+            }
+        }
+
+        if (System.getenv().containsKey("LDTTeamJfrogUsername") && System.getenv().containsKey("LDTTeamJfrogPassword")) {
+            repositories {
+                maven {
+                    name 'LDTTeamJfrog'
+                    credentials {
+                        username System.getenv().get("LDTTeamJfrogUsername")
+                        password System.getenv().get("LDTTeamJfrogPassword")
+                    }
+                    url 'https://ldtteam.jfrog.io/ldtteam/mods-maven'
+                }
+            }
+        }
+
+        repositories {
+            maven {
+                name 'RepoDirectory'
+                url 'file://' + rootProject.file('repo').getAbsolutePath()
+            }
+        }
+    }
 }
 
 task("createChangelog") {

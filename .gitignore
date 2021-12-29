@@ -37,3 +37,4 @@ run/
 src/documentation/generated/
 src/main/resources/assets/chiselsandbits/lang/*
 !src/main/resources/assets/chiselsandbits/lang/en_us.json
+/repo/
