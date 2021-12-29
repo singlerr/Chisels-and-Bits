@@ -210,13 +210,12 @@ if (System.getProperty("idea.sync.active") == "true") {
     }
 }
 
-if (opc.hasPropertySet("curseId")
-        && (opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
+if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
     project.curseforge { cf ->
         cf.apiKey = opc.hasPropertySet("curseApiKey") ? opc.getProperty("curseApiKey") : opc.getProperty("CURSEAPIKEY")
 
         project { cp ->
-            cp.id = opc.getProperty("curseId")
+            cp.id = 231095
             cp.addGameVersion(project.exactMinecraftVersion)
             cp.changelog = rootProject.file('build/changelog.md')
             cp.changelogType = 'markdown'
@@ -228,41 +227,6 @@ if (opc.hasPropertySet("curseId")
 
             cp.mainArtifact(jar)
             cp.addArtifact project(':API').tasks.jar
-        }
-    }
-
-    task("createChangelog") {
-        group = 'upload'
-
-        doLast {
-            def teamCityURL = "https://buildsystem.ldtteam.com/"
-            project.rootProject.file("build/changelog.md").parentFile.mkdirs()
-            def file = new FileOutputStream(project.rootProject.file("build/changelog.md"))
-            def out = new BufferedOutputStream(file)
-            def changesXML = new XmlSlurper().parse(teamCityURL + "guestAuth/app/rest/changes?locator=build:(id:" + teamcity["teamcity.build.id"] + ")")
-
-            def changes = changesXML.change
-            out << "# ${opc.capitalize(project.modId)} Changelog \n"
-            out << "## Version: _" + version + "_ \n"
-
-            if (opc.hasPropertySet("customChangelogHeader")) {
-                out << opc.getProperty("customChangelogHeader") + "\n"
-            }
-
-            out << "### Changes: \n"
-            if (changes.size() > 0) {
-                for (int i = 0; i < changes.size(); i++) {
-                    def changeDetailsURL = teamCityURL + "guestAuth/app/rest/changes/id:" + changes[i].@id.text()
-                    def changeDetailsXml = new XmlSlurper().parse(changeDetailsURL)
-                    def changeComment = changeDetailsXml.comment.text().trim()
-
-                    out << "* " + changeComment + "\n"
-                }
-            } else {
-                out << "_No Changes detected!_"
-            }
-
-            out.close()
         }
     }
 }

@@ -75,6 +75,8 @@ jar {
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            from(components.java)
+
             artifact(remapJar) {
                 builtBy remapJar
             }
@@ -85,5 +87,33 @@ publishing {
     }
 
     repositories {
+    }
+}
+
+if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
+    project.curseforge { cf ->
+        cf.apiKey = opc.hasPropertySet("curseApiKey") ? opc.getProperty("curseApiKey") : opc.getProperty("CURSEAPIKEY")
+
+        project { cp ->
+            cp.id = 561059
+            cp.addGameVersion(project.exactMinecraftVersion)
+            cp.changelog = rootProject.file('build/changelog.md')
+            cp.changelogType = 'markdown'
+            cp.releaseType = 'RELEASE'
+
+            opc.getStringListProperty("additionalMinecraftVersions").each { v ->
+                cp.addGameVersion(v)
+            }
+
+            cp.mainArtifact(remapJar.jar)
+            cp.addArtifact project(':API').tasks.jar
+        }
+        options {
+            forgeGradleIntegration = false
+        }
+    }
+
+    afterEvaluate {
+        tasks.curseforge561059.dependsOn remapJar
     }
 }
