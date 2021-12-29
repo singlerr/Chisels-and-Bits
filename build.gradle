@@ -17,11 +17,11 @@ buildscript {
         classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.0"
         classpath "org.zaproxy.gradle:gradle-plugin-crowdin:0.2.1"
         classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.3"
-        classpath 'org.ajoberstar:grgit:3.3'
         classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 
+apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/main/gradle/modules/git.gradle'
 apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/main/gradle/modules/util.gradle'
 
 repositories {
@@ -43,6 +43,7 @@ subprojects { subProject ->
     if (!subProject.getChildProjects().isEmpty())
         return;
 
+    apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/main/gradle/modules/git.gradle'
     apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/main/gradle/modules/util.gradle'
 
     apply plugin: 'java'
