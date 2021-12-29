@@ -206,7 +206,7 @@ if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
             cp.addGameVersion(project.exactMinecraftVersion)
             cp.changelog = rootProject.file('build/changelog.md')
             cp.changelogType = 'markdown'
-            cp.releaseType = 'RELEASE'
+            cp.releaseType = 'release'
 
             opc.getStringListProperty("additionalMinecraftVersions").each { v ->
                 cp.addGameVersion(v)
