@@ -202,7 +202,7 @@ if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
         cf.apiKey = opc.hasPropertySet("curseApiKey") ? opc.getProperty("curseApiKey") : opc.getProperty("CURSEAPIKEY")
 
         project { cp ->
-            cp.id = 231095
+            cp.id = "231095"
             cp.addGameVersion(project.exactMinecraftVersion)
             cp.changelog = rootProject.file('build/changelog.md')
             cp.changelogType = 'markdown'
