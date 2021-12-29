@@ -4,6 +4,8 @@ plugins {
     id 'idea'
 }
 
+apply plugin: com.matthewprenger.cursegradle.CurseGradlePlugin
+
 archivesBaseName = "${mod_name}-fabric-${minecraft_version}"
 
 repositories {
