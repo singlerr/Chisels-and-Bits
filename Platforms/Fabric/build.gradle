@@ -89,15 +89,15 @@ if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
                 cp.addGameVersion(v)
             }
 
-            cp.mainArtifact(remapJar.jar)
-            cp.addArtifact project(':API').tasks.jar
+            afterEvaluate {
+                cp.mainArtifact(remapJar)
+                cp.addArtifact project(':API').tasks.jar
+                subProject.tasks.curseforge561059.dependsOn remapJar
+            }
+
         }
         options {
             forgeGradleIntegration = false
         }
-    }
-
-    afterEvaluate {
-        tasks.curseforge561059.dependsOn remapJar
     }
 }
