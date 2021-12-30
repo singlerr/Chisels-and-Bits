@@ -1,5 +1,6 @@
 package mod.chiselsandbits.utils;
 
+import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
@@ -40,15 +41,17 @@ public class BitInventoryUtils
         if (leftOverCount <= 0)
             return;
 
-        while(leftOverCount > 0) {
-            final int spawnCount = Math.min(IBitItemManager.getInstance().getMaxStackSize(), leftOverCount);
-            if (spawnCount <= 0)
-                break;
+        if (!IServerConfiguration.getInstance().getDeleteExcessBits().get()) {
+            while(leftOverCount > 0) {
+                final int spawnCount = Math.min(IBitItemManager.getInstance().getMaxStackSize(), leftOverCount);
+                if (spawnCount <= 0)
+                    break;
 
-            leftOverCount -= spawnCount;
+                leftOverCount -= spawnCount;
 
-            final ItemStack spawnStack = IBitItemManager.getInstance().create(blockState, spawnCount);
-            playerEntity.drop(spawnStack, true, true);
+                final ItemStack spawnStack = IBitItemManager.getInstance().create(blockState, spawnCount);
+                playerEntity.drop(spawnStack, true, true);
+            }
         }
     }
 }

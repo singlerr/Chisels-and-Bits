@@ -41,4 +41,11 @@ public interface IServerConfiguration
     Supplier<StateEntrySize> getBitSize();
 
     Supplier<Integer>        getChangeTrackerSize();
+
+    /**
+     * Indicates if Chisels and Bits will delete excess bits when a block is broken.
+     *
+     * @return A supplier that determines if excess bits should be deleted.
+     */
+    Supplier<Boolean> getDeleteExcessBits();
 }

@@ -301,6 +301,7 @@
   "mod.chiselsandbits.config.balancing.bit-bag-stack-size.comment": "The max size of the stacks of bits in the bit bag.",
   "mod.chiselsandbits.config.balancing.blacklist-random-ticking-blocks.comment": "Disallow blocks which tick randomly from being chiseled.",
   "mod.chiselsandbits.config.balancing.change-tracker-size.comment": "The amount of changes that are being held in the change track.",
+  "mod.chiselsandbits.config.balancing.delete-excess-bits.comment": "When enabled this deletes excess bits which are created during chisel operations but which don't fit into the players inventory and bit bags.",
   "mod.chiselsandbits.config.balancing.enable-compatibility-mode.comment": "Enables the compatibility mode of the chiselability checked.",
   "mod.chiselsandbits.config.compat.comment": "Configures options related to different compatibility modules.",
   "mod.chiselsandbits.config.compat.jei.comment": "Compatibility options for JEI.",

@@ -17,6 +17,7 @@ public class ServerConfiguration implements IServerConfiguration
     private final Supplier<Integer>        bagStackSize;
     private final Supplier<StateEntrySize> bitSize;
     private final Supplier<Integer>        changeTrackerSize;
+    private final Supplier<Boolean>        deleteExcessBits;
 
     public ServerConfiguration() {
         final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(
@@ -28,6 +29,7 @@ public class ServerConfiguration implements IServerConfiguration
         bagStackSize = builder.defineInteger("balancing.bit-bag-stack-size", 512, 64, 1024);
         bitSize = builder.defineEnum("style.bit-size", StateEntrySize.ONE_SIXTEENTH);
         changeTrackerSize = builder.defineInteger("balancing.change-tracker-size", 20, 10, 40);
+        deleteExcessBits = builder.defineBoolean("balancing.delete-excess-bits", true);
 
         builder.setup();
     }
@@ -60,5 +62,11 @@ public class ServerConfiguration implements IServerConfiguration
     public Supplier<Integer> getChangeTrackerSize()
     {
         return changeTrackerSize;
+    }
+
+    @Override
+    public Supplier<Boolean> getDeleteExcessBits()
+    {
+        return deleteExcessBits;
     }
 }
