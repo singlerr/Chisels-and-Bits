@@ -92,7 +92,7 @@ if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
             afterEvaluate {
                 cp.mainArtifact(remapJar)
                 cp.addArtifact project(':API').tasks.jar
-                subProject.tasks.curseforge561059.dependsOn remapJar
+                tasks.curseforge561059.dependsOn remapJar
             }
 
         }
