@@ -214,7 +214,6 @@ if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
             }
 
             cp.mainArtifact(jar)
-            cp.addArtifact project(':API').tasks.jar
         }
     }
 }
