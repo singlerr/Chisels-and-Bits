@@ -3,11 +3,13 @@ package mod.chiselsandbits.client.model.baked.base;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.client.util.TransformationUtils;
 import mod.chiselsandbits.platforms.core.client.models.ITransformAwareBakedModel;
+import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import com.mojang.math.Quaternion;
 import com.mojang.math.Transformation;
 import com.mojang.math.Vector3f;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
@@ -50,6 +52,12 @@ public abstract class BaseBakedPerspectiveModel implements BakedModel, ITransfor
 	}
 
     @Override
+    public @NotNull ItemTransforms getTransforms()
+    {
+        return new PerspectiveHandlingItemTransforms(this);
+    }
+
+    @Override
     public BakedModel handlePerspective(final ItemTransforms.TransformType cameraTransformType, final PoseStack mat)
     {
         switch ( cameraTransformType )
@@ -80,4 +88,34 @@ public abstract class BaseBakedPerspectiveModel implements BakedModel, ITransfor
         TransformationUtils.push(mat, fixed);
         return this;
     }
+
+    private static final class PerspectiveHandlingItemTransforms extends ItemTransforms {
+
+        private final ITransformAwareBakedModel transformAwareBakedModel;
+
+        public PerspectiveHandlingItemTransforms(
+          final ITransformAwareBakedModel transformAwareBakedModel
+        ) {
+            super(ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM);
+            this.transformAwareBakedModel = transformAwareBakedModel;
+        }
+
+        @Override
+        public @NotNull ItemTransform getTransform(final @NotNull TransformType transformType)
+        {
+            return new ItemTransform(
+              Vector3f.ZERO,
+              Vector3f.ZERO,
+              Vector3f.ZERO
+            ) {
+
+                @Override
+                public void apply(final boolean isLeftHand, final @NotNull PoseStack poseStack)
+                {
+                    transformAwareBakedModel.handlePerspective(transformType, poseStack);
+                }
+            };
+        }
+    }
+
 }

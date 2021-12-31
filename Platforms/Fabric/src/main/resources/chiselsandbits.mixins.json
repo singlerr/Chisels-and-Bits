@@ -23,11 +23,11 @@
   ],
   "client": [
     "client.MouseHandlerEventMixin",
+    "client.block.blockentity.ChiseledBlockEntityMixin",
     "client.resources.PaintingTextureManagerConstructionHandler",
     "platform.client.multiplayer.MultiPlayerGameModeWorldlyBlockMixin",
     "platform.client.render.LevelRendererWorldlyBlockMixin",
-    "platform.client.render.block.ModelBlockRendererWorldlyBlockMixin",
-    "platform.client.render.entity.ItemRendererTransformAwareBakedModelMixin"
+    "platform.client.render.block.ModelBlockRendererWorldlyBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1

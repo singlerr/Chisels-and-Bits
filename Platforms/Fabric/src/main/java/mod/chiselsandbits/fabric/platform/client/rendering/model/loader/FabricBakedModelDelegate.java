@@ -7,6 +7,7 @@ import mod.chiselsandbits.platforms.core.entity.block.IBlockEntityWithModelData;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.model.ForwardingBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
+import net.fabricmc.fabric.api.rendering.data.v1.RenderAttachedBlockView;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
@@ -96,18 +97,31 @@ public class FabricBakedModelDelegate implements BakedModel, IDelegatingBakedMod
     public void emitBlockQuads(
       final BlockAndTintGetter blockAndTintGetter, final BlockState blockState, final BlockPos blockPos, final Supplier<Random> supplier, final RenderContext renderContext)
     {
-        final BlockEntity blockEntity = blockAndTintGetter.getBlockEntity(blockPos);
-        if (!(blockEntity instanceof IBlockEntityWithModelData) || !(getDelegate() instanceof IDataAwareBakedModel)) {
-            renderContext.fallbackConsumer().accept(getDelegate());
+        Object attachmentData = null;
+        if (blockAndTintGetter instanceof RenderAttachedBlockView renderAttachedBlockView) {
+            attachmentData = renderAttachedBlockView.getBlockEntityRenderAttachment(blockPos);
         }
 
-        final IBlockModelData blockModelData = ((IBlockEntityWithModelData) blockEntity).getBlockModelData();
+        IBlockModelData blockModelData = null;
+        if (attachmentData instanceof IBlockModelData blockModelDataAttachment) {
+            blockModelData = blockModelDataAttachment;
+        }
+        else {
+            final BlockEntity blockEntity = blockAndTintGetter.getBlockEntity(blockPos);
+            if (!(blockEntity instanceof IBlockEntityWithModelData) || !(getDelegate() instanceof IDataAwareBakedModel)) {
+                renderContext.fallbackConsumer().accept(getDelegate());
+            }
+
+            blockModelData = ((IBlockEntityWithModelData) blockEntity).getBlockModelData();
+        }
+
         final IDataAwareBakedModel dataAwareBakedModel = (IDataAwareBakedModel) getDelegate();
 
+        final IBlockModelData finalBlockModelData = blockModelData;
         renderContext.fallbackConsumer().accept(new QuadDelegatingBakedModel(
           dataAwareBakedModel,
           (stateIn, side, rand) -> dataAwareBakedModel.getQuads(
-            stateIn, side, rand, blockModelData
+            stateIn, side, rand, finalBlockModelData
           )
         ));
     }

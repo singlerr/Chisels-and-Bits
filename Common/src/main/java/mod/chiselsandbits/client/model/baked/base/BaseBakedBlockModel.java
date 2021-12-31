@@ -3,6 +3,7 @@ package mod.chiselsandbits.client.model.baked.base;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class BaseBakedBlockModel extends BaseBakedPerspectiveModel implements BakedModel
 {
@@ -25,17 +26,9 @@ public abstract class BaseBakedBlockModel extends BaseBakedPerspectiveModel impl
 		return false;
 	}
 
-	@SuppressWarnings({"NullableProblems", "deprecation"})
-    @Override
-	final public ItemTransforms getTransforms()
-	{
-		return ItemTransforms.NO_TRANSFORMS;
-	}
-
 	@Override
-	public ItemOverrides getOverrides()
+	public @NotNull ItemOverrides getOverrides()
 	{
 		return ItemOverrides.EMPTY;
 	}
-
 }

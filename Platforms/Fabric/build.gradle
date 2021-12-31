@@ -91,9 +91,10 @@ if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
                 cp.addGameVersion(v)
             }
 
+            cp.mainArtifact(remapJar)
+
             afterEvaluate {
-                cp.mainArtifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar"))
-                tasks.curseforge561059.dependsOn remapJar
+                uploadTask.dependsOn remapJar
             }
 
         }
