@@ -1,5 +1,8 @@
 package mod.chiselsandbits.api.config;
 
+import com.sun.jna.IntegerType;
+import net.minecraft.client.gui.screens.achievement.StatsUpdateListener;
+
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -117,4 +120,25 @@ public interface IClientConfiguration
      * @return A configuration supplier which indicates how many threads should be used.
      */
     Supplier<Integer> getModelBuildingThreadCount();
+
+    /**
+     * Indicates the amount of itemstacks that can be stored in the clipboard.
+     *
+     * @return A configuration supplier which indicates the amount of itemstacks that can be stored in the clipboard.
+     */
+    Supplier<Integer> getClipboardSize();
+
+    /**
+     * Indicates if a broken chiseled block should be added to the clipboard.
+     *
+     * @return A configuration supplier which indicates if a broken chiseled block should be added to the clipboard.
+     */
+    Supplier<Boolean> getShouldBrokenBlocksBeAddedToClipboard();
+
+    /**
+     * Indicates if a picked chiseled block should be added to the clipboard.
+     *
+     * @return A configuration supplier which indicates if a picked chiseled block should be added to the clipboard.
+     */
+    Supplier<Boolean> getShouldPickedBlocksBeAddedToClipboard();
 }

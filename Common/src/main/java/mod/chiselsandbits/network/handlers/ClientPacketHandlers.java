@@ -5,12 +5,17 @@ import mod.chiselsandbits.api.block.entity.INetworkUpdateableEntity;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.client.screen.AbstractChiselsAndBitsScreen;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.client.screens.widgets.ChangeTrackerOperationsWidget;
+import mod.chiselsandbits.clipboard.CreativeClipboardManager;
+import mod.chiselsandbits.clipboard.CreativeClipboardUtils;
+import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -96,5 +101,10 @@ public final class ClientPacketHandlers
             from,
             false
           );
+    }
+
+    public static void handleAddMultiStateToClipboard(final ItemStack stack) {
+        final IMultiStateItemStack itemStack = new SingleBlockMultiStateItemStack(stack);
+        CreativeClipboardUtils.addBrokenBlock(itemStack);
     }
 }

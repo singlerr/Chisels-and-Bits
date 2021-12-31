@@ -60,6 +60,17 @@ public interface IConfigurationBuilder
     Supplier<Integer> defineInteger(String key, int defaultValue, int minValue, int maxValue);
 
     /**
+     * Defines a new double property with the given key and default value.
+     *
+     * @param key The key to use.
+     * @param defaultValue The default value.
+     * @param minValue The minimal value.
+     * @param maxValue The maximal value.
+     * @return The value provider.
+     */
+    Supplier<Double> defineDouble(String key, double defaultValue, double minValue, double maxValue);
+    
+    /**
      * Defines a new enum based property with the given key and default value.
      *
      * @param key The key to use.

@@ -60,6 +60,7 @@ public class NetworkChannel
         registerMessage(index++, RequestChangeTrackerOperationPacket.class, RequestChangeTrackerOperationPacket::new);
         registerMessage(index++, ClearChangeTrackerPacket.class, ClearChangeTrackerPacket::new);
         registerMessage(index++, InputTrackerStatusUpdatePacket.class, InputTrackerStatusUpdatePacket::new);
+        registerMessage(index++, AddMultiStateItemStackToClipboardPacket.class, AddMultiStateItemStackToClipboardPacket::new);
     }
 
     /**

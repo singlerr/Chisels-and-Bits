@@ -47,5 +47,7 @@ public class ClientInitHandler
         });
 
         ModISTER.onClientInit();
+
+        mod.chiselsandbits.client.logic.ClientInitHandler.onClientInit();
     }
 }

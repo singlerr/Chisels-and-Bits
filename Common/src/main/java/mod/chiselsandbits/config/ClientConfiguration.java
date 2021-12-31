@@ -26,6 +26,10 @@ public class ClientConfiguration implements IClientConfiguration
     private final Supplier<Long>                  modelCacheSize;
     private final Supplier<Long>                  faceLayerCacheSize;
     private final Supplier<Integer>               modelBuildingThreadCount;
+    private final Supplier<Integer>               clipboardSize;
+    private final Supplier<Boolean>               addBrokenBlocksToClipboard;
+    private final Supplier<Boolean>               addPickedBlocksToClipboard;
+
     public ClientConfiguration()
     {
         final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(ConfigurationType.CLIENT_ONLY, Constants.MOD_ID + "-client");
@@ -36,6 +40,9 @@ public class ClientConfiguration implements IClientConfiguration
         previewRenderer = builder.defineString("settings.chiseling-previews.renderer", Constants.MOD_ID + ":default");
         toolModeRenderer = builder.defineString("settings.selected-tool-mode-icons.renderer", Constants.MOD_ID + ":group");
         invertPickBlockBehaviour = builder.defineBoolean("settings.invert-pick-block-behaviour", false);
+        clipboardSize = builder.defineInteger("settings.clipboard.size", 64, 0, 64);
+        addBrokenBlocksToClipboard = builder.defineBoolean("settings.clipboard.addBrokenBlocks", true);
+        addPickedBlocksToClipboard = builder.defineBoolean("settings.clipboard.addPickedBlocks", true);
         bitStorageContentCacheSize = builder.defineInt("performance.caches.sizes.bit-storage-content-models", 100, 0, Long.MAX_VALUE);
         faceLightMapExtraction = builder.defineBoolean("performance.lighting.extract-lighting-values-from-faces", true);
         blockLightEmissionExtraction = builder.defineBoolean("performance.lighting.extract-lighting-values-from-blockstates", true);
@@ -124,5 +131,23 @@ public class ClientConfiguration implements IClientConfiguration
     public Supplier<Integer> getModelBuildingThreadCount()
     {
         return modelBuildingThreadCount;
+    }
+
+    @Override
+    public Supplier<Integer> getClipboardSize()
+    {
+        return clipboardSize;
+    }
+
+    @Override
+    public Supplier<Boolean> getShouldBrokenBlocksBeAddedToClipboard()
+    {
+        return addBrokenBlocksToClipboard;
+    }
+
+    @Override
+    public Supplier<Boolean> getShouldPickedBlocksBeAddedToClipboard()
+    {
+        return addPickedBlocksToClipboard;
     }
 }

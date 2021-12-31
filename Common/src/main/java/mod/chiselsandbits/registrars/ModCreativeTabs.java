@@ -1,12 +1,17 @@
 package mod.chiselsandbits.registrars;
 
+import mod.chiselsandbits.api.clipboard.ICreativeClipboardManager;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.platforms.core.creativetab.ICreativeTabManager;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.stream.Collectors;
 
 public final class ModCreativeTabs
 {
@@ -16,6 +21,26 @@ public final class ModCreativeTabs
         public @NotNull ItemStack makeIcon()
         {
             return new ItemStack(ModItems.ITEM_CHISEL_STONE.get());
+        }
+    });
+
+    public static final  CreativeModeTab CLIPBOARD = ICreativeTabManager.getInstance().register((index) -> new CreativeModeTab(index, Constants.MOD_ID)
+    {
+        @Override
+        public @NotNull ItemStack makeIcon()
+        {
+            return new ItemStack(ModItems.ITEM_CHISEL_STONE.get());
+        }
+
+        @Override
+        public void fillItemList(final @NotNull NonNullList<ItemStack> stacksToFill)
+        {
+            stacksToFill.addAll(
+              ICreativeClipboardManager.getInstance().getClipboard()
+                .stream()
+                .map(IMultiStateItemStack::toBlockStack)
+                .toList()
+            );
         }
     });
     private static final Logger          LOGGER           = LogManager.getLogger();

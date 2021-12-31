@@ -1,24 +1,24 @@
 package mod.chiselsandbits.api.config;
 
 import mod.chiselsandbits.api.multistate.StateEntrySize;
+
 import java.util.function.Supplier;
 
 /**
- * Gives access to the current server's configuration.
- * Elements in this configuration are relevant for both the server and client side of C{@literal &}B.
- * Since this options influence gameplay mechanics they need to be kept in sync.
+ * Gives access to the current server's configuration. Elements in this configuration are relevant for both the server and client side of C{@literal &}B. Since this options
+ * influence gameplay mechanics they need to be kept in sync.
  */
 public interface IServerConfiguration
 {
 
     /**
-     * Gives access to the current server's configuration.
-     * Elements in this configuration are relevant for both the server and client side of C{@literal &}B.
-     * Since this options influence gameplay mechanics they need to be kept in sync.
+     * Gives access to the current server's configuration. Elements in this configuration are relevant for both the server and client side of C{@literal &}B. Since this options
+     * influence gameplay mechanics they need to be kept in sync.
      *
      * @return The server configuration.
      */
-    static IServerConfiguration getInstance() {
+    static IServerConfiguration getInstance()
+    {
         return IChiselsAndBitsConfiguration.getInstance().getServer();
     }
 
@@ -27,25 +27,47 @@ public interface IServerConfiguration
      *
      * @return A supplier that determines if random ticking blocks should be chiselable.
      */
-    Supplier<Boolean>        getBlackListRandomTickingBlocks();
+    Supplier<Boolean> getBlackListRandomTickingBlocks();
 
     /**
      * Determines if the eligibility compatibility mode is active or not.
      *
      * @return A supplier that determines if the compatibility mode is active or not.
      */
-    Supplier<Boolean>        getCompatabilityMode();
+    Supplier<Boolean> getCompatabilityMode();
 
-    Supplier<Integer>        getBagStackSize();
+    /**
+     * The size of the bit stack in a bit bag.
+     *
+     * @return A supplier that determines the size of the bit stack.
+     */
+    Supplier<Integer> getBagStackSize();
 
+    /**
+     * The size of a bit in the world.
+     *
+     * @return A supplier that determines the size of a bit in the world.
+     */
     Supplier<StateEntrySize> getBitSize();
 
-    Supplier<Integer>        getChangeTrackerSize();
+    /**
+     * Ths size of the change tracker, aka how much the user can undo.
+     *
+     * @return A supplier that determines the size of the change tracker.
+     */
+    Supplier<Integer> getChangeTrackerSize();
 
     /**
      * Indicates if Chisels and Bits will delete excess bits when a block is broken.
      *
-     * @return A supplier that determines if excess bits should be deleted.
+     * @return A supplier that determines if excess bits should be deleted.#
      */
     Supplier<Boolean> getDeleteExcessBits();
+
+    /**
+     * Provides access to the factor with which the bit light strength is multiplied.
+     *
+     * @return A supplier that determines the factor with which the bit light strength is multiplied.
+     */
+    Supplier<Double> getLightFactorMultiplier();
 }

@@ -18,6 +18,7 @@ public class ServerConfiguration implements IServerConfiguration
     private final Supplier<StateEntrySize> bitSize;
     private final Supplier<Integer>        changeTrackerSize;
     private final Supplier<Boolean>        deleteExcessBits;
+    private final Supplier<Double>        lightFactorMultiplier;
 
     public ServerConfiguration() {
         final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(
@@ -30,6 +31,7 @@ public class ServerConfiguration implements IServerConfiguration
         bitSize = builder.defineEnum("style.bit-size", StateEntrySize.ONE_SIXTEENTH);
         changeTrackerSize = builder.defineInteger("balancing.change-tracker-size", 20, 10, 40);
         deleteExcessBits = builder.defineBoolean("balancing.delete-excess-bits", true);
+        lightFactorMultiplier = builder.defineDouble("balancing.light-factor-multiplier", 1,0, 4096);
 
         builder.setup();
     }
@@ -68,5 +70,11 @@ public class ServerConfiguration implements IServerConfiguration
     public Supplier<Boolean> getDeleteExcessBits()
     {
         return deleteExcessBits;
+    }
+
+    @Override
+    public Supplier<Double> getLightFactorMultiplier()
+    {
+        return lightFactorMultiplier;
     }
 }

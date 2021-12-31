@@ -123,6 +123,23 @@ public final class FabricConfigurationBuilder implements IConfigurationBuilder
     }
 
     @Override
+    public Supplier<Double> defineDouble(final String key, final double defaultValue, final double minValue, final double maxValue)
+    {
+        final FabricConfigurationValue<Double> value = new FabricVerifyableConfigurationValue<>(
+          source,
+          key,
+          JsonElement::getAsDouble,
+          JsonPrimitive::new,
+          defaultValue,
+          val -> Math.max(minValue, Math.min(maxValue, val))
+        );
+
+        configuredValues.add(value);
+
+        return value;
+    }
+
+    @Override
     public <T extends Enum<T>> Supplier<T> defineEnum(final String key, final T defaultValue)
     {
         final FabricConfigurationValue<T> value = new FabricConfigurationValue<>(

@@ -10,6 +10,7 @@ import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
+import mod.chiselsandbits.api.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.config.IChiselsAndBitsConfiguration;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
@@ -257,6 +258,15 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     IPermissionHandler getPermissionHandler();
+
+    /**
+     * Returns the clipboard manager for the creative clipboard.
+     *
+     * @return The clipboard manager.
+     */
+    @NotNull
+    ICreativeClipboardManager getCreativeClipboardManager();
+
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

@@ -43,6 +43,8 @@ public class FabricChiselsAndBitsClient implements ClientModInitializer
         onInitialize();
         onModelRegistry();
         setupColors();
+
+        ClientInitHandler.onClientInit();
     }
 
     private static void onModelRegistry()

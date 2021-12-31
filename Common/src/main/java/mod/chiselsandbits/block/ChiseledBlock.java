@@ -5,8 +5,10 @@ import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
+import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
@@ -18,9 +20,12 @@ import mod.chiselsandbits.api.util.StateEntryPredicates;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
+import mod.chiselsandbits.clipboard.CreativeClipboardUtils;
 import mod.chiselsandbits.network.packets.NeighborBlockUpdatedPacket;
 import mod.chiselsandbits.platforms.core.block.IBlockWithWorldlyProperties;
 import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
+import mod.chiselsandbits.platforms.core.dist.Dist;
+import mod.chiselsandbits.platforms.core.dist.DistExecutor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
@@ -108,7 +113,10 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
             return getBlockEntityFromOrThrow(blockGetter, pos)
               .map(e -> {
                   final IMultiStateSnapshot snapshot = e.createSnapshot();
-                  return snapshot.toItemStack().toBlockStack();
+                  final IMultiStateItemStack multiStateItemStack = snapshot.toItemStack();
+                  DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> CreativeClipboardUtils.addPickedBlock(multiStateItemStack));
+
+                  return multiStateItemStack.toBlockStack();
               })
               .orElse(ItemStack.EMPTY);
         }
@@ -306,9 +314,12 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     @Override
     public int getLightBlock(final @NotNull BlockState state, final @NotNull BlockGetter worldIn, final @NotNull BlockPos pos)
     {
-        return (int) (float) (getBlockEntityFromOrThrow(worldIn, pos)
-                  .map(multiStateBlockEntity -> worldIn.getMaxLightLevel() * multiStateBlockEntity.getStatistics().getFullnessFactor())
-                  .orElse(0f));
+        return getBlockEntityFromOrThrow(worldIn, pos)
+                  .map(multiStateBlockEntity -> worldIn.getMaxLightLevel() * multiStateBlockEntity.getStatistics().getLightEmissionFactor())
+                  .map(inertValue -> inertValue * IServerConfiguration.getInstance().getLightFactorMultiplier().get())
+                  .map(consumedValue -> Math.max(consumedValue, 0))
+                  .map(consumedValue -> Math.min(consumedValue, worldIn.getMaxLightLevel()))
+                  .orElse(0d).intValue();
     }
 
     @NotNull
@@ -516,5 +527,14 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                         )
                         .sum() / (e.getStatistics().getFullnessFactor() * StateEntrySize.current().getBitsPerBlock())
                 ).orElse(0d));
+    }
+
+    @Override
+    public void playerWillDestroy(final @NotNull Level level, final @NotNull BlockPos blockPos, final @NotNull BlockState blockState, final @NotNull Player player)
+    {
+        getBlockEntityFromOrThrow(level, blockPos)
+          .map(IMultiStateBlockEntity::createSnapshot)
+          .map(IMultiStateSnapshot::toItemStack)
+          .ifPresent(multiStateItemStack -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> CreativeClipboardUtils.addBrokenBlock(multiStateItemStack)));
     }
 }

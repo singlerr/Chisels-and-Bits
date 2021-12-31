@@ -7,6 +7,7 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.item.multistate.IStatistics;
 import mod.chiselsandbits.api.item.pattern.IPatternItem;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.identifier.ILongArrayBackedAreaShapeIdentifier;
@@ -520,6 +521,21 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
           ));
 
         this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return createNewShapeIdentifier().hashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+        if (!(obj instanceof IAreaAccessor accessor))
+            return false;
+
+        return createNewShapeIdentifier().equals(accessor.createNewShapeIdentifier());
     }
 
     private static final class ShapeIdentifier implements ILongArrayBackedAreaShapeIdentifier

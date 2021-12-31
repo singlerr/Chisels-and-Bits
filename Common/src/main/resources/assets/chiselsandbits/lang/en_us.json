@@ -303,6 +303,7 @@
   "mod.chiselsandbits.config.balancing.change-tracker-size.comment": "The amount of changes that are being held in the change track.",
   "mod.chiselsandbits.config.balancing.delete-excess-bits.comment": "When enabled this deletes excess bits which are created during chisel operations but which don't fit into the players inventory and bit bags.",
   "mod.chiselsandbits.config.balancing.enable-compatibility-mode.comment": "Enables the compatibility mode of the chiselability checked.",
+  "mod.chiselsandbits.config.balancing.light-factor-multiplier.comment": "Multiplies a chiseled blocks light output with this value. Allows for users to override the default scaling of the light value with the amount of bits. 0 Disables light emission, 1 Keeps the linear growth with the amount of light emitting bits. And any value above makes each bit emit more light then it normally should. Using the amount of bits in a block as a value (normally 4096 makes any bit emit light-level 15).",
   "mod.chiselsandbits.config.compat.comment": "Configures options related to different compatibility modules.",
   "mod.chiselsandbits.config.compat.jei.comment": "Compatibility options for JEI.",
   "mod.chiselsandbits.config.compat.jei.inject-bits.comment": "Should C&B inject its bits into JEI?",
@@ -335,6 +336,9 @@
   "mod.chiselsandbits.config.settings.selected-tool-mode-icons.comment": "Configures the tool mode icons used to render the selected tool modes of tools in the hot bar.",
   "mod.chiselsandbits.config.settings.selected-tool-mode-icons.renderer.comment": "Sets which tool mode icon renderer is in use. Currently C&B provides: `chiselsandbits:group` (Render the group icon in the top right corner) and `chiselsandbits:noop` (No icon) as options.",
   "mod.chiselsandbits.config.settings.invert-pick-block-behaviour.comment": "Configures if the block picking behavior should be inverted. When true then a normal middle-click will get the full chiseled block and a shift-middle-click gets the bit. If this is false then the behaviours are swapped.",
+  "mod.chiselsandbits.config.settings.clipboard.size.comment": "The amount of blocks to keep in the creative clipboard.",
+  "mod.chiselsandbits.config.settings.clipboard.addBrokenBlocks.comment": "When set to true this adds broken chiseled blocks to the creative clipboard.",
+  "mod.chiselsandbits.config.settings.clipboard.addPickedBlocks.comment": "When set to true this adds picked chiseled blocks to the creative clipboard.",
   "mod.chiselsandbits.config.style.comment": "Configures the different gameplay style options.",
   "mod.chiselsandbits.config.style.bit-size.comment": "Configures the size of a single bit, relative to one block."
 }

@@ -92,7 +92,7 @@ if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
             }
 
             afterEvaluate {
-                cp.mainArtifact(remapJar)
+                cp.mainArtifact(file("${project.buildDir}/libs/${archivesBaseName}-${version}.jar"))
                 tasks.curseforge561059.dependsOn remapJar
             }
 

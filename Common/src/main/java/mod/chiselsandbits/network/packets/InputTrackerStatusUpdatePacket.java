@@ -4,7 +4,7 @@ import mod.chiselsandbits.input.ProcessingInputTracker;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 
-public class InputTrackerStatusUpdatePacket extends ModPacket
+public final class InputTrackerStatusUpdatePacket extends ModPacket
 {
 
     private boolean isLeftMouse;

@@ -68,6 +68,14 @@ public class ForgeDelegateConfigurationBuilder implements IConfigurationBuilder
     }
 
     @Override
+    public Supplier<Double> defineDouble(final String key, final double defaultValue, final double minValue, final double maxValue)
+    {
+        keys.add(key + ".comment");
+        builder.comment(translateToLocal(key + ".comment"));
+        return builder.defineInRange(key, defaultValue, minValue, maxValue)::get;
+    }
+
+    @Override
     public <T extends Enum<T>> Supplier<T> defineEnum(final String key, final T defaultValue)
     {
         keys.add(key + ".comment");
