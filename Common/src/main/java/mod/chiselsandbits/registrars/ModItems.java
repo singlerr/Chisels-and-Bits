@@ -69,6 +69,9 @@ public final class ModItems
     public static final IRegistryObject<BlockItem> CHISELED_PRINTER =
       ITEM_REGISTRAR.register("chiseled_printer", () -> new BlockItem(ModBlocks.CHISELED_PRINTER.get(), new Item.Properties().tab(CHISELS_AND_BITS)));
 
+    public static final IRegistryObject<BlockItem> PATTERN_SCANNER =
+      ITEM_REGISTRAR.register("pattern_scanner", () -> new BlockItem(ModBlocks.PATTERN_SCANNER.get(), new Item.Properties().tab(CHISELS_AND_BITS)));
+
     public static final IRegistryObject<WrenchItem> WRENCH =
       ITEM_REGISTRAR.register("wrench", () -> new WrenchItem(new Item.Properties().tab(CHISELS_AND_BITS)));
 

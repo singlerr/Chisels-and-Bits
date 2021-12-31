@@ -15,9 +15,6 @@ import java.util.Random;
 
 public abstract class BaseBakedPerspectiveModel implements BakedModel, ITransformAwareBakedModel
 {
-
-    protected static final Random RANDOM = new Random();
-
 	private static final Transformation ground;
 	private static final Transformation gui;
 	private static final Transformation fixed;
@@ -60,41 +57,46 @@ public abstract class BaseBakedPerspectiveModel implements BakedModel, ITransfor
     @Override
     public BakedModel handlePerspective(final ItemTransforms.TransformType cameraTransformType, final PoseStack mat)
     {
-        switch ( cameraTransformType )
+        doCameraTransformForType(cameraTransformType, mat, true);
+
+        return this;
+    }
+
+    private void doCameraTransformForType(final ItemTransforms.TransformType cameraTransformType, final PoseStack mat, final boolean requiresStackPush)
+    {
+        switch (cameraTransformType)
         {
             case FIRST_PERSON_LEFT_HAND:
-                TransformationUtils.push(mat, firstPerson_lefthand);
-                return this;
+                TransformationUtils.push(mat, firstPerson_lefthand, requiresStackPush);
+                break;
             case FIRST_PERSON_RIGHT_HAND:
-                TransformationUtils.push(mat, firstPerson_righthand);
-                return this;
+                TransformationUtils.push(mat, firstPerson_righthand, requiresStackPush);
+                break;
             case THIRD_PERSON_LEFT_HAND:
-                TransformationUtils.push(mat, thirdPerson_lefthand);
-                return this;
+                TransformationUtils.push(mat, thirdPerson_lefthand, requiresStackPush);
+                break;
             case THIRD_PERSON_RIGHT_HAND:
-                TransformationUtils.push(mat, thirdPerson_righthand);
-            case FIXED:
-                TransformationUtils.push(mat, fixed);
-                return this;
+                TransformationUtils.push(mat, thirdPerson_righthand, requiresStackPush);
+                break;
             case GROUND:
-                TransformationUtils.push(mat, ground);
-                return this;
+                TransformationUtils.push(mat, ground, requiresStackPush);
+                break;
             case GUI:
-                TransformationUtils.push(mat, gui);
-                return this;
+                TransformationUtils.push(mat, gui, requiresStackPush);
+                break;
+            case FIXED:
             default:
+                TransformationUtils.push(mat, fixed, requiresStackPush);
+                break;
         }
-
-        TransformationUtils.push(mat, fixed);
-        return this;
     }
 
     private static final class PerspectiveHandlingItemTransforms extends ItemTransforms {
 
-        private final ITransformAwareBakedModel transformAwareBakedModel;
+        private final BaseBakedPerspectiveModel transformAwareBakedModel;
 
         public PerspectiveHandlingItemTransforms(
-          final ITransformAwareBakedModel transformAwareBakedModel
+          final BaseBakedPerspectiveModel transformAwareBakedModel
         ) {
             super(ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM, ItemTransform.NO_TRANSFORM);
             this.transformAwareBakedModel = transformAwareBakedModel;
@@ -112,7 +114,7 @@ public abstract class BaseBakedPerspectiveModel implements BakedModel, ITransfor
                 @Override
                 public void apply(final boolean isLeftHand, final @NotNull PoseStack poseStack)
                 {
-                    transformAwareBakedModel.handlePerspective(transformType, poseStack);
+                    transformAwareBakedModel.doCameraTransformForType(transformType, poseStack, false);
                 }
             };
         }

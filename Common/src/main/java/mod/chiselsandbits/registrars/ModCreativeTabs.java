@@ -2,9 +2,11 @@ package mod.chiselsandbits.registrars;
 
 import mod.chiselsandbits.api.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
+import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.platforms.core.creativetab.ICreativeTabManager;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import net.minecraft.core.NonNullList;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
@@ -29,7 +31,13 @@ public final class ModCreativeTabs
         @Override
         public @NotNull ItemStack makeIcon()
         {
-            return new ItemStack(ModItems.ITEM_CHISEL_STONE.get());
+            return new ItemStack(ModItems.PATTERN_SCANNER.get());
+        }
+
+        @Override
+        public Component getDisplayName()
+        {
+            return LocalStrings.CreativeTabClipboard.getText();
         }
 
         @Override

@@ -1,11 +1,8 @@
 package mod.chiselsandbits.registrars;
 
 import com.google.common.collect.Maps;
+import mod.chiselsandbits.block.*;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
-import mod.chiselsandbits.block.BitStorageBlock;
-import mod.chiselsandbits.block.ChiseledBlock;
-import mod.chiselsandbits.block.ChiseledPrinterBlock;
-import mod.chiselsandbits.block.ModificationTableBlock;
 import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistrar;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistryObject;
@@ -48,6 +45,19 @@ public final class ModBlocks
     public static final IRegistryObject<ChiseledPrinterBlock> CHISELED_PRINTER = BLOCK_REGISTRAR.register(
       "chiseled_printer",
       () -> new ChiseledPrinterBlock(BlockBehaviour.Properties.of(Material.METAL)
+        .strength(1.5F, 6.0F)
+        .requiresCorrectToolForDrops()
+        .dynamicShape()
+        .noOcclusion()
+        .isValidSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
+        .isRedstoneConductor((p_test_1_, p_test_2_, p_test_3_) -> false)
+        .isSuffocating((p_test_1_, p_test_2_, p_test_3_) -> false)
+        .isViewBlocking((p_test_1_, p_test_2_, p_test_3_) -> false))
+    );
+
+    public static final IRegistryObject<PatternScannerBlock> PATTERN_SCANNER = BLOCK_REGISTRAR.register(
+      "pattern_scanner",
+      () -> new PatternScannerBlock(BlockBehaviour.Properties.of(Material.STONE)
         .strength(1.5F, 6.0F)
         .requiresCorrectToolForDrops()
         .dynamicShape()

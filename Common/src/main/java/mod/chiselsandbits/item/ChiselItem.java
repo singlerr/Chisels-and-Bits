@@ -338,4 +338,10 @@ public class ChiselItem extends DiggerItem implements IChiselItem
     {
         return true;
     }
+
+    @Override
+    public int getMaxDamage()
+    {
+        return getTier().getUses() * IServerConfiguration.getInstance().getBitSize().get().getBitsPerBlock();
+    }
 }

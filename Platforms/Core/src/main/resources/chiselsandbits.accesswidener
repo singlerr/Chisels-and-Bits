@@ -3,6 +3,7 @@ extendable   class      net/minecraft/client/gui/Font
 extendable   class      net/minecraft/client/renderer/block/model/ItemOverrides
 extendable   method     net/minecraft/client/gui/Font drawInternal (Ljava/lang/String;FFILcom/mojang/math/Matrix4f;ZZ)I
 extendable   method     net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
+extendable   method     net/minecraft/world/item/Item getMaxDamage ()I # getMaxDamage
 # extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk
 # extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk$ChunkCompileTask
 # extendable   class      net/minecraft/client/render/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask

@@ -10,9 +10,12 @@ public final class TransformationUtils {
         throw new IllegalStateException("Tried to initialize TransformationUtils. But this is a utility class!");
     }
 
-    public static void push(PoseStack stack, final Transformation transformation)
+    public static void push(PoseStack stack, final Transformation transformation, final boolean requiresStackPush)
     {
-        stack.pushPose();
+        if (requiresStackPush)
+        {
+            stack.pushPose();
+        }
 
         Vector3f trans = transformation.getTranslation();
         stack.translate(trans.x(), trans.y(), trans.z());

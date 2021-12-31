@@ -90,7 +90,7 @@ public class FabricBakedModelDelegate implements BakedModel, IDelegatingBakedMod
     @Override
     public boolean isVanillaAdapter()
     {
-        return true;
+        return false;
     }
 
     @Override

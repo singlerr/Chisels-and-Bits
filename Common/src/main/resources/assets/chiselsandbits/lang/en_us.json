@@ -1,6 +1,5 @@
 {
   "itemGroup.chiselsandbits": "Chisels & Bits",
-  "itemGroup.chiselsandbits.Clipboard": "Chisels & Bits Clipboard",
   "block.chiselsandbits.chiseledwood": "Chiseled Wood",
   "block.chiselsandbits.chiseledrock": "Chiseled Rock",
   "block.chiselsandbits.chiselediron": "Chiseled Metal",
@@ -18,6 +17,7 @@
   "block.chiselsandbits.chiselednether_wood": "Chiseled Nether Wood",
   "block.chiselsandbits.bit_storage": "Chiseled Bit Storage",
   "block.chiselsandbits.chiseled_printer": "Chisel Station",
+  "block.chiselsandbits.pattern_scanner": "Pattern Scanner and Printer",
   "block.chiselsandbits.modification_table": "Modification Table",
   "item.chiselsandbits.block_bit": "%s Bit",
   "item.chiselsandbits.bit_bag": "Chiseled Bit Bag",
@@ -46,6 +46,7 @@
   "item.chiselsandbits.quill": "Quill",
   "item.chiselsandbits.sealant": "Sealant",
   "item.chiselsandbits.unseal": "Sealant remover",
+  "mod.chiselsandbits.creative-tab.clipboard.name": "Chisels & Bits Clipboard",
   "mod.chiselsandbits.chiselmode.mode": "Chisel Mode: %s",
   "mod.chiselsandbits.chiselmode.mode_grouped": "Chisel Mode: %1$s (%2$s)",
   "mod.chiselsandbits.chiselmode.single": "Single Bit",

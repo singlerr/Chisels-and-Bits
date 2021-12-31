@@ -196,7 +196,9 @@ public enum LocalStrings
     ChangeTrackerOperations("ui-components.change-tracker.operations.name"),
     ChangeTrackerOperationsButtonUndoName("ui-components.change-tracker.operations.undo.name"),
     ChangeTrackerOperationsButtonRedoName("ui-components.change-tracker.operations.redo.name"),
-    ChangeTrackerOperationsButtonClearName("ui-components.change-tracker.operations.clear.name");
+    ChangeTrackerOperationsButtonClearName("ui-components.change-tracker.operations.clear.name"),
+
+    CreativeTabClipboard("creative-tab.clipboard.name");
 
     private final String string;
 

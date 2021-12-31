@@ -1,5 +1,6 @@
 package mod.chiselsandbits.registrars;
 
+import mod.chiselsandbits.inventory.scanner.ScannerMenu;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.container.BagContainer;
 import mod.chiselsandbits.container.ChiseledPrinterContainer;
@@ -34,6 +35,11 @@ public final class ModContainerTypes
     public static final IRegistryObject<MenuType<ChiseledPrinterContainer>> CHISELED_PRINTER_CONTAINER = CONTAINER_TYPE_REGISTRAR.register(
       "chiseled_printer",
       () -> new MenuType<>(ChiseledPrinterContainer::new)
+    );
+
+    public static final IRegistryObject<MenuType<ScannerMenu>> PATTERN_SCANNER_CONTAINER = CONTAINER_TYPE_REGISTRAR.register(
+      "pattern_scanner",
+      () -> new MenuType<>(ScannerMenu::new)
     );
 
     public static void onModConstruction()
