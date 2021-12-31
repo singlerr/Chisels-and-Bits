@@ -1,5 +1,6 @@
 package mod.chiselsandbits.clipboard;
 
+import com.google.common.collect.ImmutableList;
 import mod.chiselsandbits.api.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
@@ -93,13 +94,15 @@ public final class CreativeClipboardManager implements ICreativeClipboardManager
     @Override
     public List<IMultiStateItemStack> getClipboard()
     {
-        return cache;
+        return ImmutableList.copyOf(cache);
     }
 
     @Override
     public void addEntry(final IMultiStateItemStack multiStateItemStack)
     {
-        cache.add(multiStateItemStack);
-        writeContentsToDisk();
+        synchronized (cache) {
+            cache.add(multiStateItemStack);
+            writeContentsToDisk();
+        }
     }
 }

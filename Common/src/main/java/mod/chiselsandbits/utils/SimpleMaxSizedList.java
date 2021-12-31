@@ -19,25 +19,31 @@ public class SimpleMaxSizedList<E> extends AbstractList<E>
     @Override
     public void add(final int index, final E element)
     {
-        if (!delegate.contains(element))
-        {
-            delegate.add(index, element);
-        }
+        synchronized (delegate) {
+            if (!delegate.contains(element))
+            {
+                delegate.add(index, element);
+            }
 
-        while(size() > maxSize.get()) {
-            delegate.removeFirst();
+            while(size() > maxSize.get()) {
+                delegate.removeFirst();
+            }
         }
     }
 
     @Override
     public E get(final int index)
     {
-        return delegate.get(index);
+        synchronized (delegate) {
+            return delegate.get(index);
+        }
     }
 
     @Override
     public int size()
     {
-        return delegate.size();
+        synchronized (delegate) {
+            return delegate.size();
+        }
     }
 }
