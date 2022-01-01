@@ -84,7 +84,6 @@ public final class ModBlocks
               () -> new ChiseledBlock(BlockBehaviour.Properties
                 .of(material)
                 .strength(1.5f, 6f)
-                .isViewBlocking((p_test_1_, p_test_2_, p_test_3_) -> false)
                 .isRedstoneConductor((p_test_1_, p_test_2_, p_test_3_) -> false)
                 .isValidSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
                 .noOcclusion())

@@ -85,6 +85,12 @@ public class EmptySnapshot implements IMultiStateSnapshot
         }
 
         @Override
+        public float getLightBlockingFactor()
+        {
+            return 0;
+        }
+
+        @Override
         public float getRelativeBlockHardness(final Player player)
         {
             return 0;

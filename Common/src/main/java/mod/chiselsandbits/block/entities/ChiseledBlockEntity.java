@@ -3,8 +3,6 @@ package mod.chiselsandbits.block.entities;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.entity.INetworkUpdateableEntity;
@@ -757,7 +755,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         }
     }
 
-    private static final class MutableStatistics implements IMultiStateObjectStatistics, INBTSerializable<CompoundTag>, IPacketBufferSerializable
+    private final class MutableStatistics implements IMultiStateObjectStatistics, INBTSerializable<CompoundTag>, IPacketBufferSerializable
     {
 
         private final Supplier<LevelAccessor>   worldReaderSupplier;
@@ -768,7 +766,8 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         private int   totalUsedBlockCount           = 0;
         private int   totalUsedChecksWeakPowerCount = 0;
         private float totalUpperSurfaceSlipperiness = 0f;
-        private int   totalLightLevel               = 0;
+        private int   totalLightLevel      = 0;
+        private int totalLightBlockLevel = 0;
 
         private MutableStatistics(final Supplier<LevelAccessor> worldReaderSupplier, final Supplier<BlockPos> positionSupplier)
         {
@@ -816,6 +815,12 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         public float getLightEmissionFactor()
         {
             return this.totalLightLevel / (float) this.totalUsedBlockCount;
+        }
+
+        @Override
+        public float getLightBlockingFactor()
+        {
+            return this.totalLightBlockLevel / (float) this.totalUsedBlockCount;
         }
 
         @Override
@@ -896,6 +901,15 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             }
 
             this.totalLightLevel += ILevelBasedPropertyAccessor.getInstance().getLightEmission(
+              new SingleBlockWorldReader(
+                blockState,
+                this.positionSupplier.get(),
+                this.worldReaderSupplier.get()
+              ),
+              this.positionSupplier.get()
+            );
+
+            this.totalLightBlockLevel += ILevelBasedPropertyAccessor.getInstance().getLightBlock(
               new SingleBlockWorldReader(
                 blockState,
                 this.positionSupplier.get(),
@@ -1004,6 +1018,15 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
               this.positionSupplier.get()
             );
 
+            this.totalLightBlockLevel -= ILevelBasedPropertyAccessor.getInstance().getLightBlock(
+              new SingleBlockWorldReader(
+                blockState,
+                this.positionSupplier.get(),
+                this.worldReaderSupplier.get()
+              ),
+              this.positionSupplier.get()
+            );
+
             this.columnBlockedMap.remove(
               new Vector2i(pos.getX(), pos.getZ()),
               pos.getY()
@@ -1085,6 +1108,24 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
               this.positionSupplier.get()
             );
 
+            this.totalLightBlockLevel -= ILevelBasedPropertyAccessor.getInstance().getLightBlock(
+              new SingleBlockWorldReader(
+                currentState,
+                this.positionSupplier.get(),
+                this.worldReaderSupplier.get()
+              ),
+              this.positionSupplier.get()
+            );
+
+            this.totalLightBlockLevel += ILevelBasedPropertyAccessor.getInstance().getLightBlock(
+              new SingleBlockWorldReader(
+                newState,
+                this.positionSupplier.get(),
+                this.worldReaderSupplier.get()
+              ),
+              this.positionSupplier.get()
+            );
+
             if (ILevelBasedPropertyAccessor.getInstance().propagatesSkylightDown(
               new SingleBlockWorldReader(
                 newState,
@@ -1142,6 +1183,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             packetBuffer.writeVarInt(this.totalUsedChecksWeakPowerCount);
             packetBuffer.writeFloat(this.totalUpperSurfaceSlipperiness);
             packetBuffer.writeVarInt(this.totalLightLevel);
+            packetBuffer.writeVarInt(this.totalLightBlockLevel);
         }
 
         @Override
@@ -1176,6 +1218,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             this.totalUsedChecksWeakPowerCount = packetBuffer.readVarInt();
             this.totalUpperSurfaceSlipperiness = packetBuffer.readFloat();
             this.totalLightLevel = packetBuffer.readVarInt();
+            this.totalLightBlockLevel = packetBuffer.readVarInt();
         }
 
         @Override
@@ -1217,6 +1260,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             nbt.putInt(NbtConstants.TOTAL_SHOULD_CHECK_WEAK_POWER_COUNT, totalUsedChecksWeakPowerCount);
             nbt.putFloat(NbtConstants.TOTAL_UPPER_LEVEL_SLIPPERINESS, totalUpperSurfaceSlipperiness);
             nbt.putInt(NbtConstants.TOTAL_LIGHT_LEVEL, totalLightLevel);
+            nbt.putInt(NbtConstants.TOTAL_LIGHT_BLOCK_LEVEL, totalLightBlockLevel);
 
             return nbt;
         }
@@ -1258,6 +1302,27 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             this.totalUsedChecksWeakPowerCount = nbt.getInt(NbtConstants.TOTAL_SHOULD_CHECK_WEAK_POWER_COUNT);
             this.totalUpperSurfaceSlipperiness = nbt.getFloat(NbtConstants.TOTAL_UPPER_LEVEL_SLIPPERINESS);
             this.totalLightLevel = nbt.getInt(NbtConstants.TOTAL_LIGHT_LEVEL);
+
+            //We need to check if this exists or not.
+            //This was added in 1.x.60+ to accommodate for the new light level system.
+            if (nbt.contains(NbtConstants.TOTAL_LIGHT_BLOCK_LEVEL))
+            {
+                this.totalLightBlockLevel = nbt.getInt(NbtConstants.TOTAL_LIGHT_BLOCK_LEVEL);
+            }
+            else
+            {
+                this.totalLightBlockLevel = ChiseledBlockEntity.this.stream()
+                  .map(IStateEntryInfo::getState)
+                  .mapToInt(state -> ILevelBasedPropertyAccessor.getInstance().getLightBlock(
+                    new SingleBlockWorldReader(
+                      state,
+                      this.positionSupplier.get(),
+                      this.worldReaderSupplier.get()
+                    ),
+                    this.positionSupplier.get()
+                  ))
+                  .sum();
+            }
         }
 
         public void initializeWith(final BlockState blockState)
@@ -1286,6 +1351,15 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             }
 
             this.totalLightLevel += (ILevelBasedPropertyAccessor.getInstance().getLightEmission(
+              new SingleBlockWorldReader(
+                blockState,
+                this.positionSupplier.get(),
+                this.worldReaderSupplier.get()
+              ),
+              this.positionSupplier.get()
+            ) * StateEntrySize.current().getBitsPerBlock());
+
+            this.totalLightBlockLevel += (ILevelBasedPropertyAccessor.getInstance().getLightBlock(
               new SingleBlockWorldReader(
                 blockState,
                 this.positionSupplier.get(),
@@ -1328,6 +1402,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             this.totalUsedChecksWeakPowerCount = 0;
             this.totalUpperSurfaceSlipperiness = 0;
             this.totalLightLevel = 0;
+            this.totalLightBlockLevel = 0;
         }
 
         private void recalculate(final LevelChunkSection source)
@@ -1355,6 +1430,15 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
                 }
 
                 this.totalLightLevel += (ILevelBasedPropertyAccessor.getInstance().getLightEmission(
+                  new SingleBlockWorldReader(
+                    blockState,
+                    this.positionSupplier.get(),
+                    this.worldReaderSupplier.get()
+                  ),
+                  this.positionSupplier.get()
+                ) * count);
+
+                this.totalLightBlockLevel += (ILevelBasedPropertyAccessor.getInstance().getLightBlock(
                   new SingleBlockWorldReader(
                     blockState,
                     this.positionSupplier.get(),

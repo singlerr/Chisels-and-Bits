@@ -9,8 +9,9 @@ import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
-import mod.chiselsandbits.api.clipboard.ICreativeClipboardManager;
+import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.config.IChiselsAndBitsConfiguration;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
@@ -30,6 +31,7 @@ import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
 import mod.chiselsandbits.chiseling.conversion.ConversionManager;
 import mod.chiselsandbits.chiseling.eligibility.EligibilityManager;
 import mod.chiselsandbits.client.chiseling.preview.render.ChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.client.sharing.PatternSharingManager;
 import mod.chiselsandbits.client.tool.mode.icon.SelectedToolModeRendererRegistry;
 import mod.chiselsandbits.clipboard.CreativeClipboardManager;
 import mod.chiselsandbits.inventory.management.BitInventoryManager;
@@ -283,5 +285,11 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull ICreativeClipboardManager getCreativeClipboardManager()
     {
         return CreativeClipboardManager.getInstance();
+    }
+
+    @Override
+    public @NotNull IPatternSharingManager getPatternSharingManager()
+    {
+        return PatternSharingManager.getInstance();
     }
 }

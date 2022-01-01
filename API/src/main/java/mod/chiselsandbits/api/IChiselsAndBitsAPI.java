@@ -9,8 +9,9 @@ import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
-import mod.chiselsandbits.api.clipboard.ICreativeClipboardManager;
+import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.config.IChiselsAndBitsConfiguration;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
@@ -267,6 +268,14 @@ public interface IChiselsAndBitsAPI
     @NotNull
     ICreativeClipboardManager getCreativeClipboardManager();
 
+    /**
+     * The pattern sharing manager.
+     * This manager only works on the client side, and will do nothing on the server side.
+     *
+     * @return The pattern sharing manager.
+     */
+    @NotNull
+    IPatternSharingManager getPatternSharingManager();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

@@ -198,7 +198,19 @@ public enum LocalStrings
     ChangeTrackerOperationsButtonRedoName("ui-components.change-tracker.operations.redo.name"),
     ChangeTrackerOperationsButtonClearName("ui-components.change-tracker.operations.clear.name"),
 
-    CreativeTabClipboard("creative-tab.clipboard.name");
+    CreativeTabClipboard("creative-tab.clipboard.name"),
+
+    PatternExportFailedCouldNotWriteAtlas("patterns.export.failed.could-not-write-atlas"),
+    PatternExportFailedGenericAtlasWriteFailure("patterns.export.failed.generic-atlas-write-failure"),
+    PatternExportFailedCouldNotWriteChiselData("patterns.export.failed.could-not-write-chisel-data"),
+    PatternExportFailedCouldNotWriteFile("patterns.export.failed.could-not-write-file"),
+    PatternImportFailedFileNotFound("patterns.import.failed.file-not-found"),
+    PatternImportFailedCouldNotReadFile("patterns.import.failed.could-not-read-file"),
+    PatternImportFailedCouldNotDecompressFile("patterns.import.failed.could-not-decompress-file"),
+    PatternImportFailedCompressedDataInWrongFormat("patterns.import.failed.compressed-data-in-wrong-format"),
+    PatternImportFailedInvalidChiselData("patterns.import.failed.invalid-chisel-data"),
+    PatternImportFailedUnknownVersion("patterns.import.failed.unknown-version"),
+    PatternImportInvokedFromTheServer("patterns.import.invoked-from-the-server");
 
     private final String string;
 

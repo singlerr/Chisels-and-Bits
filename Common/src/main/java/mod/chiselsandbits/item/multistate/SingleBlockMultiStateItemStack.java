@@ -75,6 +75,20 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
     }
 
+    public SingleBlockMultiStateItemStack(final Item item, final CompoundTag nbt)
+    {
+        if (!(item instanceof IMultiStateItem))
+            throw new IllegalArgumentException("The given item is not a MultiState Item");
+
+        this.sourceStack = new ItemStack(item);
+        this.compressedSection = new LevelChunkSection(0, BuiltinRegistries.BIOME);
+        this.statistics.initializeFrom(this.compressedSection);
+
+        this.deserializeNBT(nbt);
+
+        this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
+    }
+
     /**
      * Creates a new area shape identifier.
      * <p>

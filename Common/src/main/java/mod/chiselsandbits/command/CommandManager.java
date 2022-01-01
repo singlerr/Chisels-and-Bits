@@ -2,27 +2,36 @@ package mod.chiselsandbits.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
+import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
+import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
-import mod.chiselsandbits.api.profiling.IProfiler;
 import mod.chiselsandbits.api.profiling.IProfilerResult;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.util.BlockStateUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.network.packets.ExportPatternCommandMessagePacket;
+import mod.chiselsandbits.network.packets.ImportPatternCommandMessagePacket;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.utils.CommandUtils;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -110,6 +119,18 @@ public class CommandManager
             .then(Commands.literal("redo")
               .then(Commands.argument("target", EntityArgument.player())
                 .executes(this::redoFor)
+              )
+            )
+            .then(Commands.literal("save")
+              .then(Commands.argument("target", BlockPosArgument.blockPos())
+                  .then(Commands.argument("name", StringArgumentType.string())
+                      .executes(this::savePatternOf)
+                  )
+              )
+            )
+            .then(Commands.literal("load")
+              .then(Commands.argument("name", StringArgumentType.string())
+                .executes(this::loadPatternOf)
               )
             )
         );
@@ -307,4 +328,30 @@ public class CommandManager
             return 2;
         }
     }
+
+    private int savePatternOf(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
+    {
+        final BlockPos target = BlockPosArgument.getLoadedBlockPos(context, "target");
+        final String name = StringArgumentType.getString(context, "name");
+
+        ChiselsAndBits.getInstance().getNetworkChannel().sendToPlayer(
+          new ExportPatternCommandMessagePacket(target, name),
+          context.getSource().getPlayerOrException()
+        );
+
+        return 0;
+    }
+
+    private int loadPatternOf(final CommandContext<CommandSourceStack> context) throws CommandSyntaxException
+    {
+        final String name = StringArgumentType.getString(context, "name");
+
+        ChiselsAndBits.getInstance().getNetworkChannel().sendToPlayer(
+          new ImportPatternCommandMessagePacket(name),
+          context.getSource().getPlayerOrException()
+        );
+
+        return 0;
+    }
+
 }

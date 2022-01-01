@@ -141,4 +141,11 @@ public interface IClientConfiguration
      * @return A configuration supplier which indicates if a picked chiseled block should be added to the clipboard.
      */
     Supplier<Boolean> getShouldPickedBlocksBeAddedToClipboard();
+
+    /**
+     * Indicates the path where chisels and bits will export and import patterns from.
+     *
+     * @return A configuration supplier which indicates the path where chisels and bits will export and import patterns from.
+     */
+    Supplier<String> getPatternExportPath();
 }

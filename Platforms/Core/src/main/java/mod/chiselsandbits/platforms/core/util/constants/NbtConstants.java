@@ -25,6 +25,7 @@ public class NbtConstants
     public static final String TOTAL_SHOULD_CHECK_WEAK_POWER_COUNT = "blockShouldCheckWeakPowerCount";
     public static final String TOTAL_UPPER_LEVEL_SLIPPERINESS = "totalUpperLevelSlipperiness";
     public static final String TOTAL_LIGHT_LEVEL = "totalLightLevel";
+    public static final String TOTAL_LIGHT_BLOCK_LEVEL = "totalLightBlockLevel";
     public static final String X_COORDINATE = "xCoordinate";
     public static final String Y_COORDINATE = "yCoordinate";
     public static final String COORDINATE = "coordinate";

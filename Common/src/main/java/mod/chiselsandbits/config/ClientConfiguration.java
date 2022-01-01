@@ -28,7 +28,8 @@ public class ClientConfiguration implements IClientConfiguration
     private final Supplier<Integer>               modelBuildingThreadCount;
     private final Supplier<Integer>               clipboardSize;
     private final Supplier<Boolean>               addBrokenBlocksToClipboard;
-    private final Supplier<Boolean>               addPickedBlocksToClipboard;
+    private final Supplier<Boolean> addPickedBlocksToClipboard;
+    private final Supplier<String>        patternExportPath;
 
     public ClientConfiguration()
     {
@@ -43,6 +44,7 @@ public class ClientConfiguration implements IClientConfiguration
         clipboardSize = builder.defineInteger("settings.clipboard.size", 64, 0, 64);
         addBrokenBlocksToClipboard = builder.defineBoolean("settings.clipboard.addBrokenBlocks", true);
         addPickedBlocksToClipboard = builder.defineBoolean("settings.clipboard.addPickedBlocks", true);
+        patternExportPath = builder.defineString("settings.patterns.export-path", "./chiselsandbits/patterns");
         bitStorageContentCacheSize = builder.defineInt("performance.caches.sizes.bit-storage-content-models", 100, 0, Long.MAX_VALUE);
         faceLightMapExtraction = builder.defineBoolean("performance.lighting.extract-lighting-values-from-faces", true);
         blockLightEmissionExtraction = builder.defineBoolean("performance.lighting.extract-lighting-values-from-blockstates", true);
@@ -149,5 +151,11 @@ public class ClientConfiguration implements IClientConfiguration
     public Supplier<Boolean> getShouldPickedBlocksBeAddedToClipboard()
     {
         return addPickedBlocksToClipboard;
+    }
+
+    @Override
+    public Supplier<String> getPatternExportPath()
+    {
+        return patternExportPath;
     }
 }

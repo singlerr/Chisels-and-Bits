@@ -25,6 +25,12 @@ import java.util.Random;
 public class DataAwareChiseledBlockBakedModel extends BaseSmartModel
 {
     @Override
+    public boolean useAmbientOcclusion()
+    {
+        return true;
+    }
+
+    @Override
     public boolean usesBlockLight()
     {
         return true;

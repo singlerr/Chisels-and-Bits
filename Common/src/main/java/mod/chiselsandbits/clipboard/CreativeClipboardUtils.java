@@ -1,6 +1,6 @@
 package mod.chiselsandbits.clipboard;
 
-import mod.chiselsandbits.api.clipboard.ICreativeClipboardManager;
+import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 

@@ -1,20 +1,27 @@
 package mod.chiselsandbits.network.handlers;
 
+import com.mojang.datafixers.util.Either;
+import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.entity.INetworkUpdateableEntity;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.client.screen.AbstractChiselsAndBitsScreen;
+import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
+import mod.chiselsandbits.api.client.sharing.PatternIOException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.client.screens.widgets.ChangeTrackerOperationsWidget;
 import mod.chiselsandbits.clipboard.CreativeClipboardManager;
 import mod.chiselsandbits.clipboard.CreativeClipboardUtils;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
+import mod.chiselsandbits.network.packets.GivePlayerPatternCommandPacket;
 import mod.chiselsandbits.profiling.ProfilingManager;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -106,5 +113,28 @@ public final class ClientPacketHandlers
     public static void handleAddMultiStateToClipboard(final ItemStack stack) {
         final IMultiStateItemStack itemStack = new SingleBlockMultiStateItemStack(stack);
         CreativeClipboardUtils.addBrokenBlock(itemStack);
+    }
+
+    public static void handleExportPatternCommandMessage(final BlockPos target, final String name) {
+        final BlockEntity blockEntity = Minecraft.getInstance().level.getBlockEntity(target);
+        if (!(blockEntity instanceof IMultiStateBlockEntity multiStateBlockEntity))
+        {
+            Minecraft.getInstance().player.sendMessage(new TextComponent("Failed to export pattern: " + name + " - Not a multistate block."), Util.NIL_UUID);
+            return;
+        }
+
+        final IMultiStateItemStack multiStateItemStack = multiStateBlockEntity.createSnapshot().toItemStack();
+        IPatternSharingManager.getInstance().exportPattern(multiStateItemStack, name);
+    }
+
+    public static void handleImportPatternCommandMessage(final String name) {;
+        final Either<IMultiStateItemStack, PatternIOException> importResult = IPatternSharingManager.getInstance().importPattern(name);
+        importResult.ifLeft(stack -> {
+            ChiselsAndBits.getInstance().getNetworkChannel()
+              .sendToServer(new GivePlayerPatternCommandPacket(stack.toPatternStack()));
+        });
+        importResult.ifRight(e -> {
+            Minecraft.getInstance().player.sendMessage(e.getErrorMessage(), Util.NIL_UUID);
+        });
     }
 }

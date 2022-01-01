@@ -353,6 +353,12 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
             }
 
             @Override
+            public float getLightBlockingFactor()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+
+            @Override
             public float getRelativeBlockHardness(final Player player)
             {
                 throw new NotImplementedException("Is a snapshot");

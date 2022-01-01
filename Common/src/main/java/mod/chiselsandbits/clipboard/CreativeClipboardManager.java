@@ -1,7 +1,7 @@
 package mod.chiselsandbits.clipboard;
 
 import com.google.common.collect.ImmutableList;
-import mod.chiselsandbits.api.clipboard.ICreativeClipboardManager;
+import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;

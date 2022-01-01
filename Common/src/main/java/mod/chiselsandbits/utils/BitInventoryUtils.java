@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
+import mod.chiselsandbits.platforms.core.entity.IPlayerInventoryManager;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -50,7 +51,7 @@ public class BitInventoryUtils
                 leftOverCount -= spawnCount;
 
                 final ItemStack spawnStack = IBitItemManager.getInstance().create(blockState, spawnCount);
-                playerEntity.drop(spawnStack, true, true);
+                IPlayerInventoryManager.getInstance().giveToPlayer(playerEntity, spawnStack);
             }
         }
     }

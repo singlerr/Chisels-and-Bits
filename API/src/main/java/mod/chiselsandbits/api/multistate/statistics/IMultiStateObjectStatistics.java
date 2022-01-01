@@ -69,6 +69,13 @@ public interface IMultiStateObjectStatistics extends IStatistics
     float getLightEmissionFactor();
 
     /**
+     * The factor with which the bits block light.
+     *
+     * @return A factor of how much light is blocked by the block, between 0 and 1.
+     */
+    float getLightBlockingFactor();
+
+    /**
      * Indicates the relative block hardness for a given player.
      *
      * @param player The players to get the hardness for.

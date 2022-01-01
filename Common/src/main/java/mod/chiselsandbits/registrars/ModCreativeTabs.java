@@ -1,6 +1,6 @@
 package mod.chiselsandbits.registrars;
 
-import mod.chiselsandbits.api.clipboard.ICreativeClipboardManager;
+import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.platforms.core.creativetab.ICreativeTabManager;
@@ -12,8 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.stream.Collectors;
 
 public final class ModCreativeTabs
 {

@@ -1,4 +1,4 @@
-package mod.chiselsandbits.api.clipboard;
+package mod.chiselsandbits.api.client.clipboard;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;

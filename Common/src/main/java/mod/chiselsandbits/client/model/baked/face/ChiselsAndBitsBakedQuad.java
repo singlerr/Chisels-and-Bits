@@ -59,7 +59,7 @@ public class ChiselsAndBitsBakedQuad extends BakedQuad
       final Direction orientation,
       final TextureAtlasSprite sprite)
     {
-        super(buildProcessedVertexData(packData(unpackedData, orientation)), tint, orientation, sprite, false);
+        super(buildProcessedVertexData(packData(unpackedData, orientation)), tint, orientation, sprite, true);
     }
 
     public static class Builder implements IVertexConsumer, IFaceBuilder

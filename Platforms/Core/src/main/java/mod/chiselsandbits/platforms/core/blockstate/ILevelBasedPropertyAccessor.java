@@ -60,6 +60,21 @@ public interface ILevelBasedPropertyAccessor
     int getLightEmission(LevelReader levelReader, BlockPos blockPos);
 
     /**
+     * Determines the light block value (so the amount of light blocked by the block itself) based on the blockstate on the given
+     * position in the given reader.
+     *
+     * @param blockGetter The block getter to pull the blocking value from.
+     * @param blockPos The position to read the value for.
+     * @return The light block value between 0 and the max light level retrieved from {@link BlockGetter#getMaxLightLevel()}.
+     */
+    default int getLightBlock(BlockGetter blockGetter, BlockPos blockPos) {
+        return blockGetter.getBlockState(blockPos).getLightBlock(
+          blockGetter,
+          blockPos
+        );
+    }
+
+    /**
      * Determines if the blockstate at the given position in the given block getter is able to propagate skylight downwards.
      * In other words if this method returns false then the block on the given position blocks skylight.
      *
