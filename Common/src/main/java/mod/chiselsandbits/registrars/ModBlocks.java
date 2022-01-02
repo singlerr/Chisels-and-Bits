@@ -86,6 +86,7 @@ public final class ModBlocks
                 .strength(1.5f, 6f)
                 .isRedstoneConductor((p_test_1_, p_test_2_, p_test_3_) -> false)
                 .isValidSpawn((p_test_1_, p_test_2_, p_test_3_, p_test_4_) -> false)
+                .isSuffocating((p_test_1_, p_test_2_, p_test_3_) -> false)
                 .noOcclusion())
             )
           ));
