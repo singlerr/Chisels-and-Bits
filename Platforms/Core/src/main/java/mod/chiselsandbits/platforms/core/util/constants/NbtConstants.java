@@ -4,6 +4,7 @@ public class NbtConstants
 {
 
 
+
     private NbtConstants()
     {
         throw new IllegalStateException("Can not instantiate an instance of: NbtConstants. This is a utility class");
@@ -36,4 +37,6 @@ public class NbtConstants
     public static final String INVENTORY = "Inventory";
     public static final String CONTENTS = "contents";
     public static final String BLOCK_ENTITY_DATA = "BlockEntityTag";
+    public static final String COMPRESSED = "compressed";
+    public static final String DATA = "data";
 }

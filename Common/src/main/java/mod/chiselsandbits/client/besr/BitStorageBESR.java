@@ -3,9 +3,11 @@ package mod.chiselsandbits.client.besr;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
+import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
 import mod.chiselsandbits.client.model.baked.chiseled.ChiselRenderType;
 import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModel;
 import mod.chiselsandbits.client.model.baked.chiseled.ChiseledBlockBakedModelManager;
@@ -31,7 +33,7 @@ import java.util.Objects;
 
 public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity>
 {
-    private static final SimpleMaxSizedCache<CacheKey, LevelChunkSection> STORAGE_CONTENTS_BLOB_CACHE = new SimpleMaxSizedCache<>(IClientConfiguration.getInstance().getBitStorageContentCacheSize()::get);
+    private static final SimpleMaxSizedCache<CacheKey, IStateEntryStorage> STORAGE_CONTENTS_BLOB_CACHE = new SimpleMaxSizedCache<>(IClientConfiguration.getInstance().getBitStorageContentCacheSize()::get);
 
     public static void clearCache() {
         STORAGE_CONTENTS_BLOB_CACHE.clear();
@@ -87,11 +89,11 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
             return;
 
         final CacheKey cacheKey = new CacheKey(IBlockStateIdManager.getInstance().getIdFrom(state), bits);
-        LevelChunkSection innerModelBlob = STORAGE_CONTENTS_BLOB_CACHE.get(cacheKey);
+        IStateEntryStorage innerModelBlob = STORAGE_CONTENTS_BLOB_CACHE.get(cacheKey);
         if (innerModelBlob == null) {
-            innerModelBlob = new LevelChunkSection(1, BuiltinRegistries.BIOME);
-            ChunkSectionUtils.fillFromBottom(
-              innerModelBlob,
+            innerModelBlob = new SimpleStateEntryStorage();
+
+            innerModelBlob.fillFromBottom(
               state,
               bits
             );
@@ -101,10 +103,10 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
         poseStack.pushPose();
         poseStack.translate(2/16f, 2/16f, 2/16f);
         poseStack.scale(12/16f, 12/16f, 12/16f);
-        final LevelChunkSection finalInnerModelBlob = innerModelBlob;
+        final IStateEntryStorage finalInnerModelBlob = innerModelBlob;
         RenderType.chunkBufferLayers().forEach(renderType -> {
             final ChiseledBlockBakedModel innerModel = ChiseledBlockBakedModelManager.getInstance().get(
-              MultiStateSnapshotUtils.createFromSection(finalInnerModelBlob),
+              MultiStateSnapshotUtils.createFromStorage(finalInnerModelBlob),
               state,
               ChiselRenderType.fromLayer(renderType, te.containsFluid()),
               null,

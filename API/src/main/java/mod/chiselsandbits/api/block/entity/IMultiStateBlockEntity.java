@@ -40,15 +40,6 @@ public interface IMultiStateBlockEntity extends IWorldAreaAccessor,
     void rotate(final Direction.Axis axis, final int rotationCount);
 
     /**
-     * Rotates the current multistate block exactly once 90 degrees around the given axis.
-     *
-     * @param axis The axis to rotate around.
-     */
-    default void rotate(final Direction.Axis axis) {
-        this.rotate(axis, 1);
-    }
-
-    /**
      * Initializes the block entity so that all its state entries
      * have the given state as their state.
      *

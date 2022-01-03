@@ -1,6 +1,7 @@
 package mod.chiselsandbits.item.multistate;
 
 import com.google.common.collect.Maps;
+import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
@@ -10,19 +11,21 @@ import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
-import mod.chiselsandbits.api.multistate.accessor.identifier.ILongArrayBackedAreaShapeIdentifier;
+import mod.chiselsandbits.api.multistate.accessor.identifier.IByteArrayBackedAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
-import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
+import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
 import mod.chiselsandbits.item.ChiseledBlockItem;
 import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistryObject;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.registrars.ModItems;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
+import mod.chiselsandbits.utils.DataCompressionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,6 +38,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.biome.BiomeResolver;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -45,24 +49,25 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
 {
 
-    private final ItemStack    sourceStack;
-    private LevelChunkSection compressedSection;
-    private final Statistics statistics = new Statistics();
+    private final ItemStack          sourceStack;
+    private final IStateEntryStorage compressedSection;
+    private final Statistics         statistics = new Statistics();
 
     public SingleBlockMultiStateItemStack(final ItemStack sourceStack)
     {
         this.sourceStack = sourceStack;
-        this.compressedSection = new LevelChunkSection(0, BuiltinRegistries.BIOME);
+        this.compressedSection = new SimpleStateEntryStorage();
 
         this.deserializeNBT(sourceStack.getOrCreateTagElement(NbtConstants.CHISELED_DATA));
     }
 
-    public SingleBlockMultiStateItemStack(final Item item, final LevelChunkSection compressedSection)
+    public SingleBlockMultiStateItemStack(final Item item, final IStateEntryStorage compressedSection)
     {
         if (!(item instanceof IMultiStateItem))
             throw new IllegalArgumentException("The given item is not a MultiState Item");
@@ -81,7 +86,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
             throw new IllegalArgumentException("The given item is not a MultiState Item");
 
         this.sourceStack = new ItemStack(item);
-        this.compressedSection = new LevelChunkSection(0, BuiltinRegistries.BIOME);
+        this.compressedSection = new SimpleStateEntryStorage();
         this.statistics.initializeFrom(this.compressedSection);
 
         this.deserializeNBT(nbt);
@@ -221,7 +226,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public IMultiStateSnapshot createSnapshot()
     {
-        return MultiStateSnapshotUtils.createFromSection(this.compressedSection);
+        return MultiStateSnapshotUtils.createFromStorage(compressedSection);
     }
 
     /**
@@ -279,8 +284,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
           inAreaPos.getX(),
           inAreaPos.getY(),
           inAreaPos.getZ(),
-          blockState,
-          true
+          blockState
         );
 
         if (blockState.isAir() && !currentState.isAir()) {
@@ -348,8 +352,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
           inAreaPos.getX(),
           inAreaPos.getY(),
           inAreaPos.getZ(),
-          blockState,
-          true
+          blockState
         );
 
         if (blockState.isAir() && !currentState.isAir()) {
@@ -390,7 +393,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void serializeInto(@NotNull final FriendlyByteBuf packetBuffer)
     {
-        compressedSection.getStates().write(packetBuffer);
+        compressedSection.serializeInto(packetBuffer);
     }
 
     /**
@@ -401,38 +404,47 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void deserializeFrom(@NotNull final FriendlyByteBuf packetBuffer)
     {
-        compressedSection.getStates().read(packetBuffer);
+        compressedSection.deserializeFrom(packetBuffer);
     }
 
     @Override
     public CompoundTag serializeNBT()
     {
-        final CompoundTag nbt = new CompoundTag();
-
-        final CompoundTag chiselBlockData = new CompoundTag();
-        final CompoundTag compressedSectionData = ChunkSectionUtils.serializeNBTCompressed(this.compressedSection);
-        final CompoundTag statisticsData = this.statistics.serializeNBT();
-
-        chiselBlockData.put(NbtConstants.COMPRESSED_STORAGE, compressedSectionData);
-        chiselBlockData.put(NbtConstants.STATISTICS, statisticsData);
-
-        nbt.put(NbtConstants.CHISEL_BLOCK_ENTITY_DATA, chiselBlockData);
-
-        return nbt;
+        return DataCompressionUtils.compress(compoundTag -> {
+            compoundTag.put(NbtConstants.COMPRESSED_STORAGE, compressedSection.serializeNBT());
+            compoundTag.put(NbtConstants.STATISTICS, statistics.serializeNBT());
+        });
     }
 
     @Override
     public void deserializeNBT(final CompoundTag nbt)
     {
-        final CompoundTag chiselBlockData = nbt.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
+        DataCompressionUtils.decompress(nbt, compoundTag -> {
+            if (compoundTag.contains(NbtConstants.CHISEL_BLOCK_ENTITY_DATA))
+            {
+                loadLegacyChunkSectionData(nbt);
+                return;
+            }
+
+            compressedSection.deserializeNBT(compoundTag.getCompound(NbtConstants.CHISELED_DATA));
+            statistics.deserializeNBT(compoundTag.getCompound(NbtConstants.STATISTICS));
+        });
+    }
+
+    @Deprecated(since = "Legacy code. Remove in 1.19 update.", forRemoval = true)
+    private void loadLegacyChunkSectionData(final CompoundTag compoundTag) {
+        final CompoundTag chiselBlockData = compoundTag.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
         final CompoundTag compressedSectionData = chiselBlockData.getCompound(NbtConstants.COMPRESSED_STORAGE);
         final CompoundTag statisticsData = chiselBlockData.getCompound(NbtConstants.STATISTICS);
 
+        final LevelChunkSection compressedSection = new LevelChunkSection(0, BuiltinRegistries.BIOME);
+
         ChunkSectionUtils.deserializeNBT(
-          this.compressedSection,
+          compressedSection,
           compressedSectionData
         );
 
+        this.compressedSection.loadFromChunkSection(compressedSection);
         this.statistics.deserializeNBT(statisticsData);
     }
 
@@ -504,12 +516,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void rotate(final Direction.Axis axis, final int rotationCount)
     {
-        this.compressedSection = ChunkSectionUtils.rotate90Degrees(
-          this.compressedSection,
-          axis,
-          rotationCount
-        );
-
+        this.compressedSection.rotate(axis, rotationCount);
         this.statistics.clear();
 
         BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
@@ -523,10 +530,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public void mirror(final Direction.Axis axis)
     {
-        this.compressedSection = ChunkSectionUtils.mirror(
-          this.compressedSection,
-          axis
-        );
+        this.compressedSection.mirror(axis);
         this.statistics.clear();
 
         BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
@@ -552,15 +556,15 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         return createNewShapeIdentifier().equals(accessor.createNewShapeIdentifier());
     }
 
-    private static final class ShapeIdentifier implements ILongArrayBackedAreaShapeIdentifier
+    private static final class ShapeIdentifier implements IByteArrayBackedAreaShapeIdentifier
     {
-        private final long[] dataArray;
+        private final byte[] dataArray;
 
-        private ShapeIdentifier(final LevelChunkSection chunkSection)
+        private ShapeIdentifier(final IStateEntryStorage chunkSection)
         {
             dataArray = Arrays.copyOf(
-              chunkSection.getStates().data.storage().getRaw(),
-              chunkSection.getStates().data.storage().getRaw().length
+              chunkSection.getRawData(),
+              chunkSection.getRawData().length
             );
         }
 
@@ -571,7 +575,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
             {
                 return true;
             }
-            if (!(o instanceof final ILongArrayBackedAreaShapeIdentifier that))
+            if (!(o instanceof final IByteArrayBackedAreaShapeIdentifier that))
             {
                 return false;
             }
@@ -585,7 +589,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         }
 
         @Override
-        public long[] getBackingData()
+        public byte[] getBackingData()
         {
             return dataArray;
         }
@@ -761,11 +765,11 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
             }
         }
 
-        public void initializeFrom(final LevelChunkSection compressedSection)
+        public void initializeFrom(final IStateEntryStorage compressedSection)
         {
             this.clear();
 
-            compressedSection.getStates().count(countMap::putIfAbsent);
+            compressedSection.count(countMap::putIfAbsent);
             updatePrimaryState();
         }
     }

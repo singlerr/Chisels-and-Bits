@@ -1,12 +1,13 @@
 package mod.chiselsandbits.multistate.snapshot;
 
 import com.google.common.collect.Maps;
+import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
-import mod.chiselsandbits.api.multistate.accessor.identifier.ILongArrayBackedAreaShapeIdentifier;
+import mod.chiselsandbits.api.multistate.accessor.identifier.IByteArrayBackedAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
@@ -14,22 +15,20 @@ import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
+import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
 import mod.chiselsandbits.item.ChiseledBlockItem;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.registrars.ModItems;
-import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.NotImplementedException;
@@ -45,8 +44,8 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
 {
 
     private Tag     lazyNbtCompound;
-    private boolean loaded                = false;
-    private LevelChunkSection                lazyChunkSection      = new LevelChunkSection(0, BuiltinRegistries.BIOME);
+    private boolean                     loaded                = false;
+    private IStateEntryStorage          lazyChunkSection      = new SimpleStateEntryStorage();
     private IMultiStateObjectStatistics stateObjectStatistics = null;
 
     public LazilyDecodingSingleBlockMultiStateSnapshot(final Tag lazyNbtCompound) {this.lazyNbtCompound = lazyNbtCompound;}
@@ -176,7 +175,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
             return new LazilyDecodingSingleBlockMultiStateSnapshot(copyNbtCompound);
         }
 
-        return MultiStateSnapshotUtils.createFromSection(this.lazyChunkSection);
+        return MultiStateSnapshotUtils.createFromStorage(this.lazyChunkSection);
     }
 
     @Override
@@ -201,8 +200,11 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
             return;
         }
 
-        ChunkSectionUtils.deserializeNBT(this.lazyChunkSection, this.lazyNbtCompound);
-        this.loaded = true;
+        if (this.lazyNbtCompound instanceof CompoundTag compoundTag)
+        {
+            this.lazyChunkSection.deserializeNBT(compoundTag);
+            this.loaded = true;
+        }
     }
 
     /**
@@ -251,8 +253,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
           inAreaPos.getX(),
           inAreaPos.getY(),
           inAreaPos.getZ(),
-          blockState,
-          true
+          blockState
         );
     }
 
@@ -298,8 +299,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
           inAreaPos.getX(),
           inAreaPos.getY(),
           inAreaPos.getZ(),
-          blockState,
-          true
+          blockState
         );
     }
 
@@ -330,6 +330,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     @Override
     public IMultiStateItemStack toItemStack()
     {
+        load();
         final BlockState primaryState = determinePrimaryState();
         final Material blockMaterial = primaryState.getMaterial();
         final Material conversionMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(blockMaterial);
@@ -337,7 +338,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         final Supplier<ChiseledBlockItem> convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.getOrDefault(conversionMaterial, ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(Material.STONE));
         final ChiseledBlockItem chiseledBlockItem = convertedItemProvider.get();
 
-        return new SingleBlockMultiStateItemStack(chiseledBlockItem, ChunkSectionUtils.cloneSection(this.lazyChunkSection));
+        return new SingleBlockMultiStateItemStack(chiseledBlockItem, this.lazyChunkSection.createSnapshot());
     }
 
     @Override
@@ -353,12 +354,8 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     public void rotate(final Direction.Axis axis, final int rotationCount)
     {
         load();
-        this.lazyChunkSection = ChunkSectionUtils.rotate90Degrees(
-          this.lazyChunkSection,
-          axis,
-          rotationCount
-        );
-        this.lazyNbtCompound = ChunkSectionUtils.serializeNBT(this.lazyChunkSection);
+        this.lazyChunkSection.rotate(axis, rotationCount);
+        this.lazyNbtCompound = this.lazyChunkSection.serializeNBT();
         buildStatistics();
     }
 
@@ -366,11 +363,8 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     public void mirror(final Direction.Axis axis)
     {
         load();
-        this.lazyChunkSection = ChunkSectionUtils.mirror(
-          this.lazyChunkSection,
-          axis
-        );
-        this.lazyNbtCompound = ChunkSectionUtils.serializeNBT(this.lazyChunkSection);
+        this.lazyChunkSection.mirror(axis);
+        this.lazyNbtCompound = this.lazyChunkSection.serializeNBT();
         buildStatistics();
     }
 
@@ -463,7 +457,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
 
         load();
 
-        this.lazyChunkSection.getStates().count(countMap::put);
+        this.lazyChunkSection.count(countMap::put);
 
         BlockState maxState = Blocks.AIR.defaultBlockState();
         int maxCount = 0;
@@ -484,7 +478,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     {
         load();
         return new LazilyDecodingSingleBlockMultiStateSnapshot(
-          ChunkSectionUtils.serializeNBT(this.lazyChunkSection)
+          this.lazyChunkSection.serializeNBT()
         );
     }
 
@@ -549,15 +543,15 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         }
     }
 
-    private static class Identifier implements ILongArrayBackedAreaShapeIdentifier
+    private static class Identifier implements IByteArrayBackedAreaShapeIdentifier
     {
-        private final long[] identifyingPayload;
+        private final byte[] identifyingPayload;
 
-        private Identifier(final LevelChunkSection section)
+        private Identifier(final IStateEntryStorage section)
         {
             this.identifyingPayload = Arrays.copyOf(
-              section.getStates().data.storage().getRaw(),
-              section.getStates().data.storage().getRaw().length
+              section.getRawData(),
+              section.getRawData().length
             );
         }
 
@@ -574,7 +568,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
             {
                 return true;
             }
-            if (!(o instanceof final ILongArrayBackedAreaShapeIdentifier that))
+            if (!(o instanceof final IByteArrayBackedAreaShapeIdentifier that))
             {
                 return false;
             }
@@ -582,7 +576,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         }
 
         @Override
-        public long[] getBackingData()
+        public byte[] getBackingData()
         {
             return identifyingPayload;
         }
