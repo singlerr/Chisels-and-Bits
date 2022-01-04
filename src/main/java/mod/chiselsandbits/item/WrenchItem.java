@@ -66,6 +66,9 @@ public class WrenchItem extends Item implements IWithModeItem<IModificationOpera
     @Override
     public void setMode(final ItemStack stack, final IModificationOperation mode)
     {
+        if (mode == null)
+            return;
+
         stack.getOrCreateTag().putString(NbtConstants.MODIFICATION_MODE, Objects.requireNonNull(mode.getRegistryName()).toString());
     }
 

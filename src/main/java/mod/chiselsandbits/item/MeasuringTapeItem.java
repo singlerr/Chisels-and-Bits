@@ -60,6 +60,9 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
     @Override
     public void setMode(final ItemStack stack, final MeasuringMode mode)
     {
+        if (mode == null)
+            return;
+
         stack.getOrCreateTag().putString("mode", mode.toString());
     }
 

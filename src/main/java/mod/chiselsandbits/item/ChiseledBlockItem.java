@@ -180,6 +180,9 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     @Override
     public void setMode(final ItemStack stack, final IModificationOperation mode)
     {
+        if (mode == null)
+            return;
+
         final IMultiStateItemStack multiStateItemStack = this.createItemStack(stack);
         mode.apply(multiStateItemStack);
     }

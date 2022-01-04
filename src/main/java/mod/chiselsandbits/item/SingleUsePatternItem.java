@@ -201,6 +201,9 @@ public class SingleUsePatternItem extends Item implements IPatternItem
     @Override
     public void setMode(final ItemStack stack, final IPatternPlacementType mode)
     {
+        if (mode == null)
+            return;
+
         stack.getOrCreateTag().putString("mode", mode.getRegistryName().toString());
     }
 
