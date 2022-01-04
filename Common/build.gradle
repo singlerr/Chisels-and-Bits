@@ -1,7 +1,7 @@
 import java.util.regex.Pattern
 
 plugins {
-    id('java')
+    id('java-library')
     id('org.spongepowered.gradle.vanilla') version '0.2.1-SNAPSHOT'
 }
 
@@ -23,14 +23,22 @@ minecraft {
 
 project.sourceSets.main.resources.srcDir "src/datagen/generated"
 
+configurations {
+    shadow
+
+    api.extendsFrom shadow
+}
+
 dependencies {
     compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.4'
 
-    implementation project(':API')
-    implementation project(':Platforms:Core')
+    api project(':API')
+    api project(':Platforms:Core')
 
     testImplementation project(':API')
     testImplementation project(':Platforms:Core')
+
+    shadow "org.lz4:lz4-pure-java:${project.lz4_version}"
 
     compileOnly 'org.jetbrains:annotations:16.0.2'
     testCompileOnly 'org.jetbrains:annotations:16.0.2'

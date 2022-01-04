@@ -1358,7 +1358,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
               ),
               this.positionSupplier.get(),
               null
-            ) * StateEntrySize.current().getBitsPerBlock());
+            ) * StateEntrySize.current().getBitsPerLayer());
 
 
             if (!ILevelBasedPropertyAccessor.getInstance().propagatesSkylightDown(new SingleBlockWorldReader(

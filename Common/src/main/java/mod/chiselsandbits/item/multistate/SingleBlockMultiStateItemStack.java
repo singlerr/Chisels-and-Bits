@@ -411,7 +411,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     public CompoundTag serializeNBT()
     {
         return DataCompressionUtils.compress(compoundTag -> {
-            compoundTag.put(NbtConstants.COMPRESSED_STORAGE, compressedSection.serializeNBT());
+            compoundTag.put(NbtConstants.CHISELED_DATA, compressedSection.serializeNBT());
             compoundTag.put(NbtConstants.STATISTICS, statistics.serializeNBT());
         });
     }

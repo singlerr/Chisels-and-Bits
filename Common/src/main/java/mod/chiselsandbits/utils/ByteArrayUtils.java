@@ -51,6 +51,7 @@ public class ByteArrayUtils
         }
 
         final byte[] newTarget = bitSet.toByteArray();
+        System.arraycopy(new byte[target.length], 0, target, 0, target.length);
         System.arraycopy(newTarget, 0, target, 0, newTarget.length);
     }
 
