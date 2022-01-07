@@ -46,7 +46,7 @@ public interface IConfigurationBuilder
      * @param maxValue The maximal value.
      * @return The value provider.
      */
-    Supplier<Long> defineInt(String key, long defaultValue, long minValue, long maxValue);
+    Supplier<Long> defineLong(String key, long defaultValue, long minValue, long maxValue);
 
     /**
      * Defines a new integer property with the given key and default value.

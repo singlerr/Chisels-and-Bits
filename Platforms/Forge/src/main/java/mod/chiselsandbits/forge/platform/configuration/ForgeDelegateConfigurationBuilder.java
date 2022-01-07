@@ -52,7 +52,7 @@ public class ForgeDelegateConfigurationBuilder implements IConfigurationBuilder
     }
 
     @Override
-    public Supplier<Long> defineInt(final String key, final long defaultValue, final long minValue, final long maxValue)
+    public Supplier<Long> defineLong(final String key, final long defaultValue, final long minValue, final long maxValue)
     {
         keys.add(key + ".comment");
         builder.comment(translateToLocal(key + ".comment"));

@@ -31,8 +31,6 @@ public interface IWithHighlightItem
      * @param worldRenderer The rendering world renderer.
      * @param matrixStack The matrix stack used to render the world.
      * @param partialTicks The partial ticks used for animations.
-     * @param projectionMatrix The projection matrix used to render the world.
-     * @param finishTimeNano The finish time of the world renderer in nano seconds.
      */
-    void renderHighlight(Player playerEntity, LevelRenderer worldRenderer, PoseStack matrixStack, float partialTicks, Matrix4f projectionMatrix, long finishTimeNano);
+    void renderHighlight(Player playerEntity, LevelRenderer worldRenderer, PoseStack matrixStack, float partialTicks);
 }

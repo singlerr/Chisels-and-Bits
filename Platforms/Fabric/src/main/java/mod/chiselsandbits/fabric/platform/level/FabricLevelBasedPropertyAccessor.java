@@ -14,6 +14,8 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public final class FabricLevelBasedPropertyAccessor implements ILevelBasedPropertyAccessor
 {
     private static final FabricLevelBasedPropertyAccessor INSTANCE = new FabricLevelBasedPropertyAccessor();
@@ -122,4 +124,17 @@ public final class FabricLevelBasedPropertyAccessor implements ILevelBasedProper
         return blockState.getBlock().getExplosionResistance();
     }
 
+    @Override
+    public Optional<Boolean> canBeGrass(
+      final LevelReader levelReader, final BlockState grassState, final BlockPos grassBlockPos, final BlockState targetState, final BlockPos targetPosition)
+    {
+        if (targetState.getBlock() instanceof IBlockWithWorldlyProperties blockWithWorldlyProperties) {
+            return Optional.of(blockWithWorldlyProperties.canBeGrass(
+              levelReader, grassState, grassBlockPos, targetState, targetPosition
+              )
+            );
+        }
+
+        return Optional.empty();
+    }
 }

@@ -11,7 +11,7 @@ import java.util.function.Predicate;
 public enum HoldsSpecificItemInHandKeyConflictContext implements IKeyConflictContext
 {
     MEASURING_TAPE(item -> ModItems.MEASURING_TAPE.get() == item),
-    CHANGE_TRACKING_ITEM(item -> item instanceof IChangeTrackingItem);
+    CHANGE_TRACKING_ITEM(IChangeTrackingItem.class::isInstance);
 
     private final Predicate<Item> item;
 

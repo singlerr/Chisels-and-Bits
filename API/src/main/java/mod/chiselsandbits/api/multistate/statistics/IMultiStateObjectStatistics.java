@@ -99,4 +99,11 @@ public interface IMultiStateObjectStatistics extends IStatistics
      * @return True when the block can propagate skylight, false when not.
      */
     boolean canPropagateSkylight();
+
+    /**
+     * Indicates if the current multistate block can sustain grass below.
+     *
+     * @return {@code true} for grass sustainers, {@code false} for non-grass sustainers.
+     */
+    boolean canSustainGrassBelow();
 }

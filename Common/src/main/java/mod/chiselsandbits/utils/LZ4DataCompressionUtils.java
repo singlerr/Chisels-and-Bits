@@ -1,19 +1,18 @@
 package mod.chiselsandbits.utils;
 
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
 import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
+import net.jpountz.lz4.LZ4BlockOutputStream;
+import net.jpountz.lz4.LZ4FrameInputStream;
+import net.jpountz.lz4.LZ4FrameOutputStream;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.function.Consumer;
 
-public class DataCompressionUtils
+public class LZ4DataCompressionUtils
 {
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -33,7 +32,10 @@ public class DataCompressionUtils
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try
         {
-            NbtIo.writeCompressed(uncompressedData, outputStream);
+            final OutputStream lz4Stream = new LZ4FrameOutputStream(outputStream);
+            final DataOutput dataOutput = new DataOutputStream(lz4Stream);
+            NbtIo.write(uncompressedData, dataOutput);
+            lz4Stream.close();
         }
         catch (IOException e)
         {
@@ -75,11 +77,13 @@ public class DataCompressionUtils
         final CompoundTag uncompressedData;
         try
         {
-            uncompressedData = NbtIo.readCompressed(byteArrayInputStream);
+            final LZ4FrameInputStream lz4FrameInputStream = new LZ4FrameInputStream(byteArrayInputStream);
+            final DataInput dataInput = new DataInputStream(lz4FrameInputStream);
+            uncompressedData = NbtIo.read(dataInput);
         }
         catch (IOException e)
         {
-            LOGGER.error("Failed to decompress data. Uncompressed data will be stored.", e);
+            LOGGER.error("Failed to decompress data. Uncompressed data will be loaded.", e);
             return;
         }
 

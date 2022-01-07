@@ -15,9 +15,7 @@ public class SelectedObjectRenderHandler
     public static void renderCustomWorldHighlight(
       final LevelRenderer levelRenderer,
       final PoseStack poseStack,
-      final float partialTicks,
-      final Matrix4f projectionMatrix,
-      final long finishTime
+      final float partialTicks
     ) {
         final Player playerEntity = Minecraft.getInstance().player;
         if (playerEntity == null)
@@ -38,9 +36,7 @@ public class SelectedObjectRenderHandler
           playerEntity,
           levelRenderer,
           poseStack,
-          partialTicks,
-          projectionMatrix,
-          finishTime
+          partialTicks
         );
     }
 }

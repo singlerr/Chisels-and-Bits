@@ -159,6 +159,7 @@ public class ChiselItem extends DiggerItem implements IChiselItem
         if (context.isComplete())
         {
             playerEntity.getCooldowns().addCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
+            LocalChiselingContextCache.getInstance().clear(ChiselingOperation.CHISELING);
         }
 
         return resultState;
@@ -271,9 +272,7 @@ public class ChiselItem extends DiggerItem implements IChiselItem
       final Player playerEntity,
       final LevelRenderer worldRenderer,
       final PoseStack matrixStack,
-      final float partialTicks,
-      final Matrix4f projectionMatrix,
-      final long finishTimeNano)
+      final float partialTicks)
     {
         final ItemStack itemStack = ItemStackUtils.getHighlightItemStackFromPlayer(playerEntity);
         if (itemStack.isEmpty() || itemStack.getItem() != this)

@@ -18,5 +18,10 @@ public interface IStatistics extends INBTSerializable<CompoundTag>
      */
     BlockState getPrimaryState();
 
+    /**
+     * Indicates if the multistate object is empty.
+     *
+     * @return {@code true} for an empty multi state object.
+     */
     boolean isEmpty();
 }

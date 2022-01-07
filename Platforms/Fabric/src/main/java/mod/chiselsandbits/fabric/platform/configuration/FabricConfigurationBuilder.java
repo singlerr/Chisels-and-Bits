@@ -89,7 +89,7 @@ public final class FabricConfigurationBuilder implements IConfigurationBuilder
     }
 
     @Override
-    public Supplier<Long> defineInt(final String key, final long defaultValue, final long minValue, final long maxValue)
+    public Supplier<Long> defineLong(final String key, final long defaultValue, final long minValue, final long maxValue)
     {
         final FabricConfigurationValue<Long> value = new FabricVerifyableConfigurationValue<>(
           source,

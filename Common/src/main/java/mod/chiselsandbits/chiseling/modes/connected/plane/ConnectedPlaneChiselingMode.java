@@ -17,16 +17,18 @@ import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.IQuadFunction;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
-import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,8 +44,8 @@ import java.util.function.UnaryOperator;
 
 public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry implements IChiselMode
 {
-    private final int                       depth;
-    private final MutableComponent          displayName;
+    private final int              depth;
+    private final MutableComponent displayName;
     private final MutableComponent multiLineDisplayName;
     private final ResourceLocation iconName;
 
@@ -51,7 +53,8 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
       final int depth,
       final MutableComponent displayName,
       final MutableComponent multiLineDisplayName,
-      final ResourceLocation iconName) {
+      final ResourceLocation iconName)
+    {
         this.depth = depth;
         this.displayName = displayName;
         this.multiLineDisplayName = multiLineDisplayName;
@@ -97,7 +100,8 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
                     .forEach(state -> {
                         final BlockState currentState = state.getState();
 
-                        if (context.tryDamageItem()) {
+                        if (context.tryDamageItem())
+                        {
                             resultingBitCount.putIfAbsent(currentState, 0);
                             resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
 
@@ -132,14 +136,15 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
           UnaryOperator.identity(),
           face -> Vec3.atLowerCornerOf(face.getNormal()),
           (hitPos, inBlockTargetedPosition, hitFace, candidatePosition) -> {
-              if (inBlockTargetedPosition.equals(candidatePosition)) {
+              if (inBlockTargetedPosition.equals(candidatePosition))
+              {
                   return Vec3.atLowerCornerOf(hitPos)
-                           .add(inBlockTargetedPosition)
-                           .add(Vec3.atLowerCornerOf(
-                             hitFace.getOpposite().getNormal()
-                             )
-                             .multiply(StateEntrySize.current().getSizePerBitScalingVector())
-                           );
+                    .add(inBlockTargetedPosition)
+                    .add(Vec3.atLowerCornerOf(
+                          hitFace.getOpposite().getNormal()
+                        )
+                        .multiply(StateEntrySize.current().getSizePerBitScalingVector())
+                    );
               }
 
               final Vec3 relevantAxisCandidate = candidatePosition.multiply(
@@ -193,11 +198,11 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
                   return ClickProcessingState.DEFAULT;
               }
 
-            final Predicate<IStateEntryInfo> filter = context.getStateFilter()
-              .map(builder -> builder.apply(mutator))
-              .orElse((state) -> true);
+              final Predicate<IStateEntryInfo> filter = context.getStateFilter()
+                .map(builder -> builder.apply(mutator))
+                .orElse((state) -> true);
 
-            final int missingBitCount = (int) mutator.stream()
+              final int missingBitCount = (int) mutator.stream()
                 .filter(state -> state.getState().isAir() && filter.test(state))
                 .count();
 
@@ -220,6 +225,16 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
                   }
               }
 
+              if (missingBitCount == 0)
+              {
+                  final BlockPos heightPos = new BlockPos(mutator.getInWorldEndPoint());
+                  if (heightPos.getY() >= context.getWorld().getMaxBuildHeight())
+                  {
+                      Component component = (new TranslatableComponent("build.tooHigh", context.getWorld().getMaxBuildHeight() - 1)).withStyle(ChatFormatting.RED);
+                      playerEntity.sendMessage(component, Util.NIL_UUID);
+                  }
+              }
+
               return ClickProcessingState.ALLOW;
           }).orElse(ClickProcessingState.DEFAULT)
         );
@@ -232,6 +247,12 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
     }
 
     @Override
+    public Optional<IAreaAccessor> getCurrentAccessor(final IChiselingContext context)
+    {
+        return context.getMutator().map(mutator -> mutator);
+    }
+
+    @Override
     public boolean isStillValid(final Player playerEntity, final IChiselingContext context, final ChiselingOperation modeOfOperation)
     {
         final Optional<Set<Vec3i>> validPositions = context.getMetadata(ModMetadataKeys.VALID_POSITIONS.get());
@@ -239,7 +260,9 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
         final Optional<BlockPos> targetedBlockPos = context.getMetadata(ModMetadataKeys.TARGETED_BLOCK.get());
 
         if (!validPositions.isPresent() || !targetedSide.isPresent() || !targetedBlockPos.isPresent())
+        {
             return false;
+        }
 
         final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
         if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof BlockHitResult))
@@ -249,11 +272,13 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
 
         final BlockHitResult blockRayTraceResult = (BlockHitResult) rayTraceResult;
         if (blockRayTraceResult.getDirection() != targetedSide.get())
+        {
             return false;
+        }
 
         final Function<Direction, Vec3> placementFacingAdapter = modeOfOperation == ChiselingOperation.CHISELING ?
-                                                                       face -> Vec3.atLowerCornerOf(face.getOpposite().getNormal()) :
-                                                                       face -> Vec3.atLowerCornerOf(face.getNormal());
+                                                                   face -> Vec3.atLowerCornerOf(face.getOpposite().getNormal()) :
+                                                                                                                                  face -> Vec3.atLowerCornerOf(face.getNormal());
 
         final Vec3 hitVector = blockRayTraceResult.getLocation().add(
           placementFacingAdapter.apply(blockRayTraceResult.getDirection())
@@ -270,12 +295,6 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
         );
 
         return validPositions.get().contains(selectedPosition) && hitPos.equals(targetedBlockPos.get());
-    }
-
-    @Override
-    public Optional<IAreaAccessor> getCurrentAccessor(final IChiselingContext context)
-    {
-        return context.getMutator().map(mutator -> mutator);
     }
 
     private Optional<ClickProcessingState> processRayTraceIntoContext(
@@ -313,9 +332,9 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
         final Set<Vec3i> offsets = new HashSet<>();
         offsets.add(searchDirectionAdapter.apply(blockRayTraceResult.getDirection()).getNormal());
         Arrays.stream(Direction.values())
-                .filter(direction -> direction.getAxis() != blockRayTraceResult.getDirection().getAxis())
-                  .map(Direction::getNormal)
-                    .forEach(offsets::add);
+          .filter(direction -> direction.getAxis() != blockRayTraceResult.getDirection().getAxis())
+          .map(Direction::getNormal)
+          .forEach(offsets::add);
 
         final Vec3i selectedPosition = new Vec3i(
           inBlockHitVector.x() * StateEntrySize.current().getBitsPerBlockSide(),
@@ -342,9 +361,12 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
         );
 
         if (!targetedInfo.isPresent())
+        {
             return Optional.of(ClickProcessingState.DEFAULT);
+        }
 
-        while(!toProcess.isEmpty()) {
+        while (!toProcess.isEmpty())
+        {
             final Vec3i targetedPosition = toProcess.removeFirst();
             final Vec3 targetedInBlockPosition = Vec3.atLowerCornerOf(
               targetedPosition
@@ -358,11 +380,14 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
             processed.add(targetedPosition);
 
             if (!targetCandidate.isPresent())
+            {
                 continue;
+            }
 
             IStateEntryInfo target = targetCandidate.get();
 
-            if (target.getState().equals(targetedInfo.get().getState())) {
+            if (target.getState().equals(targetedInfo.get().getState()))
+            {
                 //We are somehow connected to the targeted bit and of the same state.
                 validPositions.add(targetedPosition);
 
@@ -374,7 +399,8 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
                     );
                     if (newTarget.getX() >= 0 && newTarget.getX() < StateEntrySize.current().getBitsPerBlockSide() &&
                           newTarget.getY() >= 0 && newTarget.getY() < StateEntrySize.current().getBitsPerBlockSide() &&
-                          newTarget.getZ() >= 0 && newTarget.getZ() < StateEntrySize.current().getBitsPerBlockSide()) {
+                          newTarget.getZ() >= 0 && newTarget.getZ() < StateEntrySize.current().getBitsPerBlockSide())
+                    {
 
                         final Vec3i relevantNewTargetAxisVector =
                           new Vec3i(
@@ -385,16 +411,20 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
 
                         final int targetedDepth = Math.abs(
                           relevantSelectedAxisVector.get(blockRayTraceResult.getDirection().getAxis()) -
-                             relevantNewTargetAxisVector.get(blockRayTraceResult.getDirection().getAxis())
+                            relevantNewTargetAxisVector.get(blockRayTraceResult.getDirection().getAxis())
                         );
 
-                        if (targetedDepth <= depth - 1) {
+                        if (targetedDepth <= depth - 1)
+                        {
                             //Valid offset found
-                            if (!processed.contains(newTarget) && !toProcess.contains(newTarget)) {
+                            if (!processed.contains(newTarget) && !toProcess.contains(newTarget))
+                            {
                                 toProcess.addLast(newTarget);
                             }
                         }
-                    } else {
+                    }
+                    else
+                    {
                         processed.add(newTarget);
                     }
                 });
@@ -436,9 +466,10 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
         return multiLineDisplayName;
     }
 
-    private static final class SelectedBitStateFilter implements Predicate<IStateEntryInfo> {
+    private static final class SelectedBitStateFilter implements Predicate<IStateEntryInfo>
+    {
 
-        private final Vec3i offset;
+        private final Vec3i      offset;
         private final Set<Vec3i> validPositions;
 
         public SelectedBitStateFilter(final Vec3i offset, final Set<Vec3i> validPositions)
@@ -457,8 +488,16 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
             );
 
             return validPositions.contains(
-                position
+              position
             );
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = offset.hashCode();
+            result = 31 * result + validPositions.hashCode();
+            return result;
         }
 
         @Override
@@ -480,14 +519,6 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
                 return false;
             }
             return validPositions.equals(that.validPositions);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int result = offset.hashCode();
-            result = 31 * result + validPositions.hashCode();
-            return result;
         }
 
         @Override

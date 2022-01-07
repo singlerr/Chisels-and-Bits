@@ -62,6 +62,9 @@ public final class FabricNetworkChannel implements INetworkChannel
     public void sendToServer(final Object msg)
     {
         DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> {
+            if (Minecraft.getInstance().getConnection() == null)
+                return;
+
             final FriendlyByteBuf buf = PacketByteBufs.create();
 
             handleMessageSerialization(

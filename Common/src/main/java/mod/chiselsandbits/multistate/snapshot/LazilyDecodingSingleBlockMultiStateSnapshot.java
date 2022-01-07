@@ -44,9 +44,9 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
 {
 
     private Tag     lazyNbtCompound;
-    private boolean                     loaded                = false;
-    private IStateEntryStorage          lazyChunkSection      = new SimpleStateEntryStorage();
-    private IMultiStateObjectStatistics stateObjectStatistics = null;
+    private       boolean                     loaded                = false;
+    private final IStateEntryStorage          lazyChunkSection      = new SimpleStateEntryStorage();
+    private       IMultiStateObjectStatistics stateObjectStatistics = null;
 
     public LazilyDecodingSingleBlockMultiStateSnapshot(final Tag lazyNbtCompound) {this.lazyNbtCompound = lazyNbtCompound;}
 
@@ -445,6 +445,12 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
 
             @Override
             public boolean canPropagateSkylight()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
+
+            @Override
+            public boolean canSustainGrassBelow()
             {
                 throw new NotImplementedException("Is a snapshot");
             }

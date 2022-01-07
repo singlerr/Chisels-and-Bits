@@ -199,10 +199,10 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         Optional<IChiselingContext> context = IChiselingManager.getInstance().get(
           player,
           chiselMode,
-          ChiselingOperation.CHISELING);
+          ChiselingOperation.PLACING);
 
         if (context.isEmpty()) {
-            context = LocalChiselingContextCache.getInstance().get(ChiselingOperation.CHISELING);
+            context = LocalChiselingContextCache.getInstance().get(ChiselingOperation.PLACING);
         }
 
         context.ifPresent(c -> {
@@ -239,6 +239,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
 
         if (context.isComplete()) {
             playerEntity.getCooldowns().addCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
+            LocalChiselingContextCache.getInstance().clear(modeOfOperation);
         }
 
         return resultState;
@@ -375,9 +376,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
       final Player playerEntity,
       final LevelRenderer worldRenderer,
       final PoseStack matrixStack,
-      final float partialTicks,
-      final Matrix4f projectionMatrix,
-      final long finishTimeNano)
+      final float partialTicks)
     {
         final ItemStack itemStack = ItemStackUtils.getHighlightItemStackFromPlayer(playerEntity);
         if (itemStack.isEmpty() || itemStack.getItem() != this)

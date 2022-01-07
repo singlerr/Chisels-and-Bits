@@ -26,16 +26,16 @@ public enum ModRenderTypes
     private static class Internal extends RenderType
     {
         private static final RenderType MEASUREMENT_LINES = RenderType.create(Constants.MOD_ID + ":measurement_lines",
-          DefaultVertexFormat.POSITION_COLOR,
+          DefaultVertexFormat.POSITION_COLOR_NORMAL,
           VertexFormat.Mode.LINES,
           256,
           false,
           false,
-          CompositeState.builder()
+          RenderType.CompositeState.builder()
             .setShaderState(RENDERTYPE_LINES_SHADER)
             .setLineState(new LineStateShard(OptionalDouble.of(2.5d)))
             .setLayeringState(VIEW_OFFSET_Z_LAYERING)
-            .setTransparencyState(GLINT_TRANSPARENCY)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
             .setOutputState(TRANSLUCENT_TARGET)
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)
@@ -46,8 +46,8 @@ public enum ModRenderTypes
           DefaultVertexFormat.POSITION_COLOR,
           VertexFormat.Mode.LINES,
           256,
-          true,
           false,
+          true,
           CompositeState.builder()
             .setShaderState(RENDERTYPE_LINES_SHADER)
             .setLineState(new LineStateShard(OptionalDouble.of(3d)))
@@ -63,8 +63,8 @@ public enum ModRenderTypes
           DefaultVertexFormat.BLOCK,
           VertexFormat.Mode.QUADS,
           2097152,
-          true,
           false,
+          true,
           CompositeState.builder()
             .setShaderState(RenderType.RENDERTYPE_SOLID_SHADER)
             .setLayeringState(VIEW_OFFSET_Z_LAYERING)

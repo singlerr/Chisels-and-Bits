@@ -3,7 +3,14 @@ package mod.chiselsandbits.platforms.core.util.constants;
 public class NbtConstants
 {
 
-
+    public static final String VERSION = "version";
+    public static final String SKYLIGHT_BLOCKING_BITS = "skylight_blocking_bits";
+    public static final String HIGHEST_BIT = "highestBit";
+    public static final String HIGHEST_BIT_FRICTION = "highestBitFriction";
+    public static final String NONE_AIR_BITS = "none_air_bits";
+    public static final String COLUMN_STATISTICS        = "column_statistics";
+    public static final String CAN_PROPAGATE_SKYLIGHT_DOWN  = "can_propagate_skylight_down";
+    public static final String LOWEST_BIT_CAN_SUSTAIN_GRASS = "lowest_bit_can_sustain_grass";
 
     private NbtConstants()
     {

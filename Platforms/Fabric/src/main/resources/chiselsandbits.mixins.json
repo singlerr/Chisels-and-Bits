@@ -15,6 +15,7 @@
     "platform.world.level.BlockBehaviourWorldlyBlockMixin",
     "platform.world.level.ExplosionDamageCalculatorWorldlyBlockMixin",
     "platform.world.level.LevelWorldlyBlockMixin",
+    "platform.world.level.block.WorldlyBlockGrassGrowMixin",
     "platform.world.level.block.entity.BeaconBlockEntityWorldlyBlockMixin",
     "platform.world.level.chunk.LevelChunkWorldlyBlockMixin",
     "platform.world.level.chunk.ProtoChunkWorldlyBlockMixin",

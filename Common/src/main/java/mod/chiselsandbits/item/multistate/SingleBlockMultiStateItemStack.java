@@ -24,8 +24,13 @@ import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistryObject;
 import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.registrars.ModItems;
+import mod.chiselsandbits.storage.ILegacyStorageHandler;
+import mod.chiselsandbits.storage.IStorageEngine;
+import mod.chiselsandbits.storage.IStorageHandler;
+import mod.chiselsandbits.storage.StorageEngineBuilder;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
-import mod.chiselsandbits.utils.DataCompressionUtils;
+import mod.chiselsandbits.utils.GZIPDataCompressionUtils;
+import mod.chiselsandbits.utils.LZ4DataCompressionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -38,7 +43,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.biome.BiomeResolver;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -49,7 +53,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
@@ -58,6 +61,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     private final ItemStack          sourceStack;
     private final IStateEntryStorage compressedSection;
     private final Statistics         statistics = new Statistics();
+    private final IStorageEngine storageEngine = buildStorageEngine();
 
     public SingleBlockMultiStateItemStack(final ItemStack sourceStack)
     {
@@ -65,6 +69,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         this.compressedSection = new SimpleStateEntryStorage();
 
         this.deserializeNBT(sourceStack.getOrCreateTagElement(NbtConstants.CHISELED_DATA));
+        this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
     }
 
     public SingleBlockMultiStateItemStack(final Item item, final IStateEntryStorage compressedSection)
@@ -92,6 +97,14 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         this.deserializeNBT(nbt);
 
         this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
+    }
+
+    private IStorageEngine buildStorageEngine() {
+        return StorageEngineBuilder.create()
+                 .withLegacy(new LegacyChunkSectionBasedStorageHandler())
+                 .withLegacy(new LegacyGZIPStorageBasedStorageHandler())
+                 .with(new LZ4StorageBasedStorageHandler())
+                 .build();
     }
 
     /**
@@ -410,42 +423,13 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public CompoundTag serializeNBT()
     {
-        return DataCompressionUtils.compress(compoundTag -> {
-            compoundTag.put(NbtConstants.CHISELED_DATA, compressedSection.serializeNBT());
-            compoundTag.put(NbtConstants.STATISTICS, statistics.serializeNBT());
-        });
+        return this.storageEngine.serializeNBT();
     }
 
     @Override
     public void deserializeNBT(final CompoundTag nbt)
     {
-        DataCompressionUtils.decompress(nbt, compoundTag -> {
-            if (compoundTag.contains(NbtConstants.CHISEL_BLOCK_ENTITY_DATA))
-            {
-                loadLegacyChunkSectionData(nbt);
-                return;
-            }
-
-            compressedSection.deserializeNBT(compoundTag.getCompound(NbtConstants.CHISELED_DATA));
-            statistics.deserializeNBT(compoundTag.getCompound(NbtConstants.STATISTICS));
-        });
-    }
-
-    @Deprecated(since = "Legacy code. Remove in 1.19 update.", forRemoval = true)
-    private void loadLegacyChunkSectionData(final CompoundTag compoundTag) {
-        final CompoundTag chiselBlockData = compoundTag.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
-        final CompoundTag compressedSectionData = chiselBlockData.getCompound(NbtConstants.COMPRESSED_STORAGE);
-        final CompoundTag statisticsData = chiselBlockData.getCompound(NbtConstants.STATISTICS);
-
-        final LevelChunkSection compressedSection = new LevelChunkSection(0, BuiltinRegistries.BIOME);
-
-        ChunkSectionUtils.deserializeNBT(
-          compressedSection,
-          compressedSectionData
-        );
-
-        this.compressedSection.loadFromChunkSection(compressedSection);
-        this.statistics.deserializeNBT(statisticsData);
+        this.storageEngine.deserializeNBT(nbt);
     }
 
     /**
@@ -771,6 +755,77 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
 
             compressedSection.count(countMap::putIfAbsent);
             updatePrimaryState();
+        }
+    }
+
+    @SuppressWarnings("removal")
+    private final class LegacyChunkSectionBasedStorageHandler implements ILegacyStorageHandler
+    {
+        @Override
+        public boolean matches(final @NotNull CompoundTag compoundTag)
+        {
+            return compoundTag.contains(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
+        }
+
+        @Override
+        public void deserializeNBT(final CompoundTag nbt)
+        {
+            final CompoundTag chiselBlockData =  nbt.getCompound(NbtConstants.CHISEL_BLOCK_ENTITY_DATA);
+            final CompoundTag compressedSectionData = chiselBlockData.getCompound(NbtConstants.COMPRESSED_STORAGE);
+
+            final LevelChunkSection chunkSection = new LevelChunkSection(0, BuiltinRegistries.BIOME);
+            ChunkSectionUtils.deserializeNBT(
+              chunkSection,
+              compressedSectionData
+            );
+
+            compressedSection.loadFromChunkSection(chunkSection);
+
+            if (chiselBlockData.contains(NbtConstants.STATISTICS)) {
+                final CompoundTag statisticsData = chiselBlockData.getCompound(NbtConstants.STATISTICS);
+                statistics.deserializeNBT(statisticsData);
+            }
+        }
+    }
+
+    @SuppressWarnings("removal")
+    private final class LegacyGZIPStorageBasedStorageHandler implements ILegacyStorageHandler
+    {
+        @Override
+        public void deserializeNBT(final CompoundTag nbt)
+        {
+            GZIPDataCompressionUtils.decompress(nbt, compoundTag -> {
+                compressedSection.deserializeNBT(compoundTag.getCompound(NbtConstants.CHISELED_DATA));
+                statistics.deserializeNBT(compoundTag.getCompound(NbtConstants.STATISTICS));
+            });
+        }
+
+        @Override
+        public boolean matches(final @NotNull CompoundTag compoundTag)
+        {
+            return true; //The last of the legacy ones
+        }
+    }
+
+    private final class LZ4StorageBasedStorageHandler implements IStorageHandler
+    {
+
+        @Override
+        public CompoundTag serializeNBT()
+        {
+            return LZ4DataCompressionUtils.compress(compoundTag -> {
+                compoundTag.put(NbtConstants.CHISELED_DATA, compressedSection.serializeNBT());
+                compoundTag.put(NbtConstants.STATISTICS, statistics.serializeNBT());
+            });
+        }
+
+        @Override
+        public void deserializeNBT(final CompoundTag nbt)
+        {
+            LZ4DataCompressionUtils.decompress(nbt, compoundTag -> {
+                compressedSection.deserializeNBT(compoundTag.getCompound(NbtConstants.CHISELED_DATA));
+                statistics.deserializeNBT(compoundTag.getCompound(NbtConstants.STATISTICS));
+            });
         }
     }
 

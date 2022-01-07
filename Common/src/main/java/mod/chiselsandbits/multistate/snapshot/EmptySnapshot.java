@@ -101,6 +101,12 @@ public class EmptySnapshot implements IMultiStateSnapshot
         {
             return true;
         }
+
+        @Override
+        public boolean canSustainGrassBelow()
+        {
+            return false;
+        }
     };
 
     /**
