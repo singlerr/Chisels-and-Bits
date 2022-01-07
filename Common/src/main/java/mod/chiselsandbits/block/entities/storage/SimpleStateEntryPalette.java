@@ -59,6 +59,10 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
 
         this.paletteEntries.forEach(entry -> this.paletteMap.put(entry.get(), entry));
 
+        if (paletteEntries.size() == 0) {
+            clear();
+        }
+
         if (currentSize != this.paletteEntries.size()) {
             this.onNewSizeAddedConsumer.accept(this.paletteEntries.size());
         }
@@ -86,6 +90,10 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
         }
 
         this.paletteEntries.forEach(entry -> this.paletteMap.put(entry.get(), entry));
+
+        if (paletteEntries.size() == 0) {
+            clear();
+        }
 
         if (currentSize != this.paletteEntries.size()) {
             this.onNewSizeAddedConsumer.accept(this.paletteEntries.size());
