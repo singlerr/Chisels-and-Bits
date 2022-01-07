@@ -153,12 +153,6 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 }
 
-tasks.withType(JavaCompile) {
-    source(project(":Common").sourceSets.main.allSource)
-    source(project(":API").sourceSets.main.allSource)
-    source(project(":Platforms:Core").sourceSets.main.allSource)
-}
-
 processResources {
     from project.subprojects.main.resources
     from project(":Common").sourceSets.main.resources
@@ -177,6 +171,11 @@ processResources {
 jar.finalizedBy('reobfJar')
 
 jar {
+    from(project(":Common").sourceSets.main.output)
+    from(project(":API").sourceSets.main.output)
+    from(project(":Platforms:Core").sourceSets.main.output)
+    from(sourceSets.main.output)
+
     classifier 'slim'
 
     manifest {
@@ -193,6 +192,8 @@ jar {
                 "MixinConfigs": "chiselsandbits.mixins.json"
         ])
     }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 shadowJar { shadowJarTask ->
@@ -229,6 +230,8 @@ shadowJar { shadowJarTask ->
     }
 
     shadowJarTask.classifier = "universal"
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 build.dependsOn shadowJar

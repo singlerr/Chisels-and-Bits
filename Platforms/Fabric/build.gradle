@@ -75,6 +75,7 @@ jar {
     }
 
     classifier = "slim"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 shadowJar { shadowJarTask ->
@@ -115,6 +116,8 @@ shadowJar { shadowJarTask ->
     }
 
     shadowJarTask.classifier = "universal"
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 tasks.remapJar.configure { remapTask ->
