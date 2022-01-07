@@ -2,6 +2,7 @@ package mod.chiselsandbits.block.entities.storage;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Lists;
 import com.mojang.serialization.DataResult;
 import mod.chiselsandbits.api.util.INBTSerializable;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
@@ -11,10 +12,8 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.IntConsumer;
