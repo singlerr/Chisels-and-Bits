@@ -138,9 +138,9 @@ sourceSets.main.resources.srcDir project(":Common").file("src/main/resources")
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    compileOnly project(":Common")
-    compileOnly project(":API")
-    compileOnly project(":Platforms:Core")
+    implementation project(":Common")
+    implementation project(":API")
+    implementation project(":Platforms:Core")
 
     runtimeOnly fg.deobf("curse.maven:spark-361579:3585686")
 
@@ -153,29 +153,31 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.4:processor'
 }
 
+tasks.withType(JavaCompile) {
+    source(project(":Common").sourceSets.main.allSource)
+    source(project(":API").sourceSets.main.allSource)
+    source(project(":Platforms:Core").sourceSets.main.allSource)
+}
+
 processResources {
     from project.subprojects.main.resources
     from project(":Common").sourceSets.main.resources
     from project(":API").sourceSets.main.resources
     from project(":Platforms:Core").sourceSets.main.resources
 
+    exclude("**/.cache/**")
     outputs.upToDateWhen { false }
 
     filesMatching ('**/mods.toml') {
         expand project.properties
     }
 
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 jar.finalizedBy('reobfJar')
 
 jar {
-    from(project(":Common").sourceSets.main.output)
-    from(project(":API").sourceSets.main.output)
-    from(project(":Platforms:Core").sourceSets.main.output)
-    from(sourceSets.main.output)
-
     classifier 'slim'
 
     manifest {
@@ -201,6 +203,14 @@ shadowJar { shadowJarTask ->
     from(project(":API").sourceSets.main.output)
     from(project(":Platforms:Core").sourceSets.main.output)
     from(sourceSets.main.output)
+
+    afterEvaluate {
+        from(tasks.compileJava.refMapFile) {
+            rename {
+                return "chiselsandbits.refmap.json"
+            }
+        }
+    }
 
     shadowJarTask.configurations = [project(":Common").configurations.shadow]
 
@@ -234,9 +244,21 @@ shadowJar { shadowJarTask ->
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-build.dependsOn shadowJar
+reobf {
+    shadowJar {}
+}
+
+artifacts {
+    jar
+    shadowJar
+}
+
+afterEvaluate {
+    build.dependsOn tasks.reobfShadowJar
+}
 
 mixin {
+    config("chiselsandbits.mixins.json")
     add sourceSets.main, "chiselsandbits.refmap.json"
 }
 

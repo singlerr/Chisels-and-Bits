@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Optional;
 
-@Mixin(SpreadingSnowyDirtBlock.class)
+@Mixin(value = SpreadingSnowyDirtBlock.class)
 public abstract class WorldlyBlockGrassGrowMixin
 {
 
