@@ -118,7 +118,7 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
     public BlockState getBlockState(final int blockStateId)
     {
         if (blockStateId < 0 || blockStateId >= this.paletteEntries.size())
-            throw new IllegalArgumentException("BlockState ID is out of range");
+            return getBlockState(0);
 
         return this.paletteEntries.get(blockStateId).get();
     }
