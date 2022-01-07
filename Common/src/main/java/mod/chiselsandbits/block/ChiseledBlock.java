@@ -65,25 +65,17 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     }
 
     private static boolean isViewBlocking(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos) {
-        return getBlockEntity(blockGetter, blockPos)
-                 .stream()
-                 .flatMap(blockEntity -> blockEntity.getStatistics().getStateCounts().keySet().stream())
-                 .allMatch(state -> state.isViewBlocking(
-                   new SingleBlockBlockReader(
-                     state,
-                     blockPos,
-                     blockGetter
-                   ),
-                   blockPos
-                 ));
+        return false;
     }
 
     @Override
     public float getFriction(final BlockState state, final LevelReader levelReader, final BlockPos pos, @Nullable final Entity entity)
     {
-        return getBlockEntity(levelReader, pos)
+        final float frictionValue = getBlockEntity(levelReader, pos)
                  .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().getSlipperiness())
                  .orElse(0f);
+
+        return Float.isNaN(frictionValue) || frictionValue <= 0.0001f ? 0.6f : frictionValue;
     }
 
     @Override
@@ -326,9 +318,10 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     @Override
     public float getShadeBrightness(@NotNull final BlockState state, @NotNull final BlockGetter worldIn, @NotNull final BlockPos pos)
     {
-        return 1f - 0.8f * getBlockEntity(worldIn, pos)
-                 .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().getFullnessFactor())
-                 .orElse(0f);
+        return getBlockEntity(worldIn, pos)
+                 .map(b -> b.getStatistics().isFullBlock())
+                 .map(f -> f ? 0.2f : 1f)
+                 .orElse(1f);
     }
 
     @Override
@@ -555,5 +548,13 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
           .map(IMultiStateBlockEntity::createSnapshot)
           .map(IMultiStateSnapshot::toItemStack)
           .ifPresent(multiStateItemStack -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> CreativeClipboardUtils.addBrokenBlock(multiStateItemStack)));
+    }
+
+    @Override
+    public boolean canBeGrass(final LevelReader levelReader, final BlockState grassState, final BlockPos grassBlockPos, final BlockState targetState, final BlockPos targetPosition)
+    {
+        return getBlockEntity(levelReader, targetPosition)
+                 .map(blockEntity -> blockEntity.getStatistics().canSustainGrassBelow())
+                .orElse(false);
     }
 }

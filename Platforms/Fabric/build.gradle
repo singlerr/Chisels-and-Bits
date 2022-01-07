@@ -5,6 +5,7 @@ plugins {
 }
 
 apply plugin: com.matthewprenger.cursegradle.CurseGradlePlugin
+apply plugin: com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 
 archivesBaseName = "${mod_name}-fabric-${minecraft_version}"
 
@@ -72,6 +73,54 @@ jar {
     from("LICENSE") {
         rename { "${it}_${mod_name}" }
     }
+
+    classifier = "slim"
+}
+
+shadowJar { shadowJarTask ->
+    from(project(":Common").sourceSets.main.output)
+    from(project(":API").sourceSets.main.output)
+    from(project(":Platforms:Core").sourceSets.main.output)
+    from(sourceSets.main.output)
+
+    from("LICENSE") {
+        rename { "${it}_${mod_name}" }
+    }
+
+    shadowJarTask.configurations = [project(":Common").configurations.shadow]
+
+    if (project.hasProperty("shadowRenamedNamespaces") && !project.shadowRenamedNamespaces.trim().isEmpty()) {
+        project.shadowRenamedNamespaces.split(',').each { n ->
+            if (n.contains(':')) {
+                def namespaceSpecs = n.split(':');
+                project.logger.lifecycle "Shading ${namespaceSpecs[0]} to ${namespaceSpecs[1]}"
+                shadowJarTask.relocate namespaceSpecs[0], namespaceSpecs[1]
+            }
+        }
+    }
+
+    manifest {
+        attributes([
+                'Maven-Artifact'          : "${project.group}:${project.archivesBaseName}:${project.version}",
+                "Specification-Title"     : project.mod_id,
+                "Specification-Vendor"    : "ldtteam",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${project.version}",
+                "Implementation-Vendor"   : "ldtteam",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "Automatic-Module-Name"   : "chiselsandbits",
+                "MixinConfigs": "chiselsandbits.mixins.json"
+        ])
+    }
+
+    shadowJarTask.classifier = "universal"
+}
+
+tasks.remapJar.configure { remapTask ->
+    remapTask.dependsOn(tasks.shadowJar)
+    remapTask.mustRunAfter(tasks.shadowJar)
+    input = tasks.shadowJar.archivePath
 }
 
 if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {

@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 import mod.chiselsandbits.platforms.core.client.key.IKeyBindingManager;
 import mod.chiselsandbits.platforms.core.client.key.IKeyConflictContext;
 import mod.chiselsandbits.platforms.core.client.key.KeyModifier;
-import net.fabricmc.fabric.api.client.keybinding.KeyBindingRegistry;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -58,18 +57,26 @@ public final class FabricKeyBindingManager implements IKeyBindingManager
       final int key,
       final String groupTranslationKey)
     {
-        return new ModifiedKeyMapping(translationKey, inputType, key, groupTranslationKey, keyModifier);
+        return new ModifiedKeyMapping(translationKey, inputType, key, groupTranslationKey, keyConflictContext, keyModifier);
     }
 
     @Override
     public boolean isKeyConflictOfActive(final KeyMapping keybinding)
     {
+        if (keybinding instanceof ModifiedKeyMapping modifiedKeyMapping) {
+            return modifiedKeyMapping.context.isActive();
+        }
+
         return true;
     }
 
     @Override
     public boolean isKeyModifierActive(final KeyMapping keybinding)
     {
+        if (keybinding instanceof ModifiedKeyMapping modifiedKeyMapping) {
+            return modifiedKeyMapping.isKeyModifierActive();
+        }
+
         return true;
     }
 
@@ -96,14 +103,22 @@ public final class FabricKeyBindingManager implements IKeyBindingManager
 
     private static class ModifiedKeyMapping extends KeyMapping
     {
+        private final IKeyConflictContext context;
         private final KeyModifier keyModifier;
 
-        public ModifiedKeyMapping(final String translationKey, final InputConstants.Type inputType, final int key, final String groupTranslationKey, final KeyModifier keyModifier)
+        public ModifiedKeyMapping(
+          final String translationKey,
+          final InputConstants.Type inputType,
+          final int key,
+          final String groupTranslationKey,
+          final IKeyConflictContext context,
+          final KeyModifier keyModifier)
         {
             super(translationKey,
               inputType,
               key,
               groupTranslationKey);
+            this.context = context;
             this.keyModifier = keyModifier;
         }
 

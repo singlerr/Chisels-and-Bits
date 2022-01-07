@@ -18,7 +18,7 @@ public class ServerConfiguration implements IServerConfiguration
     private final Supplier<StateEntrySize> bitSize;
     private final Supplier<Integer>        changeTrackerSize;
     private final Supplier<Boolean>        deleteExcessBits;
-    private final Supplier<Double>        lightFactorMultiplier;
+    private final Supplier<Double> lightFactorMultiplier;
 
     public ServerConfiguration() {
         final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(

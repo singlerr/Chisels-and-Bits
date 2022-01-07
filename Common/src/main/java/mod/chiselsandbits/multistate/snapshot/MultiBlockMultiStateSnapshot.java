@@ -369,6 +369,12 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
             {
                 throw new NotImplementedException("Is a snapshot");
             }
+
+            @Override
+            public boolean canSustainGrassBelow()
+            {
+                throw new NotImplementedException("Is a snapshot");
+            }
         };
     }
 

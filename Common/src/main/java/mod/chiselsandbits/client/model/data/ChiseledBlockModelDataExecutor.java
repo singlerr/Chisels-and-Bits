@@ -205,7 +205,7 @@ public class ChiseledBlockModelDataExecutor
           }, Minecraft.getInstance());
     }
 
-    private static void ensureThreadPoolSetup() {
+    private static synchronized void ensureThreadPoolSetup() {
         if (recalculationService == null) {
             final ClassLoader classLoader = ChiselsAndBits.class.getClassLoader();
             final AtomicInteger genericThreadCounter = new AtomicInteger();

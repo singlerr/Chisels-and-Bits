@@ -2,6 +2,7 @@ package mod.chiselsandbits.api.config;
 
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /**

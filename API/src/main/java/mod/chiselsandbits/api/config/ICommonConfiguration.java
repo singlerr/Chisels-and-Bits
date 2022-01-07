@@ -28,4 +28,12 @@ public interface ICommonConfiguration
      * @return A supplier that determines the size of the collision box cache size.
      */
     Supplier<Long> getCollisionBoxCacheSize();
+
+    /**
+     * Indicates how many threads can be used to calculate and compress off-thread NBT data for saving.
+     * Loading always happens on thread.
+     *
+     * @return A supplier that determines the number of threads to use for block saving.
+     */
+    Supplier<Integer> getBlockSaveThreadCount();
 }

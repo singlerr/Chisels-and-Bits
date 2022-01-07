@@ -39,7 +39,7 @@ public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implement
     public void renderExistingContextsBoundingBox(
       final PoseStack poseStack, final IChiselingContext currentContextSnapshot)
     {
-        if (!currentContextSnapshot.getMutator().isPresent())
+        if (currentContextSnapshot.getMutator().isEmpty())
             return;
 
         Vec3 Vec3 = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();

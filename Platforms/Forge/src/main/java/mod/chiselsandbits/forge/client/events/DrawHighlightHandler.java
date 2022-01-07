@@ -1,7 +1,7 @@
 package mod.chiselsandbits.forge.client.events;
 
-import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.client.logic.SelectedObjectHighlightHandler;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.DrawSelectionEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

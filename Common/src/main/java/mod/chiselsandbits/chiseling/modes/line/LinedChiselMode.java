@@ -13,14 +13,16 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
-import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
@@ -38,10 +40,10 @@ import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.ONE_THOUSAND
 @SuppressWarnings("deprecation")
 public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChiselMode
 {
-    private final int                       bitsPerSide;
+    private final int              bitsPerSide;
     private final MutableComponent displayName;
     private final MutableComponent multiLineDisplayName;
-    private final ResourceLocation          iconName;
+    private final ResourceLocation iconName;
 
     LinedChiselMode(
       final int bitsPerSide,
@@ -85,7 +87,8 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
                     .forEach(state -> {
                         final BlockState currentState = state.getState();
 
-                        if (context.tryDamageItem()) {
+                        if (context.tryDamageItem())
+                        {
                             resultingBitCount.putIfAbsent(currentState, 0);
                             resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
 
@@ -129,14 +132,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
               final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
-            if (heldBlockState.isAir())
-            {
-                return ClickProcessingState.DEFAULT;
-            }
+              if (heldBlockState.isAir())
+              {
+                  return ClickProcessingState.DEFAULT;
+              }
 
               final int missingBitCount = (int) mutator.stream()
-                                                  .filter(state -> state.getState().isAir())
-                                                  .count();
+                .filter(state -> state.getState().isAir())
+                .count();
 
               final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
 
@@ -154,6 +157,16 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
                       mutator.inWorldMutableStream()
                         .filter(state -> state.getState().isAir())
                         .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
+                  }
+              }
+
+              if (missingBitCount == 0)
+              {
+                  final BlockPos heightPos = new BlockPos(mutator.getInWorldEndPoint());
+                  if (heightPos.getY() >= context.getWorld().getMaxBuildHeight())
+                  {
+                      Component component = (new TranslatableComponent("build.tooHigh", context.getWorld().getMaxBuildHeight() - 1)).withStyle(ChatFormatting.RED);
+                      playerEntity.sendMessage(component, Util.NIL_UUID);
                   }
               }
 
@@ -195,7 +208,8 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
 
         final Vec3 hitBlockPosVector = Vec3.atLowerCornerOf(new BlockPos(hitVector));
         final Vec3 inBlockHitVector = hitVector.subtract(hitBlockPosVector);
-        final Vec3 inBlockBitVector = inBlockHitVector.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
+        final Vec3 inBlockBitVector =
+          inBlockHitVector.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
 
         final Direction iterationDirection = iterationAdaptor.apply(blockRayTraceResult.getDirection());
         switch (iterationDirection)
@@ -218,12 +232,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
             for (int yOff = 0; yOff < inBlockBitVector.y(); yOff++)
             {
                 final Vec3 targetBit = inBlockBitVector.subtract(0, yOff, 0);
-                final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(),
+                  StateEntrySize.current().getSizePerBit(),
+                  StateEntrySize.current().getSizePerBit()));
                 final Vec3 inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                 if (context.getInAreaTarget(inWorldTarget)
-                      .map(state -> !state.getState().isAir() ^ airOnly)
-                      .orElse(airOnly)
+                  .map(state -> !state.getState().isAir() ^ airOnly)
+                  .orElse(airOnly)
                 )
                 {
                     context.include(inWorldTarget);
@@ -244,12 +260,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
                 for (int yOff = 0; yOff < inBlockBitVector.y(); yOff++)
                 {
                     final Vec3 targetBit = inBlockBitVector.subtract(xOff, yOff, zOff);
-                    final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                    final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(),
+                      StateEntrySize.current().getSizePerBit(),
+                      StateEntrySize.current().getSizePerBit()));
                     final Vec3 inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                     if (context.getInAreaTarget(inWorldTarget)
-                          .map(state -> !state.getState().isAir() ^ airOnly)
-                          .orElse(airOnly)
+                      .map(state -> !state.getState().isAir() ^ airOnly)
+                      .orElse(airOnly)
                     )
                     {
                         context.include(inWorldTarget);
@@ -270,12 +288,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
             for (int yOff = 0; yOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.y()); yOff++)
             {
                 final Vec3 targetBit = inBlockBitVector.subtract(0, -yOff, 0);
-                final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(),
+                  StateEntrySize.current().getSizePerBit(),
+                  StateEntrySize.current().getSizePerBit()));
                 final Vec3 inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                 if (context.getInAreaTarget(inWorldTarget)
-                      .map(state -> !state.getState().isAir() ^ airOnly)
-                      .orElse(airOnly)
+                  .map(state -> !state.getState().isAir() ^ airOnly)
+                  .orElse(airOnly)
                 )
                 {
                     context.include(inWorldTarget);
@@ -296,12 +316,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
                 for (int yOff = 0; yOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.y()); yOff++)
                 {
                     final Vec3 targetBit = inBlockBitVector.subtract(xOff, -yOff, zOff);
-                    final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                    final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(),
+                      StateEntrySize.current().getSizePerBit(),
+                      StateEntrySize.current().getSizePerBit()));
                     final Vec3 inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                     if (context.getInAreaTarget(inWorldTarget)
-                          .map(state -> !state.getState().isAir() ^ airOnly)
-                          .orElse(airOnly)
+                      .map(state -> !state.getState().isAir() ^ airOnly)
+                      .orElse(airOnly)
                     )
                     {
                         context.include(inWorldTarget);
@@ -322,12 +344,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
             for (int zOff = 0; zOff < inBlockBitVector.z(); zOff++)
             {
                 final Vec3 targetBit = inBlockBitVector.subtract(0, 0, zOff);
-                final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(),
+                  StateEntrySize.current().getSizePerBit(),
+                  StateEntrySize.current().getSizePerBit()));
                 final Vec3 inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                 if (context.getInAreaTarget(inWorldTarget)
-                      .map(state -> !state.getState().isAir() ^ airOnly)
-                      .orElse(airOnly)
+                  .map(state -> !state.getState().isAir() ^ airOnly)
+                  .orElse(airOnly)
                 )
                 {
                     context.include(inWorldTarget);
@@ -348,12 +372,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
                 for (int zOff = 0; zOff < inBlockBitVector.z(); zOff++)
                 {
                     final Vec3 targetBit = inBlockBitVector.subtract(xOff, yOff, zOff);
-                    final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                    final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(),
+                      StateEntrySize.current().getSizePerBit(),
+                      StateEntrySize.current().getSizePerBit()));
                     final Vec3 inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                     if (context.getInAreaTarget(inWorldTarget)
-                          .map(state -> !state.getState().isAir() ^ airOnly)
-                          .orElse(airOnly)
+                      .map(state -> !state.getState().isAir() ^ airOnly)
+                      .orElse(airOnly)
                     )
                     {
                         context.include(inWorldTarget);
@@ -374,12 +400,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
             for (int zOff = 0; zOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.z()); zOff++)
             {
                 final Vec3 targetBit = inBlockBitVector.subtract(0, 0, -zOff);
-                final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(),
+                  StateEntrySize.current().getSizePerBit(),
+                  StateEntrySize.current().getSizePerBit()));
                 final Vec3 inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                 if (context.getInAreaTarget(inWorldTarget)
-                      .map(state -> !state.getState().isAir() ^ airOnly)
-                      .orElse(airOnly)
+                  .map(state -> !state.getState().isAir() ^ airOnly)
+                  .orElse(airOnly)
                 )
                 {
                     context.include(inWorldTarget);
@@ -400,12 +428,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
                 for (int zOff = 0; zOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.z()); zOff++)
                 {
                     final Vec3 targetBit = inBlockBitVector.subtract(xOff, yOff, -zOff);
-                    final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                    final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(),
+                      StateEntrySize.current().getSizePerBit(),
+                      StateEntrySize.current().getSizePerBit()));
                     final Vec3 inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                     if (context.getInAreaTarget(inWorldTarget)
-                          .map(state -> !state.getState().isAir() ^ airOnly)
-                          .orElse(airOnly)
+                      .map(state -> !state.getState().isAir() ^ airOnly)
+                      .orElse(airOnly)
                     )
                     {
                         context.include(inWorldTarget);
@@ -426,12 +456,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
             for (int xOff = 0; xOff < inBlockBitVector.x(); xOff++)
             {
                 final Vec3 targetBit = inBlockBitVector.subtract(xOff, 0, 0);
-                final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(),
+                  StateEntrySize.current().getSizePerBit(),
+                  StateEntrySize.current().getSizePerBit()));
                 final Vec3 inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                 if (context.getInAreaTarget(inWorldTarget)
-                      .map(state -> !state.getState().isAir() ^ airOnly)
-                      .orElse(airOnly)
+                  .map(state -> !state.getState().isAir() ^ airOnly)
+                  .orElse(airOnly)
                 )
                 {
                     context.include(inWorldTarget);
@@ -453,12 +485,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
                 for (int xOff = 0; xOff < inBlockBitVector.x(); xOff++)
                 {
                     final Vec3 targetBit = inBlockBitVector.subtract(xOff, yOff, zOff);
-                    final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                    final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(),
+                      StateEntrySize.current().getSizePerBit(),
+                      StateEntrySize.current().getSizePerBit()));
                     final Vec3 inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                     if (context.getInAreaTarget(inWorldTarget)
-                          .map(state -> !state.getState().isAir() ^ airOnly)
-                          .orElse(airOnly)
+                      .map(state -> !state.getState().isAir() ^ airOnly)
+                      .orElse(airOnly)
                     )
                     {
                         context.include(inWorldTarget);
@@ -479,12 +513,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
             for (int xOff = 0; xOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.x()); xOff++)
             {
                 final Vec3 targetBit = inBlockBitVector.subtract(-xOff, 0, 0);
-                final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(),
+                  StateEntrySize.current().getSizePerBit(),
+                  StateEntrySize.current().getSizePerBit()));
                 final Vec3 inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                 if (context.getInAreaTarget(inWorldTarget)
-                      .map(state -> !state.getState().isAir() ^ airOnly)
-                      .orElse(airOnly)
+                  .map(state -> !state.getState().isAir() ^ airOnly)
+                  .orElse(airOnly)
                 )
                 {
                     context.include(inWorldTarget);
@@ -505,12 +541,14 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
                 for (int xOff = 0; xOff < (StateEntrySize.current().getBitsPerBlockSide() - inBlockBitVector.x()); xOff++)
                 {
                     final Vec3 targetBit = inBlockBitVector.subtract(-xOff, yOff, zOff);
-                    final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()));
+                    final Vec3 inWorldOffset = clampVectorToBlock(targetBit.multiply(StateEntrySize.current().getSizePerBit(),
+                      StateEntrySize.current().getSizePerBit(),
+                      StateEntrySize.current().getSizePerBit()));
                     final Vec3 inWorldTarget = hitBlockPosVector.add(inWorldOffset);
 
                     if (context.getInAreaTarget(inWorldTarget)
-                          .map(state -> !state.getState().isAir() ^ airOnly)
-                          .orElse(airOnly)
+                      .map(state -> !state.getState().isAir() ^ airOnly)
+                      .orElse(airOnly)
                     )
                     {
                         context.include(inWorldTarget);

@@ -17,8 +17,10 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'maven-publish'
 apply plugin: com.matthewprenger.cursegradle.CurseGradlePlugin
+apply plugin: com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 
 repositories {
+    mavenCentral()
     maven {
         name 'LDTTeam - Modding'
         url 'https://ldtteam.jfrog.io/ldtteam/modding/'
@@ -26,6 +28,10 @@ repositories {
     maven {
         name "tterrag maven"
         url "https://maven.tterrag.com/"
+    }
+    maven {
+        name = "CurseForge"
+        url = "https://cursemaven.com/"
     }
 }
 
@@ -44,6 +50,10 @@ configurations { configContainer ->
 
         libraryConfigs.add(libraryConfig);
     }
+}
+
+configurations {
+    forgeLibrary.extendsFrom project(':Common').configurations.shadow
 }
 
 minecraft {
@@ -132,6 +142,8 @@ dependencies {
     compileOnly project(":API")
     compileOnly project(":Platforms:Core")
 
+    runtimeOnly fg.deobf("curse.maven:spark-361579:3585686")
+
     compileOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}:api")
     runtimeOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}")
 
@@ -165,6 +177,8 @@ processResources {
 jar.finalizedBy('reobfJar')
 
 jar {
+    classifier 'slim'
+
     manifest {
         attributes([
                 'Maven-Artifact'          : "${project.group}:${project.archivesBaseName}:${project.version}",
@@ -180,6 +194,44 @@ jar {
         ])
     }
 }
+
+shadowJar { shadowJarTask ->
+    from(project(":Common").sourceSets.main.output)
+    from(project(":API").sourceSets.main.output)
+    from(project(":Platforms:Core").sourceSets.main.output)
+    from(sourceSets.main.output)
+
+    shadowJarTask.configurations = [project(":Common").configurations.shadow]
+
+    if (project.hasProperty("shadowRenamedNamespaces") && !project.shadowRenamedNamespaces.trim().isEmpty()) {
+        project.shadowRenamedNamespaces.split(',').each { n ->
+            if (n.contains(':')) {
+                def namespaceSpecs = n.split(':');
+                project.logger.lifecycle "Shading ${namespaceSpecs[0]} to ${namespaceSpecs[1]}"
+                shadowJarTask.relocate namespaceSpecs[0], namespaceSpecs[1]
+            }
+        }
+    }
+
+    manifest {
+        attributes([
+                'Maven-Artifact'          : "${project.group}:${project.archivesBaseName}:${project.version}",
+                "Specification-Title"     : project.mod_id,
+                "Specification-Vendor"    : "ldtteam",
+                "Specification-Version"   : "1", // We are version 1 of ourselves
+                "Implementation-Title"    : project.name,
+                "Implementation-Version"  : "${project.version}",
+                "Implementation-Vendor"   : "ldtteam",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                "Automatic-Module-Name"   : "chiselsandbits",
+                "MixinConfigs": "chiselsandbits.mixins.json"
+        ])
+    }
+
+    shadowJarTask.classifier = "universal"
+}
+
+build.dependsOn shadowJar
 
 mixin {
     add sourceSets.main, "chiselsandbits.refmap.json"
@@ -213,7 +265,7 @@ if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
                 cp.addGameVersion(v)
             }
 
-            cp.mainArtifact(jar)
+            cp.mainArtifact(shadowJar)
         }
     }
 }

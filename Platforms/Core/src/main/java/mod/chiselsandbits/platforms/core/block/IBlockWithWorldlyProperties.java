@@ -7,10 +7,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.*;
-import net.minecraft.world.level.block.BeaconBeamBlock;
-import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.lighting.LayerLightEngine;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
@@ -138,5 +137,27 @@ public interface IBlockWithWorldlyProperties extends ItemLike, BeaconBeamBlock
     @Override
     default DyeColor getColor() {
         return DyeColor.LIGHT_BLUE;
+    }
+
+    /**
+     * Determines if the target blockstate (of this worldly block) at the target position can have the grass state on the grass position below it become a grass block.
+     * Default implementation follow vanilla guide-lines.
+     *
+     * @param levelReader The level reader of the world.
+     * @param grassState The state of the grass supporting block.
+     * @param grassBlockPos The position of the grass supporting block.
+     * @param targetState The target state of the block above the grass.
+     * @param targetPosition The position of the target state in the level reader.
+     * @return {@code true} when the grass can grow, false when not.
+     */
+    default boolean canBeGrass(LevelReader levelReader, BlockState grassState, BlockPos grassBlockPos, BlockState targetState, BlockPos targetPosition) {
+        if (targetState.is(Blocks.SNOW) && targetState.getValue(SnowLayerBlock.LAYERS) == 1) {
+            return true;
+        } else if (targetState.getFluidState().getAmount() == 8) {
+            return false;
+        } else {
+            int i = LayerLightEngine.getLightBlockInto(levelReader, grassState, grassBlockPos, targetState, targetPosition, Direction.UP, targetState.getLightBlock(levelReader, targetPosition));
+            return i < levelReader.getMaxLightLevel();
+        }
     }
 }

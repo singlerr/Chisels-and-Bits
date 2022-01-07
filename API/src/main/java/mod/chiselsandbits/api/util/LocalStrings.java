@@ -1,7 +1,13 @@
 package mod.chiselsandbits.api.util;
 
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import org.spongepowered.asm.mixin.Mutable;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public enum LocalStrings
 {
@@ -236,5 +242,17 @@ public enum LocalStrings
     )
     {
         return new TranslatableComponent(string, args);
+    }
+
+    public List<MutableComponent> getTextLines(
+      final Object... args
+    )
+    {
+        final TranslatableComponent component = new TranslatableComponent(string, args);
+        final String componentString = component.getString();
+
+        final MutableComponent result = new TextComponent("");
+        final String[] lines = componentString.split("\n");
+        return Arrays.stream(lines).map(TextComponent::new).collect(Collectors.toList());
     }
 }

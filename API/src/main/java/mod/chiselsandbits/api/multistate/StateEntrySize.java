@@ -144,4 +144,13 @@ public enum StateEntrySize
     {
         return sizePerHalfBit;
     }
+
+    /**
+     * The y coordinate of the upper of the block.
+     *
+     * @return The y coordinate.
+     */
+    public float upperLevelY() {
+        return getBitsPerLayer() - 1;
+    }
 }

@@ -1,5 +1,6 @@
 package mod.chiselsandbits.forge.platform.level;
 
+import mod.chiselsandbits.platforms.core.block.IBlockWithWorldlyProperties;
 import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -9,7 +10,10 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class ForgeLevelBasedPropertyAccessor implements ILevelBasedPropertyAccessor
 {
@@ -71,5 +75,16 @@ public class ForgeLevelBasedPropertyAccessor implements ILevelBasedPropertyAcces
     {
         return blockGetter.getBlockState(position)
           .getExplosionResistance(blockGetter, position, explosion);
+    }
+
+    @Override
+    public Optional<Boolean> canBeGrass(
+      final LevelReader levelReader, final BlockState grassState, final BlockPos grassBlockPos, final BlockState targetState, final BlockPos targetPosition)
+    {
+        if (targetState.getBlock() instanceof IBlockWithWorldlyProperties blockWithWorldlyProperties) {
+            return Optional.of(blockWithWorldlyProperties.canBeGrass(levelReader, grassState, grassBlockPos, targetState, targetPosition));
+        }
+
+        return Optional.empty();
     }
 }

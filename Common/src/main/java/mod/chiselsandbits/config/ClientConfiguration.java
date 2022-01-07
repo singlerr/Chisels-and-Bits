@@ -45,12 +45,12 @@ public class ClientConfiguration implements IClientConfiguration
         addBrokenBlocksToClipboard = builder.defineBoolean("settings.clipboard.addBrokenBlocks", true);
         addPickedBlocksToClipboard = builder.defineBoolean("settings.clipboard.addPickedBlocks", true);
         patternExportPath = builder.defineString("settings.patterns.export-path", "./chiselsandbits/patterns");
-        bitStorageContentCacheSize = builder.defineInt("performance.caches.sizes.bit-storage-content-models", 100, 0, Long.MAX_VALUE);
+        bitStorageContentCacheSize = builder.defineLong("performance.caches.sizes.bit-storage-content-models", 100, 0, Long.MAX_VALUE);
         faceLightMapExtraction = builder.defineBoolean("performance.lighting.extract-lighting-values-from-faces", true);
         blockLightEmissionExtraction = builder.defineBoolean("performance.lighting.extract-lighting-values-from-blockstates", true);
         radialMenuMouseIndicator = builder.defineBoolean("gui.radial-menu.display-mouse-indicator", false);
-        modelCacheSize = builder.defineInt("performance.caches.sizes.block-models", 10000, 3500, 20000);
-        faceLayerCacheSize = builder.defineInt("performance.caches.sizes.block-faces", 1000000, 350000, 2000000);
+        modelCacheSize = builder.defineLong("performance.caches.sizes.block-models", 10000, 3500, 20000);
+        faceLayerCacheSize = builder.defineLong("performance.caches.sizes.block-faces", 1000000, 350000, 2000000);
         modelBuildingThreadCount = builder.defineInteger("performance.model-building.thead-count", Math.max(1, Runtime.getRuntime().availableProcessors()) / 2, 1, Runtime.getRuntime()
           .availableProcessors());
 

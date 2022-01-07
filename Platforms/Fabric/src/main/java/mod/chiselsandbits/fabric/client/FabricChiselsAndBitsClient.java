@@ -1,5 +1,6 @@
 package mod.chiselsandbits.fabric.client;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.client.input.FrameBasedInputTracker;
@@ -109,13 +110,11 @@ public class FabricChiselsAndBitsClient implements ClientModInitializer
 
         HudRenderCallback.EVENT.register((poseStack, v) -> SlotOverlayRenderHandler.renderSlotOverlays(poseStack));
 
-        WorldRenderEvents.END.register(context -> {
+        WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
             SelectedObjectRenderHandler.renderCustomWorldHighlight(
               context.worldRenderer(),
               context.matrixStack(),
-              context.tickDelta(),
-              context.projectionMatrix(),
-              context.limitTime()
+              context.tickDelta()
             );
 
             MeasurementsRenderHandler.renderMeasurements(context.matrixStack());

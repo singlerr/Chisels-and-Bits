@@ -13,6 +13,7 @@ public class CommonConfiguration implements ICommonConfiguration
 
     private final Supplier<Boolean> enableHelp;
     private final Supplier<Long> collisionBoxCacheSize;
+    private final Supplier<Integer> blockSaveThreadCount;
 
     public CommonConfiguration() {
         final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(
@@ -20,7 +21,9 @@ public class CommonConfiguration implements ICommonConfiguration
         );
 
         enableHelp = builder.defineBoolean("help.enabled-in-tooltips", true);
-        collisionBoxCacheSize = builder.defineInt("performance.caches.sizes.collision-boxes", 10000, 0, Long.MAX_VALUE);
+        collisionBoxCacheSize = builder.defineLong("performance.caches.sizes.collision-boxes", 10000, 0, Long.MAX_VALUE);
+        blockSaveThreadCount = builder.defineInteger("performance.saving.thread-count", Math.max(1, Runtime.getRuntime().availableProcessors()) / 2, 1, Runtime.getRuntime()
+          .availableProcessors());
 
         builder.setup();
     }
@@ -35,5 +38,11 @@ public class CommonConfiguration implements ICommonConfiguration
     public Supplier<Long> getCollisionBoxCacheSize()
     {
         return collisionBoxCacheSize;
+    }
+
+    @Override
+    public Supplier<Integer> getBlockSaveThreadCount()
+    {
+        return blockSaveThreadCount;
     }
 }

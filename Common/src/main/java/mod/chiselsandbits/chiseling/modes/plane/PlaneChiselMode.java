@@ -18,10 +18,13 @@ import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistry
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
@@ -158,6 +161,14 @@ public class PlaneChiselMode extends AbstractCustomRegistryEntry implements IChi
                       mutator.inWorldMutableStream()
                         .filter(state -> state.getState().isAir())
                         .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
+                  }
+              }
+
+              if (missingBitCount == 0) {
+                  final BlockPos heightPos = new BlockPos(mutator.getInWorldEndPoint());
+                  if (heightPos.getY() >= context.getWorld().getMaxBuildHeight()) {
+                      Component component = (new TranslatableComponent("build.tooHigh", context.getWorld().getMaxBuildHeight() - 1)).withStyle(ChatFormatting.RED);
+                      playerEntity.sendMessage(component, Util.NIL_UUID);
                   }
               }
 

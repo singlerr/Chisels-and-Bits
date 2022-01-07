@@ -25,6 +25,7 @@ apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/main/
 apply from: 'https://raw.githubusercontent.com/ldtteam/OperaPublicaCreator/main/gradle/modules/util.gradle'
 
 repositories {
+    mavenCentral()
     maven {
         name 'LDTTeam - Modding'
         url 'https://ldtteam.jfrog.io/ldtteam/modding/'

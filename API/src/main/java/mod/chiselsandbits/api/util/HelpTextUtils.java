@@ -28,7 +28,9 @@ public class HelpTextUtils
     {
         if ( ICommonConfiguration.getInstance().getEnableHelp().get() )
         {
-            tooltip.add(helpText.getText(variables));
+            tooltip.addAll(
+              helpText.getTextLines(variables)
+            );
         }
     }
 }

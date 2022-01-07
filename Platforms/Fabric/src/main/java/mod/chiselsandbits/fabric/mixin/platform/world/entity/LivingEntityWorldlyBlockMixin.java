@@ -12,7 +12,9 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.Slice;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityWorldlyBlockMixin extends Entity
@@ -22,22 +24,19 @@ public abstract class LivingEntityWorldlyBlockMixin extends Entity
         super(entityType, level);
     }
 
-    @Redirect(
+    @ModifyVariable(
       method = "travel",
-      at = @At(
-        value = "INVOKE",
-        target = "Lnet/minecraft/world/level/block/Block;getFriction()F"
-      )
+      slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;getBlockPosBelowThatAffectsMyMovement()Lnet/minecraft/core/BlockPos;")),
+      at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/world/level/block/Block;getFriction()F"), ordinal = 0
     )
-    public float redirectGetBlockFriction(Block block)
-    {
+    private float rewriteFrictionValueForWorldlyBlocks(float original) { // shut, MCDev
         final BlockPos pos = this.getBlockPosBelowThatAffectsMyMovement();
         final BlockState blockState = this.level.getBlockState(pos);
         if (blockState.getBlock() instanceof IBlockWithWorldlyProperties blockWithWorldlyProperties) {
             return blockWithWorldlyProperties.getFriction(blockState, this.level, pos, this);
         }
 
-        return block.getFriction();
+        return original;
     }
 
     @Redirect(
