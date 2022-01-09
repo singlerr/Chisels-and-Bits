@@ -28,7 +28,7 @@ public class ByteArrayUtils
     }
 
     public static void setValueAt(final byte[] target, final int value, final int bitWidth, final int index) {
-        setValue(target, value, bitWidth, index * bitWidth);
+        setValue(target, value, BitUtils.getBitMask(bitWidth), index * bitWidth);
     }
 
     public static void setValueWith(final byte[] target, final int value, final int bitMask, final int index) {
