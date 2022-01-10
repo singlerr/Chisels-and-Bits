@@ -396,6 +396,10 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     @Override
     public boolean placeLiquid(final @NotNull LevelAccessor worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state, final @NotNull FluidState fluidStateIn)
     {
+        if (fluidStateIn == null || fluidStateIn.createLegacyBlock() == null) {
+            return false;
+        }
+
         return getBlockEntity(worldIn, pos)
                  .map(entity -> {
                      try (IBatchMutation ignored = entity.batch())

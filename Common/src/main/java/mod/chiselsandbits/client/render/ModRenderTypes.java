@@ -52,7 +52,7 @@ public enum ModRenderTypes
             .setShaderState(RENDERTYPE_LINES_SHADER)
             .setLineState(new LineStateShard(OptionalDouble.of(3d)))
             .setLayeringState(VIEW_OFFSET_Z_LAYERING)
-            .setTransparencyState(GLINT_TRANSPARENCY)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
             .setOutputState(TRANSLUCENT_TARGET)
             .setWriteMaskState(COLOR_WRITE)
             .setCullState(NO_CULL)

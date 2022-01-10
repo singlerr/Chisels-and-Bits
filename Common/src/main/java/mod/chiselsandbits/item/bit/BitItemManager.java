@@ -43,6 +43,11 @@ public class BitItemManager implements IBitItemManager
     @Override
     public ItemStack create(final BlockState blockState, final int count)
     {
+        if (blockState == null || blockState.isAir())
+        {
+            return ItemStack.EMPTY;
+        }
+
         if (!IEligibilityManager.getInstance().canBeChiseled(blockState))
         {
             return ItemStack.EMPTY;
