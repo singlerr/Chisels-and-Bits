@@ -17,8 +17,8 @@ import net.minecraft.world.item.Wearable;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class MonocleItem extends Item implements IWearableItem
