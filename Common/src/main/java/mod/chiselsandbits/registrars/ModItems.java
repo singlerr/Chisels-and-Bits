@@ -78,6 +78,9 @@ public final class ModItems
     public static final IRegistryObject<UnsealItem> UNSEAL_ITEM =
       ITEM_REGISTRAR.register("unseal", () -> new UnsealItem(new Item.Properties().tab(CHISELS_AND_BITS)));
 
+    public static final IRegistryObject<MonocleItem> MONOCLE_ITEM =
+      ITEM_REGISTRAR.register("monocle", () -> new MonocleItem(new Item.Properties().tab(CHISELS_AND_BITS)));
+
     private ModItems()
     {
         throw new IllegalStateException("Tried to initialize: ModItems but this is a Utility class.");

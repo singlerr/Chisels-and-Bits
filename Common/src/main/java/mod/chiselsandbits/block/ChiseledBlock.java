@@ -61,6 +61,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
         super(
           properties
             .isViewBlocking(ChiseledBlock::isViewBlocking)
+            .noOcclusion()
         );
     }
 
@@ -214,6 +215,12 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
         return getBlockEntity(reader, pos)
                  .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().canPropagateSkylight())
                  .orElse(false);
+    }
+
+    @Override
+    public boolean useShapeForLightOcclusion(final BlockState blockState)
+    {
+        return true;
     }
 
     @Override

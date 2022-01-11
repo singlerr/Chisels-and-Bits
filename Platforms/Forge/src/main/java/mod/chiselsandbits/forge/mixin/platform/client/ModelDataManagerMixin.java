@@ -1,4 +1,4 @@
-package mod.chiselsandbits.forge.platform.mixin;
+package mod.chiselsandbits.forge.mixin.platform.client;
 
 import com.google.common.base.Preconditions;
 import mod.chiselsandbits.forge.platform.client.model.data.ForgeBlockModelDataPlatformDelegate;

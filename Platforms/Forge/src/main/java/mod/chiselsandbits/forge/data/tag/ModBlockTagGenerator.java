@@ -26,7 +26,12 @@ public class ModBlockTagGenerator extends BlockTagsProvider
     protected void addTags()
     {
         this.tag(ModTags.Blocks.BLOCKED_CHISELABLE);
-        this.tag(ModTags.Blocks.FORCED_CHISELABLE).addTag(BlockTags.LEAVES).add(Blocks.GRASS_BLOCK);
+        this.tag(ModTags.Blocks.FORCED_CHISELABLE)
+          .addTag(BlockTags.LEAVES)
+          .add(Blocks.GRASS_BLOCK)
+          .add(Blocks.ICE)
+          .add(Blocks.PACKED_ICE)
+          .add(Blocks.PACKED_ICE);
         this.tag(ModTags.Blocks.CHISELED_BLOCK).add(
           ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values()
             .stream()

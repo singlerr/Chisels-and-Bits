@@ -1,4 +1,4 @@
-package mod.chiselsandbits.forge.platform.mixin;
+package mod.chiselsandbits.forge.mixin.platform.common;
 
 import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
 import net.minecraft.core.BlockPos;

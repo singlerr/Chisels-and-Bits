@@ -24,6 +24,7 @@ public class ClientConfiguration implements IClientConfiguration
     private final Supplier<Boolean>               blockLightEmissionExtraction;
     private final Supplier<Boolean>               radialMenuMouseIndicator;
     private final Supplier<Long>                  modelCacheSize;
+    private final Supplier<Long>                  stackModelCacheSize;
     private final Supplier<Long>                  faceLayerCacheSize;
     private final Supplier<Integer>               modelBuildingThreadCount;
     private final Supplier<Integer>               clipboardSize;
@@ -53,6 +54,7 @@ public class ClientConfiguration implements IClientConfiguration
         faceLayerCacheSize = builder.defineLong("performance.caches.sizes.block-faces", 1000000, 350000, 2000000);
         modelBuildingThreadCount = builder.defineInteger("performance.model-building.thead-count", Math.max(1, Runtime.getRuntime().availableProcessors()) / 2, 1, Runtime.getRuntime()
           .availableProcessors());
+        stackModelCacheSize = builder.defineLong("performance.caches.sizes.stack-models", 100, 0, Long.MAX_VALUE);
 
         builder.setup();
     }
@@ -157,5 +159,11 @@ public class ClientConfiguration implements IClientConfiguration
     public Supplier<String> getPatternExportPath()
     {
         return patternExportPath;
+    }
+
+    @Override
+    public Supplier<Long> getStackModelCacheSize()
+    {
+        return stackModelCacheSize;
     }
 }

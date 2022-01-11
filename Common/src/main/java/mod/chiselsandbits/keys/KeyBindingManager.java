@@ -30,6 +30,7 @@ public class KeyBindingManager
     private              KeyMapping        resetMeasuringTapeKeyBinding   = null;
     private              KeyMapping        undoOperationKeyBinding        = null;
     private              KeyMapping        redoOperationKeyBinding        = null;
+    private              KeyMapping        scopingKeyBinding              = null;
     private              boolean           toolMenuKeyWasDown             = false;
     private              int               toolModeSelectionPlusCoolDown  = 15;
     private              int               toolModeSelectionMinusCoolDown = 15;
@@ -89,6 +90,13 @@ public class KeyBindingManager
                                                       KeyModifier.CONTROL,
                                                       InputConstants.Type.KEYSYM,
                                                       InputConstants.KEY_Y,
+                                                      "mod.chiselsandbits.keys.category"));
+
+        IKeyBindingManager.getInstance().register(scopingKeyBinding =
+                                                    IKeyBindingManager.getInstance().createNew("mod.chiselsandbits.keys.key.zoom",
+                                                      HoldsSpecificItemInHandKeyConflictContext.CHANGE_TRACKING_ITEM,
+                                                      InputConstants.Type.KEYSYM,
+                                                      InputConstants.KEY_Z,
                                                       "mod.chiselsandbits.keys.category"));
     }
 
@@ -297,5 +305,19 @@ public class KeyBindingManager
         }
 
         return resetMeasuringTapeKeyBinding;
+    }
+
+    public KeyMapping getScopingKeyBinding()
+    {
+        if (scopingKeyBinding == null)
+        {
+            throw new IllegalStateException("Keybindings have not been initialized.");
+        }
+
+        return scopingKeyBinding;
+    }
+
+    public boolean isScopingKeyPressed() {
+        return isKeyDown(getScopingKeyBinding());
     }
 }

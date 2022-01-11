@@ -20,12 +20,17 @@
     "platform.world.level.chunk.LevelChunkWorldlyBlockMixin",
     "platform.world.level.chunk.ProtoChunkWorldlyBlockMixin",
     "platform.world.level.chunk.storage.ChunkSerializerWorldlyBlockMixin",
-    "world.entity.item.ItemEntityEventMixin"
+    "world.entity.item.ItemEntityEventMixin",
+    "platform.common.LivingEntityEquipmentSlotMixin"
   ],
   "client": [
+    "client.LocalPlayerScopingMixin",
+    "client.PlayerScopingMixin",
     "client.MouseHandlerEventMixin",
     "client.block.blockentity.ChiseledBlockEntityMixin",
     "client.resources.PaintingTextureManagerConstructionHandler",
+    "client.AbstractClientPlayerMixin",
+    "client.CustomHeadLayerMixin",
     "platform.client.multiplayer.MultiPlayerGameModeWorldlyBlockMixin",
     "platform.client.render.LevelRendererWorldlyBlockMixin",
     "platform.client.render.block.ModelBlockRendererWorldlyBlockMixin"

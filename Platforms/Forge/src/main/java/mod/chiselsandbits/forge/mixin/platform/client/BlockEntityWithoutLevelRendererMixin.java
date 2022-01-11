@@ -1,4 +1,4 @@
-package mod.chiselsandbits.forge.platform.mixin;
+package mod.chiselsandbits.forge.mixin.platform.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.forge.platform.client.rendering.ForgeRenderingManager;

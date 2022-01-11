@@ -148,4 +148,11 @@ public interface IClientConfiguration
      * @return A configuration supplier which indicates the path where chisels and bits will export and import patterns from.
      */
     Supplier<String> getPatternExportPath();
+
+    /**
+     * Indicates the size of the stack model cache.
+     *
+     * @return A configuration supplier which indicates the size of the stack model cache.
+     */
+    Supplier<Long> getStackModelCacheSize();
 }

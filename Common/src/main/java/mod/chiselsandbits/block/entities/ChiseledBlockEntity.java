@@ -823,7 +823,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         @Override
         public float getLightBlockingFactor()
         {
-            return this.totalLightBlockLevel / (float) this.totalUsedBlockCount;
+            return this.totalLightBlockLevel / (float) StateEntrySize.current().getBitsPerBlock();
         }
 
         @Override

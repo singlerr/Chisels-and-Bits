@@ -159,6 +159,11 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
       final ItemStack current,
       final Player playerIn)
     {
+        if (current.isEmpty())
+        {
+            return false;
+        }
+
         if (playerIn.isShiftKeyDown() || this.bits == 0)
         {
             if (current.getItem() instanceof IBitItem bitItem)
