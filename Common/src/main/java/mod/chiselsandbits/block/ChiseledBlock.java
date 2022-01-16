@@ -3,6 +3,7 @@ package mod.chiselsandbits.block;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
+import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.config.IServerConfiguration;
@@ -11,6 +12,7 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
+import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.ArrayUtils;
@@ -26,14 +28,18 @@ import mod.chiselsandbits.platforms.core.block.IBlockWithWorldlyProperties;
 import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
 import mod.chiselsandbits.platforms.core.dist.Dist;
 import mod.chiselsandbits.platforms.core.dist.DistExecutor;
+import mod.chiselsandbits.platforms.core.entity.IPlayerInventoryManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.*;
@@ -218,7 +224,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     }
 
     @Override
-    public boolean useShapeForLightOcclusion(final BlockState blockState)
+    public boolean useShapeForLightOcclusion(final @NotNull BlockState blockState)
     {
         return true;
     }
@@ -567,5 +573,36 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
         return getBlockEntity(levelReader, targetPosition)
                  .map(blockEntity -> blockEntity.getStatistics().canSustainGrassBelow())
                 .orElse(false);
+    }
+
+    @Override
+    public @NotNull InteractionResult use(
+      final @NotNull BlockState blockState, final @NotNull Level level, final @NotNull BlockPos blockPos, final @NotNull Player player, final @NotNull InteractionHand hand, final @NotNull BlockHitResult blockHitResult)
+    {
+        final ItemStack itemStack = player.getItemInHand(hand);
+        if (itemStack.is(Items.SPONGE)) {
+            return getBlockEntity(level, blockPos)
+                     .map(blockEntity -> {
+                         try(IBatchMutation mutation = blockEntity.batch(IChangeTrackerManager.getInstance().getChangeTracker(player))) {
+                             return blockEntity.mutableStream()
+                               .filter(entry -> !entry.getState().getFluidState().isEmpty())
+                               .peek(IMutableStateEntryInfo::clear)
+                               .count();
+                         }
+                     })
+                     .map(count ->  {
+                         if (count > 0) {
+                             itemStack.shrink(1);
+                             IPlayerInventoryManager.getInstance().giveToPlayer(
+                               player, new ItemStack(Items.WET_SPONGE)
+                             );
+                         }
+
+                         return count > 0 ? InteractionResult.SUCCESS : InteractionResult.PASS;
+                     })
+                     .orElse(InteractionResult.PASS);
+        }
+
+        return InteractionResult.PASS;
     }
 }
