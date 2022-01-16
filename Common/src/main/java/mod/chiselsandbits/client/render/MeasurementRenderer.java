@@ -103,19 +103,25 @@ public final class MeasurementRenderer
                   (float) (measurement.getFrom().x() - xView),
                   (float) (measurement.getFrom().y() - yView),
                   (float) (measurement.getFrom().z() - zView))
-                  .color((float) measurement.getMode().getColorVector().x(),
+                  .color(
+                    (float) measurement.getMode().getColorVector().x(),
                     (float) measurement.getMode().getColorVector().y(),
                     (float) measurement.getMode().getColorVector().z(),
-                    1f).endVertex();
+                    1f)
+                  .normal(poseStack.last().normal(), 0, 1, 0)
+                  .endVertex();
 
                 bufferIn.vertex(poseStack.last().pose(),
                   (float) (measurement.getTo().x() - xView),
                   (float) (measurement.getTo().y() - yView),
                   (float) (measurement.getTo().z() - zView))
-                  .color((float) measurement.getMode().getColorVector().x(),
+                  .color(
+                    (float) measurement.getMode().getColorVector().x(),
                     (float) measurement.getMode().getColorVector().y(),
                     (float) measurement.getMode().getColorVector().z(),
-                    1f).endVertex();
+                    1f)
+                  .normal(poseStack.last().normal(), 0, 1, 0)
+                  .endVertex();
 
                 final Vec3 lengths = VectorUtils.absolute(measurement.getTo().subtract(measurement.getFrom()));
                 final double totalLength = lengths.length();
@@ -179,10 +185,10 @@ public final class MeasurementRenderer
         }
         else if (type == MeasuringType.BLOCK)
         {
-            return new TranslatableComponent(Constants.MOD_ID + ".measurements.lengths.block", new DecimalFormat("#").format(Math.floor(length)));
+            return new TranslatableComponent(Constants.MOD_ID + ".measurements.lengths.block", new DecimalFormat("#").format(Math.floor(length + 1)));
         }
 
-        return new TranslatableComponent(Constants.MOD_ID + ".measurements.lengths.bit", new DecimalFormat("#").format(Math.floor(length * 16)));
+        return new TranslatableComponent(Constants.MOD_ID + ".measurements.lengths.bit", new DecimalFormat("#").format(Math.floor((length + 1) * 16)));
     }
 
     private float getScale(

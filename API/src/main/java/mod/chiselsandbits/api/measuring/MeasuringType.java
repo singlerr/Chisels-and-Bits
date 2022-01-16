@@ -1,72 +1,76 @@
 package mod.chiselsandbits.api.measuring;
 
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
+import mod.chiselsandbits.api.util.BlockHitResultUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public enum MeasuringType implements IToolModeGroup
 {
     BIT(LocalStrings.TapeMeasureBit.getText(),
       new ResourceLocation(Constants.MOD_ID, "textures/icons/bit.png"),
-      v -> Vec3.atLowerCornerOf(new BlockPos(v.multiply(16, 16, 16))).multiply(1 / 16d, 1 / 16d, 1 / 16d),
-      (from, to) -> {
-          return new Vec3(
-            Math.min(from.x(), to.x()),
-            Math.min(from.y(), to.y()),
-            Math.min(from.z(), to.z())
-          );
-      },
-      (from, to ) -> {
-          return new Vec3(
-            Math.max(from.x(), to.x()),
-            Math.max(from.y(), to.y()),
-            Math.max(from.z(), to.z())
-          );
-      }),
-    BLOCK( LocalStrings.TapeMeasureBlock.getText(), new ResourceLocation(Constants.MOD_ID,"textures/icons/block.png"), v -> Vec3.atLowerCornerOf(new BlockPos(v)),
-      (from, to) -> {
-          return new Vec3(
-            Math.min(from.x(), to.x()),
-            Math.min(from.y(), to.y()),
-            Math.min(from.z(), to.z())
-          );
-      },
-      (from, to ) -> {
-          return new Vec3(
-            Math.max(from.x(), to.x()),
-            Math.max(from.y(), to.y()),
-            Math.max(from.z(), to.z())
-          );
-      }),
-    DISTANCE( LocalStrings.TapeMeasureDistance.getText(), new ResourceLocation(Constants.MOD_ID,"textures/icons/line.png"), Function.identity(),
-      (from, to) -> from,
-      (from, to) -> to);
+      blockHitResult -> BlockHitResultUtils.getCenterOfHitObject(blockHitResult, StateEntrySize.current().getSizePerBitScalingVector()), (from, to, hitFace) ->
+      new Vec3(
+        Math.min(from.x(), to.x()) - StateEntrySize.current().getSizePerHalfBit(),
+        Math.min(from.y(), to.y()) - StateEntrySize.current().getSizePerHalfBit(),
+        Math.min(from.z(), to.z()) - StateEntrySize.current().getSizePerHalfBit()
+      )
+    ,
+      (from, to, hitFace) ->
+        new Vec3(
+          Math.max(from.x(), to.x()) + StateEntrySize.current().getSizePerHalfBit(),
+          Math.max(from.y(), to.y()) + StateEntrySize.current().getSizePerHalfBit(),
+          Math.max(from.z(), to.z()) + StateEntrySize.current().getSizePerHalfBit()
+        )
+    ),
+    BLOCK(LocalStrings.TapeMeasureBlock.getText(), new ResourceLocation(Constants.MOD_ID, "textures/icons/block.png"),
+      blockHitResult -> BlockHitResultUtils.getCenterOfHitObject(blockHitResult, VectorUtils.ONE), (from, to, hitFace) ->
+      new Vec3(
+        Math.min(from.x(), to.x()) - 0.499,
+        Math.min(from.y(), to.y()) - 0.499,
+        Math.min(from.z(), to.z()) - 0.499
+      )
+    ,
+      (from, to, hitFace) ->
+        new Vec3(
+          Math.max(from.x(), to.x()) + 0.499,
+          Math.max(from.y(), to.y()) + 0.499,
+          Math.max(from.z(), to.z()) + 0.499
+        )
+      ),
+    DISTANCE( LocalStrings.TapeMeasureDistance.getText(), new ResourceLocation(Constants.MOD_ID,"textures/icons/line.png"),
+      IClickedPositionAdapter.identity(), (from, to, hitFace) -> from,
+      (from, to, hitFace) -> to);
 
     private final Component displayName;
-    private final ResourceLocation icon;
-    private final Function<Vec3, Vec3>             positionAdapter;
-    private final BiFunction<Vec3, Vec3, Vec3> startPositionAdapter;
-    private final BiFunction<Vec3, Vec3, Vec3> endPositionAdapter;
+    private final ResourceLocation        icon;
+    private final IClickedPositionAdapter clickedPositionAdapter;
+    private final IPositionAdapter        finalStartPositionAdapter;
+    private final IPositionAdapter finalEndPositionAdapter;
+
+
 
     MeasuringType(
       final Component displayName,
       final ResourceLocation icon,
-      final Function<Vec3, Vec3> positionAdapter,
-      final BiFunction<Vec3, Vec3, Vec3> startPositionAdapter,
-      final BiFunction<Vec3, Vec3, Vec3> endPositionAdapter) {
+      final IClickedPositionAdapter startPositionAdapter,
+      IPositionAdapter finalStartPositionAdapter,
+      IPositionAdapter finalEndPositionAdapter) {
         this.displayName = displayName;
         this.icon = icon;
-        this.positionAdapter = positionAdapter;
-        this.startPositionAdapter = startPositionAdapter;
-        this.endPositionAdapter = endPositionAdapter;
+        this.clickedPositionAdapter = startPositionAdapter;
+        this.finalStartPositionAdapter = finalStartPositionAdapter;
+        this.finalEndPositionAdapter = finalEndPositionAdapter;
     }
 
     @Override
@@ -82,17 +86,40 @@ public enum MeasuringType implements IToolModeGroup
     }
 
     @NotNull
-    public Vec3 adaptPosition(@NotNull final Vec3 position) {
-        return this.positionAdapter.apply(position);
+    public Vec3 adaptClickedPosition(@NotNull final BlockHitResult blockHitResult) {
+        return this.clickedPositionAdapter.adapt(blockHitResult);
     }
 
     @NotNull
-    public Vec3 adaptStartPosition(@NotNull final Vec3 startPosition, @NotNull final Vec3 endPosition) {
-        return this.startPositionAdapter.apply(startPosition, endPosition);
+    public Vec3 adaptStartCorner(@NotNull final Vec3 startPosition, @NotNull final Vec3 endPosition, @NotNull final Direction hitFace) {
+        return this.finalStartPositionAdapter.adapt(startPosition, endPosition, hitFace);
     }
 
     @NotNull
-    public Vec3 adaptEndPosition(@NotNull final Vec3 startPosition, @NotNull final Vec3 endPosition) {
-        return this.endPositionAdapter.apply(startPosition, endPosition);
+    public Vec3 adaptEndCorner(@NotNull final Vec3 startPosition, @NotNull final Vec3 endPosition, @NotNull final Direction hitFace) {
+        return this.finalEndPositionAdapter.adapt(startPosition, endPosition, hitFace);
+    }
+
+    public Vec3 getResolution()
+    {
+        return new Vec3(1,1,1);
+    }
+
+    @FunctionalInterface
+    private interface IPositionAdapter
+    {
+        @NotNull
+        Vec3 adapt(@NotNull final Vec3 startPosition, @NotNull final Vec3 endPosition, @NotNull final Direction hitFace);
+    }
+
+    @FunctionalInterface
+    private interface IClickedPositionAdapter
+    {
+        static IClickedPositionAdapter identity() {
+            return HitResult::getLocation;
+        }
+
+        @NotNull
+        Vec3 adapt(@NotNull final BlockHitResult startPosition);
     }
 }

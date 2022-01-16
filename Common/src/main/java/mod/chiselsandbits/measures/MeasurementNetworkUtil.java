@@ -4,6 +4,7 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
 import mod.chiselsandbits.network.packets.MeasurementUpdatedPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
 public class MeasurementNetworkUtil
@@ -15,7 +16,7 @@ public class MeasurementNetworkUtil
     }
 
     public static void createAndSend(
-      final Vec3 from, final Vec3 to, final MeasuringMode mode
+      final Vec3 from, final Vec3 to, final Direction hitFace, final MeasuringMode mode
     ) {
         if (Minecraft.getInstance().level == null || Minecraft.getInstance().player == null)
         {
@@ -27,6 +28,7 @@ public class MeasurementNetworkUtil
           Minecraft.getInstance().player,
           from,
           to,
+          hitFace,
           mode
         );
 

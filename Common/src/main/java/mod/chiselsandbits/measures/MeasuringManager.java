@@ -8,11 +8,10 @@ import mod.chiselsandbits.api.measuring.IMeasurement;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
-import mod.chiselsandbits.network.packets.MeasurementUpdatedPacket;
 import mod.chiselsandbits.network.packets.MeasurementsUpdatedPacket;
 import mod.chiselsandbits.platforms.core.dist.Dist;
 import mod.chiselsandbits.platforms.core.dist.DistExecutor;
-import net.minecraft.client.Minecraft;
+import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -54,12 +53,13 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
 
     @Override
     public Measurement create(
-      final Level world, final Player playerEntity, final Vec3 from, final Vec3 to, final MeasuringMode mode)
+      final Level world, final Player playerEntity, final Vec3 from, final Vec3 to, final Direction hitFace, final MeasuringMode mode)
     {
         return new Measurement(
           playerEntity.getUUID(),
           from,
           to,
+          hitFace,
           mode,
           world.dimension().location()
         );
@@ -128,8 +128,8 @@ public class MeasuringManager implements IMeasuringManager, IPacketBufferSeriali
     }
 
     public void createAndSend(
-      final Vec3 from, final Vec3 to, final MeasuringMode mode
+      final Vec3 from, final Vec3 to, final Direction hitFace, final MeasuringMode mode
     ) {
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MeasurementNetworkUtil.createAndSend(from, to, mode));
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> MeasurementNetworkUtil.createAndSend(from, to, hitFace, mode));
     }
 }

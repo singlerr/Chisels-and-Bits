@@ -11,6 +11,7 @@ import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.keys.KeyBindingManager;
 import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.network.packets.MeasurementsResetPacket;
+import mod.chiselsandbits.api.util.BlockHitResultUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -83,25 +84,24 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
                 final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
                 if (rayTraceResult.getType() == HitResult.Type.BLOCK && rayTraceResult instanceof final BlockHitResult blockRayTraceResult)
                 {
-                    final Vec3 hitVector = blockRayTraceResult.getLocation();
                     final Optional<Vec3> startPointHandler = getStart(stack);
                     if (startPointHandler.isEmpty())
                     {
-                        setStart(stack, getMode(stack).getType().adaptPosition(hitVector));
-                        result = ClickProcessingState.ALLOW;
+                        setStart(stack, getMode(stack).getType().adaptClickedPosition(blockRayTraceResult));
                     }
                     else
                     {
                         final Vec3 startPoint = startPointHandler.get();
-                        final Vec3 endPoint = getMode(stack).getType().adaptPosition(hitVector);
+                        final Vec3 hitVector = BlockHitResultUtils.getCenterOfHitObject(blockRayTraceResult, getMode(stack).getType().getResolution() );
                         MeasuringManager.getInstance().createAndSend(
                           startPoint,
-                          endPoint,
+                          getMode(stack).getType().adaptClickedPosition(blockRayTraceResult),
+                          blockRayTraceResult.getDirection(),
                           getMode(stack)
                         );
                         clear(stack);
-                        result = ClickProcessingState.ALLOW;
                     }
+                    result = ClickProcessingState.ALLOW;
                 }
             }
         }
@@ -140,11 +140,11 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
         final Vec3 hitVector = blockRayTraceResult.getLocation();
 
         final Vec3 startPoint = startPointHandler.get();
-        final Vec3 endPoint = getMode(stack).getType().adaptPosition(hitVector);
 
         MeasuringManager.getInstance().createAndSend(
           startPoint,
-          endPoint,
+          getMode(stack).getType().adaptClickedPosition(blockRayTraceResult),
+          blockRayTraceResult.getDirection(),
           getMode(stack)
         );
     }

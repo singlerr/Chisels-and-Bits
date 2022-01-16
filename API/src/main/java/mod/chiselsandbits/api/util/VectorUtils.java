@@ -11,6 +11,7 @@ public class VectorUtils
 {
 
     public final static double DEG_TO_RAD_FACTOR = (2*Math.PI) / 360d;
+    public static final Vec3 ONE = new Vec3(1,1,1);
 
     private VectorUtils()
     {
@@ -157,5 +158,32 @@ public class VectorUtils
                  min <= vector4f.y() && vector4f.y() <= max &&
                  min <= vector4f.z() && vector4f.z() <= max &&
                  min <= vector4f.w() && vector4f.w() <= max;
+    }
+
+    public static Vec3 nullifyNegatives(final Vec3 input)
+    {
+        return new Vec3(
+          Math.max(0, input.x()),
+          Math.max(0, input.y()),
+          Math.max(0, input.z())
+        );
+    }
+
+    public static Vec3 nullifyPositives(final Vec3 input)
+    {
+        return new Vec3(
+          Math.min(0, input.x()),
+          Math.min(0, input.y()),
+          Math.min(0, input.z())
+        );
+    }
+
+    public static Vec3 divide(final Vec3 left, final Vec3 right)
+    {
+        return new Vec3(
+          left.x() / right.x(),
+          left.y() / right.y(),
+          left.z() / right.z()
+        );
     }
 }

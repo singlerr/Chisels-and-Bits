@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.measuring;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -61,6 +62,7 @@ public interface IMeasuringManager
      * @param playerEntity The player to create the given measurement for.
      * @param from The start-point of the measurement.
      * @param to The end-point of the measurement.
+     * @param hitFace
      * @param mode The measurement mode.
      * @return The newly created and processed measurement.
      */
@@ -69,7 +71,7 @@ public interface IMeasuringManager
       final Player playerEntity,
       final Vec3 from,
       final Vec3 to,
-      final MeasuringMode mode
+      final Direction hitFace, final MeasuringMode mode
     );
 
     /**

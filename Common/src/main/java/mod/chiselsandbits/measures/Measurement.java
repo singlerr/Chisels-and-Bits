@@ -3,6 +3,7 @@ package mod.chiselsandbits.measures;
 import mod.chiselsandbits.api.measuring.IMeasurement;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
+import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
@@ -19,16 +20,35 @@ public class Measurement implements IMeasurement, IPacketBufferSerializable
     private MeasuringMode    mode;
     private ResourceLocation worldKey;
 
+
+    public Measurement(final UUID owner, final Vec3 from, final Vec3 to, final Direction hitFace, final MeasuringMode mode, final ResourceLocation worldKey) {
+        this.owner = owner;
+        this.mode = mode;
+        this.worldKey = worldKey;
+
+        adaptPositions(from, to, hitFace, mode);
+    }
+
     public Measurement()
     {
     }
 
-    public Measurement(final UUID owner, final Vec3 from, final Vec3 to, final MeasuringMode mode, final ResourceLocation worldKey) {
-        this.owner = owner;
-        this.from = mode.getType().adaptStartPosition(from, to);
-        this.to = mode.getType().adaptEndPosition(from, to);
-        this.mode = mode;
-        this.worldKey = worldKey;
+    private void adaptPositions(final Vec3 from, final Vec3 to, final Direction hitFace, final MeasuringMode mode)
+    {
+        this.from = new Vec3(
+          Math.min(from.x(), to.x()),
+          Math.min(from.y(), to.y()),
+          Math.min(from.z(), to.z())
+        );
+
+        this.to = new Vec3(
+          Math.max(from.x(), to.x()),
+          Math.max(from.y(), to.y()),
+          Math.max(from.z(), to.z())
+        );
+
+        this.from = mode.getType().adaptStartCorner(this.from, this.to, hitFace);
+        this.to = mode.getType().adaptEndCorner(this.from, this.to, hitFace);
     }
 
     @Override
