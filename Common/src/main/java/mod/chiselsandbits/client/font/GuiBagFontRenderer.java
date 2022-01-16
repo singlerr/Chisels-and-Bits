@@ -129,7 +129,7 @@ public class GuiBagFontRenderer extends Font
             x += offsetX;
             y += offsetY;
 
-            return super.drawInBatch(text, x, y, color, dropShadow, stack.last().pose(), buffer, transparentIn, colorBackgroundIn, packedLight);
+            return super.drawInBatch(convertText(text), x, y, color, dropShadow, stack.last().pose(), buffer, transparentIn, colorBackgroundIn, packedLight);
         }
         finally
         {
