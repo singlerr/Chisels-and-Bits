@@ -2,6 +2,7 @@ package mod.chiselsandbits.forge.platform.fluid;
 
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
@@ -32,7 +33,7 @@ public class ForgeFluidManager implements IFluidManager
     {
         return stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)
                  .map(handler -> handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.SIMULATE))
-                 .map(fluidStack -> new FluidInformation(fluidStack.getFluid(), fluidStack.getAmount(), fluidStack.getOrCreateTag()));
+                 .map(fluidStack -> new FluidInformation(fluidStack.getFluid(), fluidStack.getAmount(), fluidStack.isEmpty() ? new CompoundTag() : fluidStack.getOrCreateTag()));
     }
 
     @Override
