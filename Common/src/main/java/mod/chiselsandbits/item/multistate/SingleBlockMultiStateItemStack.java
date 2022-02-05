@@ -17,7 +17,9 @@ import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.util.BlockPosForEach;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
+import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
 import mod.chiselsandbits.item.ChiseledBlockItem;
 import mod.chiselsandbits.materials.MaterialManager;
@@ -53,6 +55,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
@@ -495,6 +498,21 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
                      this::clearInAreaTarget
                    )
                  );
+    }
+
+    @Override
+    public void forEachWithPositionMutator(
+      final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer)
+    {
+        BlockPosForEach.forEachInRange(StateEntrySize.current().getBitsPerBlockSide(), (BlockPos blockPos) -> {
+            final Vec3i pos = positionMutator.mutate(blockPos);
+            consumer.accept(new StateEntry(
+              this.compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+              blockPos,
+              this::setInAreaTarget,
+              this::clearInAreaTarget
+            ));
+        });
     }
 
     @Override

@@ -1,6 +1,8 @@
 package mod.chiselsandbits.platforms.core.client;
 
 import mod.chiselsandbits.platforms.core.IChiselsAndBitsPlatformCore;
+import mod.chiselsandbits.platforms.core.client.integration.IOptifineCompatibilityManager;
+import mod.chiselsandbits.platforms.core.client.integration.ReflectiveOptifineCompatibilityManager;
 import mod.chiselsandbits.platforms.core.client.key.IKeyBindingManager;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataBuilder;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataKey;
@@ -77,6 +79,13 @@ public interface IClientManager
     @NotNull
     IKeyBindingManager getKeyBindingManager();
 
-
-
+    /**
+     * The compatibility manager for optifine.
+     *
+     * @return The compatibility manager.
+     */
+    @NotNull
+    default IOptifineCompatibilityManager getOptifineCompatibilityManager() {
+        return ReflectiveOptifineCompatibilityManager.getInstance();
+    }
 }

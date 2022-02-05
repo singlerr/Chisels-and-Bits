@@ -395,6 +395,8 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         final Optional<IChiselingContext> potentialPlacingContext = ILocalChiselingContextCache.getInstance()
           .get(ChiselingOperation.PLACING);
 
+        boolean renderedSomething = false;
+
         if (potentiallyExistingContext.isPresent()) {
             final IChiselingContext currentContextSnapshot = potentiallyExistingContext.get().createSnapshot();
 
@@ -414,26 +416,35 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
 
             IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
                                                                  .renderExistingContextsBoundingBox(matrixStack, currentContextSnapshot);
+
             return;
-        }
-        else if (potentialChiselingContext.isPresent()
-                   && potentialChiselingContext.get().getMode() == chiselMode
-                   && chiselMode.isStillValid(playerEntity, potentialChiselingContext.get(), ChiselingOperation.CHISELING)) {
-
+        } else if (potentialChiselingContext.isPresent()) {
             final IChiselingContext chiselingContext = potentialChiselingContext.get();
-
-            IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
-              .renderExistingContextsBoundingBox(matrixStack, chiselingContext);
-
-            if (potentialPlacingContext.isPresent()
-                  && potentialPlacingContext.get().getMode() == chiselMode
-                  && chiselMode.isStillValid(playerEntity, potentialPlacingContext.get(), ChiselingOperation.PLACING)) {
-
-                final IChiselingContext placingContext = potentialPlacingContext.get();
-
+            if (potentialChiselingContext.get().getMode() == chiselMode
+                && chiselingContext.getMode().isStillValid(playerEntity, chiselingContext, ChiselingOperation.CHISELING))
+            {
                 IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
-                  .renderExistingContextsBoundingBox(matrixStack, placingContext);
+                  .renderExistingContextsBoundingBox(matrixStack, chiselingContext);
             }
+            else
+            {
+                ILocalChiselingContextCache.getInstance().clear(ChiselingOperation.CHISELING);
+            }
+
+            if (potentialPlacingContext.isPresent()) {
+                final IChiselingContext placingContext = potentialPlacingContext.get();
+                if (placingContext.getMode() == chiselMode &&
+                      potentialPlacingContext.get().getMode().isStillValid(playerEntity, potentialPlacingContext.get(), ChiselingOperation.PLACING))
+                {
+                    IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
+                      .renderExistingContextsBoundingBox(matrixStack, placingContext);
+                }
+                else
+                {
+                    ILocalChiselingContextCache.getInstance().clear(ChiselingOperation.PLACING);
+                }
+            }
+
             return;
         }
         else if (potentialPlacingContext.isPresent()
@@ -444,6 +455,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
 
             IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
               .renderExistingContextsBoundingBox(matrixStack, context);
+
             return;
         }
 

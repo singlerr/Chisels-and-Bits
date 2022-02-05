@@ -62,4 +62,9 @@ public class CandBProfiler implements IProfiler
         inner.startTick();
         return result;
     }
+
+    public IProfilerResult stop() {
+        inner.endTick();
+        return new CandBProfilingResult(inner.getResults());
+    }
 }

@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 /**
@@ -65,4 +66,12 @@ public interface IAreaAccessor extends IStateAccessor
      * @return The stream with the inner states.
      */
     Stream<IStateEntryInfo> streamWithPositionMutator(IPositionMutator positionMutator);
+
+    /**
+     * Runs a for each-loop over the states inside the accessor, with the ability to specify the loop order.
+     *
+     * @param positionMutator The position mutator to use.
+     * @param consumer The consumer to pass the states to.
+     */
+    void forEachWithPositionMutator(final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer);
 }

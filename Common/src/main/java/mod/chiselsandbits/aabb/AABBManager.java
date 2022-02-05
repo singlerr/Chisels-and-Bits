@@ -1,16 +1,14 @@
 package mod.chiselsandbits.aabb;
 
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.config.IChiselsAndBitsConfiguration;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
-import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
 import net.minecraft.world.phys.AABB;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class AABBManager
 {
@@ -21,7 +19,7 @@ public class AABBManager
         return INSTANCE;
     }
 
-    private final SimpleMaxSizedCache<Key, Collection<AABB>> cache = new SimpleMaxSizedCache<>(
+    private final SimpleMaxSizedCache<Key, List<AABB>> cache = new SimpleMaxSizedCache<>(
       IChiselsAndBitsConfiguration.getInstance().getCommon().getCollisionBoxCacheSize()::get
     );
 
@@ -29,20 +27,18 @@ public class AABBManager
     {
     }
 
-    public Collection<AABB> get(
+    public List<AABB> get(
       final IAreaAccessor accessor,
-      final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder
+      final CollisionType sizeType
     ) {
-        final Predicate<IStateEntryInfo> selectablePredicate = selectablePredicateBuilder.apply(accessor);
-
         final Key cacheKey = new Key(
           accessor.createNewShapeIdentifier(),
-          selectablePredicate
+          sizeType
         );
 
         return cache.get(
           cacheKey,
-          () -> AABBCompressor.compressStates(accessor, selectablePredicate)
+          () -> AABBCompressor.compressStates(accessor, sizeType)
         );
     }
 
@@ -53,9 +49,9 @@ public class AABBManager
 
     private static final class Key {
         private final IAreaShapeIdentifier identifier;
-        private final Predicate<IStateEntryInfo> predicate;
+        private final CollisionType        predicate;
 
-        private Key(final IAreaShapeIdentifier identifier, final Predicate<IStateEntryInfo> predicate) {
+        private Key(final IAreaShapeIdentifier identifier, final CollisionType predicate) {
             this.identifier = identifier;
             this.predicate = predicate;
         }

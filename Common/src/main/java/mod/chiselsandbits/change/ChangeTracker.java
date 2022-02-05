@@ -160,11 +160,11 @@ public class ChangeTracker implements IChangeTracker
     }
 
     private void sendUpdate() {
-        if (player != null && player instanceof ServerPlayer)
+        if (player != null && player instanceof ServerPlayer serverPlayer && !serverPlayer.getLevel().isClientSide())
         {
             ChiselsAndBits.getInstance().getNetworkChannel().sendToPlayer(
               new ChangeTrackerUpdatedPacket(this.serializeNBT()),
-              (ServerPlayer) player
+              serverPlayer
             );
         }
     }

@@ -58,7 +58,7 @@ public class ModificationTableBlock extends Block
     @Override
     public InteractionResult use(@NotNull BlockState state, Level worldIn, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand handIn, @NotNull BlockHitResult hit) {
         if (worldIn.isClientSide()) {
-            return InteractionResult.SUCCESS;
+            return InteractionResult.PASS;
         } else {
             player.openMenu(state.getMenuProvider(worldIn, pos));
             return InteractionResult.CONSUME;

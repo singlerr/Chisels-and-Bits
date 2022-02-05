@@ -1,6 +1,7 @@
 package mod.chiselsandbits.chiseling.modes.replace;
 
 import com.google.common.collect.Maps;
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -21,6 +22,7 @@ import mod.chiselsandbits.platforms.core.util.LambdaExceptionUtils;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
+import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -32,6 +34,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -260,6 +264,15 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
     public boolean requiresPlaceableEditStack()
     {
         return true;
+    }
+
+    @Override
+    public VoxelShape getShape(final IChiselingContext context)
+    {
+        if (context.getMutator().isEmpty())
+            return Shapes.empty();
+
+        return VoxelShapeManager.getInstance().get(context.getMutator().get(), CollisionType.ALL);
     }
 
     @Override

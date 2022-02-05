@@ -30,6 +30,8 @@ import java.util.Optional;
 
 public class BitChange implements IChange
 {
+    private CompoundTag lazyLoadingTag;
+
     private BlockPos blockPos;
     private IMultiStateSnapshot before;
     private IMultiStateSnapshot after;
@@ -46,12 +48,23 @@ public class BitChange implements IChange
     public BitChange(final Tag tag)
     {
         Validate.isInstanceOf(CompoundTag.class, tag);
-        this.deserializeNBT((CompoundTag) tag);
+        this.lazyLoadingTag = (CompoundTag) tag;
+    }
+
+    private void load() {
+        if (lazyLoadingTag == null) {
+            return;
+        }
+
+        this.deserializeNBT(lazyLoadingTag);
+        lazyLoadingTag = null;
     }
 
     @Override
     public boolean canUndo(final Player player)
     {
+        load();
+
         final BlockEntity tileEntity = player.level.getBlockEntity(blockPos);
         if (!(tileEntity instanceof final IMultiStateBlockEntity multiStateBlockEntity)) {
             final BlockState currentState = player.level.getBlockState(blockPos);
@@ -64,6 +77,8 @@ public class BitChange implements IChange
     @Override
     public boolean canRedo(final Player player)
     {
+        load();
+
         final BlockEntity tileEntity = player.level.getBlockEntity(blockPos);
         if (!(tileEntity instanceof final IMultiStateBlockEntity multiStateBlockEntity))
         {
@@ -77,6 +92,8 @@ public class BitChange implements IChange
     @Override
     public void undo(final Player player) throws IllegalChangeAttempt
     {
+        load();
+
         if (!canUndo(player))
             throw new IllegalChangeAttempt();
 
@@ -137,6 +154,8 @@ public class BitChange implements IChange
     @Override
     public void redo(final Player player) throws IllegalChangeAttempt
     {
+        load();
+
         if (!canRedo(player))
             throw new IllegalChangeAttempt();
 
@@ -240,6 +259,9 @@ public class BitChange implements IChange
     @Override
     public CompoundTag serializeNBT()
     {
+        if(lazyLoadingTag != null)
+            return lazyLoadingTag.copy();
+
         final CompoundTag tag = new CompoundTag();
 
         tag.put("pos", NbtUtils.writeBlockPos(this.blockPos));

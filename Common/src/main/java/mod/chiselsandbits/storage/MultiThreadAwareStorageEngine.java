@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 final class MultiThreadAwareStorageEngine implements IMultiThreadedStorageEngine
 {
@@ -75,12 +76,13 @@ final class MultiThreadAwareStorageEngine implements IMultiThreadedStorageEngine
     }
 
     @Override
-    public CompletableFuture<CompoundTag> serializeOffThread()
+    public CompletableFuture<Void> serializeOffThread(Function<CompoundTag, CompletableFuture<Void>> resultSaver)
     {
         ensureThreadPoolSetup();
         return CompletableFuture.supplyAsync(
           this::serializeNBT,
           saveService
-        );
+        )
+       .thenComposeAsync(resultSaver);
     }
 }

@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
+import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
@@ -17,6 +18,7 @@ import mod.chiselsandbits.client.model.baked.face.FaceManager;
 import mod.chiselsandbits.client.model.baked.face.FaceRegion;
 import mod.chiselsandbits.client.model.baked.face.IFaceBuilder;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
+import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.utils.ModelUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -37,6 +39,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @SuppressWarnings("deprecation")
@@ -192,19 +195,28 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 
         if (originalModel != null && data != null)
         {
-            if (layer.isRequiredForRendering(data))
+            final boolean shouldLayerRender;
+            try(final IProfilerSection ignoredLayerCheck = ProfilingManager.getInstance().withSection("check")) {
+                shouldLayerRender = layer.isRequiredForRendering(data);
+            }
+
+            if (shouldLayerRender)
             {
                 final ChiseledBlockModelBuilder builder = new ChiseledBlockModelBuilder();
-                generateFaces(builder, data, neighborStateSupplier, primaryStateRenderSeed);
+                try (final IProfilerSection ignoredFaceGeneration = ProfilingManager.getInstance().withSection("facegeneration")) {
+                    generateFaces(builder, data, neighborStateSupplier, primaryStateRenderSeed);
+                }
 
                 // convert from builder to final storage.
-                up = builder.getSide(Direction.UP);
-                down = builder.getSide(Direction.DOWN);
-                east = builder.getSide(Direction.EAST);
-                west = builder.getSide(Direction.WEST);
-                north = builder.getSide(Direction.NORTH);
-                south = builder.getSide(Direction.SOUTH);
-                generic = builder.getSide(null);
+                try(final IProfilerSection ignoredFinalize = ProfilingManager.getInstance().withSection("finalize")) {
+                    up = builder.getSide(Direction.UP);
+                    down = builder.getSide(Direction.DOWN);
+                    east = builder.getSide(Direction.EAST);
+                    west = builder.getSide(Direction.WEST);
+                    north = builder.getSide(Direction.NORTH);
+                    south = builder.getSide(Direction.SOUTH);
+                    generic = builder.getSide(null);
+                }
             }
         }
     }
@@ -234,123 +246,140 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
     {
         final List<List<FaceRegion>> resultingFaces = new ArrayList<>();
 
-        processFaces(
-          accessor,
-          resultingFaces,
-          IPositionMutator.xzy(),
-          X_Faces,
-          Vec3::x,
-          Vec3::z,
-          neighborStateSupplier
-        );
-        processFaces(
-          accessor,
-          resultingFaces,
-          IPositionMutator.zxy(),
-          Y_Faces,
-          Vec3::y,
-          Vec3::z,
-          neighborStateSupplier
-        );
-        processFaces(
-          accessor,
-          resultingFaces,
-          IPositionMutator.zyx(),
-          Z_Faces,
-          Vec3::z,
-          Vec3::y,
-          neighborStateSupplier
-        );
+        try(final IProfilerSection ignoredFaceProcessing = ProfilingManager.getInstance().withSection("processing")) {
+            try(final IProfilerSection ignoredXFaces = ProfilingManager.getInstance().withSection("x")) {
+                processFaces(
+                  accessor,
+                  resultingFaces,
+                  IPositionMutator.xzy(),
+                  X_Faces,
+                  Vec3::x,
+                  Vec3::z,
+                  neighborStateSupplier
+                );
+            }
 
-        // re-usable float[]'s to minimize garbage cleanup.
-        final double[] to = new double[3];
-        final double[] from = new double[3];
-        final float[] uvs = new float[8];
-        final float[] pos = new float[3];
+            try(final IProfilerSection ignoredXFaces = ProfilingManager.getInstance().withSection("y")) {
+                processFaces(
+                  accessor,
+                  resultingFaces,
+                  IPositionMutator.zxy(),
+                  Y_Faces,
+                  Vec3::y,
+                  Vec3::z,
+                  neighborStateSupplier
+                );
+            }
 
-        // single reusable face builder.
-        final IFaceBuilder faceBuilder = getBuilder();
+            try(final IProfilerSection ignoredXFaces = ProfilingManager.getInstance().withSection("z")) {
+                processFaces(
+                  accessor,
+                  resultingFaces,
+                  IPositionMutator.zyx(),
+                  Z_Faces,
+                  Vec3::z,
+                  Vec3::y,
+                  neighborStateSupplier
+                );
+            }
+        }
 
-        for (final List<FaceRegion> src : resultingFaces)
-        {
-            mergeFaces(src);
+        try(final IProfilerSection ignoredFaceBuilding = ProfilingManager.getInstance().withSection("building")) {
+            // re-usable float[]'s to minimize garbage cleanup.
+            final double[] to = new double[3];
+            final double[] from = new double[3];
+            final float[] uvs = new float[8];
+            final float[] pos = new float[3];
 
-            for (final FaceRegion region : src)
-            {
-                final Direction myFace = region.getFace();
+            // single reusable face builder.
+            final IFaceBuilder faceBuilder = getBuilder();
 
-                // keep integers up until the last moment... ( note I tested
-                // snapping the floats after this stage, it made no
-                // difference. )
-                offsetVec(to, region.getMaxX(), region.getMaxY(), region.getMaxZ());
-                offsetVec(from, region.getMinX(), region.getMinY(), region.getMinZ());
-                final ModelQuadLayer[] mpc = FaceManager.getInstance().getCachedFace(region.getBlockState(), myFace, chiselRenderType.layer, primaryStateRenderSeed);
+            try(final IProfilerSection ignoredMerging = ProfilingManager.getInstance().withSection("merging")) {
+                for (final List<FaceRegion> src : resultingFaces) {
+                    mergeFaces(src);
+                }
+            }
 
-                if (mpc != null)
-                {
-                    for (final ModelQuadLayer pc : mpc)
+            try (final IProfilerSection ignoredQuadGeneration = ProfilingManager.getInstance().withSection("quadGeneration")) {
+                for (final List<FaceRegion> src : resultingFaces) {
+                    for (final FaceRegion region : src)
                     {
-                        VertexFormat builderFormat = faceBuilder.getFormat();
+                        final Direction myFace = region.getFace();
 
-                        faceBuilder.begin();
-                        faceBuilder.setFace(myFace, pc.getTint());
+                        // keep integers up until the last moment... ( note I tested
+                        // snapping the floats after this stage, it made no
+                        // difference. )
+                        offsetVec(to, region.getMaxX(), region.getMaxY(), region.getMaxZ());
+                        offsetVec(from, region.getMinX(), region.getMinY(), region.getMinZ());
+                        final ModelQuadLayer[] mpc = FaceManager.getInstance().getCachedFace(region.getBlockState(), myFace, chiselRenderType.layer, primaryStateRenderSeed);
 
-                        final float maxLightmap = 32.0f / 0xffff;
-                        getFaceUvs(uvs, myFace, from, to, pc.getUvs());
-
-                        // build it.
-                        for (int vertNum = 0; vertNum < 4; vertNum++)
+                        if (mpc != null)
                         {
-                            for (int elementIndex = 0; elementIndex < builderFormat.getElements().size(); elementIndex++)
+                            for (final ModelQuadLayer pc : mpc)
                             {
-                                final VertexFormatElement element = builderFormat.getElements().get(elementIndex);
-                                switch (element.getUsage())
+                                VertexFormat builderFormat = faceBuilder.getFormat();
+
+                                faceBuilder.begin();
+                                faceBuilder.setFace(myFace, pc.getTint());
+
+                                final float maxLightmap = 32.0f / 0xffff;
+                                getFaceUvs(uvs, myFace, from, to, pc.getUvs());
+
+                                // build it.
+                                for (int vertNum = 0; vertNum < 4; vertNum++)
                                 {
-                                    case POSITION:
-                                        getVertexPos(pos, myFace, vertNum, to, from);
-                                        faceBuilder.put(elementIndex, pos[0], pos[1], pos[2]);
-                                        break;
-
-                                    case COLOR:
-                                        final int cb = pc.getColor();
-                                        faceBuilder.put(elementIndex, byteToFloat(cb >> 16), byteToFloat(cb >> 8), byteToFloat(cb), NotZero(byteToFloat(cb >> 24)));
-                                        break;
-
-                                    case NORMAL:
-                                        // this fixes a bug with Forge AO?? and
-                                        // solid blocks.. I have no idea why...
-                                        final float normalShift = 0.999f;
-                                        faceBuilder.put(elementIndex, normalShift * myFace.getStepX(), normalShift * myFace.getStepY(), normalShift * myFace.getStepZ());
-                                        break;
-
-                                    case UV:
-                                        if (element.getIndex() == 2)
+                                    for (int elementIndex = 0; elementIndex < builderFormat.getElements().size(); elementIndex++)
+                                    {
+                                        final VertexFormatElement element = builderFormat.getElements().get(elementIndex);
+                                        switch (element.getUsage())
                                         {
-                                            final float v = maxLightmap * Math.max(0, Math.min(15, pc.getLight()));
-                                            faceBuilder.put(elementIndex, v, v);
-                                        }
-                                        else
-                                        {
-                                            final float u = uvs[faceVertMap[myFace.get3DDataValue()][vertNum] * 2];
-                                            final float v = uvs[faceVertMap[myFace.get3DDataValue()][vertNum] * 2 + 1];
-                                            faceBuilder.put(elementIndex, pc.getSprite().getU(u), pc.getSprite().getV(v));
-                                        }
-                                        break;
+                                            case POSITION:
+                                                getVertexPos(pos, myFace, vertNum, to, from);
+                                                faceBuilder.put(elementIndex, pos[0], pos[1], pos[2]);
+                                                break;
 
-                                    default:
-                                        faceBuilder.put(elementIndex);
-                                        break;
+                                            case COLOR:
+                                                final int cb = pc.getColor();
+                                                faceBuilder.put(elementIndex, byteToFloat(cb >> 16), byteToFloat(cb >> 8), byteToFloat(cb), NotZero(byteToFloat(cb >> 24)));
+                                                break;
+
+                                            case NORMAL:
+                                                // this fixes a bug with Forge AO?? and
+                                                // solid blocks.. I have no idea why...
+                                                final float normalShift = 0.999f;
+                                                faceBuilder.put(elementIndex, normalShift * myFace.getStepX(), normalShift * myFace.getStepY(), normalShift * myFace.getStepZ());
+                                                break;
+
+                                            case UV:
+                                                if (element.getIndex() == 2)
+                                                {
+                                                    final float v = maxLightmap * Math.max(0, Math.min(15, pc.getLight()));
+                                                    faceBuilder.put(elementIndex, v, v);
+                                                }
+                                                else
+                                                {
+                                                    final float u = uvs[faceVertMap[myFace.get3DDataValue()][vertNum] * 2];
+                                                    final float v = uvs[faceVertMap[myFace.get3DDataValue()][vertNum] * 2 + 1];
+                                                    faceBuilder.put(elementIndex, pc.getSprite().getU(u), pc.getSprite().getV(v));
+                                                }
+                                                break;
+
+                                            default:
+                                                faceBuilder.put(elementIndex);
+                                                break;
+                                        }
+                                    }
+                                }
+
+                                if (region.isEdge())
+                                {
+                                    builder.getList(myFace).add(faceBuilder.create(pc.getSprite()));
+                                }
+                                else
+                                {
+                                    builder.getList(null).add(faceBuilder.create(pc.getSprite()));
                                 }
                             }
-                        }
-
-                        if (region.isEdge())
-                        {
-                            builder.getList(myFace).add(faceBuilder.create(pc.getSprite()));
-                        }
-                        else
-                        {
-                            builder.getList(null).add(faceBuilder.create(pc.getSprite()));
                         }
                     }
                 }
@@ -426,46 +455,64 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
         {
             final FaceBuildingState state = new FaceBuildingState();
 
-            accessor.streamWithPositionMutator(analysisOrder)
-              .filter(this.chiselRenderType::isRequiredForRendering)
-              .forEach(stateEntryInfo -> {
-                  if (state.getRegionBuildingAxisValue() != regionBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint())) {
-                      if (!regions.isEmpty()) {
-                          resultingRegions.add(Lists.newArrayList(regions));
-                      }
-                      regions.clear();
-                      state.setCurrentRegion(null);
-                  }
-                  state.setRegionBuildingAxisValue(regionBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint()));
-
-                  if (state.getFaceBuildingAxisValue() != faceBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint())) {
-                      state.setCurrentRegion(null);
-                  }
-                  state.setFaceBuildingAxisValue(faceBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint()));
-
-                  final Optional<FaceRegion> potentialRegionData = buildFaceRegion(
-                    accessor,
-                    facing,
-                    stateEntryInfo,
-                    test,
-                    neighborStateSupplier
-                  );
-
-                  if (potentialRegionData.isEmpty()) {
-                      state.setCurrentRegion(null);
-                      return;
-                  }
-
-
-                  if (state.getCurrentRegion() != null) {
-                      if (state.getCurrentRegion().extend(potentialRegionData.get())) {
+            //noinspection Convert2Lambda Performance optimizations.
+            accessor.forEachWithPositionMutator(
+              analysisOrder,
+              new Consumer<>()
+              {
+                  @Override
+                  public void accept(final IStateEntryInfo stateEntryInfo)
+                  {
+                      if (!ChiseledBlockBakedModel.this.chiselRenderType.isRequiredForRendering(stateEntryInfo))
+                      {
                           return;
                       }
-                  }
 
-                  state.setCurrentRegion(potentialRegionData.get());
-                  regions.add(potentialRegionData.get());
-              });
+                      if (state.getRegionBuildingAxisValue() != regionBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint()))
+                      {
+                          if (!regions.isEmpty())
+                          {
+                              resultingRegions.add(Lists.newArrayList(regions));
+                          }
+                          regions.clear();
+                          state.setCurrentRegion(null);
+                      }
+                      state.setRegionBuildingAxisValue(regionBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint()));
+
+                      if (state.getFaceBuildingAxisValue() != faceBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint()))
+                      {
+                          state.setCurrentRegion(null);
+                      }
+                      state.setFaceBuildingAxisValue(faceBuildingAxisValueExtractor.apply(stateEntryInfo.getStartPoint()));
+
+                      final Optional<FaceRegion> potentialRegionData = ChiseledBlockBakedModel.this.buildFaceRegion(
+                        accessor,
+                        facing,
+                        stateEntryInfo,
+                        test,
+                        neighborStateSupplier
+                      );
+
+                      if (potentialRegionData.isEmpty())
+                      {
+                          state.setCurrentRegion(null);
+                          return;
+                      }
+
+
+                      if (state.getCurrentRegion() != null)
+                      {
+                          if (state.getCurrentRegion().extend(potentialRegionData.get()))
+                          {
+                              return;
+                          }
+                      }
+
+                      state.setCurrentRegion(potentialRegionData.get());
+                      regions.add(potentialRegionData.get());
+                  }
+              }
+            );
 
             if (!regions.isEmpty()) {
                 resultingRegions.add(Lists.newArrayList(regions));

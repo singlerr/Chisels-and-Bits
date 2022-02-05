@@ -30,4 +30,22 @@ public enum ChiselingOperation
     {
         return processesAir;
     }
+
+    /**
+     * Indicates if the current mode is a chiseling mode.
+     *
+     * @return True when this is a chiseling mode, false otherwise.
+     */
+    public boolean isChiseling() {
+        return this == CHISELING;
+    }
+
+    /**
+     * Indicates if the current mode is a placing mode.
+     *
+     * @return True when this is a placing mode, false otherwise.
+     */
+    public boolean isPlacing() {
+        return this == PLACING;
+    }
 }

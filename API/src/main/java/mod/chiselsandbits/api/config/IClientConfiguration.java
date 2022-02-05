@@ -155,4 +155,25 @@ public interface IClientConfiguration
      * @return A configuration supplier which indicates the size of the stack model cache.
      */
     Supplier<Long> getStackModelCacheSize();
+
+    /**
+     * Determines the color used during debug rendering of the mutator area when chiseling.
+     *
+     * @return A configuration supplier which indicates the color used during debug rendering of the mutator area when chiseling.
+     */
+    Supplier<List<? extends Float>> getMutatorPreviewChiselingColor();
+
+    /**
+     * Determines the color used during debug rendering of the mutator area when placing.
+     *
+     * @return A configuration supplier which indicates the color used during debug rendering of the mutator area when placing.
+     */
+    Supplier<List<? extends Float>> getMutatorPreviewPlacementColor();
+
+    /**
+     * Indicates if the preview rendering should run in debug mode.
+     *
+     * @return A configuration supplier which indicates if the preview rendering should run in debug mode.
+     */
+    Supplier<Boolean> getMutatorPreviewDebug();
 }

@@ -31,6 +31,7 @@ import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.utils.CommandUtils;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.profiling.jfr.Environment;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.commands.CommandSourceStack;
@@ -264,7 +265,7 @@ public class CommandManager
         }
 
         ProfilingManager.getInstance().setProfiler(
-          IProfilingManager.getInstance().startProfiling()
+          IProfilingManager.getInstance().startProfiling(Environment.from(context.getSource().getServer()))
         );
 
         return 0;
@@ -277,10 +278,8 @@ public class CommandManager
             return 1;
         }
 
-        final IProfilerResult result = IProfilingManager.getInstance().endProfiling(ProfilingManager.getInstance().getProfiler());
+        final IProfilerResult result = IProfilingManager.getInstance().stopProfiling(ProfilingManager.getInstance().getProfiler());
         result.writeAsResponse(line -> context.getSource().sendSuccess(new TextComponent(line), true));
-
-        ProfilingManager.getInstance().setProfiler(null);
 
         return 0;
     }

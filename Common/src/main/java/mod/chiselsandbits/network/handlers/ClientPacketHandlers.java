@@ -52,7 +52,7 @@ public final class ClientPacketHandlers
                 if (convertedState.isEmpty())
                     return;
 
-                Minecraft.getInstance().level.setBlock(blockPos, convertedState.get().defaultBlockState(), Block.UPDATE_ALL);
+                Minecraft.getInstance().level.setBlock(blockPos, convertedState.get().defaultBlockState(), Block.UPDATE_NONE);
                 tileEntity = Minecraft.getInstance().level.getBlockEntity(blockPos);
                 if (!(tileEntity instanceof IMultiStateBlockEntity))
                     return;

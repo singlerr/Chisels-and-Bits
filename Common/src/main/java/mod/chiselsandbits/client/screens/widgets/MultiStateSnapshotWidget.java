@@ -9,17 +9,12 @@ import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.ColorUtils;
-import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.network.chat.Component;
@@ -50,14 +45,11 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
         fill(poseStack, this.x + 1, this.y + 1, this.x + this.width, this.y + this.height, ColorUtils.pack(ColorUtils.FULL_CHANNEL));
         fill(poseStack, this.x + 1, this.y + 1, this.x + this.width - 1, this.y + this.height - 1, ColorUtils.pack(ColorUtils.EMPTY_CHANNEL));
 
-        Window mw = Minecraft.getInstance().getWindow();
-        double sf = mw.getGuiScale();
-        GL11.glScissor((int)((this.x) * mw.getGuiScale()), (int)(mw.getGuiScaledHeight() * sf - height * sf - (y) * sf), (int)(width * sf), (int)(height * sf));
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
+        scissorStart();
 
         if (!snapshotBlockStack.isEmpty()) {
             poseStack.pushPose();
-            renderRotateableItemAndEffectIntoGui(poseStack);
+            renderRotateableItemAndEffectIntoGui();
             poseStack.popPose();
         }
 
@@ -66,7 +58,6 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
 
     @SuppressWarnings({"deprecation", "ConstantConditions"})
     public void renderRotateableItemAndEffectIntoGui(
-      final PoseStack poseStack
     ) {
         final int x = this.x + this.width / 2 - 8;
         final int y = this.y + this.height / 2 - 8;
@@ -77,6 +68,7 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
           0
         );
 
+        final PoseStack poseStack = RenderSystem.getModelViewStack();
         poseStack.pushPose();
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -85,22 +77,26 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 
+        final float blitOffset = Minecraft.getInstance().getItemRenderer().blitOffset;
         poseStack.translate((float)x, (float)y, 150);
         poseStack.translate(8.0F, 8.0F, 0.0F);
         poseStack.mulPose(Quaternion.fromXYZDegrees(
           new Vector3f(this.facingVector)
         ));
-        poseStack.scale(1.0F, -1.0F, 1.0F);
-        poseStack.scale(16.0F, 16.0F, 16.0F);
         poseStack.scale(scaleFactor, scaleFactor, scaleFactor);
-        PoseStack matrixstack = new PoseStack();
+        poseStack.translate(-8.0F, -8.0F, 0.0F);
+
+        poseStack.translate(0,0, -100-blitOffset);
+        RenderSystem.applyModelViewMatrix();
+
         MultiBufferSource.BufferSource irendertypebuffer$impl = Minecraft.getInstance().renderBuffers().bufferSource();
         boolean flag = !bakedmodel.usesBlockLight();
         if (flag) {
             Lighting.setupForFlatItems();
         }
 
-        Minecraft.getInstance().getItemRenderer().render(snapshotBlockStack, ItemTransforms.TransformType.GUI, false, matrixstack, irendertypebuffer$impl, 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
+        Minecraft.getInstance().getItemRenderer().renderGuiItem(snapshotBlockStack, 0, 0, bakedmodel);
+
         irendertypebuffer$impl.endBatch();
         RenderSystem.enableDepthTest();
         if (flag) {
@@ -108,6 +104,7 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
         }
 
         poseStack.popPose();
+        RenderSystem.applyModelViewMatrix();
     }
 
     public IMultiStateSnapshot getSnapshot()
@@ -127,7 +124,7 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
     @Override
     protected void onDrag(final double mouseX, final double mouseY, final double dragX, final double dragY)
     {
-        this.facingVector = this.facingVector.add(-dragY * 100, dragX * 100, 0);
+        this.facingVector = this.facingVector.add(-dragY * 10, dragX * 10, 0);
     }
 
     @Override
@@ -137,11 +134,12 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
         return true;
     }
 
-    private static void enableScissor(final int x, final int y, final int w, final int h)
+    private void scissorStart()
     {
-        GL11.glPushAttrib(GL11.GL_SCISSOR_BIT);
+        Window mw = Minecraft.getInstance().getWindow();
+        double sf = mw.getGuiScale();
+        GL11.glScissor((int)((this.x + 1) * mw.getGuiScale()), (int)(mw.getGuiScaledHeight() * sf - height * sf - (y - 1) * sf), (int)((width - 2) * sf), (int)((height - 1) * sf));
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        GL11.glScissor(x, y, w, h);
     }
 
     protected void scissorEnd() {

@@ -1,9 +1,9 @@
 package mod.chiselsandbits.multistate.mutator;
 
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
-import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessorWithVoxelShape;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
@@ -13,11 +13,13 @@ import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.util.BlockPosForEach;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.multistate.snapshot.MultiBlockMultiStateSnapshot;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -29,8 +31,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -194,6 +196,26 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
                  })
                  .filter(Optional::isPresent)
                  .map(Optional::get);
+    }
+
+    @Override
+    public void forEachWithPositionMutator(
+      final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer)
+    {
+        BlockPosForEach.forEachInRange(
+          getInWorldStartPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
+          getInWorldEndPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
+          blockPos -> {
+              final Vec3i target = positionMutator.mutate(blockPos);
+              final Vec3 scaledTarget = Vec3.atLowerCornerOf(target).multiply(StateEntrySize.current().getSizePerBitScalingVector());
+
+              final BlockPos position = new BlockPos(blockPos);
+              final Vec3 inBlockOffset = scaledTarget.subtract(Vec3.atLowerCornerOf(position));
+
+              final Optional<IStateEntryInfo> targetCandidate = getInBlockTarget(position, inBlockOffset);
+              targetCandidate.ifPresent(consumer);
+          }
+        );
     }
 
     @Override
@@ -425,7 +447,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     }
 
     @Override
-    public VoxelShape provideShape(final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder, final BlockPos offset, final boolean simplify)
+    public VoxelShape provideShape(final CollisionType type, final BlockPos offset, final boolean simplify)
     {
         final VoxelShape areaShape = Shapes.create(getInWorldBoundingBox().move(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).move(offset));
         final VoxelShape containedShape = BlockPosStreamProvider.getForRange(
@@ -433,7 +455,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
         ).map(blockPos -> new ChiselAdaptingWorldMutator(
           getWorld(), blockPos))
                                             .map(a -> IVoxelShapeManager.getInstance().get(a, new BlockPos(a.getInWorldStartPoint()).offset(VectorUtils.invert(new BlockPos(getInWorldStartPoint()))).offset(offset),
-                                              selectablePredicateBuilder, simplify))
+                                              type, simplify))
                                             .reduce(
                                               Shapes.empty(),
                                               (voxelShape, bbShape) -> Shapes.joinUnoptimized(voxelShape, bbShape, BooleanOp.OR),

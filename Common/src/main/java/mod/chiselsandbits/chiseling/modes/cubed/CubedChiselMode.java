@@ -1,6 +1,7 @@
 package mod.chiselsandbits.chiseling.modes.cubed;
 
 import com.google.common.collect.Maps;
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
@@ -17,6 +18,7 @@ import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
+import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -30,6 +32,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -182,6 +186,15 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
     public Optional<IAreaAccessor> getCurrentAccessor(final IChiselingContext context)
     {
         return context.getMutator().map(mutator -> mutator);
+    }
+
+    @Override
+    public VoxelShape getShape(final IChiselingContext context)
+    {
+        if (context.getMutator().isEmpty())
+            return Shapes.empty();
+
+        return VoxelShapeManager.getInstance().get(context.getMutator().get(), CollisionType.ALL);
     }
 
     private Optional<ClickProcessingState> processRayTraceIntoContext(

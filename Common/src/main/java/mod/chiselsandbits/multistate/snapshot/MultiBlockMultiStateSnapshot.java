@@ -1,5 +1,6 @@
 package mod.chiselsandbits.multistate.snapshot;
 
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
@@ -10,9 +11,12 @@ import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IAreaMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.axissize.IAxisSizeHandler;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
+import mod.chiselsandbits.api.util.BlockPosForEach;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.VectorUtils;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
@@ -23,6 +27,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -132,6 +137,26 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
                  })
                  .filter(Optional::isPresent)
                  .map(Optional::get);
+    }
+
+    @Override
+    public void forEachWithPositionMutator(
+      final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer)
+    {
+        BlockPosForEach.forEachInRange(
+          startPoint.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
+          endPoint.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
+          (blockPos) -> {
+              final Vec3i target = positionMutator.mutate(blockPos);
+              final Vec3 scaledTarget = Vec3.atLowerCornerOf(target).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
+
+              final BlockPos blockTarget = new BlockPos(scaledTarget);
+              final Vec3 inBlockOffset = scaledTarget.subtract(Vec3.atLowerCornerOf(blockPos));
+
+              Optional<IStateEntryInfo> targetCandidate = getInBlockTarget(blockPos, inBlockOffset);
+              targetCandidate.ifPresent(consumer);
+          }
+        );
     }
 
     /**
@@ -375,6 +400,9 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
             {
                 throw new NotImplementedException("Is a snapshot");
             }
+
+            @Override
+            public BitSet getCollideableEntries(final CollisionType collisionType) { return BitSet.valueOf(new long[0]); }
         };
     }
 

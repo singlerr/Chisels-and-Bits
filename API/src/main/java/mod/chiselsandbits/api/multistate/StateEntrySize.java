@@ -34,14 +34,20 @@ public enum StateEntrySize
      */
     ONE(1);
 
-    public static StateEntrySize current() {
-        if (IChiselsAndBitsAPI.getInstance() == null)
-            return StateEntrySize.ONE;
+    private static StateEntrySize _current = null;
 
-        return IChiselsAndBitsAPI.getInstance().getStateEntrySize();
+    public static StateEntrySize current() {
+        if (_current == null) {
+            if (IChiselsAndBitsAPI.getInstance() == null)
+                _current = StateEntrySize.ONE_SIXTEENTH;
+            else
+                _current = IChiselsAndBitsAPI.getInstance().getStateEntrySize();
+        }
+
+        return _current;
     }
 
-    private final int bitsPerBlockSide;
+    private final int   bitsPerBlockSide;
     private final int   bitsPerBlock;
     private final int   bitsPerLayer;
     private final float sizePerBit;

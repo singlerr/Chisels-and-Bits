@@ -2,6 +2,7 @@ package mod.chiselsandbits.block.entities;
 
 import com.google.common.collect.*;
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.entity.INetworkUpdateableEntity;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
@@ -21,6 +22,7 @@ import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.axissize.IAxisSizeHandler;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.*;
 import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
@@ -36,22 +38,19 @@ import mod.chiselsandbits.storage.ILegacyStorageHandler;
 import mod.chiselsandbits.storage.IMultiThreadedStorageEngine;
 import mod.chiselsandbits.storage.IStorageHandler;
 import mod.chiselsandbits.storage.StorageEngineBuilder;
-import mod.chiselsandbits.utils.ChunkSectionUtils;
-import mod.chiselsandbits.utils.GZIPDataCompressionUtils;
-import mod.chiselsandbits.utils.LZ4DataCompressionUtils;
-import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
+import mod.chiselsandbits.utils.*;
+import mod.chiselsandbits.voxelshape.MultiStateBlockEntityDiscreteVoxelShape;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.data.BuiltinRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.*;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -61,18 +60,22 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.lighting.LayerLightEngine;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CubeVoxelShape;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @SuppressWarnings("deprecation")
-public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlockEntity, INetworkUpdateableEntity, IBlockEntityWithModelData
+public class ChiseledBlockEntity extends BlockEntity implements
+  IMultiStateBlockEntity, INetworkUpdateableEntity, IBlockEntityWithModelData
 {
     public static final float ONE_THOUSANDS       = 1 / 1000f;
 
@@ -98,6 +101,24 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
                           .withLegacy(new LegacyGZIPStorageBasedStorageHandler())
                           .with(new LZ4StorageBasedStorageHandler())
                           .buildMultiThreaded();
+    }
+
+    @Override
+    public void setLevel(@Nullable final Level level)
+    {
+        super.setLevel(level);
+
+        if (level instanceof ServerLevel serverLevel) {
+            serverLevel.getServer().tell(
+              new TickTask(serverLevel.getServer().getTickCount(),
+              () -> {
+                if (mutableStatistics.isRequiresRecalculation()) {
+                    mutableStatistics.recalculate(this.compressedSection, shouldUpdateWorld());
+                }
+
+                mutableStatistics.updatePrimaryState(shouldUpdateWorld());
+            }));
+        }
     }
 
     @Override
@@ -221,6 +242,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     public void deserializeNBT(final CompoundTag nbt)
     {
         this.storageEngine.deserializeNBT(nbt);
+        this.lastTag = nbt;
         ChiseledBlockModelDataManager.getInstance().updateModelData(this);
     }
 
@@ -261,7 +283,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     @Override
     public void setChanged()
     {
-        if (getLevel() != null && this.batchMutations.isEmpty())
+        if (getLevel() != null && this.batchMutations.isEmpty() && !getLevel().isClientSide())
         {
             this.mutableStatistics.updatePrimaryState(true);
 
@@ -273,8 +295,10 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
                     }
                     this.lastTag = null;
 
-                    this.storageFuture = this.storageEngine.serializeOffThread()
-                                           .thenAcceptAsync(calculatedTag -> this.lastTag = calculatedTag);
+                    this.storageFuture = this.storageEngine.serializeOffThread(
+                      tag -> CompletableFuture.runAsync(
+                        () -> this.setOffThreadSaveResult(tag), getLevel().getServer()
+                      ));
                 }
             }
 
@@ -283,15 +307,16 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             getLevel().getLightEngine().checkBlock(getBlockPos());
             getLevel().sendBlockUpdated(getBlockPos(), Blocks.AIR.defaultBlockState(), getBlockState(), Block.UPDATE_ALL);
 
-            if (!getLevel().isClientSide())
-            {
-                ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
-                  new TileEntityUpdatedPacket(this),
-                  getLevel().getChunkAt(getBlockPos())
-                );
-                getLevel().updateNeighborsAt(getBlockPos(), getLevel().getBlockState(getBlockPos()).getBlock());
-            }
+            ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
+              new TileEntityUpdatedPacket(this),
+              getLevel().getChunkAt(getBlockPos())
+            );
+            getLevel().updateNeighborsAt(getBlockPos(), getLevel().getBlockState(getBlockPos()).getBlock());
         }
+    }
+
+    private void setOffThreadSaveResult(final CompoundTag tag) {
+        this.lastTag = tag;
     }
 
     private boolean shouldUpdateWorld() {
@@ -618,6 +643,22 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     }
 
     @Override
+    public void forEachWithPositionMutator(
+      final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer)
+    {
+        BlockPosForEach.forEachInRange(StateEntrySize.current().getBitsPerBlockSide(), (BlockPos blockPos) -> {
+            final Vec3i pos = positionMutator.mutate(blockPos);
+            consumer.accept(new StateEntry(
+              compressedSection.getBlockState(pos.getX(), pos.getY(), pos.getZ()),
+              getLevel(),
+              getBlockPos(),
+              pos,
+              this::setInAreaTarget,
+              this::clearInAreaTarget));
+        });
+    }
+
+    @Override
     public IBatchMutation batch()
     {
         final UUID id = UUID.randomUUID();
@@ -654,6 +695,25 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
     public IBlockModelData getBlockModelData()
     {
         return this.modelData;
+    }
+
+    @Override
+    public VoxelShape provideShape(
+      final CollisionType type, final BlockPos offset, final boolean simplify)
+    {
+        VoxelShape shape = new CubeVoxelShape(new MultiStateBlockEntityDiscreteVoxelShape(
+          this.getStatistics().getCollideableEntries(type)
+        ));
+
+        if (offset != BlockPos.ZERO) {
+            shape = shape.move(offset.getX(), offset.getY(), offset.getZ());
+        }
+
+        if (simplify) {
+            shape = shape.optimize();
+        }
+
+        return shape;
     }
 
     private static final class StateEntry implements IInWorldMutableStateEntryInfo
@@ -761,7 +821,8 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         private final Supplier<BlockPos> positionSupplier;
         private final Map<BlockState, Integer> countMap     = Maps.newConcurrentMap();
         private final Table<Integer, Integer, ColumnStatistics> columnStatisticsTable = HashBasedTable.create();
-        private       BlockState               primaryState = Blocks.AIR.defaultBlockState();
+        private final Map<CollisionType, BitSet>                collisionData         = Maps.newConcurrentMap();
+        private       BlockState                                primaryState          = Blocks.AIR.defaultBlockState();
         private int   totalUsedBlockCount           = 0;
         private int   totalUsedChecksWeakPowerCount = 0;
         private int   totalLightLevel      = 0;
@@ -864,6 +925,27 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
               .stream().anyMatch(ColumnStatistics::canLowestBitSustainGrass);
         }
 
+        @Override
+        public BitSet getCollideableEntries(final CollisionType collisionType) {
+            final BitSet collisionDataSet = collisionData.computeIfAbsent(collisionType, type -> {
+                if (!shouldUpdateWorld())
+                    return null;
+
+                final BitSet bitSet = new BitSet(StateEntrySize.current().getBitsPerBlock());
+                BlockPosForEach.forEachInRange(StateEntrySize.current().getBitsPerBlockSide(), blockPos -> bitSet.set(
+                  BlockPosUtils.getCollisionIndex(blockPos),
+                  type.isValidFor(compressedSection.getBlockState(blockPos))
+                ));
+
+                return bitSet;
+            });
+
+            if (collisionDataSet == null)
+                return new BitSet(0);
+
+            return collisionDataSet;
+        }
+
         private void onBlockStateAdded(final BlockState blockState, final BlockPos pos, final boolean updateWorld)
         {
             countMap.putIfAbsent(blockState, 0);
@@ -908,6 +990,10 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             }
 
             this.columnStatisticsTable.get(pos.getX(), pos.getZ()).onBlockStateAdded(blockState, pos);
+
+            this.collisionData.forEach((collisionType, bitSet) -> {
+                bitSet.set(BlockPosUtils.getCollisionIndex(pos), collisionType.isValidFor(blockState));
+            });
         }
 
         private void updatePrimaryState(final boolean updateWorld)
@@ -996,7 +1082,10 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
                 this.columnStatisticsTable.put(pos.getX(), pos.getZ(), new ColumnStatistics(this.worldReaderSupplier, this.positionSupplier));
             }
 
-            this.columnStatisticsTable.get(pos.getX(), pos.getZ()).onBlockStateAdded(blockState, pos);
+            this.columnStatisticsTable.get(pos.getX(), pos.getZ()).onBlockStateRemoved(blockState, pos);
+            this.collisionData.forEach((collisionType, bitSet) -> {
+                bitSet.set(BlockPosUtils.getCollisionIndex(pos), collisionType.isValidFor(Blocks.AIR.defaultBlockState()));
+            });
         }
 
         private void onBlockStateReplaced(final BlockState currentState, final BlockState newState, final BlockPos pos, final boolean updateWorld)
@@ -1074,6 +1163,10 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             }
 
             this.columnStatisticsTable.get(pos.getX(), pos.getZ()).onBlockStateReplaced(currentState, newState, pos);
+
+            this.collisionData.forEach((collisionType, bitSet) -> {
+                bitSet.set(BlockPosUtils.getCollisionIndex(pos), collisionType.isValidFor(newState));
+            });
         }
 
         @Override
@@ -1100,6 +1193,13 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             packetBuffer.writeVarInt(this.totalUsedChecksWeakPowerCount);
             packetBuffer.writeVarInt(this.totalLightLevel);
             packetBuffer.writeVarInt(this.totalLightBlockLevel);
+
+            packetBuffer.writeVarInt(this.collisionData.size());
+            this.collisionData
+              .forEach((collisionType, bitSet) -> {
+                  packetBuffer.writeVarInt(collisionType.ordinal());
+                  packetBuffer.writeLongArray(bitSet.toLongArray());
+              });
         }
 
         @Override
@@ -1107,6 +1207,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
         {
             this.countMap.clear();
             this.columnStatisticsTable.clear();
+            this.collisionData.clear();
 
             this.primaryState = IBlockStateIdManager.getInstance().getBlockStateFrom(packetBuffer.readVarInt());
 
@@ -1118,6 +1219,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
                   packetBuffer.readVarInt()
                 );
             }
+
             final int columnBlockCount = packetBuffer.readVarInt();
             for (int i = 0; i < columnBlockCount; i++)
             {
@@ -1136,6 +1238,14 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             this.totalUsedChecksWeakPowerCount = packetBuffer.readVarInt();
             this.totalLightLevel = packetBuffer.readVarInt();
             this.totalLightBlockLevel = packetBuffer.readVarInt();
+
+            final int axisSizeHandlerCount = packetBuffer.readVarInt();
+            for (int i = 0; i < axisSizeHandlerCount; i++)
+            {
+                final CollisionType collisionType = CollisionType.values()[packetBuffer.readVarInt()];
+                final BitSet set = BitSet.valueOf(packetBuffer.readLongArray());
+                this.collisionData.put(collisionType, set);
+            }
         }
 
         @Override
@@ -1171,6 +1281,12 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             nbt.putInt(NbtConstants.TOTAL_SHOULD_CHECK_WEAK_POWER_COUNT, totalUsedChecksWeakPowerCount);
             nbt.putInt(NbtConstants.TOTAL_LIGHT_LEVEL, totalLightLevel);
             nbt.putInt(NbtConstants.TOTAL_LIGHT_BLOCK_LEVEL, totalLightBlockLevel);
+
+            final CompoundTag collisionDataNbt = new CompoundTag();
+            this.collisionData.forEach((collisionType, set) -> {
+                collisionDataNbt.putLongArray(collisionType.name(), set.toLongArray());
+            });
+            nbt.put(NbtConstants.COLLISION_DATA, collisionDataNbt);
 
             return nbt;
         }
@@ -1208,6 +1324,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
                       );
 
                       columnStatistics.deserializeNBT(columnStatisticsNbt);
+                      this.columnStatisticsTable.put(rowKey, columnKey, columnStatistics);
                    });
                 });
             }
@@ -1229,6 +1346,20 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             else
             {
                 this.totalLightBlockLevel = 0;
+                this.requiresRecalculation = true;
+            }
+
+            this.collisionData.clear();
+            if (nbt.contains(NbtConstants.COLLISION_DATA)) {
+                final CompoundTag collisionDataNbt = nbt.getCompound(NbtConstants.COLLISION_DATA);
+                collisionDataNbt.getAllKeys().forEach(collisionTypeName -> {
+                    final CollisionType collisionType = CollisionType.valueOf(collisionTypeName);
+                    final BitSet set = BitSet.valueOf(collisionDataNbt.getLongArray(collisionTypeName));
+                    this.collisionData.put(collisionType, set);
+                });
+            }
+            else
+            {
                 this.requiresRecalculation = true;
             }
         }
@@ -1289,6 +1420,15 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
                         this.columnStatisticsTable.put(x, z, columnStatistics);
                     });
               });
+
+            this.collisionData.clear();
+            for (final CollisionType collisionType : CollisionType.values())
+            {
+                final boolean matches = collisionType.isValidFor(blockState);
+                final BitSet set = new BitSet(StateEntrySize.current().getBitsPerBlock());
+                set.set(0, StateEntrySize.current().getBitsPerBlock(), matches);
+                this.collisionData.put(collisionType, set);
+            }
         }
 
         private void clear()
@@ -1297,6 +1437,7 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
 
             this.countMap.clear();
             this.columnStatisticsTable.clear();
+            this.collisionData.clear();
 
             this.totalUsedBlockCount = 0;
             this.totalUsedChecksWeakPowerCount = 0;
@@ -1315,6 +1456,11 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
 
         private void recalculate(final IStateEntryStorage source, final boolean mayUpdateWorld)
         {
+            if (!mayUpdateWorld) {
+                this.requiresRecalculation = true;
+                return;
+            }
+
             this.requiresRecalculation = false;
             clear();
 
@@ -1367,6 +1513,380 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
 
                   this.columnStatisticsTable.get(pos.getX(), pos.getZ()).onBlockStateAdded(blockState, pos);
               });
+
+            this.collisionData.clear();
+            for (final CollisionType collisionType : CollisionType.values())
+            {
+                getCollideableEntries(collisionType);
+            }
+        }
+
+        private final class AxisSizeHandler implements IAxisSizeHandler, INBTSerializable<CompoundTag>, IPacketBufferSerializable {
+
+            private final Direction.Axis axis;
+            private final CollisionType  sizeType;
+
+            private final Table<Integer, Integer, AxisStatistics> axisStatisticsTable = HashBasedTable.create();
+
+            private final Direction positiveDirection;
+            private final Direction firstNoneAxisDirection;
+            private final Direction secondNoneAxisDirection;
+
+            private int min;
+            private int max;
+
+            private AxisSizeHandler(final Direction.Axis axis, final CollisionType sizeType) {
+                this.axis = axis;
+                this.sizeType = sizeType;
+
+                this.positiveDirection = Direction.fromAxisAndDirection(axis, Direction.AxisDirection.POSITIVE);
+                this.firstNoneAxisDirection = Arrays.stream(Direction.values())
+                  .filter(direction -> direction.getAxis() != axis)
+                  .filter(direction -> direction.getAxisDirection() == Direction.AxisDirection.POSITIVE)
+                  .findFirst()
+                  .orElseThrow();
+                this.secondNoneAxisDirection = Arrays.stream(Direction.values())
+                  .filter(direction -> direction.getAxis() != axis)
+                  .filter(direction -> direction.getAxis() != firstNoneAxisDirection.getAxis())
+                  .filter(direction -> direction.getAxisDirection() == Direction.AxisDirection.POSITIVE)
+                  .findFirst()
+                  .orElseThrow();
+            }
+
+            @Override
+            public int getLowest()
+            {
+                return min;
+            }
+
+            @Override
+            public int getHighest()
+            {
+                return max;
+            }
+
+            public void recalculate() {
+                min = 17;
+                max = -1;
+
+                axisStatisticsTable.clear();
+
+                forEachWithPositionMutator(IPositionMutator.fromAxis(axis), stateEntryInfo -> {
+                    final int firstCoordinate = determinePositionVectorEntry(stateEntryInfo, firstNoneAxisDirection);
+                    final int secondCoordinate = determinePositionVectorEntry(stateEntryInfo, secondNoneAxisDirection);
+
+                    if (sizeType.isValidFor(stateEntryInfo)) {
+                        final int axisCoordinate = determinePositionVectorEntry(stateEntryInfo, positiveDirection);
+
+                        min = Math.min(axisCoordinate, min);
+                        max = Math.max(axisCoordinate + 1, max);
+
+                        if (!axisStatisticsTable.contains(firstCoordinate, secondCoordinate)) {
+                            axisStatisticsTable.put(firstCoordinate, secondCoordinate, new AxisStatistics(firstCoordinate, secondCoordinate));
+                        }
+
+                        axisStatisticsTable.get(firstCoordinate, secondCoordinate).onValidBlockStateAddedAt(axisCoordinate);
+                    }
+                });
+
+                if (max == -1) {
+                    max = 0;
+                }
+
+                if (min == 17) {
+                    min = 0;
+                }
+            }
+
+            private static int determinePositionVectorEntry(final IStateEntryInfo stateEntryInfo, final Direction direction) {
+                final Vec3 selectedPos = stateEntryInfo.getStartPoint().multiply(Vec3.atLowerCornerOf(direction.getNormal()))
+                  .multiply(StateEntrySize.current().getBitsPerBlockSideScalingVector());
+
+                final double value = selectedPos.length();
+                return (int) value;
+            }
+
+            private static int determinePositionVectorEntry(final BlockPos pos, final Direction direction) {
+                final Vec3 selectedPos = Vec3.atLowerCornerOf(pos).multiply(Vec3.atLowerCornerOf(direction.getNormal()));
+
+                final double value = selectedPos.length();
+                return (int) value;
+            }
+
+            private BlockPos determinePositionVector(final Direction componentDirection, int componentValue) {
+                return new BlockPos(new Vec3(
+                  componentValue, componentValue, componentValue
+                ).multiply(Vec3.atLowerCornerOf(componentDirection.getNormal())));
+            }
+
+            public void initializeWith(final BlockState blockState) {
+                boolean validType = this.sizeType.isValidFor(blockState);
+
+                this.axisStatisticsTable.clear();
+                IntStream.range(0, StateEntrySize.current().getBitsPerBlockSide())
+                  .forEach(firstCoordinate -> {
+                      IntStream.range(0, StateEntrySize.current().getBitsPerBlockSide())
+                        .forEach(secondCoordinate -> {
+                            this.axisStatisticsTable.put(firstCoordinate, secondCoordinate, new AxisStatistics(firstCoordinate, secondCoordinate));
+                            this.axisStatisticsTable.get(firstCoordinate, secondCoordinate).initializeWith(validType);
+                        });
+                  });
+            }
+
+            public void onBlockStateReplaced(final BlockState currentState, final BlockState newState, final BlockPos pos) {
+                final boolean validType = this.sizeType.isValidFor(newState);
+                final boolean validTypeOld = this.sizeType.isValidFor(currentState);
+
+                if (validTypeOld == validType) {
+                    return;
+                }
+
+                final int firstCoordinate = determinePositionVectorEntry(pos, firstNoneAxisDirection);
+                final int secondCoordinate = determinePositionVectorEntry(pos, secondNoneAxisDirection);
+                final int axisCoordinate = determinePositionVectorEntry(pos, positiveDirection);
+
+                if (!axisStatisticsTable.contains(firstCoordinate, secondCoordinate)) {
+                    axisStatisticsTable.put(firstCoordinate, secondCoordinate, new AxisStatistics(firstCoordinate, secondCoordinate));
+                }
+
+                axisStatisticsTable.get(firstCoordinate, secondCoordinate).onValidBlockStateExchanged(axisCoordinate, validType, validTypeOld);
+            }
+
+            public void onBlockStateAdded(final BlockState blockState, final BlockPos pos) {
+                boolean validType = this.sizeType.isValidFor(blockState);
+                if (!validType) {
+                    return;
+                }
+
+                final int firstCoordinate = determinePositionVectorEntry(pos, firstNoneAxisDirection);
+                final int secondCoordinate = determinePositionVectorEntry(pos, secondNoneAxisDirection);
+                final int axisCoordinate = determinePositionVectorEntry(pos, positiveDirection);
+
+                if (!axisStatisticsTable.contains(firstCoordinate, secondCoordinate)) {
+                    axisStatisticsTable.put(firstCoordinate, secondCoordinate, new AxisStatistics(firstCoordinate, secondCoordinate));
+                }
+
+                axisStatisticsTable.get(firstCoordinate, secondCoordinate).onValidBlockStateAddedAt(axisCoordinate);
+            }
+
+            public void onBlockStateRemoved(final BlockState blockState, final BlockPos pos) {
+                boolean validType = this.sizeType.isValidFor(blockState);
+                if (!validType) {
+                    return;
+                }
+
+                final int firstCoordinate = determinePositionVectorEntry(pos, firstNoneAxisDirection);
+                final int secondCoordinate = determinePositionVectorEntry(pos, secondNoneAxisDirection);
+                final int axisCoordinate = determinePositionVectorEntry(pos, positiveDirection);
+
+                if (!axisStatisticsTable.contains(firstCoordinate, secondCoordinate)) {
+                    axisStatisticsTable.put(firstCoordinate, secondCoordinate, new AxisStatistics(firstCoordinate, secondCoordinate));
+                }
+
+                axisStatisticsTable.get(firstCoordinate, secondCoordinate).onValidBlockStateRemovedAt(axisCoordinate);
+            }
+
+            @Override
+            public CompoundTag serializeNBT()
+            {
+                final CompoundTag data = new CompoundTag();
+
+                data.putInt(NbtConstants.MIN, min);
+                data.putInt(NbtConstants.MAX, max);
+
+                final CompoundTag axisStatisticsTableNbt = new CompoundTag();
+                this.axisStatisticsTable.rowMap().forEach((rowKey, axisSizeHandlerMap) -> {
+                    final CompoundTag rowNbt = new CompoundTag();
+                    axisSizeHandlerMap.forEach((columnKey, axisSizeHandler) -> rowNbt.put(columnKey.toString(), axisSizeHandler.serializeNBT()));
+
+                    axisStatisticsTableNbt.put(rowKey.toString(), rowNbt);
+                });
+                data.put(NbtConstants.AXIS_STATISTICS_DATA, axisStatisticsTableNbt);
+
+                return data;
+            }
+
+            @Override
+            public void deserializeNBT(final CompoundTag nbt)
+            {
+                min = nbt.getInt(NbtConstants.MIN);
+                max = nbt.getInt(NbtConstants.MAX);
+
+                final CompoundTag axisStatisticsTableNbt = nbt.getCompound(NbtConstants.AXIS_STATISTICS_DATA);
+                axisStatisticsTableNbt.getAllKeys().forEach(rowKeyValue -> {
+                    final int rowKey = Integer.parseInt(rowKeyValue);
+                    final CompoundTag rowNbt = axisStatisticsTableNbt.getCompound(rowKeyValue);
+                    rowNbt.getAllKeys().forEach(columnKeyValue -> {
+                        final int columnKey = Integer.parseInt(columnKeyValue);
+                        final Tag axisStatisticsNbt = rowNbt.get(columnKeyValue);
+                        final AxisStatistics axisSizeHandler = new AxisStatistics(
+                          rowKey,
+                          columnKey
+                        );
+
+                        axisSizeHandler.deserializeNBT((IntArrayTag) axisStatisticsNbt);
+                        this.axisStatisticsTable.put(rowKey, columnKey, axisSizeHandler);
+                    });
+                });
+            }
+
+            @Override
+            public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
+            {
+                packetBuffer.writeVarInt(min);
+                packetBuffer.writeVarInt(max);
+
+                packetBuffer.writeVarInt(this.axisStatisticsTable.size());
+                this.axisStatisticsTable.cellSet()
+                  .forEach(cell -> {
+                      packetBuffer.writeVarInt(cell.getRowKey());
+                      packetBuffer.writeVarInt(cell.getColumnKey());
+                      cell.getValue().serializeInto(packetBuffer);
+                  });
+            }
+
+            @Override
+            public void deserializeFrom(final @NotNull FriendlyByteBuf packetBuffer)
+            {
+                this.min = packetBuffer.readVarInt();
+                this.max = packetBuffer.readVarInt();
+
+                final int axisStatisticsCount = packetBuffer.readVarInt();
+                for (int i = 0; i < axisStatisticsCount; i++)
+                {
+                    final int firstCoordinate = packetBuffer.readVarInt();
+                    final int secondCoordinate = packetBuffer.readVarInt();
+
+                    final AxisStatistics statistics = new AxisStatistics(firstCoordinate, secondCoordinate);
+
+                    this.axisStatisticsTable.put(
+                      firstCoordinate,
+                      secondCoordinate,
+                      statistics
+                    );
+
+                    statistics.deserializeFrom(packetBuffer);
+                }
+            }
+
+            private final class AxisStatistics implements INBTSerializable<IntArrayTag>, IPacketBufferSerializable {
+
+                private final int firstCoordinate;
+                private final int secondCoordinate;
+
+                private int min;
+                private int max;
+
+                private AxisStatistics(final int firstCoordinate, final int secondCoordinate) {
+                    this.firstCoordinate = firstCoordinate;
+                    this.secondCoordinate = secondCoordinate;
+                }
+
+                public int getMin()
+                {
+                    return min;
+                }
+
+                public void setMin(final int min)
+                {
+                    this.min = min;
+                }
+
+                public int getMax()
+                {
+                    return max;
+                }
+
+                public void setMax(final int max)
+                {
+                    this.max = max;
+                }
+
+                public void onValidBlockStateAddedAt(final int coordinate) {
+                    this.min = Math.min(coordinate, min);
+                    this.max = Math.max(coordinate + 1, max);
+                }
+
+                public void onValidBlockStateExchanged(final int axisCoordinate, final boolean validType, final boolean validTypeOld)
+                {
+                    if (validType && !validTypeOld) {
+                        onValidBlockStateAddedAt(axisCoordinate);
+                    } else if (!validType && validTypeOld) {
+                        onValidBlockStateRemovedAt(axisCoordinate);
+                    }
+                }
+
+                public void onValidBlockStateRemovedAt(final int axisCoordinate)
+                {
+                    this.min = 17;
+                    this.max = -1;
+                    for (int position = 0; position < StateEntrySize.current().getBitsPerBlockSide(); position++)
+                    {
+                        if (axisCoordinate != position) {
+                            final BlockPos target = determinePositionVector(
+                              positiveDirection, position
+                            ).offset(determinePositionVector(
+                              firstNoneAxisDirection, firstCoordinate
+                            )).offset(
+                              determinePositionVector(
+                                secondNoneAxisDirection, secondCoordinate
+                            ));
+
+                            final Optional<IStateEntryInfo> targetInfo = getInAreaTarget(Vec3.atLowerCornerOf(target).multiply(StateEntrySize.current().getSizePerBitScalingVector()));
+                            final int finalPosition = position;
+                            targetInfo.filter(sizeType::isValidFor)
+                              .ifPresent(info -> onValidBlockStateAddedAt(finalPosition));
+                        }
+                    }
+
+                    if (this.min == 17) {
+                        this.min = 0;
+                    }
+
+                    if (this.max == -1) {
+                        this.max = 0;
+                    }
+                }
+
+                @Override
+                public IntArrayTag serializeNBT()
+                {
+                    return new IntArrayTag(new int[] {min, max});
+                }
+
+                @Override
+                public void deserializeNBT(final IntArrayTag nbt)
+                {
+                    this.min = nbt.get(0).getAsInt();
+                    this.max = nbt.get(1).getAsInt();
+                }
+
+                @Override
+                public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
+                {
+                    packetBuffer.writeVarInt(this.min);
+                    packetBuffer.writeVarInt(this.max);
+                }
+
+                @Override
+                public void deserializeFrom(final @NotNull FriendlyByteBuf packetBuffer)
+                {
+                    this.min = packetBuffer.readVarInt();
+                    this.max = packetBuffer.readVarInt();
+                }
+
+                public void initializeWith(final boolean validType)
+                {
+                    if (validType) {
+                        this.min = 0;
+                        this.max = StateEntrySize.current().getBitsPerBlockSide();
+                    }
+                    else {
+                        this.min = 0;
+                        this.max = 0;
+                    }
+                }
+            }
         }
     }
 
@@ -1727,11 +2247,6 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             GZIPDataCompressionUtils.decompress(nbt, compoundTag -> {
                 compressedSection.deserializeNBT(compoundTag.getCompound(NbtConstants.CHISELED_DATA));
                 mutableStatistics.deserializeNBT(compoundTag.getCompound(NbtConstants.STATISTICS));
-
-                if (mutableStatistics.isRequiresRecalculation())
-                {
-                    mutableStatistics.recalculate(compressedSection, false);
-                }
             });
         }
 
@@ -1751,11 +2266,6 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             return LZ4DataCompressionUtils.compress(compoundTag -> {
                 compoundTag.put(NbtConstants.CHISELED_DATA, compressedSection.serializeNBT());
                 compoundTag.put(NbtConstants.STATISTICS, mutableStatistics.serializeNBT());
-
-                if (mutableStatistics.isRequiresRecalculation())
-                {
-                    mutableStatistics.recalculate(compressedSection);
-                }
             });
         }
 
@@ -1765,13 +2275,6 @@ public class ChiseledBlockEntity extends BlockEntity implements IMultiStateBlock
             LZ4DataCompressionUtils.decompress(nbt, compoundTag -> {
                 compressedSection.deserializeNBT(compoundTag.getCompound(NbtConstants.CHISELED_DATA));
                 mutableStatistics.deserializeNBT(compoundTag.getCompound(NbtConstants.STATISTICS));
-
-                if (mutableStatistics.isRequiresRecalculation())
-                {
-                    mutableStatistics.recalculate(compressedSection, getLevel() != null);
-                }
-
-                mutableStatistics.updatePrimaryState(getLevel() != null);
             });
         }
     }

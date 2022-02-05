@@ -3,10 +3,10 @@ package mod.chiselsandbits.client.screens;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
-import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.client.screens.widgets.MultiStateSnapshotWidget;
 import mod.chiselsandbits.container.ModificationTableContainer;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.recipe.modificationtable.ModificationTableRecipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -37,7 +37,7 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
     private boolean hasItemsInInputSlot;
 
     private MultiStateSnapshotWidget snapshotWidget;
-    private int lastRenderedSelectedRecipeIndex = -1;
+    private int                      lastRenderedSelectedRecipeIndex = -1;
 
     public ModificationTableScreen(ModificationTableContainer containerIn, Inventory playerInv, Component titleIn) {
         super(containerIn, playerInv, titleIn);
@@ -65,16 +65,16 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, BACKGROUND_TEXTURE);
-        int i = this.leftPos;
-        int j = this.topPos;
-        this.blit(matrixStack, i, j, 0, 0, this.imageWidth, this.imageHeight);
-        int k = (int)(41.0F * this.sliderProgress);
-        this.blit(matrixStack, i + 119, j + 15 + k, this.imageWidth + (this.canScroll() ? 0 : 12), 0, 12, 15);
-        int l = this.leftPos + 52;
-        int i1 = this.topPos + 14;
-        int j1 = this.recipeIndexOffset + 12;
-        this.renderButtons(matrixStack, x, y, l, i1, j1);
-        this.drawRecipesItems(l, i1, j1);
+        int left = this.leftPos;
+        int top = this.topPos;
+        this.blit(matrixStack, left, top, 0, 0, this.imageWidth, this.imageHeight);
+        int sliderOffset = (int)(41.0F * this.sliderProgress);
+        this.blit(matrixStack, left + 119, top + 15 + sliderOffset, this.imageWidth + (this.canScroll() ? 0 : 12), 0, 12, 15);
+        int recipesLeft = this.leftPos + 52;
+        int recipesTop = this.topPos + 14;
+        int recipeIndexOffsetMax = this.recipeIndexOffset + 12;
+        this.renderButtons(matrixStack, x, y, recipesLeft, recipesTop, recipeIndexOffsetMax);
+        this.drawRecipesItems(recipesLeft, recipesTop, recipeIndexOffsetMax);
 
         if (this.lastRenderedSelectedRecipeIndex != this.menu.getSelectedRecipe() && this.hasItemsInInputSlot) {
             this.lastRenderedSelectedRecipeIndex = this.menu.getSelectedRecipe();
@@ -122,17 +122,17 @@ public class ModificationTableScreen extends AbstractContainerScreen<Modificatio
 
     }
 
-    private void drawRecipesItems(int left, int top, int recipeIndexOffsetMax) {
+    private void drawRecipesItems(int recipesLeft, int recipesTop, int recipeIndexOffsetMax) {
         List<ModificationTableRecipe> list = this.menu.getRecipeList();
 
-        for(int i = this.recipeIndexOffset; i < recipeIndexOffsetMax && i < this.menu.getRecipeListSize(); ++i) {
-            int j = i - this.recipeIndexOffset;
-            int k = left + j % 4 * 16;
-            int l = j / 4;
-            int i1 = top + l * 18 + 2;
+        for(int offset = this.recipeIndexOffset; offset < recipeIndexOffsetMax && offset < this.menu.getRecipeListSize(); ++offset) {
+            int itemIndex = offset - this.recipeIndexOffset;
+            int itemX = recipesLeft + itemIndex % 4 * 16;
+            int rowIndex = itemIndex / 4;
+            int itemY = recipesTop + rowIndex * 18 + 2;
             if (this.minecraft != null)
             {
-                this.minecraft.getItemRenderer().renderAndDecorateItem(list.get(i).getCraftingBlockResult(this.menu.inputInventory), k, i1);
+                this.minecraft.getItemRenderer().renderAndDecorateItem(list.get(offset).getCraftingBlockResult(this.menu.inputInventory), itemX, itemY);
             }
         }
 

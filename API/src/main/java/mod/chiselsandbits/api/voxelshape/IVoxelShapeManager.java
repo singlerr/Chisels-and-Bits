@@ -1,16 +1,13 @@
 package mod.chiselsandbits.api.voxelshape;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
-import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 /**
  * A manager for dealing with voxelshapes related to chiseled blocks and areas.
@@ -46,22 +43,22 @@ public interface IVoxelShapeManager
     default VoxelShape get(
       final IAreaAccessor accessor,
       final BlockPos offset) {
-        return get(accessor, offset, ignored -> iStateEntryInfo -> !iStateEntryInfo.getState().isAir(), true);
+        return get(accessor, offset, CollisionType.NONE_AIR, true);
     }
 
     /**
      * Returns the shape of the multistate entries which are contained in the given area accessor.
      *
      * @param accessor The accessor to get the shape of.
-     * @param selectablePredicateBuilder The predicate that determines what state entries to include.
+     * @param sizeType The type of the shape to include.
      * @return The shape of the accessor.
      */
     default VoxelShape get(final IAreaAccessor accessor,
-      final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder) {
+      final CollisionType sizeType) {
         return get(
           accessor,
           BlockPos.ZERO,
-          selectablePredicateBuilder,
+          sizeType,
           true);
     }
 
@@ -69,17 +66,17 @@ public interface IVoxelShapeManager
      * Returns the shape of the multistate entries which are contained in the given area accessor.
      *
      * @param accessor The accessor to get the shape of.
-     * @param selectablePredicateBuilder The predicate that determines what state entries to include.
+     * @param sizeType The type of the shape to include.
      * @param simplify Indicates if the returned voxelshape should be simplified. Generally good for performance, but might cause some shapes to not work properly.
      * @return The shape of the accessor.
      */
     default VoxelShape get(final IAreaAccessor accessor,
-      final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder,
+      final CollisionType sizeType,
       final boolean simplify) {
         return get(
           accessor,
           BlockPos.ZERO,
-          selectablePredicateBuilder,
+          sizeType,
           simplify);
     }
 
@@ -88,14 +85,14 @@ public interface IVoxelShapeManager
      *
      * @param accessor The accessor to get the shape of.
      * @param offset The offset to apply to the voxelshape during calculation or cache lookup.
-     * @param selectablePredicateBuilder The predicate that determines what state entries to include.
+     * @param sizeType The type to include.
      * @param simplify Indicates if the returned voxelshape should be simplified. Generally good for performance, but might cause some shapes to not work properly.
      * @return The shape of the accessor.
      */
     VoxelShape get(
       final IAreaAccessor accessor,
       final BlockPos offset,
-      final Function<IAreaAccessor, Predicate<IStateEntryInfo>> selectablePredicateBuilder,
+      final CollisionType sizeType,
       final boolean simplify);
 
     /**
@@ -110,7 +107,7 @@ public interface IVoxelShapeManager
     default Optional<VoxelShape> getCached(
       final IAreaShapeIdentifier identifier,
       final BlockPos offset) {
-        return getCached(identifier, offset, iStateEntryInfo -> !iStateEntryInfo.getState().isAir());
+        return getCached(identifier, offset, CollisionType.NONE_AIR);
     };
 
     /**
@@ -119,15 +116,15 @@ public interface IVoxelShapeManager
      *
      * @param identifier The identifier to get the voxel shape for.
      * @param offset The offset to apply to the voxelshape during cache lookup.
-     * @param selectablePredicate The predicate that determines what state entries to include.
+     * @param sizeType The type include.
      * @return The optional, optionally containing the voxel shape.
      */
     default Optional<VoxelShape> getCached(
       final IAreaShapeIdentifier identifier,
       final BlockPos offset,
-      final Predicate<IStateEntryInfo> selectablePredicate) {
+      final CollisionType sizeType) {
         return getCached(
-          identifier, offset, selectablePredicate, true
+          identifier, offset, sizeType, true
         );
     }
 
@@ -137,13 +134,13 @@ public interface IVoxelShapeManager
      *
      * @param identifier The identifier to get the voxel shape for.
      * @param offset The offset to apply to the voxelshape during cache lookup.
-     * @param selectablePredicate The predicate that determines what state entries to include.
+     * @param sizeType The type to include.
      * @param simplify Indicates if the returned voxelshape should be simplified. Generally good for performance, but might cause some shapes to not work properly.
      * @return The optional, optionally containing the voxel shape.
      */
     Optional<VoxelShape> getCached(
       final IAreaShapeIdentifier identifier,
       final BlockPos offset,
-      final Predicate<IStateEntryInfo> selectablePredicate,
+      final CollisionType sizeType,
       boolean simplify);
 }

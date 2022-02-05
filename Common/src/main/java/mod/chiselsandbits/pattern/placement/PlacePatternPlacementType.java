@@ -1,5 +1,6 @@
 package mod.chiselsandbits.pattern.placement;
 
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
@@ -14,7 +15,6 @@ import mod.chiselsandbits.api.pattern.placement.PlacementResult;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
-import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -32,7 +32,6 @@ import java.util.Optional;
 
 import static mod.chiselsandbits.api.util.ColorUtils.MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR;
 import static mod.chiselsandbits.api.util.ColorUtils.NOT_FITTING_PATTERN_PLACEMENT_COLOR;
-import static mod.chiselsandbits.api.util.StateEntryPredicates.NOT_AIR;
 import static mod.chiselsandbits.platforms.core.util.constants.Constants.MOD_ID;
 
 public class PlacePatternPlacementType extends AbstractCustomRegistryEntry implements IPatternPlacementType
@@ -43,8 +42,7 @@ public class PlacePatternPlacementType extends AbstractCustomRegistryEntry imple
       final IMultiStateSnapshot sourceSnapshot, final Player player, final Vec3 targetedPoint, final Direction hitFace)
     {
         return VoxelShapeManager.getInstance()
-          .get(sourceSnapshot,
-            accessor -> NOT_AIR);
+          .get(sourceSnapshot, CollisionType.NONE_AIR);
     }
 
     @Override

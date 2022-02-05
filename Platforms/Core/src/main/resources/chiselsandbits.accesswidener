@@ -1,6 +1,7 @@
 accessWidener	v1	named
 extendable   class      net/minecraft/client/gui/Font
 extendable   class      net/minecraft/client/renderer/block/model/ItemOverrides
+extendable   class      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape
 extendable   method     net/minecraft/client/gui/Font drawInternal (Ljava/lang/String;FFILcom/mojang/math/Matrix4f;ZZ)I
 extendable   method     net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
 extendable   method     net/minecraft/world/item/Item getMaxDamage ()I # getMaxDamage
@@ -22,6 +23,9 @@ accessible   method     net/minecraft/client/gui/screens/inventory/AbstractConta
 accessible   method     net/minecraft/client/gui/screens/MenuScreens register (Lnet/minecraft/world/inventory/MenuType;Lnet/minecraft/client/gui/screens/MenuScreens$ScreenConstructor;)V
 accessible   method     net/minecraft/client/renderer/item/ItemProperties register (Lnet/minecraft/world/item/Item;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/client/renderer/item/ClampedItemPropertyFunction;)V
 accessible   method     com/mojang/blaze3d/platform/NativeImage writeToChannel (Ljava/nio/channels/WritableByteChannel;)Z
+accessible   method     net/minecraft/world/phys/shapes/CubeVoxelShape <init> (Lnet/minecraft/world/phys/shapes/DiscreteVoxelShape;)V
+accessible   method     net/minecraft/world/phys/shapes/VoxelShape <init> (Lnet/minecraft/world/phys/shapes/DiscreteVoxelShape;)V # VoxelShape
+accessible   method     net/minecraft/client/renderer/entity/ItemRenderer renderGuiItem (Lnet/minecraft/world/item/ItemStack;IILnet/minecraft/client/resources/model/BakedModel;)V # renderGuiItem
 accessible   field      net/minecraft/client/Minecraft itemColors Lnet/minecraft/client/color/item/ItemColors;
 accessible   field      net/minecraft/client/gui/Font fonts Ljava/util/function/Function;
 accessible   field      net/minecraft/world/inventory/AbstractContainerMenu containerListeners Ljava/util/List;
@@ -41,3 +45,14 @@ mutable   field      net/minecraft/client/renderer/block/BlockRenderDispatcher b
 mutable   field      net/minecraft/client/renderer/entity/ItemRenderer blockEntityRenderer Lnet/minecraft/client/renderer/BlockEntityWithoutLevelRenderer;
 mutable   field      net/minecraft/client/renderer/blockentity/BlockEntityRenderDispatcher blockRenderDispatcher Ljava/util/function/Supplier;
 mutable   field      net/minecraft/world/level/chunk/LevelChunkSection states Lnet/minecraft/world/level/chunk/PalettedContainer;
+mutable   field      net/minecraft/world/phys/shapes/DiscreteVoxelShape xSize I
+mutable   field      net/minecraft/world/phys/shapes/DiscreteVoxelShape ySize I
+mutable   field      net/minecraft/world/phys/shapes/DiscreteVoxelShape zSize I
+mutable   field      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape storage Ljava/util/BitSet; # storage
+accessible   field      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape storage Ljava/util/BitSet; # storage
+accessible   field      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape xMin I # xMin
+accessible   field      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape yMin I # yMin
+accessible   field      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape zMin I # zMin
+accessible   field      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape xMax I # xMax
+accessible   field      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape yMax I # yMax
+accessible   field      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape zMax I # zMax

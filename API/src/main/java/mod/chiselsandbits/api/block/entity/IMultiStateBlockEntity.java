@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.block.entity;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessorWithVoxelShape;
 import mod.chiselsandbits.api.multistate.mutator.IGenerallyModifiableAreaMutator;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchedAreaMutator;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
@@ -21,7 +22,8 @@ public interface IMultiStateBlockEntity extends IWorldAreaAccessor,
                                                           INBTSerializable<CompoundTag>,
                                                           IPacketBufferSerializable,
                                                           IBatchedAreaMutator,
-                                                  IGenerallyModifiableAreaMutator
+                                                  IGenerallyModifiableAreaMutator,
+                                                  IAreaAccessorWithVoxelShape
 {
 
     /**

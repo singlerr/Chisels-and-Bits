@@ -1,10 +1,12 @@
 package mod.chiselsandbits.api.multistate.statistics;
 
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.item.multistate.IStatistics;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.BitSet;
 import java.util.Map;
 
 /**
@@ -106,4 +108,12 @@ public interface IMultiStateObjectStatistics extends IStatistics
      * @return {@code true} for grass sustainers, {@code false} for non-grass sustainers.
      */
     boolean canSustainGrassBelow();
+
+    /**
+     * Gets the collision data of the current block for the collision type.
+     *
+     * @param collisionType The type of the collision data to collect.
+     * @return the BitSet which indicates the collision data.
+     */
+    BitSet getCollideableEntries(final CollisionType collisionType);
 }

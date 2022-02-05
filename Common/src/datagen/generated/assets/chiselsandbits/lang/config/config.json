@@ -12,10 +12,15 @@
   "mod.chiselsandbits.config.performance.caches.sizes.block-faces.comment": "",
   "mod.chiselsandbits.config.performance.caches.sizes.block-models.comment": "",
   "mod.chiselsandbits.config.performance.caches.sizes.collision-boxes.comment": "",
+  "mod.chiselsandbits.config.performance.caches.sizes.stack-models.comment": "",
   "mod.chiselsandbits.config.performance.lighting.extract-lighting-values-from-blockstates.comment": "",
   "mod.chiselsandbits.config.performance.lighting.extract-lighting-values-from-faces.comment": "",
   "mod.chiselsandbits.config.performance.model-building.thead-count.comment": "",
+  "mod.chiselsandbits.config.performance.saving.thread-count.comment": "",
   "mod.chiselsandbits.config.settings.bit-bag.invert-durability-bar-indication.comment": "",
+  "mod.chiselsandbits.config.settings.chiseling-previews.debug.enabled.comment": "",
+  "mod.chiselsandbits.config.settings.chiseling-previews.debug.mutator.colors.chiseling.comment": "",
+  "mod.chiselsandbits.config.settings.chiseling-previews.debug.mutator.colors.placement.comment": "",
   "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.chiseling.comment": "",
   "mod.chiselsandbits.config.settings.chiseling-previews.default.colors.placement.comment": "",
   "mod.chiselsandbits.config.settings.chiseling-previews.renderer.comment": "",
@@ -23,6 +28,7 @@
   "mod.chiselsandbits.config.settings.clipboard.addPickedBlocks.comment": "",
   "mod.chiselsandbits.config.settings.clipboard.size.comment": "",
   "mod.chiselsandbits.config.settings.invert-pick-block-behaviour.comment": "",
+  "mod.chiselsandbits.config.settings.patterns.export-path.comment": "",
   "mod.chiselsandbits.config.settings.selected-tool-mode-icons.renderer.comment": "",
   "mod.chiselsandbits.config.style.bit-size.comment": ""
 }

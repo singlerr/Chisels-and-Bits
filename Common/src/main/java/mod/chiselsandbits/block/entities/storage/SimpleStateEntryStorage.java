@@ -22,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.RoundingMode;
-import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -32,8 +32,8 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     private final int size;
     private final SimpleStateEntryPalette palette;
 
-    private byte[] data = new byte[0];
-    private int entryWidth = 0;
+    private BitSet data       = new BitSet();
+    private int    entryWidth = 0;
     private boolean isDeserializing = false;
 
     public SimpleStateEntryStorage()
@@ -44,7 +44,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     private SimpleStateEntryStorage(final SimpleStateEntryStorage stateEntryStorage) {
         this.size = stateEntryStorage.size;
         this.palette = new SimpleStateEntryPalette(this::onPaletteResize, stateEntryStorage.palette);
-        this.data = stateEntryStorage.getRawData(); // Automatically copies the data.
+        this.data = BitSet.valueOf(stateEntryStorage.getData().toLongArray()); // Automatically copies the data.
         this.entryWidth = stateEntryStorage.entryWidth;
     }
 
@@ -66,13 +66,13 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     @Override
     public void clear()
     {
-        this.data = new byte[0];
+        this.data = new BitSet();
         this.entryWidth = 0;
         this.palette.clear();
     }
 
-    private void resetDataArray() {
-        this.data = new byte[data.length];
+    private void resetData() {
+        this.data = new BitSet();
     }
 
     @Override
@@ -127,11 +127,11 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
 
     private void ensureCapacity() {
         final int requiredSize = (int) Math.ceil((getTotalEntryCount() * entryWidth) / (float) Byte.SIZE);
-        if (data.length < requiredSize) {
+        if (data.length() < requiredSize) {
             final byte[] rawData = getRawData();
             final byte[] newData = new byte[requiredSize];
             System.arraycopy(rawData, 0, newData, 0, rawData.length);
-            this.data = newData;
+            this.data = BitSet.valueOf(newData);
         }
     }
 
@@ -152,10 +152,15 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
         countMap.forEach(storageConsumer);
     }
 
+    public BitSet getData()
+    {
+        return data;
+    }
+
     @Override
     public byte[] getRawData()
     {
-        return Arrays.copyOf(this.data, data.length);
+        return this.data.toByteArray();
     }
 
     @Override
@@ -199,7 +204,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
             return;
 
         final IStateEntryStorage clone = this.createSnapshot();
-        resetDataArray();
+        resetData();
 
         final Vec3 centerVector = new Vec3(7.5d, 7.5d, 7.5d);
 
@@ -239,7 +244,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     public void mirror(final Direction.Axis axis)
     {
         final IStateEntryStorage clone = this.createSnapshot();
-        resetDataArray();
+        resetData();
 
         for (int y = 0; y < StateEntrySize.current().getBitsPerBlockSide(); y++)
         {
@@ -281,7 +286,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
         this.isDeserializing = true;
 
         this.palette.deserializeNBT(nbt.getList(NbtConstants.PALETTE, Tag.TAG_STRING));
-        this.data = nbt.getByteArray(NbtConstants.DATA);
+        this.data = BitSet.valueOf(nbt.getByteArray(NbtConstants.DATA));
 
         this.isDeserializing = false;
     }
@@ -290,7 +295,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
     {
         this.palette.serializeInto(packetBuffer);
-        packetBuffer.writeByteArray(this.data);
+        packetBuffer.writeByteArray(this.data.toByteArray());
     }
 
     @Override
@@ -301,7 +306,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
         this.isDeserializing = true;
 
         this.palette.deserializeFrom(packetBuffer);
-        this.data = packetBuffer.readByteArray();
+        this.data = BitSet.valueOf(packetBuffer.readByteArray());
 
         this.isDeserializing = false;
     }
@@ -312,10 +317,9 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
 
         if (!this.isDeserializing && this.entryWidth != currentEntryWidth) {
             //We need to update the data array to match the new palette size
-            final byte[] rawData = getRawData();
+            final BitSet rawData = BitSet.valueOf(this.data.toLongArray());
 
-            final int requiredSize = (int) Math.ceil((getTotalEntryCount() * entryWidth) / (float) Byte.SIZE);
-            this.data = new byte[requiredSize];
+            this.data = new BitSet(getTotalEntryCount() * entryWidth);
             BlockPosStreamProvider.getForRange(getSize())
               .mapToInt(pos -> doCalculatePositionIndex(pos.getX(), pos.getY(), pos.getZ()))
               .mapToObj(index -> Pair.of(index, ByteArrayUtils.getValueAt(rawData, currentEntryWidth, index)))

@@ -9,6 +9,7 @@ import mod.chiselsandbits.client.culling.MCCullTest;
 import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
 import mod.chiselsandbits.platforms.core.client.rendering.type.IRenderTypeManager;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.security.InvalidParameterException;
 import java.util.Collection;
@@ -57,14 +58,20 @@ public enum ChiselRenderType
     public boolean isRequiredForRendering(
       final IStateEntryInfo stateEntryInfo )
     {
-        if (!this.type.isValidBlockState(stateEntryInfo.getState()))
+        return isRequiredForRendering(stateEntryInfo.getState());
+    }
+
+    public boolean isRequiredForRendering(
+      final BlockState state )
+    {
+        if (!this.type.isValidBlockState(state))
             return false;
 
         if (this.type.isFluid()) {
-            return IRenderTypeManager.getInstance().canRenderInType(stateEntryInfo.getState().getFluidState(), this.layer);
+            return IRenderTypeManager.getInstance().canRenderInType(state.getFluidState(), this.layer);
         }
 
-        return IRenderTypeManager.getInstance().canRenderInType(stateEntryInfo.getState(), this.layer);
+        return IRenderTypeManager.getInstance().canRenderInType(state, this.layer);
     }
 
     public static ChiselRenderType fromLayer(

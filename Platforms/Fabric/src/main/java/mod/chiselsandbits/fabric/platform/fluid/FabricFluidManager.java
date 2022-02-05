@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 
 import java.util.Optional;
 
@@ -116,6 +117,12 @@ public class FabricFluidManager implements IFluidManager
     }
 
     public static FluidVariant makeVariant(final FluidInformation fluid) {
+        if (!fluid.fluid().isSource(fluid.fluid().defaultFluidState()) && fluid.fluid() != Fluids.EMPTY) {
+            //We have a flowing fluid.
+            //Let's make a none flowing variant of it.
+            return makeVariant(fluid.withSource());
+        }
+
         if (fluid.data() == null)
             return FluidVariant.of(fluid.fluid());
 

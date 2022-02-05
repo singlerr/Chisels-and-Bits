@@ -1,6 +1,7 @@
 package mod.chiselsandbits.block;
 
 import mod.chiselsandbits.ChiselsAndBits;
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
@@ -18,7 +19,6 @@ import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.ArrayUtils;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
-import mod.chiselsandbits.api.util.StateEntryPredicates;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
@@ -321,8 +321,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     public @NotNull VoxelShape getBlockSupportShape(final @NotNull BlockState state, final @NotNull BlockGetter reader, final @NotNull BlockPos pos)
     {
         final VoxelShape shape = getBlockEntity(reader, pos)
-                                   .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity,
-                                     areaAccessor -> StateEntryPredicates.COLLIDEABLE_ONLY))
+                                   .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity, CollisionType.COLLIDEABLE_ONLY))
                                    .orElse(Shapes.empty());
 
         return shape.isEmpty() ? Shapes.block() : shape;
@@ -363,8 +362,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     public VoxelShape getCollisionShape(@NotNull final BlockState state, @NotNull final BlockGetter worldIn, @NotNull final BlockPos pos, @NotNull final CollisionContext context)
     {
         final VoxelShape shape = getBlockEntity(worldIn, pos)
-                                   .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity,
-                                     areaAccessor -> StateEntryPredicates.COLLIDEABLE_ONLY))
+                                   .map(multiStateBlockEntity -> IVoxelShapeManager.getInstance().get(multiStateBlockEntity, CollisionType.COLLIDEABLE_ONLY))
                                    .orElse(Shapes.empty());
 
         if (shape.isEmpty()) {

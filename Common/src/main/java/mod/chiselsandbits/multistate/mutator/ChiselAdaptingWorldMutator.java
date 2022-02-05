@@ -1,5 +1,6 @@
 package mod.chiselsandbits.multistate.mutator;
 
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
@@ -8,6 +9,7 @@ import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessorWithVoxelShape;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.identifier.ISingleStateAreaShareIdentifier;
@@ -19,26 +21,28 @@ import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.util.BlockPosForEach;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
+public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAccessorWithVoxelShape
 {
     public static final BlockState DEFAULT_STATE = Blocks.STONE.defaultBlockState();
     private final LevelAccessor world;
@@ -270,6 +274,38 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
         }
 
         return Stream.empty();
+    }
+
+    @Override
+    public void forEachWithPositionMutator(
+      final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer)
+    {
+        if (getWorld().isOutsideBuildHeight(getPos())) {
+            return;
+        }
+
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
+        if (tileEntity instanceof IMultiStateBlockEntity)
+        {
+            ((IMultiStateBlockEntity) tileEntity).forEachWithPositionMutator(positionMutator, consumer);
+        }
+
+        final BlockState currentState = getWorld().getBlockState(getPos());
+        if (IEligibilityManager.getInstance().canBeChiseled(currentState) ||
+              currentState.isAir())
+        {
+            BlockPosForEach.forEachInRange(StateEntrySize.current().getBitsPerBlockSide(), (BlockPos blockPos) -> {
+                final Vec3i target = positionMutator.mutate(blockPos);
+                consumer.accept(new MutablePreAdaptedStateEntry(
+                  currentState,
+                  getWorld(),
+                  getPos(),
+                  target,
+                  this::setInAreaTarget,
+                  this::clearInAreaTarget
+                ));
+              });
+        }
     }
 
     @Override
@@ -618,6 +654,29 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator
             };
         }
         return innerMutation;
+    }
+
+    @Override
+    public VoxelShape provideShape(final CollisionType type, final BlockPos offset, final boolean simplify)
+    {
+        if (getWorld().isOutsideBuildHeight(getPos())) {
+            return Shapes.empty();
+        }
+
+        final BlockEntity tileEntity = getWorld().getBlockEntity(getPos());
+        if (tileEntity instanceof IMultiStateBlockEntity multiStateBlockEntity) {
+            return multiStateBlockEntity.provideShape(type, offset, simplify);
+        }
+
+        final BlockState currentState = getWorld().getBlockState(getPos());
+        if (!IEligibilityManager.getInstance().canBeChiseled(currentState) && !currentState.isAir()) {
+            return Shapes.empty();
+        }
+
+        if (currentState.isAir() && type.isValidFor(currentState))
+            return Shapes.block().move(offset.getX(), offset.getY(), offset.getZ());
+
+        return currentState.getShape(getWorld(), getPos()).move(offset.getX(), offset.getY(), offset.getZ());
     }
 
     private static class MutablePreAdaptedStateEntry implements IInWorldMutableStateEntryInfo

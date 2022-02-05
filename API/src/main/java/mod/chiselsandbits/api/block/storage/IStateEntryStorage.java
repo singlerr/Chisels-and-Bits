@@ -3,6 +3,7 @@ package mod.chiselsandbits.api.block.storage;
 import mod.chiselsandbits.api.multistate.mutator.IMirrorAndRotateble;
 import mod.chiselsandbits.api.util.INBTSerializable;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -47,6 +48,16 @@ public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAn
      * @return The blockstate on the given position.
      */
     BlockState getBlockState(int x, int y, int z);
+
+    /**
+     * Gets the blockstate in the storage on the given position.
+     *
+     * @param  coordinate The coordinate to get the blockstate from.
+     * @return The blockstate on the given position.
+     */
+    default BlockState getBlockState(Vec3i coordinate) {
+        return getBlockState(coordinate.getX(), coordinate.getY(), coordinate.getZ());
+    }
 
     /**
      * Sets the blockstate in the storage on the given position.

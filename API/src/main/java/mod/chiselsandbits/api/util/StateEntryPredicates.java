@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.util;
 
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.function.Predicate;
 
@@ -11,11 +12,12 @@ public class StateEntryPredicates
         throw new IllegalStateException("Can not instantiate an instance of: StateEntryPredicates. This is a utility class");
     }
 
-    public static final Predicate<IStateEntryInfo> NOT_AIR = new Predicate<IStateEntryInfo>() {
+    public static final Predicate<IStateEntryInfo> NOT_AIR = new Predicate<>()
+    {
         @Override
         public boolean test(final IStateEntryInfo iStateEntryInfo)
         {
-            return !iStateEntryInfo.getState().isAir();
+            return BlockStatePredicates.NOT_AIR.test(iStateEntryInfo.getState());
         }
 
         @Override
@@ -31,7 +33,7 @@ public class StateEntryPredicates
         }
     };
 
-    public static final Predicate<IStateEntryInfo> ALL = new Predicate<IStateEntryInfo>()
+    public static final Predicate<IStateEntryInfo> ALL = new Predicate<>()
     {
         @Override
         public boolean test(final IStateEntryInfo iStateEntryInfo)
@@ -52,11 +54,12 @@ public class StateEntryPredicates
         }
     };
 
-    public static final Predicate<IStateEntryInfo> COLLIDEABLE_ONLY = new Predicate<IStateEntryInfo>() {
+    public static final Predicate<IStateEntryInfo> COLLIDEABLE_ONLY = new Predicate<>()
+    {
         @Override
         public boolean test(final IStateEntryInfo iStateEntryInfo)
         {
-            return iStateEntryInfo.getState().getFluidState().isEmpty() && !iStateEntryInfo.getState().isAir();
+            return BlockStatePredicates.COLLIDEABLE_ONLY.test(iStateEntryInfo.getState());
         }
 
         @Override

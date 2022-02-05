@@ -4,12 +4,11 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
-import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.utils.AABBUtils;
 import mod.chiselsandbits.utils.DirectionUtils;
 import net.minecraft.core.Direction;
@@ -17,9 +16,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
+import java.util.function.Consumer;
 
 public class AABBCompressor
 {
@@ -29,67 +29,79 @@ public class AABBCompressor
         throw new IllegalStateException("Can not instantiate an instance of: AABBCompressor. This is a utility class");
     }
 
-    public static Collection<AABB> compressStates(
+    public static List<AABB> compressStates(
       final IAreaAccessor accessor,
-      final Predicate<IStateEntryInfo> selectablePredicate)
+      final CollisionType sizeType)
     {
         final BuildingState state = new BuildingState();
 
         //X == REGION
         //Y == FACE
 
-        accessor.streamWithPositionMutator(IPositionMutator.xyz())
-          .forEach(stateEntryInfo -> {
-              if (state.getRegionBuildingAxisValue() != stateEntryInfo.getStartPoint().x()) {
-                  state.setCurrentBox(null, null);
-              }
-              state.setRegionBuildingAxisValue(stateEntryInfo.getStartPoint().x());
+        //noinspection Convert2Lambda We need this to be pre-compiled
+        accessor.forEachWithPositionMutator(
+          IPositionMutator.xyz(),
+          new Consumer<>()
+          {
+              @Override
+              public void accept(final IStateEntryInfo stateEntryInfo)
+              {
+                  if (state.getRegionBuildingAxisValue() != stateEntryInfo.getStartPoint().x())
+                  {
+                      state.setCurrentBox(null, null);
+                  }
+                  state.setRegionBuildingAxisValue(stateEntryInfo.getStartPoint().x());
 
-              if (state.getFaceBuildingAxisValue() != stateEntryInfo.getStartPoint().y()) {
-                  state.setCurrentBox(null, null);
-              }
-              state.setFaceBuildingAxisValue(stateEntryInfo.getStartPoint().y());
+                  if (state.getFaceBuildingAxisValue() != stateEntryInfo.getStartPoint().y())
+                  {
+                      state.setCurrentBox(null, null);
+                  }
+                  state.setFaceBuildingAxisValue(stateEntryInfo.getStartPoint().y());
 
-              final Optional<Vec3> previousCenterPoint = state.getLastCenter();
-              final Vec3 centerPoint = stateEntryInfo.getCenterPoint();
-              state.onNextEntry(centerPoint);
+                  final Optional<Vec3> previousCenterPoint = state.getLastCenter();
+                  final Vec3 centerPoint = stateEntryInfo.getCenterPoint();
+                  state.onNextEntry(centerPoint);
 
-              final Optional<Direction> stepDirection = previousCenterPoint.flatMap(
-                d -> DirectionUtils.getDirectionVectorBetweenIfAligned(centerPoint, d)
-              );
+                  final Optional<Direction> stepDirection = previousCenterPoint.flatMap(
+                    d -> DirectionUtils.getDirectionVectorBetweenIfAligned(centerPoint, d)
+                  );
 
-              final Optional<AABB> potentialEntryData = buildBoundingBox(stateEntryInfo, selectablePredicate);
+                  final Optional<AABB> potentialEntryData = buildBoundingBox(stateEntryInfo, sizeType);
 
-              if (!potentialEntryData.isPresent()) {
-                  state.setCurrentBox(null, centerPoint);
-                  return;
-              }
-              final AABB entryData = potentialEntryData.get();
-
-              if (state.getCurrentBox() != null) {
-                  if (stepDirection
-                    .map(direction -> AABBUtils.areBoxesNeighbors(state.getCurrentBox(), entryData, direction))
-                    .filter(b -> b)
-                    .isPresent()) {
-                      state.expandCurrentBoxToInclude(entryData, centerPoint);
-
-                      if (attemptMergeWithNeighbors(state, centerPoint, state.getCurrentBox()))
-                      {
-                          return;
-                      }
-
+                  if (potentialEntryData.isEmpty())
+                  {
+                      state.setCurrentBox(null, centerPoint);
                       return;
                   }
+                  final AABB entryData = potentialEntryData.get();
+
+                  if (state.getCurrentBox() != null)
+                  {
+                      if (stepDirection
+                        .map(direction -> AABBUtils.areBoxesNeighbors(state.getCurrentBox(), entryData, direction))
+                        .filter(b -> b)
+                        .isPresent())
+                      {
+                          state.expandCurrentBoxToInclude(entryData, centerPoint);
+
+                          if (attemptMergeWithNeighbors(state, centerPoint, state.getCurrentBox()))
+                          {
+                              return;
+                          }
+
+                          return;
+                      }
+                  }
+
+                  if (attemptMergeWithNeighbors(state, centerPoint, entryData))
+                  {
+                      return;
+                  }
+
+                  state.setCurrentBox(potentialEntryData.get(), centerPoint);
               }
-
-              if (attemptMergeWithNeighbors(state, centerPoint, entryData))
-              {
-                  return;
-              }
-
-              state.setCurrentBox(potentialEntryData.get(), centerPoint);
-          });
-
+          }
+        );
         return Lists.newArrayList(state.getBoxes());
     }
 
@@ -117,8 +129,8 @@ public class AABBCompressor
 
     public static Optional<AABB> buildBoundingBox(
       final IStateEntryInfo stateEntryInfo,
-      final Predicate<IStateEntryInfo> selectablePredicate) {
-        if (!selectablePredicate.test(stateEntryInfo))
+      final CollisionType sizeType) {
+        if (!sizeType.isValidFor(stateEntryInfo))
             return Optional.empty();
 
         return Optional.of(stateEntryInfo.getBoundingBox());

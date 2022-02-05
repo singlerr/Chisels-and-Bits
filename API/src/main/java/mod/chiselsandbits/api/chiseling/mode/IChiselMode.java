@@ -13,6 +13,7 @@ import mod.chiselsandbits.platforms.core.registries.IChiselsAndBitsRegistry;
 import mod.chiselsandbits.platforms.core.registries.IChiselsAndBitsRegistryEntry;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.Optional;
 
@@ -125,10 +126,10 @@ public interface IChiselMode extends IChiselsAndBitsRegistryEntry, IToolMode<ITo
             onRightClickBy(playerEntity, snapshot);
         }
 
-        if (!snapshot.getMutator().isPresent())
-            return !context.getMutator().isPresent();
+        if (snapshot.getMutator().isEmpty())
+            return context.getMutator().isEmpty();
 
-        if (!context.getMutator().isPresent())
+        if (context.getMutator().isEmpty())
             return false;
 
         return context.getMutator().get().getInWorldBoundingBox().equals(snapshot.getMutator().get().getInWorldBoundingBox());
@@ -142,4 +143,14 @@ public interface IChiselMode extends IChiselsAndBitsRegistryEntry, IToolMode<ITo
     default boolean requiresPlaceableEditStack() {
         return false;
     }
+
+    /**
+     * Defines the shape of the area that is to be chiseled.
+     * This is the general shape, so a sphere, cube, or line any area specific changes are not returned by this method.
+     *
+     * @implNote This shape should make use of a heavily cached version, it will be called during rendering.
+     * @param context The current context that it is supposed to be for.
+     * @return The shape of the area to be chiseled.
+     */
+    VoxelShape getShape(IChiselingContext context);
 }

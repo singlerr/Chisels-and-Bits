@@ -16,6 +16,15 @@ repositories {
     }
 }
 
+sourceSets {
+    jmh {
+        java.srcDirs = ['src/jmh/java']
+        resources.srcDirs = ['src/jmh/resources']
+        compileClasspath += sourceSets.main.runtimeClasspath
+        compileClasspath += sourceSets.main.output
+    }
+}
+
 minecraft {
     version minecraft_version
     accessWideners project.rootProject.file("Platforms/Core/src/main/resources/${mod_id}.accesswidener")
@@ -38,10 +47,14 @@ dependencies {
     testImplementation project(':API')
     testImplementation project(':Platforms:Core')
 
-    shadow "org.lz4:lz4-pure-java:${project.lz4_version}"
+    shadow "org.lz4:lz4-pure-java:${project.lz4Version}"
 
-    compileOnly 'org.jetbrains:annotations:16.0.2'
-    testCompileOnly 'org.jetbrains:annotations:16.0.2'
+    compileOnly "org.jetbrains:annotations:${project.jetbrainsAnnotationsVersion}"
+    testCompileOnly "org.jetbrains:annotations:${project.jetbrainsAnnotationsVersion}"
+
+    jmhImplementation "org.mockito:mockito-core:1.+"
+    jmhImplementation "org.openjdk.jmh:jmh-core:${project.jmhVersion}"
+    jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${project.jmhVersion}"
 }
 
 if (opc.hasPropertySet("crowdInApiKey")) {
@@ -123,3 +136,19 @@ else
         project.logger.lifecycle "No CrowdIn API Key was provided. Can not sync translations!"
     }
 }
+
+task jmh(type: JavaExec, dependsOn: jmhClasses) {
+    group = "test"
+
+    mainClass.set('org.openjdk.jmh.Main')
+    classpath = sourceSets.jmh.compileClasspath + sourceSets.jmh.runtimeClasspath
+
+    jvmArgs = [
+            '--add-opens', 'java.base/java.util.stream=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.io=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+            '--add-opens', 'java.xml/jdk.xml.internal=ALL-UNNAMED'
+    ]
+}
+
+classes.finalizedBy(jmhClasses)

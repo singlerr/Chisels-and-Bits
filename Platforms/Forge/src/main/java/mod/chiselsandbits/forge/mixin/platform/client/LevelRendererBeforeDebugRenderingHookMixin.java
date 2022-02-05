@@ -7,6 +7,7 @@ import mod.chiselsandbits.client.input.FrameBasedInputTracker;
 import mod.chiselsandbits.client.logic.MeasurementsRenderHandler;
 import mod.chiselsandbits.client.logic.MultiStateBlockPreviewRenderHandler;
 import mod.chiselsandbits.client.logic.SelectedObjectRenderHandler;
+import mod.chiselsandbits.platforms.core.client.integration.IOptifineCompatibilityManager;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -31,7 +32,7 @@ public abstract class LevelRendererBeforeDebugRenderingHookMixin
       )}
     )
     private void onRenderParticles(CallbackInfo ci) {
-        this.didRenderParticles = true;
+        this.didRenderParticles = !IOptifineCompatibilityManager.getInstance().isInstalled();
     }
 
     @Inject(

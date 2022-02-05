@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.multistate.accessor.sortable;
 
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 
 /**
@@ -98,5 +99,21 @@ public interface IPositionMutator
      */
     static IPositionMutator yzx() {
         return zyx().then(yxz());
+    }
+
+    /**
+     * Returns the mutator which first iterates over the given direction and then over the others.
+     * The order of the other axi is not fixed.
+     *
+     * @param axis The axis to iterate over first.
+     * @return The position mutator for the given axis.
+     */
+    static IPositionMutator fromAxis(final Direction.Axis axis) {
+        return switch (axis)
+                 {
+                     case X -> IPositionMutator.xyz();
+                     case Y -> IPositionMutator.yxz();
+                     case Z -> IPositionMutator.zxy();
+                 };
     }
 }

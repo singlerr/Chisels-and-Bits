@@ -4,6 +4,9 @@ import mod.chiselsandbits.api.profiling.IProfiler;
 import mod.chiselsandbits.api.profiling.IProfilerResult;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
+import mod.chiselsandbits.profiling.jvm.jfr.JfrCandBProfiler;
+import net.minecraft.util.profiling.jfr.Environment;
+import net.minecraft.util.profiling.jfr.JvmProfiler;
 
 import java.util.function.Consumer;
 
@@ -23,20 +26,32 @@ public class ProfilingManager implements IProfilingManager
     }
 
     @Override
-    public IProfiler startProfiling()
+    public IProfiler startProfiling(Environment profilingEnvironment)
     {
+        if (JvmProfiler.INSTANCE.isAvailable()) {
+            return new JfrCandBProfiler(profilingEnvironment);
+        }
+
         return new CandBProfiler();
     }
 
     @Override
     public IProfilerResult endProfiling(final IProfiler profiler)
     {
-        if (!(profiler instanceof CandBProfiler))
+        if (!(profiler instanceof final CandBProfiler candBProfiler))
             throw new IllegalArgumentException("Profiler is not a Chisels and Bits Profiler");
 
-        final CandBProfiler candBProfiler = (CandBProfiler) profiler;
-
         return candBProfiler.getResult();
+    }
+
+    @Override
+    public IProfilerResult stopProfiling(final IProfiler profiler)
+    {
+        if (!(profiler instanceof final CandBProfiler candBProfiler))
+            throw new IllegalArgumentException("Profiler is not a Chisels and Bits Profiler");
+
+        this.profiler = null;
+        return candBProfiler.stop();
     }
 
     public IProfiler getProfiler()

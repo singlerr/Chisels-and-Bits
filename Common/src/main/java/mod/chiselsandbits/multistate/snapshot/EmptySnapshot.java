@@ -1,6 +1,7 @@
 package mod.chiselsandbits.multistate.snapshot;
 
 import com.google.common.collect.ImmutableMap;
+import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.item.multistate.IStatistics;
@@ -9,6 +10,7 @@ import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.axissize.IAxisSizeHandler;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
@@ -21,8 +23,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.BitSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class EmptySnapshot implements IMultiStateSnapshot
@@ -107,6 +111,9 @@ public class EmptySnapshot implements IMultiStateSnapshot
         {
             return false;
         }
+
+        @Override
+        public BitSet getCollideableEntries(final CollisionType collisionType) { return BitSet.valueOf(new long[0]); }
     };
 
     /**
@@ -198,6 +205,13 @@ public class EmptySnapshot implements IMultiStateSnapshot
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
     {
         return Stream.empty();
+    }
+
+    @Override
+    public void forEachWithPositionMutator(
+      final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer)
+    {
+        //Noop
     }
 
     /**
@@ -443,6 +457,13 @@ public class EmptySnapshot implements IMultiStateSnapshot
         public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
         {
             return Stream.empty();
+        }
+
+        @Override
+        public void forEachWithPositionMutator(
+          final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer)
+        {
+            //Noop
         }
 
         /**
