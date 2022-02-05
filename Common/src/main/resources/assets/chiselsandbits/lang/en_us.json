@@ -349,5 +349,5 @@
   "mod.chiselsandbits.config.settings.chiseling-previews.debug.enabled.comment": "Indicates if the debug rendering in chiseling and placement previews should be enabled.",
   "mod.chiselsandbits.config.settings.chiseling-previews.debug.mutator.colors.chiseling.comment": "The color of the chiseling mutation area in the chiseling preview.",
   "mod.chiselsandbits.config.settings.chiseling-previews.debug.mutator.colors.placement.comment": "The color of the placement mutation area in the placement preview.",
-  "mod.chiselsandbits.config.settings.patterns.export-path.comment": "The path where exported patterns should be saved.",
+  "mod.chiselsandbits.config.settings.patterns.export-path.comment": "The path where exported patterns should be saved."
 }
