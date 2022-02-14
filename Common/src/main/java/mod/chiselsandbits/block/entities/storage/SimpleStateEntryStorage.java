@@ -12,6 +12,7 @@ import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.utils.ByteArrayUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -22,8 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.RoundingMode;
-import java.util.BitSet;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public class SimpleStateEntryStorage implements IStateEntryStorage
@@ -140,6 +140,14 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
         return x * size * size + y * size + z;
     }
 
+    private Vec3i doCalculatePosition(final int index) {
+        final int x = index / (size * size);
+        final int y = (index - x * size * size) / size;
+        final int z = index - x * size * size - y * size;
+
+        return new Vec3i(x, y, z);
+    }
+
     @Override
     public void count(final BiConsumer<BlockState, Integer> storageConsumer)
     {
@@ -195,6 +203,12 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
                 }
             }
         }
+    }
+
+    @Override
+    public List<BlockState> getContainedPalette()
+    {
+        return palette.getStates();
     }
 
     @Override
@@ -288,7 +302,21 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
         this.palette.deserializeNBT(nbt.getList(NbtConstants.PALETTE, Tag.TAG_STRING));
         this.data = BitSet.valueOf(nbt.getByteArray(NbtConstants.DATA));
 
+        final Set<BlockState> containedStates = new HashSet<>();
+        for (int i = 0; i < getTotalEntryCount(); i++)
+        {
+            final Vec3i pos = doCalculatePosition(i);
+            final BlockState blockState = getBlockState(pos);
+            containedStates.add(blockState);
+        }
+
+        final List<BlockState> paletteStates = new ArrayList<>(this.palette.getStates());
+        paletteStates.removeAll(containedStates);
+        paletteStates.remove(Blocks.AIR.defaultBlockState()); //We need to keep this!
+
         this.isDeserializing = false;
+
+        this.palette.sanitize(paletteStates);
     }
 
     @Override
@@ -325,5 +353,47 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
               .mapToObj(index -> Pair.of(index, ByteArrayUtils.getValueAt(rawData, currentEntryWidth, index)))
               .forEach(pair -> ByteArrayUtils.setValueAt(this.data, pair.getSecond(), this.entryWidth, pair.getFirst()));
         }
+    }
+
+    @Override
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (!(o instanceof final SimpleStateEntryStorage that))
+        {
+            return false;
+        }
+
+        if (entryWidth != that.entryWidth)
+        {
+            return false;
+        }
+        if (!palette.equals(that.palette))
+        {
+            return false;
+        }
+        return getData().equals(that.getData());
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = palette.hashCode();
+        result = 31 * result + getData().hashCode();
+        result = 31 * result + entryWidth;
+        return result;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "SimpleStateEntryStorage{" +
+                 "palette=" + palette +
+                 ", data=" + data +
+                 ", entryWidth=" + entryWidth +
+                 '}';
     }
 }

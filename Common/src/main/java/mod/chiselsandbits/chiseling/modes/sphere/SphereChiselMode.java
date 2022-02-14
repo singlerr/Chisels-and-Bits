@@ -118,7 +118,10 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
           facing -> facing.multiply(-1, -1, -1)
         );
 
-        context.setMetadata(ModMetadataKeys.ANCHOR.get(), rayTraceHandle.right().get());
+        if (rayTraceHandle.right().isPresent())
+        {
+            context.setMetadata(ModMetadataKeys.ANCHOR.get(), rayTraceHandle.right().get());
+        }
 
         if (context.isSimulation())
         {
@@ -192,7 +195,10 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
           Function.identity()
         );
 
-        context.setMetadata(ModMetadataKeys.ANCHOR.get(), rayTraceHandle.right().get());
+        if (rayTraceHandle.right().isPresent())
+        {
+            context.setMetadata(ModMetadataKeys.ANCHOR.get(), rayTraceHandle.right().get());
+        }
 
         if (context.isSimulation())
         {

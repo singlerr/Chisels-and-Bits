@@ -2,14 +2,13 @@ package mod.chiselsandbits.multistate.snapshot;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
-import mod.chiselsandbits.api.axissize.IAxisSizeHandler;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
-import mod.chiselsandbits.api.multistate.accessor.identifier.IByteArrayBackedAreaShapeIdentifier;
+import mod.chiselsandbits.api.multistate.accessor.identifier.IArrayBackedAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
@@ -36,10 +35,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -584,22 +580,19 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         }
     }
 
-    private static class Identifier implements IByteArrayBackedAreaShapeIdentifier
+    private static class Identifier implements IArrayBackedAreaShapeIdentifier
     {
-        private final byte[] identifyingPayload;
+        private final IStateEntryStorage snapshot;
 
         private Identifier(final IStateEntryStorage section)
         {
-            this.identifyingPayload = Arrays.copyOf(
-              section.getRawData(),
-              section.getRawData().length
-            );
+            this.snapshot = section.createSnapshot();
         }
 
         @Override
         public int hashCode()
         {
-            return Arrays.hashCode(identifyingPayload);
+            return snapshot.hashCode();
         }
 
         @Override
@@ -609,17 +602,23 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
             {
                 return true;
             }
-            if (!(o instanceof final IByteArrayBackedAreaShapeIdentifier that))
+            if (!(o instanceof final IArrayBackedAreaShapeIdentifier that))
             {
                 return false;
             }
-            return Arrays.equals(identifyingPayload, that.getBackingData());
+            return Arrays.equals(this.getBackingData(), that.getBackingData()) && that.getPalette().equals(this.getPalette());
         }
 
         @Override
         public byte[] getBackingData()
         {
-            return identifyingPayload;
+            return snapshot.getRawData();
+        }
+
+        @Override
+        public List<BlockState> getPalette()
+        {
+            return snapshot.getContainedPalette();
         }
     }
 

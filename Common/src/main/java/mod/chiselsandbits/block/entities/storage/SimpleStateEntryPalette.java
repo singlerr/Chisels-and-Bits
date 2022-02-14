@@ -137,6 +137,40 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
         this.getIndex(Blocks.AIR.defaultBlockState());
     }
 
+    public List<BlockState> getStates()
+    {
+        return this.paletteMap.keySet().stream().toList();
+    }
+
+    @Override
+    public boolean equals(final Object o)
+    {
+        if (this == o)
+        {
+            return true;
+        }
+        if (!(o instanceof final SimpleStateEntryPalette that))
+        {
+            return false;
+        }
+
+        return paletteEntries.equals(that.paletteEntries);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return paletteEntries.hashCode();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "SimpleStateEntryPalette{" +
+                 "paletteEntries=" + paletteEntries +
+                 '}';
+    }
+
     private static final class Entry implements IPacketBufferSerializable, INBTSerializable<StringTag>
     {
         private BlockState outwardFacingState;

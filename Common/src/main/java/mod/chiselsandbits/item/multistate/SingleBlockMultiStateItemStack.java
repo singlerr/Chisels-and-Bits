@@ -11,7 +11,7 @@ import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
-import mod.chiselsandbits.api.multistate.accessor.identifier.IByteArrayBackedAreaShapeIdentifier;
+import mod.chiselsandbits.api.multistate.accessor.identifier.IArrayBackedAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
@@ -19,7 +19,6 @@ import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.BlockPosForEach;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
-import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
 import mod.chiselsandbits.item.ChiseledBlockItem;
 import mod.chiselsandbits.materials.MaterialManager;
@@ -53,6 +52,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -558,16 +558,13 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         return createNewShapeIdentifier().equals(accessor.createNewShapeIdentifier());
     }
 
-    private static final class ShapeIdentifier implements IByteArrayBackedAreaShapeIdentifier
+    private static final class ShapeIdentifier implements IArrayBackedAreaShapeIdentifier
     {
-        private final byte[] dataArray;
+        private final IStateEntryStorage snapshot;
 
         private ShapeIdentifier(final IStateEntryStorage chunkSection)
         {
-            dataArray = Arrays.copyOf(
-              chunkSection.getRawData(),
-              chunkSection.getRawData().length
-            );
+            snapshot = chunkSection.createSnapshot();
         }
 
         @Override
@@ -577,23 +574,31 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
             {
                 return true;
             }
-            if (!(o instanceof final IByteArrayBackedAreaShapeIdentifier that))
+            if (!(o instanceof final IArrayBackedAreaShapeIdentifier that))
             {
                 return false;
             }
-            return Arrays.equals(dataArray, that.getBackingData());
+
+            return Arrays.equals(this.getBackingData(), that.getBackingData()) &&
+              this.getPalette().equals(that.getPalette());
         }
 
         @Override
         public int hashCode()
         {
-            return Arrays.hashCode(dataArray);
+            return snapshot.hashCode();
         }
 
         @Override
         public byte[] getBackingData()
         {
-            return dataArray;
+            return snapshot.getRawData();
+        }
+
+        @Override
+        public List<BlockState> getPalette()
+        {
+            return snapshot.getContainedPalette();
         }
     }
 

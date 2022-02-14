@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAndRotateble, INBTSerializable<CompoundTag>
@@ -97,4 +98,11 @@ public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAn
      * @param entries The entries to fill with.
      */
     void fillFromBottom(BlockState state, int entries);
+
+    /**
+     * Provides access to a read-only copy of the palette that is in use in this storage.
+     *
+     * @return The palette.
+     */
+    List<BlockState> getContainedPalette();
 }

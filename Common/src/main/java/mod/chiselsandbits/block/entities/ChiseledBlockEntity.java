@@ -14,7 +14,7 @@ import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
-import mod.chiselsandbits.api.multistate.accessor.identifier.IByteArrayBackedAreaShapeIdentifier;
+import mod.chiselsandbits.api.multistate.accessor.identifier.IArrayBackedAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
@@ -297,7 +297,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
                     this.storageFuture = this.storageEngine.serializeOffThread(
                       tag -> CompletableFuture.runAsync(
-                        () -> this.setOffThreadSaveResult(tag), getLevel().getServer()
+                        () -> this.setOffThreadSaveResult(tag), this.storageEngine
                       ));
                 }
             }
@@ -316,7 +316,9 @@ public class ChiseledBlockEntity extends BlockEntity implements
     }
 
     private void setOffThreadSaveResult(final CompoundTag tag) {
-        this.lastTag = tag;
+        synchronized (this.tagSyncHandle) {
+            this.lastTag = tag;
+        }
     }
 
     private boolean shouldUpdateWorld() {
@@ -2146,23 +2148,14 @@ public class ChiseledBlockEntity extends BlockEntity implements
         }
     }
 
-    private static final class Identifier implements IByteArrayBackedAreaShapeIdentifier
+    private static final class Identifier implements IArrayBackedAreaShapeIdentifier
     {
 
-        private final byte[] identifyingPayload;
+        private final IStateEntryStorage snapshot;
 
         private Identifier(final IStateEntryStorage section)
         {
-            this.identifyingPayload = Arrays.copyOf(
-              section.getRawData(),
-              section.getRawData().length
-            );
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return Arrays.hashCode(identifyingPayload);
+            this.snapshot = section.createSnapshot();
         }
 
         @Override
@@ -2172,25 +2165,39 @@ public class ChiseledBlockEntity extends BlockEntity implements
             {
                 return true;
             }
-            if (!(o instanceof final IByteArrayBackedAreaShapeIdentifier that))
+            if (!(o instanceof final IArrayBackedAreaShapeIdentifier that))
             {
                 return false;
             }
-            return Arrays.equals(identifyingPayload, that.getBackingData());
+
+            return Arrays.equals(this.getBackingData(), that.getBackingData()) &&
+              this.getPalette().equals(that.getPalette());
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return snapshot.hashCode();
         }
 
         @Override
         public String toString()
         {
             return "Identifier{" +
-                     "identifyingPayload=" + Arrays.toString(identifyingPayload) +
+                     "snapshot=" + snapshot +
                      '}';
         }
 
         @Override
         public byte[] getBackingData()
         {
-            return identifyingPayload;
+            return snapshot.getRawData();
+        }
+
+        @Override
+        public List<BlockState> getPalette()
+        {
+            return snapshot.getContainedPalette();
         }
     }
 

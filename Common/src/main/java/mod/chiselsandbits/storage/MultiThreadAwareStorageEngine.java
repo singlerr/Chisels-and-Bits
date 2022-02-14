@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -84,5 +85,12 @@ final class MultiThreadAwareStorageEngine implements IMultiThreadedStorageEngine
           saveService
         )
        .thenComposeAsync(resultSaver);
+    }
+
+    @Override
+    public void execute(@NotNull final Runnable command)
+    {
+        ensureThreadPoolSetup();
+        saveService.execute(command);
     }
 }

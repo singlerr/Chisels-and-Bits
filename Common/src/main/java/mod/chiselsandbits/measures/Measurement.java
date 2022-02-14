@@ -35,17 +35,17 @@ public class Measurement implements IMeasurement, IPacketBufferSerializable
 
     private void adaptPositions(final Vec3 from, final Vec3 to, final Direction hitFace, final MeasuringMode mode)
     {
-        this.from = new Vec3(
+        this.from = mode.getType().isNeedsNormalization() ? new Vec3(
           Math.min(from.x(), to.x()),
           Math.min(from.y(), to.y()),
           Math.min(from.z(), to.z())
-        );
+        ) : from;
 
-        this.to = new Vec3(
+        this.to = mode.getType().isNeedsNormalization() ? new Vec3(
           Math.max(from.x(), to.x()),
           Math.max(from.y(), to.y()),
           Math.max(from.z(), to.z())
-        );
+        ) : to;
 
         this.from = mode.getType().adaptStartCorner(this.from, this.to, hitFace);
         this.to = mode.getType().adaptEndCorner(this.from, this.to, hitFace);

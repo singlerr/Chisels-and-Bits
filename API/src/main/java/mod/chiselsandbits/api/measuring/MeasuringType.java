@@ -6,7 +6,6 @@ import mod.chiselsandbits.api.util.BlockHitResultUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -31,8 +30,8 @@ public enum MeasuringType implements IToolModeGroup
           Math.max(from.x(), to.x()) + StateEntrySize.current().getSizePerHalfBit(),
           Math.max(from.y(), to.y()) + StateEntrySize.current().getSizePerHalfBit(),
           Math.max(from.z(), to.z()) + StateEntrySize.current().getSizePerHalfBit()
-        )
-    ),
+        ),
+      true),
     BLOCK(LocalStrings.TapeMeasureBlock.getText(), new ResourceLocation(Constants.MOD_ID, "textures/icons/block.png"),
       blockHitResult -> BlockHitResultUtils.getCenterOfHitObject(blockHitResult, VectorUtils.ONE), (from, to, hitFace) ->
       new Vec3(
@@ -46,31 +45,31 @@ public enum MeasuringType implements IToolModeGroup
           Math.max(from.x(), to.x()) + 0.499,
           Math.max(from.y(), to.y()) + 0.499,
           Math.max(from.z(), to.z()) + 0.499
-        )
-      ),
+        ),
+      true),
     DISTANCE( LocalStrings.TapeMeasureDistance.getText(), new ResourceLocation(Constants.MOD_ID,"textures/icons/line.png"),
       IClickedPositionAdapter.identity(), (from, to, hitFace) -> from,
-      (from, to, hitFace) -> to);
+      (from, to, hitFace) -> to, false);
 
     private final Component displayName;
     private final ResourceLocation        icon;
     private final IClickedPositionAdapter clickedPositionAdapter;
     private final IPositionAdapter        finalStartPositionAdapter;
     private final IPositionAdapter finalEndPositionAdapter;
-
-
+    private final boolean needsNormalization;
 
     MeasuringType(
       final Component displayName,
       final ResourceLocation icon,
       final IClickedPositionAdapter startPositionAdapter,
       IPositionAdapter finalStartPositionAdapter,
-      IPositionAdapter finalEndPositionAdapter) {
+      IPositionAdapter finalEndPositionAdapter, final boolean needsNormalization) {
         this.displayName = displayName;
         this.icon = icon;
         this.clickedPositionAdapter = startPositionAdapter;
         this.finalStartPositionAdapter = finalStartPositionAdapter;
         this.finalEndPositionAdapter = finalEndPositionAdapter;
+        this.needsNormalization = needsNormalization;
     }
 
     @Override
@@ -103,6 +102,11 @@ public enum MeasuringType implements IToolModeGroup
     public Vec3 getResolution()
     {
         return new Vec3(1,1,1);
+    }
+
+    public boolean isNeedsNormalization()
+    {
+        return needsNormalization;
     }
 
     @FunctionalInterface
