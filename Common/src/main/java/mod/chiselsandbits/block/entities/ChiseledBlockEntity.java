@@ -291,7 +291,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 synchronized (this.tagSyncHandle) {
                     if (this.storageFuture != null)
                     {
-                        this.storageFuture.cancel(true);
+                        this.storageFuture.cancel(false);
                     }
                     this.lastTag = null;
 
