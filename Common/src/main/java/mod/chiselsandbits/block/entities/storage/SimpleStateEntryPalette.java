@@ -3,6 +3,7 @@ package mod.chiselsandbits.block.entities.storage;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.mojang.serialization.DataResult;
 import mod.chiselsandbits.api.util.INBTSerializable;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
@@ -15,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
@@ -22,8 +24,8 @@ import java.util.stream.Collectors;
 public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTSerializable<ListTag>
 {
 
-    private final List<Entry> paletteEntries = Lists.newArrayList();
-    private final BiMap<BlockState, Entry> paletteMap = HashBiMap.create();
+    private final List<Entry> paletteEntries = Collections.synchronizedList(Lists.newArrayList());
+    private final BiMap<BlockState, Entry> paletteMap = Maps.synchronizedBiMap(HashBiMap.create());
     private final IntConsumer onNewSizeAddedConsumer;
 
     public SimpleStateEntryPalette(final IntConsumer onNewSizeAddedConsumer) {

@@ -12,6 +12,8 @@ import mod.chiselsandbits.keys.KeyBindingManager;
 import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.network.packets.MeasurementsResetPacket;
 import mod.chiselsandbits.api.util.BlockHitResultUtils;
+import mod.chiselsandbits.platforms.core.dist.Dist;
+import mod.chiselsandbits.platforms.core.dist.DistExecutor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -74,7 +76,11 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
         final ItemStack stack = playerEntity.getItemInHand(hand);
         if (stack.getItem() == this)
         {
-            if (KeyBindingManager.getInstance().isResetMeasuringTapeKeyPressed())
+            //We only check for this on the client not on the server side, the client sends the packet to the server and then performs the code.
+            if (DistExecutor.unsafeRunForDist(
+              () -> () -> { return KeyBindingManager.getInstance().isResetMeasuringTapeKeyPressed(); },
+              () -> () -> { return false; })
+            )
             {
                 clear(stack);
                 ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new MeasurementsResetPacket());
@@ -189,14 +195,16 @@ public class MeasuringTapeItem extends Item implements IMeasuringTapeItem
     {
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
 
-        if (KeyBindingManager.getInstance().areBindingsInitialized()) {
-            HelpTextUtils.build(
-              LocalStrings.HelpTapeMeasure, tooltip,
-              Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(),
-              Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(),
-              KeyBindingManager.getInstance().getResetMeasuringTapeKeyBinding().getTranslatedKeyMessage(),
-              KeyBindingManager.getInstance().getOpenToolMenuKeybinding().getTranslatedKeyMessage()
-            );
-        }
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
+            if (KeyBindingManager.getInstance().hasBeenInitialized()) {
+                HelpTextUtils.build(
+                  LocalStrings.HelpTapeMeasure, tooltip,
+                  Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(),
+                  Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(),
+                  KeyBindingManager.getInstance().getResetMeasuringTapeKeyBinding().getTranslatedKeyMessage(),
+                  KeyBindingManager.getInstance().getOpenToolMenuKeybinding().getTranslatedKeyMessage()
+                );
+            }
+          });
     }
 }

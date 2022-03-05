@@ -35,6 +35,7 @@ public class KeyBindingManager
     private              int               toolModeSelectionPlusCoolDown  = 15;
     private              int               toolModeSelectionMinusCoolDown = 15;
     private              long              lastChangeTime                 = -10;
+    private boolean initialized = false;
 
     private KeyBindingManager()
     {
@@ -98,6 +99,8 @@ public class KeyBindingManager
                                                       InputConstants.Type.KEYSYM,
                                                       InputConstants.KEY_Z,
                                                       "mod.chiselsandbits.keys.category"));
+
+        initialized = true;
     }
 
     public void handleKeyPresses()
@@ -198,6 +201,10 @@ public class KeyBindingManager
         }
     }
 
+    public boolean hasBeenInitialized() {
+        return initialized;
+    }
+
     public boolean isOpenToolMenuKeyPressed()
     {
         return isKeyDown(getOpenToolMenuKeybinding());
@@ -288,11 +295,6 @@ public class KeyBindingManager
         }
 
         return redoOperationKeyBinding;
-    }
-
-    public boolean areBindingsInitialized()
-    {
-        return resetMeasuringTapeKeyBinding != null;
     }
 
     public boolean isResetMeasuringTapeKeyPressed() {return isKeyDown(getResetMeasuringTapeKeyBinding());}

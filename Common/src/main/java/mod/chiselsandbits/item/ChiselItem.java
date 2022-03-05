@@ -25,6 +25,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -342,5 +343,14 @@ public class ChiselItem extends DiggerItem implements IChiselItem
     public int getMaxDamage()
     {
         return getTier().getUses() * IServerConfiguration.getInstance().getBitSize().get().getBitsPerBlock();
+    }
+
+    public int getBarWidth(ItemStack p_150900_) {
+        return Math.round(13.0F - (float)p_150900_.getDamageValue() * 13.0F / (float)this.getMaxDamage());
+    }
+
+    public int getBarColor(ItemStack p_150901_) {
+        float f = Math.max(0.0F, ((float)this.getMaxDamage() - (float)p_150901_.getDamageValue()) / (float)this.getMaxDamage());
+        return Mth.hsvToRgb(f / 3.0F, 1.0F, 1.0F);
     }
 }
