@@ -12,6 +12,7 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
@@ -130,14 +131,14 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
     private final boolean shapeless;
 
     private final List<String>              pattern;
-    private final Map<Character, Tag<Item>> tagMap;
+    private final Map<Character, TagKey<Item>> tagMap;
     private final Map<Character, ItemLike>  itemMap;
 
     public SimpleItemsRecipeGenerator(
-      final DataGenerator generator,
-      final ItemLike itemProvider,
-      final String pattern,
-      final Map<Character, Tag<Item>> tagMap, final Map<Character, ItemLike> itemMap)
+            final DataGenerator generator,
+            final ItemLike itemProvider,
+            final String pattern,
+            final Map<Character, TagKey<Item>> tagMap, final Map<Character, ItemLike> itemMap)
     {
         super(generator, itemProvider);
         this.shapeless = false;
@@ -149,7 +150,7 @@ public class SimpleItemsRecipeGenerator extends AbstractRecipeGenerator
     public SimpleItemsRecipeGenerator(
       final DataGenerator generator,
       final ItemLike itemProvider,
-      final List<Tag<Item>> tagMap,
+      final List<TagKey<Item>> tagMap,
       final List<ItemLike> itemMap)
     {
         super(generator, itemProvider);

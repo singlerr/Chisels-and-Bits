@@ -9,6 +9,7 @@ import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
@@ -77,14 +78,14 @@ public class MachineBlocksRecipeGenerator extends AbstractRecipeGenerator
     }
 
     private final List<String>                            pattern;
-    private final Map<Character, Tag<Item>>               tagMap;
+    private final Map<Character, TagKey<Item>>               tagMap;
     private final Map<Character, ItemLike> itemMap;
 
     private MachineBlocksRecipeGenerator(
       final DataGenerator generator,
       final ItemLike result,
       final String pattern,
-      final Map<Character, Tag<Item>> tagMap,
+      final Map<Character, TagKey<Item>> tagMap,
       final Map<Character, ItemLike> itemMap)
     {
         super(generator, result);

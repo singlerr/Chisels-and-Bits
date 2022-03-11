@@ -98,7 +98,7 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
             public void accept(final BlockPos blockPos)
             {
                 final int index = BlockPosUtils.getCollisionIndex(blockPos, fullBitAccuracy, fullBitAccuracy);
-                final double posRange = blockPos.distSqr(centerPos, true);
+                final double posRange = blockPos.distSqr(centerPos);
 
                 bits.set(index, posRange <= range);
             }

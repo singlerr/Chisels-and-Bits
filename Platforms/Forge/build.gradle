@@ -142,10 +142,10 @@ dependencies {
     implementation project(":API")
     implementation project(":Platforms:Core")
 
-    runtimeOnly fg.deobf("curse.maven:spark-361579:3585686")
+    //runtimeOnly fg.deobf("curse.maven:spark-361579:3585686")
 
-    compileOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}:api")
-    runtimeOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}")
+    //compileOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}:api")
+    //runtimeOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}")
 
     compileOnly 'org.jetbrains:annotations:16.0.2'
     testCompileOnly 'org.jetbrains:annotations:16.0.2'

@@ -1,7 +1,7 @@
 package mod.chiselsandbits.platforms.core.registries.deferred;
 
-import mod.chiselsandbits.platforms.core.registries.IChiselsAndBitsRegistry;
-import mod.chiselsandbits.platforms.core.registries.IChiselsAndBitsRegistryEntry;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 
 import java.util.function.Supplier;
 
@@ -15,7 +15,7 @@ public interface IRegistrar<T>
      * @param <T> The type in the registry.
      * @return The registrar for a registry of the given type in the given namespace.
      */
-    static <T, R extends T> IRegistrar<R> create(Class<T> typeClass, String modId)
+    static <T, R extends T> IRegistrar<R> create(ResourceKey<? extends Registry<T>> typeClass, String modId)
     {
         return IRegistrarManager.getInstance().createRegistrar(typeClass, modId);
     }

@@ -3,6 +3,7 @@ package mod.chiselsandbits.recipe.modificationtable;
 import com.google.gson.JsonObject;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
+import mod.chiselsandbits.registrars.ModRecipeTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -10,6 +11,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class ModificationTableRecipeSerializer extends SimpleChiselsAndBitsRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<ModificationTableRecipe>
 {
+
+    public ModificationTableRecipeSerializer() {
+        //Needs to be done here, since else we get problems with frozen registries.
+        ModRecipeTypes.onSerializerRegistration();
+    }
+
     @Override
     public @NotNull ModificationTableRecipe fromJson(final @NotNull ResourceLocation recipeId, final @NotNull JsonObject json)
     {

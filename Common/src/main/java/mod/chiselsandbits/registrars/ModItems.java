@@ -7,6 +7,7 @@ import mod.chiselsandbits.item.bit.BitItem;
 import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistrar;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistryObject;
+import net.minecraft.core.Registry;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Tiers;
@@ -22,7 +23,7 @@ public final class ModItems
 {
     public static final  Map<Material, IRegistryObject<ChiseledBlockItem>> MATERIAL_TO_ITEM_CONVERSIONS = Maps.newHashMap();
     private static final Logger                                            LOGGER                       = LogManager.getLogger();
-    private final static IRegistrar<Item>                                  ITEM_REGISTRAR               = IRegistrar.create(Item.class, Constants.MOD_ID);
+    private final static IRegistrar<Item>                                  ITEM_REGISTRAR               = IRegistrar.create(Registry.ITEM_REGISTRY, Constants.MOD_ID);
     public static final  IRegistryObject<ChiselItem>                       ITEM_CHISEL_STONE            =
       ITEM_REGISTRAR.register("chisel_stone", () -> new ChiselItem(Tiers.STONE, new Item.Properties().tab(CHISELS_AND_BITS).stacksTo(1)));
     public static final  IRegistryObject<ChiselItem>                       ITEM_CHISEL_IRON             =

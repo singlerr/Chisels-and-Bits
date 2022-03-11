@@ -4,6 +4,7 @@ import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -27,12 +28,12 @@ public class ChiselRecipeGenerator extends AbstractChiselRecipeGenerator
     private ChiselRecipeGenerator(
       final DataGenerator generator,
       final Item result,
-      final Tag<Item> ingredientTag)
+      final TagKey<Item> ingredientTag)
     {
         super(generator, result, ingredientTag);
     }
 
-    private ChiselRecipeGenerator(final DataGenerator generator, final Item result, final Tag<Item> rodTag, final Tag<Item> ingredientTag)
+    private ChiselRecipeGenerator(final DataGenerator generator, final Item result, final TagKey<Item> rodTag, final TagKey<Item> ingredientTag)
     {
         super(generator, result, rodTag, ingredientTag);
     }
