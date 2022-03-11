@@ -28,6 +28,7 @@ import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 
@@ -242,14 +243,14 @@ public interface IChiselsAndBitsAPI
      * @return The forced compatibility tag.
      */
     @NotNull
-    Tag.Named<Block> getForcedTag();
+    TagKey<Block> getForcedTag();
 
     /**
      * Returns the tag used in the eligibility system to block compatibility.
      * @return The blocked compatibility tag.
      */
     @NotNull
-    Tag.Named<Block> getBlockedTag();
+    TagKey<Block> getBlockedTag();
 
     /**
      * Returns the permission handler which is used to check if a particular area

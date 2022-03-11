@@ -2,6 +2,7 @@ package mod.chiselsandbits.api.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.biome.Biome;
@@ -87,7 +88,7 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements Le
 
     @NotNull
     @Override
-    public Biome getUncachedNoiseBiome(final int x, final int y, final int z)
+    public Holder<Biome> getUncachedNoiseBiome(final int x, final int y, final int z)
     {
         return this.reader.getUncachedNoiseBiome(x, y, z);
     }

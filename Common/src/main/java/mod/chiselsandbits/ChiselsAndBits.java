@@ -39,7 +39,6 @@ public class ChiselsAndBits
         ModModificationOperationGroups.onModConstruction();
         ModPatternPlacementTypes.onModConstruction();
         ModRecipeSerializers.onModConstruction();
-        ModRecipeTypes.onModConstruction();
         ModTags.onModConstruction();
 
         networkChannel.registerCommonMessages();

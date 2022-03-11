@@ -1,3 +1,4 @@
+/*
 package mod.chiselsandbits.forge.integration.jei;
 
 import mezz.jei.api.constants.ModIds;
@@ -41,3 +42,4 @@ public class JEICompatConfiguration
         return injectBits;
     }
 }
+*/

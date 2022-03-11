@@ -6,6 +6,7 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.Tags;
 
@@ -13,10 +14,10 @@ import java.util.function.Consumer;
 
 public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenerator
 {
-    private final Tag<Item> rodTag;
-    private final Tag<Item> ingredientTag;
+    private final TagKey<Item> rodTag;
+    private final TagKey<Item> ingredientTag;
 
-    protected AbstractChiselRecipeGenerator(final DataGenerator generator, final Item result, Tag<Item> ingredientTag)
+    protected AbstractChiselRecipeGenerator(final DataGenerator generator, final Item result, TagKey<Item> ingredientTag)
     {
         super(generator, ParamValidator.isInstanceOf(result, IChiselItem.class));
         this.ingredientTag = ingredientTag;
@@ -26,8 +27,8 @@ public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenera
     protected AbstractChiselRecipeGenerator(
       final DataGenerator generator,
       final Item result,
-      final Tag<Item> rodTag,
-      final Tag<Item> ingredientTag)
+      final TagKey<Item> rodTag,
+      final TagKey<Item> ingredientTag)
     {
         super(generator, ParamValidator.isInstanceOf(result, IChiselItem.class));
         this.rodTag = rodTag;

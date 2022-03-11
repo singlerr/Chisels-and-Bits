@@ -24,37 +24,37 @@ public class DyeItemHelper implements IDyeItemHelper
     @Override
     public Optional<DyeColor> getColorFromItem(final ItemStack stack)
     {
-        if (Tags.Items.DYES_WHITE.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_WHITE))
             return Optional.of(DyeColor.WHITE);
-        if (Tags.Items.DYES_ORANGE.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_ORANGE))
             return Optional.of(DyeColor.ORANGE);
-        if (Tags.Items.DYES_MAGENTA.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_MAGENTA))
             return Optional.of(DyeColor.MAGENTA);
-        if (Tags.Items.DYES_LIGHT_BLUE.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_LIGHT_BLUE))
             return Optional.of(DyeColor.LIGHT_BLUE);
-        if (Tags.Items.DYES_YELLOW.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_YELLOW))
             return Optional.of(DyeColor.YELLOW);
-        if (Tags.Items.DYES_LIME.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_LIME))
             return Optional.of(DyeColor.LIME);
-        if (Tags.Items.DYES_PINK.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_PINK))
             return Optional.of(DyeColor.PINK);
-        if (Tags.Items.DYES_GRAY.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_GRAY))
             return Optional.of(DyeColor.GRAY);
-        if (Tags.Items.DYES_LIGHT_GRAY.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_LIGHT_GRAY))
             return Optional.of(DyeColor.LIGHT_GRAY);
-        if (Tags.Items.DYES_CYAN.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_CYAN))
             return Optional.of(DyeColor.CYAN);
-        if (Tags.Items.DYES_PURPLE.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_PURPLE))
             return Optional.of(DyeColor.PURPLE);
-        if (Tags.Items.DYES_BLUE.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_BLUE))
             return Optional.of(DyeColor.BLUE);
-        if (Tags.Items.DYES_BROWN.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_BROWN))
             return Optional.of(DyeColor.BROWN);
-        if (Tags.Items.DYES_GREEN.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_GREEN))
             return Optional.of(DyeColor.GREEN);
-        if (Tags.Items.DYES_RED.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_RED))
             return Optional.of(DyeColor.RED);
-        if (Tags.Items.DYES_BLACK.contains(stack.getItem()))
+        if (stack.is(Tags.Items.DYES_BLACK))
             return Optional.of(DyeColor.BLACK);
         
         return Optional.empty();

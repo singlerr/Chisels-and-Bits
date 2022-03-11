@@ -7,6 +7,7 @@ import mod.chiselsandbits.container.ChiseledPrinterContainer;
 import mod.chiselsandbits.container.ModificationTableContainer;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistrar;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistryObject;
+import net.minecraft.core.Registry;
 import net.minecraft.world.inventory.MenuType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,7 +16,7 @@ public final class ModContainerTypes
 {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    private static final IRegistrar<MenuType<?>> CONTAINER_TYPE_REGISTRAR = IRegistrar.create(MenuType.class, Constants.MOD_ID);
+    private static final IRegistrar<MenuType<?>> CONTAINER_TYPE_REGISTRAR = IRegistrar.create(Registry.MENU_REGISTRY, Constants.MOD_ID);
 
     private ModContainerTypes()
     {

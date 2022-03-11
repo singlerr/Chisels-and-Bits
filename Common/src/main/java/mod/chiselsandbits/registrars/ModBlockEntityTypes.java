@@ -6,6 +6,7 @@ import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.block.entities.ChiseledPrinterBlockEntity;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistrar;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistryObject;
+import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 public final class ModBlockEntityTypes
 {
     private static final Logger                         LOGGER    = LogManager.getLogger();
-    private static final IRegistrar<BlockEntityType<?>> REGISTRAR = IRegistrar.create(BlockEntityType.class, Constants.MOD_ID);
+    private static final IRegistrar<BlockEntityType<?>> REGISTRAR = IRegistrar.create(Registry.BLOCK_ENTITY_TYPE_REGISTRY, Constants.MOD_ID);
 
     private ModBlockEntityTypes()
     {

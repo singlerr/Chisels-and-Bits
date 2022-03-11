@@ -25,9 +25,7 @@ public final class ModRecipeTypes
         return RecipeType.register(Constants.MOD_ID + ":" + name);
     }
 
-    public static void onModConstruction()
-    {
-        LOGGER.info("Loaded recipe type configuration.");
+    public static void onSerializerRegistration() {
+        LOGGER.info("Registering recipe types.");
     }
-
 }

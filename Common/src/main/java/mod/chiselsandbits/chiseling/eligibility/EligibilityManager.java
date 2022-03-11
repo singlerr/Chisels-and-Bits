@@ -67,7 +67,7 @@ public class EligibilityManager implements IEligibilityManager
 
             final Block blk = state.getBlock();
 
-            if (ModTags.Blocks.BLOCKED_CHISELABLE.contains(blk))
+            if (state.is(ModTags.Blocks.BLOCKED_CHISELABLE))
             {
                 return new EligibilityAnalysisResult(
                   false,
@@ -76,7 +76,7 @@ public class EligibilityManager implements IEligibilityManager
                 );
             }
 
-            if (ModTags.Blocks.FORCED_CHISELABLE.contains(blk))
+            if (state.is(ModTags.Blocks.FORCED_CHISELABLE))
             {
                 return new EligibilityAnalysisResult(
                   true,
@@ -88,12 +88,12 @@ public class EligibilityManager implements IEligibilityManager
             try
             {
                 // require basic hardness behavior...
-                final ReflectionHelperBlock pb = new ReflectionHelperBlock();
+                final ReflectionHelperBlock pb = ModBlocks.REFLECTION_HELPER_BLOCK.get();
                 final Class<? extends Block> blkClass = blk.getClass();
 
                 // custom dropping behavior?
                 pb.getDrops(state, null);
-                final Class<?> wc = ClassUtils.getDeclaringClass(blkClass, pb.MethodName, BlockState.class, LootContext.Builder.class);
+                final Class<?> wc = ClassUtils.getDeclaringClass(blkClass, pb.getLastInvokedThreadLocalMethodName(), BlockState.class, LootContext.Builder.class);
                 final boolean quantityDroppedTest = wc == Block.class || wc == BlockBehaviour.class || wc == LiquidBlock.class;
 
                 final boolean isNotSlab = Item.byBlock(blk) != Items.AIR || state.getBlock() instanceof LiquidBlock;
@@ -101,7 +101,7 @@ public class EligibilityManager implements IEligibilityManager
 
                 // ignore blocks with custom collision.
                 pb.getShape(null, null, null, null);
-                Class<?> collisionClass = ClassUtils.getDeclaringClass(blkClass, pb.MethodName, BlockState.class, BlockGetter.class, BlockPos.class, CollisionContext.class);
+                Class<?> collisionClass = ClassUtils.getDeclaringClass(blkClass, pb.getLastInvokedThreadLocalMethodName(), BlockState.class, BlockGetter.class, BlockPos.class, CollisionContext.class);
                 boolean noCustomCollision = collisionClass == Block.class || collisionClass == BlockBehaviour.class || blk.getClass() == SlimeBlock.class || collisionClass == LiquidBlock.class;
 
                 // full cube specifically is tied to lighting... so for glass

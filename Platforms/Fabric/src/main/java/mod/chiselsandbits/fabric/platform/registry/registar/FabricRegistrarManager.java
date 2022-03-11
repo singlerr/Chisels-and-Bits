@@ -8,12 +8,7 @@ import mod.chiselsandbits.platforms.core.registries.deferred.IRegistrar;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistrarManager;
 import mod.chiselsandbits.platforms.core.registries.deferred.impl.custom.CustomRegistryManager;
 import net.minecraft.core.Registry;
-import net.minecraft.world.inventory.MenuType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.resources.ResourceKey;
 
 public final class FabricRegistrarManager implements IRegistrarManager
 {
@@ -35,35 +30,37 @@ public final class FabricRegistrarManager implements IRegistrarManager
         return CustomRegistryManager.getInstance().createNewRegistrar(typeClass, modId);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
-    public <T, R extends T> IRegistrar<R> createRegistrar(final Class<T> typeClass, final String modId)
+    public <T, R extends T> IRegistrar<R> createRegistrar(final ResourceKey<? extends Registry<T>> typeClass, final String modId)
     {
-        if (typeClass == Item.class) {
+        final ResourceKey registryName = typeClass;
+
+        if (registryName == Registry.ITEM_REGISTRY) {
             return new FabricVanillaRegistryRegistrarDelegate<>(modId, (Registry<T>) Registry.ITEM);
         }
 
-        if (typeClass == Block.class) {
+        if (registryName ==  Registry.BLOCK_REGISTRY) {
             return new FabricVanillaRegistryRegistrarDelegate<>(modId, (Registry<T>) Registry.BLOCK);
         }
 
-        if (typeClass == Fluid.class) {
+        if (registryName == Registry.FLUID_REGISTRY) {
             return new FabricVanillaRegistryRegistrarDelegate<>(modId, (Registry<T>) Registry.FLUID);
         }
 
-        if (typeClass == BlockEntityType.class) {
+        if (registryName == Registry.BLOCK_ENTITY_TYPE_REGISTRY) {
             return new FabricVanillaRegistryRegistrarDelegate<>(modId, (Registry<T>) Registry.BLOCK_ENTITY_TYPE);
         }
 
-        if (typeClass == MenuType.class) {
+        if (registryName == Registry.MENU_REGISTRY) {
             return new FabricVanillaRegistryRegistrarDelegate<>(modId, (Registry<T>) Registry.MENU);
         }
 
-        if (typeClass == RecipeSerializer.class) {
+        if (registryName == Registry.RECIPE_SERIALIZER_REGISTRY) {
             return new FabricVanillaRegistryRegistrarDelegate<>(modId, (Registry<T>) Registry.RECIPE_SERIALIZER);
         }
 
-        throw new IllegalArgumentException("The registry type class: " + typeClass.getName() + " is not supported.");
+        throw new IllegalArgumentException("The registry type class: " + typeClass.location() + " is not supported.");
     }
 
     @Override

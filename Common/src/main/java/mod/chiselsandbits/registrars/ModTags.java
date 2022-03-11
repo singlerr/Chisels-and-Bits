@@ -1,9 +1,8 @@
 package mod.chiselsandbits.registrars;
 
-import mod.chiselsandbits.platforms.core.util.constants.Constants;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.tags.Tag;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import org.apache.logging.log4j.LogManager;
@@ -15,36 +14,34 @@ public final class ModTags
 
     public static final class Items
     {
-        public static Tag.Named<Item> CHISEL  = tag("chisel");
-        public static Tag.Named<Item> BIT_BAG = tag("bit_bag");
+        public static TagKey<Item> CHISEL  = tag("chisel");
+        public static TagKey<Item> BIT_BAG = tag("bit_bag");
 
-        public static Tag.Named<Item> FORGE_PAPER = forge("paper");
+        public static TagKey<Item> FORGE_PAPER = forge("paper");
 
         private static void init() {}
 
-        private static Tag.Named<Item> tag(String name)
+        private static TagKey<Item> tag(String name)
         {
-            return ItemTags.bind(Constants.MOD_ID + ":" + name);
+            return TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation(name));
         }
-
-        private static Tag.Named<Item> forge(String name)
+        private static TagKey<Item> forge(String name)
         {
-            return ItemTags.bind( "forge:" + name);
+            return TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("forge:" + name));
         }
     }
 
     public static final class Blocks
     {
-        public static Tag.Named<Block> FORCED_CHISELABLE  = tag("chiselable/forced");
-        public static Tag.Named<Block> BLOCKED_CHISELABLE = tag("chiselable/blocked");
-        //TODO: Implement datagen: ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values().stream().map(RegistryObject::get).collect(Collectors.toSet())
-        public static Tag.Named<Block> CHISELED_BLOCK     = tag("chiseled/block");
+        public static TagKey<Block> FORCED_CHISELABLE  = tag("chiselable/forced");
+        public static TagKey<Block> BLOCKED_CHISELABLE = tag("chiselable/blocked");
+        public static TagKey<Block> CHISELED_BLOCK     = tag("chiseled/block");
 
         private static void init() {}
 
-        private static Tag.Named<Block> tag(String name)
+        private static TagKey<Block> tag(String name)
         {
-            return BlockTags.bind(Constants.MOD_ID + ":" + name);
+            return TagKey.create(Registry.BLOCK_REGISTRY, new ResourceLocation(name));
         }
     }
 

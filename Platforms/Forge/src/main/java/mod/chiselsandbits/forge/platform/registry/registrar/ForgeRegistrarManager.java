@@ -1,6 +1,5 @@
 package mod.chiselsandbits.forge.platform.registry.registrar;
 
-import com.google.common.collect.Sets;
 import mod.chiselsandbits.platforms.core.registries.deferred.impl.custom.CustomRegistryManager;
 import mod.chiselsandbits.forge.platform.registry.registrar.delegates.ForgeDeferredRegisterPlatformDelegate;
 import mod.chiselsandbits.platforms.core.registries.IChiselsAndBitsRegistry;
@@ -8,13 +7,10 @@ import mod.chiselsandbits.platforms.core.registries.IChiselsAndBitsRegistryEntry
 import mod.chiselsandbits.platforms.core.registries.deferred.ICustomRegistrar;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistrar;
 import mod.chiselsandbits.platforms.core.registries.deferred.IRegistrarManager;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.IForgeRegistryEntry;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ForgeRegistrarManager implements IRegistrarManager
@@ -38,9 +34,9 @@ public class ForgeRegistrarManager implements IRegistrarManager
     }
 
     @Override
-    public <T, R extends T> IRegistrar<R> createRegistrar(final Class<T> typeClass, final String modId)
+    public <T, R extends T> IRegistrar<R> createRegistrar(final ResourceKey<? extends Registry<T>> key, final String modId)
     {
-        final DeferredRegister register = DeferredRegister.create((Class<IForgeRegistryEntry>)typeClass, modId);
+        final DeferredRegister register = DeferredRegister.create((ResourceKey) key, modId);
 
         register.register(FMLJavaModLoadingContext.get().getModEventBus());
 

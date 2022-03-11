@@ -7,7 +7,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -18,6 +17,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,11 +26,11 @@ import java.util.List;
 @SuppressWarnings({"deprecation", "NullableProblems"})
 public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyProperties
 {
-    public String MethodName;
+    private ThreadLocal<String> lastInvokedThreadLocalMethodName = ThreadLocal.withInitial(() -> "unknown");
 
     private void markMethod()
     {
-        MethodName = new Throwable().fillInStackTrace().getStackTrace()[1].getMethodName();
+        setLastInvokedThreadLocalMethodName(new Throwable().fillInStackTrace().getStackTrace()[1].getMethodName());
     }
 
     public ReflectionHelperBlock()
@@ -43,7 +43,7 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
     public VoxelShape getOcclusionShape(@Nullable final BlockState state, @Nullable final BlockGetter worldIn, @Nullable final BlockPos pos)
     {
         markMethod();
-        return null;
+        return Shapes.empty();
     }
 
     @Nullable
@@ -51,7 +51,7 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
     public VoxelShape getBlockSupportShape(@Nullable final BlockState state, @Nullable final BlockGetter reader, @Nullable final BlockPos pos)
     {
         markMethod();
-        return null;
+        return Shapes.empty();
     }
 
     @Nullable
@@ -59,7 +59,7 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
     public VoxelShape getShape(@Nullable final BlockState state, @Nullable final BlockGetter worldIn, @Nullable final BlockPos pos, @Nullable final CollisionContext context)
     {
         markMethod();
-        return null;
+        return Shapes.empty();
     }
 
     @Nullable
@@ -67,7 +67,7 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
     public VoxelShape getCollisionShape(@Nullable final BlockState state, @Nullable final BlockGetter worldIn, @Nullable final BlockPos pos, @Nullable final CollisionContext context)
     {
         markMethod();
-        return null;
+        return Shapes.empty();
     }
 
     @Override
@@ -105,13 +105,13 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
     @Override
     public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter blockGetter, BlockPos pos, Player player) {
         markMethod();
-        return null;
+        return ItemStack.EMPTY;
     }
 
     @Override
     public BlockState rotate(BlockState state, LevelAccessor levelAccessor, BlockPos pos, Rotation rotation) {
         markMethod();
-        return null;
+        return state;
     }
 
     @Override
@@ -129,13 +129,13 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
     @Override
     public float[] getBeaconColorMultiplier(BlockState state, LevelReader levelReader, BlockPos pos, BlockPos beaconPos) {
         markMethod();
-        return new float[0];
+        return new float[4];
     }
 
     @Override
     public SoundType getSoundType(BlockState state, LevelReader levelReader, BlockPos pos, @Nullable Entity entity) {
         markMethod();
-        return null;
+        return SoundType.AMETHYST;
     }
 
     @Override
@@ -151,5 +151,13 @@ public class ReflectionHelperBlock extends Block implements IBlockWithWorldlyPro
     {
         markMethod();
         return Lists.newArrayList();
+    }
+
+    public String getLastInvokedThreadLocalMethodName() {
+        return lastInvokedThreadLocalMethodName.get();
+    }
+
+    public void setLastInvokedThreadLocalMethodName(String lastInvokedThreadLocalMethodName) {
+        this.lastInvokedThreadLocalMethodName.set(lastInvokedThreadLocalMethodName);
     }
 }

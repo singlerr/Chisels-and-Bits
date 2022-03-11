@@ -49,6 +49,7 @@ import mod.chiselsandbits.registrars.ModTags;
 import mod.chiselsandbits.registries.RegistryManager;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.tags.Tag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 
@@ -264,13 +265,13 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     }
 
     @Override
-    public @NotNull Tag.Named<Block> getForcedTag()
+    public @NotNull TagKey<Block> getForcedTag()
     {
         return ModTags.Blocks.FORCED_CHISELABLE;
     }
 
     @Override
-    public @NotNull Tag.Named<Block> getBlockedTag()
+    public @NotNull TagKey<Block> getBlockedTag()
     {
         return ModTags.Blocks.BLOCKED_CHISELABLE;
     }
