@@ -12,6 +12,7 @@ import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
+import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
@@ -163,6 +164,7 @@ public class DrawChiselMode extends AbstractCustomRegistryEntry implements IChis
         final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
         if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
         {
+            context.setError(LocalStrings.ChiselAttemptFailedNoBlock.getText());
             return ClickProcessingState.DEFAULT;
         }
 

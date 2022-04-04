@@ -13,6 +13,7 @@ import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
+import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
 import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
@@ -72,7 +73,6 @@ public class PlaneChiselMode extends AbstractCustomRegistryEntry implements IChi
           face -> Vec3.atLowerCornerOf(face.getOpposite().getNormal()),
           Direction::getOpposite
         );
-
 
         if (context.isSimulation())
         {
@@ -203,6 +203,7 @@ public class PlaneChiselMode extends AbstractCustomRegistryEntry implements IChi
         final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
         if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
         {
+            context.setError(LocalStrings.ChiselAttemptFailedNoBlock.getText());
             return Optional.of(ClickProcessingState.DEFAULT);
         }
 

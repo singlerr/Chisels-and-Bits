@@ -15,9 +15,9 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
+import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
-import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
 import mod.chiselsandbits.platforms.core.util.LambdaExceptionUtils;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
@@ -152,16 +152,15 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
         final Optional<Direction> targetedSide = context.getMetadata(ModMetadataKeys.TARGETED_SIDE.get());
         final Optional<BlockPos> targetedBlockPos = context.getMetadata(ModMetadataKeys.TARGETED_BLOCK.get());
 
-        if (!validPositions.isPresent() || !targetedSide.isPresent() || !targetedBlockPos.isPresent())
+        if (validPositions.isEmpty() || targetedSide.isEmpty() || targetedBlockPos.isEmpty())
             return false;
 
         final HitResult hitResult = RayTracingUtils.rayTracePlayer(Player);
-        if (hitResult.getType() != HitResult.Type.BLOCK || !(hitResult instanceof BlockHitResult))
+        if (hitResult.getType() != HitResult.Type.BLOCK || !(hitResult instanceof final BlockHitResult blockHitResult))
         {
             return false;
         }
 
-        final BlockHitResult blockHitResult = (BlockHitResult) hitResult;
         if (blockHitResult.getDirection() != targetedSide.get())
             return false;
 
@@ -198,13 +197,13 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
     )
     {
         final HitResult hitResult = RayTracingUtils.rayTracePlayer(Player);
-        if (hitResult.getType() != HitResult.Type.BLOCK || !(hitResult instanceof BlockHitResult))
+        if (hitResult.getType() != HitResult.Type.BLOCK || !(hitResult instanceof final BlockHitResult blockHitResult))
         {
+            context.setError(LocalStrings.ChiselAttemptFailedNoBlock.getText());
             return Optional.of(ClickProcessingState.DEFAULT);
         }
 
         final Function<Direction, Vec3> placementFacingAdapter = face -> Vec3.atLowerCornerOf(face.getOpposite().getNormal());
-        final BlockHitResult blockHitResult = (BlockHitResult) hitResult;
         final Vec3 hitVector = blockHitResult.getLocation().add(
           placementFacingAdapter.apply(blockHitResult.getDirection())
             .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
@@ -236,8 +235,11 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
           selectedInBlockPosition
         );
 
-        if (!targetedInfo.isPresent())
+        if (targetedInfo.isEmpty())
+        {
+            context.setError(LocalStrings.ChiselAttemptFailedTargetedBlockNotChiselable.getText());
             return Optional.of(ClickProcessingState.DEFAULT);
+        }
 
         worldAccessor.stream()
           .filter(state -> state.getState().equals(targetedInfo.get().getState()))
@@ -329,12 +331,10 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
             {
                 return true;
             }
-            if (!(o instanceof SelectedBitStateFilter))
+            if (!(o instanceof final SelectedBitStateFilter that))
             {
                 return false;
             }
-
-            final SelectedBitStateFilter that = (SelectedBitStateFilter) o;
 
             return validPositions.equals(that.validPositions);
         }

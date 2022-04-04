@@ -13,6 +13,7 @@ import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
+import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
@@ -85,17 +86,21 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
               {
                   final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
 
-                  mutator.inWorldMutableStream()
-                    .forEach(state -> {
+                  final int totalItemDamage = mutator.inWorldMutableStream()
+                    .mapToInt(state -> {
                         final BlockState currentState = state.getState();
-                        if (context.tryDamageItem())
-                        {
-                            resultingBitCount.putIfAbsent(currentState, 0);
-                            resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
+                        return context.tryDamageItemAndDoOrSetBrokenError(
+                          () -> {
+                              resultingBitCount.putIfAbsent(currentState, 0);
+                              resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
 
-                            state.clear();
-                        }
-                    });
+                              state.clear();
+                          });
+                    }).sum();
+
+                  if (totalItemDamage > 0) {
+                      context.setError(LocalStrings.ChiselAttemptFailedNoValidStateFound.getText());
+                  }
 
                   resultingBitCount.forEach((blockState, count) -> BitInventoryUtils.insertIntoOrSpawn(
                     playerEntity,
@@ -207,6 +212,7 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
         final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
         if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
         {
+            context.setError(LocalStrings.ChiselAttemptFailedNoBlock.getText());
             return Optional.of(ClickProcessingState.DEFAULT);
         }
 

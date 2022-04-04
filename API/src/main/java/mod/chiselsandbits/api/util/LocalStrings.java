@@ -3,7 +3,6 @@ package mod.chiselsandbits.api.util;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
-import org.spongepowered.asm.mixin.Mutable;
 
 import java.util.Arrays;
 import java.util.List;
@@ -216,7 +215,15 @@ public enum LocalStrings
     PatternImportFailedCompressedDataInWrongFormat("patterns.import.failed.compressed-data-in-wrong-format"),
     PatternImportFailedInvalidChiselData("patterns.import.failed.invalid-chisel-data"),
     PatternImportFailedUnknownVersion("patterns.import.failed.unknown-version"),
-    PatternImportInvokedFromTheServer("patterns.import.invoked-from-the-server");
+    PatternImportInvokedFromTheServer("patterns.import.invoked-from-the-server"),
+    ChiselAttemptFailedNoBlock("chisel.attempt.failed.no-block"),
+    ChiselAttemptFailedTargetedBlockNotChiselable("chisel.attempt.failed.targeted-block-not-chiselable"),
+    ChiselAttemptFailedChiselBroke("chisel.attempt.failed.chisel-broke"),
+    ChiselAttemptFailedNoValidStateFound("chisel.attempt.failed.no-valid-state-found"),
+    ChiselAttemptFailedNoPlaceableBitHeld("chisel.attempt.failed.no-placeable-bit-held"),
+    ChiselAttemptFailedNotEnoughBits("chisel.attempt.failed.not-enough-bits"),
+    ChiselAttemptFailedAttemptTooHigh("chisel.attempt.failed.attempt-too-high"),
+    ChiselAttemptFailedAttemptTooLow("chisel.attempt.failed.attempt-too-low"),
 
     private final String string;
 

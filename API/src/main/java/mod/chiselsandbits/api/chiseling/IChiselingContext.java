@@ -6,7 +6,9 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
+import mod.chiselsandbits.api.util.LocalStrings;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.LevelAccessor;
@@ -26,7 +28,7 @@ public interface IChiselingContext extends IStateAccessor
      * If a new chiseling operation is started no {@link IWorldAreaMutator} is available,
      * as such an empty {@link Optional} will be returned in that case.
      *
-     * Only after the first call to {@link #include(Vector3d)} or {@link #include(BlockPos, Vector3d)}
+     * Only after the first call to {@link #include(Vec3)} or {@link #include(BlockPos, Vec3)}
      * the returned {@link Optional} can contain a {@link IWorldAreaMutator}.
      *
      * @return The {@link Optional} containing the {@link IWorldAreaMutator}.
@@ -155,7 +157,79 @@ public interface IChiselingContext extends IStateAccessor
      * @param damage The damage to apply to the item that caused the chiseling operation.
      * @return {@code True} when successful, {@code false} when not.
      */
-    boolean tryDamageItem(final int damage);
+    default boolean tryDamageItem(final int damage) {
+        return this.tryDamageItemAndDo(damage, () -> {}, () -> {}) > 0;
+    }
+
+    /**
+     * Invoked to try to damage the item that caused the chiseling operations.
+     *
+     * If no item was the cause of the operation, then the {@code onDamaged} callback is always invoked.
+     * If the item that caused the operation, does not support damaging the item on a chiseling operation, then the {@code onDamaged} callback is always invoked.
+     * If the item that caused the operation is already broken, then the {@code onBroken} callback is always invoked.
+     *
+     * The total performed damaged is returned by this method, which is always {@code 0} if the item that caused the operation is already broken.
+     *
+     * Does exactly 1 damage to the item.
+     *
+     * @param onDamaged The callback to invoke when the item is damaged.
+     * @param onBroken The callback to invoke when the item is broken.
+     * @return The total damage applied to the item.
+     */
+    default int tryDamageItemAndDo(final Runnable onDamaged, final Runnable onBroken) {
+        return tryDamageItemAndDo(1, onDamaged, onBroken);
+    }
+
+    /**
+     * Invoked to try to damage the item that caused the chiseling operations.
+     *
+     * If no item was the cause of the operation, then the {@code onDamaged} callback is always invoked.
+     * If the item that caused the operation, does not support damaging the item on a chiseling operation, then the {@code onDamaged} callback is always invoked.
+     * If the item that caused the operation is already broken, then the broken chisel item error message is set.
+     *
+     * The total performed damaged is returned by this method, which is always {@code 0} if the item that caused the operation is already broken.
+     *
+     * Does exactly 1 damage to the item.
+     *
+     * @param onDamaged The callback to invoke when the item is damaged.
+     * @return The total damage applied to the item.
+     */
+    default int tryDamageItemAndDoOrSetBrokenError(final Runnable onDamaged) {
+        return tryDamageItemAndDo(1, onDamaged, () -> setError(LocalStrings.ChiselAttemptFailedChiselBroke.getText()));
+    }
+
+    /**
+     * Invoked to try to damage the item that caused the chiseling operations.
+     *
+     * If no item was the cause of the operation, then the {@code onDamaged} callback is always invoked.
+     * If the item that caused the operation, does not support damaging the item on a chiseling operation, then the {@code onDamaged} callback is always invoked.
+     * If the item that caused the operation is already broken, then the broken chisel item error message is set.
+     *
+     * The total performed damaged is returned by this method, which is always {@code 0} if the item that caused the operation is already broken.
+     *
+     * @param damage The damage to apply to the item that caused the chiseling operation.
+     * @param onDamaged The callback to invoke when the item is damaged.
+     * @return The total damage applied to the item.
+     */
+    default int tryDamageItemAndDo(final int damage, final Runnable onDamaged) {
+        return tryDamageItemAndDo(damage, onDamaged, () -> setError(LocalStrings.ChiselAttemptFailedChiselBroke.getText()));
+    }
+
+    /**
+     * Invoked to try to damage the item that caused the chiseling operations.
+     *
+     * If no item was the cause of the operation, then the {@code onDamaged} callback is always invoked.
+     * If the item that caused the operation, does not support damaging the item on a chiseling operation, then the {@code onDamaged} callback is always invoked.
+     * If the item that caused the operation is already broken, then the {@code onBroken} callback is always invoked.
+     *
+     * The total performed damaged is returned by this method, which is always {@code 0} if the item that caused the operation is already broken.
+     *
+     * @param damage The damage to apply to the item that caused the chiseling operation.
+     * @param onDamaged The callback to invoke when the item is damaged.
+     * @param onBroken The callback to invoke when the item is broken.
+     * @return The total damage applied to the item.
+     */
+    int tryDamageItemAndDo(final int damage, final Runnable onDamaged, final Runnable onBroken);
 
     /**
      * Allows for the setting of a filterBuilder on the context, which limits which {@link IStateEntryInfo} are returned from
@@ -207,4 +281,19 @@ public interface IChiselingContext extends IStateAccessor
      * Resets the mutator that is used to handle the current selected area.
      */
     void resetMutator();
+
+    /**
+     * Sets the error message that is displayed when the chiseling operation fails.
+     * If an error is already set on the context, then subsequent calls to this method will be ignored.
+     *
+     * @param errorText The new error message.
+     */
+    void setError(MutableComponent errorText);
+
+    /**
+     * Returns the error message that is displayed when the chiseling operation fails.
+     *
+     * @return An optional with the potential error message included.
+     */
+    Optional<MutableComponent> getError();
 }

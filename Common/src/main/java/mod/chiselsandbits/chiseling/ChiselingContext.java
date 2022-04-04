@@ -33,7 +33,6 @@ public class ChiselingContext implements IChiselingContext
     private final ChiselingOperation modeOfOperandus;
     private final boolean            simulation;
     private final Runnable           onCompleteCallback;
-    private final ItemStack          causingItemStack;
     private final boolean      supportsDamaging;
     private final Player playerEntity;
 
@@ -41,6 +40,7 @@ public class ChiselingContext implements IChiselingContext
     private IWorldAreaMutator                                   mutator       = null;
     private Function<IAreaAccessor, Predicate<IStateEntryInfo>> filterBuilder = null;
     private Map<IMetadataKey<?>, Object> metadataKeyMap = Maps.newHashMap();
+    private ItemStack          causingItemStack;
 
     public ChiselingContext(
       final LevelAccessor world,
@@ -248,12 +248,21 @@ public class ChiselingContext implements IChiselingContext
     }
 
     @Override
-    public boolean tryDamageItem(final int damage)
+    public int tryDamageItemAndDo(final int damage, final Runnable onDamaged, final Runnable onBroken)
     {
         if (!this.supportsDamaging || this.simulation)
-            return true;
+        {
+            onDamaged.run();
+            return damage;
+        }
+
+        if (causingItemStack.isEmpty()) {
+            onBroken.run();
+            return 0;
+        }
 
         final AtomicBoolean broken = new AtomicBoolean(false);
+        final int currentDamage = causingItemStack.getDamageValue();
         this.causingItemStack.hurtAndBreak(damage, playerEntity, playerEntity -> {
             broken.set(true);
 
@@ -263,7 +272,11 @@ public class ChiselingContext implements IChiselingContext
             playerEntity.broadcastBreakEvent(hand);
         });
 
-        return !broken.get();
+        onDamaged.run();
+        if (broken.get()) {
+            causingItemStack = ItemStack.EMPTY;
+        }
+        return Math.min(damage, currentDamage);
     }
 
     @Override

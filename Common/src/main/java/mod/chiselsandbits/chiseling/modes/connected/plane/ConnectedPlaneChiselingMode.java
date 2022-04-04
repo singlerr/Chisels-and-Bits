@@ -16,6 +16,7 @@ import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.util.IQuadFunction;
+import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
@@ -23,16 +24,14 @@ import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
-import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -99,19 +98,23 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
                     .map(builder -> builder.apply(mutator))
                     .orElse((state) -> true);
 
-                  mutator.inWorldMutableStream()
+                  final int totalDamage = mutator.inWorldMutableStream()
                     .filter(filter)
-                    .forEach(state -> {
+                    .mapToInt(state -> {
                         final BlockState currentState = state.getState();
 
-                        if (context.tryDamageItem())
-                        {
-                            resultingBitCount.putIfAbsent(currentState, 0);
-                            resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
+                        return context.tryDamageItemAndDoOrSetBrokenError(
+                          () -> {
+                              resultingBitCount.putIfAbsent(currentState, 0);
+                              resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
 
-                            state.clear();
-                        }
-                    });
+                              state.clear();
+                          });
+                    }).sum();
+
+                  if (totalDamage == 0) {
+                      context.setError(LocalStrings.ChiselAttemptFailedNoValidStateFound.getText());
+                  }
 
                   resultingBitCount.forEach((blockState, count) -> BitInventoryUtils.insertIntoOrSpawn(
                     playerEntity,
@@ -199,6 +202,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
               final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
               if (heldBlockState.isAir())
               {
+                  context.setError(LocalStrings.ChiselAttemptFailedNoPlaceableBitHeld.getText());
                   return ClickProcessingState.DEFAULT;
               }
 
@@ -228,14 +232,20 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
                         .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                   }
               }
+              else
+              {
+                  context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlock().asItem().getName(new ItemStack(heldBlockState.getBlock()))));
+              }
 
               if (missingBitCount == 0)
               {
                   final BlockPos heightPos = new BlockPos(mutator.getInWorldEndPoint());
                   if (heightPos.getY() >= context.getWorld().getMaxBuildHeight())
                   {
-                      Component component = (new TranslatableComponent("build.tooHigh", context.getWorld().getMaxBuildHeight() - 1)).withStyle(ChatFormatting.RED);
-                      playerEntity.sendMessage(component, Util.NIL_UUID);
+                      context.setError(LocalStrings.ChiselAttemptFailedAttemptTooHigh.getText());
+                  }
+                  else if (heightPos.getY() <= context.getWorld().getMinBuildHeight()) {
+                      context.setError(LocalStrings.ChiselAttemptFailedAttemptTooLow.getText());
                   }
               }
 
@@ -263,18 +273,17 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
         final Optional<Direction> targetedSide = context.getMetadata(ModMetadataKeys.TARGETED_SIDE.get());
         final Optional<BlockPos> targetedBlockPos = context.getMetadata(ModMetadataKeys.TARGETED_BLOCK.get());
 
-        if (!validPositions.isPresent() || !targetedSide.isPresent() || !targetedBlockPos.isPresent())
+        if (validPositions.isEmpty() || targetedSide.isEmpty() || targetedBlockPos.isEmpty())
         {
             return false;
         }
 
         final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
-        if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof BlockHitResult))
+        if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
         {
             return false;
         }
 
-        final BlockHitResult blockRayTraceResult = (BlockHitResult) rayTraceResult;
         if (blockRayTraceResult.getDirection() != targetedSide.get())
         {
             return false;
@@ -312,12 +321,12 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
     )
     {
         final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
-        if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof BlockHitResult))
+        if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
         {
+            context.setError(LocalStrings.ChiselAttemptFailedNoBlock.getText());
             return Optional.of(ClickProcessingState.DEFAULT);
         }
 
-        final BlockHitResult blockRayTraceResult = (BlockHitResult) rayTraceResult;
         final Vec3 hitVector = blockRayTraceResult.getLocation().add(
           placementFacingAdapter.apply(blockRayTraceResult.getDirection())
             .multiply(StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit(), StateEntrySize.current().getSizePerHalfBit())
@@ -364,8 +373,9 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
           stateExtractionAdapter.apply(hitPos, selectedInBlockPosition, blockRayTraceResult.getDirection(), selectedInBlockPosition)
         );
 
-        if (!targetedInfo.isPresent())
+        if (targetedInfo.isEmpty())
         {
+            context.setError(LocalStrings.ChiselAttemptFailedTargetedBlockNotChiselable.getText());
             return Optional.of(ClickProcessingState.DEFAULT);
         }
 
@@ -383,7 +393,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
 
             processed.add(targetedPosition);
 
-            if (!targetCandidate.isPresent())
+            if (targetCandidate.isEmpty())
             {
                 continue;
             }
@@ -520,12 +530,10 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
             {
                 return true;
             }
-            if (!(o instanceof SelectedBitStateFilter))
+            if (!(o instanceof final SelectedBitStateFilter that))
             {
                 return false;
             }
-
-            final SelectedBitStateFilter that = (SelectedBitStateFilter) o;
 
             if (!offset.equals(that.offset))
             {

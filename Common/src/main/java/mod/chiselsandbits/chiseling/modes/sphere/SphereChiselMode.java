@@ -19,6 +19,7 @@ import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.util.BlockPosForEach;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
+import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
 import mod.chiselsandbits.registrars.ModChiselModeGroups;
@@ -92,16 +93,11 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
         final double range = cornerPos.distSqr(centerPos);
 
         final BitSet bits = new BitSet(fullBitAccuracy * fullBitAccuracy * fullBitAccuracy);
-        BlockPosForEach.forEachInRange(fullBitAccuracy, new Consumer<BlockPos>()
-        {
-            @Override
-            public void accept(final BlockPos blockPos)
-            {
-                final int index = BlockPosUtils.getCollisionIndex(blockPos, fullBitAccuracy, fullBitAccuracy);
-                final double posRange = blockPos.distSqr(centerPos);
+        BlockPosForEach.forEachInRange(fullBitAccuracy, blockPos -> {
+            final int index = BlockPosUtils.getCollisionIndex(blockPos, fullBitAccuracy, fullBitAccuracy);
+            final double posRange = blockPos.distSqr(centerPos);
 
-                bits.set(index, posRange <= range);
-            }
+            bits.set(index, posRange <= range);
         });
 
         return new CubeVoxelShape(new MultiStateBlockEntityDiscreteVoxelShape(bits, fullBitAccuracy));
@@ -374,6 +370,7 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
         final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerEntity);
         if (rayTraceResult.getType() != HitResult.Type.BLOCK || !(rayTraceResult instanceof final BlockHitResult blockRayTraceResult))
         {
+            context.setError(LocalStrings.ChiselAttemptFailedNoBlock.getText());
             return Either.left(ClickProcessingState.DEFAULT);
         }
 
