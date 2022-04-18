@@ -55,3 +55,4 @@ accessible   field      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape
 accessible   field      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape xMax I # xMax
 accessible   field      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape yMax I # yMax
 accessible   field      net/minecraft/world/phys/shapes/BitSetDiscreteVoxelShape zMax I # zMax
+accessible   field      net/minecraft/client/gui/Gui lastToolHighlight Lnet/minecraft/world/item/ItemStack;

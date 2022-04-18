@@ -96,7 +96,10 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
                   final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(Player);
 
                   if (!Player.isCreative() && !playerBitInventory.canExtract(heldBlockState, missingBitCount))
+                  {
+                      context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlock().getName()));
                       return ClickProcessingState.DEFAULT;
+                  }
 
                   mutator.inWorldMutableStream()
                     .filter(filter)

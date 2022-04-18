@@ -22,6 +22,7 @@ import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAccessorFactory;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
+import mod.chiselsandbits.api.notifications.INotificationManager;
 import mod.chiselsandbits.api.permissions.IPermissionHandler;
 import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
@@ -277,6 +278,14 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     IPatternSharingManager getPatternSharingManager();
+
+    /**
+     * Handles showing notifications to the player.
+     *
+     * @return The notifications manager.
+     */
+    @NotNull
+    INotificationManager getNotificationManager();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

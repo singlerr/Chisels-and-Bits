@@ -21,6 +21,7 @@ import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.accessor.IAccessorFactory;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
+import mod.chiselsandbits.api.notifications.INotificationManager;
 import mod.chiselsandbits.api.permissions.IPermissionHandler;
 import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
@@ -40,6 +41,7 @@ import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
 import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.multistate.mutator.MutatorFactory;
 import mod.chiselsandbits.neighborhood.BlockNeighborhoodBuilder;
+import mod.chiselsandbits.notifications.NotificationManager;
 import mod.chiselsandbits.permissions.PermissionHandler;
 import mod.chiselsandbits.plugin.PluginManger;
 import mod.chiselsandbits.profiling.ProfilingManager;
@@ -292,5 +294,11 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull IPatternSharingManager getPatternSharingManager()
     {
         return PatternSharingManager.getInstance();
+    }
+
+    @Override
+    public @NotNull INotificationManager getNotificationManager()
+    {
+        return NotificationManager.getInstance();
     }
 }

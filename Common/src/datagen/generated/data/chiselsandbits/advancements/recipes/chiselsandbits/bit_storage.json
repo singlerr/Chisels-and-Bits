@@ -41,7 +41,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "chiselsandbits:chisel"
+            "tag": "minecraft:chisel"
           }
         ]
       }

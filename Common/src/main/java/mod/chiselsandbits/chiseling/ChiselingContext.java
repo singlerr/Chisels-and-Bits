@@ -12,6 +12,8 @@ import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.permissions.IPermissionHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -40,7 +42,8 @@ public class ChiselingContext implements IChiselingContext
     private IWorldAreaMutator                                   mutator       = null;
     private Function<IAreaAccessor, Predicate<IStateEntryInfo>> filterBuilder = null;
     private Map<IMetadataKey<?>, Object> metadataKeyMap = Maps.newHashMap();
-    private ItemStack          causingItemStack;
+    private ItemStack causingItemStack;
+    private MutableComponent error = null;
 
     public ChiselingContext(
       final LevelAccessor world,
@@ -75,7 +78,8 @@ public class ChiselingContext implements IChiselingContext
       final ChiselingOperation modeOfOperandus,
       final boolean complete,
       final IWorldAreaMutator mutator,
-      final Player playerEntity)
+      final Player playerEntity,
+      final MutableComponent error)
     {
         this.world = world;
         this.chiselMode = chiselMode;
@@ -87,6 +91,7 @@ public class ChiselingContext implements IChiselingContext
         this.complete = complete;
         this.mutator = mutator;
         this.playerEntity = playerEntity;
+        this.error = error;
     }
 
     private ChiselingContext(
@@ -94,7 +99,8 @@ public class ChiselingContext implements IChiselingContext
       final IChiselMode chiselMode,
       final ChiselingOperation modeOfOperandus,
       final boolean complete,
-      final Player playerEntity)
+      final Player playerEntity,
+      final MutableComponent error)
     {
         this.world = world;
         this.chiselMode = chiselMode;
@@ -105,6 +111,7 @@ public class ChiselingContext implements IChiselingContext
         this.modeOfOperandus = modeOfOperandus;
         this.complete = complete;
         this.playerEntity = playerEntity;
+        this.error = error;
     }
 
     private void setMetadataKeyMap(final Map<IMetadataKey<?>, Object> metadataKeyMap)
@@ -224,7 +231,8 @@ public class ChiselingContext implements IChiselingContext
               chiselMode,
               modeOfOperandus,
               this.complete,
-              playerEntity
+              playerEntity,
+              error
             );
         }
 
@@ -238,7 +246,8 @@ public class ChiselingContext implements IChiselingContext
             mutator.getInWorldStartPoint(),
             mutator.getInWorldEndPoint()
           ),
-          playerEntity
+          playerEntity,
+          error
         );
     }
 
@@ -329,6 +338,18 @@ public class ChiselingContext implements IChiselingContext
     public void resetMutator()
     {
         this.mutator = null;
+    }
+
+    @Override
+    public void setError(final MutableComponent errorText)
+    {
+        this.error = errorText;
+    }
+
+    @Override
+    public Optional<MutableComponent> getError()
+    {
+        return Optional.ofNullable(this.error);
     }
 
     @Override

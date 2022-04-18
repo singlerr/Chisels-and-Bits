@@ -223,7 +223,7 @@ public enum LocalStrings
     ChiselAttemptFailedNoPlaceableBitHeld("chisel.attempt.failed.no-placeable-bit-held"),
     ChiselAttemptFailedNotEnoughBits("chisel.attempt.failed.not-enough-bits"),
     ChiselAttemptFailedAttemptTooHigh("chisel.attempt.failed.attempt-too-high"),
-    ChiselAttemptFailedAttemptTooLow("chisel.attempt.failed.attempt-too-low"),
+    ChiselAttemptFailedAttemptTooLow("chisel.attempt.failed.attempt-too-low");
 
     private final String string;
 

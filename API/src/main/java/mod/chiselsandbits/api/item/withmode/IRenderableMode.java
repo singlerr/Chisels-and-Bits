@@ -1,23 +1,16 @@
 package mod.chiselsandbits.api.item.withmode;
 
+import mod.chiselsandbits.api.util.IWithColor;
 import mod.chiselsandbits.api.util.IWithDisplayName;
-import net.minecraft.resources.ResourceLocation;
+import mod.chiselsandbits.api.util.IWithIcon;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a tool mode which can be rendered.
  */
-public interface IRenderableMode extends IWithDisplayName
+public interface IRenderableMode extends IWithDisplayName, IWithIcon, IWithColor
 {
-
-    /**
-     * The icon to render for the mode.
-     *
-     * @return The icon for the mode.
-     */
-    @NotNull
-    ResourceLocation getIcon();
 
     /**
      * Indicates if the mode is currently active and as such should be rendered or not.
@@ -46,12 +39,7 @@ public interface IRenderableMode extends IWithDisplayName
         return true;
     }
 
-    /**
-     * The color used to render the tool mode.
-     * Applied to both the name as well as the icon.
-     *
-     * @return The color in a 3d double vector as RGB.
-     */
+    @Override
     @NotNull
     default Vec3 getColorVector() {
         return new Vec3(1d, 1d,1d);

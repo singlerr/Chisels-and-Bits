@@ -349,5 +349,13 @@
   "mod.chiselsandbits.config.settings.chiseling-previews.debug.enabled.comment": "Indicates if the debug rendering in chiseling and placement previews should be enabled.",
   "mod.chiselsandbits.config.settings.chiseling-previews.debug.mutator.colors.chiseling.comment": "The color of the chiseling mutation area in the chiseling preview.",
   "mod.chiselsandbits.config.settings.chiseling-previews.debug.mutator.colors.placement.comment": "The color of the placement mutation area in the placement preview.",
-  "mod.chiselsandbits.config.settings.patterns.export-path.comment": "The path where exported patterns should be saved."
+  "mod.chiselsandbits.config.settings.patterns.export-path.comment": "The path where exported patterns should be saved.",
+  "mod.chiselsandbits.chisel.attempt.failed.attempt-too-high": "Tried to edit a block that was above the maximum build height.",
+  "mod.chiselsandbits.chisel.attempt.failed.attempt-too-low": "Tried to edit a block that was below the minimum build height.",
+  "mod.chiselsandbits.chisel.attempt.failed.chisel-broke": "Your chisel broke.",
+  "mod.chiselsandbits.chisel.attempt.failed.no-block": "No block is being targeted",
+  "mod.chiselsandbits.chisel.attempt.failed.no-placeable-bit-held": "You are not holding a placeable bit.",
+  "mod.chiselsandbits.chisel.attempt.failed.no-valid-state-found": "The state you are trying to place is not valid.",
+  "mod.chiselsandbits.chisel.attempt.failed.not-enough-bits": "You are not holding enough $1 bits.",
+  "mod.chiselsandbits.chisel.attempt.failed.targeted-block-not-chiselable": "The targeted block is not chiselable."
 }

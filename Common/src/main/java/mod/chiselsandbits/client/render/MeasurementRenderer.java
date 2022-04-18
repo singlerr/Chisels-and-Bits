@@ -83,7 +83,7 @@ public final class MeasurementRenderer
                   (float) measurement.getMode().getColorVector().x(),
                   (float) measurement.getMode().getColorVector().y(),
                   (float) measurement.getMode().getColorVector().z(),
-                  1f
+                  (float) measurement.getMode().getAlphaChannel()
                 );
 
                 final Vec3 lengths = VectorUtils.absolute(measurement.getTo().subtract(measurement.getFrom()));
@@ -107,7 +107,8 @@ public final class MeasurementRenderer
                     (float) measurement.getMode().getColorVector().x(),
                     (float) measurement.getMode().getColorVector().y(),
                     (float) measurement.getMode().getColorVector().z(),
-                    1f)
+                    (float) measurement.getMode().getAlphaChannel()
+                  )
                   .normal(poseStack.last().normal(), 0, 1, 0)
                   .endVertex();
 
@@ -119,7 +120,8 @@ public final class MeasurementRenderer
                     (float) measurement.getMode().getColorVector().x(),
                     (float) measurement.getMode().getColorVector().y(),
                     (float) measurement.getMode().getColorVector().z(),
-                    1f)
+                    (float) measurement.getMode().getAlphaChannel()
+                  )
                   .normal(poseStack.last().normal(), 0, 1, 0)
                   .endVertex();
 

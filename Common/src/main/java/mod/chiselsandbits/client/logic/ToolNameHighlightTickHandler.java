@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client.logic;
 
-import mod.chiselsandbits.item.MagnifyingGlassItem;
+import mod.chiselsandbits.api.item.named.IDynamicallyHighlightedNameItem;
+import mod.chiselsandbits.api.item.named.IPermanentlyHighlightedNameItem;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.ItemStack;
@@ -12,8 +13,8 @@ public class ToolNameHighlightTickHandler
     {
         if (Minecraft.getInstance().player != null && Minecraft.getInstance().level != null)
         {
-            if (Minecraft.getInstance().player.getMainHandItem().getItem() instanceof MagnifyingGlassItem
-                  || Minecraft.getInstance().player.getOffhandItem().getItem() instanceof MagnifyingGlassItem)
+            if (Minecraft.getInstance().player.getMainHandItem().getItem() instanceof IPermanentlyHighlightedNameItem
+                  || Minecraft.getInstance().player.getOffhandItem().getItem() instanceof IPermanentlyHighlightedNameItem)
             {
                 if (Minecraft.getInstance().gui != null)
                 {
@@ -34,6 +35,12 @@ public class ToolNameHighlightTickHandler
                         }
                     }
                 }
+            }
+
+            if (Minecraft.getInstance().gui != null
+                  && !Minecraft.getInstance().gui.lastToolHighlight.isEmpty()
+                  && Minecraft.getInstance().gui.lastToolHighlight.getItem() instanceof IDynamicallyHighlightedNameItem dynamicallyHighlightedNameItem) {
+                Minecraft.getInstance().gui.lastToolHighlight = dynamicallyHighlightedNameItem.adaptItemStack(Minecraft.getInstance().gui.lastToolHighlight);
             }
         }
     }

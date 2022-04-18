@@ -3,7 +3,6 @@ package mod.chiselsandbits.item.bit;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -12,13 +11,17 @@ import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
-import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
+import mod.chiselsandbits.api.item.named.IDynamicallyHighlightedNameItem;
+import mod.chiselsandbits.api.item.named.IPermanentlyHighlightedNameItem;
+import mod.chiselsandbits.api.notifications.INotificationManager;
 import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
+import mod.chiselsandbits.platforms.core.dist.Dist;
+import mod.chiselsandbits.platforms.core.dist.DistExecutor;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.chiseling.ChiselingManager;
@@ -38,7 +41,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
@@ -49,10 +51,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import oshi.jna.platform.windows.NtDll;
 
 import java.util.*;
 import java.util.function.Function;
@@ -92,14 +96,14 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
           ChiselingOperation.CHISELING);
 
         if (context.isEmpty()) {
-            context = LocalChiselingContextCache.getInstance().get(ChiselingOperation.CHISELING);
+            context = ILocalChiselingContextCache.getInstance().get(ChiselingOperation.CHISELING);
         }
 
         context.ifPresent(c -> {
             chiselMode.onStoppedLeftClicking(player, c);
             if (c.isComplete()) {
                 player.getCooldowns().addCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
-                LocalChiselingContextCache.getInstance().clear(ChiselingOperation.CHISELING);
+                ILocalChiselingContextCache.getInstance().clear(ChiselingOperation.CHISELING);
             }
         });
     }
@@ -202,14 +206,14 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
           ChiselingOperation.PLACING);
 
         if (context.isEmpty()) {
-            context = LocalChiselingContextCache.getInstance().get(ChiselingOperation.PLACING);
+            context = ILocalChiselingContextCache.getInstance().get(ChiselingOperation.PLACING);
         }
 
         context.ifPresent(c -> {
             chiselMode.onStoppedRightClicking(player, c);
             if (c.isComplete()) {
                 player.getCooldowns().addCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
-                LocalChiselingContextCache.getInstance().clear(ChiselingOperation.PLACING);
+                ILocalChiselingContextCache.getInstance().clear(ChiselingOperation.PLACING);
             }
         });
     }
@@ -239,7 +243,15 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
 
         if (context.isComplete()) {
             playerEntity.getCooldowns().addCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
-            LocalChiselingContextCache.getInstance().clear(modeOfOperation);
+            ILocalChiselingContextCache.getInstance().clear(modeOfOperation);
+        }
+
+        if (context.getError().isPresent() && context.getWorld().isClientSide()) {
+            INotificationManager.getInstance().notify(
+              context.getMode().getIcon(),
+              new Vec3(1, 0, 0),
+              context.getError().get()
+            );
         }
 
         return resultState;
@@ -484,12 +496,12 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         );
 
         RenderSystem.disableDepthTest();
-        if (chiselingContext.getMutator().isPresent()) {
+        if (chiselingContext.getMutator().isPresent() && chiselingContext.getError().isEmpty()) {
             IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
               .renderExistingContextsBoundingBox(matrixStack, chiselingContext);
             ILocalChiselingContextCache.getInstance().set(ChiselingOperation.CHISELING, chiselingContext);
         }
-        if (placingContext.getMutator().isPresent()) {
+        if (placingContext.getMutator().isPresent() && placingContext.getError().isEmpty()) {
             IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
               .renderExistingContextsBoundingBox(matrixStack, placingContext);
             ILocalChiselingContextCache.getInstance().set(ChiselingOperation.PLACING, placingContext);

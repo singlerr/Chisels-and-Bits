@@ -12,6 +12,8 @@ import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
+import mod.chiselsandbits.api.item.named.IDynamicallyHighlightedNameItem;
+import mod.chiselsandbits.api.notifications.INotificationManager;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
@@ -34,6 +36,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +45,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ChiselItem extends DiggerItem implements IChiselItem
+public class ChiselItem extends DiggerItem implements IChiselItem, IDynamicallyHighlightedNameItem
 {
 
     private static final Logger LOGGER = LogManager.getLogger();
@@ -58,6 +61,16 @@ public class ChiselItem extends DiggerItem implements IChiselItem
           ModTags.Blocks.CHISELED_BLOCK,
           builderIn
         );
+    }
+
+    @Override
+    public Component getName(final ItemStack stack)
+    {
+        if (stack.getOrCreateTag().contains("chiselError")) {
+            return Component.Serializer.fromJson(stack.getOrCreateTag().getString("chiselError"));
+        }
+
+        return super.getName(stack);
     }
 
     @Override
@@ -160,7 +173,15 @@ public class ChiselItem extends DiggerItem implements IChiselItem
         if (context.isComplete())
         {
             playerEntity.getCooldowns().addCooldown(this, Constants.TICKS_BETWEEN_CHISEL_USAGE);
-            LocalChiselingContextCache.getInstance().clear(ChiselingOperation.CHISELING);
+            ILocalChiselingContextCache.getInstance().clear(ChiselingOperation.CHISELING);
+        }
+
+        if (context.getError().isPresent() && context.getWorld().isClientSide()) {
+            INotificationManager.getInstance().notify(
+              context.getMode().getIcon(),
+              new Vec3(1, 0, 0),
+              context.getError().get()
+            );
         }
 
         return resultState;
@@ -263,6 +284,7 @@ public class ChiselItem extends DiggerItem implements IChiselItem
         );
 
         //Store it in the local cache.
+        if (!context.isComplete())
         ILocalChiselingContextCache.getInstance().set(ChiselingOperation.CHISELING, context);
 
         return context.getMutator().isEmpty();
@@ -328,9 +350,11 @@ public class ChiselItem extends DiggerItem implements IChiselItem
             return;
         }
 
-        IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
-                                                             .renderExistingContextsBoundingBox(matrixStack, context);
-        ILocalChiselingContextCache.getInstance().set(ChiselingOperation.CHISELING, context);
+        if (context.getMutator().isPresent() && context.getError().isEmpty()) {
+            IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
+              .renderExistingContextsBoundingBox(matrixStack, context);
+            ILocalChiselingContextCache.getInstance().set(ChiselingOperation.CHISELING, context);
+        }
     }
 
     @Override
@@ -352,5 +376,36 @@ public class ChiselItem extends DiggerItem implements IChiselItem
     public int getBarColor(ItemStack p_150901_) {
         float f = Math.max(0.0F, ((float)this.getMaxDamage() - (float)p_150901_.getDamageValue()) / (float)this.getMaxDamage());
         return Mth.hsvToRgb(f / 3.0F, 1.0F, 1.0F);
+    }
+
+    @Override
+    public ItemStack adaptItemStack(final ItemStack currentToolStack)
+    {
+        final Optional<IChiselingContext> chiselingContext =
+          ILocalChiselingContextCache.getInstance().get(ChiselingOperation.CHISELING);
+        final Optional<IChiselingContext> placingContext =
+          ILocalChiselingContextCache.getInstance().get(ChiselingOperation.PLACING);
+
+        if (chiselingContext.isPresent() && chiselingContext.get().getError().isPresent()) {
+            final ItemStack errorStack = currentToolStack.copy();
+            errorStack.getOrCreateTag().putString(
+              "chiselError",
+              Component.Serializer.toJson(chiselingContext.get().getError().get())
+            );
+
+            return errorStack;
+        }
+
+        if (placingContext.isPresent() && placingContext.get().getError().isPresent()) {
+            final ItemStack errorStack = currentToolStack.copy();
+            errorStack.getOrCreateTag().putString(
+              "chiselError",
+              Component.Serializer.toJson(placingContext.get().getError().get())
+            );
+
+            return errorStack;
+        }
+
+        return currentToolStack;
     }
 }

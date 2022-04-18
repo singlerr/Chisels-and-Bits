@@ -147,6 +147,10 @@ public class DrawChiselMode extends AbstractCustomRegistryEntry implements IChis
                       .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                 }
             }
+            else
+            {
+                context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlock().getName()));
+            }
 
             if (missingBitCount == 0)
             {

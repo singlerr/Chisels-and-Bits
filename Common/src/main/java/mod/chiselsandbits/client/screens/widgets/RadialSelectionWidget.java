@@ -458,7 +458,7 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
           (float) mode.getColorVector().x(),
           (float) mode.getColorVector().y(),
           (float) mode.getColorVector().z(),
-          1
+          (float) mode.getAlphaChannel()
         );
         RenderSystem.setShaderTexture(0, mode.getIcon());
         blit(stack, (int) iconStartX, (int) iconStartY, (int) (iconSize * iconScaleFactor), (int) (iconSize * iconScaleFactor), 0, 0, 18, 18, 18, 18);

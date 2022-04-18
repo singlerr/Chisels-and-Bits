@@ -8,6 +8,7 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.notifications.INotificationManager;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.pattern.placement.PlacementResult;
 import mod.chiselsandbits.api.util.HelpTextUtils;
@@ -29,6 +30,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -104,33 +106,24 @@ public class SingleUsePatternItem extends Item implements IPatternItem
 
         final IAreaAccessor source = this.createItemStack(context.getItemInHand());
         final IMultiStateSnapshot sourceSnapshot = source.createSnapshot();
+        final IPatternPlacementType mode = getMode(context.getItemInHand());
 
-        final PlacementResult resultType = getMode(context.getItemInHand())
+        final PlacementResult resultType = mode
           .performPlacement(
             sourceSnapshot,
             context,
             false);
 
-        final ItemStack resultingStack = context.getItemInHand().copy();
-
-        if (!resultType.isSuccess()) {
-            resultingStack.getOrCreateTag().putString("highlight",
-                Component.Serializer.toJson(resultType.getFailureMessage())
-            );
-            resultingStack.getOrCreateTag().putLong("highlightStartTime",
-              context.getPlayer().level.getGameTime()
+        if (!resultType.isSuccess() && context.getLevel().isClientSide()) {
+            INotificationManager.getInstance().notify(
+              mode.getIcon(),
+              new Vec3(1, 0, 0),
+              resultType.getFailureMessage()
             );
         }
-        else
-        {
-            resultingStack.getOrCreateTag().remove("highlight");
-            resultingStack.getOrCreateTag().remove("highlightStartTime");
-        }
-
-        context.getPlayer().setItemInHand(context.getHand(), resultingStack);
 
         return resultType.isSuccess() ?
-                 determineSuccessResult(context, resultingStack) :
+                 determineSuccessResult(context, context.getItemInHand()) :
                  InteractionResult.FAIL;
     }
 

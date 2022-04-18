@@ -15,6 +15,7 @@ public class NbtConstants
     public static final String MIN                          = "min";
     public static final String MAX               = "max";
     public static final String AXIS_STATISTICS_DATA = "axis_statistics_data";
+    public static final String CHISEL_ERROR = "chisel_error";
 
     private NbtConstants()
     {

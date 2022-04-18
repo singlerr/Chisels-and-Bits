@@ -22,7 +22,7 @@
       "conditions": {
         "items": [
           {
-            "tag": "chiselsandbits:bit_bag"
+            "tag": "minecraft:bit_bag"
           }
         ]
       }

@@ -158,7 +158,9 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
         if (!context.getPlayer().isCreative())
         {
             extractedBitsCount.forEach(playerBitInventory::insertOrDiscard);
-            source.getStatics().getStateCounts().forEach(playerBitInventory::extract);
+            source.getStatics().getStateCounts().entrySet().stream()
+              .filter(e -> !e.getKey().isAir())
+              .forEach(e -> playerBitInventory.extract(e.getKey(), e.getValue()));
         }
 
         return PlacementResult.success();

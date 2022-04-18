@@ -41,7 +41,7 @@ public class RootGroupTopLeftSelectedToolModeIconRenderer implements ISelectedTo
           (float) renderableMode.getColorVector().x(),
           (float) renderableMode.getColorVector().y(),
           (float) renderableMode.getColorVector().z(),
-          1
+          (float) renderableMode.getAlphaChannel()
         );
         RenderSystem.setShaderTexture(0, mode.getIcon());
         GuiComponent.blit(matrixStack, 0, 0, 16,16, 0, 0, 18, 18, 18, 18);

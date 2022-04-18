@@ -234,7 +234,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
               }
               else
               {
-                  context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlock().asItem().getName(new ItemStack(heldBlockState.getBlock()))));
+                  context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlock().getName()));
               }
 
               if (missingBitCount == 0)

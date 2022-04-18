@@ -2,6 +2,7 @@ package mod.chiselsandbits.item;
 
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityAnalysisResult;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
+import mod.chiselsandbits.api.item.named.IPermanentlyHighlightedNameItem;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import net.minecraft.ChatFormatting;
@@ -18,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class MagnifyingGlassItem extends Item
+public class MagnifyingGlassItem extends Item implements IPermanentlyHighlightedNameItem
 {
 
     public MagnifyingGlassItem(Properties properties)
