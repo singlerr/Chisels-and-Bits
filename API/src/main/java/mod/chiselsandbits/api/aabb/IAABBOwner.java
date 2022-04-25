@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.aabb;
 
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Defines objects which have an axis-aligned bounding box.
@@ -12,5 +13,6 @@ public interface IAABBOwner
      *
      * @return The axis aligned bounding box.
      */
+    @NotNull
     AABB getBoundingBox();
 }

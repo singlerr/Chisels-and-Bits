@@ -2,6 +2,7 @@ package mod.chiselsandbits.item.multistate;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
@@ -44,8 +45,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.Vec3;
@@ -133,7 +132,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     {
         return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                  .map(blockPos -> new StateEntry(
-                     this.compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+                     this.compressedSection.getBlockInformation(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
                      blockPos,
                      this::setInAreaTarget,
                      this::clearInAreaTarget
@@ -163,7 +162,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
 
         final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
-        final BlockState currentState = this.compressedSection.getBlockState(
+        final BlockInformation currentState = this.compressedSection.getBlockInformation(
           inAreaPos.getX(),
           inAreaPos.getY(),
           inAreaPos.getZ()
@@ -197,12 +196,6 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         );
     }
 
-    /**
-     * Indicates if the given target is inside of the current accessor.
-     *
-     * @param inAreaTarget The area target to check.
-     * @return True when inside, false when not.
-     */
     @Override
     public boolean isInside(final Vec3 inAreaTarget)
     {
@@ -214,13 +207,6 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
                  !(inAreaTarget.z() >= 1);
     }
 
-    /**
-     * Indicates if the given target (with the given block position offset) is inside of the current accessor.
-     *
-     * @param inAreaBlockPosOffset The offset of blocks in the current area.
-     * @param inBlockTarget        The offset in the targeted block.
-     * @return True when inside, false when not.
-     */
     @Override
     public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
@@ -234,28 +220,18 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         );
     }
 
-    /**
-     * Creates a snapshot of the current state.
-     *
-     * @return The snapshot.
-     */
     @Override
     public IMultiStateSnapshot createSnapshot()
     {
         return MultiStateSnapshotUtils.createFromStorage(compressedSection);
     }
 
-    /**
-     * Returns all entries in the current area in a mutable fashion. Includes all empty areas as areas containing an air state.
-     *
-     * @return A stream with a mutable state entry info for each mutable section in the area.
-     */
     @Override
     public Stream<IMutableStateEntryInfo> mutableStream()
     {
         return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                  .map(blockPos -> new StateEntry(
-                     this.compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+                     this.compressedSection.getBlockInformation(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
                      blockPos,
                      this::setInAreaTarget,
                      this::clearInAreaTarget
@@ -263,15 +239,11 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
                  );
     }
 
-    /**
-     * Sets the target state in the current area, using the offset from the area as well as the in area target offset.
-     *
-     * @param blockState   The blockstate.
-     * @param inAreaTarget The in area offset.
-     */
     @SuppressWarnings("deprecation")
     @Override
-    public void setInAreaTarget(final BlockState blockState, final Vec3 inAreaTarget) throws SpaceOccupiedException
+    public void setInAreaTarget(
+      final BlockInformation blockInformation,
+      final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
         if (inAreaTarget.x() < 0 ||
               inAreaTarget.y() < 0 ||
@@ -285,7 +257,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
 
         final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
-        final BlockState currentState = this.compressedSection.getBlockState(
+        final BlockInformation currentState = this.compressedSection.getBlockInformation(
           inAreaPos.getX(),
           inAreaPos.getY(),
           inAreaPos.getZ()
@@ -296,33 +268,26 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
             throw new SpaceOccupiedException();
         }
 
-        this.compressedSection.setBlockState(
+        this.compressedSection.setBlockInformation(
           inAreaPos.getX(),
           inAreaPos.getY(),
           inAreaPos.getZ(),
-          blockState
+          blockInformation
         );
 
-        if (blockState.isAir() && !currentState.isAir()) {
+        if (blockInformation.isAir() && !currentState.isAir()) {
             statistics.onBlockStateRemoved(currentState);
-        } else if (!blockState.isAir() && currentState.isAir()) {
-            statistics.onBlockStateAdded(blockState);
-        } else if (!blockState.isAir() && !currentState.isAir()) {
-            statistics.onBlockStateReplaced(currentState, blockState);
+        } else if (!blockInformation.isAir() && currentState.isAir()) {
+            statistics.onBlockStateAdded(blockInformation);
+        } else if (!blockInformation.isAir() && !currentState.isAir()) {
+            statistics.onBlockStateReplaced(currentState, blockInformation);
         }
 
         this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
     }
 
-    /**
-     * Sets the target state in the current area, using the in area block position offset as well as the in block target offset to calculate the in area offset for setting.
-     *
-     * @param blockState           The blockstate.
-     * @param inAreaBlockPosOffset The offset of blocks in the current area.
-     * @param inBlockTarget        The offset in the targeted block.
-     */
     @Override
-    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final BlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
         {
@@ -330,16 +295,10 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         }
 
         this.setInAreaTarget(
-          blockState,
-          inBlockTarget
-        );
+          blockInformation,
+          inBlockTarget);
     }
 
-    /**
-     * Clears the current area, using the offset from the area as well as the in area target offset.
-     *
-     * @param inAreaTarget The in area offset.
-     */
     @SuppressWarnings("deprecation")
     @Override
     public void clearInAreaTarget(final Vec3 inAreaTarget)
@@ -356,15 +315,15 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
 
         final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
-        final BlockState blockState = Blocks.AIR.defaultBlockState();
+        final BlockInformation blockState = BlockInformation.AIR;
 
-        final BlockState currentState = this.compressedSection.getBlockState(
+        final BlockInformation currentState = this.compressedSection.getBlockInformation(
           inAreaPos.getX(),
           inAreaPos.getY(),
           inAreaPos.getZ()
         );
 
-        this.compressedSection.setBlockState(
+        this.compressedSection.setBlockInformation(
           inAreaPos.getX(),
           inAreaPos.getY(),
           inAreaPos.getZ(),
@@ -401,11 +360,6 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         );
     }
 
-    /**
-     * Used to write the current instances data into a packet buffer.
-     *
-     * @param packetBuffer The packet buffer to write into.
-     */
     @Override
     public void serializeInto(@NotNull final FriendlyByteBuf packetBuffer)
     {
@@ -458,8 +412,8 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         {
             //We were created with a pattern item, instead of the block item
             //Create a new item, and copy the nbt.
-            final BlockState primaryState = statistics.getPrimaryState();
-            final Material blockMaterial = primaryState.getMaterial();
+            final BlockInformation primaryState = statistics.getPrimaryState();
+            final Material blockMaterial = primaryState.getBlockState().getMaterial();
             final Material conversionMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(blockMaterial);
 
             final IRegistryObject<ChiseledBlockItem> convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(conversionMaterial);
@@ -492,7 +446,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                  .map(positionMutator::mutate)
                  .map(blockPos -> new StateEntry(
-                     this.compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+                     this.compressedSection.getBlockInformation(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
                      blockPos,
                      this::setInAreaTarget,
                      this::clearInAreaTarget
@@ -507,7 +461,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         BlockPosForEach.forEachInRange(StateEntrySize.current().getBitsPerBlockSide(), (BlockPos blockPos) -> {
             final Vec3i pos = positionMutator.mutate(blockPos);
             consumer.accept(new StateEntry(
-              this.compressedSection.getBlockState(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
+              this.compressedSection.getBlockInformation(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
               blockPos,
               this::setInAreaTarget,
               this::clearInAreaTarget
@@ -523,7 +477,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
 
         BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
           .forEach(position -> this.statistics.onBlockStateAdded(
-            this.compressedSection.getBlockState(position.getX(), position.getY(), position.getZ())
+            this.compressedSection.getBlockInformation(position.getX(), position.getY(), position.getZ())
           ));
 
         this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
@@ -537,7 +491,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
 
         BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
           .forEach(position -> this.statistics.onBlockStateAdded(
-            this.compressedSection.getBlockState(position.getX(), position.getY(), position.getZ())
+            this.compressedSection.getBlockInformation(position.getX(), position.getY(), position.getZ())
           ));
 
         this.sourceStack.getOrCreateTag().put(NbtConstants.CHISELED_DATA, serializeNBT());
@@ -596,7 +550,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         }
 
         @Override
-        public List<BlockState> getPalette()
+        public List<BlockInformation> getPalette()
         {
             return snapshot.getContainedPalette();
         }
@@ -605,34 +559,34 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     private static final class StateEntry implements IMutableStateEntryInfo
     {
 
-        private final BlockState state;
-        private final Vec3   startPoint;
+        private final BlockInformation blockInformation;
+        private final Vec3             startPoint;
         private final Vec3   endPoint;
 
         private final StateSetter  stateSetter;
         private final StateClearer stateClearer;
 
         public StateEntry(
-          final BlockState state,
+          final BlockInformation blockInformation,
           final Vec3i startPoint,
           final StateSetter stateSetter,
           final StateClearer stateClearer)
         {
             this(
-              state,
+              blockInformation,
               Vec3.atLowerCornerOf(startPoint).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()),
               Vec3.atLowerCornerOf(startPoint).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()).add(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()),
               stateSetter, stateClearer);
         }
 
         private StateEntry(
-          final BlockState state,
+          final BlockInformation blockInformation,
           final Vec3 startPoint,
           final Vec3 endPoint,
           final StateSetter stateSetter,
           final StateClearer stateClearer)
         {
-            this.state = state;
+            this.blockInformation = blockInformation;
             this.startPoint = startPoint;
             this.endPoint = endPoint;
             this.stateSetter = stateSetter;
@@ -640,37 +594,29 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         }
 
         @Override
-        public BlockState getState()
+        public @NotNull BlockInformation getBlockInformation()
         {
-            return state;
+            return blockInformation;
         }
 
         @Override
-        public Vec3 getStartPoint()
+        public @NotNull Vec3 getStartPoint()
         {
             return startPoint;
         }
 
         @Override
-        public Vec3 getEndPoint()
+        public @NotNull Vec3 getEndPoint()
         {
             return endPoint;
         }
 
-        /**
-         * Sets the current entries state.
-         *
-         * @param blockState The new blockstate of the entry.
-         */
         @Override
-        public void setState(final BlockState blockState) throws SpaceOccupiedException
+        public void setBlockInformation(final BlockInformation blockInformation) throws SpaceOccupiedException
         {
-            stateSetter.accept(blockState, getStartPoint());
+            stateSetter.set(blockInformation, getStartPoint());
         }
 
-        /**
-         * Clears the current state entries blockstate. Effectively setting the current blockstate to air.
-         */
         @Override
         public void clear()
         {
@@ -681,11 +627,11 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     private static final class Statistics implements IStatistics
     {
 
-        private       BlockState               primaryState = Blocks.AIR.defaultBlockState();
-        private final Map<BlockState, Integer> countMap     = Maps.newConcurrentMap();
+        private       BlockInformation                     primaryState = BlockInformation.AIR;
+        private final Map<BlockInformation, Integer> countMap     = Maps.newConcurrentMap();
 
         @Override
-        public BlockState getPrimaryState()
+        public BlockInformation getPrimaryState()
         {
             return primaryState;
         }
@@ -693,32 +639,32 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         @Override
         public boolean isEmpty()
         {
-            return countMap.isEmpty() || (countMap.size() == 1 && countMap.containsKey(Blocks.AIR.defaultBlockState()));
+            return countMap.isEmpty() || (countMap.size() == 1 && countMap.containsKey(BlockInformation.AIR));
         }
 
         private void clear() {
-            this.primaryState = Blocks.AIR.defaultBlockState();
+            this.primaryState = BlockInformation.AIR;
 
             this.countMap.clear();
         }
 
-        private void onBlockStateAdded(final BlockState blockState) {
-            countMap.putIfAbsent(blockState, 0);
-            countMap.computeIfPresent(blockState, (state, currentCount) -> currentCount + 1);
+        private void onBlockStateAdded(final BlockInformation blockInformation) {
+            countMap.putIfAbsent(blockInformation, 0);
+            countMap.computeIfPresent(blockInformation, (state, currentCount) -> currentCount + 1);
             updatePrimaryState();
         }
 
-        private void onBlockStateRemoved(final BlockState blockState) {
-            countMap.computeIfPresent(blockState, (state, currentCount) -> currentCount - 1);
-            countMap.remove(blockState, 0);
+        private void onBlockStateRemoved(final BlockInformation blockInformation) {
+            countMap.computeIfPresent(blockInformation, (state, currentCount) -> currentCount - 1);
+            countMap.remove(blockInformation, 0);
             updatePrimaryState();
         }
 
-        private void onBlockStateReplaced(final BlockState currentState, final BlockState newState) {
-            countMap.computeIfPresent(currentState, (state, currentCount) -> currentCount - 1);
-            countMap.remove(currentState, 0);
-            countMap.putIfAbsent(newState, 0);
-            countMap.computeIfPresent(newState, (state, currentCount) -> currentCount + 1);
+        private void onBlockStateReplaced(final BlockInformation currentInformation, final BlockInformation newInformation) {
+            countMap.computeIfPresent(currentInformation, (state, currentCount) -> currentCount - 1);
+            countMap.remove(currentInformation, 0);
+            countMap.putIfAbsent(newInformation, 0);
+            countMap.computeIfPresent(newInformation, (state, currentCount) -> currentCount + 1);
             updatePrimaryState();
         }
 
@@ -727,7 +673,7 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
                              .filter(entry -> !entry.getKey().isAir())
                              .min((o1, o2) -> -1 * (o1.getValue() - o2.getValue()))
                              .map(Map.Entry::getKey)
-                             .orElseGet(Blocks.AIR::defaultBlockState);
+                             .orElse(BlockInformation.AIR);
         }
 
         @Override
@@ -735,14 +681,14 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         {
             final CompoundTag nbt = new CompoundTag();
 
-            nbt.put(NbtConstants.PRIMARY_STATE, NbtUtils.writeBlockState(this.primaryState));
+            nbt.put(NbtConstants.PRIMARY_STATE, this.primaryState.serializeNBT());
 
             final ListTag blockStateList = new ListTag();
-            for (final Map.Entry<BlockState, Integer> blockStateIntegerEntry : this.countMap.entrySet())
+            for (final Map.Entry<BlockInformation, Integer> blockStateIntegerEntry : this.countMap.entrySet())
             {
                 final CompoundTag stateNbt = new CompoundTag();
 
-                stateNbt.put(NbtConstants.BLOCK_STATE, NbtUtils.writeBlockState(blockStateIntegerEntry.getKey()));
+                stateNbt.put(NbtConstants.BLOCK_INFORMATION, blockStateIntegerEntry.getKey().serializeNBT());
                 stateNbt.putInt(NbtConstants.COUNT, blockStateIntegerEntry.getValue());
 
                 blockStateList.add(stateNbt);
@@ -758,15 +704,24 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         {
             this.countMap.clear();
 
-            this.primaryState = NbtUtils.readBlockState(nbt.getCompound(NbtConstants.PRIMARY_STATE));
+            this.primaryState = new BlockInformation(nbt.getCompound(NbtConstants.PRIMARY_STATE));
 
             final ListTag blockStateList = nbt.getList(NbtConstants.BLOCK_STATES, Tag.TAG_COMPOUND);
             for (int i = 0; i < blockStateList.size(); i++)
             {
                 final CompoundTag stateNbt = blockStateList.getCompound(i);
 
+                final BlockInformation blockInformation;
+                if (stateNbt.contains(NbtConstants.BLOCK_INFORMATION)) {
+                    blockInformation = new BlockInformation(stateNbt.getCompound(NbtConstants.BLOCK_INFORMATION));
+                } else if (stateNbt.contains(NbtConstants.BLOCK_STATE)) {
+                    blockInformation = new BlockInformation(NbtUtils.readBlockState(stateNbt.getCompound(NbtConstants.BLOCK_STATE)));
+                } else {
+                    throw new IllegalStateException("Block state information is missing");
+                }
+
                 this.countMap.put(
-                  NbtUtils.readBlockState(stateNbt.getCompound(NbtConstants.BLOCK_STATE)),
+                  blockInformation,
                   stateNbt.getInt(NbtConstants.COUNT)
                 );
             }

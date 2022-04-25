@@ -5,8 +5,8 @@ import java.util.LinkedList;
 public class StorageEngineBuilder
 {
 
-    private final LinkedList<ILegacyStorageHandler> legacyStorageHandlers = new LinkedList<ILegacyStorageHandler>();
-    private final LinkedList<IStorageHandler> storageHandlers = new LinkedList<IStorageHandler>();
+    private final LinkedList<ILegacyStorageHandler> legacyStorageHandlers = new LinkedList<>();
+    private final LinkedList<IStorageHandler> storageHandlers = new LinkedList<>();
 
     private int minimalVersion = 0;
 

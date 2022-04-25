@@ -1,6 +1,7 @@
 package mod.chiselsandbits.multistate.snapshot;
 
 import mod.chiselsandbits.api.axissize.CollisionType;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
@@ -11,18 +12,15 @@ import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IAreaMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
-import mod.chiselsandbits.api.axissize.IAxisSizeHandler;
 import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.util.BlockPosForEach;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.VectorUtils;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.NotImplementedException;
 
@@ -48,7 +46,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
                .allMatch(snapshots::containsKey)
         )
         {
-            throw new IllegalArgumentException("Not all required blockposes are part of the given range.");
+            throw new IllegalArgumentException("Not all required block positions are part of the given range.");
         }
     }
 
@@ -73,12 +71,6 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
                  .flatMap(IAreaAccessor::stream);
     }
 
-    /**
-     * Indicates if the given target is inside of the current accessor.
-     *
-     * @param inAreaTarget The area target to check.
-     * @return True when inside, false when not.
-     */
     @Override
     public boolean isInside(final Vec3 inAreaTarget)
     {
@@ -87,13 +79,6 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
         return isInside(inAreaOffset, inAreaTarget.subtract(Vec3.atLowerCornerOf(inAreaOffset)));
     }
 
-    /**
-     * Indicates if the given target (with the given block position offset) is inside of the current accessor.
-     *
-     * @param inAreaBlockPosOffset The offset of blocks in the current area.
-     * @param inBlockTarget        The offset in the targeted block.
-     * @return True when inside, false when not.
-     */
     @Override
     public boolean isInside(final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget)
     {
@@ -207,7 +192,9 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     }
 
     @Override
-    public void setInAreaTarget(final BlockState blockState, final Vec3 inAreaTarget) throws SpaceOccupiedException
+    public void setInAreaTarget(
+      final BlockInformation blockInformation,
+      final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
         final Vec3 workingTarget = inAreaTarget.add(this.startPoint);
 
@@ -219,14 +206,14 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
         );
 
         this.setInBlockTarget(
-          blockState,
+          blockInformation,
           offset,
           inBlockTarget
         );
     }
 
     @Override
-    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final BlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
         final Vec3 workingTarget = Vec3.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget);
         if (workingTarget.x() < startPoint.x() ||
@@ -246,7 +233,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
         }
 
         this.snapshots.get(inAreaBlockPosOffset)
-          .setInAreaTarget(blockState, inBlockTarget);
+          .setInAreaTarget(blockInformation, inBlockTarget);
     }
 
     /**
@@ -331,23 +318,23 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
             }
 
             @Override
-            public BlockState getPrimaryState()
+            public BlockInformation getPrimaryState()
             {
-                return getStateCounts().entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).map(Map.Entry::getKey).orElse(Blocks.AIR.defaultBlockState());
+                return getStateCounts().entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).map(Map.Entry::getKey).orElse(BlockInformation.AIR);
             }
 
             @Override
             public boolean isEmpty()
             {
-                final Map<BlockState, Integer> stateMap = getStateCounts();
-                return stateMap.size() == 1 && stateMap.getOrDefault(Blocks.AIR.defaultBlockState(), 0) > 0;
+                final Map<BlockInformation, Integer> stateMap = getStateCounts();
+                return stateMap.size() == 1 && stateMap.getOrDefault(BlockInformation.AIR, 0) > 0;
             }
 
             @Override
-            public Map<BlockState, Integer> getStateCounts()
+            public Map<BlockInformation, Integer> getStateCounts()
             {
                 return stream().collect(Collectors.toMap(
-                  IStateEntryInfo::getState,
+                  IStateEntryInfo::getBlockInformation,
                   s -> 1,
                   Integer::sum
                 ));
@@ -506,11 +493,10 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
             {
                 return true;
             }
-            if (!(o instanceof Identifier))
+            if (!(o instanceof final Identifier that))
             {
                 return false;
             }
-            final Identifier that = (Identifier) o;
             return inners.equals(that.inners);
         }
     }

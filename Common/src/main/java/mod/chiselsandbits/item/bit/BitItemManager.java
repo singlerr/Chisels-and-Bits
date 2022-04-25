@@ -1,5 +1,6 @@
 package mod.chiselsandbits.item.bit;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
@@ -33,22 +34,15 @@ public class BitItemManager implements IBitItemManager
         return ModItems.ITEM_BLOCK_BIT.get().getMaxStackSize();
     }
 
-    /**
-     * Creates an itemstack that contains a bit of the given blockstate and is of the given size.
-     *
-     * @param blockState The given blockstate.
-     * @param count      The amount of bits.
-     * @return The itemstack with the given bits or empty if invalid.
-     */
     @Override
-    public ItemStack create(final BlockState blockState, final int count)
+    public ItemStack create(final BlockInformation blockInformation, final int count)
     {
-        if (blockState == null || blockState.isAir())
+        if (blockInformation == null || blockInformation.isAir())
         {
             return ItemStack.EMPTY;
         }
 
-        if (!IEligibilityManager.getInstance().canBeChiseled(blockState))
+        if (!IEligibilityManager.getInstance().canBeChiseled(blockInformation))
         {
             return ItemStack.EMPTY;
         }
@@ -60,7 +54,7 @@ public class BitItemManager implements IBitItemManager
 
         final ItemStack resultStack = new ItemStack(ModItems.ITEM_BLOCK_BIT.get());
 
-        resultStack.getOrCreateTag().put(NbtConstants.BLOCK_STATE, NbtUtils.writeBlockState(blockState));
+        resultStack.getOrCreateTag().put(NbtConstants.BLOCK_INFORMATION, blockInformation.serializeNBT());
         resultStack.setCount(count);
 
         return resultStack;

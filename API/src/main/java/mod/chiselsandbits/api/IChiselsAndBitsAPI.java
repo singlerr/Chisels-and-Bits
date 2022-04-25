@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
 import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
 import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
@@ -27,8 +28,8 @@ import mod.chiselsandbits.api.permissions.IPermissionHandler;
 import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
+import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
-import net.minecraft.tags.Tag;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
@@ -286,6 +287,12 @@ public interface IChiselsAndBitsAPI
      */
     @NotNull
     INotificationManager getNotificationManager();
+
+    @NotNull
+    IStateVariantManager getAdditionalStateInfoManager();
+
+    @NotNull
+    IBlockInformationColorManager getBlockInformationColorManager();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

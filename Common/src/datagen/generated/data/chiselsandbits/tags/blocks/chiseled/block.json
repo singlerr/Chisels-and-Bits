@@ -1,0 +1,22 @@
+{
+  "replace": false,
+  "values": [
+    "chiselsandbits:chiseledice",
+    "chiselsandbits:chiseledsnow",
+    "chiselsandbits:chiseledplant",
+    "chiselsandbits:chiseledcloth",
+    "chiselsandbits:chiselednether_wood",
+    "chiselsandbits:chiseledclay",
+    "chiselsandbits:chiseledrock",
+    "chiselsandbits:chiseledglass",
+    "chiselsandbits:chiseledleaves",
+    "chiselsandbits:chiseledwood",
+    "chiselsandbits:chiseledgrass",
+    "chiselsandbits:chiselediron",
+    "chiselsandbits:chiseledground",
+    "chiselsandbits:chiseledpacked_ice",
+    "chiselsandbits:chiseledwool",
+    "chiselsandbits:chiseledsand",
+    "chiselsandbits:chiseledfluid"
+  ]
+}

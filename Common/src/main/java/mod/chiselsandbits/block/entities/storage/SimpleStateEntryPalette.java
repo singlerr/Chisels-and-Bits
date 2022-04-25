@@ -5,11 +5,14 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.serialization.DataResult;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.util.BlockStateSerializationUtils;
 import mod.chiselsandbits.api.util.INBTSerializable;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
-import mod.chiselsandbits.utils.BlockStateSerializationUtils;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -24,9 +27,9 @@ import java.util.stream.Collectors;
 public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTSerializable<ListTag>
 {
 
-    private final List<Entry> paletteEntries = Collections.synchronizedList(Lists.newArrayList());
-    private final BiMap<BlockState, Entry> paletteMap = Maps.synchronizedBiMap(HashBiMap.create());
-    private final IntConsumer onNewSizeAddedConsumer;
+    private final List<Entry>                    paletteEntries = Collections.synchronizedList(Lists.newArrayList());
+    private final BiMap<BlockInformation, Entry> paletteMap     = Maps.synchronizedBiMap(HashBiMap.create());
+    private final IntConsumer                    onNewSizeAddedConsumer;
 
     public SimpleStateEntryPalette(final IntConsumer onNewSizeAddedConsumer) {
         this.onNewSizeAddedConsumer = onNewSizeAddedConsumer;
@@ -50,13 +53,23 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
     public void deserializeNBT(final ListTag nbt)
     {
         final int currentSize = this.paletteEntries.size();
+        this.paletteMap.clear();
         this.paletteEntries.clear();
 
-        nbt.stream()
-          .filter(StringTag.class::isInstance)
-          .map(StringTag.class::cast)
-          .map(Entry::new)
-          .forEach(this.paletteEntries::add);
+        if (nbt.getElementType() == Tag.TAG_STRING) {
+            nbt.stream()
+              .filter(StringTag.class::isInstance)
+              .map(StringTag.class::cast)
+              .map(Entry::new)
+              .forEach(this.paletteEntries::add);
+        }
+        else if (nbt.getElementType() == Tag.TAG_COMPOUND) {
+            nbt.stream()
+              .filter(CompoundTag.class::isInstance)
+              .map(CompoundTag.class::cast)
+              .map(Entry::new)
+              .forEach(this.paletteEntries::add);
+        }
 
         this.paletteEntries.forEach(entry -> this.paletteMap.put(entry.get(), entry));
 
@@ -101,7 +114,7 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
         }
     }
 
-    public int getIndex(final BlockState state) {
+    public int getIndex(final BlockInformation state) {
         if (this.paletteMap.containsKey(state)) {
             final Entry entry = this.paletteMap.get(state);
             return this.paletteEntries.indexOf(entry);
@@ -116,7 +129,7 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
         return this.paletteEntries.size() - 1;
     }
 
-    public BlockState getBlockState(final int blockStateId)
+    public BlockInformation getBlockState(final int blockStateId)
     {
         if (blockStateId < 0 || blockStateId >= this.paletteEntries.size())
             return getBlockState(0);
@@ -124,7 +137,7 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
         return this.paletteEntries.get(blockStateId).get();
     }
 
-    public void sanitize(final Collection<BlockState> toRemove) {
+    public void sanitize(final Collection<BlockInformation> toRemove) {
         final List<Entry> toRemoveList = toRemove.stream().map(this.paletteMap::get).toList();
 
         this.paletteEntries.removeAll(toRemoveList);
@@ -136,10 +149,10 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
     public void clear() {
         this.paletteEntries.clear();
         this.paletteMap.clear();
-        this.getIndex(Blocks.AIR.defaultBlockState());
+        this.getIndex(new BlockInformation(Blocks.AIR.defaultBlockState()));
     }
 
-    public List<BlockState> getStates()
+    public List<BlockInformation> getStates()
     {
         return this.paletteMap.keySet().stream().toList();
     }
@@ -173,17 +186,21 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
                  '}';
     }
 
-    private static final class Entry implements IPacketBufferSerializable, INBTSerializable<StringTag>
+    private static final class Entry implements IPacketBufferSerializable, INBTSerializable<CompoundTag>
     {
-        private BlockState outwardFacingState;
-        private String rawSpec;
+        private BlockInformation outwardFacingState;
+        private CompoundTag rawSpec;
 
-        private Entry(final BlockState newState) {
+        private Entry(final BlockInformation newState) {
             this.outwardFacingState = newState;
-            this.rawSpec = BlockStateSerializationUtils.serialize(newState);
+            this.rawSpec = newState.serializeNBT();
         }
 
         private Entry(final StringTag tag) {
+            deserializeNBT(tag);
+        }
+
+        private Entry(final CompoundTag tag) {
             deserializeNBT(tag);
         }
 
@@ -191,35 +208,41 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
             deserializeFrom(buffer);
         }
 
-        @Override
-        public StringTag serializeNBT()
+        public void deserializeNBT(final StringTag nbt)
         {
-            return StringTag.valueOf(rawSpec);
+            final String rawSpecString = nbt.getAsString();
+            final DataResult<BlockState> result = BlockStateSerializationUtils.deserialize(rawSpecString);
+            this.outwardFacingState = new BlockInformation(result.result().orElseGet(Blocks.AIR::defaultBlockState));
+            this.rawSpec = this.outwardFacingState.serializeNBT();
         }
 
         @Override
-        public void deserializeNBT(final StringTag nbt)
+        public CompoundTag serializeNBT()
         {
-            this.rawSpec = nbt.getAsString();
-            final DataResult<BlockState> result = BlockStateSerializationUtils.deserialize(this.rawSpec);
-            this.outwardFacingState = result.result().orElseGet(Blocks.AIR::defaultBlockState);
+            return rawSpec.copy();
+        }
+
+        @Override
+        public void deserializeNBT(final CompoundTag nbt)
+        {
+            this.rawSpec = nbt;
+            this.outwardFacingState = new BlockInformation(nbt);
         }
 
         @Override
         public void serializeInto(final @NotNull FriendlyByteBuf packetBuffer)
         {
-            packetBuffer.writeUtf(this.rawSpec);
+            this.outwardFacingState.serializeInto(packetBuffer);
         }
 
         @Override
         public void deserializeFrom(final @NotNull FriendlyByteBuf packetBuffer)
         {
-            this.rawSpec = packetBuffer.readUtf();
-            final DataResult<BlockState> result = BlockStateSerializationUtils.deserialize(this.rawSpec);
-            this.outwardFacingState = result.result().orElseGet(Blocks.AIR::defaultBlockState);
+            this.outwardFacingState = new BlockInformation(packetBuffer);
+            this.rawSpec = this.outwardFacingState.serializeNBT();
         }
 
-        public BlockState get()
+        public BlockInformation get()
         {
             return outwardFacingState;
         }

@@ -2,6 +2,7 @@ package mod.chiselsandbits.chiseling.modes.connected.plane;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -31,8 +32,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -92,7 +91,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
               {
                   context.setComplete();
 
-                  final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
+                  final Map<BlockInformation, Integer> resultingBitCount = Maps.newHashMap();
 
                   final Predicate<IStateEntryInfo> filter = context.getStateFilter()
                     .map(builder -> builder.apply(mutator))
@@ -101,7 +100,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
                   final int totalDamage = mutator.inWorldMutableStream()
                     .filter(filter)
                     .mapToInt(state -> {
-                        final BlockState currentState = state.getState();
+                        final BlockInformation currentState = state.getBlockInformation();
 
                         return context.tryDamageItemAndDoOrSetBrokenError(
                           () -> {
@@ -199,7 +198,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
         }
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
-              final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
+              final BlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
               if (heldBlockState.isAir())
               {
                   context.setError(LocalStrings.ChiselAttemptFailedNoPlaceableBitHeld.getText());
@@ -211,7 +210,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
                 .orElse((state) -> true);
 
               final int missingBitCount = (int) mutator.stream()
-                .filter(state -> state.getState().isAir() && filter.test(state))
+                .filter(state -> state.getBlockInformation().isAir() && filter.test(state))
                 .count();
 
               final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
@@ -228,13 +227,13 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
                          mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
                   {
                       mutator.inWorldMutableStream()
-                        .filter(state -> state.getState().isAir() && filter.test(state))
+                        .filter(state -> state.getBlockInformation().isAir() && filter.test(state))
                         .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                   }
               }
               else
               {
-                  context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlock().getName()));
+                  context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlockState().getBlock().getName()));
               }
 
               if (missingBitCount == 0)
@@ -400,7 +399,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
 
             IStateEntryInfo target = targetCandidate.get();
 
-            if (target.getState().equals(targetedInfo.get().getState()))
+            if (target.getBlockInformation().equals(targetedInfo.get().getBlockInformation()))
             {
                 //We are somehow connected to the targeted bit and of the same state.
                 validPositions.add(targetedPosition);

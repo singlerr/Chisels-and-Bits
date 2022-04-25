@@ -2,6 +2,7 @@ package mod.chiselsandbits.chiseling.modes.draw;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
@@ -28,7 +29,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -76,11 +76,11 @@ public class DrawChiselMode extends AbstractCustomRegistryEntry implements IChis
             try (IBatchMutation ignored =
                    mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
             {
-                final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
+                final Map<BlockInformation, Integer> resultingBitCount = Maps.newHashMap();
 
                 mutator.inWorldMutableStream()
                   .forEach(state -> {
-                      final BlockState currentState = state.getState();
+                      final BlockInformation currentState = state.getBlockInformation();
                       if (context.tryDamageItem())
                       {
                           resultingBitCount.putIfAbsent(currentState, 0);
@@ -119,14 +119,14 @@ public class DrawChiselMode extends AbstractCustomRegistryEntry implements IChis
             return;
 
         context.getMutator().ifPresent(mutator -> {
-            final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
+            final BlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
             if (heldBlockState.isAir())
             {
                 return;
             }
 
             final int missingBitCount = (int) mutator.stream()
-              .filter(state -> state.getState().isAir())
+              .filter(state -> state.getBlockInformation().isAir())
               .count();
 
             final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
@@ -143,13 +143,13 @@ public class DrawChiselMode extends AbstractCustomRegistryEntry implements IChis
                        mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
                 {
                     mutator.inWorldMutableStream()
-                      .filter(state -> state.getState().isAir())
+                      .filter(state -> state.getBlockInformation().isAir())
                       .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                 }
             }
             else
             {
-                context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlock().getName()));
+                context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlockState().getBlock().getName()));
             }
 
             if (missingBitCount == 0)

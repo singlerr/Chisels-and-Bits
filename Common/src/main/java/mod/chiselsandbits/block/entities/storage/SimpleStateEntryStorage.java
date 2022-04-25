@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.math.LongMath;
 import com.mojang.datafixers.util.Pair;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
@@ -14,10 +15,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +30,7 @@ import java.util.function.BiConsumer;
 public class SimpleStateEntryStorage implements IStateEntryStorage
 {
 
-    private final int size;
+    private final int  size;
     private final SimpleStateEntryPalette palette;
 
     private BitSet data       = new BitSet();
@@ -41,6 +42,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
         this(IServerConfiguration.getInstance().getBitSize().get().getBitsPerBlockSide());
     }
 
+    @SuppressWarnings("CopyConstructorMissesField")
     private SimpleStateEntryStorage(final SimpleStateEntryStorage stateEntryStorage) {
         this.size = stateEntryStorage.size;
         this.palette = new SimpleStateEntryPalette(this::onPaletteResize, stateEntryStorage.palette);
@@ -76,10 +78,10 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     }
 
     @Override
-    public void initializeWith(final BlockState currentState)
+    public void initializeWith(final BlockInformation currentState)
     {
         clear();
-        if (currentState == Blocks.AIR.defaultBlockState())
+        if (currentState.getBlockState() == Blocks.AIR.defaultBlockState())
         {
             return;
         }
@@ -97,16 +99,18 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
         this.clear();
 
         BlockPosStreamProvider.getForRange(StateEntrySize.ONE_SIXTEENTH.getBitsPerBlockSide())
-          .forEach(position -> setBlockState(
+          .forEach(position -> setBlockInformation(
             position.getX(),
             position.getY(),
             position.getZ(),
-            chunkSection.getBlockState(position.getX(), position.getY(), position.getZ())
+            new BlockInformation(
+              chunkSection.getBlockState(position.getX(), position.getY(), position.getZ())
+            )
           ));
     }
 
     @Override
-    public BlockState getBlockState(final int x, final int y, final int z)
+    public BlockInformation getBlockInformation(final int x, final int y, final int z)
     {
         final int offSetIndex = doCalculatePositionIndex(x, y, z);
         final int blockStateId = ByteArrayUtils.getValueAt(data, entryWidth, offSetIndex);
@@ -115,7 +119,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     }
 
     @Override
-    public void setBlockState(final int x, final int y, final int z, final BlockState blockState)
+    public void setBlockInformation(final int x, final int y, final int z, final BlockInformation blockState)
     {
         final int offSetIndex = doCalculatePositionIndex(x, y, z);
         final int blockStateId = palette.getIndex(blockState);
@@ -149,12 +153,12 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     }
 
     @Override
-    public void count(final BiConsumer<BlockState, Integer> storageConsumer)
+    public void count(final BiConsumer<BlockInformation, Integer> storageConsumer)
     {
-        final Map<BlockState, Integer> countMap = Maps.newHashMap();
+        final Map<BlockInformation, Integer> countMap = Maps.newHashMap();
 
         BlockPosStreamProvider.getForRange(this.getSize())
-          .map(position -> getBlockState(position.getX(), position.getY(), position.getZ()))
+          .map(position -> getBlockInformation(position.getX(), position.getY(), position.getZ()))
           .forEach(blockState -> countMap.compute(blockState, (state, count) -> count == null ? 1 : count + 1));
 
         countMap.forEach(storageConsumer);
@@ -178,7 +182,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     }
 
     @Override
-    public void fillFromBottom(final BlockState state, final int entries)
+    public void fillFromBottom(final BlockInformation state, final int entries)
     {
         clear();
         final int loopCount = Math.max(0, Math.min(entries, StateEntrySize.current().getBitsPerBlock()));
@@ -186,13 +190,13 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
             return;
 
         int count = 0;
-        for (int y = 0; y < StateEntrySize.current().getBitsPerBlockSide(); y++)
+        for (int y = 0; y < getSize(); y++)
         {
-            for (int x = 0; x < StateEntrySize.current().getBitsPerBlockSide(); x++)
+            for (int x = 0; x < getSize(); x++)
             {
-                for (int z = 0; z < StateEntrySize.current().getBitsPerBlockSide(); z++)
+                for (int z = 0; z < getSize(); z++)
                 {
-                    setBlockState(
+                    setBlockInformation(
                       x, y, z,
                       state
                     );
@@ -206,7 +210,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     }
 
     @Override
-    public List<BlockState> getContainedPalette()
+    public List<BlockInformation> getContainedPalette()
     {
         return palette.getStates();
     }
@@ -239,11 +243,11 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
                     final Vec3 offsetPos = rotatedVector.add(centerVector).multiply(1000,1000,1000);
                     final BlockPos targetPos = new BlockPos(new Vec3(Math.round(offsetPos.x()), Math.round(offsetPos.y()), Math.round(offsetPos.z())).multiply(1/1000d,1/1000d,1/1000d));
 
-                    this.setBlockState(
+                    this.setBlockInformation(
                       targetPos.getX(),
                       targetPos.getY(),
                       targetPos.getZ(),
-                      clone.getBlockState(
+                      clone.getBlockInformation(
                         sourcePos.getX(),
                         sourcePos.getY(),
                         sourcePos.getZ()
@@ -260,21 +264,21 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
         final IStateEntryStorage clone = this.createSnapshot();
         resetData();
 
-        for (int y = 0; y < StateEntrySize.current().getBitsPerBlockSide(); y++)
+        for (int y = 0; y < getSize(); y++)
         {
-            for (int x = 0; x < StateEntrySize.current().getBitsPerBlockSide(); x++)
+            for (int x = 0; x < getSize(); x++)
             {
-                for (int z = 0; z < StateEntrySize.current().getBitsPerBlockSide(); z++)
+                for (int z = 0; z < getSize(); z++)
                 {
-                    final BlockState blockState = clone.getBlockState(x, y, z);
+                    final BlockInformation blockInformation = clone.getBlockInformation(x, y, z);
 
-                    final int mirroredX = axis == Direction.Axis.X ? (StateEntrySize.current().getBitsPerBlockSide() - x - 1) : x;
-                    final int mirroredY = axis == Direction.Axis.Y ? (StateEntrySize.current().getBitsPerBlockSide() - y - 1) : y;
-                    final int mirroredZ = axis == Direction.Axis.Z ? (StateEntrySize.current().getBitsPerBlockSide() - z - 1) : z;
+                    final int mirroredX = axis == Direction.Axis.X ? (getSize() - x - 1) : x;
+                    final int mirroredY = axis == Direction.Axis.Y ? (getSize() - y - 1) : y;
+                    final int mirroredZ = axis == Direction.Axis.Z ? (getSize() - z - 1) : z;
 
-                    this.setBlockState(
+                    this.setBlockInformation(
                       mirroredX, mirroredY, mirroredZ,
-                      blockState
+                      blockInformation
                     );
                 }
             }
@@ -299,20 +303,20 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
 
         this.isDeserializing = true;
 
-        this.palette.deserializeNBT(nbt.getList(NbtConstants.PALETTE, Tag.TAG_STRING));
+        this.palette.deserializeNBT((ListTag) nbt.get(NbtConstants.PALETTE));
         this.data = BitSet.valueOf(nbt.getByteArray(NbtConstants.DATA));
 
-        final Set<BlockState> containedStates = new HashSet<>();
+        final Set<BlockInformation> containedStates = new HashSet<>();
         for (int i = 0; i < getTotalEntryCount(); i++)
         {
             final Vec3i pos = doCalculatePosition(i);
-            final BlockState blockState = getBlockState(pos);
+            final BlockInformation blockState = getBlockInformation(pos);
             containedStates.add(blockState);
         }
 
-        final List<BlockState> paletteStates = new ArrayList<>(this.palette.getStates());
+        final List<BlockInformation> paletteStates = new ArrayList<>(this.palette.getStates());
         paletteStates.removeAll(containedStates);
-        paletteStates.remove(Blocks.AIR.defaultBlockState()); //We need to keep this!
+        paletteStates.remove(new BlockInformation(Blocks.AIR.defaultBlockState())); //We need to keep this!
 
         this.isDeserializing = false;
 

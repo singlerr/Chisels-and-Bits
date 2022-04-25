@@ -2,12 +2,14 @@ package mod.chiselsandbits.aab;
 
 import mod.chiselsandbits.aabb.AABBCompressor;
 import mod.chiselsandbits.api.axissize.CollisionType;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import net.minecraft.SharedConstants;
 import net.minecraft.server.Bootstrap;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -57,14 +59,14 @@ public class AABBCompressorBenchmark
 
             final List<IStateEntryInfo> states = BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
               .map(offset -> {
-                  final BlockState candidateState;
+                  final BlockInformation candidateState;
                   if (offset.getX() > xOffset && offset.getX() < xOffset + runtimeXSize ||
                     offset.getY() > yOffset && offset.getY() < yOffset + runtimeYSize ||
                     offset.getZ() > zOffset && offset.getZ() < zOffset + runtimeZSize) {
-                      candidateState = Blocks.STONE.defaultBlockState();
+                      candidateState = new BlockInformation(Blocks.STONE.defaultBlockState());
                   }
                   else {
-                      candidateState = Blocks.AIR.defaultBlockState();
+                      candidateState = BlockInformation.AIR;
                   }
 
                   final IStateEntryInfo info = mock(IStateEntryInfo.class);
@@ -75,7 +77,7 @@ public class AABBCompressorBenchmark
                   when(info.getStartPoint()).thenReturn(startPoint);
                   when(info.getEndPoint()).thenReturn(endPoint);
                   when(info.getCenterPoint()).thenReturn(startPoint.add(endPoint).multiply(0.5, 0.5, 0.5));
-                  when(info.getState()).thenReturn(candidateState);
+                  when(info.getBlockInformation()).thenReturn(candidateState);
                   when(info.getBoundingBox()).thenReturn(AABB.ofSize(startPoint,
                     StateEntrySize.current().getSizePerBit(),
                     StateEntrySize.current().getSizePerBit(),

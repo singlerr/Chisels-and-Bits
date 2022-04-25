@@ -2,26 +2,27 @@ package mod.chiselsandbits.neighborhood;
 
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Objects;
 
 public final class BlockNeighborhoodEntry
 {
-    private final BlockState    blockState;
-    private final IAreaAccessor accessor;
+    private final BlockInformation blockInformation;
+    private final IAreaAccessor    accessor;
     private final IAreaShapeIdentifier identifier;
 
-    public BlockNeighborhoodEntry(final BlockState blockState, final IAreaAccessor accessor)
+    public BlockNeighborhoodEntry(final BlockInformation blockInformation, final IAreaAccessor accessor)
     {
-        this.blockState = blockState;
+        this.blockInformation = blockInformation;
         this.accessor = accessor;
         this.identifier = this.accessor.createNewShapeIdentifier();
     }
 
-    public BlockNeighborhoodEntry(final BlockState blockState)
+    public BlockNeighborhoodEntry(final BlockInformation blockInformation)
     {
-        this.blockState = blockState;
+        this.blockInformation = blockInformation;
         this.accessor = null;
         this.identifier = IAreaShapeIdentifier.DUMMY;
     }
@@ -29,7 +30,7 @@ public final class BlockNeighborhoodEntry
     @Override
     public int hashCode()
     {
-        int result = blockState != null ? blockState.hashCode() : 0;
+        int result = blockInformation != null ? blockInformation.hashCode() : 0;
         result = 31 * result + (identifier != null ? identifier.hashCode() : 0);
         return result;
     }
@@ -46,16 +47,16 @@ public final class BlockNeighborhoodEntry
             return false;
         }
 
-        if (!Objects.equals(blockState, that.blockState))
+        if (!Objects.equals(blockInformation, that.blockInformation))
         {
             return false;
         }
         return Objects.equals(identifier, that.identifier);
     }
 
-    public BlockState getBlockState()
+    public BlockInformation getBlockInformation()
     {
-        return blockState;
+        return blockInformation;
     }
 
     public IAreaAccessor getAccessor()

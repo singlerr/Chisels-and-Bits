@@ -354,7 +354,7 @@ public class BagContainer extends AbstractContainerMenu
     {
         if (!stack.isEmpty() && stack.getItem() instanceof final IBitItem bitItem)
         {
-            bagInv.clear(bitItem.getBitState(stack));
+            bagInv.clear(bitItem.getBlockInformation(stack));
         }
         else {
             bagInv.clearContent();

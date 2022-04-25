@@ -5,12 +5,12 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import com.mojang.math.Vector3f;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
-import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
 import mod.chiselsandbits.client.model.baked.face.ChiselsAndBitsBakedQuad;
@@ -18,6 +18,7 @@ import mod.chiselsandbits.client.model.baked.face.FaceManager;
 import mod.chiselsandbits.client.model.baked.face.FaceRegion;
 import mod.chiselsandbits.client.model.baked.face.IFaceBuilder;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.utils.ModelUtil;
 import net.minecraft.client.Minecraft;
@@ -32,7 +33,6 @@ import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -46,10 +46,10 @@ import java.util.function.Function;
 public class ChiseledBlockBakedModel extends BaseBakedBlockModel
 {
     public static final ChiseledBlockBakedModel EMPTY = new ChiseledBlockBakedModel(
-      Blocks.AIR.defaultBlockState(),
+      BlockInformation.AIR,
       ChiselRenderType.SOLID,
       null,
-      vector3d -> Blocks.AIR.defaultBlockState(),
+      vector3d -> BlockInformation.AIR,
       0);
 
     private final static int[][]     faceVertMap      = new int[6][4];
@@ -179,18 +179,18 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
     }
 
     public ChiseledBlockBakedModel(
-      final BlockState state,
+      final BlockInformation state,
       final ChiselRenderType layer,
       final IAreaAccessor data,
-      final Function<Vec3, BlockState> neighborStateSupplier,
+      final Function<Vec3, BlockInformation> neighborStateSupplier,
       final long primaryStateRenderSeed)
     {
         chiselRenderType = layer;
         BakedModel originalModel = null;
 
-        if (state != null && state.getBlock() != Blocks.AIR)
+        if (state != null && !state.isAir())
         {
-            originalModel = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state);
+            originalModel = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state.getBlockState());
         }
 
         if (originalModel != null && data != null)
@@ -241,7 +241,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
     private void generateFaces(
       final ChiseledBlockModelBuilder builder,
       final IAreaAccessor accessor,
-      final Function<Vec3, BlockState> neighborStateSupplier,
+      final Function<Vec3, BlockInformation> neighborStateSupplier,
       final long primaryStateRenderSeed)
     {
         final List<List<FaceRegion>> resultingFaces = new ArrayList<>();
@@ -311,7 +311,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                         // difference. )
                         offsetVec(to, region.getMaxX(), region.getMaxY(), region.getMaxZ());
                         offsetVec(from, region.getMinX(), region.getMinY(), region.getMinZ());
-                        final ModelQuadLayer[] mpc = FaceManager.getInstance().getCachedFace(region.getBlockState(), myFace, chiselRenderType.layer, primaryStateRenderSeed);
+                        final ModelQuadLayer[] mpc = FaceManager.getInstance().getCachedFace(region.getBlockInformation(), myFace, chiselRenderType.layer, primaryStateRenderSeed);
 
                         if (mpc != null)
                         {
@@ -447,7 +447,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
       final Direction[] potentialDirections,
       final Function<Vec3, Double> regionBuildingAxisValueExtractor,
       final Function<Vec3, Double> faceBuildingAxisValueExtractor,
-      final Function<Vec3, BlockState> neighborStateSupplier) {
+      final Function<Vec3, BlockInformation> neighborStateSupplier) {
         final ArrayList<FaceRegion> regions = Lists.newArrayList();
         final ICullTest test = chiselRenderType.getTest();
 
@@ -526,7 +526,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
       final Direction facing,
       final IStateEntryInfo target,
       final ICullTest test,
-      final Function<Vec3, BlockState> neighborStateSupplier)
+      final Function<Vec3, BlockInformation> neighborStateSupplier)
     {
         return Optional.of(target)
           .filter(stateEntryInfo -> {
@@ -538,18 +538,18 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
               final Vec3 offsetTarget = stateEntryInfo.getStartPoint().add(faceOffSet);
 
               if (!blob.isInside(offsetTarget)) {
-                  final BlockState externalNeighborState = neighborStateSupplier.apply(offsetTarget);
+                  final BlockInformation externalNeighborState = neighborStateSupplier.apply(offsetTarget);
 
                   return Optional.of(externalNeighborState)
-                           .map(neighborState -> test.isVisible(stateEntryInfo.getState(), neighborState))
-                           .orElseGet(() -> !stateEntryInfo.getState().isAir());
+                           .map(neighborState -> test.isVisible(stateEntryInfo.getBlockInformation(), neighborState))
+                           .orElseGet(() -> !stateEntryInfo.getBlockInformation().isAir());
               }
 
               //TODO: Replace isAir in 1.17
               return blob.getInAreaTarget(offsetTarget)
-                .map(IStateEntryInfo::getState)
-                .map(neighborState -> test.isVisible(stateEntryInfo.getState(), neighborState))
-                .orElseGet(() -> !stateEntryInfo.getState().isAir());
+                .map(IStateEntryInfo::getBlockInformation)
+                .map(neighborState -> test.isVisible(stateEntryInfo.getBlockInformation(), neighborState))
+                .orElseGet(() -> !stateEntryInfo.getBlockInformation().isAir());
           })
           .map(stateEntryInfo -> {
               final Vec3 faceOffSet = Vec3.atLowerCornerOf(facing.getNormal()).multiply(
@@ -563,7 +563,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel
                 stateEntryInfo.getStartPoint(),
                 stateEntryInfo.getEndPoint(),
                 facing,
-                stateEntryInfo.getState(),
+                stateEntryInfo.getBlockInformation(),
                 !blob.isInside(offsetTarget)
               );
           });

@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.block.entity;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessorWithVoxelShape;
 import mod.chiselsandbits.api.multistate.mutator.IGenerallyModifiableAreaMutator;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchedAreaMutator;
@@ -43,9 +44,9 @@ public interface IMultiStateBlockEntity extends IWorldAreaAccessor,
 
     /**
      * Initializes the block entity so that all its state entries
-     * have the given state as their state.
+     * have the given block information as their block information.
      *
-     * @param currentState The new initial state.
+     * @param initialInformation The new initial block information.
      */
-    void initializeWith(BlockState currentState);
+    void initializeWith(BlockInformation initialInformation);
 }

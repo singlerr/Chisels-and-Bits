@@ -1,14 +1,15 @@
 package mod.chiselsandbits.client.model.baked.face;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
 public class FaceRegion
 {
-    private final Direction  face;
-    private final BlockState blockState;
-    private final boolean    isEdge;
+    private final Direction        face;
+    private final BlockInformation blockInformation;
+    private final boolean          isEdge;
     private double minX;
     private double minY;
     private double minZ;
@@ -20,12 +21,12 @@ public class FaceRegion
       final Vec3 start,
       final Vec3 end,
       final Direction facing,
-      final BlockState blockState,
+      final BlockInformation blockInformation,
       final boolean isEdge
     ) {
         return new FaceRegion(
           facing,
-          blockState,
+          blockInformation,
           isEdge,
           facing.getStepX() == 0 ? start.x() : (facing.getStepX() == 1 ? Math.max(start.x(), end.x()) : Math.min(start.x(), end.x())),
           facing.getStepY() == 0 ? start.y() : (facing.getStepY() == 1 ? Math.max(start.y(), end.y()) : Math.min(start.y(), end.y())),
@@ -41,11 +42,11 @@ public class FaceRegion
       final double centerX,
       final double centerY,
       final double centerZ,
-      final BlockState blockState,
+      final BlockInformation blockInformation,
       final boolean isEdgeFace)
     {
         face = facingDirection;
-        this.blockState = blockState;
+        this.blockInformation = blockInformation;
         isEdge = isEdgeFace;
         minX = centerX;
         minY = centerY;
@@ -57,7 +58,7 @@ public class FaceRegion
 
     public FaceRegion(
       final Direction face,
-      final BlockState blockState,
+      final BlockInformation blockInformation,
       final boolean isEdge,
       final double minX,
       final double minY,
@@ -67,7 +68,7 @@ public class FaceRegion
       final double maxZ)
     {
         this.face = face;
-        this.blockState = blockState;
+        this.blockInformation = blockInformation;
         this.isEdge = isEdge;
         this.minX = minX;
         this.minY = minY;
@@ -77,9 +78,9 @@ public class FaceRegion
         this.maxZ = maxZ;
     }
 
-    public BlockState getBlockState()
+    public BlockInformation getBlockInformation()
     {
-        return blockState;
+        return blockInformation;
     }
 
     public double getMinX()
@@ -125,7 +126,7 @@ public class FaceRegion
     public boolean extend(
       final FaceRegion faceToExtendTo
     ) {
-        if (faceToExtendTo.blockState != blockState)
+        if (faceToExtendTo.blockInformation != blockInformation)
         {
             return false;
         }

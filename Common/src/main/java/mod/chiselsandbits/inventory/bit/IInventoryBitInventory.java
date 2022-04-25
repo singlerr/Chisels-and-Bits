@@ -3,8 +3,6 @@ package mod.chiselsandbits.inventory.bit;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.Map;
-
 public class IInventoryBitInventory extends AbstractBitInventory
 {
 

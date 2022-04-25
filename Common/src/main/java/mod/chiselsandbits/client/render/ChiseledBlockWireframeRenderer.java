@@ -18,7 +18,7 @@ public class ChiseledBlockWireframeRenderer
         @Override
         public boolean test(final IStateEntryInfo iStateEntryInfo)
         {
-            return !iStateEntryInfo.getState().isAir();
+            return !iStateEntryInfo.getBlockInformation().isAir();
         }
 
         @Override

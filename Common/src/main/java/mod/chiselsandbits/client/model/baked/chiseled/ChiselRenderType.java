@@ -2,14 +2,13 @@ package mod.chiselsandbits.client.model.baked.chiseled;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.client.culling.MCCullTest;
-import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
 import mod.chiselsandbits.platforms.core.client.rendering.type.IRenderTypeManager;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.security.InvalidParameterException;
 import java.util.Collection;
@@ -58,20 +57,20 @@ public enum ChiselRenderType
     public boolean isRequiredForRendering(
       final IStateEntryInfo stateEntryInfo )
     {
-        return isRequiredForRendering(stateEntryInfo.getState());
+        return isRequiredForRendering(stateEntryInfo.getBlockInformation());
     }
 
     public boolean isRequiredForRendering(
-      final BlockState state )
+      final BlockInformation state )
     {
         if (!this.type.isValidBlockState(state))
             return false;
 
         if (this.type.isFluid()) {
-            return IRenderTypeManager.getInstance().canRenderInType(state.getFluidState(), this.layer);
+            return IRenderTypeManager.getInstance().canRenderInType(state.getBlockState().getFluidState(), this.layer);
         }
 
-        return IRenderTypeManager.getInstance().canRenderInType(state, this.layer);
+        return IRenderTypeManager.getInstance().canRenderInType(state.getBlockState(), this.layer);
     }
 
     public static ChiselRenderType fromLayer(

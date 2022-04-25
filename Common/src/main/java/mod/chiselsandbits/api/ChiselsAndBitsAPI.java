@@ -2,6 +2,7 @@ package mod.chiselsandbits.api;
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
@@ -9,6 +10,7 @@ import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
 import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
 import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
@@ -26,12 +28,14 @@ import mod.chiselsandbits.api.permissions.IPermissionHandler;
 import mod.chiselsandbits.api.plugin.IChiselsAndBitsPluginManager;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
 import mod.chiselsandbits.api.registries.IRegistryManager;
+import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.change.ChangeTrackerManger;
 import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
 import mod.chiselsandbits.chiseling.conversion.ConversionManager;
 import mod.chiselsandbits.chiseling.eligibility.EligibilityManager;
 import mod.chiselsandbits.client.chiseling.preview.render.ChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.client.colors.BlockInformationColorManager;
 import mod.chiselsandbits.client.sharing.PatternSharingManager;
 import mod.chiselsandbits.client.tool.mode.icon.SelectedToolModeRendererRegistry;
 import mod.chiselsandbits.clipboard.CreativeClipboardManager;
@@ -43,17 +47,20 @@ import mod.chiselsandbits.multistate.mutator.MutatorFactory;
 import mod.chiselsandbits.neighborhood.BlockNeighborhoodBuilder;
 import mod.chiselsandbits.notifications.NotificationManager;
 import mod.chiselsandbits.permissions.PermissionHandler;
+import mod.chiselsandbits.platforms.core.dist.DistExecutor;
 import mod.chiselsandbits.plugin.PluginManger;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.registrars.ModChiselModes;
 import mod.chiselsandbits.registrars.ModModificationOperation;
 import mod.chiselsandbits.registrars.ModTags;
 import mod.chiselsandbits.registries.RegistryManager;
+import mod.chiselsandbits.stateinfo.additional.StateVariantManager;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
-import net.minecraft.tags.Tag;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Optional;
 
 public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
 {
@@ -300,5 +307,27 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     public @NotNull INotificationManager getNotificationManager()
     {
         return NotificationManager.getInstance();
+    }
+
+    @Override
+    public @NotNull IStateVariantManager getAdditionalStateInfoManager()
+    {
+        return StateVariantManager.getInstance();
+    }
+
+    @Override
+    public @NotNull IBlockInformationColorManager getBlockInformationColorManager()
+    {
+        return DistExecutor.unsafeRunForDist(
+          () -> BlockInformationColorManager::getInstance,
+          () -> () -> new IBlockInformationColorManager() {
+
+              @Override
+              public Optional<Integer> getColor(final BlockInformation blockInformation)
+              {
+                  return Optional.empty();
+              }
+          }
+        );
     }
 }

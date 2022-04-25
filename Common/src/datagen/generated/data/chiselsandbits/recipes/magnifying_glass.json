@@ -7,7 +7,7 @@
   ],
   "key": {
     "c": {
-      "tag": "minecraft:chisel"
+      "tag": "chiselsandbits:chisel"
     },
     "g": {
       "tag": "forge:glass"

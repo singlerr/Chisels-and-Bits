@@ -1,6 +1,7 @@
 package mod.chiselsandbits.pattern.placement;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
@@ -16,7 +17,6 @@ import mod.chiselsandbits.api.pattern.placement.PlacementResult;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
-import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
 import mod.chiselsandbits.registrars.ModPatternPlacementTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -113,21 +113,21 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
             return PlacementResult.failure(NOT_FITTING_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotASupportedBlock.getText());
         }
 
-        final Map<BlockState, Integer> totalRemovedBits = source.stream()
-          .filter(s -> !s.getState().isAir())
+        final Map<BlockInformation, Integer> totalRemovedBits = source.stream()
+          .filter(s -> !s.getBlockInformation().isAir())
           .filter(s -> {
               final Optional<IStateEntryInfo> o = areaMutator.getInAreaTarget(s.getStartPoint());
 
               return o
-                .filter(os -> !os.getState().isAir())
-                .map(os -> !os.getState().equals(s.getState()))
+                .filter(os -> !os.getBlockInformation().isAir())
+                .map(os -> !os.getBlockInformation().equals(s.getBlockInformation()))
                 .orElse(false);
           })
           .map(s -> areaMutator.getInAreaTarget(s.getStartPoint()))
           .filter(Optional::isPresent)
           .map(Optional::get)
           .collect(Collectors.toMap(
-            IStateEntryInfo::getState,
+            IStateEntryInfo::getBlockInformation,
             s -> 1,
             Integer::sum
           ));
@@ -149,7 +149,7 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
         try (IBatchMutation ignored = areaMutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(context.getPlayer())))
         {
             source.stream()
-              .filter(s -> !s.getState().isAir())
+              .filter(s -> !s.getBlockInformation().isAir())
               .forEach(
                 stateEntryInfo -> areaMutator.clearInAreaTarget(
                   stateEntryInfo.getStartPoint()

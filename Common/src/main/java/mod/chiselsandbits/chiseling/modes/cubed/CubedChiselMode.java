@@ -2,6 +2,7 @@ package mod.chiselsandbits.chiseling.modes.cubed;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
@@ -29,7 +30,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -84,11 +84,11 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
               try (IBatchMutation ignored =
                      mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
               {
-                  final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
+                  final Map<BlockInformation, Integer> resultingBitCount = Maps.newHashMap();
 
                   final int totalItemDamage = mutator.inWorldMutableStream()
                     .mapToInt(state -> {
-                        final BlockState currentState = state.getState();
+                        final BlockInformation currentState = state.getBlockInformation();
                         return context.tryDamageItemAndDoOrSetBrokenError(
                           () -> {
                               resultingBitCount.putIfAbsent(currentState, 0);
@@ -97,10 +97,6 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
                               state.clear();
                           });
                     }).sum();
-
-                  if (totalItemDamage > 0) {
-                      context.setError(LocalStrings.ChiselAttemptFailedNoValidStateFound.getText());
-                  }
 
                   resultingBitCount.forEach((blockState, count) -> BitInventoryUtils.insertIntoOrSpawn(
                     playerEntity,
@@ -137,14 +133,14 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
         }
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
-              final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
+              final BlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
               if (heldBlockState.isAir())
               {
                   return ClickProcessingState.DEFAULT;
               }
 
               final int missingBitCount = (int) mutator.stream()
-                .filter(state -> state.getState().isAir())
+                .filter(state -> state.getBlockInformation().isAir())
                 .count();
 
               final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
@@ -161,13 +157,13 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
                          mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
                   {
                       mutator.inWorldMutableStream()
-                        .filter(state -> state.getState().isAir())
+                        .filter(state -> state.getBlockInformation().isAir())
                         .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                   }
               }
               else
               {
-                  context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlock().getName()));
+                  context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlockState().getBlock().getName()));
               }
 
               if (missingBitCount == 0)

@@ -3,6 +3,7 @@ package mod.chiselsandbits.item;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.bitbag.IBitBagAcceptingBlock;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItem;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
@@ -89,7 +90,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
 
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(
-      final Level worldIn,
+      final @NotNull Level worldIn,
       final Player playerIn,
       final @NotNull InteractionHand hand)
     {
@@ -97,8 +98,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
 
         if (playerIn != null) {
             final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerIn);
-            if (rayTraceResult.getType() == HitResult.Type.BLOCK && rayTraceResult instanceof BlockHitResult) {
-                final BlockHitResult blockRayTraceResult = (BlockHitResult) rayTraceResult;
+            if (rayTraceResult.getType() == HitResult.Type.BLOCK && rayTraceResult instanceof final BlockHitResult blockRayTraceResult) {
                 final BlockState hitBlockState = worldIn.getBlockState(blockRayTraceResult.getBlockPos());
                 if (hitBlockState.getBlock() instanceof IBitBagAcceptingBlock) {
                     ((IBitBagAcceptingBlock) hitBlockState.getBlock()).onBitBagInteraction(itemStackIn, playerIn, blockRayTraceResult);
@@ -143,7 +143,8 @@ public class BitBagItem extends Item implements IBitInventoryItem
                 final int id = legacyContentData[2 * i];
 
                 final BlockState blockState = IBlockStateIdManager.getInstance().getBlockStateFrom(id);
-                final ItemStack bitStack = IBitItemManager.getInstance().create(blockState, count);
+                final BlockInformation blockInformation = new BlockInformation(blockState);
+                final ItemStack bitStack = IBitItemManager.getInstance().create(blockInformation, count);
 
                 inventoryItemStack.setItem(i, bitStack);
             }
@@ -155,25 +156,25 @@ public class BitBagItem extends Item implements IBitInventoryItem
         return inventoryItemStack;
     }
 
+    @SuppressWarnings("unused")
     public boolean showDurabilityBar(
       final ItemStack stack)
     {
-        if (!(stack.getItem() instanceof IBitInventoryItem))
+        if (!(stack.getItem() instanceof final IBitInventoryItem item))
             return false;
 
-        final IBitInventoryItem item = (IBitInventoryItem) stack.getItem();
         final IBitInventoryItemStack inventoryItemStack = item.create(stack);
 
         return !inventoryItemStack. isEmpty();
     }
 
+    @SuppressWarnings("unused")
     public double getDurabilityForDisplay(
       final ItemStack stack)
     {
-        if (!(stack.getItem() instanceof IBitInventoryItem))
+        if (!(stack.getItem() instanceof final IBitInventoryItem item))
             return 0d;
 
-        final IBitInventoryItem item = (IBitInventoryItem) stack.getItem();
         final IBitInventoryItemStack inventoryItemStack = item.create(stack);
 
         final double filledRatio = inventoryItemStack.getFilledRatio();
@@ -256,6 +257,7 @@ public class BitBagItem extends Item implements IBitInventoryItem
         return null;
     }
 
+    @SuppressWarnings("unused")
     public boolean shouldCauseReequipAnimation(final ItemStack oldStack, final ItemStack newStack, final boolean slotChanged)
     {
         return false;

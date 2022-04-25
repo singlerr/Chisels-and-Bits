@@ -1,5 +1,6 @@
 package mod.chiselsandbits.item;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
@@ -35,15 +36,15 @@ public class BitStorageBlockItem extends BlockItem
     {
         super.appendHoverText( stack, worldIn, tooltip, flagIn );
 
-        if (stack.getOrCreateTag().contains(NbtConstants.CONTENTS)) {
-            final BlockState containedState = NbtUtils.readBlockState(stack.getOrCreateTag().getCompound(NbtConstants.CONTENTS).getCompound(NbtConstants.BLOCK_STATE));
-            final int count = stack.getOrCreateTag().getCompound(NbtConstants.CONTENTS).getInt(NbtConstants.COUNT);
+        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_INFORMATION)) {
+            final BlockInformation containedState = new BlockInformation(stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_INFORMATION));
+            final int count = stack.getOrCreateTag().getInt(NbtConstants.COUNT);
 
-            HelpTextUtils.build(LocalStrings.HelpBitTankFilled, tooltip, containedState.getBlock().getName(), count);
+            HelpTextUtils.build(LocalStrings.HelpBitStorageFilled, tooltip, containedState.getBlockState().getBlock().getName(), count);
         }
         else
         {
-            HelpTextUtils.build(LocalStrings.HelpBitTankEmpty, tooltip);
+            HelpTextUtils.build(LocalStrings.HelpBitStorageEmpty, tooltip);
         }
     }
 
@@ -55,21 +56,33 @@ public class BitStorageBlockItem extends BlockItem
         if (worldIn.isClientSide)
             return false;
 
-        final BlockEntity tileEntity = worldIn.getBlockEntity(pos);
-        if (!(tileEntity instanceof final BitStorageBlockEntity tileEntityBitStorage))
+        final BlockEntity blockEntity = worldIn.getBlockEntity(pos);
+        if (!(blockEntity instanceof final BitStorageBlockEntity bitStorage))
             return false;
 
-        if (!stack.getOrCreateTag().contains(NbtConstants.CONTENTS))
-            return false;
+        if (stack.getOrCreateTag().contains(NbtConstants.CONTENTS)) {
+            final BlockState blockState = NbtUtils.readBlockState(stack.getOrCreateTag().getCompound(NbtConstants.CONTENTS));
+            final int count = stack.getOrCreateTag().getInt(NbtConstants.COUNT);
 
-        final BlockState blockState = NbtUtils.readBlockState(stack.getOrCreateTag().getCompound(NbtConstants.CONTENTS));
-        final int count = stack.getOrCreateTag().getInt(NbtConstants.COUNT);
+            bitStorage.setContents(
+              new BlockInformation(blockState),
+              count
+            );
 
-        tileEntityBitStorage.setContents(
-          blockState,
-          count
-        );
+            return true;
+        }
 
-        return true;
+        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_INFORMATION)) {
+            final BlockInformation blockInformation = new BlockInformation(stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_INFORMATION));
+            final int count = stack.getOrCreateTag().getInt(NbtConstants.COUNT);
+
+            bitStorage.setContents(
+              blockInformation,
+              count
+            );
+
+            return true;
+        }
+        return false;
     }
 }

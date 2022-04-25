@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.util;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,71 +15,71 @@ import org.jetbrains.annotations.Nullable;
 public class SingleBlockBlockReader implements BlockGetter
 {
 
-    protected final BlockState state;
-    protected final Block      blk;
+    protected final BlockInformation blockInformation;
+    protected final Block            blk;
     protected final BlockPos pos;
     protected final BlockGetter source;
 
-    public SingleBlockBlockReader(final BlockState state, final Block blk)
+    public SingleBlockBlockReader(final BlockInformation blockInformation, final Block blk)
     {
-        this.state = state;
+        this.blockInformation = blockInformation;
         this.blk = blk;
         this.pos = BlockPos.ZERO;
         this.source = null;
     }
 
-    public SingleBlockBlockReader(final BlockState state)
+    public SingleBlockBlockReader(final BlockInformation blockInformation)
     {
-        this.state = state;
-        this.blk = state.getBlock();
+        this.blockInformation = blockInformation;
+        this.blk = blockInformation.getBlockState().getBlock();
         this.pos = BlockPos.ZERO;
         this.source = null;
     }
 
-    public SingleBlockBlockReader(final BlockState state, final Block blk, final BlockPos pos)
+    public SingleBlockBlockReader(final BlockInformation blockInformation, final Block blk, final BlockPos pos)
     {
-        this.state = state;
+        this.blockInformation = blockInformation;
         this.blk = blk;
         this.pos = pos;
         this.source = null;
     }
 
-    public SingleBlockBlockReader(final BlockState state, final BlockPos pos)
+    public SingleBlockBlockReader(final BlockInformation blockInformation, final BlockPos pos)
     {
-        this.state = state;
-        this.blk = state.getBlock();
+        this.blockInformation = blockInformation;
+        this.blk = blockInformation.getBlockState().getBlock();
         this.pos = pos;
         this.source = null;
     }
 
-    public SingleBlockBlockReader(final BlockState state, final Block blk, final BlockGetter source)
+    public SingleBlockBlockReader(final BlockInformation blockInformation, final Block blk, final BlockGetter source)
     {
-        this.state = state;
+        this.blockInformation = blockInformation;
         this.blk = blk;
         this.source = source;
         this.pos = BlockPos.ZERO;
     }
 
-    public SingleBlockBlockReader(final BlockState state, final BlockGetter source)
+    public SingleBlockBlockReader(final BlockInformation blockInformation, final BlockGetter source)
     {
-        this.state = state;
-        this.blk = state.getBlock();
+        this.blockInformation = blockInformation;
+        this.blk = blockInformation.getBlockState().getBlock();
         this.source = source;
         this.pos = BlockPos.ZERO;
     }
 
-    public SingleBlockBlockReader(final BlockState state, final Block blk, final BlockPos pos, final BlockGetter source)
+    public SingleBlockBlockReader(final BlockInformation blockInformation, final Block blk, final BlockPos pos, final BlockGetter source)
     {
-        this.state = state;
+        this.blockInformation = blockInformation;
         this.blk = blk;
         this.pos = pos;
         this.source = source;
     }
 
-    public SingleBlockBlockReader(final BlockState state, final BlockPos pos, final BlockGetter source)
+    public SingleBlockBlockReader(final BlockInformation blockInformation, final BlockPos pos, final BlockGetter source)
     {
-        this.state = state;
-        this.blk = state.getBlock();
+        this.blockInformation = blockInformation;
+        this.blk = blockInformation.getBlockState().getBlock();
         this.pos = pos;
         this.source = source;
     }
@@ -89,7 +90,7 @@ public class SingleBlockBlockReader implements BlockGetter
     {
         if (pos == this.pos && blk instanceof EntityBlock)
         {
-            return ((EntityBlock) blk).newBlockEntity(this.pos, state);
+            return ((EntityBlock) blk).newBlockEntity(this.pos, blockInformation.getBlockState());
         }
 
         return source == null ? null : source.getBlockEntity(pos);
@@ -101,7 +102,7 @@ public class SingleBlockBlockReader implements BlockGetter
     {
         if (pos == this.pos)
         {
-            return state;
+            return blockInformation.getBlockState();
         }
 
         return source == null ? Blocks.AIR.defaultBlockState() : source.getBlockState(pos);

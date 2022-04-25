@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
 {
@@ -72,9 +73,8 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
               try
               {
                   attemptTarget.setInAreaTarget(
-                    stateEntryInfo.getState(),
-                    stateEntryInfo.getStartPoint()
-                  );
+                    stateEntryInfo.getBlockInformation(),
+                    stateEntryInfo.getStartPoint());
 
                   return true;
               }
@@ -93,9 +93,8 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
                       try
                       {
                           areaMutator.setInAreaTarget(
-                            stateEntryInfo.getState(),
-                            stateEntryInfo.getStartPoint()
-                          );
+                            stateEntryInfo.getBlockInformation(),
+                            stateEntryInfo.getStartPoint());
                       }
                       catch (SpaceOccupiedException ignored1)
                       {
@@ -138,9 +137,8 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
               try
               {
                   attemptTarget.setInAreaTarget(
-                    stateEntryInfo.getState(),
-                    stateEntryInfo.getStartPoint()
-                  );
+                    stateEntryInfo.getBlockInformation(),
+                    stateEntryInfo.getStartPoint());
 
                   return true;
               }

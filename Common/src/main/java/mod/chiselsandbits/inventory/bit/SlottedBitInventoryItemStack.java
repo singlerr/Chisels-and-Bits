@@ -3,6 +3,7 @@ package mod.chiselsandbits.inventory.bit;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.item.bit.IBitItem;
@@ -12,7 +13,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     {
         return getContents().stream()
           .sorted(Comparator.comparingInt(BitSlot::getCount).reversed())
-          .map(slot -> new TranslatableComponent("chiselsandbits.bitbag.contents.enum.entry", slot.getCount(), slot.getState().getBlock().getName()))
+          .map(slot -> new TranslatableComponent("chiselsandbits.bitbag.contents.enum.entry", slot.getCount(), slot.getBlockInformation().getBlockState().getBlock().getName()))
           .collect(Collectors.toList());
     }
 
@@ -56,7 +56,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     }
 
     @Override
-    public void clear(final BlockState state)
+    public void clear(final BlockInformation state)
     {
         final Int2ObjectMap<BitSlot> slots = new Int2ObjectArrayMap<>(this.slotMap);
 
@@ -64,7 +64,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
         int slotIndex = 0;
         for (BitSlot bitSlot : slots.values())
         {
-            if (bitSlot.getState() != state) {
+            if (bitSlot.getBlockInformation() != state) {
                 this.slotMap.put(slotIndex, bitSlot);
                 slotIndex++;
             }
@@ -74,20 +74,20 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     @Override
     public void sort()
     {
-        final Map<BlockState, Integer> contentMap = Maps.newHashMap();
+        final Map<BlockInformation, Integer> contentMap = Maps.newHashMap();
         this.slotMap.values().forEach(bitSlot -> {
-            contentMap.putIfAbsent(bitSlot.getState(), 0);
-            contentMap.compute(bitSlot.getState(), (s, c) -> (c == null ? 0 : c) + bitSlot.getCount());
+            contentMap.putIfAbsent(bitSlot.getBlockInformation(), 0);
+            contentMap.compute(bitSlot.getBlockInformation(), (s, c) -> (c == null ? 0 : c) + bitSlot.getCount());
           }
         );
 
         this.slotMap.clear();
 
-        List<Map.Entry<BlockState, Integer>> toSort = new ArrayList<>(contentMap.entrySet());
-        toSort.sort(Map.Entry.<BlockState, Integer>comparingByValue().reversed());
+        List<Map.Entry<BlockInformation, Integer>> toSort = new ArrayList<>(contentMap.entrySet());
+        toSort.sort(Map.Entry.<BlockInformation, Integer>comparingByValue().reversed());
 
         int slotIndex = 0;
-        for (Map.Entry<BlockState, Integer> e : toSort)
+        for (Map.Entry<BlockInformation, Integer> e : toSort)
         {
             int count = e.getValue();
             if (count == 0)
@@ -130,7 +130,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
         if (bitSlot.getCount() <= 0)
             this.slotMap.remove(index);
 
-        return IBitItemManager.getInstance().create(bitSlot.getState(), Math.min(containedCount, count));
+        return IBitItemManager.getInstance().create(bitSlot.getBlockInformation(), Math.min(containedCount, count));
     }
 
     @Override
@@ -151,10 +151,10 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
             return;
         }
 
-        final BlockState state = bitItem.getBitState(stack);
+        final BlockInformation state = bitItem.getBlockInformation(stack);
 
         final BitSlot bitSlot = this.slotMap.getOrDefault(index, new BitSlot());
-        bitSlot.setState(state);
+        bitSlot.setBlockInformation(state);
         bitSlot.setCount(stack.getCount());
 
         this.slotMap.put(index, bitSlot);

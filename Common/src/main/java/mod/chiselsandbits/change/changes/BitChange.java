@@ -2,6 +2,7 @@ package mod.chiselsandbits.change.changes;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.changes.IChange;
 import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
@@ -11,6 +12,8 @@ import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.variant.state.IStateVariant;
+import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import net.minecraft.core.BlockPos;
@@ -67,7 +70,12 @@ public class BitChange implements IChange
 
         final BlockEntity tileEntity = player.level.getBlockEntity(blockPos);
         if (!(tileEntity instanceof final IMultiStateBlockEntity multiStateBlockEntity)) {
-            final BlockState currentState = player.level.getBlockState(blockPos);
+            final BlockState state = player.level.getBlockState(blockPos);
+            final Optional<IStateVariant> additionalStateInfo = IStateVariantManager.getInstance().getStateVariant(
+              state, Optional.ofNullable(player.level.getBlockEntity(blockPos))
+            );
+            final BlockInformation currentState = new BlockInformation(state, additionalStateInfo);
+
             return after.getStatics().getStateCounts().size() == 1 && after.getStatics().getStateCounts().getOrDefault(currentState, 0) == 4096;
         }
 
@@ -82,7 +90,12 @@ public class BitChange implements IChange
         final BlockEntity tileEntity = player.level.getBlockEntity(blockPos);
         if (!(tileEntity instanceof final IMultiStateBlockEntity multiStateBlockEntity))
         {
-            final BlockState currentState = player.level.getBlockState(blockPos);
+            final BlockState state = player.level.getBlockState(blockPos);
+            final Optional<IStateVariant> additionalStateInfo = IStateVariantManager.getInstance().getStateVariant(
+              state, Optional.ofNullable(player.level.getBlockEntity(blockPos))
+            );
+            final BlockInformation currentState = new BlockInformation(state, additionalStateInfo);
+
             return before.getStatics().getStateCounts().size() == 1 && before.getStatics().getStateCounts().getOrDefault(currentState, 0) == 4096;
         }
 
@@ -111,10 +124,10 @@ public class BitChange implements IChange
         }
 
         final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntity;
-        final Map<BlockState, Integer> afterStates = after.getStatics().getStateCounts();
-        final Map<BlockState, Integer> beforeStates = before.getStatics().getStateCounts();
+        final Map<BlockInformation, Integer> afterStates = after.getStatics().getStateCounts();
+        final Map<BlockInformation, Integer> beforeStates = before.getStatics().getStateCounts();
 
-        final Map<BlockState, Integer> difference = Maps.newHashMap();
+        final Map<BlockInformation, Integer> difference = Maps.newHashMap();
         beforeStates.forEach((state, count) -> difference.put(state, afterStates.getOrDefault(state, 0) - count));
         afterStates.forEach((state, count) -> {
             if (!difference.containsKey(state))
@@ -122,12 +135,12 @@ public class BitChange implements IChange
         });
 
         try(IBatchMutation batch = multiStateBlockEntity.batch()) {
-            multiStateBlockEntity.initializeWith(Blocks.AIR.defaultBlockState());
+            multiStateBlockEntity.initializeWith(BlockInformation.AIR);
             before.stream().forEach(
               iStateEntryInfo -> {
                   try
                   {
-                      multiStateBlockEntity.setInAreaTarget(iStateEntryInfo.getState(), iStateEntryInfo.getStartPoint());
+                      multiStateBlockEntity.setInAreaTarget(iStateEntryInfo.getBlockInformation(), iStateEntryInfo.getStartPoint());
                   }
                   catch (SpaceOccupiedException e)
                   {
@@ -178,10 +191,10 @@ public class BitChange implements IChange
         }
 
         final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntity;
-        final Map<BlockState, Integer> afterStates = after.getStatics().getStateCounts();
-        final Map<BlockState, Integer> beforeStates = before.getStatics().getStateCounts();
+        final Map<BlockInformation, Integer> afterStates = after.getStatics().getStateCounts();
+        final Map<BlockInformation, Integer> beforeStates = before.getStatics().getStateCounts();
 
-        final Map<BlockState, Integer> difference = Maps.newHashMap();
+        final Map<BlockInformation, Integer> difference = Maps.newHashMap();
         beforeStates.forEach((state, count) -> difference.put(state, count - afterStates.getOrDefault(state, 0)));
         afterStates.forEach((state, count) -> {
             if (!difference.containsKey(state))
@@ -189,12 +202,12 @@ public class BitChange implements IChange
         });
 
         try(IBatchMutation batch = multiStateBlockEntity.batch()) {
-            multiStateBlockEntity.initializeWith(Blocks.AIR.defaultBlockState());
+            multiStateBlockEntity.initializeWith(BlockInformation.AIR);
             after.stream().forEach(
               s -> {
                   try
                   {
-                      multiStateBlockEntity.setInAreaTarget(s.getState(), s.getStartPoint());
+                      multiStateBlockEntity.setInAreaTarget(s.getBlockInformation(), s.getStartPoint());
                   }
                   catch (SpaceOccupiedException e)
                   {
@@ -220,10 +233,10 @@ public class BitChange implements IChange
         if (player.isCreative())
             return true;
 
-        final Map<BlockState, Integer> afterStates = after.getStatics().getStateCounts();
-        final Map<BlockState, Integer> beforeStates = before.getStatics().getStateCounts();
+        final Map<BlockInformation, Integer> afterStates = after.getStatics().getStateCounts();
+        final Map<BlockInformation, Integer> beforeStates = before.getStatics().getStateCounts();
 
-        final Map<BlockState, Integer> difference = Maps.newHashMap();
+        final Map<BlockInformation, Integer> difference = Maps.newHashMap();
         beforeStates.forEach((state, count) -> difference.put(state, afterStates.getOrDefault(state, 0) - count));
         afterStates.forEach((state, count) -> {
             if (!difference.containsKey(state))
@@ -240,10 +253,10 @@ public class BitChange implements IChange
         if (player.isCreative())
             return  true;
 
-        final Map<BlockState, Integer> afterStates = after.getStatics().getStateCounts();
-        final Map<BlockState, Integer> beforeStates = before.getStatics().getStateCounts();
+        final Map<BlockInformation, Integer> afterStates = after.getStatics().getStateCounts();
+        final Map<BlockInformation, Integer> beforeStates = before.getStatics().getStateCounts();
 
-        final Map<BlockState, Integer> difference = Maps.newHashMap();
+        final Map<BlockInformation, Integer> difference = Maps.newHashMap();
         beforeStates.forEach((state, count) -> difference.put(state, count - afterStates.getOrDefault(state, 0)));
         afterStates.forEach((state, count) -> {
             if (!difference.containsKey(state))

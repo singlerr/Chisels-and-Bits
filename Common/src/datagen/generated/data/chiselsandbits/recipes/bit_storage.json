@@ -16,7 +16,7 @@
       "tag": "forge:ingots/iron"
     },
     "c": {
-      "tag": "minecraft:chisel"
+      "tag": "chiselsandbits:chisel"
     }
   },
   "result": {

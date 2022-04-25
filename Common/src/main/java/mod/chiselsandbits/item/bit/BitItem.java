@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
@@ -16,18 +17,14 @@ import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
-import mod.chiselsandbits.api.item.named.IDynamicallyHighlightedNameItem;
-import mod.chiselsandbits.api.item.named.IPermanentlyHighlightedNameItem;
 import mod.chiselsandbits.api.notifications.INotificationManager;
-import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
-import mod.chiselsandbits.platforms.core.dist.Dist;
-import mod.chiselsandbits.platforms.core.dist.DistExecutor;
-import mod.chiselsandbits.platforms.core.util.constants.Constants;
-import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
+import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.client.render.ModRenderTypes;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
 import mod.chiselsandbits.platforms.core.registries.IPlatformRegistryManager;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.client.Minecraft;
@@ -48,7 +45,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -56,7 +52,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import oshi.jna.platform.windows.NtDll;
 
 import java.util.*;
 import java.util.function.Function;
@@ -145,12 +140,11 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     @Override
     public Component getName(@NotNull final ItemStack stack)
     {
-        final BlockState containedStack = getBitState(stack);
-        final Block block = containedStack.getBlock();
+        final BlockInformation containedStack = getBlockInformation(stack);
+        final Block block = containedStack.getBlockState().getBlock();
 
         Component stateName = block.asItem().getName(new ItemStack(block));
-        if (block instanceof LiquidBlock) {
-            final LiquidBlock flowingFluidBlock = (LiquidBlock) block;
+        if (block instanceof final LiquidBlock flowingFluidBlock) {
             stateName = IFluidManager.getInstance().getDisplayName(flowingFluidBlock.getFluidState(flowingFluidBlock.defaultBlockState()).getType());
         }
 
@@ -258,19 +252,27 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     }
 
     @Override
-    public BlockState getBitState(final ItemStack stack)
+    public @NotNull BlockInformation getBlockInformation(final ItemStack stack)
     {
-        //TODO: 1.17 Remove the legacy loading of the blockstate.
-        if (!stack.getOrCreateTag().contains(NbtConstants.BLOCK_STATE)) {
-            if (!stack.getOrCreateTag().contains(LEGACY_BLOCK_STATE_ID_KEY)) {
-                return Blocks.AIR.defaultBlockState();
-            }
-
-            final BlockState blockState = IBlockStateIdManager.getInstance().getBlockStateFrom(stack.getOrCreateTag().getInt(LEGACY_BLOCK_STATE_ID_KEY));
-            stack.getOrCreateTag().remove(LEGACY_BLOCK_STATE_ID_KEY);
-            stack.getOrCreateTag().put(NbtConstants.BLOCK_STATE, NbtUtils.writeBlockState(blockState));
+        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_STATE)) {
+            final BlockInformation blockInformation = new BlockInformation(NbtUtils.readBlockState(stack.getOrCreateTagElement(NbtConstants.BLOCK_STATE)));
+            stack.getOrCreateTag().remove(NbtConstants.BLOCK_STATE);
+            stack.getOrCreateTag().put(NbtConstants.BLOCK_INFORMATION, blockInformation.serializeNBT());
+            return blockInformation;
         }
-        return NbtUtils.readBlockState(stack.getOrCreateTagElement(NbtConstants.BLOCK_STATE));
+
+        if (stack.getOrCreateTag().contains(LEGACY_BLOCK_STATE_ID_KEY)) {
+            final BlockInformation blockInformation = new BlockInformation(IBlockStateIdManager.getInstance().getBlockStateFrom(stack.getOrCreateTag().getInt(LEGACY_BLOCK_STATE_ID_KEY)));
+            stack.getOrCreateTag().remove(LEGACY_BLOCK_STATE_ID_KEY);
+            stack.getOrCreateTag().put(NbtConstants.BLOCK_INFORMATION, blockInformation.serializeNBT());
+            return blockInformation;
+        }
+
+        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_INFORMATION)) {
+            return new BlockInformation(stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_INFORMATION));
+        }
+
+        return BlockInformation.AIR;
     }
 
     @Override
@@ -284,17 +286,6 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     {
         this.threadLocalBitMergeOperationInProgress.set(false);
     }
-
-
-    //TODO: Figure this out!
-/*    @Override
-    public int getItemStackLimit(final ItemStack stack)
-    {
-        if (this.threadLocalBitMergeOperationInProgress.get())
-            return Configuration.getInstance().getServer().bagStackSize.get();
-
-        return super.getItemStackLimit(stack);
-    }*/
 
     @Override
     public boolean shouldDrawDefaultHighlight(@NotNull final Player playerEntity)
@@ -336,7 +327,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
                 );
             }
 
-            return !currentContextSnapshot.getMutator().isPresent();
+            return currentContextSnapshot.getMutator().isEmpty();
         }
 
         final Optional<IChiselingContext> localCachedContext = ILocalChiselingContextCache
@@ -356,7 +347,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
                     return false;
                 }
 
-            return !context.getMutator().isPresent();
+            return context.getMutator().isEmpty();
         }
 
         final IChiselingContext context = IChiselingManager.getInstance().create(
@@ -380,7 +371,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
           context
         );
 
-        return !context.getMutator().isPresent();
+        return context.getMutator().isEmpty();
     }
 
     @Override
@@ -528,25 +519,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
             return;
         }
 
-        if (availableBitStacks.isEmpty()) {
-            IPlatformRegistryManager.getInstance().getBlockRegistry().getValues()
-              .forEach(block -> {
-                  if (IEligibilityManager.getInstance().canBeChiseled(block)) {
-                    final BlockState blockState = block.defaultBlockState();
-                    final ItemStack resultStack = IBitItemManager.getInstance().create(blockState);
-
-                    if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem)
-                        this.availableBitStacks.add(resultStack);
-                  }
-              });
-
-            availableBitStacks.sort(Comparator.comparing(stack -> {
-                if (!(stack.getItem() instanceof IBitItem))
-                    throw new IllegalStateException("Stack did not contain a bit item.");
-
-                return IBlockStateIdManager.getInstance().getIdFrom(((IBitItem) stack.getItem()).getBitState(stack));
-            }));
-        }
+        ensureAvailableBitStacksAreLoaded();
 
         items.addAll(availableBitStacks);
     }
@@ -554,20 +527,51 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     @Override
     public Map<String, ItemStack> getDocumentableInstances(final Item item)
     {
-        return IPlatformRegistryManager.getInstance().getBlockRegistry().getValues()
-          .stream()
-          .map(block -> {
-              if (IEligibilityManager.getInstance().canBeChiseled(block)) {
-                  final BlockState blockState = block.defaultBlockState();
-                  return IBitItemManager.getInstance().create(blockState);
-              }
+        ensureAvailableBitStacksAreLoaded();
 
-              return ItemStack.EMPTY;
-          })
+        return this.availableBitStacks
+          .stream()
           .filter(stack -> !stack.isEmpty())
           .collect(Collectors.toMap(
-            stack -> "bit_" + IPlatformRegistryManager.getInstance().getBlockRegistry().getKey(this.getBitState(stack).getBlock()).toString().replace(":", "_"),
+            stack -> "bit_" + IPlatformRegistryManager.getInstance().getBlockRegistry().getKey(this.getBlockInformation(stack).getBlockState().getBlock()).toString().replace(":", "_"),
             Function.identity()
           ));
+    }
+
+
+    private void ensureAvailableBitStacksAreLoaded()
+    {
+        if (availableBitStacks.isEmpty()) {
+            IPlatformRegistryManager.getInstance().getBlockRegistry().getValues()
+              .forEach(block -> {
+                  if (IEligibilityManager.getInstance().canBeChiseled(block)) {
+                      final BlockState blockState = block.defaultBlockState();
+
+                      final Collection<BlockInformation> defaultStateVariants = IStateVariantManager.getInstance().getAllDefaultVariants(blockState);
+                      if (defaultStateVariants.isEmpty()) {
+                          final ItemStack resultStack = IBitItemManager.getInstance().create(new BlockInformation(blockState));
+
+                          if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem)
+                              this.availableBitStacks.add(resultStack);
+                      }
+                      else
+                      {
+                          defaultStateVariants.forEach(blockInformation -> {
+                              final ItemStack resultStack = IBitItemManager.getInstance().create(blockInformation);
+
+                              if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem)
+                                  this.availableBitStacks.add(resultStack);
+                          });
+                      }
+                  }
+              });
+
+            availableBitStacks.sort(Comparator.comparing(stack -> {
+                if (!(stack.getItem() instanceof IBitItem))
+                    throw new IllegalStateException("Stack did not contain a bit item.");
+
+                return ((IBitItem) stack.getItem()).getBlockInformation(stack);
+            }));
+        }
     }
 }

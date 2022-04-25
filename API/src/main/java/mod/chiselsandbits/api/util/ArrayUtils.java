@@ -1,5 +1,7 @@
 package mod.chiselsandbits.api.util;
 
+import java.util.function.IntFunction;
+
 /**
  * Utility class for manipulating arrays.
  */
@@ -26,5 +28,20 @@ public class ArrayUtils
         }
 
         return result;
+    }
+
+    public static <T extends ISnapshotable<? extends T>> T[] createDeepClone(final T[] additionalStateInfos, IntFunction<T[]> arrayCreator)
+    {
+        final T[] clone = arrayCreator.apply(additionalStateInfos.length);
+        for (int i = 0; i < additionalStateInfos.length; i++) {
+            if (additionalStateInfos[i] != null) {
+                clone[i] = additionalStateInfos[i].createSnapshot();
+            }
+            else {
+                clone[i] = null;
+            }
+        }
+
+        return clone;
     }
 }

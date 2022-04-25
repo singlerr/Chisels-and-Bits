@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.util;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -30,27 +31,27 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements Le
 {
     private final LevelReader reader;
 
-    public SingleBlockWorldReader(final BlockState state, final Block blk, final LevelReader reader)
+    public SingleBlockWorldReader(final BlockInformation blockInformation, final Block blk, final LevelReader reader)
     {
-        super(state, blk, reader);
+        super(blockInformation, blk, reader);
         this.reader = reader;
     }
 
-    public SingleBlockWorldReader(final BlockState state, final LevelReader reader)
+    public SingleBlockWorldReader(final BlockInformation blockInformation, final LevelReader reader)
     {
-        super(state, state.getBlock(), reader);
+        super(blockInformation, blockInformation.getBlockState().getBlock(), reader);
         this.reader = reader;
     }
 
-    public SingleBlockWorldReader(final BlockState state, final Block blk, final BlockPos pos, final LevelReader reader)
+    public SingleBlockWorldReader(final BlockInformation blockInformation, final Block blk, final BlockPos pos, final LevelReader reader)
     {
-        super(state, blk, pos, reader);
+        super(blockInformation, blk, pos, reader);
         this.reader = reader;
     }
 
-    public SingleBlockWorldReader(final BlockState state, final BlockPos pos, final LevelReader reader)
+    public SingleBlockWorldReader(final BlockInformation blockInformation, final BlockPos pos, final LevelReader reader)
     {
-        super(state, pos, reader);
+        super(blockInformation, pos, reader);
         this.reader = reader;
     }
 
@@ -145,7 +146,7 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements Le
     {
         if (pos == this.pos && blk instanceof EntityBlock)
         {
-            return ((EntityBlock) blk).newBlockEntity(this.pos, state);
+            return ((EntityBlock) blk).newBlockEntity(this.pos, blockInformation.getBlockState());
         }
 
         return this.reader.getBlockEntity(pos);
@@ -157,7 +158,7 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements Le
     {
         if (pos == this.pos)
         {
-            return state;
+            return blockInformation.getBlockState();
         }
         return this.reader.getBlockState(pos);
     }

@@ -28,9 +28,9 @@ public class MultiStateItemFactory implements IMultiStateItemFactory
     @Override
     public ItemStack createBlockFrom(final IStateEntryInfo stateEntryInfo)
     {
-        if (stateEntryInfo.getState().isAir())
+        if (stateEntryInfo.getBlockInformation().isAir())
             return ItemStack.EMPTY;
 
-        return IBitItemManager.getInstance().create(stateEntryInfo.getState());
+        return IBitItemManager.getInstance().create(stateEntryInfo.getBlockInformation());
     }
 }

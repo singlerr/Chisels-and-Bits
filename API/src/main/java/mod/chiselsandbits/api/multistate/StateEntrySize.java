@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.multistate;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -158,5 +159,27 @@ public enum StateEntrySize
      */
     public float upperLevelY() {
         return getBitsPerLayer() - 1;
+    }
+
+    /**
+     * The array index for a given position when the current state entry size is used.
+     *
+     * @param coordinate The coordinate to get the array index for.
+     * @return The array index.
+     */
+    public int getArrayIndexForPosition(final Vec3i coordinate) {
+        return getArrayIndexForPosition(coordinate.getX(), coordinate.getY(), coordinate.getZ());
+    }
+
+    /**
+     * The array index for a given position when the current state entry size is used.
+     *
+     * @param x The x coordinate.
+     * @param y The y coordinate.
+     * @param z The z coordinate.
+     * @return The array index.
+     */
+    public int getArrayIndexForPosition(final int x, final int y, final int z) {
+        return x * getBitsPerLayer() + y * getBitsPerBlockSide() + z;
     }
 }

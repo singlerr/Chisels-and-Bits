@@ -1,12 +1,12 @@
 package mod.chiselsandbits.api.block.storage;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.mutator.IMirrorAndRotateble;
 import mod.chiselsandbits.api.util.INBTSerializable;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 
 import java.util.List;
@@ -31,7 +31,7 @@ public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAn
      *
      * @param currentState The new blockstate to set on all positions.
      */
-    void initializeWith(BlockState currentState);
+    void initializeWith(BlockInformation currentState);
 
     /**
      * Loads the storage by cloning the chunk section in to the storage.
@@ -41,41 +41,41 @@ public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAn
     void loadFromChunkSection(LevelChunkSection chunkSection);
 
     /**
-     * Gets the blockstate in the storage on the given position.
+     * Gets the block information in the storage on the given position.
      *
      * @param x The x offset, from to {@link #getSize()} excluding.
      * @param y The y offset, from to {@link #getSize()} excluding.
      * @param z The z offset, from to {@link #getSize()} excluding.
      * @return The blockstate on the given position.
      */
-    BlockState getBlockState(int x, int y, int z);
+    BlockInformation getBlockInformation(int x, int y, int z);
 
     /**
-     * Gets the blockstate in the storage on the given position.
+     * Gets the block information in the storage on the given position.
      *
-     * @param  coordinate The coordinate to get the blockstate from.
+     * @param  coordinate The coordinate to get the block information from.
      * @return The blockstate on the given position.
      */
-    default BlockState getBlockState(Vec3i coordinate) {
-        return getBlockState(coordinate.getX(), coordinate.getY(), coordinate.getZ());
+    default BlockInformation getBlockInformation(Vec3i coordinate) {
+        return getBlockInformation(coordinate.getX(), coordinate.getY(), coordinate.getZ());
     }
 
     /**
-     * Sets the blockstate in the storage on the given position.
+     * Sets the block information in the storage on the given position.
      *
      * @param x The x offset, from to {@link #getSize()} excluding.
      * @param y The y offset, from to {@link #getSize()} excluding.
      * @param z The z offset, from to {@link #getSize()} excluding.
-     * @param blockState The blockstate to set.
+     * @param blockState The block information to set.
      */
-    void setBlockState(int x, int y, int z, BlockState blockState);
+    void setBlockInformation(int x, int y, int z, BlockInformation blockState);
 
     /**
      * Counts the entries of this storage and passes the results into the consumer.
      *
      * @param storageConsumer The consumer of the results.
      */
-    void count(BiConsumer<BlockState, Integer> storageConsumer);
+    void count(BiConsumer<BlockInformation, Integer> storageConsumer);
 
     /**
      * The internal raw data array.
@@ -97,12 +97,12 @@ public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAn
      * @param state The state to fill with.
      * @param entries The entries to fill with.
      */
-    void fillFromBottom(BlockState state, int entries);
+    void fillFromBottom(BlockInformation state, int entries);
 
     /**
      * Provides access to a read-only copy of the palette that is in use in this storage.
      *
      * @return The palette.
      */
-    List<BlockState> getContainedPalette();
+    List<BlockInformation> getContainedPalette();
 }

@@ -2,6 +2,7 @@ package mod.chiselsandbits.chiseling.modes.sphere;
 
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Either;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -38,7 +39,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -51,7 +51,6 @@ import java.util.BitSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -140,28 +139,30 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
             try (IBatchMutation ignored =
                    mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
             {
-                final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
+                final Map<BlockInformation, Integer> resultingBitCount = Maps.newHashMap();
 
                 final Predicate<IStateEntryInfo> filter = context.getStateFilter()
                   .map(factory -> factory.apply(mutator))
                   .orElse((s) -> true);
 
-                mutator.inWorldMutableStream()
-                  .forEach(state -> {
-                      if (!filter.test(state))
-                      {
-                          return;
-                      }
+                final int totalModifiedStates = mutator.inWorldMutableStream()
+                  .filter(filter)
+                  .mapToInt(state -> {
+                      final BlockInformation currentState = state.getBlockInformation();
 
-                      final BlockState currentState = state.getState();
-                      if (context.tryDamageItem())
-                      {
-                          resultingBitCount.putIfAbsent(currentState, 0);
-                          resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
+                      return context.tryDamageItemAndDoOrSetBrokenError(
+                        () -> {
+                            resultingBitCount.putIfAbsent(currentState, 0);
+                            resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
 
-                          state.clear();
-                      }
-                  });
+                            state.clear();
+                        });
+                  })
+                  .sum();
+
+                if (totalModifiedStates == 0) {
+                    context.setError(LocalStrings.ChiselAttemptFailedNoValidStateFound.getText());
+                }
 
                 resultingBitCount.forEach((blockState, count) -> BitInventoryUtils.insertIntoOrSpawn(
                   playerEntity,
@@ -212,7 +213,7 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
         }
 
         return context.getMutator().map(mutator -> {
-            final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(playerEntity);
+            final BlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
             if (heldBlockState.isAir())
             {
                 return ClickProcessingState.DEFAULT;
@@ -222,7 +223,7 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
               .map(factory -> factory.apply(mutator))
               .orElse((s) -> true);
             final int missingBitCount = (int) mutator.stream()
-              .filter(state -> state.getState().isAir() && filter.test(state))
+              .filter(state -> state.getBlockInformation().isAir() && filter.test(state))
               .count();
 
             final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(playerEntity);
@@ -239,13 +240,13 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
                        mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
                 {
                     mutator.inWorldMutableStream()
-                      .filter(state -> state.getState().isAir() && filter.test(state))
+                      .filter(state -> state.getBlockInformation().isAir() && filter.test(state))
                       .forEach(state -> state.overrideState(heldBlockState)); //We can use override state here to prevent the try-catch block.
                 }
             }
             else
             {
-                context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlock().getName()));
+                context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlockState().getBlock().getName()));
             }
 
             if (missingBitCount == 0)
@@ -473,7 +474,7 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
             }
 
             return inWorldStateEntryInfo.getInWorldStartPoint().distanceTo(center) <= (diameter / 2f / StateEntrySize.current().getBitsPerBlockSide()) &&
-                     (!stateEntryInfo.getState().isAir() || operation.processesAir());
+                     (!stateEntryInfo.getBlockInformation().isAir() || operation.processesAir());
         }
 
         @Override

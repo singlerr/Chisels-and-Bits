@@ -4,6 +4,7 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
@@ -16,6 +17,8 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.variant.state.IStateVariant;
+import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.api.util.ArrayUtils;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
@@ -101,7 +104,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     {
         return getBlockEntity(blockGetter, pos)
                  .map(e -> {
-                     final BlockState primaryState = e.getStatistics().getPrimaryState();
+                     final BlockInformation primaryState = e.getStatistics().getPrimaryState();
 
                      return ILevelBasedPropertyAccessor.getInstance().canHarvestBlock(
                        new SingleBlockBlockReader(
@@ -284,11 +287,11 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
 
     @NotNull
     @Override
-    public BlockState getPrimaryState(@NotNull final BlockGetter world, @NotNull final BlockPos pos)
+    public BlockInformation getPrimaryState(@NotNull final BlockGetter world, @NotNull final BlockPos pos)
     {
         return getBlockEntity(world, pos)
                  .map(e -> e.getStatistics().getPrimaryState())
-                 .orElse(Blocks.AIR.defaultBlockState());
+                 .orElse(BlockInformation.AIR);
     }
 
     @Override
@@ -369,7 +372,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
             final boolean justFluids = getBlockEntity(worldIn, pos)
                                          .map(IAreaAccessor::stream)
                                          .map(stream -> stream
-                                           .allMatch(stateEntry -> stateEntry.getState().isAir() || !stateEntry.getState().getFluidState().isEmpty())
+                                           .allMatch(stateEntry -> stateEntry.getBlockInformation().isAir() || !stateEntry.getBlockInformation().getBlockState().getFluidState().isEmpty())
                                          )
                                          .orElse(false);
 
@@ -417,11 +420,17 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                      {
                          entity.mutableStream().forEach(
                            stateEntry -> {
-                               if (stateEntry.getState().isAir())
+                               if (stateEntry.getBlockInformation().isAir())
                                {
+                                   final BlockState blockState = fluidStateIn.createLegacyBlock();
+                                   final Optional<IStateVariant> additionalStateInfo = IStateVariantManager.getInstance()
+                                     .getStateVariant(
+                                       fluidStateIn
+                                     );
+
                                    try
                                    {
-                                       stateEntry.setState(fluidStateIn.createLegacyBlock());
+                                       stateEntry.setBlockInformation(new BlockInformation(blockState, additionalStateInfo));
                                    }
                                    catch (SpaceOccupiedException e)
                                    {
@@ -583,7 +592,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                      .map(blockEntity -> {
                          try(IBatchMutation mutation = blockEntity.batch(IChangeTrackerManager.getInstance().getChangeTracker(player))) {
                              return blockEntity.mutableStream()
-                               .filter(entry -> !entry.getState().getFluidState().isEmpty())
+                               .filter(entry -> !entry.getBlockInformation().getBlockState().getFluidState().isEmpty())
                                .peek(IMutableStateEntryInfo::clear)
                                .count();
                          }

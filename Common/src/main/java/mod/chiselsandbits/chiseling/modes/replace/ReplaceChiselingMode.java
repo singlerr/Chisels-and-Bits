@@ -2,6 +2,7 @@ package mod.chiselsandbits.chiseling.modes.replace;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -30,7 +31,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -59,10 +59,10 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
 
     @Override
     public ClickProcessingState onLeftClickBy(
-      final Player Player, final IChiselingContext context)
+      final Player player, final IChiselingContext context)
     {
         final Optional<ClickProcessingState> rayTraceHandle = this.processRayTraceIntoContext(
-          Player,
+          player,
           context
         );
 
@@ -73,9 +73,9 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
               try (IBatchMutation ignored =
-                     mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(Player)))
+                     mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(player)))
               {
-                  final BlockState heldBlockState = ItemStackUtils.getHeldBitBlockStateFromPlayer(Player);
+                  final BlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(player);
                   if (heldBlockState.isAir())
                   {
                       return ClickProcessingState.DEFAULT;
@@ -83,7 +83,7 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
 
                   context.setComplete();
 
-                  final Map<BlockState, Integer> resultingBitCount = Maps.newHashMap();
+                  final Map<BlockInformation, Integer> resultingBitCount = Maps.newHashMap();
 
                   final Predicate<IStateEntryInfo> filter = context.getStateFilter()
                     .map(builder -> builder.apply(mutator))
@@ -93,33 +93,38 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
                     .filter(filter)
                     .count();
 
-                  final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(Player);
+                  final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(player);
 
-                  if (!Player.isCreative() && !playerBitInventory.canExtract(heldBlockState, missingBitCount))
+                  if (!player.isCreative() && !playerBitInventory.canExtract(heldBlockState, missingBitCount))
                   {
-                      context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlock().getName()));
+                      context.setError(LocalStrings.ChiselAttemptFailedNotEnoughBits.getText(heldBlockState.getBlockState().getBlock().getName()));
                       return ClickProcessingState.DEFAULT;
                   }
 
-                  mutator.inWorldMutableStream()
+                  final int totalModifiedStates = mutator.inWorldMutableStream()
                     .filter(filter)
-                    .forEach(LambdaExceptionUtils.rethrowConsumer(state -> {
-                        final BlockState currentState = state.getState();
+                    .mapToInt(LambdaExceptionUtils.rethrowToIntFunction(state -> {
+                        final BlockInformation currentState = state.getBlockInformation();
 
-                        if (context.tryDamageItem()) {
-                            resultingBitCount.putIfAbsent(currentState, 0);
-                            resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
-                        }
+                        return context.tryDamageItemAndDoOrSetBrokenError(
+                          () -> {
+                              resultingBitCount.putIfAbsent(currentState, 0);
+                              resultingBitCount.computeIfPresent(currentState, (s, currentCount) -> currentCount + 1);
 
-                        state.clear();
-                        state.setState(heldBlockState);
-                    }));
+                              state.overrideState(heldBlockState);
+                          });
+                    }))
+                    .sum();
 
-                  if (!Player.isCreative())
+                  if (totalModifiedStates == 0) {
+                      context.setError(LocalStrings.ChiselAttemptFailedNoValidStateFound.getText());
+                  }
+
+                  if (!player.isCreative())
                         playerBitInventory.extract(heldBlockState, missingBitCount);
 
                   resultingBitCount.forEach((blockState, count) -> BitInventoryUtils.insertIntoOrSpawn(
-                    Player,
+                    player,
                     blockState,
                     count
                   ));
@@ -245,7 +250,7 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
         }
 
         worldAccessor.stream()
-          .filter(state -> state.getState().equals(targetedInfo.get().getState()))
+          .filter(state -> state.getBlockInformation().equals(targetedInfo.get().getBlockInformation()))
           .map(state -> state.getStartPoint().multiply(StateEntrySize.current().getBitsPerBlockSideScalingVector()))
           .map(position -> new Vec3i(
             position.x(),

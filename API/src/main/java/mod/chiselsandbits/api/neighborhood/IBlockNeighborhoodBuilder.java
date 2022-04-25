@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.neighborhood;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.state.BlockState;
@@ -35,7 +36,7 @@ public interface IBlockNeighborhoodBuilder
      */
     @NotNull
     IBlockNeighborhood build(
-            @Nullable Function<Direction, BlockState> neighborhoodBlockStateProvider,
+            @Nullable Function<Direction, BlockInformation> neighborhoodBlockStateProvider,
             @Nullable Function<Direction, IAreaAccessor> neighborhoodAreaAccessorProvider
     );
 }

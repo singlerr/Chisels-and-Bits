@@ -90,9 +90,8 @@ public class PlacePatternPlacementType extends AbstractCustomRegistryEntry imple
                   try
                   {
                       areaMutator.setInAreaTarget(
-                        stateEntryInfo.getState(),
-                        stateEntryInfo.getStartPoint()
-                      );
+                        stateEntryInfo.getBlockInformation(),
+                        stateEntryInfo.getStartPoint());
                   }
                   catch (SpaceOccupiedException ignored1)
                   {

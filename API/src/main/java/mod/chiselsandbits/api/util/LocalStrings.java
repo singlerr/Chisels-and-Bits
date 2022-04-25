@@ -82,8 +82,8 @@ public enum LocalStrings
     LongHelpBit("help.bit.long"),
     AnyHelpBit("help.bit.any"),
 
-    HelpBitTankFilled("help.bittank.full"),
-    HelpBitTankEmpty("help.bittank.empty"),
+    HelpBitStorageFilled("help.bittank.full"),
+    HelpBitStorageEmpty("help.bittank.empty"),
     LongHelpBitTank("help.bittank.long"),
 
     HelpSimplePattern("help.pattern.simple"),

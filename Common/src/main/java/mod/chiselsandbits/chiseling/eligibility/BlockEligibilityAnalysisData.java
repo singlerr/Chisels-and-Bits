@@ -1,5 +1,6 @@
 package mod.chiselsandbits.chiseling.eligibility;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.platforms.core.block.IBlockWithWorldlyProperties;
@@ -47,13 +48,13 @@ public class BlockEligibilityAnalysisData
     }
 
     public static BlockEligibilityAnalysisData createFromState(
-      final BlockState state )
+      final BlockInformation state )
     {
         try
         {
             // require basic hardness behavior...
             final ReflectionHelperBlock reflectBlock = ModBlocks.REFLECTION_HELPER_BLOCK.get();
-            final Block blk = state.getBlock();
+            final Block blk = state.getBlockState().getBlock();
             final Class<? extends Block> blkClass = blk.getClass();
 
             reflectBlock.getDestroyProgress( null, null, null, null );
@@ -69,16 +70,16 @@ public class BlockEligibilityAnalysisData
             final boolean test_d = exploResistanceClz == Block.class || exploResistanceClz == BlockBehaviour.class || exploResistanceClz == null ||
                                      IPlatformEligibilityOptions.getInstance().isValidExplosionDefinitionClass(exploResistanceClz);
 
-            final boolean isFluid = !state.getFluidState().isEmpty();
+            final boolean isFluid = !state.getBlockState().getFluidState().isEmpty();
 
             // is it perfect?
             if ( test_b && test_c && test_d && !isFluid )
             {
-                final float blockHardness = state.getDestroySpeed(new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO);
+                final float blockHardness = state.getBlockState().getDestroySpeed(new SingleBlockBlockReader(state, state.getBlockState().getBlock()), BlockPos.ZERO);
                 float resistance = blk.getExplosionResistance();
 
                 if (blk instanceof IBlockWithWorldlyProperties blockWithWorldlyProperties) {
-                    resistance = blockWithWorldlyProperties.getExplosionResistance(state, new SingleBlockBlockReader(state, state.getBlock()), BlockPos.ZERO, new Explosion(null, null,null,
+                    resistance = blockWithWorldlyProperties.getExplosionResistance(state.getBlockState(), new SingleBlockBlockReader(state, state.getBlockState().getBlock()), BlockPos.ZERO, new Explosion(null, null,null,
                       null, 0,1,0, 10, false, Explosion.BlockInteraction.NONE));
                 }
 

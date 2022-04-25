@@ -1,5 +1,6 @@
 package mod.chiselsandbits.block.entities;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
@@ -26,7 +27,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang3.mutable.MutableObject;
@@ -210,18 +210,18 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
             return ItemStack.EMPTY;
         }
 
-        final BlockState firstState = getPrimaryBlockState() == null ? Blocks.AIR.defaultBlockState() : getPrimaryBlockState();
-        final BlockState secondState = getSecondaryBlockState() == null ? Blocks.AIR.defaultBlockState() : getSecondaryBlockState();
-        final BlockState thirdState = getTertiaryBlockState() == null ? Blocks.AIR.defaultBlockState() : getTertiaryBlockState();
+        final BlockInformation firstState = getPrimaryBlockState() == null ? BlockInformation.AIR : getPrimaryBlockState();
+        final BlockInformation secondState = getSecondaryBlockState() == null ?BlockInformation.AIR : getSecondaryBlockState();
+        final BlockInformation thirdState = getTertiaryBlockState() == null ? BlockInformation.AIR : getTertiaryBlockState();
 
         if (firstState.isAir() && secondState.isAir() && thirdState.isAir())
         {
             return ItemStack.EMPTY;
         }
 
-        if ((!IEligibilityManager.getInstance().canBeChiseled(firstState) && !firstState.isAir())
-              || (!IEligibilityManager.getInstance().canBeChiseled(secondState) && !secondState.isAir())
-              || (!IEligibilityManager.getInstance().canBeChiseled(thirdState) && !thirdState.isAir())
+        if ((!IEligibilityManager.getInstance().canBeChiseled(firstState.getBlockState()) && !firstState.isAir())
+              || (!IEligibilityManager.getInstance().canBeChiseled(secondState.getBlockState()) && !secondState.isAir())
+              || (!IEligibilityManager.getInstance().canBeChiseled(thirdState.getBlockState()) && !thirdState.isAir())
         )
         {
             return ItemStack.EMPTY;
@@ -229,9 +229,9 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
 
         final IMultiStateSnapshot modifiableSnapshot = realisedPattern.createSnapshot();
         modifiableSnapshot.mutableStream()
-          .filter(e -> (e.getState() != firstState || firstState == Blocks.AIR.defaultBlockState()) && (e.getState() != secondState
-                                                                                                          || secondState == Blocks.AIR.defaultBlockState()) && (
-            e.getState() != thirdState || thirdState == Blocks.AIR.defaultBlockState()) && e.getState() != Blocks.AIR.defaultBlockState())
+          .filter(e -> (!e.getBlockInformation().equals(firstState) || firstState.equals(BlockInformation.AIR)) && (!e.getBlockInformation().equals(secondState)
+                                                                                                          || secondState.equals(BlockInformation.AIR)) && (
+            !e.getBlockInformation().equals(thirdState) || thirdState.equals(BlockInformation.AIR)) && !e.getBlockInformation().equals(BlockInformation.AIR))
           .forEach(IMutableStateEntryInfo::clear);
 
         if (modifiableSnapshot.getStatics().getStateCounts().getOrDefault(firstState, 0) == 0 &&
@@ -242,10 +242,10 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
             return ItemStack.EMPTY;
         }
 
-        if ((modifiableSnapshot.getStatics().getStateCounts().getOrDefault(firstState, 0) > getAvailablePrimaryBlockState() && firstState != Blocks.AIR.defaultBlockState()) ||
-              (modifiableSnapshot.getStatics().getStateCounts().getOrDefault(secondState, 0) > getAvailableSecondaryBlockState() && secondState != Blocks.AIR.defaultBlockState())
+        if ((modifiableSnapshot.getStatics().getStateCounts().getOrDefault(firstState, 0) > getAvailablePrimaryBlockState() && !firstState.equals(BlockInformation.AIR)) ||
+              (modifiableSnapshot.getStatics().getStateCounts().getOrDefault(secondState, 0) > getAvailableSecondaryBlockState() && !secondState.equals(BlockInformation.AIR))
               ||
-              (modifiableSnapshot.getStatics().getStateCounts().getOrDefault(thirdState, 0) > getAvailableTertiaryBlockState() && thirdState != Blocks.AIR.defaultBlockState()))
+              (modifiableSnapshot.getStatics().getStateCounts().getOrDefault(thirdState, 0) > getAvailableTertiaryBlockState() && !thirdState.equals(BlockInformation.AIR)))
         {
             return ItemStack.EMPTY;
         }
@@ -337,7 +337,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
         return 0;
     }
 
-    public BlockState getPrimaryBlockState()
+    public BlockInformation getPrimaryBlockState()
     {
         final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
         final Direction targetedFacing = facing.getClockWise();
@@ -345,7 +345,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
         return getStorage(targetedFacing);
     }
 
-    public BlockState getSecondaryBlockState()
+    public BlockInformation getSecondaryBlockState()
     {
         final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
         final Direction targetedFacing = facing.getClockWise().getClockWise();
@@ -353,7 +353,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
         return getStorage(targetedFacing);
     }
 
-    public BlockState getTertiaryBlockState()
+    public BlockInformation getTertiaryBlockState()
     {
         final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
         final Direction targetedFacing = facing.getCounterClockWise();
@@ -361,15 +361,15 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
         return getStorage(targetedFacing);
     }
 
-    private BlockState getStorage(final Direction targetedFacing)
+    private BlockInformation getStorage(final Direction targetedFacing)
     {
         final BlockEntity targetedTileEntity = Objects.requireNonNull(this.getLevel()).getBlockEntity(this.getBlockPos().relative(targetedFacing));
         if (targetedTileEntity instanceof final BitStorageBlockEntity storage)
         {
-            return storage.getState();
+            return storage.getContainedBlockInformation();
         }
 
-        return Blocks.AIR.defaultBlockState();
+        return BlockInformation.AIR;
     }
 
     public void drainPrimaryStorage(final int amount)
@@ -401,7 +401,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
         final BlockEntity targetedTileEntity = Objects.requireNonNull(this.getLevel()).getBlockEntity(this.getBlockPos().relative(targetedFacing));
         if (targetedTileEntity instanceof final BitStorageBlockEntity storage)
         {
-            storage.extractBits(0);
+            storage.extractBits(amount);
         }
     }
 
@@ -442,7 +442,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
     }
 
     @Override
-    public int @NotNull [] getSlotsForFace(final Direction direction)
+    public int @NotNull [] getSlotsForFace(final @NotNull Direction direction)
     {
         return switch (direction)
                  {
@@ -464,7 +464,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
     }
 
     @Override
-    public boolean canTakeItemThroughFace(final int index, final ItemStack itemStack, final Direction direction)
+    public boolean canTakeItemThroughFace(final int index, final ItemStack itemStack, final @NotNull Direction direction)
     {
         return switch (direction)
                  {
@@ -525,7 +525,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
     }
 
     @Override
-    public void setItem(final int index, final ItemStack itemStack)
+    public void setItem(final int index, final @NotNull ItemStack itemStack)
     {
         switch (index)
         {
@@ -536,7 +536,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
     }
 
     @Override
-    public boolean stillValid(final Player player)
+    public boolean stillValid(final @NotNull Player player)
     {
         if (this.level.getBlockEntity(this.worldPosition) != this)
         {

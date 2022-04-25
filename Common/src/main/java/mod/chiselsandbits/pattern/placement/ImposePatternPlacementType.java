@@ -1,6 +1,7 @@
 package mod.chiselsandbits.pattern.placement;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
@@ -17,7 +18,6 @@ import mod.chiselsandbits.api.pattern.placement.PlacementResult;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
-import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
 import mod.chiselsandbits.registrars.ModPatternPlacementTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -25,7 +25,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -96,16 +95,16 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
             return PlacementResult.failure(NOT_FITTING_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotASupportedBlock.getText());
         }
 
-        final Map<BlockState, Integer> extractedBitsCount = source.stream()
-                                                              .filter(s -> !s.getState().isAir())
+        final Map<BlockInformation, Integer> extractedBitsCount = source.stream()
+                                                              .filter(s -> !s.getBlockInformation().isAir())
                                                               .map(IStateEntryInfo::getStartPoint)
                                                               .map(areaMutator::getInAreaTarget)
                                                               .filter(Optional::isPresent)
                                                               .map(Optional::get)
-                                                              .filter(s -> !s.getState().isAir())
+                                                              .filter(s -> !s.getBlockInformation().isAir())
                                                               .collect(
                                                                 Collectors.toMap(
-                                                                  IStateEntryInfo::getState,
+                                                                  IStateEntryInfo::getBlockInformation,
                                                                   s -> 1,
                                                                   Integer::sum
                                                                 )
@@ -137,16 +136,15 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
         try (IBatchMutation ignored = areaMutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(context.getPlayer())))
         {
             source.stream()
-              .filter(s -> !s.getState().isAir())
+              .filter(s -> !s.getBlockInformation().isAir())
               .forEach(
                 stateEntryInfo -> {
                     try
                     {
                         areaMutator.clearInAreaTarget(stateEntryInfo.getStartPoint());
                         areaMutator.setInAreaTarget(
-                          stateEntryInfo.getState(),
-                          stateEntryInfo.getStartPoint()
-                        );
+                          stateEntryInfo.getBlockInformation(),
+                          stateEntryInfo.getStartPoint());
                     }
                     catch (SpaceOccupiedException ignored1)
                     {

@@ -2,6 +2,8 @@ package mod.chiselsandbits.client.model.baked.face;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
 import mod.chiselsandbits.client.model.baked.face.model.ModelVertexRange;
@@ -25,14 +27,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.*;
-
-import static net.minecraft.core.Direction.*;
-import static net.minecraft.core.Direction.EAST;
 
 public final class FaceManager {
     private static final Random RANDOM = new Random();
@@ -42,7 +40,7 @@ public final class FaceManager {
     private final SimpleMaxSizedCache<Key, ModelQuadLayer[]> cache = new SimpleMaxSizedCache<>(
             IClientConfiguration.getInstance().getFaceLayerCacheSize()::get
     );
-    private final SimpleMaxSizedCache<BlockState, Integer> colorCache = new SimpleMaxSizedCache<>(
+    private final SimpleMaxSizedCache<BlockInformation, Integer> colorCache = new SimpleMaxSizedCache<>(
             () -> IPlatformRegistryManager.getInstance().getBlockStateIdMap().size() == 0 ? 1000 : IPlatformRegistryManager.getInstance().getBlockStateIdMap().size()
     );
 
@@ -60,7 +58,7 @@ public final class FaceManager {
     }
 
     public ModelQuadLayer[] getCachedFace(
-            final BlockState state,
+            final BlockInformation state,
             final Direction face,
             final RenderType layer,
             final long primaryStateRenderSeed) {
@@ -82,14 +80,14 @@ public final class FaceManager {
     }
 
     private ModelQuadLayer[] buildFaceQuadLayers(
-            final BlockState state,
+            final BlockInformation state,
             final Direction face,
             final long primaryStateRenderSeed) {
-        final BakedModel model = solveModel(state, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state), primaryStateRenderSeed);
+        final BakedModel model = solveModel(state, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state.getBlockState()), primaryStateRenderSeed);
         final int lv = IClientConfiguration.getInstance().getUseGetLightValue().get() ?
-                state.getLightEmission() : 0;
+                state.getBlockState().getLightEmission() : 0;
 
-        final Fluid fluid = state.getFluidState().getType();
+        final Fluid fluid = state.getBlockState().getFluidState().getType();
         if (fluid != Fluids.EMPTY) {
             final ModelQuadLayer[] mp = new ModelQuadLayer[1];
             mp[0] = new ModelQuadLayer();
@@ -180,7 +178,7 @@ public final class FaceManager {
     }
 
     private static BakedModel solveModel(
-            final BlockState state,
+            final BlockInformation state,
             final BakedModel originalModel,
             final long primaryStateRenderSeed
     ) {
@@ -227,7 +225,7 @@ public final class FaceManager {
 
     private static boolean hasFaces(
             final BakedModel model,
-            final BlockState state,
+            final BlockInformation state,
             final Direction f,
             final long primaryStateRenderSeed) {
         final List<BakedQuad> quads = getModelQuads(model, state, f, primaryStateRenderSeed);
@@ -252,7 +250,7 @@ public final class FaceManager {
     }
 
     public static TextureAtlasSprite findTexture(
-            final BlockState state,
+            final BlockInformation state,
             final BakedModel model,
             final Direction myFace,
             final long primaryStateRenderSeed) {
@@ -285,7 +283,7 @@ public final class FaceManager {
 
         if (isMissingTexture(texture)) {
             try {
-                texture = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(state);
+                texture = Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getParticleIcon(state.getBlockState());
             } catch (final Exception ignored) {
             }
         }
@@ -328,13 +326,13 @@ public final class FaceManager {
 
     private static List<BakedQuad> getModelQuads(
             final BakedModel model,
-            final BlockState state,
+            final BlockInformation state,
             final Direction f,
             final long primaryStateRenderSeed) {
         try {
             // try to get block model...
             RANDOM.setSeed(primaryStateRenderSeed);
-            return model.getQuads(state, f, RANDOM);
+            return model.getQuads(state.getBlockState(), f, RANDOM);
         } catch (final Throwable ignored) {
         }
 
@@ -369,10 +367,17 @@ public final class FaceManager {
     }
 
     private int getColorFor(
-            final BlockState state) {
+            final BlockInformation state) {
         return colorCache.get(state, () -> {
+            final Optional<Integer> dynamicColor = IBlockInformationColorManager.getInstance()
+                                                     .getColor(state);
+
+            if (dynamicColor.isPresent()) {
+                return dynamicColor.get();
+            }
+
             int out;
-            final Fluid fluid = state.getFluidState().getType();
+            final Fluid fluid = state.getBlockState().getFluidState().getType();
             if (fluid != Fluids.EMPTY) {
                 out = IFluidManager.getInstance().getFluidColor(fluid);
             } else {
@@ -389,7 +394,7 @@ public final class FaceManager {
         });
     }
 
-    private record Key(BlockState blockState, RenderType renderType, Direction direction,
+    private record Key(BlockInformation blockState, RenderType renderType, Direction direction,
                        long primaryStateSeed) {
 
         @Override

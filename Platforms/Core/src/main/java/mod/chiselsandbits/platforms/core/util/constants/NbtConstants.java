@@ -16,6 +16,16 @@ public class NbtConstants
     public static final String MAX               = "max";
     public static final String AXIS_STATISTICS_DATA = "axis_statistics_data";
     public static final String CHISEL_ERROR = "chisel_error";
+    public static final String IS_SET = "is_set";
+    public static final String STATE   = "state";
+    public static final String STATE_LIST = "state_list";
+    public static final String SIZE               = "size";
+    public static final String VARIANT            = "variant";
+    public static final String BLOCK_STATE_LEGACY = "blockstate";
+    public static final String BITS           = "bits";
+    public static final String BLOCK_INFORMATION      = "block_information";
+    public static final String PRIMARY_BLOCK_INFORMATION = "primary_block_information";
+    public static final String BLOCK                     = "block";
 
     private NbtConstants()
     {

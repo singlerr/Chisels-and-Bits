@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.inventory.bit;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
@@ -12,116 +13,116 @@ import java.util.Map;
 public interface IBitInventory
 {
     /**
-     * Checks if it is possible to extract exactly one bit with the given blockstate from the
+     * Checks if it is possible to extract exactly one bit with the given block information from
      * the current inventory.
      *
-     * @param blockState The blockstate.
+     * @param blockInformation The block information.
      * @return {@code true} when extraction is possible.
      */
-    default boolean canExtractOne(final BlockState blockState) {
-        return this.canExtract(blockState, 1);
+    default boolean canExtractOne(final BlockInformation blockInformation) {
+        return this.canExtract(blockInformation, 1);
     }
 
     /**
-     * Checks if it is possible to extract a given amount of bits with the given blockstate from the
+     * Checks if it is possible to extract a given amount of bits with the given block information from
      * the current inventory.
      *
-     * @param blockState The blockstate.
+     * @param blockInformation The block information.
      * @param count The amount of bits to extract.
      * @return {@code true} when extraction is possible.
      */
-    boolean canExtract(final BlockState blockState, final int count);
+    boolean canExtract(final BlockInformation blockInformation, final int count);
 
     /**
-     * Returns the maximal amount of bits with a given blockstate which can be extracted
+     * Returns the maximal amount of bits with a given block information which can be extracted
      * of a given blockstate.
      * 
-     * @param blockState The blockstate in question.
+     * @param blockInformation The block information in question.
      * @return The amount of bits that can be extracted with a given blockstate.
      */
-    int getMaxExtractAmount(final BlockState blockState);
+    int getMaxExtractAmount(final BlockInformation blockInformation);
     
     /**
-     * Extracts exactly one bit with the given blockstate from the
+     * Extracts exactly one bit with the given block information from
      * the current inventory.
      *
-     * @param blockState The blockstate.
+     * @param blockInformation The block information.
      * @throws IllegalArgumentException when extraction is not possible.
      */
-    default void extractOne(final BlockState blockState) throws IllegalArgumentException {
-        this.extract(blockState, 1);
+    default void extractOne(final BlockInformation blockInformation) throws IllegalArgumentException {
+        this.extract(blockInformation, 1);
     }
 
     /**
-     * Extracts a given amount of bits with the given blockstate from the
+     * Extracts a given amount of bits with the given block information from
      * the current inventory.
      *
-     * @param blockState The blockstate.
+     * @param blockInformation The block information.
      * @param count The amount of bits to extract.
      * @throws IllegalArgumentException when extraction is not possible.
      */
-    void extract(final BlockState blockState, final int count) throws IllegalArgumentException;
+    void extract(final BlockInformation blockInformation, final int count) throws IllegalArgumentException;
 
     /**
-     * Checks if it is possible to insert exactly one bit with the given blockstate from the
+     * Checks if it is possible to insert exactly one bit with the given block information from
      * the current inventory.
      *
-     * @param blockState The blockstate.
+     * @param blockInformation The block information.
      * @return {@code true} when insertion is possible.
      */
-    default boolean canInsertOne(final BlockState blockState) {
-        return this.canInsert(blockState, 1);
+    default boolean canInsertOne(final BlockInformation blockInformation) {
+        return this.canInsert(blockInformation, 1);
     }
 
     /**
-     * Checks if it is possible to insert a given amount of bits with the given blockstate from the
+     * Checks if it is possible to insert a given amount of bits with the given block information from
      * the current inventory.
      *
-     * @param blockState The blockstate.
+     * @param blockInformation The block information.
      * @param count The amount of bits to insert.
      * @return {@code true} when insertion is possible.
      */
-    boolean canInsert(final BlockState blockState, final int count);
+    boolean canInsert(final BlockInformation blockInformation, final int count);
 
     /**
-     * Returns the maximal amount of bits with a given blockstate which can be inserted
+     * Returns the maximal amount of bits with a given block information which can be inserted
      * of a given blockstate.
      *
-     * @param blockState The blockstate in question.
+     * @param blockInformation The blockstate in question.
      * @return The amount of bits that can be inserted with a given blockstate.
      */
-    int getMaxInsertAmount(final BlockState blockState);
+    int getMaxInsertAmount(final BlockInformation blockInformation);
 
     /**
-     * Inserts exactly one bit with the given blockstate from
+     * Inserts exactly one bit with the given block information from
      * the current inventory.
      *
-     * @param blockState The blockstate.
+     * @param blockInformation The block information.
      * @throws IllegalArgumentException when insertion is not possible.
      */
-    default void insertOne(final BlockState blockState) throws IllegalArgumentException {
-        this.insert(blockState, 1);
+    default void insertOne(final BlockInformation blockInformation) throws IllegalArgumentException {
+        this.insert(blockInformation, 1);
     }
 
     /**
-     * Inserts a given amount of bits with the given blockstate from
+     * Inserts a given amount of bits with the given block information from
      * the current inventory.
      *
-     * @param blockState The blockstate.
+     * @param blockInformation The block information.
      * @param count The amount of bits to insert.
      * @throws IllegalArgumentException when insertion is not possible.
      */
-    void insert(final BlockState blockState, final int count) throws IllegalArgumentException;
+    void insert(final BlockInformation blockInformation, final int count) throws IllegalArgumentException;
 
     /**
-     * Inserts a given amount of bits with the given blockstate from
+     * Inserts a given amount of bits with the given block information from
      * the current inventory, discards bits that don't fit.
      *
-     * @param blockState The blockstate.
+     * @param blockInformation The block information.
      * @param count The amount of bits to insert.
      */
-    default void insertOrDiscard(final BlockState blockState, final int count) {
-        insert(blockState, Math.min(getMaxInsertAmount(blockState), count));
+    default void insertOrDiscard(final BlockInformation blockInformation, final int count) {
+        insert(blockInformation, Math.min(getMaxInsertAmount(blockInformation), count));
     }
 
     /**
@@ -139,17 +140,16 @@ public interface IBitInventory
      */
     default ItemStack insert(final ItemStack stack)
     {
-        if (!(stack.getItem() instanceof IBitItem))
+        if (!(stack.getItem() instanceof final IBitItem bitItem))
             return stack;
 
-        final IBitItem bitItem = (IBitItem) stack.getItem();
-        final BlockState blockState = bitItem.getBitState(stack);
+        final BlockInformation blockInformation = bitItem.getBlockInformation(stack);
 
-        final int maxToInsertCount = this.getMaxInsertAmount(blockState);
+        final int maxToInsertCount = this.getMaxInsertAmount(blockInformation);
         final int maxToInsertFromStack = Math.min(stack.getCount(), maxToInsertCount);
         final int maxRemainingOnStack = stack.getCount() - maxToInsertCount;
 
-        this.insert(blockState, maxToInsertFromStack);
+        this.insert(blockInformation, maxToInsertFromStack);
 
         final ItemStack resultStack = stack.copy();
         resultStack.setCount(maxRemainingOnStack);
@@ -160,5 +160,5 @@ public interface IBitInventory
      * Returns the summed contained states of all bits in the inventory.
      * @return The contained state count of all bits in the inventory.
      */
-    Map<BlockState, Integer> getContainedStates();
+    Map<BlockInformation, Integer> getContainedStates();
 }

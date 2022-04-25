@@ -1,6 +1,7 @@
 package mod.chiselsandbits.multistate.mutator;
 
 import mod.chiselsandbits.api.axissize.CollisionType;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
@@ -21,7 +22,6 @@ import mod.chiselsandbits.multistate.snapshot.MultiBlockMultiStateSnapshot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -249,7 +249,9 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     }
 
     @Override
-    public void setInAreaTarget(final BlockState blockState, final Vec3 inAreaTarget) throws SpaceOccupiedException
+    public void setInAreaTarget(
+      final BlockInformation blockInformation,
+      final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
         if (inAreaTarget.x() < 0 ||
               inAreaTarget.y() < 0 ||
@@ -274,11 +276,11 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
           getWorld(), blockPosTarget
         );
 
-        innerMutator.setInAreaTarget(blockState, inBlockPosTarget);
+        innerMutator.setInAreaTarget(blockInformation, inBlockPosTarget);
     }
 
     @Override
-    public void setInBlockTarget(final BlockState blockState, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final BlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
         final BlockPos startPos = new BlockPos(getInWorldStartPoint());
         final BlockPos targetPos = startPos.offset(inAreaBlockPosOffset);
@@ -302,7 +304,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
           getWorld(), targetPos
         );
 
-        innerMutator.setInBlockTarget(blockState, BlockPos.ZERO, inBlockTarget);
+        innerMutator.setInBlockTarget(blockInformation, BlockPos.ZERO, inBlockTarget);
     }
 
     /**
@@ -516,11 +518,10 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
             {
                 return true;
             }
-            if (!(o instanceof Identifier))
+            if (!(o instanceof final Identifier that))
             {
                 return false;
             }
-            final Identifier that = (Identifier) o;
             return inners.equals(that.inners) && startPoint.equals(that.startPoint) && endPoint.equals(that.endPoint);
         }
 

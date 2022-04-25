@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.item.bit;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.injection.invoke.arg.ArgumentIndexOutOfBoundsException;
@@ -24,21 +25,21 @@ public interface IBitItemManager
     int getMaxStackSize();
 
     /**
-     * Creates an itemstack that contains a bit of the given blockstate and is of the given size.
+     * Creates an itemstack that contains a bit of the given block information and is of the given size.
      *
-     * @param blockState The given blockstate.
+     * @param blockInformation The given block information.
      * @param count The amount of bits.
      * @return The itemstack with the given bits.
      */
-    ItemStack create(final BlockState blockState, final int count);
+    ItemStack create(final BlockInformation blockInformation, final int count);
 
     /**
-     * Creates an itemstack that contains a bit of the given blockstate with a size of 1.
+     * Creates an itemstack that contains a bit of the given block information with a size of 1.
      *
-     * @param blockState The given blockstate.
+     * @param blockInformation The given block information.
      * @return The itemstack with the given bit.
      */
-    default ItemStack create(final BlockState blockState) {
-        return this.create(blockState, 1);
+    default ItemStack create(final BlockInformation blockInformation) {
+        return this.create(blockInformation, 1);
     }
 }

@@ -1,10 +1,11 @@
 package mod.chiselsandbits.client.model.baked.bit;
 
 import com.mojang.math.Vector3f;
-import mod.chiselsandbits.platforms.core.util.constants.Constants;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
 import mod.chiselsandbits.client.model.baked.face.FaceManager;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -31,76 +32,75 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
     public static final float PIXELS_PER_BLOCK = 16.0f;
 
     private static final float BIT_BEGIN = 6.0f;
-    private static final float BIT_END = 10.0f;
+    private static final float BIT_END   = 10.0f;
 
     final List<BakedQuad> generic = new ArrayList<>(6);
 
     public BitBlockBakedModel(
-      final BlockState blockState )
+      final BlockInformation blockInformation)
     {
         final FaceBakery faceBakery = new FaceBakery();
 
-        final Vector3f to = new Vector3f( BIT_BEGIN, BIT_BEGIN, BIT_BEGIN );
-        final Vector3f from = new Vector3f( BIT_END, BIT_END, BIT_END );
+        final Vector3f to = new Vector3f(BIT_BEGIN, BIT_BEGIN, BIT_BEGIN);
+        final Vector3f from = new Vector3f(BIT_END, BIT_END, BIT_END);
 
         final BlockModelRotation mr = BlockModelRotation.X0_Y0;
 
-        for ( final Direction myFace : Direction.values() )
+        for (final Direction myFace : Direction.values())
         {
-            for ( final RenderType layer : RenderType.chunkBufferLayers() )
+            for (final RenderType layer : RenderType.chunkBufferLayers())
             {
-                final ModelQuadLayer[] layers = FaceManager.getInstance().getCachedFace( blockState, myFace, layer,0 );
+                final ModelQuadLayer[] layers = FaceManager.getInstance().getCachedFace(blockInformation, myFace, layer, 0);
 
-                if ( layers == null || layers.length == 0 )
+                if (layers == null || layers.length == 0)
                 {
                     continue;
                 }
 
-                for ( final ModelQuadLayer quadLayer : layers )
+                for (final ModelQuadLayer quadLayer : layers)
                 {
-                    final BlockFaceUV uv = new BlockFaceUV( getFaceUvs( myFace ), 0 );
-                    final BlockElementFace bpf = new BlockElementFace( myFace, 0, "", uv );
+                    final BlockFaceUV uv = new BlockFaceUV(getFaceUvs(myFace), 0);
+                    final BlockElementFace bpf = new BlockElementFace(myFace, 0, "", uv);
 
                     Vector3f toB, fromB;
 
-                    switch ( myFace )
+                    switch (myFace)
                     {
-                        case UP:
-                            toB = new Vector3f( to.x(), from.y(), to.z() );
-                            fromB = new Vector3f( from.x(), from.y(), from.z() );
-                            break;
-                        case EAST:
-                            toB = new Vector3f( from.x(), to.y(), to.z() );
-                            fromB = new Vector3f( from.x(), from.y(), from.z() );
-                            break;
-                        case NORTH:
-                            toB = new Vector3f( to.x(), to.y(), to.z() );
-                            fromB = new Vector3f( from.x(), from.y(), to.z() );
-                            break;
-                        case SOUTH:
-                            toB = new Vector3f( to.x(), to.y(), from.z() );
-                            fromB = new Vector3f( from.x(), from.y(), from.z() );
-                            break;
-                        case DOWN:
-                            toB = new Vector3f( to.x(), to.y(), to.z() );
-                            fromB = new Vector3f( from.x(), to.y(), from.z() );
-                            break;
-                        case WEST:
-                            toB = new Vector3f( to.x(), to.y(), to.z() );
-                            fromB = new Vector3f( to.x(), from.y(), from.z() );
-                            break;
-                        default:
-                            throw new NullPointerException();
+                        case UP -> {
+                            toB = new Vector3f(to.x(), from.y(), to.z());
+                            fromB = new Vector3f(from.x(), from.y(), from.z());
+                        }
+                        case EAST -> {
+                            toB = new Vector3f(from.x(), to.y(), to.z());
+                            fromB = new Vector3f(from.x(), from.y(), from.z());
+                        }
+                        case NORTH -> {
+                            toB = new Vector3f(to.x(), to.y(), to.z());
+                            fromB = new Vector3f(from.x(), from.y(), to.z());
+                        }
+                        case SOUTH -> {
+                            toB = new Vector3f(to.x(), to.y(), from.z());
+                            fromB = new Vector3f(from.x(), from.y(), from.z());
+                        }
+                        case DOWN -> {
+                            toB = new Vector3f(to.x(), to.y(), to.z());
+                            fromB = new Vector3f(from.x(), to.y(), from.z());
+                        }
+                        case WEST -> {
+                            toB = new Vector3f(to.x(), to.y(), to.z());
+                            fromB = new Vector3f(to.x(), from.y(), from.z());
+                        }
+                        default -> throw new NullPointerException();
                     }
 
-                    generic.add( faceBakery.bakeQuad( toB, fromB, bpf, quadLayer.getSprite(), myFace, mr, null, false, new ResourceLocation(Constants.MOD_ID, "bit")));
+                    generic.add(faceBakery.bakeQuad(toB, fromB, bpf, quadLayer.getSprite(), myFace, mr, null, false, new ResourceLocation(Constants.MOD_ID, "bit")));
                 }
             }
         }
     }
 
     private float[] getFaceUvs(
-      final Direction face )
+      final Direction face)
     {
         float[] afloat;
 
@@ -112,23 +112,12 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
         final int to_y = 8;
         final int to_z = 8;
 
-        switch ( face )
-        {
-            case DOWN:
-            case UP:
-                afloat = new float[] { from_x, from_z, to_x, to_z };
-                break;
-            case NORTH:
-            case SOUTH:
-                afloat = new float[] { from_x, PIXELS_PER_BLOCK - to_y, to_x, PIXELS_PER_BLOCK - from_y };
-                break;
-            case WEST:
-            case EAST:
-                afloat = new float[] { from_z, PIXELS_PER_BLOCK - to_y, to_z, PIXELS_PER_BLOCK - from_y };
-                break;
-            default:
-                throw new NullPointerException();
-        }
+        afloat = switch (face)
+                   {
+                       case DOWN, UP -> new float[] {from_x, from_z, to_x, to_z};
+                       case NORTH, SOUTH -> new float[] {from_x, PIXELS_PER_BLOCK - to_y, to_x, PIXELS_PER_BLOCK - from_y};
+                       case WEST, EAST -> new float[] {from_z, PIXELS_PER_BLOCK - to_y, to_z, PIXELS_PER_BLOCK - from_y};
+                   };
 
         return afloat;
     }
@@ -137,7 +126,7 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
     @Override
     public List<BakedQuad> getQuads(@Nullable final BlockState state, @Nullable final Direction side, @NotNull final Random rand)
     {
-        if ( side != null )
+        if (side != null)
         {
             return Collections.emptyList();
         }
@@ -157,5 +146,4 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
     {
         return Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(MissingTextureAtlasSprite.getLocation());
     }
-
 }

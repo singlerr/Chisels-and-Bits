@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.multistate.statistics;
 
 import mod.chiselsandbits.api.axissize.CollisionType;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.item.multistate.IStatistics;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.AirBlock;
@@ -24,13 +25,13 @@ public interface IMultiStateObjectStatistics extends IStatistics
      *
      * @return The primary block state of the multi state block.
      */
-    BlockState getPrimaryState();
+    BlockInformation getPrimaryState();
 
     /**
      * An immutable copy of the map that contains the counts of all blockstates in the multistate block.
      * @return The blockstate count map.
      */
-    Map<BlockState, Integer> getStateCounts();
+    Map<BlockInformation, Integer> getStateCounts();
 
     /**
      * Indicates if the block that this statistics belongs to should check for weak power.

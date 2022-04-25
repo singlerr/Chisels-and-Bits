@@ -1,6 +1,7 @@
 package mod.chiselsandbits.pattern.placement;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
@@ -16,7 +17,6 @@ import mod.chiselsandbits.api.pattern.placement.PlacementResult;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
-import mod.chiselsandbits.platforms.core.registries.SimpleChiselsAndBitsRegistryEntry;
 import mod.chiselsandbits.registrars.ModPatternPlacementTypes;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -24,7 +24,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -86,21 +85,21 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
             return PlacementResult.failure(NOT_FITTING_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotAChiseledBlock.getText());
         }
 
-        final Map<BlockState, Integer> totalRemovedBits = source.stream()
-          .filter(s -> !s.getState().isAir())
+        final Map<BlockInformation, Integer> totalRemovedBits = source.stream()
+          .filter(s -> !s.getBlockInformation().isAir())
           .filter(s -> {
               final Optional<IStateEntryInfo> o = areaMutator.getInAreaTarget(s.getStartPoint());
 
               return o
-                .filter(os -> !os.getState().isAir())
-                .map(os -> !os.getState().equals(s.getState()))
+                .filter(os -> !os.getBlockInformation().isAir())
+                .map(os -> !os.getBlockInformation().equals(s.getBlockInformation()))
                 .orElse(false);
           })
           .map(s -> areaMutator.getInAreaTarget(s.getStartPoint()))
           .filter(Optional::isPresent)
           .map(Optional::get)
           .collect(Collectors.toMap(
-            IStateEntryInfo::getState,
+            IStateEntryInfo::getBlockInformation,
             s -> 1,
             Integer::sum
           ));
@@ -114,18 +113,18 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
             return PlacementResult.failure(MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNoBitSpace.getText());
         }
 
-        final Map<BlockState, Integer> totalAddedBits = source.stream()
-          .filter(s -> !s.getState().isAir())
+        final Map<BlockInformation, Integer> totalAddedBits = source.stream()
+          .filter(s -> !s.getBlockInformation().isAir())
           .filter(s -> {
               final Optional<IStateEntryInfo> o = areaMutator.getInAreaTarget(s.getStartPoint());
 
               return o
-                .filter(os -> !os.getState().isAir())
-                .map(os -> !os.getState().equals(s.getState()))
+                .filter(os -> !os.getBlockInformation().isAir())
+                .map(os -> !os.getBlockInformation().equals(s.getBlockInformation()))
                 .orElse(false);
           })
           .collect(Collectors.toMap(
-            IStateEntryInfo::getState,
+            IStateEntryInfo::getBlockInformation,
             s -> 1,
             Integer::sum
           ));
@@ -146,16 +145,15 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
         try (IBatchMutation ignored = areaMutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(context.getPlayer())))
         {
             source.stream()
-              .filter(s -> !s.getState().isAir())
+              .filter(s -> !s.getBlockInformation().isAir())
               .forEach(
                 stateEntryInfo -> {
                     try
                     {
                         areaMutator.clearInAreaTarget(stateEntryInfo.getStartPoint());
                         areaMutator.setInAreaTarget(
-                          stateEntryInfo.getState(),
-                          stateEntryInfo.getStartPoint()
-                        );
+                          stateEntryInfo.getBlockInformation(),
+                          stateEntryInfo.getStartPoint());
                     }
                     catch (SpaceOccupiedException ignored1)
                     {

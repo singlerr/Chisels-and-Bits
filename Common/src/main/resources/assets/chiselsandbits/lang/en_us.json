@@ -356,6 +356,6 @@
   "mod.chiselsandbits.chisel.attempt.failed.no-block": "No block is being targeted",
   "mod.chiselsandbits.chisel.attempt.failed.no-placeable-bit-held": "You are not holding a placeable bit.",
   "mod.chiselsandbits.chisel.attempt.failed.no-valid-state-found": "The state you are trying to place is not valid.",
-  "mod.chiselsandbits.chisel.attempt.failed.not-enough-bits": "You are not holding enough $1 bits.",
+  "mod.chiselsandbits.chisel.attempt.failed.not-enough-bits": "You are not holding enough %s bits.",
   "mod.chiselsandbits.chisel.attempt.failed.targeted-block-not-chiselable": "The targeted block is not chiselable."
 }

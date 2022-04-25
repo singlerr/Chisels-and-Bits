@@ -1,7 +1,7 @@
 package mod.chiselsandbits.client.model.baked.face.model;
 
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import net.minecraft.world.level.block.state.BlockState;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 
 public class ModelQuadLayer
@@ -80,7 +80,7 @@ public class ModelQuadLayer
         }
 
         public ModelQuadLayer build(
-          final BlockState state,
+          final BlockInformation state,
           final int color,
           final int lightValue )
         {
@@ -91,7 +91,7 @@ public class ModelQuadLayer
             if ( 0x00 <= getCache().tint && getCache().tint <= 0xff )
             {
                 getCache().color = 0xffffffff;
-                getCache().tint = ( IBlockStateIdManager.getInstance().getIdFrom(state) << 8 ) | getCache().tint;
+                getCache().tint = ( IBlockStateIdManager.getInstance().getIdFrom(state.getBlockState()) << 8 ) | getCache().tint;
             }
             else
             {
@@ -116,6 +116,6 @@ public class ModelQuadLayer
         public void setUvExtractor(ModelUVReader uvExtractor) {
             this.uvExtractor = uvExtractor;
         }
-    };
+    }
 
 }

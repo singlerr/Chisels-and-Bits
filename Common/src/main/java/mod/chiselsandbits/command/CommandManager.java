@@ -7,16 +7,14 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
-import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
-import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
@@ -32,7 +30,6 @@ import mod.chiselsandbits.utils.CommandUtils;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.profiling.jfr.Environment;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -159,7 +156,7 @@ public class CommandManager
                       try
                       {
                           entry.clear();
-                          entry.setState(state);
+                          entry.setBlockInformation(new BlockInformation(state));
                       }
                       catch (SpaceOccupiedException e)
                       {
@@ -179,7 +176,7 @@ public class CommandManager
                       try
                       {
                           entry.clear();
-                          entry.setState(BlockStateUtils.getRandomSupportedDefaultState(context.getSource().getLevel().getRandom()));
+                          entry.setBlockInformation(new BlockInformation(BlockStateUtils.getRandomSupportedDefaultState(context.getSource().getLevel().getRandom())));
                       }
                       catch (SpaceOccupiedException e)
                       {
@@ -233,7 +230,7 @@ public class CommandManager
         context.getSource().sendSuccess(new TextComponent("############"), true);
         mutator.createSnapshot().getStatics()
           .getStateCounts().forEach((state, count) -> {
-            context.getSource().sendSuccess(new TextComponent(" > ").append(state.getBlock().getName()).append(new TextComponent(": " + count)), true);
+            context.getSource().sendSuccess(new TextComponent(" > ").append(state.getBlockState().getBlock().getName()).append(new TextComponent(": " + count)), true);
         });
 
         return 0;
@@ -250,9 +247,9 @@ public class CommandManager
 
         final IBitInventory inventory = IBitInventoryManager.getInstance().create(target);
 
-        final int insertionCount = Math.min(inventory.getMaxInsertAmount(state), count);
+        final int insertionCount = Math.min(inventory.getMaxInsertAmount(new BlockInformation(state)), count);
 
-        inventory.insertOrDiscard(state, insertionCount);
+        inventory.insertOrDiscard(new BlockInformation(state), insertionCount);
 
         return 0;
     }

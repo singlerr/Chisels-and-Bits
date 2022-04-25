@@ -1,9 +1,9 @@
 package mod.chiselsandbits.client.culling;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.StainedGlassBlock;
-import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Determine Culling using Block's Native Check.
@@ -12,26 +12,25 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public class MCCullTest implements ICullTest
 {
-
-
 	@Override
 	public boolean isVisible(
-			final BlockState a,
-			final BlockState b )
+			final BlockInformation a,
+			final BlockInformation b )
 	{
 		if ( a == b )
 		{
 			return false;
 		}
 
-		if ( a.getBlock().getClass() == StainedGlassBlock.class && a.getBlock() == b.getBlock() )
+		if ( a.getBlockState().getBlock().getClass() == StainedGlassBlock.class && a.getBlockState().getBlock() == b.getBlockState().getBlock() )
 		{
 			return false;
 		}
 
-        if (a.getBlock() instanceof LiquidBlock && b.getBlock() instanceof LiquidBlock)
+        if (a.getBlockState().getBlock() instanceof LiquidBlock && b.getBlockState().getBlock() instanceof LiquidBlock)
         {
-            return a.getFluidState().getType().equals(b.getFluidState().getType());
+            return a.getBlockState().getFluidState().getType().equals(b.getBlockState().getFluidState().getType()) &&
+              a.getVariant().equals(b.getVariant());
         }
 
 		if (a.isAir() && !b.isAir())
@@ -42,7 +41,7 @@ public class MCCullTest implements ICullTest
 
 		try
 		{
-			return !a.skipRendering( b, Direction.NORTH );
+			return !a.getBlockState().skipRendering( b.getBlockState(), Direction.NORTH );
 		}
 		catch ( final Throwable t )
 		{

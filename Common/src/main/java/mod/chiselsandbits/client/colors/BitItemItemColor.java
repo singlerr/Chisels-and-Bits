@@ -1,5 +1,6 @@
 package mod.chiselsandbits.client.colors;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.item.bit.BitItem;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
@@ -28,17 +29,17 @@ public class BitItemItemColor implements ItemColor
         if (!(stack.getItem() instanceof BitItem))
             return 0xffffff;
 
-        final BlockState state = ((BitItem) stack.getItem()).getBitState(stack);
-        if(state.getBlock() instanceof LiquidBlock) {
+        final BlockInformation blockInformation = ((BitItem) stack.getItem()).getBlockInformation(stack);
+        if(blockInformation.getBlockState().getBlock() instanceof LiquidBlock) {
             return IFluidManager.getInstance().getFluidColor(new FluidInformation(
-                    state.getFluidState().getType(),
+                    blockInformation.getBlockState().getFluidState().getType(),
                     1
             ));
         }
 
         if ((!Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown()) || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown()))
         {
-            final Block block = state.getBlock();
+            final Block block = blockInformation.getBlockState().getBlock();
             final Item item = block.asItem();
             int tintValue = tint & TINT_MASK;
 
@@ -50,12 +51,12 @@ public class BitItemItemColor implements ItemColor
             return 0xffffff;
         }
 
-        if (!IEligibilityManager.getInstance().canBeChiseled(state))
+        if (!IEligibilityManager.getInstance().canBeChiseled(blockInformation))
         {
             return 0xffffff;
         }
 
-        final ItemStack workingStack = new ItemStack(state.getBlock(), 1);
+        final ItemStack workingStack = new ItemStack(blockInformation.getBlockState().getBlock(), 1);
         if (workingStack.getItem() instanceof AirItem)
             return 0xffffff;
 

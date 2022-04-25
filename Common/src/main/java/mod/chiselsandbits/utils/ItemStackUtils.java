@@ -1,5 +1,6 @@
 package mod.chiselsandbits.utils;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.click.ILeftClickControllingItem;
 import mod.chiselsandbits.api.item.click.IRightClickControllingItem;
@@ -7,6 +8,7 @@ import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.pattern.IPatternItem;
 import mod.chiselsandbits.api.item.withhighlight.IWithHighlightItem;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
+import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
@@ -20,6 +22,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public class ItemStackUtils
 {
 
@@ -31,35 +35,39 @@ public class ItemStackUtils
     /**
      * Mimics pick block.
      *
-     * @param blockState the block and state we are creating an ItemStack for.
+     * @param blockInformation the block and state we are creating an ItemStack for.
      * @return ItemStack fromt the BlockState.
      */
-    public static ItemStack getItemStackFromBlockState(@NotNull final BlockState blockState)
+    public static ItemStack getItemStackFromBlockState(@NotNull final BlockInformation blockInformation)
     {
-        if (blockState.getBlock() instanceof LiquidBlock liquidBlock)
+        final Optional<ItemStack> dynamicStack = IStateVariantManager.getInstance().getItemStack(blockInformation);
+        if (dynamicStack.isPresent())
+            return dynamicStack.get();
+
+        if (blockInformation.getBlockState().getBlock() instanceof LiquidBlock liquidBlock)
         {
-            return new ItemStack(liquidBlock.getFluidState(blockState).getType().getBucket());
+            return new ItemStack(liquidBlock.getFluidState(blockInformation.getBlockState()).getType().getBucket());
         }
 
-        final Item item = getItem(blockState);
+        final Item item = getItem(blockInformation);
         if (item != Items.AIR && item != null)
         {
             return new ItemStack(item, 1);
         }
 
-        return new ItemStack(blockState.getBlock(), 1);
+        return new ItemStack(blockInformation.getBlockState().getBlock(), 1);
     }
 
-    public static Item getItem(@NotNull final BlockState blockState)
+    public static Item getItem(@NotNull final BlockInformation blockInformation)
     {
-        final Block block = blockState.getBlock();
+        final Block block = blockInformation.getBlockState().getBlock();
         if (block.equals(Blocks.LAVA))
         {
             return Items.LAVA_BUCKET;
         }
         else if (block instanceof CropBlock)
         {
-            final ItemStack stack = ((CropBlock) block).getCloneItemStack(new SingleBlockBlockReader(blockState), BlockPos.ZERO, blockState);
+            final ItemStack stack = block.getCloneItemStack(new SingleBlockBlockReader(blockInformation), BlockPos.ZERO, blockInformation.getBlockState());
             if (!stack.isEmpty())
             {
                 return stack.getItem();
@@ -245,42 +253,44 @@ public class ItemStackUtils
         return ItemStack.EMPTY;
     }
 
-    public static BlockState getHeldBitBlockStateFromPlayer(@Nullable final Player playerEntity)
+    public static BlockInformation getHeldBitBlockInformationFromPlayer(@Nullable final Player playerEntity)
     {
         if (playerEntity == null)
         {
-            return Blocks.AIR.defaultBlockState();
+            return new BlockInformation(Blocks.AIR.defaultBlockState());
         }
 
         if (playerEntity.getMainHandItem().getItem() instanceof IBitItem)
         {
-            return ((IBitItem) playerEntity.getMainHandItem().getItem()).getBitState(playerEntity.getMainHandItem());
+            return ((IBitItem) playerEntity.getMainHandItem().getItem()).getBlockInformation(playerEntity.getMainHandItem());
         }
 
         if (playerEntity.getOffhandItem().getItem() instanceof IBitItem)
         {
-            return ((IBitItem) playerEntity.getOffhandItem().getItem()).getBitState(playerEntity.getOffhandItem());
+            return ((IBitItem) playerEntity.getOffhandItem().getItem()).getBlockInformation(playerEntity.getOffhandItem());
         }
-        ;
 
-        return Blocks.AIR.defaultBlockState();
+        return new BlockInformation(Blocks.AIR.defaultBlockState());
     }
 
-    public static BlockState getStateFromItem(
+    public static BlockInformation getStateFromItem(
       final ItemStack is)
     {
         try
         {
-            if (!is.isEmpty() && is.getItem() instanceof BlockItem)
+            if (!is.isEmpty() && is.getItem() instanceof final BlockItem blockItem)
             {
-                final BlockItem blockItem = (BlockItem) is.getItem();
-                return blockItem.getBlock().defaultBlockState();
+                final BlockState blockState = blockItem.getBlock().defaultBlockState();
+                return new BlockInformation(
+                  blockState,
+                  IStateVariantManager.getInstance().getStateVariant(blockState, is)
+                );
             }
         }
         catch (final Throwable ignored)
         {
         }
 
-        return Blocks.AIR.defaultBlockState();
+        return new BlockInformation(Blocks.AIR.defaultBlockState());
     }
 }

@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.chiseling.eligibility;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,6 +16,17 @@ public interface IEligibilityManager
 
     static IEligibilityManager getInstance() {
         return IChiselsAndBitsAPI.getInstance().getEligibilityManager();
+    }
+
+    /**
+     * Checks if a given block information can be chiseled or is already chiseled.
+     *
+     * @param blockInformation The given block information in question.
+     *
+     * @return True when chiselable or already chiseled.
+     */
+    default boolean canBeChiseled(@NotNull final BlockInformation blockInformation) {
+        return analyse(blockInformation).canBeChiseled() || analyse(blockInformation).isAlreadyChiseled();
     }
 
     /**
@@ -52,13 +64,24 @@ public interface IEligibilityManager
     }
 
     /**
+     * Performs a chiselability analysis on the given block information.
+     *
+     * @param blockInformation The block information to analyze.
+     *
+     * @return The analysis result.
+     */
+    IEligibilityAnalysisResult analyse(@NotNull final BlockInformation blockInformation);
+
+    /**
      * Performs a chiselability analysis on the given blockstate.
      *
      * @param state The blockstate to analyze.
      *
      * @return The analysis result.
      */
-    IEligibilityAnalysisResult analyse(@NotNull final BlockState state);
+    default IEligibilityAnalysisResult analyse(@NotNull final BlockState state) {
+        return analyse(new BlockInformation(state));
+    }
 
     /**
      * Performs a chiselability analysis on the given block.

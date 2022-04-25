@@ -2,13 +2,16 @@ package mod.chiselsandbits.block;
 
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.api.block.bitbag.IBitBagAcceptingBlock;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
+import mod.chiselsandbits.client.colors.BlockInformationColorManager;
 import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -137,13 +140,8 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
     public ItemStack getTankDrop(final BitStorageBlockEntity bitTank)
     {
         final ItemStack tankStack = new ItemStack(ModItems.ITEM_BIT_STORAGE.get());
-        if (bitTank.containsFluid())
-        {
-            final Optional<FluidInformation> fluidInformation = bitTank.getFluid();
-            if (fluidInformation.isPresent()) {
-                return IFluidManager.getInstance().insertInto(tankStack, fluidInformation.get());
-            }
-        }
+        tankStack.getOrCreateTag().put(NbtConstants.BLOCK_INFORMATION, bitTank.getContainedBlockInformation().serializeNBT());
+        tankStack.getOrCreateTag().putInt(NbtConstants.COUNT, bitTank.getBits());
 
         return tankStack;
     }
@@ -157,7 +155,7 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
 
         final IBitInventory bitInventory = IBitInventoryManager.getInstance().create(bitBagStack);
 
-        final BlockState containedState = storage.getState();
+        final BlockInformation containedState = storage.getContainedBlockInformation();
 
         if (player.isCrouching() && (containedState != null)) {
             final int maxAmountToInsert = bitInventory.getMaxInsertAmount(containedState);
@@ -174,14 +172,14 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
             bitInventory.extract(containedState, bitCountToInsert);
         }
         else if (!player.isCrouching()) {
-            final Optional<BlockState> toExtractCandidate =
+            final Optional<BlockInformation> toExtractCandidate =
                 bitInventory.getContainedStates()
                   .entrySet()
                   .stream()
                   .max(Map.Entry.comparingByValue())
                   .map(Map.Entry::getKey);
             if (toExtractCandidate.isPresent()) {
-                final BlockState toExtractState = toExtractCandidate.get();
+                final BlockInformation toExtractState = toExtractCandidate.get();
                 final int maxAmountToInsert = StateEntrySize.current().getBitsPerBlock();
                 final int bitCountToInsert = Math.min(bitInventory.getMaxExtractAmount(toExtractState), maxAmountToInsert);
 

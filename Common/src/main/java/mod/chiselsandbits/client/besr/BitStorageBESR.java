@@ -2,8 +2,8 @@ package mod.chiselsandbits.client.besr;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
@@ -16,7 +16,6 @@ import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
 import mod.chiselsandbits.platforms.core.client.rendering.type.IRenderTypeManager;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
-import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
 import net.minecraft.client.Minecraft;
@@ -24,9 +23,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.data.BuiltinRegistries;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -84,17 +80,17 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
         }
 
         final int bits = te.getBits();
-        final BlockState state = te.getState();
-        if (bits <= 0 || state == null)
+        final BlockInformation blockInformation = te.getContainedBlockInformation();
+        if (bits <= 0 || blockInformation == null)
             return;
 
-        final CacheKey cacheKey = new CacheKey(IBlockStateIdManager.getInstance().getIdFrom(state), bits);
+        final CacheKey cacheKey = new CacheKey(blockInformation, bits);
         IStateEntryStorage innerModelBlob = STORAGE_CONTENTS_BLOB_CACHE.get(cacheKey);
         if (innerModelBlob == null) {
             innerModelBlob = new SimpleStateEntryStorage();
 
             innerModelBlob.fillFromBottom(
-              state,
+              blockInformation,
               bits
             );
             STORAGE_CONTENTS_BLOB_CACHE.put(cacheKey, innerModelBlob);
@@ -107,7 +103,7 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
         RenderType.chunkBufferLayers().forEach(renderType -> {
             final ChiseledBlockBakedModel innerModel = ChiseledBlockBakedModelManager.getInstance().get(
               MultiStateSnapshotUtils.createFromStorage(finalInnerModelBlob),
-              state,
+              blockInformation,
               ChiselRenderType.fromLayer(renderType, te.containsFluid()),
               null,
               null,
@@ -124,25 +120,25 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
                     g = te.getFluid().map(IFluidManager.getInstance()::getFluidColor).map(color -> (color >> 8) & 0xff).orElse(255) / 255f;
                     b = te.getFluid().map(IFluidManager.getInstance()::getFluidColor).map(color -> color & 0xff).orElse(255) / 255f;
                 } else {
-                    final int color = Minecraft.getInstance().getBlockColors().getColor(state, te.getLevel(), te.getBlockPos());
+                    final int color = Minecraft.getInstance().getBlockColors().getColor(blockInformation.getBlockState(), te.getLevel(), te.getBlockPos());
                     r = ((color >> 16) & 0xff) / 255f;
                     g = ((color >> 8) & 0xff) / 255f;
                     b = (color  & 0xff) / 255f;
                 }
 
 
-                IRenderingManager.getInstance().renderModel(poseStack.last(), buffer.getBuffer(renderType), state, innerModel, r, g, b, combinedLightIn, combinedOverlayIn);
+                IRenderingManager.getInstance().renderModel(poseStack.last(), buffer.getBuffer(renderType), blockInformation.getBlockState(), innerModel, r, g, b, combinedLightIn, combinedOverlayIn);
             }
         });
         poseStack.popPose();
     }
 
     private static final class CacheKey {
-        private final int blockStateId;
-        private final int bitCount;
+        private final BlockInformation blockInformation;
+        private final int              bitCount;
 
-        private CacheKey(final int blockStateId, final int bitCount) {
-            this.blockStateId = blockStateId;
+        private CacheKey(final BlockInformation blockInformation, final int bitCount) {
+            this.blockInformation = blockInformation;
             this.bitCount = bitCount;
         }
 
@@ -157,14 +153,14 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
             {
                 return false;
             }
-            return blockStateId == cacheKey.blockStateId &&
+            return blockInformation == cacheKey.blockInformation &&
                      bitCount == cacheKey.bitCount;
         }
 
         @Override
         public int hashCode()
         {
-            return Objects.hash(blockStateId, bitCount);
+            return Objects.hash(blockInformation, bitCount);
         }
     }
 }

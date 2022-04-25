@@ -5,12 +5,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
-import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRenderer;
 import mod.chiselsandbits.api.config.IClientConfiguration;
-import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
-import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.client.render.ModRenderTypes;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -22,8 +20,6 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.function.Predicate;
 
 public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implements IChiselContextPreviewRenderer
 {
@@ -104,41 +100,5 @@ public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implement
             return value.floatValue();
 
         return defaultValue;
-    }
-
-    private static final class InternalContextFilter implements Predicate<IStateEntryInfo>
-    {
-        private final Predicate<IStateEntryInfo> placingContextPredicate;
-
-        private InternalContextFilter(final Predicate<IStateEntryInfo> placingContextPredicate) {this.placingContextPredicate = placingContextPredicate;}
-
-        @Override
-        public boolean test(final IStateEntryInfo s)
-        {
-            return (s.getState().isAir() || IEligibilityManager.getInstance().canBeChiseled(s.getState())) && placingContextPredicate.test(s);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return placingContextPredicate != null ? placingContextPredicate.hashCode() : 0;
-        }
-
-        @Override
-        public boolean equals(final Object o)
-        {
-            if (this == o)
-            {
-                return true;
-            }
-            if (!(o instanceof InternalContextFilter))
-            {
-                return false;
-            }
-
-            final InternalContextFilter that = (InternalContextFilter) o;
-
-            return Objects.equals(placingContextPredicate, that.placingContextPredicate);
-        }
     }
 }

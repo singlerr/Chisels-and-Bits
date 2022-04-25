@@ -1,10 +1,11 @@
-package mod.chiselsandbits.utils;
+package mod.chiselsandbits.api.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class BlockStateSerializationUtils
@@ -29,4 +30,13 @@ public class BlockStateSerializationUtils
         }
         return GSON.toJson(encodedElement.result().get());
     }
+
+    public static BlockState deserialize(final FriendlyByteBuf buffer) {
+        return buffer.readWithCodec(BlockState.CODEC);
+    }
+
+    public static void serialize(final FriendlyByteBuf buf, final BlockState blockState) {
+        buf.writeWithCodec(BlockState.CODEC, blockState);
+    }
+
 }

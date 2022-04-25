@@ -1,13 +1,10 @@
 package mod.chiselsandbits.api.multistate.mutator;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.stream.Stream;
 
@@ -26,27 +23,28 @@ public interface IAreaMutator extends IAreaAccessor
     Stream<IMutableStateEntryInfo> mutableStream();
 
     /**
-     * Sets the target state in the current area, using the offset from the area as well as the in area target offset.
+     * Sets the target block information in the current area, using the offset from the area as well as the in area target offset.
      *
-     * @param blockState   The blockstate.
+     * @param blockInformation   The block information.
      * @param inAreaTarget The in area offset.
      * @throws SpaceOccupiedException When the space is not clear and as such the bit can not be set.
      */
     void setInAreaTarget(
-      BlockState blockState,
+      BlockInformation blockInformation,
       Vec3 inAreaTarget
     ) throws SpaceOccupiedException;
 
     /**
-     * Sets the target state in the current area, using the in area block position offset as well as the in block target offset to calculate the in area offset for setting.
+     * Sets the target block information in the current area, using the in area block position offset
+     * as well as the in block target offset to calculate the in area offset for setting.
      *
-     * @param blockState           The blockstate.
+     * @param blockInformation           The block information.
      * @param inAreaBlockPosOffset The offset of blocks in the current area.
      * @param inBlockTarget        The offset in the targeted block.
      * @throws SpaceOccupiedException When the space is not clear and as such the bit can not be set.
      */
     void setInBlockTarget(
-      BlockState blockState,
+      BlockInformation blockInformation,
       BlockPos inAreaBlockPosOffset,
       Vec3 inBlockTarget
     ) throws SpaceOccupiedException;
@@ -72,20 +70,21 @@ public interface IAreaMutator extends IAreaAccessor
     );
 
     /**
-     * Overrides the target state in the current area, using the offset from the area as well as the in area target offset.
+     * Overrides the target block information in the current area, using the offset from the
+     * area as well as the in area target offset.
      *
-     * @param blockState   The blockstate.
+     * @param blockInformation   The block information.
      * @param inAreaTarget The in area offset.
      */
     default void overrideInAreaTarget(
-      BlockState blockState,
+      BlockInformation blockInformation,
       Vec3 inAreaTarget
     )
     {
         try
         {
-            setInAreaTarget(Blocks.AIR.defaultBlockState(), inAreaTarget);
-            setInAreaTarget(blockState, inAreaTarget);
+            setInAreaTarget(BlockInformation.AIR, inAreaTarget);
+            setInAreaTarget(blockInformation, inAreaTarget);
         }
         catch (SpaceOccupiedException ignored)
         {
@@ -93,21 +92,22 @@ public interface IAreaMutator extends IAreaAccessor
     }
 
     /**
-     * Overrides the target state in the current area, using the in area block position offset as well as the in block target offset to calculate the in area offset for setting.
+     * Overrides the target block information in the current area, using the in area block position offset as well
+     * as the in block target offset to calculate the in area offset for setting.
      *
-     * @param blockState           The blockstate.
+     * @param blockInformation           The block information.
      * @param inAreaBlockPosOffset The offset of blocks in the current area.
      * @param inBlockTarget        The offset in the targeted block.
      */
     default void overrideInAreaTarget(
-      BlockState blockState,
+      BlockInformation blockInformation,
       BlockPos inAreaBlockPosOffset,
       Vec3 inBlockTarget
     ) {
         try
         {
-            setInBlockTarget(Blocks.AIR.defaultBlockState(), inAreaBlockPosOffset, inBlockTarget);
-            setInBlockTarget(blockState, inAreaBlockPosOffset, inBlockTarget);
+            setInBlockTarget(BlockInformation.AIR, inAreaBlockPosOffset, inBlockTarget);
+            setInBlockTarget(blockInformation, inAreaBlockPosOffset, inBlockTarget);
         }
         catch (SpaceOccupiedException ignored)
         {

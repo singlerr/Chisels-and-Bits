@@ -1,6 +1,7 @@
 package mod.chiselsandbits.chiseling.eligibility;
 
 import mod.chiselsandbits.api.IgnoreBlockLogic;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityAnalysisResult;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.IServerConfiguration;
@@ -33,7 +34,7 @@ public class EligibilityManager implements IEligibilityManager
 {
     private static final EligibilityManager INSTANCE = new EligibilityManager();
 
-    private static final SimpleMaxSizedCache<BlockState, IEligibilityAnalysisResult> cache =
+    private static final SimpleMaxSizedCache<BlockInformation, IEligibilityAnalysisResult> cache =
         new SimpleMaxSizedCache<>(() -> IPlatformRegistryManager.getInstance().getBlockStateIdMap().size() == 0 ? 1000 : IPlatformRegistryManager.getInstance().getBlockStateIdMap().size());
 
     private EligibilityManager()
@@ -45,18 +46,12 @@ public class EligibilityManager implements IEligibilityManager
         return INSTANCE;
     }
 
-    /**
-     * Performs a chiselability analysis on the given blockstate.
-     *
-     * @param state The blockstate to analyze.
-     * @return The analysis result.
-     */
     @SuppressWarnings("deprecation")
     @Override
-    public IEligibilityAnalysisResult analyse(@NotNull final BlockState state)
+    public IEligibilityAnalysisResult analyse(@NotNull final BlockInformation blockInformation)
     {
-        return cache.get(state, () -> {
-            if (state.getBlock() instanceof ChiseledBlock)
+        return cache.get(blockInformation, () -> {
+            if (blockInformation.getBlockState().getBlock() instanceof ChiseledBlock)
             {
                 return new EligibilityAnalysisResult(
                   false,
@@ -65,9 +60,9 @@ public class EligibilityManager implements IEligibilityManager
                 );
             }
 
-            final Block blk = state.getBlock();
+            final Block blk = blockInformation.getBlockState().getBlock();
 
-            if (state.is(ModTags.Blocks.BLOCKED_CHISELABLE))
+            if (blockInformation.getBlockState().is(ModTags.Blocks.BLOCKED_CHISELABLE))
             {
                 return new EligibilityAnalysisResult(
                   false,
@@ -76,7 +71,7 @@ public class EligibilityManager implements IEligibilityManager
                 );
             }
 
-            if (state.is(ModTags.Blocks.FORCED_CHISELABLE))
+            if (blockInformation.getBlockState().is(ModTags.Blocks.FORCED_CHISELABLE))
             {
                 return new EligibilityAnalysisResult(
                   true,
@@ -92,11 +87,11 @@ public class EligibilityManager implements IEligibilityManager
                 final Class<? extends Block> blkClass = blk.getClass();
 
                 // custom dropping behavior?
-                pb.getDrops(state, null);
+                pb.getDrops(blockInformation.getBlockState(), null);
                 final Class<?> wc = ClassUtils.getDeclaringClass(blkClass, pb.getLastInvokedThreadLocalMethodName(), BlockState.class, LootContext.Builder.class);
                 final boolean quantityDroppedTest = wc == Block.class || wc == BlockBehaviour.class || wc == LiquidBlock.class;
 
-                final boolean isNotSlab = Item.byBlock(blk) != Items.AIR || state.getBlock() instanceof LiquidBlock;
+                final boolean isNotSlab = Item.byBlock(blk) != Items.AIR || blockInformation.getBlockState().getBlock() instanceof LiquidBlock;
                 boolean itemExistsOrNotSpecialDrops = quantityDroppedTest || isNotSlab;
 
                 // ignore blocks with custom collision.
@@ -106,14 +101,14 @@ public class EligibilityManager implements IEligibilityManager
 
                 // full cube specifically is tied to lighting... so for glass
                 // Compatibility use isFullBlock which can be true for glass.
-                boolean isFullBlock = state.canOcclude() || blk instanceof AbstractGlassBlock || blk instanceof LiquidBlock;
-                final BlockEligibilityAnalysisData info = BlockEligibilityAnalysisData.createFromState(state);
+                boolean isFullBlock = blockInformation.getBlockState().canOcclude() || blk instanceof AbstractGlassBlock || blk instanceof LiquidBlock;
+                final BlockEligibilityAnalysisData info = BlockEligibilityAnalysisData.createFromState(blockInformation);
 
-                final boolean tickingBehavior = blk.isRandomlyTicking(state) && IServerConfiguration.getInstance().getBlackListRandomTickingBlocks().get();
+                final boolean tickingBehavior = blk.isRandomlyTicking(blockInformation.getBlockState()) && IServerConfiguration.getInstance().getBlackListRandomTickingBlocks().get();
                 boolean hasBehavior = (blk instanceof EntityBlock || tickingBehavior);
 
                 final Material remappedMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(
-                  state.getMaterial()
+                  blockInformation.getBlockState().getMaterial()
                 );
                 final boolean supportedMaterial = ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.containsKey(remappedMaterial);
 
@@ -143,7 +138,7 @@ public class EligibilityManager implements IEligibilityManager
                       ));
                 }
 
-                if (!state.getFluidState().isEmpty() && state.getBlock() instanceof LiquidBlock)
+                if (!blockInformation.getBlockState().getFluidState().isEmpty() && blockInformation.getBlockState().getBlock() instanceof LiquidBlock)
                 {
                     return new EligibilityAnalysisResult(
                       true,

@@ -1,8 +1,8 @@
 package mod.chiselsandbits.api.neighborhood;
 
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,12 +13,12 @@ public interface IBlockNeighborhood
 {
 
     /**
-     * Returns the blocks blockstate neighbor in the given direction.
+     * Returns the blocks neighbor in the given direction.
      * @param direction The direction.
      * @return The blockstate
      */
     @NotNull
-    BlockState getBlockState(final Direction direction);
+    BlockInformation getBlockInformation(final Direction direction);
 
     /**
      * Returns the blocks potential area accessor neighbor in the given direction.

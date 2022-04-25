@@ -1,6 +1,7 @@
 package mod.chiselsandbits.neighborhood;
 
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
@@ -25,7 +26,7 @@ public final class BlockNeighborhoodBuilder implements IBlockNeighborhoodBuilder
 
     @Override
     public @NotNull IBlockNeighborhood build(
-            @Nullable Function<Direction, BlockState> neighborhoodBlockStateProvider,
+            @Nullable Function<Direction, BlockInformation> neighborhoodBlockStateProvider,
             @Nullable Function<Direction, IAreaAccessor> neighborhoodAreaAccessorProvider
     ) {
         final EnumMap<Direction, BlockNeighborhoodEntry> neighborhoodMap = new EnumMap<>(Direction.class);
@@ -33,7 +34,7 @@ public final class BlockNeighborhoodBuilder implements IBlockNeighborhoodBuilder
         try (IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Key building")) {
             if (neighborhoodBlockStateProvider != null && neighborhoodAreaAccessorProvider != null) {
                 for (final Direction value : Direction.values()) {
-                    final BlockState state = neighborhoodBlockStateProvider.apply(value);
+                    final BlockInformation state = neighborhoodBlockStateProvider.apply(value);
                     final IAreaAccessor accessor = neighborhoodAreaAccessorProvider.apply(value);
                     if (accessor == null) {
                         neighborhoodMap.put(value, new BlockNeighborhoodEntry(state));
