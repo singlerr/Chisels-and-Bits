@@ -1,0 +1,154 @@
+import java.util.regex.Pattern
+
+plugins {
+    id('java-library')
+    id('org.spongepowered.gradle.vanilla') version '0.2.1-SNAPSHOT'
+}
+
+apply plugin: org.zaproxy.gradle.crowdin.CrowdinPlugin
+
+archivesBaseName = "${mod_name}-common-${minecraft_version}"
+
+repositories {
+    maven {
+        name 'LDTTeam - Modding'
+        url 'https://ldtteam.jfrog.io/ldtteam/modding/'
+    }
+}
+
+sourceSets {
+    jmh {
+        java.srcDirs = ['src/jmh/java']
+        resources.srcDirs = ['src/jmh/resources']
+        compileClasspath += sourceSets.main.runtimeClasspath
+        compileClasspath += sourceSets.main.output
+    }
+}
+
+minecraft {
+    version minecraft_version
+    accessWideners project.rootProject.file("platforms/core/src/main/resources/${mod_id}.accesswidener")
+}
+
+project.sourceSets.main.resources.srcDir "src/datagen/generated"
+
+configurations {
+    shadow
+
+    api.extendsFrom shadow
+}
+
+dependencies {
+    compileOnly group:'org.spongepowered', name:'mixin', version:'0.8.4'
+
+    api project(':api')
+    api project(':platforms:core')
+
+    testImplementation project(':api')
+    testImplementation project(':platforms:core')
+
+    shadow "org.lz4:lz4-pure-java:${project.lz4Version}"
+
+    compileOnly "org.jetbrains:annotations:${project.jetbrainsAnnotationsVersion}"
+    testCompileOnly "org.jetbrains:annotations:${project.jetbrainsAnnotationsVersion}"
+
+    jmhImplementation "org.mockito:mockito-core:1.+"
+    jmhImplementation "org.openjdk.jmh:jmh-core:${project.jmhVersion}"
+    jmhAnnotationProcessor "org.openjdk.jmh:jmh-generator-annprocess:${project.jmhVersion}"
+}
+
+if (opc.hasPropertySet("crowdInApiKey")) {
+    project.crowdin { crowdinSpec ->
+        crowdinSpec.credentials { credentialsSpec ->
+            credentialsSpec.getToken().set(opc.getProperty("crowdInApiKey"))
+        }
+
+        crowdinSpec.configuration { configurationSpec ->
+            configurationSpec.getFile().set(file("gradle/crowdin.yml"))
+            configurationSpec.tokens.put("%crowdin_download_path%", opc.getProperty("crowdInDownloadDirectory"))
+
+            if (opc.isFeatureEnabled("crowdInBranchSeparation")) {
+                configurationSpec.tokens.put("%branch_name%", git.branch.name)
+            }
+        }
+    }
+
+    project.tasks.crowdinBuildProjectTranslation { taskSpec ->
+        taskSpec.getWaitForBuilds().set(true)
+    }
+
+    def performsTranslationsBuild = false;
+    if (!opc.isFeatureEnabled("crowdInBuildingWithFilteredBranches") || (opc.hasPropertySet("crowdInBuildingWithFilteredBranchesSpec") && Pattern.matches(opc.getProperty("crowdInBuildingWithFilteredBranchesSpec"), git.branch.name)))
+    {
+        tasks.processResources.dependsOn crowdinBuildProjectTranslation
+        performsTranslationsBuild = true;
+    }
+    if (!opc.isFeatureEnabled("crowdInUploadWithFilteredBranches") || (opc.hasPropertySet("crowdInUploadWithFilteredBranchesSpec") && Pattern.matches(opc.getProperty("crowdInUploadWithFilteredBranchesSpec"), git.branch.name)))
+    {
+        tasks.processResources.dependsOn crowdinUploadSourceFiles
+        if (performsTranslationsBuild) {
+            tasks.crowdinBuildProjectTranslation.dependsOn crowdinUploadSourceFiles
+        }
+
+        if (opc.isFeatureEnabled("mergableTranslations") && opc.hasPropertySet("translationMergeSources") && opc.hasPropertySet("translationMergeDestination")) {
+            tasks.crowdinUploadSourceFiles.dependsOn mergeTranslations
+        }
+    }
+
+    task deleteTranslationFilesInBuildDir(type: Delete) {
+        group "crowdin"
+        dependsOn crowdinCopyProjectTranslations
+        delete project.buildDir.toPath().resolve("temp").resolve("translations")
+        followSymlinks = true
+    }
+
+    task normalizeTranslationFilesToBuildDir(type: Copy) {
+        group "crowdin"
+        dependsOn deleteTranslationFilesInBuildDir
+        from project.rootDir.toPath().resolve(opc.getProperty("crowdInDownloadDirectory")).toFile()
+        into project.buildDir.toPath().resolve("temp").resolve("translations")
+        rename { String name -> name.toLowerCase() }
+    }
+
+    task deleteTranslationFilesInRuntimeDir(type: Delete) {
+        group "crowdin"
+        dependsOn normalizeTranslationFilesToBuildDir
+        delete project.rootDir.toPath().resolve(opc.getProperty("crowdInDownloadDirectory")).toFile()
+        followSymlinks = true
+    }
+
+    task normalizeTranslationFilesToRuntimeDir(type: Copy) {
+        group "crowdin"
+        dependsOn deleteTranslationFilesInRuntimeDir
+        from project.buildDir.toPath().resolve("temp").resolve("translations")
+        into project.rootDir.toPath().resolve(opc.getProperty("crowdInDownloadDirectory")).toFile()
+        rename { String name -> name.toLowerCase() }
+    }
+
+    tasks.crowdinCopyProjectTranslations.dependsOn crowdinDownloadProjectTranslation
+    tasks.processResources.dependsOn normalizeTranslationFilesToRuntimeDir
+    tasks.sourcesJar.dependsOn normalizeTranslationFilesToRuntimeDir
+
+}
+else
+{
+    project.afterEvaluate {
+        project.logger.lifecycle "No CrowdIn API Key was provided. Can not sync translations!"
+    }
+}
+
+task jmh(type: JavaExec, dependsOn: jmhClasses) {
+    group = "test"
+
+    mainClass.set('org.openjdk.jmh.Main')
+    classpath = sourceSets.jmh.compileClasspath + sourceSets.jmh.runtimeClasspath
+
+    jvmArgs = [
+            '--add-opens', 'java.base/java.util.stream=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.io=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+            '--add-opens', 'java.xml/jdk.xml.internal=ALL-UNNAMED'
+    ]
+}
+
+classes.finalizedBy(jmhClasses)

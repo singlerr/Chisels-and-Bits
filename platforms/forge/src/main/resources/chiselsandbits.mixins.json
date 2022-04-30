@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "mod.chiselsandbits.forge.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "chiselsandbits.refmap.json",
+  "mixins": [
+    "platform.common.LivingEntityEquipmentSlotMixin",
+    "platform.common.WorldlyBlockGrassGrowMixin"
+  ],
+  "client": [
+    "client.AbstractClientPlayerMixin",
+    "client.CustomHeadLayerMixin",
+    "client.LocalPlayerScopingMixin",
+    "client.PlayerScopingMixin",
+    "platform.client.BlockEntityWithoutLevelRendererMixin",
+    "platform.client.LevelRendererBeforeDebugRenderingHookMixin",
+    "platform.client.ModelDataManagerMixin"
+  ],
+  "server": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

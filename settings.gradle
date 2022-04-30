@@ -13,4 +13,4 @@ pluginManagement {
 }
 
 rootProject.name = 'Chisels&Bits'
-include("Platforms:Core", "API", "Common", "Platforms:Fabric", "Platforms:Forge")
+include("platforms:core", "api", "common", "platforms:fabric", "platforms:forge")
