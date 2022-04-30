@@ -22,10 +22,12 @@ import mod.chiselsandbits.multistate.snapshot.MultiBlockMultiStateSnapshot;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Map;
@@ -480,6 +482,15 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
                  ", startPoint=" + startPoint +
                  ", endPoint=" + endPoint +
                  '}';
+    }
+
+    @Override
+    public @NotNull AABB getBoundingBox()
+    {
+        return new AABB(
+          startPoint,
+          endPoint
+        );
     }
 
     private static final class BatchMutationLock implements IBatchMutation

@@ -223,7 +223,11 @@ public enum LocalStrings
     ChiselAttemptFailedNoPlaceableBitHeld("chisel.attempt.failed.no-placeable-bit-held"),
     ChiselAttemptFailedNotEnoughBits("chisel.attempt.failed.not-enough-bits"),
     ChiselAttemptFailedAttemptTooHigh("chisel.attempt.failed.attempt-too-high"),
-    ChiselAttemptFailedAttemptTooLow("chisel.attempt.failed.attempt-too-low");
+    ChiselAttemptFailedAttemptTooLow("chisel.attempt.failed.attempt-too-low"),
+    PatternCuttingAcrossXAxis("pattern.cutting.across.axis.x"),
+    PatternCuttingAcrossYAxis("pattern.cutting.across.axis.y"),
+    PatternCuttingAcrossZAxis("pattern.cutting.across.axis.z"),
+    DefaultChiseledBlockItemName("default-chiseled-block-item.name");
 
     private final String string;
 

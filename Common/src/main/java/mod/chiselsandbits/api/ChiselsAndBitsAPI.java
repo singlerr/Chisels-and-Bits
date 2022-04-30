@@ -15,6 +15,8 @@ import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
 import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.config.IChiselsAndBitsConfiguration;
+import mod.chiselsandbits.api.cutting.operation.ICuttingOperation;
+import mod.chiselsandbits.api.glueing.operation.IGlueingOperation;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
@@ -329,5 +331,17 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
               }
           }
         );
+    }
+
+    @Override
+    public @NotNull ICuttingOperation getDefaultCuttingOperation()
+    {
+        return null;
+    }
+
+    @Override
+    public @NotNull IGlueingOperation getDefaultGlueingOperation()
+    {
+        return null;
     }
 }

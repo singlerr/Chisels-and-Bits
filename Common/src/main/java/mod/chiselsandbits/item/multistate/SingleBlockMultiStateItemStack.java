@@ -47,6 +47,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -510,6 +511,12 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
             return false;
 
         return createNewShapeIdentifier().equals(accessor.createNewShapeIdentifier());
+    }
+
+    @Override
+    public @NotNull AABB getBoundingBox()
+    {
+        return new AABB(0,0,0,1,1,1);
     }
 
     private static final class ShapeIdentifier implements IArrayBackedAreaShapeIdentifier

@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.multistate.accessor;
 
+import mod.chiselsandbits.api.aabb.IAABBOwner;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
@@ -13,7 +14,7 @@ import java.util.stream.Stream;
  * Gives access to all states in a given area.
  * Might be larger then a single block.
  */
-public interface IAreaAccessor extends IStateAccessor
+public interface IAreaAccessor extends IStateAccessor, IAABBOwner
 {
     /**
      * Creates a new area shape identifier.

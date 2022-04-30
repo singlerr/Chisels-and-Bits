@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -718,6 +719,19 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
             return Shapes.block().move(offset.getX(), offset.getY(), offset.getZ());
 
         return currentState.getShape(getWorld(), getPos()).move(offset.getX(), offset.getY(), offset.getZ());
+    }
+
+    @Override
+    public @NotNull AABB getBoundingBox()
+    {
+        return new AABB(
+          getPos().getX(),
+          getPos().getY(),
+          getPos().getZ(),
+          getPos().getX() + 1,
+          getPos().getY() + 1,
+          getPos().getZ() + 1
+        );
     }
 
     private static class MutablePreAdaptedStateEntry implements IInWorldMutableStateEntryInfo

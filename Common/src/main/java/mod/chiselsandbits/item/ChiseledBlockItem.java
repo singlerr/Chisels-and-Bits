@@ -1,19 +1,26 @@
 package mod.chiselsandbits.item;
 
+import com.google.common.base.Suppliers;
+import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.chiseled.IChiseledBlockItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.modification.operation.IModificationOperation;
+import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.util.BlockStateUtils;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
+import mod.chiselsandbits.multistate.snapshot.SimpleSnapshot;
+import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.registrars.ModModificationOperation;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -28,16 +35,62 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
+import java.util.Random;
+import java.util.function.Supplier;
 
 public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
 {
 
+    private static final Supplier<ItemStack> DEFAULT_INSTANCE = Suppliers.memoize(() -> {
+        final Random random = new Random();
+
+        final int blockStateCount = (StateEntrySize.current().getBitsPerBlockSide() / 4) *
+                                      (StateEntrySize.current().getBitsPerBlockSide() / 4) *
+                                      (StateEntrySize.current().getBitsPerBlockSide() / 4);
+        final List<BlockInformation> blockInformation = new ArrayList<>(blockStateCount);
+        for (int i = 0; i < blockStateCount; i++)
+        {
+            blockInformation.add(BlockStateUtils.getRandomSupportedInformation(random));
+        }
+
+        final SimpleSnapshot results = new SimpleSnapshot(BlockInformation.AIR);
+
+        results.mutableStream()
+          .forEach(stateEntryInfo -> {
+              final Vec3 pos = stateEntryInfo.getStartPoint()
+                                 .multiply(StateEntrySize.current().getBitsPerBlockSideScalingVector());
+
+              final Vec3 indexPos = pos.multiply(1 / 4d, 1/4d, 1/4d);
+              final Vec3i index = new Vec3i(indexPos.x(), indexPos.y(), indexPos.z());
+
+              final int size = StateEntrySize.current().getBitsPerBlockSide() / 4;
+              final int blockInformationIndex = index.getX() + (index.getY() * size) + (index.getZ() * size * size);
+              final BlockInformation info = blockInformation.get(blockInformationIndex);
+              stateEntryInfo.overrideState(info);
+          });
+
+        final ItemStack stack = results.toItemStack().toBlockStack();
+        stack.getOrCreateTag().putBoolean(NbtConstants.DEFAULT_INSTANCE_INDICATOR, true);
+        return stack;
+    });
+
     public ChiseledBlockItem(final Block blockIn, final Properties builder)
     {
         super(blockIn, builder);
+    }
+
+    @Override
+    public @NotNull Component getName(final @NotNull ItemStack stack)
+    {
+        if (stack.getOrCreateTag().contains(NbtConstants.DEFAULT_INSTANCE_INDICATOR) &&
+              stack.getOrCreateTag().getBoolean(NbtConstants.DEFAULT_INSTANCE_INDICATOR)) {
+            return LocalStrings.DefaultChiseledBlockItemName.getText();
+        }
+
+        return super.getName(stack);
     }
 
     /**
@@ -147,6 +200,12 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
                   return false;
               }
           });
+    }
+
+    @Override
+    public @NotNull ItemStack getDefaultInstance()
+    {
+        return DEFAULT_INSTANCE.get();
     }
 
     @Override

@@ -21,8 +21,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.NotImplementedException;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -468,6 +470,19 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
           clonedSnapshots,
           startPoint,
           endPoint
+        );
+    }
+
+    @Override
+    public @NotNull AABB getBoundingBox()
+    {
+        return new AABB(
+          startPoint.x(),
+          startPoint.y(),
+          startPoint.z(),
+          endPoint.x(),
+          endPoint.y(),
+          endPoint.z()
         );
     }
 

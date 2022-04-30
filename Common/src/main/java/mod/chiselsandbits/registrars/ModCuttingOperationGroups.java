@@ -9,10 +9,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
-public final class ModModificationOperationGroups
+public final class ModCuttingOperationGroups
 {
     private static final Logger                      LOGGER = LogManager.getLogger();
-    public static        IModificationOperationGroup ROTATE = new IModificationOperationGroup()
+
+    public static        IModificationOperationGroup ACROSS_AXIS = new IModificationOperationGroup()
     {
         @Override
         public @NotNull ResourceLocation getIcon()
@@ -26,29 +27,29 @@ public final class ModModificationOperationGroups
             return LocalStrings.PatternModificationGroupRotate.getText();
         }
     };
-    public static        IModificationOperationGroup MIRROR = new IModificationOperationGroup()
+    public static        IModificationOperationGroup ALL_AXI = new IModificationOperationGroup()
     {
         @Override
         public @NotNull ResourceLocation getIcon()
         {
-            return new ResourceLocation(Constants.MOD_ID, "textures/icons/mirror.png");
+            return new ResourceLocation(Constants.MOD_ID, "textures/icons/rotate.png");
         }
 
         @Override
         public Component getDisplayName()
         {
-            return LocalStrings.PatternModificationGroupMirror.getText();
+            return LocalStrings.PatternModificationGroupRotate.getText();
         }
     };
 
-    private ModModificationOperationGroups()
+    private ModCuttingOperationGroups()
     {
-        throw new IllegalStateException("Can not instantiate an instance of: ModModificationOperationGroups. This is a utility class");
+        throw new IllegalStateException("Can not instantiate an instance of: ModCuttingOperationGroups. This is a utility class");
     }
 
     public static void onModConstruction()
     {
-        LOGGER.info("Loaded modification operation group configuration.");
+        LOGGER.info("Loaded cutting operation group configuration.");
     }
 
 }

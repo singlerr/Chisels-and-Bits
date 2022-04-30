@@ -18,6 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
@@ -231,6 +232,12 @@ public class EmptySnapshot implements IMultiStateSnapshot
         //Noop
     }
 
+    @Override
+    public @NotNull AABB getBoundingBox()
+    {
+        return new AABB(0,0,0,1,1,1);
+    }
+
     private static final class Identifier implements IAreaShapeIdentifier {
         public static final Identifier INSTANCE = new Identifier();
     }
@@ -402,6 +409,12 @@ public class EmptySnapshot implements IMultiStateSnapshot
         public void mirror(final Direction.Axis axis)
         {
 
+        }
+
+        @Override
+        public @NotNull AABB getBoundingBox()
+        {
+            return new AABB(0,0,0,1,1,1);
         }
     }
 }

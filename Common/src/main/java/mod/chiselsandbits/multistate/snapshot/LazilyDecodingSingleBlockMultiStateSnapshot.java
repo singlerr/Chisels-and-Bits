@@ -31,6 +31,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
@@ -516,6 +517,12 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         return new LazilyDecodingSingleBlockMultiStateSnapshot(
           this.lazyChunkSection.serializeNBT()
         );
+    }
+
+    @Override
+    public @NotNull AABB getBoundingBox()
+    {
+        return new AABB(0,0,0,1,1,1);
     }
 
     private static class StateEntry implements IMutableStateEntryInfo

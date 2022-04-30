@@ -25,7 +25,8 @@ public class NbtConstants
     public static final String BITS           = "bits";
     public static final String BLOCK_INFORMATION      = "block_information";
     public static final String PRIMARY_BLOCK_INFORMATION = "primary_block_information";
-    public static final String BLOCK                     = "block";
+    public static final String BLOCK                   = "block";
+    public static final String DEFAULT_INSTANCE_INDICATOR = "default_instance_indicator";
 
     private NbtConstants()
     {

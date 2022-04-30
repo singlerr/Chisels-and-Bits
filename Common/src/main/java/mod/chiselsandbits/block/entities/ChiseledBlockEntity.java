@@ -63,6 +63,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.lighting.LayerLightEngine;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CubeVoxelShape;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -711,6 +712,19 @@ public class ChiseledBlockEntity extends BlockEntity implements
         }
 
         return shape;
+    }
+
+    @Override
+    public @NotNull AABB getBoundingBox()
+    {
+        return new AABB(
+          this.getBlockPos().getX(),
+          this.getBlockPos().getY(),
+          this.getBlockPos().getZ(),
+          this.getBlockPos().getX() + 1,
+          this.getBlockPos().getY() + 1,
+          this.getBlockPos().getZ() + 1
+        );
     }
 
     private static final class StateEntry implements IInWorldMutableStateEntryInfo

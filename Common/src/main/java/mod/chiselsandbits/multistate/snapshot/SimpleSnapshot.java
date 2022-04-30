@@ -29,6 +29,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.NotImplementedException;
 import org.jetbrains.annotations.NotNull;
@@ -466,6 +467,12 @@ public class SimpleSnapshot implements IMultiStateSnapshot
         return new SimpleSnapshot(
           this.chunkSection.createSnapshot()
         );
+    }
+
+    @Override
+    public @NotNull AABB getBoundingBox()
+    {
+        return new AABB(0,0,0,1,1,1);
     }
 
     private static class StateEntry implements IMutableStateEntryInfo
