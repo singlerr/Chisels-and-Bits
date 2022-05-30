@@ -282,6 +282,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
         this.storageEngine.serializeNBTInto(compound);
     }
+
     /**
      * For tile entities, ensures the chunk containing the tile entity is saved to disk later - the game won't think it hasn't changed and skip it.
      */

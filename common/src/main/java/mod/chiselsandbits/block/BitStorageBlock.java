@@ -140,8 +140,10 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
     public ItemStack getTankDrop(final BitStorageBlockEntity bitTank)
     {
         final ItemStack tankStack = new ItemStack(ModItems.ITEM_BIT_STORAGE.get());
-        tankStack.getOrCreateTag().put(NbtConstants.BLOCK_INFORMATION, bitTank.getContainedBlockInformation().serializeNBT());
-        tankStack.getOrCreateTag().putInt(NbtConstants.COUNT, bitTank.getBits());
+        if (bitTank.getContainedBlockInformation() != null && !bitTank.getContainedBlockInformation().isAir()) {
+            tankStack.getOrCreateTag().put(NbtConstants.BLOCK_INFORMATION, bitTank.getContainedBlockInformation().serializeNBT());
+            tankStack.getOrCreateTag().putInt(NbtConstants.COUNT, bitTank.getBits());
+        }
 
         return tankStack;
     }

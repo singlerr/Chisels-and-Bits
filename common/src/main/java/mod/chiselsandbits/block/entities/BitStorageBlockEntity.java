@@ -229,19 +229,23 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
 
                 if (IEligibilityManager.getInstance().canBeChiseled(state))
                 {
-                    final int maxToInsert = StateEntrySize.current().getBitsPerBlock() - bits;
-                    final int toInsert = (int) Math.min(maxToInsert, getBitCountFrom(containedFluid.get()));
-
-                    bits += toInsert;
-
-                    if (!playerIn.isCreative())
+                    if (this.state == null || state.isAir())
                     {
-                        final ItemStack resultStack = IFluidManager.getInstance().extractFrom(current, toInsert);
-                        playerIn.getInventory().setItem(playerIn.getInventory().selected, resultStack);
-                        playerIn.getInventory().setChanged();
+                        final int maxToInsert = StateEntrySize.current().getBitsPerBlock() - bits;
+                        final int toInsert = (int) Math.min(maxToInsert, getBitCountFrom(containedFluid.get()));
+
+                        this.state = new BlockInformation(state);
+                        this.bits += toInsert;
+
+                        if (!playerIn.isCreative())
+                        {
+                            final ItemStack resultStack = IFluidManager.getInstance().extractFrom(current, toInsert);
+                            playerIn.getInventory().setItem(playerIn.getInventory().selected, resultStack);
+                            playerIn.getInventory().setChanged();
+                        }
+                        saveAndUpdate();
+                        return true;
                     }
-                    saveAndUpdate();
-                    return true;
                 }
             }
         }

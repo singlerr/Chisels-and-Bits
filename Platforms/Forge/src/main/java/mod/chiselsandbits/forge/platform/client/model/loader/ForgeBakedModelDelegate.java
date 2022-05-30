@@ -16,15 +16,15 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Random;
 
-public class ForgeBakedModelDelegate implements BakedModel, IDelegatingBakedModel
+public final class ForgeBakedModelDelegate implements BakedModel, IDelegatingBakedModel
 {
     private final BakedModel delegate;
 
     public ForgeBakedModelDelegate(final BakedModel delegate) {this.delegate = delegate;}
 
     @Override
-    public List<BakedQuad> getQuads(
-      @Nullable final BlockState p_119123_, @Nullable final Direction p_119124_, final Random p_119125_)
+    public @NotNull List<BakedQuad> getQuads(
+      @Nullable final BlockState p_119123_, @Nullable final Direction p_119124_, final @NotNull Random p_119125_)
     {
         return delegate.getQuads(p_119123_, p_119124_, p_119125_);
     }
@@ -66,13 +66,13 @@ public class ForgeBakedModelDelegate implements BakedModel, IDelegatingBakedMode
     }
 
     @Override
-    public TextureAtlasSprite getParticleIcon()
+    public @NotNull TextureAtlasSprite getParticleIcon()
     {
         return delegate.getParticleIcon();
     }
 
     @Override
-    public ItemOverrides getOverrides()
+    public @NotNull ItemOverrides getOverrides()
     {
         return delegate.getOverrides();
     }

@@ -62,7 +62,9 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
 
                     final VertexConsumer builder = buffer.getBuffer(renderType);
 
-                    final float fullness = (float) fluidStack.amount() / (float) StateEntrySize.current().getBitsPerBlock();
+                    final float fullness = (float) fluidStack.amount() / (float) IFluidManager.getInstance().getBucketAmount();
+
+                    final float heightFactor = Math.min(Math.max(0, fullness), 1f);
 
                     FluidCuboidUtils.renderScaledFluidCuboid(
                       fluidStack,
@@ -71,7 +73,7 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
                       combinedLightIn,
                       combinedOverlayIn,
                       1, 1, 1,
-                      15, 15 * fullness, 15
+                      15, 15 * heightFactor, 15
                     );
                 });
             }
