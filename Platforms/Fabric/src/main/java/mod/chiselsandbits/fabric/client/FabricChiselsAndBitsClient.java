@@ -19,17 +19,21 @@ import mod.chiselsandbits.client.screens.ModificationTableScreen;
 import mod.chiselsandbits.client.time.TickHandler;
 import mod.chiselsandbits.fabric.platform.client.rendering.model.loader.FabricPlatformModelLoaderPlatformDelegate;
 import mod.chiselsandbits.keys.KeyBindingManager;
+import mod.chiselsandbits.logic.ChiselingManagerCountDownResetHandler;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModContainerTypes;
 import mod.chiselsandbits.registrars.ModItems;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.event.client.player.ClientPickBlockGatherCallback;
+import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -99,6 +103,8 @@ public class FabricChiselsAndBitsClient implements ClientModInitializer
 
     private static void setupEvents()
     {
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> ChiselingManagerCountDownResetHandler.doResetFor(client.player));
+
         ClientTickEvents.START_CLIENT_TICK.register(minecraft -> {
             ToolNameHighlightTickHandler.handleClientTickForMagnifyingGlass();
             KeyBindingManager.getInstance().handleKeyPresses();
