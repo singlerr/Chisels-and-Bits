@@ -181,13 +181,13 @@
     "version": "1.0",
     "icon": "chisel_netherite.png",
     "recipes": [
-      "chiselsandbits_chisel_stone_produces_chiselsandbits_chisel_stone"
+      "chiselsandbits_chisel_stone_produces_chiselsandbits_chisel_netherite"
     ],
     "usages": [
-      "chiselsandbits_magnifying_glass_consumes_chiselsandbits_chisel_stone",
-      "chiselsandbits_bit_storage_consumes_chiselsandbits_chisel_stone",
-      "chiselsandbits_chiseled_printer_consumes_chiselsandbits_chisel_stone",
-      "chiselsandbits_modification_table_consumes_chiselsandbits_chisel_stone"
+      "chiselsandbits_magnifying_glass_consumes_chiselsandbits_chisel_netherite",
+      "chiselsandbits_bit_storage_consumes_chiselsandbits_chisel_netherite",
+      "chiselsandbits_chiseled_printer_consumes_chiselsandbits_chisel_netherite",
+      "chiselsandbits_modification_table_consumes_chiselsandbits_chisel_netherite"
     ]
   },
 
