@@ -1,30 +1,29 @@
-package mod.chiselsandbits.forge.integration.jei;
+package mod.chiselsandbits.fabric.integration.rei;
 
-import mezz.jei.api.constants.ModIds;
-import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.platforms.core.config.ConfigurationType;
 import mod.chiselsandbits.platforms.core.config.IConfigurationBuilder;
 import mod.chiselsandbits.platforms.core.config.IConfigurationManager;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.function.Supplier;
 
-public class JEICompatConfiguration
+public class REICompatConfiguration
 {
     private static final Logger                 LOGGER   = LogManager.getLogger();
-    private static final JEICompatConfiguration INSTANCE = new JEICompatConfiguration();
+    private static final REICompatConfiguration INSTANCE = new REICompatConfiguration();
 
-    public static JEICompatConfiguration getInstance()
+    public static REICompatConfiguration getInstance()
     {
         return INSTANCE;
     }
 
     private final Supplier<Boolean> injectBits;
 
-    private JEICompatConfiguration()
+    private REICompatConfiguration()
     {
-        final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(ConfigurationType.NOT_SYNCED, Constants.MOD_ID + "-client-compat-" + ModIds.JEI_ID);
+        final IConfigurationBuilder builder = IConfigurationManager.getInstance().createBuilder(ConfigurationType.NOT_SYNCED, Constants.MOD_ID + "-client-compat-" + REIChiselsAndBitsPlugin.ID);
 
         injectBits = builder.defineBoolean("compat.jei.inject-bits", true);
 

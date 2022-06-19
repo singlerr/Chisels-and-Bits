@@ -32,7 +32,7 @@ public class ForgeChiselsAndBitsClient
     public static void onModelRegistry(final ModelRegistryEvent event)
     {
         ForgeChiselsAndBitsClient.onModelRegistry(
-          ModelLoaderRegistry::registerLoader
+            ModelLoaderRegistry::registerLoader
         );
     }
 

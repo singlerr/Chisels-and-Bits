@@ -25,11 +25,11 @@ public class ModelLightMapReader extends BaseModelReader
     {
         hasLightMap = false;
 
-        int eCount = format.getVertexSize();
+        int eCount = format.getElements().size();
         for ( int x = 0; x < eCount; x++ )
         {
             VertexFormatElement e = format.getElements().get(x);
-            if ( e.getUsage() == VertexFormatElement.Usage.UV && e.getIndex() == 1 && e.getType() == VertexFormatElement.Type.SHORT )
+            if ( e.getUsage() == VertexFormatElement.Usage.UV && e.getIndex() == 2 && e.getType() == VertexFormatElement.Type.SHORT )
             {
                 hasLightMap = true;
             }
@@ -47,20 +47,31 @@ public class ModelLightMapReader extends BaseModelReader
 
     @Override
     public void put(
+      final int vertNum,
       final int element,
       @NotNull final float... data )
     {
         final VertexFormatElement e = getVertexFormat().getElements().get(element);
 
-        if ( e.getUsage() == VertexFormatElement.Usage.UV && e.getIndex() == 1 && e.getType() == VertexFormatElement.Type.SHORT && data.length >= 2 && hasLightMap )
+        if ( e.getUsage() == VertexFormatElement.Usage.UV && e.getIndex() == 2 && e.getType() == VertexFormatElement.Type.SHORT && data.length >= 2 && hasLightMap )
         {
             final float maxLightmap = 32.0f / 0xffff;
-            final int lvFromData_sky = (int) ( data[0] / maxLightmap) & 0xf;
-            final int lvFromData_block = (int) ( data[1] / maxLightmap) & 0xf;
+            final int lvFromData_sky = sky((int) ( data[0] / maxLightmap));
+            final int lvFromData_block = block((int) ( data[1] / maxLightmap) & 0xf);
 
-            lv = Math.max( lvFromData_sky, lv );
-            lv = Math.max( lvFromData_block, lv );
+            lv = pack(lvFromData_block, lvFromData_sky);
         }
     }
 
+    public static int block(int p_109884_) {
+        return (p_109884_ & 0xFFFF) >> 4; // From-Forge: Fix fullbright quads showing dark artifacts. Reported as MC-169806
+    }
+
+    public static int sky(int p_109895_) {
+        return p_109895_ >> 20 & '\uffff';
+    }
+
+    public static int pack(int p_109886_, int p_109887_) {
+        return p_109886_ << 4 | p_109887_ << 20;
+    }
 }

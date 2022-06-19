@@ -1,4 +1,3 @@
-/*
 package mod.chiselsandbits.forge.integration.jei;
 
 import mezz.jei.api.IModPlugin;
@@ -52,4 +51,4 @@ public class JEIPlugin implements IModPlugin
         }
     }
 }
-*/
+

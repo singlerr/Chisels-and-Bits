@@ -83,7 +83,7 @@ public interface IAreaMutator extends IAreaAccessor
     {
         try
         {
-            setInAreaTarget(BlockInformation.AIR, inAreaTarget);
+            clearInAreaTarget(inAreaTarget);
             setInAreaTarget(blockInformation, inAreaTarget);
         }
         catch (SpaceOccupiedException ignored)
@@ -106,7 +106,7 @@ public interface IAreaMutator extends IAreaAccessor
     ) {
         try
         {
-            setInBlockTarget(BlockInformation.AIR, inAreaBlockPosOffset, inBlockTarget);
+            clearInBlockTarget(inAreaBlockPosOffset, inBlockTarget);
             setInBlockTarget(blockInformation, inAreaBlockPosOffset, inBlockTarget);
         }
         catch (SpaceOccupiedException ignored)

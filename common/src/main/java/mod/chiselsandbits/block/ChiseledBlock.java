@@ -340,16 +340,6 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
                  .orElse(1f);
     }
 
-    @Override
-    public int getLightBlock(final @NotNull BlockState state, final @NotNull BlockGetter worldIn, final @NotNull BlockPos pos)
-    {
-        return getBlockEntity(worldIn, pos)
-                  .map(multiStateBlockEntity -> multiStateBlockEntity.getStatistics().getLightBlockingFactor())
-                  .map(consumedValue -> Math.max(consumedValue, 0))
-                  .map(consumedValue -> Math.min(consumedValue, worldIn.getMaxLightLevel()))
-                  .orElse(0f).intValue();
-    }
-
     @NotNull
     @Override
     public VoxelShape getShape(@NotNull final BlockState state, @NotNull final BlockGetter worldIn, @NotNull final BlockPos pos, @NotNull final CollisionContext context)

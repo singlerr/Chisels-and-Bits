@@ -29,10 +29,14 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public final class FaceManager {
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final Random RANDOM = new Random();
 
     private static final FaceManager INSTANCE = new FaceManager();
@@ -161,7 +165,7 @@ public final class FaceManager {
                         }
                     }
 
-                    layerBuilder = new ModelQuadLayer.ModelQuadLayerBuilder(sprite, uCoord, vCoord);
+                    layerBuilder = new ModelQuadLayer.ModelQuadLayerBuilder(sprite, uCoord, vCoord, quad.isShade(), face);
                     layerBuilder.getCache().setTint(quad.getTintIndex());
                     layers.add(layerBuilder);
                 }
@@ -172,7 +176,8 @@ public final class FaceManager {
                     layerBuilder.getLightValueExtractor().setVertexFormat(DefaultVertexFormat.BLOCK);
                     LightUtil.put(layerBuilder.getLightValueExtractor(), quad);
                 }
-            } catch (final Exception ignored) {
+            } catch (final Exception ex) {
+                LOGGER.error("Failed to process quad: " + quad, ex);
             }
         }
     }

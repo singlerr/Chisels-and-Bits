@@ -64,7 +64,7 @@ minecraft {
     runs { runSpecContainer ->
         client {
             workingDirectory project.file('run')
-            ideaModule "${rootProject.name}.${project.name}.main"
+            ideaModule "${rootProject.name}.platforms.${project.name}.main"
             taskName 'Client'
             arg "--mixin=chiselsandbits.mixins.json"
             jvmArgs "-Dmixin.debug=true", "-Dmixin.debug.export=true"
@@ -82,7 +82,7 @@ minecraft {
 
         server {
             workingDirectory project.file('run')
-            ideaModule "${rootProject.name}.${project.name}.main"
+            ideaModule "${rootProject.name}.platforms.${project.name}.main"
             taskName 'Server'
             arg "--mixin=chiselsandbits.mixins.json"
             jvmArgs "-Dmixin.debug=true", "-Dmixin.debug.export=true"
@@ -100,7 +100,7 @@ minecraft {
 
         data {
             workingDirectory project.file('run')
-            ideaModule "${rootProject.name}.${project.name}.main"
+            ideaModule "${rootProject.name}.platforms.${project.name}.main"
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
             args '--mod', mod_id,
@@ -142,10 +142,9 @@ dependencies {
     implementation project(":api")
     implementation project(":platforms:core")
 
-    //runtimeOnly fg.deobf("curse.maven:spark-361579:3585686")
-
-    //compileOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}:api")
-    //runtimeOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}:${project.jeiVersion}")
+    compileOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}-common-api:${project.jei_version}")
+    compileOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}-forge-api:${project.jei_version}")
+    runtimeOnly fg.deobf("mezz.jei:jei-${project.exactMinecraftVersion}-forge:${project.jei_version}")
 
     compileOnly 'org.jetbrains:annotations:16.0.2'
     testCompileOnly 'org.jetbrains:annotations:16.0.2'
@@ -169,7 +168,7 @@ processResources {
     outputs.upToDateWhen { false }
 
     filesMatching ('**/mods.toml') {
-        expand project.properties
+        //expand project.properties
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

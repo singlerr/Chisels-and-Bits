@@ -1,5 +1,6 @@
 package mod.chiselsandbits.client.model.baked.face;
 
+import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.Direction;
@@ -10,12 +11,12 @@ public class FaceRegion
     private final Direction        face;
     private final BlockInformation blockInformation;
     private final boolean          isEdge;
-    private double minX;
-    private double minY;
-    private double minZ;
-    private double maxX;
-    private double maxY;
-    private double maxZ;
+    private float minX;
+    private float minY;
+    private float minZ;
+    private float maxX;
+    private float maxY;
+    private float maxZ;
 
     public static FaceRegion createFrom3DObjectWithFacing(
       final Vec3 start,
@@ -28,20 +29,20 @@ public class FaceRegion
           facing,
           blockInformation,
           isEdge,
-          facing.getStepX() == 0 ? start.x() : (facing.getStepX() == 1 ? Math.max(start.x(), end.x()) : Math.min(start.x(), end.x())),
-          facing.getStepY() == 0 ? start.y() : (facing.getStepY() == 1 ? Math.max(start.y(), end.y()) : Math.min(start.y(), end.y())),
-          facing.getStepZ() == 0 ? start.z() : (facing.getStepZ() == 1 ? Math.max(start.z(), end.z()) : Math.min(start.z(), end.z())),
-          facing.getStepX() == 0 ? end.x() : (facing.getStepX() == 1 ? Math.max(start.x(), end.x()) : Math.min(start.x(), end.x())),
-          facing.getStepY() == 0 ? end.y() : (facing.getStepY() == 1 ? Math.max(start.y(), end.y()) : Math.min(start.y(), end.y())),
-          facing.getStepZ() == 0 ? end.z() : (facing.getStepZ() == 1 ? Math.max(start.z(), end.z()) : Math.min(start.z(), end.z()))
+          (float) (facing.getStepX() == 0 ? start.x() : (facing.getStepX() == 1 ? Math.max(start.x(), end.x()) : Math.min(start.x(), end.x()))),
+          (float) (facing.getStepY() == 0 ? start.y() : (facing.getStepY() == 1 ? Math.max(start.y(), end.y()) : Math.min(start.y(), end.y()))),
+          (float) (facing.getStepZ() == 0 ? start.z() : (facing.getStepZ() == 1 ? Math.max(start.z(), end.z()) : Math.min(start.z(), end.z()))),
+          (float) (facing.getStepX() == 0 ? end.x() : (facing.getStepX() == 1 ? Math.max(start.x(), end.x()) : Math.min(start.x(), end.x()))),
+          (float) (facing.getStepY() == 0 ? end.y() : (facing.getStepY() == 1 ? Math.max(start.y(), end.y()) : Math.min(start.y(), end.y()))),
+          (float) (facing.getStepZ() == 0 ? end.z() : (facing.getStepZ() == 1 ? Math.max(start.z(), end.z()) : Math.min(start.z(), end.z())))
         );
     }
 
     public FaceRegion(
       final Direction facingDirection,
-      final double centerX,
-      final double centerY,
-      final double centerZ,
+      final float centerX,
+      final float centerY,
+      final float centerZ,
       final BlockInformation blockInformation,
       final boolean isEdgeFace)
     {
@@ -60,12 +61,12 @@ public class FaceRegion
       final Direction face,
       final BlockInformation blockInformation,
       final boolean isEdge,
-      final double minX,
-      final double minY,
-      final double minZ,
-      final double maxX,
-      final double maxY,
-      final double maxZ)
+      final float minX,
+      final float minY,
+      final float minZ,
+      final float maxX,
+      final float maxY,
+      final float maxZ)
     {
         this.face = face;
         this.blockInformation = blockInformation;
@@ -83,32 +84,32 @@ public class FaceRegion
         return blockInformation;
     }
 
-    public double getMinX()
+    public float getMinX()
     {
         return minX;
     }
 
-    public double getMinY()
+    public float getMinY()
     {
         return minY;
     }
 
-    public double getMinZ()
+    public float getMinZ()
     {
         return minZ;
     }
 
-    public double getMaxX()
+    public float getMaxX()
     {
         return maxX;
     }
 
-    public double getMaxY()
+    public float getMaxY()
     {
         return maxY;
     }
 
-    public double getMaxZ()
+    public float getMaxZ()
     {
         return maxZ;
     }

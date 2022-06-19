@@ -1,4 +1,3 @@
-/*
 package mod.chiselsandbits.forge.integration.jei;
 
 import mezz.jei.api.constants.ModIds;
@@ -13,7 +12,7 @@ import java.util.function.Supplier;
 
 public class JEICompatConfiguration
 {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger                 LOGGER   = LogManager.getLogger();
     private static final JEICompatConfiguration INSTANCE = new JEICompatConfiguration();
 
     public static JEICompatConfiguration getInstance()
@@ -42,4 +41,3 @@ public class JEICompatConfiguration
         return injectBits;
     }
 }
-*/

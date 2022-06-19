@@ -26,9 +26,9 @@ public interface IMutableStateEntryInfo extends IStateEntryInfo
      * @param blockInformation The new block information of the entry.
      */
     default void overrideState(final BlockInformation blockInformation) {
-        clear();
         try
         {
+            clear();
             setBlockInformation(blockInformation);
         }
         catch (SpaceOccupiedException ignored) //Should never be thrown, due to the clear call;

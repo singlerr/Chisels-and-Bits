@@ -4,10 +4,12 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
+import mod.chiselsandbits.client.reloading.ClientResourceReloadingManager;
 import mod.chiselsandbits.client.screens.ToolModeSelectionScreen;
 import mod.chiselsandbits.client.time.TickHandler;
 import mod.chiselsandbits.keys.contexts.HoldsSpecificItemInHandKeyConflictContext;
 import mod.chiselsandbits.keys.contexts.HoldsWithToolItemInHandKeyConflictContext;
+import mod.chiselsandbits.keys.contexts.IsPressingDebugKeyConflictContext;
 import mod.chiselsandbits.keys.contexts.SpecificScreenOpenKeyConflictContext;
 import mod.chiselsandbits.network.packets.HeldToolModeChangedPacket;
 import mod.chiselsandbits.network.packets.RequestChangeTrackerOperationPacket;
@@ -31,6 +33,7 @@ public class KeyBindingManager
     private              KeyMapping        undoOperationKeyBinding        = null;
     private              KeyMapping        redoOperationKeyBinding        = null;
     private              KeyMapping        scopingKeyBinding              = null;
+    private              KeyMapping        resetCachesKeyBinding          = null;
     private              boolean           toolMenuKeyWasDown             = false;
     private              int               toolModeSelectionPlusCoolDown  = 15;
     private              int               toolModeSelectionMinusCoolDown = 15;
@@ -99,6 +102,13 @@ public class KeyBindingManager
                                                       InputConstants.Type.KEYSYM,
                                                       InputConstants.KEY_Z,
                                                       "mod.chiselsandbits.keys.category"));
+
+        IKeyBindingManager.getInstance().register(resetCachesKeyBinding =
+                IKeyBindingManager.getInstance().createNew("mod.chiselsandbits.keys.reset-caches",
+                        IsPressingDebugKeyConflictContext.F3_DEBUG_KEY,
+                        InputConstants.Type.KEYSYM,
+                        InputConstants.KEY_C,
+                        "mod.chiselsandbits.keys.category"));
 
         initialized = true;
     }
@@ -198,6 +208,10 @@ public class KeyBindingManager
         {
             ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new RequestChangeTrackerOperationPacket(true));
             lastChangeTime = TickHandler.getClientTicks();
+        }
+
+        if (isResetCachesPressed()) {
+            ClientResourceReloadingManager.getInstance().clearCaches();
         }
     }
 
@@ -321,5 +335,19 @@ public class KeyBindingManager
 
     public boolean isScopingKeyPressed() {
         return isKeyDown(getScopingKeyBinding());
+    }
+
+    public KeyMapping getResetCachesKeyBinding()
+    {
+        if (resetCachesKeyBinding == null)
+        {
+            throw new IllegalStateException("Keybindings have not been initialized.");
+        }
+
+        return resetCachesKeyBinding;
+    }
+
+    public boolean isResetCachesPressed() {
+        return isKeyDown(getResetCachesKeyBinding());
     }
 }

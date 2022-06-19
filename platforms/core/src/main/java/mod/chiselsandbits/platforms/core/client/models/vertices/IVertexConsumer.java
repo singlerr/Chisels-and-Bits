@@ -20,5 +20,6 @@ public interface IVertexConsumer
     void setQuadOrientation(Direction orientation);
     void setApplyDiffuseLighting(boolean diffuse);
     void setTexture(TextureAtlasSprite texture);
-    void put(int element, float... data);
+    void put(int vertexIndex, int element, float... data);
+    default void onComplete() {}
 }

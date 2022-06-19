@@ -66,7 +66,7 @@ public class ClientConfiguration implements IClientConfiguration
         patternExportPath = builder.defineString("settings.patterns.export-path", "./chiselsandbits/patterns");
         bitStorageContentCacheSize = builder.defineLong("performance.caches.sizes.bit-storage-content-models", 100, 0, Long.MAX_VALUE);
         faceLightMapExtraction = builder.defineBoolean("performance.lighting.extract-lighting-values-from-faces", true);
-        blockLightEmissionExtraction = builder.defineBoolean("performance.lighting.extract-lighting-values-from-blockstates", true);
+        blockLightEmissionExtraction = builder.defineBoolean("performance.lighting.extract-lighting-values-from-blockstates", false);
         radialMenuMouseIndicator = builder.defineBoolean("gui.radial-menu.display-mouse-indicator", false);
         modelCacheSize = builder.defineLong("performance.caches.sizes.block-models", 10000, 3500, 20000);
         faceLayerCacheSize = builder.defineLong("performance.caches.sizes.block-faces", 1000000, 350000, 2000000);

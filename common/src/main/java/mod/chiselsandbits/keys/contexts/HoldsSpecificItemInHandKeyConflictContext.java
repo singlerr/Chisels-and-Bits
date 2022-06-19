@@ -12,7 +12,6 @@ public enum HoldsSpecificItemInHandKeyConflictContext implements IKeyConflictCon
 {
     MEASURING_TAPE(item -> ModItems.MEASURING_TAPE.get() == item),
     CHANGE_TRACKING_ITEM(IChangeTrackingItem.class::isInstance);
-
     private final Predicate<Item> item;
 
     HoldsSpecificItemInHandKeyConflictContext(final Predicate<Item> item) {this.item = item;}

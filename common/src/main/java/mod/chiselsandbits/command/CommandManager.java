@@ -152,17 +152,7 @@ public class CommandManager
                                                   mutator.batch())
             {
                 mutator.mutableStream().forEach(
-                  entry -> {
-                      try
-                      {
-                          entry.clear();
-                          entry.setBlockInformation(new BlockInformation(state));
-                      }
-                      catch (SpaceOccupiedException e)
-                      {
-                          LOGGER.warn("Executing the command: " + context.getInput() + " failed to clear and set the state for entry: " + entry);
-                      }
-                  }
+                  entry -> entry.overrideState(new BlockInformation(state))
                 );
             }
         }
@@ -172,17 +162,7 @@ public class CommandManager
                                                                                                                                                                                                             mutator.batch())
             {
                 mutator.mutableStream().forEach(
-                  entry -> {
-                      try
-                      {
-                          entry.clear();
-                          entry.setBlockInformation(new BlockInformation(BlockStateUtils.getRandomSupportedDefaultState(context.getSource().getLevel().getRandom())));
-                      }
-                      catch (SpaceOccupiedException e)
-                      {
-                          LOGGER.warn("Executing the command: " + context.getInput() + " failed to clear and set the state for entry: " + entry);
-                      }
-                  }
+                  entry -> entry.overrideState(new BlockInformation(BlockStateUtils.getRandomSupportedDefaultState(context.getSource().getLevel().getRandom())))
                 );
             }
         }

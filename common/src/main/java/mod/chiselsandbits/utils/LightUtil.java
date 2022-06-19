@@ -69,9 +69,11 @@ public final class LightUtil {
             for(int e = 0; e < elementCount; e++)
             {
                 unpack(quad.getVertices(), data, format, v, e);
-                consumer.put(e, data);
+                consumer.put(v, e, data);
             }
         }
+
+        consumer.onComplete();
     }
 
     public static void unpack(int[] from, float[] to, VertexFormat formatFrom, int v, int e)

@@ -27,6 +27,7 @@ public class ModelVertexRange extends BaseModelReader
 
     @Override
     public void put(
+      final int vertNum,
       final int element,
       final float... data )
     {

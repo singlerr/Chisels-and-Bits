@@ -9,7 +9,6 @@ public final class FabricConfigurationSource
     private final JsonObject   localSource;
     private JsonObject activeSource;
 
-
     public FabricConfigurationSource(final String name, final JsonObject localSource) {
         this.name = name;
         this.localSource = localSource;

@@ -1,4 +1,3 @@
-/*
 package mod.chiselsandbits.forge.integration.jei;
 
 import mezz.jei.api.constants.ModIds;
@@ -20,4 +19,4 @@ public class JEIChiselsAndBitsPlugin implements IChiselsAndBitsPlugin
         JEICompatConfiguration.getInstance().initialize();
     }
 }
-*/
+

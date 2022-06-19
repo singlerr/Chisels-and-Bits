@@ -8,15 +8,15 @@ public class ModelUtil
         throw new IllegalStateException("Can not instantiate an instance of: ModelUtil. This is a utility class");
     }
 
-    public static boolean isOne(
+    public static boolean isZero(
       final float v )
     {
         return Math.abs( v ) < 0.01;
     }
 
-    public static boolean isZero(
+    public static boolean isOne(
       final float v )
     {
-        return Math.abs( v - 1.0f ) < 0.01;
+        return (Math.abs( v ) - 1.0f ) < 0.01;
     }
 }

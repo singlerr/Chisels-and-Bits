@@ -110,39 +110,41 @@ public class SimpleGeneratedModel implements BakedModel
                 switch ( element.getUsage() )
                 {
                     case POSITION:
-                        b.put( elementIndex, Float.intBitsToFloat( vertData[wrapAt * vertNum] ), Float.intBitsToFloat( vertData[1 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[2 + wrapAt * vertNum] ) );
+                        b.put(vertNum, elementIndex, Float.intBitsToFloat( vertData[wrapAt * vertNum] ), Float.intBitsToFloat( vertData[1 + wrapAt * vertNum] ), Float.intBitsToFloat( vertData[2 + wrapAt * vertNum] ) );
                         break;
 
                     case COLOR:
                         final float light = LightUtil.diffuseLight( myFace );
-                        b.put( elementIndex, light, light, light, 1f );
+                        b.put(vertNum, elementIndex, light, light, light, 1f );
                         break;
 
                     case NORMAL:
-                        b.put( elementIndex, myFace.getStepX(), myFace.getStepY(), myFace.getStepZ() );
+                        b.put(vertNum, elementIndex, myFace.getStepX(), myFace.getStepY(), myFace.getStepZ() );
                         break;
 
                     case UV:
 
                         if ( element.getIndex() == 1 )
                         {
-                            b.put( elementIndex, 0, 0 );
+                            b.put(vertNum, elementIndex, 0, 0 );
                         }
                         else
                         {
                             final float u = Float.intBitsToFloat( vertData[4 + wrapAt * vertNum] );
                             final float v = Float.intBitsToFloat( vertData[5 + wrapAt * vertNum] );
-                            b.put( elementIndex, u, v );
+                            b.put(vertNum, elementIndex, u, v );
                         }
 
                         break;
 
                     default:
-                        b.put( elementIndex );
+                        b.put(vertNum, elementIndex );
                         break;
                 }
             }
         }
+
+        b.onComplete();
 
         return b.build();
     }
@@ -261,7 +263,7 @@ public class SimpleGeneratedModel implements BakedModel
         }
 
         @Override
-        public void put(int element, float... data)
+        public void put(int vertexIndex, int element, float... data)
         {
             for(int i = 0; i < 4; i++)
             {

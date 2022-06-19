@@ -12,6 +12,7 @@ public interface IFaceBuilder
       int tintIndex );
 
     void put(
+      int vertNum,
       int element,
       float... args );
 

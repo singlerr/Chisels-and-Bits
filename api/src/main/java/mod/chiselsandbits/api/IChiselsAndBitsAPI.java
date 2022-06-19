@@ -1,6 +1,5 @@
 package mod.chiselsandbits.api;
 
-import mod.chiselsandbits.api.addons.IChiselsAndBitsAddon;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
@@ -9,10 +8,10 @@ import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
 import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
-import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.config.IChiselsAndBitsConfiguration;
 import mod.chiselsandbits.api.cutting.operation.ICuttingOperation;
 import mod.chiselsandbits.api.glueing.operation.IGlueingOperation;
@@ -37,8 +36,7 @@ import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Do not implement, is passed to your {@link IChiselsAndBitsAddon},
- * and can be accessed via its {@link #getInstance()}-method.
+ * Do not implement it can be accessed via its {@link #getInstance()}-method.
  */
 public interface IChiselsAndBitsAPI
 {

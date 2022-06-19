@@ -23,6 +23,9 @@
     ],
     "client": [
       "mod.chiselsandbits.fabric.client.FabricChiselsAndBitsClient"
+    ],
+    "rei_client": [
+      "mod.chiselsandbits.fabric.integration.rei.REIPlugin"
     ]
   },
   "mixins": [

@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -40,8 +41,7 @@ public class FabricFluidManager implements IFluidManager
             if (target == null)
                 return Optional.empty();
 
-            final Iterable<StorageView<FluidVariant>> fluids;
-            fluids = target.iterable(context);
+            final Iterable<? extends StorageView<FluidVariant>> fluids = target.iterable(context);
 
             if (!fluids.iterator().hasNext())
                 return Optional.empty();
@@ -111,7 +111,7 @@ public class FabricFluidManager implements IFluidManager
     public Component getDisplayName(final Fluid fluid)
     {
         return DistExecutor.unsafeRunForDist(
-          () -> () -> FluidVariantRendering.getName(makeVariant(new FluidInformation(fluid))),
+          () -> () -> FluidVariantAttributes.getName(makeVariant(new FluidInformation(fluid))),
           () -> () -> fluid.defaultFluidState().createLegacyBlock().getBlock().getName()
         );
     }

@@ -32,7 +32,8 @@ import java.util.Map;
 public final class FabricConfigurationManager implements IConfigurationManager
 {
     private static final Gson GSON = new GsonBuilder()
-      .create();
+                                       .setPrettyPrinting()
+                                       .create();
 
     private static final ResourceLocation CONFIG_SYNC_CHANNEL_ID = new ResourceLocation(Constants.MOD_ID, "config_sync");
     private static final FabricConfigurationManager INSTANCE = new FabricConfigurationManager();
@@ -75,7 +76,6 @@ public final class FabricConfigurationManager implements IConfigurationManager
     public IConfigurationBuilder createBuilder(
       final ConfigurationType type, final String name)
     {
-
         final JsonObject localConfig = doesLocalConfigExist(name) ? loadLocalConfig(name) : new JsonObject();
         final FabricConfigurationSource source = new FabricConfigurationSource(name, localConfig);
 

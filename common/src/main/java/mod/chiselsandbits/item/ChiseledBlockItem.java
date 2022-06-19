@@ -143,7 +143,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
         {
             try (IBatchMutation ignored = areaMutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(context.getPlayer())))
             {
-                source.stream().sequential().forEach(
+                source.stream().forEach(
                   stateEntryInfo -> {
                       try
                       {
