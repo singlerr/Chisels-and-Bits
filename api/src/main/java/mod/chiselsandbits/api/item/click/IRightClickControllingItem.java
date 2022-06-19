@@ -53,7 +53,8 @@ public interface IRightClickControllingItem
      *
      * @return True when useable, false when not.
      */
-    default boolean canUse(final Player playerEntity) {
+    default boolean canUse(final Player playerEntity,
+                           final ItemStack stack) {
         return true;
     }
 }

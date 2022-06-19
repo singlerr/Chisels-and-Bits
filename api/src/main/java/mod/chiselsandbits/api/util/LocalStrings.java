@@ -224,6 +224,7 @@ public enum LocalStrings
     ChiselAttemptFailedNotEnoughBits("chisel.attempt.failed.not-enough-bits"),
     ChiselAttemptFailedAttemptTooHigh("chisel.attempt.failed.attempt-too-high"),
     ChiselAttemptFailedAttemptTooLow("chisel.attempt.failed.attempt-too-low"),
+    ChiselAttemptFailedWaitForCoolDown("chisel.attempt.failed.wait-for-cooldown"),
     PatternCuttingAcrossXAxis("pattern.cutting.across.axis.x"),
     PatternCuttingAcrossYAxis("pattern.cutting.across.axis.y"),
     PatternCuttingAcrossZAxis("pattern.cutting.across.axis.z"),

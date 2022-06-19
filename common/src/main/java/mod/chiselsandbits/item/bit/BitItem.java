@@ -17,9 +17,12 @@ import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
 import mod.chiselsandbits.api.notifications.INotificationManager;
+import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.client.render.ModRenderTypes;
+import mod.chiselsandbits.platforms.core.dist.Dist;
+import mod.chiselsandbits.platforms.core.dist.DistExecutor;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
 import mod.chiselsandbits.platforms.core.registries.IPlatformRegistryManager;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
@@ -104,9 +107,18 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
 
 
     @Override
-    public boolean canUse(final Player playerEntity)
+    public boolean canUse(final Player playerEntity, final ItemStack stack)
     {
-        return ChiselingManager.getInstance().canChisel(playerEntity);
+        final boolean isAllowedToUse = ChiselingManager.getInstance().canChisel(playerEntity);
+        if (getMode(stack).isSingleClickUse() && !isAllowedToUse && playerEntity.getLevel().isClientSide()) {
+            INotificationManager.getInstance().notify(
+                    getMode(stack).getIcon(),
+                    new Vec3(1, 0, 0),
+                    LocalStrings.ChiselAttemptFailedWaitForCoolDown.getText()
+            );
+        }
+
+        return isAllowedToUse;
     }
 
     @NotNull

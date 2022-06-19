@@ -153,4 +153,13 @@ public interface IChiselMode extends IChiselsAndBitsRegistryEntry, IToolMode<ITo
      * @return The shape of the area to be chiseled.
      */
     VoxelShape getShape(IChiselingContext context);
+
+    /**
+     * Indicates if this mode requires a single click to trigger or not.
+     *
+     * @return True if single click, false if multiple clicks are needed.
+     */
+    default boolean isSingleClickUse() {
+        return true;
+    }
 }

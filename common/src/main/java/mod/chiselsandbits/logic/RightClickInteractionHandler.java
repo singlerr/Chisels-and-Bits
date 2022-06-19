@@ -37,7 +37,7 @@ public class RightClickInteractionHandler
             try(IProfilerSection ignored = ProfilingManager.getInstance().withSection("Right click processing")) {
                 final IRightClickControllingItem rightClickControllingItem = (IRightClickControllingItem) itemStack.getItem();
 
-                if (!rightClickControllingItem.canUse(player)) {
+                if (!rightClickControllingItem.canUse(player, itemStack)) {
                     return ClickProcessingState.DENIED;
                 }
 
@@ -75,7 +75,7 @@ public class RightClickInteractionHandler
             try(IProfilerSection ignored = ProfilingManager.getInstance().withSection("Right click processing")) {
                 final IRightClickControllingItem rightClickControllingItem = (IRightClickControllingItem) itemStack.getItem();
 
-                if (!rightClickControllingItem.canUse(player)) {
+                if (!rightClickControllingItem.canUse(player, itemStack)) {
                     return ClickProcessingState.DENIED;
                 }
 

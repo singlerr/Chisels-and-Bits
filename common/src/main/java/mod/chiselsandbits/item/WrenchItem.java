@@ -79,7 +79,7 @@ public class WrenchItem extends Item implements IWithModeItem<IModificationOpera
     }
 
     @Override
-    public boolean canUse(final Player playerEntity)
+    public boolean canUse(final Player playerEntity, final ItemStack stack)
     {
         final HitResult result = RayTracingUtils.rayTracePlayer(playerEntity);
         if (!(result instanceof final BlockHitResult blockHitResult) || result.getType() != HitResult.Type.BLOCK)
