@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import org.lwjgl.opengl.GL11;
 
 import java.util.OptionalDouble;
 import java.util.function.Supplier;
@@ -13,7 +15,8 @@ public enum ModRenderTypes
 {
     MEASUREMENT_LINES(() -> Internal.MEASUREMENT_LINES),
     WIREFRAME_LINES(() -> Internal.WIREFRAME_LINES),
-    WIREFRAME_BODY(() -> Internal.WIREFRAME_BODY);
+    WIREFRAME_BODY(() -> Internal.WIREFRAME_BODY),
+    GHOST_PREVIEW_BEHIND(() -> Internal.GHOST_PREVIEW_BEHIND);
 
     private final Supplier<RenderType> typeSupplier;
 
@@ -74,6 +77,22 @@ public enum ModRenderTypes
             .setCullState(NO_CULL)
             .setDepthTestState(NO_DEPTH_TEST)
             .createCompositeState(false));
+
+        // Only difference from RenderType#ENTITY_TRANSLUCENT_CULL is GL11#GL_GREATER for its depth function, rather than GL11#GL_LEQUAL
+        private static final RenderType GHOST_PREVIEW_BEHIND = RenderType.create(Constants.MOD_ID + ":ghost_preview_behind",
+          DefaultVertexFormat.NEW_ENTITY,
+          VertexFormat.Mode.QUADS,
+          256,
+          true,
+          true,
+          CompositeState.builder()
+            .setShaderState(RenderType.RENDERTYPE_ENTITY_TRANSLUCENT_CULL_SHADER)
+            .setTextureState(new RenderStateShard.TextureStateShard(TextureAtlas.LOCATION_BLOCKS, false, false))
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setLightmapState(LIGHTMAP)
+            .setOverlayState(OVERLAY)
+            .setDepthTestState(new RenderStateShard.DepthTestStateShard(">", GL11.GL_GREATER))
+            .createCompositeState(true));
 
         private Internal(String name, VertexFormat fmt, VertexFormat.Mode glMode, int size, boolean doCrumbling, boolean depthSorting, Runnable onEnable, Runnable onDisable)
         {
