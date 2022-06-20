@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.item.wireframe;
 
 import com.mojang.math.Vector3d;
+import com.mojang.math.Vector4f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -36,7 +37,7 @@ public interface IWireframeProvidingItem
      * @param blockRayTraceResult The block ray trace result for the current context.
      * @return An RGB (XYZ) Vector with the color.
      */
-    Vec3 getWireFrameColor(
+    Vector4f getWireFrameColor(
       ItemStack heldStack,
       Player playerEntity,
       BlockHitResult blockRayTraceResult

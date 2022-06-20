@@ -2,6 +2,7 @@ package mod.chiselsandbits.client.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -43,7 +44,7 @@ public class ChiseledBlockWireframeRenderer
     {
     }
 
-    public void renderShape(final PoseStack stack, final VoxelShape wireFrame, final Vec3 position, final Vec3 color) {
+    public void renderShape(final PoseStack stack, final VoxelShape wireFrame, final Vec3 position, final Vector4f color) {
         stack.pushPose();
 
         Vec3 vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
@@ -58,7 +59,7 @@ public class ChiseledBlockWireframeRenderer
           Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.WIREFRAME_LINES.get()),
           wireFrame,
           position.x() - xView, position.y() - yView, position.z() - zView,
-          (float) color.x(), (float) color.y(), (float) color.z() , 1f
+          color.x(), color.y(), color.z(), 1f
         );
         Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.WIREFRAME_LINES.get());
         RenderSystem.enableDepthTest();

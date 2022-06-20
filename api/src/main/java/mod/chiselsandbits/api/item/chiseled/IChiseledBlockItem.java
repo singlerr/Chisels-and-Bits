@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.item.chiseled;
 
+import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.item.wireframe.IWireframeProvidingItem;
@@ -31,7 +32,7 @@ public interface IChiseledBlockItem extends IMultiStateItem, IWireframeProviding
     }
 
     @Override
-    default Vec3 getWireFrameColor(ItemStack heldStack, Player playerEntity, BlockHitResult blockRayTraceResult)
+    default Vector4f getWireFrameColor(ItemStack heldStack, Player playerEntity, BlockHitResult blockRayTraceResult)
     {
         return canPlace(heldStack, playerEntity, blockRayTraceResult) ?
                  SUCCESSFUL_PATTERN_PLACEMENT_COLOR :

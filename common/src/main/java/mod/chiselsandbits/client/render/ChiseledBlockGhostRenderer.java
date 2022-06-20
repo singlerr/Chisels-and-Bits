@@ -3,6 +3,7 @@ package mod.chiselsandbits.client.render;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
@@ -27,7 +28,7 @@ public class ChiseledBlockGhostRenderer
     {
     }
 
-    public void renderGhost(final PoseStack poseStack, final ItemStack renderStack, final Vec3 targetedRenderPos, final boolean isPattern, final boolean canPlace)
+    public void renderGhost(final PoseStack poseStack, final ItemStack renderStack, final Vec3 targetedRenderPos, final boolean isPattern, final Vector4f color)
     {
         poseStack.pushPose();
 
@@ -40,7 +41,7 @@ public class ChiseledBlockGhostRenderer
         );
         poseStack.scale(1.001F, 1.001F, 1.001F);
 
-        BUFFER.setAlphaPercentage(canPlace ? 0.7F : 0.25F);
+        BUFFER.setAlphaPercentage(color.w());
         final BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(renderStack, null, null, 0);
         renderGhost(poseStack, renderStack, model, false);
         if (isPattern)

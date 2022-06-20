@@ -1,5 +1,6 @@
 package mod.chiselsandbits.api.item.pattern;
 
+import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.item.change.IChangeTrackingItem;
 import mod.chiselsandbits.api.item.wireframe.IWireframeProvidingItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
@@ -36,7 +37,7 @@ public interface IPatternItem extends IMultiStateItem, ISupportsSealing, IWithMo
     }
 
     @Override
-    default Vec3 getWireFrameColor(ItemStack heldStack, Player player, BlockHitResult blockHitResult) {
+    default Vector4f getWireFrameColor(ItemStack heldStack, Player player, BlockHitResult blockHitResult) {
         final PlacementResult result = this.getMode(heldStack).performPlacement(
           createItemStack(heldStack).createSnapshot(),
           new BlockPlaceContext(
