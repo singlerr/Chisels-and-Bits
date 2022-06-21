@@ -1,7 +1,6 @@
 package mod.chiselsandbits.item.bit;
 
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
@@ -486,7 +485,6 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
           placingContext
         );
 
-        RenderSystem.disableDepthTest();
         if (chiselingContext.getMutator().isPresent() && chiselingContext.getError().isEmpty()) {
             IChiselContextPreviewRendererRegistry.getInstance().getCurrent()
               .renderExistingContextsBoundingBox(matrixStack, chiselingContext);
@@ -498,7 +496,6 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
             ILocalChiselingContextCache.getInstance().set(ChiselingOperation.PLACING, placingContext);
         }
         Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
-        RenderSystem.enableDepthTest();
     }
 
     @Override

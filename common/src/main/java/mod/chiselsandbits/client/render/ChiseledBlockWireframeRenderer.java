@@ -1,11 +1,11 @@
 package mod.chiselsandbits.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -44,7 +44,13 @@ public class ChiseledBlockWireframeRenderer
     {
     }
 
-    public void renderShape(final PoseStack stack, final VoxelShape wireFrame, final Vec3 position, final Vector4f color) {
+    public void renderShape(
+            final PoseStack stack,
+            final VoxelShape wireFrame,
+            final Vec3 position,
+            final Vector4f color,
+            boolean ignoreDepth)
+    {
         stack.pushPose();
 
         Vec3 vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
@@ -52,17 +58,19 @@ public class ChiseledBlockWireframeRenderer
         double yView = vector3d.y();
         double zView = vector3d.z();
 
+        RenderType renderType = ignoreDepth
+                ? ModRenderTypes.WIREFRAME_LINES_ALWAYS.get()
+                : ModRenderTypes.WIREFRAME_LINES.get();
+
         //48/255f, 120/255f, 201/255f
-        RenderSystem.disableDepthTest();
         LevelRenderer.renderShape(
           stack,
-          Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.WIREFRAME_LINES.get()),
+          Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(renderType),
           wireFrame,
           position.x() - xView, position.y() - yView, position.z() - zView,
           color.x(), color.y(), color.z(), 1f
         );
-        Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.WIREFRAME_LINES.get());
-        RenderSystem.enableDepthTest();
+        Minecraft.getInstance().renderBuffers().bufferSource().endBatch(renderType);
 
         stack.popPose();
     }

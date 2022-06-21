@@ -70,7 +70,6 @@ public final class MeasurementRenderer
             );
             final VoxelShape boundingShape = Shapes.create(measurementBB);
 
-            RenderSystem.disableDepthTest();
             if (measurement.getMode().getGroup().map(g -> g != MeasuringType.DISTANCE).orElse(false))
             {
                 LevelRenderer.renderShape(
@@ -134,7 +133,6 @@ public final class MeasurementRenderer
             }
 
             Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
-            RenderSystem.enableDepthTest();
 
         });
     }

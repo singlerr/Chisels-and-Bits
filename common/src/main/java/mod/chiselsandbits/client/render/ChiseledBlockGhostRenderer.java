@@ -28,7 +28,12 @@ public class ChiseledBlockGhostRenderer
     {
     }
 
-    public void renderGhost(final PoseStack poseStack, final ItemStack renderStack, final Vec3 targetedRenderPos, final boolean ignoreDepth, final Vector4f color)
+    public void renderGhost(
+            final PoseStack poseStack,
+            final ItemStack renderStack,
+            final Vec3 targetedRenderPos,
+            final Vector4f color,
+            final boolean ignoreDepth)
     {
         poseStack.pushPose();
 
@@ -50,9 +55,16 @@ public class ChiseledBlockGhostRenderer
         poseStack.popPose();
     }
 
-    private void renderGhost(final PoseStack poseStack, final ItemStack renderStack, final BakedModel model, final boolean renderBehind)
+    private void renderGhost(
+            final PoseStack poseStack,
+            final ItemStack renderStack,
+            final BakedModel model,
+            final boolean ignoreDepth)
     {
-        final RenderType renderType = renderBehind ? ModRenderTypes.GHOST_PREVIEW_BEHIND.get() : Sheets.translucentCullBlockSheet();
+        final RenderType renderType = ignoreDepth
+                ? ModRenderTypes.GHOST_BLOCK_PREVIEW_GREATER.get()
+                : ModRenderTypes.GHOST_BLOCK_PREVIEW.get();
+
         BUFFER.begin(renderType.mode(), renderType.format());
         Minecraft.getInstance().getItemRenderer().renderModelLists(
           model,
@@ -86,7 +98,8 @@ public class ChiseledBlockGhostRenderer
         }
 
         @Override
-        public void vertex(float x, float y, float z, float red, float green, float blue, float alpha, float texU, float texV, int overlayUV, int lightmapUV, float normalX, float normalY, float normalZ)
+        public void vertex(float x, float y, float z, float red, float green, float blue, float alpha, float texU,
+                           float texV, int overlayUV, int lightmapUV, float normalX, float normalY, float normalZ)
         {
             super.vertex(x, y, z, red, green, blue, alpha * alphaPercentage, texU, texV, overlayUV, lightmapUV, normalX, normalY, normalZ);
         }

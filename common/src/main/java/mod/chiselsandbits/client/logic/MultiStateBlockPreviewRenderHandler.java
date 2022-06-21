@@ -46,12 +46,23 @@ public class MultiStateBlockPreviewRenderHandler
                 targetedRenderPos.y % bitSize + (targetedRenderPos.y < 0 ? bitSize : 0),
                 targetedRenderPos.z % bitSize + (targetedRenderPos.z < 0 ? bitSize : 0)
         );
+
         final Vector4f color = wireframeItem.getWireFrameColor(heldStack, playerEntity, blockRayTraceResult);
-        if (!renderGhost(poseStack, heldStack, wireframeItem, targetedRenderPos, color))
-            renderWireFrame(poseStack, playerEntity, heldStack, wireframeItem, blockRayTraceResult, targetedRenderPos, color);
+        final boolean ignoreDepth = wireframeItem.ignoreDepth(heldStack);
+
+        if (!renderGhost(poseStack, heldStack, targetedRenderPos, color, ignoreDepth))
+            renderWireFrame(poseStack, playerEntity, heldStack, wireframeItem, blockRayTraceResult, targetedRenderPos, color, ignoreDepth);
     }
 
-    private static void renderWireFrame(final PoseStack poseStack, final Player playerEntity, final ItemStack heldStack, final IWireframeProvidingItem wireframeItem, final BlockHitResult blockRayTraceResult, final Vec3 targetedRenderPos, Vector4f color)
+    private static void renderWireFrame(
+            final PoseStack poseStack,
+            final Player playerEntity,
+            final ItemStack heldStack,
+            final IWireframeProvidingItem wireframeItem,
+            final BlockHitResult blockRayTraceResult,
+            final Vec3 targetedRenderPos,
+            Vector4f color,
+            boolean ignoreDepth)
     {
         final VoxelShape wireFrame = wireframeItem.getWireFrame(heldStack, playerEntity, blockRayTraceResult);
 
@@ -59,18 +70,23 @@ public class MultiStateBlockPreviewRenderHandler
                 poseStack,
                 wireFrame,
                 targetedRenderPos,
-                color
+                color,
+                ignoreDepth
         );
     }
 
-    private static boolean renderGhost(final PoseStack poseStack, final ItemStack heldStack, IWireframeProvidingItem wireframeItem, final Vec3 targetedRenderPos, Vector4f color)
+    private static boolean renderGhost(
+            final PoseStack poseStack,
+            final ItemStack heldStack,
+            final Vec3 targetedRenderPos,
+            Vector4f color,
+            boolean ignoreDepth)
     {
         final Item item = heldStack.getItem();
-        final boolean isPattern = item instanceof IPatternItem;
         final ItemStack renderStack;
-        if (isPattern)
+        if (item instanceof final IPatternItem patternItem)
         {
-            final IMultiStateItemStack multiSate = ((IPatternItem) item).createItemStack(heldStack);
+            final IMultiStateItemStack multiSate = patternItem.createItemStack(heldStack);
             renderStack = multiSate.toBlockStack();
             if (renderStack.isEmpty())
                 return false;
@@ -84,8 +100,8 @@ public class MultiStateBlockPreviewRenderHandler
           poseStack,
           renderStack,
           targetedRenderPos,
-          wireframeItem.ignoreDepth(renderStack),
-          color
+          color,
+          ignoreDepth
         );
         return true;
     }
