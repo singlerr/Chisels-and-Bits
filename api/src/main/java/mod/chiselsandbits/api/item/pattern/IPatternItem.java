@@ -54,7 +54,13 @@ public interface IPatternItem extends IMultiStateItem, ISupportsSealing, IWithMo
     }
 
     @Override
-    default Vec3 getTargetedBlockPos(ItemStack heldStack, Player player, BlockHitResult blockHitResult) {
+    default Vec3 getTargetedPosition(ItemStack heldStack, Player player, BlockHitResult blockHitResult) {
         return getMode(heldStack).getTargetedPosition(heldStack, player, blockHitResult);
+    }
+
+    @Override
+    default boolean ignoreDepth(ItemStack heldStack)
+    {
+        return getMode(heldStack).editsBlocks();
     }
 }

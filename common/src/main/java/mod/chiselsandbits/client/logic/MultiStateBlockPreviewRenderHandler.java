@@ -38,7 +38,7 @@ public class MultiStateBlockPreviewRenderHandler
         if (!(heldStack.getItem() instanceof IWireframeProvidingItem wireframeItem))
             return;
 
-        Vec3 targetedRenderPos = wireframeItem.getTargetedBlockPos(heldStack, playerEntity, blockRayTraceResult).add(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS);
+        Vec3 targetedRenderPos = wireframeItem.getTargetedPosition(heldStack, playerEntity, blockRayTraceResult).add(ONE_THOUSANDS, ONE_THOUSANDS, ONE_THOUSANDS);
         // Snap to bit grid
         final float bitSize = StateEntrySize.current().getSizePerBit();
         targetedRenderPos = targetedRenderPos.subtract(
@@ -47,7 +47,7 @@ public class MultiStateBlockPreviewRenderHandler
                 targetedRenderPos.z % bitSize + (targetedRenderPos.z < 0 ? bitSize : 0)
         );
         final Vector4f color = wireframeItem.getWireFrameColor(heldStack, playerEntity, blockRayTraceResult);
-        if (!renderGhost(poseStack, heldStack, targetedRenderPos, color))
+        if (!renderGhost(poseStack, heldStack, wireframeItem, targetedRenderPos, color))
             renderWireFrame(poseStack, playerEntity, heldStack, wireframeItem, blockRayTraceResult, targetedRenderPos, color);
     }
 
@@ -63,7 +63,7 @@ public class MultiStateBlockPreviewRenderHandler
         );
     }
 
-    private static boolean renderGhost(final PoseStack poseStack, final ItemStack heldStack, final Vec3 targetedRenderPos, Vector4f color)
+    private static boolean renderGhost(final PoseStack poseStack, final ItemStack heldStack, IWireframeProvidingItem wireframeItem, final Vec3 targetedRenderPos, Vector4f color)
     {
         final Item item = heldStack.getItem();
         final boolean isPattern = item instanceof IPatternItem;
@@ -84,7 +84,7 @@ public class MultiStateBlockPreviewRenderHandler
           poseStack,
           renderStack,
           targetedRenderPos,
-          isPattern,
+          wireframeItem.ignoreDepth(renderStack),
           color
         );
         return true;

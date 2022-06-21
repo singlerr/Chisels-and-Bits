@@ -178,7 +178,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     public boolean canPlace(final ItemStack heldStack, final Player playerEntity, final BlockHitResult blockRayTraceResult)
     {
         final IAreaAccessor source = this.createItemStack(heldStack);
-        final Vec3 target = getTargetedBlockPos(heldStack, playerEntity, blockRayTraceResult);
+        final Vec3 target = getTargetedPosition(heldStack, playerEntity, blockRayTraceResult);
         final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().covering(
           playerEntity.level,
           target,

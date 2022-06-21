@@ -123,6 +123,12 @@ public class PlacePatternPlacementType extends AbstractCustomRegistryEntry imple
     }
 
     @Override
+    public boolean editsBlocks()
+    {
+        return false;
+    }
+
+    @Override
     public @NotNull ResourceLocation getIcon()
     {
         return new ResourceLocation(

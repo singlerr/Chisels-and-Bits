@@ -1,8 +1,6 @@
 package mod.chiselsandbits.api.item.wireframe;
 
-import com.mojang.math.Vector3d;
 import com.mojang.math.Vector4f;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
@@ -51,9 +49,14 @@ public interface IWireframeProvidingItem
      * @param blockRayTraceResult The block ray trace result for the current context.
      * @return The position to render the wire frame.
      */
-    Vec3 getTargetedBlockPos(
+    Vec3 getTargetedPosition(
       ItemStack heldStack,
       Player playerEntity,
       BlockHitResult blockRayTraceResult
     );
+
+    /**
+     * Returns whether to effectively ignore the depth buffer and render in front of everything
+     */
+    boolean ignoreDepth(ItemStack heldStack);
 }

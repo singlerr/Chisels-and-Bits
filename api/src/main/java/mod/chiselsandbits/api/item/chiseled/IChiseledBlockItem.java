@@ -40,12 +40,18 @@ public interface IChiseledBlockItem extends IMultiStateItem, IWireframeProviding
     }
 
     @Override
-    default Vec3 getTargetedBlockPos(ItemStack heldStack, Player playerEntity, BlockHitResult blockRayTraceResult)
+    default Vec3 getTargetedPosition(ItemStack heldStack, Player playerEntity, BlockHitResult blockRayTraceResult)
     {
         return !playerEntity.isCrouching() ?
                  Vec3.atLowerCornerOf(blockRayTraceResult.getBlockPos().offset(blockRayTraceResult.getDirection().getNormal()))
                  :
                    blockRayTraceResult.getLocation();
+    }
+
+    @Override
+    default boolean ignoreDepth(ItemStack heldStack)
+    {
+        return false;
     }
 
     /**

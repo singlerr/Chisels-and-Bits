@@ -28,7 +28,7 @@ public class ChiseledBlockGhostRenderer
     {
     }
 
-    public void renderGhost(final PoseStack poseStack, final ItemStack renderStack, final Vec3 targetedRenderPos, final boolean isPattern, final Vector4f color)
+    public void renderGhost(final PoseStack poseStack, final ItemStack renderStack, final Vec3 targetedRenderPos, final boolean ignoreDepth, final Vector4f color)
     {
         poseStack.pushPose();
 
@@ -44,7 +44,7 @@ public class ChiseledBlockGhostRenderer
         BUFFER.setAlphaPercentage(color.w());
         final BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(renderStack, null, null, 0);
         renderGhost(poseStack, renderStack, model, false);
-        if (isPattern)
+        if (ignoreDepth)
             renderGhost(poseStack, renderStack, model, true);
 
         poseStack.popPose();

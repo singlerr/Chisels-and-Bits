@@ -55,4 +55,12 @@ public interface IPatternPlacementType extends IChiselsAndBitsRegistryEntry, ITo
      * @return The position of the potential placement.
      */
     Vec3 getTargetedPosition(ItemStack heldStack, Player player, BlockHitResult blockRayTraceResult);
+
+    /**
+     * Invoked to determine whether this mode modifies existing blocks, or only edits air blocks.
+     */
+    default boolean editsBlocks()
+    {
+        return true;
+    }
 }
