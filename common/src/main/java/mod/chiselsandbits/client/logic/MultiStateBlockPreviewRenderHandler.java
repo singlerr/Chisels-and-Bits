@@ -53,10 +53,9 @@ public class MultiStateBlockPreviewRenderHandler
         final PlacementResult placementResult = heldStack.getItem() instanceof IPlacementPreviewProvidingItem placementPreviewItem
                 ? placementPreviewItem.getPlacementResult(heldStack, playerEntity, blockRayTraceResult)
                 : PlacementResult.failure(wireframeItem.getWireFrameColor(heldStack, playerEntity, blockRayTraceResult));
-        final Vector4f color = placementResult.getColor();
 
-        if (!placementResult.isSuccess() || !renderGhost(poseStack, heldStack, targetedRenderPos, color, ignoreDepth))
-            renderWireFrame(poseStack, playerEntity, heldStack, wireframeItem, blockRayTraceResult, targetedRenderPos, color, ignoreDepth);
+        if (!renderGhost(poseStack, heldStack, targetedRenderPos, placementResult, ignoreDepth))
+            renderWireFrame(poseStack, playerEntity, heldStack, wireframeItem, blockRayTraceResult, targetedRenderPos, placementResult.getColor(), ignoreDepth);
     }
 
     private static void renderWireFrame(
@@ -84,28 +83,25 @@ public class MultiStateBlockPreviewRenderHandler
             final PoseStack poseStack,
             final ItemStack heldStack,
             final Vec3 targetedRenderPos,
-            Vector4f color,
+            PlacementResult placementResult,
             boolean ignoreDepth)
     {
-        final Item item = heldStack.getItem();
         final ItemStack renderStack;
-        if (item instanceof final IPatternItem patternItem)
+        if (heldStack.getItem() instanceof final IPatternItem patternItem)
         {
             final IMultiStateItemStack multiSate = patternItem.createItemStack(heldStack);
             renderStack = multiSate.toBlockStack();
             if (renderStack.isEmpty())
                 return false;
         }
-        else if (item instanceof IChiseledBlockItem)
-            renderStack = heldStack;
         else
-            return false;
+            renderStack = heldStack;
 
         ChiseledBlockGhostRenderer.getInstance().renderGhost(
           poseStack,
           renderStack,
           targetedRenderPos,
-          color,
+          placementResult,
           ignoreDepth
         );
         return true;

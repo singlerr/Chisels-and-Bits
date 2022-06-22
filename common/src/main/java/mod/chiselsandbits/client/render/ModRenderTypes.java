@@ -20,7 +20,9 @@ public enum ModRenderTypes
     WIREFRAME_LINES_ALWAYS(() -> InternalType.WIREFRAME_LINES_ALWAYS),
     WIREFRAME_BODY(() -> InternalType.WIREFRAME_BODY),
     GHOST_BLOCK_PREVIEW(() -> InternalType.GHOST_BLOCK_PREVIEW),
-    GHOST_BLOCK_PREVIEW_GREATER(() -> InternalType.GHOST_BLOCK_PREVIEW_GREATER);
+    GHOST_BLOCK_PREVIEW_GREATER(() -> InternalType.GHOST_BLOCK_PREVIEW_GREATER),
+    GHOST_BLOCK_COLORED_PREVIEW(() -> InternalType.GHOST_BLOCK_COLORED_PREVIEW),
+    GHOST_BLOCK_COLORED_PREVIEW_ALWAYS(() -> InternalType.GHOST_BLOCK_COLORED_PREVIEW_ALWAYS);
 
     private final Supplier<RenderType> typeSupplier;
 
@@ -149,6 +151,24 @@ public enum ModRenderTypes
                 .setOverlayState(OVERLAY)
                 .setDepthTestState(GREATER_DEPTH_TEST) // Only difference from RenderType#ENTITY_TRANSLUCENT_CULL
                 .createCompositeState(true));
+        }
+
+        private static final RenderType GHOST_BLOCK_COLORED_PREVIEW = buildColoredGhostType(false);
+        private static final RenderType GHOST_BLOCK_COLORED_PREVIEW_ALWAYS = buildColoredGhostType(true);
+
+        private static RenderType buildColoredGhostType(final boolean always)
+        {
+          return RenderType.create(Constants.MOD_ID + ":ghost_block_colored_preview" + (always ? "_always" : ""),
+            DefaultVertexFormat.POSITION_COLOR_NORMAL,
+            VertexFormat.Mode.QUADS,
+            256,
+            false,
+            false,
+            CompositeState.builder()
+              .setShaderState(POSITION_COLOR_SHADER)
+              .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+              .setDepthTestState(always ? InternalState.DISABLED_DEPTH_TEST : LEQUAL_DEPTH_TEST)
+              .createCompositeState(false));
         }
 
         private InternalType(String name, VertexFormat fmt, VertexFormat.Mode glMode, int size, boolean doCrumbling, boolean depthSorting, Runnable onEnable, Runnable onDisable)
