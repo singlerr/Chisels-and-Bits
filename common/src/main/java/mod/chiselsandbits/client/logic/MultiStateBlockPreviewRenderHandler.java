@@ -5,8 +5,10 @@ import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.item.chiseled.IChiseledBlockItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.item.pattern.IPatternItem;
+import mod.chiselsandbits.api.placement.IPlacementPreviewProvidingItem;
 import mod.chiselsandbits.api.item.wireframe.IWireframeProvidingItem;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
+import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.client.render.ChiseledBlockGhostRenderer;
 import mod.chiselsandbits.client.render.ChiseledBlockWireframeRenderer;
 import mod.chiselsandbits.utils.ItemStackUtils;
@@ -47,10 +49,13 @@ public class MultiStateBlockPreviewRenderHandler
                 targetedRenderPos.z % bitSize + (targetedRenderPos.z < 0 ? bitSize : 0)
         );
 
-        final Vector4f color = wireframeItem.getWireFrameColor(heldStack, playerEntity, blockRayTraceResult);
         final boolean ignoreDepth = wireframeItem.ignoreDepth(heldStack);
+        final PlacementResult placementResult = heldStack.getItem() instanceof IPlacementPreviewProvidingItem placementPreviewItem
+                ? placementPreviewItem.getPlacementResult(heldStack, playerEntity, blockRayTraceResult)
+                : PlacementResult.failure(wireframeItem.getWireFrameColor(heldStack, playerEntity, blockRayTraceResult));
+        final Vector4f color = placementResult.getColor();
 
-        if (!renderGhost(poseStack, heldStack, targetedRenderPos, color, ignoreDepth))
+        if (!placementResult.isSuccess() || !renderGhost(poseStack, heldStack, targetedRenderPos, color, ignoreDepth))
             renderWireFrame(poseStack, playerEntity, heldStack, wireframeItem, blockRayTraceResult, targetedRenderPos, color, ignoreDepth);
     }
 

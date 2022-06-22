@@ -13,6 +13,7 @@ import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.api.util.BlockStateUtils;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
@@ -40,6 +41,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
+
+import static mod.chiselsandbits.api.util.ColorUtils.NOT_FITTING_PATTERN_PLACEMENT_COLOR;
 
 public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
 {
@@ -175,7 +178,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     }
 
     @Override
-    public boolean canPlace(final ItemStack heldStack, final Player playerEntity, final BlockHitResult blockRayTraceResult)
+    public PlacementResult getPlacementResult(final ItemStack heldStack, final Player playerEntity, final BlockHitResult blockRayTraceResult)
     {
         final IAreaAccessor source = this.createItemStack(heldStack);
         final Vec3 target = getTargetedPosition(heldStack, playerEntity, blockRayTraceResult);
@@ -185,21 +188,23 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
           target.add(1,1,1));
         final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();
 
-        return source.stream()
-          .allMatch(stateEntryInfo -> {
-              try
-              {
-                  attemptTarget.setInAreaTarget(
-                    stateEntryInfo.getBlockInformation(),
-                    stateEntryInfo.getStartPoint());
+        boolean noSpaceOccupied = source.stream()
+                .allMatch(stateEntryInfo -> {
+                    try {
+                        attemptTarget.setInAreaTarget(
+                                stateEntryInfo.getBlockInformation(),
+                                stateEntryInfo.getStartPoint());
 
-                  return true;
-              }
-              catch (SpaceOccupiedException exception)
-              {
-                  return false;
-              }
-          });
+                        return true;
+                    } catch (SpaceOccupiedException exception) {
+                        return false;
+                    }
+                });
+        return noSpaceOccupied
+                ? PlacementResult.success()
+                : PlacementResult.failure(
+                        NOT_FITTING_PATTERN_PLACEMENT_COLOR,
+                        LocalStrings.PatternPlacementNotAnAirBlock.getText());
     }
 
     @Override

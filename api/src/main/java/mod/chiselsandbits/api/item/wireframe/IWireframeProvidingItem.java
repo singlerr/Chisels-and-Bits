@@ -13,6 +13,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  */
 public interface IWireframeProvidingItem
 {
+
     /**
      * Provides access to the wire frame of the item.
      *

@@ -2,14 +2,12 @@ package mod.chiselsandbits.api.item.pattern;
 
 import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.item.change.IChangeTrackingItem;
-import mod.chiselsandbits.api.item.wireframe.IWireframeProvidingItem;
+import mod.chiselsandbits.api.placement.IPlacementPreviewProvidingItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
-import mod.chiselsandbits.api.item.wireframe.IWireframeProvidingItem;
 import mod.chiselsandbits.api.item.withmode.IWithModeItem;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
-import mod.chiselsandbits.api.pattern.placement.PlacementResult;
+import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.api.sealing.ISupportsSealing;
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -18,12 +16,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import static mod.chiselsandbits.api.util.ColorUtils.SUCCESSFUL_PATTERN_PLACEMENT_COLOR;
-
 /**
  * Represents an item that can be a pattern
  */
-public interface IPatternItem extends IMultiStateItem, ISupportsSealing, IWithModeItem<IPatternPlacementType>, IWireframeProvidingItem, IChangeTrackingItem
+public interface IPatternItem extends IMultiStateItem, ISupportsSealing, IWithModeItem<IPatternPlacementType>, IPlacementPreviewProvidingItem, IChangeTrackingItem
 {
     @Override
     default VoxelShape getWireFrame(
@@ -37,30 +33,42 @@ public interface IPatternItem extends IMultiStateItem, ISupportsSealing, IWithMo
     }
 
     @Override
-    default Vector4f getWireFrameColor(ItemStack heldStack, Player player, BlockHitResult blockHitResult) {
-        final PlacementResult result = this.getMode(heldStack).performPlacement(
-          createItemStack(heldStack).createSnapshot(),
-          new BlockPlaceContext(
-            player,
-                player.getMainHandItem() == heldStack ?
-                  InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND,
-            heldStack,
-            blockHitResult
-            ),
-          true
-        );
-
-        return result.isSuccess() ? SUCCESSFUL_PATTERN_PLACEMENT_COLOR : result.getFailureColor();
+    default Vector4f getWireFrameColor(ItemStack heldStack, Player player, BlockHitResult blockHitResult)
+    {
+        return getPlacementResult(heldStack, player, blockHitResult).getColor();
     }
 
     @Override
-    default Vec3 getTargetedPosition(ItemStack heldStack, Player player, BlockHitResult blockHitResult) {
+    default Vec3 getTargetedPosition(ItemStack heldStack, Player player, BlockHitResult blockHitResult)
+    {
         return getMode(heldStack).getTargetedPosition(heldStack, player, blockHitResult);
+    }
+
+    @Override
+    default PlacementResult getPlacementResult(ItemStack heldStack, Player player, BlockHitResult blockHitResult)
+    {
+        return this.getMode(heldStack).performPlacement(
+                createItemStack(heldStack).createSnapshot(),
+                new BlockPlaceContext(
+                        player,
+                        player.getMainHandItem() == heldStack ?
+                                InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND,
+                        heldStack,
+                        blockHitResult
+                ),
+                true
+        );
+    }
+
+    @Override
+    default boolean overridesBits(ItemStack heldStack)
+    {
+        return getMode(heldStack).overridesBits(heldStack);
     }
 
     @Override
     default boolean ignoreDepth(ItemStack heldStack)
     {
-        return getMode(heldStack).editsBlocks();
+        return overridesBits(heldStack);
     }
 }

@@ -3,6 +3,8 @@ package mod.chiselsandbits.api.pattern.placement;
 import mod.chiselsandbits.api.item.withmode.IToolMode;
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
+import mod.chiselsandbits.api.placement.IPlacementProperties;
+import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.platforms.core.registries.IChiselsAndBitsRegistryEntry;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
@@ -15,7 +17,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 /**
  * Presents a way placing a pattern in the world.
  */
-public interface IPatternPlacementType extends IChiselsAndBitsRegistryEntry, IToolMode<IToolModeGroup>
+public interface IPatternPlacementType extends IChiselsAndBitsRegistryEntry, IToolMode<IToolModeGroup>, IPlacementProperties
 {
 
     /**
@@ -55,12 +57,4 @@ public interface IPatternPlacementType extends IChiselsAndBitsRegistryEntry, ITo
      * @return The position of the potential placement.
      */
     Vec3 getTargetedPosition(ItemStack heldStack, Player player, BlockHitResult blockRayTraceResult);
-
-    /**
-     * Invoked to determine whether this mode modifies existing blocks, or only edits air blocks.
-     */
-    default boolean editsBlocks()
-    {
-        return true;
-    }
 }

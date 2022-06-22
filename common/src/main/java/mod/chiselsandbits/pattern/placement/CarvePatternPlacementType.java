@@ -12,7 +12,7 @@ import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
-import mod.chiselsandbits.api.pattern.placement.PlacementResult;
+import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;

@@ -1,10 +1,10 @@
-package mod.chiselsandbits.api.pattern.placement;
+package mod.chiselsandbits.api.placement;
 
-import com.mojang.math.Vector3d;
 import com.mojang.math.Vector4f;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.world.phys.Vec3;
+
+import static mod.chiselsandbits.api.util.ColorUtils.SUCCESSFUL_PATTERN_PLACEMENT_COLOR;
 
 /**
  * Represents a result of a placement attempt.
@@ -12,14 +12,30 @@ import net.minecraft.world.phys.Vec3;
 public class PlacementResult
 {
 
-    private static final Vector4f ZERO = new Vector4f(0f, 0f, 0f, 0f);
-
     /**
      * Creates a new successful placement result.
      * @return A new result indicating successful placement.
      */
     public static PlacementResult success(){
-        return new PlacementResult(true, ZERO, new TextComponent(""));
+        return success(SUCCESSFUL_PATTERN_PLACEMENT_COLOR);
+    }
+
+    /**
+     * Creates a new successful placement result with specified color.
+     * @return A new result indicating successful placement.
+     */
+    public static PlacementResult success(final Vector4f color){
+        return new PlacementResult(true, color, new TextComponent(""));
+    }
+
+    /**
+     * Creates a new placement result which indicates failure.
+     *
+     * @param color The color of the wireframe to indicate the failure type.
+     * @return A new result indicating a failure to place the pattern.
+     */
+    public static PlacementResult failure(final Vector4f color) {
+        return failure(color, new TextComponent(""));
     }
 
     /**
@@ -34,12 +50,12 @@ public class PlacementResult
     }
 
     private final boolean success;
-    private final Vector4f failureColor;
+    private final Vector4f color;
     private final Component failureMessage;
 
-    private PlacementResult(final boolean success, final Vector4f failureColor, final Component failureMessage) {
+    private PlacementResult(final boolean success, final Vector4f color, final Component failureMessage) {
         this.success = success;
-        this.failureColor = failureColor;
+        this.color = color;
         this.failureMessage = failureMessage;
     }
 
@@ -48,9 +64,9 @@ public class PlacementResult
         return success;
     }
 
-    public Vector4f getFailureColor()
+    public Vector4f getColor()
     {
-        return failureColor;
+        return color;
     }
 
     public Component getFailureMessage()
