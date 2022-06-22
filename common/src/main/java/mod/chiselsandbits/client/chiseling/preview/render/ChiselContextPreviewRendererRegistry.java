@@ -1,8 +1,8 @@
 package mod.chiselsandbits.client.chiseling.preview.render;
 
 import com.google.common.collect.Maps;
-import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRenderer;
-import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRenderer;
+import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import net.minecraft.resources.ResourceLocation;
 

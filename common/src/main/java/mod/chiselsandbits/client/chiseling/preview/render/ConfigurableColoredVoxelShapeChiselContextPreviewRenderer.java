@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
-import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRenderer;
+import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRenderer;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.client.render.ModRenderTypes;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;

@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
+import mod.chiselsandbits.api.client.render.preview.placement.PlacementPreviewRenderMode;
 import mod.chiselsandbits.api.placement.PlacementResult;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -47,6 +48,8 @@ public class ChiseledBlockGhostRenderer
             final ItemStack renderStack,
             final Vec3 targetedRenderPos,
             final PlacementResult placementResult,
+            final PlacementPreviewRenderMode success,
+            final PlacementPreviewRenderMode failure,
             final boolean ignoreDepth)
     {
         poseStack.pushPose();
@@ -60,17 +63,18 @@ public class ChiseledBlockGhostRenderer
         );
         poseStack.scale(1.001F, 1.001F, 1.001F);
 
-        final boolean isSuccess = placementResult.isSuccess();
         final Vector4f color = placementResult.getColor();
+        final boolean renderColoredGhost = (placementResult.isSuccess() && success.isColoredGhost())
+                || (!placementResult.isSuccess() && failure.isColoredGhost());
 
         BUFFER.setAlphaPercentage(color.w());
         final BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(renderStack, null, null, 0);
 
-        if (isSuccess || !ignoreDepth)
-            renderGhost(poseStack, renderStack, model, isSuccess, color, false);
+        if (!renderColoredGhost || !ignoreDepth)
+            renderGhost(poseStack, renderStack, model, renderColoredGhost, color, false);
 
         if (ignoreDepth)
-            renderGhost(poseStack, renderStack, model, isSuccess, color, true);
+            renderGhost(poseStack, renderStack, model, renderColoredGhost, color, true);
 
         poseStack.popPose();
     }
@@ -79,25 +83,34 @@ public class ChiseledBlockGhostRenderer
             final PoseStack poseStack,
             final ItemStack renderStack,
             final BakedModel model,
-            final boolean isSuccess,
+            final boolean renderColoredGhost,
             final Vector4f color,
             final boolean ignoreDepth)
     {
         final RenderType renderType;
-        if (isSuccess)
-        {
-            renderType = ignoreDepth
-                    ? ModRenderTypes.GHOST_BLOCK_PREVIEW_GREATER.get()
-                    : ModRenderTypes.GHOST_BLOCK_PREVIEW.get();
-        }
-        else
+        if (renderColoredGhost)
         {
             renderType = ignoreDepth
                     ? ModRenderTypes.GHOST_BLOCK_COLORED_PREVIEW_ALWAYS.get()
                     : ModRenderTypes.GHOST_BLOCK_COLORED_PREVIEW.get();
         }
+        else
+        {
+            renderType = ignoreDepth
+                    ? ModRenderTypes.GHOST_BLOCK_PREVIEW_GREATER.get()
+                    : ModRenderTypes.GHOST_BLOCK_PREVIEW.get();
+        }
         BUFFER.begin(renderType.mode(), renderType.format());
-        if (isSuccess)
+        if (renderColoredGhost)
+        {
+            renderModelLists(
+              model,
+              poseStack,
+              BUFFER,
+              color
+            );
+        }
+        else
         {
             Minecraft.getInstance().getItemRenderer().renderModelLists(
               model,
@@ -106,15 +119,6 @@ public class ChiseledBlockGhostRenderer
               OverlayTexture.NO_OVERLAY,
               poseStack,
               BUFFER
-            );
-        }
-        else
-        {
-            renderModelLists(
-              model,
-              poseStack,
-              BUFFER,
-              color
             );
         }
         renderType.end(BUFFER, 0, 0, 0);

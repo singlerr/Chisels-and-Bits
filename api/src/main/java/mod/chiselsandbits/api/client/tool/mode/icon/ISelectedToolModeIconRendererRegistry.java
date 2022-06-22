@@ -1,7 +1,6 @@
 package mod.chiselsandbits.api.client.tool.mode.icon;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRenderer;
 
 /**
  * Registry for registering possible selected tool mode icon renderers,

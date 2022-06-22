@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.config;
 
 import com.mojang.math.Vector4f;
+import mod.chiselsandbits.api.client.render.preview.placement.PlacementPreviewRenderMode;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -31,6 +32,20 @@ public interface IClientConfiguration
      * @return A configuration supplier that indicates the current bit bag fullness indication system.
      */
     Supplier<Boolean> getInvertBitBagFullness();
+
+    /**
+     * Determines the render mode used for successful pattern or chiseled block placement.
+     *
+     * @return A configuration supplier that indicates the current successful placement render mode.
+     */
+    Supplier<PlacementPreviewRenderMode> getSuccessfulPlacementRenderMode();
+
+    /**
+     * Determines the render mode used for successful pattern or chiseled block placement.
+     *
+     * @return A configuration supplier that indicates the current successful placement render mode.
+     */
+    Supplier<PlacementPreviewRenderMode> getFailedPlacementRenderMode();
 
     /**
      * Determines the color used for successful pattern or chiseled block placement.
