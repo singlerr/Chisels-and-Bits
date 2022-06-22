@@ -1,12 +1,15 @@
 package mod.chiselsandbits.forge.platform.configuration;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.mojang.math.Vector4f;
 import mod.chiselsandbits.utils.LanguageHandler;
 import mod.chiselsandbits.platforms.core.config.IConfigurationBuilder;
 import mod.chiselsandbits.platforms.core.dist.DistExecutor;
 import net.minecraft.locale.Language;
 import net.minecraftforge.common.ForgeConfigSpec;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -41,6 +44,19 @@ public class ForgeDelegateConfigurationBuilder implements IConfigurationBuilder
         keys.add(key + ".comment");
         builder.comment(translateToLocal(key + ".comment"));
         return builder.defineList(key, defaultValue, t -> true)::get;
+    }
+
+    @Override
+    public Supplier<Vector4f> defineVector4f(final String key, final Vector4f defaultValue)
+    {
+        keys.add(key + ".comment");
+        builder.comment(translateToLocal(key + ".comment"));
+        ArrayList<Float> defaultValueList = Lists.newArrayList(defaultValue.x(), defaultValue.y(), defaultValue.z(), defaultValue.w());
+        ForgeConfigSpec.ConfigValue<List<? extends Float>> floatListValue = builder.defineList(key, defaultValueList, t -> t instanceof Float);
+        return () -> {
+            List<? extends Float> list = floatListValue.get();
+            return new Vector4f(list.get(0), list.get(1), list.get(2), list.get(3));
+        };
     }
 
     @Override

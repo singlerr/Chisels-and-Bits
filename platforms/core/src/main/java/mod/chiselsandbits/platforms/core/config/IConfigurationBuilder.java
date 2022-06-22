@@ -1,5 +1,7 @@
 package mod.chiselsandbits.platforms.core.config;
 
+import com.mojang.math.Vector4f;
+
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -27,6 +29,15 @@ public interface IConfigurationBuilder
      * @return The value provider.
      */
     <T> Supplier<List<? extends T>> defineList(String key, List<T> defaultValue, final Class<T> containedType);
+
+    /**
+     * Defines a new Vector4f property with the given key and default value.
+     *
+     * @param key The key to use.
+     * @param defaultValue The default value.
+     * @return The value provider.
+     */
+    Supplier<Vector4f> defineVector4f(String key, Vector4f defaultValue);
 
     /**
      * Defines a new string property with the given key and default value.

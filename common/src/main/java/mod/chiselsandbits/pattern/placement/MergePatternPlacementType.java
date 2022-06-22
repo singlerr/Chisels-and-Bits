@@ -3,6 +3,7 @@ package mod.chiselsandbits.pattern.placement;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
@@ -33,8 +34,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static mod.chiselsandbits.api.util.ColorUtils.MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR;
-import static mod.chiselsandbits.api.util.ColorUtils.NOT_FITTING_PATTERN_PLACEMENT_COLOR;
 import static mod.chiselsandbits.platforms.core.util.constants.Constants.MOD_ID;
 
 public class MergePatternPlacementType extends AbstractCustomRegistryEntry implements IPatternPlacementType
@@ -82,7 +81,9 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
 
         if (!isChiseledBlock)
         {
-            return PlacementResult.failure(NOT_FITTING_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotAChiseledBlock.getText());
+            return PlacementResult.failure(
+                    IClientConfiguration.getInstance().getNotFittingPatternPlacementColor().get(),
+                    LocalStrings.PatternPlacementNotAChiseledBlock.getText());
         }
 
         final Map<BlockInformation, Integer> totalRemovedBits = source.stream()
@@ -110,7 +111,9 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
 
         if (!hasRequiredSpace)
         {
-            return PlacementResult.failure(MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNoBitSpace.getText());
+            return PlacementResult.failure(
+                    IClientConfiguration.getInstance().getMissingBitsOrSpacePatternPlacementColor().get(),
+                    LocalStrings.PatternPlacementNoBitSpace.getText());
         }
 
         final Map<BlockInformation, Integer> totalAddedBits = source.stream()
@@ -134,7 +137,9 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
 
         if (!hasRequiredBits)
         {
-            return PlacementResult.failure(MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotEnoughBits.getText());
+            return PlacementResult.failure(
+                    IClientConfiguration.getInstance().getMissingBitsOrSpacePatternPlacementColor().get(),
+                    LocalStrings.PatternPlacementNotEnoughBits.getText());
         }
 
         if (simulate)

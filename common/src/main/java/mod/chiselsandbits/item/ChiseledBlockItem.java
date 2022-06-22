@@ -3,6 +3,7 @@ package mod.chiselsandbits.item;
 import com.google.common.base.Suppliers;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.chiseled.IChiseledBlockItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
@@ -41,8 +42,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
-
-import static mod.chiselsandbits.api.util.ColorUtils.NOT_FITTING_PATTERN_PLACEMENT_COLOR;
 
 public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
 {
@@ -203,7 +202,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
         return noSpaceOccupied
                 ? PlacementResult.success()
                 : PlacementResult.failure(
-                        NOT_FITTING_PATTERN_PLACEMENT_COLOR,
+                        IClientConfiguration.getInstance().getNotFittingPatternPlacementColor().get(),
                         LocalStrings.PatternPlacementNotAnAirBlock.getText());
     }
 

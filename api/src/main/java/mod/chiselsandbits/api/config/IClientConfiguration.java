@@ -1,7 +1,6 @@
 package mod.chiselsandbits.api.config;
 
-import com.sun.jna.IntegerType;
-import net.minecraft.client.gui.screens.achievement.StatsUpdateListener;
+import com.mojang.math.Vector4f;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -34,14 +33,36 @@ public interface IClientConfiguration
     Supplier<Boolean> getInvertBitBagFullness();
 
     /**
-     * Provides the RGB color channels for the color of the chiseling outline.
+     * Determines the color used for successful pattern or chiseled block placement.
      *
-     * @return A configuration  supplier that indicates the current chiseling outline color.
+     * @return A configuration supplier that indicates the current successful placement color.
+     */
+    Supplier<Vector4f> getSuccessfulPlacementColor();
+
+    /**
+     * Determines the color used for pattern placement which does not fit on the targeted position.
+     *
+     * @return A configuration supplier that indicates the current not fitting placement color.
+     */
+    Supplier<Vector4f> getNotFittingPatternPlacementColor();
+
+    /**
+     * Determines the color which indicates that the player is either missing bits, or does not have
+     * enough space to pick up the bits.
+     *
+     * @return A configuration supplier that indicates the current missing bits or insufficient space placement color.
+     */
+    Supplier<Vector4f> getMissingBitsOrSpacePatternPlacementColor();
+
+    /**
+     * Provides the RGBA color channels for the color of the chiseling outline.
+     *
+     * @return A configuration supplier that indicates the current chiseling outline color.
      */
     Supplier<List<? extends Float>> getPreviewChiselingColor();
 
     /**
-     * Provides the RGB color channels for the color of the placement outline.
+     * Provides the RGBA color channels for the color of the placement outline.
      *
      * @return A configuration supplier that indicates the current placement outline color.
      */

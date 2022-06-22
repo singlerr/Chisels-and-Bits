@@ -2,6 +2,7 @@ package mod.chiselsandbits.fabric.platform.configuration;
 
 import com.google.common.collect.Lists;
 import com.google.gson.*;
+import com.mojang.math.Vector4f;
 import mod.chiselsandbits.platforms.core.config.IConfigurationBuilder;
 
 import java.util.ArrayList;
@@ -65,6 +66,34 @@ public final class FabricConfigurationBuilder implements IConfigurationBuilder
           },
           GSON::toJsonTree,
           defaultValue
+        );
+
+        configuredValues.add(value);
+
+        return value;
+    }
+
+    @Override
+    public Supplier<Vector4f> defineVector4f(final String key, final Vector4f defaultValue)
+    {
+        final FabricConfigurationValue<Vector4f> value = new FabricConfigurationValue<>(
+                source,
+                key,
+                jsonElement -> {
+                    if (!jsonElement.isJsonArray())
+                        throw new JsonParseException("List: " + key + " is not an array");
+
+                    final JsonArray jsonArray = jsonElement.getAsJsonArray();
+                    final List<Float> list = new ArrayList<>();
+
+                    for (final JsonElement element : jsonArray) {
+                        list.add(GSON.fromJson(element, Float.class));
+                    }
+
+                    return new Vector4f(list.get(0), list.get(1), list.get(2), list.get(3));
+                },
+                GSON::toJsonTree,
+                defaultValue
         );
 
         configuredValues.add(value);

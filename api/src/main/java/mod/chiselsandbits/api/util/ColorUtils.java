@@ -1,8 +1,5 @@
 package mod.chiselsandbits.api.util;
 
-import com.mojang.math.Vector4f;
-import net.minecraft.world.phys.Vec3;
-
 /**
  * Utility class for processing colors.
  */
@@ -17,22 +14,6 @@ public class ColorUtils
      * The minimal value for a given color channel.
      */
     public static final int EMPTY_CHANNEL = 0;
-
-    /**
-     * The default float (0-1) color vector for successful pattern placement.
-     */
-    public static final Vector4f SUCCESSFUL_PATTERN_PLACEMENT_COLOR            = new Vector4f(48/255f, 120/255f, 201/255f, 180/255f);
-
-    /**
-     * The default float (0-1) color vector for pattern placement, which does not fit on the targeted position.
-     */
-    public static final Vector4f NOT_FITTING_PATTERN_PLACEMENT_COLOR           = new Vector4f(183/255f, 65/255f, 14/255f, 180/255f);
-
-    /**
-     * The default float (0-1) color vector which indicates that the player is either missing bits, or does not have enough space to
-     * pick up the bits.
-     */
-    public static final Vector4f MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR = new Vector4f(255/255f, 219/255f, 88/255f, 180/255f);
 
     private ColorUtils()
     {
