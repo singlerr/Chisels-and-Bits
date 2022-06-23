@@ -56,7 +56,7 @@ public class ForgeDelegateConfigurationBuilder implements IConfigurationBuilder
                 (double) defaultValue.y(),
                 (double) defaultValue.z(),
                 (double) defaultValue.w());
-        final ForgeConfigSpec.ConfigValue<List<? extends Double>> doubleListValue = builder.defineList(key, defaultValueList, t -> t instanceof Number);
+        final ForgeConfigSpec.ConfigValue<List<? extends Double>> doubleListValue = builder.defineList(key, defaultValueList, t -> t instanceof Double);
         return () -> {
             final List<? extends Double> list = doubleListValue.get();
             return new Vector4f(
