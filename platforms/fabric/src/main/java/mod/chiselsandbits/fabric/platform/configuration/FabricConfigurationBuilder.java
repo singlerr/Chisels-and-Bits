@@ -81,7 +81,7 @@ public final class FabricConfigurationBuilder implements IConfigurationBuilder
                 key,
                 jsonElement -> {
                     if (!jsonElement.isJsonArray())
-                        throw new JsonParseException("List: " + key + " is not an array");
+                        throw new JsonParseException("Vector4f: " + key + " is not an array");
 
                     final JsonArray jsonArray = jsonElement.getAsJsonArray();
                     final List<Float> list = new ArrayList<>();
@@ -89,6 +89,12 @@ public final class FabricConfigurationBuilder implements IConfigurationBuilder
                     for (final JsonElement element : jsonArray) {
                         list.add(GSON.fromJson(element, Float.class));
                     }
+
+                    if (list.size() != 3 && list.size() != 4)
+                        throw new JsonParseException("Vector4f: element count is " + list.size() + ", but must be 3 or 4");
+
+                    if (list.size() == 3)
+                        list.add(1f);
 
                     return new Vector4f(list.get(0), list.get(1), list.get(2), list.get(3));
                 },
