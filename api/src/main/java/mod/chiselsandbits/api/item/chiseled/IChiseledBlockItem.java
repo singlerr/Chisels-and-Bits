@@ -44,7 +44,7 @@ public interface IChiseledBlockItem extends IMultiStateItem, IPlacementPreviewPr
     }
 
     @Override
-    default boolean overridesBits(ItemStack heldStack)
+    default boolean overridesOccupiedBits(ItemStack heldStack)
     {
         return false;
     }
@@ -52,6 +52,6 @@ public interface IChiseledBlockItem extends IMultiStateItem, IPlacementPreviewPr
     @Override
     default boolean ignoreDepth(ItemStack heldStack)
     {
-        return overridesBits(heldStack);
+        return overridesOccupiedBits(heldStack);
     }
 }

@@ -126,7 +126,7 @@ public class PlacePatternPlacementType extends AbstractCustomRegistryEntry imple
     }
 
     @Override
-    public boolean overridesBits(ItemStack heldStack)
+    public boolean overridesOccupiedBits(ItemStack heldStack)
     {
         return false;
     }

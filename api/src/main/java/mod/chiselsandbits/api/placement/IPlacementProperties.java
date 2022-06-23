@@ -8,7 +8,7 @@ public interface IPlacementProperties
     /**
      * Invoked to determine whether this replaces non-air bits of blocks, or only replaces air bits.
      */
-    default boolean overridesBits(ItemStack heldStack)
+    default boolean overridesOccupiedBits(ItemStack heldStack)
     {
         return true;
     }

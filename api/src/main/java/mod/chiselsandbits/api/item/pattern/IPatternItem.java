@@ -61,14 +61,14 @@ public interface IPatternItem extends IMultiStateItem, ISupportsSealing, IWithMo
     }
 
     @Override
-    default boolean overridesBits(ItemStack heldStack)
+    default boolean overridesOccupiedBits(ItemStack heldStack)
     {
-        return getMode(heldStack).overridesBits(heldStack);
+        return getMode(heldStack).overridesOccupiedBits(heldStack);
     }
 
     @Override
     default boolean ignoreDepth(ItemStack heldStack)
     {
-        return overridesBits(heldStack);
+        return overridesOccupiedBits(heldStack);
     }
 }
