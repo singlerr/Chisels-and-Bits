@@ -2,6 +2,7 @@ package mod.chiselsandbits.pattern.placement;
 
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
@@ -11,7 +12,7 @@ import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
-import mod.chiselsandbits.api.pattern.placement.PlacementResult;
+import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
@@ -30,8 +31,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
-import static mod.chiselsandbits.api.util.ColorUtils.MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR;
-import static mod.chiselsandbits.api.util.ColorUtils.NOT_FITTING_PATTERN_PLACEMENT_COLOR;
 import static mod.chiselsandbits.platforms.core.util.constants.Constants.MOD_ID;
 
 public class PlacePatternPlacementType extends AbstractCustomRegistryEntry implements IPatternPlacementType
@@ -65,7 +64,9 @@ public class PlacePatternPlacementType extends AbstractCustomRegistryEntry imple
 
         if (!isAir)
         {
-            return PlacementResult.failure(NOT_FITTING_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotAnAirBlock.getText());
+            return PlacementResult.failure(
+                    IClientConfiguration::getNotFittingPatternPlacementColor,
+                    LocalStrings.PatternPlacementNotAnAirBlock.getText());
         }
 
         final IBitInventory playerBitInventory = IBitInventoryManager.getInstance().create(context.getPlayer());
@@ -75,7 +76,9 @@ public class PlacePatternPlacementType extends AbstractCustomRegistryEntry imple
 
         if (!hasRequiredBits)
         {
-            return PlacementResult.failure(MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotEnoughBits.getText());
+            return PlacementResult.failure(
+                    IClientConfiguration::getMissingBitsOrSpacePatternPlacementColor,
+                    LocalStrings.PatternPlacementNotEnoughBits.getText());
         }
 
         if (simulate)
@@ -120,6 +123,12 @@ public class PlacePatternPlacementType extends AbstractCustomRegistryEntry imple
         }
 
         return Vec3.atLowerCornerOf(blockRayTraceResult.getBlockPos().offset(blockRayTraceResult.getDirection().getNormal()));
+    }
+
+    @Override
+    public boolean overridesOccupiedBits(ItemStack heldStack)
+    {
+        return false;
     }
 
     @Override

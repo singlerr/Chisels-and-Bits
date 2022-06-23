@@ -10,7 +10,7 @@ import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.notifications.INotificationManager;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
-import mod.chiselsandbits.api.pattern.placement.PlacementResult;
+import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;

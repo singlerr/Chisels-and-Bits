@@ -1,4 +1,4 @@
-package mod.chiselsandbits.api.client.chiseling.preview.render;
+package mod.chiselsandbits.api.client.render.preview.chiseling;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;

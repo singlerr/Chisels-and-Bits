@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
@@ -14,7 +15,7 @@ import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
-import mod.chiselsandbits.api.pattern.placement.PlacementResult;
+import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.platforms.core.registries.AbstractCustomRegistryEntry;
@@ -34,8 +35,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static mod.chiselsandbits.api.util.ColorUtils.MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR;
-import static mod.chiselsandbits.api.util.ColorUtils.NOT_FITTING_PATTERN_PLACEMENT_COLOR;
 import static mod.chiselsandbits.platforms.core.util.constants.Constants.MOD_ID;
 
 public class ImposePatternPlacementType extends AbstractCustomRegistryEntry implements IPatternPlacementType
@@ -83,7 +82,9 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
 
         if (isChiseledBlock)
         {
-            return PlacementResult.failure(NOT_FITTING_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotASolidBlock.getText());
+            return PlacementResult.failure(
+                    IClientConfiguration::getNotFittingPatternPlacementColor,
+                    LocalStrings.PatternPlacementNotASolidBlock.getText());
         }
 
         final boolean isSupported = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
@@ -92,7 +93,9 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
 
         if (!isSupported)
         {
-            return PlacementResult.failure(NOT_FITTING_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotASupportedBlock.getText());
+            return PlacementResult.failure(
+                    IClientConfiguration::getNotFittingPatternPlacementColor,
+                    LocalStrings.PatternPlacementNotASupportedBlock.getText());
         }
 
         final Map<BlockInformation, Integer> extractedBitsCount = source.stream()
@@ -116,7 +119,9 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
 
         if (!hasRequiredSpace)
         {
-            return PlacementResult.failure(MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNoBitSpace.getText());
+            return PlacementResult.failure(
+                    IClientConfiguration::getMissingBitsOrSpacePatternPlacementColor,
+                    LocalStrings.PatternPlacementNoBitSpace.getText());
         }
 
         final boolean hasRequiredBits = context.getPlayer().isCreative() || source.getStatics().getStateCounts().entrySet().stream()
@@ -125,7 +130,9 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
 
         if (!hasRequiredBits)
         {
-            return PlacementResult.failure(MISSING_BITS_OR_SPACE_PATTERN_PLACEMENT_COLOR, LocalStrings.PatternPlacementNotEnoughBits.getText());
+            return PlacementResult.failure(
+                    IClientConfiguration::getMissingBitsOrSpacePatternPlacementColor,
+                    LocalStrings.PatternPlacementNotEnoughBits.getText());
         }
 
         if (simulate)

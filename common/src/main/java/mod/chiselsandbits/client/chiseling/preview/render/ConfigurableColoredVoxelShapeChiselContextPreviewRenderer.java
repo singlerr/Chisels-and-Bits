@@ -1,11 +1,10 @@
 package mod.chiselsandbits.client.chiseling.preview.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
-import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRenderer;
+import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRenderer;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.client.render.ModRenderTypes;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
@@ -60,7 +59,6 @@ public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implement
                                               IClientConfiguration.getInstance().getMutatorPreviewChiselingColor().get() :
                                               IClientConfiguration.getInstance().getMutatorPreviewPlacementColor().get();
 
-        RenderSystem.disableDepthTest();
         LevelRenderer.renderShape(
           poseStack,
           Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
@@ -72,10 +70,8 @@ public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implement
           getColorValue(color, 3, 1f)
         );
         Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
-        RenderSystem.enableDepthTest();
 
         if (IClientConfiguration.getInstance().getMutatorPreviewDebug().get()) {
-            RenderSystem.disableDepthTest();
             LevelRenderer.renderShape(
               poseStack,
               Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
@@ -87,7 +83,6 @@ public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implement
               getColorValue(mutatorColor, 3, 1f)
             );
             Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
-            RenderSystem.enableDepthTest();
         }
     }
 

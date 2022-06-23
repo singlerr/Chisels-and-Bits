@@ -8,7 +8,7 @@ import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
-import mod.chiselsandbits.api.client.chiseling.preview.render.IChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRendererRegistry;
 import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
 import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
