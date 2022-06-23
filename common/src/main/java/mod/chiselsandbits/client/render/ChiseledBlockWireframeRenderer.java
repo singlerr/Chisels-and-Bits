@@ -49,16 +49,16 @@ public class ChiseledBlockWireframeRenderer
             final VoxelShape wireFrame,
             final Vec3 position,
             final Vector4f color,
-            boolean ignoreDepth)
+            final boolean ignoreDepth)
     {
         stack.pushPose();
 
-        Vec3 vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        double xView = vector3d.x();
-        double yView = vector3d.y();
-        double zView = vector3d.z();
+        final Vec3 vector3d = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        final double xView = vector3d.x();
+        final double yView = vector3d.y();
+        final double zView = vector3d.z();
 
-        RenderType renderType = ignoreDepth
+        final RenderType renderType = ignoreDepth
                 ? ModRenderTypes.WIREFRAME_LINES_ALWAYS.get()
                 : ModRenderTypes.WIREFRAME_LINES.get();
 

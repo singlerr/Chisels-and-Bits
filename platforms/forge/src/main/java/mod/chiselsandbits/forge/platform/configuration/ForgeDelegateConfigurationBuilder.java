@@ -51,15 +51,19 @@ public class ForgeDelegateConfigurationBuilder implements IConfigurationBuilder
     {
         keys.add(key + ".comment");
         builder.comment(translateToLocal(key + ".comment"));
-        ArrayList<Float> defaultValueList = Lists.newArrayList(defaultValue.x(), defaultValue.y(), defaultValue.z(), defaultValue.w());
-        ForgeConfigSpec.ConfigValue<List<? extends Float>> floatListValue = builder.defineList(key, defaultValueList, t -> true);
+        final ArrayList<Double> defaultValueList = Lists.newArrayList(
+                (double) defaultValue.x(),
+                (double) defaultValue.y(),
+                (double) defaultValue.z(),
+                (double) defaultValue.w());
+        final ForgeConfigSpec.ConfigValue<List<? extends Double>> doubleListValue = builder.defineList(key, defaultValueList, t -> t instanceof Number);
         return () -> {
-            List<? extends Float> list = floatListValue.get();
+            final List<? extends Double> list = doubleListValue.get();
             return new Vector4f(
-                    ((Number) list.get(0)).floatValue(),
-                    ((Number) list.get(1)).floatValue(),
-                    ((Number) list.get(2)).floatValue(),
-                    ((Number) list.get(3)).floatValue());
+                    list.get(0).floatValue(),
+                    list.get(1).floatValue(),
+                    list.get(2).floatValue(),
+                    list.get(3).floatValue());
         };
     }
 

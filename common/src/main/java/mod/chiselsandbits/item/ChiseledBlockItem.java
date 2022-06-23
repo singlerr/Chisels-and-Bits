@@ -187,7 +187,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
           target.add(1,1,1));
         final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();
 
-        boolean noSpaceOccupied = source.stream()
+        final boolean noSpaceOccupied = source.stream()
                 .allMatch(stateEntryInfo -> {
                     try {
                         attemptTarget.setInAreaTarget(

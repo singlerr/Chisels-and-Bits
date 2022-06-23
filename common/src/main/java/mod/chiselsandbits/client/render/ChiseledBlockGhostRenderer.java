@@ -197,7 +197,7 @@ public class ChiseledBlockGhostRenderer
         normal.transform(pose.normal());
 
         // Shades the color to match MC's directional shading
-        float brightness = DIRECTIONAL_BRIGHTNESS[direction.get3DDataValue()];
+        final float brightness = DIRECTIONAL_BRIGHTNESS[direction.get3DDataValue()];
         shadedColor.set(
                 color.x() * brightness,
                 color.y() * brightness,

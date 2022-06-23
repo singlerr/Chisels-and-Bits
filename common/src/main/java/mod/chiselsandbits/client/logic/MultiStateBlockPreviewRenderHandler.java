@@ -73,7 +73,7 @@ public class MultiStateBlockPreviewRenderHandler
             final BlockHitResult blockRayTraceResult,
             final Vec3 targetedRenderPos,
             final Vector4f color,
-            boolean ignoreDepth)
+            final boolean ignoreDepth)
     {
         final VoxelShape wireFrame = wireframeItem.getWireFrame(heldStack, playerEntity, blockRayTraceResult);
 
@@ -93,7 +93,7 @@ public class MultiStateBlockPreviewRenderHandler
             final PlacementResult placementResult,
             final PlacementPreviewRenderMode success,
             final PlacementPreviewRenderMode failure,
-            boolean ignoreDepth)
+            final boolean ignoreDepth)
     {
         final ItemStack renderStack;
         if (heldStack.getItem() instanceof final IPatternItem patternItem)
