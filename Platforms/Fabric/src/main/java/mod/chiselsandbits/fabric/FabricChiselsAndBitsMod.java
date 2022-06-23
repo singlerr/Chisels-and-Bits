@@ -51,7 +51,7 @@ public class FabricChiselsAndBitsMod implements ModInitializer {
               ClickProcessingState.ProcessingResult.DEFAULT
             );
 
-            return mapResult(level, result.getNextState());
+            return mapResult(level, result);
         });
 
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((serverPlayer, serverLevel, serverLevel1) -> ChiselingManagerCountDownResetHandler.doResetFor(serverPlayer));
@@ -75,7 +75,7 @@ public class FabricChiselsAndBitsMod implements ModInitializer {
               ClickProcessingState.ProcessingResult.DEFAULT
             );
 
-            return mapResult(level, result.getNextState());
+            return mapResult(level, result);
         });
 
         UseItemCallback.EVENT.register((player, level, interactionHand) -> {
@@ -88,7 +88,7 @@ public class FabricChiselsAndBitsMod implements ModInitializer {
               ClickProcessingState.ProcessingResult.DEFAULT
             );
 
-            return new InteractionResultHolder<>(mapResult(level, result.getNextState()), player.getItemInHand(interactionHand));
+            return new InteractionResultHolder<>(mapResult(level, result), player.getItemInHand(interactionHand));
         });
 
         ServerLifecycleEvents.SERVER_STARTING.register(server -> ServerStartHandler.onServerStart());
@@ -99,13 +99,13 @@ public class FabricChiselsAndBitsMod implements ModInitializer {
 
 
     private static InteractionResult mapResult(
-      final Level level, final ClickProcessingState.ProcessingResult processingResult
+      final Level level, final ClickProcessingState processingResult
     ) {
-        return switch (processingResult)
+        return switch (processingResult.getNextState())
                  {
                      case DENY -> InteractionResult.FAIL;
                      case DEFAULT -> InteractionResult.PASS;
-                     case ALLOW -> InteractionResult.SUCCESS;
+                     case ALLOW -> processingResult.shouldCancel() ? InteractionResult.SUCCESS : InteractionResult.PASS;
                  };
     }
 }

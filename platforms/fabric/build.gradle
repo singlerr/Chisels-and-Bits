@@ -51,6 +51,11 @@ loom {
         }
     }
 
+    // Configure all run configs to generate ide run configurations. Useful for sub projects.
+    runConfigs.configureEach {
+        ideConfigGenerated = true
+    }
+
     accessWidenerPath = project.rootProject.file("platforms/core/src/main/resources/${mod_id}.accesswidener")
 }
 

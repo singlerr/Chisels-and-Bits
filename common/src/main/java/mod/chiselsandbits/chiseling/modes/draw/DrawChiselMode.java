@@ -53,6 +53,11 @@ public class DrawChiselMode extends AbstractCustomRegistryEntry implements IChis
     }
 
     @Override
+    public boolean isSingleClickUse() {
+        return false;
+    }
+
+    @Override
     public ClickProcessingState onLeftClickBy(
       final Player playerEntity, final IChiselingContext context)
     {

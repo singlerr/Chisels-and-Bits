@@ -12,9 +12,11 @@ import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
 import mod.chiselsandbits.platforms.core.fluid.IFluidManager;
 import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
+import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -147,6 +149,40 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
 
         return tankStack;
     }
+
+    public static BitStorageBlockEntity createEntityFromStack(final ItemStack stack) {
+        final BitStorageBlockEntity bitTank = new BitStorageBlockEntity(BlockPos.ZERO, ModBlocks.BIT_STORAGE.get().defaultBlockState());
+        updateEntityFromStack(stack, bitTank);
+        return bitTank;
+    }
+
+    public static boolean updateEntityFromStack(final ItemStack stack, final BitStorageBlockEntity blockEntity) {
+        if (stack.getOrCreateTag().contains(NbtConstants.CONTENTS)) {
+            final BlockState blockState = NbtUtils.readBlockState(stack.getOrCreateTag().getCompound(NbtConstants.CONTENTS));
+            final int count = stack.getOrCreateTag().getInt(NbtConstants.COUNT);
+
+            blockEntity.setContents(
+                    new BlockInformation(blockState),
+                    count
+            );
+
+            return true;
+        }
+
+        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_INFORMATION)) {
+            final BlockInformation blockInformation = new BlockInformation(stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_INFORMATION));
+            final int count = stack.getOrCreateTag().getInt(NbtConstants.COUNT);
+
+            blockEntity.setContents(
+                    blockInformation,
+                    count
+            );
+
+            return true;
+        }
+        return false;
+    }
+
 
     @Override
     public void onBitBagInteraction(final ItemStack bitBagStack, final Player player, final BlockHitResult blockRayTraceResult)

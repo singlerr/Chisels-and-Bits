@@ -23,6 +23,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -122,12 +124,11 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
                     g = te.getFluid().map(IFluidManager.getInstance()::getFluidColor).map(color -> (color >> 8) & 0xff).orElse(255) / 255f;
                     b = te.getFluid().map(IFluidManager.getInstance()::getFluidColor).map(color -> color & 0xff).orElse(255) / 255f;
                 } else {
-                    final int color = Minecraft.getInstance().getBlockColors().getColor(blockInformation.getBlockState(), te.getLevel(), te.getBlockPos());
+                    final int color = Minecraft.getInstance().itemColors.getColor(new ItemStack(blockInformation.getBlockState().getBlock()), 0);
                     r = ((color >> 16) & 0xff) / 255f;
                     g = ((color >> 8) & 0xff) / 255f;
                     b = (color  & 0xff) / 255f;
                 }
-
 
                 IRenderingManager.getInstance().renderModel(poseStack.last(), buffer.getBuffer(renderType), blockInformation.getBlockState(), innerModel, r, g, b, combinedLightIn, combinedOverlayIn);
             }

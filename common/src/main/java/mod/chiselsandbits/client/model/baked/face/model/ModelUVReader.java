@@ -132,7 +132,7 @@ public class ModelUVReader extends BaseModelReader {
         final float[] data = Arrays.copyOf(quadUVs, 8);
         for (int i = 0; i < 8; i++) {
             final int index = selectorIndexes[face.get3DDataValue()][i];
-            quadUVs[i] = data[index];
+            //quadUVs[i] = data[index];
         }
     }
 }

@@ -3,6 +3,7 @@ package mod.chiselsandbits.item;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.block.BitStorageBlock;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import net.minecraft.core.BlockPos;
@@ -60,29 +61,6 @@ public class BitStorageBlockItem extends BlockItem
         if (!(blockEntity instanceof final BitStorageBlockEntity bitStorage))
             return false;
 
-        if (stack.getOrCreateTag().contains(NbtConstants.CONTENTS)) {
-            final BlockState blockState = NbtUtils.readBlockState(stack.getOrCreateTag().getCompound(NbtConstants.CONTENTS));
-            final int count = stack.getOrCreateTag().getInt(NbtConstants.COUNT);
-
-            bitStorage.setContents(
-              new BlockInformation(blockState),
-              count
-            );
-
-            return true;
-        }
-
-        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_INFORMATION)) {
-            final BlockInformation blockInformation = new BlockInformation(stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_INFORMATION));
-            final int count = stack.getOrCreateTag().getInt(NbtConstants.COUNT);
-
-            bitStorage.setContents(
-              blockInformation,
-              count
-            );
-
-            return true;
-        }
-        return false;
+        return BitStorageBlock.updateEntityFromStack(stack, bitStorage);
     }
 }

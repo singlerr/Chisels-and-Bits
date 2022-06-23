@@ -70,7 +70,7 @@ public class ClientConfiguration implements IClientConfiguration
         radialMenuMouseIndicator = builder.defineBoolean("gui.radial-menu.display-mouse-indicator", false);
         modelCacheSize = builder.defineLong("performance.caches.sizes.block-models", 10000, 3500, 20000);
         faceLayerCacheSize = builder.defineLong("performance.caches.sizes.block-faces", 1000000, 350000, 2000000);
-        modelBuildingThreadCount = builder.defineInteger("performance.model-building.thead-count", Math.max(1, Runtime.getRuntime().availableProcessors()) / 2, 1, Runtime.getRuntime()
+        modelBuildingThreadCount = builder.defineInteger("performance.model-building.thread-count", Math.max(1, Runtime.getRuntime().availableProcessors()) / 2, 1, Runtime.getRuntime()
           .availableProcessors());
         stackModelCacheSize = builder.defineLong("performance.caches.sizes.stack-models", 100, 0, Long.MAX_VALUE);
 

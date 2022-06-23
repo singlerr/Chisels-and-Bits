@@ -456,40 +456,40 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
 
         switch (face) {
             case UP-> {
-                to_u = from.x() / 16f;
-                to_v = to.z() / 16f;
-                from_u = to.x() / 16f;
-                from_v = from.z() / 16f;
+                to_u = 1 - to.x() / 16f;
+                to_v = 1 - to.z() / 16f;
+                from_u = 1 - from.x() / 16f;
+                from_v = 1 - from.z() / 16f;
             }
             case DOWN -> {
-                to_u = from.x() / 16f;
-                to_v = to.z() / 16f;
-                from_u = to.x() / 16f;
-                from_v = from.z() / 16f;
+                to_u = 1 - to.x() / 16f;
+                to_v = 1 - from.z() / 16f;
+                from_u = 1 - from.x() / 16f;
+                from_v = 1 - to.z() / 16f;
             }
             case SOUTH -> {
-                to_u = to.x() / 16f;
-                to_v = from.y() / 16f;
-                from_u = from.x() / 16f;
-                from_v = to.y() / 16f;
+                to_u = 1 -to.x() / 16f;
+                to_v = 1 - from.y() / 16f;
+                from_u = 1 - from.x() / 16f;
+                from_v = 1 - to.y() / 16f;
             }
             case NORTH -> {
                 to_u = 1 - from.x() / 16f;
-                to_v = from.y() / 16f;
+                to_v = 1 - from.y() / 16f;
                 from_u = 1 - to.x() / 16f;
-                from_v = to.y() / 16f;
+                from_v = 1 - to.y() / 16f;
             }
             case WEST -> {
-                to_u = to.z() / 16f;
-                to_v = from.y() / 16f;
-                from_u = from.z() / 16f;
-                from_v = to.y() / 16f;
+                to_u = 1 - from.y() / 16f;
+                to_v = 1 - to.z() / 16f;
+                from_u = 1 - to.y() / 16f;
+                from_v = 1 - from.z() / 16f;
             }
             case EAST -> {
-                to_u = 1 - from.z() / 16f;
-                to_v = from.y() / 16f;
-                from_u = 1 - to.z() / 16f;
-                from_v = to.y() / 16f;
+                to_u = 1 - from.y() / 16f;
+                to_v = 1 - from.z() / 16f;
+                from_u = 1 - to.y() / 16f;
+                from_v = 1 - to.z() / 16f;
             }
             default -> {
             }
@@ -531,25 +531,25 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
         //0,1,0,0,1,1,1,0
 
         //LowerLeft
-        uvs[0] = u(quadsUV, from_u) * 16; // 0
-        uvs[1] = v(quadsUV, to_v) * 16; // 1
+        uvs[0] = u(quadsUV, from_u, to_v) * 16; // 0
+        uvs[1] = v(quadsUV, from_u, to_v) * 16; // 1
 
         //UpperLeft
-        uvs[2] = u(quadsUV, from_u) * 16; // 2
-        uvs[3] = v(quadsUV, from_v) * 16; // 3
+        uvs[2] = u(quadsUV, from_u, from_v) * 16; // 2
+        uvs[3] = v(quadsUV, from_u, from_v) * 16; // 3
 
         //LowerRight
-        uvs[4] = u(quadsUV, to_u) * 16; // 2
-        uvs[5] = v(quadsUV, to_v) * 16; // 3
+        uvs[4] = u(quadsUV, to_u, to_v) * 16; // 2
+        uvs[5] = v(quadsUV, to_u, to_v) * 16; // 3
 
         //UpperRight
-        uvs[6] = u(quadsUV, to_u) * 16; // 0
-        uvs[7] = v(quadsUV, from_v) * 16; // 1
+        uvs[6] = u(quadsUV, to_u, from_v) * 16; // 0
+        uvs[7] = v(quadsUV, to_u, from_v) * 16; // 1
 
         cleanUvs(uvs);
     }
 
-    private static float u(
+    /*private static float u(
             final float[] src,
             final float uLerpFactor) {
         //We assume a quad has a rectangular texture
@@ -557,7 +557,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
         final float maxU = src[4];
 
         final float validateMinU = src[2];
-        final float validateMaxU = src[4];
+        final float validateMaxU = src[6];
 
         if (FloatUtils.isNotEqual(minU, validateMinU) || FloatUtils.isNotEqual(maxU, validateMaxU)) {
             LOGGER.debug("The quads U coordinates do not line up! Min: %s - %s and Max: %s - %s".formatted(minU, validateMinU, maxU, validateMaxU));
@@ -581,6 +581,28 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
         }
 
         return Mth.lerp(vLerpFactor, minV, maxV);
+    }*/
+
+    float u(
+            final float[] src,
+            final float inU,
+            final float inV)
+    {
+        final float inv = 1.0f - inU;
+        final float u1 = src[0] * inU + inv * src[2];
+        final float u2 = src[4] * inU + inv * src[6];
+        return u1 * inV + (1.0f - inV) * u2;
+    }
+
+    float v(
+            final float[] src,
+            final float inU,
+            final float inV)
+    {
+        final float inv = 1.0f - inU;
+        final float v1 = src[1] * inU + inv * src[3];
+        final float v2 = src[5] * inU + inv * src[7];
+        return v1 * inV + (1.0f - inV) * v2;
     }
 
     private static void cleanUvs(

@@ -2,6 +2,7 @@ package mod.chiselsandbits.client.ister;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
+import mod.chiselsandbits.block.BitStorageBlock;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.platforms.core.client.rendering.IRenderingManager;
 import mod.chiselsandbits.platforms.core.fluid.FluidInformation;
@@ -51,21 +52,22 @@ public class BitStorageISTER extends BlockEntityWithoutLevelRenderer
             .getKey(ModBlocks.BIT_STORAGE.get())
           , "facing=east"));
 
+
+        final BitStorageBlockEntity blockEntity = BitStorageBlock.createEntityFromStack(stack);
+
         matrixStack.pushPose();
 
-        model.getTransforms().getTransform(transformType).apply(true, matrixStack);
-
-        IRenderingManager.getInstance()
-          .renderModel(matrixStack.last(), buffer.getBuffer(RenderType.translucent()), ModBlocks.BIT_STORAGE
-                                                                                               .get().defaultBlockState(), model, 1f, 1f, 1f, combinedLight, combinedOverlay);
+        Minecraft.getInstance().getBlockEntityRenderDispatcher().renderItem(blockEntity, matrixStack, buffer, combinedLight, combinedOverlay);
 
         matrixStack.popPose();
 
-        final BitStorageBlockEntity blockEntity = new BitStorageBlockEntity(BlockPos.ZERO, ModBlocks.BIT_STORAGE.get().defaultBlockState());
-        final Optional<FluidInformation> fluidInformation = IFluidManager.getInstance().get(stack);
-        fluidInformation.ifPresent(blockEntity::insertBitsFromFluid);
 
+        matrixStack.pushPose();
 
-        Minecraft.getInstance().getBlockEntityRenderDispatcher().renderItem(blockEntity, matrixStack, buffer, combinedLight, combinedOverlay);
+        IRenderingManager.getInstance()
+                .renderModel(matrixStack.last(), buffer.getBuffer(RenderType.cutoutMipped()), ModBlocks.BIT_STORAGE
+                        .get().defaultBlockState(), model, 1f, 1f, 1f, combinedLight, combinedOverlay);
+
+        matrixStack.popPose();
     }
 }
