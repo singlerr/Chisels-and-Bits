@@ -1,6 +1,5 @@
 package mod.chiselsandbits.pattern.placement;
 
-import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
@@ -101,7 +100,7 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
         if (isChiseledBlock)
         {
             return PlacementResult.failure(
-                    IClientConfiguration.getInstance().getNotFittingPatternPlacementColor().get(),
+                    IClientConfiguration::getNotFittingPatternPlacementColor,
                     LocalStrings.PatternPlacementNotASolidBlock.getText());
         }
 
@@ -112,7 +111,7 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
         if (!isSupported)
         {
             return PlacementResult.failure(
-                    IClientConfiguration.getInstance().getNotFittingPatternPlacementColor().get(),
+                    IClientConfiguration::getNotFittingPatternPlacementColor,
                     LocalStrings.PatternPlacementNotASupportedBlock.getText());
         }
 
@@ -142,7 +141,7 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
         if (!hasRequiredSpace)
         {
             return PlacementResult.failure(
-                    IClientConfiguration.getInstance().getMissingBitsOrSpacePatternPlacementColor().get(),
+                    IClientConfiguration::getMissingBitsOrSpacePatternPlacementColor,
                     LocalStrings.PatternPlacementNoBitSpace.getText());
         }
 

@@ -65,7 +65,7 @@ public class PlacePatternPlacementType extends AbstractCustomRegistryEntry imple
         if (!isAir)
         {
             return PlacementResult.failure(
-                    IClientConfiguration.getInstance().getNotFittingPatternPlacementColor().get(),
+                    IClientConfiguration::getNotFittingPatternPlacementColor,
                     LocalStrings.PatternPlacementNotAnAirBlock.getText());
         }
 
@@ -77,7 +77,7 @@ public class PlacePatternPlacementType extends AbstractCustomRegistryEntry imple
         if (!hasRequiredBits)
         {
             return PlacementResult.failure(
-                    IClientConfiguration.getInstance().getMissingBitsOrSpacePatternPlacementColor().get(),
+                    IClientConfiguration::getMissingBitsOrSpacePatternPlacementColor,
                     LocalStrings.PatternPlacementNotEnoughBits.getText());
         }
 

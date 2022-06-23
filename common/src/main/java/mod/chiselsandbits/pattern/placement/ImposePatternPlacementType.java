@@ -83,7 +83,7 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
         if (isChiseledBlock)
         {
             return PlacementResult.failure(
-                    IClientConfiguration.getInstance().getNotFittingPatternPlacementColor().get(),
+                    IClientConfiguration::getNotFittingPatternPlacementColor,
                     LocalStrings.PatternPlacementNotASolidBlock.getText());
         }
 
@@ -94,7 +94,7 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
         if (!isSupported)
         {
             return PlacementResult.failure(
-                    IClientConfiguration.getInstance().getNotFittingPatternPlacementColor().get(),
+                    IClientConfiguration::getNotFittingPatternPlacementColor,
                     LocalStrings.PatternPlacementNotASupportedBlock.getText());
         }
 
@@ -120,7 +120,7 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
         if (!hasRequiredSpace)
         {
             return PlacementResult.failure(
-                    IClientConfiguration.getInstance().getMissingBitsOrSpacePatternPlacementColor().get(),
+                    IClientConfiguration::getMissingBitsOrSpacePatternPlacementColor,
                     LocalStrings.PatternPlacementNoBitSpace.getText());
         }
 
@@ -131,7 +131,7 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
         if (!hasRequiredBits)
         {
             return PlacementResult.failure(
-                    IClientConfiguration.getInstance().getMissingBitsOrSpacePatternPlacementColor().get(),
+                    IClientConfiguration::getMissingBitsOrSpacePatternPlacementColor,
                     LocalStrings.PatternPlacementNotEnoughBits.getText());
         }
 

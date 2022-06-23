@@ -81,7 +81,7 @@ public class CarvePatternPlacementType extends AbstractCustomRegistryEntry imple
         if (!isChiseledBlock)
         {
             return PlacementResult.failure(
-                    IClientConfiguration.getInstance().getNotFittingPatternPlacementColor().get(),
+                    IClientConfiguration::getNotFittingPatternPlacementColor,
                     LocalStrings.PatternPlacementNotAChiseledBlock.getText());
         }
 
@@ -111,7 +111,7 @@ public class CarvePatternPlacementType extends AbstractCustomRegistryEntry imple
         if (!hasRequiredSpace)
         {
             return PlacementResult.failure(
-                    IClientConfiguration.getInstance().getMissingBitsOrSpacePatternPlacementColor().get(),
+                    IClientConfiguration::getMissingBitsOrSpacePatternPlacementColor,
                     LocalStrings.PatternPlacementNoBitSpace.getText());
         }
 

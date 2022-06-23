@@ -202,7 +202,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
         return noSpaceOccupied
                 ? PlacementResult.success()
                 : PlacementResult.failure(
-                        IClientConfiguration.getInstance().getNotFittingPatternPlacementColor().get(),
+                        IClientConfiguration::getNotFittingPatternPlacementColor,
                         LocalStrings.PatternPlacementNotAnAirBlock.getText());
     }
 
