@@ -194,7 +194,7 @@ public class ChiseledBlockGhostRenderer
         // Sets the normal vector to that of the specified direction, and transforms it by the pose's normal matrix
         final Vec3i faceNormal = direction.getNormal();
         normal.set(faceNormal.getX(), faceNormal.getY(), faceNormal.getZ());
-        //normal.transform(pose.normal());
+        normal.transform(pose.normal());
 
         // Shades the color to match MC's directional shading
         final float brightness = DIRECTIONAL_BRIGHTNESS[direction.get3DDataValue()];
