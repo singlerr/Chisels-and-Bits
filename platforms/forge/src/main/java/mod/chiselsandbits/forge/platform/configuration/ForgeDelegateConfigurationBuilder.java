@@ -42,7 +42,12 @@ public class ForgeDelegateConfigurationBuilder implements IConfigurationBuilder
     public <T> Supplier<List<? extends T>> defineList(final String key, final List<T> defaultValue, final Class<T> containedType)
     {
         setCommentAndTranslation(key);
-        return builder.defineList(key, defaultValue, t -> true)::get;
+        if (containedType != Float.class)
+            return builder.defineList(key, defaultValue, t -> true)::get;
+
+        List<Double> defaultValueAsDoubles = defaultValue.stream().map(f -> ((Float) f).doubleValue()).toList();
+        ForgeConfigSpec.ConfigValue<List<? extends Double>> doubleListValue = builder.defineList(key, defaultValueAsDoubles, t -> t instanceof Double);
+        return () -> doubleListValue.get().stream().map(d -> containedType.cast(d.floatValue())).toList();
     }
 
     @Override
