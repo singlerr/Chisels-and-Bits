@@ -13,7 +13,6 @@ import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
 import mod.chiselsandbits.client.model.baked.face.FaceManager;
 import mod.chiselsandbits.client.model.baked.face.FaceRegion;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
-import mod.chiselsandbits.client.util.FloatUtils;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import mod.chiselsandbits.utils.ModelUtil;
@@ -28,24 +27,18 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
 @SuppressWarnings("deprecation")
 public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
-    
-    private static final Logger LOGGER = LogManager.getLogger();
     
     public static final ChiseledBlockBakedModel EMPTY = new ChiseledBlockBakedModel(
             BlockInformation.AIR,
@@ -270,6 +263,8 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
                                         new ResourceLocation(Constants.MOD_ID, "block")
                                 );
 
+                                fixColorsInQuad(quad, pc.getColor());
+
                                 // build it.
                                 if (region.isEdge()) {
                                     builder.getList(myFace).add(quad);
@@ -281,6 +276,18 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
                     }
                 }
             }
+        }
+    }
+
+    private void fixColorsInQuad(final BakedQuad quad, final int color) {
+        final int alpha = (color >> 24) & 0xFF;
+        final int red = (color >> 16) & 0xFF;
+        final int green = (color >> 8) & 0xFF;
+        final int blue = color & 0xFF;
+        final int renderColor = (alpha << 24) | (blue << 16) | (green << 8) | red;
+
+        for (int i = 3; i < (4 * 8); i +=8) {
+            quad.getVertices()[i] = renderColor;
         }
     }
 

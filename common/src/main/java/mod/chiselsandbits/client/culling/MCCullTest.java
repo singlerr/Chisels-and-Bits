@@ -29,8 +29,8 @@ public class MCCullTest implements ICullTest
 
         if (a.getBlockState().getBlock() instanceof LiquidBlock && b.getBlockState().getBlock() instanceof LiquidBlock)
         {
-            return a.getBlockState().getFluidState().getType().equals(b.getBlockState().getFluidState().getType()) &&
-              a.getVariant().equals(b.getVariant());
+            return !(a.getBlockState().getFluidState().getType().equals(b.getBlockState().getFluidState().getType()) &&
+              a.getVariant().equals(b.getVariant()));
         }
 
 		if (a.isAir() && !b.isAir())

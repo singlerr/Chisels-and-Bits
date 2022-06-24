@@ -114,7 +114,7 @@ public final class FaceManager {
                 mp[0].setUvs(new float[]{U, 0, 0, 0, U, V, 0, V});
             }
 
-            mp[0].setTint(0);
+            mp[0].setLight(0);
             return mp;
         }
 

@@ -31,6 +31,10 @@ public class BitItemItemColor implements ItemColor
 
         final BlockInformation blockInformation = ((BitItem) stack.getItem()).getBlockInformation(stack);
         if(blockInformation.getBlockState().getBlock() instanceof LiquidBlock) {
+            if ((!Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown()) || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown())) {
+                return -1; //No coloring on liquids when pressing shifts -> Buckets
+            }
+
             return IFluidManager.getInstance().getFluidColor(new FluidInformation(
                     blockInformation.getBlockState().getFluidState().getType(),
                     1

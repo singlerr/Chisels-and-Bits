@@ -137,7 +137,7 @@ public class ChiseledBlockGhostRenderer
         final Random random = new Random();
 
         // Initialize 3 reusable vectors to avoid needless creation of new ones
-        final Vector3f normal = new Vector3f(0,0,0);
+        final Vector3f normal = new Vector3f().copy();
         final Vector4f shadedColor = new Vector4f(Vector3f.ZERO);
         final Vector4f pos = new Vector4f(Vector3f.ZERO);
 
