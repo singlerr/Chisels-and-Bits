@@ -3,6 +3,7 @@ package mod.chiselsandbits.forge.platform.configuration;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.mojang.math.Vector4f;
+import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.utils.LanguageHandler;
 import mod.chiselsandbits.platforms.core.config.IConfigurationBuilder;
 import mod.chiselsandbits.platforms.core.dist.DistExecutor;
@@ -33,24 +34,26 @@ public class ForgeDelegateConfigurationBuilder implements IConfigurationBuilder
     @Override
     public Supplier<Boolean> defineBoolean(final String key, final boolean defaultValue)
     {
-        keys.add(key + ".comment");
-        builder.comment(translateToLocal( "mod.chiselsandbits.config." + key + ".comment"));
+        setCommentAndTranslation(key);
         return builder.define(key, defaultValue)::get;
     }
 
     @Override
     public <T> Supplier<List<? extends T>> defineList(final String key, final List<T> defaultValue, final Class<T> containedType)
     {
-        keys.add(key + ".comment");
-        builder.comment(translateToLocal(key + ".comment"));
-        return builder.defineList(key, defaultValue, t -> true)::get;
+        setCommentAndTranslation(key);
+        if (containedType != Float.class)
+            return builder.defineList(key, defaultValue, t -> true)::get;
+
+        List<Double> defaultValueAsDoubles = defaultValue.stream().map(f -> ((Float) f).doubleValue()).toList();
+        ForgeConfigSpec.ConfigValue<List<? extends Double>> doubleListValue = builder.defineList(key, defaultValueAsDoubles, t -> t instanceof Double);
+        return () -> doubleListValue.get().stream().map(d -> containedType.cast(d.floatValue())).toList();
     }
 
     @Override
     public Supplier<Vector4f> defineVector4f(final String key, final Vector4f defaultValue)
     {
-        keys.add(key + ".comment");
-        builder.comment(translateToLocal(key + ".comment"));
+        setCommentAndTranslation(key);
         final ArrayList<Double> defaultValueList = Lists.newArrayList(
                 (double) defaultValue.x(),
                 (double) defaultValue.y(),
@@ -70,40 +73,35 @@ public class ForgeDelegateConfigurationBuilder implements IConfigurationBuilder
     @Override
     public Supplier<String> defineString(final String key, final String defaultValue)
     {
-        keys.add(key + ".comment");
-        builder.comment(translateToLocal(key + ".comment"));
+        setCommentAndTranslation(key);
         return builder.define(key, defaultValue)::get;
     }
 
     @Override
     public Supplier<Long> defineLong(final String key, final long defaultValue, final long minValue, final long maxValue)
     {
-        keys.add(key + ".comment");
-        builder.comment(translateToLocal(key + ".comment"));
+        setCommentAndTranslation(key);
         return builder.defineInRange(key, defaultValue, minValue, maxValue)::get;
     }
 
     @Override
     public Supplier<Integer> defineInteger(final String key, final int defaultValue, final int minValue, final int maxValue)
     {
-        keys.add(key + ".comment");
-        builder.comment(translateToLocal(key + ".comment"));
+        setCommentAndTranslation(key);
         return builder.defineInRange(key, defaultValue, minValue, maxValue)::get;
     }
 
     @Override
     public Supplier<Double> defineDouble(final String key, final double defaultValue, final double minValue, final double maxValue)
     {
-        keys.add(key + ".comment");
-        builder.comment(translateToLocal(key + ".comment"));
+        setCommentAndTranslation(key);
         return builder.defineInRange(key, defaultValue, minValue, maxValue)::get;
     }
 
     @Override
     public <T extends Enum<T>> Supplier<T> defineEnum(final String key, final T defaultValue)
     {
-        keys.add(key + ".comment");
-        builder.comment(translateToLocal(key + ".comment"));
+        setCommentAndTranslation(key);
         return builder.defineEnum(key, defaultValue)::get;
     }
 
@@ -114,18 +112,25 @@ public class ForgeDelegateConfigurationBuilder implements IConfigurationBuilder
         specConsumer.accept(builder.build());
     }
 
+    private void setCommentAndTranslation(final String unprocessedKey)
+    {
+        final String key = String.format("mod.%s.config.%s.comment", Constants.MOD_ID, unprocessedKey);
+        keys.add(key);
+        builder.comment(translateToLocal(key));
+    }
+
     public static String translateToLocal(
-      final String string )
+      final String key )
     {
         return DistExecutor.unsafeRunForDist(
           () -> () -> {
-              final String translated = Language.getInstance().getOrDefault(string);
-              if (translated.equals(string))
-                  return LanguageHandler.translateKey(string);
+              final String translated = Language.getInstance().getOrDefault(key);
+              if (translated.equals(key))
+                  return LanguageHandler.translateKey(key);
 
               return translated;
           },
-          () -> () -> LanguageHandler.translateKey(string)
+          () -> () -> LanguageHandler.translateKey(key)
         );
     }
 }

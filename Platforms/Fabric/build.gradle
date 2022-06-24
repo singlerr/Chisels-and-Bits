@@ -132,9 +132,7 @@ shadowJar { shadowJarTask ->
 }
 
 tasks.remapJar.configure { remapTask ->
-    remapTask.dependsOn(tasks.shadowJar)
-    remapTask.mustRunAfter(tasks.shadowJar)
-    input = tasks.shadowJar.archivePath
+    input = tasks.shadowJar.archiveFile
 }
 
 if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
