@@ -33,7 +33,7 @@ public class MultiStateBlockPreviewRenderHandler
             return;
 
         final Player playerEntity = Minecraft.getInstance().player;
-        if (playerEntity == null)
+        if (playerEntity == null || playerEntity.isSpectator())
             return;
 
         final ItemStack heldStack = ItemStackUtils.getMultiStateItemStackFromPlayer(playerEntity);
