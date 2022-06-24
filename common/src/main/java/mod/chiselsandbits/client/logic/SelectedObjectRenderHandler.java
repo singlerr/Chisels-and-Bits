@@ -18,7 +18,7 @@ public class SelectedObjectRenderHandler
       final float partialTicks
     ) {
         final Player playerEntity = Minecraft.getInstance().player;
-        if (playerEntity == null)
+        if (playerEntity == null || playerEntity.isSpectator())
             return;
 
         final ItemStack heldStack = ItemStackUtils.getHighlightItemStackFromPlayer(playerEntity);
