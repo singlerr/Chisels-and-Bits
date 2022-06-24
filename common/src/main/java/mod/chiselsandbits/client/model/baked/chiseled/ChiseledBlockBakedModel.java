@@ -16,6 +16,7 @@ import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
 import mod.chiselsandbits.client.util.FloatUtils;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.profiling.ProfilingManager;
+import mod.chiselsandbits.utils.ModelUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.BlockElementFace;
@@ -463,33 +464,33 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
             }
             case DOWN -> {
                 to_u = 1 - to.x() / 16f;
-                to_v = 1 - from.z() / 16f;
+                to_v = from.z() / 16f;
                 from_u = 1 - from.x() / 16f;
-                from_v = 1 - to.z() / 16f;
+                from_v = to.z() / 16f;
             }
             case SOUTH -> {
                 to_u = 1 -to.x() / 16f;
-                to_v = 1 - from.y() / 16f;
+                to_v = from.y() / 16f;
                 from_u = 1 - from.x() / 16f;
-                from_v = 1 - to.y() / 16f;
+                from_v = to.y() / 16f;
             }
             case NORTH -> {
-                to_u = 1 - from.x() / 16f;
-                to_v = 1 - from.y() / 16f;
-                from_u = 1 - to.x() / 16f;
-                from_v = 1 - to.y() / 16f;
+                to_u = from.x() / 16f;
+                to_v = from.y() / 16f;
+                from_u = to.x() / 16f;
+                from_v = to.y() / 16f;
             }
             case WEST -> {
-                to_u = 1 - from.y() / 16f;
-                to_v = 1 - to.z() / 16f;
-                from_u = 1 - to.y() / 16f;
-                from_v = 1 - from.z() / 16f;
+                to_u = 1 - to.z() / 16f;
+                to_v = from.y() / 16f;
+                from_u = 1 - from.z() / 16f;
+                from_v = to.y() / 16f;
             }
             case EAST -> {
-                to_u = 1 - from.y() / 16f;
-                to_v = 1 - from.z() / 16f;
-                from_u = 1 - to.y() / 16f;
-                from_v = 1 - to.z() / 16f;
+                to_u = from.z() / 16f;
+                to_v = from.y() / 16f;
+                from_u = to.z() / 16f;
+                from_v = to.y() / 16f;
             }
             default -> {
             }
@@ -530,78 +531,87 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
 
         //0,1,0,0,1,1,1,0
 
+        final int[] uvOrder = determineUVOrder(quadsUV);
+
         //LowerLeft
-        uvs[0] = u(quadsUV, from_u, to_v) * 16; // 0
-        uvs[1] = v(quadsUV, from_u, to_v) * 16; // 1
+        uvs[0] = u(quadsUV, uvOrder, from_u, to_v) * 16; // 0
+        uvs[1] = v(quadsUV, uvOrder, from_u, to_v) * 16; // 1
 
         //UpperLeft
-        uvs[2] = u(quadsUV, from_u, from_v) * 16; // 2
-        uvs[3] = v(quadsUV, from_u, from_v) * 16; // 3
+        uvs[2] = u(quadsUV, uvOrder, from_u, from_v) * 16; // 2
+        uvs[3] = v(quadsUV, uvOrder, from_u, from_v) * 16; // 3
 
         //LowerRight
-        uvs[4] = u(quadsUV, to_u, to_v) * 16; // 2
-        uvs[5] = v(quadsUV, to_u, to_v) * 16; // 3
+        uvs[4] = u(quadsUV, uvOrder, to_u, to_v) * 16; // 2
+        uvs[5] = v(quadsUV, uvOrder, to_u, to_v) * 16; // 3
 
         //UpperRight
-        uvs[6] = u(quadsUV, to_u, from_v) * 16; // 0
-        uvs[7] = v(quadsUV, to_u, from_v) * 16; // 1
+        uvs[6] = u(quadsUV, uvOrder, to_u, from_v) * 16; // 0
+        uvs[7] = v(quadsUV, uvOrder, to_u, from_v) * 16; // 1
 
         cleanUvs(uvs);
     }
 
-    /*private static float u(
-            final float[] src,
-            final float uLerpFactor) {
-        //We assume a quad has a rectangular texture
-        final float minU = src[0];
-        final float maxU = src[4];
+    private int[] determineUVOrder(final float[] quadsUV) {
+        final int[] uvOrder = new int[8];
 
-        final float validateMinU = src[2];
-        final float validateMaxU = src[6];
+        for (int i = 0; i < 4; i++)
+        {
+            final int uIndex = i * 2;
+            final int vIndex = uIndex + 1;
 
-        if (FloatUtils.isNotEqual(minU, validateMinU) || FloatUtils.isNotEqual(maxU, validateMaxU)) {
-            LOGGER.debug("The quads U coordinates do not line up! Min: %s - %s and Max: %s - %s".formatted(minU, validateMinU, maxU, validateMaxU));
+            final float u = quadsUV[uIndex];
+            final float v = quadsUV[vIndex];
+
+            if (ModelUtil.isZero(u) && ModelUtil.isOne(v)) {
+                //LowerLeft should be indexes 0 and 1
+                uvOrder[4] = uIndex;
+                uvOrder[5] = vIndex;
+            }
+
+            if (ModelUtil.isZero(u) && ModelUtil.isZero(v)) {
+                //UpperLeft should be indexes 2 and 3
+                uvOrder[0] = uIndex;
+                uvOrder[1] = vIndex;
+            }
+
+            if (ModelUtil.isOne(u) && ModelUtil.isOne(v)) {
+                //LowerRight should be indexes 4 and 5
+                uvOrder[6] = uIndex;
+                uvOrder[7] = vIndex;
+            }
+
+            if (ModelUtil.isOne(u) && ModelUtil.isZero(v)) {
+                //UpperRight should be indexes 6 and 7
+                uvOrder[2] = uIndex;
+                uvOrder[3] = vIndex;
+            }
         }
 
-        return Mth.lerp(uLerpFactor, minU, maxU);
+        return uvOrder;
     }
-
-    private static float v(
-            final float[] src,
-            final float vLerpFactor) {
-        //We assume a quad has a rectangular texture
-        final float minV = src[1];
-        final float maxV = src[3];
-
-        final float validateMinV = src[5];
-        final float validateMaxV = src[7];
-
-        if (FloatUtils.isNotEqual(minV, validateMinV) || FloatUtils.isNotEqual(maxV, validateMaxV)) {
-            LOGGER.debug("The quads V coordinates do not line vp! Min: %s - %s and Max: %s - %s".formatted(minV, validateMinV, maxV, validateMaxV));
-        }
-
-        return Mth.lerp(vLerpFactor, minV, maxV);
-    }*/
 
     float u(
             final float[] src,
+            final int[] uvOrder,
             final float inU,
             final float inV)
     {
         final float inv = 1.0f - inU;
-        final float u1 = src[0] * inU + inv * src[2];
-        final float u2 = src[4] * inU + inv * src[6];
+        final float u1 = src[uvOrder[0]] * inU + inv * src[uvOrder[2]];
+        final float u2 = src[uvOrder[4]] * inU + inv * src[uvOrder[6]];
         return u1 * inV + (1.0f - inV) * u2;
     }
 
     float v(
             final float[] src,
+            final int[] uvOrder,
             final float inU,
             final float inV)
     {
         final float inv = 1.0f - inU;
-        final float v1 = src[1] * inU + inv * src[3];
-        final float v2 = src[5] * inU + inv * src[7];
+        final float v1 = src[uvOrder[1]] * inU + inv * src[uvOrder[3]];
+        final float v2 = src[uvOrder[5]] * inU + inv * src[uvOrder[7]];
         return v1 * inV + (1.0f - inV) * v2;
     }
 

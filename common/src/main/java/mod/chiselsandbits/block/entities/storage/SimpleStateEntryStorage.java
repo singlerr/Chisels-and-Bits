@@ -16,11 +16,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.phys.Vec3;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.RoundingMode;
@@ -29,6 +30,8 @@ import java.util.function.BiConsumer;
 
 public class SimpleStateEntryStorage implements IStateEntryStorage
 {
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private final int  size;
     private final SimpleStateEntryPalette palette;
@@ -302,6 +305,12 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
         clear();
 
         this.isDeserializing = true;
+
+        if (!nbt.contains(NbtConstants.PALETTE) || !nbt.contains(NbtConstants.DATA)) {
+            LOGGER.error("The given NBT tag does not contain the required data for deserialization of a simple state entry storage. NBT: %s".formatted(nbt));
+            this.isDeserializing = false;
+            return;
+        }
 
         this.palette.deserializeNBT((ListTag) nbt.get(NbtConstants.PALETTE));
         this.data = BitSet.valueOf(nbt.getByteArray(NbtConstants.DATA));

@@ -17,6 +17,6 @@ public class ModelUtil
     public static boolean isOne(
       final float v )
     {
-        return (Math.abs( v ) - 1.0f ) < 0.01;
+        return (Math.abs( v - 1f )) < 0.01;
     }
 }

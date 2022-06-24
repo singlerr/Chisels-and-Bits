@@ -150,7 +150,7 @@ public enum ModRenderTypes
                 .setLightmapState(LIGHTMAP)
                 .setOverlayState(OVERLAY)
                 .setDepthTestState(GREATER_DEPTH_TEST) // Only difference from RenderType#ENTITY_TRANSLUCENT_CULL
-                .createCompositeState(true));
+                .createCompositeState(false));
         }
 
         private static final RenderType GHOST_BLOCK_COLORED_PREVIEW = buildColoredGhostType(false);

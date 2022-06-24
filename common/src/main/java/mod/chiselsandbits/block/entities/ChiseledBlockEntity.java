@@ -508,6 +508,10 @@ public class ChiseledBlockEntity extends BlockEntity implements
           inAreaPos.getZ()
         );
 
+        if (currentInformation.isAir()) {
+            return;
+        }
+
         if (!IEligibilityManager.getInstance().canBeChiseled(currentInformation.getBlockState()))
         {
             return;

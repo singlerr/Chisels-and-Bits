@@ -70,7 +70,7 @@ public class ChiseledBlockGhostRenderer
         BUFFER.setAlphaPercentage(color.w());
         final BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(renderStack, null, null, 0);
 
-        if (!renderColoredGhost || !ignoreDepth)
+       if (!renderColoredGhost || !ignoreDepth)
             renderGhost(poseStack, renderStack, model, renderColoredGhost, color, false);
 
         if (ignoreDepth)
@@ -137,7 +137,7 @@ public class ChiseledBlockGhostRenderer
         final Random random = new Random();
 
         // Initialize 3 reusable vectors to avoid needless creation of new ones
-        final Vector3f normal = Vector3f.ZERO;
+        final Vector3f normal = new Vector3f(0,0,0);
         final Vector4f shadedColor = new Vector4f(Vector3f.ZERO);
         final Vector4f pos = new Vector4f(Vector3f.ZERO);
 
@@ -194,7 +194,7 @@ public class ChiseledBlockGhostRenderer
         // Sets the normal vector to that of the specified direction, and transforms it by the pose's normal matrix
         final Vec3i faceNormal = direction.getNormal();
         normal.set(faceNormal.getX(), faceNormal.getY(), faceNormal.getZ());
-        normal.transform(pose.normal());
+        //normal.transform(pose.normal());
 
         // Shades the color to match MC's directional shading
         final float brightness = DIRECTIONAL_BRIGHTNESS[direction.get3DDataValue()];

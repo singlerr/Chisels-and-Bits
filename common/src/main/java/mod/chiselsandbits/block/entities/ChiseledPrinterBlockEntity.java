@@ -119,7 +119,14 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
                 progress++;
                 if (progress >= 100)
                 {
-                    result_handler.ifPresent(h -> h.setItem(0, realisePattern(true)));
+                    result_handler.ifPresent(h -> {
+                        if (h.getItem(0).isEmpty()) {
+                            h.setItem(0, realisePattern(true));
+                            return;
+                        }
+
+                        h.getItem(0).setCount(h.getItem(0).getCount() + realisePattern(true).getCount());
+                    });
                     currentRealisedWorkingStack.setValue(ItemStack.EMPTY);
                     progress = 0;
                     damageChisel();
@@ -166,7 +173,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
             return false;
         }
 
-        return IItemComparisonHelper.getInstance().canItemStacksStack(getOutputStack(), getRealisedStack());
+        return IItemComparisonHelper.getInstance().canItemStacksStack(getOutputStack(), getRealisedStack()) && getOutputStack().getCount() + getRealisedStack().getCount() <= getOutputStack().getMaxStackSize();
     }
 
     public boolean canWork()
@@ -233,6 +240,12 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
                                                                                                           || secondState.equals(BlockInformation.AIR)) && (
             !e.getBlockInformation().equals(thirdState) || thirdState.equals(BlockInformation.AIR)) && !e.getBlockInformation().equals(BlockInformation.AIR))
           .forEach(IMutableStateEntryInfo::clear);
+
+        if (modifiableSnapshot.getStatics().getStateCounts().size() == 1 &&
+                modifiableSnapshot.getStatics().getStateCounts().containsKey(BlockInformation.AIR)) {
+            //Just air.
+            return ItemStack.EMPTY;
+        }
 
         if (modifiableSnapshot.getStatics().getStateCounts().getOrDefault(firstState, 0) == 0 &&
               modifiableSnapshot.getStatics().getStateCounts().getOrDefault(secondState, 0) == 0 &&
