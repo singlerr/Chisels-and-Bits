@@ -61,8 +61,8 @@ public class ClientConfiguration implements IClientConfiguration
         toolModeRenderer = builder.defineString("settings.selected-tool-mode-icons.renderer", Constants.MOD_ID + ":group");
         invertPickBlockBehaviour = builder.defineBoolean("settings.invert-pick-block-behaviour", false);
         clipboardSize = builder.defineInteger("settings.clipboard.size", 64, 0, 64);
-        addBrokenBlocksToClipboard = builder.defineBoolean("settings.clipboard.addBrokenBlocks", true);
-        addPickedBlocksToClipboard = builder.defineBoolean("settings.clipboard.addPickedBlocks", true);
+        addBrokenBlocksToClipboard = builder.defineBoolean("settings.clipboard.add-broken-blocks", true);
+        addPickedBlocksToClipboard = builder.defineBoolean("settings.clipboard.add-picked-blocks", true);
         patternExportPath = builder.defineString("settings.patterns.export-path", "./chiselsandbits/patterns");
         bitStorageContentCacheSize = builder.defineLong("performance.caches.sizes.bit-storage-content-models", 100, 0, Long.MAX_VALUE);
         faceLightMapExtraction = builder.defineBoolean("performance.lighting.extract-lighting-values-from-faces", true);
