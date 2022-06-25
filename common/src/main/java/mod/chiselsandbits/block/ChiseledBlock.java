@@ -129,8 +129,8 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
         }
 
         if (
-          (!IClientConfiguration.getInstance().getInvertPickBlockBehaviour().get() && player.isCrouching()) ||
-          (IClientConfiguration.getInstance().getInvertPickBlockBehaviour().get() && !player.isCrouching())
+          (!IClientConfiguration.getInstance().getInvertPickBlockBehaviour().get() && player.isShiftKeyDown()) ||
+          (IClientConfiguration.getInstance().getInvertPickBlockBehaviour().get() && !player.isShiftKeyDown())
         )
         {
             return getBlockEntity(blockGetter, pos)

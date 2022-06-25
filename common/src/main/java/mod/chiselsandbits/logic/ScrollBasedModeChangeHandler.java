@@ -14,7 +14,7 @@ public class ScrollBasedModeChangeHandler
 {
 
     public static boolean onScroll(final double scrollDelta) {
-        if (Minecraft.getInstance().player == null || !Minecraft.getInstance().player.isCrouching())
+        if (Minecraft.getInstance().player == null || !Minecraft.getInstance().player.isShiftKeyDown())
             return false;
 
         final ItemStack stack = ItemStackUtils.getModeItemStackFromPlayer(Minecraft.getInstance().player);

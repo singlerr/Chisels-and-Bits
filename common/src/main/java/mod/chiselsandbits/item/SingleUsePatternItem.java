@@ -85,7 +85,7 @@ public class SingleUsePatternItem extends Item implements IPatternItem
             if (!context.getPlayer().isCreative())
                 return InteractionResult.FAIL;
 
-            if (!context.getPlayer().isCrouching())
+            if (!context.getPlayer().isShiftKeyDown())
                 return InteractionResult.FAIL;
 
             final IWorldAreaMutator areaMutator = IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());

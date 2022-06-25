@@ -64,7 +64,7 @@ public class CarvePatternPlacementType extends AbstractCustomRegistryEntry imple
     @Override
     public PlacementResult performPlacement(final IMultiStateSnapshot source, final BlockPlaceContext context, final boolean simulate)
     {
-        final Vec3 targetedPosition = context.getPlayer().isCrouching() ?
+        final Vec3 targetedPosition = context.getPlayer().isShiftKeyDown() ?
                                             context.getClickLocation()
                                             : Vec3.atLowerCornerOf(context.getClickedPos().offset(context.getClickedFace().getOpposite().getNormal()));
         final IWorldAreaMutator areaMutator =
@@ -141,7 +141,7 @@ public class CarvePatternPlacementType extends AbstractCustomRegistryEntry imple
     public Vec3 getTargetedPosition(
       final ItemStack heldStack, final Player player, final BlockHitResult blockRayTraceResult)
     {
-        if (player.isCrouching())
+        if (player.isShiftKeyDown())
         {
             return blockRayTraceResult.getLocation();
         }
