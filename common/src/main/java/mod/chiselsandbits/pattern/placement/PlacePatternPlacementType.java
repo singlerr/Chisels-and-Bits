@@ -48,7 +48,7 @@ public class PlacePatternPlacementType extends AbstractCustomRegistryEntry imple
     public PlacementResult performPlacement(
       final IMultiStateSnapshot source, final BlockPlaceContext context, final boolean simulate)
     {
-        final Vec3 targetedPosition = context.getPlayer().isCrouching() ?
+        final Vec3 targetedPosition = context.getPlayer().isShiftKeyDown() ?
                                             context.getClickLocation()
                                             : Vec3.atLowerCornerOf(context.getClickedPos());
         final IWorldAreaMutator areaMutator =
@@ -117,7 +117,7 @@ public class PlacePatternPlacementType extends AbstractCustomRegistryEntry imple
     public Vec3 getTargetedPosition(
       final ItemStack heldStack, final Player playerEntity, final BlockHitResult blockRayTraceResult)
     {
-        if (playerEntity.isCrouching())
+        if (playerEntity.isShiftKeyDown())
         {
             return blockRayTraceResult.getLocation();
         }

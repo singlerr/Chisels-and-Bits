@@ -195,7 +195,7 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
 
         final BlockInformation containedState = storage.getContainedBlockInformation();
 
-        if (player.isCrouching() && (containedState != null)) {
+        if (player.isShiftKeyDown() && (containedState != null)) {
             final int maxAmountToInsert = bitInventory.getMaxInsertAmount(containedState);
             final int bitCountToInsert = Math.min(storage.getBits(), maxAmountToInsert);
 
@@ -209,7 +209,7 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
             storage.insertBits(bitCountToInsert, containedState);
             bitInventory.extract(containedState, bitCountToInsert);
         }
-        else if (!player.isCrouching()) {
+        else if (!player.isShiftKeyDown()) {
             final Optional<BlockInformation> toExtractCandidate =
                 bitInventory.getContainedStates()
                   .entrySet()

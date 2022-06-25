@@ -113,7 +113,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     public InteractionResult place(@NotNull final BlockPlaceContext context)
     {
         final IAreaAccessor source = this.createItemStack(context.getItemInHand());
-        final IWorldAreaMutator areaMutator = context.getPlayer().isCrouching() ?
+        final IWorldAreaMutator areaMutator = context.getPlayer().isShiftKeyDown() ?
                                                 IMutatorFactory.getInstance().covering(
                                                   context.getLevel(),
                                                   context.getClickLocation(),

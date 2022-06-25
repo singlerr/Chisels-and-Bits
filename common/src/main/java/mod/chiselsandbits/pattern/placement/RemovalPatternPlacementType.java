@@ -48,8 +48,8 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
     {
         final BlockPos targetedPosition = hitFace.getAxisDirection() == Direction.AxisDirection.NEGATIVE ? new BlockPos(targetedPoint) : new BlockPos(targetedPoint).offset(hitFace.getOpposite().getNormal());
         final VoxelShape targetingShape = BlockPosStreamProvider.getForRange(
-          player.isCrouching() ? targetedPoint : Vec3.atLowerCornerOf(targetedPosition) ,
-          player.isCrouching() ? targetedPoint.add(0.9999, 0.9999,0.9999): Vec3.atLowerCornerOf(targetedPosition)
+          player.isShiftKeyDown() ? targetedPoint : Vec3.atLowerCornerOf(targetedPosition) ,
+          player.isShiftKeyDown() ? targetedPoint.add(0.9999, 0.9999,0.9999): Vec3.atLowerCornerOf(targetedPosition)
         ).map(position -> player.level.getBlockState(position).getShape(
           player.level,
           position
@@ -60,7 +60,7 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
           )
         ).reduce(Shapes.empty(), (voxelShape, voxelShape2) -> Shapes.joinUnoptimized(voxelShape, voxelShape2, BooleanOp.OR)).optimize();
 
-        final Vec3 offSet = player.isCrouching() ?
+        final Vec3 offSet = player.isShiftKeyDown() ?
                                   new Vec3(
                                     targetedPoint.x() - targetedPosition.getX(),
                                     targetedPoint.y() - targetedPosition.getY(),
@@ -83,7 +83,7 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
     public PlacementResult performPlacement(
       final IMultiStateSnapshot source, final BlockPlaceContext context, final boolean simulate)
     {
-        final Vec3 targetedPosition = context.getPlayer().isCrouching() ?
+        final Vec3 targetedPosition = context.getPlayer().isShiftKeyDown() ?
                                             context.getClickLocation()
                                             : Vec3.atLowerCornerOf(context.getClickedPos().offset(context.getClickedFace().getOpposite().getNormal()));
         final IWorldAreaMutator areaMutator =
