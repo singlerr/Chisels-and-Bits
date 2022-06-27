@@ -18,12 +18,15 @@ import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.api.util.BlockStateUtils;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.block.ChiseledBlock;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.multistate.snapshot.SimpleSnapshot;
 import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.registrars.ModModificationOperation;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -32,6 +35,9 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -112,15 +118,22 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     @Override
     public InteractionResult place(@NotNull final BlockPlaceContext context)
     {
+        final Player player = context.getPlayer();
+        if (player == null)
+            return InteractionResult.FAIL;
+
+        final Level level = context.getLevel();
+        final BlockPos pos = context.getClickedPos();
+
         final IAreaAccessor source = this.createItemStack(context.getItemInHand());
-        final IWorldAreaMutator areaMutator = context.getPlayer().isShiftKeyDown() ?
+        final IWorldAreaMutator areaMutator = player.isShiftKeyDown() ?
                                                 IMutatorFactory.getInstance().covering(
-                                                  context.getLevel(),
+                                                  level,
                                                   context.getClickLocation(),
                                                   context.getClickLocation().add(1d, 1d, 1d)
                                                 )
                                                 :
-                                                  IMutatorFactory.getInstance().in(context.getLevel(), context.getClickedPos());
+                                                  IMutatorFactory.getInstance().in(level, pos);
         final IMultiStateSnapshot attemptTarget = areaMutator.createSnapshot();
 
         final boolean noCollisions = source.stream().sequential()
@@ -158,6 +171,13 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
                 );
             }
 
+            if (getBlock() instanceof ChiseledBlock chiseledBlock)
+            {
+                level.gameEvent(player, GameEvent.BLOCK_PLACE, pos);
+                final BlockState state = level.getBlockState(pos);
+                final SoundType soundtype = chiseledBlock.getSoundType(state, level, pos, player);
+                level.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+            }
 
             if (context.getPlayer() == null || !context.getPlayer().isCreative()) {
                 context.getItemInHand().shrink(1);

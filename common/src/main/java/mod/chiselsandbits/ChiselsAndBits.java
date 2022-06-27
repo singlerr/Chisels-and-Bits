@@ -4,12 +4,16 @@ import mod.chiselsandbits.api.ChiselsAndBitsAPI;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.config.IChiselsAndBitsConfiguration;
 import mod.chiselsandbits.api.plugin.IChiselsAndBitsPlugin;
+import mod.chiselsandbits.block.ChiseledBlock;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import mod.chiselsandbits.config.ChiselsAndBitsConfiguration;
 import mod.chiselsandbits.network.NetworkChannel;
 import mod.chiselsandbits.plugin.PluginManger;
 import mod.chiselsandbits.registrars.*;
 import mod.chiselsandbits.utils.LanguageHandler;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+
+import java.util.function.Function;
 
 public class ChiselsAndBits
 {
@@ -18,7 +22,7 @@ public class ChiselsAndBits
 
 	private final IChiselsAndBitsConfiguration configuration;
 
-	public ChiselsAndBits()
+	public ChiselsAndBits(Function<BlockBehaviour.Properties, ChiseledBlock> chiseledBlockFactory)
 	{
 	    instance = this;
         LanguageHandler.loadLangPath("assets/chiselsandbits/lang/%s.json");
@@ -27,7 +31,7 @@ public class ChiselsAndBits
         IChiselsAndBitsAPI.Holder.setInstance(ChiselsAndBitsAPI.getInstance());
 
         ModBlockEntityTypes.onModConstruction();
-        ModBlocks.onModConstruction();
+        ModBlocks.onModConstruction(chiseledBlockFactory);
         ModChiselModeGroups.onModConstruction();
         ModChiselModes.onModConstruction();
         ModContainerTypes.onModConstruction();

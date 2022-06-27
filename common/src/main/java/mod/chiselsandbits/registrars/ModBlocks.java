@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
+import java.util.function.Function;
 
 public final class ModBlocks
 {
@@ -80,7 +81,7 @@ public final class ModBlocks
         throw new IllegalStateException("Tried to initialize: ModBlocks but this is a Utility class.");
     }
 
-    public static void onModConstruction()
+    public static void onModConstruction(Function<BlockBehaviour.Properties, ChiseledBlock> chiseledBlockFactory)
     {
         MaterialManager.getInstance()
           .getKnownMaterials()
@@ -88,7 +89,7 @@ public final class ModBlocks
             material,
             BLOCK_REGISTRAR.register(
               "chiseled" + name,
-              () -> new ChiseledBlock(BlockBehaviour.Properties
+              () -> chiseledBlockFactory.apply(BlockBehaviour.Properties
                 .of(material)
                 .strength(1.5f, 6f)
                 .isRedstoneConductor((p_test_1_, p_test_2_, p_test_3_) -> false)
