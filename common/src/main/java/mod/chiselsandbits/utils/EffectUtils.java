@@ -11,7 +11,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.util.Mth;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.Level;
@@ -29,11 +28,11 @@ public class EffectUtils
         throw new IllegalStateException("Can not instantiate an instance of: EffectUtils. This is a utility class");
     }
 
-    public static boolean addBlockDestroyEffects(final LevelReader world, final BlockPos pos, final BlockState primaryState, final ParticleEngine manager, final Level renderingWorld)
+    public static void addBlockDestroyEffects(final LevelReader levelReader, final BlockPos pos, final BlockState primaryState, final ParticleEngine manager, final Level renderingWorld)
     {
         if (!primaryState.isAir())
         {
-            VoxelShape voxelshape = primaryState.getShape(world, pos);
+            VoxelShape voxelshape = levelReader.getBlockState(pos).getShape(levelReader, pos);
             voxelshape.forAllBoxes((p_228348_3_, p_228348_5_, p_228348_7_, p_228348_9_, p_228348_11_, p_228348_13_) -> {
                 double d1 = Math.min(1.0D, p_228348_9_ - p_228348_3_);
                 double d2 = Math.min(1.0D, p_228348_11_ - p_228348_5_);
@@ -67,8 +66,6 @@ public class EffectUtils
                 }
             });
         }
-
-        return true;
     }
 
     public static boolean addHitEffects(final Level world, final BlockHitResult blockRayTraceResult, final BlockState primaryState, final ParticleEngine manager)
@@ -84,36 +81,25 @@ public class EffectUtils
         }
 
         final BlockPos pos = blockRayTraceResult.getBlockPos();
-        final float boxOffset = 0.1F;
+        final double boxOffset = 0.1;
 
-        AABB bb = world.getBlockState(pos).getBlock().getShape(primaryState, world, pos, CollisionContext.empty()).bounds();
+        AABB bb = world.getBlockState(pos).getShape(world, pos).bounds();
 
-        double x = RANDOM.nextDouble() * (bb.maxX - bb.minX - boxOffset * 2.0F) + boxOffset + bb.minX;
-        double y = RANDOM.nextDouble() * (bb.maxY - bb.minY - boxOffset * 2.0F) + boxOffset + bb.minY;
-        double z = RANDOM.nextDouble() * (bb.maxZ - bb.minZ - boxOffset * 2.0F) + boxOffset + bb.minZ;
+        double x = pos.getX() + RANDOM.nextDouble() * (bb.maxX - bb.minX - boxOffset * 2d) + boxOffset + bb.minX;
+        double y = pos.getY() + RANDOM.nextDouble() * (bb.maxY - bb.minY - boxOffset * 2d) + boxOffset + bb.minY;
+        double z = pos.getZ() + RANDOM.nextDouble() * (bb.maxZ - bb.minZ - boxOffset * 2d) + boxOffset + bb.minZ;
 
         switch (blockRayTraceResult.getDirection())
         {
-            case DOWN:
-                y = bb.minY - boxOffset;
-                break;
-            case EAST:
-                x = bb.maxX + boxOffset;
-                break;
-            case NORTH:
-                z = bb.minZ - boxOffset;
-                break;
-            case SOUTH:
-                z = bb.maxZ + boxOffset;
-                break;
-            case UP:
-                y = bb.maxY + boxOffset;
-                break;
-            case WEST:
-                x = bb.minX - boxOffset;
-                break;
-            default:
-                break;
+            case DOWN -> y = pos.getY() + bb.minY - boxOffset;
+            case UP -> y = pos.getY() + bb.maxY + boxOffset;
+            case NORTH -> z = pos.getZ() + bb.minZ - boxOffset;
+            case SOUTH -> z = pos.getZ() + bb.maxZ + boxOffset;
+            case WEST -> x = pos.getX() + bb.minX - boxOffset;
+            case EAST -> x = pos.getX() + bb.maxX + boxOffset;
+            default ->
+            {
+            }
         }
 
         manager.add((new TerrainParticle((ClientLevel) world, x, y, z, 0.0D, 0.0D, 0.0D, primaryState, pos))

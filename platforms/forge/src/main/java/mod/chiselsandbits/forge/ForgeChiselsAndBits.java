@@ -2,7 +2,7 @@ package mod.chiselsandbits.forge;
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.forge.platform.ForgeChiselsAndBitsPlatform;
-import mod.chiselsandbits.utils.LanguageHandler;
+import mod.chiselsandbits.forge.platform.block.ForgeChiseledBlock;
 import mod.chiselsandbits.platforms.core.IChiselsAndBitsPlatformCore;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import net.minecraftforge.fml.common.Mod;
@@ -18,7 +18,7 @@ public class ForgeChiselsAndBits
         platform = new ForgeChiselsAndBitsPlatform();
         IChiselsAndBitsPlatformCore.Holder.setInstance(platform);
 
-	    instance = new ChiselsAndBits();
+	    instance = new ChiselsAndBits(ForgeChiseledBlock::new);
 	}
 
     public static ChiselsAndBits getInstance()

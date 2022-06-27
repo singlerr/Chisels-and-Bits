@@ -1,5 +1,6 @@
 package mod.chiselsandbits.block;
 
+import com.google.common.base.Suppliers;
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
@@ -24,6 +25,7 @@ import mod.chiselsandbits.api.util.SingleBlockBlockReader;
 import mod.chiselsandbits.api.util.SingleBlockWorldReader;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
+import mod.chiselsandbits.client.block.ChiseledBlockRenderProperties;
 import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
 import mod.chiselsandbits.clipboard.CreativeClipboardUtils;
 import mod.chiselsandbits.network.packets.NeighborBlockUpdatedPacket;
@@ -35,7 +37,6 @@ import mod.chiselsandbits.platforms.core.entity.IPlayerInventoryManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -63,6 +64,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWaterloggedBlock, IBlockWithWorldlyProperties
 {
@@ -559,10 +561,12 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     @Override
     public void playerWillDestroy(final @NotNull Level level, final @NotNull BlockPos blockPos, final @NotNull BlockState blockState, final @NotNull Player player)
     {
-        getBlockEntity(level, blockPos)
-          .map(IMultiStateBlockEntity::createSnapshot)
-          .map(IMultiStateSnapshot::toItemStack)
-          .ifPresent(multiStateItemStack -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> CreativeClipboardUtils.addBrokenBlock(multiStateItemStack)));
+        super.playerWillDestroy(level, blockPos, blockState, player);
+        if (level.isClientSide())
+            getBlockEntity(level, blockPos)
+              .map(IMultiStateBlockEntity::createSnapshot)
+              .map(IMultiStateSnapshot::toItemStack)
+              .ifPresent(CreativeClipboardUtils::addBrokenBlock);
     }
 
     @Override
@@ -602,5 +606,12 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
         }
 
         return InteractionResult.PASS;
+    }
+
+    private static final Supplier<ChiseledBlockRenderProperties> renderProperties = Suppliers.memoize(ChiseledBlockRenderProperties::new);
+
+    public ChiseledBlockRenderProperties getRenderProperties()
+    {
+        return renderProperties.get();
     }
 }
