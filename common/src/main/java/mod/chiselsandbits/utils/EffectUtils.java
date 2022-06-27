@@ -32,14 +32,14 @@ public class EffectUtils
     {
         if (!primaryState.isAir())
         {
-            VoxelShape voxelshape = levelReader.getBlockState(pos).getShape(levelReader, pos);
+            final VoxelShape voxelshape = levelReader.getBlockState(pos).getShape(levelReader, pos);
             voxelshape.forAllBoxes((p_228348_3_, p_228348_5_, p_228348_7_, p_228348_9_, p_228348_11_, p_228348_13_) -> {
-                double d1 = Math.min(1.0D, p_228348_9_ - p_228348_3_);
-                double d2 = Math.min(1.0D, p_228348_11_ - p_228348_5_);
-                double d3 = Math.min(1.0D, p_228348_13_ - p_228348_7_);
-                int i = Math.max(2, Mth.ceil(d1 / 0.25D));
-                int j = Math.max(2, Mth.ceil(d2 / 0.25D));
-                int k = Math.max(2, Mth.ceil(d3 / 0.25D));
+                final double d1 = Math.min(1.0D, p_228348_9_ - p_228348_3_);
+                final double d2 = Math.min(1.0D, p_228348_11_ - p_228348_5_);
+                final double d3 = Math.min(1.0D, p_228348_13_ - p_228348_7_);
+                final int i = Math.max(2, Mth.ceil(d1 / 0.25D));
+                final int j = Math.max(2, Mth.ceil(d2 / 0.25D));
+                final int k = Math.max(2, Mth.ceil(d3 / 0.25D));
 
                 for (int l = 0; l < i; ++l)
                 {
@@ -47,12 +47,12 @@ public class EffectUtils
                     {
                         for (int j1 = 0; j1 < k; ++j1)
                         {
-                            double d4 = ((double) l + 0.5D) / (double) i;
-                            double d5 = ((double) i1 + 0.5D) / (double) j;
-                            double d6 = ((double) j1 + 0.5D) / (double) k;
-                            double d7 = d4 * d1 + p_228348_3_;
-                            double d8 = d5 * d2 + p_228348_5_;
-                            double d9 = d6 * d3 + p_228348_7_;
+                            final double d4 = ((double) l + 0.5D) / (double) i;
+                            final double d5 = ((double) i1 + 0.5D) / (double) j;
+                            final double d6 = ((double) j1 + 0.5D) / (double) k;
+                            final double d7 = d4 * d1 + p_228348_3_;
+                            final double d8 = d5 * d2 + p_228348_5_;
+                            final double d9 = d6 * d3 + p_228348_7_;
                             manager.add((new TerrainParticle((ClientLevel) renderingWorld,
                               (double) pos.getX() + d7,
                               (double) pos.getY() + d8,
@@ -83,7 +83,7 @@ public class EffectUtils
         final BlockPos pos = blockRayTraceResult.getBlockPos();
         final double boxOffset = 0.1;
 
-        AABB bb = world.getBlockState(pos).getShape(world, pos).bounds();
+        final AABB bb = world.getBlockState(pos).getShape(world, pos).bounds();
 
         double x = pos.getX() + RANDOM.nextDouble() * (bb.maxX - bb.minX - boxOffset * 2d) + boxOffset + bb.minX;
         double y = pos.getY() + RANDOM.nextDouble() * (bb.maxY - bb.minY - boxOffset * 2d) + boxOffset + bb.minY;

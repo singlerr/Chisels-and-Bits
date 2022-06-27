@@ -29,7 +29,7 @@ public class ChiseledBlockRenderProperties
         if (!(target instanceof BlockHitResult blockTarget) || target.getType() == HitResult.Type.MISS)
             return false;
 
-        BlockState primaryState = getPrimaryState(level, blockTarget.getBlockPos());
+        final BlockState primaryState = getPrimaryState(level, blockTarget.getBlockPos());
         if (primaryState == null)
             return false;
 
@@ -38,7 +38,7 @@ public class ChiseledBlockRenderProperties
 
     public boolean addDestroyEffects(BlockState state, Level level, BlockPos pos, ParticleEngine engine)
     {
-        BlockState primaryState = getPrimaryState(level, pos);
+        final BlockState primaryState = getPrimaryState(level, pos);
         if (primaryState == null)
             return false;
 

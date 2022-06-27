@@ -174,7 +174,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
             if (getBlock() instanceof ChiseledBlock chiseledBlock)
             {
                 level.gameEvent(player, GameEvent.BLOCK_PLACE, pos);
-                BlockState state = level.getBlockState(pos);
+                final BlockState state = level.getBlockState(pos);
                 final SoundType soundtype = chiseledBlock.getSoundType(state, level, pos, player);
                 level.playSound(player, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
             }
