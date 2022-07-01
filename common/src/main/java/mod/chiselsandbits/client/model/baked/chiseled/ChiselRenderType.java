@@ -63,7 +63,7 @@ public enum ChiselRenderType
     public boolean isRequiredForRendering(
       final BlockInformation state )
     {
-        if (!this.type.isValidBlockState(state))
+        if (state.isAir() || !this.type.isValidBlockState(state))
             return false;
 
         if (this.type.isFluid()) {

@@ -2,13 +2,11 @@ package mod.chiselsandbits.client.culling;
 
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.level.block.StainedGlassBlock;
 
 /**
- * Determine Culling using Block's Native Check.
+ * Determine Culling using Block's Native Checks.
  *
- * hardcode vanilla stained glass because that looks horrible.
+ * Simplified version of {@link net.minecraft.world.level.block.Block#shouldRenderFace Block.shouldRenderFace}
  */
 public class MCCullTest implements ICullTest
 {
@@ -22,26 +20,12 @@ public class MCCullTest implements ICullTest
 			return false;
 		}
 
-		if ( a.getBlockState().getBlock().getClass() == StainedGlassBlock.class && a.getBlockState().getBlock() == b.getBlockState().getBlock() )
-		{
-			return false;
-		}
-
-        if (a.getBlockState().getBlock() instanceof LiquidBlock && b.getBlockState().getBlock() instanceof LiquidBlock)
-        {
-            return !(a.getBlockState().getFluidState().getType().equals(b.getBlockState().getFluidState().getType()) &&
-              a.getVariant().equals(b.getVariant()));
-        }
-
-		if (a.isAir() && !b.isAir())
-		    return false;
-
-		if (b.isAir() && !a.isAir())
-		    return true;
-
 		try
 		{
-			return !a.getBlockState().skipRendering( b.getBlockState(), Direction.NORTH );
+			if (a.getBlockState().skipRendering( b.getBlockState(), Direction.NORTH ))
+				return false;
+
+			return !b.getBlockState().canOcclude();
 		}
 		catch ( final Throwable t )
 		{
