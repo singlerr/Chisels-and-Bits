@@ -1,6 +1,6 @@
 package mod.chiselsandbits.forge.client.events;
 
-import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
+import mod.chiselsandbits.client.logic.ChiseledBlockModelUpdateHandler;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.api.distmarker.Dist;
@@ -16,6 +16,6 @@ public class ChiseledBlockModelEventHandler
     public static void onChunkLoaded(final ChunkEvent.Load event)
     {
         if (event.getChunk() instanceof LevelChunk levelChunk)
-            ChiseledBlockEntity.updateAllModelDataInChunk(levelChunk);
+            ChiseledBlockModelUpdateHandler.updateAllModelDataInChunk(levelChunk);
     }
 }

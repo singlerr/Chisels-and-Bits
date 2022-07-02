@@ -1,6 +1,6 @@
 package mod.chiselsandbits.fabric.mixin.platform.client.render.block;
 
-import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
+import mod.chiselsandbits.client.logic.ChiseledBlockModelUpdateHandler;
 import net.minecraft.client.multiplayer.ClientChunkCache;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -9,7 +9,6 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -38,6 +37,6 @@ public abstract class ChiseledBlockModelUpdateMixin
             final LevelChunk levelChunk
     )
     {
-        ChiseledBlockEntity.updateAllModelDataInChunk(levelChunk);
+        ChiseledBlockModelUpdateHandler.updateAllModelDataInChunk(levelChunk);
     }
 }

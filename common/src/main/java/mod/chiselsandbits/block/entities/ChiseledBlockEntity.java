@@ -120,17 +120,6 @@ public class ChiseledBlockEntity extends BlockEntity implements
             updateModelData();
     }
 
-    public static void updateAllModelDataInChunk(LevelChunk chunk)
-    {
-        chunk.getBlockEntities()
-                .values()
-                .forEach(blockEntity ->
-                {
-                    if (blockEntity instanceof ChiseledBlockEntity chiseledBlockEntity)
-                        chiseledBlockEntity.updateModelData();
-                });
-    }
-
     @Override
     public void setLevel(@Nullable final Level level)
     {
