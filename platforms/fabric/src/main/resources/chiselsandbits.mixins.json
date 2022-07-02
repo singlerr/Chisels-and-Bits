@@ -34,7 +34,8 @@
     "client.ParticleEngineRenderPropertiesMixin",
     "platform.client.multiplayer.MultiPlayerGameModeWorldlyBlockMixin",
     "platform.client.render.LevelRendererWorldlyBlockMixin",
-    "platform.client.render.block.ModelBlockRendererWorldlyBlockMixin"
+    "platform.client.render.block.ModelBlockRendererWorldlyBlockMixin",
+    "platform.client.render.block.ChiseledBlockModelUpdateMixin"
   ],
   "injectors": {
     "defaultRequire": 1

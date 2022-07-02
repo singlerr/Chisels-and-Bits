@@ -26,7 +26,6 @@ import mod.chiselsandbits.api.util.SingleBlockWorldReader;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
 import mod.chiselsandbits.client.block.ChiseledBlockRenderProperties;
-import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
 import mod.chiselsandbits.clipboard.CreativeClipboardUtils;
 import mod.chiselsandbits.network.packets.NeighborBlockUpdatedPacket;
 import mod.chiselsandbits.platforms.core.block.IBlockWithWorldlyProperties;
@@ -461,10 +460,13 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
       final @NotNull BlockPos otherPosition,
       final boolean update)
     {
-        final BlockEntity tileEntity = level.getBlockEntity(position);
-        if (level.isClientSide() && tileEntity instanceof ChiseledBlockEntity) {
-            ChiseledBlockModelDataManager.getInstance().updateModelData((ChiseledBlockEntity) tileEntity);
-        } else if (!level.isClientSide() && tileEntity instanceof ChiseledBlockEntity) {
+        if (!(level.getBlockEntity(position) instanceof ChiseledBlockEntity chiseledBlockEntity))
+            return;
+
+        if (level.isClientSide())
+            chiseledBlockEntity.updateModelData();
+        else
+        {
             ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
                 new NeighborBlockUpdatedPacket(position, otherPosition),
                 level.getChunkAt(position)
