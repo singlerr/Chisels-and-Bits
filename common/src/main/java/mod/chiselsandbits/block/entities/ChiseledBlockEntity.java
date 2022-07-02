@@ -61,6 +61,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.lighting.LayerLightEngine;
 import net.minecraft.world.phys.AABB;
@@ -106,6 +107,17 @@ public class ChiseledBlockEntity extends BlockEntity implements
                           .withLegacy(new LegacyGZIPStorageBasedStorageHandler())
                           .with(new LZ4StorageBasedStorageHandler())
                           .buildMultiThreaded();
+    }
+
+    public void updateModelData()
+    {
+        ChiseledBlockModelDataManager.getInstance().updateModelData(this);
+    }
+
+    private void updateModelDataIfInLoadedChunk()
+    {
+        if (level != null && level.isClientSide() && level.isLoaded(getBlockPos()))
+            updateModelData();
     }
 
     @Override
@@ -248,7 +260,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
     {
         this.storageEngine.deserializeNBT(nbt);
         this.lastTag = nbt;
-        ChiseledBlockModelDataManager.getInstance().updateModelData(this);
+        updateModelDataIfInLoadedChunk();
     }
 
     @Override
@@ -363,7 +375,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
     {
         storage.deserializeFrom(packetBuffer);
         mutableStatistics.deserializeFrom(packetBuffer);
-        ChiseledBlockModelDataManager.getInstance().updateModelData(this);
+        updateModelDataIfInLoadedChunk();
     }
 
     /**
