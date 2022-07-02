@@ -2,6 +2,7 @@ package mod.chiselsandbits.fabric;
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
+import mod.chiselsandbits.block.ChiseledBlock;
 import mod.chiselsandbits.fabric.integration.forge.ForgeTags;
 import mod.chiselsandbits.fabric.platform.FabricChiselsAndBitsPlatform;
 import mod.chiselsandbits.fabric.platform.server.FabricServerLifecycleManager;
@@ -33,7 +34,7 @@ public class FabricChiselsAndBitsMod implements ModInitializer {
         platform = FabricChiselsAndBitsPlatform.getInstance();
         IChiselsAndBitsPlatformCore.Holder.setInstance(platform);
 
-        instance = new ChiselsAndBits();
+        instance = new ChiselsAndBits(ChiseledBlock::new);
 
         setupEvents();
         ForgeTags.init();

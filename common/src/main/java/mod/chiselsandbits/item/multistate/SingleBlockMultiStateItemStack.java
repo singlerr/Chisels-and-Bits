@@ -462,8 +462,8 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         BlockPosForEach.forEachInRange(StateEntrySize.current().getBitsPerBlockSide(), (BlockPos blockPos) -> {
             final Vec3i pos = positionMutator.mutate(blockPos);
             consumer.accept(new StateEntry(
-              this.compressedSection.getBlockInformation(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
-              blockPos,
+              this.compressedSection.getBlockInformation(pos.getX(), pos.getY(), pos.getZ()),
+              pos,
               this::setInAreaTarget,
               this::clearInAreaTarget
             ));
