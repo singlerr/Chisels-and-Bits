@@ -462,6 +462,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
         float from_u = 0;
         float from_v = 0;
 
+
         switch (face) {
             case UP-> {
                 to_u = 1 - to.x() / 16f;
@@ -562,6 +563,11 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
     private int[] determineUVOrder(final float[] quadsUV) {
         final int[] uvOrder = new int[8];
 
+        final float minU = Math.min(Math.min(quadsUV[0], quadsUV[2]), Math.min(quadsUV[4], quadsUV[6]));
+        final float maxU = Math.max(Math.max(quadsUV[0], quadsUV[2]), Math.max(quadsUV[4], quadsUV[6]));
+        final float minV = Math.min(Math.min(quadsUV[1], quadsUV[3]), Math.min(quadsUV[5], quadsUV[7]));
+        final float maxV = Math.max(Math.max(quadsUV[1], quadsUV[3]), Math.max(quadsUV[5], quadsUV[7]));
+
         for (int i = 0; i < 4; i++)
         {
             final int uIndex = i * 2;
@@ -570,25 +576,25 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
             final float u = quadsUV[uIndex];
             final float v = quadsUV[vIndex];
 
-            if (ModelUtil.isZero(u) && ModelUtil.isOne(v)) {
+            if (ModelUtil.is(u, minU) && ModelUtil.is(v, maxV)) {
                 //LowerLeft should be indexes 0 and 1
                 uvOrder[4] = uIndex;
                 uvOrder[5] = vIndex;
             }
 
-            if (ModelUtil.isZero(u) && ModelUtil.isZero(v)) {
+            if (ModelUtil.is(u, minU) && ModelUtil.is(v, minV)) {
                 //UpperLeft should be indexes 2 and 3
                 uvOrder[0] = uIndex;
                 uvOrder[1] = vIndex;
             }
 
-            if (ModelUtil.isOne(u) && ModelUtil.isOne(v)) {
+            if (ModelUtil.is(u, maxU) && ModelUtil.is(v, maxV)) {
                 //LowerRight should be indexes 4 and 5
                 uvOrder[6] = uIndex;
                 uvOrder[7] = vIndex;
             }
 
-            if (ModelUtil.isOne(u) && ModelUtil.isZero(v)) {
+            if (ModelUtil.is(u, maxU) && ModelUtil.is(v, minV)) {
                 //UpperRight should be indexes 6 and 7
                 uvOrder[2] = uIndex;
                 uvOrder[3] = vIndex;
