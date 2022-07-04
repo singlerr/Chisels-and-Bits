@@ -19,12 +19,12 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -70,7 +70,7 @@ public class ChiseledBlockGhostRenderer
         BUFFER.setAlphaPercentage(color.w());
         final BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(renderStack, null, null, 0);
 
-       if (!renderColoredGhost || !ignoreDepth)
+        if (!renderColoredGhost || !ignoreDepth)
             renderGhost(poseStack, renderStack, model, renderColoredGhost, color, false);
 
         if (ignoreDepth)
@@ -124,6 +124,35 @@ public class ChiseledBlockGhostRenderer
         renderType.end(BUFFER, 0, 0, 0);
     }
 
+    private static final float[] DIRECTIONAL_BRIGHTNESS = {0.5f, 1f, 0.7f, 0.7f, 0.6f, 0.6f};
+
+    private static Vector3f[] getShadedColors(final Vector4f color)
+    {
+        // Directionally shade the color by the amount MC normally does
+        return Arrays.stream(Direction.values())
+                .map(direction ->
+                {
+                    final float brightness = DIRECTIONAL_BRIGHTNESS[direction.get3DDataValue()];
+                    return new Vector3f(
+                            color.x() * brightness,
+                            color.y() * brightness,
+                            color.z() * brightness);
+                }).toArray(Vector3f[]::new);
+    }
+
+    private static Vector3f[] getNormals(final PoseStack.Pose pose)
+    {
+        // Transform the normal vector of each direction by the pose's normal matrix
+        return Arrays.stream(Direction.values())
+                .map(direction ->
+                {
+                    final Vec3i faceNormal = direction.getNormal();
+                    final Vector3f normal = new Vector3f(faceNormal.getX(), faceNormal.getY(), faceNormal.getZ());
+                    normal.transform(pose.normal());
+                    return normal;
+                }).toArray(Vector3f[]::new);
+    }
+
     /**
      * Optimized version of ItemRenderer#renderModelLists that ignores textures, and renders a model's
      * quads with a single RGBA color shaded by the quads' direction to match MCs similar shading
@@ -136,73 +165,46 @@ public class ChiseledBlockGhostRenderer
     {
         final Random random = new Random();
 
-        // Initialize 3 reusable vectors to avoid needless creation of new ones
-        final Vector3f normal = new Vector3f().copy();
-        final Vector4f shadedColor = new Vector4f(Vector3f.ZERO);
-        final Vector4f pos = new Vector4f(Vector3f.ZERO);
+        // Setup normals and shaded colors for each direction
+        final Vector3f[] normals = getNormals(poseStack.last());
+        final Vector3f[] shadedColors = getShadedColors(color);
 
-        for (Direction direction : Direction.values())
+        // Initialize reusable position vector to avoid needless creation of new ones
+        final Vector4f pos = new Vector4f();
+
+        for (final Direction direction : Direction.values())
         {
             // Render outer directional quads
             random.setSeed(42L);
-            renderQuadList(poseStack, buffer, model.getQuads(null, direction, random), normal, color, shadedColor, pos, direction);
+            renderQuadList(poseStack.last().pose(), buffer, model.getQuads(null, direction, random), normals, shadedColors, pos);
         }
 
         // Render quads of unspecified direction
         random.setSeed(42L);
-        renderQuadList(poseStack, buffer, model.getQuads(null, null, random), normal, color, shadedColor, pos, null);
+        renderQuadList(poseStack.last().pose(), buffer, model.getQuads(null, null, random), normals, shadedColors, pos);
     }
 
     /**
      * Optimized version of ItemRenderer#renderQuadList
      */
     private static void renderQuadList(
-            final PoseStack poseStack,
+            final Matrix4f pose,
             final VertexConsumer buffer,
             final List<BakedQuad> quads,
-            final Vector3f normal,
-            final Vector4f color,
-            final Vector4f shadedColor,
-            final Vector4f pos,
-            final @Nullable Direction direction)
+            final Vector3f[] normals,
+            final Vector3f[] shadedColors,
+            final Vector4f pos)
     {
-        final PoseStack.Pose pose = poseStack.last();
-
-        // If these are outer directional quads, set the normal and shaded color once, rather than setting to the same values for every quad
-        if (direction != null)
-            shadeColorAndSetNormal(color, shadedColor, direction, normal, pose);
-
-        for (BakedQuad quad : quads)
+        for (final BakedQuad quad : quads)
         {
-            // Shade and set normal for quads of unspecified direction by getting the direction from the quads themselves
-            if (direction == null)
-                shadeColorAndSetNormal(color, shadedColor, quad.getDirection(), normal, pose);
-
-            putBulkData(buffer, pose.pose(), quad, shadedColor, normal, pos);
+            putBulkData(
+                    buffer,
+                    pose,
+                    quad,
+                    shadedColors[quad.getDirection().ordinal()],
+                    normals[quad.getDirection().ordinal()],
+                    pos);
         }
-    }
-
-    private static final float[] DIRECTIONAL_BRIGHTNESS = {0.5f, 1f, 0.7f, 0.7f, 0.6f, 0.6f};
-
-    private static void shadeColorAndSetNormal(
-            final Vector4f color,
-            final Vector4f shadedColor,
-            final Direction direction,
-            final Vector3f normal,
-            final PoseStack.Pose pose)
-    {
-        // Sets the normal vector to that of the specified direction, and transforms it by the pose's normal matrix
-        final Vec3i faceNormal = direction.getNormal();
-        normal.set(faceNormal.getX(), faceNormal.getY(), faceNormal.getZ());
-        normal.transform(pose.normal());
-
-        // Shades the color to match MC's directional shading
-        final float brightness = DIRECTIONAL_BRIGHTNESS[direction.get3DDataValue()];
-        shadedColor.set(
-                color.x() * brightness,
-                color.y() * brightness,
-                color.z() * brightness,
-                color.w() * brightness);
     }
 
     /**
@@ -210,9 +212,9 @@ public class ChiseledBlockGhostRenderer
      */
     private static void putBulkData(
             final VertexConsumer buffer,
-            final Matrix4f matrix,
+            final Matrix4f pose,
             final BakedQuad bakedQuad,
-            final Vector4f color,
+            final Vector3f color,
             final Vector3f normal,
             final Vector4f pos)
     {
@@ -220,12 +222,13 @@ public class ChiseledBlockGhostRenderer
         final int[] vertices = bakedQuad.getVertices();
         final int vertexCount = vertices.length / DefaultVertexFormat.BLOCK.getIntegerSize();
 
-        try (MemoryStack memorystack = MemoryStack.stackPush()) {
+        try (final MemoryStack memorystack = MemoryStack.stackPush()) {
             // Setup buffers
             final ByteBuffer bytebuffer = memorystack.malloc(DefaultVertexFormat.BLOCK.getVertexSize());
             final IntBuffer intbuffer = bytebuffer.asIntBuffer();
 
-            for (int v = 0; v < vertexCount; ++v) {
+            for (int v = 0; v < vertexCount; ++v)
+            {
                 // Add vertex data to the buffer
                 ((Buffer) intbuffer).clear();
                 intbuffer.put(vertices, v * 8, 8);
@@ -235,7 +238,7 @@ public class ChiseledBlockGhostRenderer
                         bytebuffer.getFloat(4),
                         bytebuffer.getFloat(8),
                         1f);
-                pos.transform(matrix);
+                pos.transform(pose);
 
                 buffer.vertex(pos.x(), pos.y(), pos.z())
                       .color(color.x(), color.y(), color.z(), 1f)

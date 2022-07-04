@@ -48,10 +48,4 @@ public interface IChiseledBlockItem extends IMultiStateItem, IPlacementPreviewPr
     {
         return false;
     }
-
-    @Override
-    default boolean ignoreDepth(ItemStack heldStack)
-    {
-        return overridesOccupiedBits(heldStack);
-    }
 }
