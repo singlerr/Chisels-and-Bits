@@ -49,11 +49,20 @@ public class MultiStateBlockPreviewRenderHandler
                 targetedRenderPos.z % bitSize + (targetedRenderPos.z < 0 ? bitSize : 0)
         );
 
-        final boolean ignoreDepth = wireframeItem.ignoreDepth(heldStack);
-        final boolean forceWireframe = !(heldStack.getItem() instanceof IPlacementPreviewProvidingItem);
-        final PlacementResult placementResult = heldStack.getItem() instanceof IPlacementPreviewProvidingItem placementPreviewItem
-                ? placementPreviewItem.getPlacementResult(heldStack, playerEntity, blockRayTraceResult)
-                : PlacementResult.failure(wireframeItem.getWireFrameColor(heldStack, playerEntity, blockRayTraceResult));
+        final PlacementResult placementResult;
+        final boolean ignoreDepth, forceWireframe;
+        if (heldStack.getItem() instanceof IPlacementPreviewProvidingItem placementPreviewItem)
+        {
+            placementResult = placementPreviewItem.getPlacementResult(heldStack, playerEntity, blockRayTraceResult);
+            ignoreDepth = placementPreviewItem.ignoreDepthForPlacement(heldStack, placementResult);
+            forceWireframe = false;
+        }
+        else
+        {
+            placementResult = PlacementResult.failure(wireframeItem.getWireFrameColor(heldStack, playerEntity, blockRayTraceResult));
+            ignoreDepth = wireframeItem.ignoreDepth(heldStack);
+            forceWireframe = true;
+        }
 
         final IClientConfiguration clientConfig = IClientConfiguration.getInstance();
         final PlacementPreviewRenderMode success = clientConfig.getSuccessfulPlacementRenderMode().get();
