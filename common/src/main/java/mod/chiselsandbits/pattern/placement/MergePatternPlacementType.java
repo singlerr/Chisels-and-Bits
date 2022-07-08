@@ -119,10 +119,9 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
         final Map<BlockInformation, Integer> totalAddedBits = source.stream()
           .filter(s -> !s.getBlockInformation().isAir())
           .filter(s -> {
-              final Optional<IStateEntryInfo> o = areaMutator.getInAreaTarget(s.getStartPoint());
+              final Optional<IStateEntryInfo> o = areaMutator.getInAreaTarget(s.getStartPoint().add(areaMutator.getInWorldStartPoint()));
 
               return o
-                .filter(os -> !os.getBlockInformation().isAir())
                 .map(os -> !os.getBlockInformation().equals(s.getBlockInformation()))
                 .orElse(false);
           })
@@ -133,7 +132,7 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
           ));
 
         final boolean hasRequiredBits =
-          context.getPlayer().isCreative() || totalAddedBits.entrySet().stream().allMatch(e -> playerBitInventory.canInsert(e.getKey(), e.getValue()));
+          context.getPlayer().isCreative() || totalAddedBits.entrySet().stream().allMatch(e -> playerBitInventory.canExtract(e.getKey(), e.getValue()));
 
         if (!hasRequiredBits)
         {
