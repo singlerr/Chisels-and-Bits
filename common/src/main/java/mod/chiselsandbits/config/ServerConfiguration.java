@@ -27,7 +27,7 @@ public class ServerConfiguration implements IServerConfiguration
 
         blockListRandomTickingBlocks = builder.defineBoolean("balancing.blacklist-random-ticking-blocks", false);
         compatibilityMode = builder.defineBoolean("balancing.enable-compatibility-mode", false);
-        bagStackSize = builder.defineInteger("balancing.bit-bag-stack-size", 512, 64, 1024);
+        bagStackSize = builder.defineInteger("balancing.bit-bag-stack-size", 512, 64, Integer.MAX_VALUE);
         bitSize = builder.defineEnum("style.bit-size", StateEntrySize.ONE_SIXTEENTH);
         changeTrackerSize = builder.defineInteger("balancing.change-tracker-size", 20, 10, 40);
         deleteExcessBits = builder.defineBoolean("balancing.delete-excess-bits", true);
