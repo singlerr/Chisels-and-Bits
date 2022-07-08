@@ -158,14 +158,14 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
                 .stream()
                 .collect(Collectors.toMap(Function.identity(), this.paletteEntries::indexOf));
 
-        this.onNewSizeAddedConsumer.accept(this.paletteEntries.size());
-
         final Map<Integer, Integer> indexAlterationMap = remainingPreRemoveIndexMap.keySet()
                 .stream()
                 .filter(e -> !Objects.equals(remainingPreRemoveIndexMap.get(e), remainingPostRemoveIndexMap.get(e)))
                 .collect(Collectors.toMap(remainingPreRemoveIndexMap::get, remainingPostRemoveIndexMap::get));
 
         this.onPaletteIndexChanged.accept(indexAlterationMap);
+
+        this.onNewSizeAddedConsumer.accept(this.paletteEntries.size());
     }
 
     public void clear() {

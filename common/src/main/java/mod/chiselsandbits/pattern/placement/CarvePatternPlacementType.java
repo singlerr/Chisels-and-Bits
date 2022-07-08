@@ -88,14 +88,14 @@ public class CarvePatternPlacementType extends AbstractCustomRegistryEntry imple
         final Map<BlockInformation, Integer> totalRemovedBits = source.stream()
           .filter(s -> !s.getBlockInformation().isAir())
           .filter(s -> {
-              final Optional<IStateEntryInfo> o = areaMutator.getInAreaTarget(s.getStartPoint());
+              final Optional<IStateEntryInfo> o = areaMutator.getInAreaTarget(s.getStartPoint().add(areaMutator.getInWorldStartPoint()));
 
               return o
                 .filter(os -> !os.getBlockInformation().isAir())
                 .map(os -> !os.getBlockInformation().equals(s.getBlockInformation()))
                 .orElse(false);
           })
-          .map(s -> areaMutator.getInAreaTarget(s.getStartPoint()))
+          .map(s -> areaMutator.getInAreaTarget(s.getStartPoint().add(areaMutator.getInWorldStartPoint())))
           .filter(Optional::isPresent)
           .map(Optional::get)
           .collect(Collectors.toMap(
