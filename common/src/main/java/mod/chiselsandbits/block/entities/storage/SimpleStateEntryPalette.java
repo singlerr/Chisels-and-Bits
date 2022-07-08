@@ -21,6 +21,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.stream.Collectors;
 
@@ -30,15 +34,18 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
     private final List<Entry>                    paletteEntries = Collections.synchronizedList(Lists.newArrayList());
     private final BiMap<BlockInformation, Entry> paletteMap     = Maps.synchronizedBiMap(HashBiMap.create());
     private final IntConsumer                    onNewSizeAddedConsumer;
+    private final Consumer<Map<Integer, Integer>> onPaletteIndexChanged;
 
-    public SimpleStateEntryPalette(final IntConsumer onNewSizeAddedConsumer) {
+    public SimpleStateEntryPalette(final IntConsumer onNewSizeAddedConsumer, final Consumer<Map<Integer, Integer>> onPaletteIndexChanged) {
         this.onNewSizeAddedConsumer = onNewSizeAddedConsumer;
+        this.onPaletteIndexChanged = onPaletteIndexChanged;
         clear(); //Reset to initial state
     }
 
-    public SimpleStateEntryPalette(final IntConsumer onPaletteResize, final SimpleStateEntryPalette palette)
+    public SimpleStateEntryPalette(final IntConsumer onPaletteResize, final Consumer<Map<Integer, Integer>> onPaletteIndexChanged, final SimpleStateEntryPalette palette)
     {
         this.onNewSizeAddedConsumer = onPaletteResize;
+        this.onPaletteIndexChanged = onPaletteIndexChanged;
         this.paletteEntries.addAll(palette.paletteEntries);
         this.paletteMap.putAll(palette.paletteMap);
     }
@@ -140,10 +147,25 @@ public class SimpleStateEntryPalette implements IPacketBufferSerializable, INBTS
     public void sanitize(final Collection<BlockInformation> toRemove) {
         final List<Entry> toRemoveList = toRemove.stream().map(this.paletteMap::get).toList();
 
+        final Map<Entry, Integer> remainingPreRemoveIndexMap = this.paletteEntries.stream()
+                .filter(entry -> !toRemoveList.contains(entry))
+                .collect(Collectors.toMap(Function.identity(), this.paletteEntries::indexOf));
+
         this.paletteEntries.removeAll(toRemoveList);
         toRemove.forEach(this.paletteMap::remove);
 
+        final Map<Entry, Integer> remainingPostRemoveIndexMap = remainingPreRemoveIndexMap.keySet()
+                .stream()
+                .collect(Collectors.toMap(Function.identity(), this.paletteEntries::indexOf));
+
         this.onNewSizeAddedConsumer.accept(this.paletteEntries.size());
+
+        final Map<Integer, Integer> indexAlterationMap = remainingPreRemoveIndexMap.keySet()
+                .stream()
+                .filter(e -> !Objects.equals(remainingPreRemoveIndexMap.get(e), remainingPostRemoveIndexMap.get(e)))
+                .collect(Collectors.toMap(remainingPreRemoveIndexMap::get, remainingPostRemoveIndexMap::get));
+
+        this.onPaletteIndexChanged.accept(indexAlterationMap);
     }
 
     public void clear() {

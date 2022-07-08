@@ -48,14 +48,14 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     @SuppressWarnings("CopyConstructorMissesField")
     private SimpleStateEntryStorage(final SimpleStateEntryStorage stateEntryStorage) {
         this.size = stateEntryStorage.size;
-        this.palette = new SimpleStateEntryPalette(this::onPaletteResize, stateEntryStorage.palette);
+        this.palette = new SimpleStateEntryPalette(this::onPaletteResize, this::onPaletteIndexChanged, stateEntryStorage.palette);
         this.data = BitSet.valueOf(stateEntryStorage.getData().toLongArray()); // Automatically copies the data.
         this.entryWidth = stateEntryStorage.entryWidth;
     }
 
     public SimpleStateEntryStorage(final int size) {
         this.size = size;
-        this.palette = new SimpleStateEntryPalette(this::onPaletteResize);
+        this.palette = new SimpleStateEntryPalette(this::onPaletteResize, this::onPaletteIndexChanged);
     }
 
     @Override
@@ -365,6 +365,19 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
               .mapToInt(pos -> doCalculatePositionIndex(pos.getX(), pos.getY(), pos.getZ()))
               .mapToObj(index -> Pair.of(index, ByteArrayUtils.getValueAt(rawData, currentEntryWidth, index)))
               .forEach(pair -> ByteArrayUtils.setValueAt(this.data, pair.getSecond(), this.entryWidth, pair.getFirst()));
+        }
+    }
+
+    private void onPaletteIndexChanged(final Map<Integer, Integer> remaps) {
+        if (remaps.isEmpty())
+            return;
+
+        for (int i = 0; i < getTotalEntryCount(); i++)
+        {
+            final int currentId = ByteArrayUtils.getValueAt(data, entryWidth, i);
+            if (remaps.containsKey(currentId)) {
+                ByteArrayUtils.setValueAt(data, remaps.get(currentId), entryWidth, i);
+            }
         }
     }
 
