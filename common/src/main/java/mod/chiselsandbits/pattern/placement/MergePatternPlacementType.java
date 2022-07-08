@@ -75,7 +75,7 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
             targetedPosition.add(0.9999,0.9999,0.9999)
           );
 
-        final boolean isChiseledBlock = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
+        final boolean isChiseledBlock = BlockPosStreamProvider.getForAccessor(areaMutator)
                                           .map(pos -> context.getLevel().getBlockState(pos))
                                           .allMatch(state -> state.getBlock() instanceof IMultiStateBlock || state.isAir());
 

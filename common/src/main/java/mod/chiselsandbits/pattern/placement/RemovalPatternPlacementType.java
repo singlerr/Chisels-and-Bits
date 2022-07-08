@@ -93,7 +93,7 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
             targetedPosition.add(0.9999,0.9999,0.9999)
           );
 
-        final boolean isChiseledBlock = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
+        final boolean isChiseledBlock = BlockPosStreamProvider.getForAccessor(areaMutator)
           .map(pos -> context.getLevel().getBlockState(pos))
           .allMatch(state -> state.getBlock() instanceof IMultiStateBlock);
 
@@ -104,7 +104,7 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
                     LocalStrings.PatternPlacementNotASolidBlock.getText());
         }
 
-        final boolean isSupported = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
+        final boolean isSupported = BlockPosStreamProvider.getForAccessor(areaMutator)
           .map(pos -> context.getLevel().getBlockState(pos))
           .allMatch(state -> IEligibilityManager.getInstance().canBeChiseled(state) || state.isAir());
 

@@ -1,5 +1,7 @@
 package mod.chiselsandbits.api.util;
 
+import mod.chiselsandbits.api.multistate.StateEntrySize;
+import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +44,57 @@ public class BlockPosStreamProvider
      */
     public static Stream<BlockPos> getForRange(final int min, final int max) {
         return getForRange(min, min, min, max, max, max);
+    }
+
+    /**
+     * Provides a stream of BlockPos objects within a given world object.
+     *
+     * This rounds the vectors down to the block positions they are in, and then extracts the minimal and maximal values
+     * for each axis.
+     *
+     * Internally invokes {@link #getForRange(int, int, int, int, int, int)}, with the rounded down vectors as the min and max values.
+     *
+     * @param worldObject The world object to iterate over.
+     * @return The block position stream within the given range.
+     */
+    public static Stream<BlockPos> getForWorldObject(final IWorldObject worldObject) {
+        return getForWorldObject(worldObject, false);
+    }
+
+    /**
+     * Provides a stream of BlockPos objects within a given world accessor.
+     *
+     * This rounds the vectors down to the block positions they are in, and then extracts the minimal and maximal values
+     * for each axis.
+     *
+     * Internally invokes {@link #getForRange(int, int, int, int, int, int)}, with the rounded down vectors as the min and max values.
+     *
+     * @param worldAreaAccessor The world accessor to iterate over.
+     * @return The block position stream within the given range.
+     */
+    public static Stream<BlockPos> getForAccessor(final IWorldAreaAccessor worldAreaAccessor) {
+        return getForWorldObject(worldAreaAccessor, true);
+    }
+
+    /**
+     * Provides a stream of BlockPos objects within a given world object.
+     *
+     * This rounds the vectors down to the block positions they are in, and then extracts the minimal and maximal values
+     * for each axis.
+     *
+     * Internally invokes {@link #getForRange(int, int, int, int, int, int)}, with the rounded down vectors as the min and max values.
+     *
+     * @param worldObject The world object to iterate over.
+     * @param subtractBitSize Indicates if from the end a bit size should be subtracted to not run out of the area.
+     * @return The block position stream within the given range.
+     */
+    public static Stream<BlockPos> getForWorldObject(final IWorldObject worldObject, boolean subtractBitSize) {
+        final Vec3 start = worldObject.getInWorldStartPoint();
+        final Vec3 end = worldObject.getInWorldEndPoint();
+
+        final Vec3 workingEnd = subtractBitSize ? end.subtract(StateEntrySize.current().getSizePerBitScalingVector()) : end;
+
+        return getForRange(start, workingEnd);
     }
 
     /**
