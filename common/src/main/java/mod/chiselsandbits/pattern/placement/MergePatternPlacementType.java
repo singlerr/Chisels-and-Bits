@@ -77,7 +77,7 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
 
         final boolean isChiseledBlock = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
                                           .map(pos -> context.getLevel().getBlockState(pos))
-                                          .allMatch(state -> state.getBlock() instanceof IMultiStateBlock);
+                                          .allMatch(state -> state.getBlock() instanceof IMultiStateBlock || state.isAir());
 
         if (!isChiseledBlock)
         {
@@ -153,16 +153,9 @@ public class MergePatternPlacementType extends AbstractCustomRegistryEntry imple
               .filter(s -> !s.getBlockInformation().isAir())
               .forEach(
                 stateEntryInfo -> {
-                    try
-                    {
-                        areaMutator.clearInAreaTarget(stateEntryInfo.getStartPoint());
-                        areaMutator.setInAreaTarget(
-                          stateEntryInfo.getBlockInformation(),
-                          stateEntryInfo.getStartPoint());
-                    }
-                    catch (SpaceOccupiedException ignored1)
-                    {
-                    }
+                    areaMutator.overrideInAreaTarget(
+                      stateEntryInfo.getBlockInformation(),
+                      stateEntryInfo.getStartPoint());
                 }
               );
         }

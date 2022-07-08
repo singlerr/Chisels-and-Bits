@@ -106,7 +106,7 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
 
         final boolean isSupported = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
           .map(pos -> context.getLevel().getBlockState(pos))
-          .allMatch(IEligibilityManager.getInstance()::canBeChiseled);
+          .allMatch(state -> IEligibilityManager.getInstance().canBeChiseled(state) || state.isAir());
 
         if (!isSupported)
         {

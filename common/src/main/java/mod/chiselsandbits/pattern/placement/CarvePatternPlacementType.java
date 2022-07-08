@@ -76,7 +76,7 @@ public class CarvePatternPlacementType extends AbstractCustomRegistryEntry imple
 
         final boolean isChiseledBlock = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
           .map(pos -> context.getLevel().getBlockState(pos))
-          .allMatch(state -> state.getBlock() instanceof IMultiStateBlock);
+          .allMatch(state -> state.getBlock() instanceof IMultiStateBlock || state.isAir());
 
         if (!isChiseledBlock)
         {

@@ -89,7 +89,7 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
 
         final boolean isSupported = BlockPosStreamProvider.getForRange(areaMutator.getInWorldStartPoint(), areaMutator.getInWorldEndPoint())
           .map(pos -> context.getLevel().getBlockState(pos))
-          .allMatch(IEligibilityManager.getInstance()::canBeChiseled);
+          .allMatch(state -> IEligibilityManager.getInstance().canBeChiseled(state) || state.isAir());
 
         if (!isSupported)
         {
@@ -146,16 +146,9 @@ public class ImposePatternPlacementType extends AbstractCustomRegistryEntry impl
               .filter(s -> !s.getBlockInformation().isAir())
               .forEach(
                 stateEntryInfo -> {
-                    try
-                    {
-                        areaMutator.clearInAreaTarget(stateEntryInfo.getStartPoint());
-                        areaMutator.setInAreaTarget(
-                          stateEntryInfo.getBlockInformation(),
-                          stateEntryInfo.getStartPoint());
-                    }
-                    catch (SpaceOccupiedException ignored1)
-                    {
-                    }
+                    areaMutator.overrideInAreaTarget(
+                      stateEntryInfo.getBlockInformation(),
+                      stateEntryInfo.getStartPoint());
                 }
               );
         }
