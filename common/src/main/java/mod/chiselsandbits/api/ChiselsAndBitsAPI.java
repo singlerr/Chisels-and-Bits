@@ -47,6 +47,7 @@ import mod.chiselsandbits.item.bit.BitItemManager;
 import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
 import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.multistate.mutator.MutatorFactory;
+import mod.chiselsandbits.multistate.snapshot.SnapshotFactory;
 import mod.chiselsandbits.neighborhood.BlockNeighborhoodBuilder;
 import mod.chiselsandbits.notifications.NotificationManager;
 import mod.chiselsandbits.permissions.PermissionHandler;
@@ -349,6 +350,6 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     @Override
     public @NotNull ISnapshotFactory getSnapshotFactory()
     {
-        return null;
+        return SnapshotFactory.getInstance();
     }
 }
