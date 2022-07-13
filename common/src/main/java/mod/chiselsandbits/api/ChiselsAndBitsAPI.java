@@ -24,6 +24,7 @@ import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.accessor.IAccessorFactory;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
+import mod.chiselsandbits.api.multistate.snapshot.ISnapshotFactory;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.notifications.INotificationManager;
 import mod.chiselsandbits.api.permissions.IPermissionHandler;
@@ -341,6 +342,12 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
 
     @Override
     public @NotNull IGlueingOperation getDefaultGlueingOperation()
+    {
+        return null;
+    }
+
+    @Override
+    public @NotNull ISnapshotFactory getSnapshotFactory()
     {
         return null;
     }

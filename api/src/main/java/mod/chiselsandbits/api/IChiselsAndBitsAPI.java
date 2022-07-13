@@ -23,6 +23,7 @@ import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAccessorFactory;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
+import mod.chiselsandbits.api.multistate.snapshot.ISnapshotFactory;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.notifications.INotificationManager;
 import mod.chiselsandbits.api.permissions.IPermissionHandler;
@@ -299,6 +300,9 @@ public interface IChiselsAndBitsAPI
 
     @NotNull
     IGlueingOperation getDefaultGlueingOperation();
+
+    @NotNull
+    ISnapshotFactory getSnapshotFactory();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

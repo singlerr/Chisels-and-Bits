@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 
 import java.util.OptionalDouble;
@@ -16,6 +17,8 @@ import java.util.function.Supplier;
 public enum ModRenderTypes
 {
     MEASUREMENT_LINES(() -> InternalType.MEASUREMENT_LINES),
+    CHISEL_PREVIEW_INSIDE_BLOCKS(() -> InternalType.CHISEL_PREVIEW_INSIDE_BLOCKS),
+    CHISEL_PREVIEW_OUTSIDE_BLOCKS(() -> InternalType.CHISEL_PREVIEW_OUTSIDE_BLOCKS),
     WIREFRAME_LINES(() -> InternalType.WIREFRAME_LINES),
     WIREFRAME_LINES_ALWAYS(() -> InternalType.WIREFRAME_LINES_ALWAYS),
     WIREFRAME_BODY(() -> InternalType.WIREFRAME_BODY),
@@ -35,12 +38,14 @@ public enum ModRenderTypes
     private static class InternalState extends RenderStateShard
     {
         private static final DepthTestStateShard DISABLED_DEPTH_TEST = new DepthTestDisabled();
+        private static final DepthTestLessOrEqual LESS_OR_EQUAL_DEPTH_TEST = new DepthTestLessOrEqual();
+        private static final DepthTestGreaterOrEqual GREATER_OR_EQUAL_DEPTH_TEST = new DepthTestGreaterOrEqual();
 
         private static class DepthTestDisabled extends DepthTestStateShard
         {
             public DepthTestDisabled()
             {
-                super("depth_test", 0);
+                super("depth_test_disabled", 0);
             }
 
             @Override
@@ -56,9 +61,65 @@ public enum ModRenderTypes
             }
 
             @Override
-            public String toString()
+            public @NotNull String toString()
             {
                 return name + "[" + Constants.MOD_ID + ":depth_test_disabled]";
+            }
+        }
+
+        private static class DepthTestLessOrEqual extends DepthTestStateShard
+        {
+            public DepthTestLessOrEqual()
+            {
+                super("depth_test_less_or_equal", 0);
+            }
+
+            @Override
+            public void setupRenderState()
+            {
+                RenderSystem.enableDepthTest();
+                RenderSystem.depthFunc(GL11.GL_LEQUAL);
+            }
+
+            @Override
+            public void clearRenderState()
+            {
+                RenderSystem.enableDepthTest();
+                RenderSystem.depthFunc(GL11.GL_LEQUAL);
+            }
+
+            @Override
+            public @NotNull String toString()
+            {
+                return name + "[" + Constants.MOD_ID + ":depth_test_less_or_equal]";
+            }
+        }
+
+        private static class DepthTestGreaterOrEqual extends DepthTestStateShard
+        {
+            public DepthTestGreaterOrEqual()
+            {
+                super("depth_test_greater_or_equal", 0);
+            }
+
+            @Override
+            public void setupRenderState()
+            {
+                RenderSystem.enableDepthTest();
+                RenderSystem.depthFunc(GL11.GL_GEQUAL);
+            }
+
+            @Override
+            public void clearRenderState()
+            {
+                RenderSystem.enableDepthTest();
+                RenderSystem.depthFunc(GL11.GL_LEQUAL);
+            }
+
+            @Override
+            public @NotNull String toString()
+            {
+                return name + "[" + Constants.MOD_ID + ":depth_test_greater_or_equal]";
             }
         }
 
@@ -86,6 +147,40 @@ public enum ModRenderTypes
             .setCullState(NO_CULL)
             .setDepthTestState(InternalState.DISABLED_DEPTH_TEST)
             .createCompositeState(false));
+
+        private static final RenderType CHISEL_PREVIEW_INSIDE_BLOCKS = RenderType.create(Constants.MOD_ID + ":chisel_preview_inside_blocks",
+                DefaultVertexFormat.POSITION_COLOR_NORMAL,
+                VertexFormat.Mode.LINES,
+                256,
+                false,
+                false,
+                RenderType.CompositeState.builder()
+                        .setShaderState(RENDERTYPE_LINES_SHADER)
+                        .setLineState(new LineStateShard(OptionalDouble.of(2.5d)))
+                        .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setOutputState(TRANSLUCENT_TARGET)
+                        .setWriteMaskState(COLOR_WRITE)
+                        .setCullState(NO_CULL)
+                        .setDepthTestState(InternalState.GREATER_OR_EQUAL_DEPTH_TEST)
+                        .createCompositeState(false));
+
+        private static final RenderType CHISEL_PREVIEW_OUTSIDE_BLOCKS = RenderType.create(Constants.MOD_ID + ":chisel_preview_outside_blocks",
+                DefaultVertexFormat.POSITION_COLOR_NORMAL,
+                VertexFormat.Mode.LINES,
+                256,
+                false,
+                false,
+                RenderType.CompositeState.builder()
+                        .setShaderState(RENDERTYPE_LINES_SHADER)
+                        .setLineState(new LineStateShard(OptionalDouble.of(2.5d)))
+                        .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setOutputState(TRANSLUCENT_TARGET)
+                        .setWriteMaskState(COLOR_WRITE)
+                        .setCullState(NO_CULL)
+                        .setDepthTestState(InternalState.LESS_OR_EQUAL_DEPTH_TEST)
+                        .createCompositeState(false));
 
         private static final RenderType WIREFRAME_LINES = buildWireframeType(false);
         private static final RenderType WIREFRAME_LINES_ALWAYS = buildWireframeType(true);

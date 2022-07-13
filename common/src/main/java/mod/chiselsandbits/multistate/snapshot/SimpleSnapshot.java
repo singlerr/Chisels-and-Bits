@@ -45,6 +45,12 @@ public class SimpleSnapshot implements IMultiStateSnapshot
     private final IStateEntryStorage          chunkSection;
     private       IMultiStateObjectStatistics stateObjectStatistics = null;
 
+    public SimpleSnapshot() {
+        this.chunkSection = new SimpleStateEntryStorage();
+
+        this.chunkSection.initializeWith(BlockInformation.AIR);
+    }
+
     public SimpleSnapshot(final BlockInformation blockInformation) {
         this.chunkSection = new SimpleStateEntryStorage();
 

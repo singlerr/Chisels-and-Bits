@@ -61,15 +61,27 @@ public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implement
 
         LevelRenderer.renderShape(
           poseStack,
-          Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.MEASUREMENT_LINES.get()),
+          Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.CHISEL_PREVIEW_INSIDE_BLOCKS.get()),
           renderedShape,
           inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() - zView,
-          getColorValue(color, 0, 0f),
-          getColorValue(color, 1, 0f),
-          getColorValue(color, 2, 0f),
-          getColorValue(color, 3, 1f)
+          getColorValue(color, 0, 0f) * 0.3f,
+          getColorValue(color, 1, 0f) * 0.3f,
+          getColorValue(color, 2, 0f) * 0.3f,
+          getColorValue(color, 3, 1f) * 0.3f
         );
-        Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
+        Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.CHISEL_PREVIEW_INSIDE_BLOCKS.get());
+
+        LevelRenderer.renderShape(
+                poseStack,
+                Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(ModRenderTypes.CHISEL_PREVIEW_OUTSIDE_BLOCKS.get()),
+                renderedShape,
+                inWorldStartPos.getX() - xView, inWorldStartPos.getY() - yView, inWorldStartPos.getZ() - zView,
+                getColorValue(color, 0, 0f),
+                getColorValue(color, 1, 0f),
+                getColorValue(color, 2, 0f),
+                getColorValue(color, 3, 1f)
+        );
+        Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.CHISEL_PREVIEW_OUTSIDE_BLOCKS.get());
 
         if (IClientConfiguration.getInstance().getMutatorPreviewDebug().get()) {
             LevelRenderer.renderShape(
