@@ -25,7 +25,6 @@ import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelState;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
@@ -425,13 +424,13 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
                         final BlockInformation externalNeighborState = neighborStateSupplier.apply(offsetTarget);
 
                         return Optional.of(externalNeighborState)
-                                .map(neighborState -> test.isVisible(stateEntryInfo, neighborState, new BlockPos(offsetTarget), facing))
+                                .map(neighborState -> test.isVisible(stateEntryInfo, neighborState, facing))
                                 .orElseGet(() -> !stateEntryInfo.getBlockInformation().isAir());
                     }
 
                     return blob.getInAreaTarget(offsetTarget)
                             .map(IStateEntryInfo::getBlockInformation)
-                            .map(neighborState -> test.isVisible(stateEntryInfo, neighborState, new BlockPos(offsetTarget), facing))
+                            .map(neighborState -> test.isVisible(stateEntryInfo, neighborState, facing))
                             .orElseGet(() -> !stateEntryInfo.getBlockInformation().isAir());
                 })
                 .map(stateEntryInfo -> {
