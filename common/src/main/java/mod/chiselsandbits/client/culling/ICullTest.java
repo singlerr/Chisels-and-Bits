@@ -1,13 +1,13 @@
 package mod.chiselsandbits.client.culling;
 
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
-import net.minecraft.world.level.block.state.BlockState;
+import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
+import net.minecraft.core.Direction;
 
 public interface ICullTest
 {
-
-	boolean isVisible(
-			BlockInformation mySpot,
-      BlockInformation secondSpot );
-
+    boolean isVisible(
+      IStateEntryInfo mySpot,
+      BlockInformation secondPost,
+      Direction dir);
 }
