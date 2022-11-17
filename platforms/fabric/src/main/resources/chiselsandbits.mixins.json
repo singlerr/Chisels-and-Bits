@@ -4,6 +4,7 @@
   "package": "mod.chiselsandbits.fabric.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "platform.common.LivingEntityEquipmentSlotMixin",
     "platform.world.entity.EntityWorldlyBlockMixin",
     "platform.world.entity.ExperienceOrbWorldlyBlockMixin",
     "platform.world.entity.FlyingMobWorldlyBlockMixin",
@@ -13,6 +14,7 @@
     "platform.world.entity.vehicle.BoatWorldlyBlockMixin",
     "platform.world.item.BlockItemWorldlyBlockMixin",
     "platform.world.level.BlockBehaviourWorldlyBlockMixin",
+    "platform.world.level.BlockGetterWorldlyBlockMixin",
     "platform.world.level.ExplosionDamageCalculatorWorldlyBlockMixin",
     "platform.world.level.LevelWorldlyBlockMixin",
     "platform.world.level.block.WorldlyBlockGrassGrowMixin",
@@ -20,22 +22,21 @@
     "platform.world.level.chunk.LevelChunkWorldlyBlockMixin",
     "platform.world.level.chunk.ProtoChunkWorldlyBlockMixin",
     "platform.world.level.chunk.storage.ChunkSerializerWorldlyBlockMixin",
-    "world.entity.item.ItemEntityEventMixin",
-    "platform.common.LivingEntityEquipmentSlotMixin"
+    "world.entity.item.ItemEntityEventMixin"
   ],
   "client": [
-    "client.LocalPlayerScopingMixin",
-    "client.PlayerScopingMixin",
-    "client.MouseHandlerEventMixin",
-    "client.block.blockentity.ChiseledBlockEntityMixin",
-    "client.resources.PaintingTextureManagerConstructionHandler",
     "client.AbstractClientPlayerMixin",
     "client.CustomHeadLayerMixin",
+    "client.LocalPlayerScopingMixin",
+    "client.MouseHandlerEventMixin",
     "client.ParticleEngineRenderPropertiesMixin",
+    "client.PlayerScopingMixin",
+    "client.block.blockentity.ChiseledBlockEntityMixin",
+    "client.resources.PaintingTextureManagerConstructionHandler",
     "platform.client.multiplayer.MultiPlayerGameModeWorldlyBlockMixin",
     "platform.client.render.LevelRendererWorldlyBlockMixin",
-    "platform.client.render.block.ModelBlockRendererWorldlyBlockMixin",
-    "platform.client.render.block.ChiseledBlockModelUpdateMixin"
+    "platform.client.render.block.ChiseledBlockModelUpdateMixin",
+    "platform.client.render.block.ModelBlockRendererWorldlyBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1

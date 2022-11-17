@@ -20,17 +20,17 @@ public abstract class ItemEntityEventMixin
     }
 
     @Inject(
-      method = "playerTouch",
-      cancellable = true,
-      at = @At(
-        value = "HEAD"
-      )
+            method = "playerTouch",
+            cancellable = true,
+            at = @At(
+                    value = "HEAD"
+            )
     )
     private void onScroll(final Player player, final CallbackInfo ci)
     {
         if (BitStackPickupHandler.pickupItems(
-          getThis(),
-          player
+                getThis(),
+                player
         )) {
             ci.cancel();
         }

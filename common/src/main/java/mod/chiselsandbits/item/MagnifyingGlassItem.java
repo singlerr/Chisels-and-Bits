@@ -5,6 +5,8 @@ import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.item.named.IPermanentlyHighlightedNameItem;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.platforms.core.dist.Dist;
+import mod.chiselsandbits.platforms.core.dist.DistExecutor;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -28,30 +30,35 @@ public class MagnifyingGlassItem extends Item implements IPermanentlyHighlighted
     }
 
     @Override
-    public @NotNull Component getName(final ItemStack stack)
+    public @NotNull Component getName(final @NotNull ItemStack stack)
     {
-        if (Minecraft.getInstance().level == null)
-        {
-            return super.getName(stack);
-        }
+        return DistExecutor.unsafeRunForDist(
+                () -> () -> {
+                    if (Minecraft.getInstance().level == null)
+                    {
+                        return super.getName(stack);
+                    }
 
-        if (Minecraft.getInstance().hitResult == null)
-        {
-            return super.getName(stack);
-        }
+                    if (Minecraft.getInstance().hitResult == null)
+                    {
+                        return super.getName(stack);
+                    }
 
-        if (Minecraft.getInstance().hitResult.getType() != HitResult.Type.BLOCK)
-        {
-            return super.getName(stack);
-        }
+                    if (Minecraft.getInstance().hitResult.getType() != HitResult.Type.BLOCK)
+                    {
+                        return super.getName(stack);
+                    }
 
-        final BlockHitResult rayTraceResult = (BlockHitResult) Minecraft.getInstance().hitResult;
-        final BlockState state = Minecraft.getInstance().level.getBlockState(rayTraceResult.getBlockPos());
+                    final BlockHitResult rayTraceResult = (BlockHitResult) Minecraft.getInstance().hitResult;
+                    final BlockState state = Minecraft.getInstance().level.getBlockState(rayTraceResult.getBlockPos());
 
-        final IEligibilityAnalysisResult result = IEligibilityManager.getInstance().analyse(state);
-        return result.isAlreadyChiseled() || result.canBeChiseled() ?
-                 result.getReason().withStyle(ChatFormatting.GREEN) :
-                                                                      result.getReason().withStyle(ChatFormatting.RED);
+                    final IEligibilityAnalysisResult result = IEligibilityManager.getInstance().analyse(state);
+                    return result.isAlreadyChiseled() || result.canBeChiseled() ?
+                            result.getReason().withStyle(ChatFormatting.GREEN) :
+                            result.getReason().withStyle(ChatFormatting.RED);
+                },
+                () -> () -> super.getName(stack)
+        );
     }
 
     @Override

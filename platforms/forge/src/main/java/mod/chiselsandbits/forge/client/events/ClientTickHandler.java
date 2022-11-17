@@ -1,5 +1,6 @@
 package mod.chiselsandbits.forge.client.events;
 
+import mod.chiselsandbits.client.logic.MeasurementTapeItemResetHandler;
 import mod.chiselsandbits.client.logic.ToolNameHighlightTickHandler;
 import mod.chiselsandbits.keys.KeyBindingManager;
 import mod.chiselsandbits.platforms.core.util.constants.Constants;
@@ -33,5 +34,12 @@ public class ClientTickHandler
             return;
 
         KeyBindingManager.getInstance().handleKeyPresses();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @SubscribeEvent
+    public static void handleClientTickForMeasuringTapeItem(final TickEvent.ClientTickEvent event)
+    {
+        MeasurementTapeItemResetHandler.checkAndDoReset();
     }
 }

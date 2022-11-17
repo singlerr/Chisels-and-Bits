@@ -109,6 +109,7 @@ public class FabricChiselsAndBitsClient implements ClientModInitializer
             ToolNameHighlightTickHandler.handleClientTickForMagnifyingGlass();
             KeyBindingManager.getInstance().handleKeyPresses();
             TickHandler.onClientTick();
+            MeasurementTapeItemResetHandler.checkAndDoReset();
         });
 
         WorldRenderEvents.BEFORE_BLOCK_OUTLINE.register((context
