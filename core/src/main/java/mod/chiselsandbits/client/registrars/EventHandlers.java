@@ -26,6 +26,7 @@ public final class EventHandlers {
             ToolNameHighlightTickHandler.handleClientTickForMagnifyingGlass();
             KeyBindingManager.getInstance().handleKeyPresses();
             TickHandler.onClientTick();
+            MeasurementTapeItemResetHandler.checkAndDoReset();
         });
         IClientEvents.getInstance().getDrawHighlightEvent().register(SelectedObjectHighlightHandler::onDrawHighlight);
         IClientEvents.getInstance().getScrollEvent().register(ScrollBasedModeChangeHandler::onScroll);

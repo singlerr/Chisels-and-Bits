@@ -91,8 +91,7 @@ public final class FaceManager {
             final long primaryStateRenderSeed,
             @NotNull RenderType renderType) {
         final BakedModel model = solveModel(state, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state.getBlockState()), primaryStateRenderSeed, renderType);
-        final int lv = IClientConfiguration.getInstance().getUseGetLightValue().get() ?
-                state.getBlockState().getLightEmission() : 0;
+        final int lv = IClientConfiguration.getInstance().getUseGetLightValue().get() ? state.getBlockState().getLightEmission() : 0;
 
         final Fluid fluid = state.getBlockState().getFluidState().getType();
         if (fluid != Fluids.EMPTY) {
