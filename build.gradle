@@ -1,7 +1,7 @@
 import groovy.json.JsonOutput
 import org.apache.tools.ant.filters.ReplaceTokens
 
-project.group = "com.communi.suggestu.formula"
+project.group = "mod.chiselsandbits"
 project.version = (System.getenv().containsKey("Version") ? System.getenv("Version") : project.localVersion)
 
 //Configure extension utility methods on all subprojects.
@@ -60,8 +60,26 @@ subprojects { Project subProject ->
         }
     }
 
+    subProject.ext.addApiProject = {
+        def apiProject = subProject.project(":api")
+
+        subProject.dependencies.implementation(apiProject) {
+            transitive = false
+        }
+
+        subProject.tasks.jar.from apiProject.sourceSets.main.output
+        subProject.tasks.processResources.from apiProject.sourceSets.main.resources
+        subProject.tasks.processResources.inputs.property "version", subProject.version
+        subProject.tasks.processResources.duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+        if (subProject.getPlugins().hasPlugin("net.minecraftforge.gradle")) {
+            subProject.tasks.jarJar.from apiProject.sourceSets.main.output
+        }
+    }
+
     subProject.ext.addCoreProject = {
         def coreProject = subProject.project(":core")
+        subProject.addApiProject()
 
         subProject.dependencies.implementation(coreProject) {
             transitive = false
@@ -92,7 +110,7 @@ subprojects { Project subProject ->
         def propertiesToExpand = [
                 "version"                   : project.version,
                 "name"                      : rootProject.name.toString(),
-                "id"                        : rootProject.name.toLowerCase().toString(),
+                "id"                        : rootProject.modId,
                 "description"               : (rootProject.description == null ? "" : rootProject.description).toString(),
                 "author"                    : rootProject.author.toString(),
                 "sources"                   : rootProject.githubUrl.toString(),

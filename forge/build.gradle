@@ -12,12 +12,28 @@ configurations.create("includedLibraries")
 configurations.implementation.extendsFrom configurations.includedLibraries
 configurations.includedLibraries.transitive false
 
+def libraryConfigs = new HashSet<org.gradle.api.artifacts.Configuration>();
+configurations { configContainer ->
+    sourceSets.each { sourceSet ->
+        def configName = sourceSet.name == "main" ? "forgeLibrary" : sourceSet.name + "ForgeLibrary";
+        def implementationConfigName = sourceSet.name == "main" ? "implementation" : sourceSet.name + "Implementation"
+
+        def libraryConfig = configContainer.maybeCreate(configName)
+        def implementationConfig = configContainer.maybeCreate(implementationConfigName)
+
+        implementationConfig.extendsFrom libraryConfig
+
+        libraryConfigs.add(libraryConfig);
+    }
+}
+
+
 project.addCoreProject()
 
 project.minecraft.mappings channel: "parchment", version: "${project.parchmentMinecraftVersion}-${project.parchmentVersion}-${project.minecraftVersion}"
 project.minecraft.accessTransformer = project(':common').file("accesstransformer.cfg")
 
-project.minecraft.runs {
+project.minecraft.runs { runSpecContainer ->
     client { clientRun ->
         clientRun.workingDirectory project.file('run')
         clientRun.ideaModule "${rootProject.name.toLowerCase()}.${project.name.toLowerCase()}.main"
@@ -31,6 +47,7 @@ project.minecraft.runs {
                 source sourceSets.main
                 source project(":common").sourceSets.main
                 source project(":core").sourceSets.main
+                source project(":api").sourceSets.main
             })
         }
     }
@@ -48,6 +65,7 @@ project.minecraft.runs {
                 source sourceSets.main
                 source project(":common").sourceSets.main
                 source project(":core").sourceSets.main
+                source project(":api").sourceSets.main
             })
         }
     }
@@ -59,7 +77,7 @@ project.minecraft.runs {
         dataRun.arg "--mixin=${rootProject.name.toLowerCase()}.mixins.json"
         dataRun.property 'mixin.env.remapRefMap', 'true'
         dataRun.property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-        dataRun.args '--mod', "${rootProject.name.toLowerCase()}",
+        dataRun.args '--mod', "${project.modId.toLowerCase()}",
                 '--output', project(":core").file("src/datagen/generated"),
                 '--existing', file('src/main/resources/'),
                 '--existing', project(":core").file('src/main/resources/'),
@@ -69,7 +87,21 @@ project.minecraft.runs {
                 source sourceSets.main
                 source project(":common").sourceSets.main
                 source project(":core").sourceSets.main
+                source project(":api").sourceSets.main
             })
+        }
+    }
+
+    project.afterEvaluate {
+        def paths = new HashSet<String>();
+        libraryConfigs.each { config ->
+            config.copyRecursive().resolve().collect { it.absolutePath.toString() }.each {path -> paths.add(path)}
+        }
+
+        runSpecContainer.each { runSpec ->
+            runSpec.lazyToken('minecraft_classpath') {
+                paths.join(File.pathSeparator)
+            }
         }
     }
 }
@@ -79,6 +111,10 @@ project.dependencies.annotationProcessor "org.spongepowered:mixin:${project.mixi
 project.dependencies.includedLibraries fg.deobf("com.communi-suggestu.scena:scena-forge:${project.scenaVersion}") {
     jarJar.pin(it, project.scenaVersion)
     jarJar.ranged(it, buildSupportedVersionRange(project.scenaVersion))
+}
+project.dependencies.forgeLibrary ("org.lz4:lz4-pure-java:${project.lz4Version}") {
+    jarJar.pin(it, project.lz4Version)
+    jarJar.ranged(it, buildSupportedVersionRange(project.lz4Version))
 }
 project.dependencies.compileOnly fg.deobf("com.communi-suggestu.saecularia-caudices:saecularia-caudices-core:${project.saeculariaCaudicesVersion}")
 
@@ -106,6 +142,7 @@ jarJar {
     fromRuntimeConfiguration()
     dependencies {
         include(dependency("com.communi-suggestu.scena:scena-forge"))
+        include(dependency("org.lz4:lz4-pure-java"))
     }
 }
 

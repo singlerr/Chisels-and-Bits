@@ -1,0 +1,36 @@
+{
+  "criteria": {
+    "chisel": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "chiselsandbits:chisel"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "background": "minecraft:textures/gui/advancements/backgrounds/stone.png",
+    "description": {
+      "translate": "mod.chiselsandbits.advancements.root.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "chiselsandbits:chisel_diamond",
+      "nbt": "{Damage:0}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "mod.chiselsandbits.advancements.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "chisel"
+    ]
+  ]
+}

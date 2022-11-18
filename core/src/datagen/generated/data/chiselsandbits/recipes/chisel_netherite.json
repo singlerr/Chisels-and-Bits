@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "s": {
+      "tag": "forge:rods/blaze"
+    },
+    "t": {
+      "tag": "forge:ingots/netherite"
+    }
+  },
+  "pattern": [
+    "st",
+    "  "
+  ],
+  "result": {
+    "item": "chiselsandbits:chisel_netherite"
+  }
+}

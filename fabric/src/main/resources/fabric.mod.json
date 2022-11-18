@@ -19,11 +19,15 @@
   "entrypoints": {
     "main": [
       "@package@.Fabric"
+    ],
+    "client": [
+      "@package@.client.FabricClient"
     ]
   },
   "mixins": [
-    "formula.mixins.json"
+    "@id@.mixins.json"
   ],
+  "accessWidener" : "accesswidener.accesswidener",
 
   "depends": {
     "fabricloader": ">=@fabricLoaderVersion@",

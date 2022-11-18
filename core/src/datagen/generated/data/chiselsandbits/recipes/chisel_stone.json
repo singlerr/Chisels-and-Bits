@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "s": {
+      "tag": "forge:rods/wooden"
+    },
+    "t": {
+      "tag": "forge:stone"
+    }
+  },
+  "pattern": [
+    "st",
+    "  "
+  ],
+  "result": {
+    "item": "chiselsandbits:chisel_stone"
+  }
+}

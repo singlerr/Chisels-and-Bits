@@ -1,0 +1,6 @@
+{
+  "parent": "chiselsandbits:item/measuring_tape",
+  "textures": {
+    "layer0": "chiselsandbits:items/tape_measure_is_measuring"
+  }
+}
