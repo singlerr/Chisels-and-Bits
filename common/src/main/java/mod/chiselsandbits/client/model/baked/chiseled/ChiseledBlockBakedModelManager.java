@@ -76,15 +76,27 @@ public class ChiseledBlockBakedModelManager {
             @NotNull BlockPos position
     ) {
         try (IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Block based chiseled block model")) {
+            return get(accessor, primaryState, renderType, IBlockNeighborhoodBuilder.getInstance().build(
+                    neighborhoodBlockInformationProvider,
+                    neighborhoodAreaAccessorProvider
+            ), position);
+        }
+    }
+
+    public ChiseledBlockBakedModel get(
+            final IAreaAccessor accessor,
+            final BlockInformation primaryState,
+            final ChiselRenderType renderType,
+            @NotNull IBlockNeighborhood blockNeighborhood,
+            @NotNull BlockPos position
+    ) {
+        try (IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Block based chiseled block model")) {
             final long primaryStateRenderSeed = primaryState.getBlockState().getSeed(position);
             final Key key = new Key(
                     accessor.createNewShapeIdentifier(),
                     primaryState,
                     renderType,
-                    IBlockNeighborhoodBuilder.getInstance().build(
-                            neighborhoodBlockInformationProvider,
-                            neighborhoodAreaAccessorProvider
-                    ),
+                    blockNeighborhood,
                     primaryStateRenderSeed);
             return cache.get(key,
                     () -> {
@@ -99,9 +111,9 @@ public class ChiseledBlockBakedModelManager {
                                         final Vec3 inBlockOffset = nominalTargetOffset.subtract(Vec3.atLowerCornerOf(nominalTargetBlockOffset));                                        final Vec3 inBlockOffsetTarget = VectorUtils.makePositive(inBlockOffset);
 
                                         final Direction offsetDirection = Direction.getNearest(
-                                          nominalTargetBlockOffset.getX(),
-                                          nominalTargetBlockOffset.getY(),
-                                          nominalTargetBlockOffset.getZ()
+                                                nominalTargetBlockOffset.getX(),
+                                                nominalTargetBlockOffset.getY(),
+                                                nominalTargetBlockOffset.getZ()
                                         );
 
                                         IAreaAccessor neighborAccessor;
@@ -111,8 +123,7 @@ public class ChiseledBlockBakedModelManager {
                                         ) {
                                             neighborAccessor = accessor;
                                         } else {
-                                            neighborAccessor = neighborhoodAreaAccessorProvider != null ?
-                                                    neighborhoodAreaAccessorProvider.apply(offsetDirection) : null;
+                                            neighborAccessor = blockNeighborhood.getAreaAccessor(offsetDirection);
                                         }
 
                                         if (neighborAccessor != null) {
@@ -121,7 +132,7 @@ public class ChiseledBlockBakedModelManager {
                                                     .orElse(BlockInformation.AIR);
                                         }
 
-                                        return neighborhoodBlockInformationProvider != null ? neighborhoodBlockInformationProvider.apply(offsetDirection) : BlockInformation.AIR;
+                                        return blockNeighborhood.getBlockInformation(offsetDirection);
                                     },
                                     primaryStateRenderSeed
                             );
@@ -151,26 +162,14 @@ public class ChiseledBlockBakedModelManager {
         }
 
         @Override
-        public boolean equals(final Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof final Key key)) {
-                return false;
-            }
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Key key)) return false;
 
-            if (renderSeed != key.renderSeed) {
-                return false;
-            }
-            if (!Objects.equals(identifier, key.identifier)) {
-                return false;
-            }
-            if (!Objects.equals(primaryState, key.primaryState)) {
-                return false;
-            }
-            if (renderType != key.renderType) {
-                return false;
-            }
+            if (renderSeed != key.renderSeed) return false;
+            if (!Objects.equals(identifier, key.identifier)) return false;
+            if (!Objects.equals(primaryState, key.primaryState)) return false;
+            if (renderType != key.renderType) return false;
             return Objects.equals(neighborhood, key.neighborhood);
         }
 
@@ -182,6 +181,17 @@ public class ChiseledBlockBakedModelManager {
             result = 31 * result + (neighborhood != null ? neighborhood.hashCode() : 0);
             result = 31 * result + (int) (renderSeed ^ (renderSeed >>> 32));
             return result;
+        }
+
+        @Override
+        public String toString() {
+            return "Key{" +
+                    "identifier=" + identifier +
+                    ", primaryState=" + primaryState +
+                    ", renderType=" + renderType +
+                    ", neighborhood=" + neighborhood +
+                    ", renderSeed=" + renderSeed +
+                    '}';
         }
     }
 }

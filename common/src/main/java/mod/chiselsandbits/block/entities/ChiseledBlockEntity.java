@@ -34,22 +34,22 @@ import mod.chiselsandbits.api.util.SingleBlockWorldReader;
 import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
 import mod.chiselsandbits.client.model.data.ChiseledBlockModelDataManager;
 import mod.chiselsandbits.network.packets.TileEntityUpdatedPacket;
+import mod.chiselsandbits.platforms.core.IChiselsAndBitsPlatformCore;
 import mod.chiselsandbits.platforms.core.blockstate.ILevelBasedPropertyAccessor;
 import mod.chiselsandbits.platforms.core.client.models.data.IBlockModelData;
 import mod.chiselsandbits.platforms.core.client.models.data.IModelDataBuilder;
+import mod.chiselsandbits.platforms.core.dist.DistExecutor;
 import mod.chiselsandbits.platforms.core.entity.block.IBlockEntityWithModelData;
 import mod.chiselsandbits.platforms.core.util.constants.NbtConstants;
 import mod.chiselsandbits.registrars.ModBlockEntityTypes;
-import mod.chiselsandbits.storage.ILegacyStorageHandler;
-import mod.chiselsandbits.storage.IMultiThreadedStorageEngine;
-import mod.chiselsandbits.storage.IStorageHandler;
-import mod.chiselsandbits.storage.StorageEngineBuilder;
+import mod.chiselsandbits.storage.*;
 import mod.chiselsandbits.utils.BlockPosUtils;
 import mod.chiselsandbits.utils.ChunkSectionUtils;
 import mod.chiselsandbits.utils.GZIPDataCompressionUtils;
 import mod.chiselsandbits.utils.LZ4DataCompressionUtils;
 import mod.chiselsandbits.utils.MultiStateSnapshotUtils;
 import mod.chiselsandbits.voxelshape.MultiStateBlockEntityDiscreteVoxelShape;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -88,6 +88,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -99,10 +100,11 @@ public class ChiseledBlockEntity extends BlockEntity implements
 {
     public static final float ONE_THOUSANDS = 1 / 1000f;
 
-    private final MutableStatistics mutableStatistics;
+    private MutableStatistics mutableStatistics;
     private final Map<UUID, IBatchMutation> batchMutations = Maps.newConcurrentMap();
-    private final IStateEntryStorage storage;
-    private final IMultiThreadedStorageEngine storageEngine;
+    private IStateEntryStorage storage;
+    private IMultiThreadedStorageEngine storageEngine;
+    private boolean isInitialized = false;
 
     private IBlockModelData modelData = IModelDataBuilder.create().build();
 
@@ -116,11 +118,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
         storage = new SimpleStateEntryStorage();
         mutableStatistics = new MutableStatistics(this::getLevel, this::getBlockPos);
 
-        storageEngine = StorageEngineBuilder.create()
-                .withLegacy(new LegacyChunkSectionBasedStorageHandler())
-                .withLegacy(new LegacyGZIPStorageBasedStorageHandler())
-                .with(new LZ4StorageBasedStorageHandler())
-                .buildMultiThreaded();
+        createStorageEngine();
     }
 
     public void updateModelData()
@@ -134,25 +132,34 @@ public class ChiseledBlockEntity extends BlockEntity implements
             updateModelData();
     }
 
+    @NotNull
+    private static Executor createDefaultExecutor() {
+        return DistExecutor.unsafeRunForDist(
+                () -> Minecraft::getInstance,
+                () -> IChiselsAndBitsPlatformCore.getInstance()::getCurrentServer
+        );
+    }
+
+    private void createStorageEngine() {
+        storageEngine = StorageEngineBuilder.create()
+                .withLegacy(new LegacyChunkSectionBasedStorageHandler())
+                .withLegacy(new LegacyGZIPStorageBasedStorageHandler())
+                .with(new LZ4StorageBasedStorageHandler())
+                .buildMultiThreaded(getExecutor());
+    }
+
+    private Executor getExecutor() {
+        if (getLevel() != null && getLevel().getServer() != null)
+            return getLevel().getServer();
+
+        return createDefaultExecutor();
+    }
+
     @Override
-    public void setLevel(@Nullable final Level level)
-    {
+    public void setLevel(@Nullable final Level level) {
         super.setLevel(level);
 
-        if (level instanceof ServerLevel serverLevel)
-        {
-            serverLevel.getServer().tell(
-                    new TickTask(serverLevel.getServer().getTickCount(),
-                            () ->
-                            {
-                                if (mutableStatistics.isRequiresRecalculation())
-                                {
-                                    mutableStatistics.recalculate(this.storage, shouldUpdateWorld());
-                                }
-
-                                mutableStatistics.updatePrimaryState(shouldUpdateWorld());
-                            }));
-        }
+        createStorageEngine();
     }
 
     @Override
@@ -275,9 +282,16 @@ public class ChiseledBlockEntity extends BlockEntity implements
     @Override
     public void deserializeNBT(final CompoundTag nbt)
     {
-        this.storageEngine.deserializeNBT(nbt);
+        this.storageEngine.deserializeOffThread(nbt)
+                .thenRun(this::updateModelDataIfInLoadedChunk)
+                .thenRunAsync(() -> {
+                    if (mutableStatistics.isRequiresRecalculation()) {
+                        mutableStatistics.recalculate(this.storage, shouldUpdateWorld());
+                    }
+
+                    mutableStatistics.updatePrimaryState(shouldUpdateWorld());
+                }, getExecutor());
         this.lastTag = nbt;
-        updateModelDataIfInLoadedChunk();
     }
 
     @Override
@@ -338,18 +352,20 @@ public class ChiseledBlockEntity extends BlockEntity implements
                             tag -> CompletableFuture.runAsync(
                                     () -> this.setOffThreadSaveResult(tag), this.storageEngine
                             ));
+
+                    ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
+                            new TileEntityUpdatedPacket(this),
+                            getLevel().getChunkAt(getBlockPos())
+                    );
                 }
             }
+        }
 
+        if (getLevel() != null && this.batchMutations.isEmpty()) {
             super.setChanged();
 
             getLevel().getLightEngine().checkBlock(getBlockPos());
             getLevel().sendBlockUpdated(getBlockPos(), Blocks.AIR.defaultBlockState(), getBlockState(), Block.UPDATE_ALL);
-
-            ChiselsAndBits.getInstance().getNetworkChannel().sendToTrackingChunk(
-                    new TileEntityUpdatedPacket(this),
-                    getLevel().getChunkAt(getBlockPos())
-            );
             getLevel().updateNeighborsAt(getBlockPos(), getLevel().getBlockState(getBlockPos()).getBlock());
         }
     }
@@ -378,7 +394,10 @@ public class ChiseledBlockEntity extends BlockEntity implements
     @Override
     public CompoundTag getUpdateTag()
     {
-        return this.storageEngine.serializeNBT();
+        if (isInitialized || lastTag == null)
+            return this.storageEngine.serializeNBT();
+
+        return lastTag;
     }
 
     @Override
@@ -1989,8 +2008,9 @@ public class ChiseledBlockEntity extends BlockEntity implements
         }
     }
 
-    private final class LZ4StorageBasedStorageHandler implements IStorageHandler
-    {
+    private final class LZ4StorageBasedStorageHandler implements IThreadAwareStorageHandler<LZ4StorageBasedStorageHandler.Payload> {
+
+        private record Payload(IStateEntryStorage storage, MutableStatistics mutableStatistics) {}
 
         @Override
         public CompoundTag serializeNBT()
@@ -2010,6 +2030,31 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 storage.deserializeNBT(compoundTag.getCompound(NbtConstants.CHISELED_DATA));
                 mutableStatistics.deserializeNBT(compoundTag.getCompound(NbtConstants.STATISTICS));
             });
+        }
+
+        @Override
+        public Payload deserializeNBTOffThread(CompoundTag nbt) {
+            return LZ4DataCompressionUtils.decompress(nbt, compoundTag -> {
+                final IStateEntryStorage storage = new SimpleStateEntryStorage();
+                final MutableStatistics mutableStatistics = new MutableStatistics(ChiseledBlockEntity.this::getLevel, ChiseledBlockEntity.this::getBlockPos);
+
+                storage.deserializeNBT(compoundTag.getCompound(NbtConstants.CHISELED_DATA));
+                mutableStatistics.deserializeNBT(compoundTag.getCompound(NbtConstants.STATISTICS));
+
+                return new Payload(storage, mutableStatistics);
+            });
+        }
+
+        @Override
+        public void savePayload(Payload payload) {
+            storage = payload.storage;
+            mutableStatistics = payload.mutableStatistics;
+
+            if (!isInitialized) {
+                setChanged();
+            }
+
+            isInitialized = true;
         }
     }
 }

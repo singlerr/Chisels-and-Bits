@@ -122,8 +122,7 @@ public class ChiseledBlockModelDataExecutor
                                                 tileEntity,
                                                 tileEntity.getStatistics().getPrimaryState(),
                                                 solidType,
-                                                neighborhood::getBlockInformation,
-                                                neighborhood::getAreaAccessor,
+                                                neighborhood,
                                                 tileEntity.getBlockPos()
                                               );
                                           }
@@ -135,8 +134,7 @@ public class ChiseledBlockModelDataExecutor
                                                 tileEntity,
                                                 tileEntity.getStatistics().getPrimaryState(),
                                                 fluidType,
-                                                neighborhood::getBlockInformation,
-                                                neighborhood::getAreaAccessor,
+                                                neighborhood,
                                                 tileEntity.getBlockPos()
                                               );
                                           }
@@ -166,8 +164,7 @@ public class ChiseledBlockModelDataExecutor
                                             tileEntity,
                                             tileEntity.getStatistics().getPrimaryState(),
                                             ChiselRenderType.fromLayer(chunkBufferLayer, false),
-                                            neighborhood::getBlockInformation,
-                                            neighborhood::getAreaAccessor,
+                                            neighborhood,
                                             tileEntity.getBlockPos()
                                           );
                                       }

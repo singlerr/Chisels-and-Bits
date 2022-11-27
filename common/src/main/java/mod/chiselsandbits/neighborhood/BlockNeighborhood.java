@@ -49,6 +49,11 @@ public final class BlockNeighborhood implements IBlockNeighborhood
     @Override
     public @Nullable IAreaAccessor getAreaAccessor(final Direction direction)
     {
+        if (!neighborhoodMap.containsKey(direction))
+        {
+            return null;
+        }
+
         return neighborhoodMap.get(direction).getAccessor();
     }
 }

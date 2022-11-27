@@ -11,7 +11,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-final class VersionedStorageEngine implements IStorageEngine
+final class VersionedStorageEngine implements IThreadAwareStorageEngine
 {
     private final int                      minimalVersion;
     private final List<IStorageHandler> handlers;
@@ -53,18 +53,7 @@ final class VersionedStorageEngine implements IStorageEngine
     @Override
     public void deserializeNBT(final @NotNull CompoundTag nbt)
     {
-        if (!nbt.contains(NbtConstants.VERSION))
-            throw new IllegalArgumentException("The given NBT did not contain a versioned storage data entry. Missing the version!");
-
-        final int version = nbt.getInt(NbtConstants.VERSION);
-        if (version < minimalVersion)
-            throw new IllegalArgumentException("The given NBT did contained a version storage data entry, which is of an unsupported version. The version is " + version + ", but the minimal version is " + minimalVersion);
-
-        if (version > currentVersion)
-            throw new IllegalArgumentException("The given NBT did contained a version storage data entry, which is of an unsupported version. The version is " + version + ", but the current version is " + currentVersion);
-
-        final int index = version - minimalVersion;
-        final IStorageHandler handler = handlers.get(index);
+        final IStorageHandler handler = getStorageHandlerFrom(nbt);
         handler.deserializeNBT(nbt.getCompound(NbtConstants.DATA));
     }
 
@@ -84,5 +73,30 @@ final class VersionedStorageEngine implements IStorageEngine
     public Collection<IStorageHandler> getHandlers()
     {
         return handlers;
+    }
+
+    @Override
+    public HandlerWithData getThreadAwareStorageHandler(CompoundTag tag) {
+        final IStorageHandler handler = getStorageHandlerFrom(tag);
+
+        if (!(handler instanceof IThreadAwareStorageHandler<?> threadAwareStorageHandler))
+            throw new IllegalStateException("Tried to asynchronously deserialize data from a storage handler which is not thread aware.");
+
+        return new HandlerWithData(threadAwareStorageHandler, tag.getCompound(NbtConstants.DATA));
+    }
+
+    private IStorageHandler getStorageHandlerFrom(@NotNull CompoundTag nbt) {
+        if (!nbt.contains(NbtConstants.VERSION))
+            throw new IllegalArgumentException("The given NBT did not contain a versioned storage data entry. Missing the version!");
+
+        final int version = nbt.getInt(NbtConstants.VERSION);
+        if (version < minimalVersion)
+            throw new IllegalArgumentException("The given NBT did contained a version storage data entry, which is of an unsupported version. The version is " + version + ", but the minimal version is " + minimalVersion);
+
+        if (version > currentVersion)
+            throw new IllegalArgumentException("The given NBT did contained a version storage data entry, which is of an unsupported version. The version is " + version + ", but the current version is " + currentVersion);
+
+        final int index = version - minimalVersion;
+        return handlers.get(index);
     }
 }

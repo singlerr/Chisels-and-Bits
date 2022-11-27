@@ -36,9 +36,12 @@ final class MultiThreadAwareStorageEngine implements IMultiThreadedStorageEngine
         }
     }
 
-    private final IStorageEngine internalEngine;
+    private final IThreadAwareStorageEngine internalEngine;
+    private final Executor gameExecutor;
 
-    MultiThreadAwareStorageEngine(final IStorageEngine internalEngine) {this.internalEngine = internalEngine;}
+    MultiThreadAwareStorageEngine(final Executor gameExecutor, final IThreadAwareStorageEngine internalEngine) {
+        this.gameExecutor = gameExecutor;
+        this.internalEngine = internalEngine;}
 
     @Override
     public void serializeNBTInto(final CompoundTag tag)
@@ -85,6 +88,22 @@ final class MultiThreadAwareStorageEngine implements IMultiThreadedStorageEngine
           saveService
         )
        .thenComposeAsync(resultSaver);
+    }
+
+    @Override
+    public CompletableFuture<Void> deserializeOffThread(CompoundTag tag) {
+        ensureThreadPoolSetup();
+
+        final IThreadAwareStorageEngine.HandlerWithData handlerWithData = internalEngine.getThreadAwareStorageHandler(tag);
+        return doDeserializeOffThread(handlerWithData.handler(), handlerWithData.data());
+    }
+
+
+    private <P> CompletableFuture<Void> doDeserializeOffThread(IThreadAwareStorageHandler<P> handler, CompoundTag tag) {
+        return CompletableFuture.supplyAsync(
+          () -> handler.deserializeNBTOffThread(tag),
+          saveService
+        ).thenAcceptAsync(handler::savePayload, gameExecutor);
     }
 
     @Override

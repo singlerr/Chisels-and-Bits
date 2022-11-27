@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 
 @Deprecated(since = "This is only related to legacy storage, and will be removed in a future version.", forRemoval = true)
-final class LegacyAwareStorageEngine implements IStorageEngine
+final class LegacyAwareStorageEngine implements IThreadAwareStorageEngine
 {
 
     private final LegacyVersionedStorageEngine legacyVersionedStorageEngine;
@@ -67,5 +67,15 @@ final class LegacyAwareStorageEngine implements IStorageEngine
     public Collection<? extends IStorageHandler> getHandlers()
     {
         return handlers;
+    }
+
+    @Override
+    public HandlerWithData getThreadAwareStorageHandler(CompoundTag tag) {
+        if (tag.contains(NbtConstants.VERSION)) {
+            //This is considered a versioned implementation.
+            return versionedStorageEngine.getThreadAwareStorageHandler(tag);
+        }
+
+        throw new LegacyDataException();
     }
 }

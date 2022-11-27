@@ -1,6 +1,7 @@
 package mod.chiselsandbits.storage;
 
 import java.util.LinkedList;
+import java.util.concurrent.Executor;
 
 public class StorageEngineBuilder
 {
@@ -33,14 +34,14 @@ public class StorageEngineBuilder
         return this;
     }
 
-    public IStorageEngine build() {
+    public IThreadAwareStorageEngine build() {
         return new LegacyAwareStorageEngine(
           new LegacyVersionedStorageEngine(legacyStorageHandlers),
           new VersionedStorageEngine(minimalVersion, storageHandlers)
           );
     }
 
-    public IMultiThreadedStorageEngine buildMultiThreaded() {
-        return new MultiThreadAwareStorageEngine(build());
+    public IMultiThreadedStorageEngine buildMultiThreaded(final Executor gameExecutor) {
+        return new MultiThreadAwareStorageEngine(gameExecutor, build());
     }
 }

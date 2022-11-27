@@ -32,19 +32,17 @@ public final class BlockNeighborhoodBuilder implements IBlockNeighborhoodBuilder
         final EnumMap<Direction, BlockNeighborhoodEntry> neighborhoodMap = new EnumMap<>(Direction.class);
 
         try (IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Key building")) {
-            if (neighborhoodBlockStateProvider != null && neighborhoodAreaAccessorProvider != null) {
-                for (final Direction value : Direction.values()) {
-                    final BlockInformation state = neighborhoodBlockStateProvider.apply(value);
-                    final IAreaAccessor accessor = neighborhoodAreaAccessorProvider.apply(value);
-                    if (accessor == null) {
-                        neighborhoodMap.put(value, new BlockNeighborhoodEntry(state));
-                    } else {
-                        neighborhoodMap.put(value, new BlockNeighborhoodEntry(
-                                        state,
-                                        accessor.createSnapshot()
-                                )
-                        );
-                    }
+            for (final Direction value : Direction.values()) {
+                final BlockInformation state = neighborhoodBlockStateProvider != null ? neighborhoodBlockStateProvider.apply(value) : BlockInformation.AIR;
+                final IAreaAccessor accessor = neighborhoodAreaAccessorProvider !=null ? neighborhoodAreaAccessorProvider.apply(value) : null;
+                if (accessor == null) {
+                    neighborhoodMap.put(value, new BlockNeighborhoodEntry(state));
+                } else {
+                    neighborhoodMap.put(value, new BlockNeighborhoodEntry(
+                                    state,
+                                    accessor
+                            )
+                    );
                 }
             }
         }
