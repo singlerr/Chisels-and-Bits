@@ -22,5 +22,7 @@ public interface IStorageEngine extends INBTConverter<CompoundTag>, IPacketBuffe
      *
      * @return The collection of supported handlers
      */
-    Collection<? extends IStorageHandler> getHandlers();
+    Collection<? extends IStorageHandler<?>> getHandlers();
+
+
 }

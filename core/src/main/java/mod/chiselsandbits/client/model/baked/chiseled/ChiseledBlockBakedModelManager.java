@@ -78,16 +78,30 @@ public class ChiseledBlockBakedModelManager {
             @NotNull final RenderType renderType
     ) {
         try (IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Block based chiseled block model")) {
+            return get(accessor, primaryState, chiselRenderType, IBlockNeighborhoodBuilder.getInstance().build(
+                    neighborhoodBlockInformationProvider,
+                    neighborhoodAreaAccessorProvider
+            ), position, renderType);
+        }
+    }
+
+    public ChiseledBlockBakedModel get(
+            final IAreaAccessor accessor,
+            final BlockInformation primaryState,
+            final ChiselRenderType chiselRenderType,
+            @NotNull IBlockNeighborhood blockNeighborhood,
+            @NotNull BlockPos position,
+            @NotNull final RenderType renderType
+    ) {
+        try (IProfilerSection ignored1 = ProfilingManager.getInstance().withSection("Block based chiseled block model")) {
             final long primaryStateRenderSeed = primaryState.getBlockState().getSeed(position);
             final Key key = new Key(
                     accessor.createNewShapeIdentifier(),
                     primaryState,
                     chiselRenderType,
-                    IBlockNeighborhoodBuilder.getInstance().build(
-                            neighborhoodBlockInformationProvider,
-                            neighborhoodAreaAccessorProvider
-                    ),
-                    primaryStateRenderSeed, renderType);
+                    blockNeighborhood,
+                    primaryStateRenderSeed,
+                    renderType);
             return cache.get(key,
                     () -> {
                         try (IProfilerSection ignored3 = ProfilingManager.getInstance().withSection("Cache mis")) {
@@ -113,8 +127,7 @@ public class ChiseledBlockBakedModelManager {
                                         ) {
                                             neighborAccessor = accessor;
                                         } else {
-                                            neighborAccessor = neighborhoodAreaAccessorProvider != null ?
-                                                    neighborhoodAreaAccessorProvider.apply(offsetDirection) : null;
+                                            neighborAccessor = blockNeighborhood.getAreaAccessor(offsetDirection);
                                         }
 
                                         if (neighborAccessor != null) {
@@ -123,7 +136,7 @@ public class ChiseledBlockBakedModelManager {
                                                     .orElse(BlockInformation.AIR);
                                         }
 
-                                        return neighborhoodBlockInformationProvider != null ? neighborhoodBlockInformationProvider.apply(offsetDirection) : BlockInformation.AIR;
+                                        return blockNeighborhood.getBlockInformation(offsetDirection);
                                     },
                                     primaryStateRenderSeed,
                                     renderType

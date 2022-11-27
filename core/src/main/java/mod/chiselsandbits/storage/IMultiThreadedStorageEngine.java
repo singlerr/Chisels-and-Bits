@@ -18,4 +18,12 @@ public interface IMultiThreadedStorageEngine extends IStorageEngine, Executor
      * @return The off-thread save task.
      */
     CompletableFuture<Void> serializeOffThread(Function<CompoundTag, CompletableFuture<Void>> resultSaver);
+
+    /**
+     * Deserializes the given nbt data off-thread.
+     *
+     * @param tag The tag to deserialize.
+     * @return The off-thread deserialize task.
+     */
+    CompletableFuture<Void> deserializeOffThread(CompoundTag tag);
 }

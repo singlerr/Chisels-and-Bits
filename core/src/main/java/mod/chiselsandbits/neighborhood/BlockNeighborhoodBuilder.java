@@ -1,13 +1,12 @@
 package mod.chiselsandbits.neighborhood;
 
-import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhoodBuilder;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,11 +16,11 @@ import java.util.function.Function;
 public final class BlockNeighborhoodBuilder implements IBlockNeighborhoodBuilder {
     private static final BlockNeighborhoodBuilder INSTANCE = new BlockNeighborhoodBuilder();
 
-    public static BlockNeighborhoodBuilder getInstance() {
-        return INSTANCE;
+    private BlockNeighborhoodBuilder() {
     }
 
-    private BlockNeighborhoodBuilder() {
+    public static BlockNeighborhoodBuilder getInstance() {
+        return INSTANCE;
     }
 
     @Override
@@ -32,23 +31,21 @@ public final class BlockNeighborhoodBuilder implements IBlockNeighborhoodBuilder
         final EnumMap<Direction, BlockNeighborhoodEntry> neighborhoodMap = new EnumMap<>(Direction.class);
 
         try (IProfilerSection ignored2 = ProfilingManager.getInstance().withSection("Key building")) {
-            if (neighborhoodBlockStateProvider != null && neighborhoodAreaAccessorProvider != null) {
-                for (final Direction value : Direction.values()) {
-                    final BlockInformation state = neighborhoodBlockStateProvider.apply(value);
-                    final IAreaAccessor accessor = neighborhoodAreaAccessorProvider.apply(value);
-                    if (accessor == null) {
-                        neighborhoodMap.put(value, new BlockNeighborhoodEntry(state));
-                    } else {
-                        neighborhoodMap.put(value, new BlockNeighborhoodEntry(
-                                        state,
-                                        accessor.createSnapshot()
-                                )
-                        );
-                    }
+            for (final Direction value : Direction.values()) {
+                final BlockInformation state = neighborhoodBlockStateProvider != null ? neighborhoodBlockStateProvider.apply(value) : BlockInformation.AIR;
+                final IAreaAccessor accessor = neighborhoodAreaAccessorProvider != null ? neighborhoodAreaAccessorProvider.apply(value) : null;
+                if (accessor == null) {
+                    neighborhoodMap.put(value, new BlockNeighborhoodEntry(state));
+                } else {
+                    neighborhoodMap.put(value, new BlockNeighborhoodEntry(
+                                    state,
+                                    accessor
+                            )
+                    );
                 }
             }
-        }
 
-        return new BlockNeighborhood(neighborhoodMap);
+            return new BlockNeighborhood(neighborhoodMap);
+        }
     }
 }

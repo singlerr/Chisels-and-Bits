@@ -6,25 +6,28 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
-final class VersionedStorageEngine implements IStorageEngine
+final class VersionedStorageEngine implements IThreadAwareStorageEngine
 {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     private final int                      minimalVersion;
-    private final List<IStorageHandler> handlers;
+    private final List<IStorageHandler<?>> handlers;
 
     private final int currentVersion;
-    private final IStorageHandler saveHandler;
+    private final IStorageHandler<?> saveHandler;
 
-    VersionedStorageEngine(final LinkedList<IStorageHandler> handlers) {
+    VersionedStorageEngine(final LinkedList<IStorageHandler<?>> handlers) {
         this(0, handlers);
     }
 
-    VersionedStorageEngine(final int minimalVersion, final LinkedList<IStorageHandler> handlers) {
+    VersionedStorageEngine(final int minimalVersion, final LinkedList<IStorageHandler<?>> handlers) {
         Validate.notEmpty(handlers);
 
         this.minimalVersion = minimalVersion;
@@ -54,10 +57,17 @@ final class VersionedStorageEngine implements IStorageEngine
     @Override
     public void deserializeNBT(final @NotNull CompoundTag nbt)
     {
+        final IStorageHandler<?> storageHandler = readStorageHandler(nbt);
+        if (storageHandler == null) return;
+        storageHandler.deserializeNBT(nbt.getCompound(NbtConstants.DATA));
+    }
+
+    @Nullable
+    private IStorageHandler<?> readStorageHandler(@NotNull CompoundTag nbt) {
         if (nbt.isEmpty())
         {
             LOGGER.warn("Empty NBT tag received, ignoring.");
-            return;
+            return null;
         }
 
         if (!nbt.contains(NbtConstants.VERSION))
@@ -71,8 +81,7 @@ final class VersionedStorageEngine implements IStorageEngine
             throw new IllegalArgumentException("The given NBT did contained a version storage data entry, which is of an unsupported version. The version is " + version + ", but the current version is " + currentVersion);
 
         final int index = version - minimalVersion;
-        final IStorageHandler handler = handlers.get(index);
-        handler.deserializeNBT(nbt.getCompound(NbtConstants.DATA));
+        return handlers.get(index);
     }
 
     @Override
@@ -88,8 +97,22 @@ final class VersionedStorageEngine implements IStorageEngine
     }
 
     @Override
-    public Collection<IStorageHandler> getHandlers()
+    public Collection<? extends IStorageHandler<?>> getHandlers()
     {
         return handlers;
+    }
+
+    @Override
+    public CompletableFuture<Void> deserializeOffThread(CompoundTag tag, Executor ioExecutor, Executor gameExecutor) {
+        final IStorageHandler<?> storageHandler = readStorageHandler(tag);
+        if (storageHandler == null) return CompletableFuture.completedFuture(null);
+        return doDeserializeOffThread(storageHandler, tag, ioExecutor, gameExecutor);
+    }
+
+    private <P> CompletableFuture<Void> doDeserializeOffThread(IStorageHandler<P> handler, CompoundTag tag, Executor ioExecutor, Executor gameExecutor) {
+        return CompletableFuture.supplyAsync(
+                () -> handler.readPayloadOffThread(tag.getCompound(NbtConstants.DATA)),
+                ioExecutor
+        ).thenAcceptAsync(handler::syncPayloadOnGameThread, gameExecutor);
     }
 }

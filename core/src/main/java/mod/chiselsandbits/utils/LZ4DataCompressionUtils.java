@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class LZ4DataCompressionUtils
 {
@@ -87,5 +88,34 @@ public class LZ4DataCompressionUtils
         }
 
         uncompressedConsumer.accept(uncompressedData);
+    }
+
+    public static <P> P decompress(final CompoundTag input, final Function<CompoundTag, P> uncompressedConsumer) {
+        if (!input.contains(NbtConstants.COMPRESSED) || !input.contains(NbtConstants.DATA)) {
+            LOGGER.error("Received uncompressed data. This is normal during upgrade procedures, however in any other case this is an error!");
+            return uncompressedConsumer.apply(input);
+        }
+
+        if (!input.getBoolean(NbtConstants.COMPRESSED)) {
+            LOGGER.error("Received uncompressed data. This is normal during upgrade procedures, however in any other case this is an error!");
+            return uncompressedConsumer.apply(input.getCompound(NbtConstants.DATA));
+        }
+
+        final byte[] compressedData = input.getByteArray(NbtConstants.DATA);
+        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressedData);
+
+        CompoundTag uncompressedData = input;
+        try
+        {
+            final LZ4FrameInputStream lz4FrameInputStream = new LZ4FrameInputStream(byteArrayInputStream);
+            final DataInput dataInput = new DataInputStream(lz4FrameInputStream);
+            uncompressedData = NbtIo.read(dataInput);
+        }
+        catch (IOException e)
+        {
+            LOGGER.error("Failed to decompress data. Uncompressed data will be loaded.", e);
+        }
+
+        return uncompressedConsumer.apply(uncompressedData);
     }
 }

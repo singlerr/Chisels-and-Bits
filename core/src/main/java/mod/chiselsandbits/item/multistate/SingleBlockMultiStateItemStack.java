@@ -54,8 +54,8 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
 {
 
     private final ItemStack          sourceStack;
-    private final IStateEntryStorage compressedSection;
-    private final Statistics         statistics = new Statistics();
+    private IStateEntryStorage compressedSection;
+    private Statistics         statistics = new Statistics();
     private final IStorageEngine storageEngine = buildStorageEngine();
 
     public SingleBlockMultiStateItemStack(final ItemStack sourceStack)
@@ -738,8 +738,31 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
         }
     }
 
-    private final class LZ4StorageBasedStorageHandler implements IStorageHandler
+    private final class LZ4StorageBasedStorageHandler implements IStorageHandler<LZ4StorageBasedStorageHandler.Payload>
     {
+
+
+        @Override
+        public LZ4StorageBasedStorageHandler.Payload readPayloadOffThread(CompoundTag nbt) {
+            return LZ4DataCompressionUtils.decompress(nbt, compoundTag -> {
+                final IStateEntryStorage storage = new SimpleStateEntryStorage();
+                final Statistics mutableStatistics = new Statistics();
+
+                storage.deserializeNBT(compoundTag.getCompound(NbtConstants.CHISELED_DATA));
+                mutableStatistics.deserializeNBT(compoundTag.getCompound(NbtConstants.STATISTICS));
+
+                return new LZ4StorageBasedStorageHandler.Payload(storage, mutableStatistics);
+            });
+        }
+
+        @Override
+        public void syncPayloadOnGameThread(LZ4StorageBasedStorageHandler.Payload payload) {
+            compressedSection = payload.storage;
+            statistics = payload.mutableStatistics;
+        }
+
+        private record Payload(IStateEntryStorage storage, Statistics mutableStatistics) {
+        }
 
         @Override
         public CompoundTag serializeNBT()
