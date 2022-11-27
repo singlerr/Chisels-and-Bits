@@ -407,7 +407,11 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
             final Material blockMaterial = primaryState.getBlockState().getMaterial();
             final Material conversionMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(blockMaterial);
 
-            final IRegistryObject<ChiseledBlockItem> convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(conversionMaterial);
+            IRegistryObject<ChiseledBlockItem> convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(conversionMaterial);
+            if (convertedItemProvider == null)
+            {
+                convertedItemProvider = ModItems.MATERIAL_TO_ITEM_CONVERSIONS.get(MaterialManager.getInstance().getDefaultMaterial());
+            }
             final ChiseledBlockItem chiseledBlockItem = convertedItemProvider.get();
 
             final ItemStack blockStack = new ItemStack(chiseledBlockItem);

@@ -95,4 +95,8 @@ public class MaterialManager
     {
         return materialRemapping.getOrDefault(material, material);
     }
+
+    public Material getDefaultMaterial() {
+        return Material.STONE;
+    }
 }
