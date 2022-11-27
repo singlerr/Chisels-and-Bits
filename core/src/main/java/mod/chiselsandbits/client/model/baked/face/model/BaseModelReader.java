@@ -39,6 +39,10 @@ public abstract class BaseModelReader implements IVertexConsumer
     public void setTexture(
       @NotNull final TextureAtlasSprite texture)
     {
-
     }
+
+    @Override
+    public abstract void put(final int vertexIndex,
+                    final int element,
+                    final float @NotNull ... data);
 }

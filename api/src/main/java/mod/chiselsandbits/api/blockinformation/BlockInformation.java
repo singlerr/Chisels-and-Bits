@@ -106,6 +106,10 @@ public final class BlockInformation implements INBTSerializable<CompoundTag>, IP
 
     public Optional<IStateVariant> getVariant() {return variant;}
 
+    public boolean isFluid() {
+        return getBlockState().getFluidState().isSource();
+    }
+
     @Override
     public boolean equals(Object obj)
     {

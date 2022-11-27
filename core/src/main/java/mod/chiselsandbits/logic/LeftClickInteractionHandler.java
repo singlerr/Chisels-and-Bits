@@ -26,7 +26,7 @@ public class LeftClickInteractionHandler
             try(IProfilerSection ignored = ProfilingManager.getInstance().withSection("Left click processing")) {
                 final ILeftClickControllingItem leftClickControllingItem = (ILeftClickControllingItem) itemStack.getItem();
 
-                if (!leftClickControllingItem.canUse(player)) {
+                if (!leftClickControllingItem.canUse(player, itemStack)) {
                     return ClickProcessingState.DENIED;
                 }
 

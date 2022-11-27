@@ -7,7 +7,6 @@ import com.communi.suggestu.scena.core.client.rendering.IRenderingManager;
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
 import com.google.common.collect.Lists;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
@@ -35,6 +34,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -45,7 +45,7 @@ public final class FaceManager {
 
     private static final FaceManager INSTANCE = new FaceManager();
 
-    private final SimpleMaxSizedCache<Key, ModelQuadLayer[]> cache = new SimpleMaxSizedCache<>(
+    private final SimpleMaxSizedCache<Key, Collection<ModelQuadLayer>> cache = new SimpleMaxSizedCache<>(
             IClientConfiguration.getInstance().getFaceLayerCacheSize()::get
     );
     private final SimpleMaxSizedCache<BlockInformation, Integer> colorCache = new SimpleMaxSizedCache<>(
@@ -60,127 +60,25 @@ public final class FaceManager {
         return INSTANCE;
     }
 
-    public void clearCache() {
-        cache.clear();
-        colorCache.clear();
-    }
+    private static Optional<ModelQuadLayer> createQuadLayer(
+            final BakedQuad quad, BlockInformation blockInformation, final Direction cullDirection, final int stateColor) {
+        if (quad.getDirection() != cullDirection)
+            return Optional.empty();
 
-    public ModelQuadLayer[] getCachedFace(
-            final BlockInformation state,
-            final Direction face,
-            final RenderType layer,
-            final long primaryStateRenderSeed,
-            @NotNull RenderType renderType) {
-        if (layer == null) {
-            return null;
-        }
+        try {
+            final TextureAtlasSprite sprite = findQuadTexture(quad);
 
-        final Key key = new Key(state, layer, face, primaryStateRenderSeed, renderType);
+            ModelQuadLayer.Builder layerBuilder = ModelQuadLayer.Builder.create(blockInformation);
+            layerBuilder.setTexture(sprite);
+            layerBuilder.withColor(stateColor);
+            layerBuilder.withSourceQuad(quad);
 
-        return cache.get(key, () -> {
-            try {
-                return buildFaceQuadLayers(state, face, primaryStateRenderSeed, renderType);
-            } finally {
-            }
-        });
-    }
+            LightUtil.put(layerBuilder, quad);
 
-    private ModelQuadLayer[] buildFaceQuadLayers(
-            final BlockInformation state,
-            final Direction face,
-            final long primaryStateRenderSeed,
-            @NotNull RenderType renderType) {
-        final BakedModel model = solveModel(state, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(state.getBlockState()), primaryStateRenderSeed, renderType);
-        final int lv = IClientConfiguration.getInstance().getUseGetLightValue().get() ? state.getBlockState().getLightEmission() : 0;
-
-        final Fluid fluid = state.getBlockState().getFluidState().getType();
-        if (fluid != Fluids.EMPTY) {
-            final ModelQuadLayer[] mp = new ModelQuadLayer[1];
-            mp[0] = new ModelQuadLayer();
-            mp[0].setColor(IClientFluidManager.getInstance().getFluidColor(new FluidInformation(fluid)));
-            mp[0].setLight(lv);
-
-            final float V = 0.5f;
-            final float Uf = 1.0f;
-            final float U = 0.5f;
-            final float Vf = 1.0f;
-
-            if (face.getAxis() == Direction.Axis.Y) {
-                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(IRenderingManager.getInstance().getStillFluidTexture(fluid)));
-                mp[0].setUvs(new float[]{Uf, Vf, 0, Vf, Uf, 0, 0, 0});
-            } else if (face.getAxis() == Direction.Axis.X) {
-                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(IRenderingManager.getInstance().getFlowingFluidTexture(fluid)));
-                mp[0].setUvs(new float[]{U, 0, U, V, 0, 0, 0, V});
-            } else {
-                mp[0].setSprite(Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(IRenderingManager.getInstance().getFlowingFluidTexture(fluid)));
-                mp[0].setUvs(new float[]{U, 0, 0, 0, U, V, 0, V});
-            }
-
-            mp[0].setLight(0);
-            return mp;
-        }
-
-        final List<ModelQuadLayer.ModelQuadLayerBuilder> layers = Lists.newArrayList();
-        final int color = getColorFor(state);
-
-        if (model != null) {
-            final List<BakedQuad> quads = getModelQuads(model, state, face, primaryStateRenderSeed, renderType);
-            processFaces(layers, face, quads);
-        }
-
-        final ModelQuadLayer[] quadLayers = new ModelQuadLayer[layers.size()];
-        for (int layerIndex = 0; layerIndex < layers.size(); layerIndex++) {
-            quadLayers[layerIndex] = layers.get(layerIndex).build(state, color, lv);
-        }
-
-        return quadLayers;
-    }
-
-    private static void processFaces(
-            final List<ModelQuadLayer.ModelQuadLayerBuilder> layers,
-            final Direction face,
-            final List<BakedQuad> quads) {
-        for (final BakedQuad quad : quads) {
-            if (quad.getDirection() != face)
-                return;
-
-            try {
-                final TextureAtlasSprite sprite = findQuadTexture(quad);
-
-                ModelQuadLayer.ModelQuadLayerBuilder layerBuilder = null;
-                for (final ModelQuadLayer.ModelQuadLayerBuilder builder : layers) {
-                    if (builder.getCache().getSprite() == sprite) {
-                        layerBuilder = builder;
-                        break;
-                    }
-                }
-
-                if (layerBuilder == null) {
-                    // top/bottom
-                    int uCoord = 0;
-                    int vCoord = 2;
-
-                    switch (face) {
-                        case NORTH, SOUTH -> vCoord = 1;
-                        case EAST, WEST -> uCoord = 1;
-                        default -> {
-                        }
-                    }
-
-                    layerBuilder = new ModelQuadLayer.ModelQuadLayerBuilder(sprite, uCoord, vCoord, quad.isShade(), face);
-                    layerBuilder.getCache().setTint(quad.getTintIndex());
-                    layers.add(layerBuilder);
-                }
-
-                LightUtil.put(layerBuilder.getUvExtractor(), quad);
-
-                if (IClientConfiguration.getInstance().getEnableFaceLightmapExtraction().get()) {
-                    layerBuilder.getLightValueExtractor().setVertexFormat(DefaultVertexFormat.BLOCK);
-                    LightUtil.put(layerBuilder.getLightValueExtractor(), quad);
-                }
-            } catch (final Exception ex) {
-                LOGGER.error("Failed to process quad: " + quad, ex);
-            }
+            return Optional.of(layerBuilder.build());
+        } catch (final Exception ex) {
+            LOGGER.error("Failed to process quad: " + quad, ex);
+            return Optional.empty();
         }
     }
 
@@ -345,8 +243,7 @@ public final class FaceManager {
         try {
             if (model instanceof IDataAwareBakedModel dataAwareBakedModel) {
                 return dataAwareBakedModel.getQuads(state.getBlockState(), f, RANDOM, IBlockModelData.empty(), renderType);
-            }
-            else {
+            } else {
                 return model.getQuads(state.getBlockState(), f, RANDOM);
             }
         } catch (final Throwable ignored) {
@@ -356,8 +253,7 @@ public final class FaceManager {
             // try to get item model?
             if (model instanceof IDataAwareBakedModel dataAwareBakedModel) {
                 return dataAwareBakedModel.getQuads(null, f, RANDOM, IBlockModelData.empty(), renderType);
-            }
-            else {
+            } else {
                 return model.getQuads(null, f, RANDOM);
             }
         } catch (final Throwable ignored) {
@@ -371,8 +267,7 @@ public final class FaceManager {
                 try {
                     if (secondModel instanceof IDataAwareBakedModel dataAwareBakedModel) {
                         return dataAwareBakedModel.getQuads(state.getBlockState(), f, RANDOM, IBlockModelData.empty(), renderType);
-                    }
-                    else {
+                    } else {
                         return secondModel.getQuads(state.getBlockState(), f, RANDOM);
                     }
                 } catch (final Throwable ignored) {
@@ -392,11 +287,173 @@ public final class FaceManager {
         return ItemOverrides.EMPTY;
     }
 
+    private static void injectFluidVertexDataForSide(final ModelQuadLayer.Builder builder, final float minU, final float maxU, final float minV, final float maxV, final Direction cullDirection) {
+        if (cullDirection == null)
+            return;
+
+        switch (cullDirection) {
+            case DOWN -> {
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(1).withX(0).withY(0).withZ(0).withU(minU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(0).withX(0).withY(0).withZ(1).withU(minU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(2).withX(1).withY(0).withZ(0).withU(maxU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(3).withX(1).withY(0).withZ(1).withU(maxU).withV(minV);
+                });
+            }
+            case UP -> {
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(1).withX(0).withY(1).withZ(0).withU(minU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(0).withX(1).withY(1).withZ(0).withU(maxU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(2).withX(0).withY(1).withZ(1).withU(minU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(3).withX(1).withY(1).withZ(1).withU(maxU).withV(maxV);
+                });
+            }
+            case NORTH -> {
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(1).withX(0).withY(0).withZ(0).withU(minU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(0).withX(1).withY(0).withZ(0).withU(maxU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(2).withX(0).withY(1).withZ(0).withU(minU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(3).withX(1).withY(1).withZ(0).withU(maxU).withV(maxV);
+                });
+            }
+            case SOUTH -> {
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(1).withX(0).withY(0).withZ(1).withU(minU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(0).withX(0).withY(1).withZ(1).withU(minU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(2).withX(1).withY(0).withZ(1).withU(maxU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(3).withX(1).withY(1).withZ(1).withU(maxU).withV(maxV);
+                });
+            }
+            case WEST -> {
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(1).withX(0).withY(0).withZ(0).withU(minU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(0).withX(0).withY(1).withZ(0).withU(minU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(2).withX(0).withY(0).withZ(1).withU(maxU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(3).withX(0).withY(1).withZ(1).withU(maxU).withV(maxV);
+                });
+            }
+            case EAST -> {
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(1).withX(1).withY(0).withZ(0).withU(minU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(0).withX(1).withY(0).withZ(1).withU(maxU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(2).withX(1).withY(1).withZ(0).withU(minU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(3).withX(1).withY(1).withZ(1).withU(maxU).withV(maxV);
+                });
+            }
+        }
+    }
+
+    public void clearCache() {
+        cache.clear();
+        colorCache.clear();
+    }
+
+    public Collection<ModelQuadLayer> getCachedLayersFor(
+            final BlockInformation state,
+            final Direction face,
+            final RenderType layer,
+            final long primaryStateRenderSeed,
+            @NotNull RenderType renderType) {
+        if (layer == null) {
+            return null;
+        }
+
+        final Key key = new Key(state, layer, face, primaryStateRenderSeed, renderType);
+
+        return cache.get(key, () -> {
+            try {
+                return buildFaceQuadLayers(state, face, primaryStateRenderSeed, renderType);
+            } finally {
+            }
+        });
+    }
+
+    private List<ModelQuadLayer> buildFaceQuadLayers(
+            final BlockInformation blockInformation,
+            final Direction cullDirection,
+            final long primaryStateRenderSeed,
+            @NotNull RenderType renderType) {
+        final BakedModel model = solveModel(blockInformation, Minecraft.getInstance().getBlockRenderer().getBlockModelShaper().getBlockModel(blockInformation.getBlockState()), primaryStateRenderSeed, renderType);
+        final int lv = IClientConfiguration.getInstance().getUseGetLightValue().get() ? blockInformation.getBlockState().getLightEmission() : 0;
+
+        final Fluid fluid = blockInformation.getBlockState().getFluidState().getType();
+        if (fluid != Fluids.EMPTY) {
+            final ModelQuadLayer.Builder builder = ModelQuadLayer.Builder.create(blockInformation);
+            builder.setQuadOrientation(cullDirection);
+            builder.withColor(IClientFluidManager.getInstance().getFluidColor(new FluidInformation(fluid)));
+            builder.withLight(lv);
+
+            TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(IRenderingManager.getInstance().getFlowingFluidTexture(fluid));
+
+            if (cullDirection.getAxis() == Direction.Axis.Y) {
+                sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(IRenderingManager.getInstance().getStillFluidTexture(fluid));
+            }
+
+            final float minV = sprite.getV0();
+            final float maxU = sprite.getU1();
+            final float minU = sprite.getU0();
+            final float maxV = sprite.getV1();
+
+            builder.withSprite(sprite);
+            injectFluidVertexDataForSide(builder, minU, maxU, minV, maxV, cullDirection);
+
+            builder.setQuadTint(0xff);
+
+            return Collections.singletonList(builder.build());
+        }
+
+        final List<ModelQuadLayer> layers = Lists.newArrayList();
+        final int color = getColorFor(blockInformation);
+
+        if (model != null) {
+            final List<BakedQuad> quads = getModelQuads(model, blockInformation, cullDirection, primaryStateRenderSeed, renderType);
+            quads.forEach(quad -> createQuadLayer(quad, blockInformation, cullDirection, color).ifPresent(layers::add));
+        }
+
+        return layers;
+    }
+
     private int getColorFor(
             final BlockInformation state) {
         return colorCache.get(state, () -> {
             final Optional<Integer> dynamicColor = IBlockInformationColorManager.getInstance()
-                                                     .getColor(state);
+                    .getColor(state);
 
             if (dynamicColor.isPresent()) {
                 return dynamicColor.get();
@@ -412,7 +469,7 @@ public final class FaceManager {
                 if (target.isEmpty()) {
                     out = 0xffffff;
                 } else {
-                    out =  Minecraft.getInstance().itemColors.getColor(target, 0);
+                    out = Minecraft.getInstance().itemColors.getColor(target, 0);
                 }
             }
 

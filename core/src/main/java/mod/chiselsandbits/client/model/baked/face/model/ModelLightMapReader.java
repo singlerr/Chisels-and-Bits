@@ -5,62 +5,12 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import org.jetbrains.annotations.NotNull;
 
-public class ModelLightMapReader extends BaseModelReader
-{
-    private       int          lv          = 0;
-    private VertexFormat format      = DefaultVertexFormat.BLOCK;
-    private boolean      hasLightMap = false;
+public class ModelLightMapReader extends BaseModelReader {
+    private int lv = 0;
+    private VertexFormat format = DefaultVertexFormat.BLOCK;
+    private boolean hasLightMap = false;
 
-    public ModelLightMapReader()
-    {
-    }
-
-    public int getLv()
-    {
-        return lv;
-    }
-
-    public void setVertexFormat(
-      VertexFormat format )
-    {
-        hasLightMap = false;
-
-        int eCount = format.getElements().size();
-        for ( int x = 0; x < eCount; x++ )
-        {
-            VertexFormatElement e = format.getElements().get(x);
-            if ( e.getUsage() == VertexFormatElement.Usage.UV && e.getIndex() == 2 && e.getType() == VertexFormatElement.Type.SHORT )
-            {
-                hasLightMap = true;
-            }
-        }
-
-        this.format = format;
-    }
-
-    @NotNull
-    @Override
-    public VertexFormat getVertexFormat()
-    {
-        return format;
-    }
-
-    @Override
-    public void put(
-      final int vertNum,
-      final int element,
-      @NotNull final float... data )
-    {
-        final VertexFormatElement e = getVertexFormat().getElements().get(element);
-
-        if ( e.getUsage() == VertexFormatElement.Usage.UV && e.getIndex() == 2 && e.getType() == VertexFormatElement.Type.SHORT && data.length >= 2 && hasLightMap )
-        {
-            final float maxLightmap = 32.0f / 0xffff;
-            final int lvFromData_sky = sky((int) ( data[0] / maxLightmap));
-            final int lvFromData_block = block((int) ( data[1] / maxLightmap) & 0xf);
-
-            lv = pack(lvFromData_block, lvFromData_sky);
-        }
+    public ModelLightMapReader() {
     }
 
     public static int block(int p_109884_) {
@@ -73,5 +23,46 @@ public class ModelLightMapReader extends BaseModelReader
 
     public static int pack(int p_109886_, int p_109887_) {
         return p_109886_ << 4 | p_109887_ << 20;
+    }
+
+    public int getLv() {
+        return lv;
+    }
+
+    @NotNull
+    @Override
+    public VertexFormat getVertexFormat() {
+        return format;
+    }
+
+    public void setVertexFormat(
+            VertexFormat format) {
+        hasLightMap = false;
+
+        int eCount = format.getElements().size();
+        for (int x = 0; x < eCount; x++) {
+            VertexFormatElement e = format.getElements().get(x);
+            if (e.getUsage() == VertexFormatElement.Usage.UV && e.getIndex() == 2 && e.getType() == VertexFormatElement.Type.SHORT) {
+                hasLightMap = true;
+            }
+        }
+
+        this.format = format;
+    }
+
+    @Override
+    public void put(
+            final int vertNum,
+            final int element,
+            final float @NotNull ... data) {
+        final VertexFormatElement e = getVertexFormat().getElements().get(element);
+
+        if (e.getUsage() == VertexFormatElement.Usage.UV && e.getIndex() == 2 && e.getType() == VertexFormatElement.Type.SHORT && data.length >= 2 && hasLightMap) {
+            final float maxLightmap = 32.0f / 0xffff;
+            final int lvFromData_sky = sky((int) (data[0] / maxLightmap));
+            final int lvFromData_block = block((int) (data[1] / maxLightmap) & 0xf);
+
+            lv = pack(lvFromData_block, lvFromData_sky);
+        }
     }
 }

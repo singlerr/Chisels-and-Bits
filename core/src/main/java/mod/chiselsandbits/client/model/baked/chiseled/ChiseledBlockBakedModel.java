@@ -1,7 +1,7 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
 import com.communi.suggestu.scena.core.client.models.IModelManager;
-import com.google.common.collect.Lists;
+import com.google.common.collect.*;
 import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
@@ -9,26 +9,24 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
-import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
 import mod.chiselsandbits.client.model.baked.face.FaceManager;
 import mod.chiselsandbits.client.model.baked.face.FaceRegion;
+import mod.chiselsandbits.client.model.baked.face.model.BakedQuadAdapter;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
+import mod.chiselsandbits.client.model.baked.face.model.VertexData;
+import mod.chiselsandbits.client.util.Vector2f;
+import mod.chiselsandbits.client.util.VectorUtils;
 import mod.chiselsandbits.profiling.ProfilingManager;
-import mod.chiselsandbits.utils.ModelUtil;
+import mod.chiselsandbits.utils.LightUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.BlockElementFace;
-import net.minecraft.client.renderer.block.model.BlockFaceUV;
-import net.minecraft.client.renderer.block.model.FaceBakery;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.state.BlockState;
@@ -40,18 +38,14 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-@SuppressWarnings("deprecation")
 public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
 
-    private static final RandomSource RANDOM_SOURCE = RandomSource.create(42);
     public static final ChiseledBlockBakedModel EMPTY = new ChiseledBlockBakedModel(
             BlockInformation.AIR,
             ChiselRenderType.SOLID,
             null,
             vector3d -> BlockInformation.AIR,
             0, RenderType.solid());
-
-    private static final FaceBakery FACE_BAKERY = new FaceBakery();
 
     private static final Direction[] X_Faces = new Direction[]{Direction.EAST, Direction.WEST};
     private static final Direction[] Y_Faces = new Direction[]{Direction.UP, Direction.DOWN};
@@ -198,11 +192,6 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
         }
 
         try (final IProfilerSection ignoredFaceBuilding = ProfilingManager.getInstance().withSection("building")) {
-            // re-usable float[]'s to minimize garbage cleanup.
-            final float[] uvs = new float[8];
-            final float[] localUvs = new float[4];
-            final float[] pos = new float[3];
-
             try (final IProfilerSection ignoredMerging = ProfilingManager.getInstance().withSection("merging")) {
                 for (final List<FaceRegion> src : resultingFaces) {
                     mergeFaces(src);
@@ -212,69 +201,28 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
             try (final IProfilerSection ignoredQuadGeneration = ProfilingManager.getInstance().withSection("quadGeneration")) {
                 for (final List<FaceRegion> src : resultingFaces) {
                     for (final FaceRegion region : src) {
-                        final Direction myFace = region.getFace();
+                        final Direction cullDirection = region.getFace();
 
-                        final Vector3f from = createFromVector(region);
-                        final Vector3f to = createToVector(region);
-                        final ModelQuadLayer[] mpc = FaceManager.getInstance().getCachedFace(region.getBlockInformation(), myFace, chiselRenderType.layer, primaryStateRenderSeed, renderType);
+                        final Vector3f from = region.minVector();
+                        final Vector3f to = region.maxVector();
+                        final Collection<ModelQuadLayer> quadLayers = FaceManager.getInstance().getCachedLayersFor(region.getBlockInformation(), cullDirection, chiselRenderType.layer, primaryStateRenderSeed, renderType);
 
-                        Vector3f toB, fromB;
+                        if (quadLayers != null) {
+                            for (final ModelQuadLayer layer : quadLayers) {
 
-                        switch (myFace) {
-                            case UP -> {
-                                toB = new Vector3f(to.x(), from.y(), to.z());
-                                fromB = new Vector3f(from.x(), from.y(), from.z());
-                            }
-                            case EAST -> {
-                                toB = new Vector3f(from.x(), to.y(), to.z());
-                                fromB = new Vector3f(from.x(), from.y(), from.z());
-                            }
-                            case NORTH -> {
-                                toB = new Vector3f(to.x(), to.y(), to.z());
-                                fromB = new Vector3f(from.x(), from.y(), to.z());
-                            }
-                            case SOUTH -> {
-                                toB = new Vector3f(to.x(), to.y(), from.z());
-                                fromB = new Vector3f(from.x(), from.y(), from.z());
-                            }
-                            case DOWN -> {
-                                toB = new Vector3f(to.x(), to.y(), to.z());
-                                fromB = new Vector3f(from.x(), to.y(), from.z());
-                            }
-                            case WEST -> {
-                                toB = new Vector3f(to.x(), to.y(), to.z());
-                                fromB = new Vector3f(to.x(), from.y(), from.z());
-                            }
-                            default -> throw new NullPointerException();
-                        }
+                                final Collection<VertexData> adaptedVertices = adaptVertices(layer.vertexData(), cullDirection, from, to);
 
-                        if (mpc != null) {
-                            for (final ModelQuadLayer pc : mpc) {
-                                getFaceUvs(uvs, myFace, from, to, pc.getUvs());
-                                extractLocalUvs(localUvs, myFace, uvs);
-
-                                final BakedQuad quad = FACE_BAKERY.bakeQuad(
-                                        fromB,
-                                        toB,
-                                        new BlockElementFace(myFace, pc.getTint(), pc.getSprite().getName().toString(), new BlockFaceUV(localUvs, 0)),
-                                        pc.getSprite(),
-                                        myFace,
-                                        new ModelState() {
-                                            @Override
-                                            public boolean isUvLocked() {
-                                                return false;
-                                            }
-                                        },
-                                        null,
-                                        pc.isShade(),
-                                        new ResourceLocation(Constants.MOD_ID, "block")
-                                );
-
-                                fixColorsInQuad(quad, pc.getColor());
+                                final BakedQuadAdapter adapter = new BakedQuadAdapter(adaptedVertices, layer.color());
+                                LightUtil.put(adapter, layer.sourceQuad());
+                                adapter.setQuadTint(layer.tint());
+                                adapter.setApplyDiffuseLighting(layer.shade());
+                                adapter.setTexture(layer.sprite());
+                                adapter.setQuadOrientation(cullDirection);
+                                final BakedQuad quad = adapter.build();
 
                                 // build it.
                                 if (region.isEdge()) {
-                                    builder.getList(myFace).add(quad);
+                                    builder.getList(cullDirection).add(quad);
                                 } else {
                                     builder.getList(null).add(quad);
                                 }
@@ -286,28 +234,148 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
         }
     }
 
-    private void fixColorsInQuad(final BakedQuad quad, final int color) {
-        final int alpha = (color >> 24) & 0xFF;
-        final int red = (color >> 16) & 0xFF;
-        final int green = (color >> 8) & 0xFF;
-        final int blue = color & 0xFF;
-        final int renderColor = (alpha << 24) | (blue << 16) | (green << 8) | red;
+    @SuppressWarnings("ConstantConditions")
+    private Collection<VertexData> adaptVertices(VertexData[] vertexData, final Direction cullDirection, Vector3f from, Vector3f to) {
+        final BiMap<VertexData, Vector2f> projectedVertexPositions = HashBiMap.create();
+        Arrays.stream(vertexData).forEach(vertex -> projectedVertexPositions.put(vertex, vertex.projectOntoPlaneOf(cullDirection)));
+        final Collection<Vector2f> boxCorners = buildCorners(cullDirection, from, to);
+        final Map<Vector2f, VertexData> closestCorners = buildClosestVertices(vertexData, boxCorners, cullDirection);
 
-        for (int i = 3; i < (4 * 8); i +=8) {
-            quad.getVertices()[i] = renderColor;
+        final InterpolationHelper interpolationHelper = new InterpolationHelper(
+                projectedVertexPositions.get(vertexData[0]).x(),
+                projectedVertexPositions.get(vertexData[0]).y(),
+                projectedVertexPositions.get(vertexData[1]).x(),
+                projectedVertexPositions.get(vertexData[1]).y(),
+                projectedVertexPositions.get(vertexData[2]).x(),
+                projectedVertexPositions.get(vertexData[2]).y(),
+                projectedVertexPositions.get(vertexData[3]).x(),
+                projectedVertexPositions.get(vertexData[3]).y()
+        );
+
+        final Collection<VertexData> adaptedVertices = new ArrayList<>();
+        for (Vector2f newPosition : boxCorners) {
+            interpolationHelper.locate(newPosition.x(), newPosition.y());
+            final float u = interpolationHelper.interpolate(
+                    vertexData[0].u(),
+                    vertexData[1].u(),
+                    vertexData[2].u(),
+                    vertexData[3].u()
+            );
+            final float v = interpolationHelper.interpolate(
+                    vertexData[0].v(),
+                    vertexData[1].v(),
+                    vertexData[2].v(),
+                    vertexData[3].v()
+            );
+
+            final Vector3f position = VectorUtils.unprojectFromPlaneOf(newPosition, from, cullDirection);
+            final VertexData vertex = new VertexData(position, new Vector2f(u,v), closestCorners.get(newPosition).vertexIndex());
+            adaptedVertices.add(vertex);
         }
+
+        return adaptedVertices;
     }
 
-    private Vector3f createFromVector(FaceRegion faceRegion) {
-        final Vector3f result = new Vector3f(faceRegion.getMinX(), faceRegion.getMinY(), faceRegion.getMinZ());
-        result.mul(16);
-        return result;
+    private Map<Vector2f, VertexData> buildClosestVertices(final VertexData[] vertexData, final Collection<Vector2f> boxCorners, Direction cullDirection) {
+        final Vector2f center = new Vector2f();
+        for (final Vector2f corner : boxCorners) {
+            center.add(corner);
+        }
+        center.mul(1f / boxCorners.size());
+
+        final Vector2f centerOfVertices = new Vector2f();
+        for (final VertexData vertex : vertexData) {
+            centerOfVertices.add(vertex.projectOntoPlaneOf(cullDirection));
+        }
+        centerOfVertices.mul(1f / vertexData.length);
+
+        enum Corner {
+            TOP_LEFT,
+            TOP_RIGHT,
+            BOTTOM_LEFT,
+            BOTTOM_RIGHT;
+
+            private static Corner closest(final Vector2f vector2f, final Vector2f center) {
+                if (vector2f.x() < center.x()) {
+                    if (vector2f.y() < center.y()) {
+                        return BOTTOM_LEFT;
+                    } else {
+                        return TOP_LEFT;
+                    }
+                } else {
+                    if (vector2f.y() < center.y()) {
+                        return BOTTOM_RIGHT;
+                    } else {
+                        return TOP_RIGHT;
+                    }
+                }
+            }
+        }
+
+        final BiMap<Corner, Vector2f> boxCornersByCorner = HashBiMap.create();
+        boxCorners.forEach(corner -> boxCornersByCorner.put(Corner.closest(corner, center), corner));
+
+        final BiMap<Corner, VertexData> vertexByCorner = HashBiMap.create();
+        for (VertexData vertexDatum : vertexData) {
+            vertexByCorner.put(Corner.closest(vertexDatum.projectOntoPlaneOf(cullDirection), centerOfVertices), vertexDatum);
+        }
+
+        final Map<Vector2f, VertexData> closestVertices = new HashMap<>();
+        boxCornersByCorner.forEach((corner, vector2f) -> closestVertices.put(vector2f, vertexByCorner.get(corner)));
+        return closestVertices;
     }
 
-    private Vector3f createToVector(FaceRegion faceRegion) {
-        final Vector3f result = new Vector3f(faceRegion.getMaxX(), faceRegion.getMaxY(), faceRegion.getMaxZ());
-        result.mul(16);
-        return result;
+    private Collection<Vector2f> buildCorners(final Direction cullDirection, final Vector3f from, final Vector3f to) {
+        final Collection<Vector2f> corners = new ArrayList<>();
+
+        final float x1 = from.x();
+        final float y1 = from.y();
+        final float z1 = from.z();
+
+        final float x2 = to.x();
+        final float y2 = to.y();
+        final float z2 = to.z();
+
+        switch (cullDirection) {
+            case DOWN -> {
+                corners.add(new Vector2f(x1, z1));
+                corners.add(new Vector2f(x1, z2));
+                corners.add(new Vector2f(x2, z2));
+                corners.add(new Vector2f(x2, z1));
+            }
+            case UP -> {
+                corners.add(new Vector2f(x1, z1));
+                corners.add(new Vector2f(x2, z1));
+                corners.add(new Vector2f(x2, z2));
+                corners.add(new Vector2f(x1, z2));
+            }
+            case NORTH -> {
+                corners.add(new Vector2f(x1, y1));
+                corners.add(new Vector2f(x2, y1));
+                corners.add(new Vector2f(x2, y2));
+                corners.add(new Vector2f(x1, y2));
+            }
+            case SOUTH -> {
+                corners.add(new Vector2f(x1, y1));
+                corners.add(new Vector2f(x1, y2));
+                corners.add(new Vector2f(x2, y2));
+                corners.add(new Vector2f(x2, y1));
+            }
+            case WEST -> {
+                corners.add(new Vector2f(z1, y1));
+                corners.add(new Vector2f(z1, y2));
+                corners.add(new Vector2f(z2, y2));
+                corners.add(new Vector2f(z2, y1));
+            }
+            case EAST -> {
+                corners.add(new Vector2f(z1, y1));
+                corners.add(new Vector2f(z2, y1));
+                corners.add(new Vector2f(z2, y2));
+                corners.add(new Vector2f(z1, y2));
+            }
+        }
+
+        return corners;
     }
 
     private void mergeFaces(
@@ -339,7 +407,6 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
         }
         while (restart);
     }
-
 
     private void processFaces(
             final IAreaAccessor accessor,
@@ -456,209 +523,6 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
                             !blob.isInside(offsetTarget)
                     );
                 });
-    }
-
-    private void getFaceUvs(
-            final float[] uvs,
-            final Direction face,
-            final Vector3f from,
-            final Vector3f to,
-            final float[] quadsUV) {
-        float to_u = 0;
-        float to_v = 0;
-        float from_u = 0;
-        float from_v = 0;
-
-
-        switch (face) {
-            case UP-> {
-                to_u = 1 - to.x() / 16f;
-                to_v = 1 - to.z() / 16f;
-                from_u = 1 - from.x() / 16f;
-                from_v = 1 - from.z() / 16f;
-            }
-            case DOWN -> {
-                to_u = 1 - to.x() / 16f;
-                to_v = from.z() / 16f;
-                from_u = 1 - from.x() / 16f;
-                from_v = to.z() / 16f;
-            }
-            case SOUTH -> {
-                to_u = 1 -to.x() / 16f;
-                to_v = from.y() / 16f;
-                from_u = 1 - from.x() / 16f;
-                from_v = to.y() / 16f;
-            }
-            case NORTH -> {
-                to_u = from.x() / 16f;
-                to_v = from.y() / 16f;
-                from_u = to.x() / 16f;
-                from_v = to.y() / 16f;
-            }
-            case WEST -> {
-                to_u = 1 - to.z() / 16f;
-                to_v = from.y() / 16f;
-                from_u = 1 - from.z() / 16f;
-                from_v = to.y() / 16f;
-            }
-            case EAST -> {
-                to_u = from.z() / 16f;
-                to_v = from.y() / 16f;
-                from_u = to.z() / 16f;
-                from_v = to.y() / 16f;
-            }
-            default -> {
-            }
-        }
-
-        /*
-        UV:
-        (0,0) ------------------ (1,0)
-          |                        |
-          |                        |
-          |                        |
-          |                        |
-          |                        |
-          |                        |
-          |                        |
-        (0,1) ------------------ (1,1)
-
-        QUBE:
-        (0,16) ---------------- (16,16)
-          |                        |
-          |                        |
-          |                        |
-          |                        |
-          |                        |
-          |                        |
-          |                        |
-        (0,0) ------------------ (16,0)
-
-
-        1) Lower left
-        2) Upper left
-        3) Lower right
-        4) Upper right
-        */
-
-        //U maps 0 to 0 and 16 to 1 -> Normal lerping between quadUvs[0] and quadUvs[4]
-        //V maps 16 to 0 and 0 to 1 -> Inverse lerping between quadUvs[1] and quadUvs[3]
-
-        //0,1,0,0,1,1,1,0
-
-        final int[] uvOrder = determineUVOrder(quadsUV);
-
-        //LowerLeft
-        uvs[0] = u(quadsUV, uvOrder, from_u, to_v) * 16; // 0
-        uvs[1] = v(quadsUV, uvOrder, from_u, to_v) * 16; // 1
-
-        //UpperLeft
-        uvs[2] = u(quadsUV, uvOrder, from_u, from_v) * 16; // 2
-        uvs[3] = v(quadsUV, uvOrder, from_u, from_v) * 16; // 3
-
-        //LowerRight
-        uvs[4] = u(quadsUV, uvOrder, to_u, to_v) * 16; // 2
-        uvs[5] = v(quadsUV, uvOrder, to_u, to_v) * 16; // 3
-
-        //UpperRight
-        uvs[6] = u(quadsUV, uvOrder, to_u, from_v) * 16; // 0
-        uvs[7] = v(quadsUV, uvOrder, to_u, from_v) * 16; // 1
-
-        cleanUvs(uvs);
-    }
-
-    private int[] determineUVOrder(final float[] quadsUV) {
-        final int[] uvOrder = new int[8];
-
-        final float minU = Math.min(Math.min(quadsUV[0], quadsUV[2]), Math.min(quadsUV[4], quadsUV[6]));
-        final float maxU = Math.max(Math.max(quadsUV[0], quadsUV[2]), Math.max(quadsUV[4], quadsUV[6]));
-        final float minV = Math.min(Math.min(quadsUV[1], quadsUV[3]), Math.min(quadsUV[5], quadsUV[7]));
-        final float maxV = Math.max(Math.max(quadsUV[1], quadsUV[3]), Math.max(quadsUV[5], quadsUV[7]));
-
-        for (int i = 0; i < 4; i++)
-        {
-            final int uIndex = i * 2;
-            final int vIndex = uIndex + 1;
-
-            final float u = quadsUV[uIndex];
-            final float v = quadsUV[vIndex];
-
-            if (ModelUtil.is(u, minU) && ModelUtil.is(v, maxV)) {
-                //LowerLeft should be indexes 0 and 1
-                uvOrder[4] = uIndex;
-                uvOrder[5] = vIndex;
-            }
-
-            if (ModelUtil.is(u, minU) && ModelUtil.is(v, minV)) {
-                //UpperLeft should be indexes 2 and 3
-                uvOrder[0] = uIndex;
-                uvOrder[1] = vIndex;
-            }
-
-            if (ModelUtil.is(u, maxU) && ModelUtil.is(v, maxV)) {
-                //LowerRight should be indexes 4 and 5
-                uvOrder[6] = uIndex;
-                uvOrder[7] = vIndex;
-            }
-
-            if (ModelUtil.is(u, maxU) && ModelUtil.is(v, minV)) {
-                //UpperRight should be indexes 6 and 7
-                uvOrder[2] = uIndex;
-                uvOrder[3] = vIndex;
-            }
-        }
-
-        return uvOrder;
-    }
-
-    float u(
-            final float[] src,
-            final int[] uvOrder,
-            final float inU,
-            final float inV)
-    {
-        final float inv = 1.0f - inU;
-        final float u1 = src[uvOrder[0]] * inU + inv * src[uvOrder[2]];
-        final float u2 = src[uvOrder[4]] * inU + inv * src[uvOrder[6]];
-        return u1 * inV + (1.0f - inV) * u2;
-    }
-
-    float v(
-            final float[] src,
-            final int[] uvOrder,
-            final float inU,
-            final float inV)
-    {
-        final float inv = 1.0f - inU;
-        final float v1 = src[uvOrder[1]] * inU + inv * src[uvOrder[3]];
-        final float v2 = src[uvOrder[5]] * inU + inv * src[uvOrder[7]];
-        return v1 * inV + (1.0f - inV) * v2;
-    }
-
-    private static void cleanUvs(
-            float[] uvs
-    ) {
-        for (int i = 0; i < uvs.length; i++) {
-            uvs[i] = Math.round(uvs[i]);
-        }
-    }
-
-    private void extractLocalUvs(
-            final float[] localUvs,
-            final Direction myFace,
-            final float[] uvs
-    ) {
-
-        switch (myFace) {
-            case DOWN, UP, NORTH, SOUTH, WEST, EAST -> {
-                localUvs[0] = uvs[2];
-                localUvs[1] = uvs[3];
-                localUvs[2] = uvs[4];
-                localUvs[3] = uvs[5];
-            }
-        }
-
-
     }
 
     @NotNull

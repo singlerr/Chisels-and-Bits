@@ -124,6 +124,16 @@ public class FaceRegion
         return face;
     }
 
+    public Vector3f maxVector()
+    {
+        return new Vector3f(maxX, maxY, maxZ);
+    }
+
+    public Vector3f minVector()
+    {
+        return new Vector3f(minX, minY, minZ);
+    }
+
     public boolean extend(
       final FaceRegion faceToExtendTo
     ) {

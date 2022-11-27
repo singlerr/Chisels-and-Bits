@@ -111,6 +111,5 @@ public final class ModEventHandler {
             }
         });
         IGameEvents.getInstance().getServerAboutToStartEvent().register(minecraftServer -> ServerStartHandler.onServerStart());
-        IGameEvents.getInstance().getGatherTooltipEvent().register(MagnifyingGlassTooltipHandler::onItemTooltip);
     }
 }

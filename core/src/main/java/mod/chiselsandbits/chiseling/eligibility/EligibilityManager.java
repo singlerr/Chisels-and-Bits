@@ -56,7 +56,7 @@ public class EligibilityManager implements IEligibilityManager
                 return new EligibilityAnalysisResult(
                   false,
                   true,
-                  TranslationUtils.build("chiseling.is-already-chiseled")
+                  LocalStrings.ChiselSupportIsAlreadyChiseled.getText()
                 );
             }
 

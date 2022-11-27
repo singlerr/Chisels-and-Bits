@@ -6,7 +6,11 @@ import mod.chiselsandbits.client.icon.IconManager;
 import mod.chiselsandbits.client.reloading.ClientResourceReloadingManager;
 import net.minecraft.client.Minecraft;
 
-public class GPUResources {
+public final class GPUResources {
+
+    private GPUResources() {
+        throw new IllegalStateException("Can not instantiate an instance of: GPUResources. This is a utility class");
+    }
 
     public static void onClientConstruction() {
         IClientEvents.getInstance().getResourceRegistrationEvent().register(() -> {

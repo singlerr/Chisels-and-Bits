@@ -7,6 +7,7 @@ import mod.chiselsandbits.client.logic.*;
 import mod.chiselsandbits.client.time.TickHandler;
 import mod.chiselsandbits.clipboard.CreativeClipboardManager;
 import mod.chiselsandbits.keys.KeyBindingManager;
+import mod.chiselsandbits.logic.MagnifyingGlassTooltipHandler;
 import mod.chiselsandbits.logic.ScrollBasedModeChangeHandler;
 import net.minecraft.world.level.chunk.LevelChunk;
 
@@ -44,5 +45,6 @@ public final class EventHandlers {
 
             FrameBasedInputTracker.getInstance().onRenderFrame();
         });
+        IClientEvents.getInstance().getGatherTooltipEvent().register(MagnifyingGlassTooltipHandler::onItemTooltip);
     }
 }

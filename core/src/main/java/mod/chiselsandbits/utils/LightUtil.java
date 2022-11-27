@@ -13,10 +13,10 @@ public final class LightUtil {
         throw new IllegalStateException("Tried to construct a LightUtil instance, but this is a utility class!");
     }
 
-    public static void pack(float[] from, int[] to, VertexFormat formatTo, int v, int e)
+    public static void pack(float[] from, int[] to, int v, int e)
     {
-        VertexFormatElement element = formatTo.getElements().get(e);
-        int vertexStart = v * formatTo.getVertexSize() + formatTo.offsets.getInt(e);
+        VertexFormatElement element = DefaultVertexFormat.BLOCK.getElements().get(e);
+        int vertexStart = v * DefaultVertexFormat.BLOCK.getVertexSize() + DefaultVertexFormat.BLOCK.offsets.getInt(e);
         int count = element.getCount();
         VertexFormatElement.Type type = element.getType();
         int size = type.getSize();

@@ -7,12 +7,14 @@ import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
 import mod.chiselsandbits.api.client.render.preview.chiseling.IChiselContextPreviewRendererRegistry;
+import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.chisel.IChiselingItem;
 import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.named.IDynamicallyHighlightedNameItem;
 import mod.chiselsandbits.api.notifications.INotificationManager;
+import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.chiseling.LocalChiselingContextCache;
@@ -208,9 +210,18 @@ public class ChiselItem extends DiggerItem implements IChiselItem, IDynamicallyH
     }
 
     @Override
-    public boolean canUse(final Player playerEntity)
+    public boolean canUse(final Player playerEntity, @NotNull final ItemStack stack)
     {
-        return ChiselingManager.getInstance().canChisel(playerEntity);
+        final boolean isAllowedToUse = ChiselingManager.getInstance().canChisel(playerEntity) && !playerEntity.getCooldowns().isOnCooldown(stack.getItem());
+        if (getMode(stack).isSingleClickUse() && !isAllowedToUse && playerEntity.getLevel().isClientSide() && IClientConfiguration.getInstance().getShowCoolDownError().get()) {
+            INotificationManager.getInstance().notify(
+                    getMode(stack).getIcon(),
+                    new Vec3(1, 0, 0),
+                    LocalStrings.ChiselAttemptFailedWaitForCoolDown.getText()
+            );
+        }
+
+        return isAllowedToUse;
     }
 
     @Override

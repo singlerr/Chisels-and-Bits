@@ -104,11 +104,10 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         });
     }
 
-
     @Override
     public boolean canUse(final Player playerEntity, final ItemStack stack)
     {
-        final boolean isAllowedToUse = ChiselingManager.getInstance().canChisel(playerEntity);
+        final boolean isAllowedToUse = ChiselingManager.getInstance().canChisel(playerEntity) && !playerEntity.getCooldowns().isOnCooldown(stack.getItem());
         if (getMode(stack).isSingleClickUse() && !isAllowedToUse && playerEntity.getLevel().isClientSide() && IClientConfiguration.getInstance().getShowCoolDownError().get()) {
             INotificationManager.getInstance().notify(
                     getMode(stack).getIcon(),

@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,9 +52,9 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
         {
             for (final RenderType layer : BlockInformationUtils.extractRenderTypes(blockInformation))
             {
-                final ModelQuadLayer[] layers = FaceManager.getInstance().getCachedFace(blockInformation, myFace, layer, 0, layer);
+                final Collection<ModelQuadLayer> layers = FaceManager.getInstance().getCachedLayersFor(blockInformation, myFace, layer, 0, layer);
 
-                if (layers == null || layers.length == 0)
+                if (layers == null || layers.size() == 0)
                 {
                     continue;
                 }
@@ -94,7 +95,7 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
                         default -> throw new NullPointerException();
                     }
 
-                    generic.add(faceBakery.bakeQuad(toB, fromB, bpf, quadLayer.getSprite(), myFace, mr, null, false, new ResourceLocation(Constants.MOD_ID, "bit")));
+                    generic.add(faceBakery.bakeQuad(toB, fromB, bpf, quadLayer.sprite(), myFace, mr, null, false, new ResourceLocation(Constants.MOD_ID, "bit")));
                 }
             }
         }
