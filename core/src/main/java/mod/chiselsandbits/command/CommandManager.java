@@ -7,7 +7,7 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
@@ -20,8 +20,9 @@ import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.profiling.IProfilerResult;
 import mod.chiselsandbits.api.profiling.IProfilingManager;
-import mod.chiselsandbits.api.util.BlockStateUtils;
+import mod.chiselsandbits.api.util.BlockInformationUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.network.packets.ExportPatternCommandMessagePacket;
 import mod.chiselsandbits.network.packets.ImportPatternCommandMessagePacket;
 import mod.chiselsandbits.profiling.ProfilingManager;
@@ -41,6 +42,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Optional;
 
 public class CommandManager
 {
@@ -151,7 +154,7 @@ public class CommandManager
                                                   mutator.batch())
             {
                 mutator.mutableStream().forEach(
-                  entry -> entry.overrideState(new BlockInformation(state))
+                  entry -> entry.overrideState(new BlockInformation(state, Optional.empty()))
                 );
             }
         }
@@ -161,7 +164,7 @@ public class CommandManager
                                                                                                                                                                                                             mutator.batch())
             {
                 mutator.mutableStream().forEach(
-                  entry -> entry.overrideState(new BlockInformation(BlockStateUtils.getRandomSupportedDefaultState(context.getSource().getLevel().getRandom())))
+                  entry -> entry.overrideState(BlockInformationUtils.getRandomSupportedInformation(context.getSource().getLevel().getRandom()))
                 );
             }
         }
@@ -219,16 +222,18 @@ public class CommandManager
     {
         final Player target = EntityArgument.getPlayer(context, "target");
         final BlockState state = BlockStateArgument.getBlock(context, "state").getState();
-        if (!IEligibilityManager.getInstance().canBeChiseled(state))
+        final BlockInformation information = new BlockInformation(state, IStateVariantManager.getInstance().getStateVariant(state, Optional.empty()));
+
+        if (!IEligibilityManager.getInstance().canBeChiseled(information))
             throw GIVE_NOT_CHISELABLE_EXCEPTION.create();
 
         final int count = CommandUtils.hasArgument(context, "count") ? IntegerArgumentType.getInteger(context, "count") : 4096;
 
         final IBitInventory inventory = IBitInventoryManager.getInstance().create(target);
 
-        final int insertionCount = Math.min(inventory.getMaxInsertAmount(new BlockInformation(state)), count);
+        final int insertionCount = Math.min(inventory.getMaxInsertAmount(new BlockInformation(state, Optional.empty())), count);
 
-        inventory.insertOrDiscard(new BlockInformation(state), insertionCount);
+        inventory.insertOrDiscard(new BlockInformation(state, Optional.empty()), insertionCount);
 
         return 0;
     }

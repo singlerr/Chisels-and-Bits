@@ -1,7 +1,8 @@
 package mod.chiselsandbits.client.model.baked.bit;
 
 import com.mojang.math.Vector3f;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
 import mod.chiselsandbits.client.model.baked.face.FaceManager;
@@ -39,7 +40,7 @@ public class BitBlockBakedModel extends BaseBakedBlockModel
     final List<BakedQuad> generic = new ArrayList<>(6);
 
     public BitBlockBakedModel(
-      final BlockInformation blockInformation)
+      final IBlockInformation blockInformation)
     {
         final FaceBakery faceBakery = new FaceBakery();
 

@@ -1,7 +1,8 @@
 package mod.chiselsandbits.pattern.placement;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
@@ -85,7 +86,7 @@ public class CarvePatternPlacementType extends AbstractCustomRegistryEntry imple
                     LocalStrings.PatternPlacementNotAChiseledBlock.getText());
         }
 
-        final Map<BlockInformation, Integer> totalRemovedBits = source.stream()
+        final Map<IBlockInformation, Integer> totalRemovedBits = source.stream()
           .filter(s -> !s.getBlockInformation().isAir())
           .filter(s -> {
               final Optional<IStateEntryInfo> o = areaMutator.getInAreaTarget(s.getStartPoint().add(areaMutator.getInWorldStartPoint()));

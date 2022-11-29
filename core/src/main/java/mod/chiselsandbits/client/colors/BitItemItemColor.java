@@ -2,8 +2,7 @@ package mod.chiselsandbits.client.colors;
 
 import com.communi.suggestu.scena.core.client.fluid.IClientFluidManager;
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
-import com.communi.suggestu.scena.core.fluid.IFluidManager;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.item.bit.BitItem;
 import net.minecraft.client.Minecraft;
@@ -15,7 +14,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
-import net.minecraft.world.level.block.state.BlockState;
 
 public class BitItemItemColor implements ItemColor
 {

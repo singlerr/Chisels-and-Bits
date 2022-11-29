@@ -3,8 +3,8 @@ package mod.chiselsandbits.block.entities;
 import com.communi.suggestu.scena.core.blockstate.ILevelBasedPropertyAccessor;
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
 import com.communi.suggestu.scena.core.fluid.IFluidManager;
-import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
@@ -21,7 +21,6 @@ import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -36,7 +35,7 @@ import java.util.Optional;
 
 public class BitStorageBlockEntity extends BlockEntity implements Container
 {
-    private BlockInformation state = null;
+    private IBlockInformation state = null;
     private int        bits  = 0;
 
     private int oldLV = -1;
@@ -51,38 +50,9 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
     {
         super.load(nbt);
 
-        state = null;
-        if (nbt.contains(NbtConstants.BLOCK_INFORMATION))
-        {
-            final CompoundTag tag = nbt.getCompound(NbtConstants.BLOCK_INFORMATION);
-            state = new BlockInformation(tag);
-        }
-        else if (nbt.contains(NbtConstants.STATE))
-        {
-            final CompoundTag stateCompound = nbt.getCompound(NbtConstants.STATE);
-            this.state = new BlockInformation(NbtUtils.readBlockState(stateCompound));
-        }
-        else if (nbt.contains(NbtConstants.BLOCK_STATE_LEGACY))
-        {
-            final int rawState = nbt.getInt(NbtConstants.BLOCK_STATE_LEGACY);
-            if (rawState != -1)
-            {
-                this.state = new BlockInformation(IBlockStateIdManager.getInstance().getBlockStateFrom(rawState));
-            }
-            else
-            {
-                this.state = null;
-            }
-        }
-
-        if (state != null)
-        {
-            bits = nbt.getInt(NbtConstants.BITS);
-        }
-        else
-        {
-            bits = 0;
-        }
+        final CompoundTag tag = nbt.getCompound(NbtConstants.BLOCK_INFORMATION);
+        state = new BlockInformation(tag);
+        bits = nbt.getInt(NbtConstants.BITS);
     }
 
     @Override
@@ -160,7 +130,7 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
     {
         return ILevelBasedPropertyAccessor.getInstance().getLightEmission(
           new SingleBlockWorldReader(
-            state == null ? new BlockInformation(Blocks.AIR.defaultBlockState()) : state,
+            state == null ? BlockInformation.AIR : state,
             getBlockPos(),
             getLevel()
           ),
@@ -199,9 +169,9 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
                     return true;
                 }
             }
-            else if (IEligibilityManager.getInstance().canBeChiseled(current.getItem()))
+            else if (IEligibilityManager.getInstance().canBeChiseled(current))
             {
-                final BlockInformation stackState = ItemStackUtils.getStateFromItem(current);
+                final IBlockInformation stackState = ItemStackUtils.getStateFromItem(current);
                 if (stackState.getBlockState().getBlock() != Blocks.AIR)
                 {
                     if (this.state == null || state.isAir())
@@ -226,15 +196,16 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
             if (containedFluid.isPresent() && containedFluid.get().amount() > 0)
             {
                 final BlockState state = containedFluid.get().fluid().defaultFluidState().createLegacyBlock();
+                final BlockInformation blockInformation = new BlockInformation(state, IStateVariantManager.getInstance().getStateVariant(containedFluid.get()));
 
-                if (IEligibilityManager.getInstance().canBeChiseled(state))
+                if (IEligibilityManager.getInstance().canBeChiseled(blockInformation))
                 {
-                    if (this.state == null || state.isAir())
+                    if (this.state == null || blockInformation.isAir())
                     {
                         final int maxToInsert = StateEntrySize.current().getBitsPerBlock() - bits;
                         final int toInsert = (int) Math.min(maxToInsert, getBitCountFrom(containedFluid.get()));
 
-                        this.state = new BlockInformation(state);
+                        this.state = blockInformation;
                         this.bits += toInsert;
 
                         if (!playerIn.isCreative())
@@ -270,7 +241,7 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
             {
                 if (is.getItem() instanceof final IBitItem bitItem)
                 {
-                    final BlockInformation blockState = bitItem.getBlockInformation(is);
+                    final IBlockInformation blockState = bitItem.getBlockInformation(is);
 
                     BitInventoryUtils.insertIntoOrSpawn(
                       playerIn,
@@ -287,7 +258,7 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
         return false;
     }
 
-    public BlockInformation getContainedBlockInformation()
+    public IBlockInformation getContainedBlockInformation()
     {
         return state;
     }
@@ -338,7 +309,7 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
             return ItemStack.EMPTY;
         }
 
-        final BlockInformation currentState = state;
+        final IBlockInformation currentState = state;
         final int toRemove = Math.min(count, bits);
         bits -= toRemove;
 
@@ -435,7 +406,7 @@ public class BitStorageBlockEntity extends BlockEntity implements Container
         saveAndUpdate();
     }
 
-    public void insertBits(final int bitCountToInsert, final BlockInformation blockInformation)
+    public void insertBits(final int bitCountToInsert, final IBlockInformation blockInformation)
     {
         if (state == null || blockInformation.equals(state))
         {

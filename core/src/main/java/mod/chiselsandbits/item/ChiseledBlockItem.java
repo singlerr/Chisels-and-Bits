@@ -1,7 +1,8 @@
 package mod.chiselsandbits.item;
 
 import com.google.common.base.Suppliers;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
@@ -15,7 +16,7 @@ import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.placement.PlacementResult;
-import mod.chiselsandbits.api.util.BlockStateUtils;
+import mod.chiselsandbits.api.util.BlockInformationUtils;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
@@ -27,6 +28,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -46,22 +48,21 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Supplier;
 
 public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
 {
 
     private static final Supplier<ItemStack> DEFAULT_INSTANCE = Suppliers.memoize(() -> {
-        final Random random = new Random();
+        final RandomSource random = RandomSource.createNewThreadLocalInstance();
 
         final int blockStateCount = (StateEntrySize.current().getBitsPerBlockSide() / 4) *
                                       (StateEntrySize.current().getBitsPerBlockSide() / 4) *
                                       (StateEntrySize.current().getBitsPerBlockSide() / 4);
-        final List<BlockInformation> blockInformation = new ArrayList<>(blockStateCount);
+        final List<IBlockInformation> blockInformation = new ArrayList<>(blockStateCount);
         for (int i = 0; i < blockStateCount; i++)
         {
-            blockInformation.add(BlockStateUtils.getRandomSupportedInformation(random));
+            blockInformation.add(BlockInformationUtils.getRandomSupportedInformation(random));
         }
 
         final SimpleSnapshot results = new SimpleSnapshot(BlockInformation.AIR);
@@ -76,7 +77,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
 
               final int size = StateEntrySize.current().getBitsPerBlockSide() / 4;
               final int blockInformationIndex = index.getX() + (index.getY() * size) + (index.getZ() * size * size);
-              final BlockInformation info = blockInformation.get(blockInformationIndex);
+              final IBlockInformation info = blockInformation.get(blockInformationIndex);
               stateEntryInfo.overrideState(info);
           });
 

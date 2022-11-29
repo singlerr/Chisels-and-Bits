@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.block.entity;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessorWithVoxelShape;
 import mod.chiselsandbits.api.multistate.mutator.IGenerallyModifiableAreaMutator;
 import mod.chiselsandbits.api.multistate.mutator.batched.IBatchedAreaMutator;
@@ -9,7 +9,6 @@ import mod.chiselsandbits.api.multistate.statistics.IMultiStateObjectStatistics;
 import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
 import mod.chiselsandbits.api.util.INBTSerializable;
@@ -48,5 +47,5 @@ public interface IMultiStateBlockEntity extends IWorldAreaAccessor,
      *
      * @param initialInformation The new initial block information.
      */
-    void initializeWith(BlockInformation initialInformation);
+    void initializeWith(IBlockInformation initialInformation);
 }

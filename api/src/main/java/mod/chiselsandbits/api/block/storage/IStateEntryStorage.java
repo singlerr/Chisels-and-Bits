@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.block.storage;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.multistate.mutator.IMirrorAndRotateble;
 import mod.chiselsandbits.api.util.INBTSerializable;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
@@ -31,7 +31,7 @@ public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAn
      *
      * @param currentState The new blockstate to set on all positions.
      */
-    void initializeWith(BlockInformation currentState);
+    void initializeWith(IBlockInformation currentState);
 
     /**
      * Loads the storage by cloning the chunk section in to the storage.
@@ -48,7 +48,7 @@ public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAn
      * @param z The z offset, from to {@link #getSize()} excluding.
      * @return The blockstate on the given position.
      */
-    BlockInformation getBlockInformation(int x, int y, int z);
+    IBlockInformation getBlockInformation(int x, int y, int z);
 
     /**
      * Gets the block information in the storage on the given position.
@@ -56,7 +56,7 @@ public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAn
      * @param  coordinate The coordinate to get the block information from.
      * @return The blockstate on the given position.
      */
-    default BlockInformation getBlockInformation(Vec3i coordinate) {
+    default IBlockInformation getBlockInformation(Vec3i coordinate) {
         return getBlockInformation(coordinate.getX(), coordinate.getY(), coordinate.getZ());
     }
 
@@ -68,14 +68,14 @@ public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAn
      * @param z The z offset, from to {@link #getSize()} excluding.
      * @param blockState The block information to set.
      */
-    void setBlockInformation(int x, int y, int z, BlockInformation blockState);
+    void setBlockInformation(int x, int y, int z, IBlockInformation blockState);
 
     /**
      * Counts the entries of this storage and passes the results into the consumer.
      *
      * @param storageConsumer The consumer of the results.
      */
-    void count(BiConsumer<BlockInformation, Integer> storageConsumer);
+    void count(BiConsumer<IBlockInformation, Integer> storageConsumer);
 
     /**
      * The internal raw data array.
@@ -97,12 +97,12 @@ public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAn
      * @param state The state to fill with.
      * @param entries The entries to fill with.
      */
-    void fillFromBottom(BlockInformation state, int entries);
+    void fillFromBottom(IBlockInformation state, int entries);
 
     /**
      * Provides access to a read-only copy of the palette that is in use in this storage.
      *
      * @return The palette.
      */
-    List<BlockInformation> getContainedPalette();
+    List<IBlockInformation> getContainedPalette();
 }

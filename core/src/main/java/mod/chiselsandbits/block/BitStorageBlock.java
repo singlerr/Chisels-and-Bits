@@ -2,11 +2,13 @@ package mod.chiselsandbits.block;
 
 import com.google.common.collect.Lists;
 import mod.chiselsandbits.api.block.bitbag.IBitBagAcceptingBlock;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
+import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.registrars.ModBlocks;
@@ -159,7 +161,7 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
             final int count = stack.getOrCreateTag().getInt(NbtConstants.COUNT);
 
             blockEntity.setContents(
-                    new BlockInformation(blockState),
+                    new BlockInformation(blockState, IStateVariantManager.getInstance().getStateVariant(blockState, Optional.empty())),
                     count
             );
 
@@ -190,7 +192,7 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
 
         final IBitInventory bitInventory = IBitInventoryManager.getInstance().create(bitBagStack);
 
-        final BlockInformation containedState = storage.getContainedBlockInformation();
+        final IBlockInformation containedState = storage.getContainedBlockInformation();
 
         if (player.isShiftKeyDown() && (containedState != null)) {
             final int maxAmountToInsert = bitInventory.getMaxInsertAmount(containedState);
@@ -207,14 +209,14 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
             bitInventory.extract(containedState, bitCountToInsert);
         }
         else if (!player.isShiftKeyDown()) {
-            final Optional<BlockInformation> toExtractCandidate =
+            final Optional<IBlockInformation> toExtractCandidate =
                 bitInventory.getContainedStates()
                   .entrySet()
                   .stream()
                   .max(Map.Entry.comparingByValue())
                   .map(Map.Entry::getKey);
             if (toExtractCandidate.isPresent()) {
-                final BlockInformation toExtractState = toExtractCandidate.get();
+                final IBlockInformation toExtractState = toExtractCandidate.get();
                 final int maxAmountToInsert = StateEntrySize.current().getBitsPerBlock();
                 final int bitCountToInsert = Math.min(bitInventory.getMaxExtractAmount(toExtractState), maxAmountToInsert);
 

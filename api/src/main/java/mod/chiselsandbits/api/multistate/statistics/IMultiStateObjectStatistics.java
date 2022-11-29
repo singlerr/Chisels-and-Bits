@@ -1,11 +1,10 @@
 package mod.chiselsandbits.api.multistate.statistics;
 
 import mod.chiselsandbits.api.axissize.CollisionType;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.item.multistate.IStatistics;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.AirBlock;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.BitSet;
 import java.util.Map;
@@ -26,13 +25,13 @@ public interface IMultiStateObjectStatistics extends IStatistics
      *
      * @return The primary block state of the multi state block.
      */
-    BlockInformation getPrimaryState();
+    IBlockInformation getPrimaryState();
 
     /**
      * An immutable copy of the map that contains the counts of all blockstates in the multistate block.
      * @return The blockstate count map.
      */
-    Map<BlockInformation, Integer> getStateCounts();
+    Map<IBlockInformation, Integer> getStateCounts();
 
     /**
      * Returns all states (without count) that are contained in the object
@@ -40,7 +39,7 @@ public interface IMultiStateObjectStatistics extends IStatistics
      * @return All states in the object.
      */
     @Override
-    default Set<BlockInformation> getContainedStates() {
+    default Set<IBlockInformation> getContainedStates() {
         return getStateCounts().keySet();
     }
 

@@ -3,7 +3,8 @@ package mod.chiselsandbits.client.model.baked.chiseled;
 import com.communi.suggestu.scena.core.client.models.IModelManager;
 import com.google.common.collect.*;
 import com.mojang.math.Vector3f;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
@@ -95,10 +96,10 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
     }
 
     public ChiseledBlockBakedModel(
-            final BlockInformation state,
+            final IBlockInformation state,
             final ChiselRenderType layer,
             final IAreaAccessor data,
-            final Function<Vec3, BlockInformation> neighborStateSupplier,
+            final Function<Vec3, IBlockInformation> neighborStateSupplier,
             final long primaryStateRenderSeed,
             @NotNull final RenderType renderType) {
         chiselRenderType = layer;
@@ -148,7 +149,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
     private void generateFaces(
             final ChiseledBlockModelBuilder builder,
             final IAreaAccessor accessor,
-            final Function<Vec3, BlockInformation> neighborStateSupplier,
+            final Function<Vec3, IBlockInformation> neighborStateSupplier,
             final long primaryStateRenderSeed,
             @NotNull final RenderType renderType) {
         final List<List<FaceRegion>> resultingFaces = new ArrayList<>();
@@ -415,7 +416,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
             final Direction[] potentialDirections,
             final Function<Vec3, Double> regionBuildingAxisValueExtractor,
             final Function<Vec3, Double> faceBuildingAxisValueExtractor,
-            final Function<Vec3, BlockInformation> neighborStateSupplier) {
+            final Function<Vec3, IBlockInformation> neighborStateSupplier) {
         final ArrayList<FaceRegion> regions = Lists.newArrayList();
         final ICullTest test = chiselRenderType.getTest();
 
@@ -484,7 +485,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
             final Direction facing,
             final IStateEntryInfo target,
             final ICullTest test,
-            final Function<Vec3, BlockInformation> neighborStateSupplier) {
+            final Function<Vec3, IBlockInformation> neighborStateSupplier) {
         return Optional.of(target)
                 .filter(stateEntryInfo -> {
                     final Vec3 faceOffSet = Vec3.atLowerCornerOf(facing.getNormal()).multiply(
@@ -495,7 +496,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
                     final Vec3 offsetTarget = stateEntryInfo.getStartPoint().add(faceOffSet);
 
                     if (!blob.isInside(offsetTarget)) {
-                        final BlockInformation externalNeighborState = neighborStateSupplier.apply(offsetTarget);
+                        final IBlockInformation externalNeighborState = neighborStateSupplier.apply(offsetTarget);
 
                         return Optional.of(externalNeighborState)
                                 .map(neighborState -> test.isVisible(stateEntryInfo.getBlockInformation(), neighborState))

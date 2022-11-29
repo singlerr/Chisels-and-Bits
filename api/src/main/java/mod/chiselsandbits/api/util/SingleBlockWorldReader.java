@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.util;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -31,25 +31,25 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements Le
 {
     private final LevelReader reader;
 
-    public SingleBlockWorldReader(final BlockInformation blockInformation, final Block blk, final LevelReader reader)
+    public SingleBlockWorldReader(final IBlockInformation blockInformation, final Block blk, final LevelReader reader)
     {
         super(blockInformation, blk, reader);
         this.reader = reader;
     }
 
-    public SingleBlockWorldReader(final BlockInformation blockInformation, final LevelReader reader)
+    public SingleBlockWorldReader(final IBlockInformation blockInformation, final LevelReader reader)
     {
         super(blockInformation, blockInformation.getBlockState().getBlock(), reader);
         this.reader = reader;
     }
 
-    public SingleBlockWorldReader(final BlockInformation blockInformation, final Block blk, final BlockPos pos, final LevelReader reader)
+    public SingleBlockWorldReader(final IBlockInformation blockInformation, final Block blk, final BlockPos pos, final LevelReader reader)
     {
         super(blockInformation, blk, pos, reader);
         this.reader = reader;
     }
 
-    public SingleBlockWorldReader(final BlockInformation blockInformation, final BlockPos pos, final LevelReader reader)
+    public SingleBlockWorldReader(final IBlockInformation blockInformation, final BlockPos pos, final LevelReader reader)
     {
         super(blockInformation, pos, reader);
         this.reader = reader;

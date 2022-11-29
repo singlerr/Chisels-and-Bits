@@ -3,7 +3,8 @@ package mod.chiselsandbits.chiseling.modes.connected.plane;
 import com.communi.suggestu.scena.core.registries.AbstractCustomRegistryEntry;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -91,7 +92,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
               {
                   context.setComplete();
 
-                  final Map<BlockInformation, Integer> resultingBitCount = Maps.newHashMap();
+                  final Map<IBlockInformation, Integer> resultingBitCount = Maps.newHashMap();
 
                   final Predicate<IStateEntryInfo> filter = context.getStateFilter()
                     .map(builder -> builder.apply(mutator))
@@ -100,7 +101,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
                   final int totalDamage = mutator.inWorldMutableStream()
                     .filter(filter)
                     .mapToInt(state -> {
-                        final BlockInformation currentState = state.getBlockInformation();
+                        final IBlockInformation currentState = state.getBlockInformation();
 
                         return context.tryDamageItemAndDoOrSetBrokenError(
                           () -> {
@@ -198,7 +199,7 @@ public class ConnectedPlaneChiselingMode extends AbstractCustomRegistryEntry imp
         }
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
-              final BlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
+              final IBlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
               if (heldBlockState.isAir())
               {
                   context.setError(LocalStrings.ChiselAttemptFailedNoPlaceableBitHeld.getText());

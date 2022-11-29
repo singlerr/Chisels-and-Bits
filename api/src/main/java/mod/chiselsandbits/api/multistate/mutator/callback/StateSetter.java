@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.multistate.mutator.callback;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import net.minecraft.world.phys.Vec3;
 
@@ -18,5 +18,5 @@ public interface StateSetter
      * @param inAreaTarget The target area.
      * @throws SpaceOccupiedException If the target area is occupied.
      */
-    void set(BlockInformation blockInformation, Vec3 inAreaTarget) throws SpaceOccupiedException;
+    void set(IBlockInformation blockInformation, Vec3 inAreaTarget) throws SpaceOccupiedException;
 }

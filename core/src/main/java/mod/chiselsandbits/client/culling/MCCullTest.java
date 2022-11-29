@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client.culling;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import net.minecraft.core.Direction;
 
 /**
@@ -12,8 +13,8 @@ public class MCCullTest implements ICullTest
 {
 	@Override
 	public boolean isVisible(
-			final BlockInformation a,
-			final BlockInformation b )
+			final IBlockInformation a,
+			final IBlockInformation b )
 	{
 		if ( a == b )
 		{

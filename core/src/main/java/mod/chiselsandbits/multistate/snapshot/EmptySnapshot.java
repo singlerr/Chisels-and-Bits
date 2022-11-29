@@ -2,7 +2,8 @@ package mod.chiselsandbits.multistate.snapshot;
 
 import com.google.common.collect.ImmutableMap;
 import mod.chiselsandbits.api.axissize.CollisionType;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.item.multistate.IStatistics;
@@ -44,7 +45,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
         }
 
         @Override
-        public BlockInformation getPrimaryState()
+        public IBlockInformation getPrimaryState()
         {
             return BlockInformation.AIR;
         }
@@ -56,9 +57,9 @@ public class EmptySnapshot implements IMultiStateSnapshot
         }
 
         @Override
-        public Map<BlockInformation, Integer> getStateCounts()
+        public Map<IBlockInformation, Integer> getStateCounts()
         {
-            return ImmutableMap.<BlockInformation, Integer>builder().build();
+            return ImmutableMap.<IBlockInformation, Integer>builder().build();
         }
 
         @Override
@@ -176,14 +177,14 @@ public class EmptySnapshot implements IMultiStateSnapshot
 
     @Override
     public void setInAreaTarget(
-      final BlockInformation blockState,
+      final IBlockInformation blockState,
       final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
 
     }
 
     @Override
-    public void setInBlockTarget(final BlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final IBlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
 
     }
@@ -249,7 +250,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
         {
             return new IStatistics() {
                 @Override
-                public BlockInformation getPrimaryState()
+                public IBlockInformation getPrimaryState()
                 {
                     return BlockInformation.AIR;
                 }
@@ -272,7 +273,7 @@ public class EmptySnapshot implements IMultiStateSnapshot
                 }
 
                 @Override
-                public Set<BlockInformation> getContainedStates() {
+                public Set<IBlockInformation> getContainedStates() {
                     return Collections.emptySet();
                 }
             };
@@ -353,14 +354,14 @@ public class EmptySnapshot implements IMultiStateSnapshot
 
         @Override
         public void setInAreaTarget(
-          final BlockInformation blockInformation,
+          final IBlockInformation blockInformation,
           final Vec3 inAreaTarget) throws SpaceOccupiedException
         {
 
         }
 
         @Override
-        public void setInBlockTarget(final BlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
+        public void setInBlockTarget(final IBlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
         {
 
         }

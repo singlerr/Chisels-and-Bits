@@ -4,7 +4,8 @@ import com.google.common.collect.Maps;
 import com.google.common.math.LongMath;
 import com.mojang.datafixers.util.Pair;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
@@ -81,7 +82,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     }
 
     @Override
-    public void initializeWith(final BlockInformation currentState)
+    public void initializeWith(final IBlockInformation currentState)
     {
         clear();
         if (currentState.getBlockState() == Blocks.AIR.defaultBlockState())
@@ -107,13 +108,14 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
             position.getY(),
             position.getZ(),
             new BlockInformation(
-              chunkSection.getBlockState(position.getX(), position.getY(), position.getZ())
+              chunkSection.getBlockState(position.getX(), position.getY(), position.getZ()),
+          Optional.empty()
             )
           ));
     }
 
     @Override
-    public BlockInformation getBlockInformation(final int x, final int y, final int z)
+    public IBlockInformation getBlockInformation(final int x, final int y, final int z)
     {
         final int offSetIndex = doCalculatePositionIndex(x, y, z);
         final int blockStateId = ByteArrayUtils.getValueAt(data, entryWidth, offSetIndex);
@@ -122,7 +124,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     }
 
     @Override
-    public void setBlockInformation(final int x, final int y, final int z, final BlockInformation blockState)
+    public void setBlockInformation(final int x, final int y, final int z, final IBlockInformation blockState)
     {
         final int offSetIndex = doCalculatePositionIndex(x, y, z);
         final int blockStateId = palette.getIndex(blockState);
@@ -156,9 +158,9 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     }
 
     @Override
-    public void count(final BiConsumer<BlockInformation, Integer> storageConsumer)
+    public void count(final BiConsumer<IBlockInformation, Integer> storageConsumer)
     {
-        final Map<BlockInformation, Integer> countMap = Maps.newHashMap();
+        final Map<IBlockInformation, Integer> countMap = Maps.newHashMap();
 
         BlockPosStreamProvider.getForRange(this.getSize())
           .map(position -> getBlockInformation(position.getX(), position.getY(), position.getZ()))
@@ -185,7 +187,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     }
 
     @Override
-    public void fillFromBottom(final BlockInformation state, final int entries)
+    public void fillFromBottom(final IBlockInformation state, final int entries)
     {
         clear();
         final int loopCount = Math.max(0, Math.min(entries, StateEntrySize.current().getBitsPerBlock()));
@@ -213,7 +215,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     }
 
     @Override
-    public List<BlockInformation> getContainedPalette()
+    public List<IBlockInformation> getContainedPalette()
     {
         return palette.getStates();
     }
@@ -273,7 +275,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
             {
                 for (int z = 0; z < getSize(); z++)
                 {
-                    final BlockInformation blockInformation = clone.getBlockInformation(x, y, z);
+                    final IBlockInformation blockInformation = clone.getBlockInformation(x, y, z);
 
                     final int mirroredX = axis == Direction.Axis.X ? (getSize() - x - 1) : x;
                     final int mirroredY = axis == Direction.Axis.Y ? (getSize() - y - 1) : y;
@@ -312,20 +314,20 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
             return;
         }
 
-        this.palette.deserializeNBT((ListTag) nbt.get(NbtConstants.PALETTE));
+        this.palette.deserializeNBT((ListTag) Objects.requireNonNull(nbt.get(NbtConstants.PALETTE)));
         this.data = BitSet.valueOf(nbt.getByteArray(NbtConstants.DATA));
 
-        final Set<BlockInformation> containedStates = new HashSet<>();
+        final Set<IBlockInformation> containedStates = new HashSet<>();
         for (int i = 0; i < getTotalEntryCount(); i++)
         {
             final Vec3i pos = doCalculatePosition(i);
-            final BlockInformation blockState = getBlockInformation(pos);
+            final IBlockInformation blockState = getBlockInformation(pos);
             containedStates.add(blockState);
         }
 
-        final List<BlockInformation> paletteStates = new ArrayList<>(this.palette.getStates());
+        final List<IBlockInformation> paletteStates = new ArrayList<>(this.palette.getStates());
         paletteStates.removeAll(containedStates);
-        paletteStates.remove(new BlockInformation(Blocks.AIR.defaultBlockState())); //We need to keep this!
+        paletteStates.remove(BlockInformation.AIR); //We need to keep this!
 
         this.isDeserializing = false;
 

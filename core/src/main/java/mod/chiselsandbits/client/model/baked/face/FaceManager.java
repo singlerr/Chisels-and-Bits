@@ -2,13 +2,14 @@ package mod.chiselsandbits.client.model.baked.face;
 
 import com.communi.suggestu.scena.core.client.fluid.IClientFluidManager;
 import com.communi.suggestu.scena.core.client.models.baked.IDataAwareBakedModel;
-import com.communi.suggestu.scena.core.client.models.data.IBlockModelData;
 import com.communi.suggestu.scena.core.client.rendering.IRenderingManager;
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
 import com.google.common.collect.Lists;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
+import mod.chiselsandbits.api.client.variant.state.IClientStateVariantManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
 import mod.chiselsandbits.client.model.baked.face.model.ModelVertexRange;
@@ -48,7 +49,7 @@ public final class FaceManager {
     private final SimpleMaxSizedCache<Key, Collection<ModelQuadLayer>> cache = new SimpleMaxSizedCache<>(
             IClientConfiguration.getInstance().getFaceLayerCacheSize()::get
     );
-    private final SimpleMaxSizedCache<BlockInformation, Integer> colorCache = new SimpleMaxSizedCache<>(
+    private final SimpleMaxSizedCache<IBlockInformation, Integer> colorCache = new SimpleMaxSizedCache<>(
             () -> IPlatformRegistryManager.getInstance().getBlockStateIdMap().size() == 0 ? 1000 : IPlatformRegistryManager.getInstance().getBlockStateIdMap().size()
     );
 
@@ -61,7 +62,7 @@ public final class FaceManager {
     }
 
     private static Optional<ModelQuadLayer> createQuadLayer(
-            final BakedQuad quad, BlockInformation blockInformation, final Direction cullDirection, final int stateColor) {
+            final BakedQuad quad, IBlockInformation blockInformation, final Direction cullDirection, final int stateColor) {
         if (quad.getDirection() != cullDirection)
             return Optional.empty();
 
@@ -83,7 +84,7 @@ public final class FaceManager {
     }
 
     private static BakedModel solveModel(
-            final BlockInformation state,
+            final IBlockInformation state,
             final BakedModel originalModel,
             final long primaryStateRenderSeed,
             final RenderType renderType
@@ -131,7 +132,7 @@ public final class FaceManager {
 
     private static boolean hasFaces(
             final BakedModel model,
-            final BlockInformation state,
+            final IBlockInformation state,
             final Direction f,
             final long primaryStateRenderSeed,
             final RenderType renderType) {
@@ -157,7 +158,7 @@ public final class FaceManager {
     }
 
     public static TextureAtlasSprite findTexture(
-            final BlockInformation state,
+            final IBlockInformation state,
             final BakedModel model,
             final Direction myFace,
             final long primaryStateRenderSeed,
@@ -234,7 +235,7 @@ public final class FaceManager {
 
     private static List<BakedQuad> getModelQuads(
             final BakedModel model,
-            final BlockInformation state,
+            final IBlockInformation state,
             final Direction f,
             final long primaryStateRenderSeed,
             final RenderType renderType) {
@@ -242,7 +243,7 @@ public final class FaceManager {
         RANDOM.setSeed(primaryStateRenderSeed);
         try {
             if (model instanceof IDataAwareBakedModel dataAwareBakedModel) {
-                return dataAwareBakedModel.getQuads(state.getBlockState(), f, RANDOM, IBlockModelData.empty(), renderType);
+                return dataAwareBakedModel.getQuads(state.getBlockState(), f, RANDOM, IClientStateVariantManager.getInstance().getBlockModelData(state), renderType);
             } else {
                 return model.getQuads(state.getBlockState(), f, RANDOM);
             }
@@ -252,7 +253,7 @@ public final class FaceManager {
         try {
             // try to get item model?
             if (model instanceof IDataAwareBakedModel dataAwareBakedModel) {
-                return dataAwareBakedModel.getQuads(null, f, RANDOM, IBlockModelData.empty(), renderType);
+                return dataAwareBakedModel.getQuads(null, f, RANDOM, IClientStateVariantManager.getInstance().getBlockModelData(state), renderType);
             } else {
                 return model.getQuads(null, f, RANDOM);
             }
@@ -266,7 +267,7 @@ public final class FaceManager {
             if (secondModel != null) {
                 try {
                     if (secondModel instanceof IDataAwareBakedModel dataAwareBakedModel) {
-                        return dataAwareBakedModel.getQuads(state.getBlockState(), f, RANDOM, IBlockModelData.empty(), renderType);
+                        return dataAwareBakedModel.getQuads(state.getBlockState(), f, RANDOM, IClientStateVariantManager.getInstance().getBlockModelData(state), renderType);
                     } else {
                         return secondModel.getQuads(state.getBlockState(), f, RANDOM);
                     }
@@ -385,7 +386,7 @@ public final class FaceManager {
     }
 
     public Collection<ModelQuadLayer> getCachedLayersFor(
-            final BlockInformation state,
+            final IBlockInformation state,
             final Direction face,
             final RenderType layer,
             final long primaryStateRenderSeed,
@@ -405,7 +406,7 @@ public final class FaceManager {
     }
 
     private List<ModelQuadLayer> buildFaceQuadLayers(
-            final BlockInformation blockInformation,
+            final IBlockInformation blockInformation,
             final Direction cullDirection,
             final long primaryStateRenderSeed,
             @NotNull RenderType renderType) {
@@ -450,7 +451,7 @@ public final class FaceManager {
     }
 
     private int getColorFor(
-            final BlockInformation state) {
+            final IBlockInformation state) {
         return colorCache.get(state, () -> {
             final Optional<Integer> dynamicColor = IBlockInformationColorManager.getInstance()
                     .getColor(state);
@@ -477,7 +478,7 @@ public final class FaceManager {
         });
     }
 
-    private record Key(BlockInformation blockState, RenderType renderType, Direction direction,
+    private record Key(IBlockInformation blockState, RenderType renderType, Direction direction,
                        long primaryStateSeed, RenderType type) {
     }
 }

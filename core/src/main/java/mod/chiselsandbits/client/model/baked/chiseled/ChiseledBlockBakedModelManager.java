@@ -1,6 +1,7 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
@@ -19,8 +20,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 
 public class ChiseledBlockBakedModelManager {
@@ -70,9 +69,9 @@ public class ChiseledBlockBakedModelManager {
 
     public ChiseledBlockBakedModel get(
             final IAreaAccessor accessor,
-            final BlockInformation primaryState,
+            final IBlockInformation primaryState,
             final ChiselRenderType chiselRenderType,
-            @Nullable final Function<Direction, BlockInformation> neighborhoodBlockInformationProvider,
+            @Nullable final Function<Direction, IBlockInformation> neighborhoodBlockInformationProvider,
             @Nullable final Function<Direction, IAreaAccessor> neighborhoodAreaAccessorProvider,
             @NotNull final BlockPos position,
             @NotNull final RenderType renderType
@@ -87,7 +86,7 @@ public class ChiseledBlockBakedModelManager {
 
     public ChiseledBlockBakedModel get(
             final IAreaAccessor accessor,
-            final BlockInformation primaryState,
+            final IBlockInformation primaryState,
             final ChiselRenderType chiselRenderType,
             @NotNull IBlockNeighborhood blockNeighborhood,
             @NotNull BlockPos position,
@@ -146,7 +145,7 @@ public class ChiseledBlockBakedModelManager {
         }
     }
 
-    private record Key(IAreaShapeIdentifier identifier, BlockInformation primaryState,
+    private record Key(IAreaShapeIdentifier identifier, IBlockInformation primaryState,
                        ChiselRenderType chiselRenderType, IBlockNeighborhood neighborhood, long renderSeed,
                        RenderType renderType) {
         }

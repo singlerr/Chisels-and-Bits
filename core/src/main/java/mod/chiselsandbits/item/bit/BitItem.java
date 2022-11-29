@@ -4,8 +4,9 @@ import com.communi.suggestu.scena.core.fluid.IFluidManager;
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
-import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.block.ChiseledBlock;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
@@ -21,12 +22,11 @@ import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.documentation.IDocumentableItem;
 import mod.chiselsandbits.api.notifications.INotificationManager;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.client.render.ModRenderTypes;
-import mod.chiselsandbits.api.util.constants.Constants;
-import mod.chiselsandbits.config.ClientConfiguration;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.client.Minecraft;
@@ -35,7 +35,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
@@ -61,8 +60,6 @@ import java.util.stream.Collectors;
 public class BitItem extends Item implements IChiselingItem, IBitItem, IDocumentableItem
 {
     private static final Logger LOGGER = LogManager.getLogger();
-
-    private static final String LEGACY_BLOCK_STATE_ID_KEY = "id";
 
     private final List<ItemStack> availableBitStacks = Lists.newLinkedList();
 
@@ -263,25 +260,7 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     @Override
     public @NotNull BlockInformation getBlockInformation(final ItemStack stack)
     {
-        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_STATE)) {
-            final BlockInformation blockInformation = new BlockInformation(NbtUtils.readBlockState(stack.getOrCreateTagElement(NbtConstants.BLOCK_STATE)));
-            stack.getOrCreateTag().remove(NbtConstants.BLOCK_STATE);
-            stack.getOrCreateTag().put(NbtConstants.BLOCK_INFORMATION, blockInformation.serializeNBT());
-            return blockInformation;
-        }
-
-        if (stack.getOrCreateTag().contains(LEGACY_BLOCK_STATE_ID_KEY)) {
-            final BlockInformation blockInformation = new BlockInformation(IBlockStateIdManager.getInstance().getBlockStateFrom(stack.getOrCreateTag().getInt(LEGACY_BLOCK_STATE_ID_KEY)));
-            stack.getOrCreateTag().remove(LEGACY_BLOCK_STATE_ID_KEY);
-            stack.getOrCreateTag().put(NbtConstants.BLOCK_INFORMATION, blockInformation.serializeNBT());
-            return blockInformation;
-        }
-
-        if (stack.getOrCreateTag().contains(NbtConstants.BLOCK_INFORMATION)) {
-            return new BlockInformation(stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_INFORMATION));
-        }
-
-        return BlockInformation.AIR;
+        return new BlockInformation(stack.getOrCreateTag().getCompound(NbtConstants.BLOCK_INFORMATION));
     }
 
     @Override
@@ -549,24 +528,29 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         if (availableBitStacks.isEmpty()) {
             IPlatformRegistryManager.getInstance().getBlockRegistry().getValues()
               .forEach(block -> {
-                  if (IEligibilityManager.getInstance().canBeChiseled(block)) {
-                      final BlockState blockState = block.defaultBlockState();
+                  if (block instanceof ChiseledBlock)
+                      return;
 
-                      final Collection<BlockInformation> defaultStateVariants = IStateVariantManager.getInstance().getAllDefaultVariants(blockState);
-                      if (defaultStateVariants.isEmpty()) {
-                          final ItemStack resultStack = IBitItemManager.getInstance().create(new BlockInformation(blockState));
+                  final BlockState blockState = block.defaultBlockState();
+                  final Collection<IBlockInformation> defaultStateVariants = IStateVariantManager.getInstance().getAllDefaultVariants(blockState);
+
+                  if (!defaultStateVariants.isEmpty()) {
+                      defaultStateVariants.forEach(blockInformation -> {
+                          final ItemStack resultStack = IBitItemManager.getInstance().create(blockInformation);
 
                           if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem)
                               this.availableBitStacks.add(resultStack);
-                      }
-                      else
-                      {
-                          defaultStateVariants.forEach(blockInformation -> {
-                              final ItemStack resultStack = IBitItemManager.getInstance().create(blockInformation);
+                      });
+                      return;
+                  }
 
-                              if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem)
-                                  this.availableBitStacks.add(resultStack);
-                          });
+                  final BlockInformation information = new BlockInformation(blockState, Optional.empty());
+
+                  if (IEligibilityManager.getInstance().canBeChiseled(information)) {
+                      final ItemStack resultStack = IBitItemManager.getInstance().create(information);
+
+                      if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem) {
+                          this.availableBitStacks.add(resultStack);
                       }
                   }
               });

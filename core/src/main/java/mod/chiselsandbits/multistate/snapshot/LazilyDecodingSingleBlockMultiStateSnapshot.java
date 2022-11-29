@@ -3,7 +3,8 @@ package mod.chiselsandbits.multistate.snapshot;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
@@ -139,7 +140,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
 
         load();
 
-        final BlockInformation currentInformation = this.lazyChunkSection.getBlockInformation(
+        final IBlockInformation currentInformation = this.lazyChunkSection.getBlockInformation(
           inAreaPos.getX(),
           inAreaPos.getY(),
           inAreaPos.getZ()
@@ -250,7 +251,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     @SuppressWarnings("deprecation")
     @Override
     public void setInAreaTarget(
-      final BlockInformation blockState,
+      final IBlockInformation blockState,
       final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
         if (inAreaTarget.x() < 0 ||
@@ -269,7 +270,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
 
         load();
 
-        final BlockInformation currentInformation = this.lazyChunkSection.getBlockInformation(inAreaPos.getX(), inAreaPos.getY(), inAreaPos.getZ());
+        final IBlockInformation currentInformation = this.lazyChunkSection.getBlockInformation(inAreaPos.getX(), inAreaPos.getY(), inAreaPos.getZ());
         if (!currentInformation.isAir())
         {
             throw new SpaceOccupiedException();
@@ -284,7 +285,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     }
 
     @Override
-    public void setInBlockTarget(final BlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final IBlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO))
         {
@@ -320,7 +321,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
 
         load();
 
-        final BlockInformation airState = BlockInformation.AIR;
+        final IBlockInformation airState = BlockInformation.AIR;
 
         this.lazyChunkSection.setBlockInformation(
           inAreaPos.getX(),
@@ -358,7 +359,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     public IMultiStateItemStack toItemStack()
     {
         load();
-        final BlockInformation primaryState = determinePrimaryState();
+        final IBlockInformation primaryState = determinePrimaryState();
         final Material blockMaterial = primaryState.getBlockState().getMaterial();
         final Material conversionMaterial = MaterialManager.getInstance().remapMaterialIfNeeded(blockMaterial);
 
@@ -396,13 +397,13 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
             }
 
             @Override
-            public BlockInformation getPrimaryState()
+            public IBlockInformation getPrimaryState()
             {
                 return determinePrimaryState();
             }
 
             @Override
-            public Map<BlockInformation, Integer> getStateCounts()
+            public Map<IBlockInformation, Integer> getStateCounts()
             {
                 return stream().collect(Collectors.toMap(
                   IStateEntryInfo::getBlockInformation,
@@ -470,17 +471,17 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         };
     }
 
-    private BlockInformation determinePrimaryState()
+    private IBlockInformation determinePrimaryState()
     {
-        final Map<BlockInformation, Integer> countMap = Maps.newHashMap();
+        final Map<IBlockInformation, Integer> countMap = Maps.newHashMap();
 
         load();
 
         this.lazyChunkSection.count(countMap::put);
 
-        BlockInformation maxState = BlockInformation.AIR;
+        IBlockInformation maxState = BlockInformation.AIR;
         int maxCount = 0;
-        for (final Map.Entry<BlockInformation, Integer> blockStateIntegerEntry : countMap.entrySet())
+        for (final Map.Entry<IBlockInformation, Integer> blockStateIntegerEntry : countMap.entrySet())
         {
             if (maxCount < blockStateIntegerEntry.getValue() && !blockStateIntegerEntry.getKey().isAir())
             {
@@ -528,14 +529,14 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     private static class StateEntry implements IMutableStateEntryInfo
     {
 
-        private final BlockInformation blockInformation;
+        private final IBlockInformation blockInformation;
         private final Vec3             startPoint;
         private final Vec3         endPoint;
         private final StateSetter  stateSetter;
         private final StateClearer stateClearer;
 
         private StateEntry(
-          final BlockInformation blockInformation,
+          final IBlockInformation blockInformation,
           final Vec3i startPoint,
           final StateSetter stateSetter,
           final StateClearer stateClearer)
@@ -551,7 +552,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         }
 
         @Override
-        public @NotNull BlockInformation getBlockInformation()
+        public @NotNull IBlockInformation getBlockInformation()
         {
             return blockInformation;
         }
@@ -569,7 +570,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         }
 
         @Override
-        public void setBlockInformation(final BlockInformation blockInformation) throws SpaceOccupiedException
+        public void setBlockInformation(final IBlockInformation blockInformation) throws SpaceOccupiedException
         {
             stateSetter.set(blockInformation, getStartPoint());
         }
@@ -617,7 +618,7 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
         }
 
         @Override
-        public List<BlockInformation> getPalette()
+        public List<IBlockInformation> getPalette()
         {
             return snapshot.getContainedPalette();
         }

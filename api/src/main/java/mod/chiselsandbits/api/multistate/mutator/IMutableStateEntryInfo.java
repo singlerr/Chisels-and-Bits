@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.multistate.mutator;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 
@@ -12,7 +12,7 @@ public interface IMutableStateEntryInfo extends IStateEntryInfo
      * @param blockInformation The new block information of the entry.
      * @throws SpaceOccupiedException When the space is not clear and as such the bit can not be set.
      */
-    void setBlockInformation(final BlockInformation blockInformation) throws SpaceOccupiedException;
+    void setBlockInformation(final IBlockInformation blockInformation) throws SpaceOccupiedException;
 
     /**
      * Clears the current state entries blockstate.
@@ -25,7 +25,7 @@ public interface IMutableStateEntryInfo extends IStateEntryInfo
      *
      * @param blockInformation The new block information of the entry.
      */
-    default void overrideState(final BlockInformation blockInformation) {
+    default void overrideState(final IBlockInformation blockInformation) {
         try
         {
             clear();

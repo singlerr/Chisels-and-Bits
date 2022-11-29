@@ -3,6 +3,7 @@ package mod.chiselsandbits.client.colors;
 import com.communi.suggestu.scena.core.client.fluid.IClientFluidManager;
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.AirItem;
@@ -16,6 +17,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Optional;
+
 public class ChiseledBlockItemItemColor implements ItemColor
 {
     private static final int TINT_MASK = 0xff;
@@ -27,6 +30,7 @@ public class ChiseledBlockItemItemColor implements ItemColor
       final int tint )
     {
         final BlockState state = IBlockStateIdManager.getInstance().getBlockStateFrom( tint >> TINT_BITS );
+        final BlockInformation blockInformation = new BlockInformation(state, Optional.empty());
         if(state.getBlock() instanceof LiquidBlock) {
             return IClientFluidManager.getInstance().getFluidColor(new FluidInformation(
                     state.getFluidState().getType()
@@ -47,7 +51,7 @@ public class ChiseledBlockItemItemColor implements ItemColor
             return 0xffffff;
         }
 
-        if (!IEligibilityManager.getInstance().canBeChiseled(state))
+        if (!IEligibilityManager.getInstance().canBeChiseled(blockInformation))
         {
             return 0xffffff;
         }

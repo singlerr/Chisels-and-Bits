@@ -2,15 +2,17 @@ package mod.chiselsandbits.chiseling.eligibility;
 
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
 import mod.chiselsandbits.api.IgnoreBlockLogic;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityAnalysisResult;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.block.ChiseledBlock;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModTags;
+import mod.chiselsandbits.stateinfo.additional.StateVariantManager;
 import mod.chiselsandbits.utils.ClassUtils;
 import mod.chiselsandbits.utils.ReflectionHelperBlock;
 import mod.chiselsandbits.utils.SimpleMaxSizedCache;
@@ -18,6 +20,7 @@ import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ItemLike;
@@ -34,7 +37,7 @@ public class EligibilityManager implements IEligibilityManager
 {
     private static final EligibilityManager INSTANCE = new EligibilityManager();
 
-    private static final SimpleMaxSizedCache<BlockInformation, IEligibilityAnalysisResult> cache =
+    private static final SimpleMaxSizedCache<IBlockInformation, IEligibilityAnalysisResult> cache =
         new SimpleMaxSizedCache<>(() -> IPlatformRegistryManager.getInstance().getBlockStateIdMap().size() == 0 ? 1000 : IPlatformRegistryManager.getInstance().getBlockStateIdMap().size());
 
     private EligibilityManager()
@@ -48,7 +51,7 @@ public class EligibilityManager implements IEligibilityManager
 
     @SuppressWarnings("deprecation")
     @Override
-    public IEligibilityAnalysisResult analyse(@NotNull final BlockInformation blockInformation)
+    public IEligibilityAnalysisResult analyse(@NotNull final IBlockInformation blockInformation)
     {
         return cache.get(blockInformation, () -> {
             if (blockInformation.getBlockState().getBlock() instanceof ChiseledBlock)
@@ -57,6 +60,14 @@ public class EligibilityManager implements IEligibilityManager
                   false,
                   true,
                   LocalStrings.ChiselSupportIsAlreadyChiseled.getText()
+                );
+            }
+
+            if (blockInformation.getVariant().isPresent()){
+                return new EligibilityAnalysisResult(
+                    true,
+                    false,
+                    LocalStrings.ChiselSupportLogicIgnored.getText()
                 );
             }
 
@@ -218,17 +229,17 @@ public class EligibilityManager implements IEligibilityManager
     }
 
     /**
-     * Performs a chiselability analysis on the given {@link ItemLike}.
+     * Performs a chiselability analysis on the given {@link ItemStack}.
      *
      * @param provider The {@link ItemLike} to analyze.
      * @return The analysis result.
      */
     @Override
-    public IEligibilityAnalysisResult analyse(@NotNull final ItemLike provider)
+    public IEligibilityAnalysisResult analyse(@NotNull final ItemStack provider)
     {
-        final Item item = provider.asItem();
-        if (item instanceof BlockItem) {
-            return analyse(((BlockItem) item).getBlock());
+        final Item item = provider.getItem();
+        if (item instanceof BlockItem blockItem) {
+            return analyse(new BlockInformation(blockItem.getBlock().defaultBlockState(), StateVariantManager.getInstance().getStateVariant(blockItem.getBlock().defaultBlockState(), provider)));
         }
 
         return new EligibilityAnalysisResult(

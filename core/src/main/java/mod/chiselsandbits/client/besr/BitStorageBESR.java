@@ -9,7 +9,8 @@ import com.google.common.collect.Sets;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.block.entities.storage.SimpleStateEntryStorage;
@@ -65,7 +66,7 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
         }
 
         final int bits = te.getBits();
-        final BlockInformation blockInformation = te.getContainedBlockInformation();
+        final IBlockInformation blockInformation = te.getContainedBlockInformation();
         if (bits <= 0 || blockInformation == null) return;
 
         final CacheKey cacheKey = new CacheKey(blockInformation, bits);
@@ -106,7 +107,7 @@ public class BitStorageBESR implements BlockEntityRenderer<BitStorageBlockEntity
         poseStack.popPose();
     }
 
-    private record CacheKey(BlockInformation blockInformation, int bitCount) {
+    private record CacheKey(IBlockInformation blockInformation, int bitCount) {
 
     }
 }

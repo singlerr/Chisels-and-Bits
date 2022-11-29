@@ -1,6 +1,6 @@
 package mod.chiselsandbits.api.util;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,12 +15,12 @@ import org.jetbrains.annotations.Nullable;
 public class SingleBlockBlockReader implements BlockGetter
 {
 
-    protected final BlockInformation blockInformation;
+    protected final IBlockInformation blockInformation;
     protected final Block            blk;
     protected final BlockPos pos;
     protected final BlockGetter source;
 
-    public SingleBlockBlockReader(final BlockInformation blockInformation, final Block blk)
+    public SingleBlockBlockReader(final IBlockInformation blockInformation, final Block blk)
     {
         this.blockInformation = blockInformation;
         this.blk = blk;
@@ -28,7 +28,7 @@ public class SingleBlockBlockReader implements BlockGetter
         this.source = null;
     }
 
-    public SingleBlockBlockReader(final BlockInformation blockInformation)
+    public SingleBlockBlockReader(final IBlockInformation blockInformation)
     {
         this.blockInformation = blockInformation;
         this.blk = blockInformation.getBlockState().getBlock();
@@ -36,7 +36,7 @@ public class SingleBlockBlockReader implements BlockGetter
         this.source = null;
     }
 
-    public SingleBlockBlockReader(final BlockInformation blockInformation, final Block blk, final BlockPos pos)
+    public SingleBlockBlockReader(final IBlockInformation blockInformation, final Block blk, final BlockPos pos)
     {
         this.blockInformation = blockInformation;
         this.blk = blk;
@@ -44,7 +44,7 @@ public class SingleBlockBlockReader implements BlockGetter
         this.source = null;
     }
 
-    public SingleBlockBlockReader(final BlockInformation blockInformation, final BlockPos pos)
+    public SingleBlockBlockReader(final IBlockInformation blockInformation, final BlockPos pos)
     {
         this.blockInformation = blockInformation;
         this.blk = blockInformation.getBlockState().getBlock();
@@ -52,7 +52,7 @@ public class SingleBlockBlockReader implements BlockGetter
         this.source = null;
     }
 
-    public SingleBlockBlockReader(final BlockInformation blockInformation, final Block blk, final BlockGetter source)
+    public SingleBlockBlockReader(final IBlockInformation blockInformation, final Block blk, final BlockGetter source)
     {
         this.blockInformation = blockInformation;
         this.blk = blk;
@@ -60,7 +60,7 @@ public class SingleBlockBlockReader implements BlockGetter
         this.pos = BlockPos.ZERO;
     }
 
-    public SingleBlockBlockReader(final BlockInformation blockInformation, final BlockGetter source)
+    public SingleBlockBlockReader(final IBlockInformation blockInformation, final BlockGetter source)
     {
         this.blockInformation = blockInformation;
         this.blk = blockInformation.getBlockState().getBlock();
@@ -68,7 +68,7 @@ public class SingleBlockBlockReader implements BlockGetter
         this.pos = BlockPos.ZERO;
     }
 
-    public SingleBlockBlockReader(final BlockInformation blockInformation, final Block blk, final BlockPos pos, final BlockGetter source)
+    public SingleBlockBlockReader(final IBlockInformation blockInformation, final Block blk, final BlockPos pos, final BlockGetter source)
     {
         this.blockInformation = blockInformation;
         this.blk = blk;
@@ -76,7 +76,7 @@ public class SingleBlockBlockReader implements BlockGetter
         this.source = source;
     }
 
-    public SingleBlockBlockReader(final BlockInformation blockInformation, final BlockPos pos, final BlockGetter source)
+    public SingleBlockBlockReader(final IBlockInformation blockInformation, final BlockPos pos, final BlockGetter source)
     {
         this.blockInformation = blockInformation;
         this.blk = blockInformation.getBlockState().getBlock();

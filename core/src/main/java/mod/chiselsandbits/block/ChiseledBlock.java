@@ -10,7 +10,8 @@ import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
@@ -109,7 +110,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     {
         return getBlockEntity(blockGetter, pos)
                  .map(e -> {
-                     final BlockInformation primaryState = e.getStatistics().getPrimaryState();
+                     final IBlockInformation primaryState = e.getStatistics().getPrimaryState();
 
                      return ILevelBasedPropertyAccessor.getInstance().canHarvestBlock(
                        new SingleBlockBlockReader(
@@ -292,7 +293,7 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
 
     @NotNull
     @Override
-    public BlockInformation getPrimaryState(@NotNull final BlockGetter world, @NotNull final BlockPos pos)
+    public IBlockInformation getPrimaryState(@NotNull final BlockGetter world, @NotNull final BlockPos pos)
     {
         return getBlockEntity(world, pos)
                  .map(e -> e.getStatistics().getPrimaryState())
@@ -399,16 +400,12 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
     @Override
     public boolean canPlaceLiquid(final @NotNull BlockGetter worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state, final Fluid fluidIn)
     {
-        return IEligibilityManager.getInstance().canBeChiseled(fluidIn.defaultFluidState().createLegacyBlock());
+        return IEligibilityManager.getInstance().canBeChiseled(new BlockInformation(fluidIn.defaultFluidState().createLegacyBlock(), IStateVariantManager.getInstance().getStateVariant(fluidIn.defaultFluidState())));
     }
 
     @Override
     public boolean placeLiquid(final @NotNull LevelAccessor worldIn, final @NotNull BlockPos pos, final @NotNull BlockState state, final @NotNull FluidState fluidStateIn)
     {
-        if (fluidStateIn == null || fluidStateIn.createLegacyBlock() == null) {
-            return false;
-        }
-
         return getBlockEntity(worldIn, pos)
                  .map(entity -> {
                      try (IBatchMutation ignored = entity.batch())

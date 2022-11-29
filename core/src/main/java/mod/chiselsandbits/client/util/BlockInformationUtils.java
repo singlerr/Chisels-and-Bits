@@ -1,10 +1,10 @@
 package mod.chiselsandbits.client.util;
 
-import com.communi.suggestu.scena.core.client.models.data.IBlockModelData;
-import com.communi.suggestu.scena.core.client.rendering.IRenderingManager;
 import com.communi.suggestu.scena.core.client.rendering.type.IRenderTypeManager;
 import com.google.common.collect.Sets;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.client.variant.state.IClientStateVariantManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -23,13 +23,13 @@ public final class BlockInformationUtils {
         throw new IllegalStateException("Can not instantiate an instance of: IMultiStateObjectStatisticsUtils. This is a utility class");
     }
 
-    public static Set<RenderType> extractRenderTypes(BlockInformation blockInformation) {
+    public static Set<RenderType> extractRenderTypes(IBlockInformation blockInformation) {
         return extractRenderTypes(Sets.newHashSet(blockInformation));
     }
 
-    public static Set<RenderType> extractRenderTypes(Set<BlockInformation> blocks) {
+    public static Set<RenderType> extractRenderTypes(Set<IBlockInformation> blocks) {
         final Set<RenderType> renderTypes = Sets.newHashSet();
-        for (BlockInformation blockInformation : blocks) {
+        for (IBlockInformation blockInformation : blocks) {
             if (blockInformation.isAir())
                 continue;
 
@@ -44,7 +44,7 @@ public final class BlockInformationUtils {
                             bakedModel,
                             blockInformation.getBlockState(),
                             RANDOM,
-                            IBlockModelData.empty()
+                            IClientStateVariantManager.getInstance().getBlockModelData(blockInformation)
                     )
             );
         }

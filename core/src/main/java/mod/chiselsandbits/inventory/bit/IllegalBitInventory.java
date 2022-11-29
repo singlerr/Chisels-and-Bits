@@ -1,6 +1,7 @@
 package mod.chiselsandbits.inventory.bit;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 
 import java.util.Collections;
@@ -17,7 +18,7 @@ public class IllegalBitInventory implements IBitInventory
      */
     @Override
     public boolean canExtract(
-      final BlockInformation blockInformation,
+      final IBlockInformation blockInformation,
       final int count)
     {
         return false;
@@ -30,7 +31,7 @@ public class IllegalBitInventory implements IBitInventory
      * @return The amount of bits that can be extracted with a given blockstate.
      */
     @Override
-    public int getMaxExtractAmount(final BlockInformation blockState)
+    public int getMaxExtractAmount(final IBlockInformation blockState)
     {
         return 0;
     }
@@ -44,7 +45,7 @@ public class IllegalBitInventory implements IBitInventory
      */
     @Override
     public void extract(
-      final BlockInformation blockState,
+      final IBlockInformation blockState,
       final int count) throws IllegalArgumentException
     {
 
@@ -58,7 +59,7 @@ public class IllegalBitInventory implements IBitInventory
      * @return {@code true} when insertion is possible.
      */
     @Override
-    public boolean canInsert(final BlockInformation blockState, final int count)
+    public boolean canInsert(final IBlockInformation blockState, final int count)
     {
         return false;
     }
@@ -70,7 +71,7 @@ public class IllegalBitInventory implements IBitInventory
      * @return The amount of bits that can be inserted with a given blockstate.
      */
     @Override
-    public int getMaxInsertAmount(final BlockInformation blockState)
+    public int getMaxInsertAmount(final IBlockInformation blockState)
     {
         return 0;
     }
@@ -83,7 +84,7 @@ public class IllegalBitInventory implements IBitInventory
      * @throws IllegalArgumentException when insertion is not possible.
      */
     @Override
-    public void insert(final BlockInformation blockState, final int count) throws IllegalArgumentException
+    public void insert(final IBlockInformation blockState, final int count) throws IllegalArgumentException
     {
     }
 
@@ -94,7 +95,7 @@ public class IllegalBitInventory implements IBitInventory
     }
 
     @Override
-    public Map<BlockInformation, Integer> getContainedStates()
+    public Map<IBlockInformation, Integer> getContainedStates()
     {
         return Collections.emptyMap();
     }

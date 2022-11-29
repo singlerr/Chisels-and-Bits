@@ -1,6 +1,7 @@
 package mod.chiselsandbits.utils;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.item.click.ILeftClickControllingItem;
 import mod.chiselsandbits.api.item.click.IRightClickControllingItem;
@@ -38,7 +39,7 @@ public class ItemStackUtils
      * @param blockInformation the block and state we are creating an ItemStack for.
      * @return ItemStack fromt the BlockState.
      */
-    public static ItemStack getItemStackFromBlockState(@NotNull final BlockInformation blockInformation)
+    public static ItemStack getItemStackFromBlockState(@NotNull final IBlockInformation blockInformation)
     {
         final Optional<ItemStack> dynamicStack = IStateVariantManager.getInstance().getItemStack(blockInformation);
         if (dynamicStack.isPresent())
@@ -58,7 +59,7 @@ public class ItemStackUtils
         return new ItemStack(blockInformation.getBlockState().getBlock(), 1);
     }
 
-    public static Item getItem(@NotNull final BlockInformation blockInformation)
+    public static Item getItem(@NotNull final IBlockInformation blockInformation)
     {
         final Block block = blockInformation.getBlockState().getBlock();
         if (block.equals(Blocks.LAVA))
@@ -253,11 +254,11 @@ public class ItemStackUtils
         return ItemStack.EMPTY;
     }
 
-    public static BlockInformation getHeldBitBlockInformationFromPlayer(@Nullable final Player playerEntity)
+    public static IBlockInformation getHeldBitBlockInformationFromPlayer(@Nullable final Player playerEntity)
     {
         if (playerEntity == null)
         {
-            return new BlockInformation(Blocks.AIR.defaultBlockState());
+            return BlockInformation.AIR;
         }
 
         if (playerEntity.getMainHandItem().getItem() instanceof IBitItem)
@@ -270,10 +271,10 @@ public class ItemStackUtils
             return ((IBitItem) playerEntity.getOffhandItem().getItem()).getBlockInformation(playerEntity.getOffhandItem());
         }
 
-        return new BlockInformation(Blocks.AIR.defaultBlockState());
+        return BlockInformation.AIR;
     }
 
-    public static BlockInformation getStateFromItem(
+    public static IBlockInformation getStateFromItem(
       final ItemStack is)
     {
         try
@@ -291,6 +292,6 @@ public class ItemStackUtils
         {
         }
 
-        return new BlockInformation(Blocks.AIR.defaultBlockState());
+        return BlockInformation.AIR;
     }
 }

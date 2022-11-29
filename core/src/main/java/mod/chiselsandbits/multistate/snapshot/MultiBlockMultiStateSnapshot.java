@@ -1,7 +1,8 @@
 package mod.chiselsandbits.multistate.snapshot;
 
 import mod.chiselsandbits.api.axissize.CollisionType;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
@@ -195,7 +196,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
 
     @Override
     public void setInAreaTarget(
-      final BlockInformation blockInformation,
+      final IBlockInformation blockInformation,
       final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
         final Vec3 workingTarget = inAreaTarget.add(this.startPoint);
@@ -215,7 +216,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     }
 
     @Override
-    public void setInBlockTarget(final BlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final IBlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
         final Vec3 workingTarget = Vec3.atLowerCornerOf(inAreaBlockPosOffset).add(inBlockTarget);
         if (workingTarget.x() < startPoint.x() ||
@@ -320,7 +321,7 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
             }
 
             @Override
-            public BlockInformation getPrimaryState()
+            public IBlockInformation getPrimaryState()
             {
                 return getStateCounts().entrySet().stream().max(Comparator.comparingInt(Map.Entry::getValue)).map(Map.Entry::getKey).orElse(BlockInformation.AIR);
             }
@@ -328,12 +329,12 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
             @Override
             public boolean isEmpty()
             {
-                final Map<BlockInformation, Integer> stateMap = getStateCounts();
+                final Map<IBlockInformation, Integer> stateMap = getStateCounts();
                 return stateMap.size() == 1 && stateMap.getOrDefault(BlockInformation.AIR, 0) > 0;
             }
 
             @Override
-            public Map<BlockInformation, Integer> getStateCounts()
+            public Map<IBlockInformation, Integer> getStateCounts()
             {
                 return stream().collect(Collectors.toMap(
                   IStateEntryInfo::getBlockInformation,

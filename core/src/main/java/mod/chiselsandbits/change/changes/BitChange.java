@@ -2,7 +2,8 @@ package mod.chiselsandbits.change.changes;
 
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.changes.IChange;
 import mod.chiselsandbits.api.change.changes.IllegalChangeAttempt;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
@@ -124,10 +125,10 @@ public class BitChange implements IChange
         }
 
         final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntity;
-        final Map<BlockInformation, Integer> afterStates = after.getStatics().getStateCounts();
-        final Map<BlockInformation, Integer> beforeStates = before.getStatics().getStateCounts();
+        final Map<IBlockInformation, Integer> afterStates = after.getStatics().getStateCounts();
+        final Map<IBlockInformation, Integer> beforeStates = before.getStatics().getStateCounts();
 
-        final Map<BlockInformation, Integer> difference = Maps.newHashMap();
+        final Map<IBlockInformation, Integer> difference = Maps.newHashMap();
         beforeStates.forEach((state, count) -> difference.put(state, afterStates.getOrDefault(state, 0) - count));
         afterStates.forEach((state, count) -> {
             if (!difference.containsKey(state))
@@ -191,10 +192,10 @@ public class BitChange implements IChange
         }
 
         final IMultiStateBlockEntity multiStateBlockEntity = (IMultiStateBlockEntity) tileEntity;
-        final Map<BlockInformation, Integer> afterStates = after.getStatics().getStateCounts();
-        final Map<BlockInformation, Integer> beforeStates = before.getStatics().getStateCounts();
+        final Map<IBlockInformation, Integer> afterStates = after.getStatics().getStateCounts();
+        final Map<IBlockInformation, Integer> beforeStates = before.getStatics().getStateCounts();
 
-        final Map<BlockInformation, Integer> difference = Maps.newHashMap();
+        final Map<IBlockInformation, Integer> difference = Maps.newHashMap();
         beforeStates.forEach((state, count) -> difference.put(state, count - afterStates.getOrDefault(state, 0)));
         afterStates.forEach((state, count) -> {
             if (!difference.containsKey(state))
@@ -233,10 +234,10 @@ public class BitChange implements IChange
         if (player.isCreative())
             return true;
 
-        final Map<BlockInformation, Integer> afterStates = after.getStatics().getStateCounts();
-        final Map<BlockInformation, Integer> beforeStates = before.getStatics().getStateCounts();
+        final Map<IBlockInformation, Integer> afterStates = after.getStatics().getStateCounts();
+        final Map<IBlockInformation, Integer> beforeStates = before.getStatics().getStateCounts();
 
-        final Map<BlockInformation, Integer> difference = Maps.newHashMap();
+        final Map<IBlockInformation, Integer> difference = Maps.newHashMap();
         beforeStates.forEach((state, count) -> difference.put(state, afterStates.getOrDefault(state, 0) - count));
         afterStates.forEach((state, count) -> {
             if (!difference.containsKey(state))
@@ -253,10 +254,10 @@ public class BitChange implements IChange
         if (player.isCreative())
             return  true;
 
-        final Map<BlockInformation, Integer> afterStates = after.getStatics().getStateCounts();
-        final Map<BlockInformation, Integer> beforeStates = before.getStatics().getStateCounts();
+        final Map<IBlockInformation, Integer> afterStates = after.getStatics().getStateCounts();
+        final Map<IBlockInformation, Integer> beforeStates = before.getStatics().getStateCounts();
 
-        final Map<BlockInformation, Integer> difference = Maps.newHashMap();
+        final Map<IBlockInformation, Integer> difference = Maps.newHashMap();
         beforeStates.forEach((state, count) -> difference.put(state, count - afterStates.getOrDefault(state, 0)));
         afterStates.forEach((state, count) -> {
             if (!difference.containsKey(state))

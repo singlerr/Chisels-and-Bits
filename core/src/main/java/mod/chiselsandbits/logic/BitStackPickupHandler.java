@@ -1,6 +1,7 @@
 package mod.chiselsandbits.logic;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItem;
@@ -22,7 +23,7 @@ public class BitStackPickupHandler
             if (!itemStack.isEmpty() && itemStack.getItem() instanceof final IBitItem bitItem)
             {
                 final IBitInventory playerInventory = IBitInventoryManager.getInstance().create(player);
-                final BlockInformation containedInformation = bitItem.getBlockInformation(itemStack);
+                final IBlockInformation containedInformation = bitItem.getBlockInformation(itemStack);
                 final int insertionCount = Math.min(itemStack.getCount(), playerInventory.getMaxInsertAmount(containedInformation));
 
                 playerInventory.insert(containedInformation, insertionCount);

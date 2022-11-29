@@ -3,7 +3,8 @@ package mod.chiselsandbits.chiseling.modes.cubed;
 import com.communi.suggestu.scena.core.registries.AbstractCustomRegistryEntry;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
@@ -22,7 +23,6 @@ import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.voxelshape.VoxelShapeManager;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -83,11 +83,11 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
               try (IBatchMutation ignored =
                      mutator.batch(IChangeTrackerManager.getInstance().getChangeTracker(playerEntity)))
               {
-                  final Map<BlockInformation, Integer> resultingBitCount = Maps.newHashMap();
+                  final Map<IBlockInformation, Integer> resultingBitCount = Maps.newHashMap();
 
                   final int totalItemDamage = mutator.inWorldMutableStream()
                     .mapToInt(state -> {
-                        final BlockInformation currentState = state.getBlockInformation();
+                        final IBlockInformation currentState = state.getBlockInformation();
                         return context.tryDamageItemAndDoOrSetBrokenError(
                           () -> {
                               resultingBitCount.putIfAbsent(currentState, 0);
@@ -132,7 +132,7 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
         }
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
-              final BlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
+              final IBlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
               if (heldBlockState.isAir())
               {
                   return ClickProcessingState.DEFAULT;

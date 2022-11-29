@@ -1,6 +1,7 @@
 package mod.chiselsandbits.multistate.snapshot;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.multistate.snapshot.ISnapshotFactory;
 
@@ -24,7 +25,7 @@ public final class SnapshotFactory implements ISnapshotFactory
     }
 
     @Override
-    public IMultiStateSnapshot singleBlock(final BlockInformation blockInformation)
+    public IMultiStateSnapshot singleBlock(final IBlockInformation blockInformation)
     {
         return new SimpleSnapshot(blockInformation);
     }

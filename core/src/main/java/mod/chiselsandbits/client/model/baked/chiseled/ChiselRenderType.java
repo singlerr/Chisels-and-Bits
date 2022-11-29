@@ -3,7 +3,8 @@ package mod.chiselsandbits.client.model.baked.chiseled;
 import com.communi.suggestu.scena.core.client.rendering.type.IRenderTypeManager;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.client.culling.ICullTest;
@@ -61,7 +62,7 @@ public enum ChiselRenderType
     }
 
     public boolean isRequiredForRendering(
-      final BlockInformation state )
+      final IBlockInformation state )
     {
         if (state.isAir() || !this.type.isValidBlockState(state))
             return false;

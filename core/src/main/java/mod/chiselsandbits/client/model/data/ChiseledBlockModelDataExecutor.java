@@ -4,7 +4,7 @@ import com.communi.suggestu.scena.core.client.models.data.IModelDataBuilder;
 import com.communi.suggestu.scena.core.client.models.data.IModelDataManager;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.ChiselsAndBits;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;

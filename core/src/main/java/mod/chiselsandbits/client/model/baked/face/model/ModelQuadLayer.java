@@ -3,9 +3,9 @@ package mod.chiselsandbits.client.model.baked.face.model;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.client.model.baked.BakedQuadBuilder;
-import mod.chiselsandbits.utils.LightUtil;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
@@ -15,14 +15,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public record ModelQuadLayer(VertexData[] vertexData, TextureAtlasSprite sprite, int light, int color, int tint,
                              boolean shade, Direction cullDirection, BakedQuad sourceQuad) {
 
     @SuppressWarnings("UnusedReturnValue")
     public static final class Builder extends BaseModelReader {
-        private final BlockInformation blockInformation;
+        private final IBlockInformation blockInformation;
         private final Collection<VertexData> manualVertexData = new ArrayList<>();
         private final ModelLightMapReader lightValueExtractor;
         private final ModelVertexDataReader uvExtractor;
@@ -34,13 +33,13 @@ public record ModelQuadLayer(VertexData[] vertexData, TextureAtlasSprite sprite,
         private Direction cullDirection;
         private BakedQuad sourceQuad;
 
-        private Builder(final BlockInformation blockInformation) {
+        private Builder(final IBlockInformation blockInformation) {
             this.lightValueExtractor = new ModelLightMapReader();
             this.uvExtractor = new ModelVertexDataReader();
             this.blockInformation = blockInformation;
         }
 
-        public static Builder create(final BlockInformation blockInformation) {
+        public static Builder create(final IBlockInformation blockInformation) {
             return new Builder(blockInformation);
         }
 

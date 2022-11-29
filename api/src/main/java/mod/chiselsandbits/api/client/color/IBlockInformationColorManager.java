@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.client.color;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 
 import java.util.Optional;
 
@@ -11,5 +11,5 @@ public interface IBlockInformationColorManager
         return IChiselsAndBitsAPI.getInstance().getBlockInformationColorManager();
     }
 
-    Optional<Integer> getColor(BlockInformation blockInformation);
+    Optional<Integer> getColor(IBlockInformation blockInformation);
 }

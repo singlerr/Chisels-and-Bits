@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.block;
 
 import com.communi.suggestu.saecularia.caudices.core.block.IBlockWithWorldlyProperties;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.AirBlock;
@@ -24,7 +24,7 @@ public interface IMultiStateBlock extends EntityBlock, IBlockWithWorldlyProperti
      * @return The primary blockstate, or when not found the default state from the air block. {@link AirBlock#defaultBlockState()}
      */
     @NotNull
-    BlockInformation getPrimaryState(
+    IBlockInformation getPrimaryState(
 			@NotNull BlockGetter world,
 			@NotNull BlockPos pos );
 }

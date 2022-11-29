@@ -1,7 +1,8 @@
 package mod.chiselsandbits.chiseling.eligibility;
 
 import com.communi.suggestu.saecularia.caudices.core.block.IBlockWithWorldlyProperties;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityOptions;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.util.SingleBlockBlockReader;
@@ -48,7 +49,7 @@ public class BlockEligibilityAnalysisData
     }
 
     public static BlockEligibilityAnalysisData createFromState(
-      final BlockInformation state )
+      final IBlockInformation state )
     {
         try
         {

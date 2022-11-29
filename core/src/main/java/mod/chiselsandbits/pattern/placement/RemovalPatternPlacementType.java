@@ -1,7 +1,8 @@
 package mod.chiselsandbits.pattern.placement;
 
 import mod.chiselsandbits.api.block.IMultiStateBlock;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
@@ -18,6 +19,7 @@ import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.LocalStrings;
 import com.communi.suggestu.scena.core.registries.AbstractCustomRegistryEntry;
+import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.registrars.ModPatternPlacementTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,6 +28,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
@@ -105,7 +109,11 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
         }
 
         final boolean isSupported = BlockPosStreamProvider.getForAccessor(areaMutator)
-          .map(pos -> context.getLevel().getBlockState(pos))
+                .map(pos -> {
+                    final BlockState state = context.getLevel().getBlockState(pos);
+                    final BlockEntity blockEntity = context.getLevel().getBlockEntity(pos);
+                    return new BlockInformation(state, IStateVariantManager.getInstance().getStateVariant(state, Optional.ofNullable(blockEntity)));
+                })
           .allMatch(state -> IEligibilityManager.getInstance().canBeChiseled(state) || state.isAir());
 
         if (!isSupported)
@@ -115,7 +123,7 @@ public class RemovalPatternPlacementType extends AbstractCustomRegistryEntry imp
                     LocalStrings.PatternPlacementNotASupportedBlock.getText());
         }
 
-        final Map<BlockInformation, Integer> totalRemovedBits = source.stream()
+        final Map<IBlockInformation, Integer> totalRemovedBits = source.stream()
           .filter(s -> !s.getBlockInformation().isAir())
           .filter(s -> {
               final Optional<IStateEntryInfo> o = areaMutator.getInAreaTarget(s.getStartPoint().add(areaMutator.getInWorldStartPoint()));

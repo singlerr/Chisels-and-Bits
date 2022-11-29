@@ -7,11 +7,8 @@ import mod.chiselsandbits.item.MagnifyingGlassItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.List;
 
@@ -23,11 +20,8 @@ public class MagnifyingGlassTooltipHandler
         if (Minecraft.getInstance().player != null && ICommonConfiguration.getInstance().getEnableHelp().get())
             if (Minecraft.getInstance().player.getMainHandItem().getItem() instanceof MagnifyingGlassItem
                   || Minecraft.getInstance().player.getOffhandItem().getItem() instanceof MagnifyingGlassItem)
-                if (itemStack.getItem() instanceof final BlockItem blockItem) {
-                    final Block block = blockItem.getBlock();
-                    final BlockState blockState = block.defaultBlockState();
-
-                    final IEligibilityAnalysisResult result = IEligibilityManager.getInstance().analyse(blockState);
+                if (itemStack.getItem() instanceof BlockItem) {
+                    final IEligibilityAnalysisResult result = IEligibilityManager.getInstance().analyse(itemStack);
 
                     toolTips.add(
                         result.canBeChiseled() || result.isAlreadyChiseled() ?

@@ -14,7 +14,8 @@ import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.block.entity.INetworkUpdateableEntity;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.chiseling.conversion.IConversionManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
@@ -50,11 +51,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -81,7 +80,6 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-@SuppressWarnings("deprecation")
 public class ChiseledBlockEntity extends BlockEntity implements
         IMultiStateBlockEntity, INetworkUpdateableEntity, IBlockEntityWithModelData {
     public static final float ONE_THOUSANDS = 1 / 1000f;
@@ -194,7 +192,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
         final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
-        final BlockInformation blockInformation = this.storage.getBlockInformation(
+        final IBlockInformation blockInformation = this.storage.getBlockInformation(
                 inAreaPos.getX(),
                 inAreaPos.getY(),
                 inAreaPos.getZ()
@@ -393,7 +391,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
     @SuppressWarnings("deprecation")
     @Override
     public void setInAreaTarget(
-            final BlockInformation newInformation,
+            final IBlockInformation newInformation,
             final Vec3 inAreaTarget
     ) throws SpaceOccupiedException {
         if (inAreaTarget.x() < 0 ||
@@ -407,7 +405,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
         final BlockPos inAreaPos = new BlockPos(inAreaTarget.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()));
 
-        final BlockInformation information = this.storage.getBlockInformation(
+        final IBlockInformation information = this.storage.getBlockInformation(
                 inAreaPos.getX(),
                 inAreaPos.getY(),
                 inAreaPos.getZ()
@@ -452,7 +450,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
     }
 
     @Override
-    public void setInBlockTarget(final BlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException {
+    public void setInBlockTarget(final IBlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException {
         if (!inAreaBlockPosOffset.equals(BlockPos.ZERO)) {
             throw new IllegalStateException(String.format("The given in area block pos offset is not inside the current block: %s", inAreaBlockPosOffset));
         }
@@ -489,7 +487,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             return;
         }
 
-        final BlockInformation currentInformation = this.storage.getBlockInformation(
+        final IBlockInformation currentInformation = this.storage.getBlockInformation(
                 inAreaPos.getX(),
                 inAreaPos.getY(),
                 inAreaPos.getZ()
@@ -499,11 +497,11 @@ public class ChiseledBlockEntity extends BlockEntity implements
             return;
         }
 
-        if (!IEligibilityManager.getInstance().canBeChiseled(currentInformation.getBlockState())) {
+        if (!IEligibilityManager.getInstance().canBeChiseled(currentInformation)) {
             return;
         }
 
-        final BlockInformation blockState = BlockInformation.AIR;
+        final IBlockInformation blockState = BlockInformation.AIR;
 
         this.storage.setBlockInformation(
                 inAreaPos.getX(),
@@ -574,7 +572,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
     }
 
     @Override
-    public void initializeWith(final BlockInformation newInitialInformation) {
+    public void initializeWith(final IBlockInformation newInitialInformation) {
         if (getLevel() == null) {
             return;
         }
@@ -699,7 +697,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
     private static final class StateEntry implements IInWorldMutableStateEntryInfo {
 
-        private final BlockInformation blockInformation;
+        private final IBlockInformation blockInformation;
         private final LevelAccessor reader;
         private final BlockPos blockPos;
         private final Vec3 startPoint;
@@ -709,7 +707,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
         private final StateClearer stateClearer;
 
         public StateEntry(
-                final BlockInformation blockInformation,
+                final IBlockInformation blockInformation,
                 final LevelAccessor reader,
                 final BlockPos blockPos,
                 final Vec3i startPoint,
@@ -725,7 +723,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
         }
 
         private StateEntry(
-                final BlockInformation blockInformation,
+                final IBlockInformation blockInformation,
                 final LevelAccessor reader,
                 final BlockPos blockPos,
                 final Vec3 startPoint,
@@ -742,12 +740,12 @@ public class ChiseledBlockEntity extends BlockEntity implements
         }
 
         @Override
-        public @NotNull BlockInformation getBlockInformation() {
+        public @NotNull IBlockInformation getBlockInformation() {
             return blockInformation;
         }
 
         @Override
-        public void setBlockInformation(final BlockInformation blockState) throws SpaceOccupiedException {
+        public void setBlockInformation(final IBlockInformation blockState) throws SpaceOccupiedException {
             stateSetter.set(blockState, getStartPoint());
         }
 
@@ -815,7 +813,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
         }
 
         @Override
-        public List<BlockInformation> getPalette() {
+        public List<IBlockInformation> getPalette() {
             return snapshot.getContainedPalette();
         }
     }
@@ -832,10 +830,10 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
         private final Supplier<LevelAccessor> worldReaderSupplier;
         private final Supplier<BlockPos> positionSupplier;
-        private final Map<BlockInformation, Integer> countMap = Maps.newConcurrentMap();
+        private final Map<IBlockInformation, Integer> countMap = Maps.newConcurrentMap();
         private final Table<Integer, Integer, ColumnStatistics> columnStatisticsTable = HashBasedTable.create();
         private final Map<CollisionType, BitSet> collisionData = Maps.newConcurrentMap();
-        private BlockInformation primaryState = BlockInformation.AIR;
+        private IBlockInformation primaryState = BlockInformation.AIR;
         private int totalUsedBlockCount = 0;
         private int totalUsedChecksWeakPowerCount = 0;
         private int totalLightLevel = 0;
@@ -849,7 +847,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
         }
 
         @Override
-        public BlockInformation getPrimaryState() {
+        public IBlockInformation getPrimaryState() {
             return primaryState;
         }
 
@@ -859,7 +857,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
         }
 
         @Override
-        public Map<BlockInformation, Integer> getStateCounts() {
+        public Map<IBlockInformation, Integer> getStateCounts() {
             return Collections.unmodifiableMap(countMap);
         }
 
@@ -947,7 +945,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             return collisionDataSet;
         }
 
-        private void onBlockStateAdded(final BlockInformation blockInformation, final BlockPos pos, final boolean updateWorld) {
+        private void onBlockStateAdded(final IBlockInformation blockInformation, final BlockPos pos, final boolean updateWorld) {
             countMap.putIfAbsent(blockInformation, 0);
             countMap.computeIfPresent(blockInformation, (state, currentCount) -> currentCount + 1);
             updatePrimaryState(updateWorld);
@@ -994,7 +992,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
         }
 
         private void updatePrimaryState(final boolean updateWorld) {
-            final BlockInformation currentPrimary = primaryState;
+            final IBlockInformation currentPrimary = primaryState;
             primaryState = this.countMap.entrySet()
                     .stream()
                     .filter(e -> !e.getKey().isAir())
@@ -1031,7 +1029,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             }
         }
 
-        private void onBlockStateRemoved(final BlockInformation blockInformation, final BlockPos pos, final boolean updateWorld) {
+        private void onBlockStateRemoved(final IBlockInformation blockInformation, final BlockPos pos, final boolean updateWorld) {
             countMap.computeIfPresent(blockInformation, (state, currentCount) -> currentCount - 1);
             countMap.remove(blockInformation, 0);
             updatePrimaryState(updateWorld);
@@ -1076,7 +1074,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             this.collisionData.forEach((collisionType, bitSet) -> bitSet.set(BlockPosUtils.getCollisionIndex(pos), collisionType.isValidFor(Blocks.AIR.defaultBlockState())));
         }
 
-        private void onBlockStateReplaced(final BlockInformation currentInformation, final BlockInformation newInformation, final BlockPos pos, final boolean updateWorld) {
+        private void onBlockStateReplaced(final IBlockInformation currentInformation, final IBlockInformation newInformation, final BlockPos pos, final boolean updateWorld) {
             countMap.computeIfPresent(currentInformation, (state, currentCount) -> currentCount - 1);
             countMap.remove(currentInformation, 0);
             countMap.putIfAbsent(newInformation, 0);
@@ -1157,7 +1155,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             this.primaryState.serializeInto(packetBuffer);
 
             packetBuffer.writeVarInt(this.countMap.size());
-            for (final Map.Entry<BlockInformation, Integer> blockStateIntegerEntry : this.countMap.entrySet()) {
+            for (final Map.Entry<IBlockInformation, Integer> blockStateIntegerEntry : this.countMap.entrySet()) {
                 blockStateIntegerEntry.getKey().serializeInto(packetBuffer);
                 packetBuffer.writeVarInt(blockStateIntegerEntry.getValue());
             }
@@ -1234,7 +1232,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             nbt.put(NbtConstants.PRIMARY_BLOCK_INFORMATION, this.primaryState.serializeNBT());
 
             final ListTag blockStateList = new ListTag();
-            for (final Map.Entry<BlockInformation, Integer> blockStateIntegerEntry : this.countMap.entrySet()) {
+            for (final Map.Entry<IBlockInformation, Integer> blockStateIntegerEntry : this.countMap.entrySet()) {
                 final CompoundTag stateNbt = new CompoundTag();
 
                 stateNbt.put(NbtConstants.BLOCK_INFORMATION, blockStateIntegerEntry.getKey().serializeNBT());
@@ -1271,23 +1269,14 @@ public class ChiseledBlockEntity extends BlockEntity implements
         public void deserializeNBT(final CompoundTag nbt) {
             this.countMap.clear();
 
-            if (nbt.contains(NbtConstants.PRIMARY_STATE, Tag.TAG_STRING)) {
-                this.primaryState = new BlockInformation(NbtUtils.readBlockState(nbt.getCompound(NbtConstants.PRIMARY_STATE)));
-            } else if (nbt.contains(NbtConstants.PRIMARY_BLOCK_INFORMATION, Tag.TAG_COMPOUND)) {
-                this.primaryState = new BlockInformation(nbt.getCompound(NbtConstants.PRIMARY_BLOCK_INFORMATION));
-            }
+            this.primaryState = new BlockInformation(nbt.getCompound(NbtConstants.PRIMARY_BLOCK_INFORMATION));
 
             if (nbt.contains(NbtConstants.BLOCK_STATES, Tag.TAG_LIST)) {
                 final ListTag blockStateList = nbt.getList(NbtConstants.BLOCK_STATES, Tag.TAG_COMPOUND);
                 for (int i = 0; i < blockStateList.size(); i++) {
                     final CompoundTag stateNbt = blockStateList.getCompound(i);
 
-                    BlockInformation blockInformation = BlockInformation.AIR;
-                    if (stateNbt.contains(NbtConstants.BLOCK_STATE, Tag.TAG_COMPOUND)) {
-                        blockInformation = new BlockInformation(NbtUtils.readBlockState(stateNbt.getCompound(NbtConstants.BLOCK_STATE)));
-                    } else if (stateNbt.contains(NbtConstants.BLOCK_INFORMATION, Tag.TAG_COMPOUND)) {
-                        blockInformation = new BlockInformation(stateNbt.getCompound(NbtConstants.BLOCK_INFORMATION));
-                    }
+                    BlockInformation blockInformation = new BlockInformation(stateNbt.getCompound(NbtConstants.BLOCK_INFORMATION));
 
                     this.countMap.put(
                             blockInformation,
@@ -1348,7 +1337,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             }
         }
 
-        public void initializeWith(final BlockInformation blockInformation) {
+        public void initializeWith(final IBlockInformation blockInformation) {
             clear();
             final boolean isAir = blockInformation.isAir();
 
@@ -1482,7 +1471,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                     .forEach(pos ->
                     {
-                        final BlockInformation blockState = source.getBlockInformation(pos.getX(), pos.getY(), pos.getZ());
+                        final IBlockInformation blockState = source.getBlockInformation(pos.getX(), pos.getY(), pos.getZ());
 
                         if (!this.columnStatisticsTable.contains(pos.getX(), pos.getZ())) {
                             this.columnStatisticsTable.put(pos.getX(), pos.getZ(), new ColumnStatistics(this.worldReaderSupplier, this.positionSupplier));
@@ -1541,7 +1530,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             return canLowestBitSustainGrass;
         }
 
-        private void onBlockStateAdded(final BlockInformation blockState, final BlockPos pos) {
+        private void onBlockStateAdded(final IBlockInformation blockState, final BlockPos pos) {
             skylightBlockingBits.set(pos.getY(), !ILevelBasedPropertyAccessor.getInstance().propagatesSkylightDown(
                     new SingleBlockBlockReader(blockState, positionSupplier.get(), this.worldReaderSupplier.get()),
                     positionSupplier.get()
@@ -1592,7 +1581,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             }
         }
 
-        private void onBlockStateRemoved(final BlockInformation blockInformation, final BlockPos pos) {
+        private void onBlockStateRemoved(final IBlockInformation blockInformation, final BlockPos pos) {
             skylightBlockingBits.set(pos.getY(), !ILevelBasedPropertyAccessor.getInstance().propagatesSkylightDown(
                     new SingleBlockBlockReader(blockInformation, positionSupplier.get(), this.worldReaderSupplier.get()),
                     positionSupplier.get()
@@ -1625,7 +1614,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             }
         }
 
-        private void onBlockStateReplaced(final BlockInformation currentInformation, final BlockInformation newInformation, final BlockPos pos) {
+        private void onBlockStateReplaced(final IBlockInformation currentInformation, final IBlockInformation newInformation, final BlockPos pos) {
             onBlockStateRemoved(currentInformation, pos);
             onBlockStateAdded(newInformation, pos);
         }
@@ -1682,7 +1671,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
             canLowestBitSustainGrass = packetBuffer.readBoolean();
         }
 
-        public void initializeWith(final BlockInformation blockInformation) {
+        public void initializeWith(final IBlockInformation blockInformation) {
             skylightBlockingBits.clear();
             noneAirBits.clear();
 

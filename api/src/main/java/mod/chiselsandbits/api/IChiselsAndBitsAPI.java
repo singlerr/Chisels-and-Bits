@@ -2,6 +2,7 @@ package mod.chiselsandbits.api;
 
 import mod.chiselsandbits.api.block.IBlockConstructionManager;
 import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
+import mod.chiselsandbits.api.blockinformation.IBlockInformationFactory;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingManager;
 import mod.chiselsandbits.api.chiseling.ILocalChiselingContextCache;
@@ -14,6 +15,7 @@ import mod.chiselsandbits.api.client.clipboard.ICreativeClipboardManager;
 import mod.chiselsandbits.api.client.color.IBlockInformationColorManager;
 import mod.chiselsandbits.api.client.sharing.IPatternSharingManager;
 import mod.chiselsandbits.api.client.tool.mode.icon.ISelectedToolModeIconRendererRegistry;
+import mod.chiselsandbits.api.client.variant.state.IClientStateVariantManager;
 import mod.chiselsandbits.api.config.IChiselsAndBitsConfiguration;
 import mod.chiselsandbits.api.cutting.operation.ICuttingOperation;
 import mod.chiselsandbits.api.glueing.operation.IGlueingOperation;
@@ -294,7 +296,7 @@ public interface IChiselsAndBitsAPI
     INotificationManager getNotificationManager();
 
     @NotNull
-    IStateVariantManager getAdditionalStateInfoManager();
+    IStateVariantManager getStateVariantManager();
 
     @NotNull
     IBlockInformationColorManager getBlockInformationColorManager();
@@ -319,6 +321,12 @@ public interface IChiselsAndBitsAPI
 
     @NotNull
     IBlockConstructionManager getBlockConstructionManager();
+
+    @NotNull
+    IClientStateVariantManager getClientStateVariantManager();
+
+    @NotNull
+    IBlockInformationFactory getBlockInformationFactory();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

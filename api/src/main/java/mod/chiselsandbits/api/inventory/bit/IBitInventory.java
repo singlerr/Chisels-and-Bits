@@ -1,8 +1,7 @@
 package mod.chiselsandbits.api.inventory.bit;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.item.bit.IBitItem;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
@@ -19,7 +18,7 @@ public interface IBitInventory
      * @param blockInformation The block information.
      * @return {@code true} when extraction is possible.
      */
-    default boolean canExtractOne(final BlockInformation blockInformation) {
+    default boolean canExtractOne(final IBlockInformation blockInformation) {
         return this.canExtract(blockInformation, 1);
     }
 
@@ -31,7 +30,7 @@ public interface IBitInventory
      * @param count The amount of bits to extract.
      * @return {@code true} when extraction is possible.
      */
-    boolean canExtract(final BlockInformation blockInformation, final int count);
+    boolean canExtract(final IBlockInformation blockInformation, final int count);
 
     /**
      * Returns the maximal amount of bits with a given block information which can be extracted
@@ -40,7 +39,7 @@ public interface IBitInventory
      * @param blockInformation The block information in question.
      * @return The amount of bits that can be extracted with a given blockstate.
      */
-    int getMaxExtractAmount(final BlockInformation blockInformation);
+    int getMaxExtractAmount(final IBlockInformation blockInformation);
     
     /**
      * Extracts exactly one bit with the given block information from
@@ -49,7 +48,7 @@ public interface IBitInventory
      * @param blockInformation The block information.
      * @throws IllegalArgumentException when extraction is not possible.
      */
-    default void extractOne(final BlockInformation blockInformation) throws IllegalArgumentException {
+    default void extractOne(final IBlockInformation blockInformation) throws IllegalArgumentException {
         this.extract(blockInformation, 1);
     }
 
@@ -61,7 +60,7 @@ public interface IBitInventory
      * @param count The amount of bits to extract.
      * @throws IllegalArgumentException when extraction is not possible.
      */
-    void extract(final BlockInformation blockInformation, final int count) throws IllegalArgumentException;
+    void extract(final IBlockInformation blockInformation, final int count) throws IllegalArgumentException;
 
     /**
      * Checks if it is possible to insert exactly one bit with the given block information from
@@ -70,7 +69,7 @@ public interface IBitInventory
      * @param blockInformation The block information.
      * @return {@code true} when insertion is possible.
      */
-    default boolean canInsertOne(final BlockInformation blockInformation) {
+    default boolean canInsertOne(final IBlockInformation blockInformation) {
         return this.canInsert(blockInformation, 1);
     }
 
@@ -82,7 +81,7 @@ public interface IBitInventory
      * @param count The amount of bits to insert.
      * @return {@code true} when insertion is possible.
      */
-    boolean canInsert(final BlockInformation blockInformation, final int count);
+    boolean canInsert(final IBlockInformation blockInformation, final int count);
 
     /**
      * Returns the maximal amount of bits with a given block information which can be inserted
@@ -91,7 +90,7 @@ public interface IBitInventory
      * @param blockInformation The blockstate in question.
      * @return The amount of bits that can be inserted with a given blockstate.
      */
-    int getMaxInsertAmount(final BlockInformation blockInformation);
+    int getMaxInsertAmount(final IBlockInformation blockInformation);
 
     /**
      * Inserts exactly one bit with the given block information from
@@ -100,7 +99,7 @@ public interface IBitInventory
      * @param blockInformation The block information.
      * @throws IllegalArgumentException when insertion is not possible.
      */
-    default void insertOne(final BlockInformation blockInformation) throws IllegalArgumentException {
+    default void insertOne(final IBlockInformation blockInformation) throws IllegalArgumentException {
         this.insert(blockInformation, 1);
     }
 
@@ -112,7 +111,7 @@ public interface IBitInventory
      * @param count The amount of bits to insert.
      * @throws IllegalArgumentException when insertion is not possible.
      */
-    void insert(final BlockInformation blockInformation, final int count) throws IllegalArgumentException;
+    void insert(final IBlockInformation blockInformation, final int count) throws IllegalArgumentException;
 
     /**
      * Inserts a given amount of bits with the given block information from
@@ -121,7 +120,7 @@ public interface IBitInventory
      * @param blockInformation The block information.
      * @param count The amount of bits to insert.
      */
-    default void insertOrDiscard(final BlockInformation blockInformation, final int count) {
+    default void insertOrDiscard(final IBlockInformation blockInformation, final int count) {
         insert(blockInformation, Math.min(getMaxInsertAmount(blockInformation), count));
     }
 
@@ -143,7 +142,7 @@ public interface IBitInventory
         if (!(stack.getItem() instanceof final IBitItem bitItem))
             return stack;
 
-        final BlockInformation blockInformation = bitItem.getBlockInformation(stack);
+        final IBlockInformation blockInformation = bitItem.getBlockInformation(stack);
 
         final int maxToInsertCount = this.getMaxInsertAmount(blockInformation);
         final int maxToInsertFromStack = Math.min(stack.getCount(), maxToInsertCount);
@@ -160,5 +159,5 @@ public interface IBitInventory
      * Returns the summed contained states of all bits in the inventory.
      * @return The contained state count of all bits in the inventory.
      */
-    Map<BlockInformation, Integer> getContainedStates();
+    Map<IBlockInformation, Integer> getContainedStates();
 }

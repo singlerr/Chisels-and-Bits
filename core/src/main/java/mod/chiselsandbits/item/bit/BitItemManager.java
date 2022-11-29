@@ -1,6 +1,7 @@
 package mod.chiselsandbits.item.bit;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
@@ -33,7 +34,7 @@ public class BitItemManager implements IBitItemManager
     }
 
     @Override
-    public ItemStack create(final BlockInformation blockInformation, final int count)
+    public ItemStack create(final IBlockInformation blockInformation, final int count)
     {
         if (blockInformation == null || blockInformation.isAir())
         {

@@ -2,7 +2,8 @@ package mod.chiselsandbits.client.model.baked.bit;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
@@ -27,8 +28,8 @@ public class BitBlockBakedModelManager
 {
     private static final Logger                         LOGGER            = LogManager.getLogger();
     private static final BitBlockBakedModelManager      INSTANCE          = new BitBlockBakedModelManager();
-    private final        Cache<BlockInformation, BakedModel> modelCache        = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
-    private final        Cache<BlockInformation, BakedModel> largeModelCache   = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
+    private final        Cache<IBlockInformation, BakedModel> modelCache        = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
+    private final        Cache<IBlockInformation, BakedModel> largeModelCache   = CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
     private final        NonNullList<ItemStack>         alternativeStacks = NonNullList.create();
 
     private BitBlockBakedModelManager()
@@ -89,7 +90,7 @@ public class BitBlockBakedModelManager
 
     public BakedModel get(
       final boolean large,
-      BlockInformation blockInformation,
+      IBlockInformation blockInformation,
       final Level level,
       final LivingEntity entity)
     {
@@ -113,8 +114,8 @@ public class BitBlockBakedModelManager
             blockInformation = ((IBitItem) alternativeStack.getItem()).getBlockInformation(alternativeStack);
         }
 
-        final Cache<BlockInformation, BakedModel> target = large ? largeModelCache : modelCache;
-        final BlockInformation workingState = blockInformation;
+        final Cache<IBlockInformation, BakedModel> target = large ? largeModelCache : modelCache;
+        final IBlockInformation workingState = blockInformation;
         try
         {
             return target.get(blockInformation, () -> {

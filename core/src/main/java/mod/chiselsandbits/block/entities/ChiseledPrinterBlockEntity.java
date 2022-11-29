@@ -1,7 +1,8 @@
 package mod.chiselsandbits.block.entities;
 
 import com.communi.suggestu.scena.core.item.IItemComparisonHelper;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemStack;
@@ -217,18 +218,18 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
             return ItemStack.EMPTY;
         }
 
-        final BlockInformation firstState = getPrimaryBlockState() == null ? BlockInformation.AIR : getPrimaryBlockState();
-        final BlockInformation secondState = getSecondaryBlockState() == null ?BlockInformation.AIR : getSecondaryBlockState();
-        final BlockInformation thirdState = getTertiaryBlockState() == null ? BlockInformation.AIR : getTertiaryBlockState();
+        final IBlockInformation firstState = getPrimaryBlockState() == null ? BlockInformation.AIR : getPrimaryBlockState();
+        final IBlockInformation secondState = getSecondaryBlockState() == null ? BlockInformation.AIR : getSecondaryBlockState();
+        final IBlockInformation thirdState = getTertiaryBlockState() == null ? BlockInformation.AIR : getTertiaryBlockState();
 
         if (firstState.isAir() && secondState.isAir() && thirdState.isAir())
         {
             return ItemStack.EMPTY;
         }
 
-        if ((!IEligibilityManager.getInstance().canBeChiseled(firstState.getBlockState()) && !firstState.isAir())
-              || (!IEligibilityManager.getInstance().canBeChiseled(secondState.getBlockState()) && !secondState.isAir())
-              || (!IEligibilityManager.getInstance().canBeChiseled(thirdState.getBlockState()) && !thirdState.isAir())
+        if ((!IEligibilityManager.getInstance().canBeChiseled(firstState) && !firstState.isAir())
+              || (!IEligibilityManager.getInstance().canBeChiseled(secondState) && !secondState.isAir())
+              || (!IEligibilityManager.getInstance().canBeChiseled(thirdState) && !thirdState.isAir())
         )
         {
             return ItemStack.EMPTY;
@@ -350,7 +351,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
         return 0;
     }
 
-    public BlockInformation getPrimaryBlockState()
+    public IBlockInformation getPrimaryBlockState()
     {
         final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
         final Direction targetedFacing = facing.getClockWise();
@@ -358,7 +359,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
         return getStorage(targetedFacing);
     }
 
-    public BlockInformation getSecondaryBlockState()
+    public IBlockInformation getSecondaryBlockState()
     {
         final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
         final Direction targetedFacing = facing.getClockWise().getClockWise();
@@ -366,7 +367,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
         return getStorage(targetedFacing);
     }
 
-    public BlockInformation getTertiaryBlockState()
+    public IBlockInformation getTertiaryBlockState()
     {
         final Direction facing = Objects.requireNonNull(this.getLevel()).getBlockState(this.getBlockPos()).getValue(ChiseledPrinterBlock.FACING);
         final Direction targetedFacing = facing.getCounterClockWise();
@@ -374,7 +375,7 @@ public class ChiseledPrinterBlockEntity extends BlockEntity implements MenuProvi
         return getStorage(targetedFacing);
     }
 
-    private BlockInformation getStorage(final Direction targetedFacing)
+    private IBlockInformation getStorage(final Direction targetedFacing)
     {
         final BlockEntity targetedTileEntity = Objects.requireNonNull(this.getLevel()).getBlockEntity(this.getBlockPos().relative(targetedFacing));
         if (targetedTileEntity instanceof final BitStorageBlockEntity storage)

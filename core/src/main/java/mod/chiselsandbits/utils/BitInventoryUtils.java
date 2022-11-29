@@ -1,7 +1,8 @@
 package mod.chiselsandbits.utils;
 
 import com.communi.suggestu.scena.core.entity.IPlayerInventoryManager;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventory;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
@@ -17,7 +18,7 @@ public class BitInventoryUtils
         throw new IllegalStateException("Can not instantiate an instance of: BitInventoryUtils. This is a utility class");
     }
 
-    public static void insertIntoOrSpawn(final Player playerEntity, final BlockInformation blockState, final int count) {
+    public static void insertIntoOrSpawn(final Player playerEntity, final IBlockInformation blockState, final int count) {
         if (playerEntity == null || playerEntity.getCommandSenderWorld().isClientSide() || count <= 0)
             return;
 

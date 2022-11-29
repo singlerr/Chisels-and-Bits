@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.multistate.snapshot;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 
 /**
  * A factory to create simple snapshots.
@@ -27,5 +27,5 @@ public interface ISnapshotFactory
      * @param blockInformation The block information which will fill up the entire snapshot once returned.
      * @return The new snapshot.
      */
-    IMultiStateSnapshot singleBlock(BlockInformation blockInformation);
+    IMultiStateSnapshot singleBlock(IBlockInformation blockInformation);
 }

@@ -3,7 +3,8 @@ package mod.chiselsandbits.inventory.bit;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.inventory.bit.watchable.IWatch;
 import mod.chiselsandbits.api.inventory.bit.watchable.IWatchableBitInventory;
 import mod.chiselsandbits.api.item.bit.IBitItem;
@@ -12,7 +13,6 @@ import mod.chiselsandbits.api.util.INBTSerializable;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +63,7 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
         if (!(stack.getItem() instanceof final IBitItem bitItem))
             throw new IllegalArgumentException("Can not insert a none bit item into the inventory.");
 
-        final BlockInformation state = bitItem.getBlockInformation(stack);
+        final IBlockInformation state = bitItem.getBlockInformation(stack);
 
         BitSlot slot = slotMap.get(index);
         if (slot == null)
@@ -128,14 +128,14 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
 
     protected static final class BitSlot implements INBTSerializable<CompoundTag>, IPacketBufferSerializable {
 
-        private BlockInformation blockInformation = BlockInformation.AIR;
+        private IBlockInformation blockInformation = BlockInformation.AIR;
         private ItemStack        internalStack    = ItemStack.EMPTY;
 
         public BitSlot()
         {
         }
 
-        public BitSlot(final BlockInformation blockInformation, final int count)
+        public BitSlot(final IBlockInformation blockInformation, final int count)
         {
             this.blockInformation = blockInformation;
             this.internalStack = IBitItemManager.getInstance().create(blockInformation, count);
@@ -171,17 +171,12 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
         @Override
         public void deserializeNBT(final CompoundTag nbt)
         {
-            if (nbt.contains(NbtConstants.BLOCK_INFORMATION)) {
-                blockInformation = new BlockInformation(nbt.getCompound(NbtConstants.BLOCK_INFORMATION));
-            }
-            else if (nbt.contains(NbtConstants.BLOCK_STATE)) {
-                blockInformation = new BlockInformation(NbtUtils.readBlockState(nbt.getCompound(NbtConstants.BLOCK_STATE)));
-            }
+            blockInformation = new BlockInformation(nbt.getCompound(NbtConstants.BLOCK_INFORMATION));
             final int count = nbt.getInt(NbtConstants.COUNT);
             internalStack = IBitItemManager.getInstance().create(blockInformation, count);
         }
 
-        public BlockInformation getBlockInformation()
+        public IBlockInformation getBlockInformation()
         {
             return blockInformation;
         }
@@ -191,7 +186,7 @@ public class SlottedBitInventory extends AbstractBitInventory implements IWatcha
             return internalStack.getCount();
         }
 
-        public void setBlockInformation(final BlockInformation blockInformation)
+        public void setBlockInformation(final IBlockInformation blockInformation)
         {
             if (this.blockInformation.equals(blockInformation))
                 return;

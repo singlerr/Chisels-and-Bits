@@ -2,12 +2,9 @@ package mod.chiselsandbits.item;
 
 import mod.chiselsandbits.ChiselsAndBits;
 import mod.chiselsandbits.api.block.bitbag.IBitBagAcceptingBlock;
-import mod.chiselsandbits.api.block.state.id.IBlockStateIdManager;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItem;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
-import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
@@ -90,19 +87,17 @@ public class BitBagItem extends Item implements IBitInventoryItem
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(
       final @NotNull Level worldIn,
-      final Player playerIn,
+      final @NotNull Player playerIn,
       final @NotNull InteractionHand hand)
     {
         final ItemStack itemStackIn = playerIn.getItemInHand(hand);
 
-        if (playerIn != null) {
-            final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerIn);
-            if (rayTraceResult.getType() == HitResult.Type.BLOCK && rayTraceResult instanceof final BlockHitResult blockRayTraceResult) {
-                final BlockState hitBlockState = worldIn.getBlockState(blockRayTraceResult.getBlockPos());
-                if (hitBlockState.getBlock() instanceof IBitBagAcceptingBlock) {
-                    ((IBitBagAcceptingBlock) hitBlockState.getBlock()).onBitBagInteraction(itemStackIn, playerIn, blockRayTraceResult);
-                    return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStackIn);
-                }
+        final HitResult rayTraceResult = RayTracingUtils.rayTracePlayer(playerIn);
+        if (rayTraceResult.getType() == HitResult.Type.BLOCK && rayTraceResult instanceof final BlockHitResult blockRayTraceResult) {
+            final BlockState hitBlockState = worldIn.getBlockState(blockRayTraceResult.getBlockPos());
+            if (hitBlockState.getBlock() instanceof IBitBagAcceptingBlock) {
+                ((IBitBagAcceptingBlock) hitBlockState.getBlock()).onBitBagInteraction(itemStackIn, playerIn, blockRayTraceResult);
+                return new InteractionResultHolder<>(InteractionResult.SUCCESS, itemStackIn);
             }
         }
 
@@ -127,29 +122,6 @@ public class BitBagItem extends Item implements IBitInventoryItem
               return stack;
           }
         );
-
-        if (!stack.getOrCreateTag().contains(NbtConstants.INVENTORY) && stack.getOrCreateTag().contains(NbtConstants.CONTENTS)) {
-            int[] legacyContentData = stack.getOrCreateTag().getIntArray(NbtConstants.CONTENTS);
-            if (legacyContentData.length != BAG_STORAGE_SLOTS * 2) {
-                final int[] tmp = legacyContentData;
-                legacyContentData = new int[BAG_STORAGE_SLOTS * 2];
-                System.arraycopy( legacyContentData, 0, tmp, 0, Math.min( BAG_STORAGE_SLOTS * 2, tmp.length ) );
-            }
-
-            for (int i = 0; i < BAG_STORAGE_SLOTS; i++)
-            {
-                final int count = legacyContentData[2 * i + 1];
-                final int id = legacyContentData[2 * i];
-
-                final BlockState blockState = IBlockStateIdManager.getInstance().getBlockStateFrom(id);
-                final BlockInformation blockInformation = new BlockInformation(blockState);
-                final ItemStack bitStack = IBitItemManager.getInstance().create(blockInformation, count);
-
-                inventoryItemStack.setItem(i, bitStack);
-            }
-
-            stack.getOrCreateTag().remove(NbtConstants.CONTENTS);
-        }
 
         inventoryItemStack.deserializeNBT(stack.getOrCreateTagElement(NbtConstants.INVENTORY));
         return inventoryItemStack;

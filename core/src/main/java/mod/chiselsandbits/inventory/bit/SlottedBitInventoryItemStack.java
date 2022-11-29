@@ -3,7 +3,8 @@ package mod.chiselsandbits.inventory.bit;
 import com.google.common.collect.Maps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.inventory.bit.IBitInventoryItemStack;
 import mod.chiselsandbits.api.item.bit.IBitItem;
@@ -55,7 +56,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     }
 
     @Override
-    public void clear(final BlockInformation state)
+    public void clear(final IBlockInformation state)
     {
         final Int2ObjectMap<BitSlot> slots = new Int2ObjectArrayMap<>(this.slotMap);
 
@@ -73,7 +74,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
     @Override
     public void sort()
     {
-        final Map<BlockInformation, Integer> contentMap = Maps.newHashMap();
+        final Map<IBlockInformation, Integer> contentMap = Maps.newHashMap();
         this.slotMap.values().forEach(bitSlot -> {
             contentMap.putIfAbsent(bitSlot.getBlockInformation(), 0);
             contentMap.compute(bitSlot.getBlockInformation(), (s, c) -> (c == null ? 0 : c) + bitSlot.getCount());
@@ -82,11 +83,11 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
 
         this.slotMap.clear();
 
-        List<Map.Entry<BlockInformation, Integer>> toSort = new ArrayList<>(contentMap.entrySet());
-        toSort.sort(Map.Entry.<BlockInformation, Integer>comparingByValue().reversed());
+        List<Map.Entry<IBlockInformation, Integer>> toSort = new ArrayList<>(contentMap.entrySet());
+        toSort.sort(Map.Entry.<IBlockInformation, Integer>comparingByValue().reversed());
 
         int slotIndex = 0;
-        for (Map.Entry<BlockInformation, Integer> e : toSort)
+        for (Map.Entry<IBlockInformation, Integer> e : toSort)
         {
             int count = e.getValue();
             if (count == 0)
@@ -150,7 +151,7 @@ public class SlottedBitInventoryItemStack extends SlottedBitInventory implements
             return;
         }
 
-        final BlockInformation state = bitItem.getBlockInformation(stack);
+        final IBlockInformation state = bitItem.getBlockInformation(stack);
 
         final BitSlot bitSlot = this.slotMap.getOrDefault(index, new BitSlot());
         bitSlot.setBlockInformation(state);

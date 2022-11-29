@@ -2,7 +2,8 @@ package mod.chiselsandbits.stateinfo.additional;
 
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.api.variant.state.IStateVariant;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public final class StateVariantManager implements IStateVariantManager
@@ -30,6 +32,7 @@ public final class StateVariantManager implements IStateVariantManager
         return INSTANCE;
     }
 
+    private final Map<Supplier<Block>, IStateVariantProvider> preBakeProviders = new ConcurrentHashMap<>();
     private final Map<Block, IStateVariantProvider> providers = new ConcurrentHashMap<>();
 
     private StateVariantManager()
@@ -37,9 +40,24 @@ public final class StateVariantManager implements IStateVariantManager
     }
 
     @Override
+    public IStateVariantManager registerProvider(Supplier<Block> block, IStateVariantProvider provider) {
+        preBakeProviders.put(block, provider);
+        return this;
+    }
+
+    private void bakeProviders() {
+        if (!providers.isEmpty())
+            return;
+
+        preBakeProviders.forEach((block, provider) -> providers.put(block.get(), provider));
+        preBakeProviders.clear();
+    }
+
+    @Override
     public Optional<IStateVariant> getStateVariant(
       final BlockState blockState, final Optional<BlockEntity> blockEntity)
     {
+        bakeProviders();
         if (!providers.containsKey(blockState.getBlock()))
             return Optional.empty();
 
@@ -50,6 +68,7 @@ public final class StateVariantManager implements IStateVariantManager
     @Override
     public Optional<IStateVariant> getStateVariant(final FluidState fluidStateIn)
     {
+        bakeProviders();
         if (!providers.containsKey(fluidStateIn.createLegacyBlock().getBlock()))
             return Optional.empty();
 
@@ -60,6 +79,7 @@ public final class StateVariantManager implements IStateVariantManager
     @Override
     public Optional<IStateVariant> getStateVariant(final BlockState blockState, final ItemStack itemStack)
     {
+        bakeProviders();
         if (!providers.containsKey(blockState.getBlock()))
             return Optional.empty();
 
@@ -70,6 +90,7 @@ public final class StateVariantManager implements IStateVariantManager
     @Override
     public Optional<IStateVariant> getStateVariant(final FluidInformation fluidInformation)
     {
+        bakeProviders();
         if (!providers.containsKey(fluidInformation.fluid().defaultFluidState().createLegacyBlock().getBlock()))
             return Optional.empty();
 
@@ -79,8 +100,9 @@ public final class StateVariantManager implements IStateVariantManager
     }
 
     @Override
-    public Collection<BlockInformation> getAllDefaultVariants(final BlockState state)
+    public Collection<IBlockInformation> getAllDefaultVariants(final BlockState state)
     {
+        bakeProviders();
         if (!providers.containsKey(state.getBlock()))
             return Collections.emptyList();
 
@@ -88,27 +110,29 @@ public final class StateVariantManager implements IStateVariantManager
                  .stream()
                  .flatMap(Collection::stream)
                  .map(variant -> new WrappingStateVariant(state.getBlock(), variant))
-                 .map(variant -> new BlockInformation(state, Optional.ofNullable(variant)))
+                 .map(variant -> new BlockInformation(state, Optional.of(variant)))
                  .collect(Collectors.toSet());
     }
 
     @Override
-    public CompoundTag serializeNBT(final IStateVariant additionalStateInfo)
+    public CompoundTag serializeNBT(final IStateVariant variant)
     {
-        if (!(additionalStateInfo instanceof WrappingStateVariant wrappingStateVariant))
+        if (!(variant instanceof WrappingStateVariant wrappingStateVariant))
             throw new IllegalArgumentException("additionalStateInfo must be a WrappingStateVariant");
 
-        final Block block = wrappingStateVariant.getSourceBlock();
+        bakeProviders();
+        final Block block = wrappingStateVariant.sourceBlock();
 
         final CompoundTag tag = new CompoundTag();
         tag.putString(NbtConstants.BLOCK, IPlatformRegistryManager.getInstance().getBlockRegistry().getKey(block).toString());
-        tag.put(NbtConstants.VARIANT, providers.get(block).serializeNBT(wrappingStateVariant.getDelegate()));
+        tag.put(NbtConstants.VARIANT, providers.get(block).serializeNBT(wrappingStateVariant.delegate()));
         return tag;
     }
 
     @Override
     public IStateVariant deserializeNBT(final CompoundTag tag)
     {
+        bakeProviders();
         final Optional<Block> block = IPlatformRegistryManager.getInstance().getBlockRegistry().getValue(new ResourceLocation(tag.getString(NbtConstants.BLOCK)));
         if (block.isEmpty())
             throw new IllegalStateException("Missing block from variant!");
@@ -121,18 +145,20 @@ public final class StateVariantManager implements IStateVariantManager
     }
 
     @Override
-    public void serializeInto(final FriendlyByteBuf packetBuffer, final IStateVariant info)
+    public void serializeInto(final FriendlyByteBuf packetBuffer, final IStateVariant variant)
     {
-        if (!(info instanceof WrappingStateVariant wrappingStateVariant))
+        if (!(variant instanceof WrappingStateVariant wrappingStateVariant))
             throw new IllegalArgumentException("additionalStateInfo must be a WrappingStateVariant");
 
-        packetBuffer.writeResourceLocation(IPlatformRegistryManager.getInstance().getBlockRegistry().getKey(wrappingStateVariant.getSourceBlock()));
-        providers.get(wrappingStateVariant.getSourceBlock()).serializeInto(packetBuffer, wrappingStateVariant.getDelegate());
+        bakeProviders();
+        packetBuffer.writeResourceLocation(IPlatformRegistryManager.getInstance().getBlockRegistry().getKey(wrappingStateVariant.sourceBlock()));
+        providers.get(wrappingStateVariant.sourceBlock()).serializeInto(packetBuffer, wrappingStateVariant.delegate());
     }
 
     @Override
     public IStateVariant deserializeFrom(final FriendlyByteBuf packetBuffer)
     {
+        bakeProviders();
         final Optional<Block> block = IPlatformRegistryManager.getInstance().getBlockRegistry().getValue(packetBuffer.readResourceLocation());
         if (block.isEmpty())
             throw new IllegalStateException("Missing block from variant!");
@@ -145,63 +171,53 @@ public final class StateVariantManager implements IStateVariantManager
     }
 
     @Override
-    public Optional<ItemStack> getItemStack(final BlockInformation blockInformation)
+    public Optional<ItemStack> getItemStack(final IBlockInformation blockInformation)
     {
+        bakeProviders();
         if (!providers.containsKey(blockInformation.getBlockState().getBlock()))
             return Optional.empty();
 
-        return providers.get(blockInformation.getBlockState().getBlock()).getItemStack(blockInformation.getVariant());
+        return blockInformation.getVariant().flatMap(stateVariant -> providers.get(blockInformation.getBlockState().getBlock()).getItemStack(stateVariant));
     }
 
     @Override
-    public Optional<FluidInformation> getFluidInformation(final BlockInformation state, final long amount)
+    public Optional<FluidInformation> getFluidInformation(final IBlockInformation blockInformation, final long amount)
     {
-        if (!providers.containsKey(state.getBlockState().getBlock()))
+        bakeProviders();
+        if (!providers.containsKey(blockInformation.getBlockState().getBlock()))
             return Optional.empty();
 
-        return providers.get(state.getBlockState().getBlock()).getFluidInformation(state.getVariant(), amount);
+        return blockInformation.getVariant().flatMap(variant -> providers.get(blockInformation.getBlockState().getBlock()).getFluidInformation(variant, amount));
     }
 
-    private static final class WrappingStateVariant implements IStateVariant {
-        private static final Comparator<IStateVariant> VARIANT_COMPARATOR = Comparator.<IStateVariant, String>comparing(
-          variant -> variant.getClass().getName()
-        ).thenComparing(Comparator.naturalOrder());
-
-        private final Block sourceBlock;
-        private final IStateVariant delegate;
-
-        private WrappingStateVariant(final Block sourceBlock, final IStateVariant delegate) {
-            this.sourceBlock = sourceBlock;
-            this.delegate = delegate;
-        }
-
-        @Override
-        public int compareTo(@NotNull final IStateVariant o)
-        {
-            if (o instanceof WrappingStateVariant wrappingStateVariant)
-            {
-                return VARIANT_COMPARATOR.compare(delegate, wrappingStateVariant.delegate);
+    public Optional<IStateVariant> unwrapVariant(Optional<IStateVariant> variant) {
+        return variant.map(v -> {
+            if (v instanceof WrappingStateVariant wrappingStateVariant) {
+                return wrappingStateVariant.delegate();
             }
-            return -1;
-        }
+            return v;
+        });
+    }
+
+    private record WrappingStateVariant(Block sourceBlock, IStateVariant delegate) implements IStateVariant {
+            private static final Comparator<IStateVariant> VARIANT_COMPARATOR = Comparator.<IStateVariant, String>comparing(
+                    variant -> variant.getClass().getName()
+            ).thenComparing(Comparator.naturalOrder());
 
         @Override
-        public IStateVariant createSnapshot()
-        {
-            return new WrappingStateVariant(
-              sourceBlock,
-              delegate.createSnapshot()
-            );
-        }
+            public int compareTo(@NotNull final IStateVariant o) {
+                if (o instanceof WrappingStateVariant wrappingStateVariant) {
+                    return VARIANT_COMPARATOR.compare(delegate, wrappingStateVariant.delegate);
+                }
+                return -1;
+            }
 
-        public Block getSourceBlock()
-        {
-            return sourceBlock;
+            @Override
+            public IStateVariant createSnapshot() {
+                return new WrappingStateVariant(
+                        sourceBlock,
+                        delegate.createSnapshot()
+                );
+            }
         }
-
-        public IStateVariant getDelegate()
-        {
-            return delegate;
-        }
-    }
 }

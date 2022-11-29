@@ -1,10 +1,10 @@
 package mod.chiselsandbits.neighborhood;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.neighborhood.IBlockNeighborhood;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,7 +41,7 @@ public final class BlockNeighborhood implements IBlockNeighborhood
     }
 
     @Override
-    public @NotNull BlockInformation getBlockInformation(final Direction direction)
+    public @NotNull IBlockInformation getBlockInformation(final Direction direction)
     {
         return neighborhoodMap.get(direction).getBlockInformation();
     }

@@ -3,7 +3,8 @@ package mod.chiselsandbits.chiseling.modes.line;
 import com.communi.suggestu.scena.core.registries.AbstractCustomRegistryEntry;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
@@ -83,11 +84,11 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
               {
                   context.setComplete();
 
-                  final Map<BlockInformation, Integer> resultingBitCount = Maps.newHashMap();
+                  final Map<IBlockInformation, Integer> resultingBitCount = Maps.newHashMap();
 
                   mutator.inWorldMutableStream()
                     .forEach(state -> {
-                        final BlockInformation currentState = state.getBlockInformation();
+                        final IBlockInformation currentState = state.getBlockInformation();
 
                         if (context.tryDamageItem())
                         {
@@ -133,7 +134,7 @@ public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChi
         }
 
         return rayTraceHandle.orElseGet(() -> context.getMutator().map(mutator -> {
-              final BlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
+              final IBlockInformation heldBlockState = ItemStackUtils.getHeldBitBlockInformationFromPlayer(playerEntity);
               if (heldBlockState.isAir())
               {
                   return ClickProcessingState.DEFAULT;

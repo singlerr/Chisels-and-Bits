@@ -1,7 +1,8 @@
 package mod.chiselsandbits.multistate.mutator;
 
 import mod.chiselsandbits.api.axissize.CollisionType;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTracker;
 import mod.chiselsandbits.api.exceptions.SpaceOccupiedException;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
@@ -252,7 +253,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
 
     @Override
     public void setInAreaTarget(
-      final BlockInformation blockInformation,
+      final IBlockInformation blockInformation,
       final Vec3 inAreaTarget) throws SpaceOccupiedException
     {
         if (inAreaTarget.x() < 0 ||
@@ -282,7 +283,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     }
 
     @Override
-    public void setInBlockTarget(final BlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
+    public void setInBlockTarget(final IBlockInformation blockInformation, final BlockPos inAreaBlockPosOffset, final Vec3 inBlockTarget) throws SpaceOccupiedException
     {
         final BlockPos startPos = new BlockPos(getInWorldStartPoint());
         final BlockPos targetPos = startPos.offset(inAreaBlockPosOffset);

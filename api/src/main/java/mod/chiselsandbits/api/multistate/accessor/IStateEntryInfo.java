@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.multistate.accessor;
 
 import mod.chiselsandbits.api.aabb.IAABBOwner;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +21,7 @@ public interface IStateEntryInfo extends IAABBOwner
      * @return The state.
      */
     @NotNull
-    BlockInformation getBlockInformation();
+    IBlockInformation getBlockInformation();
 
     /**
      * The start (lowest on all three axi) position of the state that this entry occupies.

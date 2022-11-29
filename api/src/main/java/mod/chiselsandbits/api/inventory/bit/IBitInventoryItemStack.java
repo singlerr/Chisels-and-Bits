@@ -1,7 +1,6 @@
 package mod.chiselsandbits.api.inventory.bit;
 
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
-import net.minecraft.world.level.block.state.BlockState;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.chat.Component;
@@ -41,7 +40,7 @@ public interface IBitInventoryItemStack extends IBitInventory, Container
      *
      * @param state The blockstate to remove from the bit inventory.
      */
-    void clear(BlockInformation state);
+    void clear(IBlockInformation state);
 
     /**
      * Sorts the bit inventory.

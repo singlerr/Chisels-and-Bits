@@ -1,15 +1,15 @@
 package mod.chiselsandbits.client.model.baked.face;
 
 import com.mojang.math.Vector3f;
-import mod.chiselsandbits.api.blockinformation.BlockInformation;
-import net.minecraft.world.level.block.state.BlockState;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
 public class FaceRegion
 {
     private final Direction        face;
-    private final BlockInformation blockInformation;
+    private final IBlockInformation blockInformation;
     private final boolean          isEdge;
     private float minX;
     private float minY;
@@ -22,7 +22,7 @@ public class FaceRegion
       final Vec3 start,
       final Vec3 end,
       final Direction facing,
-      final BlockInformation blockInformation,
+      final IBlockInformation blockInformation,
       final boolean isEdge
     ) {
         return new FaceRegion(
@@ -59,7 +59,7 @@ public class FaceRegion
 
     public FaceRegion(
       final Direction face,
-      final BlockInformation blockInformation,
+      final IBlockInformation blockInformation,
       final boolean isEdge,
       final float minX,
       final float minY,
@@ -79,7 +79,7 @@ public class FaceRegion
         this.maxZ = maxZ;
     }
 
-    public BlockInformation getBlockInformation()
+    public IBlockInformation getBlockInformation()
     {
         return blockInformation;
     }
