@@ -1,15 +1,17 @@
 package mod.chiselsandbits.client.model.baked.chiseled;
 
 import com.communi.suggestu.scena.core.client.models.IModelManager;
-import com.google.common.collect.*;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.common.collect.Lists;
 import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.profiling.IProfilerSection;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.client.culling.ICullTest;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
 import mod.chiselsandbits.client.model.baked.face.FaceManager;
