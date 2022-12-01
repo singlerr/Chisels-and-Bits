@@ -10,6 +10,7 @@ import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.api.variant.state.IStateVariantProvider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -188,6 +189,15 @@ public final class StateVariantManager implements IStateVariantManager
             return Optional.empty();
 
         return blockInformation.getVariant().flatMap(variant -> providers.get(blockInformation.getBlockState().getBlock()).getFluidInformation(variant, amount));
+    }
+
+    @Override
+    public Optional<Component> getName(IBlockInformation blockInformation) {
+        bakeProviders();
+        if (!providers.containsKey(blockInformation.getBlockState().getBlock()))
+            return Optional.empty();
+
+        return blockInformation.getVariant().flatMap(variant -> providers.get(blockInformation.getBlockState().getBlock()).getName(variant));
     }
 
     public Optional<IStateVariant> unwrapVariant(Optional<IStateVariant> variant) {

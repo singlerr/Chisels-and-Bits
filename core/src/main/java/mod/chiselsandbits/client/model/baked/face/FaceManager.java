@@ -295,86 +295,86 @@ public final class FaceManager {
         switch (cullDirection) {
             case DOWN -> {
                 builder.withVertexData(v -> {
-                    v.withVertexIndex(1).withX(0).withY(0).withZ(0).withU(minU).withV(minV);
+                    v.withVertexIndex(0).withX(0).withY(0).withZ(1).withU(minU).withV(minV);
                 });
                 builder.withVertexData(v -> {
-                    v.withVertexIndex(0).withX(0).withY(0).withZ(1).withU(minU).withV(maxV);
+                    v.withVertexIndex(1).withX(0).withY(0).withZ(0).withU(minU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(2).withX(1).withY(0).withZ(1).withU(maxU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(3).withX(1).withY(0).withZ(0).withU(maxU).withV(minV);
+                });
+            }
+            case UP -> {
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(0).withX(0).withY(1).withZ(0).withU(minU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(1).withX(0).withY(1).withZ(1).withU(minU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(2).withX(1).withY(1).withZ(1).withU(maxU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(3).withX(1).withY(1).withZ(0).withU(maxU).withV(minV);
+                });
+            }
+            case NORTH -> {
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(0).withX(1).withY(1).withZ(0).withU(minU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(1).withX(1).withY(0).withZ(0).withU(minU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(2).withX(0).withY(0).withZ(0).withU(maxU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(3).withX(0).withY(1).withZ(0).withU(maxU).withV(minV);
+                });
+            }
+            case SOUTH -> {
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(0).withX(0).withY(1).withZ(1).withU(minU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(1).withX(0).withY(0).withZ(1).withU(minU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(2).withX(1).withY(0).withZ(1).withU(maxU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(3).withX(1).withY(1).withZ(1).withU(maxU).withV(minV);
+                });
+            }
+            case WEST -> {
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(0).withX(0).withY(1).withZ(0).withU(minU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(1).withX(0).withY(0).withZ(0).withU(minU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(2).withX(0).withY(0).withZ(1).withU(maxU).withV(maxV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(3).withX(0).withY(1).withZ(1).withU(maxU).withV(minV);
+                });
+            }
+            case EAST -> {
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(0).withX(1).withY(1).withZ(1).withU(minU).withV(minV);
+                });
+                builder.withVertexData(v -> {
+                    v.withVertexIndex(1).withX(1).withY(0).withZ(1).withU(minU).withV(maxV);
                 });
                 builder.withVertexData(v -> {
                     v.withVertexIndex(2).withX(1).withY(0).withZ(0).withU(maxU).withV(maxV);
                 });
                 builder.withVertexData(v -> {
-                    v.withVertexIndex(3).withX(1).withY(0).withZ(1).withU(maxU).withV(minV);
-                });
-            }
-            case UP -> {
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(1).withX(0).withY(1).withZ(0).withU(minU).withV(minV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(0).withX(1).withY(1).withZ(0).withU(maxU).withV(minV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(2).withX(0).withY(1).withZ(1).withU(minU).withV(maxV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(3).withX(1).withY(1).withZ(1).withU(maxU).withV(maxV);
-                });
-            }
-            case NORTH -> {
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(1).withX(0).withY(0).withZ(0).withU(minU).withV(minV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(0).withX(1).withY(0).withZ(0).withU(maxU).withV(minV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(2).withX(0).withY(1).withZ(0).withU(minU).withV(maxV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(3).withX(1).withY(1).withZ(0).withU(maxU).withV(maxV);
-                });
-            }
-            case SOUTH -> {
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(1).withX(0).withY(0).withZ(1).withU(minU).withV(minV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(0).withX(0).withY(1).withZ(1).withU(minU).withV(maxV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(2).withX(1).withY(0).withZ(1).withU(maxU).withV(minV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(3).withX(1).withY(1).withZ(1).withU(maxU).withV(maxV);
-                });
-            }
-            case WEST -> {
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(1).withX(0).withY(0).withZ(0).withU(minU).withV(minV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(0).withX(0).withY(1).withZ(0).withU(minU).withV(maxV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(2).withX(0).withY(0).withZ(1).withU(maxU).withV(minV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(3).withX(0).withY(1).withZ(1).withU(maxU).withV(maxV);
-                });
-            }
-            case EAST -> {
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(1).withX(1).withY(0).withZ(0).withU(minU).withV(minV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(0).withX(1).withY(0).withZ(1).withU(maxU).withV(minV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(2).withX(1).withY(1).withZ(0).withU(minU).withV(maxV);
-                });
-                builder.withVertexData(v -> {
-                    v.withVertexIndex(3).withX(1).withY(1).withZ(1).withU(maxU).withV(maxV);
+                    v.withVertexIndex(3).withX(1).withY(1).withZ(0).withU(maxU).withV(minV);
                 });
             }
         }
@@ -426,10 +426,10 @@ public final class FaceManager {
                 sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(IRenderingManager.getInstance().getStillFluidTexture(fluid));
             }
 
-            final float minV = sprite.getV0();
-            final float maxU = sprite.getU1();
-            final float minU = sprite.getU0();
-            final float maxV = sprite.getV1();
+            float minV = sprite.getV0();
+            float maxU = sprite.getU(16f * 16f / sprite.getWidth());
+            float minU = sprite.getU0();
+            float maxV = sprite.getV(16f * 16f / sprite.getHeight());
 
             builder.withSprite(sprite);
             injectFluidVertexDataForSide(builder, minU, maxU, minV, maxV, cullDirection);
@@ -450,8 +450,7 @@ public final class FaceManager {
         return layers;
     }
 
-    private int getColorFor(
-            final IBlockInformation state) {
+    private int getColorFor(final IBlockInformation state) {
         return colorCache.get(state, () -> {
             final Optional<Integer> dynamicColor = IBlockInformationColorManager.getInstance()
                     .getColor(state);

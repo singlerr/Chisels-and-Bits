@@ -4,6 +4,7 @@ import com.communi.suggestu.scena.core.fluid.FluidInformation;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -105,4 +106,12 @@ public interface IStateVariantProvider
      * @return The fluid information.
      */
     Optional<FluidInformation> getFluidInformation(IStateVariant stateVariant, long amount);
+
+    /**
+     * Returns the name of the given state variant.
+     *
+     * @param variant The state variant to get the name for.
+     * @return The name of the variant if present.
+     */
+    Optional<Component> getName(IStateVariant variant);
 }

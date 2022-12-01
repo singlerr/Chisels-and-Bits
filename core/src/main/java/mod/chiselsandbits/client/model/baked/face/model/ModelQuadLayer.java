@@ -141,7 +141,7 @@ public record ModelQuadLayer(VertexData[] vertexData, TextureAtlasSprite sprite,
                 throw new IllegalStateException("Cannot build a source quad without 4 vertex data");
             }
 
-            final VertexData[] verticesData = manualVertexData.toArray(VertexData[]::new);
+            final VertexData[] verticesData = manualVertexData.stream().sorted(Comparator.comparing(VertexData::vertexIndex)).toArray(VertexData[]::new);
 
             final BakedQuadBuilder builder = new BakedQuadBuilder(sprite);
             builder.setQuadOrientation(cullDirection);
@@ -177,6 +177,8 @@ public record ModelQuadLayer(VertexData[] vertexData, TextureAtlasSprite sprite,
                     }
                 }
             }
+
+            builder.setApplyDiffuseLighting(true);
 
             builder.onComplete();
             return builder.build();

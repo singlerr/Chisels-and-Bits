@@ -5,6 +5,7 @@ import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -129,4 +130,12 @@ public interface IStateVariantManager
      * @return The fluid information.
      */
     Optional<FluidInformation> getFluidInformation(IBlockInformation blockInformation, long amount);
+
+    /**
+     * returns the name of the contained variant if it is present.
+     *
+     * @param blockInformation The block information with the variant for which a name is being looked up.
+     * @return The name if present.
+     */
+    Optional<Component> getName(IBlockInformation blockInformation);
 }

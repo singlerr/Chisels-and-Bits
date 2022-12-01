@@ -3,8 +3,12 @@ package mod.chiselsandbits.api.client.variant.state;
 import com.communi.suggestu.scena.core.client.models.data.IBlockModelData;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -32,4 +36,15 @@ public interface IClientStateVariantManager {
      * @return The block model data.
      */
     IBlockModelData getBlockModelData(IBlockInformation blockInformation);
+
+    /**
+     * Invoked to append a tooltip for the given variant in the block information.
+     * If no variant is found this method does nothing.
+     *
+     * @param blockInformation The block information to append the tooltip for.
+     * @param level The level.
+     * @param tooltip The tooltip list..
+     * @param flags The flags
+     */
+    void appendHoverText(IBlockInformation blockInformation, Level level, List<Component> tooltip, TooltipFlag flags);
 }

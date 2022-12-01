@@ -1,10 +1,14 @@
 package mod.chiselsandbits.item.bit;
 
+import com.communi.suggestu.scena.core.dist.Dist;
+import com.communi.suggestu.scena.core.dist.DistExecutor;
 import com.communi.suggestu.scena.core.fluid.IFluidManager;
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.client.variant.state.IClientStateVariantManager;
+import mod.chiselsandbits.api.variant.state.IStateVariant;
 import mod.chiselsandbits.block.ChiseledBlock;
 import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
@@ -27,6 +31,7 @@ import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.client.render.ModRenderTypes;
+import mod.chiselsandbits.stateinfo.additional.StateVariantManager;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
 import net.minecraft.client.Minecraft;
@@ -154,6 +159,10 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
             stateName = IFluidManager.getInstance().getDisplayName(flowingFluidBlock.getFluidState(flowingFluidBlock.defaultBlockState()).getType());
         }
 
+        if (containedStack.getVariant().isPresent()) {
+            stateName = IStateVariantManager.getInstance().getName(containedStack).orElse(stateName);
+        }
+
         return Component.translatable(this.getDescriptionId(stack), stateName);
     }
 
@@ -168,6 +177,13 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
         else {
             tooltip.add(TranslationUtils.build("chiselmode.mode", mode.getDisplayName()));
         }
+
+        final BlockInformation blockInformation = getBlockInformation(stack);
+        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> {
+            IClientStateVariantManager.getInstance().appendHoverText(blockInformation, worldIn, tooltip, flagIn);
+        });
+
+
         super.appendHoverText(stack, worldIn, tooltip, flagIn);
     }
 
