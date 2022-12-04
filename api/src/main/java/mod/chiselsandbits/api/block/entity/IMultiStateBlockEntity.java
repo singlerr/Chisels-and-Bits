@@ -12,6 +12,9 @@ import mod.chiselsandbits.api.util.IPacketBufferSerializable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.Direction;
 import mod.chiselsandbits.api.util.INBTSerializable;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the block entity with the state data, which under-ly the information

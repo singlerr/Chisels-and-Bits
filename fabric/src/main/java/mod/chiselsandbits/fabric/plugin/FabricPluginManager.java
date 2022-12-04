@@ -1,11 +1,14 @@
 package mod.chiselsandbits.fabric.plugin;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.ClassPath;
 import mod.chiselsandbits.api.plugin.IPluginDiscoverer;
 import mod.chiselsandbits.api.util.GroupingUtils;
 import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +32,18 @@ public final class FabricPluginManager implements IPluginDiscoverer
     public <A, I extends Annotation, T> Collection<T> loadPlugins(
       final Class<A> annotationType, final Class<I> instanceAnnotationType, final Class<T> pluginSpecificationType, final Function<T, String> idExtractor)
     {
+
+        try {
+            FabricLoader.getInstance().getModContainer("test")
+                    .get().getRootPaths().for
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        FabricLoader.getInstance().getAllMods().forEach(container -> {
+            container.getRootPaths()
+        });
+
         final List<T> plugins = FabricLoader.getInstance().getEntrypointContainers(
           "chiselsandbits:plugin", pluginSpecificationType
         ).stream().map(EntrypointContainer::getEntrypoint).collect(Collectors.toList());

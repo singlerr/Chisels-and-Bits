@@ -2,7 +2,11 @@ package mod.chiselsandbits.forge.platform;
 
 import com.google.common.collect.ImmutableSet;
 import com.mojang.logging.LogUtils;
+import cpw.mods.modlauncher.serviceapi.ILaunchPluginService;
+import mod.chiselsandbits.api.config.ICommonConfiguration;
+import mod.chiselsandbits.api.launch.ILaunchPropertyManager;
 import mod.chiselsandbits.api.plugin.IPluginDiscoverer;
+import mod.chiselsandbits.api.plugin.PluginData;
 import mod.chiselsandbits.api.util.ClassUtils;
 import mod.chiselsandbits.api.util.GroupingUtils;
 import net.minecraftforge.fml.ModList;
@@ -31,11 +35,11 @@ public final class ForgePluginDiscoverer implements IPluginDiscoverer {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <A, I extends Annotation, T> Collection<T> loadPlugins(Class<A> annotationType, Class<I> instanceAnnotationType, Class<T> pluginSpecificationType, Function<T, String> idExtractor) {
+    public <A, I extends Annotation, T> Collection<PluginData<T>> loadPlugins(Class<A> annotationType, Class<I> instanceAnnotationType, Class<T> pluginSpecificationType, Function<T, String> idExtractor) {
         Type pluginType = Type.getType(annotationType);
 
         ModList modList = ModList.get();
-        List<T> plugins = new ArrayList<>();
+        List<PluginData<T>> plugins = new ArrayList<>();
         for (ModFileScanData scanData : modList.getAllScanData()) {
             for (ModFileScanData.AnnotationData data : scanData.getAnnotations()) {
                 if (pluginType.equals(data.annotationType())) {
@@ -46,26 +50,32 @@ public final class ForgePluginDiscoverer implements IPluginDiscoverer {
                         }
                     }
 
-                    T plugin = createPluginFrom(
+                    final Boolean isExperimental = (Boolean) data.annotationData().get("isExperimental");
+                    if (isExperimental != null && isExperimental && !Boolean.parseBoolean(ILaunchPropertyManager.getInstance().get("plugins.experimental", "false"))) {
+                        continue;
+                    }
+
+                    PluginData<T> plugin = createPluginFrom(
                             data.memberName(),
                             pluginSpecificationType,
                             instanceAnnotationType,
-                            idExtractor
+                            idExtractor,
+                            isExperimental != null && isExperimental
                     );
 
                     if (plugin != null) {
                         plugins.add(plugin);
-                        LOGGER.info("Found and loaded ChiselsAndBits plugin: {}", idExtractor.apply(plugin));
+                        LOGGER.info("Found and loaded ChiselsAndBits plugin: {}", idExtractor.apply(plugin.plugin()));
                     }
                 }
             }
         }
 
-        final Collection<Collection<T>> groupedByIds = GroupingUtils.groupByUsingSet(plugins, idExtractor);
+        final Collection<Collection<PluginData<T>>> groupedByIds = GroupingUtils.groupByUsingSet(plugins, tPluginData -> idExtractor.apply(tPluginData.plugin()));
         final Collection<String> idsWithDuplicates = groupedByIds.stream()
                 .filter(p -> p.size() > 1)
                 .map(p -> p.iterator().next())
-                .map(idExtractor)
+                .map(d -> idExtractor.apply(d.plugin()))
                 .collect(Collectors.toSet());
 
         if (idsWithDuplicates.size() > 0) {
@@ -76,17 +86,23 @@ public final class ForgePluginDiscoverer implements IPluginDiscoverer {
     }
 
     @Nullable
-    private static <T, I extends Annotation> T createPluginFrom(
+    private static <T, I extends Annotation> PluginData<T> createPluginFrom(
             String className,
             final Class<T> pluginSpecificationType,
             final Class<I> instanceAnnotationType,
-            final Function<T, String> idExtractor
-    ) {
-        return ClassUtils.createOrGetInstance(
+            final Function<T, String> idExtractor,
+            boolean isExperimental) {
+        final T plugin = ClassUtils.createOrGetInstance(
                 className,
                 pluginSpecificationType,
                 instanceAnnotationType,
                 idExtractor
         );
+
+        if (plugin == null) {
+            return null;
+        }
+
+        return new PluginData<>(plugin, isExperimental);
     }
 }

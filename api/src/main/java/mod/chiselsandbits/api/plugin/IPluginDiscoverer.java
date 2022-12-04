@@ -1,6 +1,7 @@
 package mod.chiselsandbits.api.plugin;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
 
 import java.lang.annotation.Annotation;
 import java.util.Collection;
@@ -33,7 +34,7 @@ public interface IPluginDiscoverer
      * @param <T> The type of the interface.
      * @return All loaded plugins available.
      */
-    <A, I extends Annotation, T> Collection<T> loadPlugins(
+    <A, I extends Annotation, T> Collection<PluginData<T>> loadPlugins(
       final Class<A> annotationType,
       final Class<I> instanceAnnotationType,
       final Class<T> pluginSpecificationType,

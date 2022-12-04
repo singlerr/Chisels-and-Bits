@@ -3,7 +3,6 @@ package mod.chiselsandbits.client;
 import mod.chiselsandbits.api.plugin.IChiselsAndBitsPlugin;
 import mod.chiselsandbits.api.plugin.IPluginManager;
 import mod.chiselsandbits.client.registrars.*;
-import mod.chiselsandbits.clipboard.CreativeClipboardManager;
 import mod.chiselsandbits.keys.KeyBindingManager;
 
 public class ChiselsAndBitsClient {

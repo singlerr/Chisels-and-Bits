@@ -27,4 +27,9 @@ public interface IChiselsAndBitsPlugin
      * Called after ChiselsAndBits client construction completes.
      */
     default void onClientConstruction() {};
+
+    /**
+     * Invoked by chisels and bits when the platform it runs on (so forge or fabric) indicates that mod initialization should happen.
+     */
+    default void onInitialize() {};
 }

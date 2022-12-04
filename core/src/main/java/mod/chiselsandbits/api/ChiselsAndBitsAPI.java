@@ -25,6 +25,7 @@ import mod.chiselsandbits.api.inventory.bit.IAdaptingBitInventoryManager;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
+import mod.chiselsandbits.api.launch.ILaunchPropertyManager;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.accessor.IAccessorFactory;
@@ -53,6 +54,7 @@ import mod.chiselsandbits.clipboard.CreativeClipboardManager;
 import mod.chiselsandbits.inventory.management.BitInventoryManager;
 import mod.chiselsandbits.item.bit.BitItemManager;
 import mod.chiselsandbits.item.multistate.MultiStateItemFactory;
+import mod.chiselsandbits.launch.LaunchPropertyManager;
 import mod.chiselsandbits.measures.MeasuringManager;
 import mod.chiselsandbits.multistate.mutator.MutatorFactory;
 import mod.chiselsandbits.multistate.snapshot.SnapshotFactory;
@@ -386,5 +388,10 @@ public class ChiselsAndBitsAPI implements IChiselsAndBitsAPI
     @Override
     public @NotNull IBlockInformationFactory getBlockInformationFactory() {
         return BlockInformation::new;
+    }
+
+    @Override
+    public @NotNull ILaunchPropertyManager getLaunchPropertyManager() {
+        return LaunchPropertyManager.getInstance();
     }
 }

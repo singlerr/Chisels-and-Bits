@@ -1,6 +1,5 @@
 package mod.chiselsandbits;
 
-import com.communi.suggestu.scena.core.IScenaPlatform;
 import mod.chiselsandbits.api.ChiselsAndBitsAPI;
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
 import mod.chiselsandbits.api.block.IBlockConstructionManager;
@@ -76,5 +75,9 @@ public class ChiselsAndBits
 
     public NetworkChannel getNetworkChannel() {
 	    return networkChannel;
+    }
+
+    public void onInitialize() {
+        PluginManger.getInstance().run(IChiselsAndBitsPlugin::onInitialize);
     }
 }

@@ -30,7 +30,7 @@ public class Fabric implements ModInitializer {
     @Override
     public void onInitialize()
     {
-        //Noop for now.
+        chiselsAndBits.onInitialize();
     }
 
     public void setChiselsAndBits(final ChiselsAndBits chiselsAndBits)

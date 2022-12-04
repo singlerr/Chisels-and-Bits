@@ -16,7 +16,6 @@ import mod.chiselsandbits.client.model.baked.face.FaceRegion;
 import mod.chiselsandbits.client.util.QuadGenerationUtils;
 import mod.chiselsandbits.profiling.ProfilingManager;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -40,7 +39,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
             ChiselRenderType.SOLID,
             null,
             vector3d -> BlockInformation.AIR,
-            0, RenderType.solid());
+            0);
 
     private static final Direction[] X_Faces = new Direction[]{Direction.EAST, Direction.WEST};
     private static final Direction[] Y_Faces = new Direction[]{Direction.UP, Direction.DOWN};
@@ -94,8 +93,7 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
             final ChiselRenderType layer,
             final IAreaAccessor data,
             final Function<Vec3, IBlockInformation> neighborStateSupplier,
-            final long primaryStateRenderSeed,
-            @NotNull final RenderType renderType) {
+            final long primaryStateRenderSeed) {
         chiselRenderType = layer;
         BakedModel originalModel = null;
 

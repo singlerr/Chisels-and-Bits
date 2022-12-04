@@ -10,9 +10,13 @@ import mod.chiselsandbits.forge.platform.ForgeBlockConstructionManager;
 import mod.chiselsandbits.forge.platform.ForgeEligibilityOptions;
 import mod.chiselsandbits.forge.platform.ForgePluginDiscoverer;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.slf4j.Logger;
+
+import java.util.function.Consumer;
 
 @Mod(Constants.MOD_ID)
 public class Forge
@@ -40,6 +44,8 @@ public class Forge
 
             DistExecutor.runWhenOn(Dist.CLIENT, () -> Client::init);
         });
+        
+        Mod.EventBusSubscriber.Bus.MOD.bus().get().addListener((Consumer<FMLCommonSetupEvent>) event -> chiselsAndBits.onInitialize());
 	}
 
     public static final class Client {

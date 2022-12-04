@@ -27,4 +27,15 @@ public @interface ChiselsAndBitsPlugin
      * @return The ids of the mods required to load.
      */
     String[] requiredMods() default {};
+
+    /**
+     * Indicator for an experimental plugin.
+     * Is only loaded when the user enables experimental plugins in the config.
+     * <p>
+     * Experimental plugins get constructed if their mods list matches, however their
+     * initialization methods are never called!
+     *
+     * @return True for an experimental plugin.
+     */
+    boolean isExperimental() default false;
 }

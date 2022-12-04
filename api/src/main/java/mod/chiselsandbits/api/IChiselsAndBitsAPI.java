@@ -23,6 +23,7 @@ import mod.chiselsandbits.api.inventory.bit.IAdaptingBitInventoryManager;
 import mod.chiselsandbits.api.inventory.management.IBitInventoryManager;
 import mod.chiselsandbits.api.item.bit.IBitItemManager;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItemFactory;
+import mod.chiselsandbits.api.launch.ILaunchPropertyManager;
 import mod.chiselsandbits.api.measuring.IMeasuringManager;
 import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
@@ -327,6 +328,9 @@ public interface IChiselsAndBitsAPI
 
     @NotNull
     IBlockInformationFactory getBlockInformationFactory();
+
+    @NotNull
+    ILaunchPropertyManager getLaunchPropertyManager();
 
     class Holder {
         private static IChiselsAndBitsAPI apiInstance;

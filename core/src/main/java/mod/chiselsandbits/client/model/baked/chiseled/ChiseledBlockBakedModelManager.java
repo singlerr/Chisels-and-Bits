@@ -137,8 +137,7 @@ public class ChiseledBlockBakedModelManager {
 
                                         return blockNeighborhood.getBlockInformation(offsetDirection);
                                     },
-                                    primaryStateRenderSeed,
-                                    renderType
+                                    primaryStateRenderSeed
                             );
                         }
                     });
