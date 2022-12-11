@@ -5,6 +5,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import mod.chiselsandbits.api.config.ICommonConfiguration;
 import mod.chiselsandbits.api.launch.ILaunchPropertyManager;
+import mod.chiselsandbits.api.plugin.IPluginDiscoverer;
+import mod.chiselsandbits.api.plugin.PluginData;
 import mod.chiselsandbits.api.util.ClassUtils;
 import mod.chiselsandbits.api.util.GroupingUtils;
 import net.fabricmc.loader.api.FabricLoader;
@@ -29,13 +31,13 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class FabricPluginDiscoverer {
+public class FabricPluginDiscoverer implements IPluginDiscoverer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricPluginDiscoverer.class);
 
     private record DiscoveredPlugin(Map<String, Object> annotationData, String className) {};
 
-    <A, I extends Annotation, T> Collection<T> loadPlugins(Class<A> annotationType, Class<I> instanceAnnotationType, Class<T> pluginSpecificationType, Function<T, String> idExtractor) {
+    public <A, I extends Annotation, T> Collection<PluginData<T>> loadPlugins(Class<A> annotationType, Class<I> instanceAnnotationType, Class<T> pluginSpecificationType, Function<T, String> idExtractor) {
         final Set<DiscoveredPlugin> pluginCandidates = Sets.newHashSet();
 
         for (ModContainer allMod : FabricLoader.getInstance().getAllMods()) {
@@ -64,7 +66,7 @@ public class FabricPluginDiscoverer {
         }
 
 
-        List<T> plugins = new ArrayList<>();
+        List<PluginData<T>> plugins = new ArrayList<>();
         for (DiscoveredPlugin pluginCandidate : pluginCandidates) {
             final ArrayList<String> requiredMods = (ArrayList<String>) pluginCandidate.annotationData().get("requiredMods");
             if (requiredMods != null && requiredMods.size() > 0) {
@@ -86,12 +88,12 @@ public class FabricPluginDiscoverer {
             );
 
             if (plugin != null) {
-                plugins.add(plugin);
+                plugins.add(new PluginData<>(plugin, isExperimental != null && isExperimental));
                 LOGGER.info("Found and loaded ChiselsAndBits plugin: {}", idExtractor.apply(plugin));
             }
         }
 
-        final Collection<Collection<T>> groupedByIds = GroupingUtils.groupByUsingSet(plugins, idExtractor);
+        final Collection<Collection<T>> groupedByIds = GroupingUtils.groupByUsingSet(plugins.stream().map(PluginData::plugin).collect(Collectors.toList()), idExtractor);
         final Collection<String> idsWithDuplicates = groupedByIds.stream()
                 .filter(p -> p.size() > 1)
                 .map(p -> p.iterator().next())
@@ -122,7 +124,7 @@ public class FabricPluginDiscoverer {
     }
 
 
-    private final class AnnotationSearchingClassVisitor extends ClassVisitor {
+    private static final class AnnotationSearchingClassVisitor extends ClassVisitor {
 
         private final Set<DiscoveredPlugin> pluginCandidates;
         private final Class<?> annotationType;

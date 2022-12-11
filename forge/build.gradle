@@ -1,9 +1,8 @@
-//for Ant filter
-import org.apache.tools.ant.filters.ReplaceTokens;
 plugins {
     id 'net.minecraftforge.gradle'
     id 'org.spongepowered.mixin'
     id 'org.parchmentmc.librarian.forgegradle'
+    id 'com.matthewprenger.cursegradle'
 }
 
 repositories.mavenLocal()
@@ -164,4 +163,26 @@ afterEvaluate {
 tasks.jarJar.archiveClassifier.set("");
 tasks.jar.archiveClassifier.set("slim");
 tasks.build.dependsOn tasks.jarJar
+
+if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
+    project.curseforge { cf ->
+        cf.apiKey = opc.hasPropertySet("curseApiKey") ? opc.getProperty("curseApiKey") : opc.getProperty("CURSEAPIKEY")
+
+        project { cp ->
+            cp.id = "231095"
+            cp.addGameVersion "Java ${java.toolchain.languageVersion.get().asInt()}"
+            cp.addGameVersion(project.minecraftVersion)
+            cp.changelog = rootProject.file('build/changelog.md')
+            cp.changelogType = 'markdown'
+            cp.releaseType = 'release'
+
+            opc.getStringListProperty("additionalMinecraftVersions").each { v ->
+                cp.addGameVersion(v)
+            }
+
+            cp.mainArtifact(jarJar)
+        }
+    }
+}
+
 

@@ -1,5 +1,6 @@
 plugins {
     id 'fabric-loom'
+    id 'com.matthewprenger.cursegradle'
 }
 
 project.addCoreProject()
@@ -40,6 +41,36 @@ project.loom {
             setConfigName("Fabric Server")
             ideConfigGenerated(true)
             runDir("runs/server")
+        }
+    }
+}
+
+if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
+    project.curseforge { cf ->
+        cf.apiKey = opc.hasPropertySet("curseApiKey") ? opc.getProperty("curseApiKey") : opc.getProperty("CURSEAPIKEY")
+
+        project { cp ->
+            cp.id = "561059"
+            cp.addGameVersion "Fabric"
+            cp.addGameVersion "Java ${java.toolchain.languageVersion.get().asInt()}"
+            cp.addGameVersion(project.minecraftVersion)
+            cp.changelog = rootProject.file('build/changelog.md')
+            cp.changelogType = 'markdown'
+            cp.releaseType = 'release'
+
+            opc.getStringListProperty("additionalMinecraftVersions").each { v ->
+                cp.addGameVersion(v)
+            }
+
+            cp.mainArtifact(remapJar)
+
+            afterEvaluate {
+                uploadTask.dependsOn remapJar
+            }
+
+        }
+        options {
+            forgeGradleIntegration = false
         }
     }
 }

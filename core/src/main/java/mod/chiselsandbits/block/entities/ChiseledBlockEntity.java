@@ -1261,7 +1261,9 @@ public class ChiseledBlockEntity extends BlockEntity implements
             nbt.putInt(NbtConstants.TOTAL_LIGHT_BLOCK_LEVEL, totalLightBlockLevel);
 
             final CompoundTag collisionDataNbt = new CompoundTag();
-            this.collisionData.forEach((collisionType, set) -> collisionDataNbt.putLongArray(collisionType.name(), set.toLongArray()));
+            for (CollisionType collisionType : CollisionType.values()) {
+                collisionDataNbt.putLongArray(collisionType.name(), getCollideableEntries(collisionType).toLongArray());
+            }
             nbt.put(NbtConstants.COLLISION_DATA, collisionDataNbt);
 
             return nbt;
