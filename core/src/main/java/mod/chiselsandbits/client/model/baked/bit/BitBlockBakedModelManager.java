@@ -8,12 +8,14 @@ import mod.chiselsandbits.api.item.bit.IBitItem;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.client.model.baked.simple.NullBakedModel;
 import mod.chiselsandbits.client.time.TickHandler;
+import mod.chiselsandbits.registrars.ModCreativeTabs;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -96,12 +98,9 @@ public class BitBlockBakedModelManager
     {
         if (blockInformation.isAir() || blockInformation == null)
         {
-            //We are running an empty bit, for display purposes.
-            //Lets loop:
-            if (alternativeStacks.isEmpty())
-            {
-                ModItems.ITEM_BLOCK_BIT.get().fillItemCategory(Objects.requireNonNull(ModItems.ITEM_BLOCK_BIT.get().getItemCategory()), alternativeStacks);
-            }
+            ModCreativeTabs.BITS.get().buildContents(FeatureFlagSet.of(), false);
+            this.alternativeStacks.clear();
+            this.alternativeStacks.addAll(ModCreativeTabs.BITS.get().getDisplayItems());
 
             final int alternativeIndex = (int) ((Math.floor(TickHandler.getClientTicks() / 20d)) % alternativeStacks.size());
 

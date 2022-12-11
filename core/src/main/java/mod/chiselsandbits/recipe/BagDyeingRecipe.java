@@ -8,6 +8,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.resources.ResourceLocation;
@@ -18,9 +19,10 @@ public class BagDyeingRecipe extends CustomRecipe
 {
 
     public BagDyeingRecipe(
-      ResourceLocation name)
+            ResourceLocation name,
+            CraftingBookCategory category)
     {
-        super(name);
+        super(name, category);
     }
 
     @Override

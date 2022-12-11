@@ -1,14 +1,14 @@
 package mod.chiselsandbits.client.util;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import com.mojang.serialization.Codec;
 import it.unimi.dsi.fastutil.floats.Float2FloatFunction;
 import net.minecraft.Util;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class Vector2f {
     public static final Codec<Vector2f> CODEC = Codec.FLOAT.listOf().comapFlatMap((floats) -> Util.fixedSize(floats, 2).map((sizedFloats) -> new Vector2f(sizedFloats.get(0), sizedFloats.get(1))), (vector) -> ImmutableList.of(vector.x, vector.y));

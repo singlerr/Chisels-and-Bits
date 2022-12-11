@@ -1,7 +1,6 @@
 package mod.chiselsandbits.api.item.withhighlight;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;

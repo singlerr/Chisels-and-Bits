@@ -5,8 +5,6 @@ import net.minecraft.resources.ResourceLocation;
 
 public interface IIconManager
 {
-    void registerIcon(ResourceLocation name);
-
     TextureAtlasSprite getIcon(ResourceLocation name);
 
     TextureAtlasSprite getSwapIcon();

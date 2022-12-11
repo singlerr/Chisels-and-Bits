@@ -4,16 +4,16 @@ import com.google.gson.JsonObject;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModRecipeSerializers;
 import net.minecraft.data.CachedOutput;
-import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class SpecialCraftingRecipeGenerator implements DataProvider
@@ -21,21 +21,20 @@ public class SpecialCraftingRecipeGenerator implements DataProvider
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
-        event.getGenerator().addProvider(true, new SpecialCraftingRecipeGenerator(event.getGenerator()));
+        event.getGenerator().addProvider(true, new SpecialCraftingRecipeGenerator(event.getGenerator().getPackOutput()));
     }
 
-    private final DataGenerator generator;
+    private final PackOutput generator;
 
-    private SpecialCraftingRecipeGenerator(final DataGenerator generator) {this.generator = generator;}
+    private SpecialCraftingRecipeGenerator(final PackOutput generator) {this.generator = generator;}
 
     @Override
-    public void run(final @NotNull CachedOutput cache) throws IOException
-    {
+    public @NotNull CompletableFuture<?> run(final @NotNull CachedOutput cache) {
         saveRecipe(cache, ModRecipeSerializers.BAG_DYEING.getId());
+        return CompletableFuture.allOf();
     }
 
-    private void saveRecipe(final CachedOutput cache, final ResourceLocation location) throws IOException
-    {
+    private void saveRecipe(final CachedOutput cache, final ResourceLocation location) {
         final JsonObject object = new JsonObject();
         object.addProperty("type", location.toString());
 

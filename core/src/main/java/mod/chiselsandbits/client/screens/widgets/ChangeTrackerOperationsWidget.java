@@ -11,6 +11,7 @@ import mod.chiselsandbits.client.icon.IconManager;
 import mod.chiselsandbits.network.packets.ClearChangeTrackerPacket;
 import mod.chiselsandbits.network.packets.RequestChangeTrackerOperationPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Tooltip;
 import org.jetbrains.annotations.NotNull;
 
 public class ChangeTrackerOperationsWidget extends AbstractChiselsAndBitsWidget
@@ -54,46 +55,34 @@ public class ChangeTrackerOperationsWidget extends AbstractChiselsAndBitsWidget
         super.init();
         this.undoButton = owner.addRenderableWidget(
           new GuiIconButton(
-            this.x,
-            this.y,
+            this.getX(),
+            this.getY(),
             LocalStrings.ChangeTrackerOperationsButtonUndoName.getText(),
             IconManager.getInstance().getUndoIcon(),
             button -> ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new RequestChangeTrackerOperationPacket(false)),
-            (button, matrixStack, mouseX, mouseY) -> {
-                if (button.active) {
-                    owner.renderTooltip(matrixStack, LocalStrings.ChangeTrackerOperationsButtonUndoName.getText(), mouseX, mouseY);
-                }
-            }
+            Tooltip.create(LocalStrings.ChangeTrackerOperationsButtonUndoName.getText())
           )
         );
 
         this.redoButton = owner.addRenderableWidget(
           new GuiIconButton(
-            this.x,
-            this.y + WIDTH + ELEMENT_SEPARATOR,
+            this.getX(),
+            this.getY() + WIDTH + ELEMENT_SEPARATOR,
             LocalStrings.ChangeTrackerOperationsButtonRedoName.getText(),
             IconManager.getInstance().getRedoIcon(),
             button -> ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new RequestChangeTrackerOperationPacket(true)),
-            (button, matrixStack, mouseX, mouseY) -> {
-                if (button.active) {
-                    owner.renderTooltip(matrixStack, LocalStrings.ChangeTrackerOperationsButtonRedoName.getText(), mouseX, mouseY);
-                }
-            }
+            Tooltip.create(LocalStrings.ChangeTrackerOperationsButtonRedoName.getText())
           )
         );
 
         this.clearButton = owner.addRenderableWidget(
           new GuiIconButton(
-            this.x,
-            this.y + WIDTH + ELEMENT_SEPARATOR + WIDTH + ELEMENT_SEPARATOR,
+            this.getX(),
+            this.getY() + WIDTH + ELEMENT_SEPARATOR + WIDTH + ELEMENT_SEPARATOR,
             LocalStrings.ChangeTrackerOperationsButtonClearName.getText(),
             IconManager.getInstance().getTrashIcon(),
             button -> ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(new ClearChangeTrackerPacket()),
-            (button, matrixStack, mouseX, mouseY) -> {
-                if (button.active) {
-                    owner.renderTooltip(matrixStack, LocalStrings.ChangeTrackerOperationsButtonClearName.getText(), mouseX, mouseY);
-                }
-            }
+            Tooltip.create(LocalStrings.ChangeTrackerOperationsButtonClearName.getText())
           )
         );
 
@@ -103,7 +92,7 @@ public class ChangeTrackerOperationsWidget extends AbstractChiselsAndBitsWidget
     @Override
     public void renderButton(final @NotNull PoseStack matrixStack, final int mouseX, final int mouseY, final float partialTick)
     {
-        //Noop
+
     }
 
     public void updateState() {

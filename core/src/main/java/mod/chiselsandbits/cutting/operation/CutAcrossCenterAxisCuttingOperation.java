@@ -1,7 +1,7 @@
 package mod.chiselsandbits.cutting.operation;
 
+import com.communi.suggestu.scena.core.registries.AbstractCustomRegistryEntry;
 import com.google.common.collect.ImmutableList;
-import com.mojang.math.Vector3d;
 import mod.chiselsandbits.api.cutting.operation.ICuttingOperation;
 import mod.chiselsandbits.api.cutting.operation.ICuttingOperationGroup;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
@@ -10,7 +10,6 @@ import mod.chiselsandbits.api.multistate.mutator.IGenerallyModifiableAreaMutator
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.multistate.mutator.MutatorFactory;
-import com.communi.suggestu.scena.core.registries.AbstractCustomRegistryEntry;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

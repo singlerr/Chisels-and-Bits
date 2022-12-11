@@ -4,38 +4,46 @@ import com.communi.suggestu.scena.core.registries.deferred.IRegistryObject;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModTags;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.tags.BlockTagsProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.concurrent.CompletableFuture;
 
 public class ModBlockTagGenerator extends BlockTagsProvider
 {
-    public ModBlockTagGenerator(
-      final DataGenerator dataGenerator,
-      @Nullable final ExistingFileHelper existingFileHelper)
-    {
-        super(dataGenerator, Constants.MOD_ID, existingFileHelper);
+
+
+    public ModBlockTagGenerator(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
+        super(output, lookupProvider, Constants.MOD_ID, existingFileHelper);
     }
 
     @Override
-    protected void addTags()
-    {
+    protected void addTags(HolderLookup.@NotNull Provider provider) {
         this.tag(ModTags.Blocks.BLOCKED_CHISELABLE);
         this.tag(ModTags.Blocks.FORCED_CHISELABLE)
-          .addTag(BlockTags.LEAVES)
-          .add(Blocks.GRASS_BLOCK)
-          .add(Blocks.ICE)
-          .add(Blocks.PACKED_ICE)
-          .add(Blocks.PACKED_ICE);
+                .addTag(BlockTags.LEAVES)
+                .add(Blocks.GRASS_BLOCK)
+                .add(Blocks.ICE)
+                .add(Blocks.PACKED_ICE)
+                .add(Blocks.PACKED_ICE);
         this.tag(ModTags.Blocks.CHISELED_BLOCK).add(
-          ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values()
-            .stream()
-            .map(IRegistryObject::get)
-            .toArray(Block[]::new)
+                ModBlocks.MATERIAL_TO_BLOCK_CONVERSIONS.values()
+                        .stream()
+                        .map(IRegistryObject::get)
+                        .toArray(Block[]::new)
         );
+    }
+
+    @Override
+    public String getName() {
+        return "Chisels & Bits Block Tags";
     }
 }

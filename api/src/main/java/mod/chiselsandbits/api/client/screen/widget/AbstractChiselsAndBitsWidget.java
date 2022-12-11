@@ -56,8 +56,7 @@ public class AbstractChiselsAndBitsWidget extends AbstractWidget implements IChi
     }
 
     @Override
-    public void updateNarration(final @NotNull NarrationElementOutput output)
-    {
+    protected void updateWidgetNarration(@NotNull NarrationElementOutput output) {
         this.defaultButtonNarrationText(output);
     }
 }

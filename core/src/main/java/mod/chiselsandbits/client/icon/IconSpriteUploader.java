@@ -13,24 +13,11 @@ import java.util.stream.Stream;
 
 public class IconSpriteUploader extends TextureAtlasHolder
 {
-    private final List<ResourceLocation> textures = Lists.newArrayList();
-
     public static final ResourceLocation TEXTURE_MAP_NAME = new ResourceLocation(Constants.MOD_ID, "textures/atlas/icons.png");
 
     public IconSpriteUploader()
     {
-        super(Minecraft.getInstance().getTextureManager(), TEXTURE_MAP_NAME, "");
-    }
-
-    public void registerTexture(final ResourceLocation location) {
-        textures.add(location);
-    }
-
-    @NotNull
-    @Override
-    protected Stream<ResourceLocation> getResourcesToLoad()
-    {
-        return this.textures.stream();
+        super(Minecraft.getInstance().getTextureManager(), TEXTURE_MAP_NAME, new ResourceLocation(Constants.MOD_ID, "icons"));
     }
 
     /**

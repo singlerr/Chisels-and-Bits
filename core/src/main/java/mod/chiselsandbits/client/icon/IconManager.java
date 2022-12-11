@@ -44,7 +44,7 @@ public class IconManager implements IIconManager
             reloadableResourceManager.registerReloadListener(iconSpriteUploader);
         }
 
-        registerIcon(ICON_SWAP);
+/*        registerIcon(ICON_SWAP);
         registerIcon(ICON_PLACE);
         registerIcon(ICON_UNDO);
         registerIcon(ICON_REDO);
@@ -52,17 +52,9 @@ public class IconManager implements IIconManager
         registerIcon(ICON_SORT);
         registerIcon(ICON_ROLL_X);
         registerIcon(ICON_ROLL_Z);
-        registerIcon(ICON_WHITE);
+        registerIcon(ICON_WHITE);*/
     }
-    
-    @Override
-    public void registerIcon(final ResourceLocation name) {
-        if (this.iconSpriteUploader == null)
-            throw new IllegalStateException("Tried to register icon too early.");
 
-        this.iconSpriteUploader.registerTexture(name);
-    }
-    
     @Override
     public TextureAtlasSprite getIcon(final ResourceLocation name) {
         if (this.iconSpriteUploader == null)

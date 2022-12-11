@@ -1,7 +1,6 @@
 package mod.chiselsandbits.client.logic;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Matrix4f;
 import mod.chiselsandbits.api.item.withhighlight.IWithHighlightItem;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import net.minecraft.client.Minecraft;

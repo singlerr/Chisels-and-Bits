@@ -1,7 +1,7 @@
 package mod.chiselsandbits.api.config;
 
-import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.client.render.preview.placement.PlacementPreviewRenderMode;
+import org.joml.Vector4f;
 
 import java.util.List;
 import java.util.function.Supplier;

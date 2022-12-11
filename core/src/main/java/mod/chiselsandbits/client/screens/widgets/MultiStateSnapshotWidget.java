@@ -1,31 +1,29 @@
 package mod.chiselsandbits.client.screens.widgets;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.communi.suggestu.scena.core.util.TransformationUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.platform.Window;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.client.screen.widget.AbstractChiselsAndBitsWidget;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.util.ColorUtils;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
-import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
-
-import com.mojang.blaze3d.platform.Lighting;
 public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
 {
 
-    private static double GUISCALE;
     private ItemStack snapshotBlockStack = ItemStack.EMPTY;
 
     private Vec3 facingVector = Vec3.ZERO;
@@ -40,10 +38,10 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
     @Override
     public void renderButton(final @NotNull PoseStack poseStack, final int mouseX, final int mouseY, final float partialTicks)
     {
-        fill(poseStack, this.x, this.y, this.x + this.width, this.y + this.height, ColorUtils.pack(139));
-        fill(poseStack, this.x, this.y, this.x + this.width - 1, this.y + this.height - 1, ColorUtils.pack(55));
-        fill(poseStack, this.x + 1, this.y + 1, this.x + this.width, this.y + this.height, ColorUtils.pack(ColorUtils.FULL_CHANNEL));
-        fill(poseStack, this.x + 1, this.y + 1, this.x + this.width - 1, this.y + this.height - 1, ColorUtils.pack(ColorUtils.EMPTY_CHANNEL));
+        fill(poseStack, this.getX(), this.getY(), this.getX() + this.width, this.getY() + this.height, ColorUtils.pack(139));
+        fill(poseStack, this.getX(), this.getY(), this.getX() + this.width - 1, this.getY() + this.height - 1, ColorUtils.pack(55));
+        fill(poseStack, this.getX() + 1, this.getY() + 1, this.getX() + this.width, this.getY() + this.height, ColorUtils.pack(ColorUtils.FULL_CHANNEL));
+        fill(poseStack, this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, ColorUtils.pack(ColorUtils.EMPTY_CHANNEL));
 
         scissorStart();
 
@@ -59,8 +57,8 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
     @SuppressWarnings({"deprecation", "ConstantConditions"})
     public void renderRotateableItemAndEffectIntoGui(
     ) {
-        final int x = this.x + this.width / 2 - 8;
-        final int y = this.y + this.height / 2 - 8;
+        final int x = this.getX() + this.width / 2 - 8;
+        final int y = this.getY() + this.height / 2 - 8;
         final BakedModel bakedmodel = Minecraft.getInstance().getItemRenderer().getModel(
           snapshotBlockStack,
           Minecraft.getInstance().level,
@@ -80,9 +78,7 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
         final float blitOffset = Minecraft.getInstance().getItemRenderer().blitOffset;
         poseStack.translate((float)x, (float)y, 150);
         poseStack.translate(8.0F, 8.0F, 0.0F);
-        poseStack.mulPose(Quaternion.fromXYZDegrees(
-          new Vector3f(this.facingVector)
-        ));
+        poseStack.mulPose(TransformationUtils.quatFromXYZ(this.facingVector.toVector3f(), false));
         poseStack.scale(scaleFactor, scaleFactor, scaleFactor);
         poseStack.translate(-8.0F, -8.0F, 0.0F);
 
@@ -120,7 +116,6 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
         this.snapshotBlockStack = snapshot.toItemStack().toBlockStack();
     }
 
-    @SuppressWarnings("SuspiciousNameCombination")
     @Override
     protected void onDrag(final double mouseX, final double mouseY, final double dragX, final double dragY)
     {
@@ -138,7 +133,7 @@ public class MultiStateSnapshotWidget extends AbstractChiselsAndBitsWidget
     {
         Window mw = Minecraft.getInstance().getWindow();
         double sf = mw.getGuiScale();
-        GL11.glScissor((int)((this.x + 1) * mw.getGuiScale()), (int)(mw.getGuiScaledHeight() * sf - height * sf - (y - 1) * sf), (int)((width - 2) * sf), (int)((height - 1) * sf));
+        GL11.glScissor((int)((this.getX() + 1) * mw.getGuiScale()), (int)(mw.getGuiScaledHeight() * sf - height * sf - (getY() - 1) * sf), (int)((width - 2) * sf), (int)((height - 1) * sf));
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
     }
 

@@ -4,10 +4,10 @@ import com.communi.suggestu.scena.core.config.ConfigurationType;
 import com.communi.suggestu.scena.core.config.IConfigurationBuilder;
 import com.communi.suggestu.scena.core.config.IConfigurationManager;
 import com.google.common.collect.Lists;
-import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.client.render.preview.placement.PlacementPreviewRenderMode;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.util.constants.Constants;
+import org.joml.Vector4f;
 
 import java.util.List;
 import java.util.function.Supplier;

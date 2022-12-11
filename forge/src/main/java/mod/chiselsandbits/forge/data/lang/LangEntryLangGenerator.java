@@ -6,6 +6,7 @@ import mod.chiselsandbits.api.util.constants.Constants;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -16,6 +17,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Mod.EventBusSubscriber(modid = Constants.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -24,16 +26,15 @@ public class LangEntryLangGenerator implements DataProvider
     @SubscribeEvent
     public static void dataGeneratorSetup(final GatherDataEvent event)
     {
-        event.getGenerator().addProvider(true, new LangEntryLangGenerator(event.getGenerator()));
+        event.getGenerator().addProvider(true, new LangEntryLangGenerator(event.getGenerator().getPackOutput()));
     }
 
-    private final DataGenerator generator;
+    private final PackOutput generator;
 
-    private LangEntryLangGenerator(final DataGenerator generator) {this.generator = generator;}
+    private LangEntryLangGenerator(final PackOutput generator) {this.generator = generator;}
 
     @Override
-    public void run(@NotNull final CachedOutput cache) throws IOException
-    {
+    public CompletableFuture<?> run(@NotNull final CachedOutput cache) {
         final List<String> langKeys = Arrays.stream(LocalStrings.values()).map(LocalStrings::toString).collect(Collectors.toList());
         Collections.sort(langKeys);
         final JsonObject returnValue = new JsonObject();
@@ -47,6 +48,7 @@ public class LangEntryLangGenerator implements DataProvider
         final Path langPath = configLangFolder.resolve("localstrings.json");
 
         DataProvider.saveStable(cache, returnValue, langPath);
+        return CompletableFuture.allOf();
     }
 
     @NotNull

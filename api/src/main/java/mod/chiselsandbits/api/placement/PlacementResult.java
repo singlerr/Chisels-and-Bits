@@ -1,10 +1,9 @@
 package mod.chiselsandbits.api.placement;
 
 import com.communi.suggestu.scena.core.dist.DistExecutor;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import net.minecraft.network.chat.Component;
+import org.joml.Vector4f;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -15,7 +14,7 @@ import java.util.function.Supplier;
 public class PlacementResult
 {
 
-    private static final Vector4f ZERO = new Vector4f(Vector3f.ZERO);
+    private static final Vector4f ZERO = new Vector4f(0,0,0,0);
 
     /**
      * Creates a new successful placement result with client config specified color if clientside.

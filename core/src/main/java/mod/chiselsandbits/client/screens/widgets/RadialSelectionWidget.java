@@ -2,7 +2,6 @@ package mod.chiselsandbits.client.screens.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Matrix4f;
 import mod.chiselsandbits.api.client.screen.widget.AbstractChiselsAndBitsWidget;
 import mod.chiselsandbits.api.config.IClientConfiguration;
 import mod.chiselsandbits.api.item.withmode.IRenderableMode;
@@ -13,6 +12,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -156,8 +156,8 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
       final Font fontRenderer)
     {
         this(
-          (int) (widget.x + (widget.getWidth() / 2f) - (width / 2f)),
-          (int) (widget.y + (widget.getHeight() / 2f) - (height / 2f)),
+          (int) (widget.getX() + (widget.getWidth() / 2f) - (width / 2f)),
+          (int) (widget.getY() + (widget.getHeight() / 2f) - (height / 2f)),
           width,
           height,
           message,
@@ -192,8 +192,8 @@ public class RadialSelectionWidget extends AbstractChiselsAndBitsWidget
         }
 
         // center of screen
-        float centerX = this.x + (this.width / 2f);
-        float centerY = this.y + (this.height / 2f);
+        float centerX = this.getX() + (this.width / 2f);
+        float centerY = this.getY() + (this.height / 2f);
 
         poseStack.pushPose();
         RenderSystem.enableBlend();

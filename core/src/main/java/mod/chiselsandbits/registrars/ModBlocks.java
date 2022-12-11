@@ -9,6 +9,7 @@ import mod.chiselsandbits.block.*;
 import mod.chiselsandbits.materials.MaterialManager;
 import mod.chiselsandbits.utils.ReflectionHelperBlock;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
@@ -23,7 +24,7 @@ public final class ModBlocks
 
     public static final  Map<Material, IRegistryObject<Block>> MATERIAL_TO_BLOCK_CONVERSIONS = Maps.newHashMap();
     private static final Logger                                        LOGGER                        = LogManager.getLogger();
-    private static final IRegistrar<Block> BLOCK_REGISTRAR               = IRegistrar.create(Registry.BLOCK_REGISTRY, Constants.MOD_ID);
+    private static final IRegistrar<Block> BLOCK_REGISTRAR               = IRegistrar.create(Registries.BLOCK, Constants.MOD_ID);
     public static final  IRegistryObject<BitStorageBlock>              BIT_STORAGE                   =
       BLOCK_REGISTRAR.register("bit_storage", () -> new BitStorageBlock(BlockBehaviour.Properties.of(Material.METAL)
         .strength(1.5F, 6.0F)

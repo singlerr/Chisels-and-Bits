@@ -3,8 +3,8 @@ package mod.chiselsandbits.client.font;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
-import com.mojang.math.Matrix4f;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix4f;
 
 import java.util.Map;
 import java.util.NavigableMap;
@@ -100,7 +100,7 @@ public class GuiBagFontRenderer extends Font
 
         try
         {
-            stack.last().pose().multiply(matrix);
+            stack.last().pose().mul(matrix);
             stack.scale(scale, scale, scale);
 
             x /= scale;
@@ -112,8 +112,8 @@ public class GuiBagFontRenderer extends Font
         }
         finally
         {
-            matrix.setIdentity();
-            matrix.multiply(original);
+            matrix.identity();
+            matrix.mul(original);
         }
     }
 
@@ -135,7 +135,7 @@ public class GuiBagFontRenderer extends Font
 
         try
         {
-            stack.last().pose().multiply(matrix);
+            stack.last().pose().mul(matrix);
             stack.scale(scale, scale, scale);
 
             x /= scale;
@@ -147,8 +147,8 @@ public class GuiBagFontRenderer extends Font
         }
         finally
         {
-            matrix.setIdentity();
-            matrix.multiply(original);
+            matrix.identity();
+            matrix.mul(original);
         }
     }
 

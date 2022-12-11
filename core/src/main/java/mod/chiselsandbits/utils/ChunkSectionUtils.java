@@ -6,7 +6,8 @@ import mod.chiselsandbits.api.util.VectorUtils;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.data.BuiltinRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtOps;
@@ -106,7 +107,7 @@ public class ChunkSectionUtils
 
         final Vec3 centerVector = new Vec3(7.5d, 7.5d, 7.5d);
 
-        final LevelChunkSection target = new LevelChunkSection(0, BuiltinRegistries.BIOME);
+        final LevelChunkSection target = new LevelChunkSection(0, source.getStates(), source.getBiomes());
 
         for (int x = 0; x < 16; x++)
         {
@@ -144,7 +145,7 @@ public class ChunkSectionUtils
 
     public static LevelChunkSection cloneSection(final LevelChunkSection lazyChunkSection)
     {
-        final LevelChunkSection clone = new LevelChunkSection(0, BuiltinRegistries.BIOME);
+        final LevelChunkSection clone = new LevelChunkSection(0, lazyChunkSection.getStates(), lazyChunkSection.getBiomes());
         deserializeNBT(clone, serializeNBT(lazyChunkSection));
 
         return clone;
@@ -181,7 +182,7 @@ public class ChunkSectionUtils
 
     public static LevelChunkSection mirror(final LevelChunkSection lazyChunkSection, final Direction.Axis axis)
     {
-        final LevelChunkSection result = new LevelChunkSection(0, BuiltinRegistries.BIOME);
+        final LevelChunkSection result = new LevelChunkSection(0, lazyChunkSection.getStates(), lazyChunkSection.getBiomes());
 
         for (int y = 0; y < StateEntrySize.current().getBitsPerBlockSide(); y++)
         {

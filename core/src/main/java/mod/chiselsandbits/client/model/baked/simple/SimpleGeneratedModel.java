@@ -2,7 +2,6 @@ package mod.chiselsandbits.client.model.baked.simple;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormatElement;
-import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.client.model.baked.BakedQuadBuilder;
 import mod.chiselsandbits.utils.LightUtil;
@@ -15,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Collections;

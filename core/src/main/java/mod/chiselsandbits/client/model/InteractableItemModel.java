@@ -32,39 +32,30 @@ public class InteractableItemModel implements IModelSpecification<InteractableIt
     }
 
     @Override
-    public BakedModel bake(IModelBakingContext iModelBakingContext, ModelBakery modelBakery, Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState, ResourceLocation modelLocation) {
-        if (this.innerModel instanceof BlockModel blockModel) {
-            if (blockModel.getRootModel() == GENERATION_MARKER) {
-                return new InteractableBakedItemModel(ITEM_MODEL_GENERATOR.generateBlockModel(spriteGetter, blockModel).bake(modelBakery, blockModel, spriteGetter, modelState, modelLocation, false));
-            }
-        }
-
-        final BakedModel innerBakedModel = this.innerModel.bake(
-                modelBakery,
-                spriteGetter,
-                modelState,
-                innerModelLocation
-        );
-
-        return new InteractableBakedItemModel(innerBakedModel);
-    }
-
-    @Override
-    public Collection<Material> getTextures(IModelBakingContext iModelBakingContext, Function<ResourceLocation, UnbakedModel> modelGetter, Set<Pair<String, String>> missingTextureErrors) {
-        this.innerModel = modelGetter.apply(this.innerModelLocation);
+    public BakedModel bake(IModelBakingContext iModelBakingContext, ModelBaker modelBaker, Function<Material, TextureAtlasSprite> function, ModelState modelState, ResourceLocation resourceLocation) {
+        this.innerModel = modelBaker.getModel(this.innerModelLocation);
         if (this.innerModel == null) {
             LOGGER.warn("No parent '{}' while loading model '{}'", this.innerModelLocation, this);
         }
 
         if (this.innerModel == null) {
             this.innerModelLocation = ModelBakery.MISSING_MODEL_LOCATION;
-            this.innerModel = modelGetter.apply(this.innerModelLocation);
+            this.innerModel = modelBaker.getModel(this.innerModelLocation);
         }
 
-        if (!(this.innerModel instanceof BlockModel)) {
-            throw new IllegalStateException("BlockModel parent has to be a block model.");
+        if (this.innerModel instanceof BlockModel blockModel) {
+            if (blockModel.getRootModel() == GENERATION_MARKER) {
+                return new InteractableBakedItemModel(ITEM_MODEL_GENERATOR.generateBlockModel(function, blockModel).bake(modelBaker, blockModel, function, modelState, resourceLocation, false));
+            }
         }
 
-        return innerModel.getMaterials(modelGetter, missingTextureErrors);
+        final BakedModel innerBakedModel = this.innerModel.bake(
+                modelBaker,
+                function,
+                modelState,
+                innerModelLocation
+        );
+
+        return new InteractableBakedItemModel(innerBakedModel);
     }
 }

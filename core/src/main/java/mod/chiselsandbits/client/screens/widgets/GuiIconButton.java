@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.client.screen.widget.AbstractChiselsAndBitsButton;
 import mod.chiselsandbits.client.icon.IconManager;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -21,10 +22,11 @@ public class GuiIconButton extends AbstractChiselsAndBitsButton
 			final int y,
 			final TextureAtlasSprite icon,
             Button.OnPress pressedAction,
-            Button.OnTooltip tooltip)
+            Tooltip tooltip)
 	{
-		super( x, y, SIZE, SIZE, Component.empty(), pressedAction, tooltip);
+		super( x, y, SIZE, SIZE, Component.empty(), pressedAction, Button.DEFAULT_NARRATION);
 		this.icon = icon;
+        this.setTooltip(tooltip);
 	}
 
     public GuiIconButton(
@@ -33,7 +35,7 @@ public class GuiIconButton extends AbstractChiselsAndBitsButton
       final TextureAtlasSprite icon,
       final OnPress pressable)
     {
-        super(x, y, SIZE, SIZE, narration, pressable);
+        super(x, y, SIZE, SIZE, narration, pressable, Button.DEFAULT_NARRATION);
         this.icon = icon;
     }
 
@@ -42,10 +44,11 @@ public class GuiIconButton extends AbstractChiselsAndBitsButton
       final Component narration,
       final TextureAtlasSprite icon,
       final OnPress pressable,
-      final OnTooltip tooltip)
+      final Tooltip tooltip)
     {
-        super(x, y, SIZE, SIZE, narration, pressable, tooltip);
+        super(x, y, SIZE, SIZE, narration, pressable, Button.DEFAULT_NARRATION);
         this.icon = icon;
+        this.setTooltip(tooltip);
     }
 
     @Override
@@ -58,17 +61,13 @@ public class GuiIconButton extends AbstractChiselsAndBitsButton
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
-        this.blit(matrixStack, this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
-        this.blit(matrixStack, this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+        this.blit(matrixStack, this.getX(), this.getY(), 0, 46 + i * 20, this.width / 2, this.height);
+        this.blit(matrixStack, this.getX() + this.width / 2, this.getY(), 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
 
         IconManager.getInstance().bindTexture();
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        blit(matrixStack, x + 2, y + 2, 0, 16,16, icon);
+        blit(matrixStack, getX() + 2, getY() + 2, 0, 16,16, icon);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
-
-        if (this.isHovered) {
-            this.renderToolTip(matrixStack, mouseX, mouseY);
-        }
     }
 }

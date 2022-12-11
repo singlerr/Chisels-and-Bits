@@ -3,7 +3,7 @@ package mod.chiselsandbits.api.client.screen;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
 import mod.chiselsandbits.api.client.screen.widget.IChiselsAndBitsWidget;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
@@ -21,7 +21,7 @@ public class AbstractChiselsAndBitsScreen extends Screen implements IChiselsAndB
     private boolean isInitialized = false;
 
     private final List<IChiselsAndBitsWidget> widgets = Lists.newArrayList();
-    private final List<Widget> renderables = Lists.newArrayList();
+    private final List<Renderable> renderables = Lists.newArrayList();
 
     /**
      * Creates a new screen, playing the narration message when opened.
@@ -44,16 +44,16 @@ public class AbstractChiselsAndBitsScreen extends Screen implements IChiselsAndB
     }
 
     @Override
-    public <T extends GuiEventListener & Widget & NarratableEntry> @NotNull T addRenderableWidget(final @NotNull T button)
+    public <T extends GuiEventListener & Renderable & NarratableEntry> @NotNull T addRenderableWidget(final @NotNull T button)
     {
         return super.addRenderableWidget(button);
     }
 
     @Override
-    protected <T extends Widget> @NotNull T addRenderableOnly(final @NotNull T widget)
+    protected <T extends Renderable> @NotNull T addRenderableOnly(final @NotNull T widget)
     {
         final T resultingWidget =  super.addRenderableOnly(widget);
-        if (resultingWidget instanceof Widget) {
+        if (resultingWidget instanceof Renderable) {
             this.renderables.add(resultingWidget);
         }
 
@@ -71,8 +71,8 @@ public class AbstractChiselsAndBitsScreen extends Screen implements IChiselsAndB
             ((IChiselsAndBitsWidget) widget).init();
         }
 
-        if (resultingWidget instanceof Widget) {
-            this.renderables.add((Widget) resultingWidget);
+        if (resultingWidget instanceof Renderable) {
+            this.renderables.add((Renderable) resultingWidget);
         }
 
         return resultingWidget;
@@ -87,7 +87,7 @@ public class AbstractChiselsAndBitsScreen extends Screen implements IChiselsAndB
             this.widgets.remove(listener);
             ((IChiselsAndBitsWidget) listener).removed();
         }
-        if (listener instanceof Widget) {
+        if (listener instanceof Renderable) {
             this.renderables.remove(listener);
         }
     }
@@ -133,8 +133,8 @@ public class AbstractChiselsAndBitsScreen extends Screen implements IChiselsAndB
     @Override
     public void render(final @NotNull PoseStack poseStack, final int mouseX, final int mouseY, final float partialTickTime)
     {
-        final  List<Widget> renderTargets = new ArrayList<>(this.renderables);
-        for(Widget widget : renderTargets) {
+        final  List<Renderable> renderTargets = new ArrayList<>(this.renderables);
+        for(Renderable widget : renderTargets) {
             widget.render(poseStack, mouseX, mouseY, partialTickTime);
         }
     }

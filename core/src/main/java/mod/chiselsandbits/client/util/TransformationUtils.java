@@ -2,7 +2,7 @@ package mod.chiselsandbits.client.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Transformation;
-import com.mojang.math.Vector3f;
+import org.joml.Vector3f;
 
 public final class TransformationUtils {
 

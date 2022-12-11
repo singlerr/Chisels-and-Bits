@@ -1,6 +1,5 @@
 package mod.chiselsandbits.api.item.chiseled;
 
-import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
 import mod.chiselsandbits.api.placement.IPlacementPreviewProvidingItem;
@@ -12,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Vector4f;
 
 /**
  * Represents items which represent a broken chiseled block.

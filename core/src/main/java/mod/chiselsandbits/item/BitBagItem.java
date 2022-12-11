@@ -152,25 +152,6 @@ public class BitBagItem extends Item implements IBitInventoryItem
         return Math.min(1.0d, Math.max(0.0d, IClientConfiguration.getInstance().getInvertBitBagFullness().get() ? filledRatio : 1.0 - filledRatio));
     }
 
-    @Override
-    public void fillItemCategory(final @NotNull CreativeModeTab group, final @NotNull NonNullList<ItemStack> items)
-    {
-        if (this.allowedIn(group))
-        {
-            if (this == ModItems.ITEM_BIT_BAG_DEFAULT.get())
-            {
-                items.add(new ItemStack(this));
-            }
-            else
-            {
-                for (DyeColor color : DyeColor.values())
-                {
-                    items.add(dyeBag(new ItemStack(this), color));
-                }
-            }
-        }
-    }
-
     public static ItemStack dyeBag(
       ItemStack bag,
       DyeColor color)

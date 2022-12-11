@@ -230,7 +230,7 @@ public final class FaceManager {
         if (sprite == null)
             return true;
 
-        return sprite.getName().equals(MissingTextureAtlasSprite.getLocation());
+        return sprite.contents().name().equals(MissingTextureAtlasSprite.getLocation());
     }
 
     private static List<BakedQuad> getModelQuads(
@@ -427,9 +427,9 @@ public final class FaceManager {
             }
 
             float minV = sprite.getV0();
-            float maxU = sprite.getU(16f * 16f / sprite.getWidth());
+            float maxU = sprite.getU(16f * 16f / sprite.contents().width());
             float minU = sprite.getU0();
-            float maxV = sprite.getV(16f * 16f / sprite.getHeight());
+            float maxV = sprite.getV(16f * 16f / sprite.contents().height());
 
             builder.withSprite(sprite);
             injectFluidVertexDataForSide(builder, minU, maxU, minV, maxV, cullDirection);

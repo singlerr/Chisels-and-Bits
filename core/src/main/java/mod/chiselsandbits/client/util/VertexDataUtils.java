@@ -2,10 +2,10 @@ package mod.chiselsandbits.client.util;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.mojang.math.Vector3f;
 import mod.chiselsandbits.client.model.baked.chiseled.InterpolationHelper;
 import mod.chiselsandbits.client.model.baked.face.model.VertexData;
 import net.minecraft.core.Direction;
+import org.joml.Vector3f;
 
 import java.util.*;
 

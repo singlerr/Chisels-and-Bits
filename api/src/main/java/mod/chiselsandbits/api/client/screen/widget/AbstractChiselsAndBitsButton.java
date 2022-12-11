@@ -10,27 +10,6 @@ import net.minecraft.network.chat.Component;
 public class AbstractChiselsAndBitsButton extends Button implements IChiselsAndBitsWidget
 {
     /**
-     * Creates a new button without tooltip.
-     *
-     * @param x The x position.
-     * @param y The y position.
-     * @param width The width.
-     * @param height The height.
-     * @param narration The narration message.
-     * @param pressable The press callback.
-     */
-    public AbstractChiselsAndBitsButton(
-      final int x,
-      final int y,
-      final int width,
-      final int height,
-      final Component narration,
-      final OnPress pressable)
-    {
-        super(x, y, width, height, narration, pressable);
-    }
-
-    /**
      * Creates a new button with a tooltip.
      *
      * @param x The x position.
@@ -48,7 +27,7 @@ public class AbstractChiselsAndBitsButton extends Button implements IChiselsAndB
       final int height,
       final Component narration,
       final OnPress pressable,
-      final OnTooltip tooltip)
+      final CreateNarration tooltip)
     {
         super(x, y, width, height, narration, pressable, tooltip);
     }

@@ -4,9 +4,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.client.render.preview.placement.PlacementPreviewRenderMode;
 import mod.chiselsandbits.api.placement.PlacementResult;
 import net.minecraft.client.Minecraft;
@@ -20,6 +17,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.Buffer;
@@ -27,7 +27,6 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 public class ChiseledBlockGhostRenderer
 {
@@ -149,7 +148,7 @@ public class ChiseledBlockGhostRenderer
                 {
                     final Vec3i faceNormal = direction.getNormal();
                     final Vector3f normal = new Vector3f(faceNormal.getX(), faceNormal.getY(), faceNormal.getZ());
-                    normal.transform(pose.normal());
+                    normal.mul(pose.normal());
                     return normal;
                 }).toArray(Vector3f[]::new);
     }
@@ -239,7 +238,7 @@ public class ChiseledBlockGhostRenderer
                         bytebuffer.getFloat(4),
                         bytebuffer.getFloat(8),
                         1f);
-                pos.transform(pose);
+                pos.mul(pose);
 
                 buffer.vertex(pos.x(), pos.y(), pos.z())
                       .color(color.x(), color.y(), color.z(), 1f)

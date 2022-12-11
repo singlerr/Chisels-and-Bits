@@ -11,7 +11,6 @@ import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.block.IMultiStateBlock;
 import mod.chiselsandbits.api.block.entity.IMultiStateBlockEntity;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.api.config.IClientConfiguration;
@@ -31,22 +30,26 @@ import mod.chiselsandbits.api.variant.state.IStateVariant;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.api.voxelshape.IVoxelShapeManager;
 import mod.chiselsandbits.block.entities.ChiseledBlockEntity;
+import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.client.block.ClientChiseledBlockExtensions;
 import mod.chiselsandbits.clipboard.CreativeClipboardUtils;
 import mod.chiselsandbits.network.packets.NeighborBlockUpdatedPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.NonNullList;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.*;
+import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -277,12 +280,6 @@ public class ChiseledBlock extends Block implements IMultiStateBlock, SimpleWate
               multiStateBlockEntity.rotate(Direction.Axis.Y, rotationCount);
               super.setPlacedBy(worldIn, pos, state, placer, stack);
           });
-    }
-
-    @Override
-    public void fillItemCategory(@NotNull final CreativeModeTab group, @NotNull final NonNullList<ItemStack> items)
-    {
-        //No items.
     }
 
     @Override

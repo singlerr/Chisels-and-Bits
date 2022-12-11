@@ -1,11 +1,10 @@
 package mod.chiselsandbits.client.render;
 
+import com.communi.suggestu.scena.core.util.TransformationUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Quaternion;
-import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.measuring.IMeasurement;
 import mod.chiselsandbits.api.measuring.MeasuringMode;
 import mod.chiselsandbits.api.measuring.MeasuringType;
@@ -27,6 +26,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraft.world.scores.PlayerTeam;
+import org.joml.Vector3f;
 
 import java.text.DecimalFormat;
 import java.util.Collection;
@@ -214,10 +214,10 @@ public final class MeasurementRenderer
         if (view != null)
         {
             final float yaw = view.yRotO + (view.getYRot() - view.yRotO) * Minecraft.getInstance().getFrameTime();
-            matrixStack.mulPose(new Quaternion(Vector3f.YP, 180 - yaw, true));
+            matrixStack.mulPose(TransformationUtils.quatFromXYZ(new Vector3f(0, 180-yaw, 0), true));
 
             final float pitch = view.xRotO + (view.getXRot() - view.xRotO) * Minecraft.getInstance().getFrameTime();
-            matrixStack.mulPose(new Quaternion(Vector3f.XP, -pitch, true));
+            matrixStack.mulPose(TransformationUtils.quatFromXYZ(new Vector3f(-pitch, 0, 0), true));
         }
     }
 

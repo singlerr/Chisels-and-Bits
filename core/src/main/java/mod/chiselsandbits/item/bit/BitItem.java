@@ -31,6 +31,7 @@ import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.api.variant.state.IStateVariantManager;
 import mod.chiselsandbits.chiseling.ChiselingManager;
 import mod.chiselsandbits.client.render.ModRenderTypes;
+import mod.chiselsandbits.registrars.ModCreativeTabs;
 import mod.chiselsandbits.stateinfo.additional.StateVariantManager;
 import mod.chiselsandbits.utils.ItemStackUtils;
 import mod.chiselsandbits.utils.TranslationUtils;
@@ -44,6 +45,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -513,18 +515,6 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     }
 
     @Override
-    public void fillItemCategory(@Nullable final CreativeModeTab group, @NotNull final NonNullList<ItemStack> items)
-    {
-        if (group == null || this.getItemCategory() != group) {
-            return;
-        }
-
-        ensureAvailableBitStacksAreLoaded();
-
-        items.addAll(availableBitStacks);
-    }
-
-    @Override
     public Map<String, ItemStack> getDocumentableInstances(final Item item)
     {
         ensureAvailableBitStacksAreLoaded();
@@ -542,34 +532,10 @@ public class BitItem extends Item implements IChiselingItem, IBitItem, IDocument
     private void ensureAvailableBitStacksAreLoaded()
     {
         if (availableBitStacks.isEmpty()) {
-            IPlatformRegistryManager.getInstance().getBlockRegistry().getValues()
-              .forEach(block -> {
-                  if (block instanceof ChiseledBlock)
-                      return;
-
-                  final BlockState blockState = block.defaultBlockState();
-                  final Collection<IBlockInformation> defaultStateVariants = IStateVariantManager.getInstance().getAllDefaultVariants(blockState);
-
-                  if (!defaultStateVariants.isEmpty()) {
-                      defaultStateVariants.forEach(blockInformation -> {
-                          final ItemStack resultStack = IBitItemManager.getInstance().create(blockInformation);
-
-                          if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem)
-                              this.availableBitStacks.add(resultStack);
-                      });
-                      return;
-                  }
-
-                  final BlockInformation information = new BlockInformation(blockState, Optional.empty());
-
-                  if (IEligibilityManager.getInstance().canBeChiseled(information)) {
-                      final ItemStack resultStack = IBitItemManager.getInstance().create(information);
-
-                      if (!resultStack.isEmpty() && resultStack.getItem() instanceof IBitItem) {
-                          this.availableBitStacks.add(resultStack);
-                      }
-                  }
-              });
+            ModCreativeTabs.BITS.get().buildContents(FeatureFlagSet.of(), false);
+            availableBitStacks.addAll(
+                    ModCreativeTabs.BITS.get().getDisplayItems()
+            );
 
             availableBitStacks.sort(Comparator.comparing(stack -> {
                 if (!(stack.getItem() instanceof IBitItem))

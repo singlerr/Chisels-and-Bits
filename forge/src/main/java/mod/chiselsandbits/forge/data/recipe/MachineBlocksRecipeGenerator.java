@@ -4,8 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModTags;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -31,7 +32,7 @@ public class MachineBlocksRecipeGenerator extends AbstractRecipeGenerator
     {
         event.getGenerator().addProvider(true,
           new MachineBlocksRecipeGenerator(
-            event.getGenerator(),
+            event.getGenerator().getPackOutput(),
             ModBlocks.CHISELED_PRINTER.get(),
             " c ;l l;sss",
             ImmutableMap.of(
@@ -46,7 +47,7 @@ public class MachineBlocksRecipeGenerator extends AbstractRecipeGenerator
 
         event.getGenerator().addProvider(true,
           new MachineBlocksRecipeGenerator(
-            event.getGenerator(),
+            event.getGenerator().getPackOutput(),
             ModBlocks.MODIFICATION_TABLE.get(),
             "scs;nbn;ppp",
             ImmutableMap.of(
@@ -62,7 +63,7 @@ public class MachineBlocksRecipeGenerator extends AbstractRecipeGenerator
 
         event.getGenerator().addProvider(true,
           new MachineBlocksRecipeGenerator(
-            event.getGenerator(),
+            event.getGenerator().getPackOutput(),
             ModBlocks.BIT_STORAGE.get(),
             "igi;glg;ici",
             ImmutableMap.of(
@@ -81,7 +82,7 @@ public class MachineBlocksRecipeGenerator extends AbstractRecipeGenerator
     private final Map<Character, ItemLike> itemMap;
 
     private MachineBlocksRecipeGenerator(
-      final DataGenerator generator,
+      final PackOutput generator,
       final ItemLike result,
       final String pattern,
       final Map<Character, TagKey<Item>> tagMap,
@@ -94,9 +95,8 @@ public class MachineBlocksRecipeGenerator extends AbstractRecipeGenerator
     }
 
     @Override
-    protected void buildCraftingRecipes(final @NotNull Consumer<FinishedRecipe> writer)
-    {
-        final ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(getItemProvider());
+    protected void buildRecipes(@NotNull Consumer<FinishedRecipe> writer) {
+        final ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, getItemProvider());
         pattern.forEach(builder::pattern);
         tagMap.forEach((ingredientKey, tag) -> {
             builder.define(ingredientKey, tag);

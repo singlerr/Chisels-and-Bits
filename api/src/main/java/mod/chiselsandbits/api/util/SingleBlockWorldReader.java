@@ -4,7 +4,9 @@ import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeManager;
@@ -111,6 +113,16 @@ public class SingleBlockWorldReader extends SingleBlockBlockReader implements Le
     public DimensionType dimensionType()
     {
         return this.reader.dimensionType();
+    }
+
+    @Override
+    public @NotNull RegistryAccess registryAccess() {
+        return this.reader.registryAccess();
+    }
+
+    @Override
+    public @NotNull FeatureFlagSet enabledFeatures() {
+        return this.reader.enabledFeatures();
     }
 
     @Override

@@ -15,6 +15,7 @@ import mod.chiselsandbits.registrars.ModBlocks;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -157,7 +158,7 @@ public class BitStorageBlock extends Block implements EntityBlock, IBitBagAccept
 
     public static boolean updateEntityFromStack(final ItemStack stack, final BitStorageBlockEntity blockEntity) {
         if (stack.getOrCreateTag().contains(NbtConstants.CONTENTS)) {
-            final BlockState blockState = NbtUtils.readBlockState(stack.getOrCreateTag().getCompound(NbtConstants.CONTENTS));
+            final BlockState blockState = NbtUtils.readBlockState(blockEntity.getLevel().holderLookup(Registries.BLOCK), stack.getOrCreateTag().getCompound(NbtConstants.CONTENTS));
             final int count = stack.getOrCreateTag().getInt(NbtConstants.COUNT);
 
             blockEntity.setContents(

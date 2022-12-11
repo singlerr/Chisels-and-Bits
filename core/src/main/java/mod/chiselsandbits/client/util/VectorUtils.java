@@ -1,7 +1,7 @@
 package mod.chiselsandbits.client.util;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.core.Direction;
+import org.joml.Vector3f;
 
 public final class VectorUtils {
 

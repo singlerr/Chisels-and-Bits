@@ -1,6 +1,5 @@
 package mod.chiselsandbits.api.item.pattern;
 
-import com.mojang.math.Vector4f;
 import mod.chiselsandbits.api.item.change.IChangeTrackingItem;
 import mod.chiselsandbits.api.placement.IPlacementPreviewProvidingItem;
 import mod.chiselsandbits.api.item.multistate.IMultiStateItem;
@@ -15,6 +14,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.joml.Vector4f;
 
 /**
  * Represents an item that can be a pattern

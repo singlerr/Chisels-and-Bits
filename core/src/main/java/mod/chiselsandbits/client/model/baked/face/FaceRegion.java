@@ -1,10 +1,10 @@
 package mod.chiselsandbits.client.model.baked.face;
 
-import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.blockinformation.BlockInformation;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class FaceRegion
 {

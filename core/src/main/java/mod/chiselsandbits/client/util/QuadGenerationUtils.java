@@ -1,10 +1,7 @@
 package mod.chiselsandbits.client.util;
 
-import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.client.model.baked.face.FaceManager;
-import mod.chiselsandbits.client.model.baked.face.FaceRegion;
 import mod.chiselsandbits.client.model.baked.face.model.BakedQuadAdapter;
 import mod.chiselsandbits.client.model.baked.face.model.ModelQuadLayer;
 import mod.chiselsandbits.client.model.baked.face.model.VertexData;
@@ -13,6 +10,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.Direction;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 import java.util.Collection;
 import java.util.List;

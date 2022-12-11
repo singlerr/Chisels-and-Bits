@@ -18,6 +18,7 @@ import mod.chiselsandbits.network.packets.SortBagGuiPacket;
 import mod.chiselsandbits.registrars.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -41,6 +42,7 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
     boolean requireConfirm = true;
     boolean dontThrow = false;
     private GuiIconButton trashBtn;
+    private GuiIconButton sortBtn;
     private Slot hoveredBitSlot = null;
 
     public BitBagScreen(
@@ -55,7 +57,8 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
     @Override
     protected void init() {
         super.init();
-        trashBtn = addRenderableWidget(new GuiIconButton(leftPos - 20, topPos, IconManager.getInstance().getTrashIcon(),
+
+        trashBtn = addRenderableWidget(new GuiIconButton(leftPos - 20, topPos, LocalStrings.Trash.getText(), IconManager.getInstance().getTrashIcon(),
                 button -> {
                     if (requireConfirm) {
                         dontThrow = true;
@@ -69,29 +72,15 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
                         ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(packet);
                         packet.execute(Minecraft.getInstance().player);
                     }
-                }, (button, poseStack, mouseX, mouseY) -> {
-            if (isValidBitItem()) {
-                final Component msgNotConfirm = !getInHandItem().isEmpty() ? LocalStrings.TrashItem.getText(getInHandItem().getHoverName().getString()) : LocalStrings.Trash.getText();
-                final Component msgConfirm = !getInHandItem().isEmpty() ? LocalStrings.ReallyTrashItem.getText(getInHandItem().getHoverName().getString()) : LocalStrings.ReallyTrash.getText();
+                }));
 
-                final List<Component> text = Collections.singletonList(requireConfirm ? msgNotConfirm : msgConfirm);
-                GuiUtil.drawHoveringText(poseStack, text, mouseX, mouseY, width, height, -1, Minecraft.getInstance().font);
-            } else {
-                final List<Component> text = Collections.singletonList(LocalStrings.TrashInvalidItem.getText(getInHandItem().getHoverName().getString()));
-                GuiUtil.drawHoveringText(poseStack, text, mouseX, mouseY, width, height, -1, Minecraft.getInstance().font);
-            }
-        }));
-
-        addRenderableWidget(new GuiIconButton(leftPos - 20, topPos + 22, IconManager.getInstance().getSortIcon(),
+        sortBtn = addRenderableWidget(new GuiIconButton(leftPos - 20, topPos + 22, LocalStrings.Sort.getText(), IconManager.getInstance().getSortIcon(),
                 button -> {
                     final SortBagGuiPacket packet = new SortBagGuiPacket();
                     ChiselsAndBits.getInstance().getNetworkChannel().sendToServer(packet);
                     packet.execute(Minecraft.getInstance().player);
                 },
-                (button, poseStack, mouseX, mouseY) -> {
-                    final List<Component> text = Collections.singletonList(LocalStrings.Sort.getText());
-                    GuiUtil.drawHoveringText(poseStack, text, mouseX, mouseY, width, height, -1, Minecraft.getInstance().font);
-                }));
+                Tooltip.create(LocalStrings.Sort.getText())));
     }
 
     BagContainer getBagContainer() {
@@ -113,6 +102,16 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
             final int mouseY,
             final float partialTicks) {
         this.renderBackground(stack);
+        if (trashBtn.isMouseOver(mouseX, mouseY)) {
+            if (isValidBitItem()) {
+                final Component msgNotConfirm = !getInHandItem().isEmpty() ? LocalStrings.TrashItem.getText(getInHandItem().getHoverName().getString()) : LocalStrings.Trash.getText();
+                final Component msgConfirm = !getInHandItem().isEmpty() ? LocalStrings.ReallyTrashItem.getText(getInHandItem().getHoverName().getString()) : LocalStrings.ReallyTrash.getText();
+
+                this.trashBtn.setTooltip(Tooltip.create(requireConfirm ? msgNotConfirm : msgConfirm));
+            } else {
+                this.trashBtn.setTooltip(Tooltip.create(LocalStrings.TrashInvalidItem.getText(getInHandItem().getHoverName().getString())));
+            }
+        }
         super.render(stack, mouseX, mouseY, partialTicks);
     }
 

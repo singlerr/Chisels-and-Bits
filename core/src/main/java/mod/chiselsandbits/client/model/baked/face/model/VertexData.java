@@ -1,9 +1,9 @@
 package mod.chiselsandbits.client.model.baked.face.model;
 
-import com.mojang.math.Vector3f;
 import mod.chiselsandbits.client.util.Vector2f;
 import mod.chiselsandbits.client.util.VectorUtils;
 import net.minecraft.core.Direction;
+import org.joml.Vector3f;
 
 public record VertexData(float x, float y, float z, float u, float v, int vertexIndex) {
 

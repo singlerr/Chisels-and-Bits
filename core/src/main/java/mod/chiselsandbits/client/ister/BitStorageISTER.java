@@ -3,7 +3,6 @@ package mod.chiselsandbits.client.ister;
 import com.communi.suggestu.scena.core.client.rendering.IRenderingManager;
 import com.communi.suggestu.scena.core.registries.IPlatformRegistryManager;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
 import mod.chiselsandbits.block.BitStorageBlock;
 import mod.chiselsandbits.block.entities.BitStorageBlockEntity;
 import mod.chiselsandbits.registrars.ModBlocks;
@@ -17,6 +16,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 public class BitStorageISTER extends BlockEntityWithoutLevelRenderer
 {

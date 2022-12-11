@@ -1,10 +1,10 @@
 package mod.chiselsandbits.api.util;
 
-import com.mojang.math.Vector4f;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector4f;
 
 import java.util.Random;
 

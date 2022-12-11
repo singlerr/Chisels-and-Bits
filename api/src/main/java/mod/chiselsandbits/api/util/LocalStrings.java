@@ -204,6 +204,8 @@ public enum LocalStrings
 
     CreativeTabClipboard("creative-tab.clipboard.name"),
 
+    CreativeTabBits("creative-tab.bits.name"),
+
     PatternExportFailedCouldNotWriteAtlas("patterns.export.failed.could-not-write-atlas"),
     PatternExportFailedGenericAtlasWriteFailure("patterns.export.failed.generic-atlas-write-failure"),
     PatternExportFailedCouldNotWriteChiselData("patterns.export.failed.could-not-write-chisel-data"),
@@ -227,7 +229,8 @@ public enum LocalStrings
     PatternCuttingAcrossXAxis("pattern.cutting.across.axis.x"),
     PatternCuttingAcrossYAxis("pattern.cutting.across.axis.y"),
     PatternCuttingAcrossZAxis("pattern.cutting.across.axis.z"),
-    DefaultChiseledBlockItemName("default-chiseled-block-item.name");
+    DefaultChiseledBlockItemName("default-chiseled-block-item.name"),
+    ChiselsAndBitsName("name");
 
     private final String string;
 

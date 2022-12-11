@@ -1,6 +1,6 @@
 package mod.chiselsandbits.forge.data.recipe;
 
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -13,10 +13,11 @@ public abstract class AbstractRecipeGenerator extends RecipeProvider
 {
     private final ItemLike itemProvider;
 
-    protected AbstractRecipeGenerator(final DataGenerator generator, final ItemLike itemProvider) {
-        super(generator);
+    public AbstractRecipeGenerator(PackOutput packOutput, ItemLike itemProvider) {
+        super(packOutput);
         this.itemProvider = itemProvider;
     }
+
 
     public ItemLike getItemProvider()
     {

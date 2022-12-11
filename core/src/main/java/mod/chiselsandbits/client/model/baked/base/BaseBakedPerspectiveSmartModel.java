@@ -2,14 +2,16 @@ package mod.chiselsandbits.client.model.baked.base;
 
 import com.communi.suggestu.scena.core.client.models.baked.ITransformAwareBakedModel;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
 import com.mojang.math.Transformation;
-import com.mojang.math.Vector3f;
 import mod.chiselsandbits.client.util.TransformationUtils;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+
+import static com.communi.suggestu.scena.core.util.TransformationUtils.quatFromXYZ;
 
 public abstract class BaseBakedPerspectiveSmartModel extends BaseSmartModel implements ITransformAwareBakedModel
 {
@@ -39,9 +41,9 @@ public abstract class BaseBakedPerspectiveSmartModel extends BaseSmartModel impl
 			final float rotZ,
 			final float scaleXYZ )
 	{
-		final Vector3f translation = new Vector3f( transX, transY, transZ );
-		final Vector3f scale = new Vector3f( scaleXYZ, scaleXYZ, scaleXYZ );
-		final Quaternion rotation = new Quaternion(rotX, rotY, rotZ, true);
+        final Vector3f translation = new Vector3f( transX, transY, transZ );
+        final Vector3f scale = new Vector3f( scaleXYZ, scaleXYZ, scaleXYZ );
+        final Quaternionf rotation = quatFromXYZ(new Vector3f(rotX, rotY, rotZ), true);;
 
 		return new Transformation(translation, rotation, scale, null);
 	}
@@ -104,9 +106,9 @@ public abstract class BaseBakedPerspectiveSmartModel extends BaseSmartModel impl
         public @NotNull ItemTransform getTransform(final @NotNull TransformType transformType)
         {
             return new ItemTransform(
-              Vector3f.ZERO,
-              Vector3f.ZERO,
-              Vector3f.ZERO
+              new Vector3f(),
+              new Vector3f(),
+              new Vector3f()
             ) {
 
                 @Override

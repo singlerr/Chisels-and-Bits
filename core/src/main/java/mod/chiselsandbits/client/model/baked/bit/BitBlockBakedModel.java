@@ -2,20 +2,14 @@ package mod.chiselsandbits.client.model.baked.bit;
 
 import com.communi.suggestu.scena.core.client.models.IModelManager;
 import com.communi.suggestu.scena.core.client.rendering.type.IRenderTypeManager;
-import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.item.bit.IBitItem;
-import mod.chiselsandbits.blockinformation.BlockInformation;
-import mod.chiselsandbits.client.model.baked.base.BaseBakedBlockModel;
 import mod.chiselsandbits.client.model.baked.base.BaseBakedPerspectiveSmartModel;
-import mod.chiselsandbits.client.model.baked.base.BaseSmartModel;
 import mod.chiselsandbits.client.util.BlockInformationUtils;
 import mod.chiselsandbits.client.util.QuadGenerationUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.FaceBakery;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -26,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.Collection;

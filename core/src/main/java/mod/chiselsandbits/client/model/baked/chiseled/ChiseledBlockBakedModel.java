@@ -2,7 +2,6 @@ package mod.chiselsandbits.client.model.baked.chiseled;
 
 import com.communi.suggestu.scena.core.client.models.IModelManager;
 import com.google.common.collect.Lists;
-import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
@@ -27,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.*;
 import java.util.function.Consumer;

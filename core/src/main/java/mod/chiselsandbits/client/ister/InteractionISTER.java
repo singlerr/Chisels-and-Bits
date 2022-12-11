@@ -1,8 +1,8 @@
 package mod.chiselsandbits.client.ister;
 
 import com.communi.suggestu.scena.core.client.models.baked.IDelegatingBakedModel;
+import com.communi.suggestu.scena.core.util.TransformationUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Vector3f;
 import mod.chiselsandbits.api.item.interactable.IInteractableItem;
 import mod.chiselsandbits.client.model.baked.interactable.InteractableBakedItemModel;
 import mod.chiselsandbits.client.time.TickHandler;
@@ -16,11 +16,12 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 /**
  * This class animates an interaction between the items in the two hands of the players.
  *
- * Cloned from: Creators-of-Create: https://github.com/Creators-of-Create/Create/blob/mc1.16/dev/src/main/java/com/simibubi/create/content/curiosities/tools/SandPaperItemRenderer.java
+ * Cloned from: Creators-of-Create: <a href="https://github.com/Creators-of-Create/Create/blob/mc1.16/dev/src/main/java/com/simibubi/create/content/curiosities/tools/SandPaperItemRenderer.java">...</a>
  * Modified some behaviour and fields to target the general use better, but functionally the same.
  */
 public class InteractionISTER extends BlockEntityWithoutLevelRenderer
@@ -76,7 +77,7 @@ public class InteractionISTER extends BlockEntityWithoutLevelRenderer
                 matrixStack.scale(.75f, .75f, .75f);
             } else {
                 int modifier = leftHand ? -1 : 1;
-                matrixStack.mulPose(Vector3f.YP.rotationDegrees(modifier * 40));
+                matrixStack.mulPose(TransformationUtils.quatFromXYZ(new Vector3f(0, modifier * 40, 0), true));
             }
 
             // Reverse bobbing
@@ -105,9 +106,9 @@ public class InteractionISTER extends BlockEntityWithoutLevelRenderer
             if (itemInUseCount > 0) {
                 int modifier = leftHand ? -1 : 1;
                 matrixStack.translate(modifier * .5f, 0, -.25f);
-                matrixStack.mulPose(Vector3f.ZP.rotationDegrees(modifier * 40));
-                matrixStack.mulPose(Vector3f.ZP.rotationDegrees(modifier * 10));
-                matrixStack.mulPose(Vector3f.ZP.rotationDegrees(modifier * 90));
+                matrixStack.mulPose(TransformationUtils.quatFromXYZ(new Vector3f(0, modifier * 40, 0), true));
+                matrixStack.mulPose(TransformationUtils.quatFromXYZ(new Vector3f(0, modifier * 10, 0), true));
+                matrixStack.mulPose(TransformationUtils.quatFromXYZ(new Vector3f(0, modifier * 90, 0), true));
             }
         }
 

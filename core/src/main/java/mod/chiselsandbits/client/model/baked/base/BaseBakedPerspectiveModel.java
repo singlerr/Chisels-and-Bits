@@ -1,22 +1,17 @@
 package mod.chiselsandbits.client.model.baked.base;
 
 import com.communi.suggestu.scena.core.client.models.baked.ITransformAwareBakedModel;
+import com.communi.suggestu.scena.core.util.TransformationUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Quaternion;
 import com.mojang.math.Transformation;
-import com.mojang.math.Vector3f;
-import mod.chiselsandbits.client.util.TransformationUtils;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.Direction;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
-import java.util.List;
+import static com.communi.suggestu.scena.core.util.TransformationUtils.*;
 
 public abstract class BaseBakedPerspectiveModel implements BakedModel, ITransformAwareBakedModel
 {
@@ -48,7 +43,7 @@ public abstract class BaseBakedPerspectiveModel implements BakedModel, ITransfor
 	{
 		final Vector3f translation = new Vector3f( transX, transY, transZ );
 		final Vector3f scale = new Vector3f( scaleXYZ, scaleXYZ, scaleXYZ );
-		final Quaternion rotation = new Quaternion(rotX, rotY, rotZ, true);
+		final Quaternionf rotation = quatFromXYZ(new Vector3f(rotX, rotY, rotZ), true);
 
 		return new Transformation(translation, rotation, scale, null);
 	}
@@ -72,26 +67,26 @@ public abstract class BaseBakedPerspectiveModel implements BakedModel, ITransfor
         switch (cameraTransformType)
         {
             case FIRST_PERSON_LEFT_HAND:
-                TransformationUtils.push(mat, firstPerson_lefthand, requiresStackPush);
+                mod.chiselsandbits.client.util.TransformationUtils.push(mat, firstPerson_lefthand, requiresStackPush);
                 break;
             case FIRST_PERSON_RIGHT_HAND:
-                TransformationUtils.push(mat, firstPerson_righthand, requiresStackPush);
+                mod.chiselsandbits.client.util.TransformationUtils.push(mat, firstPerson_righthand, requiresStackPush);
                 break;
             case THIRD_PERSON_LEFT_HAND:
-                TransformationUtils.push(mat, thirdPerson_lefthand, requiresStackPush);
+                mod.chiselsandbits.client.util.TransformationUtils.push(mat, thirdPerson_lefthand, requiresStackPush);
                 break;
             case THIRD_PERSON_RIGHT_HAND:
-                TransformationUtils.push(mat, thirdPerson_righthand, requiresStackPush);
+                mod.chiselsandbits.client.util.TransformationUtils.push(mat, thirdPerson_righthand, requiresStackPush);
                 break;
             case GROUND:
-                TransformationUtils.push(mat, ground, requiresStackPush);
+                mod.chiselsandbits.client.util.TransformationUtils.push(mat, ground, requiresStackPush);
                 break;
             case GUI:
-                TransformationUtils.push(mat, gui, requiresStackPush);
+                mod.chiselsandbits.client.util.TransformationUtils.push(mat, gui, requiresStackPush);
                 break;
             case FIXED:
             default:
-                TransformationUtils.push(mat, fixed, requiresStackPush);
+                mod.chiselsandbits.client.util.TransformationUtils.push(mat, fixed, requiresStackPush);
                 break;
         }
     }
@@ -111,9 +106,9 @@ public abstract class BaseBakedPerspectiveModel implements BakedModel, ITransfor
         public @NotNull ItemTransform getTransform(final @NotNull TransformType transformType)
         {
             return new ItemTransform(
-              Vector3f.ZERO,
-              Vector3f.ZERO,
-              Vector3f.ZERO
+              new Vector3f(),
+              new Vector3f(),
+              new Vector3f()
             ) {
 
                 @Override

@@ -2,12 +2,14 @@ package mod.chiselsandbits.forge.data.recipe;
 
 import mod.chiselsandbits.api.item.chisel.IChiselItem;
 import mod.chiselsandbits.api.util.ParamValidator;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.FinishedRecipe;
+import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.common.Tags;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -16,7 +18,7 @@ public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenera
     private final TagKey<Item> rodTag;
     private final TagKey<Item> ingredientTag;
 
-    protected AbstractChiselRecipeGenerator(final DataGenerator generator, final Item result, TagKey<Item> ingredientTag)
+    protected AbstractChiselRecipeGenerator(final PackOutput generator, final Item result, TagKey<Item> ingredientTag)
     {
         super(generator, ParamValidator.isInstanceOf(result, IChiselItem.class));
         this.ingredientTag = ingredientTag;
@@ -24,7 +26,7 @@ public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenera
     }
 
     protected AbstractChiselRecipeGenerator(
-      final DataGenerator generator,
+      final PackOutput generator,
       final Item result,
       final TagKey<Item> rodTag,
       final TagKey<Item> ingredientTag)
@@ -35,15 +37,14 @@ public abstract class AbstractChiselRecipeGenerator extends AbstractRecipeGenera
     }
 
     @Override
-    protected void buildCraftingRecipes(final Consumer<FinishedRecipe> writer)
-    {
-        ShapedRecipeBuilder.shaped(getItemProvider())
-          .pattern("st")
-          .pattern("  ")
-          .define('s', rodTag)
-          .define('t', ingredientTag)
-          .unlockedBy("has_rod", has(rodTag))
-          .unlockedBy("has_ingredient", has(ingredientTag))
-          .save(writer);
+    protected void buildRecipes(@NotNull Consumer<FinishedRecipe> writer) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, getItemProvider())
+                .pattern("st")
+                .pattern("  ")
+                .define('s', rodTag)
+                .define('t', ingredientTag)
+                .unlockedBy("has_rod", has(rodTag))
+                .unlockedBy("has_ingredient", has(ingredientTag))
+                .save(writer);
     }
 }
