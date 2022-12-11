@@ -180,7 +180,7 @@ if ((opc.hasPropertySet("curseApiKey") || opc.hasPropertySet("CURSEAPIKEY"))) {
                 cp.addGameVersion(v)
             }
 
-            cp.mainArtifact(jarJar)
+            cp.mainArtifact(tasks.jarJar)
         }
     }
 }
