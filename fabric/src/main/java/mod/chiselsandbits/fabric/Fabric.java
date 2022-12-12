@@ -30,7 +30,20 @@ public class Fabric implements ModInitializer {
     @Override
     public void onInitialize()
     {
-        chiselsAndBits.onInitialize();
+        if (chiselsAndBits != null)
+        {
+            chiselsAndBits.onInitialize();
+            return;
+        }
+
+        PlatformInitializationHandler.getInstance().onInit(platform -> {
+            if (chiselsAndBits == null)
+            {
+                throw new IllegalStateException("Chisels and bits was not initialized properly.");
+            }
+
+            chiselsAndBits.onInitialize();
+        });
     }
 
     public void setChiselsAndBits(final ChiselsAndBits chiselsAndBits)
