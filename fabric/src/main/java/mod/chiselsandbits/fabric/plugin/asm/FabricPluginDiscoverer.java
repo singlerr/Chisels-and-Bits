@@ -13,6 +13,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import org.apache.commons.io.file.AccumulatorPathVisitor;
 import org.apache.commons.io.file.Counters;
+import org.apache.commons.io.filefilter.AbstractFileFilter;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.jetbrains.annotations.Nullable;
@@ -25,8 +26,10 @@ import org.spongepowered.asm.util.asm.ASM;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -42,11 +45,16 @@ public class FabricPluginDiscoverer implements IPluginDiscoverer {
 
         for (ModContainer allMod : FabricLoader.getInstance().getAllMods()) {
             for (Path rootPath : allMod.getRootPaths()) {
-                final AccumulatorPathVisitor visitor = new AccumulatorPathVisitor(Counters.noopPathCounters(), new RegexFileFilter("*.class"), TrueFileFilter.TRUE);
+                final AccumulatorPathVisitor visitor = new AccumulatorPathVisitor(Counters.noopPathCounters(), new AbstractFileFilter() {
+                    @Override
+                    public FileVisitResult accept(Path path, BasicFileAttributes attributes) {
+                        return path.getFileName().toString().endsWith(".class") ? FileVisitResult.CONTINUE : FileVisitResult.TERMINATE;
+                    }
+                }, TrueFileFilter.TRUE);
                 try {
                     Files.walkFileTree(rootPath, visitor);
                 } catch (IOException e) {
-                    LOGGER.warn("Failed to discover plugins from path: %s".formatted(rootPath), e);
+                    LOGGER.debug("Failed to discover plugins from path: %s".formatted(rootPath), e);
                     continue;
                 }
 
@@ -56,11 +64,18 @@ public class FabricPluginDiscoverer implements IPluginDiscoverer {
                     try {
                         reader = new ClassReader(Files.newInputStream(classFile));
                     } catch (IOException e) {
-                        LOGGER.warn("Failed to read class for plugin detection: %s".formatted(classFile.toAbsolutePath()), e);
+                        LOGGER.debug("Failed to read class for plugin detection: %s".formatted(classFile.toAbsolutePath()), e);
                         continue;
                     }
 
-                    reader.accept(new AnnotationSearchingClassVisitor(pluginCandidates, annotationType), ClassReader.SKIP_CODE | ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
+                    final ModClassVisitor modClassVisitor = new ModClassVisitor();
+                    reader.accept(modClassVisitor, ClassReader.SKIP_CODE | ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
+                    final Set<AnnotationData> annotationData = modClassVisitor.annotationData();
+                    for (AnnotationData data : annotationData) {
+                        if (data.annotationType().getClassName().equals(annotationType.getName())) {
+                            pluginCandidates.add(new DiscoveredPlugin(data.annotationData(), data.clazz().getClassName()));
+                        }
+                    }
                 }
             }
         }
@@ -121,66 +136,5 @@ public class FabricPluginDiscoverer implements IPluginDiscoverer {
                 instanceAnnotationType,
                 idExtractor
         );
-    }
-
-
-    private static final class AnnotationSearchingClassVisitor extends ClassVisitor {
-
-        private final Set<DiscoveredPlugin> pluginCandidates;
-        private final Class<?> annotationType;
-        private final Map<String, Object> payloadCandidate = Maps.newHashMap();
-        private String name = "";
-
-        public AnnotationSearchingClassVisitor(Set<DiscoveredPlugin> pluginCandidates, Class<?> annotationType) {
-            super(ASM.API_VERSION);
-            this.pluginCandidates = pluginCandidates;
-            this.annotationType = annotationType;
-        }
-
-
-
-        @Override
-        public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-            this.name = name;
-        }
-
-        @Override
-        public void visitEnd() {
-            if (!payloadCandidate.isEmpty() && !name.isBlank()) {
-                pluginCandidates.add(new DiscoveredPlugin(payloadCandidate, name));
-            }
-        }
-
-        @Override
-        public AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
-            if (!annotationType.getName().equals(descriptor))
-                return super.visitAnnotation(descriptor, visible);
-
-            return new AnnotationVisitor(ASM.API_VERSION, super.visitAnnotation(descriptor, visible))
-            {
-                @Override
-                public void visit(String name, Object value) {
-                    super.visit(name, value);
-                    payloadCandidate.put(name, value);
-                }
-
-                @SuppressWarnings({"unchecked", "rawtypes"})
-                @Override
-                public void visitEnum(String name, String descriptor, String value) {
-                    super.visitEnum(name, descriptor, value);
-                    try {
-                        final Class<? extends Enum> enumClass = (Class<? extends Enum>) Class.forName(descriptor);
-                        payloadCandidate.put(name, Enum.valueOf(enumClass, value));
-                    } catch (ClassNotFoundException | ClassCastException e) {
-                        LOGGER.warn("Failed to handle payload enum: " + descriptor);
-                    }
-                }
-
-                @Override
-                public AnnotationVisitor visitArray(String name) {
-                    return super.visitArray(name);
-                }
-            };
-        }
     }
 }
