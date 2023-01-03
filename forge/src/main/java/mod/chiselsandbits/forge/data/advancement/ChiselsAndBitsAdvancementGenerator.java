@@ -35,7 +35,7 @@ public class ChiselsAndBitsAdvancementGenerator extends AdvancementProvider
     }
 
     public ChiselsAndBitsAdvancementGenerator(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> holderProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(packOutput, holderProvider, List.of(new Provider()), existingFileHelper);
+        super(packOutput, holderProvider, List.of(new Provider()));
     }
 
     private static final class Provider implements AdvancementSubProvider {

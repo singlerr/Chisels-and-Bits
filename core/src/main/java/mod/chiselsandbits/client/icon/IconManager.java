@@ -16,15 +16,15 @@ public class IconManager implements IIconManager
 {
     private static final IconManager INSTANCE = new IconManager();
 
-    private static final ResourceLocation ICON_SWAP = new ResourceLocation(Constants.MOD_ID, "icons/swap");
-    private static final ResourceLocation ICON_PLACE = new ResourceLocation(Constants.MOD_ID, "icons/place");
-    private static final ResourceLocation ICON_UNDO = new ResourceLocation(Constants.MOD_ID, "icons/undo");
-    private static final ResourceLocation ICON_REDO = new ResourceLocation(Constants.MOD_ID, "icons/redo");
-    private static final ResourceLocation ICON_TRASH = new ResourceLocation(Constants.MOD_ID, "icons/trash");
-    private static final ResourceLocation ICON_SORT = new ResourceLocation(Constants.MOD_ID, "icons/sort");
-    private static final ResourceLocation ICON_ROLL_X = new ResourceLocation(Constants.MOD_ID, "icons/roll_x");
-    private static final ResourceLocation ICON_ROLL_Z = new ResourceLocation(Constants.MOD_ID, "icons/roll_z");
-    private static final ResourceLocation ICON_WHITE = new ResourceLocation(Constants.MOD_ID, "icons/white");
+    private static final ResourceLocation ICON_SWAP = new ResourceLocation(Constants.MOD_ID, "icon/swap");
+    private static final ResourceLocation ICON_PLACE = new ResourceLocation(Constants.MOD_ID, "icon/place");
+    private static final ResourceLocation ICON_UNDO = new ResourceLocation(Constants.MOD_ID, "icon/undo");
+    private static final ResourceLocation ICON_REDO = new ResourceLocation(Constants.MOD_ID, "icon/redo");
+    private static final ResourceLocation ICON_TRASH = new ResourceLocation(Constants.MOD_ID, "icon/trash");
+    private static final ResourceLocation ICON_SORT = new ResourceLocation(Constants.MOD_ID, "icon/sort");
+    private static final ResourceLocation ICON_ROLL_X = new ResourceLocation(Constants.MOD_ID, "icon/roll_x");
+    private static final ResourceLocation ICON_ROLL_Z = new ResourceLocation(Constants.MOD_ID, "icon/roll_z");
+    private static final ResourceLocation ICON_WHITE = new ResourceLocation(Constants.MOD_ID, "icon/white");
 
     public static IconManager getInstance()
     {
@@ -43,16 +43,6 @@ public class IconManager implements IIconManager
         if (resourceManager instanceof ReloadableResourceManager reloadableResourceManager) {
             reloadableResourceManager.registerReloadListener(iconSpriteUploader);
         }
-
-/*        registerIcon(ICON_SWAP);
-        registerIcon(ICON_PLACE);
-        registerIcon(ICON_UNDO);
-        registerIcon(ICON_REDO);
-        registerIcon(ICON_TRASH);
-        registerIcon(ICON_SORT);
-        registerIcon(ICON_ROLL_X);
-        registerIcon(ICON_ROLL_Z);
-        registerIcon(ICON_WHITE);*/
     }
 
     @Override

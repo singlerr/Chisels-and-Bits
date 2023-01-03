@@ -16,6 +16,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -98,9 +99,10 @@ public class BitBlockBakedModelManager
     {
         if (blockInformation.isAir() || blockInformation == null)
         {
-            ModCreativeTabs.BITS.get().buildContents(FeatureFlagSet.of(), false);
-            this.alternativeStacks.clear();
-            this.alternativeStacks.addAll(ModCreativeTabs.BITS.get().getDisplayItems());
+            if (alternativeStacks.isEmpty()) {
+                ModCreativeTabs.BITS.get().buildContents(FeatureFlags.VANILLA_SET, false);
+                this.alternativeStacks.addAll(ModCreativeTabs.BITS.get().getDisplayItems());
+            }
 
             final int alternativeIndex = (int) ((Math.floor(TickHandler.getClientTicks() / 20d)) % alternativeStacks.size());
 

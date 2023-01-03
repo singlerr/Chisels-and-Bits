@@ -27,7 +27,7 @@ public class ChiseledPrinterBlockStateGenerator extends BlockStateProvider imple
 
     public ChiseledPrinterBlockStateGenerator(final DataGenerator gen, final ExistingFileHelper exFileHelper)
     {
-        super(gen, Constants.MOD_ID, exFileHelper);
+        super(gen.getPackOutput(), Constants.MOD_ID, exFileHelper);
     }
 
 

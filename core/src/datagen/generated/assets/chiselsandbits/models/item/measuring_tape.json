@@ -79,6 +79,6 @@
     }
   ],
   "textures": {
-    "layer0": "chiselsandbits:items/tape_measure"
+    "layer0": "chiselsandbits:item/tape_measure"
   }
 }

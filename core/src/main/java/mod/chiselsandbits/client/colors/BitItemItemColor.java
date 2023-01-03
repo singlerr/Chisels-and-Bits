@@ -2,6 +2,7 @@ package mod.chiselsandbits.client.colors;
 
 import com.communi.suggestu.scena.core.client.fluid.IClientFluidManager;
 import com.communi.suggestu.scena.core.fluid.FluidInformation;
+import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.chiseling.eligibility.IEligibilityManager;
 import mod.chiselsandbits.item.bit.BitItem;
@@ -27,7 +28,7 @@ public class BitItemItemColor implements ItemColor
         if (!(stack.getItem() instanceof BitItem))
             return 0xffffff;
 
-        final BlockInformation blockInformation = ((BitItem) stack.getItem()).getBlockInformation(stack);
+        final IBlockInformation blockInformation = ((BitItem) stack.getItem()).getBlockInformation(stack);
         if(blockInformation.getBlockState().getBlock() instanceof LiquidBlock) {
             if ((!Minecraft.getInstance().options.keyShift.isUnbound() && Minecraft.getInstance().options.keyShift.isDown()) || (Minecraft.getInstance().getWindow() != null && Screen.hasShiftDown())) {
                 return -1; //No coloring on liquids when pressing shifts -> Buckets

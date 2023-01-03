@@ -23,7 +23,7 @@ public class ChiseledBlockBlockStateGenerator extends BlockStateProvider impleme
 
     public ChiseledBlockBlockStateGenerator(final DataGenerator gen, final ExistingFileHelper exFileHelper)
     {
-        super(gen, Constants.MOD_ID, exFileHelper);
+        super(gen.getPackOutput(), Constants.MOD_ID, exFileHelper);
     }
 
     @SubscribeEvent

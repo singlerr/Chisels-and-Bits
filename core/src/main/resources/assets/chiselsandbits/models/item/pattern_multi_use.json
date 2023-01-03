@@ -1,6 +1,6 @@
 {
     "parent":"item/generated",
     "textures": {
-        "layer0":"chiselsandbits:items/pattern_multi_use"
+        "layer0":"chiselsandbits:item/pattern_multi_use"
     }
 }

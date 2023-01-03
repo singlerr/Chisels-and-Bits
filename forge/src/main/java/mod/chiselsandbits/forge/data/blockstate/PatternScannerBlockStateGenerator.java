@@ -27,7 +27,7 @@ public class PatternScannerBlockStateGenerator extends BlockStateProvider implem
 
     public PatternScannerBlockStateGenerator(final DataGenerator gen, final ExistingFileHelper exFileHelper)
     {
-        super(gen, Constants.MOD_ID, exFileHelper);
+        super(gen.getPackOutput(), Constants.MOD_ID, exFileHelper);
     }
 
     @Override
@@ -44,6 +44,6 @@ public class PatternScannerBlockStateGenerator extends BlockStateProvider implem
     @Override
     public @NotNull String getName()
     {
-        return "Chiseled printer blockstate generator";
+        return "Pattern scanner blockstate generator";
     }
 }

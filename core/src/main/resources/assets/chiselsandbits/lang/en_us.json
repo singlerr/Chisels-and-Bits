@@ -375,5 +375,19 @@
   "mod.chiselsandbits.default-chiseled-block-item.name": "Chiseled Block",
   "mod.chiselsandbits.pattern.cutting.across.axis.x": "Cutting across the X axis.",
   "mod.chiselsandbits.pattern.cutting.across.axis.y": "Cutting across the Y axis.",
-  "mod.chiselsandbits.pattern.cutting.across.axis.z": "Cutting across the Z axis."
+  "mod.chiselsandbits.pattern.cutting.across.axis.z": "Cutting across the Z axis.",
+
+  "mod.chiselsandbits.creative-tab.bits.name": "Bits",
+  "mod.chiselsandbits.name": "Chisels & Bits",
+  "mod.chiselsandbits.patterns.export.failed.could-not-write-atlas": "Could not write textures.",
+  "mod.chiselsandbits.patterns.export.failed.could-not-write-chisel-data": "Could not write chisel data.",
+  "mod.chiselsandbits.patterns.export.failed.could-not-write-file": "Could not write file.",
+  "mod.chiselsandbits.patterns.export.failed.generic-atlas-write-failure": "Could not export textures.",
+  "mod.chiselsandbits.patterns.import.failed.compressed-data-in-wrong-format": "Could not read the pattern, it is stored in an incompatible format.",
+  "mod.chiselsandbits.patterns.import.failed.could-not-decompress-file": "Could not read the pattern, failed to decompress the data.",
+  "mod.chiselsandbits.patterns.import.failed.could-not-read-file": "Could not read the pattern, failed to read the file.",
+  "mod.chiselsandbits.patterns.import.failed.file-not-found": "Could not read the pattern, the file could not be found.",
+  "mod.chiselsandbits.patterns.import.failed.invalid-chisel-data": "Could not read the pattern, the chisel data is invalid.",
+  "mod.chiselsandbits.patterns.import.failed.unknown-version": "Could not read the pattern, the version is unknown.",
+  "mod.chiselsandbits.patterns.import.invoked-from-the-server": "Could not read the pattern, this command can only be invoked from the client."
 }

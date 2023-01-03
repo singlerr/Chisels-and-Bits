@@ -21,7 +21,7 @@ public abstract class AbstractInteractableItemModelGenerator extends ItemModelPr
       final ExistingFileHelper existingFileHelper,
       final IRegistryObject<? extends Item> targetRegistryObject)
     {
-        super(generator, Constants.MOD_ID, existingFileHelper);
+        super(generator.getPackOutput(), Constants.MOD_ID, existingFileHelper);
         this.targetRegistryObject = targetRegistryObject;
     }
 

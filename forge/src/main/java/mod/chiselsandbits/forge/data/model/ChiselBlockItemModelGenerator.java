@@ -29,7 +29,7 @@ public class ChiselBlockItemModelGenerator extends ItemModelProvider implements 
 
     public ChiselBlockItemModelGenerator(final DataGenerator generator, final ExistingFileHelper existingFileHelper)
     {
-        super(generator, Constants.MOD_ID, existingFileHelper);
+        super(generator.getPackOutput(), Constants.MOD_ID, existingFileHelper);
     }
     @Override
     protected void registerModels()

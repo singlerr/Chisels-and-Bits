@@ -28,7 +28,7 @@ public class BlockBitItemModelGenerator extends ItemModelProvider implements Dat
 
     public BlockBitItemModelGenerator(final DataGenerator generator, final ExistingFileHelper existingFileHelper)
     {
-        super(generator, Constants.MOD_ID, existingFileHelper);
+        super(generator.getPackOutput(), Constants.MOD_ID, existingFileHelper);
     }
 
     @Override
@@ -52,6 +52,6 @@ public class BlockBitItemModelGenerator extends ItemModelProvider implements Dat
     @Override
     public String getName()
     {
-        return "Chisel block item model generator";
+        return "Bit item model generator";
     }
 }

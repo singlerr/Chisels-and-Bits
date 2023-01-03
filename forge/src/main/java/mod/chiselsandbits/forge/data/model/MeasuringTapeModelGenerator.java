@@ -16,7 +16,7 @@ public class MeasuringTapeModelGenerator extends ItemModelProvider
 {
     private MeasuringTapeModelGenerator(final DataGenerator generator, final ExistingFileHelper existingFileHelper)
     {
-        super(generator, Constants.MOD_ID, existingFileHelper);
+        super(generator.getPackOutput(), Constants.MOD_ID, existingFileHelper);
     }
 
     @SubscribeEvent
@@ -30,7 +30,7 @@ public class MeasuringTapeModelGenerator extends ItemModelProvider
     {
         getBuilder("measuring_tape")
           .parent(new ModelFile.UncheckedModelFile("item/generated"))
-          .texture("layer0", new ResourceLocation(Constants.MOD_ID, "items/tape_measure"))
+          .texture("layer0", new ResourceLocation(Constants.MOD_ID, "item/tape_measure"))
           .transforms()
           .transform(ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND)
           .rotation(-80, 260, -40)
@@ -60,6 +60,6 @@ public class MeasuringTapeModelGenerator extends ItemModelProvider
 
         getBuilder("measuring_tape_is_measuring")
           .parent(getBuilder("measuring_tape"))
-          .texture("layer0", "items/tape_measure_is_measuring");
+          .texture("layer0", "item/tape_measure_is_measuring");
     }
 }

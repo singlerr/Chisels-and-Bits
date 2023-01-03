@@ -34,7 +34,7 @@ public class LangEntryLangGenerator implements DataProvider
     private LangEntryLangGenerator(final PackOutput generator) {this.generator = generator;}
 
     @Override
-    public CompletableFuture<?> run(@NotNull final CachedOutput cache) {
+    public @NotNull CompletableFuture<?> run(@NotNull final CachedOutput cache) {
         final List<String> langKeys = Arrays.stream(LocalStrings.values()).map(LocalStrings::toString).collect(Collectors.toList());
         Collections.sort(langKeys);
         final JsonObject returnValue = new JsonObject();
@@ -47,14 +47,13 @@ public class LangEntryLangGenerator implements DataProvider
         final Path configLangFolder = this.generator.getOutputFolder().resolve(Constants.DataGenerator.CONFIG_LANG_DIR);
         final Path langPath = configLangFolder.resolve("localstrings.json");
 
-        DataProvider.saveStable(cache, returnValue, langPath);
-        return CompletableFuture.allOf();
+        return DataProvider.saveStable(cache, returnValue, langPath);
     }
 
     @NotNull
     @Override
     public String getName()
     {
-        return "Chiseled config lang generator";
+        return "Local strings lang generator";
     }
 }

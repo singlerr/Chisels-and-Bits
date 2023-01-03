@@ -49,8 +49,7 @@ public class ConfigLangGenerator implements DataProvider
         final Path configLangFolder = this.packOutput.getOutputFolder().resolve(Constants.DataGenerator.CONFIG_LANG_DIR);
         final Path langPath = configLangFolder.resolve("config.json");
 
-        DataProvider.saveStable(cache, returnValue, langPath);
-        return CompletableFuture.allOf();
+        return DataProvider.saveStable(cache, returnValue, langPath);
     }
 
     @NotNull

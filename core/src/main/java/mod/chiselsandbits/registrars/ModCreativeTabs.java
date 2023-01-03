@@ -17,6 +17,7 @@ import mod.chiselsandbits.item.BitBagItem;
 import mod.chiselsandbits.item.bit.BitItem;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -73,13 +74,14 @@ public final class ModCreativeTabs
                     });
                 },
                 new ResourceLocation(Constants.MOD_ID, "main"),
-                List.of(),
+                List.of(new ResourceLocation("spawn_eggs")),
                 List.of()
         );
         BITS = ICreativeTabManager.getInstance().register(
                 builder -> {
-                    builder.icon(() -> new ItemStack(ModItems.ITEM_CHISEL_NETHERITE.get()));
+                    builder.icon(() -> new ItemStack(ModItems.ITEM_BLOCK_BIT.get()));
                     builder.title(LocalStrings.CreativeTabBits.getText());
+                    builder.type(CreativeModeTab.Type.SEARCH);
                     builder.displayItems((flags, output, permissions) -> IPlatformRegistryManager.getInstance().getBlockRegistry().getValues()
                             .forEach(block -> {
                                 if (block instanceof ChiseledBlock)
