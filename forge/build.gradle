@@ -5,7 +5,11 @@ plugins {
     id 'com.matthewprenger.cursegradle'
 }
 
-repositories.mavenLocal()
+repositories.maven {
+    name = 'TTerag maven'
+    url = 'https://maven.tterrag.com/'
+}
+
 
 configurations.create("includedLibraries")
 configurations.implementation.extendsFrom configurations.includedLibraries
