@@ -278,15 +278,17 @@ public class ChiseledBlockEntity extends BlockEntity implements
                 final CompoundTag nbt = this.lastTag.copy();
                 nbt.getAllKeys().forEach(key -> compound.put(key, nbt.get(key)));
                 return;
-            } else if (this.storageFuture != null) {
-                this.storageFuture.join();
-
-                //Now the tag needs to be there!
-                Validate.notNull(this.lastTag, "The storage future did not complete.");
-                final CompoundTag nbt = this.lastTag.copy();
-                nbt.getAllKeys().forEach(key -> compound.put(key, nbt.get(key)));
-                return;
             }
+        }
+
+        if (this.storageFuture != null) {
+            this.storageFuture.join();
+
+            //Now the tag needs to be there!
+            Validate.notNull(this.lastTag, "The storage future did not complete.");
+            final CompoundTag nbt = this.lastTag.copy();
+            nbt.getAllKeys().forEach(key -> compound.put(key, nbt.get(key)));
+            return;
         }
 
         this.storageEngine.serializeNBTInto(compound);
