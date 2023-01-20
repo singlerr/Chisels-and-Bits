@@ -330,13 +330,13 @@ public class ChiseledBlockBakedModel extends BaseBakedBlockModel {
                         final IBlockInformation externalNeighborState = neighborStateSupplier.apply(offsetTarget);
 
                         return Optional.of(externalNeighborState)
-                                .map(neighborState -> test.isVisible(stateEntryInfo.getBlockInformation(), neighborState))
+                                .map(neighborState -> test.isVisible(stateEntryInfo, neighborState, facing))
                                 .orElseGet(() -> !stateEntryInfo.getBlockInformation().isAir());
                     }
 
                     return blob.getInAreaTarget(offsetTarget)
                             .map(IStateEntryInfo::getBlockInformation)
-                            .map(neighborState -> test.isVisible(stateEntryInfo.getBlockInformation(), neighborState))
+                            .map(neighborState -> test.isVisible(stateEntryInfo, neighborState, facing))
                             .orElseGet(() -> !stateEntryInfo.getBlockInformation().isAir());
                 })
                 .map(stateEntryInfo -> {
