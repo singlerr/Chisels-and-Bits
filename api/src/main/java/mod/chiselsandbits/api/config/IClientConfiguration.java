@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.client.render.preview.placement.PlacementPreviewRe
 import org.joml.Vector4f;
 
 import java.util.List;
+import java.util.function.LongSupplier;
 import java.util.function.Supplier;
 
 /**
@@ -191,6 +192,13 @@ public interface IClientConfiguration
      * @return A configuration supplier which indicates the size of the stack model cache.
      */
     Supplier<Long> getStackModelCacheSize();
+
+    /**
+     * Indicates the size of the cull testing cache.
+     *
+     * @return The size of the cull testing cache.
+     */
+    Supplier<Long> getCullTestingCacheSize();
 
     /**
      * Determines the color used during debug rendering of the mutator area when chiseling.
