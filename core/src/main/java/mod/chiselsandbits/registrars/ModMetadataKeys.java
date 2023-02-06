@@ -74,6 +74,15 @@ public final class ModMetadataKeys
         }
     });
 
+    public static final Supplier<IMetadataKey<Direction.Axis>> TARGETED_AXIS = KEY_REGISTRAR.register("targeted_axis", () -> new SimpleMetadataKey<>()
+    {
+        @Override
+        public Direction.Axis snapshot(final Direction.Axis value)
+        {
+            return value;
+        }
+    });
+
     private ModMetadataKeys()
     {
         throw new IllegalStateException("Can not instantiate an instance of: ModMetadataKeys. This is a utility class");

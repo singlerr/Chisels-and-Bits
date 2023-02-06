@@ -4,7 +4,6 @@ import com.communi.suggestu.scena.core.registries.AbstractCustomRegistryEntry;
 import com.google.common.collect.Maps;
 import mod.chiselsandbits.api.axissize.CollisionType;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
@@ -14,9 +13,10 @@ import mod.chiselsandbits.api.item.click.ClickProcessingState;
 import mod.chiselsandbits.api.item.withmode.group.IToolModeGroup;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
-import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
+import mod.chiselsandbits.api.util.IBatchMutation;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.RayTracingUtils;
+import mod.chiselsandbits.registrars.ModChiselModeGroups;
 import mod.chiselsandbits.registrars.ModMetadataKeys;
 import mod.chiselsandbits.utils.BitInventoryUtils;
 import mod.chiselsandbits.utils.ItemStackUtils;
@@ -39,13 +39,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class DrawChiselMode extends AbstractCustomRegistryEntry implements IChiselMode
+public class DrawnCubeChiselMode extends AbstractCustomRegistryEntry implements IChiselMode
 {
     private final MutableComponent displayName;
     private final MutableComponent multiLineDisplayName;
     private final ResourceLocation          iconName;
 
-    DrawChiselMode(final MutableComponent displayName, final MutableComponent multiLineDisplayName, final ResourceLocation iconName) {
+    DrawnCubeChiselMode(final MutableComponent displayName, final MutableComponent multiLineDisplayName, final ResourceLocation iconName) {
         this.displayName = displayName;
         this.multiLineDisplayName = multiLineDisplayName;
         this.iconName = iconName;
@@ -214,7 +214,7 @@ public class DrawChiselMode extends AbstractCustomRegistryEntry implements IChis
     @Override
     public @NotNull Optional<IToolModeGroup> getGroup()
     {
-        return Optional.empty();
+        return Optional.of(ModChiselModeGroups.DRAW);
     }
 
     @Override

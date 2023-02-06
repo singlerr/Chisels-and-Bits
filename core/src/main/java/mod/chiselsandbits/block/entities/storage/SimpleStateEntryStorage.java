@@ -5,6 +5,7 @@ import com.google.common.math.LongMath;
 import com.mojang.datafixers.util.Pair;
 import mod.chiselsandbits.api.block.storage.IStateEntryStorage;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
+import mod.chiselsandbits.api.util.IBatchMutation;
 import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.config.IServerConfiguration;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
@@ -40,6 +41,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     private BitSet data       = new BitSet();
     private int    entryWidth = 0;
     private boolean isDeserializing = false;
+    private List<IBatchMutation> ongoingBatchMutations = new ArrayList<>();
 
     public SimpleStateEntryStorage()
     {
@@ -50,7 +52,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
     private SimpleStateEntryStorage(final SimpleStateEntryStorage stateEntryStorage) {
         this.size = stateEntryStorage.size;
         this.palette = new SimpleStateEntryPalette(this::onPaletteResize, this::onPaletteIndexChanged, stateEntryStorage.palette);
-        this.data = BitSet.valueOf(stateEntryStorage.getData().toLongArray()); // Automatically copies the data.
+        this.data = stateEntryStorage.data;
         this.entryWidth = stateEntryStorage.entryWidth;
     }
 
@@ -102,16 +104,18 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
 
         this.clear();
 
-        BlockPosStreamProvider.getForRange(StateEntrySize.ONE_SIXTEENTH.getBitsPerBlockSide())
-          .forEach(position -> setBlockInformation(
-            position.getX(),
-            position.getY(),
-            position.getZ(),
-            new BlockInformation(
-              chunkSection.getBlockState(position.getX(), position.getY(), position.getZ()),
-          Optional.empty()
-            )
-          ));
+        try(IBatchMutation ignored = batch()) {
+            BlockPosStreamProvider.getForRange(StateEntrySize.ONE_SIXTEENTH.getBitsPerBlockSide())
+                    .forEach(position -> setBlockInformation(
+                            position.getX(),
+                            position.getY(),
+                            position.getZ(),
+                            new BlockInformation(
+                                    chunkSection.getBlockState(position.getX(), position.getY(), position.getZ()),
+                                    Optional.empty()
+                            )
+                    ));
+        }
     }
 
     @Override
@@ -141,6 +145,8 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
             final byte[] newData = new byte[requiredSize];
             System.arraycopy(rawData, 0, newData, 0, rawData.length);
             this.data = BitSet.valueOf(newData);
+        } else if (this.ongoingBatchMutations.isEmpty()) {
+            this.data = BitSet.valueOf(getRawData());
         }
     }
 
@@ -195,20 +201,22 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
             return;
 
         int count = 0;
-        for (int y = 0; y < getSize(); y++)
-        {
-            for (int x = 0; x < getSize(); x++)
+        try(IBatchMutation ignored = batch()) {
+            for (int y = 0; y < getSize(); y++)
             {
-                for (int z = 0; z < getSize(); z++)
+                for (int x = 0; x < getSize(); x++)
                 {
-                    setBlockInformation(
-                      x, y, z,
-                      state
-                    );
+                    for (int z = 0; z < getSize(); z++)
+                    {
+                        setBlockInformation(
+                                x, y, z,
+                                state
+                        );
 
-                    count++;
-                    if (count == loopCount)
-                        return;
+                        count++;
+                        if (count == loopCount)
+                            return;
+                    }
                 }
             }
         }
@@ -231,33 +239,35 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
 
         final Vec3 centerVector = new Vec3(7.5d, 7.5d, 7.5d);
 
-        for (int x = 0; x < 16; x++)
-        {
-            for (int y = 0; y < 16; y++)
+        try(IBatchMutation ignored = batch()) {
+            for (int x = 0; x < 16; x++)
             {
-                for (int z = 0; z < 16; z++)
+                for (int y = 0; y < 16; y++)
                 {
-                    final Vec3 workingVector = new Vec3(x, y, z);
-                    Vec3 rotatedVector = workingVector.subtract(centerVector);
-                    for (int i = 0; i < rotationCount; i++)
+                    for (int z = 0; z < 16; z++)
                     {
-                        rotatedVector = VectorUtils.rotate90Degrees(rotatedVector, axis);
+                        final Vec3 workingVector = new Vec3(x, y, z);
+                        Vec3 rotatedVector = workingVector.subtract(centerVector);
+                        for (int i = 0; i < rotationCount; i++)
+                        {
+                            rotatedVector = VectorUtils.rotate90Degrees(rotatedVector, axis);
+                        }
+
+                        final BlockPos sourcePos = new BlockPos(workingVector);
+                        final Vec3 offsetPos = rotatedVector.add(centerVector).multiply(1000,1000,1000);
+                        final BlockPos targetPos = new BlockPos(new Vec3(Math.round(offsetPos.x()), Math.round(offsetPos.y()), Math.round(offsetPos.z())).multiply(1/1000d,1/1000d,1/1000d));
+
+                        this.setBlockInformation(
+                                targetPos.getX(),
+                                targetPos.getY(),
+                                targetPos.getZ(),
+                                clone.getBlockInformation(
+                                        sourcePos.getX(),
+                                        sourcePos.getY(),
+                                        sourcePos.getZ()
+                                )
+                        );
                     }
-
-                    final BlockPos sourcePos = new BlockPos(workingVector);
-                    final Vec3 offsetPos = rotatedVector.add(centerVector).multiply(1000,1000,1000);
-                    final BlockPos targetPos = new BlockPos(new Vec3(Math.round(offsetPos.x()), Math.round(offsetPos.y()), Math.round(offsetPos.z())).multiply(1/1000d,1/1000d,1/1000d));
-
-                    this.setBlockInformation(
-                      targetPos.getX(),
-                      targetPos.getY(),
-                      targetPos.getZ(),
-                      clone.getBlockInformation(
-                        sourcePos.getX(),
-                        sourcePos.getY(),
-                        sourcePos.getZ()
-                      )
-                    );
                 }
             }
         }
@@ -269,22 +279,24 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
         final IStateEntryStorage clone = this.createSnapshot();
         resetData();
 
-        for (int y = 0; y < getSize(); y++)
-        {
-            for (int x = 0; x < getSize(); x++)
+        try (IBatchMutation ignored = batch()) {
+            for (int y = 0; y < getSize(); y++)
             {
-                for (int z = 0; z < getSize(); z++)
+                for (int x = 0; x < getSize(); x++)
                 {
-                    final IBlockInformation blockInformation = clone.getBlockInformation(x, y, z);
+                    for (int z = 0; z < getSize(); z++)
+                    {
+                        final IBlockInformation blockInformation = clone.getBlockInformation(x, y, z);
 
-                    final int mirroredX = axis == Direction.Axis.X ? (getSize() - x - 1) : x;
-                    final int mirroredY = axis == Direction.Axis.Y ? (getSize() - y - 1) : y;
-                    final int mirroredZ = axis == Direction.Axis.Z ? (getSize() - z - 1) : z;
+                        final int mirroredX = axis == Direction.Axis.X ? (getSize() - x - 1) : x;
+                        final int mirroredY = axis == Direction.Axis.Y ? (getSize() - y - 1) : y;
+                        final int mirroredZ = axis == Direction.Axis.Z ? (getSize() - z - 1) : z;
 
-                    this.setBlockInformation(
-                      mirroredX, mirroredY, mirroredZ,
-                      blockInformation
-                    );
+                        this.setBlockInformation(
+                                mirroredX, mirroredY, mirroredZ,
+                                blockInformation
+                        );
+                    }
                 }
             }
         }
@@ -360,7 +372,7 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
 
         if (!this.isDeserializing && this.entryWidth != currentEntryWidth) {
             //We need to update the data array to match the new palette size
-            final BitSet rawData = BitSet.valueOf(this.data.toLongArray());
+            final BitSet rawData = this.data;
 
             this.data = new BitSet(getTotalEntryCount() * entryWidth);
             BlockPosStreamProvider.getForRange(getSize())
@@ -381,6 +393,22 @@ public class SimpleStateEntryStorage implements IStateEntryStorage
                 ByteArrayUtils.setValueAt(data, remaps.get(currentId), entryWidth, i);
             }
         }
+    }
+
+    @Override
+    public IBatchMutation batch() {
+        final IBatchMutation mutation = new IBatchMutation() {
+            @Override
+            public void close() {
+                SimpleStateEntryStorage.this.ongoingBatchMutations.remove(this);
+            }
+        };
+
+        ongoingBatchMutations.add(mutation);
+
+        this.data = BitSet.valueOf(this.data.toLongArray());
+
+        return mutation;
     }
 
     @Override

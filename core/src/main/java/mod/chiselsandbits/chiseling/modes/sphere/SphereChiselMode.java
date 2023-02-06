@@ -4,7 +4,6 @@ import com.communi.suggestu.scena.core.registries.AbstractCustomRegistryEntry;
 import com.google.common.collect.Maps;
 import com.mojang.datafixers.util.Either;
 import mod.chiselsandbits.api.blockinformation.IBlockInformation;
-import mod.chiselsandbits.blockinformation.BlockInformation;
 import mod.chiselsandbits.api.change.IChangeTrackerManager;
 import mod.chiselsandbits.api.chiseling.ChiselingOperation;
 import mod.chiselsandbits.api.chiseling.IChiselingContext;
@@ -18,7 +17,7 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.world.IInWorldStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.world.IWorldAreaAccessor;
-import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
+import mod.chiselsandbits.api.util.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.util.BlockPosForEach;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
@@ -221,6 +220,7 @@ public class SphereChiselMode extends AbstractCustomRegistryEntry implements ICh
             final Predicate<IStateEntryInfo> filter = context.getStateFilter()
               .map(factory -> factory.apply(mutator))
               .orElse((s) -> true);
+
             final int missingBitCount = (int) mutator.stream()
               .filter(state -> state.getBlockInformation().isAir() && filter.test(state))
               .count();

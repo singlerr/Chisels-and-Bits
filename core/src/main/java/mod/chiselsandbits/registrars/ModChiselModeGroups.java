@@ -130,6 +130,21 @@ public final class ModChiselModeGroups
         }
     };
 
+    public static IToolModeGroup DRAW = new IToolModeGroup()
+    {
+        @Override
+        public @NotNull ResourceLocation getIcon()
+        {
+            return new ResourceLocation(Constants.MOD_ID, "textures/icons/drawn_cube.png");
+        }
+
+        @Override
+        public Component getDisplayName()
+        {
+            return LocalStrings.ChiselModeDrawnCube.getText();
+        }
+    };
+
     private ModChiselModeGroups()
     {
         throw new IllegalStateException("Can not instantiate an instance of: ModChiselModeGroups. This is a utility class");

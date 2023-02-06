@@ -13,6 +13,7 @@ import mod.chiselsandbits.api.pattern.placement.IPatternPlacementType;
 import mod.chiselsandbits.api.placement.PlacementResult;
 import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
+import mod.chiselsandbits.item.multistate.MultiStateItemStackManager;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.multistate.snapshot.EmptySnapshot;
 import mod.chiselsandbits.registrars.ModItems;
@@ -70,7 +71,7 @@ public class SingleUsePatternItem extends Item implements IPatternItem
             return EmptySnapshot.Stack.INSTANCE;
         }
 
-        return new SingleBlockMultiStateItemStack(stack);
+        return MultiStateItemStackManager.getInstance().getManagedStack(stack, SingleBlockMultiStateItemStack::new);
     }
 
     @Override
