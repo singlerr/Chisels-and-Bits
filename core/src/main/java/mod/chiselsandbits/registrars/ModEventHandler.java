@@ -85,7 +85,7 @@ public final class ModEventHandler {
                         mapResult(result)
                 );
 
-                return new Result(state.shouldCancel(), mapResult(state.getNextState()), mapResult(state.getNextState()), mapResult(state.getNextState()));
+                return new Result(state.shouldCancel(), mapResult(state.getNextState(), result.result()), mapResult(state.getNextState(), result.useItemResult()), mapResult(state.getNextState(), result.useBlockResult()));
             }
 
             private static ClickProcessingState.ProcessingResult mapResult(
@@ -100,12 +100,13 @@ public final class ModEventHandler {
             }
 
             private static ProcessingResult mapResult(
-                    final ClickProcessingState.ProcessingResult processingResult
+                    final ClickProcessingState.ProcessingResult processingResult,
+                    final ProcessingResult current
             ) {
                 return switch (processingResult)
                         {
                             case DENY -> ProcessingResult.DENY;
-                            case DEFAULT -> ProcessingResult.DEFAULT;
+                            case DEFAULT -> current;
                             case ALLOW -> ProcessingResult.ALLOW;
                         };
             }

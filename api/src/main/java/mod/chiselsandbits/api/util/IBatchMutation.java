@@ -1,4 +1,4 @@
-package mod.chiselsandbits.api.multistate.mutator.batched;
+package mod.chiselsandbits.api.util;
 
 import java.io.Closeable;
 
@@ -6,8 +6,6 @@ import java.io.Closeable;
  * Marker interface which represents a batch mutation
  * update handler, which can be used with a try-with-resources
  * mechanic to control the update process of a batch mutation.
- *
- * As long as at least one instance is open, no changes are transmitted to the client.
  */
 public interface IBatchMutation extends AutoCloseable
 {

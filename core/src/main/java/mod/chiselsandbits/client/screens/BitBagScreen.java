@@ -209,7 +209,7 @@ public class BitBagScreen extends AbstractContainerScreen<BagContainer> {
 
     @Override
     protected void renderLabels(final @NotNull PoseStack matrixStack, final int x, final int y) {
-        font.drawShadow(matrixStack, Language.getInstance().getVisualOrder(ModItems.ITEM_BIT_BAG_DEFAULT.get().getName(ItemStack.EMPTY)), 8, 6, 0x404040);
+        font.draw(matrixStack, Language.getInstance().getVisualOrder(ModItems.ITEM_BIT_BAG_DEFAULT.get().getName(ItemStack.EMPTY)), 8, 6, 0x404040);
         font.draw(matrixStack, I18n.get("container.inventory"), 8, imageHeight - 93, 0x404040);
     }
 }

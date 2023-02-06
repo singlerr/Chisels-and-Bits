@@ -12,7 +12,7 @@ import mod.chiselsandbits.api.modification.operation.IModificationOperation;
 import mod.chiselsandbits.api.multistate.StateEntrySize;
 import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.multistate.mutator.IMutatorFactory;
-import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
+import mod.chiselsandbits.api.util.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IWorldAreaMutator;
 import mod.chiselsandbits.api.multistate.snapshot.IMultiStateSnapshot;
 import mod.chiselsandbits.api.placement.PlacementResult;
@@ -21,6 +21,7 @@ import mod.chiselsandbits.api.util.HelpTextUtils;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.NbtConstants;
 import mod.chiselsandbits.block.ChiseledBlock;
+import mod.chiselsandbits.item.multistate.MultiStateItemStackManager;
 import mod.chiselsandbits.item.multistate.SingleBlockMultiStateItemStack;
 import mod.chiselsandbits.multistate.snapshot.SimpleSnapshot;
 import mod.chiselsandbits.registrars.ModModificationOperation;
@@ -112,7 +113,7 @@ public class ChiseledBlockItem extends BlockItem implements IChiseledBlockItem
     @Override
     public IMultiStateItemStack createItemStack(final ItemStack stack)
     {
-        return new SingleBlockMultiStateItemStack(stack);
+        return MultiStateItemStackManager.getInstance().getManagedStack(stack, SingleBlockMultiStateItemStack::new);
     }
 
     @NotNull

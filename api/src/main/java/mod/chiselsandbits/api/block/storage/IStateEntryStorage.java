@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.blockinformation.IBlockInformation;
 import mod.chiselsandbits.api.multistate.mutator.IMirrorAndRotateble;
 import mod.chiselsandbits.api.util.INBTSerializable;
 import mod.chiselsandbits.api.util.IPacketBufferSerializable;
+import mod.chiselsandbits.api.util.IWithBatchableMutationSupport;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.Blocks;
@@ -12,7 +13,7 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAndRotateble, INBTSerializable<CompoundTag>
+public interface IStateEntryStorage extends IPacketBufferSerializable, IMirrorAndRotateble, INBTSerializable<CompoundTag>, IWithBatchableMutationSupport
 {
     /**
      * The size in all dimensions of the storage.

@@ -182,4 +182,18 @@ public enum StateEntrySize
     public int getArrayIndexForPosition(final int x, final int y, final int z) {
         return x * getBitsPerLayer() + y * getBitsPerBlockSide() + z;
     }
+
+    /**
+     * Takes in a 3D vector and rounds its components down to the nearest multiple of the size of a single bit.
+     *
+     * @param pos The position to round down.
+     * @return The rounded down position.
+     */
+    public Vec3 roundDownToNearest(Vec3 pos) {
+        return new Vec3(
+          Math.floor(pos.x * getBitsPerBlockSide()) / getBitsPerBlockSide(),
+          Math.floor(pos.y * getBitsPerBlockSide()) / getBitsPerBlockSide(),
+          Math.floor(pos.z * getBitsPerBlockSide()) / getBitsPerBlockSide()
+        );
+    }
 }

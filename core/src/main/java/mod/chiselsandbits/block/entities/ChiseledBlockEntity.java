@@ -7,6 +7,7 @@ import com.communi.suggestu.scena.core.client.models.data.IModelDataBuilder;
 import com.communi.suggestu.scena.core.dist.DistExecutor;
 import com.communi.suggestu.scena.core.entity.block.IBlockEntityWithModelData;
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 import mod.chiselsandbits.ChiselsAndBits;
@@ -26,7 +27,7 @@ import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifie
 import mod.chiselsandbits.api.multistate.accessor.identifier.IArrayBackedAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
-import mod.chiselsandbits.api.multistate.mutator.batched.IBatchMutation;
+import mod.chiselsandbits.api.util.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateClearer;
 import mod.chiselsandbits.api.multistate.mutator.callback.StateSetter;
 import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntryInfo;
@@ -91,6 +92,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
     private IBlockModelData modelData = IModelDataBuilder.create().build();
     private CompoundTag lastTag = null;
     private CompletableFuture<Void> storageFuture = null;
+    private List<CompoundTag> deserializationQueue = Collections.synchronizedList(Lists.newArrayList());
 
     public ChiseledBlockEntity(BlockPos position, BlockState state) {
         super(ModBlockEntityTypes.CHISELED.get(), position, state);
@@ -137,6 +139,11 @@ public class ChiseledBlockEntity extends BlockEntity implements
         super.setLevel(level);
 
         createStorageEngine();
+
+        if (this.deserializationQueue.isEmpty())
+            return;
+
+        this.deserializationQueue.forEach(this::deserializeNBT);
     }
 
     @Override
@@ -242,7 +249,14 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
     @Override
     public void load(@NotNull final CompoundTag nbt) {
-        this.deserializeNBT(nbt);
+        if (this.getLevel() != null)
+            this.deserializeNBT(nbt);
+
+        this.queueDeserializeNbt(nbt);
+    }
+
+    private void queueDeserializeNbt(CompoundTag nbt) {
+        this.deserializationQueue.add(nbt);
     }
 
     @Override
@@ -636,10 +650,12 @@ public class ChiseledBlockEntity extends BlockEntity implements
     @Override
     public IBatchMutation batch() {
         final UUID id = UUID.randomUUID();
+        final IBatchMutation storageBatch = storage.batch();
 
         this.batchMutations.put(id, new BatchMutationLock(() ->
         {
             this.batchMutations.remove(id);
+            storageBatch.close();
 
             if (this.batchMutations.isEmpty()) {
                 setChanged();
