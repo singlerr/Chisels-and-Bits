@@ -162,4 +162,15 @@ public interface IChiselMode extends ICustomRegistryEntry, IToolMode<IToolModeGr
     default boolean isSingleClickUse() {
         return true;
     }
+
+
+    /**
+     * Indicates if this mode requires the shape to be restrained to the shape of the mutator.
+     *
+     * @return True if the shape should be restrained, false if not.
+     */
+    default boolean requiresRestrainingOfShape() {
+        return true;
+    }
+
 }

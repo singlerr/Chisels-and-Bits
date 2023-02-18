@@ -111,11 +111,14 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     @Override
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
     {
+        final Vec3 min = startPoint.multiply(StateEntrySize.current().getBitsPerBlockSideScalingVector());
+        final Vec3 max = endPoint.multiply(StateEntrySize.current().getBitsPerBlockSideScalingVector());
+        final AABB aabb = new AABB(min, max);
+
         return BlockPosStreamProvider.getForRange(
-          startPoint.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
-          endPoint.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
+          min, max
         )
-                 .map(positionMutator::mutate)
+                 .map(pos -> positionMutator.mutate(pos, aabb))
                  .map(position -> Vec3.atLowerCornerOf(position).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
                  .map(position -> {
                      final BlockPos blockPos = new BlockPos(position);
@@ -131,11 +134,14 @@ public class MultiBlockMultiStateSnapshot implements IMultiStateSnapshot
     public void forEachWithPositionMutator(
       final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer)
     {
+        final Vec3 min = startPoint.multiply(StateEntrySize.current().getBitsPerBlockSideScalingVector());
+        final Vec3 max = endPoint.multiply(StateEntrySize.current().getBitsPerBlockSideScalingVector());
+        final AABB aabb = new AABB(min, max);
+
         BlockPosForEach.forEachInRange(
-          startPoint.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
-          endPoint.multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
+          min, max,
           (blockPos) -> {
-              final Vec3i target = positionMutator.mutate(blockPos);
+              final Vec3i target = positionMutator.mutate(blockPos, aabb);
               final Vec3 scaledTarget = Vec3.atLowerCornerOf(target).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit());
 
               final BlockPos blockTarget = new BlockPos(scaledTarget);

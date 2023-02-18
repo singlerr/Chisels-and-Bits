@@ -255,8 +255,8 @@ public class CubedChiselMode extends AbstractCustomRegistryEntry implements IChi
             hitVector
               .subtract(finalAlignmentOffset)
               .add(Vec3.atLowerCornerOf(bitPos)
-                .multiply(fullFacingVector)
-                .multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
+                .multiply(fullFacingVector))
+                //.multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
           ));
 
         return Optional.empty();

@@ -2,13 +2,14 @@ package mod.chiselsandbits.api.multistate.accessor.sortable;
 
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.phys.AABB;
 
 /**
  * Represents an object which can mutate the order of the coordinate members
  * before they are retrieved from storage.
- *
+ * <p>
  * The default loop order is XYZ.
- * However by swapping for example the X and Y coordinate member of the
+ * However, by swapping for example the X and Y coordinate member of the
  * passed coordinates a YXZ loop order can be achieved without
  * the performance degradation of sorting.
  */
@@ -19,10 +20,11 @@ public interface IPositionMutator
      * Applies the mutation that this mutator performs on a given position.
      *
      * @param input The input position.
+     * @param size The size of the area that is being iterated over.
      *
      * @return The mutated output.
      */
-    Vec3i mutate(final Vec3i input);
+    Vec3i mutate(final Vec3i input, AABB size);
 
     /**
      * Creates a new mutator which chains the current and the next mutator into one.
@@ -32,7 +34,7 @@ public interface IPositionMutator
      * @return The combined mutator.
      */
     default IPositionMutator then(final IPositionMutator next) {
-        return input -> next.mutate(this.mutate(input));
+        return (input, size) -> next.mutate(this.mutate(input, size), size);
     }
 
     /**
@@ -42,7 +44,7 @@ public interface IPositionMutator
      * @return An identity position mutator.
      */
     static IPositionMutator identity() {
-        return input -> input;
+        return (input, size) -> input;
     }
 
     /**
@@ -52,7 +54,7 @@ public interface IPositionMutator
      * @return The identity mutator.
      */
     static IPositionMutator xyz() {
-        return input -> new Vec3i(input.getX(), input.getY(), input.getZ());
+        return (input, size) -> new Vec3i(input.getX(), input.getY(), input.getZ());
     }
 
     /**
@@ -61,7 +63,7 @@ public interface IPositionMutator
      * @return The mutator which switches the Y and Z coordinate members
      */
     static IPositionMutator xzy() {
-        return input -> new Vec3i(input.getX(), input.getZ(), input.getY());
+        return (input, size) -> new Vec3i(input.getX(), input.getZ(), input.getY());
     }
 
     /**
@@ -70,7 +72,7 @@ public interface IPositionMutator
      * @return The mutator which switches the X and Z coordinate members
      */
     static IPositionMutator zyx() {
-        return input -> new Vec3i(input.getZ(), input.getY(), input.getX());
+        return (input, size) -> new Vec3i(input.getZ(), input.getY(), input.getX());
     }
 
     /**
@@ -79,7 +81,7 @@ public interface IPositionMutator
      * @return The mutator which switches the X and Y coordinate members
      */
     static IPositionMutator yxz() {
-        return input -> new Vec3i(input.getY(), input.getX(), input.getZ());
+        return (input, size) -> new Vec3i(input.getY(), input.getX(), input.getZ());
     }
 
     /**
@@ -88,7 +90,7 @@ public interface IPositionMutator
      * @return The mutator which switches the X with the Z and then the Y with the moved X coordinate members
      */
     static IPositionMutator zxy() {
-        return input -> new Vec3i(input.getZ(), input.getX(), input.getY());
+        return (input, size) -> new Vec3i(input.getZ(), input.getX(), input.getY());
     }
 
     /**

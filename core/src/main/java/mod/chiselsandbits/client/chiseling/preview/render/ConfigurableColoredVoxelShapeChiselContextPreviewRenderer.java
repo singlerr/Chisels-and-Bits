@@ -17,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -42,22 +43,30 @@ public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implement
         double yView = Vec3.y();
         double zView = Vec3.z();
 
+        final VoxelShape renderedShape;
         final BlockPos inWorldStartPos = new BlockPos(currentContextSnapshot.getMutator().get().getInWorldStartPoint());
-        final VoxelShape boundingShape = VoxelShapeManager.getInstance()
-          .get(currentContextSnapshot.getMutator().get(),
-            currentContextSnapshot.getModeOfOperandus().isChiseling() ? CollisionType.NONE_AIR : CollisionType.ALL, //TODO: Handle the sphere shape adapter somehow...
-            false);
-
         final VoxelShape modeShape = currentContextSnapshot.getMode().getShape(currentContextSnapshot);
-        final VoxelShape renderedShape = Shapes.joinUnoptimized(boundingShape, modeShape, BooleanOp.AND);
+        LoggerFactory.getLogger(ConfigurableColoredVoxelShapeChiselContextPreviewRenderer.class).info("modeShape: " + modeShape);
+        VoxelShape boundingShape = null;
 
-        final List<? extends Float> color = currentContextSnapshot.getModeOfOperandus() == ChiselingOperation.CHISELING ?
-                                 IClientConfiguration.getInstance().getPreviewChiselingColor().get() :
-                                 IClientConfiguration.getInstance().getPreviewPlacementColor().get();
+        if (currentContextSnapshot.getMode().requiresRestrainingOfShape() || IClientConfiguration.getInstance().getMutatorPreviewDebug().get()) {
+            boundingShape = VoxelShapeManager.getInstance()
+                    .get(currentContextSnapshot.getMutator().get(),
+                            !currentContextSnapshot.getDisplayedModeOfOperandus().processesAir() ? CollisionType.NONE_AIR : CollisionType.ALL,
+                            false);
+        }
 
-        final List<? extends Float> mutatorColor = currentContextSnapshot.getModeOfOperandus() == ChiselingOperation.CHISELING ?
-                                              IClientConfiguration.getInstance().getMutatorPreviewChiselingColor().get() :
-                                              IClientConfiguration.getInstance().getMutatorPreviewPlacementColor().get();
+        if (currentContextSnapshot.getMode().requiresRestrainingOfShape()) {
+            renderedShape = Shapes.joinUnoptimized(boundingShape, modeShape, BooleanOp.AND);
+        }
+        else {
+            renderedShape = modeShape;
+        }
+
+
+
+        final List<? extends Float> color = getColor(currentContextSnapshot);
+        final List<? extends Float> mutatorColor = getMutatorColor(currentContextSnapshot);
 
         LevelRenderer.renderShape(
           poseStack,
@@ -96,6 +105,22 @@ public class ConfigurableColoredVoxelShapeChiselContextPreviewRenderer implement
             );
             Minecraft.getInstance().renderBuffers().bufferSource().endBatch(ModRenderTypes.MEASUREMENT_LINES.get());
         }
+    }
+
+    private static List<? extends Float> getMutatorColor(IChiselingContext currentContextSnapshot) {
+        return switch (currentContextSnapshot.getDisplayedModeOfOperandus()) {
+            case CHISELING -> IClientConfiguration.getInstance().getMutatorPreviewChiselingColor().get();
+            case PLACING -> IClientConfiguration.getInstance().getMutatorPreviewPlacementColor().get();
+            case ALTERATION -> IClientConfiguration.getInstance().getMutatorPreviewAlterationColor().get();
+        };
+    }
+
+    private static List<? extends Float> getColor(IChiselingContext currentContextSnapshot) {
+        return switch (currentContextSnapshot.getDisplayedModeOfOperandus()) {
+            case CHISELING -> IClientConfiguration.getInstance().getPreviewChiselingColor().get();
+            case PLACING -> IClientConfiguration.getInstance().getPreviewPlacementColor().get();
+            case ALTERATION -> IClientConfiguration.getInstance().getPreviewAlterationColor().get();
+        };
     }
 
     private static float getColorValue(final List<? extends Float> values, final int index, final float defaultValue) {

@@ -4,15 +4,19 @@ import com.communi.suggestu.scena.core.registries.ICustomRegistry;
 import com.communi.suggestu.scena.core.registries.deferred.ICustomRegistrar;
 import com.communi.suggestu.scena.core.registries.deferred.IRegistryObject;
 import mod.chiselsandbits.api.chiseling.mode.IChiselMode;
+import mod.chiselsandbits.api.map.bit.GaussianKernel1D;
+import mod.chiselsandbits.api.map.bit.GaussianKernel2D;
+import mod.chiselsandbits.api.map.bit.KernelBasedBitDepthMapFilter;
 import mod.chiselsandbits.api.util.LocalStrings;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.chiseling.modes.connected.material.ConnectedMaterialChiselingModeBuilder;
 import mod.chiselsandbits.chiseling.modes.connected.plane.ConnectedPlaneChiselingModeBuilder;
 import mod.chiselsandbits.chiseling.modes.cubed.CubedChiselModeBuilder;
+import mod.chiselsandbits.chiseling.modes.depthmap.DepthMapBasedChiselModeBuilder;
 import mod.chiselsandbits.chiseling.modes.draw.DrawnCubeChiselModeBuilder;
 import mod.chiselsandbits.chiseling.modes.draw.DrawnLineChiselModeBuilder;
 import mod.chiselsandbits.chiseling.modes.draw.DrawnWallChiselModeBuilder;
-import mod.chiselsandbits.chiseling.modes.line.LinedChiselModeBuilder;
+import mod.chiselsandbits.chiseling.modes.line.LineChiselModeBuilder;
 import mod.chiselsandbits.chiseling.modes.plane.PlaneChiselModeBuilder;
 import mod.chiselsandbits.chiseling.modes.replace.ReplaceChiselingModeBuilder;
 import mod.chiselsandbits.chiseling.modes.sphere.SphereChiselModeBuilder;
@@ -151,42 +155,42 @@ public final class ModChiselModes {
 
     public static final IRegistryObject<IChiselMode> LINE_ONE = MODE_REGISTRAR.register(
             "line_1",
-            () -> new LinedChiselModeBuilder()
+            () -> new LineChiselModeBuilder()
                     .setBitsPerSide(1)
                     .setDisplayName(LocalStrings.ChiselModeLine.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineLine.getText())
                     .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/line.png"))
-                    .createLinedChiselMode()
+                    .createLineChiselMode()
     );
 
     public static final IRegistryObject<IChiselMode> LINE_TWO = MODE_REGISTRAR.register(
             "line_2",
-            () -> new LinedChiselModeBuilder()
+            () -> new LineChiselModeBuilder()
                     .setBitsPerSide(2)
                     .setDisplayName(LocalStrings.ChiselModeLine2.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineLine2.getText())
                     .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/line2.png"))
-                    .createLinedChiselMode()
+                    .createLineChiselMode()
     );
 
     public static final IRegistryObject<IChiselMode> LINE_FOUR = MODE_REGISTRAR.register(
             "line_4",
-            () -> new LinedChiselModeBuilder()
+            () -> new LineChiselModeBuilder()
                     .setBitsPerSide(4)
                     .setDisplayName(LocalStrings.ChiselModeLine4.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineLine4.getText())
                     .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/line4.png"))
-                    .createLinedChiselMode()
+                    .createLineChiselMode()
     );
 
     public static final IRegistryObject<IChiselMode> LINE_EIGHT = MODE_REGISTRAR.register(
             "line_8",
-            () -> new LinedChiselModeBuilder()
+            () -> new LineChiselModeBuilder()
                     .setBitsPerSide(8)
                     .setDisplayName(LocalStrings.ChiselModeLine8.getText())
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineLine8.getText())
                     .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/line8.png"))
-                    .createLinedChiselMode()
+                    .createLineChiselMode()
     );
 
     public static final IRegistryObject<IChiselMode> PLANE_ONE = MODE_REGISTRAR.register(
@@ -343,6 +347,17 @@ public final class ModChiselModes {
                     .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineReplace.getText())
                     .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/replace.png"))
                     .createReplaceChiselingMode()
+    );
+
+    public static final IRegistryObject<IChiselMode> SMOOTH = MODE_REGISTRAR.register(
+            "smooth",
+            () -> new DepthMapBasedChiselModeBuilder()
+                    .setDisplayName(LocalStrings.ChiselModeSmooth.getText())
+                    .setMultiLineDisplayName(LocalStrings.ChiselModeMultiLineSmooth.getText())
+                    .setIconName(new ResourceLocation(Constants.MOD_ID, "textures/icons/replace.png"))
+                    .withFilter(new KernelBasedBitDepthMapFilter(new GaussianKernel1D(3, 1, GaussianKernel1D.KernelAxis.HORIZONTAL)))
+                    .withFilter(new KernelBasedBitDepthMapFilter(new GaussianKernel1D(3, 1, GaussianKernel1D.KernelAxis.VERTICAL)))
+                    .createDepthMapChiselMode()
     );
 
     public static Supplier<ICustomRegistry<IChiselMode>> REGISTRY =

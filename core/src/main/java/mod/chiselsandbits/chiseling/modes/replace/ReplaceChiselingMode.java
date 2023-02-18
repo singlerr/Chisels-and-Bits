@@ -267,6 +267,8 @@ public class ReplaceChiselingMode extends AbstractCustomRegistryEntry implements
         context.setMetadata(ModMetadataKeys.TARGETED_SIDE.get(), blockHitResult.getDirection());
         context.setMetadata(ModMetadataKeys.TARGETED_BLOCK.get(), hitPos);
 
+        context.setDisplayedModeOfOperandus(ChiselingOperation.ALTERATION);
+
         return Optional.empty();
     }
 

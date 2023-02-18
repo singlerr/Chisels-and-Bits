@@ -171,8 +171,9 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     {
         load();
 
+        final AABB size = StateEntrySize.current().getBoundingBox();
         return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
-          .map(positionMutator::mutate)
+          .map(pos -> positionMutator.mutate(pos, size))
           .map(blockPos -> new StateEntry(
             this.lazyChunkSection.getBlockInformation(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
             blockPos,
@@ -205,8 +206,9 @@ public class LazilyDecodingSingleBlockMultiStateSnapshot implements IMultiStateS
     {
         load();
 
+        final AABB size = StateEntrySize.current().getBoundingBox();
         BlockPosForEach.forEachInRange(StateEntrySize.current().getBitsPerBlockSide(), (blockPos) -> {
-            final Vec3i target = positionMutator.mutate(blockPos);
+            final Vec3i target = positionMutator.mutate(blockPos, size);
             consumer.accept(new StateEntry(
               this.lazyChunkSection.getBlockInformation(target.getX(), target.getY(), target.getZ()),
               target,

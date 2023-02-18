@@ -3,6 +3,7 @@ package mod.chiselsandbits.registrars;
 import com.communi.suggestu.scena.core.registries.ICustomRegistry;
 import com.communi.suggestu.scena.core.registries.deferred.ICustomRegistrar;
 import mod.chiselsandbits.api.chiseling.metadata.IMetadataKey;
+import mod.chiselsandbits.api.map.bit.IBitDepthMap;
 import mod.chiselsandbits.api.util.constants.Constants;
 import mod.chiselsandbits.chiseling.metadata.SimpleMetadataKey;
 import net.minecraft.core.BlockPos;
@@ -80,6 +81,15 @@ public final class ModMetadataKeys
         public Direction.Axis snapshot(final Direction.Axis value)
         {
             return value;
+        }
+    });
+
+    public static final Supplier<IMetadataKey<IBitDepthMap>> TARGETED_DEPTH_MAP = KEY_REGISTRAR.register("targeted_depth_map", () -> new SimpleMetadataKey<>()
+    {
+        @Override
+        public IBitDepthMap snapshot(final IBitDepthMap value)
+        {
+            return value.snapshot();
         }
     });
 

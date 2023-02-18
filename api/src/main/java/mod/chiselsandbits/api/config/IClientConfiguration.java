@@ -85,6 +85,13 @@ public interface IClientConfiguration
     Supplier<List<? extends Float>> getPreviewPlacementColor();
 
     /**
+     * Provides the RGBA color channels for the color of the alteration outline.
+     *
+     * @return A configuration supplier that indicates the current alteration outline color.
+     */
+    Supplier<List<? extends Float>> getPreviewAlterationColor();
+
+    /**
      * Indicates which preview renderer should be used.
      * Returns the id of the preview renderer.
      *
@@ -213,6 +220,13 @@ public interface IClientConfiguration
      * @return A configuration supplier which indicates the color used during debug rendering of the mutator area when placing.
      */
     Supplier<List<? extends Float>> getMutatorPreviewPlacementColor();
+
+    /**
+     * Determines the color used during debug rendering of the mutator area when altering.
+     *
+     * @return A configuration supplier which indicates the color used during debug rendering of the mutator area when altering.
+     */
+    Supplier<List<? extends Float>> getMutatorPreviewAlterationColor();
 
     /**
      * Indicates if the preview rendering should run in debug mode.

@@ -4,6 +4,7 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessor;
 import mod.chiselsandbits.api.util.BlockPosStreamProvider;
 import mod.chiselsandbits.api.util.IWorldObject;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.stream.Stream;
 
@@ -43,5 +44,10 @@ public interface IWorldAreaAccessor extends IAreaAccessor, IWorldObject
           startPos.getX(), startPos.getY(), startPos.getZ(),
           endPos.getX(), endPos.getY(), endPos.getZ()
         );
+    }
+
+    @Override
+    default Vec3 getLocalizedOffset() {
+        return getInWorldStartPoint();
     }
 }

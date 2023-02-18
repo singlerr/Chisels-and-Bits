@@ -438,8 +438,9 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     @Override
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
     {
+        final AABB size = StateEntrySize.current().getBoundingBox();
         return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
-                 .map(positionMutator::mutate)
+                 .map(pos -> positionMutator.mutate(pos, size))
                  .map(blockPos -> new StateEntry(
                      this.compressedSection.getBlockInformation(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
                      blockPos,
@@ -453,8 +454,9 @@ public class SingleBlockMultiStateItemStack implements IMultiStateItemStack
     public void forEachWithPositionMutator(
       final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer)
     {
+        final AABB size = StateEntrySize.current().getBoundingBox();
         BlockPosForEach.forEachInRange(StateEntrySize.current().getBitsPerBlockSide(), (BlockPos blockPos) -> {
-            final Vec3i pos = positionMutator.mutate(blockPos);
+            final Vec3i pos = positionMutator.mutate(blockPos, size);
             consumer.accept(new StateEntry(
               this.compressedSection.getBlockInformation(pos.getX(), pos.getY(), pos.getZ()),
               pos,

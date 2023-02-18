@@ -15,7 +15,13 @@ public enum ChiselingOperation
      * The current operation is a bit.
      * As such it places the bit underneath the cursor.
      */
-    PLACING(true);
+    PLACING(true),
+
+    /**
+     * The current operation is an alteration.
+     * It requires a bit to be held but might alter the bit underneath the cursor, or surrounding bits.
+     */
+    ALTERATION(true);
 
     private final boolean processesAir;
 
@@ -47,5 +53,14 @@ public enum ChiselingOperation
      */
     public boolean isPlacing() {
         return this == PLACING;
+    }
+
+    /**
+     * Indicates if the current mode is an alteration mode.
+     *
+     * @return True when this is an alteration mode, false otherwise.
+     */
+    public boolean isAlteration() {
+        return this == ALTERATION;
     }
 }

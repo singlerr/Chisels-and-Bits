@@ -43,6 +43,8 @@ public class ClientConfiguration implements IClientConfiguration
     private final Supplier<String>                     patternExportPath;
     private final Supplier<Boolean> showCoolDownError;
     private final Supplier<Long> cullTestingCacheSize;
+    private final Supplier<List<? extends Float>> previewAlterationColor;
+    private final Supplier<List<? extends Float>> mutatorPreviewAlterationColor;
 
     public ClientConfiguration()
     {
@@ -56,10 +58,12 @@ public class ClientConfiguration implements IClientConfiguration
         missingBitsOrSpacePatternPlacementColor = builder.defineVector4f("settings.placement.color.missing-bits-or-space", new Vector4f(255/255f, 219/255f, 88/255f, 180/255f));
         previewChiselingColor = builder.defineList("settings.chiseling-previews.default.colors.chiseling", Lists.newArrayList(0.85f, 0.0f, 0.0f, 0.65f), Float.class);
         previewPlacementColor = builder.defineList("settings.chiseling-previews.default.colors.placement", Lists.newArrayList(0.0f, 0.85f, 0.0f, 0.65f), Float.class);
+        previewAlterationColor = builder.defineList("settings.chiseling-previews.default.colors.alteration", Lists.newArrayList(0.4f, 0.6f, 0.9f, 0.65f), Float.class);
         previewRenderer = builder.defineString("settings.chiseling-previews.renderer", Constants.MOD_ID + ":default");
         mutatorPreviewDebug = builder.defineBoolean("settings.chiseling-previews.debug.enabled", false);
         mutatorPreviewChiselingColor = builder.defineList("settings.chiseling-previews.debug.mutator.colors.chiseling", Lists.newArrayList(0.0f, 0.0f, 0.85f, 0.65f), Float.class);
         mutatorPreviewPlacementColor = builder.defineList("settings.chiseling-previews.debug.mutator.colors.placement", Lists.newArrayList(0.85f, 0.85f, 0.0f, 0.65f), Float.class);
+        mutatorPreviewAlterationColor = builder.defineList("settings.chiseling-previews.debug.mutator.colors.alteration", Lists.newArrayList(0.05f, 0.075f, 0.2f, 0.65f), Float.class);
         toolModeRenderer = builder.defineString("settings.selected-tool-mode-icons.renderer", Constants.MOD_ID + ":group");
         invertPickBlockBehaviour = builder.defineBoolean("settings.invert-pick-block-behaviour", false);
         clipboardSize = builder.defineInteger("settings.clipboard.size", 64, 0, 64);
@@ -127,6 +131,11 @@ public class ClientConfiguration implements IClientConfiguration
     public Supplier<List<? extends Float>> getPreviewPlacementColor()
     {
         return previewPlacementColor;
+    }
+
+    @Override
+    public Supplier<List<? extends Float>> getPreviewAlterationColor() {
+        return previewAlterationColor;
     }
 
     @Override
@@ -234,6 +243,11 @@ public class ClientConfiguration implements IClientConfiguration
     public Supplier<List<? extends Float>> getMutatorPreviewPlacementColor()
     {
         return mutatorPreviewPlacementColor;
+    }
+
+    @Override
+    public Supplier<List<? extends Float>> getMutatorPreviewAlterationColor() {
+        return mutatorPreviewAlterationColor;
     }
 
     @Override

@@ -38,4 +38,13 @@ public interface IStateAccessor
       BlockPos inAreaBlockPosOffset,
       Vec3 inBlockTarget
     );
+
+    /**
+     * The default in area offset for this accessor.
+     *
+     * @return The default in area offset.
+     */
+    default Vec3 getLocalizedOffset() {
+        return Vec3.ZERO;
+    }
 }

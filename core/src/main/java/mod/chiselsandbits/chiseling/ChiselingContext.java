@@ -33,6 +33,7 @@ public class ChiselingContext implements IChiselingContext
     private final LevelAccessor             world;
     private final IChiselMode        chiselMode;
     private final ChiselingOperation modeOfOperandus;
+    private ChiselingOperation displayModeOfOperandus;
     private final boolean            simulation;
     private final Runnable           onCompleteCallback;
     private final boolean      supportsDamaging;
@@ -59,6 +60,7 @@ public class ChiselingContext implements IChiselingContext
         this.simulation = simulation;
         this.onCompleteCallback = onCompleteCallback;
         this.modeOfOperandus = modeOfOperandus;
+        this.displayModeOfOperandus = modeOfOperandus;
         this.causingItemStack = causingItemStack;
 
         if (this.causingItemStack.getItem() instanceof IChiselingItem) {
@@ -207,6 +209,17 @@ public class ChiselingContext implements IChiselingContext
     public @NotNull ChiselingOperation getModeOfOperandus()
     {
         return modeOfOperandus;
+    }
+
+    @Override
+    public @NotNull ChiselingOperation getDisplayedModeOfOperandus() {
+        return displayModeOfOperandus;
+    }
+
+    @Override
+    public IChiselingContext setDisplayedModeOfOperandus(@NotNull ChiselingOperation modeOfOperandus) {
+        this.displayModeOfOperandus = modeOfOperandus;
+        return this;
     }
 
     @Override

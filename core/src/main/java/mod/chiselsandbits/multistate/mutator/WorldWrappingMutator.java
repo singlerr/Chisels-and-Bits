@@ -9,6 +9,7 @@ import mod.chiselsandbits.api.multistate.accessor.IAreaAccessorWithVoxelShape;
 import mod.chiselsandbits.api.multistate.accessor.IStateEntryInfo;
 import mod.chiselsandbits.api.multistate.accessor.identifier.IAreaShapeIdentifier;
 import mod.chiselsandbits.api.multistate.accessor.sortable.IPositionMutator;
+import mod.chiselsandbits.api.multistate.accessor.world.IInWorldStateEntryInfo;
 import mod.chiselsandbits.api.multistate.mutator.IMutableStateEntryInfo;
 import mod.chiselsandbits.api.util.IBatchMutation;
 import mod.chiselsandbits.api.multistate.mutator.world.IInWorldMutableStateEntryInfo;
@@ -129,7 +130,16 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
             return Optional.empty();
 
         return new ChiselAdaptingWorldMutator(getWorld(), inAreaBlockPosOffset)
-                                                     .getInAreaTarget(inBlockTarget);
+                                                     .getInAreaTarget(inBlockTarget)
+                .map(e -> {
+                    if (e instanceof IInWorldMutableStateEntryInfo inWorldMutableStateEntryInfo) {
+                        return new InWorldMutableEntry(inWorldMutableStateEntryInfo);
+                    } else if (e instanceof IInWorldStateEntryInfo inWorldStateEntryInfo) {
+                        return new InWorldEntry(inWorldStateEntryInfo);
+                    }
+
+                    return new Entry(e, inAreaBlockPosOffset);
+                });
     }
 
     /**
@@ -184,11 +194,14 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
     {
+        final Vec3 min = getInWorldStartPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
+        final Vec3 max = getInWorldEndPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
+        final AABB aabb = new AABB(min, max);
+
         return BlockPosStreamProvider.getForRange(
-          getInWorldStartPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
-          getInWorldEndPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide())
+          min, max
         )
-                 .map(positionMutator::mutate)
+                 .map(pos -> positionMutator.mutate(pos, aabb))
                  .map(position -> Vec3.atLowerCornerOf(position).multiply(StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit(), StateEntrySize.current().getSizePerBit()))
                  .map(position -> {
                      final BlockPos blockPos = new BlockPos(position);
@@ -204,14 +217,22 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     public void forEachWithPositionMutator(
       final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer)
     {
+        final Vec3 min = getInWorldStartPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
+        final Vec3 max = getInWorldEndPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide());
+        final AABB aabb = new AABB(min, max);
+
+        final BlockPos minPos = new BlockPos(min);
+
         BlockPosForEach.forEachInRange(
-          getInWorldStartPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
-          getInWorldEndPoint().multiply(StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide(), StateEntrySize.current().getBitsPerBlockSide()),
+          min, max,
           blockPos -> {
-              final Vec3i target = positionMutator.mutate(blockPos);
+              final BlockPos relativeFromMin = blockPos.subtract(minPos);
+              final Vec3i mutatedPos = positionMutator.mutate(relativeFromMin, aabb);
+              final Vec3i target = mutatedPos.offset(minPos.getX(), minPos.getY(), minPos.getZ());
+
               final Vec3 scaledTarget = Vec3.atLowerCornerOf(target).multiply(StateEntrySize.current().getSizePerBitScalingVector());
 
-              final BlockPos position = new BlockPos(blockPos);
+              final BlockPos position = new BlockPos(scaledTarget);
               final Vec3 inBlockOffset = scaledTarget.subtract(Vec3.atLowerCornerOf(position));
 
               final Optional<IStateEntryInfo> targetCandidate = getInBlockTarget(position, inBlockOffset);
@@ -229,13 +250,13 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     @Override
     public Vec3 getInWorldStartPoint()
     {
-        return startPoint;
+        return StateEntrySize.current().toBitPosition(startPoint);
     }
 
     @Override
     public Vec3 getInWorldEndPoint()
     {
-        return endPoint;
+        return StateEntrySize.current().toBitPosition(endPoint).add(StateEntrySize.current().getSizePerBitScalingVector()).subtract(0.000001, 0.000001, 0.000001);
     }
 
     /**
@@ -397,7 +418,7 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
           getWorld(), position
         );
 
-        return innerMutator.inWorldMutableStream();
+        return innerMutator.inWorldMutableStream().map(InWorldMutableEntry::new);
     }
 
     /**
@@ -488,8 +509,8 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
     public @NotNull AABB getBoundingBox()
     {
         return new AABB(
-          startPoint,
-          endPoint
+          getInWorldStartPoint(),
+          getInWorldEndPoint()
         );
     }
 
@@ -540,6 +561,103 @@ public class WorldWrappingMutator implements IWorldAreaMutator, IAreaAccessorWit
         public int hashCode()
         {
             return Objects.hash(inners, startPoint, endPoint);
+        }
+    }
+
+    private class Entry implements IStateEntryInfo {
+
+        private final IStateEntryInfo delegate;
+        private final BlockPos offset;
+
+        private Entry(IStateEntryInfo delegate, BlockPos offset) {
+            this.delegate = delegate;
+            this.offset = offset;
+        }
+
+        @Override
+        public @NotNull IBlockInformation getBlockInformation() {
+            return delegate.getBlockInformation();
+        }
+
+        @Override
+        public @NotNull Vec3 getStartPoint() {
+            final Vec3 offsetPos = new Vec3(offset.getX(), offset.getY(), offset.getZ());
+            return delegate.getStartPoint().add(offsetPos).subtract(WorldWrappingMutator.this.getInWorldStartPoint());
+        }
+
+        @Override
+        public @NotNull Vec3 getEndPoint() {
+            final Vec3 offsetPos = new Vec3(offset.getX(), offset.getY(), offset.getZ());
+            return delegate.getEndPoint().add(offsetPos).subtract(WorldWrappingMutator.this.getInWorldStartPoint());
+        }
+    }
+
+    private class InWorldEntry implements IInWorldStateEntryInfo {
+
+        private final IInWorldStateEntryInfo delegate;
+
+        private InWorldEntry(IInWorldStateEntryInfo delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public @NotNull IBlockInformation getBlockInformation() {
+            return delegate.getBlockInformation();
+        }
+
+        @Override
+        public @NotNull Vec3 getStartPoint() {
+            return delegate.getInWorldStartPoint().subtract(WorldWrappingMutator.this.getInWorldStartPoint());
+        }
+
+        @Override
+        public @NotNull Vec3 getEndPoint() {
+            return delegate.getInWorldEndPoint().subtract(WorldWrappingMutator.this.getInWorldStartPoint());
+        }
+
+        @Override
+        public Vec3 getInWorldStartPoint() {
+            return delegate.getInWorldStartPoint();
+        }
+
+        @Override
+        public Vec3 getInWorldEndPoint() {
+            return delegate.getInWorldEndPoint();
+        }
+
+        @Override
+        public Vec3 getInWorldCenterPoint() {
+            return delegate.getInWorldCenterPoint();
+        }
+
+        @Override
+        public BlockPos getBlockPos() {
+            return delegate.getBlockPos();
+        }
+
+        @Override
+        public LevelAccessor getWorld() {
+            return delegate.getWorld();
+        }
+    }
+
+    private class InWorldMutableEntry extends InWorldEntry implements IInWorldMutableStateEntryInfo {
+
+        private final IInWorldMutableStateEntryInfo delegate;
+
+        private InWorldMutableEntry(IInWorldMutableStateEntryInfo delegate) {
+            super(delegate);
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void setBlockInformation(IBlockInformation blockInformation) throws SpaceOccupiedException {
+            delegate.setBlockInformation(blockInformation);
+        }
+
+        @Override
+        public void clear() {
+            delegate.clear();
         }
     }
 }

@@ -41,14 +41,14 @@ import java.util.function.Function;
 import static mod.chiselsandbits.block.entities.ChiseledBlockEntity.ONE_THOUSANDS;
 
 @SuppressWarnings("deprecation")
-public class LinedChiselMode extends AbstractCustomRegistryEntry implements IChiselMode
+public class LineChiselMode extends AbstractCustomRegistryEntry implements IChiselMode
 {
     private final int              bitsPerSide;
     private final MutableComponent displayName;
     private final MutableComponent multiLineDisplayName;
     private final ResourceLocation iconName;
 
-    LinedChiselMode(
+    LineChiselMode(
       final int bitsPerSide,
       final MutableComponent displayName,
       final MutableComponent multiLineDisplayName,

@@ -55,5 +55,9 @@ public class MultiStateBlockEntityDiscreteVoxelShape extends BitSetDiscreteVoxel
                 }
             }
         }
+
+        this.xMax += 1;
+        this.yMax += 1;
+        this.zMax += 1;
     }
 }

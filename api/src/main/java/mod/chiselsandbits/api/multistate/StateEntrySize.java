@@ -1,13 +1,16 @@
 package mod.chiselsandbits.api.multistate;
 
 import mod.chiselsandbits.api.IChiselsAndBitsAPI;
+import mod.chiselsandbits.api.aabb.IAABBOwner;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * The size of state entries in the current instance.
  */
-public enum StateEntrySize
+public enum StateEntrySize implements IAABBOwner
 {
     /**
      * 16 Bits per block.
@@ -184,16 +187,22 @@ public enum StateEntrySize
     }
 
     /**
-     * Takes in a 3D vector and rounds its components down to the nearest multiple of the size of a single bit.
+     * Takes in a 3D vector and maps its components to the nearest multiple of the size of a single bit.
      *
      * @param pos The position to round down.
      * @return The rounded down position.
      */
-    public Vec3 roundDownToNearest(Vec3 pos) {
+    public Vec3 toBitPosition(Vec3 pos) {
         return new Vec3(
-          Math.floor(pos.x * getBitsPerBlockSide()) / getBitsPerBlockSide(),
-          Math.floor(pos.y * getBitsPerBlockSide()) / getBitsPerBlockSide(),
-          Math.floor(pos.z * getBitsPerBlockSide()) / getBitsPerBlockSide()
+                ((int) (pos.x * getBitsPerBlockSide())) / (float) getBitsPerBlockSide(),
+                ((int) (pos.y * getBitsPerBlockSide())) / (float) getBitsPerBlockSide(),
+                ((int) (pos.z * getBitsPerBlockSide())) / (float) getBitsPerBlockSide()
         );
     }
+
+    @Override
+    public @NotNull AABB getBoundingBox() {
+        return new AABB(0, 0, 0, StateEntrySize.current().bitsPerBlockSide, StateEntrySize.current().bitsPerBlockSide, StateEntrySize.current().bitsPerBlockSide);
+    }
+
 }

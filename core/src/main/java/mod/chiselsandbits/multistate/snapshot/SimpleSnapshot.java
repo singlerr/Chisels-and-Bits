@@ -119,8 +119,9 @@ public class SimpleSnapshot implements IMultiStateSnapshot
     @Override
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator)
     {
+        final AABB size = StateEntrySize.current().getBoundingBox();
         return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
-          .map(positionMutator::mutate)
+          .map(pos -> positionMutator.mutate(pos, size))
           .map(blockPos -> new SimpleSnapshot.StateEntry(
             this.chunkSection.getBlockInformation(blockPos.getX(), blockPos.getY(), blockPos.getZ()),
             blockPos,
@@ -169,8 +170,9 @@ public class SimpleSnapshot implements IMultiStateSnapshot
     public void forEachWithPositionMutator(
       final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer)
     {
+        final AABB size = StateEntrySize.current().getBoundingBox();
         BlockPosForEach.forEachInRange(StateEntrySize.current().getBitsPerBlockSide(), (blockPos) -> {
-            final Vec3i target = positionMutator.mutate(blockPos);
+            final Vec3i target = positionMutator.mutate(blockPos, size);
             consumer.accept(new SimpleSnapshot.StateEntry(
               this.chunkSection.getBlockInformation(target.getX(), target.getY(), target.getZ()),
               target,

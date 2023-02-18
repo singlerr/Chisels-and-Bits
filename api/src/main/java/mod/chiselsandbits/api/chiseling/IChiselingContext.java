@@ -123,6 +123,23 @@ public interface IChiselingContext extends IStateAccessor
     ChiselingOperation getModeOfOperandus();
 
     /**
+     * Indicates what kind of chiseling operation this context represents to the user.
+     * This indicates if the mode is used for chiseling, placing or alteration.
+     *
+     * @return {@link ChiselingOperation#CHISELING} when the context is used for breaking blocks, {@link ChiselingOperation#PLACING} for bit placement, or {@link ChiselingOperation#ALTERATION} for bit alteration.
+     */
+    @NotNull
+    ChiselingOperation getDisplayedModeOfOperandus();
+
+    /**
+     * Sets the displayed mode of operandus for this context.
+     *
+     * @param modeOfOperandus The new mode of operandus.
+     * @return The context.
+     */
+    IChiselingContext setDisplayedModeOfOperandus(@NotNull final ChiselingOperation modeOfOperandus);
+
+    /**
      * Creates a deep copy of the context, so that the copy can be modified, without modifying this instance.
      * A snapshot is automatically a simulation.
      *

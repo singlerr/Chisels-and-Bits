@@ -268,8 +268,9 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
         if (IEligibilityManager.getInstance().canBeChiseled(blockInformation) ||
               currentState.isAir())
         {
+            final AABB size = StateEntrySize.current().getBoundingBox();
             return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
-                     .map(positionMutator::mutate)
+                     .map(pos -> positionMutator.mutate(pos, size))
                      .map(blockPos -> new MutablePreAdaptedStateEntry(
                          blockInformation,
                          getWorld(),
@@ -309,8 +310,9 @@ public class ChiselAdaptingWorldMutator implements IWorldAreaMutator, IAreaAcces
         if (IEligibilityManager.getInstance().canBeChiseled(blockInformation) ||
               currentState.isAir())
         {
+            final AABB size = StateEntrySize.current().getBoundingBox();
             BlockPosForEach.forEachInRange(StateEntrySize.current().getBitsPerBlockSide(), (BlockPos blockPos) -> {
-                final Vec3i target = positionMutator.mutate(blockPos);
+                final Vec3i target = positionMutator.mutate(blockPos, size);
                 consumer.accept(new MutablePreAdaptedStateEntry(
                   blockInformation,
                   getWorld(),

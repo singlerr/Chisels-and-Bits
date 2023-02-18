@@ -34,6 +34,14 @@ public class BlockPosUtils
     }
 
     public static int getCollisionIndex(final int x, final int y, final int z, final int ySize, final int zSize) {
+        if (x < 0 || y < 0 || z < 0) {
+            throw new IllegalArgumentException("x, y and z must be positive: " + x + ", " + y + ", " + z);
+        }
+
+        if (y >= ySize || z >= zSize) {
+            throw new IllegalArgumentException("y and z must be smaller than the size: " + y + ", " + z + ", " + ySize + ", " + zSize);
+        }
+
         return x * (ySize * zSize) +
                  y * (zSize) +
                  z;

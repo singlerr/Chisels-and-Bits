@@ -229,6 +229,10 @@ subprojects { subProject ->
 
     subProject.dependencies.compileOnly "org.jetbrains:annotations:${project.jetbrainsAnnotationsVersion}"
     subProject.dependencies.testCompileOnly "org.jetbrains:annotations:${project.jetbrainsAnnotationsVersion}"
+    subProject.dependencies.testImplementation "org.junit.jupiter:junit-jupiter-api:${project.junitVersion}"
+    subProject.dependencies.testImplementation "org.junit.jupiter:junit-jupiter-engine:${project.junitVersion}"
+
+    subProject.test.useJUnitPlatform()
 
     tasks.withType(Javadoc.class, {task ->
         task.options.tags(

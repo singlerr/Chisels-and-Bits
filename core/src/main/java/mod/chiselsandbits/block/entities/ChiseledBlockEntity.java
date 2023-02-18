@@ -616,10 +616,11 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
     @Override
     public Stream<IStateEntryInfo> streamWithPositionMutator(final IPositionMutator positionMutator) {
+        final AABB size = StateEntrySize.current().getBoundingBox();
         return BlockPosStreamProvider.getForRange(StateEntrySize.current().getBitsPerBlockSide())
                 .map(blockPos ->
                         {
-                            final Vec3i pos = positionMutator.mutate(blockPos);
+                            final Vec3i pos = positionMutator.mutate(blockPos, size);
                             return new StateEntry(
                                     storage.getBlockInformation(pos.getX(), pos.getY(), pos.getZ()),
                                     getLevel(),
@@ -634,9 +635,10 @@ public class ChiseledBlockEntity extends BlockEntity implements
     @Override
     public void forEachWithPositionMutator(
             final IPositionMutator positionMutator, final Consumer<IStateEntryInfo> consumer) {
+        final AABB size = StateEntrySize.current().getBoundingBox();
         BlockPosForEach.forEachInRange(StateEntrySize.current().getBitsPerBlockSide(), (BlockPos blockPos) ->
         {
-            final Vec3i pos = positionMutator.mutate(blockPos);
+            final Vec3i pos = positionMutator.mutate(blockPos, size);
             consumer.accept(new StateEntry(
                     storage.getBlockInformation(pos.getX(), pos.getY(), pos.getZ()),
                     getLevel(),
