@@ -55,6 +55,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -92,7 +94,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
     private IBlockModelData modelData = IModelDataBuilder.create().build();
     private CompoundTag lastTag = null;
     private CompletableFuture<Void> storageFuture = null;
-    private List<CompoundTag> deserializationQueue = Collections.synchronizedList(Lists.newArrayList());
+    private final List<CompoundTag> deserializationQueue = Collections.synchronizedList(Lists.newArrayList());
 
     public ChiseledBlockEntity(BlockPos position, BlockState state) {
         super(ModBlockEntityTypes.CHISELED.get(), position, state);
@@ -106,7 +108,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
     private static Executor createDefaultExecutor() {
         return DistExecutor.unsafeRunForDist(
                 () -> Minecraft::getInstance,
-                () -> IScenaPlatform.getInstance()::getCurrentServer
+                () -> () -> new ServerSchedulingExecutor(IScenaPlatform.getInstance().getCurrentServer())
         );
     }
 
@@ -118,7 +120,7 @@ public class ChiseledBlockEntity extends BlockEntity implements
 
     private Executor getExecutor() {
         if (getLevel() != null && getLevel().getServer() != null)
-            return getLevel().getServer();
+            return new ServerSchedulingExecutor(getLevel().getServer());
 
         return createDefaultExecutor();
     }
@@ -1798,6 +1800,20 @@ public class ChiseledBlockEntity extends BlockEntity implements
         }
 
         private record Payload(IStateEntryStorage storage, MutableStatistics mutableStatistics) {
+        }
+    }
+
+    private static final class ServerSchedulingExecutor implements Executor {
+
+        private final MinecraftServer server;
+
+        private ServerSchedulingExecutor(MinecraftServer server) {
+            this.server = server;
+        }
+
+        @Override
+        public void execute(@NotNull Runnable command) {
+            server.tell(new TickTask(server.getTickCount(), command));
         }
     }
 }
