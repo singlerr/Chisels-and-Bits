@@ -40,6 +40,12 @@ public class ModBlockTagGenerator extends BlockTagsProvider
                         .map(IRegistryObject::get)
                         .toArray(Block[]::new)
         );
+
+        this.tag(BlockTags.MINEABLE_WITH_PICKAXE).add(ModBlocks.CHISELED_PRINTER.get());
+        this.tag(BlockTags.MINEABLE_WITH_AXE).add(ModBlocks.MODIFICATION_TABLE.get())
+                .add(ModBlocks.BIT_STORAGE.get())
+                .add(ModBlocks.PATTERN_SCANNER.get());
+
     }
 
     @Override

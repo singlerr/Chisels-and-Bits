@@ -11,6 +11,7 @@
   "mod.chiselsandbits.config.mod.scena.config.performance.caches.sizes.block-faces.comment": "",
   "mod.chiselsandbits.config.mod.scena.config.performance.caches.sizes.block-models.comment": "",
   "mod.chiselsandbits.config.mod.scena.config.performance.caches.sizes.collision-boxes.comment": "",
+  "mod.chiselsandbits.config.mod.scena.config.performance.caches.sizes.cull-testing.comment": "",
   "mod.chiselsandbits.config.mod.scena.config.performance.caches.sizes.stack-models.comment": "",
   "mod.chiselsandbits.config.mod.scena.config.performance.lighting.extract-lighting-values-from-blockstates.comment": "",
   "mod.chiselsandbits.config.mod.scena.config.performance.lighting.extract-lighting-values-from-faces.comment": "",
