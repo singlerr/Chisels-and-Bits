@@ -301,10 +301,10 @@ public final class FaceManager {
                     v.withVertexIndex(1).withX(0).withY(0).withZ(0).withU(minU).withV(maxV);
                 });
                 builder.withVertexData(v -> {
-                    v.withVertexIndex(2).withX(1).withY(0).withZ(1).withU(maxU).withV(maxV);
+                    v.withVertexIndex(3).withX(1).withY(0).withZ(1).withU(maxU).withV(maxV);
                 });
                 builder.withVertexData(v -> {
-                    v.withVertexIndex(3).withX(1).withY(0).withZ(0).withU(maxU).withV(minV);
+                    v.withVertexIndex(2).withX(1).withY(0).withZ(0).withU(maxU).withV(minV);
                 });
             }
             case UP -> {
