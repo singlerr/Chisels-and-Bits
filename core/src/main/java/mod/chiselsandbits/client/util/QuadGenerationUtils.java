@@ -27,7 +27,12 @@ public final class QuadGenerationUtils {
         if (quadLayers != null) {
             for (final ModelQuadLayer layer : quadLayers) {
 
-                final Collection<VertexData> adaptedVertices = VertexDataUtils.adaptVertices(layer.vertexData(), cullDirection, from, to);
+                final Collection<VertexData> adaptedVertices;
+                try {
+                    adaptedVertices = VertexDataUtils.adaptVertices(layer.vertexData(), cullDirection, from, to);
+                } catch (IllegalStateException e) {
+                    continue;
+                }
 
                 final BakedQuadAdapter adapter = new BakedQuadAdapter(adaptedVertices, layer.color());
                 LightUtil.put(adapter, layer.sourceQuad());
